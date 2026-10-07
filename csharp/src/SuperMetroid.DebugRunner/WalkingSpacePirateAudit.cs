@@ -23,7 +23,7 @@ internal static class WalkingSpacePirateAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
 
         VerifyDefinitionsAndRetailPopulation(bus, room);
         VerifyUntouchedInitialization(bus, room, assets);
@@ -665,7 +665,7 @@ internal static class WalkingSpacePirateAudit
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -684,8 +684,8 @@ internal static class WalkingSpacePirateAudit
             enemies,
             samus,
             pirates,
-            new SamusProjectileSystem(),
-            new SamusBombProjectileSystem());
+            RepositoryInstallation.CreateProjectileSystem(),
+            RepositoryInstallation.CreateBombSystem());
     }
 
     private static void Prime(LoadedPirates loaded, CartridgeRoomAssets assets) =>

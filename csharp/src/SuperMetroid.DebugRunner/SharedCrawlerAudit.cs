@@ -36,12 +36,12 @@ internal static class SharedCrawlerAudit
         foreach (RetailCase retailCase in Cases)
         {
             CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, retailCase.RoomHeader);
-            CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+            CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
             var vram = new SnesVram();
             var cgram = new SnesCgram();
             assets.LoadGraphics(vram, cgram);
             var random = new Bank80SystemState();
-            var enemies = new RoomEnemySystem();
+            var enemies = RepositoryInstallation.CreateEnemySystem();
             enemies.Load(
                 bus,
                 room.State.EnemyPopulationPointer,

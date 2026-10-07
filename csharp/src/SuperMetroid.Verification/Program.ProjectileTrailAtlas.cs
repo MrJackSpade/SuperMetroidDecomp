@@ -77,7 +77,7 @@ internal static partial class Program
         saved.Position = 0;
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Runtime.SuperMetroidRuntime>(saved);
         AssertTrue(restored.TrailArtwork is null, "State does not embed selected trail PNGs");
-        runtimeFixtureBindings.Value(restored);
+        BindRetailRuntimeFixture(restored);
         restored.TrailArtwork = catalog;
         restored.RunNmi(0, true);
         Check(restored);

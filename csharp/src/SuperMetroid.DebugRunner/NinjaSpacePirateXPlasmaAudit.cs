@@ -15,7 +15,7 @@ internal static partial class NinjaSpacePirateAudit
         int nativeRow = 1;
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, MetalPiratesRoomPointer);
-        var assets = CartridgeRoomAssets.Load(bus, room);
+        var assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         foreach (bool charged in new[] { false, true })
         foreach (int freezeFrames in new[] { 15, 16 })
         {

@@ -419,8 +419,8 @@ internal static class FlyFamilyAudit
                 $"{999 - profile.Damage}, knockback={loaded.Samus.KnockbackActive}.");
         }
 
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         SamusProjectileSlot shot = shots.Slots[0];
         ArmShot(shot, loaded.Fly, damage: 20);
         byte powerBeamVulnerability = bus.ReadByte(
@@ -460,8 +460,8 @@ internal static class FlyFamilyAudit
         FlyProfile profile)
     {
         LoadedFlyRoom loaded = PrepareIsolatedCombat(bus, profile);
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         const ushort damage = 20;
         ArmShot(shots.Slots[0], loaded.Fly, damage, type: 0x0010);
 
@@ -503,8 +503,8 @@ internal static class FlyFamilyAudit
     {
         LoadedFlyRoom loaded = PrepareIsolatedCombat(bus, profile);
         loaded.Samus.EquippedBeams = (ushort)SamusBeamFlags.Ice;
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         const ushort lethalDamage = 200;
         ArmShot(shots.Slots[0], loaded.Fly, lethalDamage, type: 0x0002);
 
@@ -573,8 +573,8 @@ internal static class FlyFamilyAudit
         FlyProfile profile)
     {
         LoadedFlyRoom loaded = PrepareIsolatedCombat(bus, profile);
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         const ushort damage = 2;
         ArmShot(shots.Slots[0], loaded.Fly, damage, type: 0x0008);
 
@@ -691,8 +691,8 @@ internal static class FlyFamilyAudit
             loaded.Samus,
             level: loaded.Assets.LevelData);
 
-        var bombs = new SamusBombProjectileSystem();
-        var ordinaryProjectiles = new SamusProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
+        var ordinaryProjectiles = RepositoryInstallation.CreateProjectileSystem();
         SamusBombProjectileSlot bomb = bombs.Slots[0];
         const ushort bombDamage = 20;
         bomb.Type = SamusBombProjectileSystem.NormalBombType;
@@ -737,7 +737,7 @@ internal static class FlyFamilyAudit
         FlyProfile profile)
     {
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, profile.RoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
@@ -751,7 +751,7 @@ internal static class FlyFamilyAudit
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,

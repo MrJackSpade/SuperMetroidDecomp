@@ -25,8 +25,8 @@ internal static class PlasmaRepeatAudit
                 samus = new SamusState { XPosition = 128, YPosition = 128,
                     Pose = SamusPoseIds.FacingRightNormalPose,
                     EquippedBeams = 0x1008, PowerBombs = 2, SelectedHudItem = 3 };
-                projectiles = new SamusProjectileSystem();
-                shared = new SamusBombProjectileSystem();
+                projectiles = RepositoryInstallation.CreateProjectileSystem();
+                shared = RepositoryInstallation.CreateBombSystem();
                 if (!projectiles.TryActivateCombo(bus, samus, shared, out _))
                     throw new InvalidDataException("Fixture must activate Plasma Shield.");
                 foreach (var particle in projectiles.Slots.Take(4))
@@ -34,7 +34,7 @@ internal static class PlasmaRepeatAudit
                 var ring = projectiles.Slots[selected];
                 ring.XPosition = ring.YPosition = 128;
                 projectiles.RunProjectileInstructionHandler(bus, ring);
-                enemies = new RoomEnemySystem();
+                enemies = RepositoryInstallation.CreateEnemySystem();
                 enemies.Load(bus, 0xf000, 0, new SnesVram(), new SnesCgram(), () => 1);
                 for (int i = 0; i < 2; i++)
                 {

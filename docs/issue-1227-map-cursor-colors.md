@@ -9,7 +9,7 @@ Corrected the dedicated marker palette constant and its provenance. Updated the 
 The guarded DebugRunner reproduction enters the real pause menu through Start, isolates its production DrawMapPositionIndicator output, and renders its installed artwork and live CGRAM through SnesObjRenderer. Before the fix, opaque pixels were black and RGB(140,107,66); the white/black assertion failed. Afterward all 24 ticks of the full animation have exactly white and black opaque pixels, and all four marker parts select native palette 7.
 
 ```powershell
-dotnet csharp/src/SuperMetroid.DebugRunner/bin/Release/net10.0/SuperMetroid.DebugRunner.dll --pause-map-cursor-audit 'C:/Users/Service Account/AppData/Local/SuperMetroid'
+dotnet csharp/src/SuperMetroid.DebugRunner/bin/Release/net10.0-windows/SuperMetroid.DebugRunner.dll --pause-map-cursor-audit 'C:/Users/Service Account/AppData/Local/SuperMetroid'
 ```
 
 Release build and focused reproduction pass. Final visual confirmation remains with the player.

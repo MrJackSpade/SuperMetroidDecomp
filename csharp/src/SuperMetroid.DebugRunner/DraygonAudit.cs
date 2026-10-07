@@ -20,7 +20,7 @@ internal static class DraygonAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         if (room.WidthInScreens != 2 || room.HeightInScreens != 2 ||
             room.AreaIndex != AreaId.Maridia || room.State.EnemyPopulationPointer != PopulationPointer)
         {
@@ -47,7 +47,7 @@ internal static class DraygonAudit
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
 
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,

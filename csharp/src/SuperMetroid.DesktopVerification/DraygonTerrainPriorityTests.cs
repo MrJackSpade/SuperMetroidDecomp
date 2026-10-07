@@ -6,6 +6,10 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>The repository ROM, the independent source of Draygon's authored tilemap words.</summary>
+    private static readonly Lazy<SuperMetroid.AssetExtraction.CartridgeImportAddressSpace> draygonReferenceRom =
+        new(() => SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+
     /// <summary>Check the ROM-authored words, not just the compositor's interpretation of them.</summary>
     private static int VerifyDraygonBodyTilemap(SuperMetroidRuntime runtime)
     {
@@ -19,8 +23,10 @@ internal static partial class Program
     {
         if (!body.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap)) return 0;
         int bank = body.Definition.Bank << 16;
-        int Word(int pointer) => runtime.AddressSpace.ReadCartridgeByte(bank | (pointer & 65535)) |
-            runtime.AddressSpace.ReadCartridgeByte(bank | ((pointer + 1) & 65535)) << 8;
+        // Installed gameplay has no cartridge; the reference words come from a separate import.
+        var rom = draygonReferenceRom.Value;
+        int Word(int pointer) => rom.ReadCartridgeByte(bank | (pointer & 65535)) |
+            rom.ReadCartridgeByte(bank | ((pointer + 1) & 65535)) << 8;
         int components = Word(body.SpritemapPointer);
         if (components > 32) throw new InvalidOperationException("Unexpected Draygon extended map size.");
         int checkedWords = 0;
@@ -73,10 +79,12 @@ internal static partial class Program
         for (int y = Math.Max(32, r.Bg2FirstScanline); y < Math.Min(224, r.Bg2EndScanline); y++)
             for (int x = 0; x < 256; x++)
             {
+                // Mode-1 BG output row y samples physical scanline y + 1 (#516).
+                int physicalY = y + SnesPpuLayout.FirstVisibleBackgroundScanline;
                 var a = ReadDraygonAuditPixel(capture.Memory, SnesPpuLayout.GameplayBg1TilemapWord,
-                    r.Bg1CharacterWord, 64, 32, x + r.Bg1X, y + r.Bg1Y);
+                    r.Bg1CharacterWord, 64, 32, x + r.Bg1X, physicalY + r.Bg1Y);
                 var b = ReadDraygonAuditPixel(capture.Memory, r.Bg2TilemapWord,
-                    r.Bg2CharacterWord, r.Bg2WidthTiles, r.Bg2HeightTiles, x + r.Bg2X, y + r.Bg2Y);
+                    r.Bg2CharacterWord, r.Bg2WidthTiles, r.Bg2HeightTiles, x + r.Bg2X, physicalY + r.Bg2Y);
                 // With OBJ/BG3 excluded, front-to-back is BG1 high, BG2 high,
                 // BG1 low, BG2 low. Color zero is transparent on either plane.
                 bool terrainWins = a.Opaque && (!b.Opaque || a.High || !b.High);

@@ -10,7 +10,7 @@ internal static partial class AssetTools
     internal static int ExportShutterBombArc()
     {
         var bus = LoadRepositoryRom();
-        var scenario = ShutterBombArcScenario.Reproduced(CreateInstalledRuntime(bus, playerInvincibilityEnabled: true), bus);
+        var scenario = ShutterBombArcScenario.Reproduced(RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true), bus);
         var arc = new List<string>();
         string directory = ShutterBombArcScenario.FixtureDirectory;
         using var bombInputs = new BinaryWriter(File.Create(Path.Combine(directory, "bomb-arc.projectiles")));
@@ -39,7 +39,7 @@ internal static partial class AssetTools
     internal static int TraceShutterBombArc()
     {
         var bus = LoadRepositoryRom();
-        var scenario = ShutterBombArcScenario.Reproduced(CreateInstalledRuntime(bus, playerInvincibilityEnabled: true), bus);
+        var scenario = ShutterBombArcScenario.Reproduced(RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true), bus);
         var shutter = scenario.Runtime.Enemies.VerticalShutterStates[0]!;
         for (int frame = 0; frame < ShutterBombArcScenario.FrameCount; frame++)
         {
@@ -66,7 +66,7 @@ internal static partial class AssetTools
         foreach (int rollAt in new[] { 30, 45, 60, 75, 90, 105, 120, 150 })
         foreach (int duration in new[] { 4, 8, 16 })
         {
-            var scenario = ShutterBombArcScenario.Create(CreateInstalledRuntime(bus, playerInvincibilityEnabled: true), bus, slotIndex, approach, interval, rollAt, duration);
+            var scenario = ShutterBombArcScenario.Create(RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true), bus, slotIndex, approach, interval, rollAt, duration);
             var samus = scenario.Samus;
             var platform = scenario.Platform;
             for (int frame = 0; frame < ShutterBombArcScenario.FrameCount; frame++)

@@ -46,7 +46,7 @@ CPU runs input, movement, animation, pose transition, and collision/pose checks.
 Capture its console output, then compare with the production managed dispatcher:
 
 ```powershell
-dotnet csharp/src/SuperMetroid.DebugRunner/bin/Release/net10.0/SuperMetroid.DebugRunner.dll --short-tap-comparison-audit "Super Metroid.smc" native-trace.log
+dotnet csharp/src/SuperMetroid.DebugRunner/bin/Release/net10.0-windows/SuperMetroid.DebugRunner.dll --short-tap-comparison-audit "Super Metroid.smc" native-trace.log
 ```
 
 All 720 samples currently match **exact X position, pose, and base speed**. This

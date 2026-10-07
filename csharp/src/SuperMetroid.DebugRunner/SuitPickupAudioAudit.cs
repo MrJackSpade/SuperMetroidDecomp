@@ -14,7 +14,7 @@ internal static class SuitPickupAudioAudit
         foreach (var kind in new[] { SamusSuitPickupKind.Varia, SamusSuitPickupKind.Gravity })
         {
             var runtime = FlatFloorMovementFixture.Create(bus, water: false);
-            var game = new SuperMetroidGame(bus);
+            var game = RepositoryInstallation.CreateGame(bus);
             typeof(SuperMetroidGame).GetField("runtime", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(game, runtime);
             typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.MainGameplay);
             runtime.SuitPickup.Begin(bus, runtime.Samus!, 0, 0, kind);

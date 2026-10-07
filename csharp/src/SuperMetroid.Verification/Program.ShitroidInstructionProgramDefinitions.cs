@@ -37,7 +37,7 @@ internal static partial class Program
         ushort randomNumber = 0;
         var guard = new ShitroidInstructionReadGuard(rom);
         var executedOperands = new HashSet<ushort>();
-        var enemies = new RoomEnemySystem { TileArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles() };
+        var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.Installation.LoadEnemyTiles() };
         Type type = typeof(RoomEnemySystem);
         type.GetField("_bus", flags)!.SetValue(enemies, guard);
         type.GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());

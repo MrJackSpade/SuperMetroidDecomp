@@ -29,7 +29,7 @@ internal static partial class Program
         for (int soulValue = 0; soulValue < 2; soulValue++)
         {
             bool soul = soulValue != 0;
-            var enemies = new RoomEnemySystem { TileArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles() };
+            var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.Installation.LoadEnemyTiles() };
             busField.SetValue(enemies, guarded);
             cgramField.SetValue(enemies, new SnesCgram());
             enemies.SpawnTourianUnlockEffect(parameter, soul);

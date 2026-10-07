@@ -184,7 +184,7 @@ internal static class ElevatorAudit
         }
 
         ArmProjectile(loaded.Projectiles.Slots[0], slot);
-        var bombs = new SamusBombProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         if (loaded.Enemies.ResolveOrdinaryProjectileHits(
                 loaded.Bus,
                 loaded.Projectiles,
@@ -264,7 +264,7 @@ internal static class ElevatorAudit
         loaded.Enemies.ElevatorDoorTransitionActive = false;
         loaded.Samus.EquippedBeams = (ushort)SamusBeamFlags.Charge;
         var air = new RoomLevelData(16, 16, new ushort[256], new byte[256], new ushort[256], []);
-        var bombs = new SamusBombProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         for (int tick = 0; tick < 90; tick++)
         {
             Step(loaded, 0);
@@ -407,8 +407,8 @@ internal static class ElevatorAudit
         };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
-        var projectiles = new SamusProjectileSystem();
-        var enemies = new RoomEnemySystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         if (prepareArrival)
             enemies.PrepareElevatorArrival();
         enemies.Load(

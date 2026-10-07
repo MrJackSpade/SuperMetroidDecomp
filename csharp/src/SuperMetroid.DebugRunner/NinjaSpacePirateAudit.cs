@@ -22,7 +22,7 @@ internal static partial class NinjaSpacePirateAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, MetalPiratesRoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
 
         VerifyDefinitionsAndBytecode(bus);
         VerifyCommonHitboxShot(bus, room, assets);
@@ -609,7 +609,7 @@ internal static partial class NinjaSpacePirateAudit
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -628,8 +628,8 @@ internal static partial class NinjaSpacePirateAudit
             enemies,
             samus,
             ninjas,
-            new SamusProjectileSystem(),
-            new SamusBombProjectileSystem());
+            RepositoryInstallation.CreateProjectileSystem(),
+            RepositoryInstallation.CreateBombSystem());
     }
 
     private static RoomEnemySlot KeepOnly(LoadedNinjas loaded, int actorIndex)

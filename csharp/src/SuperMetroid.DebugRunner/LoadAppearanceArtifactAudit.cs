@@ -42,7 +42,7 @@ internal static class LoadAppearanceArtifactAudit
         if (saveRam.ReadSlot(0)?.HudItem != 2)
             throw new InvalidDataException("Regression setup did not persist HUD item two.");
 
-        var game = new SuperMetroidGame(
+        var game = RepositoryInstallation.CreateGame(
             bus,
             new SuperMetroidGameOptions { SkipOpeningCinematic = true });
         FrontendFrame frame = FrontendAuditDriver.EnterSelectedSlot(game);
@@ -102,7 +102,7 @@ internal static class LoadAppearanceArtifactAudit
                 "HUD selection; this recording cannot reproduce the stray cannon OBJ.");
         }
 
-        var game = new SuperMetroidGame(bus, recording.GameOptions);
+        var game = RepositoryInstallation.CreateGame(bus, recording.GameOptions);
         var apuPortEchoes = new byte[4];
         Directory.CreateDirectory(outputDirectory);
 

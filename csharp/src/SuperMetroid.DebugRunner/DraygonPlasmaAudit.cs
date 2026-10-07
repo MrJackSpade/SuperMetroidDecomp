@@ -14,7 +14,7 @@ internal static class DraygonPlasmaAudit
         foreach (bool hyper in new[] { false, true })
         foreach (ushort entryTimer in new ushort[] { 0, 1 })
         {
-            var runtime = new SuperMetroidRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom));
+            var runtime = RepositoryInstallation.CreateRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom));
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();

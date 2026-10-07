@@ -310,7 +310,7 @@ internal static partial class Program
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         var gameplayBus = new SpacetimeMutableOnlyBus(bus);
-        var artwork = projectileFixtureArt.Value.BeamTiles;
+        var artwork = RepositoryInstallation.Projectiles.BeamTiles;
         AssertEqual(SpacetimeBeamGraphicsDefinitions.TileSource & 0xffff,
             bus.ReadCartridgeByte(0x90c3cd) | bus.ReadCartridgeByte(0x90c3ce) << 8,
             "SpaceTime tile pointer comes from adjacent native palette table");

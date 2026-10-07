@@ -33,7 +33,7 @@ internal static class WallSpacePirateAudit
             bus,
             ClimbRoomPointer,
             new RoomStateSelectionContext(awakeEvents, 0, false, false));
-        CartridgeRoomAssets climbAssets = CartridgeRoomAssets.Load(bus, climb);
+        CartridgeRoomAssets climbAssets = CartridgeRoomAssets.Load(bus, climb, RepositoryInstallation.RoomAssets);
 
         VerifyDefinitionsAndRomLists(bus, climb);
         VerifyUntouchedClimbPopulation(bus, climb, climbAssets);
@@ -311,7 +311,7 @@ internal static class WallSpacePirateAudit
             bus,
             PitRoomPointer,
             new RoomStateSelectionContext(default, 0, true, false));
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, pit);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, pit, RepositoryInstallation.RoomAssets);
         LoadedWallPirates loaded = Load(bus, pit, assets, 0, 0);
         RoomEnemySlot actor = loaded.Pirates.Single();
         foreach (RoomEnemySlot other in loaded.Enemies.Slots.Where(
@@ -493,7 +493,7 @@ internal static class WallSpacePirateAudit
     private static void VerifyGoldPowerBombDamage(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, FastPillarsRoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         LoadedWallPirates loaded = Load(bus, room, assets, 0, 0);
         RoomEnemySlot actor = KeepOnly(loaded, 0);
         if (room.State.Pointer != 0xb3b2 || actor.EnemyDefinitionPointer != 0xf413 ||
@@ -589,7 +589,7 @@ internal static class WallSpacePirateAudit
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -608,8 +608,8 @@ internal static class WallSpacePirateAudit
             enemies,
             samus,
             pirates,
-            new SamusProjectileSystem(),
-            new SamusBombProjectileSystem(),
+            RepositoryInstallation.CreateProjectileSystem(),
+            RepositoryInstallation.CreateBombSystem(),
             vram,
             cgram);
     }

@@ -162,7 +162,7 @@ internal static partial class Program
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
         var restoredRuntime = (SuperMetroid.Core.Runtime.SuperMetroidRuntime)field.GetValue(restored)!;
         AssertTrue(restoredRuntime.ChargeFlarePlacement is null, "Restored flare catalog requires host rebind");
-        runtimeFixtureBindings.Value(restoredRuntime);
+        BindRetailRuntimeFixture(restoredRuntime);
         game.BindChargeFlarePlacement(edited); restored.BindChargeFlarePlacement(edited);
         AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Restored runtime emits current flare content at the saved animation state");
     }

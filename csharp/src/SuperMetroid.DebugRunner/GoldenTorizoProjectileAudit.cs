@@ -44,7 +44,7 @@ internal static partial class GoldenTorizoAudit
                 bus,
                 loaded.Enemies,
                 loaded.Samus,
-                new SamusBombProjectileSystem(),
+                RepositoryInstallation.CreateBombSystem(),
                 assets.LevelData,
                 projectile,
                 CameraX,
@@ -133,8 +133,8 @@ internal static partial class GoldenTorizoAudit
         ushort shotResponse = EnemyProjectileAuditAssertions.VerifyNaturalDestructibleSamusShot(
             bus,
             loaded.Enemies,
-            new SamusProjectileSystem(),
-            new SamusBombProjectileSystem(),
+            RepositoryInstallation.CreateProjectileSystem(),
+            RepositoryInstallation.CreateBombSystem(),
             projectile);
 
         var responseMaps = new HashSet<ushort>();
@@ -290,8 +290,8 @@ internal static partial class GoldenTorizoAudit
         loaded.Samus.XPosition = (loaded.Head.Parameter1 & 0x8000) != 0
             ? unchecked((ushort)(loaded.Head.XPosition + 32))
             : unchecked((ushort)(loaded.Head.XPosition - 32));
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(shots.Slots[0], loaded.Head, type: 0x0200, damage: 300);
         shots.Slots[0].XPosition = shotX;
         shots.Slots[0].YPosition = shotY;

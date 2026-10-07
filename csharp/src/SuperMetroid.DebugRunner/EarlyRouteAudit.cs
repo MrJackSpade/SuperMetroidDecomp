@@ -24,7 +24,7 @@ internal static class EarlyRouteAudit
     public static int Run(string romPath)
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
 
         // Reuse the real post-Ceres station loader to obtain a fresh Samus and Landing Site
         // state. The audit skips only the already-verified gunship clock; it restores the
@@ -101,7 +101,7 @@ internal static class EarlyRouteAudit
     private static void VerifyLiveElevatorJourney(string romPath)
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
         runtime.InitializeStartingCeresRoom();

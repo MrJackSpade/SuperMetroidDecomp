@@ -200,7 +200,7 @@ internal static class ZebetiteSkipAudit
         bool referenceIceInput = false)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();

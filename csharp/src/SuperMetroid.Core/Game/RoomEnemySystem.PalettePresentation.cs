@@ -15,4 +15,17 @@ public sealed partial class RoomEnemySystem
     /// <summary>Host-owned fake-death room flash and phase-two setup colors.</summary>
     [field: NonSerialized]
     public MotherBrainRoomColorPresentation? MotherBrainRoomColors { get; set; }
+
+    /// <summary>Binds every enemy-owned color, HUD and escape asset from one host map catalog.</summary>
+    public void BindMapPresentation(AreaMapPresentationCatalog? maps)
+    {
+        MotherBrainHealthColors = maps?.MotherBrainHealthPalette;
+        MotherBrainRainbowColors = maps?.MotherBrainRainbowPalette;
+        MotherBrainRoomColors = maps?.MotherBrainRoomColors;
+        CeresRidleyColors = maps?.CeresRidleyColors;
+        CeresRidleyMode7Colors = maps?.CeresRidleyMode7Colors;
+        EscapeTimerArtwork = maps?.EscapeTimerTiles;
+        EscapeTypewriterPresentation = maps?.EscapeTypewriter;
+        HudTileArtwork = maps?.HudTiles;
+    }
 }

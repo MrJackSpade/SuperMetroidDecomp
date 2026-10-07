@@ -32,7 +32,7 @@ internal static class MotherBrainGlassProjectileAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
 
         VerifyDefinitionRecords(bus);
         OrientationResult orientations = VerifyAllShardOrientations(bus, room, assets);
@@ -323,7 +323,7 @@ internal static class MotherBrainGlassProjectileAudit
         // Property `$3000` makes both visual actors intangible and non-blocking. Exercise the
         // actual beam collision dispatcher so a future property-decoding regression cannot
         // turn the sparkle into an invisible wall despite the header check above.
-        var shots = new SamusProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
         SamusProjectileSlot beam = shots.Slots[0];
         beam.Type = 0;
         beam.Damage = 20;
@@ -337,7 +337,7 @@ internal static class MotherBrainGlassProjectileAudit
         int beamHits = loaded.Enemies.ResolveEnemyProjectileSamusProjectileHits(
             bus,
             shots,
-            new SamusBombProjectileSystem());
+            RepositoryInstallation.CreateBombSystem());
         if (beamHits != 0 || !beam.IsActive || beam.InstructionPointer != 0x9000)
         {
             throw new InvalidDataException(
@@ -424,7 +424,7 @@ internal static class MotherBrainGlassProjectileAudit
         };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,

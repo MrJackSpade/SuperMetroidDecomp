@@ -9,7 +9,7 @@ internal static class FlatFloorMovementFixture
     public static SuperMetroidRuntime Create(SuperMetroidAddressSpace bus, bool water, bool wideRunway = false,
         bool playerInvincibilityEnabled = false)
     {
-        var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: playerInvincibilityEnabled);
+        var runtime = RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: playerInvincibilityEnabled);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom();

@@ -71,7 +71,7 @@ internal static class ElevatorSpinjumpAudit
                 string? prefix = outputDirectory == null ? null : Path.Combine(outputDirectory, $"{room:X4}-{delay}");
                 using var trace = prefix == null ? null : new StreamWriter(prefix + ".managed.csv");
                 trace?.WriteLine("frame,x,y,pose");
-                var runtime = new SuperMetroidRuntime(bus);
+                var runtime = RepositoryInstallation.CreateRuntime(bus);
                 runtime.InitializeHud(HudSnapshot.CeresDebug);
                 runtime.RunNmi(0, true);
                 runtime.InitializeStartingCeresRoom();

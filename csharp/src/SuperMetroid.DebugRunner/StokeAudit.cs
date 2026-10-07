@@ -287,8 +287,8 @@ internal static class StokeAudit
 
         LoadedStoke shotLoad = Load(retailBus, level);
         StepActor(shotLoad);
-        var shots = new SamusProjectileSystem();
-        var shared = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var shared = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(shots.Slots[0], shotLoad.Actor, type: 0x0000, damage: 5);
         if (shotLoad.Enemies.ResolveOrdinaryProjectileHits(
                 shotLoad.Bus,
@@ -313,13 +313,13 @@ internal static class StokeAudit
 
         LoadedStoke deathLoad = Load(retailBus, level);
         StepActor(deathLoad);
-        var lethal = new SamusProjectileSystem();
+        var lethal = RepositoryInstallation.CreateProjectileSystem();
         var beforeDeath = EnemyDeathAuditAssertions.Capture(deathLoad.Enemies, deathLoad.Actor);
         ArmProjectile(lethal.Slots[0], deathLoad.Actor, type: 0x0000, damage: 20);
         if (deathLoad.Enemies.ResolveOrdinaryProjectileHits(
                 deathLoad.Bus,
                 lethal,
-                new SamusBombProjectileSystem(),
+                RepositoryInstallation.CreateBombSystem(),
                 deathLoad.Samus) != 1 || deathLoad.Actor.Health != 0 ||
             deathLoad.Enemies.EnemiesKilled != 1)
         {
@@ -336,7 +336,7 @@ internal static class StokeAudit
         var bus = new StokeDebugPopulationAddressSpace(retailBus);
         var random = new ControlledRandom { Value = 0x0080 };
         SamusState samus = CreateSamus(retailBus);
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             DebugPopulationPointer,

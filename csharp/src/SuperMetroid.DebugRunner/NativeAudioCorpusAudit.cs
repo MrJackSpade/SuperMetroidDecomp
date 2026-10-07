@@ -127,7 +127,7 @@ internal static class NativeAudioCorpusAudit
                 {
                     var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath ?? throw new ArgumentNullException(nameof(romPath)));
                     if (saved) new SuperMetroidSaveRam(bus, SaveMapPresentationFixture.Create(bus)).SaveSlot(0, new SuperMetroidSaveSnapshot());
-                    var game = new SuperMetroidGame(bus);
+                    var game = RepositoryInstallation.CreateGame(bus);
                     int swooshes = 0;
                     Scenario($"file-select-saved={saved}-accept={accept}", 500, tick =>
                     {
@@ -150,7 +150,7 @@ internal static class NativeAudioCorpusAudit
                     throw new InvalidDataException("Recorded audio probe ROM digest mismatch.");
                 var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
                 recording.InitialSaveRam.CopyTo(bus.SaveRam);
-                var game = new SuperMetroidGame(bus, recording.GameOptions, renderGameplayFrames: false);
+                var game = RepositoryInstallation.CreateGame(bus, recording.GameOptions, renderGameplayFrames: false);
                 int pausedFrames = 0;
                 bool paused = false;
                 int mismatchedFrames = 0, mismatchedPauseFrames = 0;

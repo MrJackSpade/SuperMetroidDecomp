@@ -18,8 +18,8 @@ internal static class ComboGrappleAudit
             var samus = new SamusState { Pose = SamusPoseIds.FacingRightNormalPose,
                 XPosition = 128, YPosition = 128, SelectedHudItem = 3, PowerBombs = 2,
                 EquippedBeams = (ushort)(0x1000 | int.Parse(row[0])) };
-            var projectiles = new SamusProjectileSystem();
-            var shared = new SamusBombProjectileSystem();
+            var projectiles = RepositoryInstallation.CreateProjectileSystem();
+            var shared = RepositoryInstallation.CreateBombSystem();
             if (!projectiles.TryActivateCombo(bus, samus, shared, out _))
                 throw new InvalidDataException("Fixture combo activation failed.");
             samus.SelectedHudItem = 4;

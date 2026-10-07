@@ -28,7 +28,7 @@ internal static partial class CrocomireAudit
                 $"Crocomire room selected state/population ${room.State.Pointer:X4}/" +
                 $"${room.State.EnemyPopulationPointer:X4}.");
         }
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
 
         VerifyInitializationAndWake(bus, room, assets);
         VerifyInstructionMovementAndProjectile(bus, room, assets);
@@ -208,7 +208,7 @@ internal static partial class CrocomireAudit
             bus,
             volley.Enemies,
             volley.Samus,
-            new SamusBombProjectileSystem(),
+            RepositoryInstallation.CreateBombSystem(),
             volley.Level,
             projectile,
             cameraX: 0x0400,
@@ -227,8 +227,8 @@ internal static partial class CrocomireAudit
             mouth,
             MouthShotCallback);
 
-        var projectiles = new SamusProjectileSystem();
-        var shared = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var shared = RepositoryInstallation.CreateBombSystem();
         SamusProjectileSlot chargedBeam = projectiles.Slots[0];
         chargedBeam.ClearFields();
         chargedBeam.Type = 0x0010;
@@ -270,8 +270,8 @@ internal static partial class CrocomireAudit
         // `$A4:BA05` treats family $0500 as a zero-step mouth hit. It installs the
         // fourteen-frame hurt flash, but must not apply vulnerability damage or publish
         // Crocomire's beam/missile push reaction.
-        var bombProjectiles = new SamusBombProjectileSystem();
-        var ordinaryProjectiles = new SamusProjectileSystem();
+        var bombProjectiles = RepositoryInstallation.CreateBombSystem();
+        var ordinaryProjectiles = RepositoryInstallation.CreateProjectileSystem();
         SamusBombProjectileSlot physicalBomb =
             EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
                 bombProjectiles,
@@ -533,7 +533,7 @@ internal static partial class CrocomireAudit
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
 
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             Population,

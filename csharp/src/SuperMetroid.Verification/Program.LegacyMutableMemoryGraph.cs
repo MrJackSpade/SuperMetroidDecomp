@@ -66,7 +66,7 @@ internal static partial class Program
         var manager = new SuperMetroidSaveRam(memory, RetailPresentationFixture());
         typeof(SuperMetroidSaveRam).GetField("mutableMemory", System.Reflection.BindingFlags.Instance |
             System.Reflection.BindingFlags.NonPublic)!.SetValue(manager, null);
-        DebuggerStateFieldMigrations.InitializeMissingFields(manager, 1);
+        RestoreLegacy(manager, "mutableMemory");
         AssertTrue(manager.ReadSlot(0) is null, "legacy save manager rebinds its original SRAM owner");
 
         static void Field(BinaryWriter writer, string name)

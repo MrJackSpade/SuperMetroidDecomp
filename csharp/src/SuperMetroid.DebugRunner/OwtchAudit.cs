@@ -20,7 +20,7 @@ internal static class OwtchAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
@@ -42,7 +42,7 @@ internal static class OwtchAudit
         }
 
         var samus = CreateSamus(bus);
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -248,8 +248,8 @@ internal static class OwtchAudit
         }
         EnemyContactAuditAssertions.VerifyStandingAirHit(bus, samus, beforeHit, 100, 1, "Owtch body");
 
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         state.Behavior = OwtchBehaviorState.MovingRight;
         ArmPlasma(shots.Slots[0], actor);
         if (enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus) != 1 ||
@@ -322,8 +322,8 @@ internal static class OwtchAudit
             rightSamus,
             level: assets.LevelData);
         rightState.Behavior = OwtchBehaviorState.MovingRight;
-        var rightBombs = new SamusBombProjectileSystem();
-        var rightShots = new SamusProjectileSystem();
+        var rightBombs = RepositoryInstallation.CreateBombSystem();
+        var rightShots = RepositoryInstallation.CreateProjectileSystem();
         SamusBombProjectileSlot rightBomb =
             EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
                 rightBombs,
@@ -357,8 +357,8 @@ internal static class OwtchAudit
             leftSamus,
             level: assets.LevelData);
         leftState.Behavior = OwtchBehaviorState.MovingLeft;
-        var leftBombs = new SamusBombProjectileSystem();
-        var leftShots = new SamusProjectileSystem();
+        var leftBombs = RepositoryInstallation.CreateBombSystem();
+        var leftShots = RepositoryInstallation.CreateProjectileSystem();
         SamusBombProjectileSlot leftBomb =
             EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
                 leftBombs,
@@ -389,7 +389,7 @@ internal static class OwtchAudit
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,

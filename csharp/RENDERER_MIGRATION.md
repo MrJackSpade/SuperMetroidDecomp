@@ -195,7 +195,7 @@ dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-save
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --profile-simulation
 dotnet run --project csharp/src/SuperMetroid.DesktopVerification -c Release -- --audio-queue
-dotnet run --project csharp/src/SuperMetroid.DesktopVerification -c Release -- --soak-hidden 300
+dotnet run --project csharp/src/SuperMetroid.DesktopVerification -c Release -- --soak-hidden
 ```
 
 The last command runs five minutes per scene with a standalone paced producer,
@@ -203,12 +203,12 @@ managed audio, silent real waveOut and a hidden hardware HWND. It deliberately d
 not count as visible-presentation or production-WinForms-clock qualification. Reports
 state that scope and retain PCM counts, queue observations, timings and adapter.
 The preserved report confirms 60-Hz production with zero observed queue drains.
-The separate `--soak-desktop-hidden 300` command also passed five minutes per scene
+The separate `--soak-desktop-hidden` command also passed five minutes per scene
 using the actual production WinForms timer: 59.994 FPS, producer p95 0.2027/0.1383 ms,
 zero observed audio queue drains. Both reports and precise scope limitations are in
 `test-fixtures/issue-321-performance`. All presentations were occluded, not visible.
 The full GPU interval measured about 31.7 ms in those hidden runs.
-The subsequent interactive `--soak-desktop-visible 300` Release run passed both
+The subsequent interactive `--soak-desktop-visible` Release run passed both
 five-minute scenes: 59.997/59.994 simulation FPS, zero observed audio queue drains,
 GPU composition p95 3.1908/1.8637 ms and composition-plus-display p95
 3.2594/1.9333 ms. Successful presentation was about 32 FPS under RDP, with zero

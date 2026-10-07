@@ -14,7 +14,7 @@ internal static class GrappleJumpAimAudit
         foreach (int fireDelay in new[] { 0, 1, 2, 4, 8 })
         {
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
-            var runtime = new SuperMetroidRuntime(bus);
+            var runtime = RepositoryInstallation.CreateRuntime(bus);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();

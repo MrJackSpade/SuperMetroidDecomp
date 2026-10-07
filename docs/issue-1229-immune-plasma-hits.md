@@ -23,7 +23,7 @@ Native references: pinned InsaneFirebat NTSC J/U 1.0 disassembly revision 362be6
 Release DebugRunner build and both focused assertions pass:
 
 ```powershell
-dotnet csharp/src/SuperMetroid.DebugRunner/bin/Release/net10.0/SuperMetroid.DebugRunner.dll --immune-plasma-hit-audit 'C:/Users/Service Account/AppData/Local/SuperMetroid'
+dotnet csharp/src/SuperMetroid.DebugRunner/bin/Release/net10.0-windows/SuperMetroid.DebugRunner.dll --immune-plasma-hit-audit 'C:/Users/Service Account/AppData/Local/SuperMetroid'
 ```
 
 Player confirmation remains pending for the supplied clip and Mother Brain report. No broad playthrough or weapon sweep was used.

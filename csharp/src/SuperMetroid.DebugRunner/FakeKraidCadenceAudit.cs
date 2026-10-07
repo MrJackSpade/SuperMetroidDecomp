@@ -10,7 +10,7 @@ internal static class FakeKraidCadenceAudit
         Directory.CreateDirectory(directory);
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, FakeKraidCadenceDefinitions.RoomPointer);
-        var assets = CartridgeRoomAssets.Load(bus, room);
+        var assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         using (var data = new BinaryWriter(File.Create(Path.Combine(directory, "level.bin"))))
         {
             data.Write((ushort)assets.LevelData.WidthInBlocks);
@@ -28,7 +28,7 @@ internal static class FakeKraidCadenceAudit
                 Pose = SamusPoseIds.FacingRightNormalPose };
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
-            var enemies = new RoomEnemySystem();
+            var enemies = RepositoryInstallation.CreateEnemySystem();
             enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer,
                 new SnesVram(), new SnesCgram(), () => random, readRandomNumber: () => random,
                 level: assets.LevelData, samus: samus);

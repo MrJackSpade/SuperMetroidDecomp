@@ -13,7 +13,7 @@ internal static partial class Program
     private static void VerifyGameplayGrapplePalette()
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
-        var installation=runtimeFixtureInstallation.Value;
+        var installation=RepositoryInstallation.Installation;
         var bus=installation.OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(bus);
         game.BindMapPresentation(installation.LoadMaps());

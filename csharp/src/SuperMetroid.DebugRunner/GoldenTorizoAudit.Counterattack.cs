@@ -23,13 +23,13 @@ internal static partial class GoldenTorizoAudit
             bool right = (entry.Flags & 0x8000) != 0;
             loaded.Samus.XPosition = (ushort)(loaded.Head.XPosition + (right == inFront ? 32 : -32));
             ushort health = loaded.Head.Health;
-            var shots = new SamusProjectileSystem();
+            var shots = RepositoryInstallation.CreateProjectileSystem();
             ArmProjectile(shots.Slots[0], loaded.Head, 0x8200, 300);
             shots.Slots[0].XPosition = x;
             shots.Slots[0].YPosition = y;
             shots.Slots[0].XRadius = shots.Slots[0].YRadius = 1;
             int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(bus, shots,
-                new SamusBombProjectileSystem(), loaded.Samus);
+                RepositoryInstallation.CreateBombSystem(), loaded.Samus);
             if (hits != 1 || (loaded.Head.Health == health) != inFront ||
                 ((loaded.Head.Parameter2 & 0x1000) != 0) != inFront ||
                 (inFront && (loaded.Head.CurrentInstruction != entry.List || loaded.Head.InstructionTimer != 1)))
@@ -55,13 +55,13 @@ internal static partial class GoldenTorizoAudit
             loaded.State.CapturedProjectileFamily = 0x5555;
             loaded.Head.Parameter2 = (ushort)((loaded.Head.Parameter2 & 0xcfff) | 0x1000);
             ushort health = loaded.Head.Health;
-            var shots = new SamusProjectileSystem();
+            var shots = RepositoryInstallation.CreateProjectileSystem();
             ArmProjectile(shots.Slots[0], loaded.Head, 0x8200, 300);
             shots.Slots[0].XPosition = x;
             shots.Slots[0].YPosition = y;
             shots.Slots[0].XRadius = shots.Slots[0].YRadius = 1;
             int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(bus, shots,
-                new SamusBombProjectileSystem(), loaded.Samus);
+                RepositoryInstallation.CreateBombSystem(), loaded.Samus);
             bool expectedStun = callback == NormalBodyShotCallback && guard == 0 && flash == 0;
             bool expectedDamage = flash == 0 && (callback == NormalBodyShotCallback || guard == 0);
             if (hits != 1 || ((loaded.Head.Parameter2 & 0x2000) != 0) != expectedStun ||

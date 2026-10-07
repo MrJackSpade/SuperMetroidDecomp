@@ -18,12 +18,12 @@ internal static class AlcoonAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, CrateriaPowerBombsRoom);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -188,7 +188,7 @@ internal static class AlcoonAudit
 
     private static void VerifyProductionRuntime(SuperMetroidAddressSpace bus)
     {
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -231,12 +231,12 @@ internal static class AlcoonAudit
         // threshold. Lower Norfair Spring Ball Maze is the all-Alcoon retail population
         // whose longer ledges exercise that remaining state transition without fixtures.
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xb510);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -306,7 +306,7 @@ internal static class AlcoonAudit
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -340,7 +340,7 @@ internal static class AlcoonAudit
 
         // Definition property $0014 does not set $8000. The dormant delete shot-list word
         // therefore must not make this actor intercept Samus's beam through a host shortcut.
-        var beamOwner = new SamusProjectileSystem();
+        var beamOwner = RepositoryInstallation.CreateProjectileSystem();
         SamusProjectileSlot beam = beamOwner.Slots[0];
         beam.Type = 0x0001;
         beam.Damage = 20;
@@ -354,7 +354,7 @@ internal static class AlcoonAudit
         int beamHits = enemies.ResolveEnemyProjectileSamusProjectileHits(
             bus,
             beamOwner,
-            new SamusBombProjectileSystem());
+            RepositoryInstallation.CreateBombSystem());
         if (beamHits != 0 || beam.InstructionPointer != 0x9000 || !shot.IsActive)
         {
             throw new InvalidDataException(
@@ -377,7 +377,7 @@ internal static class AlcoonAudit
             bus,
             enemies,
             CreateSamus(bus, shot.XPosition, shot.YPosition),
-            new SamusBombProjectileSystem(),
+            RepositoryInstallation.CreateBombSystem(),
             assets.LevelData,
             shot,
             cameraX: 0,
@@ -455,8 +455,8 @@ internal static class AlcoonAudit
 
         RoomEnemySlot beamTarget = population[1];
         StepCentered(enemies, assets, room, samus, beamTarget);
-        var projectiles = new SamusProjectileSystem();
-        var shared = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var shared = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(projectiles.Slots[0], beamTarget, projectileType: 0x0002, damage: 20);
         if (enemies.ResolveOrdinaryProjectileHits(bus, projectiles, shared, samus) != 1 ||
             beamTarget.FrozenTimer != 0 || beamTarget.Health != 180 ||
@@ -469,8 +469,8 @@ internal static class AlcoonAudit
 
         RoomEnemySlot lethalTarget = population[2];
         StepCentered(enemies, assets, room, samus, lethalTarget);
-        projectiles = new SamusProjectileSystem();
-        shared = new SamusBombProjectileSystem();
+        projectiles = RepositoryInstallation.CreateProjectileSystem();
+        shared = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(projectiles.Slots[0], lethalTarget, projectileType: 0x0200, damage: 1000);
         var beforeDeath = EnemyDeathAuditAssertions.Capture(enemies, lethalTarget);
         if (enemies.ResolveOrdinaryProjectileHits(bus, projectiles, shared, samus) != 1)

@@ -16,8 +16,8 @@ internal static class ComboContactAudit
         foreach (string line in File.ReadLines(trace).Skip(1))
         {
             string[] row = line.Split(',');
-            var projectiles = new SamusProjectileSystem();
-            var shared = new SamusBombProjectileSystem();
+            var projectiles = RepositoryInstallation.CreateProjectileSystem();
+            var shared = RepositoryInstallation.CreateBombSystem();
             var samus = new SamusState { XPosition = 128, YPosition = 128,
                 Pose = SamusPoseIds.FacingRightNormalPose,
                 EquippedBeams = (ushort)(0x1000 | (spazerAges ? 4 : int.Parse(row[0]))), PowerBombs = 2,
@@ -39,7 +39,7 @@ internal static class ComboContactAudit
             slot.XPosition = row[2] == "1" ? (ushort)128 : (ushort)192;
             slot.YPosition = 128;
             if (slot.IsActive) projectiles.RunProjectileInstructionHandler(bus, slot);
-            var enemies = new RoomEnemySystem();
+            var enemies = RepositoryInstallation.CreateEnemySystem();
             enemies.Load(bus, 0xf000, 0, new SnesVram(), new SnesCgram(), () => 1);
             var enemy = enemies.Slots[0];
             enemy.EnemyDefinitionPointer = 0xf000;

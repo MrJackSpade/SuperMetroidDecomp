@@ -1,0 +1,8 @@
+<Project>
+  <!-- The repository ROM's extracted installation and the host catalog bindings every fixture shares. -->
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)RepositoryInstallation.cs" Link="TestSupport/RepositoryInstallation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)InstalledRuntimeBindings.cs" Link="TestSupport/InstalledRuntimeBindings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)InstalledGameBindings.cs" Link="TestSupport/InstalledGameBindings.cs" />
+  </ItemGroup>
+</Project>

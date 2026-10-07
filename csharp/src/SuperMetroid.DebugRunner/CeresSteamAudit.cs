@@ -101,7 +101,7 @@ internal static class CeresSteamAudit
                 $"${room.State.Pointer:X4}/${room.State.EnemyPopulationPointer:X4}.");
         }
 
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
@@ -117,7 +117,7 @@ internal static class CeresSteamAudit
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
 
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -196,8 +196,8 @@ internal static class CeresSteamAudit
 
                 if (!verifiedShotSuppression)
                 {
-                    var shots = new SamusProjectileSystem();
-                    var bombs = new SamusBombProjectileSystem();
+                    var shots = RepositoryInstallation.CreateProjectileSystem();
+                    var bombs = RepositoryInstallation.CreateBombSystem();
                     ArmPowerBeam(shots.Slots[0], target);
                     ushort healthBeforeShot = target.Health;
                     ushort instructionBeforeShot = target.CurrentInstruction;
@@ -220,8 +220,8 @@ internal static class CeresSteamAudit
                     // against canonical `$804B/$804C` before walking any components. Steam's
                     // `$804C` header therefore suppresses the entire scan: even a physical
                     // family-$0500 explosion centered inside the visible plume is unmarked.
-                    var bombProjectiles = new SamusBombProjectileSystem();
-                    var ordinaryProjectiles = new SamusProjectileSystem();
+                    var bombProjectiles = RepositoryInstallation.CreateBombSystem();
+                    var ordinaryProjectiles = RepositoryInstallation.CreateProjectileSystem();
                     SamusBombProjectileSlot normalBomb =
                         EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
                             bombProjectiles,

@@ -272,7 +272,7 @@ static void VerifyFileSelectFreshSaveTilemap()
     File.WriteAllBytes(Path.Combine(overrideRoot, FileSelectPresentationDefinitions.FileName),
         SuperMetroid.AssetExtraction.FileSelectPresentationExtractor.Extract(addressSpace));
     var fixturePresentation = AreaMapPresentationCatalog.Load(
-        runtimeFixtureInstallation.Value.MapDirectory, overrideRoot);
+        RepositoryInstallation.Installation.MapDirectory, overrideRoot);
     var menu = new FileSelectMenuState(addressSpace, mapPresentation: fixturePresentation);
     ReadOnlySpan<ushort> tilemap = menu.BackgroundTilemap;
 

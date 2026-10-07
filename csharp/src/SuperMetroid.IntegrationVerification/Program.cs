@@ -8,33 +8,21 @@ try
     // work. Failures belong in the outer stderr/nonzero boundary, never a dialog.
     if (OperatingSystem.IsWindows())
         NativeConsoleErrors.DisableDialogs();
-    if (args is ["--validate-extracted-installation", var extractedRoot])
-    {
-        var validated = SuperMetroid.AssetExtraction.GameAssetInstaller.ValidateExtractedContent(extractedRoot);
-        Console.WriteLine($"PASS all required extracted resources: {validated.ContentDirectory}; no ROM import or repair.");
-        return 0;
-    }
-    if (args is ["--prepare-extracted-installation", var importRom, var importRoot])
-    {
-        if (Directory.Exists(importRoot))
-            throw new IOException($"The diagnostic import destination already exists: {importRoot}");
-        var installed = SuperMetroid.AssetExtraction.GameAssetInstaller.Install(importRom, importRoot);
-        SuperMetroid.AssetExtraction.GameAssetInstaller.ValidateExtractedContent(installed.Root);
-        Console.WriteLine($"PASS fresh extracted installation: {installed.Root}; source ROM was imported, not mapped into gameplay.");
-        return 0;
-    }
-    if (args is ["--extracted-validation-contract", var contractRoot])
-        return ExtractedInstallationValidationVerification.Run(contractRoot);
-    if (args is ["--map-presentation-json-contracts", var presentationRoot])
-        return MapPresentationJsonContractVerification.Run(presentationRoot);
-    if (args is ["--projectile-host-binding", var projectileRom])
-        return ProjectileHostBindingVerification.Run(projectileRom);
-    if (args is ["--state-host-options", var statePath, var iniPath])
-        return StateHostOptionsVerification.Run(statePath, iniPath);
-    if (args.Length > 0 && args[0] == "--asset-import")
-        return AssetImportVerification.Run(args[1..]);
-    if (args is ["--override-installation-lifecycle", var overrideRom])
-        return InstallationOverrideLifecycleVerification.Run(overrideRom);
+    // Every command reads only the repository: the gitignored ROM, its shared extracted
+    // installation and checked-in fixtures. File-taking tools live in SuperMetroid.DebugRunner.
+    if (args is ["--extracted-validation-contract"])
+        return ExtractedInstallationValidationVerification.Run(RepositoryInstallation.Installation.Root);
+    if (args is ["--map-presentation-json-contracts"])
+        return MapPresentationJsonContractVerification.Run(RepositoryInstallation.Installation.Root);
+    if (args is ["--projectile-host-binding"])
+        return ProjectileHostBindingVerification.Run();
+    // CI has no ROM: --asset-import checks only ROM-independent input validation.
+    if (args is ["--asset-import"])
+        return AssetImportVerification.Run(romPath: null);
+    if (args is ["--asset-import-rom"])
+        return AssetImportVerification.Run(Path.GetFullPath("Super Metroid.smc"));
+    if (args is ["--override-installation-lifecycle"])
+        return InstallationOverrideLifecycleVerification.Run(Path.GetFullPath("Super Metroid.smc"));
     if (args is ["--spin-jump-missing-audio"])
         return SpinJumpMissingAudioAudit.Run();
     if (args is ["--maridia-pipe-entry"])
@@ -47,10 +35,6 @@ try
         return MaridiaPipeEntryAudit.Run(fromNorth: true, freshOrigin: true, incomingDoor: true);
     if (args is ["--legacy-options-migration"])
         return LegacyOptionsMigrationVerification.Run();
-    if (args is ["--export-autonomous-performance-state", var frameText, var autonomousDestination])
-        return AutonomousPerformanceStateFixture.Export(int.Parse(frameText), autonomousDestination);
-    if (args is ["--compare-assembly-metadata", var originalAssembly, var linkedAssembly])
-        return AssemblyMetadataVerification.Run(originalAssembly, linkedAssembly);
     if (args is ["--rom-decompression"])
         return RomDecompressionVerification.Run();
     AndroidSessionCommandVerification.Run();
@@ -68,16 +52,6 @@ try
         throw new InvalidDataException("Resume trace lost or exceeded bounded events.");
     boundedTrace.Flush(_ => throw new InvalidDataException("Already flushed trace emitted twice."));
     Console.WriteLine("PASS bounded resume trace: capacity, event retention, flush once.");
-    if (args is ["--compare-file-select-capture", var journalPath, var wavePath])
-        return FileSelectCaptureComparison.Run(journalPath, wavePath);
-    if (args is ["--replay-android-bundle", var bundle, var recordingName])
-        return AndroidBundleReplay.Run(bundle, recordingName);
-    if (args is ["--export-ceres-descent-state", var destination])
-        return CeresDescentStateFixture.Export(destination);
-    if (args is ["--export-reported-eye-state", var eyeDestination])
-        return ReportedEyeStateFixture.Export(eyeDestination);
-    if (args is ["--export-room-performance-state", var scene, var performanceDestination])
-        return RoomPerformanceStateFixture.Export(scene, performanceDestination);
     string root = Directory.CreateTempSubdirectory("SuperMetroid-android-state-test-").FullName;
     try
     {

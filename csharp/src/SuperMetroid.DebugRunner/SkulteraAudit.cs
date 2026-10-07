@@ -40,7 +40,7 @@ internal static class SkulteraAudit
     private static MainStreetResult RunMainStreet(SuperMetroidAddressSpace bus)
     {
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xcfc9);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         RoomEnemySystem enemies = LoadEnemies(bus, room, assets);
         RoomEnemySlot[] population = enemies.Slots.Take(enemies.EnemyCount).ToArray();
         RoomEnemySlot[] fish = population
@@ -169,8 +169,8 @@ internal static class SkulteraAudit
 
         RoomEnemySlot beamTarget = fish[1];
         StepNear(enemies, assets, samus, beamTarget);
-        var projectiles = new SamusProjectileSystem();
-        var sharedProjectiles = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var sharedProjectiles = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(projectiles.Slots[0], beamTarget, damage: 20);
         if (enemies.ResolveOrdinaryProjectileHits(
                 bus,
@@ -219,7 +219,7 @@ internal static class SkulteraAudit
     private static void VerifyEastOceanFacings(SuperMetroidAddressSpace bus)
     {
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0x94fd);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
@@ -231,7 +231,7 @@ internal static class SkulteraAudit
             retainedRecordCount: 10,
             deathQuota: 10);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             prefixBus,
             translatedPopulationPointer,
@@ -320,7 +320,7 @@ internal static class SkulteraAudit
         int retainedRecordCount)
     {
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomHeaderPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
@@ -330,7 +330,7 @@ internal static class SkulteraAudit
             retainedRecordCount,
             deathQuota: 1);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             prefixBus,
             room.State.EnemyPopulationPointer,
@@ -387,7 +387,7 @@ internal static class SkulteraAudit
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,

@@ -17,7 +17,7 @@ internal static class FrontendSkipIntroAudit
     public static int Run(string romPath, string outputPath)
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-        var game = new SuperMetroidGame(
+        var game = RepositoryInstallation.CreateGame(
             bus,
             new SuperMetroidGameOptions { SkipOpeningCinematic = true });
         int saveRamChangeCount = 0;
@@ -106,7 +106,7 @@ internal static class FrontendSkipIntroAudit
         // same title, file-select, and options calls as the desktop host, and require the
         // existing-save branch to reconstruct the cartridge-authored Ceres station. This
         // deliberately does not call SaveSlot or a runtime initializer from the audit.
-        var restartedGame = new SuperMetroidGame(
+        var restartedGame = RepositoryInstallation.CreateGame(
             bus,
             new SuperMetroidGameOptions { SkipOpeningCinematic = true });
         int restartedSaveRamChangeCount = 0;
@@ -168,7 +168,7 @@ internal static class FrontendSkipIntroAudit
                 saveStation: 0,
                 gameTime: crateriaTime));
 
-        var crateriaReload = new SuperMetroidGame(
+        var crateriaReload = RepositoryInstallation.CreateGame(
             bus,
             new SuperMetroidGameOptions { SkipOpeningCinematic = true });
         FrontendFrame crateriaFrame = FrontendAuditDriver.EnterSelectedSlot(crateriaReload);

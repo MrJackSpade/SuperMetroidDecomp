@@ -19,7 +19,7 @@ internal static class PseudoScrewResetAudit
         {
             string[] row = line.Split(',');
             ushort contact = ushort.Parse(row[0]), initial = ushort.Parse(row[3]);
-            var enemies = new RoomEnemySystem();
+            var enemies = RepositoryInstallation.CreateEnemySystem();
             enemies.Load(bus, 0xf000, 0, new SnesVram(), new SnesCgram(), () => 1);
             var enemy = enemies.Slots[0];
             enemy.EnemyDefinitionPointer = 0xf000;
@@ -54,7 +54,7 @@ internal static class PseudoScrewResetAudit
             cases++;
         }
         if (cases != (extended ? 36 : 24)) throw new InvalidDataException("Incomplete reset matrix.");
-        var empty = new RoomEnemySystem();
+        var empty = RepositoryInstallation.CreateEnemySystem();
         empty.Load(bus, 0xf000, 0, new SnesVram(), new SnesCgram(), () => 1);
         var untouched = new SamusState { InvincibilityTimer = 9 };
         untouched.HorizontalSpeed.ContactDamageIndex = 4;

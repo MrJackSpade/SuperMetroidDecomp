@@ -31,7 +31,7 @@ internal static class StartInputVisualAudit
         Directory.CreateDirectory(outputDirectory);
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(fullRomPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
-        var game = new SuperMetroidGame(bus, recording.GameOptions);
+        var game = RepositoryInstallation.CreateGame(bus, recording.GameOptions);
 
         FrontendFrame? previousFrame = null;
         ushort previousInput = 0;

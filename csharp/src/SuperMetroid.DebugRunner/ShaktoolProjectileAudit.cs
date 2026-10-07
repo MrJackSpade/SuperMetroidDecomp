@@ -205,7 +205,7 @@ internal static partial class ShaktoolAudit
         CircleEncounter encounter = SpawnFreshAttackCircles(bus, room, assets);
         VerifyCircleInitialization(bus, encounter);
 
-        var shots = new SamusProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
         SamusProjectileSlot beam = shots.Slots[0];
         beam.Type = 0x0001;
         beam.Damage = 20;
@@ -219,7 +219,7 @@ internal static partial class ShaktoolAudit
         int shotHits = encounter.Enemies.ResolveEnemyProjectileSamusProjectileHits(
             bus,
             shots,
-            new SamusBombProjectileSystem());
+            RepositoryInstallation.CreateBombSystem());
         if (shotHits != 0 || beam.InstructionPointer != 0x9000 ||
             !encounter.Front.IsActive)
         {
@@ -228,7 +228,7 @@ internal static partial class ShaktoolAudit
                 $"beam=${beam.InstructionPointer:X4}, live={encounter.Front.IsActive}.");
         }
 
-        var bombs = new SamusBombProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         EnemyProjectileAuditAssertions.VerifyNaturalSamusContact(
             bus,
             encounter.Enemies,

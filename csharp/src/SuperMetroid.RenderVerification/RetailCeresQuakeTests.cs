@@ -12,7 +12,7 @@ internal static class RetailCeresQuakeTests
         foreach (ushort room in new[] { RoomHeaderPointers.CeresDeadScientistRoom, RoomHeaderPointers.CeresFinalHallway })
         {
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-            var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
+            var runtime = RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true);
             runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
             runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(room, 0, 0);

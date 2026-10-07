@@ -20,13 +20,13 @@ internal static class BeetomAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, GreenBrinstarBeetomsRoom);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
         SamusState samus = CreateSamus(bus, 0x0100, 0x00b8);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -129,7 +129,7 @@ internal static class BeetomAudit
         samus.InitializeAnimation(bus);
 
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -151,8 +151,8 @@ internal static class BeetomAudit
             throw new InvalidDataException("Centered Beetom fixture did not enter the latched state.");
         StepCentered(enemies, assets, room, samus, actor, 0);
 
-        var bombs = new SamusBombProjectileSystem();
-        var shots = new SamusProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
         BombProjectileFrameResult placement = bombs.StepFrame(
             bus,
             assets.LevelData,
@@ -307,7 +307,7 @@ internal static class BeetomAudit
         assets.LoadGraphics(vram, cgram);
         SamusState samus = CreateSamus(bus, 0x0050, 0x00b8);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -329,8 +329,8 @@ internal static class BeetomAudit
         if (state.Function is not (BeetomEnemyFunction.DrainingLeft or BeetomEnemyFunction.DrainingRight))
             throw new InvalidDataException($"Beetom did not enter active drain before shot audit: {state.Function}.");
 
-        var projectiles = new SamusProjectileSystem();
-        var shared = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var shared = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(projectiles.Slots[0], actor, projectileType: 0x0002, damage: 20);
         ushort startingHealth = actor.Health;
         if (enemies.ResolveOrdinaryProjectileHits(bus, projectiles, shared, samus) != 1 ||
@@ -349,8 +349,8 @@ internal static class BeetomAudit
         // does not replace normal vulnerability damage or deletion.
         RoomEnemySlot damageTarget = enemies.Slots[1];
         StepCentered(enemies, assets, room, samus, damageTarget, 0);
-        projectiles = new SamusProjectileSystem();
-        shared = new SamusBombProjectileSystem();
+        projectiles = RepositoryInstallation.CreateProjectileSystem();
+        shared = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(projectiles.Slots[0], damageTarget, projectileType: 0x0100, damage: 20);
         ushort damageTargetHealth = damageTarget.Health;
         if (enemies.ResolveOrdinaryProjectileHits(bus, projectiles, shared, samus) != 1 ||
@@ -364,8 +364,8 @@ internal static class BeetomAudit
 
         RoomEnemySlot lethalTarget = enemies.Slots[2];
         StepCentered(enemies, assets, room, samus, lethalTarget, 0);
-        projectiles = new SamusProjectileSystem();
-        shared = new SamusBombProjectileSystem();
+        projectiles = RepositoryInstallation.CreateProjectileSystem();
+        shared = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(projectiles.Slots[0], lethalTarget, projectileType: 0x0200, damage: 1000);
         if (enemies.ResolveOrdinaryProjectileHits(bus, projectiles, shared, samus) != 1 ||
             lethalTarget.Health != 0 || lethalTarget.EnemyDefinitionPointer != 0)

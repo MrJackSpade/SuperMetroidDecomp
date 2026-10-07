@@ -118,7 +118,7 @@ internal static partial class Program
             "resident-door definition count");
 
         ushort[] headers = [0xbaf4,0xc842,0xc848,0xc84e,0xc854,0xc85a,0xc860,0xc866,0xc86c,
-            0xc872,0xc878,0xc87e,0xc884,0xc88a,0xc890,0xc896,0xc89c,0xc8ca];
+            0xc872,0xc878,0xc87e,0xc884,0xc88a,0xc890,0xc896,0xc89c,0xc8ca,0xdb4c,0xdb5a];
         AssertTrue(ResidentDoorClosingDefinitions.All.Select(entry => entry.Header).SequenceEqual(headers),
             "Resident closing exact native header set and enumeration order");
         for (int raw = 0; raw <= ushort.MaxValue; raw++)

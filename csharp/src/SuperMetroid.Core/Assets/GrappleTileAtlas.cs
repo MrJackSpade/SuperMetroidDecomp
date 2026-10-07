@@ -83,5 +83,8 @@ public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTran
     {
         foreach (var transfer in GrappleTileDefinitions.Transfers)
             queue.RebindBusSource(transfer.SourceAddress, checked((ushort)Resolve(transfer.Asset).Length), transfer.Asset);
+        // That legacy second frame is the restored animation ordinal one: the second endpoint tiles.
+        queue.RebindBusSource(GrappleTileDefinitions.LegacyAlternateEndpointSource,
+            checked((ushort)Resolve(VramAssetId.GrapplePointSecondTiles).Length), VramAssetId.GrapplePointSecondTiles);
     }
 }

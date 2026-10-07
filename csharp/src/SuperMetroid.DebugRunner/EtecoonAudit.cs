@@ -44,7 +44,7 @@ internal static class EtecoonAudit
         VerifyRetailPopulation(bus);
 
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, GreenBrinstarMainShaftRoom);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         if (room.State.Pointer != GreenBrinstarMainShaftState ||
             room.State.EnemyPopulationPointer != GreenBrinstarMainShaftPopulation)
         {
@@ -397,8 +397,8 @@ internal static class EtecoonAudit
             throw new InvalidDataException("Etecoon's no-touch header damaged or displaced Samus.");
         }
 
-        var projectiles = new SamusProjectileSystem();
-        var sharedProjectiles = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var sharedProjectiles = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(projectiles.Slots[0], actor);
         int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(
             bus,
@@ -453,7 +453,7 @@ internal static class EtecoonAudit
         samus.Kinematics.YSubacceleration = ReadWord(bus, 0x909ea1);
         samus.Kinematics.YAcceleration = ReadWord(bus, 0x909ea7);
 
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             prefixBus,
             populationPointer,

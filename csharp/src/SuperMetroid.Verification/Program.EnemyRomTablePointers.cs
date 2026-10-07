@@ -97,7 +97,7 @@ internal static partial class Program
             "InitializeTourianEntranceStatue", BindingFlags.Instance | BindingFlags.NonPublic)!;
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {
-            var system = new RoomEnemySystem { TileArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles() };
+            var system = new RoomEnemySystem { TileArtwork = RepositoryInstallation.Installation.LoadEnemyTiles() };
             type.GetField("_bus", BindingFlags.Instance | BindingFlags.NonPublic)!
                 .SetValue(system, guarded);
             type.GetField("_cgram", BindingFlags.Instance | BindingFlags.NonPublic)!
@@ -115,7 +115,7 @@ internal static partial class Program
             "SpawnGoldenTorizoSuperMissile", BindingFlags.Instance | BindingFlags.NonPublic)!;
         foreach (bool facingRight in new[] { false, true })
         {
-            var system = new RoomEnemySystem { TileArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles() };
+            var system = new RoomEnemySystem { TileArtwork = RepositoryInstallation.Installation.LoadEnemyTiles() };
             type.GetField("_bus", BindingFlags.Instance | BindingFlags.NonPublic)!
                 .SetValue(system, guarded);
             var torizo = new RoomEnemySlot(0)

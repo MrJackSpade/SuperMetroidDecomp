@@ -11,7 +11,7 @@ internal static partial class Program
         samus.XPosition = 220;
         samus.YPosition = 180;
         var fixture = CreateEnemyDropFixture(samus, [1]);
-        fixture.System.TileArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles();
+        fixture.System.TileArtwork = RepositoryInstallation.Installation.LoadEnemyTiles();
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (int bank in new[] { 0x860000, 0x8d0000 })
         {
@@ -86,7 +86,7 @@ internal static partial class Program
             samus.XPosition = 220;
             samus.YPosition = 100;
             var fixture = CreateEnemyDropFixture(samus, [1]);
-        fixture.System.TileArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles();
+        fixture.System.TileArtwork = RepositoryInstallation.Installation.LoadEnemyTiles();
             var enemy = fixture.System.Slots[0];
             enemy.EnemyDefinitionPointer = 0x9000;
             enemy.Definition = default(RoomEnemyDefinition) with

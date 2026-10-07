@@ -7,7 +7,7 @@ internal readonly record struct ResidentDoorClosingDefinition(
 
 /// <summary>
 /// Fixed secondary-list metadata selected by <c>$82:E8EB Spawn_Door_Closing_PLM</c>
-/// for resident grey/coloured doors and the Mother Brain escape gate.
+/// for resident grey/coloured/eye doors and the Mother Brain escape gate.
 /// </summary>
 /// <remarks>
 /// These dispatcher identities select bounded compiled timer, sound, draw and branch
@@ -16,7 +16,7 @@ internal readonly record struct ResidentDoorClosingDefinition(
 public static class ResidentDoorClosingDefinitions
 {
     /// <summary>Number of retail resident door/gate headers with a secondary closing list.</summary>
-    public const int Count = 18;
+    public const int Count = 20;
 
     /// <summary>$84:BA4C, Bomb Torizo's Bomb-gated right-facing closing program.</summary>
     internal const ushort BombTorizoGreyDoor = 0xba4c;
@@ -69,7 +69,7 @@ public static class ResidentDoorClosingDefinitions
     /// <summary>$84:C427, red door facing down closing program.</summary>
     internal const ushort RedFacingDown = 0xc427;
 
-    /// <summary>Enumerates the eighteen supported identities in original header order without cached records.</summary>
+    /// <summary>Enumerates the twenty supported identities in original header order without cached records.</summary>
     internal static IEnumerable<ResidentDoorClosingDefinition> All
     {
         get
@@ -92,12 +92,14 @@ public static class ResidentDoorClosingDefinitions
             yield return new(RoomPlmHeaders.RedDoorFacingUp, Resolve(RoomPlmHeaders.RedDoorFacingUp));
             yield return new(RoomPlmHeaders.RedDoorFacingDown, Resolve(RoomPlmHeaders.RedDoorFacingDown));
             yield return new(RoomPlmHeaders.MotherBrainEscapeRoomGate, Resolve(RoomPlmHeaders.MotherBrainEscapeRoomGate));
+            yield return new(RoomPlmHeaders.EyeDoorFacingRight, Resolve(RoomPlmHeaders.EyeDoorFacingRight));
+            yield return new(RoomPlmHeaders.EyeDoorFacingLeft, Resolve(RoomPlmHeaders.EyeDoorFacingLeft));
         }
     }
 
     /// <summary>
     /// Semantic header cases select the original bank-84 header+4 word consumed
-    /// by bank-82 E91C. Only these eighteen resident grey/coloured/gate identities
+    /// by bank-82 E91C. Only these twenty resident grey/coloured/eye-door/gate identities
     /// are supported; all other ushort values throw, including blue collision PLMs.
     /// </summary>
     internal static ushort Resolve(ushort header) => header switch
@@ -120,6 +122,10 @@ public static class ResidentDoorClosingDefinitions
         RoomPlmHeaders.RedDoorFacingUp => RedFacingUp,
         RoomPlmHeaders.RedDoorFacingDown => RedFacingDown,
         RoomPlmHeaders.MotherBrainEscapeRoomGate => RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing,
+        // $84:DB4C/DB5A carry $84:AAE3 as their secondary list: $82:E91C deletes a resident
+        // eye door on entry instead of animating a closing cap.
+        RoomPlmHeaders.EyeDoorFacingRight => RoomPlmInstructionLists.Delete,
+        RoomPlmHeaders.EyeDoorFacingLeft => RoomPlmInstructionLists.Delete,
         _ => throw new InvalidDataException(
             $"Resident door header $84:{header:X4} has no compiled closing definition."),
     };

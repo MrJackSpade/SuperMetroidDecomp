@@ -24,7 +24,7 @@ internal static partial class BotwoonAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
 
         VerifyRetailRoomAndHeader(bus, room);
         VerifyLiveMovementAttackAndDrawing(bus, room, assets);
@@ -160,8 +160,8 @@ internal static partial class BotwoonAudit
         CartridgeRoomAssets assets)
     {
         LoadedBotwoon loaded = Load(bus, room, assets, alreadyDefeated: false);
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
 
         AdvanceUntilShootable(loaded, assets.LevelData);
 
@@ -171,8 +171,8 @@ internal static partial class BotwoonAudit
         // a separate load: the saved-health write occurs, while health/death state does not.
         LoadedBotwoon bombLoaded = Load(bus, room, assets, alreadyDefeated: false);
         AdvanceUntilShootable(bombLoaded, assets.LevelData);
-        var bombShots = new SamusProjectileSystem();
-        var normalBombs = new SamusBombProjectileSystem();
+        var bombShots = RepositoryInstallation.CreateProjectileSystem();
+        var normalBombs = RepositoryInstallation.CreateBombSystem();
         bombLoaded.State.PreviousHealth = 0x1234;
         SamusBombProjectileSlot normalBomb =
             EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
@@ -310,7 +310,7 @@ internal static partial class BotwoonAudit
     {
         // Reload assets because the live audit intentionally mutated its level and scroll
         // arrays. CartridgeRoomAssets.Load decompresses a fresh room-owned copy each time.
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         LoadedBotwoon loaded = Load(bus, room, assets, alreadyDefeated: true);
         if (!loaded.Head.Properties.HasAny(EnemyProperties.Deleted) ||
             loaded.State.BodySegments.Any(segment => segment is not null) ||
@@ -344,7 +344,7 @@ internal static partial class BotwoonAudit
 
     private static void VerifyRuntimeAlreadyDefeatedIntegration(SuperMetroidAddressSpace bus)
     {
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
         runtime.InitializeStartingCeresRoom();
@@ -412,7 +412,7 @@ internal static partial class BotwoonAudit
         samus.InitializeAnimation(bus);
 
         bool miniBossBitWasSet = false;
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,

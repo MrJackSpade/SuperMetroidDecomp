@@ -38,7 +38,7 @@ internal static class EscapeAnimalsAudit
         VerifyRetailPopulation(bus);
 
         CartridgeRoomHeader room = LoadTimebombRoom(bus);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         VerifyInitializationPalettesAndDrawing(bus, room, assets);
         VerifyLavaBranches(bus, room, assets);
         VerifyNativeMovementAndEscapeEvent(bus, room, assets);
@@ -388,8 +388,8 @@ internal static class EscapeAnimalsAudit
                 throw new InvalidDataException("An escape animal synthesized contact damage.");
         }
 
-        var projectiles = new SamusProjectileSystem();
-        var sharedProjectiles = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var sharedProjectiles = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(projectiles.Slots[0], loaded.Enemies.Slots[1]);
         int shots = loaded.Enemies.ResolveOrdinaryProjectileHits(
             bus,
@@ -445,7 +445,7 @@ internal static class EscapeAnimalsAudit
         if (lavaSurface.HasValue)
             samus.LiquidPhysics.ConfigureLavaAcid(lavaSurface.Value);
 
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             EscapePopulation,

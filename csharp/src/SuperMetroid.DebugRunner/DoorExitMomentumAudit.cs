@@ -21,7 +21,7 @@ internal static class DoorExitMomentumAudit
         foreach (bool carriedSpeed in new[] { false, true })
         {
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-            var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
+            var runtime = RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();

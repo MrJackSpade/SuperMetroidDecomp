@@ -17,7 +17,7 @@ internal static class NuclearWaffleAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
 
         LoadedWaffles initialized = Load(bus, room, assets);
         VerifyPopulationAndInitialization(bus, room, initialized);
@@ -333,8 +333,8 @@ internal static class NuclearWaffleAudit
         LoadedWaffles shotLoad = Load(bus, room, assets);
         RoomEnemySlot shotHead = shotLoad.Enemies.Slots[0];
         NuclearWaffleEnemyState shotState = RequireState(shotLoad.Enemies, shotHead);
-        var projectiles = new SamusProjectileSystem();
-        var sharedProjectiles = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var sharedProjectiles = RepositoryInstallation.CreateBombSystem();
         ArmBeam(projectiles.Slots[0], shotHead.XPosition, shotHead.YPosition);
         StepGameplayFrame(shotLoad, room, assets, shotHead);
         int headHits = shotLoad.Enemies.ResolveOrdinaryProjectileHits(
@@ -440,7 +440,7 @@ internal static class NuclearWaffleAudit
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,

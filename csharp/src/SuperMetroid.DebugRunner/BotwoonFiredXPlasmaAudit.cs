@@ -20,7 +20,7 @@ internal static partial class BotwoonAudit
         foreach (int shootAt in new[] { 296, 304 })
         {
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-            var runtime = new SuperMetroidRuntime(bus);
+            var runtime = RepositoryInstallation.CreateRuntime(bus);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();

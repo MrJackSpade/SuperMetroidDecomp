@@ -27,7 +27,7 @@ internal static class PhantoonEnrageAudit
             ushort startX = 128;
             int jump = 1548;
             int release = 1566;
-            var runtime = new SuperMetroidRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom));
+            var runtime = RepositoryInstallation.CreateRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom));
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();

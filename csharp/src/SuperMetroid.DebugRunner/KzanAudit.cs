@@ -40,7 +40,7 @@ internal static class KzanAudit
             bus,
             SpikyDeathRoom,
             new RoomStateSelectionContext(default, BossBits: BossBits.AreaBoss, false, false));
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
 
         LoadedKzans initialized = Load(bus, room, assets);
         VerifyUntouchedPopulation(bus, room, initialized);
@@ -332,13 +332,13 @@ internal static class KzanAudit
         }
         EnemyContactAuditAssertions.VerifyStandingAirHit(bus, loaded.Samus, beforeHit, 200, 1, "Kzan body");
 
-        var projectiles = new SamusProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
         SamusProjectileSlot shot = projectiles.Slots[0];
         ArmProjectile(shot, top);
         int shotHits = loaded.Enemies.ResolveOrdinaryProjectileHits(
             bus,
             projectiles,
-            new SamusBombProjectileSystem(),
+            RepositoryInstallation.CreateBombSystem(),
             loaded.Samus);
         // Single-box dispatch publishes collision before calling the RTS-only
         // shot AI. The callback cannot undo the collision bit already set.
@@ -399,7 +399,7 @@ internal static class KzanAudit
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,

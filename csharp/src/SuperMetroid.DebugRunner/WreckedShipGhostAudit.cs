@@ -62,7 +62,7 @@ internal static class WreckedShipGhostAudit
         VerifyRomTables(bus);
 
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, AuditRoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         VerifyLifecycleAnimationAndPalettes(bus, room, assets);
         VerifyDirectionalSpawnSelection(bus, room, assets);
         VerifyTouchAttackAndShotDamage(bus, room, assets);
@@ -413,8 +413,8 @@ internal static class WreckedShipGhostAudit
                 $"knockback={loaded.Samus.KnockbackActive}.");
         }
 
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         ArmBeam(shots.Slots[0], actor, damage: 20);
         if (loaded.Enemies.ResolveOrdinaryProjectileHits(
                 bus, shots, bombs, loaded.Samus) != 1 ||
@@ -467,7 +467,7 @@ internal static class WreckedShipGhostAudit
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
 
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,

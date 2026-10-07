@@ -39,13 +39,13 @@ Use `csharp/tools/verify-android-rom-free.ps1` for the isolated cold-start gate.
 It never updates the player's testing package or copies saves, settings, SRAM,
 debugger states or a cartridge. It validates all required resources before device
 mutation, then copies only the extracted `game` tree into a new diagnostic package.
-The current IntegrationVerification DLL is required: a current top-level receipt
+The current DebugRunner DLL is required as the validator: a current top-level receipt
 alone does not establish that every nested asset format is current.
 
 Build the guarded validator and the separate Release AOT package:
 
 ```powershell
-dotnet build csharp/src/SuperMetroid.IntegrationVerification/SuperMetroid.IntegrationVerification.csproj -c Release
+dotnet build csharp/src/SuperMetroid.DebugRunner/SuperMetroid.DebugRunner.csproj -c Release
 dotnet build csharp/src/SuperMetroid.Android/SuperMetroid.Android.csproj -c Release -t:Rebuild -p:ApplicationId=org.supermetroid.csharp.romfree549 -p:AndroidHostProbes=false
 ```
 
@@ -54,8 +54,8 @@ is stale, explicitly generate a fresh one through the importer. This command
 refuses an existing destination; do not point it at a player's data directory.
 
 ```powershell
-dotnet csharp/src/SuperMetroid.IntegrationVerification/bin/Release/net10.0/SuperMetroid.IntegrationVerification.dll --prepare-extracted-installation "Super Metroid.smc" "csharp/test-temp/fresh-android-install"
-pwsh -NoProfile -File csharp/tools/verify-android-rom-free.ps1 -InstallationRoot "csharp/test-temp/fresh-android-install" -ApkPath "csharp/src/SuperMetroid.Android/bin/Release/net10.0-android/android-arm64/org.supermetroid.csharp.romfree549-Signed.apk" -ValidatorPath "csharp/src/SuperMetroid.IntegrationVerification/bin/Release/net10.0/SuperMetroid.IntegrationVerification.dll" -AaptPath "C:/Program Files (x86)/Android/android-sdk/build-tools/36.0.0/aapt.exe" -DeviceSerial DEVICE_SERIAL
+dotnet csharp/src/SuperMetroid.DebugRunner/bin/Release/net10.0-windows/SuperMetroid.DebugRunner.dll --prepare-extracted-installation "Super Metroid.smc" "csharp/test-temp/fresh-android-install"
+pwsh -NoProfile -File csharp/tools/verify-android-rom-free.ps1 -InstallationRoot "csharp/test-temp/fresh-android-install" -ApkPath "csharp/src/SuperMetroid.Android/bin/Release/net10.0-android/android-arm64/org.supermetroid.csharp.romfree549-Signed.apk" -ValidatorPath "csharp/src/SuperMetroid.DebugRunner/bin/Release/net10.0-windows/SuperMetroid.DebugRunner.dll" -AaptPath "C:/Program Files (x86)/Android/android-sdk/build-tools/36.0.0/aapt.exe" -DeviceSerial DEVICE_SERIAL
 ```
 
 The script refuses to overwrite an existing diagnostic package. It wakes the
@@ -115,7 +115,7 @@ Run from the repository root, with the existing private `Super Metroid.smc` and
 choose the `.smrec` basename corresponding to the reported session:
 
 ```powershell
-dotnet run --no-launch-profile --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --replay-android-bundle "path/to/private-export.zip" "SuperMetroid-input-YYYYMMDD-HHMMSS-fff.smrec"
+dotnet run --no-launch-profile --project csharp/src/SuperMetroid.DebugRunner -c Release -- --replay-android-bundle "path/to/private-export.zip" "SuperMetroid-input-YYYYMMDD-HHMMSS-fff.smrec"
 ```
 
 The sidecar JSON determines whether the journal starts at reset with recorded SRAM
@@ -228,7 +228,7 @@ Before installing an experimental APK, compare each application assembly with it
 `obj/Release/net10.0-android/android-arm64/linked` counterpart:
 
 ```powershell
-dotnet run --no-launch-profile --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --compare-assembly-metadata INPUT.dll LINKED.dll
+dotnet run --no-launch-profile --project csharp/src/SuperMetroid.DebugRunner -c Release -- --compare-assembly-metadata INPUT.dll LINKED.dll
 ```
 
 This read-only tool checks named types, fields, properties, events, and method
@@ -315,7 +315,7 @@ The slow interval is X-ray in room `$01/$06`, using `XrayGameplayRenderLayer`.
 Generate its exact autonomous frame without a three-minute device wait:
 
 ```powershell
-dotnet run --no-launch-profile --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --export-autonomous-performance-state 9650 csharp/test-temp/xray-performance-new
+dotnet run --no-launch-profile --project csharp/src/SuperMetroid.DebugRunner -c Release -- --export-autonomous-performance-state 9650 csharp/test-temp/xray-performance-new
 ```
 
 The destination must not exist. It contains a private slot-9 state, recording,

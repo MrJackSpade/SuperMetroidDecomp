@@ -264,8 +264,8 @@ internal static class MamaTurtleAudit
         LoadedTurtles loaded = Load(bus);
         Step(loaded, 0);
         RoomEnemySlot baby = loaded.Enemies.Slots[2];
-        var projectiles = new SamusProjectileSystem();
-        var shared = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var shared = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(projectiles.Slots[0], baby, damage: 100);
         ushort health = baby.Health;
         int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(
@@ -522,13 +522,13 @@ internal static class MamaTurtleAudit
         IImportCartridgeSource cartridge = bus as IImportCartridgeSource ??
             throw new InvalidOperationException("Mama Turtle cartridge audit requires a ROM source.");
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
         SamusState samus = CreateSamus(bus);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -566,12 +566,12 @@ internal static class MamaTurtleAudit
 
     private static void WakeMamaWithBeam(LoadedTurtles loaded, RoomEnemySlot baby)
     {
-        var projectiles = new SamusProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
         ArmProjectile(projectiles.Slots[0], baby, damage: 5);
         int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(
             loaded.Bus,
             projectiles,
-            new SamusBombProjectileSystem(),
+            RepositoryInstallation.CreateBombSystem(),
             loaded.Samus);
         if (hits != 1 || MamaState(loaded).AsleepFlag != 0)
             throw new InvalidDataException("Controlled Baby beam did not wake Mama Turtle.");

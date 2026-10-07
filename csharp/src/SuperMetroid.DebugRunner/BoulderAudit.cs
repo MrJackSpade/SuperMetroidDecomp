@@ -61,7 +61,7 @@ internal static class BoulderAudit
         VerifyAllRetailPopulationRecords(bus);
 
         CartridgeRoomHeader blueRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, BlueBrinstarBoulderRoom);
-        CartridgeRoomAssets blueAssets = CartridgeRoomAssets.Load(bus, blueRoom);
+        CartridgeRoomAssets blueAssets = CartridgeRoomAssets.Load(bus, blueRoom, RepositoryInstallation.RoomAssets);
         LoadedBoulders blue = LoadPrefix(
             bus,
             blueRoom,
@@ -72,7 +72,7 @@ internal static class BoulderAudit
         VerifyStrictTriggerAndImpactLifecycle(blueAssets, blue);
 
         CartridgeRoomHeader batRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, BatCaveRoom);
-        CartridgeRoomAssets batAssets = CartridgeRoomAssets.Load(bus, batRoom);
+        CartridgeRoomAssets batAssets = CartridgeRoomAssets.Load(bus, batRoom, RepositoryInstallation.RoomAssets);
         LoadedBoulders right = LoadPrefix(
             bus,
             batRoom,
@@ -333,8 +333,8 @@ internal static class BoulderAudit
         LoadedBoulders shot = LoadPrefix(bus, room, assets, BlueBrinstarPopulation, 1);
         actor = shot.Enemies.Slots[0];
         StepCentered(shot, assets, actor);
-        var projectiles = new SamusProjectileSystem();
-        var shared = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var shared = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(projectiles.Slots[0], actor, type: 0x0100, damage: 20);
         byte missileVulnerability = ReadVulnerability(bus, actor, 12);
         int missileDamage = missileVulnerability == 0xff
@@ -437,7 +437,7 @@ internal static class BoulderAudit
         };
         samus.RefreshCollisionRadii(prefixBus);
         samus.InitializeAnimation(prefixBus);
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             prefixBus,
             populationPointer,

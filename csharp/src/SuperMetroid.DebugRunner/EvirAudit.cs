@@ -66,7 +66,7 @@ internal static class EvirAudit
         VerifyRoomAndPopulation(bus, EastRoomHeader, EastRoomState, EastPopulation, EastRecords);
 
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, WestRoomHeader);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         VerifyLifecycleAndDrawing(bus, room, assets);
         VerifyCombatPropagation(bus, room, assets);
 
@@ -311,14 +311,14 @@ internal static class EvirAudit
         // body first. Isolate the same live projectile record as it would be in flight so
         // this assertion reaches the projectile header's own literal-RTL callback.
         noOpProjectile.XPosition = unchecked((ushort)(noOpProjectile.XPosition + 0x0060));
-        var passThroughShots = new SamusProjectileSystem();
+        var passThroughShots = RepositoryInstallation.CreateProjectileSystem();
         ArmProjectile(passThroughShots.Slots[0], noOpProjectile, damage: 1000);
         ushort noOpHealthBefore = noOpProjectile.Health;
         ushort instructionBefore = passThroughShots.Slots[0].InstructionPointer;
         int noOpHits = noOpShot.Enemies.ResolveOrdinaryProjectileHits(
             bus,
             passThroughShots,
-            new SamusBombProjectileSystem(),
+            RepositoryInstallation.CreateBombSystem(),
             noOpShot.Samus);
         if (noOpHits != 1 || noOpProjectile.Health != noOpHealthBefore ||
             passThroughShots.Slots[0].InstructionPointer != instructionBefore ||
@@ -344,8 +344,8 @@ internal static class EvirAudit
         LoadedEvir death = Load(bus, room, assets);
         RoomEnemySlot body = death.Enemies.Slots[0];
         Step(death, room, assets, frame: 0);
-        var projectiles = new SamusProjectileSystem();
-        var sharedProjectiles = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var sharedProjectiles = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(projectiles.Slots[0], body, damage: 1000);
         int hits = death.Enemies.ResolveOrdinaryProjectileHits(
             bus, projectiles, sharedProjectiles, death.Samus);
@@ -360,10 +360,10 @@ internal static class EvirAudit
         LoadedEvir frozen = Load(bus, room, assets);
         Step(frozen, room, assets, frame: 0);
         RoomEnemySlot frozenBody = frozen.Enemies.Slots[0];
-        var ice = new SamusProjectileSystem();
+        var ice = RepositoryInstallation.CreateProjectileSystem();
         ArmProjectile(ice.Slots[0], frozenBody, damage: 20, type: 0x0002);
         int freezeHits = frozen.Enemies.ResolveOrdinaryProjectileHits(
-            bus, ice, new SamusBombProjectileSystem(), frozen.Samus);
+            bus, ice, RepositoryInstallation.CreateBombSystem(), frozen.Samus);
         if (freezeHits != 1 || frozenBody.FrozenTimer != 400 ||
             frozen.Enemies.Slots[1].FrozenTimer != 400 ||
             frozen.Enemies.Slots[2].FrozenTimer != 400)
@@ -386,10 +386,10 @@ internal static class EvirAudit
         {
             throw new InvalidDataException("Moving-projectile freeze fixture did not launch.");
         }
-        var movingIce = new SamusProjectileSystem();
+        var movingIce = RepositoryInstallation.CreateProjectileSystem();
         ArmProjectile(movingIce.Slots[0], flyingBody, damage: 20, type: 0x0002);
         int movingFreezeHits = flying.Enemies.ResolveOrdinaryProjectileHits(
-            bus, movingIce, new SamusBombProjectileSystem(), flying.Samus);
+            bus, movingIce, RepositoryInstallation.CreateBombSystem(), flying.Samus);
         if (movingFreezeHits != 1 || flyingBody.FrozenTimer != 400 ||
             flying.Enemies.Slots[1].FrozenTimer != 400 || flyingProjectile.FrozenTimer != 0)
         {
@@ -455,7 +455,7 @@ internal static class EvirAudit
         samus.RefreshCollisionRadii(prefixBus);
         samus.InitializeAnimation(prefixBus);
 
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             prefixBus,
             WestPopulation,

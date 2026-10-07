@@ -45,7 +45,7 @@ internal static class MoatMovieFixture
         byte[] memory)
     {
         ushort W(int address) => BinaryPrimitives.ReadUInt16LittleEndian(memory.AsSpan(address));
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();

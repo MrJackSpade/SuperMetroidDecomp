@@ -1,28 +1,22 @@
-using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Rendering.Direct3D11;
 
 internal static class RetailAttractTests
 {
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
+        // Attract scenes are compiled stock definitions, so the fixture tours the stock first
+        // demo set; a cartridge edit can no longer shorten it.
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
-        var source = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
-        int list = AttractDemoRomData.RoomBank | RomDataReader.ReadWordFixedBank(source, AttractDemoRomData.RoomSetPointers);
-        // Same bounded fixture as portable capture verification: retain retail room,
-        // inputs and graphics, but end after sixteen ticks rather than tour more rooms.
-        BinaryPrimitives.WriteUInt16LittleEndian(rom.AsSpan(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(list + AttractDemoRomData.RoomFields.Duration)), 16);
-        BinaryPrimitives.WriteUInt16LittleEndian(rom.AsSpan(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(list + AttractDemoRomData.RoomRecordBytes)), AttractDemoRomData.EndOfSet);
         int samples = 0;
         foreach (bool cancel in new[] { false, true })
         {
-            var legacy = new SuperMetroidGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
-            var captured = new SuperMetroidGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+            var legacy = RepositoryInstallation.CreateGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+            var captured = RepositoryInstallation.CreateGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
             var states = new HashSet<SuperMetroidGameState>();
             bool sawHold = false, returned = false;
             Rgba32[]? held = null;
@@ -46,6 +40,9 @@ internal static class RetailAttractTests
                 if (legacy.AttractDemoHoldFramesRemaining > 0 && expected.GameState == SuperMetroidGameState.PlayingDemo)
                 {
                     sawHold = true;
+                    // Each scene's ninety-frame final-image hold freezes that scene's own image.
+                    if (legacy.AttractDemoHoldFramesRemaining == AttractDemoRomData.FinalImageHoldFrames)
+                        held = expected.Pixels.ToArray();
                     held ??= expected.Pixels.ToArray();
                     if (!held.AsSpan().SequenceEqual(expected.Pixels)) throw new InvalidOperationException("Demo held frame changed.");
                 }
@@ -58,6 +55,6 @@ internal static class RetailAttractTests
             if (!sawHold || !returned || !states.Contains(SuperMetroidGameState.TransitionToDemoB) || !states.Contains(SuperMetroidGameState.TransitionFromDemoA))
                 throw new InvalidOperationException("Attract fixture missed hold, transitions or return to title.");
         }
-        Console.WriteLine($"{device.Kind}: {samples} exact attract samples; bounded retail room, hold, completion/cancel and return to title passed.");
+        Console.WriteLine($"{device.Kind}: {samples} exact attract samples; stock demo scenes, per-scene holds, completion/cancel and return to title passed.");
     }
 }

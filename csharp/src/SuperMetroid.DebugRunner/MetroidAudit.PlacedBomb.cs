@@ -15,7 +15,7 @@ internal static partial class MetroidAudit
         samus.XPosition = 128;
         samus.YPosition = 153;
         samus.RefreshCollisionRadii(bus);
-        var bombs = new SamusBombProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         // Literal native CPU observations, not calculated from the ROM by this oracle.
         ushort[] radii = [8, 8, 12, 12, 16, 16, 16, 16, 16, 16, 0];
         ushort[] lists = [0xA073, 0xA073, 0xA07B, 0xA07B, 0xA083, 0xA083,
@@ -53,8 +53,8 @@ internal static partial class MetroidAudit
         if (state.Function != MetroidAiFunction.AttachedToSamus)
             throw new InvalidDataException("Placed-bomb fixture did not establish attachment through contact.");
 
-        var bombs = new SamusBombProjectileSystem();
-        var projectiles = new SamusProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
         int firstHit = -1;
         int firstReattach = -1;
         for (int frame = 0; frame < 100; frame++)

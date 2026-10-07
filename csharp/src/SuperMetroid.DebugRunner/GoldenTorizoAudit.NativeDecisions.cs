@@ -16,7 +16,7 @@ internal static partial class GoldenTorizoAudit
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
-        var assets = CartridgeRoomAssets.Load(bus, room);
+        var assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         var loaded = Load(bus, room, assets, false, () => { });
         const BindingFlags hidden = BindingFlags.Instance | BindingFlags.NonPublic;
         var next = (Func<ushort>)typeof(RoomEnemySystem).GetField("_nextRandom", hidden)!.GetValue(loaded.Enemies)!;

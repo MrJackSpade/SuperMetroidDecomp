@@ -5,18 +5,25 @@ using SuperMetroid.Core.Game;
 
 internal static partial class InstalledSporesTests
 {
-    private static void CheckArtwork(RoomFxAnimatedTileAtlas stock, string maps, string previousRoot,
+    private static void CheckArtwork(RoomFxAnimatedTileAtlas stock, string maps, string romPath,
         string nativeArtworkDirectory)
     {
         using var currentPng = File.OpenRead(Path.Combine(maps, RoomFxAnimatedTileAtlasFormat.FileName));
         IndexedPngImage image = IndexedPng.Read(currentPng, RoomFxAnimatedTileAtlasFormat.Width, 8);
         byte[] planar = SnesPlanarTileEncoder.Encode(image.Pixels, image.Width, image.Height, 2);
-        using var oldPng = File.OpenRead(Path.Combine(Path.GetFullPath(previousRoot), "game", "maps",
-            RoomFxAnimatedTileAtlasFormat.FileName));
-        IndexedPngImage old = IndexedPng.Read(oldPng, RoomFxAnimatedTileAtlasFormat.PreSporesWidth, 8);
-        byte[] oldPlanar = SnesPlanarTileEncoder.Encode(old.Pixels, old.Width, old.Height, 2);
-        Require(planar.AsSpan(0, oldPlanar.Length).SequenceEqual(oldPlanar),
-            "Appending spores shifted an existing animation, treadmill or statue pixel.");
+        // Appending spores must not shift any earlier strip: every segment of the installed sheet,
+        // frames and shared treadmill/statue strips alike, equals its native cartridge bytes.
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        int segmentOffset = 0;
+        foreach (RoomFxAtlasSegment segment in RoomFxAnimatedTileAtlasFormat.Segments)
+        {
+            for (int index = 0; index < segment.ByteCount; index++)
+                Require(planar[segmentOffset + index] == SuperMetroid.Core.Hardware.SnesCartridgeImportExtensions.ReadCartridgeByte(rom, segment.SourceAddress + index),
+                    $"Installed sheet segment ${segment.SourceAddress:X6} differs from its native bytes at +{index}.");
+            segmentOffset += segment.ByteCount;
+        }
+        Require(segmentOffset == planar.Length, "Installed sheet length differs from its native segment list.");
+        int sporesOffset = RoomFxAnimatedTileAtlasFormat.PreSporesWidth * 2;
         var controls = RoomFxAnimatedTileMechanicsDefinitions.All.Single(
             value => value.ObjectPointer == AnimatedTileObjectPointers.Spores);
         for (int frame = 0; frame < 3; frame++)
@@ -26,7 +33,7 @@ internal static partial class InstalledSporesTests
             byte[] pinnedArt = File.ReadAllBytes(Path.Combine(Path.GetFullPath(nativeArtworkDirectory),
                 $"AnimatedTiles_Spores_{frame}.bin"));
             Require(bytes.Span.SequenceEqual(pinnedArt), "Extracted spores differ from pinned native artwork.");
-            Require(bytes.Span.SequenceEqual(planar.AsSpan(oldPlanar.Length + frame * 48, 48)),
+            Require(bytes.Span.SequenceEqual(planar.AsSpan(sporesOffset + frame * 48, 48)),
                 "Spore transfer does not resolve the appended PNG segment.");
         }
         foreach (int width in new[] { RoomFxAnimatedTileAtlasFormat.LegacyWidth,

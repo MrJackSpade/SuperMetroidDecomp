@@ -20,8 +20,8 @@ internal static class MissileAdmissionAudit
                 XPosition = 128, YPosition = 128, SelectedHudItem = ushort.Parse(row[0]),
                 Missiles = ushort.Parse(row[3]), SuperMissiles = ushort.Parse(row[3]) };
             samus.Kinematics.XRadius = 5; samus.Kinematics.YRadius = 16;
-            var projectiles = new SamusProjectileSystem();
-            var shared = new SamusBombProjectileSystem();
+            var projectiles = RepositoryInstallation.CreateProjectileSystem();
+            var shared = RepositoryInstallation.CreateBombSystem();
             ushort count = ushort.Parse(row[1]);
             typeof(SamusProjectileSystem).GetProperty(nameof(SamusProjectileSystem.ProjectileCounter))!
                 .SetValue(projectiles, count);

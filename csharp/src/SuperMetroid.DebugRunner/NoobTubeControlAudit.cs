@@ -22,7 +22,7 @@ internal static class NoobTubeControlAudit
         var native = nativeTrace is null ? null : File.ReadLines(nativeTrace).Skip(1)
             .Select(line => line.Split(',').Select(int.Parse).ToArray()).ToArray();
         if (native is not null && native.Length != 700) throw new InvalidDataException("Expected 700 native tube frames.");
-        var runtime = new SuperMetroidRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom));
+        var runtime = RepositoryInstallation.CreateRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom));
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();

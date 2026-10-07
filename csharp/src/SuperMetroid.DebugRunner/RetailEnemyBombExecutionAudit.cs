@@ -34,7 +34,7 @@ internal static partial class RetailEnemyExecutionAudit
                 CartridgeRoomHeader defaultRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, state.RoomPointer);
                 CartridgeRoomState exactState = SuperMetroid.AssetExtraction.CartridgeRoomStateImporter.Load(bus, state.StatePointer);
                 CartridgeRoomHeader room = defaultRoom with { State = exactState };
-                CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+                CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
                 LoadedRetailState initial = LoadState(bus, room, assets);
 
                 for (int slotIndex = 0; slotIndex < initial.Enemies.EnemyCount; slotIndex++)

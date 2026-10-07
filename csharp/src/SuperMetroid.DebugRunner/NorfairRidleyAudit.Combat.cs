@@ -27,7 +27,7 @@ internal static partial class NorfairRidleyAudit
         bool bossDefeated = false;
         var random = new Bank80SystemState(0x4d21);
         var samus = CreateCombatSamus(bus);
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
@@ -81,7 +81,7 @@ internal static partial class NorfairRidleyAudit
         // $A6:E088 treats the final two tail joints as armor. A real beam-family word has
         // its sign bit set; on collision it is snapped to the newly solved joint, marked
         // with direction bit $10, and replaced by a bank-$86 dust actor without touching HP.
-        var tailShots = new SamusProjectileSystem();
+        var tailShots = RepositoryInstallation.CreateProjectileSystem();
         SamusProjectileSlot tailShot = tailShots.Slots[0];
         ArmRidleyProjectile(
             tailShot,
@@ -112,8 +112,8 @@ internal static partial class NorfairRidleyAudit
         // collides with the active extended rectangle and becomes an impact, but its low
         // seven-bit multiplier is zero. Assert that immune path before using the genuinely
         // vulnerable missile entry (`$82`) for the hurt/palette proof below.
-        var immuneBeam = new SamusProjectileSystem();
-        var sharedProjectiles = new SamusBombProjectileSystem();
+        var immuneBeam = RepositoryInstallation.CreateProjectileSystem();
+        var sharedProjectiles = RepositoryInstallation.CreateBombSystem();
         ArmRidleyProjectile(
             immuneBeam.Slots[0],
             unchecked((ushort)(body.XPosition + bodyHitOffsetX)),
@@ -178,7 +178,7 @@ internal static partial class NorfairRidleyAudit
         // Recompute the world point because the armor frame moved Ridley. Missile family
         // `$8100` selects vulnerability `$82`, so common no-death-check damage must arm the
         // boss-specific hurt AI and palette flash while leaving the actor alive.
-        var bodyMissile = new SamusProjectileSystem();
+        var bodyMissile = RepositoryInstallation.CreateProjectileSystem();
         ArmRidleyProjectile(
             bodyMissile.Slots[0],
             unchecked((ushort)(body.XPosition + bodyHitOffsetX)),
@@ -243,7 +243,7 @@ internal static partial class NorfairRidleyAudit
         // successful claw grab may latch fight mode $FFFF and enter the death sequence.
         ClearRidleyDamageTimers(body);
         state.PowerBombReactionLatched = 0;
-        var lethalShots = new SamusProjectileSystem();
+        var lethalShots = RepositoryInstallation.CreateProjectileSystem();
         ArmRidleyProjectile(
             lethalShots.Slots[0],
             unchecked((ushort)(body.XPosition + bodyHitOffsetX)),

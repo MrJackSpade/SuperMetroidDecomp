@@ -141,296 +141,161 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
     /// <summary>Reads all areas atomically into a new catalog; an invalid override is never replaced with stock.</summary>
     public static AreaMapPresentationCatalog Load(string stockDirectory, string? overrideDirectory)
     {
-        var stock = ReadVerifiedStock(stockDirectory);
+        var stock = VerifiedStockReader.Open(stockDirectory);
+        var mapBytes = new Dictionary<AreaId, byte[]>();
+        foreach (AreaId area in Enum.GetValues<AreaId>())
+            mapBytes.Add(area, stock.Read(AreaMapCatalogFormat.FileName(area)));
+        Dictionary<AreaId, HashSet<int>> stationCells = stock.ReadStationCells();
         var areas = new IAreaMapView[AreaIds.RetailCount];
         using var identity = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
-            using var baselineStream = new MemoryStream(stock.Maps[area], writable: false);
+            using var baselineStream = new MemoryStream(mapBytes[area], writable: false);
             var baseline = AreaMapPresentationAsset.Load(baselineStream, new AreaMapDecodeRules(area));
-            IAreaMapView definition = new AreaMapStockRules(baseline, stock.StationCells[area]);
+            IAreaMapView definition = new AreaMapStockRules(baseline, stationCells[area]);
             // The identity covers baseline rule content too: equal override bytes do
             // not imply equal exploration semantics across different stock installs.
-            AppendFramed(stock.Maps[area]);
+            AppendFramed(mapBytes[area]);
             byte[] stationPlane = new byte[AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles];
-            foreach (int cell in stock.StationCells[area]) stationPlane[cell] = 1;
+            foreach (int cell in stationCells[area]) stationPlane[cell] = 1;
             AppendFramed(stationPlane);
-            string? replacement = overrideDirectory is null ? null : Path.Combine(overrideDirectory, AreaMapCatalogFormat.FileName(area));
-            bool hasReplacement = replacement is not null && File.Exists(replacement);
-            byte[] selected = hasReplacement ? File.ReadAllBytes(replacement!) : stock.Maps[area];
-            try
+            string? replacement = OverridePath(AreaMapCatalogFormat.FileName(area));
+            byte[] selected = replacement is not null ? File.ReadAllBytes(replacement) : mapBytes[area];
+            if (replacement is null)
+                areas[AreaIds.ToIndex(area)] = baseline.WithRules(definition);
+            else
             {
-                using var stream = new MemoryStream(selected, writable: false);
-                areas[AreaIds.ToIndex(area)] = AreaMapPresentationAsset.Load(stream, definition);
-            }
-            catch (InvalidDataException error)
-            {
-                throw new InvalidDataException($"Invalid {area} map presentation ({(hasReplacement ? replacement : stockDirectory)}): {error.Message}", error);
+                try
+                {
+                    using var stream = new MemoryStream(selected, writable: false);
+                    areas[AreaIds.ToIndex(area)] = AreaMapPresentationAsset.Load(stream, definition);
+                }
+                catch (InvalidDataException error)
+                {
+                    throw new InvalidDataException($"Invalid {area} map presentation ({replacement}): {error.Message}", error);
+                }
             }
             // Hash framed contents in fixed area order: identity changes after a valid
             // replacement is reloaded, without rewriting original extraction provenance.
             AppendFramed(selected);
         }
-        string? atlasOverride = overrideDirectory is null ? null : Path.Combine(overrideDirectory, MapTileAtlasFormat.FileName);
-        byte[] atlasBytes = atlasOverride is not null && File.Exists(atlasOverride) ? File.ReadAllBytes(atlasOverride) : stock.Atlas;
-        MapTileAtlas tiles;
-        try { tiles = MapTileAtlas.Load(new MemoryStream(atlasBytes, writable: false)); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid map tile atlas ({atlasOverride ?? stockDirectory}): {error.Message}", error); }
-        AppendFramed(atlasBytes);
-        string? hudOverride = overrideDirectory is null ? null : Path.Combine(overrideDirectory, HudTileAtlasFormat.FileName);
-        byte[] hudBytes = hudOverride is not null && File.Exists(hudOverride) ? File.ReadAllBytes(hudOverride) : stock.HudAtlas;
-        HudTileAtlas hudTiles;
-        try { hudTiles = HudTileAtlas.Load(new MemoryStream(hudBytes, writable: false)); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid HUD tile atlas ({hudOverride ?? stockDirectory}): {error.Message}", error); }
-        AppendFramed(hudBytes);
-        string? cycleOverride = overrideDirectory is null ? null : Path.Combine(overrideDirectory, MapPaletteCycleFormat.FileName);
-        byte[] cycleBytes = cycleOverride is not null && File.Exists(cycleOverride) ? File.ReadAllBytes(cycleOverride) : stock.HighlightCycle;
-        MapPaletteCycle cycle;
-        try { cycle = MapPaletteCycle.Load(new MemoryStream(cycleBytes, writable: false)); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid map highlight cycle ({cycleOverride ?? stockDirectory}): {error.Message}", error); }
-        AppendFramed(cycleBytes);
-        string? paletteOverride = overrideDirectory is null ? null : Path.Combine(overrideDirectory, MapStaticPalettesFormat.FileName);
-        byte[] paletteBytes = paletteOverride is not null && File.Exists(paletteOverride) ? File.ReadAllBytes(paletteOverride) : stock.Palettes;
-        MapStaticPalettes palettes;
-        try { palettes = MapStaticPalettes.Load(new MemoryStream(paletteBytes, writable: false)); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid map palettes ({paletteOverride ?? stockDirectory}): {error.Message}", error); }
-        AppendFramed(paletteBytes);
-        string? labelOverride = overrideDirectory is null ? null : Path.Combine(overrideDirectory, WorldMapLabelFormat.FileName);
-        byte[] labelBytes = labelOverride is not null && File.Exists(labelOverride) ? File.ReadAllBytes(labelOverride) : stock.Labels;
-        WorldMapLabelLayout labels;
-        try { labels = WorldMapLabelLayout.Load(new MemoryStream(labelBytes, writable: false)); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid world-map labels ({labelOverride ?? stockDirectory}): {error.Message}", error); }
-        AppendFramed(labelBytes);
-        string? stationOverride = overrideDirectory is null ? null : Path.Combine(overrideDirectory, MapStationLayoutFormat.FileName);
-        byte[] stationBytes = stationOverride is not null && File.Exists(stationOverride) ? File.ReadAllBytes(stationOverride) : stock.Stations;
-        MapStationLayout stations;
-        try { stations = MapStationLayout.Load(new MemoryStream(stationBytes, writable: false)); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid map station labels ({stationOverride ?? stockDirectory}): {error.Message}", error); }
-        AppendFramed(stationBytes);
-        string? landmarkOverride = overrideDirectory is null ? null : Path.Combine(overrideDirectory, MapLandmarkFormat.FileName);
-        byte[] landmarkBytes = landmarkOverride is not null && File.Exists(landmarkOverride) ? File.ReadAllBytes(landmarkOverride) : stock.Landmarks;
-        MapLandmarkLayout landmarks;
-        try { landmarks = MapLandmarkLayout.Load(new MemoryStream(landmarkBytes, writable: false)); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid map landmarks ({landmarkOverride ?? stockDirectory}): {error.Message}", error); }
-        AppendFramed(landmarkBytes);
-        string? saveMarkerOverride = overrideDirectory is null ? null : Path.Combine(overrideDirectory, MapSaveMarkerFormat.FileName);
-        byte[] saveMarkerBytes = saveMarkerOverride is not null && File.Exists(saveMarkerOverride) ? File.ReadAllBytes(saveMarkerOverride) : stock.SaveMarkers;
-        MapSaveMarkerLayout saveMarkers;
-        try { saveMarkers = MapSaveMarkerLayout.Load(new MemoryStream(saveMarkerBytes, writable: false)); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid save markers ({saveMarkerOverride ?? stockDirectory}): {error.Message}", error); }
-        AppendFramed(saveMarkerBytes);
-        string? arrowOverride = overrideDirectory is null ? null : Path.Combine(overrideDirectory, MapArrowFormat.FileName);
-        byte[] arrowBytes = arrowOverride is not null && File.Exists(arrowOverride) ? File.ReadAllBytes(arrowOverride) : stock.Arrows;
-        MapArrowPresentation arrows;
-        try { arrows = MapArrowPresentation.Load(new MemoryStream(arrowBytes, writable: false)); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid map arrows ({arrowOverride ?? stockDirectory}): {error.Message}", error); }
-        AppendFramed(arrowBytes);
-        byte[] screenBytes = Select(MapScreenDefinitions.FileName, stock.Screens);
-        byte[] worldFrontBytes = Select(WorldMapArtworkFormat.ForegroundFile, stock.WorldFront);
-        byte[] worldBackBytes = Select(WorldMapArtworkFormat.BackgroundFile, stock.WorldBack);
-        MapScreenPresentation screens;
-        WorldMapArtwork artwork;
-        try { screens = MapScreenPresentation.Load(new MemoryStream(screenBytes, writable: false)); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid map screens ({overrideDirectory ?? stockDirectory}/{MapScreenDefinitions.FileName}): {error.Message}", error); }
-        try { artwork = WorldMapArtwork.Load(new MemoryStream(worldFrontBytes, writable: false), new MemoryStream(worldBackBytes, writable: false)); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid world-map PNG artwork in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        byte[] spriteJson = Select(MapSpriteFormat.JsonFile, stock.SpriteJson), spritePng = Select(MapSpriteFormat.PngFile, stock.SpritePng);
-        MapSpriteCatalog sprites;
-        try { sprites = MapSpriteCatalog.Load(new MemoryStream(spriteJson), new MemoryStream(spritePng)); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid map sprites in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        MapTileAtlas pauseTiles;
-        try { pauseTiles = MapTileAtlas.Load(new MemoryStream(Select(PauseTileAtlasFormat.FileName, stock.PauseTiles))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid pause artwork in {overrideDirectory ?? stockDirectory}/{PauseTileAtlasFormat.FileName}: {error.Message}", error); }
-        PauseBackdropPresentation pauseBackdrops;
-        try { pauseBackdrops = PauseBackdropPresentation.Load(new MemoryStream(Select(PauseBackdropDefinitions.FileName, stock.PauseBackdrops))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid pause backdrop in {overrideDirectory ?? stockDirectory}/{PauseBackdropDefinitions.FileName}: {error.Message}", error); }
-        PauseSelectorPresentation pauseSelectors;
-        try { pauseSelectors = PauseSelectorPresentation.Load(new MemoryStream(Select(PauseSelectorDefinitions.FileName, stock.PauseSelectors))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid pause selectors in {overrideDirectory ?? stockDirectory}/{PauseSelectorDefinitions.FileName}: {error.Message}", error); }
-        PauseWireframePresentation pauseWireframes;
-        try { pauseWireframes = PauseWireframePresentation.Load(new MemoryStream(Select(PauseWireframeDefinitions.FileName, stock.PauseWireframes))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid pause wireframes in {overrideDirectory ?? stockDirectory}/{PauseWireframeDefinitions.FileName}: {error.Message}", error); }
-        PauseReserveTankPresentation pauseReserveTanks;
-        try { pauseReserveTanks = PauseReserveTankPresentation.Load(new MemoryStream(Select(PauseReserveTankDefinitions.FileName, stock.PauseReserveTanks))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid reserve tank presentation in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        PauseReserveUiPresentation pauseReserveUi;
-        try { pauseReserveUi = PauseReserveUiPresentation.Load(new MemoryStream(Select(PauseReserveUiDefinitions.FileName, stock.PauseReserveUi))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid reserve UI presentation in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        PauseEquipmentBasePresentation pauseEquipmentBase;
-        try { pauseEquipmentBase = PauseEquipmentBasePresentation.Load(new MemoryStream(Select(PauseEquipmentBaseDefinitions.FileName, stock.PauseEquipmentBase))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid pause equipment base in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        PauseEquipmentLabelPresentation pauseEquipmentLabels;
-        try { pauseEquipmentLabels = PauseEquipmentLabelPresentation.Load(new MemoryStream(Select(PauseEquipmentLabelDefinitions.FileName, stock.PauseEquipmentLabels))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid pause equipment labels in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        EscapeTimerPresentation escapeTimer;
-        try { escapeTimer = EscapeTimerPresentation.Load(new MemoryStream(Select(EscapeTimerPresentationDefinitions.FileName, stock.EscapeTimer))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid escape timer presentation in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        EscapeTimerTileAtlas escapeTimerTiles;
-        try { escapeTimerTiles = EscapeTimerTileAtlas.Load(new MemoryStream(Select(EscapeTimerTileAtlasFormat.FileName, stock.EscapeTimerTiles))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid escape timer artwork in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        GameplayHudPresentation gameplayHud;
-        try { gameplayHud = GameplayHudPresentation.Load(new MemoryStream(Select(GameplayHudDefinitions.FileName, stock.GameplayHud))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid gameplay HUD presentation in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        GameOverPresentation gameOver;
-        try { gameOver = GameOverPresentation.Load(new MemoryStream(Select(GameOverPresentationDefinitions.FileName, stock.GameOver))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid game-over presentation in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        GameOptionsPresentation gameOptions;
-        try { gameOptions = GameOptionsPresentation.Load(new MemoryStream(Select(GameOptionsPresentationDefinitions.FileName, stock.GameOptions))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid options-menu presentation in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        FileSelectPresentation fileSelect;
-        try { fileSelect = FileSelectPresentation.Load(new MemoryStream(Select(FileSelectPresentationDefinitions.FileName, stock.FileSelect))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid file-select presentation in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        GameplayMessageTitlePresentation gameplayMessageTitles;
-        try { gameplayMessageTitles = GameplayMessageTitlePresentation.Load(new MemoryStream(Select(GameplayMessageTitleDefinitions.FileName, stock.GameplayMessageTitles))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid gameplay-message titles in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        GameplayMessagePanelPresentation gameplayMessagePanels;
-        try { gameplayMessagePanels = GameplayMessagePanelPresentation.Load(new MemoryStream(Select(GameplayMessagePanelDefinitions.FileName, stock.GameplayMessagePanels))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid gameplay-message panels in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        GameplayMessageNoticePresentation gameplayMessageNotices;
-        try { gameplayMessageNotices = GameplayMessageNoticePresentation.Load(new MemoryStream(Select(GameplayMessageNoticeDefinitions.FileName, stock.GameplayMessageNotices))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid gameplay-message notices in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        EscapeTypewriterPresentation escapeTypewriter;
-        try { escapeTypewriter = EscapeTypewriterPresentation.Load(new MemoryStream(Select(EscapeTypewriterDefinitions.FileName, stock.EscapeTypewriter))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid escape typewriter in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        IntroNarrationPresentation introNarration;
-        try { introNarration = IntroNarrationPresentation.Load(new MemoryStream(Select(IntroNarrationDefinitions.FileName, stock.IntroNarration))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid intro narration in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        IntroFontAtlas introFont;
-        try { introFont = IntroFontAtlas.Load(new MemoryStream(Select(IntroFontAtlasFormat.FileName, stock.IntroFont))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid intro font in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        EndingTextPresentation endingText;
-        try { endingText = EndingTextPresentation.Load(new MemoryStream(Select(EndingTextDefinitions.FileName, stock.EndingText))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid ending text in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        EndingFontAtlas endingFont;
-        try { endingFont = EndingFontAtlas.Load(new MemoryStream(Select(EndingFontAtlasFormat.FileName, stock.EndingFont))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid ending font in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        CreditsPresentation staffCredits;
-        try { staffCredits = CreditsPresentation.Load(new MemoryStream(Select(CreditsPresentationDefinitions.FileName, stock.StaffCredits))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid staff credits in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        TitleGraphicsPresentation titleGraphics;
-        try
-        {
-            titleGraphics = TitleGraphicsPresentation.Load(
-                new MemoryStream(Select(TitleGraphicsFormat.Mode7TilesFile, stock.TitleMode7Tiles)),
-                new MemoryStream(Select(TitleGraphicsFormat.Mode7MapFile, stock.TitleMode7Map)),
-                new MemoryStream(Select(TitleGraphicsFormat.ObjectTilesFile, stock.TitleObjectTiles)),
-                new MemoryStream(Select(TitleGraphicsFormat.BabyTilesFile, stock.TitleBabyTiles)));
-        }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid title graphics in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        TitlePalettePresentation titlePalette;
-        try { titlePalette = TitlePalettePresentation.Load(new MemoryStream(Select(TitlePaletteFormat.FileName, stock.TitlePalette))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid title palette in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        TitleGradientPresentation titleGradient;
-        try { titleGradient = TitleGradientPresentation.Load(new MemoryStream(Select(TitleGradientFormat.FileName, stock.TitleGradient))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid title gradient in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        RoomPaletteFxPresentation roomPaletteFx;
-        try
-        {
-            // Version-seventeen overrides predate the Samus-in-heat rows. Preserve
-            // their edits while inheriting only those new rows from current stock.
-            RoomPaletteFxPresentation currentStock = RoomPaletteFxPresentation.Load(
-                new MemoryStream(stock.RoomPaletteFx));
-            AppendFramed(stock.RoomPaletteFx);
-            roomPaletteFx = RoomPaletteFxPresentation.Load(
-                new MemoryStream(Select(RoomPaletteFxPresentationFormat.FileName,
-                    stock.RoomPaletteFx)), currentStock);
-        }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid room palette effects in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        MotherBrainHealthPalettePresentation motherBrainHealthPalette;
-        try { motherBrainHealthPalette = MotherBrainHealthPalettePresentation.Load(new MemoryStream(Select(MotherBrainHealthPaletteFormat.FileName, stock.MotherBrainHealthPalette))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid Mother Brain health palette in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        MotherBrainRainbowPalettePresentation motherBrainRainbowPalette;
-        try
-        {
-            // A version-two user override predates the fake-death rows. Preserve its edits
-            // and fill only that new color family from verified, current stock content.
-            var currentStock = MotherBrainRainbowPalettePresentation.Load(
-                new MemoryStream(stock.MotherBrainRainbowPalette));
-            AppendFramed(stock.MotherBrainRainbowPalette);
-            motherBrainRainbowPalette = MotherBrainRainbowPalettePresentation.Load(
-                new MemoryStream(Select(MotherBrainRainbowPaletteFormat.FileName,
-                    stock.MotherBrainRainbowPalette)), currentStock);
-        }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid Mother Brain rainbow palette in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        MotherBrainRoomColorPresentation motherBrainRoomColors;
-        try
-        {
-            var currentStock = MotherBrainRoomColorPresentation.Load(
-                new MemoryStream(stock.MotherBrainRoomColors));
-            AppendFramed(stock.MotherBrainRoomColors);
-            motherBrainRoomColors = MotherBrainRoomColorPresentation.Load(
-                new MemoryStream(Select(MotherBrainRoomColorFormat.FileName,
-                    stock.MotherBrainRoomColors)), currentStock);
-        }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid Mother Brain room colors in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        RoomFxAnimatedTileAtlas currentRoomFxStock = CompileFxFile(
-            Path.Combine(stockDirectory, RoomFxAnimatedTileAtlasFormat.FileName),
-            stock.RoomFxAnimatedTiles, stream => RoomFxAnimatedTileAtlas.Load(stream));
-        RoomFxAnimatedTileAtlas roomFxAnimatedTiles = CompileFxFile(
-            SelectedPath(RoomFxAnimatedTileAtlasFormat.FileName),
-            Select(RoomFxAnimatedTileAtlasFormat.FileName, stock.RoomFxAnimatedTiles),
-            stream => RoomFxAnimatedTileAtlas.Load(stream, currentRoomFxStock));
-        RoomFxLayer3TilemapCatalog roomFxLayer3Tilemaps = CompileFxFile(
-            SelectedPath(RoomFxLayer3TilemapFormat.FileName),
-            Select(RoomFxLayer3TilemapFormat.FileName, stock.RoomFxLayer3Tilemaps), RoomFxLayer3TilemapCatalog.Load);
-        RoomFxPaletteBlendCatalog roomFxPaletteBlends = CompileFxFile(
-            SelectedPath(RoomFxPaletteBlendDefinitions.FileName),
-            Select(RoomFxPaletteBlendDefinitions.FileName, stock.RoomFxPaletteBlends), RoomFxPaletteBlendCatalog.Load);
-        PowerBombFixedColorCatalog powerBombFixedColors;
-        try { powerBombFixedColors = PowerBombFixedColorCatalog.Load(new MemoryStream(Select(PowerBombFixedColorFormat.FileName, stock.PowerBombFixedColors))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid Power Bomb fixed colors in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        SamusVisorColorCatalog samusVisorColors;
-        try { samusVisorColors = SamusVisorColorCatalog.Load(new MemoryStream(Select(SamusVisorColorFormat.FileName, stock.SamusVisorColors))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid Samus visor colors in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        SamusHurtColorCatalog samusHurtColors;
-        try { samusHurtColors = SamusHurtColorCatalog.Load(new MemoryStream(Select(SamusHurtColorFormat.FileName, stock.SamusHurtColors))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid Samus hurt colors in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        SamusSuitColorCatalog samusSuitColors;
-        try { samusSuitColors = SamusSuitColorCatalog.Load(new MemoryStream(Select(SamusSuitColorFormat.FileName, File.ReadAllBytes(Path.Combine(stockDirectory, SamusSuitColorFormat.FileName))))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid Samus suit colors in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        SamusFullBodyCycleColorCatalog samusFullBodyCycleColors;
-        try { samusFullBodyCycleColors = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(Select(SamusFullBodyCycleColorFormat.FileName, File.ReadAllBytes(Path.Combine(stockDirectory, SamusFullBodyCycleColorFormat.FileName))))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid Samus full-body cycle colors in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        CrystalFlashColorCatalog crystalFlashColors;
-        try { crystalFlashColors = CrystalFlashColorCatalog.Load(new MemoryStream(Select(CrystalFlashColorFormat.FileName, File.ReadAllBytes(Path.Combine(stockDirectory, CrystalFlashColorFormat.FileName))))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid Crystal Flash colors in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        SamusChargeColorCatalog samusChargeColors;
-        try { samusChargeColors = SamusChargeColorCatalog.Load(new MemoryStream(Select(SamusChargeColorFormat.FileName, File.ReadAllBytes(Path.Combine(stockDirectory, SamusChargeColorFormat.FileName))))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid Samus charge colors in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        CeresRidleyColorCatalog ceresRidleyColors;
-        try
-        {
-            byte[] stockRidleyColors = File.ReadAllBytes(
-                Path.Combine(stockDirectory, CeresRidleyColorFormat.FileName));
-            CeresRidleyColorCatalog stockRidleyCatalog = CeresRidleyColorCatalog.Load(
-                new MemoryStream(stockRidleyColors, writable: false));
-            ceresRidleyColors = CeresRidleyColorCatalog.Load(
-                new MemoryStream(Select(CeresRidleyColorFormat.FileName,
-                    stockRidleyColors), writable: false), stockRidleyCatalog);
-        }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid Ceres Ridley colors in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        CeresRidleyMode7ColorCatalog ceresRidleyMode7Colors;
-        try { ceresRidleyMode7Colors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(Select(CeresRidleyMode7ColorFormat.FileName, File.ReadAllBytes(Path.Combine(stockDirectory, CeresRidleyMode7ColorFormat.FileName))))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid Ceres Ridley Mode-7 colors in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        SamusHyperBeamColorCatalog samusHyperBeamColors;
-        try { samusHyperBeamColors = SamusHyperBeamColorCatalog.Load(new MemoryStream(Select(SamusHyperBeamColorFormat.FileName, stock.SamusHyperBeamColors))); }
-        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid Samus Hyper Beam colors in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
+        // Each resource below is framed into the identity in this fixed order.
+        MapTileAtlas tiles = Resource(MapTileAtlasFormat.FileName, "map tile atlas", s => MapTileAtlas.Load(s));
+        HudTileAtlas hudTiles = Resource(HudTileAtlasFormat.FileName, "HUD tile atlas", s => HudTileAtlas.Load(s));
+        MapPaletteCycle cycle = Resource(MapPaletteCycleFormat.FileName, "map highlight cycle", s => MapPaletteCycle.Load(s));
+        MapStaticPalettes palettes = Resource(MapStaticPalettesFormat.FileName, "map palettes", s => MapStaticPalettes.Load(s));
+        WorldMapLabelLayout labels = Resource(WorldMapLabelFormat.FileName, "world-map labels", s => WorldMapLabelLayout.Load(s));
+        MapStationLayout stations = Resource(MapStationLayoutFormat.FileName, "map station labels", s => MapStationLayout.Load(s));
+        MapLandmarkLayout landmarks = Resource(MapLandmarkFormat.FileName, "map landmarks", s => MapLandmarkLayout.Load(s));
+        MapSaveMarkerLayout saveMarkers = Resource(MapSaveMarkerFormat.FileName, "save markers", s => MapSaveMarkerLayout.Load(s));
+        MapArrowPresentation arrows = Resource(MapArrowFormat.FileName, "map arrows", s => MapArrowPresentation.Load(s));
+        MapScreenPresentation screens = Resource(MapScreenDefinitions.FileName, "map screens", s => MapScreenPresentation.Load(s));
+        WorldMapArtwork artwork = MultiFileResource<WorldMapArtwork>([WorldMapArtworkFormat.ForegroundFile, WorldMapArtworkFormat.BackgroundFile],
+            "world-map PNG artwork", (s, _) => WorldMapArtwork.Load(s[0], s[1]));
+        MapSpriteCatalog sprites = MultiFileResource<MapSpriteCatalog>([MapSpriteFormat.JsonFile, MapSpriteFormat.PngFile],
+            "map sprites", (s, _) => MapSpriteCatalog.Load(s[0], s[1]));
+        MapTileAtlas pauseTiles = Resource(PauseTileAtlasFormat.FileName, "pause artwork", s => MapTileAtlas.Load(s));
+        PauseBackdropPresentation pauseBackdrops = Resource(PauseBackdropDefinitions.FileName, "pause backdrop", s => PauseBackdropPresentation.Load(s));
+        PauseSelectorPresentation pauseSelectors = Resource(PauseSelectorDefinitions.FileName, "pause selectors", s => PauseSelectorPresentation.Load(s));
+        PauseWireframePresentation pauseWireframes = Resource(PauseWireframeDefinitions.FileName, "pause wireframes", s => PauseWireframePresentation.Load(s));
+        PauseReserveTankPresentation pauseReserveTanks = Resource(PauseReserveTankDefinitions.FileName, "reserve tank presentation", s => PauseReserveTankPresentation.Load(s));
+        PauseReserveUiPresentation pauseReserveUi = Resource(PauseReserveUiDefinitions.FileName, "reserve UI presentation", s => PauseReserveUiPresentation.Load(s));
+        PauseEquipmentBasePresentation pauseEquipmentBase = Resource(PauseEquipmentBaseDefinitions.FileName, "pause equipment base", s => PauseEquipmentBasePresentation.Load(s));
+        PauseEquipmentLabelPresentation pauseEquipmentLabels = Resource(PauseEquipmentLabelDefinitions.FileName, "pause equipment labels", s => PauseEquipmentLabelPresentation.Load(s));
+        EscapeTimerPresentation escapeTimer = Resource(EscapeTimerPresentationDefinitions.FileName, "escape timer presentation", s => EscapeTimerPresentation.Load(s));
+        EscapeTimerTileAtlas escapeTimerTiles = Resource(EscapeTimerTileAtlasFormat.FileName, "escape timer artwork", s => EscapeTimerTileAtlas.Load(s));
+        GameplayHudPresentation gameplayHud = Resource(GameplayHudDefinitions.FileName, "gameplay HUD presentation", s => GameplayHudPresentation.Load(s));
+        GameOverPresentation gameOver = Resource(GameOverPresentationDefinitions.FileName, "game-over presentation", s => GameOverPresentation.Load(s));
+        GameOptionsPresentation gameOptions = Resource(GameOptionsPresentationDefinitions.FileName, "options-menu presentation", s => GameOptionsPresentation.Load(s));
+        FileSelectPresentation fileSelect = Resource(FileSelectPresentationDefinitions.FileName, "file-select presentation", s => FileSelectPresentation.Load(s));
+        GameplayMessageTitlePresentation gameplayMessageTitles = Resource(GameplayMessageTitleDefinitions.FileName, "gameplay-message titles", s => GameplayMessageTitlePresentation.Load(s));
+        GameplayMessagePanelPresentation gameplayMessagePanels = Resource(GameplayMessagePanelDefinitions.FileName, "gameplay-message panels", s => GameplayMessagePanelPresentation.Load(s));
+        GameplayMessageNoticePresentation gameplayMessageNotices = Resource(GameplayMessageNoticeDefinitions.FileName, "gameplay-message notices", s => GameplayMessageNoticePresentation.Load(s));
+        EscapeTypewriterPresentation escapeTypewriter = Resource(EscapeTypewriterDefinitions.FileName, "escape typewriter", s => EscapeTypewriterPresentation.Load(s));
+        IntroNarrationPresentation introNarration = Resource(IntroNarrationDefinitions.FileName, "intro narration", s => IntroNarrationPresentation.Load(s));
+        IntroFontAtlas introFont = Resource(IntroFontAtlasFormat.FileName, "intro font", s => IntroFontAtlas.Load(s));
+        EndingTextPresentation endingText = Resource(EndingTextDefinitions.FileName, "ending text", s => EndingTextPresentation.Load(s));
+        EndingFontAtlas endingFont = Resource(EndingFontAtlasFormat.FileName, "ending font", s => EndingFontAtlas.Load(s));
+        CreditsPresentation staffCredits = Resource(CreditsPresentationDefinitions.FileName, "staff credits", s => CreditsPresentation.Load(s));
+        TitleGraphicsPresentation titleGraphics = MultiFileResource<TitleGraphicsPresentation>(
+            [TitleGraphicsFormat.Mode7TilesFile, TitleGraphicsFormat.Mode7MapFile, TitleGraphicsFormat.ObjectTilesFile, TitleGraphicsFormat.BabyTilesFile],
+            "title graphics", (s, _) => TitleGraphicsPresentation.Load(s[0], s[1], s[2], s[3]));
+        TitlePalettePresentation titlePalette = Resource(TitlePaletteFormat.FileName, "title palette", s => TitlePalettePresentation.Load(s));
+        TitleGradientPresentation titleGradient = Resource(TitleGradientFormat.FileName, "title gradient", s => TitleGradientPresentation.Load(s));
+        // Version-seventeen overrides predate the Samus-in-heat rows. Preserve
+        // their edits while inheriting only those new rows from current stock.
+        RoomPaletteFxPresentation roomPaletteFx = MigratingResource<RoomPaletteFxPresentation>(RoomPaletteFxPresentationFormat.FileName,
+            "room palette effects", (s, current) => RoomPaletteFxPresentation.Load(s, current), frameStock: true);
+        MotherBrainHealthPalettePresentation motherBrainHealthPalette = Resource(MotherBrainHealthPaletteFormat.FileName, "Mother Brain health palette", s => MotherBrainHealthPalettePresentation.Load(s));
+        // A version-two user override predates the fake-death rows. Preserve its edits
+        // and fill only that new color family from verified, current stock content.
+        MotherBrainRainbowPalettePresentation motherBrainRainbowPalette = MigratingResource<MotherBrainRainbowPalettePresentation>(MotherBrainRainbowPaletteFormat.FileName,
+            "Mother Brain rainbow palette", (s, current) => MotherBrainRainbowPalettePresentation.Load(s, current), frameStock: true);
+        MotherBrainRoomColorPresentation motherBrainRoomColors = MigratingResource<MotherBrainRoomColorPresentation>(MotherBrainRoomColorFormat.FileName,
+            "Mother Brain room colors", (s, current) => MotherBrainRoomColorPresentation.Load(s, current), frameStock: true);
+        RoomFxAnimatedTileAtlas roomFxAnimatedTiles = MigratingResource<RoomFxAnimatedTileAtlas>(RoomFxAnimatedTileAtlasFormat.FileName,
+            "room-FX presentation", (s, current) => RoomFxAnimatedTileAtlas.Load(s, current), frameStock: false);
+        RoomFxLayer3TilemapCatalog roomFxLayer3Tilemaps = Resource(RoomFxLayer3TilemapFormat.FileName, "room-FX presentation", s => RoomFxLayer3TilemapCatalog.Load(s));
+        RoomFxPaletteBlendCatalog roomFxPaletteBlends = Resource(RoomFxPaletteBlendDefinitions.FileName, "room-FX presentation", s => RoomFxPaletteBlendCatalog.Load(s));
+        PowerBombFixedColorCatalog powerBombFixedColors = Resource(PowerBombFixedColorFormat.FileName, "Power Bomb fixed colors", s => PowerBombFixedColorCatalog.Load(s));
+        SamusVisorColorCatalog samusVisorColors = Resource(SamusVisorColorFormat.FileName, "Samus visor colors", s => SamusVisorColorCatalog.Load(s));
+        SamusHurtColorCatalog samusHurtColors = Resource(SamusHurtColorFormat.FileName, "Samus hurt colors", s => SamusHurtColorCatalog.Load(s));
+        SamusSuitColorCatalog samusSuitColors = Resource(SamusSuitColorFormat.FileName, "Samus suit colors", s => SamusSuitColorCatalog.Load(s));
+        SamusFullBodyCycleColorCatalog samusFullBodyCycleColors = Resource(SamusFullBodyCycleColorFormat.FileName, "Samus full-body cycle colors", s => SamusFullBodyCycleColorCatalog.Load(s));
+        CrystalFlashColorCatalog crystalFlashColors = Resource(CrystalFlashColorFormat.FileName, "Crystal Flash colors", s => CrystalFlashColorCatalog.Load(s));
+        SamusChargeColorCatalog samusChargeColors = Resource(SamusChargeColorFormat.FileName, "Samus charge colors", s => SamusChargeColorCatalog.Load(s));
+        CeresRidleyColorCatalog ceresRidleyColors = MigratingResource<CeresRidleyColorCatalog>(CeresRidleyColorFormat.FileName,
+            "Ceres Ridley colors", (s, current) => CeresRidleyColorCatalog.Load(s, current), frameStock: false);
+        CeresRidleyMode7ColorCatalog ceresRidleyMode7Colors = Resource(CeresRidleyMode7ColorFormat.FileName, "Ceres Ridley Mode-7 colors", s => CeresRidleyMode7ColorCatalog.Load(s));
+        SamusHyperBeamColorCatalog samusHyperBeamColors = Resource(SamusHyperBeamColorFormat.FileName, "Samus Hyper Beam colors", s => SamusHyperBeamColorCatalog.Load(s));
+        stock.RequireAllManifestFilesRead();
         var catalog = new AreaMapPresentationCatalog(areas, Convert.ToHexString(identity.GetHashAndReset()), tiles, hudTiles, cycle, palettes, labels, stations, landmarks, saveMarkers, arrows, screens, artwork, sprites, pauseTiles, pauseBackdrops, pauseWireframes, pauseSelectors, pauseReserveTanks, pauseReserveUi, pauseEquipmentBase, pauseEquipmentLabels, escapeTimer, escapeTimerTiles, gameplayHud, gameOver, gameOptions, fileSelect, gameplayMessageTitles, gameplayMessagePanels, gameplayMessageNotices, escapeTypewriter, introNarration, introFont, endingText, endingFont, staffCredits, titleGraphics, titlePalette, titleGradient, roomPaletteFx, motherBrainHealthPalette, motherBrainRainbowPalette, roomFxAnimatedTiles, roomFxLayer3Tilemaps, roomFxPaletteBlends, powerBombFixedColors, samusVisorColors, samusHurtColors, samusSuitColors, samusFullBodyCycleColors, crystalFlashColors, samusChargeColors, ceresRidleyColors, ceresRidleyMode7Colors, samusHyperBeamColors);
         catalog.MotherBrainRoomColors = motherBrainRoomColors;
         return catalog;
 
-        string SelectedPath(string name)
+        T Resource<T>(string file, string description, Func<Stream, T> compile) where T : class =>
+            MultiFileResource<T>([file], description, (streams, _) => compile(streams[0]));
+
+        T MigratingResource<T>(string file, string description, Func<Stream, T?, T> compile, bool frameStock) where T : class =>
+            MultiFileResource<T>([file], description, (streams, current) => compile(streams[0], current), frameStock);
+
+        // Stock is hash-checked and compiled exactly once. An unedited resource reuses that
+        // compiled stock value; an edited one compiles its override against current stock.
+        T MultiFileResource<T>(string[] files, string description, Func<Stream[], T?, T> compile, bool frameStock = false) where T : class
         {
-            string? edited = overrideDirectory is null ? null : Path.Combine(overrideDirectory, name);
-            return Path.GetFullPath(edited is not null && File.Exists(edited) ? edited : Path.Combine(stockDirectory, name));
+            byte[][] stockBytes = files.Select(stock.Read).ToArray();
+            T stockValue = Compile(files.Select(file => Path.Combine(stockDirectory, file)).ToArray(), stockBytes, null);
+            if (frameStock)
+                foreach (byte[] bytes in stockBytes) AppendFramed(bytes);
+            string?[] edited = files.Select(OverridePath).ToArray();
+            byte[][] selected = new byte[files.Length][];
+            for (int index = 0; index < files.Length; index++)
+            {
+                selected[index] = edited[index] is { } path ? File.ReadAllBytes(path) : stockBytes[index];
+                AppendFramed(selected[index]);
+            }
+            if (edited.All(path => path is null)) return stockValue;
+            return Compile(files.Select((file, index) => edited[index] ?? Path.Combine(stockDirectory, file)).ToArray(), selected, stockValue);
+
+            T Compile(string[] paths, byte[][] contents, T? current)
+            {
+                try
+                {
+                    return compile(contents.Select(bytes => (Stream)new MemoryStream(bytes, writable: false)).ToArray(), current);
+                }
+                catch (InvalidDataException error)
+                {
+                    // Attribute both required stock and optional edits to the actual files,
+                    // retaining the codec error instead of reporting only a directory.
+                    throw new InvalidDataException($"Invalid {description} '{string.Join("', '", paths.Select(Path.GetFullPath))}': {error.Message}", error);
+                }
+            }
         }
 
-        byte[] Select(string name, byte[] baseline)
+        string? OverridePath(string name)
         {
             string? path = overrideDirectory is null ? null : Path.Combine(overrideDirectory, name);
-            byte[] bytes = path is not null && File.Exists(path) ? File.ReadAllBytes(path) : baseline;
-            AppendFramed(bytes);
-            return bytes;
+            return path is not null && File.Exists(path) ? path : null;
         }
 
         void AppendFramed(byte[] bytes)
@@ -443,188 +308,75 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
     }
 
     /// <summary>Installer integrity check; never repairs files or touches the override directory.</summary>
-    public static void ValidateStock(string directory) => _ = ReadVerifiedStock(directory);
+    public static void ValidateStock(string directory) => _ = Load(directory, null);
 
-    private static T CompileFxFile<T>(string path, byte[] bytes, Func<Stream, T> compile)
+    /// <summary>Reads stock files that must match the extraction manifest's SHA-256 values.</summary>
+    private sealed class VerifiedStockReader
     {
-        try
-        {
-            using var stream = new MemoryStream(bytes, writable: false);
-            return compile(stream);
-        }
-        catch (InvalidDataException error)
-        {
-            // Attribute both required stock and optional edits to the actual file,
-            // retaining the codec error instead of reporting only its directory.
-            throw new InvalidDataException($"Invalid room-FX presentation '{Path.GetFullPath(path)}': {error.Message}", error);
-        }
-    }
+        private readonly string directory;
+        private readonly AreaMapCatalogManifest manifest;
+        private readonly HashSet<string> read = new(StringComparer.Ordinal);
 
-    private static (Dictionary<AreaId, byte[]> Maps, Dictionary<AreaId, HashSet<int>> StationCells, byte[] Atlas, byte[] HudAtlas, byte[] HighlightCycle, byte[] Palettes, byte[] Labels, byte[] Stations, byte[] Landmarks, byte[] SaveMarkers, byte[] Arrows, byte[] Screens, byte[] WorldFront, byte[] WorldBack, byte[] SpriteJson, byte[] SpritePng, byte[] PauseTiles, byte[] PauseBackdrops, byte[] PauseWireframes, byte[] PauseSelectors, byte[] PauseReserveTanks, byte[] PauseReserveUi, byte[] PauseEquipmentBase, byte[] PauseEquipmentLabels, byte[] EscapeTimer, byte[] EscapeTimerTiles, byte[] GameplayHud, byte[] GameOver, byte[] GameOptions, byte[] FileSelect, byte[] GameplayMessageTitles, byte[] GameplayMessagePanels, byte[] GameplayMessageNotices, byte[] EscapeTypewriter, byte[] IntroNarration, byte[] IntroFont, byte[] EndingText, byte[] EndingFont, byte[] StaffCredits, byte[] TitleMode7Tiles, byte[] TitleMode7Map, byte[] TitleObjectTiles, byte[] TitleBabyTiles, byte[] TitlePalette, byte[] TitleGradient, byte[] RoomPaletteFx, byte[] MotherBrainHealthPalette, byte[] MotherBrainRainbowPalette, byte[] MotherBrainRoomColors, byte[] RoomFxAnimatedTiles, byte[] RoomFxLayer3Tilemaps, byte[] RoomFxPaletteBlends, byte[] PowerBombFixedColors, byte[] SamusVisorColors, byte[] SamusHurtColors, byte[] SamusHyperBeamColors) ReadVerifiedStock(string directory)
-    {
-        AreaMapCatalogManifest manifest;
-        try
+        private VerifiedStockReader(string directory, AreaMapCatalogManifest manifest)
         {
-            manifest = JsonAssetDocument.Read<AreaMapCatalogManifest>(
-                File.ReadAllBytes(Path.Combine(directory, AreaMapCatalogFormat.ManifestFile)), MapPresentationFormat.JsonOptions)
-                ?? throw new InvalidDataException("Map catalog manifest is null.");
+            this.directory = directory;
+            this.manifest = manifest;
         }
-        catch (JsonException error) { throw new InvalidDataException($"Invalid map catalog manifest in {directory}.", error); }
-        if (manifest.Version != AreaMapCatalogFormat.Version || manifest.Sha256 is null || manifest.Sha256.Count != AreaIds.RetailCount + AreaMapCatalogFormat.SharedResourceCount)
-            throw new InvalidDataException($"Map catalog manifest must contain the supported version, seven maps and all {AreaMapCatalogFormat.SharedResourceCount} shared presentation resource hashes.");
-        var result = new Dictionary<AreaId, byte[]>();
-        foreach (AreaId area in Enum.GetValues<AreaId>())
-        {
-            string file = AreaMapCatalogFormat.FileName(area);
-            result.Add(area, ReadChecked(file));
-        }
-        Dictionary<string, int[]> masks;
-        try
-        {
-            masks = JsonAssetDocument.Read<Dictionary<string, int[]>>(ReadChecked(AreaMapCatalogFormat.StationRevealFile), MapPresentationFormat.JsonOptions)
-                ?? throw new InvalidDataException("Station reveal content is null.");
-        }
-        catch (JsonException error) { throw new InvalidDataException("Invalid station reveal content.", error); }
-        if (masks.Count != AreaIds.RetailCount) throw new InvalidDataException("Station reveal content requires all seven areas.");
-        var stationCells = new Dictionary<AreaId, HashSet<int>>();
-        foreach (AreaId area in Enum.GetValues<AreaId>())
-        {
-            if (!masks.TryGetValue(area.ToString(), out int[]? cells) || cells is null ||
-                cells.Any(cell => (uint)cell >= AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles) ||
-                cells.Distinct().Count() != cells.Length)
-                throw new InvalidDataException($"Invalid or duplicate station reveal cells for {area}.");
-            stationCells.Add(area, cells.ToHashSet());
-        }
-        byte[] atlas = ReadChecked(MapTileAtlasFormat.FileName);
-        _ = MapTileAtlas.Load(new MemoryStream(atlas, writable: false));
-        byte[] hudAtlas = ReadChecked(HudTileAtlasFormat.FileName);
-        _ = HudTileAtlas.Load(new MemoryStream(hudAtlas, writable: false));
-        byte[] highlightCycle = ReadChecked(MapPaletteCycleFormat.FileName);
-        _ = MapPaletteCycle.Load(new MemoryStream(highlightCycle, writable: false));
-        byte[] palettes = ReadChecked(MapStaticPalettesFormat.FileName);
-        _ = MapStaticPalettes.Load(new MemoryStream(palettes, writable: false));
-        byte[] labels = ReadChecked(WorldMapLabelFormat.FileName);
-        _ = WorldMapLabelLayout.Load(new MemoryStream(labels, writable: false));
-        byte[] stations = ReadChecked(MapStationLayoutFormat.FileName);
-        _ = MapStationLayout.Load(new MemoryStream(stations, writable: false));
-        byte[] landmarks = ReadChecked(MapLandmarkFormat.FileName);
-        _ = MapLandmarkLayout.Load(new MemoryStream(landmarks, writable: false));
-        byte[] saveMarkers = ReadChecked(MapSaveMarkerFormat.FileName);
-        _ = MapSaveMarkerLayout.Load(new MemoryStream(saveMarkers, writable: false));
-        byte[] arrows = ReadChecked(MapArrowFormat.FileName);
-        _ = MapArrowPresentation.Load(new MemoryStream(arrows, writable: false));
-        byte[] screens = ReadChecked(MapScreenDefinitions.FileName);
-        _ = MapScreenPresentation.Load(new MemoryStream(screens, writable: false));
-        byte[] front = ReadChecked(WorldMapArtworkFormat.ForegroundFile), back = ReadChecked(WorldMapArtworkFormat.BackgroundFile);
-        _ = WorldMapArtwork.Load(new MemoryStream(front, writable: false), new MemoryStream(back, writable: false));
-        byte[] spriteJson = ReadChecked(MapSpriteFormat.JsonFile), spritePng = ReadChecked(MapSpriteFormat.PngFile);
-        _ = MapSpriteCatalog.Load(new MemoryStream(spriteJson), new MemoryStream(spritePng));
-        byte[] pauseTiles = ReadChecked(PauseTileAtlasFormat.FileName);
-        _ = MapTileAtlas.Load(new MemoryStream(pauseTiles));
-        byte[] pauseBackdrops = ReadChecked(PauseBackdropDefinitions.FileName);
-        _ = PauseBackdropPresentation.Load(new MemoryStream(pauseBackdrops));
-        byte[] pauseWireframes = ReadChecked(PauseWireframeDefinitions.FileName);
-        _ = PauseWireframePresentation.Load(new MemoryStream(pauseWireframes));
-        byte[] pauseSelectors = ReadChecked(PauseSelectorDefinitions.FileName);
-        _ = PauseSelectorPresentation.Load(new MemoryStream(pauseSelectors));
-        byte[] pauseReserveTanks = ReadChecked(PauseReserveTankDefinitions.FileName);
-        _ = PauseReserveTankPresentation.Load(new MemoryStream(pauseReserveTanks));
-        byte[] pauseReserveUi = ReadChecked(PauseReserveUiDefinitions.FileName);
-        _ = PauseReserveUiPresentation.Load(new MemoryStream(pauseReserveUi));
-        byte[] pauseEquipmentBase = ReadChecked(PauseEquipmentBaseDefinitions.FileName);
-        _ = PauseEquipmentBasePresentation.Load(new MemoryStream(pauseEquipmentBase));
-        byte[] pauseEquipmentLabels = ReadChecked(PauseEquipmentLabelDefinitions.FileName);
-        _ = PauseEquipmentLabelPresentation.Load(new MemoryStream(pauseEquipmentLabels));
-        byte[] escapeTimer = ReadChecked(EscapeTimerPresentationDefinitions.FileName);
-        _ = EscapeTimerPresentation.Load(new MemoryStream(escapeTimer));
-        byte[] escapeTimerTiles = ReadChecked(EscapeTimerTileAtlasFormat.FileName);
-        _ = EscapeTimerTileAtlas.Load(new MemoryStream(escapeTimerTiles));
-        byte[] gameplayHud = ReadChecked(GameplayHudDefinitions.FileName);
-        _ = GameplayHudPresentation.Load(new MemoryStream(gameplayHud));
-        byte[] gameOver = ReadChecked(GameOverPresentationDefinitions.FileName);
-        _ = GameOverPresentation.Load(new MemoryStream(gameOver));
-        byte[] gameOptions = ReadChecked(GameOptionsPresentationDefinitions.FileName);
-        _ = GameOptionsPresentation.Load(new MemoryStream(gameOptions));
-        byte[] fileSelect = ReadChecked(FileSelectPresentationDefinitions.FileName);
-        _ = FileSelectPresentation.Load(new MemoryStream(fileSelect));
-        byte[] gameplayMessageTitles = ReadChecked(GameplayMessageTitleDefinitions.FileName);
-        _ = GameplayMessageTitlePresentation.Load(new MemoryStream(gameplayMessageTitles));
-        byte[] gameplayMessagePanels = ReadChecked(GameplayMessagePanelDefinitions.FileName);
-        _ = GameplayMessagePanelPresentation.Load(new MemoryStream(gameplayMessagePanels));
-        byte[] gameplayMessageNotices = ReadChecked(GameplayMessageNoticeDefinitions.FileName);
-        _ = GameplayMessageNoticePresentation.Load(new MemoryStream(gameplayMessageNotices));
-        byte[] escapeTypewriter = ReadChecked(EscapeTypewriterDefinitions.FileName);
-        _ = EscapeTypewriterPresentation.Load(new MemoryStream(escapeTypewriter));
-        byte[] introNarration = ReadChecked(IntroNarrationDefinitions.FileName);
-        _ = IntroNarrationPresentation.Load(new MemoryStream(introNarration));
-        byte[] introFont = ReadChecked(IntroFontAtlasFormat.FileName);
-        _ = IntroFontAtlas.Load(new MemoryStream(introFont));
-        byte[] endingText = ReadChecked(EndingTextDefinitions.FileName);
-        _ = EndingTextPresentation.Load(new MemoryStream(endingText));
-        byte[] endingFont = ReadChecked(EndingFontAtlasFormat.FileName);
-        _ = EndingFontAtlas.Load(new MemoryStream(endingFont));
-        byte[] staffCredits = ReadChecked(CreditsPresentationDefinitions.FileName);
-        _ = CreditsPresentation.Load(new MemoryStream(staffCredits));
-        byte[] titleMode7Tiles = ReadChecked(TitleGraphicsFormat.Mode7TilesFile);
-        byte[] titleMode7Map = ReadChecked(TitleGraphicsFormat.Mode7MapFile);
-        byte[] titleObjectTiles = ReadChecked(TitleGraphicsFormat.ObjectTilesFile);
-        byte[] titleBabyTiles = ReadChecked(TitleGraphicsFormat.BabyTilesFile);
-        _ = TitleGraphicsPresentation.Load(
-            new MemoryStream(titleMode7Tiles),
-            new MemoryStream(titleMode7Map),
-            new MemoryStream(titleObjectTiles),
-            new MemoryStream(titleBabyTiles));
-        byte[] titlePalette = ReadChecked(TitlePaletteFormat.FileName);
-        _ = TitlePalettePresentation.Load(new MemoryStream(titlePalette));
-        byte[] titleGradient = ReadChecked(TitleGradientFormat.FileName);
-        _ = TitleGradientPresentation.Load(new MemoryStream(titleGradient));
-        byte[] roomPaletteFx = ReadChecked(RoomPaletteFxPresentationFormat.FileName);
-        _ = RoomPaletteFxPresentation.Load(new MemoryStream(roomPaletteFx));
-        byte[] motherBrainHealthPalette = ReadChecked(MotherBrainHealthPaletteFormat.FileName);
-        _ = MotherBrainHealthPalettePresentation.Load(new MemoryStream(motherBrainHealthPalette));
-        byte[] motherBrainRainbowPalette = ReadChecked(MotherBrainRainbowPaletteFormat.FileName);
-        _ = MotherBrainRainbowPalettePresentation.Load(new MemoryStream(motherBrainRainbowPalette));
-        byte[] motherBrainRoomColors = ReadChecked(MotherBrainRoomColorFormat.FileName);
-        _ = MotherBrainRoomColorPresentation.Load(new MemoryStream(motherBrainRoomColors));
-        byte[] roomFxAnimatedTiles = ReadChecked(RoomFxAnimatedTileAtlasFormat.FileName);
-        _ = CompileFxFile(Path.Combine(directory, RoomFxAnimatedTileAtlasFormat.FileName),
-            roomFxAnimatedTiles, stream => RoomFxAnimatedTileAtlas.Load(stream));
-        byte[] roomFxLayer3Tilemaps = ReadChecked(RoomFxLayer3TilemapFormat.FileName);
-        _ = CompileFxFile(Path.Combine(directory, RoomFxLayer3TilemapFormat.FileName),
-            roomFxLayer3Tilemaps, RoomFxLayer3TilemapCatalog.Load);
-        byte[] roomFxPaletteBlends = ReadChecked(RoomFxPaletteBlendDefinitions.FileName);
-        _ = CompileFxFile(Path.Combine(directory, RoomFxPaletteBlendDefinitions.FileName),
-            roomFxPaletteBlends, RoomFxPaletteBlendCatalog.Load);
-        byte[] powerBombFixedColors = ReadChecked(PowerBombFixedColorFormat.FileName);
-        _ = PowerBombFixedColorCatalog.Load(new MemoryStream(powerBombFixedColors));
-        byte[] samusVisorColors = ReadChecked(SamusVisorColorFormat.FileName);
-        _ = SamusVisorColorCatalog.Load(new MemoryStream(samusVisorColors));
-        byte[] samusHurtColors = ReadChecked(SamusHurtColorFormat.FileName);
-        _ = SamusHurtColorCatalog.Load(new MemoryStream(samusHurtColors));
-        byte[] samusSuitColors = ReadChecked(SamusSuitColorFormat.FileName);
-        _ = SamusSuitColorCatalog.Load(new MemoryStream(samusSuitColors));
-        byte[] samusFullBodyCycleColors = ReadChecked(SamusFullBodyCycleColorFormat.FileName);
-        _ = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(samusFullBodyCycleColors));
-        byte[] crystalFlashColors = ReadChecked(CrystalFlashColorFormat.FileName);
-        _ = CrystalFlashColorCatalog.Load(new MemoryStream(crystalFlashColors));
-        byte[] samusChargeColors = ReadChecked(SamusChargeColorFormat.FileName);
-        _ = SamusChargeColorCatalog.Load(new MemoryStream(samusChargeColors));
-        byte[] ceresRidleyColors = ReadChecked(CeresRidleyColorFormat.FileName);
-        _ = CeresRidleyColorCatalog.Load(new MemoryStream(ceresRidleyColors));
-        byte[] ceresRidleyMode7Colors = ReadChecked(CeresRidleyMode7ColorFormat.FileName);
-        _ = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(ceresRidleyMode7Colors));
-        byte[] samusHyperBeamColors = ReadChecked(SamusHyperBeamColorFormat.FileName);
-        _ = SamusHyperBeamColorCatalog.Load(new MemoryStream(samusHyperBeamColors));
-        return (result, stationCells, atlas, hudAtlas, highlightCycle, palettes, labels, stations, landmarks, saveMarkers, arrows, screens, front, back, spriteJson, spritePng, pauseTiles, pauseBackdrops, pauseWireframes, pauseSelectors, pauseReserveTanks, pauseReserveUi, pauseEquipmentBase, pauseEquipmentLabels, escapeTimer, escapeTimerTiles, gameplayHud, gameOver, gameOptions, fileSelect, gameplayMessageTitles, gameplayMessagePanels, gameplayMessageNotices, escapeTypewriter, introNarration, introFont, endingText, endingFont, staffCredits, titleMode7Tiles, titleMode7Map, titleObjectTiles, titleBabyTiles, titlePalette, titleGradient, roomPaletteFx, motherBrainHealthPalette, motherBrainRainbowPalette, motherBrainRoomColors, roomFxAnimatedTiles, roomFxLayer3Tilemaps, roomFxPaletteBlends, powerBombFixedColors, samusVisorColors, samusHurtColors, samusHyperBeamColors);
 
-        byte[] ReadChecked(string file)
+        public static VerifiedStockReader Open(string directory)
+        {
+            AreaMapCatalogManifest manifest;
+            try
+            {
+                manifest = JsonAssetDocument.Read<AreaMapCatalogManifest>(
+                    File.ReadAllBytes(Path.Combine(directory, AreaMapCatalogFormat.ManifestFile)), MapPresentationFormat.JsonOptions)
+                    ?? throw new InvalidDataException("Map catalog manifest is null.");
+            }
+            catch (JsonException error) { throw new InvalidDataException($"Invalid map catalog manifest in {directory}.", error); }
+            if (manifest.Version != AreaMapCatalogFormat.Version || manifest.Sha256 is null || manifest.Sha256.Count != AreaIds.RetailCount + AreaMapCatalogFormat.SharedResourceCount)
+                throw new InvalidDataException($"Map catalog manifest must contain the supported version, seven maps and all {AreaMapCatalogFormat.SharedResourceCount} shared presentation resource hashes.");
+            return new VerifiedStockReader(directory, manifest);
+        }
+
+        public byte[] Read(string file)
         {
             if (!manifest.Sha256.TryGetValue(file, out string? expected))
                 throw new InvalidDataException($"Map catalog manifest is missing {file}.");
             byte[] bytes = File.ReadAllBytes(Path.Combine(directory, file));
             if (!string.Equals(expected, Convert.ToHexString(SHA256.HashData(bytes)), StringComparison.OrdinalIgnoreCase))
                 throw new InvalidDataException($"Stock map '{Path.GetFullPath(Path.Combine(directory, file))}' failed its SHA-256 check. Put edits in the overrides directory, not stock content.");
+            read.Add(file);
             return bytes;
+        }
+
+        public Dictionary<AreaId, HashSet<int>> ReadStationCells()
+        {
+            Dictionary<string, int[]> masks;
+            try
+            {
+                masks = JsonAssetDocument.Read<Dictionary<string, int[]>>(Read(AreaMapCatalogFormat.StationRevealFile), MapPresentationFormat.JsonOptions)
+                    ?? throw new InvalidDataException("Station reveal content is null.");
+            }
+            catch (JsonException error) { throw new InvalidDataException("Invalid station reveal content.", error); }
+            if (masks.Count != AreaIds.RetailCount) throw new InvalidDataException("Station reveal content requires all seven areas.");
+            var stationCells = new Dictionary<AreaId, HashSet<int>>();
+            foreach (AreaId area in Enum.GetValues<AreaId>())
+            {
+                if (!masks.TryGetValue(area.ToString(), out int[]? cells) || cells is null ||
+                    cells.Any(cell => (uint)cell >= AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles) ||
+                    cells.Distinct().Count() != cells.Length)
+                    throw new InvalidDataException($"Invalid or duplicate station reveal cells for {area}.");
+                stationCells.Add(area, cells.ToHashSet());
+            }
+            return stationCells;
+        }
+
+        /// <summary>Every manifest-bound stock file is verified by the load that uses it.</summary>
+        public void RequireAllManifestFilesRead()
+        {
+            string[] unread = manifest.Sha256.Keys.Where(file => !read.Contains(file)).ToArray();
+            if (unread.Length > 0)
+                throw new InvalidDataException($"Map catalog manifest lists stock files the catalog never verifies: {string.Join(", ", unread)}.");
         }
     }
 }

@@ -39,7 +39,7 @@ internal static partial class RetailEnemyExecutionAudit
                 if (ReadPopulationDefinitions(bus, exactState.EnemyPopulationPointer).Length == 0)
                     continue;
 
-                CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+                CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
                 LoadedRetailState viewSource = LoadState(bus, room, assets);
                 (ushort X, ushort Y)[] views = viewSource.Enemies.Slots
                     .Where(slot => slot.EnemyDefinitionPointer is not 0 and not 0xffff)

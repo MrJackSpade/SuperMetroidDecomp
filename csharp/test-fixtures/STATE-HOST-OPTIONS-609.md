@@ -21,11 +21,9 @@ method signatures. The v0.3.1/current RoomLoading diff adds only the Shaktool se
 call, not changes to captured callbacks. A regression covers that identity alongside
 the previously supported 443/461 identities; unknown closures are not guessed.
 
-Run IntegrationVerification with:
-
-`--state-host-options <SuperMetroid-debug-slot-0.smstate> <SuperMetroid.ini>`
-
-The INI must enable both protections. Assertions cover unchanged initial resources,
+The `--state-host-options` audit that replayed the player's private slot-0 state and
+INI was removed in #1272: neither file is in the repository, so it could not run. The
+original audit's INI had to enable both protections. Assertions cover unchanged initial resources,
 frontend/runtime option agreement, zero-to-one energy and each unlocked ammo type
 after the real runtime frame, actual HUD digit tile words, locked ammo remaining
 zero, and removal of protection when options are disabled. This is a deliberately

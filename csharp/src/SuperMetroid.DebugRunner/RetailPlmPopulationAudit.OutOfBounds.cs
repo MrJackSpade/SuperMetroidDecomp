@@ -46,7 +46,7 @@ internal static partial class RetailPlmPopulationAudit
             }
 
             CartridgeRoomHeader room = defaultRoom with { State = exactState };
-            CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+            CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
             ScrollAuditPopulationRecord[] records = ReadScrollAuditPopulation(
                 bus,
                 exactState.PlmPointer);
@@ -81,7 +81,7 @@ internal static partial class RetailPlmPopulationAudit
                 RoomPlmPopulationImporter.Read(bus, exactState.PlmPointer),
                 system,
                 room.AreaIndex,
-                getSamus: () => new SamusState(),
+                getSamus: () => RepositoryInstallation.CreateSamus(),
                 isAreaTorizoDefeated: () => false,
                 isTourianStatueFinished: () => false,
                 hasAreaBossBit: _ => false,

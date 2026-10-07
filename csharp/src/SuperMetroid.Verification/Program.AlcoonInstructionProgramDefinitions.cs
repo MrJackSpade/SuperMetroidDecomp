@@ -124,7 +124,7 @@ internal static partial class Program
 
         var guard = new AlcoonInstructionReadGuard(rom, forbidPresentation: true);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(rom, AlcoonInstructionAuditRoom);
-        var installation = runtimeFixtureInstallation.Value;
+        var installation = RepositoryInstallation.Installation;
         CartridgeRoomAssets assets = LoadFixtureRoomAssets(rom, room,
             installation.LoadRoomCharacters(), installation.LoadRoomPalettes(),
             installation.LoadRoomMetatiles(), installation.LoadRoomVisualLayouts());

@@ -47,7 +47,7 @@ internal static class SparkAudit
             bus,
             ElectricDeathRoom,
             new RoomStateSelectionContext(default, BossBits: BossBits.AreaBoss, false, false));
-        CartridgeRoomAssets electricAssets = CartridgeRoomAssets.Load(bus, electricDeath);
+        CartridgeRoomAssets electricAssets = CartridgeRoomAssets.Load(bus, electricDeath, RepositoryInstallation.RoomAssets);
         LoadedSparks loaded = Load(
             bus,
             electricDeath,
@@ -304,7 +304,7 @@ internal static class SparkAudit
         // Property $0005 leaves bit $8000 clear. The definition's defensive delete list is
         // therefore dormant here: an ordinary power beam in the same native 32-pixel cell
         // must remain owned by Samus and must not alter the falling actor.
-        var projectileOwner = new SamusProjectileSystem();
+        var projectileOwner = RepositoryInstallation.CreateProjectileSystem();
         SamusProjectileSlot beam = projectileOwner.Slots[0];
         beam.Type = 0x0001;
         beam.Damage = 20;
@@ -318,7 +318,7 @@ internal static class SparkAudit
         int beamHits = loaded.Enemies.ResolveEnemyProjectileSamusProjectileHits(
             bus,
             projectileOwner,
-            new SamusBombProjectileSystem());
+            RepositoryInstallation.CreateBombSystem());
         if (beamHits != 0 || beam.InstructionPointer != 0x9000 || !projectile.IsActive)
         {
             throw new InvalidDataException(
@@ -330,7 +330,7 @@ internal static class SparkAudit
             bus,
             loaded.Enemies,
             loaded.Samus,
-            new SamusBombProjectileSystem(),
+            RepositoryInstallation.CreateBombSystem(),
             assets.LevelData,
             projectile,
             cameraX: 0,
@@ -404,13 +404,13 @@ internal static class SparkAudit
         RoomEnemySlot actor = loaded.Enemies.Slots[1];
         StepCentered(loaded, room, assets, actor);
 
-        var shots = new SamusProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
         SamusProjectileSlot shot = shots.Slots[0];
         ArmProjectile(shot, actor);
         int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(
             bus,
             shots,
-            new SamusBombProjectileSystem(),
+            RepositoryInstallation.CreateBombSystem(),
             loaded.Samus);
         if (hits != 1 || actor.Health != 80 || shot.Direction != 2 ||
             shot.InstructionPointer != 0x9000 || !shot.IsActive)
@@ -515,7 +515,7 @@ internal static class SparkAudit
             bus,
             MainShaftRoom,
             new RoomStateSelectionContext(default, BossBits: BossBits.AreaBoss, false, false));
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         // Kzan was the final untranslated family in this state. Load the entire untouched
         // population now so the always-active Spark variant is proven in its actual mix of
         // Sbugs, Atomics, Kzan pairs, and the second Spark rather than behind a terminator.
@@ -607,7 +607,7 @@ internal static class SparkAudit
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         var random = new Bank80SystemState(randomSeed);
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             populationPointer ?? room.State.EnemyPopulationPointer,

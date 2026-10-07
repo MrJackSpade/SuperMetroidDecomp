@@ -36,7 +36,7 @@ internal static partial class Program
             "Mother Brain Baby population definition");
 
         var guarded = new MotherBrainBabyPopulationReadGuard(rom);
-        var enemies = new RoomEnemySystem { TileArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles() };
+        var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.Installation.LoadEnemyTiles() };
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guarded);
         typeof(RoomEnemySystem).GetField("_cgram", instanceFlags)!
             .SetValue(enemies, new SnesCgram());

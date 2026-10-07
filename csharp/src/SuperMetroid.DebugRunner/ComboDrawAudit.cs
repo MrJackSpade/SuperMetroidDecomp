@@ -22,8 +22,8 @@ internal static class ComboDrawAudit
             var samus = new SamusState { XPosition = 128, YPosition = 128,
                 Pose = SamusPoseIds.FacingRightNormalPose, EquippedBeams = (ushort)(0x1000 | beam),
                 SelectedHudItem = 3, PowerBombs = 2 };
-            var projectiles = new SamusProjectileSystem();
-            var shared = new SamusBombProjectileSystem();
+            var projectiles = RepositoryInstallation.CreateProjectileSystem();
+            var shared = RepositoryInstallation.CreateBombSystem();
             var oam = new OamBuffer();
             if (!projectiles.TryActivateCombo(bus, samus, shared, out _))
                 throw new InvalidDataException("Fixture combo activation failed.");

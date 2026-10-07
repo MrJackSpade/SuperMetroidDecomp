@@ -11,7 +11,7 @@ internal static partial class CrocomireAudit
     {
         Directory.CreateDirectory(directory);
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -47,7 +47,7 @@ internal static partial class CrocomireAudit
                 // Place one charged shot inside the current retail mouth hitbox.
                 // Collision and reaction dispatch remain production-owned; this is
                 // not an attempt to simulate aiming/controller travel to the mouth.
-                var shots = new SamusProjectileSystem();
+                var shots = RepositoryInstallation.CreateProjectileSystem();
                 var shot = shots.Slots[0];
                 shot.Type = SamusProjectileTypeWord.CreateBeam(0, charged: true);
                 shot.Damage = 20;
@@ -56,7 +56,7 @@ internal static partial class CrocomireAudit
                 shot.XRadius = shot.YRadius = 1;
                 shot.InstructionPointer = CrocomireAttackFixtureData.SyntheticLiveInstruction;
                 shot.InstructionTimer = 1;
-                if (runtime.Enemies.ResolveOrdinaryProjectileHits(bus, shots, new SamusBombProjectileSystem(), samus) != 1)
+                if (runtime.Enemies.ResolveOrdinaryProjectileHits(bus, shots, RepositoryInstallation.CreateBombSystem(), samus) != 1)
                     throw new InvalidDataException("Current Crocomire mouth did not receive the injected shot.");
                 hits++;
             }

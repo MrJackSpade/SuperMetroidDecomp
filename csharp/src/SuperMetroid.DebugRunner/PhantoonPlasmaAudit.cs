@@ -15,7 +15,7 @@ internal static partial class PhantoonPlasmaAudit
 
     private static void VerifyRelease(string rom, ushort entryInvincibility)
     {
-        var runtime = new SuperMetroidRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom));
+        var runtime = RepositoryInstallation.CreateRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom));
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -55,11 +55,11 @@ internal static partial class PhantoonPlasmaAudit
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xcd13);
-        var assets = CartridgeRoomAssets.Load(bus, room);
-        var enemies = new RoomEnemySystem();
+        var assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer,
             new SnesVram(), new SnesCgram(), () => 1, level: assets.LevelData,
-            samus: new SamusState(), isAreaBossDefeated: () => false);
+            samus: RepositoryInstallation.CreateSamus(), isAreaBossDefeated: () => false);
         var body = enemies.Phantoon!.Body;
         body.XPosition = body.YPosition = 128;
         body.Health = 2500;
@@ -68,8 +68,8 @@ internal static partial class PhantoonPlasmaAudit
         body.ExtraProperties = 4;
         body.VariableF = (ushort)PhantoonAiFunction.Swooping;
         body.VariableE = 60;
-        var shots = new SamusProjectileSystem();
-        var shared = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var shared = RepositoryInstallation.CreateBombSystem();
         var shot = shots.Slots[0];
         shot.Type = SamusProjectileTypeWord.CreateBeam((ushort)SamusBeamFlags.Plasma, true);
         shot.Damage = 450;

@@ -22,7 +22,7 @@ internal static class SkreeAudit
             bus,
             ParlorRoomPointer,
             new RoomStateSelectionContext(awakeEvents, 0, false, false));
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
 
         AutonomousResult autonomous = VerifyAutonomousLifecycle(bus, room, assets);
         ushort skreePopulation = FindFirstPopulationRecord(
@@ -196,8 +196,8 @@ internal static class SkreeAudit
     {
         LoadedSkreeRoom loaded = LoadSingle(bus, room, assets, populationPointer);
         StepOnActor(loaded, assets);
-        var projectiles = new SamusProjectileSystem();
-        var sharedProjectiles = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var sharedProjectiles = RepositoryInstallation.CreateBombSystem();
         ArmBeam(projectiles.Slots[0], loaded.Actor, damage: 10);
         int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(
             bus,
@@ -226,8 +226,8 @@ internal static class SkreeAudit
     {
         LoadedSkreeRoom loaded = LoadSingle(bus, room, assets, populationPointer);
         StepOnActor(loaded, assets);
-        var projectiles = new SamusProjectileSystem();
-        var sharedProjectiles = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var sharedProjectiles = RepositoryInstallation.CreateBombSystem();
         ushort sourceX = loaded.Actor.XPosition;
         ushort sourceY = loaded.Actor.YPosition;
         ushort graphicsIndex = unchecked((ushort)(
@@ -363,7 +363,7 @@ internal static class SkreeAudit
         samus.RefreshCollisionRadii(loadBus);
         samus.InitializeAnimation(loadBus);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             loadBus,
             populationPointer,

@@ -30,7 +30,7 @@ internal static class PhantoonAudit
             return (ushort)(bus.ReadByte(address + 1) | bus.ReadByte(address + 2) << 8);
         }
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         if (room.WidthInScreens != 1 || room.HeightInScreens != 1 ||
             room.AreaIndex != AreaId.WreckedShip ||
             room.State.EnemyPopulationPointer != PopulationPointer)
@@ -56,7 +56,7 @@ internal static class PhantoonAudit
         samus.InitializeAnimation(bus);
         bool bossBitSet = false;
 
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -246,9 +246,9 @@ internal static class PhantoonAudit
         // then requests the real swoop branch, allowing the authored full-body touch boxes
         // to damage Samus; a later Super Missile crosses the one-shot rage threshold without
         // any audit-only encounter-state mutation.
-        var samusShots = new SamusProjectileSystem();
-        var sharedProjectiles = new SamusBombProjectileSystem();
-        var normalBombProjectiles = new SamusBombProjectileSystem();
+        var samusShots = RepositoryInstallation.CreateProjectileSystem();
+        var sharedProjectiles = RepositoryInstallation.CreateBombSystem();
+        var normalBombProjectiles = RepositoryInstallation.CreateBombSystem();
         bool firedNormalBomb = false;
         int normalBombHitCount = 0;
         ushort healthBeforeNormalBomb = 0;
@@ -602,7 +602,7 @@ internal static class PhantoonAudit
             bus,
             contactEnemies,
             contactSamus,
-            new SamusBombProjectileSystem(),
+            RepositoryInstallation.CreateBombSystem(),
             assets.LevelData,
             contactFlame,
             cameraX: 0,
@@ -622,8 +622,8 @@ internal static class PhantoonAudit
         ushort shotResponse = EnemyProjectileAuditAssertions.VerifyNaturalDestructibleSamusShot(
             bus,
             shotEnemies,
-            new SamusProjectileSystem(),
-            new SamusBombProjectileSystem(),
+            RepositoryInstallation.CreateProjectileSystem(),
+            RepositoryInstallation.CreateBombSystem(),
             shotFlame);
 
         // Continue the cartridge response list rather than accepting dispatcher state as a
@@ -745,7 +745,7 @@ internal static class PhantoonAudit
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
 
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,

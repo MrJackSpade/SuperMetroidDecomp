@@ -52,7 +52,7 @@ internal static class AtomicAudit
         // parameter-one values 0,1,2,3. Starting the audit population at the first of those
         // records avoids depending on the unrelated Coven family that precedes them.
         CartridgeRoomHeader eastSuperRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, EastSuperRoom);
-        CartridgeRoomAssets eastSuperAssets = CartridgeRoomAssets.Load(bus, eastSuperRoom);
+        CartridgeRoomAssets eastSuperAssets = CartridgeRoomAssets.Load(bus, eastSuperRoom, RepositoryInstallation.RoomAssets);
         ushort eastAtomicPopulation = FindFirstPopulationRecord(
             bus,
             eastSuperRoom.State.EnemyPopulationPointer,
@@ -73,7 +73,7 @@ internal static class AtomicAudit
             bus,
             BasementRoom,
             new RoomStateSelectionContext(default, BossBits: BossBits.AreaBoss, false, false));
-        CartridgeRoomAssets basementAssets = CartridgeRoomAssets.Load(bus, basementRoom);
+        CartridgeRoomAssets basementAssets = CartridgeRoomAssets.Load(bus, basementRoom, RepositoryInstallation.RoomAssets);
         ushort basementAtomicPopulation = FindFirstPopulationRecord(
             bus,
             basementRoom.State.EnemyPopulationPointer,
@@ -364,8 +364,8 @@ internal static class AtomicAudit
         LoadedAtomics loaded = LoadPrefix(bus, room, assets, populationPointer, 1);
         RoomEnemySlot actor = loaded.Enemies.Slots[0];
         Step(loaded, assets);
-        var projectiles = new SamusProjectileSystem();
-        var shared = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var shared = RepositoryInstallation.CreateBombSystem();
 
         // Default vulnerability multiplier two turns a real 20-damage missile into 20 enemy
         // damage: the common routine halves the projectile value, then multiplies by two.
@@ -498,7 +498,7 @@ internal static class AtomicAudit
         samus.RefreshCollisionRadii(prefixBus);
         samus.InitializeAnimation(prefixBus);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             prefixBus,
             populationPointer,

@@ -21,14 +21,14 @@ internal static class RetailFileMapTests
         }
         for (int area = 0; area < 6; area++)
         {
-            var graphics = new FileSelectAreaMapGraphics(bus, area);
+            var graphics = RepositoryInstallation.CreateFileSelectAreaMap(bus, area);
             foreach (bool backdrop in new[] { false, true })
             foreach (ushort used in new ushort[] { 0, 1, ushort.MaxValue })
             {
                 ushort[] masks = Enumerable.Repeat(used, 6).ToArray();
                 Compare(graphics.Render(masks, backdrop), graphics.CaptureRenderSnapshot(masks, backdrop), $"area={area}, labels/backdrop");
             }
-            var room = new FileSelectRoomMapGraphics(bus, new Bank80SystemState(), (AreaId)area);
+            var room = new FileSelectRoomMapGraphics(bus, new Bank80SystemState(), (AreaId)area, mapPresentation: RepositoryInstallation.Maps);
             Compare(room.RenderFrameOnly(), room.CaptureRenderSnapshot(frameOnly: true), "frame-only");
             foreach (ushort scroll in new ushort[] { 0, 255, 511, ushort.MaxValue })
                 Compare(room.RenderBackgrounds(scroll, scroll), room.CaptureRenderSnapshot(scroll, scroll), $"room={area}, scroll={scroll}");
@@ -39,8 +39,8 @@ internal static class RetailFileMapTests
             var save = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
             save.MapStationBytes[4] = 1; save.UsedSaveStationBytes[8] = 1;
             saves.SaveSlot(0, save);
-            var legacy = new FileSelectMapMenuState(bus, new CartridgeAudioState(), saves.ReadSlot(0)!, 0);
-            var captured = new FileSelectMapMenuState(bus, new CartridgeAudioState(), saves.ReadSlot(0)!, 0);
+            var legacy = new FileSelectMapMenuState(bus, new CartridgeAudioState(), saves.ReadSlot(0)!, 0, RepositoryInstallation.Maps);
+            var captured = new FileSelectMapMenuState(bus, new CartridgeAudioState(), saves.ReadSlot(0)!, 0, RepositoryInstallation.Maps);
             var phases = new HashSet<FileSelectMapNavigationPhase>();
             for (int tick = 0; tick < 300 && !legacy.LoadRequested && !legacy.OptionsRequested; tick++)
             {

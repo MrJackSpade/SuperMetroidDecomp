@@ -81,7 +81,7 @@ internal static partial class BombTorizoAudit
                 probe.Head.FlashTimer = 0;
                 probe.Head.InvincibilityTimer = 0;
                 probe.State.ShotGuard = 0;
-                var shots = new SamusProjectileSystem();
+                var shots = RepositoryInstallation.CreateProjectileSystem();
                 ArmProjectile(shots.Slots[0], probe.Head, (ushort)SamusProjectileFamily.Missile, 10);
                 var shot = shots.Slots[0];
                 shot.XPosition = unchecked((ushort)x);
@@ -89,7 +89,7 @@ internal static partial class BombTorizoAudit
                 shot.XRadius = radius.X;
                 shot.YRadius = radius.Y;
                 int hits = probe.Enemies.ResolveOrdinaryProjectileHits(bus, shots,
-                    new SamusBombProjectileSystem(), probe.Samus);
+                    RepositoryInstallation.CreateBombSystem(), probe.Samus);
                 bool shouldHit = selected.Callback != 0;
                 if ((hits != 0) != shouldHit || (probe.Head.Health < 800) != shouldDamage)
                     throw new InvalidDataException($"Torizo map {map:X4}, point ({x},{y}), radius {radius}: " +

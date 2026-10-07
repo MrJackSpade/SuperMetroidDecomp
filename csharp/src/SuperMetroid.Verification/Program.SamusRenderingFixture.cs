@@ -4,7 +4,7 @@ using SuperMetroid.Core.Game;
 internal static partial class Program
 {
     private static readonly Lazy<SamusBodyArtworkCatalog> renderingFixtureStock =
-        new(() => runtimeFixtureInstallation.Value.LoadSamusBodyArt());
+        new(() => RepositoryInstallation.Installation.LoadSamusBodyArt());
 
     private static readonly Dictionary<sbyte, SamusBodyArtworkCatalog> graphicsOffsetFixtures = [];
 

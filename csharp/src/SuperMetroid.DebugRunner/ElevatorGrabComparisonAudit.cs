@@ -27,7 +27,7 @@ internal static class ElevatorGrabComparisonAudit
                 kind == 2 ? (left != 0 ? 0x28 : 0x27) : (left != 0 ? 0x1a : 0x19));
             samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
             samus.XPosition = (ushort)x; samus.YPosition = (ushort)(256 - samus.Kinematics.YRadius);
-            var enemies = new RoomEnemySystem();
+            var enemies = RepositoryInstallation.CreateEnemySystem();
             enemies.Load(bus, PopulationSelectionAddressSpace.PopulationPointer, PopulationSelectionAddressSpace.TilesetPointer,
                 new SnesVram(), new SnesCgram(), () => 0, samus: samus);
             var foreground = new ushort[512]; var bts = new byte[512];

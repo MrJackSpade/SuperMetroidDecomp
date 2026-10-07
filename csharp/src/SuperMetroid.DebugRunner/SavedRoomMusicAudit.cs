@@ -19,7 +19,7 @@ internal static class SavedRoomMusicAudit
         var saves = new SuperMetroidSaveRam(bus, SaveMapPresentationFixture.Create(bus));
         saves.SaveSlot(0, new SuperMetroidSaveSnapshot { Area = (ushort)AreaId.Norfair, SaveStation = 0, Health = 99, MaxHealth = 99 });
         saves.SelectSlot(0);
-        var game = new SuperMetroidGame(bus, gameOptions: null, renderGameplayFrames: false);
+        var game = RepositoryInstallation.CreateGame(bus, gameOptions: null, renderGameplayFrames: false);
         var ports = new byte[4];
         int lastUpload = 0;
         bool loadingSavedRoom = false;

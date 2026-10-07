@@ -125,7 +125,7 @@ internal static partial class Program
 
         // Both ordinary and Ceres rooms must exercise the real loader with the whole
         // source table forbidden, including the overlapping Ceres character transfers.
-        var installation = runtimeFixtureInstallation.Value;
+        var installation = RepositoryInstallation.Installation;
         var characters = installation.LoadRoomCharacters();
         var palettes = installation.LoadRoomPalettes();
         var metatiles = installation.LoadRoomMetatiles();

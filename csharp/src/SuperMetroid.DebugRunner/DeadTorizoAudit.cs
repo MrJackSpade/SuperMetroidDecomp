@@ -15,7 +15,7 @@ internal static class DeadTorizoAudit
         {
             State = SuperMetroid.AssetExtraction.CartridgeRoomStateImporter.Load(bus, StatePointer),
         };
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         LoadedDeadTorizo loaded = Load(bus, room, assets);
         RoomEnemySlot corpse = loaded.Corpse;
         DeadTorizoEnemyState state = loaded.State;
@@ -93,7 +93,7 @@ internal static class DeadTorizoAudit
             throw new InvalidDataException("Dead Torizo graphics hook emitted no OBJ pieces.");
 
         ushort healthBeforeShot = corpse.Health;
-        var shots = new SamusProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
         ArmProjectile(shots.Slots[0], corpse);
         int shotHits = loaded.Enemies.ResolveOrdinaryProjectileHits(
             bus,
@@ -180,7 +180,7 @@ internal static class DeadTorizoAudit
         samus.InitializeAnimation(bus);
 
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         enemies.Load(
@@ -220,7 +220,7 @@ internal static class DeadTorizoAudit
             samus,
             corpse,
             state,
-            new SamusBombProjectileSystem(),
+            RepositoryInstallation.CreateBombSystem(),
             vram,
             new VramWriteQueue());
     }

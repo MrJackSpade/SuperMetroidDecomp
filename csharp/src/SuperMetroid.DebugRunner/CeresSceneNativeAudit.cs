@@ -7,7 +7,7 @@ internal static class CeresSceneNativeAudit
 {
     public static int Run(string romPath, string nativeCsv)
     {
-        var scene = new CeresDestructionCinematicState(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath));
+        var scene = RepositoryInstallation.CreateDestruction(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath));
         var prepare = typeof(CeresDestructionCinematicState).GetMethod("PrepareRenderOam", BindingFlags.Instance | BindingFlags.NonPublic)!;
         int frames = 0, timingFailures = 0, drawFailures = 0, populationFailures = 0;
         foreach (string line in File.ReadLines(nativeCsv).Skip(1))

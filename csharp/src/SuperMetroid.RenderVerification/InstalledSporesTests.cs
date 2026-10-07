@@ -8,11 +8,11 @@ using SuperMetroid.Rendering.Direct3D11;
 /// <summary>Source-selected spores FX acceptance, not a gameplay or read-discovery probe.</summary>
 internal static partial class InstalledSporesTests
 {
-    internal static void Run(string installationRoot, string previousRoot, string nativeArtworkDirectory)
+    internal static void Run(string installationRoot, string romPath, string nativeArtworkDirectory)
     {
         string maps = Path.Combine(Path.GetFullPath(installationRoot), "game", "maps");
         AreaMapPresentationCatalog stock = AreaMapPresentationCatalog.Load(maps, null);
-        CheckArtwork(stock.RoomFxAnimatedTiles, maps, previousRoot, nativeArtworkDirectory);
+        CheckArtwork(stock.RoomFxAnimatedTiles, maps, romPath, nativeArtworkDirectory);
         var packets = new List<RenderFrameSnapshot>();
         string overrides = Path.GetFullPath(Path.Combine("csharp", "test-temp",
             "installed-spores-" + Guid.NewGuid().ToString("N")));

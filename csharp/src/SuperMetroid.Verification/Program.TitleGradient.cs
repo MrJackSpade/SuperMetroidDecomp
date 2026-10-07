@@ -13,13 +13,9 @@ internal static partial class Program
         TitleGradientPresentation? titleGradientPresentation = null,
         TitlePalettePresentation? titlePalettePresentation = null,
         TitleGraphicsPresentation? titleGraphicsPresentation = null)
-    {
-        var maps = RetailPresentationFixture();
-        return new TitleSequenceState(bus,
-            titleGradientPresentation: titleGradientPresentation ?? maps.TitleGradient,
-            titlePalettePresentation: titlePalettePresentation ?? maps.TitlePalette,
-            titleGraphicsPresentation: titleGraphicsPresentation ?? maps.TitleGraphics);
-    }
+ =>
+        RepositoryInstallation.CreateTitle(bus, titleGradientPresentation: titleGradientPresentation,
+            titlePalettePresentation: titlePalettePresentation, titleGraphicsPresentation: titleGraphicsPresentation);
     private static void VerifyTitleGradientTables(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         Suite(nameof(VerifyTitleGradientObjectEligibility), () => VerifyTitleGradientObjectEligibility());

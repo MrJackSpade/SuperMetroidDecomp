@@ -14,8 +14,8 @@ internal static class CeresEngineGlowAudit
         var fields = typeof(CeresDestructionCinematicState)
             .GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
             .OrderBy(field => field.MetadataToken).ToArray();
-        var legacy = DebuggerStateFieldMigrations.SelectSerializedFields(
-            typeof(CeresDestructionCinematicState), fields, fields.Length - 1);
+        var legacy = DebuggerStateFieldMigrations.WithoutIntroductions(
+            typeof(CeresDestructionCinematicState), fields, "paletteFx");
         if (!legacy.SequenceEqual(fields.Where(field => field.Name != "paletteFx")))
             throw new InvalidDataException("Legacy engine migration changed an existing cinematic field.");
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
@@ -25,7 +25,7 @@ internal static class CeresEngineGlowAudit
         ushort bright = Word(program + 6), dark = Word(program + 12);
         if (Word(program + 4) != 1 || Word(program + 10) != 1 || bright == dark)
             throw new InvalidDataException("Engine reference requires the pinned alternating one-frame palette program.");
-        var cinematic = new CeresDestructionCinematicState(bus);
+        var cinematic = RepositoryInstallation.CreateDestruction(bus);
         int age = -1, frames = 0, visibleFrames = 0, enginePixels = 0;
         while (!cinematic.Finished && frames++ < 4000)
         {

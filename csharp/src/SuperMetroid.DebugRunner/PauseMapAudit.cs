@@ -17,7 +17,7 @@ internal static class PauseMapAudit
         };
         var system = new Bank80SystemState();
         system.SetAreaMapAcquired(0);
-        var pause = new PauseMenuState(
+        var pause = RepositoryInstallation.CreatePause(
             bus,
             samus,
             system,

@@ -171,7 +171,7 @@ internal static partial class EarlyControllerRouteAudit
         if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs))
             throw new InvalidDataException("Pause route began without the acquired Bombs equipped.");
 
-        var pause = new PauseMenuState(
+        var pause = RepositoryInstallation.CreatePause(
             bus,
             samus,
             runtime.System,

@@ -28,7 +28,7 @@ internal static partial class Program
             var shot = projectiles.Slots[0];
             shot.Type = family; shot.InstructionPointer = 1; shot.SpritemapPointer = sprite;
             shot.XPosition = 100; shot.YPosition = 100;
-            game.BindProjectileCompositions(projectileFixtureArt.Value.Catalog);
+            game.BindProjectileCompositions(RepositoryInstallation.Projectiles.Catalog);
             byte[] native = Draw(intro);
             game.BindProjectileCompositions(stock);
             AssertTrue(native.SequenceEqual(Draw(intro)), "Intro installed projectile binding matches cartridge-extracted stock OAM");
@@ -76,10 +76,10 @@ internal static partial class Program
         // dependencies without invoking the separate cinematic-sheet reupload path,
         // which deliberately replaces VRAM and is covered by the cinematic art fixture.
         typeof(IntroCinematicState).GetField("characterArtwork", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .SetValue(intro, runtimeFixtureInstallation.Value.LoadIntroCinematicArt());
-        intro.BindSamusBodyArtwork(runtimeFixtureInstallation.Value.LoadSamusBodyArt());
-        intro.ProjectileCompositions = projectileFixtureArt.Value.Catalog;
-        intro.ProjectileFrameBindings = projectileFixtureArt.Value.FrameBindings;
+            .SetValue(intro, RepositoryInstallation.Installation.LoadIntroCinematicArt());
+        intro.BindSamusBodyArtwork(RepositoryInstallation.Installation.LoadSamusBodyArt());
+        intro.ProjectileCompositions = RepositoryInstallation.Projectiles.Catalog;
+        intro.ProjectileFrameBindings = RepositoryInstallation.Projectiles.FrameBindings;
     }
     private static void VerifyIntroTrailPng(ISnesAddressSpace bus, IntroCinematicState intro,
         SuperMetroidGame game, byte[] json, Func<IntroCinematicState, byte[]> draw)
@@ -123,6 +123,6 @@ internal static partial class Program
             pair.Item1.BindTrailArtwork(stock);
             draw(pair.Item2);
         }
-        game.BindTrailArtwork(projectileFixtureArt.Value.Trails);
+        game.BindTrailArtwork(RepositoryInstallation.Projectiles.Trails);
     }
 }

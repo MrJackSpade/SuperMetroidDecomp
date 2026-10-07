@@ -193,7 +193,7 @@ internal static partial class Program
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
         var restoredRuntime = (SuperMetroid.Core.Runtime.SuperMetroidRuntime)runtimeField.GetValue(restored)!;
         AssertTrue(restoredRuntime.TrailArtwork is null, "Restored trail catalog requires host rebind");
-        runtimeFixtureBindings.Value(restoredRuntime);
+        BindRetailRuntimeFixture(restoredRuntime);
         restored.BindTrailArtwork(edited); game.BindTrailArtwork(edited);
         AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Old state draws current selected trail appearance after rebind");
         AssertEqual(3, restoredRuntime.Projectiles.TrailSlots[0].Left.InstructionTimer, "Trail rebind preserves saved timing");

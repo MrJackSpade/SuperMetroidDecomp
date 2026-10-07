@@ -15,7 +15,7 @@ internal static class ItemMessageAudioAudit
         var runtime = FlatFloorMovementFixture.Create(bus, water: false);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.MorphBallRoom, 0, 0);
         runtime.Samus!.InputLocked = true;
-        var game = new SuperMetroidGame(bus, gameOptions: null, renderGameplayFrames: false);
+        var game = RepositoryInstallation.CreateGame(bus, gameOptions: null, renderGameplayFrames: false);
         typeof(SuperMetroidGame).GetField("runtime", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime);
         typeof(SuperMetroidGame).GetProperty(nameof(game.GameState))!.SetValue(game, SuperMetroidGameState.MainGameplay);
         var initialFrame = game.Step(0); // Initialize the retail collectible's visible/touchable phase.

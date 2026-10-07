@@ -1159,7 +1159,7 @@ internal static partial class Program
         typeof(SuperMetroidGame).GetField("runtime", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime);
         typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime.ActiveRoom!.State.Pointer);
         typeof(SuperMetroidGame).GetProperty(nameof(game.GameState))!.SetValue(game, (SuperMetroidGameState)W(RidleyMovieMemory.GameState));
-        var audio = new CartridgeAudioRenderer(runtimeFixtureInstallation.Value.LoadAudio());
+        var audio = new CartridgeAudioRenderer(RepositoryInstallation.Installation.LoadAudio());
         ushort[]? pendingLoadedOwners = null;
         int loadingIntervals = 0;
         ushort[] CaptureLoadedOwners()

@@ -40,9 +40,9 @@ internal static class KiHunterAudit
         AssertExpectedState(redRoom, RedStatePointer, RedPopulationPointer);
         CartridgeRoomHeader goldRoom = LoadExpectedRoom(
             bus, GoldRoomPointer, GoldStatePointer, GoldPopulationPointer);
-        CartridgeRoomAssets normalAssets = CartridgeRoomAssets.Load(bus, normalRoom);
-        CartridgeRoomAssets redAssets = CartridgeRoomAssets.Load(bus, redRoom);
-        CartridgeRoomAssets goldAssets = CartridgeRoomAssets.Load(bus, goldRoom);
+        CartridgeRoomAssets normalAssets = CartridgeRoomAssets.Load(bus, normalRoom, RepositoryInstallation.RoomAssets);
+        CartridgeRoomAssets redAssets = CartridgeRoomAssets.Load(bus, redRoom, RepositoryInstallation.RoomAssets);
+        CartridgeRoomAssets goldAssets = CartridgeRoomAssets.Load(bus, goldRoom, RepositoryInstallation.RoomAssets);
 
         VerifyFlyingPair(bus, normalRoom, normalAssets);
         VerifyGroundedAttackAndAcid(bus, redRoom, redAssets);
@@ -72,7 +72,7 @@ internal static class KiHunterAudit
             ReportedClusterRoomPointer,
             ReportedClusterStatePointer,
             ReportedClusterPopulationPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
@@ -87,7 +87,7 @@ internal static class KiHunterAudit
         };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -548,7 +548,7 @@ internal static class KiHunterAudit
         ushort projectileType,
         ushort damage)
     {
-        var projectiles = new SamusProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
         SamusProjectileSlot projectile = projectiles.Slots[0];
         projectile.ClearFields();
         projectile.Type = projectileType;
@@ -563,7 +563,7 @@ internal static class KiHunterAudit
         int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(
             bus,
             projectiles,
-            new SamusBombProjectileSystem(),
+            RepositoryInstallation.CreateBombSystem(),
             loaded.Samus);
         if (hits != 1)
             throw new InvalidDataException($"Ki-Hunter projectile hit count was {hits}, expected one.");
@@ -592,7 +592,7 @@ internal static class KiHunterAudit
         };
         samus.RefreshCollisionRadii(pairBus);
         samus.InitializeAnimation(pairBus);
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             pairBus,
             populationPointer,

@@ -30,7 +30,7 @@ internal static partial class PipeBugAudit
         VerifyHeadersAndEveryRetailRecord(bus);
 
         CartridgeRoomHeader brinstarRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0x9b5b);
-        CartridgeRoomAssets brinstarAssets = CartridgeRoomAssets.Load(bus, brinstarRoom);
+        CartridgeRoomAssets brinstarAssets = CartridgeRoomAssets.Load(bus, brinstarRoom, RepositoryInstallation.RoomAssets);
         LoadedPipeBugs brinstar = LoadPrefix(
             bus,
             brinstarRoom,
@@ -40,7 +40,7 @@ internal static partial class PipeBugAudit
         VerifyBrinstarCycle(brinstar, brinstarAssets, strong: false);
 
         CartridgeRoomHeader strongRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0x965b);
-        CartridgeRoomAssets strongAssets = CartridgeRoomAssets.Load(bus, strongRoom);
+        CartridgeRoomAssets strongAssets = CartridgeRoomAssets.Load(bus, strongRoom, RepositoryInstallation.RoomAssets);
         LoadedPipeBugs strong = LoadPrefix(
             bus,
             strongRoom,
@@ -50,7 +50,7 @@ internal static partial class PipeBugAudit
         VerifyBrinstarCycle(strong, strongAssets, strong: true);
 
         CartridgeRoomHeader norfairRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xb051);
-        CartridgeRoomAssets norfairAssets = CartridgeRoomAssets.Load(bus, norfairRoom);
+        CartridgeRoomAssets norfairAssets = CartridgeRoomAssets.Load(bus, norfairRoom, RepositoryInstallation.RoomAssets);
         LoadedPipeBugs norfair = LoadPrefix(
             bus,
             norfairRoom,
@@ -60,7 +60,7 @@ internal static partial class PipeBugAudit
         VerifyNorfairFormation(norfair, norfairAssets);
 
         CartridgeRoomHeader yellowRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0x9e52);
-        CartridgeRoomAssets yellowAssets = CartridgeRoomAssets.Load(bus, yellowRoom);
+        CartridgeRoomAssets yellowAssets = CartridgeRoomAssets.Load(bus, yellowRoom, RepositoryInstallation.RoomAssets);
         LoadedPipeBugs yellow = LoadPrefix(
             bus,
             yellowRoom,
@@ -301,12 +301,12 @@ internal static partial class PipeBugAudit
             }
         }
 
-        var projectiles = new SamusProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
         ArmProjectile(projectiles.Slots[0], victim, type: 0, damage: victim.Health);
         int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(
             source.Bus,
             projectiles,
-            new SamusBombProjectileSystem(),
+            RepositoryInstallation.CreateBombSystem(),
             loaded.Samus);
         for (int slotIndex = 0; slotIndex < 5; slotIndex++)
         {
@@ -444,8 +444,8 @@ internal static partial class PipeBugAudit
         LoadedPipeBugs shot = LoadPrefix(bus, room, assets, population, 1);
         actor = shot.Enemies.Slots[0];
         ActivateBrinstarPipeBug(shot, assets, actor);
-        var projectiles = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         ushort shotX = actor.XPosition, shotY = actor.YPosition;
         bool shotRespawns = actor.Properties.HasAny(EnemyProperties.RespawnIfKilled);
         ArmProjectile(projectiles.Slots[0], actor, type: 0, damage: 20);
@@ -518,7 +518,7 @@ internal static partial class PipeBugAudit
         };
         samus.RefreshCollisionRadii(prefixBus);
         samus.InitializeAnimation(prefixBus);
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             prefixBus,
             populationPointer,

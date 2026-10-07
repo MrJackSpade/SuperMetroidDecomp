@@ -532,8 +532,8 @@ internal static class ShutterAudit
         LoadedPopulation shot = LoadSelected(retailBus, new[] { population });
         RoomEnemySlot shotSlot = shot.Enemies.Slots[0];
         StepCentered(shot.Enemies, shot.Samus, shotSlot);
-        var projectiles = new SamusProjectileSystem();
-        var shared = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var shared = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(projectiles.Slots[0], shotSlot, projectileType: 0, damage: 999);
         if (shot.Enemies.ResolveOrdinaryProjectileHits(
                 shot.Bus,
@@ -584,8 +584,8 @@ internal static class ShutterAudit
         LoadedPopulation loaded = LoadSelected(retailBus, new[] { population });
         RoomEnemySlot slot = loaded.Enemies.Slots[0];
         StepCentered(loaded.Enemies, loaded.Samus, slot);
-        var projectiles = new SamusProjectileSystem();
-        var shared = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var shared = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(projectiles.Slots[0], slot, projectileType: 0, damage: 20);
         if (loaded.Enemies.ResolveOrdinaryProjectileHits(
                 loaded.Bus,
@@ -631,8 +631,8 @@ internal static class ShutterAudit
         }
 
         StepCentered(loaded.Enemies, loaded.Samus, slot);
-        var projectiles = new SamusProjectileSystem();
-        var shared = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var shared = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(projectiles.Slots[0], slot, projectileType: 0, damage: 999);
         if (loaded.Enemies.ResolveOrdinaryProjectileHits(
                 loaded.Bus,
@@ -775,7 +775,7 @@ internal static class ShutterAudit
         };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             PopulationSelectionAddressSpace.PopulationPointer,

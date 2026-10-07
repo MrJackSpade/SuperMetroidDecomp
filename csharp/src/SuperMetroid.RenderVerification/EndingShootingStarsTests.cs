@@ -59,8 +59,7 @@ internal static class EndingShootingStarsTests
         }
 
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
-        string root = Path.GetFullPath("out/workbook-investigation/crocomire-install");
-        var installed = GameAssetInstaller.EnsureInstalled(root) ?? GameAssetInstaller.Install("Super Metroid.smc", root);
+        var installed = RepositoryInstallation.Installation;
         var maps = installed.LoadMaps();
         var scene = new EndingCreditsState(installed.OpenRuntimeAddressSpace(), new CartridgeAudioState(), 2, 0);
         scene.BindObjectArtwork(installed.LoadEndingObjectArt());

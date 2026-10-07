@@ -14,7 +14,7 @@ internal static class PauseMessageGateAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         SeedCrateriaSave(bus);
-        var game = new SuperMetroidGame(
+        var game = RepositoryInstallation.CreateGame(
             bus,
             new SuperMetroidGameOptions { SkipOpeningCinematic = true });
         FrontendFrame frame = FrontendAuditDriver.EnterSelectedSlot(game);

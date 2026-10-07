@@ -27,7 +27,7 @@ internal static class CrawlerQuakeNativeAudit
             var population = new PopulationSelectionAddressSpace(bus,
                 [new RoomEnemyPopulationRecord(DownbackFixtureData.ZoomerDefinition, 120, 144,
                     0, (ushort)EnemyProperties.ProcessOffScreen, 0, 0, 0)]);
-            var enemies = new RoomEnemySystem();
+            var enemies = RepositoryInstallation.CreateEnemySystem();
             enemies.Load(population, PopulationSelectionAddressSpace.PopulationPointer,
                 PopulationSelectionAddressSpace.TilesetPointer, new SnesVram(), new SnesCgram(), () => 1);
             var actor = enemies.Slots[0];

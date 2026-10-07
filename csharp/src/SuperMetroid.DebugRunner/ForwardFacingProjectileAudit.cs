@@ -13,7 +13,7 @@ internal static class ForwardFacingProjectileAudit
         foreach (ushort item in new ushort[] { 0, 1, 2 })
         {
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-            var runtime = new SuperMetroidRuntime(bus);
+            var runtime = RepositoryInstallation.CreateRuntime(bus);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RunNmi(0, true);
             runtime.InitializeStartingCeresRoom();
@@ -44,7 +44,7 @@ internal static class ForwardFacingProjectileAudit
     private static void VerifyExistingProjectileAdvances(string romPath)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom();

@@ -12,7 +12,7 @@ internal static class RetailKraidCaptureTests
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
+        var runtime = RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true);
         runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomThroughDoorForVerification(SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, KraidCaptureDefinitions.IncomingDoor), 0, 256);
@@ -48,8 +48,10 @@ internal static class RetailKraidCaptureTests
         for (int hit = 0; hit < 2; hit++)
         {
             int waiting = 0;
+            // The attack enters with a roar timer before its first head frame selects a mouth
+            // shape; until then the hitbox words still hold their initial values.
             while (!(body.VariableA is (ushort)KraidAiFunction.MainAttackWithMouthOpen or (ushort)KraidAiFunction.MouthOpenReaction
-                && boss.InvulnerableMouthHitbox != ushort.MaxValue) && waiting++ < 1400)
+                && KraidMouthHitboxes.IsDefined(boss.InvulnerableMouthHitbox)) && waiting++ < 1400)
                 runtime.StepFrame(0);
             if (waiting >= 1400) throw new InvalidOperationException("Kraid never opened its mouth.");
             StrikeMouth(bus, runtime, body, boss);
@@ -124,13 +126,11 @@ internal static class RetailKraidCaptureTests
 
     private static void StrikeMouth(ISnesAddressSpace bus, SuperMetroidRuntime runtime, RoomEnemySlot body, KraidEnemyState boss)
     {
-        // Match the established audit: stage a missile at the ROM-authored open-mouth
-        // hitbox, then use the real collision/damage dispatcher to initiate growth.
-        int address = KraidBackgroundRomData.NativeBank | boss.InvulnerableMouthHitbox;
-        short left = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address));
-        short top = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2));
-        short bottom = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 6));
-        var shots = new SamusProjectileSystem();
+        // Match the established audit: stage a missile at the open-mouth hitbox, then use
+        // the real collision/damage dispatcher to initiate growth. Resolve the shape exactly
+        // as collision does: compiled $A7:9788 records or a live bank-$A7 low-half alias.
+        var (left, top, bottom) = KraidMouthHitboxes.ResolveCollision(bus, boss.InvulnerableMouthHitbox);
+        var shots = RepositoryInstallation.CreateProjectileSystem();
         var shot = shots.Slots[0];
         shot.Type = KraidCaptureDefinitions.AuditMissileType;
         shot.Damage = 100; shot.Direction = (ushort)SamusProjectileDirection.Right;
@@ -139,7 +139,10 @@ internal static class RetailKraidCaptureTests
         shot.XRadius = 2; shot.YRadius = 2;
         shot.InstructionPointer = KraidCaptureDefinitions.AuditLiveInstruction;
         shot.InstructionTimer = 1;
-        if (runtime.Enemies.ResolveKraidProjectileHits(bus, shots, new SamusBombProjectileSystem()) != 1)
+        // Kraid's collision walk starts at the native projectile count; one staged shot is count one.
+        typeof(SamusProjectileSystem).GetProperty(nameof(SamusProjectileSystem.ProjectileCounter))!.SetValue(shots, (ushort)1);
+        // The native walk counts one missile in both its mouth and body passes (#1192, #1247).
+        if (runtime.Enemies.ResolveKraidProjectileHits(bus, shots, RepositoryInstallation.CreateBombSystem()) == 0)
             throw new InvalidOperationException("Kraid growth fixture failed to land its staged missile.");
     }
 }

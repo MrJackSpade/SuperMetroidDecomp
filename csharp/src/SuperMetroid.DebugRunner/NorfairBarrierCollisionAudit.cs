@@ -17,7 +17,7 @@ internal static class NorfairBarrierCollisionAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = FindRoom(bus, TargetRoom);
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
         runtime.InitializeStartingCeresRoom();
@@ -111,7 +111,7 @@ internal static class NorfairBarrierCollisionAudit
             throw new InvalidDataException("Barrier replay ROM SHA-256 does not match.");
 
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
-        var game = new SuperMetroidGame(bus, recording.GameOptions);
+        var game = RepositoryInstallation.CreateGame(bus, recording.GameOptions);
         var apuPorts = new byte[4];
         bool wasInTarget = false;
         for (int frame = 0; frame < recording.ControllerInputs.Length; frame++)

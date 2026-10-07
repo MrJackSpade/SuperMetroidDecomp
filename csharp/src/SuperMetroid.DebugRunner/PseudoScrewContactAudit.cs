@@ -29,7 +29,7 @@ internal static class PseudoScrewContactAudit
                 throw new InvalidDataException("Charged fixture did not draw a visible flare.");
             for (int color = 0; color < 16; color++) runtime.Cgram.SetColor(192 + color, 0x1234);
             samus.HorizontalSpeed.ContactDamageIndex = contact;
-            var enemies = new RoomEnemySystem();
+            var enemies = RepositoryInstallation.CreateEnemySystem();
             enemies.Load(bus, 0xf000, 0, runtime.Vram, runtime.Cgram, () => 1);
             var enemy = enemies.Slots[0];
             enemy.EnemyDefinitionPointer = 0xf000;

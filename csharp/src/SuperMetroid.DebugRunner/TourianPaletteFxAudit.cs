@@ -20,7 +20,7 @@ internal static class TourianPaletteFxAudit
             if (fx.ActiveCount != expectedCounts[count - 1])
                 throw new InvalidDataException($"F621 with {count} allocations left {fx.ActiveCount} objects, expected {expectedCounts[count - 1]}.");
         }
-        var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
+        var runtime = RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();

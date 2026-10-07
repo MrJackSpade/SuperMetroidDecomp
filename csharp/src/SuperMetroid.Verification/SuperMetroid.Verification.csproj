@@ -17,9 +17,9 @@
     <Compile Include="../../test-support/ShutterBombArcScenario.cs" Link="ShutterBombArcScenario.cs" />
     <Compile Include="../../test-support/BombSpreadTransitionScenario.cs" Link="BombSpreadTransitionScenario.cs" />
     <Compile Include="../../test-support/ShallowWaterJumpScenario.cs" Link="ShallowWaterJumpScenario.cs" />
-    <Compile Include="../../test-support/InstalledRuntimeBindings.cs" Link="InstalledRuntimeBindings.cs" />
     <Compile Include="../../test-support/EnemyVisualSelectorInventory.cs" Link="EnemyVisualSelectorInventory.cs" />
     <Compile Include="../../test-support/RoomFxRecordCatalogSource.cs" Link="RoomFxRecordCatalogSource.cs" />
     <Compile Include="../SuperMetroid.DebugRunner/Assets/MapAssetExtractor.cs" Link="MapAssetExtractor.cs" />
   </ItemGroup>
+  <Import Project="../../test-support/RepositoryInstallation.projitems" />
 </Project>

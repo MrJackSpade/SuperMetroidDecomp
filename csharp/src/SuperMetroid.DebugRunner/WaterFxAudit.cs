@@ -60,7 +60,7 @@ internal static class WaterFxAudit
                 $"Water audit selected room {room.Identity}, FX $83:{room.State.FxPointer:X4}.");
         }
 
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
         runtime.InitializeStartingCeresRoom();
@@ -170,7 +170,7 @@ internal static class WaterFxAudit
                     $"{room.Identity}, not {definition.Identity}.");
             }
 
-            var runtime = new SuperMetroidRuntime(bus);
+            var runtime = RepositoryInstallation.CreateRuntime(bus);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
             runtime.InitializeStartingCeresRoom();

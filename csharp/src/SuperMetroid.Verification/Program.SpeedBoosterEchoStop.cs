@@ -12,7 +12,7 @@ internal static partial class Program
     private static void VerifySpeedBoosterEchoStop()
     {
         var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var renderer = new CartridgeAudioRenderer(runtimeFixtureInstallation.Value.LoadAudio());
+        var renderer = new CartridgeAudioRenderer(RepositoryInstallation.Installation.LoadAudio());
         var queue = new CartridgeAudioState();
         renderer.RenderFrame(queue.AdvanceFrame(bus, renderer.ReadAcknowledgements()));
         renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioUploadAddresses.GreenBrinstar)]);
@@ -97,14 +97,14 @@ internal static partial class Program
         AssertEqual((ushort)1, restored.EchoSoundFlag, "serialized flag survives even after boost has stopped");
         var fields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [typeof(SamusHorizontalSpeedState)])!;
-        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusHorizontalSpeedState), fields, fields.Length - 1)
+        AssertTrue(LegacyLayout(typeof(SamusHorizontalSpeedState), fields, fields.Where(field => field.Name != "<EchoSoundFlag>k__BackingField"))
             .SequenceEqual(fields.Where(field => field.Name != "<EchoSoundFlag>k__BackingField")),
             "legacy speed layout omits only its unavailable echo flag");
         restored.SpeedBoostCounter = 0x0401;
-        DebuggerStateFieldMigrations.InitializeMissingFields(restored, fields.Length - 1);
+        RestoreLegacy(restored, "<EchoSoundFlag>k__BackingField");
         AssertEqual((ushort)1, restored.EchoSoundFlag, "legacy active boost arms future cancellation");
         restored.SpeedBoostCounter = 0;
-        DebuggerStateFieldMigrations.InitializeMissingFields(restored, fields.Length - 1);
+        RestoreLegacy(restored, "<EchoSoundFlag>k__BackingField");
         AssertEqual((ushort)0, restored.EchoSoundFlag, "legacy inactive boost does not invent a pending stop");
 
         samus.XPosition = samus.YPosition = 24;

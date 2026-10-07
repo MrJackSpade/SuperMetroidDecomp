@@ -12,13 +12,13 @@ internal static class SparkDepartureAudit
             "DF0DDF8BDD56259EB2EBEFA8F288FA975625D35192AA6E3EF0B86E1AEFCF534A")
             throw new InvalidDataException("Use accepted spark-departure-466-v1 capture.");
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
-        var level = CartridgeRoomAssets.Load(bus, SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xcd13)).LevelData;
+        var level = CartridgeRoomAssets.Load(bus, SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xcd13), RepositoryInstallation.RoomAssets).LevelData;
         int differences = 0, records = 0;
         foreach (var group in File.ReadLines(trace).Skip(1).Select(line => line.Split(','))
             .GroupBy(row => row[0]))
         {
             var samus = new SamusState { XPosition = 128, YPosition = 128, Pose = byte.Parse(group.Key) };
-            var projectiles = new SamusProjectileSystem();
+            var projectiles = RepositoryInstallation.CreateProjectileSystem();
             // Only the handler boundary is seeded. Initialization, movement and viewport
             // deletion below execute production code using the pinned cartridge tables.
             typeof(SamusShinesparkState).GetProperty(nameof(SamusShinesparkState.Phase))!

@@ -26,7 +26,7 @@ internal static class PseudoScrewProjectileAudit
             samus.Kinematics.XRadius = 5; samus.Kinematics.YRadius = 12;
             samus.InvincibilityTimer = inv ? (ushort)9 : (ushort)0;
             samus.HorizontalSpeed.ContactDamageIndex = contact;
-            var enemies = new RoomEnemySystem();
+            var enemies = RepositoryInstallation.CreateEnemySystem();
             enemies.Load(bus, 0xf000, 0, new SnesVram(), new SnesCgram(), () => 1);
             var projectile = enemies.EnemyProjectiles[17];
             projectile.Kind = (RoomEnemyProjectileKind)0xf000;

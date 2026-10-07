@@ -9,7 +9,7 @@ internal static class TitleConsolePaletteAudit
     public static int Run(string romPath)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-        var title = new TitleSequenceState(bus);
+        var title = RepositoryInstallation.CreateTitle(bus);
         title.Step(0);
         // Independent first records at $8D:C7FE and $8D:C866, destinations $54/$5C bytes.
         ushort[] expected = [0x0113, 0x000f, 0x175c, 0x0299, 0x13ff, 0x0bb1];
@@ -31,7 +31,7 @@ internal static class TitleConsolePaletteAudit
             throw new InvalidDataException("Title skip did not reach the stationary title screen.");
         int skipPixels = VerifyVisibleConsoleFlash(title);
 
-        var naturalTitle = new TitleSequenceState(bus);
+        var naturalTitle = RepositoryInstallation.CreateTitle(bus);
         for (int frame = 0; naturalTitle.Phase != TitleSequencePhase.TitleScreen && frame < 5000; frame++)
             naturalTitle.Step(0);
         if (naturalTitle.Phase != TitleSequencePhase.TitleScreen)

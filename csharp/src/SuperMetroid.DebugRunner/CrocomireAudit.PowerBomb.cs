@@ -11,8 +11,8 @@ internal static partial class CrocomireAudit
         foreach (ushort expectedList in CrocomirePowerBombFixtureData.ReactionLists)
         {
             var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomHeader);
-            var loaded = Load(bus, room, CartridgeRoomAssets.Load(bus, room));
-            var control = Load(bus, room, CartridgeRoomAssets.Load(bus, room));
+            var loaded = Load(bus, room, CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets));
+            var control = Load(bus, room, CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets));
             var state = RequireState(loaded);
             bool found = false;
             for (int frame = 0; frame < 360; frame++)

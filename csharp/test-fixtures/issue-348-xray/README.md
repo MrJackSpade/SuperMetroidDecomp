@@ -26,8 +26,7 @@ Generated diagnostics go under `csharp/test-temp/issue-348-xray`. Compare this
 retained packet on either backend with:
 
 ```powershell
-dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --compare csharp/test-fixtures/issue-348-xray/horizontal.smframe --device hardware
-dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --compare csharp/test-fixtures/issue-348-xray/horizontal.smframe --device warp
+dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --frame-fixtures
 ```
 
 Both comparisons pass exactly. This verifies backend consistency, not an

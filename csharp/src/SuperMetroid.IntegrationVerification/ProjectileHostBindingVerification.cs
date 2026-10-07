@@ -8,10 +8,20 @@ using SuperMetroid.Core.Hardware;
 
 internal static class ProjectileHostBindingVerification
 {
-    public static int Run(string romPath)
+    /// <summary>Installs the repository ROM into a disposable root, verifies host binding, then removes it.</summary>
+    public static int Run()
     {
-        string root = Path.GetFullPath(Path.Combine("csharp/test-temp", "projectile-host-" + Guid.NewGuid().ToString("N")));
-        var installation = GameAssetInstaller.Install(romPath, root);
+        string root = Directory.CreateTempSubdirectory("SuperMetroid-projectile-host-").FullName;
+        try
+        {
+            return Verify(GameAssetInstaller.Install(Path.GetFullPath("Super Metroid.smc"), Path.Combine(root, "installation")));
+        }
+        finally { Directory.Delete(root, recursive: true); }
+    }
+
+    private static int Verify(GameInstallation installation)
+    {
+        string root = installation.Root;
         var field = typeof(SuperMetroidGame).GetField("projectileCompositions", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var frameField = typeof(SuperMetroidGame).GetField("projectileFrameBindings", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var beamField = typeof(SuperMetroidGame).GetField("beamArtwork", BindingFlags.Instance | BindingFlags.NonPublic)!;

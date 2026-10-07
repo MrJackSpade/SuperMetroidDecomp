@@ -29,7 +29,7 @@ internal static class NamiheAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         VerifyHeader(bus);
         VerifyProjectileDefinition(bus);
 
@@ -267,8 +267,8 @@ internal static class NamiheAudit
             throw new InvalidDataException("Namihe body contact did not deal header damage ten.");
         }
 
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         ArmShot(shots.Slots[0], actor, type: 0x0002, damage: 20);
         if (enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus) != 1 ||
             actor.Health != 20 || actor.FrozenTimer != 0 ||
@@ -330,7 +330,7 @@ internal static class NamiheAudit
         assets.LoadGraphics(vram, cgram);
         var random = new Bank80SystemState();
         samus = CreateSamus(bus, 0, 0);
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,

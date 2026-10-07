@@ -61,7 +61,7 @@ internal static class CeresRidleyProjectileAudit
                 bus,
                 contactLoaded.Enemies,
                 contactLoaded.Samus,
-                new SamusBombProjectileSystem(),
+                RepositoryInstallation.CreateBombSystem(),
                 assets.LevelData,
                 contactProjectile,
                 CameraX,
@@ -261,7 +261,7 @@ internal static class CeresRidleyProjectileAudit
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
 
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,

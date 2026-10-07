@@ -14,7 +14,7 @@ internal static partial class Program
         CartridgeImportAddressSpace bus)
     {
         var stock = RetailPresentationFixture();
-        var installation = runtimeFixtureInstallation.Value;
+        var installation = RepositoryInstallation.Installation;
         byte[] Read(int address, int count) => RomDataReader.ReadFixedBank(
             CartridgeImportSource.Require(bus), address, count);
         T Construct<T>(params object[] arguments) => (T)typeof(T)

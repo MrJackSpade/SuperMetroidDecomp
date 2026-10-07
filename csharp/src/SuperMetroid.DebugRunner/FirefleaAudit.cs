@@ -14,13 +14,13 @@ internal static class FirefleaAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0x9c5e);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
 
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -214,8 +214,8 @@ internal static class FirefleaAudit
         // Default vulnerability multiplier two turns a 20-point power beam into exactly
         // 20 damage, killing a fresh Fireflea and running its private shot-darkness tail.
         RoomEnemySlot shotTarget = firefleas[4];
-        var projectiles = new SamusProjectileSystem();
-        var sharedProjectiles = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var sharedProjectiles = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(projectiles.Slots[0], shotTarget, damage: 20);
         if (enemies.ResolveOrdinaryProjectileHits(
                 bus,
@@ -276,7 +276,7 @@ internal static class FirefleaAudit
         samus.HorizontalSpeed.ContactDamageIndex = 0;
         enemies.StepFrame(0x0100, 0, false, samus, level: assets.LevelData);
         RoomEnemySlot finalTarget = firefleas[0];
-        var finalProjectile = new SamusProjectileSystem();
+        var finalProjectile = RepositoryInstallation.CreateProjectileSystem();
         ArmProjectile(finalProjectile.Slots[0], finalTarget, damage: 20);
         if (enemies.ResolveOrdinaryProjectileHits(
                 bus,

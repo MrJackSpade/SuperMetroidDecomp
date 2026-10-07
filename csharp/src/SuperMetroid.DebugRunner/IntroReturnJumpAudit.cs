@@ -11,7 +11,7 @@ internal static class IntroReturnJumpAudit
     public static int Run(string romPath, string outputDirectory, string? nativeCsv = null)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-        var intro = new IntroCinematicState(bus);
+        var intro = RepositoryInstallation.CreateIntro(bus);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var samusField = typeof(IntroCinematicState).GetField("flashbackSamus", flags)!;
         var demoField = typeof(IntroCinematicState).GetField("flashbackDemoInput", flags)!;

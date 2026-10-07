@@ -13,7 +13,7 @@ internal static partial class AssetTools
         foreach (bool left in new[] { false, true })
         for (int timingCase = 0; timingCase < BombSpreadTransitionScenario.TimingCaseCount(wallRoute); timingCase++)
         {
-            var scenario = new BombSpreadTransitionScenario(CreateInstalledRuntime(bus), bus, left, timingCase, wallRoute);
+            var scenario = new BombSpreadTransitionScenario(RepositoryInstallation.CreateRuntime(bus), bus, left, timingCase, wallRoute);
             for (int frame = 0; frame < scenario.FrameCount; frame++, frames++)
             {
                 ushort input = scenario.Input(frame);
@@ -36,7 +36,7 @@ internal static partial class AssetTools
     internal static int ExportShallowWaterJumpSeed()
     {
         var bus = LoadRepositoryRom();
-        var scenario = new ShallowWaterJumpScenario(CreateInstalledRuntime(bus, playerInvincibilityEnabled: true), bus);
+        var scenario = new ShallowWaterJumpScenario(RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true), bus);
         var level = scenario.Runtime.LevelData!;
         string output = Path.GetFullPath("csharp/test-temp/issue-1258-water-jump");
         Directory.CreateDirectory(output);

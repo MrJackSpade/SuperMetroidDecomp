@@ -10,7 +10,7 @@ internal static class PauseMapScrollingAudit
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var system = new Bank80SystemState();
         system.SetAreaMapAcquired(0);
-        var pause = new PauseMenuState(bus, new SamusState(), system, AreaId.Crateria, 30, 16);
+        var pause = RepositoryInstallation.CreatePause(bus, RepositoryInstallation.CreateSamus(), system, AreaId.Crateria, 30, 16);
         var before = pause.Render();
         ushort initial = pause.MapHorizontalScroll;
         ushort marker = pause.LastIndicatorOriginX;

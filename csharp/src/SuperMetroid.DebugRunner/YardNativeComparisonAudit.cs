@@ -20,11 +20,11 @@ internal static class YardNativeComparisonAudit
             if (int.Parse(group.Key) != cases++) throw new InvalidDataException("Reordered Yard focus cases.");
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
             var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xd5a7);
-            var assets = CartridgeRoomAssets.Load(bus, room);
+            var assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
             var vram = new SnesVram(); var cgram = new SnesCgram();
             assets.LoadGraphics(vram, cgram);
             var random = new Bank80SystemState();
-            var enemies = new RoomEnemySystem();
+            var enemies = RepositoryInstallation.CreateEnemySystem();
             enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer,
                 vram, cgram, random.NextRandom, random.SetRandomNumber);
             var samus = new SamusState { Health = 999, MaxHealth = 999, Pose = SamusPoseIds.FacingRightNormalPose };

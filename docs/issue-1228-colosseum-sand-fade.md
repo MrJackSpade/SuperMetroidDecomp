@@ -19,7 +19,7 @@ The runtime now suppresses room palette-FX execution while the existing door-tra
 The guarded DebugRunner fixture fails before the correction: HandleTransition, color 36, expected 0000, actual 3ED9. Afterward all eight sand colors match the room's gradual transition across all 16 destination setup/fade checks. The first gameplay frame preserves the completed colors, and frame 10 advances to the next native sand animation record. The reference transition uses the actual destination target and the shared existing fade algorithm; native routine inspection establishes that palette FX must not override it.
 
 ```powershell
-dotnet csharp/src/SuperMetroid.DebugRunner/bin/Release/net10.0/SuperMetroid.DebugRunner.dll --colosseum-sand-fade-audit 'C:/Users/Service Account/AppData/Local/SuperMetroid'
+dotnet csharp/src/SuperMetroid.DebugRunner/bin/Release/net10.0-windows/SuperMetroid.DebugRunner.dll --colosseum-sand-fade-audit 'C:/Users/Service Account/AppData/Local/SuperMetroid'
 ```
 
 Release build and scoped regression pass. Player visual confirmation remains pending.

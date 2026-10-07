@@ -31,7 +31,7 @@ internal static partial class Program
         var actors = definitions.Select((definition, index) => new EndingSprite(
             new IntroDiscoverySprite(128, unchecked((ushort)nativeY[index]), definition.Attributes.Raw,
                 definition.InstructionPointer), roles[index])).ToArray();
-        var cloudSprites = runtimeFixtureInstallation.Value.LoadEndingObjectArt().CloudSprites;
+        var cloudSprites = RepositoryInstallation.Installation.LoadEndingObjectArt().CloudSprites;
         int checkedFrames = 0;
         for (int frame = 0; frame < 200; frame++)
         {

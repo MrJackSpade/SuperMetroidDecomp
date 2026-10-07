@@ -42,17 +42,15 @@ public sealed class CartridgeRoomAssets
     public TilesetDefinition Tileset { get; }
 
     /// <summary>Reads every compressed input named by the selected room and graphics set.</summary>
-    public static CartridgeRoomAssets Load(ISnesAddressSpace bus, CartridgeRoomHeader header,
-        RoomCharacterAtlasCatalog? characterArt = null,
-        RoomStaticPaletteCatalog? paletteArt = null,
-        RoomMetatileCatalog? metatileArt = null,
-        RoomVisualLayoutCatalog? visualLayouts = null)
+    public static CartridgeRoomAssets Load(ISnesAddressSpace bus, CartridgeRoomHeader header, RoomAssetCatalogs catalogs)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(header);
-        if (characterArt is null || paletteArt is null || metatileArt is null || visualLayouts is null)
-            throw new InvalidOperationException(
-                "Room loading requires installed character, palette, metatile, and visual-layout assets.");
+        ArgumentNullException.ThrowIfNull(catalogs);
+        RoomCharacterAtlasCatalog characterArt = catalogs.Characters;
+        RoomStaticPaletteCatalog paletteArt = catalogs.Palettes;
+        RoomMetatileCatalog metatileArt = catalogs.Metatiles;
+        RoomVisualLayoutCatalog visualLayouts = catalogs.VisualLayouts;
         TilesetDefinition tileset = RoomTilesetDefinitions.Get(header.State.GraphicsSet);
 
         byte[] roomBlockDefinitions = metatileArt.Get(tileset.BlockDefinitionsAddress).Transfer.ToArray();

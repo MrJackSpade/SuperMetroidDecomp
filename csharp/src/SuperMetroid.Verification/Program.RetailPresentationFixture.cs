@@ -20,15 +20,13 @@ internal static partial class Program
         SamusState samus, Bank80SystemState system, AreaId areaIndex,
         byte roomMapX, byte roomMapY, CartridgeAudioState? audio = null,
         SnesVram? gameplayVram = null, MapRevealMode mapRevealMode = MapRevealMode.None) =>
-        new(bus, samus, system, areaIndex, roomMapX, roomMapY, audio,
-            gameplayVram, mapRevealMode, RetailPresentationFixture());
-
-    private static AreaMapPresentationCatalog? retailPresentationFixture;
+        RepositoryInstallation.CreatePause(bus, samus, system, areaIndex, roomMapX, roomMapY, audio,
+            gameplayVram, mapRevealMode);
 
     /// <summary>
     /// The shared installation's map presentation, the same extracted content contract the
     /// playable host uses. Independent game instances still own their mutable state.
     /// </summary>
     private static AreaMapPresentationCatalog RetailPresentationFixture() =>
-        retailPresentationFixture ??= runtimeFixtureInstallation.Value.LoadMaps();
+        RepositoryInstallation.Maps;
 }

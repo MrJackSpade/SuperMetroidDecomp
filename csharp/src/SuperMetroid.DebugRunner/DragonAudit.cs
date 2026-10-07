@@ -31,7 +31,7 @@ internal static class DragonAudit
                 BossBits: BossBits.None,
                 HasMorphBallAndMissiles: false,
                 HasPowerBombs: false));
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(retailBus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(retailBus, room, RepositoryInstallation.RoomAssets);
         if (room.State.Pointer != ExpectedStatePointer ||
             room.State.EnemyPopulationPointer != ExpectedPopulationPointer)
         {
@@ -67,7 +67,7 @@ internal static class DragonAudit
         assets.LoadGraphics(vram, cgram);
         var random = new Bank80SystemState();
         var samus = CreateSamus(retailBus, xPosition: 0x03c0);
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             retailBus,
             room.State.EnemyPopulationPointer,
@@ -486,8 +486,8 @@ internal static class DragonAudit
         ushort projectileType,
         ushort damage)
     {
-        var projectiles = new SamusProjectileSystem();
-        var sharedProjectiles = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var sharedProjectiles = RepositoryInstallation.CreateBombSystem();
         SamusProjectileSlot projectile = projectiles.Slots[0];
         projectile.ClearFields();
         projectile.Type = projectileType;
@@ -523,7 +523,7 @@ internal static class DragonAudit
         var random = new Bank80SystemState();
         SamusState samus = CreateSamus(retailBus, samusX);
 
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             pairBus,
             room.State.EnemyPopulationPointer,

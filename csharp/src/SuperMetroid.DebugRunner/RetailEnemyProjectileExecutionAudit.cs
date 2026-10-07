@@ -59,7 +59,7 @@ internal static partial class RetailEnemyExecutionAudit
                     continue;
                 }
                 CartridgeRoomHeader room = defaultRoom with { State = exactState };
-                CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+                CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
                 LoadedRetailState initial = LoadState(bus, room, assets);
 
                 for (int slotIndex = 0; slotIndex < initial.Enemies.EnemyCount; slotIndex++)

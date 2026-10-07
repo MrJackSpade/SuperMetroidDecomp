@@ -25,7 +25,7 @@ internal static partial class Program
         afterglow.Step(bus, instructionWord: EndingCartridgeInstructionWord(bus));
         var expected = new OamBuffer();
         expected.BeginFrame();
-        afterglow.Draw(bus, expected, installedArt: runtimeFixtureInstallation.Value.LoadEndingObjectArt().ExplosionSprites);
+        afterglow.Draw(bus, expected, installedArt: RepositoryInstallation.Installation.LoadEndingObjectArt().ExplosionSprites);
         expected.FinalizeFrame();
         // F2FA installs the afterglow at byte slot 6 (index 3); the starfields occupy
         // byte slots 2 and 0. The native descending draw must give the complete

@@ -15,8 +15,8 @@ internal static class ComboAllocationAudit
         foreach (string line in File.ReadLines(trace).Skip(1))
         {
             string[] row = line.Split(',');
-            var projectiles = new SamusProjectileSystem();
-            var shared = new SamusBombProjectileSystem();
+            var projectiles = RepositoryInstallation.CreateProjectileSystem();
+            var shared = RepositoryInstallation.CreateBombSystem();
             var samus = new SamusState { EquippedBeams = (ushort)(0x1000 | int.Parse(row[0])),
                 PowerBombs = ushort.Parse(row[1]), SelectedHudItem = row[2] == "1" ? (ushort)3 : (ushort)0,
                 AutoCancelHudItemIndex = 3, XPosition = 512, YPosition = 384,

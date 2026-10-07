@@ -10,7 +10,7 @@ internal static class AttractDemoFrontendAudit
     public static int Run(string romPath)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-        var game = new SuperMetroidGame(bus, null, renderGameplayFrames: false);
+        var game = RepositoryInstallation.CreateGame(bus, null, renderGameplayFrames: false);
         byte[] originalSave = bus.SaveRam.ToArray();
         var ports = new byte[4];
         FrontendFrame Step(ushort input = 0)

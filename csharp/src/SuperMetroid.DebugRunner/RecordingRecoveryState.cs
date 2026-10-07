@@ -18,7 +18,7 @@ internal static class RecordingRecoveryState
         if (Directory.Exists(destination)) throw new IOException("Recovery destination already exists.");
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
-        var game = new SuperMetroidGame(bus, recording.GameOptions, renderGameplayFrames: true);
+        var game = RepositoryInstallation.CreateGame(bus, recording.GameOptions, renderGameplayFrames: true);
         var assets = ExtractedAudioAssetCatalog.Load(audioDirectory);
         var audio = new CartridgeAudioRenderer(assets);
         for (int frame = 0; frame <= lastFrame; frame++)

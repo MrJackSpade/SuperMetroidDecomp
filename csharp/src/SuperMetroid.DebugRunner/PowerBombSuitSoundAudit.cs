@@ -22,7 +22,7 @@ internal static class PowerBombSuitSoundAudit
             {
                 if (active) bomb.Reset(); else { bomb.Arm(); bomb.Spawn(samus.XPosition, samus.YPosition); }
             }
-            var game = new SuperMetroidGame(bus, null, renderGameplayFrames: false);
+            var game = RepositoryInstallation.CreateGame(bus, null, renderGameplayFrames: false);
             const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
             typeof(SuperMetroidGame).GetField("runtime", fields)!.SetValue(game, runtime);
             typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", fields)!.SetValue(game, (ushort?)runtime.ActiveRoom!.State.Pointer);

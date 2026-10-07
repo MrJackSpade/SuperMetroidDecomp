@@ -17,7 +17,7 @@ internal static class SaveStationAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         const ushort crateriaSaveRoom = RoomHeaderPointers.CrateriaSaveStation;
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
         runtime.InitializeStartingCeresRoom();
@@ -175,7 +175,7 @@ internal static class SaveStationAudit
 
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(fullRomPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
-        var game = new SuperMetroidGame(bus, recording.GameOptions);
+        var game = RepositoryInstallation.CreateGame(bus, recording.GameOptions);
         var apuPortEchoes = new byte[4];
         SaveStationPhase? previousPhase = null;
         GameplayMessageBoxPhase previousMessagePhase = GameplayMessageBoxPhase.Inactive;

@@ -26,10 +26,16 @@ internal static partial class Program
     private static void Run(string[] args)
     {
         NativeConsoleErrors.DisableDialogs();
-        if (args is ["--console-startup-failure-test"])
+        // Child fixture for --console-startup-boundary: it must fail at the console boundary.
+        if (args is [ConsoleStartupBoundaryTests.FailingChildFlag])
         {
             NativeConsoleErrors.VerifyDialogsDisabled();
-            throw new InvalidOperationException("Expected console startup-boundary fixture failure.");
+            throw new InvalidOperationException(ConsoleStartupBoundaryTests.ExpectedFailure);
+        }
+        if (args is ["--console-startup-boundary"])
+        {
+            ConsoleStartupBoundaryTests.Run();
+            return;
         }
         if (!Application.SetHighDpiMode(HighDpiMode.PerMonitorV2))
             throw new InvalidOperationException("Could not initialize desktop verification with the game's PerMonitorV2 DPI policy.");
@@ -120,24 +126,19 @@ internal static partial class Program
                     VerifyChozoStatueState();
                     return;
                 }
-                if (args is ["--visible-minimize-restore"])
+                if (args is ["--soak-desktop-hidden"])
                 {
-                    await VerifyVisibleMinimizeRestore();
+                    await RunDesktopTimerSoak(SoakDefinitions.SecondsPerScene);
                     return;
                 }
-                if (args is ["--soak-desktop-visible", var visibleDuration] && int.TryParse(visibleDuration, out int visibleSeconds))
+                if (args is ["--soak-desktop-hidden-smoke"])
                 {
-                    await RunDesktopTimerSoak(visibleSeconds, visible: true);
+                    await RunDesktopTimerSoak(SoakDefinitions.PublishSmokeSecondsPerScene);
                     return;
                 }
-                if (args is ["--soak-desktop-hidden", var desktopDuration] && int.TryParse(desktopDuration, out int desktopSeconds))
+                if (args is ["--soak-hidden"])
                 {
-                    await RunDesktopTimerSoak(desktopSeconds);
-                    return;
-                }
-                if (args is ["--soak-hidden", var durationText] && int.TryParse(durationText, out int seconds))
-                {
-                    await RunHiddenSoak(seconds);
+                    await RunHiddenSoak(SoakDefinitions.SecondsPerScene);
                     return;
                 }
                 if (args is ["--audio-queue"])

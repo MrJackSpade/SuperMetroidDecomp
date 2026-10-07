@@ -151,8 +151,8 @@ internal static partial class BombTorizoAudit
         int desiredDamage = loaded.Head.Health - targetHealth;
         ushort projectileDamage = checked((ushort)(
             ((desiredDamage + superMultiplier - 1) / superMultiplier) * 2));
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         loaded.Head.FlashTimer = 0;
         ArmProjectile(shots.Slots[0], loaded.Head, type: 0x0200, projectileDamage);
         int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(
@@ -174,8 +174,8 @@ internal static partial class BombTorizoAudit
         ISnesAddressSpace bus,
         LoadedBombTorizo loaded)
     {
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         loaded.Head.FlashTimer = 0;
         ArmProjectile(shots.Slots[0], loaded.Head, type: 0x0200, damage: 4000);
         int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(

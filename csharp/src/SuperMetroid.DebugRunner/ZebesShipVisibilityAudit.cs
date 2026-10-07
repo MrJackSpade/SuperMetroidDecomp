@@ -9,7 +9,7 @@ internal static class ZebesShipVisibilityAudit
     public static int Run(string romPath, string outputDirectory)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-        var scene = new CeresDestructionCinematicState(bus);
+        var scene = RepositoryInstallation.CreateDestruction(bus);
         Directory.CreateDirectory(outputDirectory);
         int visibleApproachFrames = 0, hiddenFrames = 0, failedFrames = 0;
         int holdFrames = 0, slideFrames = 0;

@@ -41,7 +41,7 @@ From repository root, with the supported ROM available:
 
 ```powershell
 dotnet build csharp/src/SuperMetroid.Verification -c Release --no-restore
-dotnet csharp/src/SuperMetroid.DebugRunner/bin/Release/net10.0/SuperMetroid.DebugRunner.dll --export-shallow-water-jump
+dotnet csharp/src/SuperMetroid.DebugRunner/bin/Release/net10.0-windows/SuperMetroid.DebugRunner.dll --export-shallow-water-jump
 & 'C:\Program Files\Microsoft Visual Studio\18\Community\MSBuild\Current\Bin\MSBuild.exe' csharp/test-fixtures/issue-1258-water-jump/probe.vcxproj /p:Configuration=Release /p:Platform=x64 /v:minimal
 & csharp/test-temp/issue-1258-water-jump/probe.exe upstream-sm/sm.smc csharp/test-temp/issue-1258-water-jump/room.bin csharp/test-temp/issue-1258-water-jump/seed.txt
 dotnet csharp/src/SuperMetroid.Verification/bin/Release/net10.0/SuperMetroid.Verification.dll --shallow-water-jump

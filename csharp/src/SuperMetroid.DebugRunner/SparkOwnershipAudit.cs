@@ -14,7 +14,7 @@ internal static class SparkOwnershipAudit
             "25FFBFE7013658F9123ED41F67928C3A410EDD256E450B160432654C0F251D5F"))
             throw new InvalidDataException("Use the accepted ownership or reentry capture.");
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
-        var level = CartridgeRoomAssets.Load(bus, SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xcd13)).LevelData;
+        var level = CartridgeRoomAssets.Load(bus, SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xcd13), RepositoryInstallation.RoomAssets).LevelData;
         int mismatches = 0, records = 0;
         foreach (var group in File.ReadLines(trace).Skip(1).Select(line => line.Split(','))
             .GroupBy(row => string.Join(',', row[..2])))
@@ -24,8 +24,8 @@ internal static class SparkOwnershipAudit
                 Pose = (reentry || reset) && seed[1] == "1" ? SamusPoseIds.ShinesparkHorizontalLeftPose : SamusPoseIds.ShinesparkHorizontalRightPose,
                 EquippedBeams = (ushort)(0x1000 | ushort.Parse(seed[0])),
                 PowerBombs = 2, MaxPowerBombs = 2, SelectedHudItem = 3 };
-            var projectiles = new SamusProjectileSystem();
-            var bombs = new SamusBombProjectileSystem();
+            var projectiles = RepositoryInstallation.CreateProjectileSystem();
+            var bombs = RepositoryInstallation.CreateBombSystem();
             int differences = 0;
             foreach (string[] row in group)
             {

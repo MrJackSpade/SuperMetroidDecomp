@@ -10,7 +10,7 @@ internal static partial class Program
 {
     private static void VerifySpringBallEquipmentJump()
     {
-        var installation = runtimeFixtureInstallation.Value;
+        var installation = RepositoryInstallation.Installation;
         foreach (bool left in new[] { false, true })
         {
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();

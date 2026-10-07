@@ -88,7 +88,7 @@ internal static class ForcedBlueStateAudit
         SamusState samus = CreateActiveHorizontalSpark(bus);
         samus.XPosition = 136;
         samus.YPosition = 235;
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             PopulationSelectionAddressSpace.PopulationPointer,

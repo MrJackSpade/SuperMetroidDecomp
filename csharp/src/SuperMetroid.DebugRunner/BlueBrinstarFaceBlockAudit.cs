@@ -108,7 +108,7 @@ internal static class BlueBrinstarFaceBlockAudit
                 $"Face-block audit selected state/population " +
                 $"$8F:{room.State.Pointer:X4}/$A1:{room.State.EnemyPopulationPointer:X4}.");
         }
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
 
         VerifyDirectionalActivationAndAnimation(bus, room, assets);
         VerifyStrictRangeAndCollectedItemGate(bus, room, assets);
@@ -385,14 +385,14 @@ internal static class BlueBrinstarFaceBlockAudit
             throw new InvalidDataException("Face-block literal-RTL touch callback was not inert.");
         }
 
-        var shots = new SamusProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
         SamusProjectileSlot shot = shots.Slots[0];
         ArmProjectile(shot, actor);
         ushort actorHealth = actor.Health;
         if (loaded.Enemies.ResolveOrdinaryProjectileHits(
                 bus,
                 shots,
-                new SamusBombProjectileSystem(),
+                RepositoryInstallation.CreateBombSystem(),
                 loaded.Samus) != 1 ||
             actor.Health != actorHealth || shot.Direction != 0x0002 ||
             shot.InstructionPointer != 0x9000 || !shot.IsActive)
@@ -461,7 +461,7 @@ internal static class BlueBrinstarFaceBlockAudit
         samus.RefreshCollisionRadii(isolatedPopulation);
         samus.InitializeAnimation(isolatedPopulation);
 
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             isolatedPopulation,
             faceBlockRunPointer,

@@ -35,7 +35,7 @@ internal static class GRipperRipper2Audit
     private static void VerifyGRipper(SuperMetroidAddressSpace bus)
     {
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, GRipperRoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         LoadedRoom loaded = LoadRoom(bus, room, assets);
         RoomEnemySlot[] actors = loaded.Enemies.Slots
             .Take(loaded.Enemies.EnemyCount)
@@ -110,8 +110,8 @@ internal static class GRipperRipper2Audit
         // the supplied 100 damage before the private tail observes that it was not frozen.
         RoomEnemySlot missileTarget = actors[1];
         StepCentered(loaded, assets, room, missileTarget);
-        var projectiles = new SamusProjectileSystem();
-        var shared = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var shared = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(projectiles.Slots[0], missileTarget, projectileType: 0x0100, damage: 100);
         if (loaded.Enemies.ResolveOrdinaryProjectileHits(
                 bus,
@@ -149,7 +149,7 @@ internal static class GRipperRipper2Audit
     private static void VerifyRipper2(SuperMetroidAddressSpace bus)
     {
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, Ripper2RoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         LoadedRoom loaded = LoadRoom(bus, room, assets);
         RoomEnemySlot[] actors = loaded.Enemies.Slots
             .Take(loaded.Enemies.EnemyCount)
@@ -216,8 +216,8 @@ internal static class GRipperRipper2Audit
         loaded = LoadRoom(bus, room, assets);
         RoomEnemySlot lethal = loaded.Enemies.Slots[2];
         StepCentered(loaded, assets, room, lethal);
-        var projectiles = new SamusProjectileSystem();
-        var shared = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var shared = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(projectiles.Slots[0], lethal, projectileType: 0x0200, damage: 300);
         var beforeDeath = EnemyDeathAuditAssertions.Capture(loaded.Enemies, lethal);
         if (loaded.Enemies.ResolveOrdinaryProjectileHits(
@@ -256,8 +256,8 @@ internal static class GRipperRipper2Audit
             StepCentered(loaded, assets, room, actor);
         }
 
-        var projectiles = new SamusProjectileSystem();
-        var shared = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var shared = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(projectiles.Slots[0], actor, projectileType: 0x0002, damage: 20);
         ushort expectedMap = expectPositiveVelocity ? (ushort)0xe44b : (ushort)0xe43f;
         if (loaded.Enemies.ResolveOrdinaryProjectileHits(
@@ -318,7 +318,7 @@ internal static class GRipperRipper2Audit
         };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,

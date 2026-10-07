@@ -31,7 +31,7 @@ internal static partial class Program
             IntroFontAtlasFormat.ByteCount).SequenceEqual(font.Transfer.Span),
             "opening cinematic uploads the installed font without reading its ROM stream");
 
-        IntroEyeTilemapPresentation eyeArtwork = runtimeFixtureInstallation.Value.LoadIntroCinematicArt().EyeFrames;
+        IntroEyeTilemapPresentation eyeArtwork = RepositoryInstallation.Installation.LoadIntroCinematicArt().EyeFrames;
         int comparedFrames = 0;
         foreach (IntroNarrationPageId page in Enum.GetValues<IntroNarrationPageId>())
         {

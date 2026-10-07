@@ -32,7 +32,7 @@ internal static class GrappleHudAudit
         SamusGrappleMovement.BeginFiring(bus, sentinel);
         if (sentinel.Grapple.Phase != GrapplePhase.CancelPending)
             throw new InvalidDataException("Native sentinel shot direction did not select cancellation.");
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(GrappleRoom, 0, 11);

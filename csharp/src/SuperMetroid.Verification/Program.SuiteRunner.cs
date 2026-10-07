@@ -18,7 +18,7 @@ internal static partial class Program
         object?[] arguments = parameters.Select(parameter => parameter.IsOptional ? parameter.DefaultValue : null).ToArray();
         if (required.Length == 1 && required[0].ParameterType == typeof(SuperMetroid.AssetExtraction.GameInstallation))
         {
-            arguments[Array.IndexOf(parameters, required[0])] = runtimeFixtureInstallation.Value;
+            arguments[Array.IndexOf(parameters, required[0])] = RepositoryInstallation.Installation;
         }
         else if (required.Length == 1)
         {

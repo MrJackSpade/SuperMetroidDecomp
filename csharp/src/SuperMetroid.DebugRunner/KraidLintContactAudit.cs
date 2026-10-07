@@ -23,7 +23,7 @@ internal static class KraidLintContactAudit
         }
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xa59f);
-        var assets = CartridgeRoomAssets.Load(bus, room);
+        var assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         int cases = 0;
         foreach (int activeSlot in new[] { 2, 3, 4 })
         foreach (ushort startX in new ushort[] { 128, 59, 34 })
@@ -35,7 +35,7 @@ internal static class KraidLintContactAudit
                 Pose = SamusPoseIds.FacingRightNormalPose };
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
-            var enemies = new RoomEnemySystem();
+            var enemies = RepositoryInstallation.CreateEnemySystem();
             enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer,
                 new SnesVram(), new SnesCgram(), () => 0x1234, level: assets.LevelData,
                 samus: samus, isAreaBossDefeated: () => false,

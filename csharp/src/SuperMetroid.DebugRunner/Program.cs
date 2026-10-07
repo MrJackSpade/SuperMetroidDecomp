@@ -24,6 +24,10 @@ try
 {
     if (AssetTools.Run(args) is int toolExit)
         return toolExit;
+    if (IntegrationTools.Run(args) is int integrationToolExit)
+        return integrationToolExit;
+    if (RenderTools.Run(args) is int renderToolExit)
+        return renderToolExit;
     if (args is ["--file-select-energy-tanks-audit", var tanksInstallation])
         return FileSelectEnergyTanksAudit.Run(tanksInstallation);
     if (args is ["--rescued-animals-ship-audit", var animalsInstallation])
@@ -1893,11 +1897,11 @@ if (args.Length >= 2 && args[0] == "--climb-sbug-audit")
     string climbRomPath = string.Join(' ', args[1..]).Trim('"');
     SuperMetroidAddressSpace climbBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(climbRomPath);
     CartridgeRoomHeader climbRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(climbBus, 0x96ba);
-    CartridgeRoomAssets climbAssets = CartridgeRoomAssets.Load(climbBus, climbRoom);
+    CartridgeRoomAssets climbAssets = CartridgeRoomAssets.Load(climbBus, climbRoom, RepositoryInstallation.RoomAssets);
     var climbVram = new SnesVram();
     var climbCgram = new SnesCgram();
     climbAssets.LoadGraphics(climbVram, climbCgram);
-    var climbEnemies = new RoomEnemySystem();
+    var climbEnemies = RepositoryInstallation.CreateEnemySystem();
     var climbRandom = new Bank80SystemState();
     climbEnemies.Load(
         climbBus,
@@ -2084,8 +2088,8 @@ if (args.Length >= 2 && args[0] == "--climb-sbug-audit")
         SamusKnockbackMovement.TryStartPendingHitInterruption(climbBus, climbSamus, 0, timeIsFrozen: false))
         throw new InvalidDataException("Sbug pending hit did not install exactly one native up-right knockback.");
 
-    var sbugProjectiles = new SamusProjectileSystem();
-    var sbugBombs = new SamusBombProjectileSystem();
+    var sbugProjectiles = RepositoryInstallation.CreateProjectileSystem();
+    var sbugBombs = RepositoryInstallation.CreateBombSystem();
     SamusProjectileSlot sbugShot = sbugProjectiles.Slots[0];
     sbugShot.ClearFields();
     sbugShot.Type = 0;
@@ -2121,11 +2125,11 @@ if (args.Length >= 2 && args[0] == "--colosseum-mochtroid-audit")
     SuperMetroidAddressSpace colosseumBus =
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(colosseumRomPath);
     CartridgeRoomHeader colosseumRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(colosseumBus, 0xd72a);
-    CartridgeRoomAssets colosseumAssets = CartridgeRoomAssets.Load(colosseumBus, colosseumRoom);
+    CartridgeRoomAssets colosseumAssets = CartridgeRoomAssets.Load(colosseumBus, colosseumRoom, RepositoryInstallation.RoomAssets);
     var colosseumVram = new SnesVram();
     var colosseumCgram = new SnesCgram();
     colosseumAssets.LoadGraphics(colosseumVram, colosseumCgram);
-    var colosseumEnemies = new RoomEnemySystem();
+    var colosseumEnemies = RepositoryInstallation.CreateEnemySystem();
     var colosseumRandom = new Bank80SystemState();
     colosseumEnemies.Load(
         colosseumBus,
@@ -2288,8 +2292,8 @@ if (args.Length >= 2 && args[0] == "--colosseum-mochtroid-audit")
     // The custom $A3:A9A8 shot entry is a thin wrapper around normal shot AI. Use a real
     // power-beam collision to prove it consumes the default vulnerability and 100-health
     // header before testing the newly shared Screw-Attack contact branch.
-    var mochtroidProjectiles = new SamusProjectileSystem();
-    var mochtroidBombs = new SamusBombProjectileSystem();
+    var mochtroidProjectiles = RepositoryInstallation.CreateProjectileSystem();
+    var mochtroidBombs = RepositoryInstallation.CreateBombSystem();
     SamusProjectileSlot mochtroidShot = mochtroidProjectiles.Slots[0];
     mochtroidShot.ClearFields();
     mochtroidShot.Type = SamusProjectileTypeWord.CreateBeam(equippedBeams: 0, charged: false);
@@ -2342,7 +2346,7 @@ if (args.Length >= 2 && args[0] == "--obj-render-benchmark")
     SuperMetroidAddressSpace benchmarkBus =
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(benchmarkRomPath);
     CartridgeRoomHeader benchmarkRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(benchmarkBus, 0xe0b5);
-    var benchmarkRuntime = new SuperMetroidRuntime(benchmarkBus);
+    var benchmarkRuntime = RepositoryInstallation.CreateRuntime(benchmarkBus);
     benchmarkRuntime.InitializeHud(HudSnapshot.CeresDebug);
     benchmarkRuntime.InitializeStartingCeresRoom();
     benchmarkRuntime.InitializeCeresStartSamus();
@@ -2540,7 +2544,7 @@ if (args.Length >= 2 && args[0] == "--frontend-parity-audit")
 {
     string frontendRomPath = string.Join(' ', args[1..]).Trim('"');
     SuperMetroidAddressSpace frontendBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(frontendRomPath);
-    var titleAudit = new TitleSequenceState(frontendBus);
+    var titleAudit = RepositoryInstallation.CreateTitle(frontendBus);
     Rgba32[] yearFrame = titleAudit.Render();
     if (yearFrame[0] != new Rgba32(0, 0, 0, 255))
     {
@@ -2578,7 +2582,7 @@ if (args.Length >= 2 && args[0] == "--frontend-parity-audit")
             $"timer={titleAudit.TitleScreenFramesRemaining}, pan={sawNintendoPan}, zoomOut={sawZoomOut}.");
     }
 
-    var introAudit = new IntroCinematicState(frontendBus);
+    var introAudit = RepositoryInstallation.CreateIntro(frontendBus);
     int narrationFrames = 0;
     var pageOneCaretPositions = new HashSet<(ushort X, ushort Y)>();
     while (introAudit.Phase != IntroCinematicPhase.PageOneAwaitingInput && narrationFrames < 8192)
@@ -2658,7 +2662,7 @@ if (args.Length >= 2 && args[0] == "--frontend-parity-audit")
             $"${introAudit.FlashbackSamusPose:X2}, MotherBrainHits={introAudit.MotherBrainHitCount}.");
     }
 
-    var ceresStartAudit = new SuperMetroidRuntime(frontendBus);
+    var ceresStartAudit = RepositoryInstallation.CreateRuntime(frontendBus);
     ceresStartAudit.InitializeHud(HudSnapshot.CeresDebug);
     ceresStartAudit.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
     ceresStartAudit.InitializeStartingCeresRoom();
@@ -2711,10 +2715,10 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
     // Fresh Ceres encounter: retain the same mutable boss flag for door bytecode
     // reads and any subsequent native setter, rather than omitting the service.
     bool ridleyAreaBossDefeated = false;
-    var ridleyEnemies = new RoomEnemySystem();
+    var ridleyEnemies = RepositoryInstallation.CreateEnemySystem();
     var ridleyVram = new SnesVram();
     var ridleyCgram = new SnesCgram();
-    CartridgeRoomAssets retailRidleyAssets = CartridgeRoomAssets.Load(ridleyBus, ridleyRoom);
+    CartridgeRoomAssets retailRidleyAssets = CartridgeRoomAssets.Load(ridleyBus, ridleyRoom, RepositoryInstallation.RoomAssets);
     // StartGameplay loads room characters first, then lets enemy graphics replace their
     // reserved OBJ region. This ordering is also what makes the later Mode-7 getaway's
     // interleaved view of the same VRAM deterministic.
@@ -2965,7 +2969,7 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
     // dispatch, or Samus draw silently escape. Direct room loading is an internal debugger
     // seam; every frame below still runs the production NMI, enemy, collision, movement,
     // palette, OAM, and finalization order used by the desktop game.
-    var liveRidleyRuntime = new SuperMetroidRuntime(ridleyBus);
+    var liveRidleyRuntime = RepositoryInstallation.CreateRuntime(ridleyBus);
     liveRidleyRuntime.InitializeHud(HudSnapshot.CeresDebug);
     liveRidleyRuntime.InitializeStartingCeresRoom();
     liveRidleyRuntime.InitializeCeresStartSamus();
@@ -3138,8 +3142,8 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
         new byte[auditRoomWidth * auditRoomHeight],
         new ushort[auditRoomWidth * auditRoomHeight],
         new byte[8]);
-    var auditBombs = new SamusBombProjectileSystem();
-    var auditProjectiles = new SamusProjectileSystem();
+    var auditBombs = RepositoryInstallation.CreateBombSystem();
+    var auditProjectiles = RepositoryInstallation.CreateProjectileSystem();
     ushort healthBeforeNormalBomb = ridleySlot.Health;
     ushort hitCounterBeforeNormalBomb = ridleyState.HitCounter;
     ushort flashBeforeNormalBomb = ridleySlot.FlashTimer;
@@ -3494,7 +3498,7 @@ if (args.Length >= 3 && args[0] == "--ceres-room-capture")
     string ceresRomPath = string.Join(' ', args[1..^1]).Trim('"');
     string ceresOutputPath = args[^1].Trim('"');
     SuperMetroid.AssetExtraction.CartridgeImportAddressSpace ceresBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(ceresRomPath);
-    var ceresRuntime = new SuperMetroidRuntime(ceresBus);
+    var ceresRuntime = RepositoryInstallation.CreateRuntime(ceresBus);
 
     // Native loading initializes standard HUD/OBJ art before loading the destination room.
     // Drain that first NMI now, then let room/enemy uploads overwrite their reserved OBJ
@@ -3626,7 +3630,7 @@ if (args.Length >= 3 && args[0] == "--ceres-room-capture")
     // high probe isolates the exact door row from adjacent cap/terrain rows while retaining
     // the real bank-$94 horizontal dispatcher, room door table, bank-$83 header, and full
     // destination loader. This fails if type $9 is merely treated as air or solid.
-    var doorProbeRuntime = new SuperMetroidRuntime(ceresBus);
+    var doorProbeRuntime = RepositoryInstallation.CreateRuntime(ceresBus);
     doorProbeRuntime.InitializeHud(HudSnapshot.CeresDebug);
     doorProbeRuntime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
     doorProbeRuntime.InitializeStartingCeresRoom();
@@ -3864,7 +3868,7 @@ if (args.Length >= 3 && args[0] is
     // quotes around the conventional "Super Metroid.smc" filename before `dotnet run`.
     string frontendRomPath = string.Join(' ', args[1..^1]).Trim('"');
     SuperMetroidAddressSpace frontendBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(frontendRomPath);
-    var frontend = new SuperMetroidGame(frontendBus);
+    var frontend = RepositoryInstallation.CreateGame(frontendBus);
     FrontendFrame frontendFrame = frontend.Step(0);
 
     // A fresh Start edge skips the opening montage, release allows the fast transition to
@@ -4338,7 +4342,7 @@ if (args.Length >= 3 && args[0] is
 
 DebugRunnerOptions options = DebugRunnerOptions.Parse(args);
 SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(options.RomPath);
-var runtime = new SuperMetroidRuntime(bus);
+var runtime = RepositoryInstallation.CreateRuntime(bus);
 runtime.MoonwalkEnabled = options.MoonwalkScript;
 
 Console.WriteLine($"Loaded {Path.GetFullPath(options.RomPath)} ({bus.Rom.Length:N0} bytes).");
@@ -4766,7 +4770,7 @@ Console.WriteLine(
 // actors at $A1:8DA0. It exercises fallback graphics indexes, RNG-consuming initialization,
 // actor-specific branch instructions, property-driven visibility, and extended spritemaps.
 // Use independent PPU/RNG state so this diagnostic cannot perturb the live Landing Site run.
-var parlorEnemies = new RoomEnemySystem();
+var parlorEnemies = RepositoryInstallation.CreateEnemySystem();
 var parlorVram = new SnesVram();
 var parlorCgram = new SnesCgram();
 var parlorRandom = new Bank80SystemState();
@@ -4855,7 +4859,7 @@ Console.WriteLine(
 // Two loader-only probes deliberately avoid claiming that unrelated actor AI is playable.
 // Crateria Map's real $A1:85A9 list is empty, while Mother Brain's $A0:EC3F header exercises
 // the boss-ID and high-health fields that neither Landing Site nor Parlor happen to contain.
-var emptyRoomEnemies = new RoomEnemySystem();
+var emptyRoomEnemies = RepositoryInstallation.CreateEnemySystem();
 var emptyRoomVram = new SnesVram();
 var emptyRoomCgram = new SnesCgram();
 emptyRoomVram.LoadBytes(0xe000, new byte[] { 0x5a });

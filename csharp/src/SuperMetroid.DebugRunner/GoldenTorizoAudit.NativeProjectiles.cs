@@ -10,7 +10,7 @@ internal static partial class GoldenTorizoAudit
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
-        var loaded = Load(bus, room, CartridgeRoomAssets.Load(bus, room), false, () => { });
+        var loaded = Load(bus, room, CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets), false, () => { });
         const BindingFlags hidden = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetMethod("SpawnGoldenTorizoSuperMissile", hidden)!
             .Invoke(loaded.Enemies, [loaded.Head]);
@@ -40,7 +40,7 @@ internal static partial class GoldenTorizoAudit
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
-        var loaded = Load(bus, room, CartridgeRoomAssets.Load(bus, room), false, () => { });
+        var loaded = Load(bus, room, CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets), false, () => { });
         const BindingFlags hidden = BindingFlags.Instance | BindingFlags.NonPublic;
         var next = (Func<ushort>)typeof(RoomEnemySystem).GetField("_nextRandom", hidden)!.GetValue(loaded.Enemies)!;
         var random = (Bank80SystemState)next.Target!;

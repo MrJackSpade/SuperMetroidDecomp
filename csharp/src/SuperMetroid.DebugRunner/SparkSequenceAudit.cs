@@ -13,7 +13,7 @@ internal static class SparkSequenceAudit
             "ABF726C92E5A57AEA03FB9F3A015BF42C4400ED7C0DC6C8C00C55B3AE7827856")
             throw new InvalidDataException("Use accepted spark-sequence-466-v2 capture.");
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
-        var level = CartridgeRoomAssets.Load(bus, SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xcd13)).LevelData;
+        var level = CartridgeRoomAssets.Load(bus, SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xcd13), RepositoryInstallation.RoomAssets).LevelData;
         int mismatches = 0, records = 0, cases = 0;
         foreach (var group in File.ReadLines(trace).Skip(1).Select(line => line.Split(','))
             .GroupBy(row => string.Join(',', row[..4])))
@@ -23,15 +23,15 @@ internal static class SparkSequenceAudit
             var runtime = runtimeFrames ? FlatFloorMovementFixture.Create(bus, water: false) : null;
             if (runtime is { PlayerInvincibilityEnabled: true } or { InfiniteAmmoEnabled: true })
                 throw new InvalidOperationException("Cartridge comparison requires gameplay cheats disabled.");
-            var samus = runtime?.Samus ?? new SamusState();
+            var samus = runtime?.Samus ?? RepositoryInstallation.CreateSamus();
             samus.XPosition = samus.YPosition = 128;
             samus.Pose = pose;
             samus.EquippedBeams = (ushort)(0x1000 | ushort.Parse(seed[0]));
             samus.PowerBombs = samus.MaxPowerBombs = 2;
             samus.SelectedHudItem = 3;
             runtime?.Camera!.SetPosition(0, 0);
-            var projectiles = runtime?.Projectiles ?? new SamusProjectileSystem();
-            var bombs = runtime?.BombProjectiles ?? new SamusBombProjectileSystem();
+            var projectiles = runtime?.Projectiles ?? RepositoryInstallation.CreateProjectileSystem();
+            var bombs = runtime?.BombProjectiles ?? RepositoryInstallation.CreateBombSystem();
             void Alpha() => projectiles.StepFrame(bus, level, samus, 0, 0, 0, 0, bombs,
                 projectileProducerEnabled: false);
             if (seed[3] == "1")

@@ -50,7 +50,7 @@ internal static class BreakableBlockInitialStateAudit
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             BreakableBlockInitialStateAuditDefinitions.RoomHeader);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         RoomLevelData level = assets.LevelData;
 
         Require(room.Identity == new RoomIdentity(AreaId.Brinstar, 0x28),

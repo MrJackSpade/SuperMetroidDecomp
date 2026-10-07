@@ -11,7 +11,7 @@ internal static class GunshipRechargeAudit
         foreach (ushort initialMode in new ushort[] { 0, 1, 2 })
         {
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-            var runtime = new SuperMetroidRuntime(bus);
+            var runtime = RepositoryInstallation.CreateRuntime(bus);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RunNmi(0, true);
             runtime.InitializeStartingCeresRoom();

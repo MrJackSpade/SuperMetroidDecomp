@@ -26,7 +26,7 @@ internal static partial class MetroidAudit
             int travel = int.Parse(seed[1]), schedule = int.Parse(seed[2]);
             if (seed[0] is not ("0" or "1") || travel is < 0 or > 4 || schedule is < 0 or > 3)
                 throw new InvalidDataException("Invalid Metroid controller seed.");
-            var runtime = new SuperMetroidRuntime(bus);
+            var runtime = RepositoryInstallation.CreateRuntime(bus);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RunNmi(0, true);
             runtime.InitializeStartingCeresRoom();

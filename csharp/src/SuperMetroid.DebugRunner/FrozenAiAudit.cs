@@ -17,7 +17,7 @@ internal static class FrozenAiAudit
             string[] row = line.Split(',');
             var samus = new SamusState { XPosition = 128, YPosition = 128,
                 EquippedBeams = row[0] == "1" ? (ushort)SamusBeamFlags.Ice : (ushort)0 };
-            var enemies = new RoomEnemySystem();
+            var enemies = RepositoryInstallation.CreateEnemySystem();
             enemies.Load(bus, 0xf000, 0, new SnesVram(), new SnesCgram(), () => 1);
             var enemy = enemies.Slots[0];
             enemy.EnemyDefinitionPointer = 0xf000;

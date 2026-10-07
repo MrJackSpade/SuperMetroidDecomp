@@ -21,14 +21,7 @@ public sealed partial class SuperMetroidRuntime
             RoomLayer3Fx.PaletteBlendColors = value?.RoomFxPaletteBlends;
             BombProjectiles.PowerBombExplosion.PresentationColors = value?.PowerBombFixedColors;
             BindSamusPalettePresentation();
-            Enemies.MotherBrainHealthColors = value?.MotherBrainHealthPalette;
-            Enemies.MotherBrainRainbowColors = value?.MotherBrainRainbowPalette;
-            Enemies.MotherBrainRoomColors = value?.MotherBrainRoomColors;
-            Enemies.CeresRidleyColors = value?.CeresRidleyColors;
-            Enemies.CeresRidleyMode7Colors = value?.CeresRidleyMode7Colors;
-            Enemies.EscapeTimerArtwork = value?.EscapeTimerTiles;
-            Enemies.EscapeTypewriterPresentation = value?.EscapeTypewriter;
-            Enemies.HudTileArtwork = value?.HudTiles;
+            Enemies.BindMapPresentation(value);
             hudArtworkRefreshPending = value is not null && Hud.IsInitialized;
             if (value is not null)
                 VramWrites.RebindBusSource(HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.TransferByteCount,

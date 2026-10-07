@@ -32,7 +32,7 @@ internal static partial class MetroidAudit
         foreach (ushort roomPointer in MetroidGrappleAuditReferences.MochtroidRooms)
         {
             var mockRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
-            var mockAssets = CartridgeRoomAssets.Load(bus, mockRoom);
+            var mockAssets = CartridgeRoomAssets.Load(bus, mockRoom, RepositoryInstallation.RoomAssets);
             var loaded = Load(bus, mockRoom, mockAssets);
             var actor = loaded.Enemies.Slots.First(e =>
                 e.EnemyDefinitionPointer == MetroidGrappleAuditReferences.MochtroidHeader);

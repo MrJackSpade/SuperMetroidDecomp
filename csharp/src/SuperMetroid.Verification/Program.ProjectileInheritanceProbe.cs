@@ -138,7 +138,7 @@ internal static partial class Program
         stateStream.Position = 0;
         var restored = DebuggerObjectGraphSerializer.Deserialize<SuperMetroidRuntime>(stateStream);
         // The host rebinds nonserialized presentation assets after debugger restore.
-        runtimeFixtureBindings.Value(restored);
+        BindRetailRuntimeFixture(restored);
         runtime.StepFrame((ushort)((ushort)SnesButton.Right | runtime.ControllerBindings.Shoot));
         restored.StepFrame((ushort)((ushort)SnesButton.Right | restored.ControllerBindings.Shoot));
         var shot = runtime.Projectiles!.Slots.First(slot => slot.IsActive);

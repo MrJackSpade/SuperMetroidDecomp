@@ -12,8 +12,7 @@ internal static class EndingWavySamusTests
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
-        string root = Path.GetFullPath("out/workbook-investigation/crocomire-install");
-        var installed = GameAssetInstaller.EnsureInstalled(root) ?? GameAssetInstaller.Install("Super Metroid.smc", root);
+        var installed = RepositoryInstallation.Installation;
         var rom = CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         var maps = installed.LoadMaps();
         var scene = new EndingCreditsState(installed.OpenRuntimeAddressSpace(), new CartridgeAudioState(), 2, 0);

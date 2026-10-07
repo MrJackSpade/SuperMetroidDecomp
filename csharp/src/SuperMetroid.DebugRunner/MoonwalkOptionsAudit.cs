@@ -24,7 +24,7 @@ internal static class MoonwalkOptionsAudit
                 MoonwalkEnabled = !initial,
             });
             saves.SelectSlot(0);
-            var game = new SuperMetroidGame(bus, gameOptions: null, renderGameplayFrames: false);
+            var game = RepositoryInstallation.CreateGame(bus, gameOptions: null, renderGameplayFrames: false);
             FrontendFrame frame = default;
             void Step(ushort input = 0) => frame = game.Step(input);
             void Press(SnesButton button) { Step(); Step((ushort)button); Step(); }

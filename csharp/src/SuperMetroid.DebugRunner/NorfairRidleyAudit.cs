@@ -44,7 +44,7 @@ internal static partial class NorfairRidleyAudit
                 $"shot/pb=${definition.ShotAiPointer:X4}/${definition.PowerBombReactionPointer:X4}.");
         }
 
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
@@ -60,7 +60,7 @@ internal static partial class NorfairRidleyAudit
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
 
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -163,7 +163,7 @@ internal static partial class NorfairRidleyAudit
         deathAudioTrace?.WriteLine("frame,phase,kind,library,command,queueLimitOrDelayFrames");
         RidleyBattleAuditResult battle = VerifyCombatDamageAndDeath(bus, room, assets, deathAudioTrace);
 
-        var defeated = new RoomEnemySystem();
+        var defeated = RepositoryInstallation.CreateEnemySystem();
         defeated.Load(
             bus,
             room.State.EnemyPopulationPointer,

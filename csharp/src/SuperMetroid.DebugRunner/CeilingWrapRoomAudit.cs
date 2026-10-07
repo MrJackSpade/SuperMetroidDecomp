@@ -11,7 +11,7 @@ internal static class CeilingWrapRoomAudit
     public static int RunRuntime(string rom)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -38,7 +38,7 @@ internal static class CeilingWrapRoomAudit
     public static int Run(string rom, ushort beams = 5)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -68,8 +68,8 @@ internal static class CeilingWrapRoomAudit
             plms.LoadRoomPopulation(bus, level, streamer, new SnesVram(),
                 RoomPlmPopulationImporter.Read(bus, runtime.ActiveRoom!.State.PlmPointer), new Bank80SystemState(),
                 runtime.ActiveRoom.AreaIndex, () => samus, () => false);
-            var shots = new SamusProjectileSystem();
-            var bombs = new SamusBombProjectileSystem();
+            var shots = RepositoryInstallation.CreateProjectileSystem();
+            var bombs = RepositoryInstallation.CreateBombSystem();
             int peak = plms.ActiveCount;
             for (int frame = 0; frame < 420; frame++)
             {

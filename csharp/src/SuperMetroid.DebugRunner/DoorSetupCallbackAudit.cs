@@ -432,7 +432,7 @@ internal static class DoorSetupCallbackAudit
 
     private static SuperMetroidRuntime CreateRuntime(SuperMetroidAddressSpace bus)
     {
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
         runtime.InitializeStartingCeresRoom();

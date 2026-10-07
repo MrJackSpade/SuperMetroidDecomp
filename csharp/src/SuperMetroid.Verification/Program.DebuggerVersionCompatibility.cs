@@ -45,15 +45,14 @@ internal static partial class Program
             "<PreviousHealthForHurtCheck>k__BackingField" and not
             "<StationaryScriptControlLocked>k__BackingField" and not
             "_poseCollisionPreviousYPosition" and not "_poseAlignmentPreviousYDelta").ToArray();
-        FieldInfo[] selected = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusState), fields, legacy.Length);
+        FieldInfo[] selected = LegacyLayout(typeof(SamusState), fields, legacy);
         AssertTrue(selected.SequenceEqual(legacy), "0.2.1 Samus layout omits only the four verified additions");
         AssertTrue(selected.Any(field => field.Name == "_healthWarning") && selected.Any(field => field.Name == "_poseHistory"),
             "0.2.1 migration retains existing health and pose history rather than guessing from count");
         FieldInfo[] preBombLockFields = legacy.Where(field => field.Name is not "_healthWarning" and not "_poseHistory"
             and not "<AutoJumpTimer>k__BackingField" and not "<PreviousDrawHeldInput>k__BackingField"
             and not "<AutoJumpInputPending>k__BackingField" and not "<BombJumpPoseInputLocked>k__BackingField").ToArray();
-        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusState), fields,
-            preBombLockFields.Length).SequenceEqual(preBombLockFields), "b944f1b5 Samus layout retains the saved draw-input latch");
+        AssertTrue(LegacyLayout(typeof(SamusState), fields, preBombLockFields).SequenceEqual(preBombLockFields), "b944f1b5 Samus layout retains the saved draw-input latch");
         FieldInfo[] earlyPlayerFields = fields.Where(field => field.Name is not
             "<PreviousHealthForHurtCheck>k__BackingField" and not
             "_poseCollisionPreviousYPosition" and not "_poseAlignmentPreviousYDelta" and not
@@ -62,16 +61,14 @@ internal static partial class Program
             "<PreviousDrawHeldInput>k__BackingField" and not "<AutoJumpInputPending>k__BackingField" and not
             "<ShinesparkPoseInputLocked>k__BackingField" and not "<CrystalFlashPoseInputLocked>k__BackingField" and not
             "_poseHistory" and not "<StationaryScriptControlLocked>k__BackingField").ToArray();
-        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusState), fields,
-            earlyPlayerFields.Length).SequenceEqual(earlyPlayerFields),
+        AssertTrue(LegacyLayout(typeof(SamusState), fields, earlyPlayerFields).SequenceEqual(earlyPlayerFields),
             "early player Samus layout restores exactly its twelve known transient omissions");
         var grappleResultFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod(
             "GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(GrappleMovementResult)])!;
         FieldInfo[] legacyGrappleResultFields = grappleResultFields.Where(field => field.Name is not
             "<PendingDropPose>k__BackingField" and not "<PendingConnection>k__BackingField").ToArray();
-        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(
-            typeof(GrappleMovementResult), grappleResultFields, legacyGrappleResultFields.Length)
+        AssertTrue(LegacyLayout(typeof(GrappleMovementResult), grappleResultFields, legacyGrappleResultFields)
             .SequenceEqual(legacyGrappleResultFields),
             "legacy grapple result restores with no deferred pose handoff");
 
@@ -79,38 +76,40 @@ internal static partial class Program
         var bankType = typeof(SuperMetroid.Core.Audio.ManagedPcmSampleBank);
         var bankFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [bankType])!;
-        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(bankType, bankFields, 3)
+        AssertTrue(LegacyLayout(bankType, bankFields, bankFields.Where(field => field.Name != "loopEntrySources"))
             .SequenceEqual(bankFields.Where(field => field.Name != "loopEntrySources")),
             "legacy PCM bank retains samples and upload identity");
         var sample = new SuperMetroid.Core.Audio.ManagedPcmSample("legacy-loop", 32000, new short[32], 16);
         var bank = new SuperMetroid.Core.Audio.ManagedPcmSampleBank("legacy-bank", 0,
             new Dictionary<byte, SuperMetroid.Core.Audio.ManagedPcmSample> { [0] = sample });
         bankType.GetField("loopEntrySources", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(bank, null);
-        DebuggerStateFieldMigrations.InitializeMissingFields(bank, 3);
+        RestoreLegacy(bank, "loopEntrySources");
         AssertEqual((sample, 16), bank.ResolveLoopEntry(0), "legacy PCM initializer retains the saved self-loop cursor");
         var voiceType = typeof(SuperMetroid.Core.Audio.ManagedSnesDsp).GetNestedType("Voice", BindingFlags.NonPublic)!;
         var voiceFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [voiceType])!;
-        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(voiceType, voiceFields, 22)
+        AssertTrue(LegacyLayout(voiceType, voiceFields, voiceFields.Where(field => field.Name != "ReleasedBrrCursor"))
             .SequenceEqual(voiceFields.Where(field => field.Name != "ReleasedBrrCursor")),
             "legacy DSP voice retains envelope, PCM cursor, and interpolation state");
         var suitFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SamusSuitPickupState)])!;
-        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusSuitPickupState), suitFields, 9)
+        AssertTrue(LegacyLayout(typeof(SamusSuitPickupState), suitFields, suitFields.Where(field => field.Name is not "_transformationSoundPending" and not "<TransformationSoundSuppressed>k__BackingField"))
             .SequenceEqual(suitFields.Where(field => field.Name is not "_transformationSoundPending" and not "<TransformationSoundSuppressed>k__BackingField")),
             "legacy suit pickup retains its saved transformation phase");
-        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusSuitPickupState), suitFields, 10)
+        AssertTrue(LegacyLayout(typeof(SamusSuitPickupState), suitFields, suitFields.Where(field => field.Name != "<TransformationSoundSuppressed>k__BackingField"))
             .SequenceEqual(suitFields.Where(field => field.Name != "<TransformationSoundSuppressed>k__BackingField")),
             "pre-guard suit pickup retains its pending sound and transformation phase");
         var projectileResultFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SamusProjectileFrameResult)])!;
-        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusProjectileFrameResult), projectileResultFields, 5)
+        AssertTrue(LegacyLayout(typeof(SamusProjectileFrameResult), projectileResultFields, projectileResultFields.Where(field => field.Name is not "<AdditionalSoundRequests>k__BackingField"
+                and not "<QueuedSoundSuppressed>k__BackingField"
+                and not "<PersistentMemoryCorrupted>k__BackingField"))
             .SequenceEqual(projectileResultFields.Where(field => field.Name is not "<AdditionalSoundRequests>k__BackingField"
                 and not "<QueuedSoundSuppressed>k__BackingField"
                 and not "<PersistentMemoryCorrupted>k__BackingField")),
             "legacy projectile result retains its saved sound and collision results");
-        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(
-                typeof(SamusProjectileFrameResult), projectileResultFields, 7)
+        AssertTrue(LegacyLayout(typeof(SamusProjectileFrameResult), projectileResultFields, projectileResultFields.Where(field =>
+                field.Name != "<PersistentMemoryCorrupted>k__BackingField"))
             .SequenceEqual(projectileResultFields.Where(field =>
                 field.Name != "<PersistentMemoryCorrupted>k__BackingField")),
             "pre-SpaceTime projectile result retains every prior publication field");
@@ -125,7 +124,7 @@ internal static partial class Program
         {
             var suppressionFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
                 BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [type])!;
-            AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(type, suppressionFields, suppressionFields.Length - 1)
+            AssertTrue(LegacyLayout(type, suppressionFields, suppressionFields.Where(field => field.Name != addedField))
                 .SequenceEqual(suppressionFields.Where(field => field.Name != addedField)),
                 $"legacy {type.Name} preserves every existing field before suppression metadata");
         }
@@ -133,23 +132,25 @@ internal static partial class Program
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SamusProjectileSlot)])!;
         var shineFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SamusShinesparkState)])!;
-        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusShinesparkState), shineFields, shineFields.Length - 3)
+        AssertTrue(LegacyLayout(typeof(SamusShinesparkState), shineFields, shineFields.Where(field => field.Name is not "<StoredShineWarningSoundSuppressed>k__BackingField"
+                and not "<LaunchSoundSuppressed>k__BackingField" and not "<CrashSoundSuppressed>k__BackingField"))
             .SequenceEqual(shineFields.Where(field => field.Name is not "<StoredShineWarningSoundSuppressed>k__BackingField"
                 and not "<LaunchSoundSuppressed>k__BackingField" and not "<CrashSoundSuppressed>k__BackingField")),
             "legacy shinespark retains native timers and pending sounds before suppression metadata");
         var xrayFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SamusXrayState)])!;
-        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusXrayState), xrayFields,
-                xrayFields.Length - 3).SequenceEqual(xrayFields.Where(field => field.Name is not
+        AssertTrue(LegacyLayout(typeof(SamusXrayState), xrayFields, xrayFields.Where(field => field.Name is not
+                    "<PendingActivationPose>k__BackingField" and not "<OwnsSamusControl>k__BackingField"
+                    and not "<SuspendedSubsystems>k__BackingField")).SequenceEqual(xrayFields.Where(field => field.Name is not
                     "<PendingActivationPose>k__BackingField" and not "<OwnsSamusControl>k__BackingField"
                     and not "<SuspendedSubsystems>k__BackingField")),
             "0.2.0 X-Ray layout omits activation-pose, control, and subsystem ownership fields");
-        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusXrayState), xrayFields,
-                xrayFields.Length - 2).SequenceEqual(xrayFields.Where(field => field.Name is not
+        AssertTrue(LegacyLayout(typeof(SamusXrayState), xrayFields, xrayFields.Where(field => field.Name is not
+                    "<OwnsSamusControl>k__BackingField" and not "<SuspendedSubsystems>k__BackingField")).SequenceEqual(xrayFields.Where(field => field.Name is not
                     "<OwnsSamusControl>k__BackingField" and not "<SuspendedSubsystems>k__BackingField")),
             "legacy X-Ray preserves its HDMA, freeze, phase, and palette state before explicit owners");
-        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusXrayState), xrayFields,
-                xrayFields.Length - 1).SequenceEqual(xrayFields.Where(field =>
+        AssertTrue(LegacyLayout(typeof(SamusXrayState), xrayFields, xrayFields.Where(field =>
+                    field.Name != "<SuspendedSubsystems>k__BackingField")).SequenceEqual(xrayFields.Where(field =>
                     field.Name != "<SuspendedSubsystems>k__BackingField")),
             "immediately previous X-Ray layout omits only subsystem-disable ownership");
         var legacyXray = new SamusXrayState();
@@ -157,40 +158,40 @@ internal static partial class Program
             BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(legacyXray, true);
         typeof(SamusXrayState).GetField("<TimeIsFrozen>k__BackingField",
             BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(legacyXray, true);
-        DebuggerStateFieldMigrations.InitializeMissingFields(legacyXray, xrayFields.Length - 2);
+        RestoreLegacy(legacyXray, "<OwnsSamusControl>k__BackingField", "<SuspendedSubsystems>k__BackingField");
         AssertTrue(legacyXray.OwnsSamusControl,
             "legacy active frozen X-Ray restores its dedicated Samus handlers");
         AssertEqual(XraySuspendedSubsystems.All, legacyXray.SuspendedSubsystems,
             "legacy active X-Ray reconstructs all four native subsystem disables");
         var legacyInactiveXray = new SamusXrayState();
-        DebuggerStateFieldMigrations.InitializeMissingFields(legacyInactiveXray, xrayFields.Length - 2);
+        RestoreLegacy(legacyInactiveXray, "<OwnsSamusControl>k__BackingField", "<SuspendedSubsystems>k__BackingField");
         AssertTrue(!legacyInactiveXray.OwnsSamusControl,
             "legacy inactive X-Ray does not invent Samus handler ownership");
         AssertEqual(XraySuspendedSubsystems.None, legacyInactiveXray.SuspendedSubsystems,
             "legacy inactive X-Ray does not invent suspended subsystems");
         var draygonGrabFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SamusDraygonGrabbedState)])!;
-        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusDraygonGrabbedState),
-                draygonGrabFields, draygonGrabFields.Length - 1).SequenceEqual(draygonGrabFields.Where(field =>
+        AssertTrue(LegacyLayout(typeof(SamusDraygonGrabbedState), draygonGrabFields, draygonGrabFields.Where(field =>
+                    field.Name != "<MovementHandlerReplaced>k__BackingField")).SequenceEqual(draygonGrabFields.Where(field =>
                     field.Name != "<MovementHandlerReplaced>k__BackingField")),
             "0.2.0 Draygon-grab layout omits only explicit movement-handler ownership");
         var layer3FxFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(RoomLayer3FxState)])!;
-        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(RoomLayer3FxState), layer3FxFields,
-                layer3FxFields.Length - 1).SequenceEqual(layer3FxFields.Where(field =>
+        AssertTrue(LegacyLayout(typeof(RoomLayer3FxState), layer3FxFields, layer3FxFields.Where(field =>
+                    field.Name != "lavaAcidBg3PreInstructionInstalled")).SequenceEqual(layer3FxFields.Where(field =>
                     field.Name != "lavaAcidBg3PreInstructionInstalled")),
             "0.2.0 room-FX layout omits only the BG3 pre-instruction latch");
-        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusProjectileSlot), projectileSlotFields, 19)
+        AssertTrue(LegacyLayout(typeof(SamusProjectileSlot), projectileSlotFields, projectileSlotFields.Where(field => field.Name != "<AuxiliaryPhase>k__BackingField"))
             .SequenceEqual(projectileSlotFields.Where(field => field.Name != "<AuxiliaryPhase>k__BackingField")),
             "legacy projectile slot retains the actual projectile type and trajectory");
         var projectileFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SamusProjectileSystem)])!;
-        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusProjectileSystem), projectileFields, 16)
+        AssertTrue(LegacyLayout(typeof(SamusProjectileSystem), projectileFields, projectileFields.Where(field => field.Name != "<ComboState>k__BackingField"))
             .SequenceEqual(projectileFields.Where(field => field.Name != "<ComboState>k__BackingField")),
             "legacy projectile state retains slots, charge, trails, and timers");
         var kinematicsFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SamusKinematicsState)])!;
-        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusKinematicsState), kinematicsFields, 22)
+        AssertTrue(LegacyLayout(typeof(SamusKinematicsState), kinematicsFields, kinematicsFields.Where(field => field.Name != "<ProbeContactDamageIndex>k__BackingField"))
             .SequenceEqual(kinematicsFields.Where(field => field.Name != "<ProbeContactDamageIndex>k__BackingField")),
             "legacy kinematics retains owner and all fixed-point movement words");
         var plmSlotType = typeof(SuperMetroid.Core.Rooms.RoomPlmSystem).GetNestedType("PlmSlot", BindingFlags.NonPublic)!;
@@ -199,7 +200,7 @@ internal static partial class Program
         FieldInfo[] oldPlmFields = plmFields.Where(field => field.Name is not "<PlantHeldX>k__BackingField" and not
             "<PlantHeldY>k__BackingField").ToArray();
         AssertEqual(20, oldPlmFields.Length, "preserved pre-plant-capture PLM slot count");
-        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(plmSlotType, plmFields, 20).SequenceEqual(oldPlmFields),
+        AssertTrue(LegacyLayout(plmSlotType, plmFields, oldPlmFields).SequenceEqual(oldPlmFields),
             "legacy PLM slot preserves active header, instructions, timers, and block owner fields");
         var gameFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [gameType])!;
@@ -207,18 +208,17 @@ internal static partial class Program
             field.Name != "spacetimeIntroRestartSlot").ToArray();
         AssertEqual(48, preSpacetimeGameFields.Length,
             "preserved pre-SpaceTime frontend field count");
-        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(
-                gameType, gameFields, 48).SequenceEqual(preSpacetimeGameFields),
+        AssertTrue(LegacyLayout(gameType, gameFields, preSpacetimeGameFields).SequenceEqual(preSpacetimeGameFields),
             "pre-SpaceTime frontend preserves every prior saved field in order");
         FieldInfo[] preRandomGameFields = gameFields.Where(field =>
             field.Name is not "menuRandom" and not "spacetimeIntroRestartSlot").ToArray();
         AssertEqual(47, preRandomGameFields.Length, "preserved pre-menu-RNG frontend field count");
-        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(gameType, gameFields, 47).SequenceEqual(preRandomGameFields),
+        AssertTrue(LegacyLayout(gameType, gameFields, preRandomGameFields).SequenceEqual(preRandomGameFields),
             "pre-menu-RNG frontend preserves every saved field in order");
         FieldInfo[] oldGameFields = gameFields.Where(field => field.Name is not
             "pauseFadeCounter" and not "menuRandom" and not "spacetimeIntroRestartSlot").ToArray();
         AssertEqual(46, oldGameFields.Length, "preserved #391 frontend field count");
-        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(gameType, gameFields, 46).SequenceEqual(oldGameFields),
+        AssertTrue(LegacyLayout(gameType, gameFields, oldGameFields).SequenceEqual(oldGameFields),
             "pre-pause-cadence frontend preserves every saved field in order");
 
         var enemyFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
@@ -228,8 +228,7 @@ internal static partial class Program
             FieldInfo[] oldEnemyFields = enemyFields.Where(field => field.Name != "_samusProjectilesForEnemyFrame" &&
                 (!beforeStatueFields || field.Name is not "<TourianEntranceStatueVerticalOffset>k__BackingField" and not
                     "<TourianStatueWaterY>k__BackingField")).ToArray();
-            AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(RoomEnemySystem), enemyFields,
-                    oldEnemyFields.Length).SequenceEqual(oldEnemyFields),
+            AssertTrue(LegacyLayout(typeof(RoomEnemySystem), enemyFields, oldEnemyFields).SequenceEqual(oldEnemyFields),
                 "legacy enemy owner composes projectile-context and statue migrations without reordering fields");
         }
 
@@ -243,8 +242,8 @@ internal static partial class Program
         var fields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer)
             .GetMethod("GetSerializableFields", BindingFlags.NonPublic | BindingFlags.Static)!
             .Invoke(null, [type])!;
-        FieldInfo[] selected = DebuggerStateFieldMigrations.SelectSerializedFields(
-            type, fields, fields.Length - 2);
+        FieldInfo[] selected = DebuggerStateFieldMigrations.WithoutIntroductions(type, fields,
+            "_visualStreamingForegroundAllocation", "_visualStreamingBackgroundAllocation");
         AssertTrue(selected.Length == fields.Length - 2 &&
             selected.All(field => field.Name is not
                 "_visualStreamingForegroundAllocation" and not
@@ -255,7 +254,7 @@ internal static partial class Program
                      "_visualStreamingBackgroundAllocation" })
             type.GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!
                 .SetValue(level, null);
-        DebuggerStateFieldMigrations.InitializeMissingFields(level, fields.Length - 2);
+        RestoreLegacy(level, "_visualStreamingForegroundAllocation", "_visualStreamingBackgroundAllocation");
         _ = level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(0, 0);
         AssertTrue(type.GetField("_visualStreamingForegroundAllocation",
                     BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(level) is ushort[] &&

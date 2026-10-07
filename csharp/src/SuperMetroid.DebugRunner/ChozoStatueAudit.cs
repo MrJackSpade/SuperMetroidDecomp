@@ -137,7 +137,7 @@ internal static class ChozoStatueAudit
                 $"expected ${N00bTubePopulationPointer:X4}.");
         }
 
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         RoomEnemySystem enemies = CreateEncounter(
             bus,
             room,
@@ -168,7 +168,7 @@ internal static class ChozoStatueAudit
     private static void VerifyLowerNorfairSequence(SuperMetroidAddressSpace bus)
     {
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, LowerNorfairRoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         RoomEnemySystem enemies = CreateEncounter(
             bus,
             room,
@@ -252,7 +252,7 @@ internal static class ChozoStatueAudit
             bus,
             WreckedShipRoomPointer,
             defeatedSelection);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         RoomEnemySystem enemies = CreateEncounter(
             bus,
             room,
@@ -410,7 +410,7 @@ internal static class ChozoStatueAudit
         Dictionary<int, byte> capturedScrolls = scrollWrites;
         List<int> capturedEvents = events;
 
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         // Three of the four populations continue into unrelated enemy families. Keep the
         // first untouched retail record and overlay only the following terminator, exactly as
         // InitializeEnemies would see a singleton diagnostic population. All actor code,

@@ -25,7 +25,7 @@ internal static class MotherBrainAudit
         MotherBrainAcidAudit.Run(romPath);
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         if (room.WidthInScreens != 4 || room.HeightInScreens != 1 ||
             room.AreaIndex != AreaId.Tourian ||
             room.State.EnemyPopulationPointer != PopulationPointer)
@@ -50,7 +50,7 @@ internal static class MotherBrainAudit
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
 
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -279,7 +279,7 @@ internal static class MotherBrainAudit
         SuperMetroidAddressSpace bus,
         CartridgeRoomHeader room)
     {
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
@@ -302,7 +302,7 @@ internal static class MotherBrainAudit
             LayerBlendingConfiguration.PowerBombOnly;
         ushort observedBg2X = 0;
         ushort observedBg2Y = 0;
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -610,8 +610,8 @@ internal static class MotherBrainAudit
     {
         RoomEnemySlot head = state.Head ?? throw new InvalidDataException(
             "Mother Brain phase-two shot audit lost the linked head record.");
-        var projectiles = new SamusProjectileSystem();
-        var sharedProjectiles = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var sharedProjectiles = RepositoryInstallation.CreateBombSystem();
 
         AuditShot(SamusProjectileFamily.Beam, type: 0x8000, damage: 20, walkBefore: 0x0200,
             expectedWalkAfter: 0x0100);
@@ -1467,7 +1467,7 @@ internal static class MotherBrainAudit
         // Place a normal bomb through Samus's public producer so aggregate count, type,
         // definition data, and radii are real. Only the fuse is advanced to its explosion
         // instant; `$86:C1BF` explicitly keys on timer zero and does not consume the bomb.
-        var samusBombs = new SamusBombProjectileSystem();
+        var samusBombs = RepositoryInstallation.CreateBombSystem();
         samus.Pose = SamusPoseIds.MorphBallGroundRightPose;
         samus.RefreshCollisionRadii(bus);
         samus.XPosition = impactX;
@@ -1838,7 +1838,7 @@ internal static class MotherBrainAudit
         samus.InitializeAnimation(bus);
         random.SetRandomNumber(0x1234);
 
-        var sharedProjectiles = new SamusBombProjectileSystem();
+        var sharedProjectiles = RepositoryInstallation.CreateBombSystem();
         enemies.StepFrame(
             cameraX: 0,
             cameraY: 0,
@@ -2930,7 +2930,7 @@ internal static class MotherBrainAudit
         // world position is moved to the authored head origin so this callback audit is not
         // coupled to travel time or room terrain; type, 1000 damage, radii, pre-instruction,
         // slot accounting, and shared `$0CCC` cooldown all remain bank-$90 output.
-        var projectiles = new SamusProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
         samus.SelectedHudItem = 0;
         samus.Pose = SamusPoseIds.FacingRightNormalPose;
         samus.RefreshCollisionRadii(bus);
@@ -3219,7 +3219,7 @@ internal static class MotherBrainAudit
         const ushort shardDefinition = 0xcefc;
         const int destroyedEvent = 2;
 
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
@@ -3271,7 +3271,7 @@ internal static class MotherBrainAudit
                 $"BTS=${glass.Behavior:X2}.");
         }
 
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -3327,8 +3327,8 @@ internal static class MotherBrainAudit
         // hidden body has property `$0400`, so only the head enters the interactive list.
         // Repositioning a normally produced shot removes travel/terrain from this callback
         // audit while retaining the producer's counter and impact lifecycle state.
-        var projectiles = new SamusProjectileSystem();
-        var sharedProjectiles = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var sharedProjectiles = RepositoryInstallation.CreateBombSystem();
         AuditRejectedBeam();
         AuditAcceptedMissile(super: false, expectedDamage: 100);
         AuditAcceptedMissile(super: true, expectedDamage: 300);

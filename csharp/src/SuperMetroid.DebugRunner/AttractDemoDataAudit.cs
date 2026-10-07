@@ -38,7 +38,7 @@ internal static class AttractDemoDataAudit
                 input.Step(bus, SuperMetroidGameState.TransitionFromDemoB, SamusMovementType.Standing);
                 if (input.Script.InstructionPointer != 0 || input.Script.Held != 0 || input.Script.NewlyPressed != 0)
                     throw new InvalidDataException($"Demo {set}/{scene} did not clear its input on departure.");
-                var runtime = new SuperMetroidRuntime(bus);
+                var runtime = RepositoryInstallation.CreateRuntime(bus);
                 runtime.InitializeAttractDemo(entry);
                 if (runtime.ActiveRoom?.Pointer != entry.RoomPointer || runtime.ActiveDoor?.Pointer != entry.DoorPointer ||
                     runtime.Samus!.XPosition != entry.SamusX || runtime.Samus.YPosition != entry.SamusY ||

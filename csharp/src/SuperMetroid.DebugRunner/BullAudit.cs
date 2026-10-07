@@ -29,7 +29,7 @@ internal static class BullAudit
             bus,
             SpongeBathRoom,
             new RoomStateSelectionContext(default, BossBits: BossBits.AreaBoss, false, false));
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
 
         LoadedBull natural = Load(bus, room, assets);
         VerifyPopulation(room, natural);
@@ -205,12 +205,12 @@ internal static class BullAudit
     {
         LoadedBull loaded = Load(bus, room, assets);
         Step(loaded, assets);
-        var projectiles = new SamusProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
         ArmProjectile(projectiles.Slots[0], loaded.Actor, type: 0x0100, direction: 2, damage: 20);
         if (loaded.Enemies.ResolveOrdinaryProjectileHits(
                 bus,
                 projectiles,
-                new SamusBombProjectileSystem(),
+                RepositoryInstallation.CreateBombSystem(),
                 loaded.Samus) != 1 || loaded.Actor.Health != 80 ||
             loaded.Actor.CurrentInstruction != 0xd845 || loaded.State.ShotReactionDisabled)
         {
@@ -231,7 +231,7 @@ internal static class BullAudit
             loaded.Enemies.ResolveOrdinaryProjectileHits(
                 bus,
                 projectiles,
-                new SamusBombProjectileSystem(),
+                RepositoryInstallation.CreateBombSystem(),
                 loaded.Samus);
         }
         VerifyDeathPublication(loaded, deathX, deathY, "missile", expectedProperties: 0);
@@ -246,12 +246,12 @@ internal static class BullAudit
         {
             LoadedBull loaded = Load(bus, room, assets);
             Step(loaded, assets);
-            var projectiles = new SamusProjectileSystem();
+            var projectiles = RepositoryInstallation.CreateProjectileSystem();
             ArmProjectile(projectiles.Slots[0], loaded.Actor, type: 0, direction, damage: 20);
             int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(
                 bus,
                 projectiles,
-                new SamusBombProjectileSystem(),
+                RepositoryInstallation.CreateBombSystem(),
                 loaded.Samus);
             if (hits != 1 || loaded.Actor.Health != 100 ||
                 loaded.Actor.CurrentInstruction != 0xd855 ||
@@ -316,8 +316,8 @@ internal static class BullAudit
     {
         LoadedBull loaded = Load(bus, room, assets);
         Step(loaded, assets);
-        var projectiles = new SamusProjectileSystem();
-        var shared = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var shared = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(projectiles.Slots[0], loaded.Actor, 0, 2, 20);
         loaded.Enemies.ResolveOrdinaryProjectileHits(bus, projectiles, shared, loaded.Samus);
 
@@ -427,7 +427,7 @@ internal static class BullAudit
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,

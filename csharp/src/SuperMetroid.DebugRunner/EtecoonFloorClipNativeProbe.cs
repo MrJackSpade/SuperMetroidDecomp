@@ -85,7 +85,7 @@ internal static class EtecoonFloorClipNativeProbe
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         SuperMetroidRuntime runtime = CreateRuntime(bus, seed);
-        var game = new SuperMetroidGame(bus);
+        var game = RepositoryInstallation.CreateGame(bus);
         typeof(SuperMetroidGame).GetField("runtime", BindingFlags.Instance | BindingFlags.NonPublic)!
             .SetValue(game, runtime);
         typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!
@@ -105,7 +105,7 @@ internal static class EtecoonFloorClipNativeProbe
     private static SuperMetroidRuntime CreateRuntime(SuperMetroidAddressSpace bus, byte[] memory)
     {
         ushort W(int address) => ReadWord(memory, address);
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();

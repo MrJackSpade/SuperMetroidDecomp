@@ -13,7 +13,7 @@ internal static class SparkRetainedAudit
             "A448393C73B278C99EE0B6C9DDCD1B450A5808289F67950479C8C2D41997599A")
             throw new InvalidDataException("Use accepted spark-retained-466-v1 capture.");
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
-        var level = CartridgeRoomAssets.Load(bus, SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xcd13)).LevelData;
+        var level = CartridgeRoomAssets.Load(bus, SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xcd13), RepositoryInstallation.RoomAssets).LevelData;
         int mismatches = 0, cases = 0;
         foreach (var group in File.ReadLines(trace).Skip(1).Select(line => line.Split(','))
             .GroupBy(row => string.Join(',', row[..2])))

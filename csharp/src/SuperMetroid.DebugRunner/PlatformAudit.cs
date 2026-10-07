@@ -41,7 +41,7 @@ internal static class PlatformAudit
     private static KamerResult VerifyEastOceanKamer(SuperMetroidAddressSpace bus)
     {
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0x94fd);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         RoomEnemySystem enemies = LoadEnemies(bus, room, assets);
         RoomEnemySlot[] population = enemies.Slots.Take(enemies.EnemyCount).ToArray();
         RoomEnemySlot[] platforms = population
@@ -126,8 +126,8 @@ internal static class PlatformAudit
 
         // The indestructible vulnerability table still accepts projectile impact and turns
         // the beam into its explosion; it simply applies zero health/flash damage.
-        var projectiles = new SamusProjectileSystem();
-        var sharedProjectiles = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var sharedProjectiles = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(
             projectiles.Slots[0],
             platform,
@@ -214,7 +214,7 @@ internal static class PlatformAudit
     private static TripperResult VerifyIceBeamAcidTrippers(SuperMetroidAddressSpace bus)
     {
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xa75d);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         RoomEnemySystem enemies = LoadEnemies(bus, room, assets);
         RoomEnemySlot[] trippers = enemies.Slots.Take(enemies.EnemyCount).ToArray();
         if (room.State.Pointer != 0xa76a || enemies.EnemyCount != 3 ||
@@ -376,8 +376,8 @@ internal static class PlatformAudit
         // Ice-beam type two selects `$FF` in Tripper's actual vulnerability table. Its
         // private shot tail must retain direction with `$A009/$A015`, not leave an animated
         // map frozen mid-cycle.
-        var projectiles = new SamusProjectileSystem();
-        var sharedProjectiles = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var sharedProjectiles = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(projectiles.Slots[0], platform, projectileType: 0x0002, damage: 20);
         ushort expectedFrozenMap = state.XMovement == PlatformHorizontalMovement.Left
             ? (ushort)0xa009
@@ -400,8 +400,8 @@ internal static class PlatformAudit
         // deletion; this verifies real damage as distinct from freeze admission.
         RoomEnemySlot lethalTarget = trippers[1];
         StepCentered(enemies, assets, room, samus, lethalTarget);
-        projectiles = new SamusProjectileSystem();
-        sharedProjectiles = new SamusBombProjectileSystem();
+        projectiles = RepositoryInstallation.CreateProjectileSystem();
+        sharedProjectiles = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(projectiles.Slots[0], lethalTarget, projectileType: 0x0200, damage: 300);
         if (enemies.ResolveOrdinaryProjectileHits(
                 bus,
@@ -428,7 +428,7 @@ internal static class PlatformAudit
 
     private static void VerifyRoom021eRisingPlatform(SuperMetroidAddressSpace bus)
     {
-        var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
+        var runtime = RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -488,7 +488,7 @@ internal static class PlatformAudit
     private static void VerifyRightFacingTripperFreeze(SuperMetroidAddressSpace bus)
     {
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xae07);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
@@ -502,7 +502,7 @@ internal static class PlatformAudit
             retainedRecordCount: 2,
             deathQuota: 2);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             prefixBus,
             room.State.EnemyPopulationPointer,
@@ -531,8 +531,8 @@ internal static class PlatformAudit
 
         SamusState samus = CreateSamus(prefixBus, 0, 0);
         StepCentered(enemies, assets, room, samus, right);
-        var projectiles = new SamusProjectileSystem();
-        var sharedProjectiles = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var sharedProjectiles = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(projectiles.Slots[0], right, projectileType: 0x0002, damage: 20);
         if (enemies.ResolveOrdinaryProjectileHits(
                 prefixBus,
@@ -549,7 +549,7 @@ internal static class PlatformAudit
 
     private static void VerifyRuntimeRiding(SuperMetroidAddressSpace bus)
     {
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -611,7 +611,7 @@ internal static class PlatformAudit
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,

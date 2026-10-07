@@ -22,7 +22,7 @@ internal static class SandRoomAudit
         if (rooms.Length != 2) throw new InvalidDataException("Expected both reported Maridia sand rooms.");
         foreach (var room in rooms)
         {
-            var runtime = new SuperMetroidRuntime(bus);
+            var runtime = RepositoryInstallation.CreateRuntime(bus);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RunNmi(0, true);
             runtime.InitializeStartingCeresRoom();

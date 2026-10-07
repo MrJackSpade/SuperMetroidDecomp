@@ -121,7 +121,7 @@ internal static partial class Program
             "Landing Site door-selected sky upload uses installed pages without ROM visual reads");
         var installedDedicatedVram = new SnesVram();
         LandingSiteStreamingData.LoadCharacterGraphics(guard, installedDedicatedVram,
-            entry, stock, runtimeFixtureInstallation.Value.LoadRoomCharacters());
+            entry, stock, RepositoryInstallation.Installation.LoadRoomCharacters());
         // The guard throws on any Landing Site visual source read; completing proves none occurred.
         AssertTrue(installedDedicatedVram.Bytes.ToArray().Any(value => value != 0),
             "dedicated Landing Site setup uploads its stock sky and characters without visual source reads");

@@ -24,7 +24,7 @@ internal static partial class Program
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             var g = samus.Grapple;
-            g.SwingFrames = replaceArt ? edited : installed ? projectileFixtureArt.Value.GrappleTiles.SwingFrames : stock;
+            g.SwingFrames = replaceArt ? edited : installed ? RepositoryInstallation.Projectiles.GrappleTiles.SwingFrames : stock;
             bus.ForbidArt = true;
             samus.Pose = left ? SamusPoseIds.GrappleSwingLeftPose : SamusPoseIds.GrappleSwingRightPose;
             g.AnchorX = (ushort)raw; g.AnchorY = unchecked((ushort)~raw);

@@ -66,7 +66,7 @@ internal static partial class MorphBallEyeAudit
         VerifyCollectedItemPersistence();
 
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, FinalMissileRoom);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         VerifyInitializationAndOwnershipGate(bus, room, assets);
         VerifyActivationTrackingBeamAndDeactivation(bus, room, assets);
         VerifyMorphBallRoomBeamApex(bus);
@@ -206,7 +206,7 @@ internal static partial class MorphBallEyeAudit
 
     private static void VerifyCollectedItemPersistence()
     {
-        var restored = new SamusState();
+        var restored = RepositoryInstallation.CreateSamus();
         var slot = new SuperMetroidSaveSlot(
             Slot: 0,
             EquippedItems: 0,
@@ -456,7 +456,7 @@ internal static partial class MorphBallEyeAudit
             throw new InvalidDataException("Morph-ball eye's ignored collision unexpectedly hurt Samus.");
         }
 
-        var projectiles = new SamusProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
         SamusProjectileSlot shot = projectiles.Slots[0];
         shot.Type = 0x0100;
         shot.Damage = 1000;
@@ -469,7 +469,7 @@ internal static partial class MorphBallEyeAudit
         shot.InstructionTimer = 1;
         ushort enemyHealth = body.Health;
         int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(
-            bus, projectiles, new SamusBombProjectileSystem(), loaded.Samus);
+            bus, projectiles, RepositoryInstallation.CreateBombSystem(), loaded.Samus);
         if (hits != 0 || body.Health != enemyHealth ||
             body.Properties.HasAny(EnemyProperties.Deleted))
         {
@@ -480,7 +480,7 @@ internal static partial class MorphBallEyeAudit
     private static void VerifyMorphBallRoomBeamApex(SuperMetroidAddressSpace bus)
     {
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, MorphBallRoom);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         LoadedEye loaded = Load(bus, room, assets, MorphBallPopulation);
         RoomEnemySlot body = loaded.Enemies.Slots[1];
         MorphBallEyeEnemyState state = RequireState(loaded.Enemies, body);
@@ -533,7 +533,7 @@ internal static partial class MorphBallEyeAudit
     /// </summary>
     private static void VerifyMorphBallRoomProductionViewport(SuperMetroidAddressSpace bus)
     {
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
         runtime.InitializeStartingCeresRoom();
@@ -617,7 +617,7 @@ internal static partial class MorphBallEyeAudit
         samus.RefreshCollisionRadii(pairBus);
         samus.InitializeAnimation(pairBus);
 
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             pairBus,
             populationPointer,

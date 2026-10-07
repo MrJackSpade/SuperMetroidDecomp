@@ -11,7 +11,7 @@ internal static partial class GoldenTorizoAudit
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
-        var assets = CartridgeRoomAssets.Load(bus, room);
+        var assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         const BindingFlags hidden = BindingFlags.Instance | BindingFlags.NonPublic;
         LoadedGoldenTorizo loaded = default;
         RoomEnemyProjectileSlot? target = null;

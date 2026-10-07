@@ -26,7 +26,7 @@ internal static class VolcanoEnemyAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         VerifyHeaders(bus);
         VerifyProjectileDefinitions(bus);
 
@@ -414,8 +414,8 @@ internal static class VolcanoEnemyAudit
         }
         EnemyContactAuditAssertions.VerifyStandingAirHit(bus, samus, beforeContact, 10, 1, "Fune body");
 
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         ArmShot(shots.Slots[0], fune, type: 0x0002, damage: 2);
         if (enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus) != 1 ||
             fune.FrozenTimer == 0 || fune.Health != 20 ||
@@ -432,8 +432,8 @@ internal static class VolcanoEnemyAudit
         Isolate(enemies, polyp);
         (cameraX, cameraY) = CenterCamera(room, polyp);
         enemies.StepFrame(cameraX, cameraY, false, samus, level: assets.LevelData);
-        shots = new SamusProjectileSystem();
-        bombs = new SamusBombProjectileSystem();
+        shots = RepositoryInstallation.CreateProjectileSystem();
+        bombs = RepositoryInstallation.CreateBombSystem();
         ArmShot(shots.Slots[0], polyp, type: 0x0200, damage: 1000);
         int hits = enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus);
         // Population property $0400 excludes the tiny vent from the interactive-enemy list
@@ -522,7 +522,7 @@ internal static class VolcanoEnemyAudit
         assets.LoadGraphics(vram, cgram);
         var random = new Bank80SystemState();
         samus = CreateSamus(bus, 0, 0);
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,

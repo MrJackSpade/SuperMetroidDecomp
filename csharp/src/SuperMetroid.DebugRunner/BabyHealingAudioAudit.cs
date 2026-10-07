@@ -11,7 +11,7 @@ internal static class BabyHealingAudioAudit
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xdd58);
-        var assets = CartridgeRoomAssets.Load(bus, room);
+        var assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         const BindingFlags hidden = BindingFlags.Instance | BindingFlags.NonPublic;
         int cases = 0;
         foreach (ushort health in new ushort[] { 79, 80, 81, 98 })
@@ -24,7 +24,7 @@ internal static class BabyHealingAudioAudit
             var random = new Bank80SystemState(0x1234);
             var samus = new SamusState { Health = health, MaxHealth = 99, XPosition = 128,
                 YPosition = 160, Pose = SamusPoseIds.FacingRightNormalPose };
-            var enemies = new RoomEnemySystem();
+            var enemies = RepositoryInstallation.CreateEnemySystem();
             enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer,
                 vram, cgram, random.NextRandom, random.SetRandomNumber,
                 readRandomNumber: () => random.RandomNumber, level: assets.LevelData,

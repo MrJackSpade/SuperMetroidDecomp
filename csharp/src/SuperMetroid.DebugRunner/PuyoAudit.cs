@@ -18,7 +18,7 @@ internal static class PuyoAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
@@ -384,8 +384,8 @@ internal static class PuyoAudit
 
         // Default vulnerability gives the basic Power Beam multiplier one. The shared shot
         // handler consumes one 20-damage projectile and leaves the actor alive at 80 HP.
-        var projectiles = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(projectiles.Slots[0], actors[1], damage: 20);
         if (enemies.ResolveOrdinaryProjectileHits(bus, projectiles, bombs, samus) != 1 ||
             actors[1].Health != 80 || actors[1].FlashTimer == 0)
@@ -397,7 +397,7 @@ internal static class PuyoAudit
 
         // A second independently armed shot is lethal and must use the common death path,
         // including the cleared slot and independently owned explosion, not merely HP=0.
-        var lethal = new SamusProjectileSystem();
+        var lethal = RepositoryInstallation.CreateProjectileSystem();
         var beforeDeath = EnemyDeathAuditAssertions.Capture(enemies, actors[1]);
         ArmProjectile(lethal.Slots[0], actors[1], damage: 100);
         if (enemies.ResolveOrdinaryProjectileHits(bus, lethal, bombs, samus) != 1)
@@ -435,7 +435,7 @@ internal static class PuyoAudit
         SamusState samus,
         Func<ushort> nextRandom)
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,

@@ -19,6 +19,17 @@ public sealed partial class FileSelectAreaMapGraphics
     [NonSerialized] private MapSpriteCatalog? sprites;
     internal void BindLabels(WorldMapLabelLayout? content) => labels = content;
 
+    /// <summary>Area-map graphics bound to every installed resource the file-select map draws.</summary>
+    public static FileSelectAreaMapGraphics FromPresentation(ISnesAddressSpace bus, int selectedArea,
+        AreaMapPresentationCatalog presentation)
+    {
+        ArgumentNullException.ThrowIfNull(presentation);
+        var graphics = new FileSelectAreaMapGraphics(bus, selectedArea, presentation.Tiles, presentation.Palettes,
+            presentation.Screens, presentation.WorldArtwork, presentation.Sprites);
+        graphics.BindLabels(presentation.Labels);
+        return graphics;
+    }
+
     public FileSelectAreaMapGraphics(ISnesAddressSpace bus, int selectedArea, MapTileAtlas? mapTiles = null, MapStaticPalettes? mapPalettes = null,
         MapScreenPresentation? mapScreens = null, WorldMapArtwork? worldArtwork = null, MapSpriteCatalog? mapSprites = null)
     {

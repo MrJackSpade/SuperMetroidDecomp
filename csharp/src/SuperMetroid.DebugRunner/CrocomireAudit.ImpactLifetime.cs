@@ -13,7 +13,7 @@ internal static partial class CrocomireAudit
         foreach (int delay in new[] { 0, 1, 4, 7 })
         {
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
-            var runtime = new SuperMetroidRuntime(bus);
+            var runtime = RepositoryInstallation.CreateRuntime(bus);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();
@@ -32,11 +32,11 @@ internal static partial class CrocomireAudit
             for (int frame = 0; frame < delay; frame++)
                 runtime.Enemies.StepEnemyProjectiles(runtime.LevelData!, samus, cameraX: 1024, cameraY: 0);
             ushort x = target.XPosition, y = target.YPosition;
-            var shots = new SamusProjectileSystem();
+            var shots = RepositoryInstallation.CreateProjectileSystem();
             var shot = shots.Slots[0];
             shot.Type = weapon; shot.InstructionPointer = 0x9000;
             shot.XPosition = x; shot.YPosition = y;
-            if (runtime.Enemies.ResolveEnemyProjectileSamusProjectileHits(bus, shots, new SamusBombProjectileSystem()) != 1)
+            if (runtime.Enemies.ResolveEnemyProjectileSamusProjectileHits(bus, shots, RepositoryInstallation.CreateBombSystem()) != 1)
                 throw new InvalidDataException("Impact lifetime fixture failed to shoot down the projectile.");
             int visible = 0;
             for (int frame = 0; frame < 30; frame++)

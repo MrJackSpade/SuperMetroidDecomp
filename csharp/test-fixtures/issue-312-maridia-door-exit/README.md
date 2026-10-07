@@ -14,7 +14,7 @@ private fixture, not a distributable recording.
 `managed-trace.log` was generated with the existing Release DebugRunner binary:
 
 ```powershell
-dotnet csharp/src/SuperMetroid.DebugRunner/bin/Release/net10.0/SuperMetroid.DebugRunner.dll --input-replay-trace csharp/test-fixtures/issue-312-maridia-door-exit/player-input.smrec "Super Metroid.smc" 36120 36330
+dotnet csharp/src/SuperMetroid.DebugRunner/bin/Release/net10.0-windows/SuperMetroid.DebugRunner.dll --input-replay-trace csharp/test-fixtures/issue-312-maridia-door-exit/player-input.smrec "Super Metroid.smc" 36120 36330
 ```
 
 The recording runs 64,516 frontend calls successfully. Relevant room transition:

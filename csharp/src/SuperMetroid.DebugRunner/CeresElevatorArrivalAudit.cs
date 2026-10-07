@@ -23,7 +23,7 @@ internal static class CeresElevatorArrivalAudit
     public static int Run(string romPath)
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-        var game = new SuperMetroidGame(
+        var game = RepositoryInstallation.CreateGame(
             bus,
             new SuperMetroidGameOptions { SkipOpeningCinematic = true });
 

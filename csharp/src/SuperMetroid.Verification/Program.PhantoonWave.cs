@@ -46,9 +46,9 @@ internal static partial class Program
         AssertTrue(wave.DisplayedScrolls is null, "deleted wave stops on next display latch");
         var fields = typeof(PhantoonEnemyState).GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
             .OrderBy(field => field.MetadataToken).ToArray();
-        var legacy = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(PhantoonEnemyState), fields, fields.Length - 2);
+        var legacy = DebuggerStateFieldMigrations.WithoutIntroductions(typeof(PhantoonEnemyState), fields, "_wave", "_blending");
         AssertTrue(legacy.SequenceEqual(fields.Where(field => field.Name is not ("_wave" or "_blending"))), "legacy migration preserves every prior field identity/order");
-        var waveEra = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(PhantoonEnemyState), fields, fields.Length - 1);
+        var waveEra = DebuggerStateFieldMigrations.WithoutIntroductions(typeof(PhantoonEnemyState), fields, "_blending");
         AssertTrue(waveEra.SequenceEqual(fields.Where(field => field.Name != "_blending")), "wave-era migration preserves recorded wave history");
         Suite(nameof(VerifyPhantoonBlendingLifecycle), () => VerifyPhantoonBlendingLifecycle(boss));
         Suite(nameof(VerifyPhantoonFadeColors), () => VerifyPhantoonFadeColors());
@@ -108,7 +108,7 @@ internal static partial class Program
         AssertEqual(0x42, restored.DisplayedMosaic, "display mosaic survives debugger roundtrip");
         var fields = typeof(PhantoonBlendingState).GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
             .OrderBy(field => field.MetadataToken).ToArray();
-        var legacy = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(PhantoonBlendingState), fields, fields.Length - 1);
+        var legacy = DebuggerStateFieldMigrations.WithoutIntroductions(typeof(PhantoonBlendingState), fields, "<DisplayedMosaic>k__BackingField");
         AssertTrue(legacy.SequenceEqual(fields.Where(field => field.Name != "<DisplayedMosaic>k__BackingField")), "legacy blend preserves all prior field identities");
     }
 }

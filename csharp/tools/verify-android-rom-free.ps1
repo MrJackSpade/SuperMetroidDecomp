@@ -48,7 +48,7 @@ try {
         !(Test-Path -LiteralPath $gateApk -PathType Leaf) -or
         !(Test-Path -LiteralPath $AaptPath -PathType Leaf) -or
         !(Test-Path -LiteralPath $ValidatorPath -PathType Leaf)) {
-        throw 'Supply an extracted installation, diagnostic APK, SDK aapt executable and current IntegrationVerification DLL.'
+        throw 'Supply an extracted installation, diagnostic APK, SDK aapt executable and current DebugRunner DLL as the validator.'
     }
     & dotnet $ValidatorPath --validate-extracted-installation $InstallationRoot
     if ($LASTEXITCODE -ne 0) { throw 'Source bundle failed the strict current required-resource preflight; device was not modified.' }

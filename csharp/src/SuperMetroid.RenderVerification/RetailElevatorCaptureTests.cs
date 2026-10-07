@@ -11,8 +11,8 @@ internal static class RetailElevatorCaptureTests
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
         var options = new SuperMetroidGameOptions { SkipOpeningCinematic = true };
-        var legacy = new SuperMetroidGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), options);
-        var captured = new SuperMetroidGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), options);
+        var legacy = RepositoryInstallation.CreateGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), options);
+        var captured = RepositoryInstallation.CreateGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), options);
         var padPositions = new HashSet<ushort>();
         bool fade = false, arriving = false, landed = false;
         int samples = 0, releasedFrames = 0;

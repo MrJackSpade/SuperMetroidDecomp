@@ -14,8 +14,8 @@ internal static partial class Program
         var cgram = new SnesCgram();
         var nativeCgram = new SnesCgram();
         int landings = 0;
-        EndingPaletteCatalog palettes = runtimeFixtureInstallation.Value.LoadEndingPalettes();
-        EndingLogoSpritePresentation logoSprites = runtimeFixtureInstallation.Value.LoadEndingObjectArt().LogoSprites;
+        EndingPaletteCatalog palettes = RepositoryInstallation.Installation.LoadEndingPalettes();
+        EndingLogoSpritePresentation logoSprites = RepositoryInstallation.Installation.LoadEndingObjectArt().LogoSprites;
         var logo = new EndingLogo(guarded, cgram, () => landings++, palettes);
         var nativeLogo = new EndingLogo(bus, nativeCgram, () => { }, palettes);
         int frame = 0, fadeStart = 0;

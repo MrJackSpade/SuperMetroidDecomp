@@ -47,7 +47,7 @@ internal static class InputReplayAudit
 
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(fullRomPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
-        var game = new SuperMetroidGame(
+        var game = RepositoryInstallation.CreateGame(
             bus,
             recording.GameOptions,
             renderGameplayFrames: frameCaptureDirectory is not null);

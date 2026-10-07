@@ -8,7 +8,7 @@ internal static partial class YappingMawAudit
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, AuditRoomPointer);
-        var assets = CartridgeRoomAssets.Load(bus, room);
+        var assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         // Check the ROM's actual LDA #$002F / JSL QueueSound_Lib2_Max6,
         // not just a matching name in annotated source.
         if (bus.ReadByte(0xa8a13e) != 0xa9 || ReadWord(bus, 0xa8a13f) != 0x002f ||

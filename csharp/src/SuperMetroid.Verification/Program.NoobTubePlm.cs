@@ -160,7 +160,8 @@ internal static partial class Program
             .OrderBy(field => field.MetadataToken).ToArray();
         AssertTrue(fields.Any(field => field.Name == "<InputLocked>k__BackingField"),
             "existing input-lock serialized identity remains unchanged");
-        var legacy = SuperMetroid.Desktop.DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusState), fields, fields.Length - 2);
+        var legacy = SuperMetroid.Desktop.DebuggerStateFieldMigrations.WithoutIntroductions(typeof(SamusState), fields,
+            "<StationaryScriptControlLocked>k__BackingField", "<PreviousHealthForHurtCheck>k__BackingField");
         AssertTrue(legacy.SequenceEqual(fields.Where(field => field.Name is not "<StationaryScriptControlLocked>k__BackingField" and not "<PreviousHealthForHurtCheck>k__BackingField")),
             "pre-stationary-command Samus layout retains original fields in order without later draw-time health history");
         using (var saved = new MemoryStream())

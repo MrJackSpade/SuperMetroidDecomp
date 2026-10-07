@@ -103,7 +103,7 @@ internal static class SporeSpawnAudit
                 $"orientation=${incomingDoor.Orientation:X2}, screenY={incomingDoor.DestinationScreenY}.");
         }
 
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
         runtime.InitializeStartingCeresRoom();
@@ -240,7 +240,7 @@ internal static class SporeSpawnAudit
         SuperMetroidAddressSpace bus,
         CartridgeRoomHeader room)
     {
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         LoadedSporeSpawn loaded = Load(bus, room, assets, alreadyDefeated: false);
         RoomEnemySlot body = loaded.Body;
         SporeSpawnEnemyState state = loaded.State;
@@ -318,8 +318,8 @@ internal static class SporeSpawnAudit
                 $"open={sawOpenCore}, function={state.Function}, map=${body.SpritemapPointer:X4}.");
         }
 
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(shots.Slots[0], body, type: 0x0200, damage: 2000);
         int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(
             bus,
@@ -387,7 +387,7 @@ internal static class SporeSpawnAudit
         SuperMetroidAddressSpace bus,
         CartridgeRoomHeader room)
     {
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         LoadedSporeSpawn loaded = Load(bus, room, assets, alreadyDefeated: true);
         if (!loaded.State.LoadedAsDefeated ||
             loaded.Enemies.LastSporeSpawnPlm is not SporeSpawnPlmRequest
@@ -446,7 +446,7 @@ internal static class SporeSpawnAudit
         samus.InitializeAnimation(bus);
 
         bool miniBossBitWasSet = false;
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -472,7 +472,7 @@ internal static class SporeSpawnAudit
     private static void VerifyRuntimeAlreadyDefeatedIntegration(
         SuperMetroidAddressSpace bus)
     {
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
         runtime.InitializeStartingCeresRoom();

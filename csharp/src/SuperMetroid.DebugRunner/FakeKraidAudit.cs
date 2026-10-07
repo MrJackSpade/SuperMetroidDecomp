@@ -25,7 +25,7 @@ internal static class FakeKraidAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
 
         VerifyRetailRecords(bus, room);
         VerifyInitialization(bus, room, assets);
@@ -278,8 +278,8 @@ internal static class FakeKraidAudit
 
         LoadedFakeKraid shotLoad = Load(bus, room, assets, samusX: 0x0560);
         PrimeGameplayFrame(shotLoad, assets);
-        var shots = new SamusProjectileSystem();
-        var sharedProjectiles = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var sharedProjectiles = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(
             shots.Slots[0],
             shotLoad.Actor.XPosition,
@@ -304,11 +304,11 @@ internal static class FakeKraidAudit
 
         LoadedFakeKraid bombLoad = Load(bus, room, assets, samusX: 0x0560);
         PrimeGameplayFrame(bombLoad, assets);
-        var normalBombs = new SamusBombProjectileSystem();
+        var normalBombs = RepositoryInstallation.CreateBombSystem();
         ArmNormalBomb(normalBombs.Slots[0], bombLoad.Actor, damage: 1000);
         int normalBombHits = bombLoad.Enemies.ResolveOrdinaryBombHits(
             normalBombs,
-            new SamusProjectileSystem(),
+            RepositoryInstallation.CreateProjectileSystem(),
             bombLoad.Samus);
         FakeKraidDropRequest? bombDrop = bombLoad.Enemies.LastFakeKraidDropRequest;
         if (normalBombHits != 1 || (normalBombs.Slots[0].Direction & 0x0010) == 0 ||
@@ -437,7 +437,7 @@ internal static class FakeKraidAudit
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,

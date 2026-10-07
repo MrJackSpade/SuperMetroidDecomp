@@ -13,11 +13,11 @@ internal static partial class PhantoonPlasmaAudit
             throw new InvalidDataException("Use the accepted xplasma-phantoon-native-v5 capture.");
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xcd13);
-        var assets = CartridgeRoomAssets.Load(bus, room);
+        var assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         RoomEnemySystem enemies = null!;
         SamusProjectileSystem shots = null!;
-        var shared = new SamusBombProjectileSystem();
-        var samus = new SamusState();
+        var shared = RepositoryInstallation.CreateBombSystem();
+        var samus = RepositoryInstallation.CreateSamus();
         int count = 0, failures = 0;
         foreach (string line in File.ReadLines(trace).Skip(1))
         {
@@ -25,11 +25,11 @@ internal static partial class PhantoonPlasmaAudit
             if (row.Length != 17) throw new InvalidDataException("Invalid Phantoon trace row.");
             if (row[3] == 0)
             {
-                enemies = new RoomEnemySystem();
-                shots = new SamusProjectileSystem();
+                enemies = RepositoryInstallation.CreateEnemySystem();
+                shots = RepositoryInstallation.CreateProjectileSystem();
                 enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer,
                     new SnesVram(), new SnesCgram(), () => 1, level: assets.LevelData,
-                    samus: new SamusState(), isAreaBossDefeated: () => false);
+                    samus: RepositoryInstallation.CreateSamus(), isAreaBossDefeated: () => false);
                 var body = enemies.Phantoon!.Body;
                 body.XPosition = body.YPosition = 128;
                 body.Health = 2500;
@@ -50,7 +50,7 @@ internal static partial class PhantoonPlasmaAudit
             }
             else if (row[3] != 0 || row[1] != 0)
             {
-                shots = new SamusProjectileSystem();
+                shots = RepositoryInstallation.CreateProjectileSystem();
                 var shot = shots.Slots[0];
                 shot.Type = row[3] == 0 ? (ushort)0x8010 : row[2];
                 shot.Damage = shot.Type switch { 0x8000 => 20, 0x8010 => 60, 0x8008 => 150, 0x8018 => 450,

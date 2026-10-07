@@ -23,8 +23,8 @@ internal static class ComboInputSequenceAudit
                 EquippedBeams = (ushort)(0x1000 | int.Parse(seed[0])), PowerBombs = ushort.Parse(seed[1]),
                 SelectedHudItem = 3, EquippedItems = (ushort)(SamusEquipmentFlags.Bombs | SamusEquipmentFlags.MorphBall) };
             samus.Kinematics.XRadius = 5; samus.Kinematics.YRadius = 16;
-            var projectiles = new SamusProjectileSystem();
-            var shared = new SamusBombProjectileSystem();
+            var projectiles = RepositoryInstallation.CreateProjectileSystem();
+            var shared = RepositoryInstallation.CreateBombSystem();
             typeof(SamusProjectileSystem).GetProperty(nameof(SamusProjectileSystem.FlareCounter))!
                 .SetValue(projectiles, (ushort)119);
             foreach (string line in group)

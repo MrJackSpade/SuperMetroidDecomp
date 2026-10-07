@@ -33,7 +33,7 @@ internal static class RinkaAudit
                 BossBits: BossBits.None,
                 HasMorphBallAndMissiles: false,
                 HasPowerBombs: false));
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         if (room.State.Pointer != ExpectedStatePointer ||
             room.State.EnemyPopulationPointer != ExpectedPopulationPointer ||
             room.State.EnemyTilesetPointer != ExpectedTilesetPointer ||
@@ -141,8 +141,8 @@ internal static class RinkaAudit
         RoomEnemySlot target = GetRinkas(enemies)[0];
         StepUntilInteractive(enemies, samus, assets.LevelData, target);
 
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         ArmPowerBeam(shots.Slots[0], target);
         if (enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus) != 1 ||
             target.EnemyDefinitionPointer != 0xdaff || target.Health != 0 ||
@@ -213,8 +213,8 @@ internal static class RinkaAudit
         RoomEnemySlot target = GetRinkas(enemies)[0];
         StepUntilInteractive(enemies, samus, assets.LevelData, target);
 
-        var bombs = new SamusBombProjectileSystem();
-        var shots = new SamusProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
         ArmNormalBomb(bombs.Slots[0], target);
         int hits = enemies.ResolveOrdinaryBombHits(bombs, shots, samus);
         if (hits != 1 || (bombs.Slots[0].Direction & 0x0010) == 0 ||
@@ -251,7 +251,7 @@ internal static class RinkaAudit
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
 
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,

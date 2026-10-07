@@ -120,7 +120,7 @@ internal static partial class RetailEnemyExecutionAudit
                 // every alternative state independently, so replace only that selected record.
                 // Fixed room facts (area, dimensions, door list) still come from the real header.
                 CartridgeRoomHeader room = defaultRoom with { State = exactState };
-                CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+                CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
 
                 ushort populationPointer = exactState.EnemyPopulationPointer;
                 populations.Add(populationPointer);
@@ -278,7 +278,7 @@ internal static partial class RetailEnemyExecutionAudit
 
         var random = new Bank80SystemState();
         var roomScrollBytes = new byte[Math.Max(1, room.WidthInScreens * room.HeightInScreens)];
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -318,8 +318,8 @@ internal static partial class RetailEnemyExecutionAudit
         return new LoadedRetailState(
             enemies,
             samus,
-            new SamusProjectileSystem(),
-            new SamusBombProjectileSystem(),
+            RepositoryInstallation.CreateProjectileSystem(),
+            RepositoryInstallation.CreateBombSystem(),
             new SamusMode7Transform());
     }
 

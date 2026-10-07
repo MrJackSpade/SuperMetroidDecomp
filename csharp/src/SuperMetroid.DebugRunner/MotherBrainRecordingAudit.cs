@@ -16,7 +16,7 @@ internal static class MotherBrainRecordingAudit
             throw new InvalidDataException("The replay ROM does not match the recorded revision.");
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
-        var game = new SuperMetroidGame(bus, recording.GameOptions, renderGameplayFrames: false);
+        var game = RepositoryInstallation.CreateGame(bus, recording.GameOptions, renderGameplayFrames: false);
         var ports = new byte[4];
         int minStandingY = int.MaxValue, maxStandingY = 0, maxBattleCamera = 0, battleFrames = 0;
         var samusRainbowPalettes = new HashSet<string>();

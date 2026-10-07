@@ -31,7 +31,7 @@ internal static class NorfairLavaJumpingEnemyAudit
                 BossBits: BossBits.None,
                 HasMorphBallAndMissiles: false,
                 HasPowerBombs: false));
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(retailBus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(retailBus, room, RepositoryInstallation.RoomAssets);
         if (room.State.Pointer != ExpectedStatePointer ||
             room.State.EnemyPopulationPointer != ExpectedPopulationPointer ||
             room.State.EnemyTilesetPointer != ExpectedTilesetPointer ||
@@ -237,8 +237,8 @@ internal static class NorfairLavaJumpingEnemyAudit
 
         loaded = LoadPair(retailBus, room, assets);
         loaded.Enemies.StepFrame(CameraX, CameraY, false, loaded.Samus, level: assets.LevelData);
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(shots.Slots[0], loaded.Parent, SamusProjectileFamily.SuperMissile);
         int superMissileHits = loaded.Enemies.ResolveOrdinaryProjectileHits(
             retailBus,
@@ -290,8 +290,8 @@ internal static class NorfairLavaJumpingEnemyAudit
     {
         LoadedPair loaded = LoadPair(retailBus, room, assets);
         loaded.Enemies.StepFrame(CameraX, CameraY, false, loaded.Samus, level: assets.LevelData);
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(shots.Slots[0], loaded.Parent, family);
         int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(
             retailBus,
@@ -335,7 +335,7 @@ internal static class NorfairLavaJumpingEnemyAudit
         samus.RefreshCollisionRadii(retailBus);
         samus.InitializeAnimation(retailBus);
 
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             pairBus,
             room.State.EnemyPopulationPointer,

@@ -19,7 +19,7 @@ The earlier request-boundary PCM comparison did not exercise the controller/HUD 
 Release DebugRunner build succeeded. Run:
 
 ```powershell
-dotnet csharp/src/SuperMetroid.DebugRunner/bin/Release/net10.0/SuperMetroid.DebugRunner.dll --hud-select-sound-audit 'C:/Users/Service Account/AppData/Local/SuperMetroid'
+dotnet csharp/src/SuperMetroid.DebugRunner/bin/Release/net10.0-windows/SuperMetroid.DebugRunner.dll --hud-select-sound-audit 'C:/Users/Service Account/AppData/Local/SuperMetroid'
 ```
 
 After the fix, one press produces one selection change and one port write at frame 0. Six presses on frames 0,2,4,6,8,10 produce six changes and six writes at frames 0,4,8,12,16,20. Both cases observe 64 frames, including an idle tail with no extra writes. This confirms the reported producer defect; final audible player confirmation remains pending.

@@ -16,6 +16,11 @@ public static class GrappleTileDefinitions
     private const VramAssetId Horizontal = VramAssetId.GrappleHorizontalSegmentTiles;
     private const VramAssetId Diagonal = VramAssetId.GrappleDiagonalSegmentTiles;
     private const VramAssetId Vertical = VramAssetId.GrappleVerticalSegmentTiles;
+    /// <summary>
+    /// $9A:8A00, the $9B:C344 exclusive end pointer. Builds before a988015bc read the begin/end pair
+    /// as two alternating endpoint frames and queued this source as the second one.
+    /// </summary>
+    public const int LegacyAlternateEndpointSource = 0x9a8a00;
     /// <summary>$9A:8200, Tiles_GrappleBeam_Horizontal_Beam, the first endpoint character.</summary>
     private const int FirstPointSource = 0x9a8200;
     /// <summary>Endpoint animation characters occupy $200-byte source strides.</summary>

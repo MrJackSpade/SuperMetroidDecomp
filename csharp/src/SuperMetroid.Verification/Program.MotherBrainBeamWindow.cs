@@ -12,7 +12,7 @@ internal static partial class Program
         // A native 64-angle-wide beam selects gradients 32/96, both exactly 1.
         // This retains the indirect-run/carry fixture without replacing engine lookup data.
         var paletteDocument = JsonNode.Parse(File.ReadAllText(Path.Combine(
-            runtimeFixtureInstallation.Value.MapDirectory, MotherBrainRainbowPaletteFormat.FileName)))!;
+            RepositoryInstallation.Installation.MapDirectory, MotherBrainRainbowPaletteFormat.FileName)))!;
         var cycle = new JsonArray();
         for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.BeamCycleColorCount; frame++)
             cycle.Add(new JsonObject { ["red"] = frame % 2 == 0 ? 31 : 0,

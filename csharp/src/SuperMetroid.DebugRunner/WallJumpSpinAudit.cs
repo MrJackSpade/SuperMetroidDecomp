@@ -14,7 +14,7 @@ internal static class WallJumpSpinAudit
             (ushort)(SnesButton.A | SnesButton.X) })
         {
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-            var runtime = new SuperMetroidRuntime(bus);
+            var runtime = RepositoryInstallation.CreateRuntime(bus);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RunNmi(0, true);
             runtime.InitializeStartingCeresRoom();

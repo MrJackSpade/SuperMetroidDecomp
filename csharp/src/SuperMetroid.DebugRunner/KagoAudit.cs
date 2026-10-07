@@ -23,7 +23,7 @@ internal static class KagoAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         VerifyRetailHeader(bus);
         VerifyRetailProjectileDefinition(bus);
 
@@ -113,8 +113,8 @@ internal static class KagoAudit
                 $"{string.Join(',', slowMaps.Select(value => $"${value:X4}"))}.");
         }
 
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         ArmBeam(shots.Slots[0], actor.XPosition, actor.YPosition, type: 0x0001);
         if (enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus) != 1)
             throw new InvalidDataException("Kago shell did not accept its custom shot callback.");
@@ -276,8 +276,8 @@ internal static class KagoAudit
         (ushort cameraX, ushort cameraY) = CenterCamera(room, actor);
         enemies.StepFrame(cameraX, cameraY, false, samus, level: assets.LevelData);
 
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         ArmBeam(shots.Slots[0], actor.XPosition, actor.YPosition, type: 0x0001);
         _ = enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus);
         RoomEnemyProjectileSlot bug = enemies.EnemyProjectiles.Single(projectile =>
@@ -312,8 +312,8 @@ internal static class KagoAudit
         (ushort cameraX, ushort cameraY) = CenterCamera(room, actor);
         enemies.StepFrame(cameraX, cameraY, false, samus, level: assets.LevelData);
 
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         for (int hit = 1; hit <= 11; hit++)
         {
             ArmBeam(shots.Slots[0], actor.XPosition, actor.YPosition, type: 0x0000);
@@ -421,7 +421,7 @@ internal static class KagoAudit
         };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,

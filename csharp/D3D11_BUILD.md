@@ -123,7 +123,7 @@ to stderr with exit code one. There is no interactive window or game launch.
 
 ## Installed Samus artwork
 
-`--installed-samus-artwork <installation-root>` checks edited artwork through the
+`--installed-samus-artwork` checks edited artwork through the
 production Samus upload and drawing paths. Supply an already-extracted installation
 containing `game/samus-body`. The checker copies only that presentation directory to
 an isolated temporary installation, writes 26 real PNG overrides, reloads them through
@@ -131,7 +131,7 @@ the normal loader, and removes its own copy afterward. It does not open a ROM, c
 an importer, or change the player's installation, overrides, settings or saves.
 
 ```powershell
-dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --installed-samus-artwork <installation-root>
+dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --installed-samus-artwork
 ```
 
 The replacement cycles every nonzero four-bit index while preserving transparent zero,
@@ -178,7 +178,7 @@ RTX 3090 and WARP, plus wrong-thread rejection, in Debug and Release. These resu
 are functional checks, not performance gates or a claim that the game renders on GPU.
 
 `--tile-smoke` additionally checks 108 geometry/priority/scroll/transparency/color
-cases plus a focused packed-byte regression on both devices. `--compare <frame.smframe>
+cases plus a focused packed-byte regression on both devices. `--frame-fixtures` (every archived `.smframe`)
 --device hardware|warp` compares a portable fixture on the explicitly selected device.
 Failures write the packet, expected/actual/difference PNGs, first pixel, mismatch count
 and bounding rectangle into a unique `csharp/test-temp/render-comparison` directory.

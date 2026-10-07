@@ -8,7 +8,7 @@ internal static partial class CrocomireAudit
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomHeader);
-        var loaded = Load(bus, room, CartridgeRoomAssets.Load(bus, room));
+        var loaded = Load(bus, room, CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets));
         loaded.Samus.Health = 1;
         var state = RequireState(loaded);
         state.FightFunction = CrocomireFightFunction.ProjectileAttack;
@@ -17,14 +17,14 @@ internal static partial class CrocomireAudit
         state.Body.InstructionTimer = 1;
         Step(loaded);
         var target = loaded.Enemies.EnemyProjectiles.Single(p => p.Kind == RoomEnemyProjectileKind.CrocomireProjectile);
-        var shots = new SamusProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
         var shot = shots.Slots[0];
         shot.Type = SamusProjectileTypeWord.CreateBeam(0, false);
         shot.InstructionPointer = 0x9000;
         shot.InstructionTimer = 100;
         shot.XPosition = target.XPosition;
         shot.YPosition = target.YPosition;
-        if (loaded.Enemies.ResolveEnemyProjectileSamusProjectileHits(bus, shots, new SamusBombProjectileSystem()) != 1)
+        if (loaded.Enemies.ResolveEnemyProjectileSamusProjectileHits(bus, shots, RepositoryInstallation.CreateBombSystem()) != 1)
             throw new InvalidDataException("Crocomire projectile did not enter its shot list.");
         for (int frame = 0; frame < 21; frame++)
         {

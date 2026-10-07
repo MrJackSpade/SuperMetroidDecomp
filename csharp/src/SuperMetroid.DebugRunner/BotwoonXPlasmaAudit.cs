@@ -13,7 +13,7 @@ internal static partial class BotwoonAudit
     public static int RunXPlasmaControls(string romPath)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -70,11 +70,11 @@ internal static partial class BotwoonAudit
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
-        var assets = CartridgeRoomAssets.Load(bus, room);
+        var assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         var loaded = Load(bus, room, assets, alreadyDefeated: false);
         AdvanceUntilShootable(loaded, assets.LevelData);
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(shots.Slots[0], loaded.Head,
             type: SamusProjectileTypeWord.CreateBeam((ushort)SamusBeamFlags.Plasma, charged: true), damage: 100);
         int Hit() => loaded.Enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs, loaded.Samus);

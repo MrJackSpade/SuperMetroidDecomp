@@ -29,7 +29,7 @@ internal sealed class MissileImpactAudioSequence
             runtime.LevelData.SetForegroundEntry(block, 0x8000);
             runtime.LevelData.SetBehavior(block, 0);
         }
-        game = new SuperMetroidGame(bus, null, renderGameplayFrames: false);
+        game = RepositoryInstallation.CreateGame(bus, null, renderGameplayFrames: false);
         // Attach the focused fixture at the real gameplay dispatcher, without a title or
         // room-music warmup. These assignments are diagnostic setup, not production hooks.
         typeof(SuperMetroidGame).GetField("runtime", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime);

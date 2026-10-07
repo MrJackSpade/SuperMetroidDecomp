@@ -19,7 +19,7 @@ internal static partial class NinjaSpacePirateAudit
         int compared = 0;
         foreach (var (shootAt, useScope) in new[] { (16, true), (17, true), (16, false) })
         {
-            var runtime = new SuperMetroidRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath));
+            var runtime = RepositoryInstallation.CreateRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath));
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();

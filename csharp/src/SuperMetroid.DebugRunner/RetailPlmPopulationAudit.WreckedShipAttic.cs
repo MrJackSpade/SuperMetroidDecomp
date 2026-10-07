@@ -50,7 +50,7 @@ internal static partial class RetailPlmPopulationAudit
                 $"$8F:{room.State.PlmPointer:X4}, expected $8F:{expectedPopulation:X4}.");
         }
 
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         var plms = new RoomPlmSystem();
         plms.LoadRoomPopulation(
             bus,
@@ -60,7 +60,7 @@ internal static partial class RetailPlmPopulationAudit
             RoomPlmPopulationImporter.Read(bus, room.State.PlmPointer),
             new Bank80SystemState(),
             room.AreaIndex,
-            () => new SamusState(),
+            () => RepositoryInstallation.CreateSamus(),
             () => false);
         RoomPlmSlotSnapshot initial = plms.PopulationSlots.Single(
             slot => slot.HeaderPointer == RoomPlmHeaders.WreckedShipAttic);

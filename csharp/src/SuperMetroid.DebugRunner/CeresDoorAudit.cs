@@ -340,7 +340,7 @@ internal static class CeresDoorAudit
         CartridgeRoomHeader room = selection is RoomStateSelectionContext selected
             ? SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer, selected)
             : SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
@@ -349,7 +349,7 @@ internal static class CeresDoorAudit
         // and simply reading RandomNumberSeed. Callers may change the sampled seed without
         // replacing or advancing the generator delegate captured by RoomEnemySystem.Load.
         var randomSeed = new MutableWord(readRandom());
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,

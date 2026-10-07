@@ -33,11 +33,11 @@ internal static class KraidAudit
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeDoorHeader door = SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, IncomingDoorPointer);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         Console.WriteLine(
             $"Kraid character bytes: room=${assets.RoomCharacters.Length:X}, " +
             $"CRE=${assets.CreCharacters.Length:X}.");
-        var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
+        var runtime = RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
         runtime.InitializeStartingCeresRoom();
@@ -166,7 +166,7 @@ internal static class KraidAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         VerifyRetailRoom(room);
 
         var vram = new SnesVram();
@@ -185,7 +185,7 @@ internal static class KraidAudit
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
 
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -393,7 +393,7 @@ internal static class KraidAudit
         short mouthLeft = unchecked((short)ReadWord(bus, mouthAddress));
         short mouthTop = unchecked((short)ReadWord(bus, mouthAddress + 2));
         short mouthBottom = unchecked((short)ReadWord(bus, mouthAddress + 6));
-        var kraidShots = new SamusProjectileSystem();
+        var kraidShots = RepositoryInstallation.CreateProjectileSystem();
         SamusProjectileSlot missile = kraidShots.Slots[0];
         missile.ClearFields();
         missile.Type = 0x8100;
@@ -410,7 +410,7 @@ internal static class KraidAudit
         int mouthHits = enemies.ResolveKraidProjectileHits(
             bus,
             kraidShots,
-            new SamusBombProjectileSystem());
+            RepositoryInstallation.CreateBombSystem());
         if (mouthHits != 1 || healthBeforeMouthHit - body.Health != 100 ||
             state.HurtFrame != 6 || state.HurtFrameTimer != 2 || body.FlashTimer == 0)
         {
@@ -438,7 +438,7 @@ internal static class KraidAudit
                 level: assets.LevelData);
             enemies.StepEnemyProjectiles(assets.LevelData, samus, cameraX: CameraX, cameraY: CameraY);
         }
-        var chargedShots = new SamusProjectileSystem();
+        var chargedShots = RepositoryInstallation.CreateProjectileSystem();
         SamusProjectileSlot chargedBeam = chargedShots.Slots[0];
         chargedBeam.ClearFields();
         chargedBeam.Type = 0x8010;
@@ -455,7 +455,7 @@ internal static class KraidAudit
         int armorHits = enemies.ResolveKraidProjectileHits(
             bus,
             chargedShots,
-            new SamusBombProjectileSystem());
+            RepositoryInstallation.CreateBombSystem());
         if (armorHits != 1 || body.Health != healthBeforeArmor ||
             body.VariableA != (ushort)KraidAiFunction.InitializeEyeGlow ||
             (state.MouthFlags & 0x0303) != 0x0303)
@@ -796,7 +796,7 @@ internal static class KraidAudit
                 $"$8F:{door.DestinationRoomPointer:X4}, not $8F:{RoomPointer:X4}.");
         }
 
-        var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
+        var runtime = RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
         runtime.InitializeStartingCeresRoom();
@@ -1715,7 +1715,7 @@ internal static class KraidAudit
             // extended-spritemap scheduling, both native multibox handlers return before
             // examining its current map or touching a projectile.
             IsolateEnemy(enemies, body.SlotIndex, savedProperties);
-            var bodyShots = new SamusProjectileSystem();
+            var bodyShots = RepositoryInstallation.CreateProjectileSystem();
             SamusProjectileSlot bodyShot = ArmKraidAuditShot(
                 bodyShots,
                 body.XPosition,
@@ -1723,7 +1723,7 @@ internal static class KraidAudit
             int bodyHits = enemies.ResolveOrdinaryProjectileHits(
                 bus,
                 bodyShots,
-                new SamusBombProjectileSystem(),
+                RepositoryInstallation.CreateBombSystem(),
                 samus);
             if (bodyHits != 0 || (bodyShot.Direction & 0x0010) != 0 ||
                 bodyShot.InstructionPointer != 0x9000)
@@ -1738,14 +1738,14 @@ internal static class KraidAudit
             // at the selected projectile coordinates plus library-one sound `$3D`.
             IsolateEnemy(enemies, arm.SlotIndex, savedProperties);
             HashSet<int> activeBeforeBeam = ActiveEnemyProjectileSlots(enemies);
-            var armShots = new SamusProjectileSystem();
+            var armShots = RepositoryInstallation.CreateProjectileSystem();
             SamusProjectileSlot armShot = ArmKraidAuditShot(armShots, armX, armY);
             ushort armHealthBefore = arm.Health;
             ushort bodyHealthBefore = body.Health;
             int armHits = enemies.ResolveOrdinaryProjectileHits(
                 bus,
                 armShots,
-                new SamusBombProjectileSystem(),
+                RepositoryInstallation.CreateBombSystem(),
                 samus);
             VerifyKraidArmDust(
                 bus,
@@ -1769,7 +1769,7 @@ internal static class KraidAudit
 
             IsolateEnemy(enemies, arm.SlotIndex, savedProperties);
             HashSet<int> activeBeforeBomb = ActiveEnemyProjectileSlots(enemies);
-            var armBombs = new SamusBombProjectileSystem();
+            var armBombs = RepositoryInstallation.CreateBombSystem();
             SamusBombProjectileSlot armBomb =
                 EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
                     armBombs,
@@ -1777,7 +1777,7 @@ internal static class KraidAudit
                     armY);
             int armBombHits = enemies.ResolveOrdinaryBombHits(
                 armBombs,
-                new SamusProjectileSystem(),
+                RepositoryInstallation.CreateProjectileSystem(),
                 samus);
             VerifyKraidArmDust(
                 bus,
@@ -1841,7 +1841,7 @@ internal static class KraidAudit
         {
             IsolateEnemy(enemies, foot.SlotIndex, savedProperties);
             HashSet<int> activeBefore = ActiveEnemyProjectileSlots(enemies);
-            var bombs = new SamusBombProjectileSystem();
+            var bombs = RepositoryInstallation.CreateBombSystem();
             SamusBombProjectileSlot bomb =
                 EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
                     bombs,
@@ -1851,7 +1851,7 @@ internal static class KraidAudit
             ushort bodyHealthBefore = body.Health;
             int hits = enemies.ResolveOrdinaryBombHits(
                 bombs,
-                new SamusProjectileSystem(),
+                RepositoryInstallation.CreateProjectileSystem(),
                 samus);
             bool spawnedDust = enemies.EnemyProjectiles.Any(projectile =>
                 projectile.IsActive &&
@@ -1966,7 +1966,7 @@ internal static class KraidAudit
         SuperMetroidAddressSpace bus,
         CartridgeRoomHeader room)
     {
-        var defeated = new RoomEnemySystem();
+        var defeated = RepositoryInstallation.CreateEnemySystem();
         defeated.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -2036,7 +2036,7 @@ internal static class KraidAudit
             bus,
             enemies,
             probeSamus,
-            new SamusBombProjectileSystem(),
+            RepositoryInstallation.CreateBombSystem(),
             level,
             target,
             CameraX,
@@ -2069,7 +2069,7 @@ internal static class KraidAudit
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
 
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -2158,7 +2158,7 @@ internal static class KraidAudit
         short left = unchecked((short)ReadWord(bus, mouthAddress));
         short top = unchecked((short)ReadWord(bus, mouthAddress + 2));
         short bottom = unchecked((short)ReadWord(bus, mouthAddress + 6));
-        var shots = new SamusProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
         SamusProjectileSlot missile = shots.Slots[0];
         missile.ClearFields();
         missile.Type = 0x8100;
@@ -2173,7 +2173,7 @@ internal static class KraidAudit
         return enemies.ResolveKraidProjectileHits(
             bus,
             shots,
-            new SamusBombProjectileSystem());
+            RepositoryInstallation.CreateBombSystem());
     }
 
     private static int StrikeKraidOuterBody(
@@ -2182,7 +2182,7 @@ internal static class KraidAudit
         RoomEnemySlot body,
         ushort projectileDamage)
     {
-        var shots = new SamusProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
         SamusProjectileSlot chargedBeam = shots.Slots[0];
         chargedBeam.ClearFields();
         chargedBeam.Type = 0x8010;
@@ -2197,6 +2197,6 @@ internal static class KraidAudit
         return enemies.ResolveKraidProjectileHits(
             bus,
             shots,
-            new SamusBombProjectileSystem());
+            RepositoryInstallation.CreateBombSystem());
     }
 }

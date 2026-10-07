@@ -25,8 +25,8 @@ internal static class MissileReuseAudit
             var samus = new SamusState { Pose = 1, XPosition = 64, YPosition = 96,
                 SelectedHudItem = family, Missiles = 99, SuperMissiles = 99 };
             samus.InitializeAnimation(bus);
-            var projectiles = new SamusProjectileSystem();
-            var bombs = new SamusBombProjectileSystem();
+            var projectiles = RepositoryInstallation.CreateProjectileSystem();
+            var bombs = RepositoryInstallation.CreateBombSystem();
             bool firstExploded = false;
             for (int frame = 0; frame <= secondFrame; frame++)
             {

@@ -28,8 +28,8 @@ internal static class ComboMotionAudit
             var samus = new SamusState { XPosition = 128, YPosition = 128, PowerBombs = 2,
                 EquippedBeams = (ushort)(SamusBeamFlags.Charge | family), SelectedHudItem = 3,
                 Pose = !wavePatterns && seed[0] == "1" ? SamusPoseIds.FacingLeftNormalPose : SamusPoseIds.FacingRightNormalPose };
-            var projectiles = new SamusProjectileSystem();
-            var shared = new SamusBombProjectileSystem();
+            var projectiles = RepositoryInstallation.CreateProjectileSystem();
+            var shared = RepositoryInstallation.CreateBombSystem();
             if (!projectiles.TryActivateCombo(bus, samus, shared, out _))
                 throw new InvalidDataException("Ice allocation failed.");
             foreach (var row in group)

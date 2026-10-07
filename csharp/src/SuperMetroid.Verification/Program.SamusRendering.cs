@@ -493,7 +493,7 @@ static void VerifySamusArmCannon()
 
     // Keep the fixture's custom selector, after-body order and signed offsets,
     // expressed through installed drawing data rather than a patched ROM record.
-    string directory = runtimeFixtureInstallation.Value.SamusBodyDirectory;
+    string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
     var document = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(
         Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName)))!;
     document["posePointers"]![1] = SamusArmCannonArtworkFormat.DrawingDataStart;
@@ -514,7 +514,7 @@ static void VerifySamusArmCannon()
         SelectedHudItem = 0,
     };
 
-    samus.TileTransfers.BindArtwork(runtimeFixtureInstallation.Value.LoadSamusBodyArt());
+    samus.TileTransfers.BindArtwork(RepositoryInstallation.Installation.LoadSamusBodyArt());
     samus.ArmCannon.Artwork = artwork;
 
     // The HUD producer requires two identical samples. Merely changing selection sets the

@@ -22,7 +22,7 @@ internal static partial class MetroidAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, MetroidRoomHeader);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         VerifyDefinition(bus);
 
         LoadedMetroids loaded = Load(bus, room, assets);
@@ -199,8 +199,8 @@ internal static partial class MetroidAudit
                 $"${loaded.Samus.SpecialSuperPaletteFlags:X4}.");
         }
 
-        var projectiles = new SamusProjectileSystem();
-        var shared = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var shared = RepositoryInstallation.CreateBombSystem();
         SamusBombProjectileSlot bomb = shared.Slots[0];
         bomb.Type = SamusBombProjectileSystem.NormalBombType;
         bomb.Damage = 100;
@@ -284,8 +284,8 @@ internal static partial class MetroidAudit
         // bank-$90 producer does after firing an Ice beam.
         loaded.Samus.EquippedBeams = (ushort)SamusBeamFlags.Ice;
         StepCentered(loaded.Enemies, assets, room, loaded.Samus, actor);
-        var projectiles = new SamusProjectileSystem();
-        var shared = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var shared = RepositoryInstallation.CreateBombSystem();
 
         for (int iceHit = 0; iceHit < 3; iceHit++)
         {
@@ -442,7 +442,7 @@ internal static partial class MetroidAudit
         };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,

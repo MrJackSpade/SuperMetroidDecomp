@@ -24,7 +24,7 @@ internal static partial class CeresControllerRouteAudit
     public static int RunElevatorClimbFocus(string romPath)
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
         runtime.InitializeStartingCeresRoom();
@@ -67,7 +67,7 @@ internal static partial class CeresControllerRouteAudit
     public static int Run(string romPath)
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-        var game = new SuperMetroidGame(
+        var game = RepositoryInstallation.CreateGame(
             bus,
             new SuperMetroidGameOptions { SkipOpeningCinematic = true });
         FrontendFrame frame = EnterFreshCeres(game);

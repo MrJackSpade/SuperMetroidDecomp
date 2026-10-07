@@ -20,7 +20,7 @@ internal static partial class WorkRobotAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader dormantRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, BasementRoom);
-        CartridgeRoomAssets dormantAssets = CartridgeRoomAssets.Load(bus, dormantRoom);
+        CartridgeRoomAssets dormantAssets = CartridgeRoomAssets.Load(bus, dormantRoom, RepositoryInstallation.RoomAssets);
         LoadedRobots dormant = Load(bus, dormantRoom, dormantAssets, bossDefeated: false);
         VerifyDormantPopulation(dormantRoom, dormant);
         VerifyMovingSolidContact(dormant, dormantAssets);
@@ -29,7 +29,7 @@ internal static partial class WorkRobotAudit
             bus,
             BasementRoom,
             new RoomStateSelectionContext(default, BossBits: BossBits.AreaBoss, false, false));
-        CartridgeRoomAssets poweredAssets = CartridgeRoomAssets.Load(bus, poweredRoom);
+        CartridgeRoomAssets poweredAssets = CartridgeRoomAssets.Load(bus, poweredRoom, RepositoryInstallation.RoomAssets);
         LoadedRobots powered = Load(bus, poweredRoom, poweredAssets, bossDefeated: true);
         VerifyPoweredInitialization(poweredRoom, powered);
         NaturalResult natural = VerifyNaturalBehavior(powered, poweredRoom, poweredAssets);
@@ -238,12 +238,12 @@ internal static partial class WorkRobotAudit
         if (robot.SpritemapPointer == 0x804d)
             throw new InvalidDataException("Powered Work Robot never selected its first visible ROM frame.");
         loaded.Samus.XPosition = unchecked((ushort)(robot.XPosition - 32));
-        var projectiles = new SamusProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
         ArmProjectile(projectiles.Slots[0], robot);
         int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(
             bus,
             projectiles,
-            new SamusBombProjectileSystem(),
+            RepositoryInstallation.CreateBombSystem(),
             loaded.Samus);
         if (hits != 1 || robot.Health != 800 || robot.CurrentInstruction != 0xc7bb ||
             robot.InstructionTimer != 1 || state.LaserCooldown < 0x0040 ||
@@ -270,12 +270,12 @@ internal static partial class WorkRobotAudit
         if (RequireState(loaded.Enemies, robot).Powered)
             throw new InvalidDataException("Pre-Phantoon powered definition failed to deactivate.");
         Step(loaded, assets, robot, room);
-        var projectiles = new SamusProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
         ArmProjectile(projectiles.Slots[0], robot);
         int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(
             bus,
             projectiles,
-            new SamusBombProjectileSystem(),
+            RepositoryInstallation.CreateBombSystem(),
             loaded.Samus);
         if (hits != 0 || projectiles.Slots[0].InstructionPointer != 0x9000)
         {
@@ -297,11 +297,11 @@ internal static partial class WorkRobotAudit
             Step(loaded, assets, robot, room);
         loaded.Samus.XPosition = unchecked((ushort)(robot.XPosition - 32));
 
-        var bombs = new SamusBombProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         ArmNormalBomb(bombs.Slots[0], robot);
         int hits = loaded.Enemies.ResolveOrdinaryBombHits(
             bombs,
-            new SamusProjectileSystem(),
+            RepositoryInstallation.CreateProjectileSystem(),
             loaded.Samus);
         if (hits != 1 || (bombs.Slots[0].Direction & 0x0010) == 0 ||
             robot.Health != 800 || robot.CurrentInstruction != 0xc7bb ||
@@ -324,11 +324,11 @@ internal static partial class WorkRobotAudit
         state = RequireState(loaded.Enemies, robot);
         ushort instructionBefore = robot.CurrentInstruction;
         ushort cooldownBefore = state.LaserCooldown;
-        bombs = new SamusBombProjectileSystem();
+        bombs = RepositoryInstallation.CreateBombSystem();
         ArmNormalBomb(bombs.Slots[0], robot);
         hits = loaded.Enemies.ResolveOrdinaryBombHits(
             bombs,
-            new SamusProjectileSystem(),
+            RepositoryInstallation.CreateProjectileSystem(),
             loaded.Samus);
         if (hits != 1 || (bombs.Slots[0].Direction & 0x0010) == 0 ||
             robot.Health != 800 || robot.CurrentInstruction != instructionBefore ||
@@ -363,7 +363,7 @@ internal static partial class WorkRobotAudit
         samus.InitializeAnimation(bus);
         var random = new Bank80SystemState();
         random.SetRandomNumber(0x1234);
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,

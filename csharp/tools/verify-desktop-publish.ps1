@@ -60,7 +60,7 @@ try {
     }
     dotnet ./SuperMetroid.DesktopVerification.dll
     if ($LASTEXITCODE -ne 0) { throw 'Published desktop lifecycle checks failed.' }
-    dotnet ./SuperMetroid.DesktopVerification.dll --soak-desktop-hidden 5
+    dotnet ./SuperMetroid.DesktopVerification.dll --soak-desktop-hidden-smoke
     if ($LASTEXITCODE -ne 0) { throw 'Published desktop audio/renderer smoke failed.' }
 } finally { Pop-Location }
 Write-Output "Clean game publish and identical-dependency hidden desktop checks passed: $artifacts"

@@ -48,12 +48,12 @@ internal sealed class DraygonGrabBlueSuitProbe(SuperMetroidAddressSpace bus, Sam
     {
         if (frame != GrabFrame(mode)) return;
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomHeaderPointers.Draygon);
-        var assets = CartridgeRoomAssets.Load(bus, room);
+        var assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
         var random = new Bank80SystemState(0x4937);
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer,
             vram, cgram, random.NextRandom, random.SetRandomNumber,
             readRandomNumber: () => random.RandomNumber, level: assets.LevelData, samus: samus,

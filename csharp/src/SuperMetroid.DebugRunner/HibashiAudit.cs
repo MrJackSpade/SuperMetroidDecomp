@@ -24,7 +24,7 @@ internal static class HibashiAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         ushort pairPopulation = FindFirstPopulationRecord(
             bus,
             room.State.EnemyPopulationPointer,
@@ -222,8 +222,8 @@ internal static class HibashiAudit
     {
         LoadedHibashi loaded = LoadPair(bus, room, assets, populationPointer);
         WaitForFirstShape(loaded, assets);
-        var projectiles = new SamusProjectileSystem();
-        var sharedProjectiles = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var sharedProjectiles = RepositoryInstallation.CreateBombSystem();
         SamusProjectileSlot projectile = projectiles.Slots[0];
         ArmProjectile(projectile, loaded.Hitbox);
         ushort healthBefore = loaded.Hitbox.Health;
@@ -281,7 +281,7 @@ internal static class HibashiAudit
         samus.RefreshCollisionRadii(pairBus);
         samus.InitializeAnimation(pairBus);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             pairBus,
             populationPointer,

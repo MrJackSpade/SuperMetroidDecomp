@@ -19,7 +19,7 @@ internal static partial class Program
         // The retail ROM's installation is shared and only read here; another ROM installs its own.
         using var temporaryDirectory = new TestTempDirectory("map-catalog");
         GameInstallation installation = Path.GetFullPath(sourceRom) == Path.GetFullPath("Super Metroid.smc")
-            ? runtimeFixtureInstallation.Value
+            ? RepositoryInstallation.Installation
             : GameAssetInstaller.Install(Path.GetFullPath(sourceRom), temporaryDirectory.Root);
         SamusBodyArtworkCatalog body = installation.LoadSamusBodyArt();
         var roomAssets = new MapPresentationInstalledRoomAssets(installation);

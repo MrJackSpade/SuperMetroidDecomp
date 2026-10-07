@@ -10,7 +10,7 @@ internal static partial class Program
     private static void VerifyEndingRenderSnapshots()
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
-        var rewardArt = runtimeFixtureInstallation.Value.LoadEndingObjectArt().RewardSprites;
+        var rewardArt = RepositoryInstallation.Installation.LoadEndingObjectArt().RewardSprites;
         int samples = 0;
         foreach (ushort hours in new ushort[] { 2, 3, 10 })
         {

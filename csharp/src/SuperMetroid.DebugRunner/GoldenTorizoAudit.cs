@@ -24,7 +24,7 @@ internal static partial class GoldenTorizoAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         VerifyRetailStructures(bus, room);
         VerifyCaughtSuperCounterattack(bus, room, assets);
         VerifySuperCatchFacingAndLeg(bus, room, assets);
@@ -196,8 +196,8 @@ internal static partial class GoldenTorizoAudit
         VerifyPowerBombImmunity(bus, loaded);
         VerifyMissileAndSuperReactions(bus, loaded, assets.LevelData);
 
-        var fatalShots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var fatalShots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         loaded.Head.FlashTimer = 0;
         loaded.State.ShotGuard = 1; // Golden's nonzero guard explicitly takes common damage.
         ArmProjectile(fatalShots.Slots[0], loaded.Head, type: 0x0200, damage: 30000);
@@ -234,8 +234,8 @@ internal static partial class GoldenTorizoAudit
         LoadedGoldenTorizo loaded,
         RoomLevelData level)
     {
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         loaded.Head.FlashTimer = 0;
         loaded.State.ShotGuard = 0;
         loaded.Head.Parameter2 &= 0xcfff;
@@ -264,7 +264,7 @@ internal static partial class GoldenTorizoAudit
         loaded.Samus.XPosition = (loaded.Head.Parameter1 & 0x8000) != 0
             ? unchecked((ushort)(loaded.Head.XPosition + 32))
             : unchecked((ushort)(loaded.Head.XPosition - 32));
-        shots = new SamusProjectileSystem();
+        shots = RepositoryInstallation.CreateProjectileSystem();
         ArmProjectile(shots.Slots[0], loaded.Head, type: 0x0200, damage: 300);
         int superHits = loaded.Enemies.ResolveOrdinaryProjectileHits(
             bus,
@@ -346,8 +346,8 @@ internal static partial class GoldenTorizoAudit
         loaded.State.CapturedProjectileFamily = 0x5555;
         loaded.Head.Parameter2 &= 0xcfff;
         ushort healthBefore = loaded.Head.Health;
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(shots.Slots[0], loaded.Head, type: 0x8200, damage: 300);
         shots.Slots[0].XPosition = shotX;
         shots.Slots[0].YPosition = shotY;
@@ -378,7 +378,7 @@ internal static partial class GoldenTorizoAudit
         loaded.Head.FlashTimer = 0;
         loaded.State.ShotGuard = 1;
         loaded.Head.Health = healthBefore;
-        shots = new SamusProjectileSystem();
+        shots = RepositoryInstallation.CreateProjectileSystem();
         ArmProjectile(shots.Slots[0], loaded.Head, type: 0x8200, damage: 300);
         shots.Slots[0].XPosition = shotX;
         shots.Slots[0].YPosition = shotY;
@@ -478,8 +478,8 @@ internal static partial class GoldenTorizoAudit
         loaded.State.ShotGuard = 0;
         loaded.State.CapturedProjectileFamily = 0x5555;
         loaded.Head.Parameter2 &= 0xcfff;
-        var bombs = new SamusBombProjectileSystem();
-        var shots = new SamusProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
         SamusBombProjectileSlot bomb =
             EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
                 bombs,
@@ -554,7 +554,7 @@ internal static partial class GoldenTorizoAudit
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
 
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,

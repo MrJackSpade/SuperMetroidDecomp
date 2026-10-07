@@ -32,7 +32,7 @@ internal static class SpikeHazardAudit
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             SpikeHazardAuditRomData.RoomHeader);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         RoomLevelData level = assets.LevelData;
 
         if (room.Identity != new RoomIdentity(AreaId.Brinstar, 0x2e))
@@ -50,7 +50,7 @@ internal static class SpikeHazardAudit
                 "Room $01/$2E contains no authored light spike block for the regression.");
         }
 
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
         runtime.InitializeStartingCeresRoom();

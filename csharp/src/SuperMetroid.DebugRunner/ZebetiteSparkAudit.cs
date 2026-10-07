@@ -110,7 +110,7 @@ internal static class ZebetiteSparkAudit
         int jumpPeriod = 2, int jumpPhase = 0, bool quiet = false, int jumpHold = 1, int postMode = 0)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();

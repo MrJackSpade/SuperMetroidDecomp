@@ -13,12 +13,12 @@ internal static class PauseMapCenteringAudit
             var system = new Bank80SystemState();
             system.SetAreaMapAcquired(area);
             var samus = new SamusState { XPosition = 128, YPosition = 128 };
-            var before = new PauseMenuState(bus, samus, system, (AreaId)area, 30, 16);
+            var before = RepositoryInstallation.CreatePause(bus, samus, system, (AreaId)area, 30, 16);
             // Expand the explored plane beyond the downloaded map in both directions.
             // Native DetermineMapScrollLimits selects the station plane exclusively.
             system.MarkExploredMapTile(area, 0, 0);
             system.MarkExploredMapTile(area, 63, 31);
-            var after = new PauseMenuState(bus, samus, system, (AreaId)area, 30, 16);
+            var after = RepositoryInstallation.CreatePause(bus, samus, system, (AreaId)area, 30, 16);
             if (before.MapHorizontalScroll != after.MapHorizontalScroll ||
                 before.MapVerticalScroll != after.MapVerticalScroll)
                 throw new InvalidDataException($"Area {area}: secret exploration shifted downloaded-map centering " +
@@ -37,7 +37,7 @@ internal static class PauseMapCenteringAudit
         {
             var system = new Bank80SystemState();
             system.MarkExploredMapTile(0, 30, sample.Row);
-            var pause = new PauseMenuState(bus, new SamusState(), system, AreaId.Crateria, 30, 24);
+            var pause = RepositoryInstallation.CreatePause(bus, RepositoryInstallation.CreateSamus(), system, AreaId.Crateria, 30, 24);
             if (pause.MapHorizontalScroll != 112 || pause.MapVerticalScroll != unchecked((ushort)sample.ExpectedY))
                 throw new InvalidDataException($"Native edge-row centering mismatch: row {sample.Row}, scroll {pause.MapHorizontalScroll:X4},{pause.MapVerticalScroll:X4}.");
         }

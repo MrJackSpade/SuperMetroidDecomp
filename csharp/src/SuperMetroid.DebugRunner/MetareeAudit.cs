@@ -14,7 +14,7 @@ internal static class MetareeAudit
         SuperMetroidAddressSpace retailBus =
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(retailBus, 0x9cb3);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(retailBus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(retailBus, room, RepositoryInstallation.RoomAssets);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
@@ -31,7 +31,7 @@ internal static class MetareeAudit
             retainedPopulationRecords,
             deathQuota: 3);
 
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         var random = new Bank80SystemState();
         enemies.Load(
             auditBus,
@@ -137,8 +137,8 @@ internal static class MetareeAudit
         // missile family multiplier two. A 20-damage projectile therefore removes exactly
         // 20 from the third actor's 50 health through the production special-shot dispatch.
         RoomEnemySlot shotTarget = metarees[2];
-        var projectiles = new SamusProjectileSystem();
-        var sharedProjectiles = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var sharedProjectiles = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(projectiles.Slots[0], shotTarget, type: 0x0200, damage: 20);
         int nonlethalHitCount = enemies.ResolveOrdinaryProjectileHits(
             auditBus,
@@ -153,7 +153,7 @@ internal static class MetareeAudit
         }
 
         int debrisBeforeDeath = enemies.ActiveEnemyProjectileCount;
-        var lethalProjectiles = new SamusProjectileSystem();
+        var lethalProjectiles = RepositoryInstallation.CreateProjectileSystem();
         ArmProjectile(lethalProjectiles.Slots[0], shotTarget, type: 0x0200, damage: 1000);
         if (enemies.ResolveOrdinaryProjectileHits(
                 auditBus,
@@ -291,7 +291,7 @@ internal static class MetareeAudit
         // Prove the retail above-Samus bug in a fresh production loader. `$A3:89AC` feeds
         // wrapped unsigned $FFFF to the hardware divider for a one-pixel-above target:
         // $FFFF / 24 + 4 = $0AAE. A seemingly reasonable signed clamp would fail this guard.
-        var bugEnemies = new RoomEnemySystem();
+        var bugEnemies = RepositoryInstallation.CreateEnemySystem();
         bugEnemies.Load(
             auditBus,
             room.State.EnemyPopulationPointer,

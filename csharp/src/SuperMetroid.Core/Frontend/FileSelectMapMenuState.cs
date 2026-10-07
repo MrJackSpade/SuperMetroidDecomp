@@ -53,14 +53,13 @@ public sealed partial class FileSelectMapMenuState
         var typedArea = (AreaId)area;
         if (mapPresentation is null)
             throw new InvalidOperationException("File-select map requires installed map presentation assets.");
-        areaGraphics = new FileSelectAreaMapGraphics(bus, area, mapPresentation?.Tiles, mapPresentation?.Palettes, mapPresentation?.Screens, mapPresentation?.WorldArtwork, mapPresentation?.Sprites);
+        areaGraphics = FileSelectAreaMapGraphics.FromPresentation(bus, area, mapPresentation);
         roomGraphics = new FileSelectRoomMapGraphics(bus, system, typedArea, mapPresentation: mapPresentation);
         this.mapPresentation = mapPresentation;
         scroll = CreateScrollForCurrentContent();
         marker = new FileSelectStationMarker(bus, typedArea, slot.SaveStation, mapPresentation?.SaveMarkers);
         navigation = new FileSelectMapNavigation(bus, area, initialHeldInput);
         navigation.BindLabels(mapPresentation?.Labels);
-        areaGraphics.BindLabels(mapPresentation?.Labels);
         animations = new FileSelectMapAnimations(bus, mapPresentation?.Arrows);
         animations.BindPalette(mapPresentation?.HighlightCycle);
         entry = new FileSelectMapEntry(mapPresentation?.Palettes ?? throw new InvalidOperationException(

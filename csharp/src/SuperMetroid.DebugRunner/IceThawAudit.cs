@@ -21,8 +21,8 @@ internal static class IceThawAudit
             if (frame == 0)
             {
                 bus.IceVulnerability = byte.Parse(row[0]);
-                var projectiles = new SamusProjectileSystem();
-                var shared = new SamusBombProjectileSystem();
+                var projectiles = RepositoryInstallation.CreateProjectileSystem();
+                var shared = RepositoryInstallation.CreateBombSystem();
                 samus = new SamusState { XPosition = 128, YPosition = 128,
                     Pose = SamusPoseIds.FacingRightNormalPose,
                     EquippedBeams = 0x1002, PowerBombs = 2, SelectedHudItem = 3 };
@@ -32,7 +32,7 @@ internal static class IceThawAudit
                     particle.XPosition = particle.YPosition = 1024;
                 projectiles.Slots[0].XPosition = projectiles.Slots[0].YPosition = 128;
                 projectiles.RunProjectileInstructionHandler(bus, projectiles.Slots[0]);
-                enemies = new RoomEnemySystem();
+                enemies = RepositoryInstallation.CreateEnemySystem();
                 enemies.Load(bus, 0xf000, 0, new SnesVram(), new SnesCgram(), () => 1);
                 var target = enemies.Slots[0];
                 target.EnemyDefinitionPointer = 0xf000;

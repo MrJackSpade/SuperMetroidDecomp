@@ -29,7 +29,7 @@ patch), build its Release x64 target using the installed C++ toolset, then run:
 
 ```powershell
 ./upstream-sm/build/bin-x64-Release/sm.exe --jump-turn-probe 'Super Metroid.smc' > native-jump-turn.log
-dotnet csharp/src/SuperMetroid.DebugRunner/bin/Release/net10.0/SuperMetroid.DebugRunner.dll --jump-turn-comparison-audit 'Super Metroid.smc' native-jump-turn.log
+dotnet csharp/src/SuperMetroid.DebugRunner/bin/Release/net10.0-windows/SuperMetroid.DebugRunner.dll --jump-turn-comparison-audit 'Super Metroid.smc' native-jump-turn.log
 ```
 
 The probe dispatches before SDL and disables fault dialogs. Reverse only this

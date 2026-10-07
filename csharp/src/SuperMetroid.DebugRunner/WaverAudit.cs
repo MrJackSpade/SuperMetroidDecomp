@@ -14,13 +14,13 @@ internal static class WaverAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0x990d);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
 
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -145,8 +145,8 @@ internal static class WaverAudit
 
         // Preserve the incoming projectile's type and damage through its explosion
         // conversion: a 20-damage power beam must leave this 30-health Waver at ten.
-        var beamProjectiles = new SamusProjectileSystem();
-        var sharedProjectiles = new SamusBombProjectileSystem();
+        var beamProjectiles = RepositoryInstallation.CreateProjectileSystem();
+        var sharedProjectiles = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(beamProjectiles.Slots[0], audited, damage: 20);
         if (enemies.ResolveOrdinaryProjectileHits(
                 bus,
@@ -160,7 +160,7 @@ internal static class WaverAudit
 
         // A second, independently armed high-damage beam proves the shared death path
         // deletes the actor and increments the room kill counter exactly once.
-        var lethalProjectiles = new SamusProjectileSystem();
+        var lethalProjectiles = RepositoryInstallation.CreateProjectileSystem();
         ArmProjectile(lethalProjectiles.Slots[0], audited, damage: 1000);
         if (enemies.ResolveOrdinaryProjectileHits(
                 bus,

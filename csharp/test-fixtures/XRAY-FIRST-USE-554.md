@@ -49,7 +49,7 @@ is reproduced and a matching assertion verifies its fix.
 
 ## Sparse display-consumer experiment
 
-`SuperMetroid.RenderVerification --compare-sparse-sequence <capture-directory>`
+`SuperMetroid.DebugRunner --compare-sparse-sequence <capture-directory>`
 renders the same complete captured packets while deliberately omitting display
 submissions. It always submits the initial ordinary frame, then tests every phase
 of strides two through eight. Each schedule uses one persistent renderer, so

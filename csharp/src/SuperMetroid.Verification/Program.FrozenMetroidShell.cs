@@ -11,7 +11,7 @@ internal static partial class Program
     private static int VerifyFrozenMetroidShell()
     {
         const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
-        var installation = runtimeFixtureInstallation.Value;
+        var installation = RepositoryInstallation.Installation;
         var enemies = new RoomEnemySystem { TileArtwork = installation.LoadEnemyTiles() };
         var slot = enemies.Slots[0];
         slot.XPosition = 120;

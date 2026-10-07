@@ -392,7 +392,7 @@ capability remains deleted. These tests did not discover remaining ROM reads.
 
 ## Samus disk artwork renderer acceptance
 
-The guarded RenderVerification command `--installed-samus-artwork <installation-root>`
+The guarded RenderVerification command `--installed-samus-artwork`
 loads existing extracted Samus resources without opening a cartridge or invoking an
 importer. Its isolated copy contains 26 real edited PNGs: all 24 body atlases, the arm
 cannon atlas and death-explosion atlas. The regular installation loader selects those
@@ -419,7 +419,7 @@ verified separately below; this renderer fixture does not establish Android pixe
 
 ## Samus movement and special sequence isolation
 
-The guarded RenderVerification command `--installed-samus-isolation <installation-root>`
+The guarded RenderVerification command `--installed-samus-isolation`
 adds paired acceptance for the production owners identified in the Samus source audit.
 It loads only already-extracted files. A disposable copy receives the same 26 edited
 PNGs as the pixel fixture plus real JSON changes to body DMA selectors, OAM X placement,
@@ -465,7 +465,7 @@ the deleted Core capability was not restored.
 
 ## Samus file admission and diagnostics
 
-`SuperMetroid.RenderVerification --installed-samus-file-contracts <installation-root>`
+`SuperMetroid.RenderVerification --installed-samus-file-contracts`
 exercises the statically inventoried body, atmosphere, cannon and death loaders with
 copied extracted files. Before the fix, the fixture reproduced pathless hash/codec and
 catalog errors, accepted unknown or duplicated properties, and seven missing value-type
@@ -534,7 +534,7 @@ operand is now compiled independently of presentation, captured on entry to
 afterglow, and decremented with the unchanged signed-timer cadence. Stock
 color fades remain exact; editing colors cannot change the effect lifetime.
 
-`--installed-power-bomb-isolation <installation-root>` loads already-extracted
+`--installed-power-bomb-isolation` loads already-extracted
 data and writes five isolated on-disk overrides: black, white, red, blue and
 a varying gradient. Debug and Release pass 655 whole mutable-state/window
 comparisons and 621 changed color observations. Every Power Bomb ends on frame
@@ -583,10 +583,10 @@ composition. Portable layer ID 16, its field layout and shader operation are
 unchanged. A narrow debugger identity alias loads the old X-ray-named object
 and declaring-field identities without changing its memory or composition.
 
-`SuperMetroid.RenderVerification --installed-spores <current-installation>
-<pre-spores-installation> <native-art-directory>` takes extracted installations
-and the three previously extracted `AnimatedTiles_Spores_*.bin` oracle files,
-not a ROM or a replay. Debug and Release each verify all four compiled spores
+`SuperMetroid.RenderVerification --installed-spores` runs on a private copy of the
+repository installation, with the three `standalone-assets/raw/AnimatedTiles_Spores_*.bin`
+oracle files. Since #1272 the no-shift check compares every installed sheet segment with
+its native cartridge bytes instead of a retained pre-spores installation. Debug and Release each verify all four compiled spores
 records: 4,200 stock/edited control comparisons, 4,168 changed frame transfers,
 freeze/resume, signed accumulator wrap, camera changes, identical serialized
 control state, unchanged WRAM/SRAM, and no liquid/audio/quake side effects.

@@ -8,7 +8,7 @@ internal static class CeresZoomTimingAudit
     public static int Run(string romPath, string outputDirectory)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-        var scene = new CeresDestructionCinematicState(bus);
+        var scene = RepositoryInstallation.CreateDestruction(bus);
         Directory.CreateDirectory(outputDirectory);
         int mismatches = 0, approach = 0;
         for (int frame = 0; frame < 1000; frame++)

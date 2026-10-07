@@ -20,7 +20,7 @@ internal static partial class Program
         Suite(nameof(VerifyCeresFlightPrograms), () => VerifyCeresFlightPrograms(retail));
 
         var guard = new CeresFlightActorDefinitionReadGuard(retail);
-        var state = new IntroCeresFlightState(guard, runtimeFixtureInstallation.Value.LoadIntroCinematicArt().CeresFlight);
+        var state = new IntroCeresFlightState(guard, RepositoryInstallation.Installation.LoadIntroCinematicArt().CeresFlight);
         for (int frame = 0; frame < 5000 && !state.Finished; frame++)
             state.Step();
         AssertTrue(state.Finished, "Ceres approach completes through production actor paths");

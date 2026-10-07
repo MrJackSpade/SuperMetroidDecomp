@@ -20,7 +20,7 @@ internal static class BombAdmissionAudit
                 SelectedHudItem = row[0] == "1" ? (ushort)3 : (ushort)0,
                 PowerBombs = ushort.Parse(row[3]),
                 EquippedItems = row[5] == "1" ? (ushort)SamusEquipmentFlags.Bombs : (ushort)0 };
-            var bombs = new SamusBombProjectileSystem();
+            var bombs = RepositoryInstallation.CreateBombSystem();
             ushort count = ushort.Parse(row[1]);
             bombs.SetSharedBombCounter(count);
             bombs.SetSharedCooldown(ushort.Parse(row[2]));

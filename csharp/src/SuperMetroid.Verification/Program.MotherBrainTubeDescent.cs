@@ -8,7 +8,7 @@ internal static partial class Program
     private static int VerifyMotherBrainTubeDescent()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var installation = runtimeFixtureInstallation.Value;
+        var installation = RepositoryInstallation.Installation;
         var enemies = new RoomEnemySystem { MotherBrainRoomColors = installation.LoadMaps().MotherBrainRoomColors };
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
         var state = new MotherBrainEnemyState(enemies.Slots[0]) { Head = enemies.Slots[1] };

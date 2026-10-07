@@ -11,7 +11,7 @@ internal static class GateGlitchRoomAudit
     public static int InspectRetailRoom(string rom, ushort roomPointer)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -48,7 +48,7 @@ internal static class GateGlitchRoomAudit
     public static int SweepRightFacingRetailGate(string rom, ushort roomPointer)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -101,8 +101,8 @@ internal static class GateGlitchRoomAudit
                 plms.Step(bus, level, streamer, (ushort)cameraX, (ushort)cameraY, 0);
             plms.TakeDownwardGateProjectileRequests();
 
-            var shots = new SamusProjectileSystem();
-            var bombs = new SamusBombProjectileSystem();
+            var shots = RepositoryInstallation.CreateProjectileSystem();
+            var bombs = RepositoryInstallation.CreateBombSystem();
             for (int frame = 0; frame < 30; frame++)
             {
                 ushort input = frame == 0 ? (ushort)SnesButton.X : (ushort)0;
@@ -148,7 +148,7 @@ internal static class GateGlitchRoomAudit
         for (int shootFrame = 0; shootFrame <= 20; shootFrame++)
         {
             attempts++;
-            var runtime = new SuperMetroidRuntime(bus);
+            var runtime = RepositoryInstallation.CreateRuntime(bus);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();
@@ -223,7 +223,7 @@ internal static class GateGlitchRoomAudit
     public static int WriteEastTunnelNativeSeed(string rom, string path)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -249,7 +249,7 @@ internal static class GateGlitchRoomAudit
     public static int RunJump(string rom, int shootFrame, int aimFrame = 0, bool releaseJump = false, bool releaseLeft = false)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -286,7 +286,7 @@ internal static class GateGlitchRoomAudit
         var actualRecords = new List<string>();
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         if (gateArgument.HasValue) bus = new GateVariantBus(bus, gateArgument.Value);
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -316,8 +316,8 @@ internal static class GateGlitchRoomAudit
                     runtime.ActiveRoom.AreaIndex, () => samus, () => false);
                 for (int warm = 0; warm < 2; warm++) plms.Step(bus, level, streamer, 0, 0, 0);
                 plms.TakeDownwardGateProjectileRequests();
-                var shots = new SamusProjectileSystem();
-                var bombs = new SamusBombProjectileSystem();
+                var shots = RepositoryInstallation.CreateProjectileSystem();
+                var bombs = RepositoryInstallation.CreateBombSystem();
                 for (int frame = 0; frame < 24; frame++)
                 {
                     ushort input = frame == 0 ? (ushort)SnesButton.X : (ushort)0;

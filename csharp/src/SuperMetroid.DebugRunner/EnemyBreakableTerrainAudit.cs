@@ -19,7 +19,7 @@ internal static class EnemyBreakableTerrainAudit
                      .GroupBy(row => (Bts: row[0], Full: row[1])))
         foreach (int direction in Enumerable.Range(0, 4))
         {
-            var assets = CartridgeRoomAssets.Load(bus, room);
+            var assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
             var level = assets.LevelData;
             int blockIndex = 5 * level.WidthInBlocks + 16;
             var plms = new RoomPlmSystem();
@@ -28,7 +28,7 @@ internal static class EnemyBreakableTerrainAudit
                     if (!plms.TrySpawnEnemyBreakableBlock(level, blockIndex)) throw new InvalidDataException("Fixture pool did not fill.");
             level.SetForegroundEntry(blockIndex, 0xa110);
             level.SetBehavior(blockIndex, (byte)group.Key.Bts);
-            var enemies = new RoomEnemySystem();
+            var enemies = RepositoryInstallation.CreateEnemySystem();
             enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer,
                 new SnesVram(), new SnesCgram(), () => 1);
             typeof(RoomEnemySystem).GetField("_collisionPlms", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(enemies, plms);

@@ -12,4 +12,5 @@
   <ItemGroup>
     <Compile Include="../../test-support/SaveMapPresentationFixture.cs" Link="SaveMapPresentationFixture.cs" />
   </ItemGroup>
+  <Import Project="../../test-support/RepositoryInstallation.projitems" />
 </Project>

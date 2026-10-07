@@ -18,8 +18,8 @@ internal static class IceContactAudit
         {
             string[] row = line.Split(',');
             bus.IceVulnerability = byte.Parse(row[1]);
-            var projectiles = new SamusProjectileSystem();
-            var shared = new SamusBombProjectileSystem();
+            var projectiles = RepositoryInstallation.CreateProjectileSystem();
+            var shared = RepositoryInstallation.CreateBombSystem();
             var samus = new SamusState { XPosition = 128, YPosition = 128,
                 Pose = SamusPoseIds.FacingRightNormalPose,
                 EquippedBeams = 0x1002, PowerBombs = 2, SelectedHudItem = 3 };
@@ -32,7 +32,7 @@ internal static class IceContactAudit
             var slot = projectiles.Slots[0];
             slot.XPosition = slot.YPosition = 128;
             projectiles.RunProjectileInstructionHandler(bus, slot);
-            var enemies = new RoomEnemySystem();
+            var enemies = RepositoryInstallation.CreateEnemySystem();
             enemies.Load(bus, 0xf000, 0, new SnesVram(), new SnesCgram(), () => 1);
             var enemy = enemies.Slots[0];
             enemy.EnemyDefinitionPointer = 0xf000;

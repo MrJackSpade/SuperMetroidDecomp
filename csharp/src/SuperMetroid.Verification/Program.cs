@@ -504,7 +504,7 @@ if (args is ["--morph-ball-pickup-collision"])
     Suite(nameof(VerifyMorphBallPickupCollision), () => VerifyMorphBallPickupCollision());
     return 0;
 }
-if (args is ["--save-load-rng-fixture"]) { return SaveLoadRandomAudit.Run(Path.GetFullPath("Super Metroid.smc"), retailGameFixtureBindings.Value); }
+if (args is ["--save-load-rng-fixture"]) { return SaveLoadRandomAudit.Run(Path.GetFullPath("Super Metroid.smc"), RepositoryInstallation.BindGame); }
 if (args is ["--frontend-fixtures"]) { VerifyIntroPoseHistory(); VerifyFrontendRenderCapture(); VerifyGameplayCaptureIntegration(); VerifyAttractCapture(); return 0; }
 if (args is ["--menu-fixtures"]) { VerifyFileMenuRenderSnapshots(); VerifyFileMapSnapshots(); VerifyControllerBindingsAndOptionsSubmenus(); VerifyMessageSnapshots(); VerifyGameplayMessageDefinitions(); return 0; }
 if (args is ["--cinematic-fixtures"]) { VerifyCinematicRenderSnapshots(); VerifyEndingRenderSnapshots(); VerifyEndingCreditsState(); return 0; }
@@ -4430,7 +4430,7 @@ if (args is ["--lookup-palette-algorithms"])
 }
 if (args is ["--gunship-landing-compositions"])
 {
-    string gunshipInstallation = runtimeFixtureInstallation.Value.Root;
+    string gunshipInstallation = RepositoryInstallation.Installation.Root;
     using var gunshipOutput = new TestTempDirectory("map-catalog");
     Suite(nameof(VerifyExtractedGunshipCompositions), () => VerifyExtractedGunshipCompositions(gunshipInstallation, RepositoryRomPath, gunshipOutput.Root));
     Suite(nameof(VerifyGunshipLandingCompositions), () => VerifyGunshipLandingCompositions(gunshipInstallation));
@@ -4438,13 +4438,13 @@ if (args is ["--gunship-landing-compositions"])
 }
 if (args is ["--ceres-save-startup"])
 {
-    string ceresSaveInstallation = runtimeFixtureInstallation.Value.Root;
+    string ceresSaveInstallation = RepositoryInstallation.Installation.Root;
     Suite(nameof(VerifyCeresSaveStartup), () => VerifyCeresSaveStartup(ceresSaveInstallation));
     return 0;
 }
 if (args is ["--ceres-engine-palette-binding"])
 {
-    string ceresPaletteInstallation = runtimeFixtureInstallation.Value.Root;
+    string ceresPaletteInstallation = RepositoryInstallation.Installation.Root;
     Suite(nameof(VerifyCeresEnginePaletteBinding), () => VerifyCeresEnginePaletteBinding(ceresPaletteInstallation));
     return 0;
 }
@@ -4463,7 +4463,7 @@ if (args is ["--room-content-identity"])
 }
 if (args is ["--projectile-file-contracts"])
 {
-    string projectileInstallation = runtimeFixtureInstallation.Value.Root;
+    string projectileInstallation = RepositoryInstallation.Installation.Root;
     Suite(nameof(VerifyProjectileFileContracts), () => VerifyProjectileFileContracts(projectileInstallation));
     return 0;
 }
@@ -4542,7 +4542,7 @@ if (args is ["--tilemap-json-contracts"])
 }
 if (args is ["--room-asset-json-contracts"])
 {
-    string roomAssetRoot = runtimeFixtureInstallation.Value.Root;
+    string roomAssetRoot = RepositoryInstallation.Installation.Root;
     Suite(nameof(VerifyRoomAssetJsonContracts), () => VerifyRoomAssetJsonContracts(roomAssetRoot));
     return 0;
 }
@@ -6263,7 +6263,7 @@ if (args is ["--pcm-loop-entry"])
 }
 if (args is ["--audio-bank-transition"])
 {
-    string audioDirectory = runtimeFixtureInstallation.Value.AudioDirectory;
+    string audioDirectory = RepositoryInstallation.Installation.AudioDirectory;
     Suite(nameof(VerifyAudioBankTransition), () => VerifyAudioBankTransition(audioDirectory));
     return 0;
 }
@@ -6483,12 +6483,12 @@ if (args is ["--golden-torizo-rom-free"])
 }
 if (args is ["--rom-free-startup"])
 {
-    Suite(nameof(VerifyFrontendRomFreeStartup), () => VerifyFrontendRomFreeStartup(runtimeFixtureInstallation.Value, RepositoryRomPath));
+    Suite(nameof(VerifyFrontendRomFreeStartup), () => VerifyFrontendRomFreeStartup(RepositoryInstallation.Installation, RepositoryRomPath));
     return 0;
 }
 if (args is ["--rom-free-room-census"])
 {
-    Suite(nameof(VerifyFrontendRomFreeStartup), () => VerifyFrontendRomFreeStartup(runtimeFixtureInstallation.Value, RepositoryRomPath, roomCensus: true));
+    Suite(nameof(VerifyFrontendRomFreeStartup), () => VerifyFrontendRomFreeStartup(RepositoryInstallation.Installation, RepositoryRomPath, roomCensus: true));
     return 0;
 }
 if (args is ["--rom-free-direct-room"])
@@ -7235,7 +7235,7 @@ if (args.Length == 1)
 }
 
 Suite(nameof(VerifyRandomNumberGeneratorExhaustively), () => VerifyRandomNumberGeneratorExhaustively());
-SaveLoadRandomAudit.Run(Path.GetFullPath("Super Metroid.smc"), retailGameFixtureBindings.Value);
+SaveLoadRandomAudit.Run(Path.GetFullPath("Super Metroid.smc"), RepositoryInstallation.BindGame);
         VerifySandAnimatedTiles();
         VerifyQuicksand();
         VerifyTreadmillPhysics();

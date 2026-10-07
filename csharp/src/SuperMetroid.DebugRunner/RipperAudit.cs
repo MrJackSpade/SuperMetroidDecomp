@@ -28,7 +28,7 @@ internal static class RipperAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RipperRoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         ushort populationPointer = RipperPopulationPointer;
 
         VerifyInitializationAndBothDirections(bus, room, assets, populationPointer);
@@ -180,8 +180,8 @@ internal static class RipperAudit
         LoadedRippers loaded = LoadPair(bus, room, assets, populationPointer);
         RoomEnemySlot actor = loaded.Enemies.Slots[0];
         StepCentered(loaded, room, assets, actor);
-        var projectiles = new SamusProjectileSystem();
-        var sharedProjectiles = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var sharedProjectiles = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(projectiles.Slots[0], actor, weapon.Type, weapon.Damage);
         byte vulnerability = ReadVulnerability(bus, actor.Definition, weapon.Type);
         var beforeDeath = EnemyDeathAuditAssertions.Capture(loaded.Enemies, actor);
@@ -311,7 +311,7 @@ internal static class RipperAudit
         samus.RefreshCollisionRadii(pairBus);
         samus.InitializeAnimation(pairBus);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             pairBus,
             PopulationSelectionAddressSpace.PopulationPointer,

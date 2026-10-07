@@ -24,7 +24,7 @@ internal static class FlashElevatorEntryAudit
             var samus = new SamusState { Pose = row[1] == "1" ? SamusPoseIds.FacingRightNormalPose : SamusPoseIds.FacingLeftNormalPose,
                 XPosition = 136, YPosition = 235, Health = 49, MaxHealth = 99, Missiles = 10, SuperMissiles = 10, PowerBombs = 10 };
             samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
-            var enemies = new RoomEnemySystem();
+            var enemies = RepositoryInstallation.CreateEnemySystem();
             enemies.Load(bus, PopulationSelectionAddressSpace.PopulationPointer, PopulationSelectionAddressSpace.TilesetPointer,
                 new SnesVram(), new SnesCgram(), () => 0, samus: samus);
             if (row[2] == "1") enemies.PublishElevatorDoorContact();

@@ -22,7 +22,7 @@ internal static class SparkPlayerRecordingAudit
         {
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
             recording.InitialSaveRam.CopyTo(bus.SaveRam);
-            var game = new SuperMetroidGame(bus, recording.GameOptions, renderGameplayFrames: false);
+            var game = RepositoryInstallation.CreateGame(bus, recording.GameOptions, renderGameplayFrames: false);
             var ports = new byte[4];
             var launches = new List<(int Frame, ShinesparkPhase Phase)>();
             bool launched = false, completed = false, movedBothAxes = false;

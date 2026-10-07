@@ -13,7 +13,7 @@ internal static class WavePhantoonAudit
             throw new InvalidDataException("Use the accepted wave-phantoon-418-v1 capture.");
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xcd13);
-        var assets = CartridgeRoomAssets.Load(bus, room);
+        var assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         RoomEnemySystem enemies = null!;
         SamusProjectileSystem projectiles = null!;
         SamusBombProjectileSystem shared = null!;
@@ -27,8 +27,8 @@ internal static class WavePhantoonAudit
                 samus = new SamusState { XPosition = 128, YPosition = 128,
                     Pose = SamusPoseIds.FacingRightNormalPose,
                     EquippedBeams = 0x1001, PowerBombs = 2, SelectedHudItem = 3 };
-                projectiles = new SamusProjectileSystem();
-                shared = new SamusBombProjectileSystem();
+                projectiles = RepositoryInstallation.CreateProjectileSystem();
+                shared = RepositoryInstallation.CreateBombSystem();
                 if (!projectiles.TryActivateCombo(bus, samus, shared, out _))
                     throw new InvalidDataException("Fixture must activate Wave Shield.");
                 for (int i = 0; i < 4; i++)
@@ -38,7 +38,7 @@ internal static class WavePhantoonAudit
                         (int.Parse(row[0]) & (1 << i)) != 0 ? (ushort)128 : (ushort)1024;
                     projectiles.RunProjectileInstructionHandler(bus, particle);
                 }
-                enemies = new RoomEnemySystem();
+                enemies = RepositoryInstallation.CreateEnemySystem();
                 enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer,
                     new SnesVram(), new SnesCgram(), () => 1, level: assets.LevelData,
                     samus: samus, isAreaBossDefeated: () => false);

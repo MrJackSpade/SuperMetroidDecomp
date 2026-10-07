@@ -17,8 +17,8 @@ internal static partial class ShaktoolAudit
             var group = GetGroup(enemies);
             var victim = group[endpoint];
             ushort deathX = victim.XPosition, deathY = victim.YPosition;
-            var shots = new SamusProjectileSystem();
-            var bombs = new SamusBombProjectileSystem();
+            var shots = RepositoryInstallation.CreateProjectileSystem();
+            var bombs = RepositoryInstallation.CreateBombSystem();
             int hits;
             if (useBomb)
             {
@@ -84,8 +84,8 @@ internal static partial class ShaktoolAudit
         enemies.StepFrame(0, 0, false, samus, level: assets.LevelData);
         var group = GetGroup(enemies);
         ushort[] before = group.Select(s => s.FrameCounter).ToArray();
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         var shot = shots.Slots[0];
         shot.Type = 0;
         shot.Damage = 1000;

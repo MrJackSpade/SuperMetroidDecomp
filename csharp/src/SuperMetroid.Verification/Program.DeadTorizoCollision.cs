@@ -7,7 +7,7 @@ internal static partial class Program
     private static int VerifyDeadTorizoCollision()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var installation = runtimeFixtureInstallation.Value;
+        var installation = RepositoryInstallation.Installation;
         foreach (string trigger in new[] { "contact", "shot", "power bomb", "solid collision delay" })
         {
             var enemies = new RoomEnemySystem { TileArtwork = installation.LoadEnemyTiles() };

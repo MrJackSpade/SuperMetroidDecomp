@@ -6,9 +6,9 @@ internal static class AreaMapClosedContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.AreaMapPresentationCatalog", "map-atomic-seven-areas-and-owned-uploads", ["Get", "Resolve"],
-            [new("csharp/src/SuperMetroid.Core/Assets/AreaMapPresentationCatalog.cs", "057212F5C89C8C6C72D0294C8CF4AC47189ED5FCFE50965A23E10D25430DA031"),
+            [new("csharp/src/SuperMetroid.Core/Assets/AreaMapPresentationCatalog.cs", "3A545A12A9C4D10180579BB5A080D4FFE911BD65BBE7FFA7EFEC97976329A398"),
              new("csharp/src/SuperMetroid.Core/Game/AreaId.cs", "6B88F8EE1B5ED42848833924AD9B5844B632D174C964D73E78D8E3774922E834"),
-             new("csharp/src/SuperMetroid.Core/Assets/AreaMapPresentationAsset.cs", "EE93C8816BEB13B34190D76915AD7C118DBBE6A2684867DFE2EBED01D4F49116"),
+             new("csharp/src/SuperMetroid.Core/Assets/AreaMapPresentationAsset.cs", "C0EE04CDE0B62C1BA9DCAD29D4FF292429D0F2BA069FD862ABAC889A7361BBCC"),
              new("csharp/src/SuperMetroid.Core/Assets/AreaMapStockRules.cs", "1DD2CCD2C5DDC040198093F3C0921512EAA12E87DE06D4A27E51151D233E8762"),
              new("csharp/src/SuperMetroid.Core/Assets/HudTileAtlas.cs", "CF458EE39ACC8CB91CCC5C98D909A3E62DD5A09BD8F6FBEEF51BEE8C9664489A"),
              new("csharp/src/SuperMetroid.Core/Assets/MapTileAtlas.cs", "77C73DABEFEF89B1C47928C2138A40410D6C8852BC2CB526F0AA9F6A068F93C8"),

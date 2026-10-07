@@ -19,6 +19,5 @@ red-versus-blue regression independent of the random stream.
 From the repository root:
 
 ```
-dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --compare csharp/test-fixtures/issue-321-tile-byte-selection/frame.smframe --device hardware
-dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --compare csharp/test-fixtures/issue-321-tile-byte-selection/frame.smframe --device warp
+dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --frame-fixtures
 ```

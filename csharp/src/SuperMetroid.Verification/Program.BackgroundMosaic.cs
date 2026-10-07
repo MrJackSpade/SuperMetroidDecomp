@@ -21,10 +21,13 @@ internal static partial class Program
         var fields = typeof(OrdinaryGameplayRegisters).GetFields(System.Reflection.BindingFlags.Instance |
             System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic)
             .OrderBy(field => field.MetadataToken).ToArray();
-        foreach (int legacyCount in new[] { 11, 13, 15 })
+        string[] mosaicField = ["<Bg2Mosaic>k__BackingField"];
+        string[] windows = ["<Windows>k__BackingField", "<MainScreenWindowMask>k__BackingField"];
+        string[] scanlines = ["<Bg2FirstScanline>k__BackingField", "<Bg2EndScanline>k__BackingField"];
+        foreach (string[] omitted in new[] { mosaicField, [.. mosaicField, .. windows], [.. mosaicField, .. windows, .. scanlines] })
         {
-            var migrated = SuperMetroid.Desktop.DebuggerStateFieldMigrations.SelectSerializedFields(typeof(OrdinaryGameplayRegisters), fields, legacyCount);
-            AssertEqual(legacyCount, migrated.Length, "historical gameplay field count remains supported");
+            var migrated = SuperMetroid.Desktop.DebuggerStateFieldMigrations.WithoutIntroductions(typeof(OrdinaryGameplayRegisters), fields, omitted);
+            AssertEqual(fields.Length - omitted.Length, migrated.Length, "historical gameplay register layout remains supported");
             AssertTrue(migrated.All(field => field.Name != "<Bg2Mosaic>k__BackingField"), "older registers do not invent mosaic history");
         }
         foreach (int size in Enumerable.Range(1, 16))

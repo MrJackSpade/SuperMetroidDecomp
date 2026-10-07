@@ -65,7 +65,8 @@ internal static partial class Program
         string[] historicalFields = ["<Triggered>k__BackingField", "<UseCompiledRetailProgram>k__BackingField", "<Program>k__BackingField"];
         foreach (int legacyCount in new[] { 1, 2, 3 })
         {
-            FieldInfo[] legacy = DebuggerStateFieldMigrations.SelectSerializedFields(scrollType, fields, legacyCount);
+            FieldInfo[] legacy = DebuggerStateFieldMigrations.WithoutIntroductions(scrollType, fields,
+                fields.Select(field => field.Name).Where(name => !historicalFields.Take(legacyCount).Contains(name)).ToArray());
             AssertEqual(legacyCount, legacy.Length, "historical scroll state schema remains readable");
             AssertTrue(legacy.Select(field => field.Name).SequenceEqual(historicalFields.Take(legacyCount)),
                 "historical scroll fields retain their serialized order and decoded pairs when present");

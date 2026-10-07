@@ -21,7 +21,7 @@ internal static class MaridiaLargeSnailAudit
     {
         SuperMetroidAddressSpace retailBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(retailBus, RoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(retailBus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(retailBus, room, RepositoryInstallation.RoomAssets);
         if (room.State.Pointer != ExpectedStatePointer ||
             room.State.EnemyPopulationPointer != ExpectedPopulationPointer)
         {
@@ -214,8 +214,8 @@ internal static class MaridiaLargeSnailAudit
         LoadedRoom loaded = LoadRoom(retailBus, room, assets);
         RoomEnemySlot slot = loaded.Enemies.Slots[0];
         loaded.Enemies.StepFrame(CameraX, CameraY, false, loaded.Samus, level: assets.LevelData);
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         int hits = FindAnyProjectileHit(
             retailBus,
             loaded,
@@ -239,7 +239,7 @@ internal static class MaridiaLargeSnailAudit
         {
             for (int xOffset = -28; xOffset <= 28 && !handledShot; xOffset += 2)
             {
-                shots = new SamusProjectileSystem();
+                shots = RepositoryInstallation.CreateProjectileSystem();
                 ArmBeam(
                     shots.Slots[0],
                     unchecked((ushort)(slot.XPosition + xOffset)),
@@ -271,14 +271,14 @@ internal static class MaridiaLargeSnailAudit
         {
             for (int xOffset = -28; xOffset <= 28 && !handledBomb; xOffset += 2)
             {
-                bombs = new SamusBombProjectileSystem();
+                bombs = RepositoryInstallation.CreateBombSystem();
                 ArmNormalBomb(
                     bombs.Slots[0],
                     unchecked((ushort)(slot.XPosition + xOffset)),
                     unchecked((ushort)(slot.YPosition + yOffset)));
                 int bombHits = loaded.Enemies.ResolveOrdinaryBombHits(
                     bombs,
-                    new SamusProjectileSystem(),
+                    RepositoryInstallation.CreateProjectileSystem(),
                     loaded.Samus);
                 handledBomb = bombHits == 1 &&
                     loaded.Enemies.LastMaridiaLargeSnailSoundEffect == 0x0057;
@@ -320,7 +320,7 @@ internal static class MaridiaLargeSnailAudit
         };
         samus.RefreshCollisionRadii(retailBus);
         samus.InitializeAnimation(retailBus);
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             prefixBus,
             room.State.EnemyPopulationPointer,
@@ -385,7 +385,7 @@ internal static class MaridiaLargeSnailAudit
         {
             for (int xOffset = -28; xOffset <= 28; xOffset += 2)
             {
-                shots = new SamusProjectileSystem();
+                shots = RepositoryInstallation.CreateProjectileSystem();
                 ArmBeam(
                     shots.Slots[0],
                     unchecked((ushort)(slot.XPosition + xOffset)),

@@ -21,7 +21,7 @@ internal static class YardQuakeNativeAudit
             var population = new PopulationSelectionAddressSpace(bus,
                 [new RoomEnemyPopulationRecord(RoomEnemySystem.YardDefinition, 128, 128, 0,
                     (ushort)EnemyProperties.ProcessOffScreen, 0, 0, 0)]);
-            var enemies = new RoomEnemySystem();
+            var enemies = RepositoryInstallation.CreateEnemySystem();
             enemies.Load(population, PopulationSelectionAddressSpace.PopulationPointer,
                 PopulationSelectionAddressSpace.TilesetPointer, new SnesVram(), new SnesCgram(), () => 1);
             var level = new RoomLevelData(16, 32, new ushort[512], new byte[512], new ushort[512], []);

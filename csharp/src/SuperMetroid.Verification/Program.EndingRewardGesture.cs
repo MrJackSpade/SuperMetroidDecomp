@@ -14,7 +14,7 @@ internal static partial class Program
         Suite(nameof(VerifyEndingCloudMotion), () => VerifyEndingCloudMotion());
         var uploadBus = new EndingRewardUploadDefinitionReadGuard(bus);
         var graphicsUpload = new EndingRewardGraphicsUpload(uploadBus,
-            runtimeFixtureInstallation.Value.LoadEndingMode7Art().RewardIcon);
+            RepositoryInstallation.Installation.LoadEndingMode7Art().RewardIcon);
         var graphicsVram = new SnesVram();
         byte[] expectedGraphics = RomDataReader.Decompress(bus,
             EndingCreditsRomData.Assets.PostCreditsMode7Characters,
@@ -46,7 +46,7 @@ internal static partial class Program
             () => EndingRewardGraphicsUploadDefinitions.DestinationWord(-1),
             "reward icon destination rejects a negative transfer");
         var rewardBus = new EndingRewardDefinitionReadGuard(bus);
-        EndingRewardSpritePresentation rewardSprites = runtimeFixtureInstallation.Value.LoadEndingObjectArt().RewardSprites;
+        EndingRewardSpritePresentation rewardSprites = RepositoryInstallation.Installation.LoadEndingObjectArt().RewardSprites;
         foreach (EndingReward reward in Enum.GetValues<EndingReward>())
         {
             var gesture = new EndingRewardGesture(rewardBus, reward);

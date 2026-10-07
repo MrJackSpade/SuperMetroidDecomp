@@ -638,8 +638,7 @@ public sealed partial class SuperMetroidRuntime
         // unsupported definition. Build the read-only asset graph before consuming the
         // source room's pending door so such a failure remains retryable instead of leaving
         // state $0B with no destination on the following frame.
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(_addressSpace, room,
-            RoomCharacterArt, RoomPaletteArt, RoomMetatileArt, RoomVisualLayouts);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(_addressSpace, room, RequireRoomAssetCatalogs());
         CartridgeDoorHeader consumedDoor = sourceLevel.ConsumePendingDoorTransition()
             ?? throw new InvalidOperationException(
                 "Pending door disappeared while its destination assets were prepared.");
@@ -791,8 +790,8 @@ public sealed partial class SuperMetroidRuntime
             _ => throw new ArgumentOutOfRangeException(
                 nameof(viewportLoadMode), viewportLoadMode, "Unknown room viewport load mode."),
         };
-        CartridgeRoomAssets assets = preloadedAssets ?? CartridgeRoomAssets.Load(_addressSpace,
-            room, RoomCharacterArt, RoomPaletteArt, RoomMetatileArt, RoomVisualLayouts);
+        CartridgeRoomAssets assets = preloadedAssets ??
+            CartridgeRoomAssets.Load(_addressSpace, room, RequireRoomAssetCatalogs());
 
         ActiveDoor = door;
         ActiveRoom = room;
@@ -1551,6 +1550,14 @@ public sealed partial class SuperMetroidRuntime
 
         throw new InvalidOperationException("No cartridge room header is active.");
     }
+
+    /// <summary>The host-bound room catalogs; room loading never substitutes cartridge artwork.</summary>
+    private RoomAssetCatalogs RequireRoomAssetCatalogs() =>
+        RoomCharacterArt is { } characters && RoomPaletteArt is { } palettes &&
+        RoomMetatileArt is { } metatiles && RoomVisualLayouts is { } layouts
+            ? new RoomAssetCatalogs(characters, palettes, metatiles, layouts)
+            : throw new InvalidOperationException(
+                "Room loading requires installed character, palette, metatile, and visual-layout assets.");
 }
 
 /// <summary>Room-header fields shared by camera tracking and minimap publication.</summary>

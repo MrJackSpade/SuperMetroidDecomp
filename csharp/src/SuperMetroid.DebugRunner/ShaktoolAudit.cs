@@ -19,7 +19,7 @@ internal static partial class ShaktoolAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         if (room.State.Pointer != StatePointer ||
             room.State.EnemyPopulationPointer != PopulationPointer)
         {
@@ -172,7 +172,7 @@ internal static partial class ShaktoolAudit
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
 
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -330,8 +330,8 @@ internal static partial class ShaktoolAudit
         SamusState samus,
         RoomEnemySlot[] group)
     {
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         SamusProjectileSlot shot = shots.Slots[0];
         shot.ClearFields();
         shot.Type = 0;
@@ -367,8 +367,8 @@ internal static partial class ShaktoolAudit
         RoomEnemySystem enemies = CreateEncounter(bus, room, assets, out SamusState samus);
         RoomEnemySlot[] group = GetGroup(enemies);
         enemies.StepFrame(0, 0, false, samus, level: assets.LevelData);
-        var bombs = new SamusBombProjectileSystem();
-        var shots = new SamusProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
         SamusBombProjectileSlot bomb =
             EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
                 bombs,

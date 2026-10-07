@@ -28,7 +28,7 @@ calculated percentiles together.
 ## Full-history visible Debug qualification
 
 `desktop-visible-soak-debug.json` records commit `119198f`, using
-`--soak-desktop-visible 300` on the interactive RDP desktop with an RTX 3090.
+`--soak-desktop-visible` on the interactive RDP desktop with an RTX 3090.
 Gameplay and Maridia pause each ran for 300 seconds with isolated saves and muted
 real waveOut output. Simulation reached 59.995/59.992 FPS; producer p95 was
 0.9083/0.7065 ms, p99 1.0461/0.7862 ms, and maximum 2.447/1.349 ms.
@@ -101,7 +101,7 @@ checks pass. These runs do not measure host presentation or native audio queues.
 ## Five-minute hidden-HWND paced run
 
 ```powershell
-dotnet run --project csharp/src/SuperMetroid.DesktopVerification -c Release -- --soak-hidden 300
+dotnet run --project csharp/src/SuperMetroid.DesktopVerification -c Release -- --soak-hidden
 ```
 
 `hidden-soak-release.json` records 300 seconds per scene, 18,000 simulation frames
@@ -123,7 +123,7 @@ coverage, whole-run GPU timing, or cross-backend state/PCM parity requirements.
 ## Five-minute production desktop timer run (hidden HWND)
 
 ```powershell
-dotnet run --project csharp/src/SuperMetroid.DesktopVerification -c Release -- --soak-desktop-hidden 300
+dotnet run --project csharp/src/SuperMetroid.DesktopVerification -c Release -- --soak-desktop-hidden
 ```
 
 `desktop-timer-soak-release.json` exercises the actual PlayableGameControl timer,
@@ -147,7 +147,7 @@ these results alone.
 ## Five-minute Debug production timer run (hidden HWND)
 
 `desktop-timer-soak-debug.json` records the Debug run of commit `59b500d`, using
-`--soak-desktop-hidden 300`. Gameplay/pause reached 59.993/59.994 simulation FPS.
+`--soak-desktop-hidden`. Gameplay/pause reached 59.993/59.994 simulation FPS.
 Producer p95 was 0.9000/0.7327 ms, p99 1.0302/0.8011 ms, with zero native-empty-
 before-refill observations. Native occupancy stayed between four and six buffers;
 managed queues contained six/three frames at the endpoint. Both CPU workloads
@@ -186,15 +186,8 @@ The five-second instrumentation smoke had zero over-deadline producer frames and
 zero discarded wall-clock frames in both scenes; it does not establish long-run
 memory stability. Existing committed reports predate these additional fields.
 
-```powershell
-dotnet run --project csharp/src/SuperMetroid.DesktopVerification -c Release -- --soak-desktop-visible 300
-```
-
-This opens a nonactivating window for each of the same two scenes, with isolated
-state files and muted real audio output. Keep it unobscured; do not interact with
-the controller during measurement. It requires at least one successful Present
-per scene and records adapter, OS/runtime and CPU identity in the report. Successful
-Present calls still do not measure frames delivered to an RDP client.
+The interactive `--soak-desktop-visible` soak was removed in #1272: verification
+suites never open desktop windows. The hidden soaks above cover the same scenes.
 
 `desktop-visible-soak-release.json` preserves the September 7 Release run on the
 interactive RDP desktop: 300 seconds and 17,999 simulation frames per scene.

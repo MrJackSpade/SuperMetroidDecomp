@@ -43,7 +43,7 @@ All names have the `SuperMetroid.` prefix.
 | **EnsureAnalyzer** | Build-time domain-assertion analyzer. Development tooling, not a playable-host dependency. |
 | **EnsureVerification** | Focused contracts for the domain-assertion analyzer. |
 | **Verification** | Broad core regressions, synthetic and private-ROM checks. Its default run still requires private ROM/map fixtures; it is not the ROM-free release check. |
-| **IntegrationVerification** | Portable session/state/import verification, legacy compatibility and diagnostic commands. `--asset-import` alone is ROM-free; append ROM and optional reference audio for full installation checks. Default session tests require private ROM/audio. |
+| **IntegrationVerification** | Portable session/state/import verification, legacy compatibility and diagnostic commands. `--asset-import` is ROM-free; `--asset-import-rom` adds full installation checks from the repository ROM and `standalone-assets/audio`. Every command reads repository inputs only; file-taking export, replay and installation tools live in DebugRunner. |
 | **RenderVerification** | Hardware/WARP pixel comparisons, render-worker and swapchain tests, performance and audio/simulation consistency under GPU stalls. Runs independently of the WinForms lifecycle suite. |
 | **DesktopVerification** | Windows STA/HWND lifecycle, input/audio smoke audits, state/resize/shutdown tests and timer soaks. Verifies actual production assemblies without shipping test code in the player. |
 

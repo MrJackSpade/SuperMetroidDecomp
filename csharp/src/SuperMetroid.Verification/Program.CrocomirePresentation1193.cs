@@ -15,7 +15,7 @@ internal static partial class Program
     private static int VerifyCrocomirePresentation(bool spikes)
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
-        var installation = runtimeFixtureInstallation.Value;
+        var installation = RepositoryInstallation.Installation;
         var bus=installation.OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(bus);
         var maps = installation.LoadMaps();
@@ -233,7 +233,7 @@ internal static partial class Program
         }
         var fields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [typeof(SuperMetroidRuntime)])!;
-        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SuperMetroidRuntime), fields, fields.Length - 1)
+        AssertTrue(LegacyLayout(typeof(SuperMetroidRuntime), fields, fields.Where(field => field.Name != "_roomSpikes"))
             .SequenceEqual(fields.Where(field => field.Name != "_roomSpikes")),
             "Legacy runtime layout omits only the new spike owner");
         typeof(SuperMetroidRuntime).GetField("_roomSpikes", BindingFlags.Instance | BindingFlags.NonPublic)!

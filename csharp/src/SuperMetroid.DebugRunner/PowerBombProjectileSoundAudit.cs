@@ -56,7 +56,7 @@ internal static class PowerBombProjectileSoundAudit
             runtime.Hud.UpdateGameplayCounters(bus, samus);
             // Seed an already-selected weapon, not an unconsumed selection request.
             runtime.Hud.UpdateGameplayCounters(bus, samus);
-            var game = new SuperMetroidGame(bus, null, renderGameplayFrames: false);
+            var game = RepositoryInstallation.CreateGame(bus, null, renderGameplayFrames: false);
             const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
             typeof(SuperMetroidGame).GetField("runtime", fields)!.SetValue(game, runtime);
             typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", fields)!

@@ -30,7 +30,7 @@ internal static class WarehouseSaveExitAudit
 
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(fullRomPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
-        var game = new SuperMetroidGame(bus, recording.GameOptions);
+        var game = RepositoryInstallation.CreateGame(bus, recording.GameOptions);
         var apuPortEchoes = new byte[4];
         bool sawSourceRoom = false;
         bool sawReportedDoor = false;

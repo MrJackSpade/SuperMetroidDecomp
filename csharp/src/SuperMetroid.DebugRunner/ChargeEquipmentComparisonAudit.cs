@@ -58,7 +58,7 @@ internal static class ChargeEquipmentComparisonAudit
                 // Use the production page transition and input dispatcher, not a
                 // write to equipment state. The CPU side runs initial selection and
                 // equipment-main with the same Right/Down/A navigation sequence.
-                var menu = new PauseMenuState(bus, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0);
+                var menu = RepositoryInstallation.CreatePause(bus, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0);
                 for (int tick = 0; tick < 40; tick++) menu.Step((ushort)SnesButton.R, 0);
                 foreach (SnesButton key in new SnesButton[] { SnesButton.Right, 0, SnesButton.Down, 0, SnesButton.A, 0 })
                     menu.Step(0, (ushort)key, (ushort)key);

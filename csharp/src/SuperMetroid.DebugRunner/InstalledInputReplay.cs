@@ -69,58 +69,6 @@ internal static class InstalledInputReplay
 
     // Match the current host's presentation bindings without opening a UI, installing
     // assets, loading disk saves or writing a new input recording.
-    internal static void Bind(SuperMetroidGame game, GameInstallation installation)
-    {
-        game.BindMapPresentation(installation.LoadMaps());
-        game.BindGameplayBasePalettes(installation.LoadGameplayBasePalettes());
-        game.BindStandardObjectArt(installation.LoadStandardObjects());
-        game.BindIntroCinematicArt(installation.LoadIntroCinematicArt());
-        game.BindSamusBodyArt(installation.LoadSamusBodyArt());
-        game.BindEndingMode7Art(installation.LoadEndingMode7Art());
-        game.BindEndingObjectArt(installation.LoadEndingObjectArt());
-        game.BindEndingPaletteArt(installation.LoadEndingPalettes());
-        game.BindRoomCharacterArt(installation.LoadRoomCharacters());
-        game.BindRoomPaletteArt(installation.LoadRoomPalettes());
-        game.BindRoomMetatileArt(installation.LoadRoomMetatiles());
-        game.BindRoomVisualLayouts(installation.LoadRoomVisualLayouts());
-        game.BindRoomPlmShotBlockVisuals(installation.LoadRoomPlmShotBlockVisuals());
-        game.BindRoomPlmGrappleBlockVisuals(installation.LoadRoomPlmGrappleBlockVisuals());
-        game.BindRoomPlmStationVisuals(installation.LoadRoomPlmStationVisuals());
-        game.BindRoomPlmBlueDoorVisuals(installation.LoadRoomPlmBlueDoorVisuals());
-        game.BindRoomPlmColoredDoorVisuals(installation.LoadRoomPlmColoredDoorVisuals());
-        game.BindRoomPlmGreyDoorVisuals(installation.LoadRoomPlmGreyDoorVisuals());
-        game.BindRoomPlmEyeDoorVisuals(installation.LoadRoomPlmEyeDoorVisuals());
-        game.BindRoomPlmMotherBrainGlassVisuals(installation.LoadRoomPlmMotherBrainGlassVisuals());
-        game.BindRoomPlmNoobTubeVisuals(installation.LoadRoomPlmNoobTubeVisuals());
-        game.BindRoomPlmDownwardGateVisuals(installation.LoadRoomPlmDownwardGateVisuals());
-        game.BindRoomPlmElevatorPlatformVisuals(installation.LoadRoomPlmElevatorPlatformVisuals());
-        game.BindRoomPlmEscapeGateVisuals(installation.LoadRoomPlmEscapeGateVisuals());
-        game.BindRoomPlmBombTorizoHandVisuals(installation.LoadRoomPlmBombTorizoHandVisuals());
-        game.BindRoomPlmDraygonCannonVisuals(installation.LoadRoomPlmDraygonCannonVisuals());
-        game.BindRoomPlmChozoStatueVisuals(installation.LoadRoomPlmChozoStatueVisuals());
-        game.BindRoomPlmLinkedRestoreVisuals(installation.LoadRoomPlmLinkedRestoreVisuals());
-        game.BindRoomPlmTourianAccessVisuals(installation.LoadRoomPlmTourianAccessVisuals());
-        game.BindRoomPlmSpeedBoosterVisuals(installation.LoadRoomPlmSpeedBoosterVisuals());
-        game.BindRoomPlmMaridiaElevatubeVisuals(installation.LoadRoomPlmMaridiaElevatubeVisuals());
-        game.BindRoomPlmSporeSpawnCeilingVisuals(installation.LoadRoomPlmSporeSpawnCeilingVisuals());
-        game.BindRoomPlmSamusEaterVisuals(installation.LoadRoomPlmSamusEaterVisuals());
-        game.BindRoomPlmBotwoonWallVisuals(installation.LoadRoomPlmBotwoonWallVisuals());
-        game.BindRoomPlmKraidVisuals(installation.LoadRoomPlmKraidVisuals());
-        game.BindRoomPlmCrocomireVisuals(installation.LoadRoomPlmCrocomireVisuals());
-        game.BindRoomPlmMotherBrainFakeDeathVisuals(installation.LoadRoomPlmMotherBrainFakeDeathVisuals());
-        game.BindRoomPlmCollectibleVisuals(installation.LoadRoomPlmCollectibleVisuals());
-        game.BindRoomPlmDynamicCollectibleArt(installation.LoadRoomPlmDynamicCollectibleArt());
-        game.BindXrayRevealVisuals(installation.LoadXrayRevealVisuals());
-        game.BindRoomBackgroundTilemapArt(installation.LoadRoomBackgroundTilemaps());
-        game.BindRoomSkyTilemapArt(installation.LoadRoomSkyTilemaps());
-        var projectiles = installation.LoadProjectiles();
-        game.BindProjectileCompositions(projectiles.Catalog);
-        game.BindProjectileFrameBindings(projectiles.FrameBindings);
-        game.BindBeamArtwork(projectiles.BeamTiles);
-        game.BindTrailArtwork(projectiles.Trails);
-        game.BindChargeFlarePlacement(projectiles.FlarePlacement);
-        game.BindChargeFlareCompositions(projectiles.FlareCompositions);
-        game.BindGrappleArtwork(projectiles.GrappleTiles);
-        game.BindEnemyTileArtwork(installation.LoadEnemyTiles());
-    }
+    internal static void Bind(SuperMetroidGame game, GameInstallation installation) =>
+        InstalledGameBindings.Create(installation)(game);
 }

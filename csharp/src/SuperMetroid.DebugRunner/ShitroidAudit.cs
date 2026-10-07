@@ -34,7 +34,7 @@ internal static class ShitroidAudit
         {
             State = SuperMetroid.AssetExtraction.CartridgeRoomStateImporter.Load(bus, StatePointer),
         };
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         VerifyPopulationAndHeaders(bus, room);
 
         // Contact while palette stage is below eight is the only damaging sidehopper path.
@@ -666,7 +666,7 @@ internal static class ShitroidAudit
         samus.InitializeAnimation(bus);
         var random = new Bank80SystemState();
         var scrollBytes = new byte[Math.Max(4, room.WidthInScreens * room.HeightInScreens)];
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         enemies.Load(
@@ -708,8 +708,8 @@ internal static class ShitroidAudit
         return new LoadedShitroidEncounter(
             enemies,
             samus,
-            new SamusProjectileSystem(),
-            new SamusBombProjectileSystem(),
+            RepositoryInstallation.CreateProjectileSystem(),
+            RepositoryInstallation.CreateBombSystem(),
             vram,
             new VramWriteQueue(),
             scrollBytes);

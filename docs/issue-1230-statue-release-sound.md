@@ -9,7 +9,7 @@ Reference: pinned InsaneFirebat NTSC J/U 1.0 disassembly revision 362be646929cf8
 The focused frontend fixture loads the actual statue room, spawns its native eye-glow effect, and runs 130 frames with the audio renderer and real acknowledgements. Before: zero requests/zero sends. After: one library-2 $19 Max6 request and one port write, both at frame 110; no duplicate in the remaining tail. Release build passes.
 
 ```powershell
-dotnet csharp/src/SuperMetroid.DebugRunner/bin/Release/net10.0/SuperMetroid.DebugRunner.dll --statue-release-sound-audit 'C:/Users/Service Account/AppData/Local/SuperMetroid'
+dotnet csharp/src/SuperMetroid.DebugRunner/bin/Release/net10.0-windows/SuperMetroid.DebugRunner.dll --statue-release-sound-audit 'C:/Users/Service Account/AppData/Local/SuperMetroid'
 ```
 
 The reporter did not identify the specific missing cue. This restores a confirmed omission in that room; audible player confirmation remains pending.

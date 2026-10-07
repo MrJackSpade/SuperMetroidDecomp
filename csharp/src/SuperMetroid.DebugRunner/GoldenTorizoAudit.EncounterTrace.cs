@@ -13,7 +13,7 @@ internal static partial class GoldenTorizoAudit
             .Skip(1).Select(line => line.Split(',')).ToArray();
         if (native is not null && native.Length != 3000)
             throw new InvalidDataException("Expected 3000 original-CPU encounter frames.");
-        var runtime = new SuperMetroidRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom));
+        var runtime = RepositoryInstallation.CreateRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom));
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();

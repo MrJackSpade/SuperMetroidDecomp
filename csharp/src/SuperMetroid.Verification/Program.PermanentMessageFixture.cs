@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static GameplayMessageBoxState CreatePermanentMessageFixture()
     {
-        string directory = runtimeFixtureInstallation.Value.MapDirectory;
+        string directory = RepositoryInstallation.Installation.MapDirectory;
         JsonNode Read(string name) => JsonNode.Parse(File.ReadAllText(Path.Combine(directory, name)))!;
         static JsonObject Cell(int word) => new() { ["raw"] = word };
         static void SetBorder(JsonNode document)

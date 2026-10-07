@@ -43,7 +43,7 @@ internal static class DachoraAudit
         VerifyRetailPopulation(bus);
 
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, DachoraRoomHeader);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         if (room.State.Pointer != DachoraRoomState ||
             room.State.EnemyPopulationPointer != DachoraPopulation)
         {
@@ -335,8 +335,8 @@ internal static class DachoraAudit
             throw new InvalidDataException("Dachora's no-touch callback damaged Samus.");
         }
 
-        var projectiles = new SamusProjectileSystem();
-        var sharedProjectiles = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var sharedProjectiles = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(projectiles.Slots[0], body);
         int shots = loaded.Enemies.ResolveOrdinaryProjectileHits(
             bus,
@@ -385,7 +385,7 @@ internal static class DachoraAudit
         samus.Kinematics.YSubacceleration = ReadWord(bus, 0x909ea1);
         samus.Kinematics.YAcceleration = ReadWord(bus, 0x909ea7);
 
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             prefixBus,
             FirstDachoraRecord,

@@ -14,7 +14,7 @@ internal static class GrappleDemoTrace
             {
                 if (scene.InputObject is not (AttractDemoRomData.InputObjects.GrappleBeam or
                     AttractDemoRomData.InputObjects.AdvancedGrappleBeam)) continue;
-                var runtime = new SuperMetroidRuntime(bus);
+                var runtime = RepositoryInstallation.CreateRuntime(bus);
                 runtime.InitializeAttractDemo(scene);
                 // This independent interpreter only exposes the exact input words for the
                 // trace; runtime still executes its own normal attract-input handoff.

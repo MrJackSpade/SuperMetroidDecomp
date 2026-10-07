@@ -18,7 +18,7 @@ internal static class DraygonCombatAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
@@ -35,7 +35,7 @@ internal static class DraygonCombatAudit
         samus.InitializeAnimation(bus);
 
         bool bossBitSet = false;
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -94,8 +94,8 @@ internal static class DraygonCombatAudit
         // its authored eye rectangle must therefore dispatch body callback $95F0 exactly
         // once: vulnerability byte $80 deals no HP damage, while the private prelude still
         // increases future swoop acceleration by eight.
-        var normalBombs = new SamusBombProjectileSystem();
-        var normalBombOrdinaryShots = new SamusProjectileSystem();
+        var normalBombs = RepositoryInstallation.CreateBombSystem();
+        var normalBombOrdinaryShots = RepositoryInstallation.CreateProjectileSystem();
         SamusBombProjectileSlot normalBomb =
             EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
                 normalBombs,
@@ -159,8 +159,8 @@ internal static class DraygonCombatAudit
         bool sawWhiteBgPalette = false;
         bool sawWhiteSpritePalette = false;
 
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         SamusProjectileSlot projectile = shots.Slots[0];
 
         shellXOffset = state.FacingRight ? (short)24 : (short)-24;

@@ -25,7 +25,7 @@ internal static partial class BombTorizoAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         VerifyRetailStructures(bus, room);
         VerifyHitboxBoundaries(bus, room, assets);
         VerifyEncounter(bus, room, assets);
@@ -207,8 +207,8 @@ internal static partial class BombTorizoAudit
         EnemyContactAuditAssertions.VerifyStandingAirHit(
             bus, loaded.Samus, beforeTouch, damage: 8, expectedSide: 1, "Bomb Torizo body contact");
 
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(shots.Slots[0], loaded.Head, type: 0x0200, damage: 4000);
         int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs, loaded.Samus);
         if (hits != 1 || loaded.Head.Health != 0 || !loaded.State.DeathStarted ||
@@ -284,7 +284,7 @@ internal static partial class BombTorizoAudit
                 bus,
                 loaded.Enemies,
                 loaded.Samus,
-                new SamusBombProjectileSystem(),
+                RepositoryInstallation.CreateBombSystem(),
                 assets.LevelData,
                 projectile,
                 CameraX,
@@ -303,8 +303,8 @@ internal static partial class BombTorizoAudit
         ushort shotResponse = EnemyProjectileAuditAssertions.VerifyNaturalDestructibleSamusShot(
             bus,
             shotLoaded.Enemies,
-            new SamusProjectileSystem(),
-            new SamusBombProjectileSystem(),
+            RepositoryInstallation.CreateProjectileSystem(),
+            RepositoryInstallation.CreateBombSystem(),
             orb);
         var responseMaps = new HashSet<ushort>();
         for (int frame = 0; frame < 128 && orb.IsActive; frame++)
@@ -457,8 +457,8 @@ internal static partial class BombTorizoAudit
         loaded.State.ShotGuard = 0;
         ushort healthBefore = loaded.Head.Health;
         ushort parameter2Before = loaded.Head.Parameter2;
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(shots.Slots[0], loaded.Head, type: 0x8200, damage: 300);
         shots.Slots[0].XPosition = shotX;
         shots.Slots[0].YPosition = shotY;
@@ -520,8 +520,8 @@ internal static partial class BombTorizoAudit
 
         loaded.Head.FlashTimer = 0;
         loaded.State.ShotGuard = 0;
-        var bombs = new SamusBombProjectileSystem();
-        var shots = new SamusProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
         SamusBombProjectileSlot bomb =
             EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
                 bombs,
@@ -576,7 +576,7 @@ internal static partial class BombTorizoAudit
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
 
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,

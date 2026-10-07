@@ -19,8 +19,8 @@ internal static class RetailLoadAppearanceTests
             save.MapStationBytes[4] = 1; save.UsedSaveStationBytes[8] = 1;
             new SuperMetroidSaveRam(bus, SaveMapPresentationFixture.Create(bus)).SaveSlot(0, save);
         }
-        var legacy = new SuperMetroidGame(left);
-        var captured = new SuperMetroidGame(right);
+        var legacy = RepositoryInstallation.CreateGame(left);
+        var captured = RepositoryInstallation.CreateGame(right);
         bool sawMap = false, sawAppearance = false, completed = false;
         int samples = 0;
         for (int tick = 0; tick < 2400; tick++)

@@ -64,6 +64,14 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
         return new(cells, rules);
     }
 
+    /// <summary>Applies other exploration rules to these already-validated, never-mutated cells.</summary>
+    internal AreaMapPresentationAsset WithRules(IAreaMapView rules)
+    {
+        ArgumentNullException.ThrowIfNull(rules);
+        if (rules.Area != Area) throw new ArgumentException($"Rules for {rules.Area} cannot apply to the {Area} map.", nameof(rules));
+        return new(cells, rules);
+    }
+
     public MapTileWord GetTile(int x, int y) => cells[Index(x, y)];
     public bool IsDiscoverable(int x, int y) => discoverable[Index(x, y)];
     public bool IsRevealedByMapStation(int x, int y) => station[Index(x, y)];

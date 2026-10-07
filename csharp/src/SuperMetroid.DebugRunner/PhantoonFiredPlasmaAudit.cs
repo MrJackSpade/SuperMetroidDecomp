@@ -31,7 +31,7 @@ internal static class PhantoonFiredPlasmaAudit
             .Where(row => row[0] == release && row[1] == (scope ? 1 : 0) && row[2] == (plasma ? 1 : 0) && row[3] >= 0)
             .ToDictionary(row => row[3]);
         int compared = 0;
-        var runtime = new SuperMetroidRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom));
+        var runtime = RepositoryInstallation.CreateRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom));
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();

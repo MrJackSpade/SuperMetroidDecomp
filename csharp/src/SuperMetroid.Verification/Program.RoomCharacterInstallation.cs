@@ -112,7 +112,7 @@ internal static partial class Program
                 ghostTransfer.ListPointer, activeDoorPointer: 0);
             var installedGhostVram = new SnesVram();
             LibraryBackgroundLoader.Execute(bus, installedGhostVram, ghostTransfer.ListPointer,
-                activeDoorPointer: 0, characterArt: stock, tilemapArt: runtimeFixtureInstallation.Value.LoadRoomBackgroundTilemaps());
+                activeDoorPointer: 0, characterArt: stock, tilemapArt: RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps());
             AssertTrue(nativeGhostVram.Bytes.SequenceEqual(installedGhostVram.Bytes),
                 "installed statue-ghost PNG matches the complete native library upload");
             int ghostTileCount = nativeGhost.Length / RoomCharacterAtlasFormat.BytesPerTile;
@@ -129,7 +129,7 @@ internal static partial class Program
             RoomCharacterAtlasCatalog editedGhost = installed.LoadRoomCharacters();
             var editedGhostVram = new SnesVram();
             LibraryBackgroundLoader.Execute(bus, editedGhostVram, ghostTransfer.ListPointer,
-                activeDoorPointer: 0, characterArt: editedGhost, tilemapArt: runtimeFixtureInstallation.Value.LoadRoomBackgroundTilemaps());
+                activeDoorPointer: 0, characterArt: editedGhost, tilemapArt: RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps());
             int ghostDestinationByte = ghostTransfer.VramDestination.Value * 2;
             AssertTrue(nativeGhostVram.ReadByte(ghostDestinationByte) !=
                     editedGhostVram.ReadByte(ghostDestinationByte) &&

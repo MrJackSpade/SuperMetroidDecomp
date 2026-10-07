@@ -71,7 +71,7 @@ static void VerifyCeresDestructionCinematic()
                 .ToArray().Select(value => (int)value).ToArray()).ToArray(),
         });
     var artwork = IntroCinematicArtworkFiles.Load(
-        runtimeFixtureInstallation.Value.IntroCinematicDirectory, overrideRoot);
+        RepositoryInstallation.Installation.IntroCinematicDirectory, overrideRoot);
     var presentation = RetailPresentationFixture();
     var state = new CeresDestructionCinematicState(fixtureBus,
         fixedColors: presentation.PowerBombFixedColors, artwork: artwork,

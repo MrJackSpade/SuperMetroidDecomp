@@ -27,7 +27,7 @@ internal static partial class Program
                 $"Torizo landing-dust mechanics word $86:{definition.Address:X4}");
         }
 
-        var spriteArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles().ProjectileSpritemaps
+        var spriteArtwork = RepositoryInstallation.Installation.LoadEnemyTiles().ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = new TorizoLandingDustInstructionReadGuard(rom);

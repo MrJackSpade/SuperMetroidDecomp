@@ -13,7 +13,7 @@ internal static class ClimbMissileAudioAudit
     public static int Run(string romPath, string? audioDirectory = null, string? nativeDll = null)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -41,7 +41,7 @@ internal static class ClimbMissileAudioAudit
         runtime.Camera!.SetPosition(256, 128);
         // Enter the actual frontend collection/NMI path without replaying the title.
         // Echoed acknowledgements isolate CPU queue delivery, not SPC audibility.
-        var game = new SuperMetroidGame(bus, gameOptions: null, renderGameplayFrames: false);
+        var game = RepositoryInstallation.CreateGame(bus, gameOptions: null, renderGameplayFrames: false);
         typeof(SuperMetroidGame).GetField("runtime", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime);
         typeof(SuperMetroidGame).GetProperty(nameof(game.GameState))!.SetValue(game, SuperMetroidGameState.MainGameplay);
         byte[] acknowledgements = new byte[4];

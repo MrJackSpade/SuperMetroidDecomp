@@ -324,7 +324,7 @@ internal static class RetailCollectibleAudit
         int selectionCount = 0;
         foreach (SamusState profile in profiles)
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = RepositoryInstallation.CreateEnemySystem();
             enemies.Load(
                 bus,
                 emptyPopulation.Value,
@@ -392,7 +392,7 @@ internal static class RetailCollectibleAudit
                 MaxSuperMissiles = 5,
                 MaxPowerBombs = 5,
             };
-            var enemies = new RoomEnemySystem();
+            var enemies = RepositoryInstallation.CreateEnemySystem();
             enemies.Load(
                 bus,
                 emptyPopulation,

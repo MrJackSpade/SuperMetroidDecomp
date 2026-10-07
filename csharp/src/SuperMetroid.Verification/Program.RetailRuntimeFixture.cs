@@ -7,49 +7,10 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
-    private static readonly Lazy<GameInstallation> runtimeFixtureInstallation = new(() =>
-    {
-        string root = Path.GetFullPath("csharp/test-temp/verification-installed-content");
-        return GameAssetInstaller.EnsureInstalled(root) ??
-            GameAssetInstaller.Install(Path.GetFullPath("Super Metroid.smc"), root);
-    });
+    private static SamusProjectileSystem CreateProjectileFixture() => RepositoryInstallation.CreateProjectileSystem();
 
-    private static readonly Lazy<InstalledProjectilePresentation> projectileFixtureArt =
-        new(() => runtimeFixtureInstallation.Value.LoadProjectiles());
-
-    private static SamusProjectileSystem CreateProjectileFixture() =>
-        new() { FrameBindings = projectileFixtureArt.Value.FrameBindings };
-
-    private static SamusBombProjectileSystem CreateBombFixture() =>
-        new() { FrameBindings = projectileFixtureArt.Value.FrameBindings, PowerBombExplosion = { PresentationColors = RetailPresentationFixture().PowerBombFixedColors } };
-    private static readonly Lazy<Action<SamusState>> samusFixtureBindings = new(() =>
-    {
-        var maps = RetailPresentationFixture();
-        var body = runtimeFixtureInstallation.Value.LoadSamusBodyArt();
-        var grapple = projectileFixtureArt.Value.GrappleTiles;
-        return samus =>
-        {
-            samus.SuitColors = maps.SamusSuitColors;
-            samus.FullBodyCycleColors = maps.SamusFullBodyCycleColors;
-            samus.ChargeColors = maps.SamusChargeColors;
-            samus.VisorPalette.PresentationColors = maps.SamusVisorColors;
-            samus.Xray.PresentationColors = maps.SamusVisorColors;
-            samus.Drained.PresentationColors = maps.SamusHyperBeamColors;
-            samus.TileTransfers.BindArtwork(body);
-            samus.ArmCannon.Artwork = body.ArmCannon;
-            samus.Grapple.FlarePlacement = grapple.FlarePlacement;
-            samus.Grapple.SwingFrames = grapple.SwingFrames;
-        };
-    });
-
-    private static SamusState PrepareRetailSamusFixture(SamusState samus)
-    {
-        samusFixtureBindings.Value(samus);
-        return samus;
-    }
-    private static readonly Lazy<Action<SuperMetroidRuntime>> runtimeFixtureBindings =
-        new(() => InstalledRuntimeBindings.Create(runtimeFixtureInstallation.Value));
-
+    private static SamusBombProjectileSystem CreateBombFixture() => RepositoryInstallation.CreateBombSystem();
+    private static SamusState PrepareRetailSamusFixture(SamusState samus) => RepositoryInstallation.BindSamus(samus);
     // Tests using retail gameplay must supply the host's installed presentation
     // contract explicitly. Each fixture retains its own bus and mutable runtime.
     private static SuperMetroidRuntime CreateRetailRuntimeFixture(
@@ -57,24 +18,17 @@ internal static partial class Program
         bool playerInvincibilityEnabled = false,
         bool infiniteAmmoEnabled = false,
         MapRevealMode mapRevealMode = MapRevealMode.None,
-        bool preventEscapeTimeout = false)
-    {
-        var runtime = new SuperMetroidRuntime(addressSpace, playerInvincibilityEnabled,
-            infiniteAmmoEnabled, mapRevealMode, preventEscapeTimeout,
-            runtimeFixtureInstallation.Value.LoadGameplayBasePalettes());
-        runtimeFixtureBindings.Value(runtime);
-        return runtime;
-    }
+        bool preventEscapeTimeout = false) =>
+        RepositoryInstallation.CreateRuntime(addressSpace, playerInvincibilityEnabled,
+            infiniteAmmoEnabled, mapRevealMode, preventEscapeTimeout);
 
-    private static readonly Lazy<EnemyTileArtworkCatalog> fixtureEnemyTileArtwork = new(() => runtimeFixtureInstallation.Value.LoadEnemyTiles());
+    /// <summary>Binds the shared installation's runtime catalogs to a restored or bare runtime.</summary>
+    private static void BindRetailRuntimeFixture(SuperMetroidRuntime runtime) =>
+        RepositoryInstallation.BindRuntime(runtime);
+
 
     /// <summary>The shared installation's stock enemy artwork, loaded once per process.</summary>
-    private static EnemyTileArtworkCatalog FixtureEnemyTileArtwork() => fixtureEnemyTileArtwork.Value;
-
-    private static readonly Lazy<RoomCharacterAtlasCatalog> fixtureRoomCharacters = new(() => runtimeFixtureInstallation.Value.LoadRoomCharacters());
-    private static readonly Lazy<RoomStaticPaletteCatalog> fixtureRoomPalettes = new(() => runtimeFixtureInstallation.Value.LoadRoomPalettes());
-    private static readonly Lazy<RoomMetatileCatalog> fixtureRoomMetatiles = new(() => runtimeFixtureInstallation.Value.LoadRoomMetatiles());
-    private static readonly Lazy<RoomVisualLayoutCatalog> fixtureRoomVisualLayouts = new(() => runtimeFixtureInstallation.Value.LoadRoomVisualLayouts());
+    private static EnemyTileArtworkCatalog FixtureEnemyTileArtwork() => RepositoryInstallation.EnemyTiles;
 
     /// <summary>
     /// Loads a room's asset graph with the shared installation's stock catalogs, replacing only the
@@ -83,7 +37,11 @@ internal static partial class Program
     private static CartridgeRoomAssets LoadFixtureRoomAssets(ISnesAddressSpace bus, CartridgeRoomHeader room,
         RoomCharacterAtlasCatalog? characterArt = null, RoomStaticPaletteCatalog? paletteArt = null,
         RoomMetatileCatalog? metatileArt = null, RoomVisualLayoutCatalog? visualLayouts = null) =>
-        CartridgeRoomAssets.Load(bus, room, characterArt ?? fixtureRoomCharacters.Value,
-            paletteArt ?? fixtureRoomPalettes.Value, metatileArt ?? fixtureRoomMetatiles.Value,
-            visualLayouts ?? fixtureRoomVisualLayouts.Value);
+        CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets with
+        {
+            Characters = characterArt ?? RepositoryInstallation.RoomAssets.Characters,
+            Palettes = paletteArt ?? RepositoryInstallation.RoomAssets.Palettes,
+            Metatiles = metatileArt ?? RepositoryInstallation.RoomAssets.Metatiles,
+            VisualLayouts = visualLayouts ?? RepositoryInstallation.RoomAssets.VisualLayouts,
+        });
 }

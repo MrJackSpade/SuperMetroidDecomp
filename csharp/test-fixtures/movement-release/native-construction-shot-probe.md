@@ -64,7 +64,7 @@ bounded CPU fails to stderr/nonzero exit on instruction-budget exhaustion.
 The existing guarded DebugRunner replays the private preserved recording:
 
 ```powershell
-dotnet csharp/src/SuperMetroid.DebugRunner/bin/Release/net10.0/SuperMetroid.DebugRunner.dll --installed-input-replay RECORDING INSTALLATION 59330 59895 trace.csv
+dotnet csharp/src/SuperMetroid.DebugRunner/bin/Release/net10.0-windows/SuperMetroid.DebugRunner.dll --installed-input-replay RECORDING INSTALLATION 59330 59895 trace.csv
 ```
 
 Private recording, screenshots, full terrain details, native output and isolated

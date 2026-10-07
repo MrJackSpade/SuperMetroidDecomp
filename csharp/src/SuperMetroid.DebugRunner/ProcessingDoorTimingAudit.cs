@@ -345,7 +345,7 @@ internal static class ProcessingDoorTimingAudit
         foreach (RoomEnemySlot enemy in runtime.Enemies.Slots)
             enemy.Clear();
 
-        var game = new SuperMetroidGame(bus, null, renderGameplayFrames: false);
+        var game = RepositoryInstallation.CreateGame(bus, null, renderGameplayFrames: false);
         typeof(SuperMetroidGame).GetField("runtime", PrivateInstance)!.SetValue(game, runtime);
         typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", PrivateInstance)!
             .SetValue(game, (ushort?)runtime.ActiveRoom!.State.Pointer);

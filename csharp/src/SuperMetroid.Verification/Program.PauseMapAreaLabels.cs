@@ -81,7 +81,7 @@ internal static partial class Program
             AssertTrue(beforeRestore.AsSpan().SequenceEqual(pause.Render()), "restoring preserves destination-label fade priority");
             var fields = typeof(PauseMenuState).GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
                 .Where(field => !field.IsDefined(typeof(NonSerializedAttribute))).OrderBy(field => field.Name, StringComparer.Ordinal).ToArray();
-            AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(PauseMenuState), fields, fields.Length - 1)
+            AssertTrue(LegacyLayout(typeof(PauseMenuState), fields, fields.Where(field => field.Name != "mapLabelsBeforeIcons"))
                 .SequenceEqual(fields.Where(field => field.Name != "mapLabelsBeforeIcons")), "prior pause layout retains serialized field mapping");
             pause.Step((ushort)SnesButton.R, 0); _ = pause.Render();
             AssertLabels(Get<OamBuffer>("oam").LastFinalizedSpriteCount * 4 - labelBytes, "R input stable-map dispatch");

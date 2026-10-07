@@ -1,6 +1,6 @@
 param([string]$RepositoryRoot = (Resolve-Path "$PSScriptRoot/../../..").Path)
 $ErrorActionPreference = 'Stop'
-$runner = Join-Path $RepositoryRoot 'csharp/src/SuperMetroid.DebugRunner/bin/Release/net10.0/SuperMetroid.DebugRunner.dll'
+$runner = Join-Path $RepositoryRoot 'csharp/src/SuperMetroid.DebugRunner/bin/Release/net10.0-windows/SuperMetroid.DebugRunner.dll'
 $recording = Join-Path $RepositoryRoot 'input-recordings/SuperMetroid-input-20260905-174826-322.smrec'
 $rom = Join-Path $RepositoryRoot 'Super Metroid.smc'
 $output = Join-Path $RepositoryRoot ('csharp/test-temp/export-regression-' + [Guid]::NewGuid().ToString('N') + '.srm')

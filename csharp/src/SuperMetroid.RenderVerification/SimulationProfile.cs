@@ -40,7 +40,7 @@ internal static class SimulationProfile
 
     private static object Measure(ushort room, bool paused)
     {
-        var game = new SuperMetroidGame(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"),
+        var game = RepositoryInstallation.CreateGame(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"),
             new SuperMetroidGameOptions { SkipOpeningCinematic = true, Invincibility = true });
         using var audio = new SpcAudioEngine();
         using var publicationProfile = new RenderPublicationProfile();

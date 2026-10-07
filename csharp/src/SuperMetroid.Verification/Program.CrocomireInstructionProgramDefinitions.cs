@@ -32,7 +32,7 @@ internal static partial class Program
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             rom,
             CrocomireInstructionAuditRoom);
-        var installation = runtimeFixtureInstallation.Value;
+        var installation = RepositoryInstallation.Installation;
         CartridgeRoomAssets assets = LoadFixtureRoomAssets(rom, room,
             installation.LoadRoomCharacters(), installation.LoadRoomPalettes(),
             installation.LoadRoomMetatiles(), installation.LoadRoomVisualLayouts());

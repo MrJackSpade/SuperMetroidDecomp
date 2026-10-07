@@ -45,46 +45,40 @@ try
         }
         return;
     }
-    if (args is ["--installed-spores", var sporesRoot, var previousSporeRoot, var nativeSporeArt])
+    // Installed-content checks read the repository ROM's shared extracted installation. The
+    // spores check corrupts and restores stock files, so it runs on a private copy.
+    if (args is ["--installed-spores"])
     {
-        InstalledSporesTests.Run(sporesRoot, previousSporeRoot, nativeSporeArt);
+        using var copy = RepositoryInstallation.CreatePrivateCopy();
+        InstalledSporesTests.Run(copy.Root, Path.GetFullPath("Super Metroid.smc"), Path.GetFullPath("standalone-assets/raw"));
         return;
     }
-    if (args is ["--installed-power-bomb-isolation", var powerBombRoot])
+    if (args is ["--installed-power-bomb-isolation"])
     {
-        InstalledPowerBombIsolationTests.Run(powerBombRoot);
+        InstalledPowerBombIsolationTests.Run(RepositoryInstallation.Installation.Root);
         return;
     }
-    if (args is ["--installed-samus-file-contracts", var samusFileRoot])
+    if (args is ["--installed-samus-file-contracts"])
     {
-        InstalledSamusFileContractTests.Run(samusFileRoot);
+        InstalledSamusFileContractTests.Run(RepositoryInstallation.Installation.Root);
         return;
     }
-    if (args is ["--installed-samus-isolation", var samusInstallationRoot])
+    if (args is ["--installed-samus-isolation"])
     {
+        string samusInstallationRoot = RepositoryInstallation.Installation.Root;
         using var fixture = new InstalledSamusArtworkFixture(samusInstallationRoot, editLayout: true);
         InstalledSamusIsolationTests.Run(fixture, samusInstallationRoot);
         return;
     }
-    if (args is ["--installed-samus-artwork", var installationRoot])
+    if (args is ["--installed-samus-artwork"])
     {
-        using var fixture = new InstalledSamusArtworkFixture(installationRoot);
+        using var fixture = new InstalledSamusArtworkFixture(RepositoryInstallation.Installation.Root);
         foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())
         {
             using var device = new D3D11RenderDevice(kind);
             using var renderer = new D3D11FrameRenderer(device);
             InstalledSamusArtworkTests.Run(fixture, device, renderer);
         }
-        return;
-    }
-    if (args is ["--compare-sparse-sequence", var sparseDirectory])
-    {
-        SnapshotSequenceComparison.RunSparse(sparseDirectory);
-        return;
-    }
-    if (args is ["--compare-sequence", var directory])
-    {
-        SnapshotSequenceComparison.Run(directory);
         return;
     }
     if (args is ["--background-mosaic"])
@@ -145,37 +139,44 @@ try
         SimulationProfile.Run();
         return;
     }
-    if (args.Length == 4 && args[0] == "--compare" && args[2] == "--device")
+    // Every archived reported frame renders identically in software and on both D3D11 devices.
+    if (args is ["--frame-fixtures"])
     {
-        D3D11DeviceKind kind = args[3] switch {
-            "hardware" => D3D11DeviceKind.Hardware, "warp" => D3D11DeviceKind.Warp,
-            _ => throw new ArgumentException("Device must be hardware or warp.") };
-        var frame = RenderFrameSnapshotCodec.Deserialize(File.ReadAllBytes(args[1]));
-        using var device = new D3D11RenderDevice(kind);
-        using var renderer = new D3D11FrameRenderer(device);
-        PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
-            $"{kind}: {device.AdapterDescription}; {Path.GetFullPath(args[1])}");
-        Console.WriteLine($"Exact match: {kind}, {device.AdapterDescription}, {frame.Width}x{frame.Height}.");
+        string[] frames = Directory.GetFiles(Path.Combine("csharp", "test-fixtures"), "*.smframe", SearchOption.AllDirectories);
+        if (frames.Length == 0) throw new InvalidDataException("No archived .smframe fixtures were found.");
+        foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())
+        {
+            using var device = new D3D11RenderDevice(kind);
+            using var renderer = new D3D11FrameRenderer(device);
+            foreach (string path in frames)
+            {
+                var frame = RenderFrameSnapshotCodec.Deserialize(File.ReadAllBytes(path));
+                PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
+                    $"{kind}: {device.AdapterDescription}; {Path.GetFullPath(path)}");
+            }
+            Console.WriteLine($"Exact match: {kind}, {device.AdapterDescription}, {frames.Length} archived frames.");
+        }
         return;
     }
-    if (args.Length != 1 || args[0] is not ("--solid-smoke" or "--tile-smoke" or "--obj-smoke" or "--mode7-smoke" or "--window-smoke" or "--ordinary-smoke" or "--scene-window-smoke" or "--retail-frontend" or "--retail-intro" or "--retail-transitions" or "--display-smoke" or "--swapchain-smoke" or "--slow-consumer-audio"))
-        throw new ArgumentException("Usage: SuperMetroid.RenderVerification --solid-smoke | --tile-smoke | --obj-smoke | --mode7-smoke | --window-smoke | --ordinary-smoke | --scene-window-smoke | --retail-frontend | --retail-intro | --retail-transitions | --display-smoke | --swapchain-smoke | --slow-consumer-audio | --compare <frame.smframe> --device hardware|warp");
+    // No argument runs the device contract suite: shader failure, readback, solid compute and threading.
+    if (args.Length > 1 || args.Length == 1 && args[0] is not ("--solid-smoke" or "--tile-smoke" or "--obj-smoke" or "--mode7-smoke" or "--window-smoke" or "--ordinary-smoke" or "--scene-window-smoke" or "--retail-frontend" or "--retail-intro" or "--retail-transitions" or "--display-smoke" or "--swapchain-smoke" or "--slow-consumer-audio"))
+        throw new ArgumentException("Usage: SuperMetroid.RenderVerification [--solid-smoke | --tile-smoke | --obj-smoke | --mode7-smoke | --window-smoke | --ordinary-smoke | --scene-window-smoke | --retail-frontend | --retail-intro | --retail-transitions | --display-smoke | --swapchain-smoke | --slow-consumer-audio | --frame-fixtures]");
     foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())
     {
         using var device = new D3D11RenderDevice(kind);
         using var renderer = new D3D11FrameRenderer(device);
-        if (args[0] == "--slow-consumer-audio") { SwapchainTests.RunSlowConsumerAudio(device); continue; }
-        if (args[0] == "--swapchain-smoke") { SwapchainTests.Run(device, renderer); SwapchainTests.RunWorker(device); continue; }
-        if (args[0] == "--display-smoke") { DisplayPassTests.Run(device, renderer); continue; }
-        if (args[0] == "--retail-transitions") { RetailTransitionTests.Run(device, renderer); continue; }
-        if (args[0] == "--retail-intro") { RetailCinematicTests.Run(device, renderer); continue; }
-        if (args[0] == "--retail-frontend") { RetailFrontendTests.Run(device, renderer); continue; }
-        if (args[0] == "--scene-window-smoke") { WindowSceneSmokeTests.Run(device, renderer); continue; }
-        if (args[0] == "--ordinary-smoke") { OrdinarySmokeTests.Run(device, renderer); continue; }
-        if (args[0] == "--window-smoke") { ColorWindowSmokeTests.Run(device, renderer); continue; }
-        if (args[0] == "--mode7-smoke") { Mode7SmokeTests.Run(device, renderer); continue; }
-        if (args[0] == "--obj-smoke") { ObjectSmokeTests.Run(device, renderer); continue; }
-        if (args[0] == "--tile-smoke") { TileSmokeTests.Run(device, renderer); continue; }
+        if (args is ["--slow-consumer-audio"]) { SwapchainTests.RunSlowConsumerAudio(device); continue; }
+        if (args is ["--swapchain-smoke"]) { SwapchainTests.Run(device, renderer); SwapchainTests.RunWorker(device); continue; }
+        if (args is ["--display-smoke"]) { DisplayPassTests.Run(device, renderer); continue; }
+        if (args is ["--retail-transitions"]) { RetailTransitionTests.Run(device, renderer); continue; }
+        if (args is ["--retail-intro"]) { RetailCinematicTests.Run(device, renderer); continue; }
+        if (args is ["--retail-frontend"]) { RetailFrontendTests.Run(device, renderer); continue; }
+        if (args is ["--scene-window-smoke"]) { WindowSceneSmokeTests.Run(device, renderer); continue; }
+        if (args is ["--ordinary-smoke"]) { OrdinarySmokeTests.Run(device, renderer); continue; }
+        if (args is ["--window-smoke"]) { ColorWindowSmokeTests.Run(device, renderer); continue; }
+        if (args is ["--mode7-smoke"]) { Mode7SmokeTests.Run(device, renderer); continue; }
+        if (args is ["--obj-smoke"]) { ObjectSmokeTests.Run(device, renderer); continue; }
+        if (args is ["--tile-smoke"]) { TileSmokeTests.Run(device, renderer); continue; }
         bool rejected = false;
         ShaderFailureTests.Run(device);
         try { renderer.Readback(); } catch (InvalidOperationException) { rejected = true; }

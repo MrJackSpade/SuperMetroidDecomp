@@ -531,7 +531,7 @@ internal static partial class EarlyControllerRouteAudit
         SuperMetroidAddressSpace bus,
         string? captureDirectory)
     {
-        var game = new SuperMetroidGame(
+        var game = RepositoryInstallation.CreateGame(
             bus,
             new SuperMetroidGameOptions { SkipOpeningCinematic = true });
         FrontendFrame frame = FrontendAuditDriver.EnterSelectedSlot(game);
@@ -741,7 +741,7 @@ internal static partial class EarlyControllerRouteAudit
 
     private static SuperMetroidRuntime CreateInitializedRuntime(ISnesAddressSpace bus)
     {
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
         runtime.InitializeStartingCeresRoom();

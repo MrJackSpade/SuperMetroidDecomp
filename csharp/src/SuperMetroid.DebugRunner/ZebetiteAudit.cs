@@ -30,7 +30,7 @@ internal static class ZebetiteAudit
             throw new InvalidDataException("Use the accepted original-CPU double-kill trace.");
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, MotherBrainRoom);
-        var assets = CartridgeRoomAssets.Load(bus, room);
+        var assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         var rows = File.ReadLines(tracePath).Skip(1).Select(line => line.Split(',').Select(int.Parse).ToArray()).ToArray();
         if (rows.Length != 108 || rows.Any(row => row.Length != 9))
             throw new InvalidDataException("Incomplete double-kill CPU trace.");
@@ -42,17 +42,17 @@ internal static class ZebetiteAudit
             var primary = loaded.Enemies.Slots[0]; var secondary = loaded.Enemies.Slots[1];
             ushort camera = (ushort)(primary.XPosition - 128);
             primary.Health = secondary.Health = 100;
-            var shots = new SamusProjectileSystem();
+            var shots = RepositoryInstallation.CreateProjectileSystem();
             ArmProjectile(shots.Slots[0], secondary, type: 0x100, damage: 100);
-            loaded.Enemies.ResolveOrdinaryProjectileHits(bus, shots, new SamusBombProjectileSystem(), loaded.Samus);
+            loaded.Enemies.ResolveOrdinaryProjectileHits(bus, shots, RepositoryInstallation.CreateBombSystem(), loaded.Samus);
             for (int frame = 0; frame < 12; frame++)
             {
                 if (frame == 8) camera = (ushort)(primary.XPosition - 128);
                 if (frame == delay && secondary.EnemyDefinitionPointer == ZebetiteDefinition)
                 {
-                    shots = new SamusProjectileSystem();
+                    shots = RepositoryInstallation.CreateProjectileSystem();
                     ArmProjectile(shots.Slots[0], secondary, type: 0, damage: 20);
-                    loaded.Enemies.ResolveOrdinaryProjectileHits(bus, shots, new SamusBombProjectileSystem(), loaded.Samus);
+                    loaded.Enemies.ResolveOrdinaryProjectileHits(bus, shots, RepositoryInstallation.CreateBombSystem(), loaded.Samus);
                 }
                 loaded.Enemies.StepFrame(camera, 0, false, loaded.Samus, level: assets.LevelData);
                 int events = (loaded.System.HasEvent(EventNumber.ZebetiteDestroyedBit0) ? 8 : 0) |
@@ -75,7 +75,7 @@ internal static class ZebetiteAudit
             throw new InvalidDataException("Use the accepted original-CPU ten-missile trace.");
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, MotherBrainRoom);
-        var assets = CartridgeRoomAssets.Load(bus, room);
+        var assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         var rows = File.ReadLines(tracePath).Skip(1).Select(line => line.Split(',').Select(int.Parse).ToArray()).ToArray();
         if (rows.Length != 2968 || rows.Any(row => row.Length != 7))
             throw new InvalidDataException("Incomplete ten-missile CPU trace.");
@@ -98,9 +98,9 @@ internal static class ZebetiteAudit
                     var determine = typeof(RoomEnemySystem).GetMethod("DetermineWhichEnemiesToProcess",
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
                     determine.Invoke(loaded.Enemies, [camera, (ushort)0]);
-                    var shots = new SamusProjectileSystem();
+                    var shots = RepositoryInstallation.CreateProjectileSystem();
                     ArmProjectile(shots.Slots[0], primary, type: 0x100, damage: 100);
-                    loaded.Enemies.ResolveOrdinaryProjectileHits(bus, shots, new SamusBombProjectileSystem(), loaded.Samus);
+                    loaded.Enemies.ResolveOrdinaryProjectileHits(bus, shots, RepositoryInstallation.CreateBombSystem(), loaded.Samus);
                 }
                 loaded.Enemies.StepFrame(frame >= 200 || frame % 20 < exposure ? camera : offCamera,
                     0, false, loaded.Samus, level: assets.LevelData);
@@ -120,7 +120,7 @@ internal static class ZebetiteAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, MotherBrainRoom);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
 
         VerifyDefinitionAndPopulation(bus, room);
         VerifyRetailCameraBounds(bus, room, assets);
@@ -173,10 +173,10 @@ internal static class ZebetiteAudit
             loaded.Samus.XPosition = loaded.Samus.YPosition = 3000;
             var primary = loaded.Enemies.Slots[0];
             var secondary = loaded.Enemies.Slots[1];
-            var shots = new SamusProjectileSystem();
+            var shots = RepositoryInstallation.CreateProjectileSystem();
             ArmProjectile(shots.Slots[0], primary, type: 0x100, damage: 100);
             loaded.Enemies.ResolveOrdinaryProjectileHits(bus, shots,
-                new SamusBombProjectileSystem(), loaded.Samus);
+                RepositoryInstallation.CreateBombSystem(), loaded.Samus);
             for (int frame = 0; frame < 20; frame++)
             {
                 loaded.Enemies.StepFrame(frame < visible ? (ushort)(primary.XPosition - 128) : (ushort)0,
@@ -224,10 +224,10 @@ internal static class ZebetiteAudit
         main.Invoke(loaded.Enemies, [primary, RequireState(loaded.Enemies, primary)]);
         if (primary.Health != 1000 || RequireState(loaded.Enemies, primary).Generation != 2 || secondary.Health != 0)
             throw new InvalidDataException("Zebetite linked-half native respawn boundary differs.");
-        var shots = new SamusProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
         ArmProjectile(shots.Slots[0], secondary, type: 0, damage: 20);
         int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(bus, shots,
-            new SamusBombProjectileSystem(), loaded.Samus);
+            RepositoryInstallation.CreateBombSystem(), loaded.Samus);
         if (hits != 1 || primary.Health != 0 || secondary.Health != 0 || primary.FlashTimer != 0 || secondary.FlashTimer != 0)
             throw new InvalidDataException($"Native linked-half follow-up killed respawn; C# hits={hits}, health={primary.Health}/{secondary.Health}, flash={primary.FlashTimer}/{secondary.FlashTimer}.");
     }
@@ -428,8 +428,8 @@ internal static class ZebetiteAudit
         // observing two actors that began with the same definition health.
         primary.Health = 500;
         linked.Health = 777;
-        var projectiles = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(projectiles.Slots[0], primary, type: 0x0100, damage: 20);
         int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(
             bus,
@@ -452,11 +452,11 @@ internal static class ZebetiteAudit
         primary.Health = 500;
         linked.Health = 733;
         linked.FlashTimer = 0;
-        bombs = new SamusBombProjectileSystem();
+        bombs = RepositoryInstallation.CreateBombSystem();
         ArmNormalBomb(bombs.Slots[0], primary);
         hits = loaded.Enemies.ResolveOrdinaryBombHits(
             bombs,
-            new SamusProjectileSystem(),
+            RepositoryInstallation.CreateProjectileSystem(),
             loaded.Samus);
         if (hits != 1 || (bombs.Slots[0].Direction & 0x0010) == 0 ||
             linked.Health != primary.Health || linked.FlashTimer != primary.FlashTimer ||
@@ -589,7 +589,7 @@ internal static class ZebetiteAudit
         };
         samus.RefreshCollisionRadii(prefixBus);
         samus.InitializeAnimation(prefixBus);
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             prefixBus,
             ZebetitePopulationRecord,

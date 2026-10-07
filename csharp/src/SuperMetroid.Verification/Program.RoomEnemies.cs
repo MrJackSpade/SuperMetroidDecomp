@@ -1167,8 +1167,8 @@ static void VerifyCeresRidleyRoomEntry()
                     EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = fixturePalette }))),
             }, spritemaps: EnemySpritemapCatalog.Load(fixtureSpriteJson),
             ceresDoorVisual: CreateCeresDoorFixtureArtwork(bus).CeresDoorVisual,
-            ceresEscapeTiles: runtimeFixtureInstallation.Value.LoadEnemyTiles().CeresEscapeTiles,
-            ceresEscapeOverlayTilemaps: runtimeFixtureInstallation.Value.LoadEnemyTiles().CeresEscapeOverlayTilemaps),
+            ceresEscapeTiles: RepositoryInstallation.Installation.LoadEnemyTiles().CeresEscapeTiles,
+            ceresEscapeOverlayTilemaps: RepositoryInstallation.Installation.LoadEnemyTiles().CeresEscapeOverlayTilemaps),
         CeresRidleyColors = CeresRidleyColorCatalog.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.CeresRidleyColorExtractor.Extract(bus))),
         CeresRidleyMode7Colors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(

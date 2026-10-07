@@ -164,7 +164,7 @@ internal sealed partial class InstalledSamusIsolationTests
 
     private static void CheckSnapshotSensitivity()
     {
-        var samus = new SamusState();
+        var samus = RepositoryInstallation.CreateSamus();
         var baseline = new SamusMechanicsSnapshot(samus);
         MustDiffer(() => samus.XPosition++, "whole position");
         samus = new(); baseline = new(samus);

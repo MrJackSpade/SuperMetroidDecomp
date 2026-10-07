@@ -23,10 +23,10 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => SuperMetroidGameOptionsIni.Parse("[Game]\nDoorTransitionAutosave=true\nDoorTransitionAutosave=false"), "duplicate autosave key");
         var fields = typeof(SuperMetroidGameOptions).GetFields(BindingFlags.Instance | BindingFlags.NonPublic)
             .OrderBy(field => field.Name, StringComparer.Ordinal).ToArray();
-        var oldFields = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SuperMetroidGameOptions), fields, 14);
+        var oldFields = DebuggerStateFieldMigrations.WithoutIntroductions(typeof(SuperMetroidGameOptions), fields, "<DoorTransitionAutosave>k__BackingField");
         AssertTrue(!oldFields.Any(field => field.Name.Contains("DoorTransitionAutosave", StringComparison.Ordinal)), "legacy field order excludes new policy");
         var legacyOptions = (SuperMetroidGameOptions)System.Runtime.CompilerServices.RuntimeHelpers.GetUninitializedObject(typeof(SuperMetroidGameOptions));
-        DebuggerStateFieldMigrations.InitializeMissingFields(legacyOptions, 14);
+        RestoreLegacy(legacyOptions, "<DoorTransitionAutosave>k__BackingField");
         AssertTrue(legacyOptions.DoorTransitionAutosave, "legacy graphs get default enabled policy");
 
         string parent = Path.GetFullPath("csharp/test-temp");
@@ -42,7 +42,7 @@ internal static partial class Program
             var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             typeof(SuperMetroidGame).GetField("runtime", flags)!.SetValue(game, runtime);
-            var assets = runtimeFixtureInstallation.Value.LoadAudio();
+            var assets = RepositoryInstallation.Installation.LoadAudio();
             var audio = new CartridgeAudioRenderer(assets);
             var identity = GameContentIdentity.Create(new string('A', 64), new string('B', 64), new string('C', 64),
                 typeof(SuperMetroidGame).Module.ModuleVersionId);
@@ -75,7 +75,7 @@ internal static partial class Program
             var loaded = store.Load(DebuggerStateFormat.AutomaticSlot);
             AssertEqual(SuperMetroidGameState.MainGameplay, loaded.Game.GameState, "auto resumes after destination fade");
             AssertEqual(game.FrameNumber, loaded.Game.FrameNumber, "auto captures completed transition frame");
-            retailGameFixtureBindings.Value(loaded.Game);
+            RepositoryInstallation.BindGame(loaded.Game);
             var restoredAudio = new CartridgeAudioRenderer(assets, loaded.AudioPlayer);
             for (int frame = 0; frame < 6; frame++)
             {

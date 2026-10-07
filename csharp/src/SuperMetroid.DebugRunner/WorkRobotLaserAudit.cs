@@ -153,7 +153,7 @@ internal static partial class WorkRobotAudit
             SpawnLaserThroughAuthoredRoute(bus, room, assets, route);
         VerifyLaserInitialization(bus, robot, laser, route);
 
-        var samusProjectiles = new SamusProjectileSystem();
+        var samusProjectiles = RepositoryInstallation.CreateProjectileSystem();
         SamusProjectileSlot shot = samusProjectiles.Slots[0];
         shot.Type = 0x0001;
         shot.Damage = 20;
@@ -167,7 +167,7 @@ internal static partial class WorkRobotAudit
         int shotHits = loaded.Enemies.ResolveEnemyProjectileSamusProjectileHits(
             bus,
             samusProjectiles,
-            new SamusBombProjectileSystem());
+            RepositoryInstallation.CreateBombSystem());
         if (shotHits != 0 || shot.InstructionPointer != 0x9000 || !laser.IsActive)
         {
             throw new InvalidDataException(
@@ -179,7 +179,7 @@ internal static partial class WorkRobotAudit
             bus,
             loaded.Enemies,
             loaded.Samus,
-            new SamusBombProjectileSystem(),
+            RepositoryInstallation.CreateBombSystem(),
             assets.LevelData,
             laser,
             cameraX: 0,

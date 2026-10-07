@@ -44,7 +44,7 @@ internal static partial class YappingMawAudit
         VerifyRomTables(bus);
 
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, AuditRoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         VerifyGrabPoseHistory(bus, room, assets);
         Console.WriteLine("Yapping Maw pose-history checks passed (10 grab cases).");
         if (historyOnly) return 0;
@@ -227,10 +227,10 @@ internal static partial class YappingMawAudit
         // The native frozen handler immediately thaws when Ice is unequipped. A
         // synthetic ice projectile alone does not establish the player's equipment.
         loaded.Samus.EquippedBeams |= (ushort)SamusBeamFlags.Ice;
-        var shots = new SamusProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
         ArmBeam(shots.Slots[0], actor, damage: 20, type: 2);
         if (loaded.Enemies.ResolveOrdinaryProjectileHits(
-                bus, shots, new SamusBombProjectileSystem(), loaded.Samus) != 1 ||
+                bus, shots, RepositoryInstallation.CreateBombSystem(), loaded.Samus) != 1 ||
             actor.FrozenTimer != 400 || state.HasGrabbedSamus || loaded.Samus.InputLocked)
         {
             throw new InvalidDataException("Ice did not freeze the Maw and release Samus.");
@@ -282,12 +282,12 @@ internal static partial class YappingMawAudit
         YappingMawEnemyState state = State(loaded);
         Step(loaded, assets, frame: 0);
 
-        var shots = new SamusProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
         // Retail beam bytes are immune while the missile byte is multiplier two. A
         // 20-damage missile therefore produces exactly 20 common-AI damage after pre-scale.
         ArmBeam(shots.Slots[0], loaded.Actor, damage: 20, type: 0x0200);
         if (loaded.Enemies.ResolveOrdinaryProjectileHits(
-                bus, shots, new SamusBombProjectileSystem(), loaded.Samus) != 1 ||
+                bus, shots, RepositoryInstallation.CreateBombSystem(), loaded.Samus) != 1 ||
             loaded.Actor.Health != 0 ||
             // Native EnemyDeathAnimation clears the common slot with memset; it
             // does not preserve a Deleted property bit for this non-respawning actor.
@@ -378,7 +378,7 @@ internal static partial class YappingMawAudit
         samus.RefreshCollisionRadii(isolatedPopulation);
         samus.InitializeAnimation(isolatedPopulation);
 
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             isolatedPopulation,
             room.State.EnemyPopulationPointer,

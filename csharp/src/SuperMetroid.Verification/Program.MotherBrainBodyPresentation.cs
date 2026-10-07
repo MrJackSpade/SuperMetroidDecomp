@@ -76,8 +76,7 @@ internal static partial class Program
         var fields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [typeof(EnemyTileArtworkCatalog)])!;
         FieldInfo[] legacy = fields.Where(field => field.Name != "<MotherBrainBodyBg2Frames>k__BackingField").ToArray();
-        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(EnemyTileArtworkCatalog),
-            fields, legacy.Length).SequenceEqual(legacy), "historical enemy catalogs omit only the new visual owner");
+        AssertTrue(LegacyLayout(typeof(EnemyTileArtworkCatalog), fields, legacy).SequenceEqual(legacy), "historical enemy catalogs omit only the new visual owner");
         using var state = new MemoryStream();
         EnemyTileArtworkCatalog bundle = Build(stockOam, stockBg2);
         DebuggerObjectGraphSerializer.Serialize(state, bundle); state.Position = 0;

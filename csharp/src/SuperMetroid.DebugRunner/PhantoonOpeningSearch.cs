@@ -29,7 +29,7 @@ internal static class PhantoonOpeningSearch
         {
             if (nativeRows is not null && (barrageStart != 1640 ||
                 !((movement is 0 or 2 && cadence == 10) || movement == 5))) continue;
-            var runtime = new SuperMetroidRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom));
+            var runtime = RepositoryInstallation.CreateRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom));
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();

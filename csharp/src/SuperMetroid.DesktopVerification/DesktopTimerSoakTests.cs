@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -10,20 +10,19 @@ using SuperMetroid.Rendering.Direct3D11;
 
 internal static partial class Program
 {
-    private static async Task RunDesktopTimerSoak(int seconds, bool visible = false)
+    private static async Task RunDesktopTimerSoak(int seconds)
     {
         if (seconds is < 5 or > 300) throw new ArgumentOutOfRangeException(nameof(seconds));
         var results = new List<object>();
         foreach (bool paused in new[] { false, true })
         {
-            string directory = Path.GetFullPath(Path.Combine("csharp", "test-temp", "desktop-renderer", Guid.NewGuid().ToString("N")));
-            Directory.CreateDirectory(directory);
-            string rom = Path.Combine(directory, "Super Metroid.smc");
-            File.Copy(Path.GetFullPath("Super Metroid.smc"), rom);
+            // The installed host path writes player data and debugger slots into its root, so
+            // each scene runs on a private copy of the repository installation.
+            using var copy = RepositoryInstallation.CreatePrivateCopy();
             var options = new SuperMetroidGameOptions { Renderer = RendererSelection.Direct3D11,
                 SkipOpeningCinematic = true, Invincibility = true, MasterVolumePercent = 0 };
-            CreateDesktopSoakSeed(rom, options, paused);
-            using var form = new GameForm(rom, options);
+            CreateDesktopSoakSeed(copy.Installation, options, paused);
+            using var form = new GameForm(copy.Installation, options);
             var control = Field<PlayableGameControl>(form, "gameControl");
             _ = form.Handle; _ = control.Handle;
             Call(control, "SetPlaying", false);
@@ -49,7 +48,6 @@ internal static partial class Program
                         RenderTelemetryLimits.MaximumHistoryCapacity));
                 var worker = Field<D3D11RenderWorker>(control, "gpuWorker");
                 string adapter = await worker.Ready;
-                if (visible) VisibleSoakWindow.ShowWithoutActivation(form.Handle);
                 var output = Field<RecoveringAudioOutput>(control, "audioDevice");
                 counter.EmulatedFrameMeasured += Measure;
                 counter.LateFramesRecorded += RecordDiscard;
@@ -82,7 +80,6 @@ internal static partial class Program
                         "soak timing history discarded samples; whole-run percentile claim is invalid");
                 Check(worker.SubmittedUploadBytes > 0 && worker.SubmittedUploadCalls > 0
                     && worker.CaptureUploadTimings().Observed > 0, "desktop renderer did not publish upload telemetry");
-                if (visible) Check(worker.PresentedFrames > 0, "visible soak produced no successful Present calls");
                 Call(control, "SetPlaying", false);
                 counter.EmulatedFrameMeasured -= Measure;
                 counter.LateFramesRecorded -= RecordDiscard;
@@ -95,7 +92,7 @@ internal static partial class Program
                     ProducerMaximumMs = samples[^1],
                     ProducerOverDeadlineFrames = samples.Count(sample => sample > 1000.0 / 60),
                     DiscardedWallClockFrames = discardedWallClockFrames, Memory = memory,
-                    Adapter = adapter, Visible = visible, Audio = health, Renderer = renderer,
+                    Adapter = adapter, Audio = health, Renderer = renderer,
                     UploadCpu = worker.CaptureUploadTimings(), worker.SubmittedUploadBytes, worker.SubmittedUploadCalls,
                     worker.PresentedFrames, worker.OccludedFrames, worker.MailboxMetrics });
                 Console.WriteLine($"Desktop timer paused={paused}: {samples.Count / elapsed:F3} fps, p95={Percentile(.95):F3}ms, drains={health.EmptyBeforeRefill}.");
@@ -107,13 +104,12 @@ internal static partial class Program
                 await control.StopRendererAsync();
             }
             form.Dispose();
-            Directory.Delete(directory, recursive: true);
         }
         string reportDirectory = Path.GetFullPath(Path.Combine("csharp", "test-temp", "render-performance", Guid.NewGuid().ToString("N")));
         Directory.CreateDirectory(reportDirectory);
         string report = Path.Combine(reportDirectory, "desktop-timer-soak.json");
         File.WriteAllText(report, JsonSerializer.Serialize(new { Scope = "Production PlayableGameControl WinForms timer, silent real waveOut, hardware GPU; " +
-            (visible ? "visible nonactivating HWND; successful Present is not proof of RDP delivery." : "hidden HWND, not visible presentation."),
+            "hidden HWND, not visible presentation.",
             OperatingSystem = System.Runtime.InteropServices.RuntimeInformation.OSDescription,
             Runtime = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription,
             Processor = Environment.GetEnvironmentVariable("PROCESSOR_IDENTIFIER"),
@@ -123,10 +119,11 @@ internal static partial class Program
         Console.WriteLine($"Desktop timer soak report: {report}");
     }
 
-    private static void CreateDesktopSoakSeed(string rom, SuperMetroidGameOptions options, bool paused)
+    private static void CreateDesktopSoakSeed(SuperMetroid.AssetExtraction.GameInstallation installation,
+        SuperMetroidGameOptions options, bool paused)
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
-        var game = new SuperMetroidGame(bus, options);
+        var bus = installation.OpenRuntimeAddressSpace();
+        var game = RepositoryInstallation.CreateGame(bus, options);
         using var audio = new SpcAudioEngine();
         long sequence = 0;
         void Step(ushort input)
@@ -143,32 +140,8 @@ internal static partial class Program
         Step(0);
         if (paused) Step((ushort)SnesButton.Start);
         for (int warmup = 0; warmup < 120; warmup++) Step(0);
-        new DebuggerSaveStateStore(rom, bus.Rom).Save(0, bus, game, audio.Player);
+        var identity = SuperMetroid.AssetExtraction.GameContentIdentity.Create(installation.LoadAudio(),
+            installation.LoadMaps(), installation.LoadProjectiles());
+        DebuggerSaveStateStore.ForInstalledGame(installation.Root, options, identity).Save(0, bus, game, audio.Player);
     }
-}
-
-/// <summary>Opt-in diagnostic display; does not focus the game or initialize its renderer twice.</summary>
-internal static partial class VisibleSoakWindow
-{
-
-    internal static void ShowWithoutActivation(nint window)
-    {
-        // The renderer was explicitly initialized while hidden. Native showing avoids
-        // GameForm.OnShown's second initialization and leaves foreground input alone.
-        ShowWindow(window, VisibleSoakWindowCommands.ShowNoActivate);
-        if (!IsWindowVisible(window)) throw new InvalidOperationException("Could not show visible soak window.");
-    }
-
-    [System.Runtime.InteropServices.LibraryImport("user32.dll")]
-    [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
-    private static partial bool ShowWindow(nint window, int command);
-    [System.Runtime.InteropServices.LibraryImport("user32.dll")]
-    [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
-    private static partial bool IsWindowVisible(nint window);
-}
-
-internal static class VisibleSoakWindowCommands
-{
-    /// <summary>WinUser.h SW_SHOWNOACTIVATE: show at the current size without activating.</summary>
-    internal const int ShowNoActivate = 4;
 }

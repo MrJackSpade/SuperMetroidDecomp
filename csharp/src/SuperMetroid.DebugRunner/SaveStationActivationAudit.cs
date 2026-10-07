@@ -17,7 +17,7 @@ internal static class SaveStationActivationAudit
             {
                 // Fresh population for every case prevents a previous trigger/lockout from
                 // accidentally making the next rejected-position assertion pass.
-                var runtime = new SuperMetroidRuntime(bus);
+                var runtime = RepositoryInstallation.CreateRuntime(bus);
                 runtime.InitializeHud(HudSnapshot.CeresDebug);
                 runtime.RunNmi(0, true);
                 runtime.InitializeStartingCeresRoom();

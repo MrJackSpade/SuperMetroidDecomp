@@ -48,7 +48,7 @@ internal static partial class RetailPlmPopulationAudit
             CartridgeRoomAssets assets;
             try
             {
-                assets = CartridgeRoomAssets.Load(bus, room);
+                assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
             }
             catch (Exception exception)
             {
@@ -88,7 +88,7 @@ internal static partial class RetailPlmPopulationAudit
 
             var plms = new RoomPlmSystem();
             var system = new Bank80SystemState();
-            var samus = new SamusState();
+            var samus = RepositoryInstallation.CreateSamus();
             BackgroundTilemapStreamer streamer = assets.LevelData.CreateBackgroundStreamer();
             var vram = new SnesVram();
             var roomFx = new RoomLayer3FxState();

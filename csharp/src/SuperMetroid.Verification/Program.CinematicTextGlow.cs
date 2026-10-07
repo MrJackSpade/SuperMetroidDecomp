@@ -45,7 +45,7 @@ internal static partial class Program
         AssertEqual((ushort)0x0c00, map[8], "finished glow frees a native slot");
         var fields = typeof(IntroCinematicObjectSystem).GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
             .OrderBy(field => field.MetadataToken).ToArray();
-        var legacy = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(IntroCinematicObjectSystem), fields, fields.Length - 1);
+        var legacy = DebuggerStateFieldMigrations.WithoutIntroductions(typeof(IntroCinematicObjectSystem), fields, "textGlow");
         AssertTrue(legacy.SequenceEqual(fields.Where(field => field.Name != "textGlow")), "legacy intro retains every previous serialized field");
         Console.WriteLine("  Cinematic text glow: exact 0/5/10/15-frame palette changes, rectangle preservation, pool exhaustion/reuse, and debugger continuation pass.");
     }

@@ -156,7 +156,7 @@ internal static partial class RetailPlmPopulationAudit
         {
             State = SuperMetroid.AssetExtraction.CartridgeRoomStateImporter.Load(bus, SpeedBoosterEscapeState),
         };
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         var system = new Bank80SystemState();
         if (eventAlreadySet)
             system.SetEvent(EventNumber.OutranSpeedBoosterLavaquake);

@@ -22,7 +22,7 @@ internal static partial class Program
 
     private static void VerifyFrontendRomFreeDirectRoom(ushort roomPointer, int frameCount, ushort heldInput)
     {
-        GameInstallation installation = runtimeFixtureInstallation.Value;
+        GameInstallation installation = RepositoryInstallation.Installation;
         var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(RepositoryRomPath);
         var installedMemory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         AssertEqual(false, installedMemory.GetType().GetProperty("Rom") is not null,

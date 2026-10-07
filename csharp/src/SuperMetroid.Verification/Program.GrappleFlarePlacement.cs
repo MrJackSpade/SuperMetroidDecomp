@@ -54,7 +54,7 @@ internal static partial class Program
             var nativeBus = new GrappleFiringReadGuard(rom) { SourcePose = pose, Direction = direction };
             var guarded = new GrappleFlareReadGuard(nativeBus);
             var native = Seed(stock);
-            var selected = Seed(projectileFixtureArt.Value.GrappleTiles.FlarePlacement);
+            var selected = Seed(RepositoryInstallation.Projectiles.GrappleTiles.FlarePlacement);
             var changed = Seed(edited);
             SamusGrappleMovement.BeginFiring(nativeBus, native);
             SamusGrappleMovement.BeginFiring(guarded, selected);

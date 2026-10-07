@@ -28,7 +28,7 @@ internal static class NorfairRioAudit
                 BossBits: BossBits.None,
                 HasMorphBallAndMissiles: false,
                 HasPowerBombs: false));
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         if (room.State.Pointer != ExpectedStatePointer ||
             room.State.EnemyPopulationPointer != ExpectedPopulationPointer ||
             room.State.EnemyTilesetPointer != 0x8a25 ||
@@ -263,8 +263,8 @@ internal static class NorfairRioAudit
         parent = GetFirstParent(loaded.Enemies);
         RoomEnemySlot follower = loaded.Enemies.Slots[parent.SlotIndex + 1];
         loaded.Enemies.StepFrame(CameraX, CameraY, false, loaded.Samus, level: assets.LevelData);
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         ArmLethalBeam(shots.Slots[0], parent);
         var beforeDeath = EnemyDeathAuditAssertions.Capture(loaded.Enemies, parent);
         int beamHits = loaded.Enemies.ResolveOrdinaryProjectileHits(
@@ -326,7 +326,7 @@ internal static class NorfairRioAudit
         };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,

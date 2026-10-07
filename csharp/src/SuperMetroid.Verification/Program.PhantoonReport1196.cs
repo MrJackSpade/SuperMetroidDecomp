@@ -20,7 +20,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetMethod("CollectLegacyEnemyAudioRequests", flags)!.Invoke(enemies, null);
         AssertEqual(1, state.StartingFlamesSpawned, "intro producer actually spawns a starting flame");
         var audio = new CartridgeAudioState();
-        var renderer = new CartridgeAudioRenderer(runtimeFixtureInstallation.Value.LoadAudio());
+        var renderer = new CartridgeAudioRenderer(RepositoryInstallation.Installation.LoadAudio());
         renderer.RenderFrame(audio.AdvanceFrame(bus, renderer.ReadAcknowledgements()));
         renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioUploadAddresses.GreenBrinstar)]);
         foreach (var request in enemies.SoundRequests)

@@ -19,8 +19,8 @@ internal static partial class BombTorizoAudit
                 SuperMissiles = 10, MaxSuperMissiles = 10 };
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
-            var shots = new SamusProjectileSystem();
-            var bombs = new SamusBombProjectileSystem();
+            var shots = RepositoryInstallation.CreateProjectileSystem();
+            var bombs = RepositoryInstallation.CreateBombSystem();
             var fired = shots.StepFrame(bus, air, samus, (ushort)SnesButton.X,
                 (ushort)SnesButton.X, 0, 0, bombs);
             if (fired.FiredSlot is not int index)

@@ -146,7 +146,7 @@ internal static partial class Program
         saved.Position = 0;
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Runtime.SuperMetroidRuntime>(saved);
         AssertTrue(restored.BeamArtwork is null, "Beam artwork is not embedded in runtime state");
-        runtimeFixtureBindings.Value(restored);
+        BindRetailRuntimeFixture(restored);
         restored.Samus!.EquippedBeams = 1;
         restored.BeamArtwork = stock;
         restored.RunNmi(0, true);

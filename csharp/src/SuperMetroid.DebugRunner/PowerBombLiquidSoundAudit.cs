@@ -20,7 +20,7 @@ internal static class PowerBombLiquidSoundAudit
                 runtime.BombProjectiles.PowerBombExplosion.Arm();
                 runtime.BombProjectiles.PowerBombExplosion.Spawn(samus.XPosition, samus.YPosition);
             }
-            var game = new SuperMetroidGame(bus, null, renderGameplayFrames: false);
+            var game = RepositoryInstallation.CreateGame(bus, null, renderGameplayFrames: false);
             const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
             typeof(SuperMetroidGame).GetField("runtime", fields)!.SetValue(game, runtime);
             typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", fields)!

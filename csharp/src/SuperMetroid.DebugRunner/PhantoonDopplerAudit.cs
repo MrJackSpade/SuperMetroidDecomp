@@ -22,7 +22,7 @@ internal static class PhantoonDopplerAudit
         int compared = 0;
         foreach (var (start, cadence, aerial, movement) in Cases(expandedSearch, windowControls, patternSearch, movingControls, returnPositionControls))
         {
-            var runtime = new SuperMetroidRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom));
+            var runtime = RepositoryInstallation.CreateRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom));
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();

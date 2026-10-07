@@ -16,7 +16,7 @@ internal static partial class YappingMawAudit
         foreach (var (jump, insideRoot) in new[] { (false, false), (true, false), (false, true) })
         {
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
-            var runtime = new SuperMetroidRuntime(bus);
+            var runtime = RepositoryInstallation.CreateRuntime(bus);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();
@@ -94,7 +94,7 @@ internal static partial class YappingMawAudit
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, AuditRoomPointer);
-        var assets = CartridgeRoomAssets.Load(bus, room);
+        var assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         foreach (ushort distance in new ushort[] { 33, 40, 48, 63, 64, 65, 96 })
         {
             var loaded = Load(bus, room, assets);

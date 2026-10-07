@@ -15,7 +15,7 @@ internal static class SuitAcquisitionAudit
         runtime.LoadCartridgeRoomForDebug(0xa6e2, 0, 0);
         runtime.InitializeDebugGroundedSamus(80, 139, 8);
         runtime.Samus!.InputLocked = false;
-        var game = new SuperMetroidGame(bus);
+        var game = RepositoryInstallation.CreateGame(bus);
         typeof(SuperMetroidGame).GetField("runtime", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(game, runtime);
         typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.MainGameplay);
         var assets = ExtractedAudioAssetCatalog.Load(audioDirectory);

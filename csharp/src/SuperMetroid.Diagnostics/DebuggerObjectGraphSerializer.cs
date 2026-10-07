@@ -183,6 +183,8 @@ internal static class DebuggerObjectGraphSerializer
     private sealed class GraphReader(BinaryReader reader, bool legacyDelegateTokens)
     {
         private readonly Dictionary<int, object> references = [];
+        // One restore reports each legacy omission once, not once per restored instance.
+        private readonly HashSet<string> reportedWarnings = [];
 
         public object? Read()
         {
@@ -329,14 +331,14 @@ internal static class DebuggerObjectGraphSerializer
                 return ReadLegacyAddressSpace(instance, currentFields, count);
             if (instance is SuperMetroid.Core.Game.SamusShinesparkState legacySpark && count == 19 && currentFields.Length == 20)
             {
-                var preSuppressionFields = DebuggerStateFieldMigrations.SelectSerializedFields(type, currentFields, 17);
+                var preSuppressionFields = DebuggerStateFieldMigrations.WithoutIntroductions(type, currentFields,
+                    "<StoredShineWarningSoundSuppressed>k__BackingField", "<LaunchSoundSuppressed>k__BackingField",
+                    "<CrashSoundSuppressed>k__BackingField");
                 DebuggerLegacyShinesparkReader.Restore(legacySpark, preSuppressionFields, reader, ResolveAllowedType, Read);
                 return instance;
             }
             bool hasRetiredIdentity = count == currentFields.Length + 1 &&
                 DebuggerPresentationIdentityFieldDefinitions.Contains(type);
-            FieldInfo[] expected = hasRetiredIdentity ? currentFields :
-                DebuggerStateFieldMigrations.SelectSerializedFields(type, currentFields, count);
             var remaining = currentFields.ToDictionary(
                 field => (field.DeclaringType!, field.Name),
                 field => field);
@@ -370,16 +372,17 @@ internal static class DebuggerObjectGraphSerializer
                 field.SetValue(instance, Read());
                 restored.Add(field);
             }
-            if (!restored.SetEquals(expected) || hasRetiredIdentity && !discardedIdentity)
-            {
+            if (hasRetiredIdentity && (!discardedIdentity || restored.Count != currentFields.Length))
                 throw new InvalidDataException(
-                    $"Serialized {type.FullName} field set does not match its supported " +
-                    $"{count}-field legacy layout. Actual omissions: " +
-                    string.Join(", ", currentFields.Except(restored).Select(field => field.Name)) +
-                    ".");
-            }
-            DebuggerStateFieldMigrations.InitializeMissingFields(instance,
-                hasRetiredIdentity ? currentFields.Length : count);
+                    $"Legacy {type.FullName} presentation-identity layout does not contain every current field.");
+            // Each omission must be an entire registered introduction; initializers run only
+            // after every saved field is restored, since several derive from saved values.
+            DebuggerFieldIntroduction[] omitted = DebuggerStateFieldMigrations.ResolveOmissions(type,
+                currentFields.Where(field => !restored.Contains(field)).Select(field => field.Name).ToArray());
+            foreach (DebuggerFieldIntroduction introduction in omitted)
+                if (introduction.Warning is { } warning && reportedWarnings.Add(warning))
+                    Console.Error.WriteLine($"WARNING: {warning}");
+            DebuggerStateFieldMigrations.InitializeOmitted(instance, omitted);
             return instance;
         }
 

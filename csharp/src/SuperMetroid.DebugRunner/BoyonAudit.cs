@@ -44,7 +44,7 @@ internal static class BoyonAudit
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             BoyonAuditDefinitions.AlphaPowerBombRoomHeader);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
@@ -63,7 +63,7 @@ internal static class BoyonAudit
         samus.InitializeAnimation(bus);
 
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -224,8 +224,8 @@ internal static class BoyonAudit
         // Power Beam's vulnerability byte is zero: collision consumes the shot but causes
         // neither damage nor hurt flash. Super Missiles use multiplier two, which the common
         // handler combines with its half-damage convention to preserve the nominal 300.
-        var sharedProjectiles = new SamusBombProjectileSystem();
-        var immuneBeam = new SamusProjectileSystem();
+        var sharedProjectiles = RepositoryInstallation.CreateBombSystem();
+        var immuneBeam = RepositoryInstallation.CreateProjectileSystem();
         ArmProjectile(immuneBeam.Slots[0], audited, type: 0x0000, damage: 20);
         if (enemies.ResolveOrdinaryProjectileHits(
                 bus, immuneBeam, sharedProjectiles, samus) != 1 || audited.Health != 1000)
@@ -233,7 +233,7 @@ internal static class BoyonAudit
             throw new InvalidDataException("Boyon did not reject its immune Power Beam hit.");
         }
 
-        var superMissile = new SamusProjectileSystem();
+        var superMissile = RepositoryInstallation.CreateProjectileSystem();
         ArmProjectile(superMissile.Slots[0], audited, type: 0x0200, damage: 300);
         if (enemies.ResolveOrdinaryProjectileHits(
                 bus, superMissile, sharedProjectiles, samus) != 1 || audited.Health != 700 ||
@@ -247,7 +247,7 @@ internal static class BoyonAudit
         // Ice Beam is the $FF freeze sentinel. It preserves health while installing the
         // common 400-frame frozen handler on a separate untouched room actor.
         RoomEnemySlot frozen = boyons[1];
-        var iceBeam = new SamusProjectileSystem();
+        var iceBeam = RepositoryInstallation.CreateProjectileSystem();
         ArmProjectile(iceBeam.Slots[0], frozen, type: 0x0002, damage: 20);
         if (enemies.ResolveOrdinaryProjectileHits(
                 bus, iceBeam, sharedProjectiles, samus) != 1 || frozen.Health != 1000 ||
@@ -284,7 +284,7 @@ internal static class BoyonAudit
 
         // Finish with an independently armed lethal Super Missile to prove the normal death
         // path removes the actor and increments the room counter exactly once.
-        var lethal = new SamusProjectileSystem();
+        var lethal = RepositoryInstallation.CreateProjectileSystem();
         ArmProjectile(lethal.Slots[0], audited, type: 0x0200, damage: 1000);
         if (enemies.ResolveOrdinaryProjectileHits(
                 bus, lethal, sharedProjectiles, samus) != 1 || audited.Health != 0 ||
@@ -319,7 +319,7 @@ internal static class BoyonAudit
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             bus,
             BoyonAuditDefinitions.CrateriaSuperRoomHeader);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
@@ -338,7 +338,7 @@ internal static class BoyonAudit
         samus.InitializeAnimation(bus);
 
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -403,8 +403,8 @@ internal static class BoyonAudit
             YPosition = 0x0100,
         };
         sampleSamus.RefreshCollisionRadii(bus);
-        var sampleShots = new SamusProjectileSystem();
-        var sampleBombs = new SamusBombProjectileSystem();
+        var sampleShots = RepositoryInstallation.CreateProjectileSystem();
+        var sampleBombs = RepositoryInstallation.CreateBombSystem();
         SamusProjectileFrameResult sampleResult = sampleShots.StepFrame(
             bus,
             empty,
@@ -436,8 +436,8 @@ internal static class BoyonAudit
         samus.XPosition = unchecked((ushort)(target.XPosition - shotXOffset));
         samus.YPosition = unchecked((ushort)(target.YPosition - shotYOffset));
         samus.RefreshCollisionRadii(bus);
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         SamusProjectileFrameResult fired = shots.StepFrame(
             bus,
             empty,
@@ -504,7 +504,7 @@ internal static class BoyonAudit
     /// </summary>
     private static void VerifyIntegratedRoomActivation(SuperMetroidAddressSpace bus)
     {
-        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
         runtime.InitializeStartingCeresRoom();

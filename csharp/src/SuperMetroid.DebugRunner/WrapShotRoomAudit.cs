@@ -12,7 +12,7 @@ internal static class WrapShotRoomAudit
         foreach (ushort pointer in new[] { RoomHeaderPointers.LandingSite, RoomHeaderPointers.Crocomire, RoomHeaderPointers.GreenBrinstarMainShaft })
         {
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
-            var runtime = new SuperMetroidRuntime(bus);
+            var runtime = RepositoryInstallation.CreateRuntime(bus);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();
@@ -40,8 +40,8 @@ internal static class WrapShotRoomAudit
                     var samus = new SamusState { XPosition = (ushort)(left ? edgeDistance : level.WidthInBlocks * 16 - edgeDistance),
                         YPosition = (ushort)y, PoseId = left ? SamusPoseId.StandingAimDiagonalDownLeftPose : SamusPoseId.StandingAimDiagonalDownRightPose,
                         EquippedBeams = beams };
-                    var shots = new SamusProjectileSystem();
-                    var bombs = new SamusBombProjectileSystem();
+                    var shots = RepositoryInstallation.CreateProjectileSystem();
+                    var bombs = RepositoryInstallation.CreateBombSystem();
                     var plms = new RoomPlmSystem();
                     plms.LoadRoomPopulation(bus, trial, trial.CreateBackgroundStreamer(0), new SnesVram(),
                         RoomPlmPopulationImporter.Read(bus, runtime.ActiveRoom!.State.PlmPointer), new Bank80SystemState(), runtime.ActiveRoom.AreaIndex,

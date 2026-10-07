@@ -15,7 +15,7 @@ internal static partial class Program
         foreach (var scenario in new[] { (Brightening: false, Terminal: false), (Brightening: false, Terminal: true), (Brightening: true, Terminal: false), (Brightening: true, Terminal: true) })
         {
             const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
-            var installation=runtimeFixtureInstallation.Value;
+            var installation=RepositoryInstallation.Installation;
             var bus=installation.OpenRuntimeAddressSpace();
             var game=new SuperMetroidGame(bus);
             game.BindMapPresentation(installation.LoadMaps());

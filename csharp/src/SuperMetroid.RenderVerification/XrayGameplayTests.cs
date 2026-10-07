@@ -67,12 +67,15 @@ internal static class XrayGameplayTests
             // The version-24 single-X-ray-layer packet ends after its optional BG3
             // child. Remove only version 25's trailing BG2 selector and restore the
             // historical header, checking that old packets still select no BG2 operand.
-            // The ordinary-only packet has the same header/memory/first-layer
-            // prefix and ends exactly at version 26's new mosaic byte.
+            // The ordinary-only packet has the same header/memory/first-layer prefix and
+            // ends with the gameplay tail version 24 lacks: version 26's mosaic byte and the
+            // empty main-screen HDMA table flag of RenderPacketFormat.GameplayMainScreenHdmaVersion.
+            const int gameplayTailBytes = 2;
             int mosaicOffset = RenderFrameSnapshotCodec.Serialize(new RenderFrameSnapshot(packet.Identity,
-                new LayeredRenderSnapshot(memory, [layer.Gameplay], 0, 15))).Length - 1;
+                new LayeredRenderSnapshot(memory, [layer.Gameplay], 0, 15))).Length - gameplayTailBytes;
             byte[] currentBytes = RenderFrameSnapshotCodec.Serialize(packet);
-            byte[] legacyBytes = [.. currentBytes.AsSpan(0, mosaicOffset), .. currentBytes.AsSpan(mosaicOffset + 1, currentBytes.Length - mosaicOffset - 2)];
+            byte[] legacyBytes = [.. currentBytes.AsSpan(0, mosaicOffset),
+                .. currentBytes.AsSpan(mosaicOffset + gameplayTailBytes, currentBytes.Length - mosaicOffset - gameplayTailBytes - 1)];
             legacyBytes[8] = 24; legacyBytes[9] = 0;
             var legacy = RenderFrameSnapshotCodec.Deserialize(legacyBytes);
             PixelComparison.Verify(legacy, pixels, renderer.RenderForReadback(legacy), "version-24 subscreen compatibility");

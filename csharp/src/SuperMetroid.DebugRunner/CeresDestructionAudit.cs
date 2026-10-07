@@ -12,7 +12,7 @@ internal static class CeresDestructionAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         Directory.CreateDirectory(outputDirectory);
-        var cinematic = new CeresDestructionCinematicState(bus);
+        var cinematic = RepositoryInstallation.CreateDestruction(bus);
         bool capturedExplosion = false;
         bool capturedZebes = false;
         int cinematicFrames = 0;
@@ -110,7 +110,7 @@ internal static class CeresDestructionAudit
         // Retain a genuine fresh-game Samus/system owner, then execute the exact special
         // loader branch that follows CADF. This avoids fabricating inventory or progression
         // while still skipping the several minutes of interactive Ceres controller input.
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
         runtime.InitializeStartingCeresRoom();
@@ -190,7 +190,7 @@ internal static class CeresDestructionAudit
                 $"runtime={runtime.GameTime.Seconds:D2}.{runtime.GameTime.Frames:D2}.");
         }
 
-        var restarted = new SuperMetroidGame(
+        var restarted = RepositoryInstallation.CreateGame(
             bus,
             new SuperMetroidGameOptions { SkipOpeningCinematic = true });
         FrontendFrame restartedFrame = FrontendAuditDriver.EnterSelectedSlot(restarted);

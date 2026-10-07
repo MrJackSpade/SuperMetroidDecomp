@@ -170,9 +170,9 @@ From the repository root:
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -- assets install "C:\ROMs\Super Metroid.smc"
 # Extract just runtime audio into a chosen directory.
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -- assets audio-rom "C:\ROMs\Super Metroid.smc" "C:\private\audio"
-# Synthetic validation, or full integration when a private ROM is supplied.
+# Synthetic validation, or full integration from the repository-root Super Metroid.smc.
 dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --asset-import
-dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --asset-import "C:\ROMs\Super Metroid.smc"
+dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --asset-import-rom
 # Check room-character, palette and visual-block stock import, edits, repair and invalid overrides.
 dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --room-artwork-installation "C:\ROMs\Super Metroid.smc"
 # Check all opening character PNGs, live VRAM replacement, and stock repair.
@@ -233,15 +233,15 @@ file changes the HUD selection, cover opening/closing cadence, projectile
 origin, damage, or equipment behavior. Stock JSON and PNG hashes are checked
 independently before overrides load.
 For a developer check using an existing extracted installation, run
-`SuperMetroid.RenderVerification --installed-samus-isolation <installation-root>`.
+`SuperMetroid.RenderVerification --installed-samus-isolation`.
 It edits an isolated copy and checks the selected movement, pose-collision and
 special-sequence owners against stock presentation frame by frame. It does not
 import a ROM or touch player data. This complements the separate
-`--installed-samus-artwork <installation-root>` software/GPU pixel checks;
+`--installed-samus-artwork` software/GPU pixel checks;
 neither command establishes whole-game parity. Exact coverage and remaining
 gates are recorded in `test-fixtures/ROM-FREE-SOURCE-ACCESS-549.md`.
 
-`--installed-samus-file-contracts <installation-root>` checks all 34 Samus PNG/JSON
+`--installed-samus-file-contracts` checks all 34 Samus PNG/JSON
 resources using disposable copies. Invalid stock and edits report the exact file in the
 error message and retain the original codec exception; edits never hide bad stock.
 JSON fields are required, unknown or duplicated fields are rejected, and older version
@@ -481,7 +481,7 @@ cleared when its window ends. Older debugger states warn during migration;
 an old modded capture retains its historical remaining fade because its
 counterfactual stock elapsed time was never recorded.
 
-`SuperMetroid.RenderVerification --installed-power-bomb-isolation <installation-root>`
+`SuperMetroid.RenderVerification --installed-power-bomb-isolation`
 checks real disk overrides, complete effect lifetimes, state restoration and
 software/Direct3D output without importing a cartridge or touching player data.
 See the source-access audit for exact coverage and remaining environmental gates.

@@ -43,7 +43,7 @@ internal static partial class Program
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {
-            var enemies = new RoomEnemySystem { TileArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles() };
+            var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.Installation.LoadEnemyTiles() };
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
             typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
             RoomEnemySlot slot = enemies.Slots[0];

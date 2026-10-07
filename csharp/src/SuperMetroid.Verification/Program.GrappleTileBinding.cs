@@ -50,7 +50,7 @@ internal static partial class Program
         var restoredRuntime = (SuperMetroidRuntime)runtimeField.GetValue(restored)!;
         AssertTrue(restoredRuntime.GrappleArtwork is null, "Restored state requires current host Grapple artwork");
         byte[] retained = restoredRuntime.Vram.Bytes.ToArray();
-        runtimeFixtureBindings.Value(restoredRuntime);
+        BindRetailRuntimeFixture(restoredRuntime);
         restored.BindGrappleArtwork(edited);
         restoredRuntime.RunNmi(0, false);
         AssertTrue(retained.AsSpan().SequenceEqual(restoredRuntime.Vram.Bytes), "Grapple rebind preserves retained lag-frame VRAM");
@@ -64,7 +64,7 @@ internal static partial class Program
         var typedRestored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(typedState);
         typedRestored.BindGrappleArtwork(stock);
         var typedRuntime = (SuperMetroidRuntime)runtimeField.GetValue(typedRestored)!;
-        runtimeFixtureBindings.Value(typedRuntime);
+        BindRetailRuntimeFixture(typedRuntime);
         typedRestored.BindGrappleArtwork(stock);
         typedRuntime.RunNmi(0, true);
         AssertTrue(stock.Resolve(GrappleTileDefinitions.PointAssetFor(typedRuntime.Samus!.Grapple.PointAnimationFrame)).Span.SequenceEqual(

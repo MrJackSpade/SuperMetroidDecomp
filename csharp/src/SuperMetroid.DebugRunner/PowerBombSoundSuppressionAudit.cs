@@ -32,7 +32,7 @@ internal static class PowerBombSoundSuppressionAudit
                 runtime.BombProjectiles.PowerBombExplosion.Arm();
                 runtime.BombProjectiles.PowerBombExplosion.Spawn(runtime.Samus.XPosition, runtime.Samus.YPosition);
             }
-            var game = new SuperMetroidGame(bus, null, renderGameplayFrames: false);
+            var game = RepositoryInstallation.CreateGame(bus, null, renderGameplayFrames: false);
             const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
             typeof(SuperMetroidGame).GetField("runtime", fields)!.SetValue(game, runtime);
             typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", fields)!
@@ -93,7 +93,7 @@ internal static class PowerBombSoundSuppressionAudit
                 runtime.BombProjectiles.PowerBombExplosion.Arm();
                 runtime.BombProjectiles.PowerBombExplosion.Spawn(samus.XPosition, samus.YPosition);
             }
-            var game = new SuperMetroidGame(bus, null, renderGameplayFrames: false);
+            var game = RepositoryInstallation.CreateGame(bus, null, renderGameplayFrames: false);
             const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
             typeof(SuperMetroidGame).GetField("runtime", fields)!.SetValue(game, runtime);
             typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", fields)!
@@ -131,7 +131,7 @@ internal static class PowerBombSoundSuppressionAudit
                 runtime.BombProjectiles.Slots[index].BombTimer = 1;
                 if (power) powerIndex = index; else normalIndex = index;
             }
-            var game = new SuperMetroidGame(bus, null, renderGameplayFrames: false);
+            var game = RepositoryInstallation.CreateGame(bus, null, renderGameplayFrames: false);
             const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
             typeof(SuperMetroidGame).GetField("runtime", fields)!.SetValue(game, runtime);
             typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", fields)!

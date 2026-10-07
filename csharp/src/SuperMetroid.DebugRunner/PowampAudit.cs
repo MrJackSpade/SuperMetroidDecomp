@@ -20,7 +20,7 @@ internal static partial class PowampAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, MountEverestRoom);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         LoadedPowamps loaded = LoadEnemies(bus, room, assets);
         VerifyPopulation(room, loaded.Enemies);
 
@@ -309,8 +309,8 @@ internal static partial class PowampAudit
         RoomEnemySlot body = loaded.Enemies.Slots[1];
         PowampEnemyState state = RequireState(loaded.Enemies, body);
         StepCentered(loaded.Enemies, room, assets, loaded.Samus, body);
-        var projectiles = new SamusProjectileSystem();
-        var sharedProjectiles = new SamusBombProjectileSystem();
+        var projectiles = RepositoryInstallation.CreateProjectileSystem();
+        var sharedProjectiles = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(projectiles.Slots[0], body, projectileType: 0x0200, damage: 1000);
         if (loaded.Enemies.ResolveOrdinaryProjectileHits(
                 bus,
@@ -465,11 +465,11 @@ internal static partial class PowampAudit
         PowampEnemyState state = RequireState(loaded.Enemies, body);
         StepCentered(loaded.Enemies, room, assets, loaded.Samus, body);
 
-        var bombs = new SamusBombProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         ArmNormalBomb(bombs.Slots[0], body);
         int hits = loaded.Enemies.ResolveOrdinaryBombHits(
             bombs,
-            new SamusProjectileSystem(),
+            RepositoryInstallation.CreateProjectileSystem(),
             loaded.Samus);
         if (hits != 1 || (bombs.Slots[0].Direction & 0x0010) == 0 ||
             body.Health != 0 || body.Properties.HasAny(EnemyProperties.Deleted) ||
@@ -509,7 +509,7 @@ internal static partial class PowampAudit
         assets.LoadGraphics(vram, cgram);
         SamusState samus = CreateSamus(bus, 0x0100, 0x0100);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,

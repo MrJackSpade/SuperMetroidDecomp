@@ -18,7 +18,7 @@ internal static class TourianEntranceStatueAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomPointer);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         if (room.State.Pointer != 0xa677 ||
             room.State.EnemyPopulationPointer != PopulationPointer)
         {
@@ -81,7 +81,7 @@ internal static class TourianEntranceStatueAudit
         {
             bool allBossesDead = bossCount == 4;
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-            var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
+            var runtime = RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();
@@ -133,7 +133,7 @@ internal static class TourianEntranceStatueAudit
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
 
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,
@@ -210,8 +210,8 @@ internal static class TourianEntranceStatueAudit
         if (samus.Health != healthBefore)
             throw new InvalidDataException("Inert Tourian statue incorrectly damaged Samus.");
 
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         ArmProjectile(shots.Slots[0], statues[0]);
         ushort statueHealth = statues[0].Health;
         int hits = enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus);

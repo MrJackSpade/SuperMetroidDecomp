@@ -6,7 +6,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static class AssetImportVerification
 {
-public static int Run(string[] args)
+public static int Run(string? romPath)
 {
 string temporary = Directory.CreateTempSubdirectory("SuperMetroid-import-verification-").FullName;
 try
@@ -26,12 +26,12 @@ try
         Reject<OperationCanceledException>(() => GameAssetInstaller.Install(new MemoryStream(new byte[SupportedCartridge.RomByteCount]), missingRoot, cancelled.Token));
         Check(!Directory.Exists(missingRoot), "cancelled selection creates no installation");
     }
-    if (args.Length == 0)
+    if (romPath is null)
     {
-        Console.WriteLine("PASS input validation. Supply a private supported ROM path for extraction, repair, and Android-session integration.");
+        Console.WriteLine("PASS input validation. --asset-import-rom adds extraction, repair, and Android-session integration from the repository ROM.");
         return 0;
     }
-    using Stream original = File.OpenRead(args[0]);
+    using Stream original = File.OpenRead(romPath);
     byte[] rom = SupportedCartridge.Read(original);
     string input = Path.Combine(temporary, "user-chosen-name.sfc");
     byte[] headered = new byte[rom.Length + SupportedCartridge.CopierHeaderByteCount];
@@ -90,9 +90,9 @@ try
     Check(catalog.CanonicalSampleCount == 112 && catalog.SourceMappingCount == 935, "all canonical samples and source aliases extracted");
     Console.WriteLine($"PASS installed runtime resources: {catalog.CanonicalSampleCount} WAV samples, {catalog.SourceMappingCount} aliases.");
 
-    if (args.Length == 2)
+    // The repository's standalone extraction is the independent reference audio set.
     {
-        string reference = Path.GetFullPath(args[1]);
+        string reference = Path.GetFullPath("standalone-assets/audio");
         string[] expected = Directory.GetFiles(reference, "*", SearchOption.AllDirectories);
         foreach (string file in expected)
         {

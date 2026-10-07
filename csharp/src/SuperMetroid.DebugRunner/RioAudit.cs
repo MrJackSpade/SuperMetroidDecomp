@@ -33,7 +33,7 @@ internal static class RioAudit
                 BossBits: BossBits.None,
                 HasMorphBallAndMissiles: false,
                 HasPowerBombs: false));
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets);
         if (room.State.Pointer != ExpectedStatePointer ||
             room.State.EnemyPopulationPointer != ExpectedPopulationPointer ||
             room.State.EnemyTilesetPointer != ExpectedTilesetPointer ||
@@ -189,8 +189,8 @@ internal static class RioAudit
         (enemies, samus) = LoadRoom(bus, room, assets);
         rio = GetRio(enemies);
         enemies.StepFrame(CameraX, CameraY, false, samus, level: assets.LevelData);
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var bombs = RepositoryInstallation.CreateBombSystem();
         ushort deathX = rio.XPosition, deathY = rio.YPosition;
         ArmLethalBeam(shots.Slots[0], rio);
         if (enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus) != 1)
@@ -251,7 +251,7 @@ internal static class RioAudit
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
 
-        var enemies = new RoomEnemySystem();
+        var enemies = RepositoryInstallation.CreateEnemySystem();
         enemies.Load(
             bus,
             room.State.EnemyPopulationPointer,

@@ -13,7 +13,7 @@ internal static partial class Program
     private static void VerifyFileCopyArrow()
     {
         var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var installation = runtimeFixtureInstallation.Value;
+        var installation = RepositoryInstallation.Installation;
         var art = installation.LoadMaps();
         // All SRAM changes belong to this private imported address space.
         var saves = new SuperMetroidSaveRam(rom, RetailPresentationFixture());
@@ -24,7 +24,8 @@ internal static partial class Program
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(FileSelectMenuState)])!;
         foreach (int missing in new[] { 1, 2 })
         {
-            FieldInfo[] legacy = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(FileSelectMenuState), fields, fields.Length - missing);
+            FieldInfo[] legacy = DebuggerStateFieldMigrations.WithoutIntroductions(typeof(FileSelectMenuState), fields,
+                missing == 1 ? ["copyArrowPaletteTimer"] : ["copyArrowPaletteTimer", "currentPresentationPage"]);
             AssertTrue(!legacy.Any(field => field.Name == "copyArrowPaletteTimer"), "legacy state omits new arrow timer");
             AssertEqual(missing == 1, legacy.Any(field => field.Name == "currentPresentationPage"), "older presentation migration remains compatible");
         }
@@ -103,7 +104,7 @@ internal static partial class Program
             AssertEqual(FileSelectPhase.CopyCompleted, menu.Phase, "copy completes");
             AssertTrue(Capture().LastFinalizedSpriteCount < noArrowCount + count, "completed page removes Copy arrow");
             typeof(FileSelectMenuState).GetField("copyArrowPaletteTimer", flags)!.SetValue(menu, 0);
-            DebuggerStateFieldMigrations.InitializeMissingFields(menu, fields.Length - 1);
+            RestoreLegacy(menu, "copyArrowPaletteTimer");
             AssertEqual(8, (int)typeof(FileSelectMenuState).GetField("copyArrowPaletteTimer", flags)!.GetValue(menu)!,
                 "old debugger states initialize the arrow timer");
         }

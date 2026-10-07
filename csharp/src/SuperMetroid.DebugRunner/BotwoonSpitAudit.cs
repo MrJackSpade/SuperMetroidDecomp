@@ -108,7 +108,7 @@ internal static partial class BotwoonAudit
         // Definition property $8000 is clear. Even in the same coarse 32-pixel collision
         // cell, an ordinary beam must remain live and the spit must not enter its defensive
         // delete list.
-        var shots = new SamusProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
         SamusProjectileSlot beam = shots.Slots[0];
         beam.Type = 0x0001;
         beam.Damage = 20;
@@ -122,7 +122,7 @@ internal static partial class BotwoonAudit
         int hits = loaded.Enemies.ResolveEnemyProjectileSamusProjectileHits(
             bus,
             shots,
-            new SamusBombProjectileSystem());
+            RepositoryInstallation.CreateBombSystem());
         if (hits != 0 || beam.InstructionPointer != 0x9000 || !spit.IsActive)
         {
             throw new InvalidDataException(
@@ -136,7 +136,7 @@ internal static partial class BotwoonAudit
             bus,
             loaded.Enemies,
             loaded.Samus,
-            new SamusBombProjectileSystem(),
+            RepositoryInstallation.CreateBombSystem(),
             assets.LevelData,
             spit,
             cameraX: CameraX,

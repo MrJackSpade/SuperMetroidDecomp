@@ -20,7 +20,7 @@ internal static partial class PowampAudit
         // Property $8000 is clear in definition $D298. A beam in the same native 32-pixel
         // collision cell therefore remains untouched even though the record contains a
         // defensive delete shot-list pointer.
-        var shots = new SamusProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
         SamusProjectileSlot beam = shots.Slots[0];
         beam.Type = 0x0001;
         beam.Damage = 20;
@@ -34,7 +34,7 @@ internal static partial class PowampAudit
         int hits = loaded.Enemies.ResolveEnemyProjectileSamusProjectileHits(
             bus,
             shots,
-            new SamusBombProjectileSystem());
+            RepositoryInstallation.CreateBombSystem());
         if (hits != 0 || beam.InstructionPointer != 0x9000 || !spike.IsActive)
         {
             throw new InvalidDataException(
@@ -48,7 +48,7 @@ internal static partial class PowampAudit
             bus,
             loaded.Enemies,
             loaded.Samus,
-            new SamusBombProjectileSystem(),
+            RepositoryInstallation.CreateBombSystem(),
             assets.LevelData,
             spike,
             cameraX: 0,
@@ -66,12 +66,12 @@ internal static partial class PowampAudit
         RoomEnemySlot body = loaded.Enemies.Slots[1];
         StepCentered(loaded.Enemies, room, assets, loaded.Samus, body);
 
-        var shots = new SamusProjectileSystem();
+        var shots = RepositoryInstallation.CreateProjectileSystem();
         ArmProjectile(shots.Slots[0], body, projectileType: 0x0200, damage: 1000);
         int hitCount = loaded.Enemies.ResolveOrdinaryProjectileHits(
             bus,
             shots,
-            new SamusBombProjectileSystem(),
+            RepositoryInstallation.CreateBombSystem(),
             loaded.Samus);
         for (int frame = 0; frame < 33; frame++)
             StepCentered(loaded.Enemies, room, assets, loaded.Samus, body);

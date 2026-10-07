@@ -271,6 +271,13 @@ internal static partial class Program
             "extended-composition-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
+        // Override cases check the spritemap catalog against stock loaded once, exactly as the
+        // installation loader does for this file; two full loads above prove the disk wiring.
+        EnemyExtendedFrameCatalog LoadExtendedFrameOverride()
+        {
+            using FileStream json = File.OpenRead(overridePath);
+            return EnemyExtendedFrameCatalog.Load(json, stock.ExtendedFrames!);
+        }
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             document, new JsonSerializerOptions
             {
@@ -312,8 +319,7 @@ internal static partial class Program
                 new MemoryStream(legacyJson, writable: false)),
             "legacy extended override needs complete verified stock to merge");
         File.WriteAllBytes(overridePath, legacyJson);
-        EnemyTileArtworkCatalog legacy = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog legacy = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer legacyWalking = DrawExtended(legacy, guard,
             editedPointer, 0x0040, 0x0080);
         AssertTrue(legacyWalking.LowTable.SequenceEqual(editedOam.LowTable) &&
@@ -341,8 +347,7 @@ internal static partial class Program
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             }));
-        EnemyTileArtworkCatalog editedWall = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog editedWall = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer movedWall = DrawExtended(editedWall, guard,
             wallPointer, 0x0040, 0x0080);
         AssertEqual(unchecked((byte)(stockWall.LowTable[0] + 1)),
@@ -353,8 +358,7 @@ internal static partial class Program
         AssertEqual(GetTouchCallback(stock, guard, wallPointer),
             GetTouchCallback(editedWall, guard, wallPointer),
             "editable wall-Pirate component does not move its compiled hitbox");
-        AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
-                .ExtendedFrames!.TryGet(EnemyExtendedFrameDefinitions.Bank,
+        AssertTrue(LoadExtendedFrameOverride().TryGet(EnemyExtendedFrameDefinitions.Bank,
                     wallPointer, out _),
             "edited wall-Pirate composition survives catalog reload");
 
@@ -373,8 +377,7 @@ internal static partial class Program
                 new MemoryStream(versionTwoJson, writable: false)),
             "v2 extended override requires complete verified v3 stock");
         File.WriteAllBytes(overridePath, versionTwoJson);
-        EnemyTileArtworkCatalog versionTwo = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog versionTwo = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer versionTwoWalking = DrawExtended(versionTwo, guard,
             editedPointer, 0x0040, 0x0080);
         OamBuffer versionTwoWall = DrawExtended(versionTwo, guard,
@@ -410,8 +413,7 @@ internal static partial class Program
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             }));
-        EnemyTileArtworkCatalog editedNinja = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog editedNinja = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer movedNinja = DrawExtended(editedNinja, guard,
             ninjaPointer, 0x0040, 0x0080);
         AssertEqual(unchecked((byte)(stockNinja.LowTable[0] + 1)),
@@ -422,8 +424,7 @@ internal static partial class Program
         AssertEqual(GetTouchCallback(stock, guard, ninjaPointer),
             GetTouchCallback(editedNinja, guard, ninjaPointer),
             "editable Ninja component does not move its compiled hitbox");
-        AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
-                .ExtendedFrames!.TryGet(EnemyExtendedFrameDefinitions.Bank,
+        AssertTrue(LoadExtendedFrameOverride().TryGet(EnemyExtendedFrameDefinitions.Bank,
                     ninjaPointer, out _),
             "edited Ninja composition survives catalog reload");
 
@@ -435,8 +436,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             preBindings, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog upgradedBindings = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog upgradedBindings = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         AssertTrue(movedNinja.LowTable.SequenceEqual(DrawExtended(
                 upgradedBindings, guard, ninjaPointer, 0x0040, 0x0080).LowTable),
             "version-three extended override retains edited art and stock display bindings");
@@ -456,8 +456,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionFour, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog upgradedVersionFour = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog upgradedVersionFour = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         ushort legacySourcePointer = EnemyExtendedFrameDefinitions.Frames.ToArray()
             .Single(frame => frame.Name == sourceNameForLegacyBinding).Pointer;
         ushort legacyTargetPointer = EnemyExtendedFrameDefinitions.Frames.ToArray()
@@ -482,8 +481,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionFive, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog upgradedVersionFive = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog upgradedVersionFive = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         AssertTrue(DrawExtended(upgradedVersionFive, guard, legacySourcePointer,
                 0x0040, 0x0080).LowTable.SequenceEqual(DrawExtended(stock, guard,
                 legacyTargetPointer, 0x0040, 0x0080).LowTable),
@@ -520,8 +518,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionSix, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog upgradedVersionSix = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog upgradedVersionSix = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer stockSpore = DrawExtendedForBank(stock, guard,
             0xa5, 0xee6f, 0x0040, 0x0080);
         OamBuffer editedSpore = DrawExtendedForBank(upgradedVersionSix, guard,
@@ -547,8 +544,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionSeven, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog upgradedVersionSeven = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog upgradedVersionSeven = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer inheritedSteam = DrawExtendedForBank(upgradedVersionSeven, guard,
             0xa6, 0xf142, 0x0040, 0x0080);
         AssertTrue(inheritedSteam.LowTable.SequenceEqual(stockSteam.LowTable) &&
@@ -567,8 +563,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionEight, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog upgradedVersionEight = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog upgradedVersionEight = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer inheritedOum = DrawExtendedForBank(upgradedVersionEight, guard,
             0xa2, 0xcb87, 0x0040, 0x0080);
         AssertTrue(inheritedOum.LowTable.SequenceEqual(stockOum.LowTable) &&
@@ -587,8 +582,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionNine, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog upgradedVersionNine = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog upgradedVersionNine = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer inheritedCrocomire = DrawExtendedForBank(upgradedVersionNine, guard,
             0xa4, 0xc65e, 0x0040, 0x0080);
         AssertTrue(inheritedCrocomire.LowTable.SequenceEqual(stockCrocomire.LowTable) &&
@@ -609,9 +603,8 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionTen, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog upgradedVersionTen = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
-        AssertTrue(upgradedVersionTen.ExtendedFrames!.TryGetDisplay(0xa4, 0xc2ec, out _),
+        EnemyExtendedFrameCatalog upgradedVersionTen = LoadExtendedFrameOverride();
+        AssertTrue(upgradedVersionTen.TryGetDisplay(0xa4, 0xc2ec, out _),
             "version-ten override inherits Crocomire's mixed fight-body OAM");
 
         var versionEleven = new EnemyExtendedFrameDocument
@@ -625,8 +618,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionEleven, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog upgradedVersionEleven = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog upgradedVersionEleven = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer stockDormantTorizo = DrawExtendedForBank(stock, guard,
             0xaa, 0x87d0, 0x0040, 0x0080);
         OamBuffer inheritedDormantTorizo = DrawExtendedForBank(
@@ -652,8 +644,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionTwelve, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog upgradedVersionTwelve = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog upgradedVersionTwelve = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer stockInitialGoldenTorizo = DrawExtendedForBank(stock, guard,
             0xaa, 0xaa30, 0x0040, 0x0080);
         OamBuffer inheritedInitialGoldenTorizo = DrawExtendedForBank(
@@ -679,8 +670,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionThirteen, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog upgradedVersionThirteen = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog upgradedVersionThirteen = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer stockKraidArm = DrawExtendedForBank(stock, guard,
             0xa7, 0x90fd, 0x0040, 0x0080);
         OamBuffer inheritedKraidArm = DrawExtendedForBank(
@@ -705,8 +695,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionFourteen, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog upgradedVersionFourteen = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog upgradedVersionFourteen = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer stockAwakeGoldenTorizo = DrawExtendedForBank(stock, guard,
             0xaa, 0xaa5e, 0x0040, 0x0080);
         OamBuffer inheritedAwakeGoldenTorizo = DrawExtendedForBank(
@@ -733,8 +722,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionFifteen, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog upgradedVersionFifteen = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog upgradedVersionFifteen = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer stockWalkingGoldenTorizo = DrawExtendedForBank(stock, guard,
             0xaa, 0xa4fa, 0x0040, 0x0080);
         OamBuffer inheritedWalkingGoldenTorizo = DrawExtendedForBank(
@@ -761,8 +749,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionSixteen, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog upgradedVersionSixteen = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog upgradedVersionSixteen = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer stockRightwardGoldenTorizo = DrawExtendedForBank(stock, guard,
             0xaa, 0xa4f0, 0x0040, 0x0080);
         OamBuffer inheritedRightwardGoldenTorizo = DrawExtendedForBank(
@@ -789,8 +776,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionSeventeen, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog upgradedVersionSeventeen = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog upgradedVersionSeventeen = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer stockJumpBackTorizo = DrawExtendedForBank(stock, guard,
             0xaa, 0xb048, 0x0040, 0x0080);
         OamBuffer inheritedJumpBackTorizo = DrawExtendedForBank(
@@ -817,8 +803,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionEighteen, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog upgradedVersionEighteen = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog upgradedVersionEighteen = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer stockRightOrbTorizo = DrawExtendedForBank(stock, guard,
             0xaa, 0xac88, 0x0040, 0x0080);
         OamBuffer inheritedRightOrbTorizo = DrawExtendedForBank(
@@ -845,8 +830,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionNineteen, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog upgradedVersionNineteen = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog upgradedVersionNineteen = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer stockRightSonicTorizo = DrawExtendedForBank(stock, guard,
             0xaa, 0xabec, 0x0040, 0x0080);
         OamBuffer inheritedRightSonicTorizo = DrawExtendedForBank(
@@ -873,8 +857,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionTwenty, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog upgradedVersionTwenty = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog upgradedVersionTwenty = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer stockFallingLeft = DrawExtendedForBank(stock, guard,
             0xaa, TorizoFallingLeftInstructionProgramDefinitions.FallingFrame, 0x0040, 0x0080);
         OamBuffer inheritedFallingLeft = DrawExtendedForBank(upgradedVersionTwenty,
@@ -900,8 +883,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             fallingLeftOverride, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog editedFallingLeft = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog editedFallingLeft = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer movedFallingLeft = DrawExtendedForBank(editedFallingLeft,
             guard, 0xaa, TorizoFallingLeftInstructionProgramDefinitions.FallingFrame, 0x0040, 0x0080);
         AssertEqual(unchecked((byte)(stockFallingLeft.LowTable[0] + 1)),
@@ -926,8 +908,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionTwentyOne, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog upgradedVersionTwentyOne = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog upgradedVersionTwentyOne = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer stockLeftFootOrb = DrawExtendedForBank(stock, guard,
             0xaa, 0xac06, 0x0040, 0x0080);
         OamBuffer inheritedLeftFootOrb = DrawExtendedForBank(
@@ -952,8 +933,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionTwentyTwo, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog upgradedVersionTwentyTwo = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog upgradedVersionTwentyTwo = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer stockLeftJumpBack = DrawExtendedForBank(stock, guard,
             0xaa, 0xaffa, 0x0040, 0x0080);
         OamBuffer inheritedLeftJumpBack = DrawExtendedForBank(
@@ -978,8 +958,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionTwentyThree, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog upgradedVersionTwentyThree = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog upgradedVersionTwentyThree = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer stockLeftOrb = DrawExtendedForBank(stock, guard,
             0xaa, 0xa6ea, 0x0040, 0x0080);
         OamBuffer inheritedLeftOrb = DrawExtendedForBank(
@@ -1006,8 +985,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             leftFootOrbOverride, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog editedLeftFootOrb = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog editedLeftFootOrb = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer movedLeftFootOrb = DrawExtendedForBank(
             editedLeftFootOrb, guard, 0xaa, 0xac06, 0x0040, 0x0080);
         AssertEqual(unchecked((byte)(stockLeftFootOrb.LowTable[0] + 1)),
@@ -1033,8 +1011,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             rightSonicOverride, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog editedRightSonic = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog editedRightSonic = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer movedRightSonic = DrawExtendedForBank(
             editedRightSonic, guard, 0xaa, 0xabec, 0x0040, 0x0080);
         AssertEqual(unchecked((byte)(stockRightSonicTorizo.LowTable[0] + 1)),
@@ -1060,8 +1037,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             rightOrbOverride, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog editedRightOrb = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog editedRightOrb = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer movedRightOrb = DrawExtendedForBank(
             editedRightOrb, guard, 0xaa, 0xac88, 0x0040, 0x0080);
         AssertEqual(unchecked((byte)(stockRightOrbTorizo.LowTable[0] + 1)),
@@ -1087,8 +1063,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             jumpBackOverride, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog editedJumpBack = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog editedJumpBack = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer movedJumpBack = DrawExtendedForBank(
             editedJumpBack, guard, 0xaa, 0xb048, 0x0040, 0x0080);
         AssertEqual(unchecked((byte)(stockJumpBackTorizo.LowTable[0] + 1)),
@@ -1114,8 +1089,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             goldenRightwardOverride, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog editedGoldenRightward = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog editedGoldenRightward = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer movedGoldenRightward = DrawExtendedForBank(
             editedGoldenRightward, guard, 0xaa, 0xa4f0, 0x0040, 0x0080);
         AssertEqual(unchecked((byte)(stockRightwardGoldenTorizo.LowTable[0] + 1)),
@@ -1141,8 +1115,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             goldenWalkingOverride, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog editedGoldenWalking = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog editedGoldenWalking = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer movedGoldenWalking = DrawExtendedForBank(
             editedGoldenWalking, guard, 0xaa, 0xa4fa, 0x0040, 0x0080);
         AssertEqual(unchecked((byte)(stockWalkingGoldenTorizo.LowTable[0] + 1)),
@@ -1168,8 +1141,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             goldenAwakeningOverride, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog editedGoldenAwakening = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog editedGoldenAwakening = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer movedGoldenAwakening = DrawExtendedForBank(
             editedGoldenAwakening, guard, 0xaa, 0xaa5e, 0x0040, 0x0080);
         AssertEqual(unchecked((byte)(stockAwakeGoldenTorizo.LowTable[0] + 1)),
@@ -1193,8 +1165,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             kraidArmOverride, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog editedKraidArm = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog editedKraidArm = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer movedKraidArm = DrawExtendedForBank(editedKraidArm, guard,
             0xa7, 0x90fd, 0x0040, 0x0080);
         AssertEqual(unchecked((byte)(stockKraidArm.LowTable[0] + 1)),
@@ -1225,8 +1196,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             sporeVisualRemap, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog swappedSpore = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog swappedSpore = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer openSpore = DrawExtendedForBank(stock, guard,
             targetSporeFrame.Bank, targetSporeFrame.Pointer, 0x0040, 0x0080);
         OamBuffer swappedClosedSpore = DrawExtendedForBank(swappedSpore, guard,
@@ -1234,8 +1204,7 @@ internal static partial class Program
         AssertTrue(swappedClosedSpore.LowTable.SequenceEqual(openSpore.LowTable) &&
                    swappedClosedSpore.HighTable.SequenceEqual(openSpore.HighTable),
             "Spore Spawn display remap changes live OAM to the selected frame");
-        EnemyTileArtworkCatalog reloadedSpore = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog reloadedSpore = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer reloadedClosedSpore = DrawExtendedForBank(reloadedSpore, guard,
             0xa5, 0xee65, 0x0040, 0x0080);
         AssertTrue(reloadedClosedSpore.LowTable.SequenceEqual(openSpore.LowTable) &&
@@ -1252,8 +1221,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             remapped, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog swapped = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog swapped = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         ushort sourcePointer = EnemyExtendedFrameDefinitions.Frames.ToArray()
             .Single(frame => frame.Name == sourceName).Pointer;
         ushort targetPointer = EnemyExtendedFrameDefinitions.Frames.ToArray()
@@ -1278,8 +1246,7 @@ internal static partial class Program
         AssertEqual(GetTouchCallback(stock, guard, sourcePointer),
             GetTouchCallback(swapped, guard, sourcePointer),
             "Pirate display binding cannot move the compiled hitbox callback");
-        AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
-                .ExtendedFrames!.TryGetDisplay(EnemyExtendedFrameDefinitions.Bank,
+        AssertTrue(LoadExtendedFrameOverride().TryGetDisplay(EnemyExtendedFrameDefinitions.Bank,
                     sourcePointer, out _),
             "Pirate display binding survives reload");
         remapped.DisplayFrames[sourceName] = "wall_pirate_climb_left_0";
@@ -1287,7 +1254,7 @@ internal static partial class Program
             remapped, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            () => LoadExtendedFrameOverride(),
             "cross-family Pirate display binding fails loudly");
         remapped.DisplayFrames[sourceName] = targetName;
         remapped.DisplayFrames["spore_spawn_oam_EE65"] = "draygon_oam_A2DF";
@@ -1295,7 +1262,7 @@ internal static partial class Program
             remapped, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            () => LoadExtendedFrameOverride(),
             "current Spore Spawn display binding cannot select Draygon art");
         remapped.DisplayFrames["spore_spawn_oam_EE65"] =
             "spore_spawn_oam_EE65";
@@ -1304,7 +1271,7 @@ internal static partial class Program
             remapped, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            () => LoadExtendedFrameOverride(),
             "Ceres steam display binding cannot select Ridley art");
         remapped.DisplayFrames[steamName] = steamName;
         remapped.DisplayFrames[oumName] = "ceres_steam_oam_F142";
@@ -1312,7 +1279,7 @@ internal static partial class Program
             remapped, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            () => LoadExtendedFrameOverride(),
             "Oum display binding cannot select Ceres steam art");
         remapped.DisplayFrames[oumName] = oumName;
         remapped.DisplayFrames[crocomireName] = oumName;
@@ -1320,7 +1287,7 @@ internal static partial class Program
             remapped, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            () => LoadExtendedFrameOverride(),
             "Crocomire tongue display binding cannot select Oum art");
         remapped.DisplayFrames[crocomireName] = crocomireName;
         remapped.DisplayFrames.Remove(sourceName);
@@ -1328,7 +1295,7 @@ internal static partial class Program
             remapped, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            () => LoadExtendedFrameOverride(),
             "missing Pirate display binding fails loudly");
 
         EnemyExtendedVisualComponent[] editedNinjaComponents = document.Frames[ninjaName];
@@ -1339,7 +1306,7 @@ internal static partial class Program
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             }));
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            () => LoadExtendedFrameOverride(),
             "v3 override missing a Ninja frame fails loudly");
         document.Frames.Add(ninjaName, editedNinjaComponents);
 
@@ -1351,7 +1318,7 @@ internal static partial class Program
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             }));
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            () => LoadExtendedFrameOverride(),
             "v3 override missing a wall-Pirate frame fails loudly");
         document.Frames.Add(wallName, editedWallComponents);
 
@@ -1361,7 +1328,7 @@ internal static partial class Program
             document, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            () => LoadExtendedFrameOverride(),
             "current override missing a Ceres steam frame fails loudly");
         document.Frames.Add(steamName, steamComponents);
 
@@ -1371,7 +1338,7 @@ internal static partial class Program
             document, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            () => LoadExtendedFrameOverride(),
             "current override missing an Oum frame fails loudly");
         document.Frames.Add(oumName, oumComponents);
 
@@ -1382,7 +1349,7 @@ internal static partial class Program
             document, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            () => LoadExtendedFrameOverride(),
             "current override missing a Crocomire tongue frame fails loudly");
         document.Frames.Add(crocomireName, crocomireComponents);
 
@@ -1393,11 +1360,11 @@ internal static partial class Program
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             }));
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            () => LoadExtendedFrameOverride(),
             "missing extended frame fails loudly");
         File.WriteAllBytes(overridePath, [0]);
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            () => LoadExtendedFrameOverride(),
             "malformed extended composition override fails loudly");
 
         Console.WriteLine(

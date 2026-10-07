@@ -22,9 +22,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_motherBrain", flags)!.SetValue(enemies, state);
         ((List<ushort>)typeof(RoomEnemySystem).GetField("_interactiveEnemyIndexes", flags)!.GetValue(enemies)!).Add(head.NativeIndex);
         var samus = new SamusState();
-        string root = Path.GetFullPath("out/workbook-investigation/crocomire-install");
-        var installation = GameAssetInstaller.EnsureInstalled(root) ??
-            GameAssetInstaller.Install(Path.GetFullPath("Super Metroid.smc"), root);
+        var installation = runtimeFixtureInstallation.Value;
         var shots = new SamusProjectileSystem { FrameBindings = installation.LoadProjectiles().FrameBindings };
         var bombs = new SamusBombProjectileSystem();
         var shot = shots.Slots[0];

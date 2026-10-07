@@ -14,9 +14,7 @@ internal static partial class Program
     private static void VerifyWaterfallRooms()
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
-        string fixtureRoot = Path.GetFullPath("out/verification/WaterfallRooms-install");
-        var installation = GameAssetInstaller.EnsureInstalled(fixtureRoot)
-            ?? GameAssetInstaller.Install(Path.GetFullPath("Super Metroid.smc"), fixtureRoot);
+        var installation = runtimeFixtureInstallation.Value;
         var bus=installation.OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(bus);
         game.BindMapPresentation(installation.LoadMaps());

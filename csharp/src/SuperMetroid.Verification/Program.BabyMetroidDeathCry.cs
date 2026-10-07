@@ -11,9 +11,7 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();
-        string root = Path.GetFullPath("out/workbook-investigation/crocomire-install");
-        var installation = GameAssetInstaller.EnsureInstalled(root) ??
-            GameAssetInstaller.Install(Path.GetFullPath("Super Metroid.smc"), root);
+        var installation = runtimeFixtureInstallation.Value;
         enemies.MotherBrainRoomColors = installation.LoadMaps().MotherBrainRoomColors;
         var cgram = new SnesCgram();
         for (int index = 0; index < 256; index++) cgram.SetColor(index, (ushort)(index + 1));

@@ -15,9 +15,7 @@ internal static partial class Program
     private static int VerifyGunshipEscapeTimer()
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
-        string fixtureRoot = Path.GetFullPath("out/workbook-investigation/crocomire-install");
-        var installation = GameAssetInstaller.EnsureInstalled(fixtureRoot) ??
-            GameAssetInstaller.Install(Path.GetFullPath("Super Metroid.smc"), fixtureRoot);
+        var installation = runtimeFixtureInstallation.Value;
         var bus=installation.OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(bus);
         var maps = installation.LoadMaps();

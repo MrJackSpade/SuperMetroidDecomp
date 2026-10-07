@@ -1269,7 +1269,9 @@ public sealed partial class IntroCinematicState
 
     private void CompositeScientistRoomPriority(Span<Rgba32> pixels, bool priority)
     {
-        Rgba32[] room = SnesBgTilemapRenderer.Render4BppViewport(
+        // Composited directly; transparent pixels leave the frame untouched, as a plane would.
+        SnesBgTilemapRenderer.Composite4BppViewport(
+            pixels,
             vram,
             cgram,
             tilemapBaseWord: scientistCutscene?.TilemapBaseWord ??
@@ -1282,12 +1284,13 @@ public sealed partial class IntroCinematicState
             tilemapWidthInTiles: 32,
             tilemapHeightInTiles: 32,
             priority: priority);
-        SnesLayerCompositor.Composite(pixels, room);
     }
 
     private void CompositeBabyDiscoveryRoomPriority(Span<Rgba32> pixels, bool priority)
     {
-        Rgba32[] room = SnesBgTilemapRenderer.Render4BppViewport(
+        // Composited directly; transparent pixels leave the frame untouched, as a plane would.
+        SnesBgTilemapRenderer.Composite4BppViewport(
+            pixels,
             vram,
             cgram,
             tilemapBaseWord: IntroCinematicRomData.Layers.SceneBg2TilemapWord,
@@ -1299,12 +1302,13 @@ public sealed partial class IntroCinematicState
             tilemapWidthInTiles: 32,
             tilemapHeightInTiles: 32,
             priority: priority);
-        SnesLayerCompositor.Composite(pixels, room);
     }
 
     private void CompositeMotherBrainRoomPriority(Span<Rgba32> pixels, bool priority)
     {
-        Rgba32[] room = SnesBgTilemapRenderer.Render4BppViewport(
+        // Composited directly; transparent pixels leave the frame untouched, as a plane would.
+        SnesBgTilemapRenderer.Composite4BppViewport(
+            pixels,
             vram,
             cgram,
             tilemapBaseWord: IntroCinematicRomData.Layers.SceneBg1TilemapWord,
@@ -1317,7 +1321,6 @@ public sealed partial class IntroCinematicState
             tilemapWidthInTiles: 32,
             tilemapHeightInTiles: 32,
             priority: priority);
-        SnesLayerCompositor.Composite(pixels, room);
     }
 
     private Rgba32[] RenderFirstNarration()
@@ -1372,7 +1375,9 @@ public sealed partial class IntroCinematicState
 
     private void CompositePortraitPriority(Span<Rgba32> pixels, bool priority)
     {
-        Rgba32[] portrait = SnesBgTilemapRenderer.Render4BppViewport(
+        // Composited directly; transparent pixels leave the frame untouched, as a plane would.
+        SnesBgTilemapRenderer.Composite4BppViewport(
+            pixels,
             vram,
             cgram,
             tilemapBaseWord: IntroCinematicRomData.Layers.PortraitTilemapWord,
@@ -1384,12 +1389,19 @@ public sealed partial class IntroCinematicState
             tilemapWidthInTiles: 32,
             tilemapHeightInTiles: 32,
             priority: priority);
-        SnesLayerCompositor.Composite(pixels, portrait);
     }
+
+    // Raster scratch reused across draws; never part of saved state (restores reallocate it).
+    [NonSerialized] private Rgba32[]? textScratch;
+    [NonSerialized] private Rgba32[]? objScratch;
 
     private void CompositeTextPriority(Span<Rgba32> pixels, bool priority)
     {
-        Rgba32[] fullText = SnesBgTilemapRenderer.Render2Bpp(
+        // The renderer skips tiles of the other priority, so clear the reused plane first.
+        Rgba32[] fullText = textScratch ??= new Rgba32[ScreenWidth * 32 * 8];
+        fullText.AsSpan().Clear();
+        SnesBgTilemapRenderer.Render2Bpp(
+            fullText,
             vram,
             cgram,
             tilemapBaseWord: IntroCinematicRomData.Layers.NarrationTilemapWord,
@@ -1397,18 +1409,20 @@ public sealed partial class IntroCinematicState
             rowCount: 32,
             transparentColorZero: true,
             priority: priority);
-        var visibleText = new Rgba32[ScreenWidth * ScreenHeight];
-        fullText.AsSpan(8 * ScreenWidth, visibleText.Length).CopyTo(visibleText);
-        SnesLayerCompositor.Composite(pixels, visibleText);
+        SnesLayerCompositor.Composite(pixels, fullText.AsSpan(8 * ScreenWidth, ScreenWidth * ScreenHeight));
     }
 
     private void CompositeObjPriority(Span<Rgba32> pixels, OamBuffer oam, int priority)
     {
-        Rgba32[] sprites = SnesObjRenderer.Render(
+        Rgba32[] sprites = objScratch ??= new Rgba32[ScreenWidth * ScreenHeight];
+        SnesObjRenderer.Render(
+            sprites,
             oam,
             vram,
             cgram,
             obsel: 3,
+            width: ScreenWidth,
+            height: ScreenHeight,
             priority: priority);
         SnesLayerCompositor.Composite(pixels, sprites);
     }

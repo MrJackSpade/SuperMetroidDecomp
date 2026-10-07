@@ -1814,6 +1814,13 @@ internal static partial class Program
         string overrideDirectory = Path.Combine(stockDirectory, "spritemap-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
+        // Override cases check the spritemap catalog against stock loaded once, exactly as the
+        // installation loader does for this file; two full loads above prove the disk wiring.
+        EnemySpritemapCatalog LoadSpritemapOverride()
+        {
+            using FileStream json = File.OpenRead(overridePath);
+            return EnemySpritemapCatalog.Load(json, stock.Spritemaps!);
+        }
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(document,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
@@ -2438,10 +2445,9 @@ internal static partial class Program
                 Frames = preMetroidFrames,
                 DisplayFrames = preMetroidBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preMetroidUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemySpritemapCatalog preMetroidUpgraded = LoadSpritemapOverride();
         foreach (EnemySpritemapDefinition frame in MetroidVisualDefinitions.Frames())
-            AssertTrue(preMetroidUpgraded.Spritemaps!.TryGetDisplay(
+            AssertTrue(preMetroidUpgraded.TryGetDisplay(
                     frame.Bank, frame.Pointer, out _),
                 $"version-forty-four override inherits Metroid frame {frame.Name}");
         document = new EnemySpritemapDocument
@@ -2465,10 +2471,9 @@ internal static partial class Program
                 Frames = preShutterFrames,
                 DisplayFrames = preShutterBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preShutterUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemySpritemapCatalog preShutterUpgraded = LoadSpritemapOverride();
         foreach (EnemySpritemapDefinition frame in ShutterVisualDefinitions.Frames())
-            AssertTrue(preShutterUpgraded.Spritemaps!.TryGetDisplay(
+            AssertTrue(preShutterUpgraded.TryGetDisplay(
                     frame.Bank, frame.Pointer, out _),
                 $"version-forty-three override inherits shutter frame {frame.Name}");
         document = new EnemySpritemapDocument
@@ -2492,10 +2497,9 @@ internal static partial class Program
                 Frames = preMorphBallEyeFrames,
                 DisplayFrames = preMorphBallEyeBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preMorphBallEyeUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemySpritemapCatalog preMorphBallEyeUpgraded = LoadSpritemapOverride();
         foreach (EnemySpritemapDefinition frame in MorphBallEyeVisualDefinitions.Frames())
-            AssertTrue(preMorphBallEyeUpgraded.Spritemaps!.TryGetDisplay(
+            AssertTrue(preMorphBallEyeUpgraded.TryGetDisplay(
                     frame.Bank, frame.Pointer, out _),
                 $"version-forty-two override inherits eye frame {frame.Name}");
         document = new EnemySpritemapDocument
@@ -2519,10 +2523,9 @@ internal static partial class Program
                 Frames = preFaceBlockFrames,
                 DisplayFrames = preFaceBlockBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preFaceBlockUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemySpritemapCatalog preFaceBlockUpgraded = LoadSpritemapOverride();
         foreach (EnemySpritemapDefinition frame in BlueBrinstarFaceBlockVisualDefinitions.Frames())
-            AssertTrue(preFaceBlockUpgraded.Spritemaps!.TryGetDisplay(
+            AssertTrue(preFaceBlockUpgraded.TryGetDisplay(
                     frame.Bank, frame.Pointer, out _),
                 $"version-forty-one override inherits face-block frame {frame.Name}");
         document = new EnemySpritemapDocument
@@ -2546,10 +2549,9 @@ internal static partial class Program
                 Frames = preKagoFrames,
                 DisplayFrames = preKagoBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preKagoUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemySpritemapCatalog preKagoUpgraded = LoadSpritemapOverride();
         foreach (EnemySpritemapDefinition frame in KagoVisualDefinitions.Frames())
-            AssertTrue(preKagoUpgraded.Spritemaps!.TryGetDisplay(
+            AssertTrue(preKagoUpgraded.TryGetDisplay(
                     frame.Bank, frame.Pointer, out _),
                 $"version-forty override inherits Kago frame {frame.Name}");
         document = new EnemySpritemapDocument
@@ -2573,10 +2575,9 @@ internal static partial class Program
                 Frames = preFlyFrames,
                 DisplayFrames = preFlyBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preFlyUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemySpritemapCatalog preFlyUpgraded = LoadSpritemapOverride();
         foreach (EnemySpritemapDefinition frame in FlyVisualDefinitions.Frames())
-            AssertTrue(preFlyUpgraded.Spritemaps!.TryGetDisplay(
+            AssertTrue(preFlyUpgraded.TryGetDisplay(
                     frame.Bank, frame.Pointer, out _),
                 $"version-thirty-nine override inherits fly frame {frame.Name}");
         document = new EnemySpritemapDocument
@@ -2600,10 +2601,9 @@ internal static partial class Program
                 Frames = preSciserFrames,
                 DisplayFrames = preSciserBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preSciserUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemySpritemapCatalog preSciserUpgraded = LoadSpritemapOverride();
         foreach (EnemySpritemapDefinition frame in SciserVisualDefinitions.Frames())
-            AssertTrue(preSciserUpgraded.Spritemaps!.TryGetDisplay(
+            AssertTrue(preSciserUpgraded.TryGetDisplay(
                     frame.Bank, frame.Pointer, out _),
                 $"version-thirty-eight override inherits Sciser {frame.Name}");
         document = new EnemySpritemapDocument
@@ -2627,10 +2627,9 @@ internal static partial class Program
                 Frames = preRidleyFrames,
                 DisplayFrames = preRidleyBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preRidleyUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemySpritemapCatalog preRidleyUpgraded = LoadSpritemapOverride();
         foreach (EnemySpritemapDefinition frame in RidleySupplementalVisualDefinitions.Frames())
-            AssertTrue(preRidleyUpgraded.Spritemaps!.TryGetDisplay(
+            AssertTrue(preRidleyUpgraded.TryGetDisplay(
                     frame.Bank, frame.Pointer, out _),
                 $"version-thirty-seven override inherits Ridley supplement {frame.Name}");
         document = new EnemySpritemapDocument
@@ -2654,9 +2653,8 @@ internal static partial class Program
                 Frames = preDeadTorizoFrames,
                 DisplayFrames = preDeadTorizoBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preDeadTorizoUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
-        AssertTrue(preDeadTorizoUpgraded.Spritemaps!.TryGetDisplay(
+        EnemySpritemapCatalog preDeadTorizoUpgraded = LoadSpritemapOverride();
+        AssertTrue(preDeadTorizoUpgraded.TryGetDisplay(
                 DeadTorizoArtworkDefinitions.SpritemapBank,
                 DeadTorizoArtworkDefinitions.HookSpritemap, out _),
             "version-thirty-six override inherits Dead Torizo corpse frame");
@@ -2681,10 +2679,9 @@ internal static partial class Program
                 Frames = preMotherBrainFrames,
                 DisplayFrames = preMotherBrainBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preMotherBrainUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemySpritemapCatalog preMotherBrainUpgraded = LoadSpritemapOverride();
         foreach (EnemySpritemapDefinition frame in MotherBrainVisualDefinitions.Frames())
-            AssertTrue(preMotherBrainUpgraded.Spritemaps!.TryGetDisplay(
+            AssertTrue(preMotherBrainUpgraded.TryGetDisplay(
                     frame.Bank, frame.Pointer, out _),
                 $"version-thirty-five override inherits Mother Brain frame {frame.Name}");
         // All earlier migration fixtures start from the previous complete schema.
@@ -2709,11 +2706,10 @@ internal static partial class Program
                 Frames = preHunterFrames,
                 DisplayFrames = preHunterBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preHunterUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemySpritemapCatalog preHunterUpgraded = LoadSpritemapOverride();
         foreach (ushort pointer in installedHunterPointers)
         {
-            AssertTrue(preHunterUpgraded.Spritemaps!.TryGetDisplay(
+            AssertTrue(preHunterUpgraded.TryGetDisplay(
                     KiHunterVisualDefinitions.Bank, pointer, out _),
                 $"version-thirty-four override inherits KiHunter frame ${pointer:X4}");
         }
@@ -2733,11 +2729,10 @@ internal static partial class Program
                 Frames = preMawFrames,
                 DisplayFrames = preMawBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preMawUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemySpritemapCatalog preMawUpgraded = LoadSpritemapOverride();
         foreach (ushort pointer in installedMawPointers)
         {
-            AssertTrue(preMawUpgraded.Spritemaps!.TryGetDisplay(
+            AssertTrue(preMawUpgraded.TryGetDisplay(
                     YappingMawVisualDefinitions.Bank, pointer, out _),
                 $"version-thirty-three override inherits Yapping Maw frame ${pointer:X4}");
         }
@@ -2758,13 +2753,12 @@ internal static partial class Program
                 Frames = preRoomSpriteFrames,
                 DisplayFrames = preRoomSpriteBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preRoomSpriteUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemySpritemapCatalog preRoomSpriteUpgraded = LoadSpritemapOverride();
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
             if (!frame.Name.StartsWith("room_sprite_b4_", StringComparison.Ordinal))
                 continue;
-            AssertTrue(preRoomSpriteUpgraded.Spritemaps!.TryGetDisplay(
+            AssertTrue(preRoomSpriteUpgraded.TryGetDisplay(
                     EnemySpritemapDefinitions.RoomSpriteObjectBank, frame.Pointer, out _),
                 $"version-thirty-two override inherits stock sprite-object frame {frame.Name}");
         }
@@ -2783,12 +2777,11 @@ internal static partial class Program
                 Frames = preBreathFrames,
                 DisplayFrames = preBreathBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preBreathUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemySpritemapCatalog preBreathUpgraded = LoadSpritemapOverride();
         foreach (ushort pointer in new ushort[]
                  { 0xc920, 0xc927, 0xc938, 0xc949, 0xc95a, 0xc96b, 0xc97c, 0xc98d, 0xc999 })
         {
-            AssertTrue(preBreathUpgraded.Spritemaps!.TryGetDisplay(
+            AssertTrue(preBreathUpgraded.TryGetDisplay(
                     EnemySpritemapDefinitions.RoomSpriteObjectBank, pointer, out _),
                 $"version-thirty-one override inherits stock Draygon breath frame ${pointer:X4}");
         }
@@ -2807,11 +2800,10 @@ internal static partial class Program
                 Frames = preDraygonFrames,
                 DisplayFrames = preDraygonBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preDraygonUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemySpritemapCatalog preDraygonUpgraded = LoadSpritemapOverride();
         foreach (ushort pointer in new ushort[] { 0xdb42, 0xdb80, 0xdbbe, 0xdbfc })
         {
-            AssertTrue(preDraygonUpgraded.Spritemaps!.TryGetDisplay(
+            AssertTrue(preDraygonUpgraded.TryGetDisplay(
                     EnemySpritemapDefinitions.RoomSpriteObjectBank, pointer, out _),
                 $"version-thirty override inherits stock Draygon intro frame ${pointer:X4}");
         }
@@ -2830,8 +2822,7 @@ internal static partial class Program
                 Frames = preElevatorFrames,
                 DisplayFrames = preElevatorBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preElevatorUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog preElevatorUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         AssertTrue(DrawEnemy(preElevatorUpgraded, new FrameReadGuard(rom), 0x962f,
                 RoomEnemySystem.ElevatorDefinition).LowTable
             .SequenceEqual(DrawEnemy(stock, new FrameReadGuard(rom), 0x962f,
@@ -2853,8 +2844,7 @@ internal static partial class Program
                 Frames = preKamerFrames,
                 DisplayFrames = preKamerBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preKamerUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog preKamerUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         AssertTrue(DrawEnemy(preKamerUpgraded, new FrameReadGuard(rom), 0xf468,
                 RoomEnemySystem.KamerVerticalPlatformDefinition).LowTable
             .SequenceEqual(DrawEnemy(stock, new FrameReadGuard(rom), 0xf468,
@@ -2878,8 +2868,7 @@ internal static partial class Program
                 Frames = preFuneFrames,
                 DisplayFrames = preFuneBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preFuneUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog preFuneUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer inheritedFune = DrawEnemy(preFuneUpgraded,
             new FrameReadGuard(rom), 0x94cb,
             FuneNamiheDefinitions.FuneEnemyDefinition);
@@ -2910,8 +2899,7 @@ internal static partial class Program
                 Frames = preSbugFrames,
                 DisplayFrames = preSbugBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preSbugUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog preSbugUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         AssertTrue(preSbugUpgraded.Spritemaps!.TryGet(
                 EnemySpritemapDefinitions.SbugBank, sbugPointer, out _),
             "version-twenty-six override inherits stock Sbug artwork");
@@ -2941,8 +2929,7 @@ internal static partial class Program
                 Frames = preHZoomerFrames,
                 DisplayFrames = preHZoomerBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preHZoomerUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog preHZoomerUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer retainedPreHZoomerEdit = DrawEnemy(preHZoomerUpgraded,
             new FrameReadGuard(rom), chootPointer, RoomEnemySystem.ChootDefinition);
         AssertEqual(editedChoot.LowTable[1], retainedPreHZoomerEdit.LowTable[1],
@@ -2971,8 +2958,7 @@ internal static partial class Program
                 Frames = preChootFrames,
                 DisplayFrames = preChootBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preChootUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog preChootUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer retainedPreChootEdit = DrawEnemy(preChootUpgraded,
             new FrameReadGuard(rom), hopperPointer, RoomEnemySystem.SidehopperDefinition);
         AssertEqual(editedHopper.LowTable[1], retainedPreChootEdit.LowTable[1],
@@ -3004,8 +2990,7 @@ internal static partial class Program
                 Frames = preHopperFrames,
                 DisplayFrames = preHopperBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preHopperUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog preHopperUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer retainedPreHopperEdit = DrawEnemy(preHopperUpgraded,
             new FrameReadGuard(rom), beetomPointer, RoomEnemySystem.BeetomDefinition);
         AssertEqual(editedBeetom.LowTable[1], retainedPreHopperEdit.LowTable[1],
@@ -3034,8 +3019,7 @@ internal static partial class Program
                 Frames = preBeetomFrames,
                 DisplayFrames = preBeetomBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preBeetomUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog preBeetomUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer retainedPreBeetomEdit = DrawEnemy(preBeetomUpgraded,
             new FrameReadGuard(rom), alcoonPointer, RoomEnemySystem.AlcoonDefinition);
         AssertEqual(editedAlcoon.LowTable[1], retainedPreBeetomEdit.LowTable[1],
@@ -3063,8 +3047,7 @@ internal static partial class Program
                 Frames = preAlcoonFrames,
                 DisplayFrames = preAlcoonBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preAlcoonUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog preAlcoonUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer retainedPreAlcoonEdit = DrawEnemy(preAlcoonUpgraded,
             new FrameReadGuard(rom), bullPointer, RoomEnemySystem.BullDefinition);
         AssertEqual(editedBull.LowTable[1], retainedPreAlcoonEdit.LowTable[1],
@@ -3087,8 +3070,7 @@ internal static partial class Program
                 Frames = preBullFrames,
                 DisplayFrames = preBullBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preBullUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog preBullUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer retainedPreBullEdit = DrawEnemy(preBullUpgraded,
             new FrameReadGuard(rom), puyoPointer, RoomEnemySystem.PuyoDefinition);
         AssertEqual(editedPuyo.LowTable[1], retainedPreBullEdit.LowTable[1],
@@ -3111,8 +3093,7 @@ internal static partial class Program
                 Frames = prePuyoFrames,
                 DisplayFrames = prePuyoBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog prePuyoUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog prePuyoUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer retainedPrePuyoEdit = DrawEnemy(prePuyoUpgraded,
             new FrameReadGuard(rom), framePointer, RoomEnemySystem.BoyonDefinition);
         AssertEqual(editedOam.LowTable[1], retainedPrePuyoEdit.LowTable[1],
@@ -3136,8 +3117,7 @@ internal static partial class Program
                 Frames = preNorfairRioFrames,
                 DisplayFrames = preNorfairRioBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preNorfairRioUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog preNorfairRioUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer priorNorfairRioEraRemap = DrawEnemy(preNorfairRioUpgraded,
             new FrameReadGuard(rom), 0x88da, RoomEnemySystem.BoyonDefinition);
         OamBuffer priorNorfairRioEraSelected = DrawEnemy(stock,
@@ -3166,8 +3146,7 @@ internal static partial class Program
                 Frames = preLowerRioFrames,
                 DisplayFrames = preLowerRioBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preLowerRioUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog preLowerRioUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer priorLowerRioEraRemap = DrawEnemy(preLowerRioUpgraded,
             new FrameReadGuard(rom), 0x88da, RoomEnemySystem.BoyonDefinition);
         OamBuffer priorLowerRioEraSelected = DrawEnemy(stock,
@@ -3198,8 +3177,7 @@ internal static partial class Program
                 Frames = preRioFrames,
                 DisplayFrames = preRioBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preRioUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog preRioUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer priorRioEraRemap = DrawEnemy(preRioUpgraded,
             new FrameReadGuard(rom), 0x88da, RoomEnemySystem.BoyonDefinition);
         OamBuffer priorRioEraSelected = DrawEnemy(stock,
@@ -3232,8 +3210,7 @@ internal static partial class Program
                 Frames = preCeresBabyFrames,
                 DisplayFrames = preCeresBabyBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preCeresBabyUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog preCeresBabyUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer priorCeresRemap = DrawEnemy(preCeresBabyUpgraded,
             new FrameReadGuard(rom), 0xfa13,
             CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer);
@@ -3262,8 +3239,7 @@ internal static partial class Program
                 Frames = preCeresDoorFrames,
                 DisplayFrames = preCeresDoorBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preCeresDoorUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog preCeresDoorUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer priorRemap = DrawEnemy(preCeresDoorUpgraded, new FrameReadGuard(rom),
             0x88da, RoomEnemySystem.BoyonDefinition);
         OamBuffer priorSelected = DrawEnemy(stock, new FrameReadGuard(rom),
@@ -3286,7 +3262,7 @@ internal static partial class Program
                 DisplayFrames = preCeresDoorBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            () => LoadSpritemapOverride(),
             "version-fourteen override rejects a missing authored display binding");
 
         var preMagdolliteFrames = preCeresDoorFrames
@@ -3300,8 +3276,7 @@ internal static partial class Program
                 Version = EnemySpritemapDefinitions.PreMagdolliteVersion,
                 Frames = preMagdolliteFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preMagdolliteUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog preMagdolliteUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer upgradedMagdollite = DrawEnemy(preMagdolliteUpgraded,
             new FrameReadGuard(rom), magdollitePointer,
             RoomEnemySystem.MagdolliteDefinition);
@@ -3323,8 +3298,7 @@ internal static partial class Program
                 Version = EnemySpritemapDefinitions.PreFirefleaVersion,
                 Frames = preFirefleaFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preFirefleaUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog preFirefleaUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer upgradedFireflea = DrawEnemy(preFirefleaUpgraded,
             new FrameReadGuard(rom), firefleaPointer, RoomEnemySystem.FirefleaDefinition);
         AssertTrue(stockFireflea.LowTable.SequenceEqual(upgradedFireflea.LowTable),
@@ -3346,8 +3320,7 @@ internal static partial class Program
                 Version = EnemySpritemapDefinitions.PreRipperVersion,
                 Frames = preRipperFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preRipperUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog preRipperUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer upgradedRipper = DrawEnemy(preRipperUpgraded, new FrameReadGuard(rom),
             0xe54b, RoomEnemySystem.RipperDefinition);
         OamBuffer stockRipper = DrawEnemy(stock, new FrameReadGuard(rom),
@@ -3372,8 +3345,7 @@ internal static partial class Program
                 Version = EnemySpritemapDefinitions.PreOwtchStokeVersion,
                 Frames = preOwtchStokeFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog preOwtchStokeUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog preOwtchStokeUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         ushort owtchPointer = OwtchStokeVisualDefinitions.FrameAt(
             RoomEnemySystem.OwtchDefinition, 0xa3af);
         OamBuffer stockOwtch = DrawEnemy(stock, new FrameReadGuard(rom),
@@ -3394,8 +3366,7 @@ internal static partial class Program
                 Version = EnemySpritemapDefinitions.PreviousVersion,
                 Frames = previousFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog upgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog upgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         ushort nailPointer = KraidVisualDefinitions.InitialNailFrame;
         OamBuffer stockNail = DrawEnemy(stock, new FrameReadGuard(rom),
             nailPointer, RoomEnemySystem.KraidGoodNailDefinition);
@@ -3426,8 +3397,7 @@ internal static partial class Program
                 Version = EnemySpritemapDefinitions.PriorVersion,
                 Frames = priorFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog priorUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog priorUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         ushort pipePointer = PipeBugVisualDefinitions.FrameAt(
             PipeBugDefinitions.NorfairEnemyDefinition, 0x8ae3);
         OamBuffer stockPipe = DrawEnemy(stock, new FrameReadGuard(rom),
@@ -3449,8 +3419,7 @@ internal static partial class Program
                 Version = EnemySpritemapDefinitions.EarlierVersion,
                 Frames = earlierFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog earlierUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog earlierUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         var upgradedBoyon = DrawEnemy(earlierUpgraded, new FrameReadGuard(rom),
             framePointer, RoomEnemySystem.BoyonDefinition);
         var upgradedSkultera = DrawEnemy(earlierUpgraded, new FrameReadGuard(rom),
@@ -3481,8 +3450,7 @@ internal static partial class Program
                 Version = EnemySpritemapDefinitions.IntermediateVersion,
                 Frames = intermediateFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog intermediateUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog intermediateUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         var intermediateBoyon = DrawEnemy(intermediateUpgraded, new FrameReadGuard(rom),
             framePointer, RoomEnemySystem.BoyonDefinition);
         var intermediateWaver = DrawEnemy(intermediateUpgraded, new FrameReadGuard(rom),
@@ -3502,8 +3470,7 @@ internal static partial class Program
                 Version = EnemySpritemapDefinitions.LegacyVersion,
                 Frames = legacyFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog legacyUpgraded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog legacyUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         var legacyBoyon = DrawEnemy(legacyUpgraded, new FrameReadGuard(rom),
             framePointer, RoomEnemySystem.BoyonDefinition);
         var legacySkultera = DrawEnemy(legacyUpgraded, new FrameReadGuard(rom),
@@ -3520,8 +3487,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             preBindings, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog upgradedBindings = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog upgradedBindings = stock.WithSpritemaps(LoadSpritemapOverride());
         AssertEqual(editedOam.LowTable[0],
             DrawEnemy(upgradedBindings, new FrameReadGuard(rom), framePointer,
                 RoomEnemySystem.BoyonDefinition).LowTable[0],
@@ -3535,8 +3501,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             remapped, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemyTileArtworkCatalog swappedArt = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        EnemyTileArtworkCatalog swappedArt = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer nativeFirst = DrawEnemy(stock, new FrameReadGuard(rom), 0x88da,
             RoomEnemySystem.BoyonDefinition);
         OamBuffer nativeSecond = DrawEnemy(stock, new FrameReadGuard(rom), 0x88e1,
@@ -3556,8 +3521,7 @@ internal static partial class Program
         AssertTrue(nativeSecond.LowTable.SequenceEqual(displayedSecond.LowTable) &&
                    nativeSecond.HighTable.SequenceEqual(displayedSecond.HighTable),
             "authored frame binding changes live OAM without a ROM visual read");
-        AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
-                .Spritemaps!.TryGetDisplay(EnemySpritemapDefinitions.BoyonBank,
+        AssertTrue(LoadSpritemapOverride().TryGetDisplay(EnemySpritemapDefinitions.BoyonBank,
                     0x88da, out _),
             "display override survives a catalog reload");
         remapped.DisplayFrames["boyon_idle_0"] = "magdollite_left_idle_0";
@@ -3565,22 +3529,22 @@ internal static partial class Program
             remapped, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            () => LoadSpritemapOverride(),
             "cross-bank display binding fails loudly");
         remapped.DisplayFrames.Remove("boyon_idle_0");
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             remapped, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            () => LoadSpritemapOverride(),
             "missing display binding fails loudly");
         File.WriteAllText(overridePath, "{\"version\":1,\"version\":1,\"frames\":{}}");
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            () => LoadSpritemapOverride(),
             "duplicate enemy composition keys fail loudly");
         File.WriteAllBytes(overridePath, [0]);
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            () => LoadSpritemapOverride(),
             "malformed enemy composition override fails loudly");
 
         static OamBuffer DrawEnemy(EnemyTileArtworkCatalog art,

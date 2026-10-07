@@ -7,9 +7,7 @@ internal static partial class Program
     private static int VerifyDeadTorizoCollision()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        string root = Path.GetFullPath("out/workbook-investigation/crocomire-install");
-        var installation = GameAssetInstaller.EnsureInstalled(root) ??
-            GameAssetInstaller.Install(Path.GetFullPath("Super Metroid.smc"), root);
+        var installation = runtimeFixtureInstallation.Value;
         foreach (string trigger in new[] { "contact", "shot", "power bomb", "solid collision delay" })
         {
             var enemies = new RoomEnemySystem { TileArtwork = installation.LoadEnemyTiles() };

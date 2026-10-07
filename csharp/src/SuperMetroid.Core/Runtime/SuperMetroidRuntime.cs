@@ -1579,15 +1579,6 @@ public sealed partial class SuperMetroidRuntime
         // music, and sound engines. Audio mixing lives in the frontend, but this translated
         // runtime must still latch controller input and block every gameplay owner during
         // those waits. This early seam is shared by all permanent-item identities.
-        // EnemyMain suspended at $A2:AB1F requests its distinct bank-$85 coroutine.
-        // Keep the ship waiting until the entire YES/NO/completion chain has returned.
-        if (Enemies.GunshipSavePromptPending)
-        {
-            // This dispatch ends in the routine's first lag wait.
-            MessageBox.Begin(_addressSpace, GameplayMessageIds.GunshipSaveConfirmation, Controller1.Current);
-            return Snapshot(escapeTimerExpired: false, infiniteAmmoGuard);
-        }
-
         // Room FX objects run in the ordinary gameplay owner list. In particular, they
         // must not scroll or animate during DisplayMessageBox's NMI-only wait loop above.
         // Keeping this after that early-return seam reproduces that native suspension and
@@ -3864,6 +3855,21 @@ public sealed partial class SuperMetroidRuntime
                 {
                     Enemies.SpawnBombTorizoStatueBreakingProjectile(request);
                 }
+            }
+
+            // $A2:AB1F calls the bank-$85 routine from inside EnemyMain, after this frame's
+            // ship bob and earlier owners ran. The prompt exists only while Samus is locked
+            // inside the ship, so the owners between EnemyMain and here have nothing to
+            // act on; the box therefore opens at this shared suspension seam, and the
+            // remainder resumes after the YES/NO/completion chain returns.
+            if (Enemies.GunshipSavePromptPending)
+            {
+                if (MessageBox.IsActive)
+                {
+                    throw new InvalidDataException(
+                        "A PLM message box and the gunship save prompt opened in one gameplay frame.");
+                }
+                MessageBox.Begin(_addressSpace, GameplayMessageIds.GunshipSaveConfirmation, Controller1.Current);
             }
 
             frameTail = new SuspendedGameplayFrameTail(

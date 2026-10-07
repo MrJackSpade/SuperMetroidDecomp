@@ -2182,6 +2182,7 @@ public sealed partial class RoomEnemySystem
                 return;
             case GunshipCodePointers.HandleSaveConfirmation:
                 GunshipSavePromptPending = true;
+                LastGunshipEvent = GunshipFrameEvent.SavePromptRequested;
                 return;
             case GunshipCodePointers.WaitForExitPadToOpen:
                 if (TickGunshipFunctionTimer(top))
@@ -2420,9 +2421,8 @@ public sealed partial class RoomEnemySystem
             (short)(samus.PowerBombs - samus.MaxPowerBombs) < 0)
             return;
 
+        // The prompt itself opens when $AB1F executes on the following frame.
         top.VariableF = GunshipCodePointers.HandleSaveConfirmation;
-        GunshipSavePromptPending = true;
-        LastGunshipEvent = GunshipFrameEvent.SavePromptRequested;
     }
 
     private void RaiseSamusOutOfGunship(RoomEnemySlot top, SamusState? samus)

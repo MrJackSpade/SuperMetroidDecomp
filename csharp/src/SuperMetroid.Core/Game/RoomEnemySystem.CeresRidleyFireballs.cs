@@ -1402,28 +1402,6 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>
-    /// One block of <c>Move_EnemyProjectile_Vertically</c>'s span, for a caller that
-    /// carries no slope geometry.
-    /// </summary>
-    private static bool ProjectileProbeHitsRoom(RoomLevelData level, ushort x, ushort y)
-    {
-        int blockX = x >> 4;
-        int blockY = y >> 4;
-        if ((uint)blockX >= (uint)level.WidthInBlocks ||
-            (uint)blockY >= (uint)level.HeightInBlocks)
-        {
-            return true;
-        }
-
-        int blockIndex = ResolveEnemyCollisionBlockIndex(level, blockX, blockY);
-        if (blockIndex < 0)
-            return true;
-
-        RoomCollisionType type = level.GetCollisionBlockByIndex(blockIndex).CollisionType;
-        return EnemyProjectileBlockIsWall(type);
-    }
-
-    /// <summary>
     /// The unconditional rows of <c>$86:8846</c>/<c>$8866</c>, the enemy-projectile block
     /// reaction tables. Slopes and extensions are resolved before reaching this test.
     /// Spike blocks stop projectiles; grapple blocks do not.

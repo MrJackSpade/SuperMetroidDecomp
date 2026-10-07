@@ -230,7 +230,8 @@ public sealed partial class RoomEnemySystem
         state.PaletteDestinationByteOffset =
             unchecked((ushort)((head.PaletteIndex >> 4) + 256));
         state.InstalledHeadInstruction = BotwoonInstructionDefinitions.HiddenHeadInstruction;
-        head.Properties = head.Properties.With(EnemyProperties.SolidToSamus);
+        // `$B3:961B` ORs $0400: the head starts hidden in its hole, out of every collision pass.
+        head.Properties = head.Properties.With(EnemyProperties.IgnoreSamusCollision);
 
         for (int history = 0; history < 4; history++)
         {
@@ -337,7 +338,8 @@ public sealed partial class RoomEnemySystem
             state.Function = BotwoonEnemyFunction.SpitWhileHidden;
             state.HeadFunction = BotwoonHeadFunction.AimAtSamus;
             state.AttackTimer = 48;
-            head.Properties = head.Properties.Without(EnemyProperties.SolidToSamus);
+            // `$B3:992C` (AND #$FBFF) makes the spitting head tangible again.
+            head.Properties = head.Properties.Without(EnemyProperties.IgnoreSamusCollision);
         }
     }
 
@@ -676,13 +678,15 @@ public sealed partial class RoomEnemySystem
             if (state.InsideHole)
             {
                 head.Layer = 7;
-                head.Properties = head.Properties.With(EnemyProperties.SolidToSamus);
+                // `$B3:9DF7` ORs $0400 while the head travels inside the wall.
+                head.Properties = head.Properties.With(EnemyProperties.IgnoreSamusCollision);
                 instruction = BotwoonInstructionDefinitions.HiddenHeadInstruction;
             }
             else
             {
                 head.Layer = 2;
-                head.Properties = head.Properties.Without(EnemyProperties.SolidToSamus);
+                // `$B3:9E10` (AND #$FBFF) restores collision once the head is outside.
+                head.Properties = head.Properties.Without(EnemyProperties.IgnoreSamusCollision);
                 byte angle = CalculateCartridgeAngle(dx, dy);
                 instruction = BotwoonInstructionDefinitions.HeadMovementInstruction(angle);
             }
@@ -892,10 +896,9 @@ public sealed partial class RoomEnemySystem
         BotwoonEnemyState state = RequireBotwoonState(head);
         state.PendingDeath = true;
 
-        // `$B3:96F5` sets native property $8000. Despite the disassembly's historical
-        // "intangible" label, the engine uses this bit to admit the actor to solid-enemy
-        // collision. Keeping the raw proven bit avoids assigning a broader enum meaning.
-        head.Properties = head.Properties.With(EnemyProperties.SolidToSamus);
+        // `$B3:96F5` is `ORA #$0400` (ROM bytes 09 00 04): the dying head leaves the
+        // projectile, bomb and touch passes, so a later hit cannot interrupt its fall.
+        head.Properties = head.Properties.With(EnemyProperties.IgnoreSamusCollision);
     }
 
     private static void AddBotwoonAngleVector(

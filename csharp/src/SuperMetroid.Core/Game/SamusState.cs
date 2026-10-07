@@ -606,7 +606,7 @@ public sealed partial class SamusState
 
         SolidEnemyCollisionResult ProbeEnemy(SamusCollisionDirection direction, int distance, ushort radius)
         {
-            SamusKinematicsState probe = CopyKinematics(Kinematics);
+            SamusKinematicsState probe = Kinematics.CreateCollisionProbe();
             probe.YRadius = radius;
             SolidEnemyCollisionResult result = SamusSolidEnemyCollision.Probe(
                 probe, probe.InteractiveEnemies, direction, unchecked((ushort)distance), 0);
@@ -654,7 +654,7 @@ public sealed partial class SamusState
 
         BlockMoveResult Probe(int amount)
         {
-            SamusKinematicsState probe = CopyKinematics(Kinematics);
+            SamusKinematicsState probe = Kinematics.CreateCollisionProbe();
             BlockMoveResult result = SamusBlockCollision.MoveVertical(
                 bus, level, probe, amount, scanLeftToRight,
                 includeSolidEnemies: includeSolidEnemies, plms: plms,
@@ -704,26 +704,4 @@ public sealed partial class SamusState
         InitializeAnimation(bus, initialFrame: 0);
     }
 
-    private static SamusKinematicsState CopyKinematics(SamusKinematicsState source) => new()
-    {
-        ProbeContactDamageIndex = source.CollisionContactDamageIndex,
-        CollisionPose = source.CollisionPose,
-        XPosition = source.XPosition,
-        XSubposition = source.XSubposition,
-        YPosition = source.YPosition,
-        YSubposition = source.YSubposition,
-        XRadius = source.XRadius,
-        YRadius = source.YRadius,
-        YSpeed = source.YSpeed,
-        YSubspeed = source.YSubspeed,
-        YDirection = source.YDirection,
-        SandCollisionArea = source.SandCollisionArea,
-        YAcceleration = source.YAcceleration,
-        YSubacceleration = source.YSubacceleration,
-        HorizontalSlopeCollisionEnable = source.HorizontalSlopeCollisionEnable,
-        PositionAdjustedBySlope = source.PositionAdjustedBySlope,
-        // Prospective-pose probes still call the native solid-enemy detector before blocks.
-        // Share the immutable per-frame actor snapshots while copying only Samus's geometry.
-        InteractiveEnemies = source.InteractiveEnemies,
-    };
 }

@@ -27,27 +27,7 @@ public static partial class SamusBlockCollision
         RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(state);
-        SamusKinematicsState probe = state.SamusOwner is null
-            ? new SamusKinematicsState { ProbeContactDamageIndex = state.CollisionContactDamageIndex }
-            : new SamusKinematicsState(state.SamusOwner);
-        probe.CollisionPose = state.CollisionPose;
-        probe.XPosition = state.XPosition;
-        probe.XSubposition = state.XSubposition;
-        probe.YPosition = state.YPosition;
-        probe.YSubposition = state.YSubposition;
-        probe.XRadius = state.XRadius;
-        probe.YRadius = state.YRadius;
-        probe.YSpeed = state.YSpeed;
-        probe.YSubspeed = state.YSubspeed;
-        probe.YDirection = state.YDirection;
-        probe.SandCollisionArea = state.SandCollisionArea;
-        probe.YAcceleration = state.YAcceleration;
-        probe.YSubacceleration = state.YSubacceleration;
-        probe.HorizontalSlopeCollisionEnable = state.HorizontalSlopeCollisionEnable;
-        probe.PositionAdjustedBySlope = state.PositionAdjustedBySlope;
-        // The enemy entries are immutable value snapshots. Sharing their ordered list is
-        // safe, and lets the observational wall probe see exactly the same native actors.
-        probe.InteractiveEnemies = state.InteractiveEnemies;
+        SamusKinematicsState probe = state.CreateCollisionProbe();
 
         // Reusing the translated horizontal dispatcher also preserves square-slope and
         // unsupported-block behavior. Any post-scan slope alignment touches only `probe`,

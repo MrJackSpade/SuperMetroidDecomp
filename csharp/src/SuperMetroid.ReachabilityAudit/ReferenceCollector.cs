@@ -65,7 +65,7 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
         var info = model.GetSymbolInfo(node);
         targets.Add(info.Symbol);
         targets.AddRange(info.CandidateSymbols);
-        AddImplicitTargets(model, node, info, targets);
+        AddImplicitTargets(model, node, info, targets, owner);
         foreach (var target in targets)
         {
             if (identity.Key(target) is not { } targetKey)
@@ -78,7 +78,7 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
         }
     }
 
-    private void AddImplicitTargets(SemanticModel model, SyntaxNode node, SymbolInfo info, List<ISymbol?> targets)
+    private void AddImplicitTargets(SemanticModel model, SyntaxNode node, SymbolInfo info, List<ISymbol?> targets, string owner)
     {
         switch (node)
         {
@@ -130,7 +130,7 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
                 break;
             case InvocationExpressionSyntax invocation when info.Symbol is IMethodSymbol method:
                 json.ObserveInvocation(model, invocation, method);
-                reflection.ObserveInvocation(model, invocation, method);
+                reflection.ObserveInvocation(model, invocation, method, owner);
                 reflection.ObserveCall(model, invocation, method);
                 break;
         }

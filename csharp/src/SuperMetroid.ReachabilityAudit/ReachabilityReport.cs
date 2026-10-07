@@ -28,14 +28,13 @@ internal static class ReachabilityReport
             string category = d.Shape switch
             {
                 DeclarationShape.Type => "unreachable-type",
-                _ when result.Reflection.UnmarkedTargets.ContainsKey(d.Key) => "reflection-only-unmarked",
                 _ when result.SerializerAccessed.Contains(d.Key) => "serialization-only",
                 DeclarationShape.Field => "unreferenced-field",
                 DeclarationShape.EnumMember => "",
                 _ => "unreachable-member",
             };
             if (category.Length > 0)
-                findings.Add((category, d, result.Reflection.UnmarkedTargets.TryGetValue(d.Key, out var site) ? site.ToString() : ""));
+                findings.Add((category, d, ""));
         }
         foreach (var d in declarations.Values.Where(d => d.Shape == DeclarationShape.EnumMember
                      && !result.Referenced.Contains(d.Key) && !InsideUnreachableType(d)))

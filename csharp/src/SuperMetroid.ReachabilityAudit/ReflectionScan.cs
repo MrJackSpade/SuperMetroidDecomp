@@ -12,25 +12,24 @@ internal sealed record ReflectionSite(string File, int Line, string Text)
 
 /// <summary>
 /// Resolves reflection lookups by name (Type.GetMethod/GetProperty/GetField/GetConstructor/...,
-/// Activator.CreateInstance) to repository members, so members reached only this way can be
-/// required to carry [AccessedByReflection]. Lookups that cannot be resolved statically are listed.
+/// Activator.CreateInstance) to repository members. A resolved lookup is a reference from the code
+/// performing it. Lookups that cannot be resolved statically are listed: their targets need
+/// [AccessedByReflection].
 /// </summary>
-internal sealed class ReflectionScan(SymbolIdentity identity)
+internal sealed class ReflectionScan(SymbolIdentity identity, ReachabilityGraph graph)
 {
     private static readonly HashSet<string> NamedLookups =
         ["GetMethod", "GetProperty", "GetField", "GetConstructor", "GetMember", "GetEvent", "GetNestedType"];
     private static readonly HashSet<string> Enumerations =
         ["GetMethods", "GetProperties", "GetFields", "GetConstructors", "GetMembers", "GetEvents", "GetNestedTypes"];
 
-    /// <summary>Unmarked repository members resolved as reflection targets, with one lookup site each.</summary>
-    public Dictionary<string, ReflectionSite> UnmarkedTargets { get; } = [];
     public HashSet<ReflectionSite> UnresolvedSites { get; } = [];
     public HashSet<ReflectionSite> EnumerationSites { get; } = [];
 
     /// <summary>Identifier literals near lookups whose receiver type is unknown.</summary>
     public HashSet<(string Name, ReflectionSite Site)> CandidateNames { get; } = [];
 
-    public void ObserveInvocation(SemanticModel model, InvocationExpressionSyntax invocation, IMethodSymbol method)
+    public void ObserveInvocation(SemanticModel model, InvocationExpressionSyntax invocation, IMethodSymbol method, string owner)
     {
         string container = method.ContainingType.ToDisplayString();
         bool activator = container == "System.Activator" && method.Name == "CreateInstance";
@@ -46,7 +45,7 @@ internal sealed class ReflectionScan(SymbolIdentity identity)
                 : invocation.ArgumentList.Arguments.FirstOrDefault()?.Expression is TypeOfExpressionSyntax typeOf
                     ? model.GetTypeInfo(typeOf.Type).Type : null;
             if (created is INamedTypeSymbol type && identity.Key(type) is not null)
-                AddTarget(type, site);
+                graph.Edge(owner, identity.Key(type));
             else
                 UnresolvedSites.Add(site);
             return;
@@ -55,7 +54,11 @@ internal sealed class ReflectionScan(SymbolIdentity identity)
         var receiver = ReceiverType(model, invocation);
         if (enumeration)
         {
-            if (receiver is null || identity.Key(receiver) is not null)
+            // Enumerating a known repository type reaches every member of the enumerated kind.
+            if (receiver is not null && identity.Key(receiver) is not null)
+                foreach (var member in EnumeratedMembers(receiver, method.Name))
+                    graph.Edge(owner, identity.Key(member));
+            else if (receiver is null)
                 EnumerationSites.Add(site);
             return;
         }
@@ -71,7 +74,7 @@ internal sealed class ReflectionScan(SymbolIdentity identity)
             if (members.Count == 0)
                 UnresolvedSites.Add(site);
             foreach (var member in members)
-                AddTarget(member, site);
+                graph.Edge(owner, identity.Key(member));
             return;
         }
 
@@ -82,7 +85,7 @@ internal sealed class ReflectionScan(SymbolIdentity identity)
             return;
         var nameParameter = invocation.ArgumentList.Arguments.FirstOrDefault() is { Expression: IdentifierNameSyntax identifier }
             ? model.GetSymbolInfo(identifier).Symbol as IParameterSymbol : null;
-        computedLookups.Add(new ComputedLookup(receiver, EnclosingLiterals(invocation), nameParameter, site));
+        computedLookups.Add(new ComputedLookup(receiver, EnclosingLiterals(invocation), nameParameter, site, owner));
     }
 
     /// <summary>Records constant string arguments of repository calls, for name parameters of lookup helpers.</summary>
@@ -118,13 +121,13 @@ internal sealed class ReflectionScan(SymbolIdentity identity)
                     CandidateNames.Add((name, lookup.Site));
                 else
                     foreach (var member in MembersNamed(lookup.Receiver, name))
-                        AddTarget(member, lookup.Site);
+                        graph.Edge(lookup.Owner, identity.Key(member));
             }
         }
     }
 
     private sealed record ComputedLookup(INamedTypeSymbol? Receiver, HashSet<string> Literals, IParameterSymbol? NameParameter,
-        ReflectionSite Site);
+        ReflectionSite Site, string Owner);
 
     private readonly List<ComputedLookup> computedLookups = [];
     private readonly HashSet<(string Parameter, string Value)> callerConstants = [];
@@ -132,10 +135,21 @@ internal sealed class ReflectionScan(SymbolIdentity identity)
     private static string ParameterKey(IParameterSymbol parameter) =>
         $"{parameter.ContainingSymbol.OriginalDefinition.ToDisplayString()}#{parameter.Ordinal}";
 
-    private void AddTarget(ISymbol member, ReflectionSite site)
+    private static IEnumerable<ISymbol> EnumeratedMembers(INamedTypeSymbol type, string enumeration)
     {
-        if (!RootCollector.HasReflectionMarker(member) && identity.Key(member) is { } key)
-            UnmarkedTargets.TryAdd(key, site);
+        for (INamedTypeSymbol? current = type; current is not null; current = current.BaseType)
+            foreach (var member in current.GetMembers().Where(m => !m.IsImplicitlyDeclared))
+                if (enumeration switch
+                    {
+                        "GetMethods" => member is IMethodSymbol { MethodKind: MethodKind.Ordinary },
+                        "GetProperties" => member is IPropertySymbol,
+                        "GetFields" => member is IFieldSymbol,
+                        "GetConstructors" => member is IMethodSymbol { MethodKind: MethodKind.Constructor },
+                        "GetEvents" => member is IEventSymbol,
+                        "GetNestedTypes" => member is INamedTypeSymbol,
+                        _ => true,
+                    })
+                    yield return member;
     }
 
     private static IEnumerable<ISymbol> MembersNamed(INamedTypeSymbol type, string name)

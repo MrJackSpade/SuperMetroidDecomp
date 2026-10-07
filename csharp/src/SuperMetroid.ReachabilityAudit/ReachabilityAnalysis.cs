@@ -32,7 +32,7 @@ internal static class ReachabilityAnalysis
         var declarations = new DeclarationCollector(identity, graph);
         var roots = new RootCollector(identity, graph);
         var json = new JsonSerializationScan(identity);
-        var reflection = new ReflectionScan(identity);
+        var reflection = new ReflectionScan(identity, graph);
         var references = new ReferenceCollector(identity, graph, roots, json, reflection);
         var analyzed = solution.Projects.Where(p => !VerificationProjects.Contains(p.Project.Name)).ToList();
 

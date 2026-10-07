@@ -7,7 +7,8 @@ internal sealed record ReachabilityResult(
     HashSet<string> ProductionReachable,
     HashSet<string> Referenced,
     HashSet<string> SerializerAccessed,
-    ReflectionScan Reflection);
+    ReflectionScan Reflection,
+    HashSet<string> VerificationSourceFiles);
 
 /// <summary>
 /// Builds the reference graph for a loaded solution and computes reachability from its roots.
@@ -46,7 +47,11 @@ internal static class ReachabilityAnalysis
         }
 
         reflection.Resolve();
+        // Shared test-support sources compiled into verification projects are test infrastructure.
+        var verificationSources = solution.Projects.Where(p => VerificationProjects.Contains(p.Project.Name))
+            .SelectMany(p => p.Compilation.SyntaxTrees).Where(identity.IsRepositorySource)
+            .Select(tree => identity.Relative(tree.FilePath)).ToHashSet(StringComparer.Ordinal);
         return new ReachabilityResult(declarations.Declarations, graph.Reach(roots.Roots), graph.Reach(roots.ProductionRoots),
-            references.Referenced, json.SerializerAccessedMembers(), reflection);
+            references.Referenced, json.SerializerAccessedMembers(), reflection, verificationSources);
     }
 }

@@ -15,6 +15,8 @@ internal static class ReachabilityFindings
     public const string UnreferencedEnumMember = "unreferenced-enum-member";
     public const string SerializationOnly = "serialization-only";
     public const string ReachedOnlyByTools = "production-reached-only-by-tools";
+    /// <summary>Unused by tools in a source file verification projects also compile: unlink it from the tool.</summary>
+    public const string TestSupportUnusedByTools = "test-support-unused-by-tools";
 
     /// <summary>Assemblies that ship to players; symbols here must be reachable from the player hosts.</summary>
     private static readonly HashSet<string> ProductionAssemblies =
@@ -42,7 +44,7 @@ internal static class ReachabilityFindings
                     _ => UnreachableMember,
                 };
             if (category is not null)
-                findings.Add(new(category, d));
+                findings.Add(new(result.VerificationSourceFiles.Contains(d.File) ? TestSupportUnusedByTools : category, d));
         }
 
         var toolOnly = declarations.Values.Where(d => result.Reachable.Contains(d.Key) && !result.ProductionReachable.Contains(d.Key)

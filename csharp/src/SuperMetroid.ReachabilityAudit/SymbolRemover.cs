@@ -18,7 +18,8 @@ internal static class SymbolRemover
     {
         var identity = new SymbolIdentity(solution.RepositoryRoot);
         var targets = ReachabilityFindings.Classify(result)
-            .Where(f => categories.Contains(f.Category) && (pathPrefix is null || f.Declaration.File.StartsWith(pathPrefix, StringComparison.Ordinal)))
+            .Where(f => categories.Contains(f.Category) && f.Category != ReachabilityFindings.TestSupportUnusedByTools
+                && (pathPrefix is null || f.Declaration.File.StartsWith(pathPrefix, StringComparison.Ordinal)))
             .Select(f => f.Declaration.Key).ToHashSet();
         var retired = new SortedSet<string>(StringComparer.Ordinal);
         var processed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);

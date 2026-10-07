@@ -63,15 +63,11 @@ internal sealed class SymbolIdentity(string repositoryRoot)
         symbol = Normalize(symbol);
         if (symbol is null)
             return null;
+        // A compiler-generated constructor carries its type's location; it stands for "instantiated".
+        if (symbol is IMethodSymbol { MethodKind: MethodKind.Constructor, IsImplicitlyDeclared: true } constructor)
+            return Key(constructor.ContainingType) is { } typeKey ? typeKey + ImplicitConstructorSuffix : null;
         string? file = symbol.Locations.Where(l => l.IsInSource && IsRepositorySource(l.SourceTree!))
             .Select(l => Relative(l.SourceTree!.FilePath)).Order(StringComparer.Ordinal).FirstOrDefault();
-        if (file is null)
-        {
-            return symbol is IMethodSymbol { MethodKind: MethodKind.Constructor, IsImplicitlyDeclared: true } constructor
-                && Key(constructor.ContainingType) is { } typeKey
-                ? typeKey + ImplicitConstructorSuffix
-                : null;
-        }
-        return symbol.GetDocumentationCommentId() is { } id ? $"{id}@{file}" : null;
+        return file is not null && symbol.GetDocumentationCommentId() is { } id ? $"{id}@{file}" : null;
     }
 }

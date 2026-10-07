@@ -82,7 +82,14 @@ internal static partial class Program
                     spcAcknowledgements = audio.ReadAcknowledgements();
                     game.SetAudioAcknowledgements(spcAcknowledgements);
                 }
-                if (game.RuntimeForVerification.MessageBox.IsActive || frame != endSourceFrame)
+                // A confirmation box reads the controller itself ($85:84BA), which the native
+                // capture records as a following NMI-continuation update. The box then
+                // legitimately stays open into that update and continues there.
+                bool continuesIntoOwnControllerRead = game.RuntimeForVerification.MessageBox.IsActive &&
+                    frame == endSourceFrame && update < updates.Count &&
+                    updates[update].Kind == "nmi-continuation";
+                if ((game.RuntimeForVerification.MessageBox.IsActive && !continuesIntoOwnControllerRead) ||
+                    frame != endSourceFrame)
                     throw new InvalidDataException(
                         $"The port's message box closed after SMV frame {frame - 1}, but native dispatch {update} " +
                         $"(SMV frames {step.SourceFrame}-{endSourceFrame}) ends at {endSourceFrame - 1}.");

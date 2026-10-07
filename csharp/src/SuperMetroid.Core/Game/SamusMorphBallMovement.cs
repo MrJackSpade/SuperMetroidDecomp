@@ -331,7 +331,6 @@ public static class SamusMorphBallMovement
 
         BlockMoveResult vertical;
         bool landed = false;
-        bool hitCeiling = false;
         if (samus.Kinematics.YDirection == 0)
         {
             vertical = RunNoSpeedCalculationGroundingProbe(
@@ -340,7 +339,7 @@ public static class SamusMorphBallMovement
                 samus,
                 nmiFrameCounter,
                 plms,
-                out hitCeiling);
+                out _);
         }
         else
         {
@@ -351,7 +350,7 @@ public static class SamusMorphBallMovement
                 nmiFrameCounter,
                 plms,
                 out landed,
-                out hitCeiling);
+                out _);
             if (landed)
             {
                 // `$90:A640` recognizes the ordinary landed result and cancels every word
@@ -363,7 +362,10 @@ public static class SamusMorphBallMovement
             }
         }
 
-        return new MorphBallMovementResult(horizontal, vertical, landed, hitCeiling);
+        // `$90:A654` then clears the solid-vertical collision result, so `$91:E8B6`
+        // never selects the hit-ceiling command for a transition pose: a blocked rise
+        // keeps its upward speed, which the next frame's speed calculation keeps decaying.
+        return new MorphBallMovementResult(horizontal, vertical, landed, HitCeiling: false);
     }
 
     private static BlockMoveResult MoveVerticallyWithGravity(

@@ -140,7 +140,8 @@ public static partial class SamusGrappleMovement
         }
         else if ((angle & 0x8000) != 0)
         {
-            if (angle == 0x8000)
+            // $9B:BC7B-BC84 compares only the high byte: all of $8000-$80FF hangs straight down.
+            if ((angle & 0xff00) == 0x8000)
             {
                 grapple.GravityAcceleration = 0;
                 grapple.VelocityCorrection = 0;

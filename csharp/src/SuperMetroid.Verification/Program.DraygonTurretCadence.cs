@@ -54,6 +54,25 @@ internal static partial class Program
             BindingFlags.Static | BindingFlags.NonPublic)!;
         int expectedX = (int)product.Invoke(null, [afterTurret.Angle, DraygonProjectileSpeeds.Goop, (ushort)0x40])!;
         AssertEqual(expectedX, (afterTurret.X << 16) | afterTurret.XSub, "goop X velocity is speed two");
-        Console.WriteLine("Draygon turret cadence: $A5:87AA follows NMI_FrameCounter ($05B6), not $05B5; goop speed is two.");
+
+        // #1269: $86:8E0F starts with $86:8D5C. Inside the power-bomb ellipse the goop loses
+        // its ID and Samus's XSpeedDivisor clears, but the routine still moves the slot.
+        runtime.System.SetRandomNumber(0x1234);
+        spawnGoop.Invoke(runtime.Enemies, [boss, false]);
+        RoomEnemyProjectileSlot bombed = runtime.Enemies.EnemyProjectiles.Last(p =>
+            p.Kind == RoomEnemyProjectileKind.DraygonGoop);
+        SamusPowerBombExplosionState explosion = runtime.BombProjectiles.PowerBombExplosion;
+        explosion.Spawn(bombed.XPosition, bombed.YPosition);
+        typeof(SamusPowerBombExplosionState).GetProperty(nameof(SamusPowerBombExplosionState.ExplosionRadius))!
+            .SetValue(explosion, (ushort)0x2000);
+        typeof(RoomEnemySystem).GetField("_audioPowerBomb", flags)!.SetValue(runtime.Enemies, explosion);
+        runtime.Samus!.XSpeedDivisor = 3;
+        ushort bombedX = bombed.XPosition;
+        runtime.Enemies.StepEnemyProjectileInstructions(runtime.LevelData!, runtime.Samus,
+            runtime.Camera!.XPosition, runtime.Camera.YPosition);
+        AssertTrue(!bombed.IsActive, "a power-bombed goop loses its projectile ID");
+        AssertEqual((ushort)0, runtime.Samus.XSpeedDivisor, "$86:8D93 clears Samus's X speed divisor");
+        AssertTrue(bombed.XPosition != bombedX, "the goop routine still moves the released slot");
+        Console.WriteLine("Draygon turret cadence: $A5:87AA follows NMI_FrameCounter ($05B6), not $05B5; goop speed is two; power bombs delete goop.");
     }
 }

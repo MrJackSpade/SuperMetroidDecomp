@@ -124,12 +124,16 @@ public sealed partial class RoomEnemySystem
             projectile.Clear();
     }
 
-    private static void RunFlyingDraygonGoop(
+    private void RunFlyingDraygonGoop(
         RoomEnemyProjectileSlot goop,
         SamusState? samus)
     {
+        // $86:8E0F: a power-bombed goop loses its ID but the routine still moves it and
+        // tests Samus; only the room-boundary branch ends it early.
+        DeleteEnemyProjectileIfPowerBombed(goop, samus);
+        bool releasedByPowerBomb = !goop.IsActive;
         RunDraygonProjectileFlight(goop);
-        if (!goop.IsActive || samus is null)
+        if (!releasedByPowerBomb && !goop.IsActive || samus is null)
             return;
 
         ushort xDistance = WrappedMagnitude(unchecked((ushort)(samus.XPosition - goop.XPosition)));
@@ -141,10 +145,12 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private static void AttachDraygonGoopToSamus(
+    private void AttachDraygonGoopToSamus(
         RoomEnemyProjectileSlot goop,
         SamusState? samus)
     {
+        // $86:8D99 runs the power-bomb deletion first, then attaches regardless.
+        DeleteEnemyProjectileIfPowerBombed(goop, samus);
         if (samus is null)
             return;
         ushort nextDivisor = unchecked((ushort)(samus.XSpeedDivisor + 1));
@@ -163,10 +169,12 @@ public sealed partial class RoomEnemySystem
         samus.KnockbackTimer = 0;
     }
 
-    private static void RunAttachedDraygonGoop(
+    private void RunAttachedDraygonGoop(
         RoomEnemyProjectileSlot goop,
         SamusState? samus)
     {
+        // $86:8DCA: the power-bomb deletion does not end this pre-instruction.
+        DeleteEnemyProjectileIfPowerBombed(goop, samus);
         if (samus is null)
             return;
         if (samus.HorizontalSpeed.ContactDamageIndex != 0)
@@ -190,6 +198,30 @@ public sealed partial class RoomEnemySystem
         samus.XSpeedDivisor = samus.XSpeedDivisor == 0
             ? (ushort)0
             : unchecked((ushort)(samus.XSpeedDivisor - 1));
+    }
+
+    /// <summary>
+    /// Ports <c>Delete_EnemyProjectile_IfPowerBombed</c> at $86:8D5C for the Draygon goop
+    /// and wall-turret shot. Inside the explosion's ellipse it clears the projectile ID and
+    /// <c>XSpeedDivisor</c> only; the calling routine continues on the released slot.
+    /// </summary>
+    private void DeleteEnemyProjectileIfPowerBombed(RoomEnemyProjectileSlot projectile, SamusState? samus)
+    {
+        // A standalone projectile pass has no bomb owner, which is the radius-zero case.
+        if (_audioPowerBomb is not { } powerBomb)
+            return;
+        int horizontalRadius = powerBomb.ExplosionRadius >> 8;
+        if (horizontalRadius == 0)
+            return;
+        // `LSR; ADC $12; LSR` carries the first shift's low bit into the addition.
+        int verticalRadius = ((horizontalRadius >> 1) + horizontalRadius + (horizontalRadius & 1)) >> 1;
+        int xDistance = Math.Abs(unchecked((short)(powerBomb.XPosition - projectile.XPosition)));
+        int yDistance = Math.Abs(unchecked((short)(powerBomb.YPosition - projectile.YPosition)));
+        if (xDistance >= horizontalRadius || yDistance >= verticalRadius)
+            return;
+        projectile.ReleaseIdentityOnly();
+        if (samus is not null)
+            samus.XSpeedDivisor = 0;
     }
 
     private static bool IsOutsideDraygonRoom(RoomEnemyProjectileSlot projectile) =>

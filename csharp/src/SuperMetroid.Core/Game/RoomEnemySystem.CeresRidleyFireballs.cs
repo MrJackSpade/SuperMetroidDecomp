@@ -236,6 +236,12 @@ public sealed class RoomEnemyProjectileSlot
     /// </summary>
     public ushort ItemDropChancesPointerOverride { get; internal set; }
 
+    /// <summary>
+    /// A bare <c>STZ EnemyProjectile_ID,X</c>: frees the slot but leaves every other word,
+    /// so a routine that keeps running after the store still moves the released slot.
+    /// </summary>
+    internal void ReleaseIdentityOnly() => Kind = RoomEnemyProjectileKind.None;
+
     internal void Clear()
     {
         Kind = RoomEnemyProjectileKind.None;
@@ -896,6 +902,8 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case EnemyProjectileCodePointers.PreInstruction_EnemyProj_DraygonsWallTurretProjectile_Fired:
+                // $86:8DFF deletes a power-bombed shot, then still moves the released slot.
+                DeleteEnemyProjectileIfPowerBombed(projectile, samus);
                 RunDraygonProjectileFlight(projectile);
                 return;
 

@@ -137,7 +137,7 @@ public sealed class SamusBombProjectileSystem
         // Command-zero alpha calls HandleProjectile directly, skipping the HUD
         // dispatcher that owns cooldown and new bomb placement.
         if (!samus.StationaryScriptControlLocked && !SamusState.IsForwardFacingPose(samus.Pose))
-            StepCooldown();
+            StepCooldown(samus.Xray.TimeIsFrozen);
 
         int? placedSlot = null;
         bool bombSpreadStarted = false;
@@ -315,8 +315,16 @@ public sealed class SamusBombProjectileSystem
         LastFrameResult = default;
     }
 
-    private void StepCooldown()
+    private void StepCooldown(bool timeIsFrozen)
     {
+        // $90:AC32: while time is frozen the cooldown is held at $20 instead of counting
+        // down, so the first shot after X-ray waits out the full delay.
+        if (timeIsFrozen)
+        {
+            CooldownTimer = SamusProjectileCooldownDefinitions.FrozenTime;
+            return;
+        }
+
         if (CooldownTimer == 0)
             return;
 

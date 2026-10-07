@@ -100,8 +100,17 @@ public sealed partial class SamusState
             nmiFrameCounter,
             plms,
             out int centerAdjustment);
-        if (collision != LargerPoseCollisionOutcome.Allowed)
+        if (collision == LargerPoseCollisionOutcome.RetainSource)
             return false;
+        if (collision == LargerPoseCollisionOutcome.CrouchFallback)
+        {
+            // $91:FFA7 installs ordinary crouch when the expanded body is blocked above and
+            // below. F433 still runs and sees the spin/wall-jump previous movement type.
+            ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+            if (EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
+                HorizontalSpeed.RequestNormalSuitPaletteRestore();
+            return true;
+        }
 
         Pose = targetPose;
         // F404/F543 keep the source collision radius for the rest of this update.

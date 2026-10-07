@@ -63,7 +63,7 @@ internal static partial class Program
         AssertEqual(SnesObjAttributeWord.Create(50, 5, 3, SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical).Raw,
             (ushort)(snapshot.Memory.Oam[last + 2] | snapshot.Memory.Oam[last + 3] << 8), "actual tank tile/palette/priority/flips");
         var editedPixels = menu.Render();
-        AssertTrue(editedPixels.AsSpan().SequenceEqual(SoftwareLayeredSnapshotRenderer.Render(snapshot)), "edited reserve reaches captured renderer");
+        AssertTrue(editedPixels.AsSpan().SequenceEqual(RenderForComparison(snapshot)), "edited reserve reaches captured renderer");
         using (var state = new MemoryStream())
         {
             DebuggerObjectGraphSerializer.Serialize(state, new object[] { menu, samus }); state.Position = 0;

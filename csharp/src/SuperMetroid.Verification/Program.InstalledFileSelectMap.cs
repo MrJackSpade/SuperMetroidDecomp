@@ -20,6 +20,9 @@ internal static partial class Program
         var control = new FileSelectMapMenuState(bus, new CartridgeAudioState(), slot, 0, original);
         var installed = new FileSelectMapMenuState(guard, new CartridgeAudioState(), slot, 0, original);
 
+        // One raster per side: the two captured renders are compared with each other.
+        var nativeRaster = new Rgba32[256 * 224];
+        var installedRaster = new Rgba32[256 * 224];
         void StepBoth(ushort input)
         {
             control.Step(input);
@@ -30,8 +33,8 @@ internal static partial class Program
             AssertTrue(control.Render().AsSpan().SequenceEqual(installed.Render()), "installed map navigation renders exact stock frame");
             if (verifyCapturedRendering)
             {
-                var nativePixels = SoftwareLayeredSnapshotRenderer.Render(control.CaptureRenderSnapshot());
-                var installedPixels = SoftwareLayeredSnapshotRenderer.Render(installed.CaptureRenderSnapshot());
+                var nativePixels = SoftwareLayeredSnapshotRenderer.Render(control.CaptureRenderSnapshot(), nativeRaster);
+                var installedPixels = SoftwareLayeredSnapshotRenderer.Render(installed.CaptureRenderSnapshot(), installedRaster);
                 AssertTrue(nativePixels.AsSpan().SequenceEqual(installedPixels), "installed map render captures retain native pixels through every transition");
                 AssertTrue(installed.Render().AsSpan().SequenceEqual(installedPixels), "captured and direct map rendering agree");
             }

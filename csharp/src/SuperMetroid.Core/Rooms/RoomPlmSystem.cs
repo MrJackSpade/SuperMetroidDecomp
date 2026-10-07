@@ -248,7 +248,16 @@ public sealed partial class RoomPlmSystem
     public IReadOnlyList<PlmTilemapUpdate> TilemapUpdates => _tilemapUpdates;
 
     /// <summary>Number of occupied native-equivalent PLM slots.</summary>
-    public int ActiveCount => _slots.Count(slot => slot.Active);
+    public int ActiveCount
+    {
+        get
+        {
+            int count = 0;
+            foreach (PlmSlot slot in _slots)
+                if (slot.Active) count++;
+            return count;
+        }
+    }
 
     /// <summary>
     /// Clears the room-owned allocation during <c>$82:E3C0</c>'s destination-room setup.

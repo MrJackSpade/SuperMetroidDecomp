@@ -40,6 +40,15 @@ public sealed class PpuMemorySnapshot
     /// </summary>
     public PpuMemorySnapshot(ReadOnlySpan<byte> vram, ReadOnlySpan<ushort> cgram,
         ReadOnlySpan<byte> oam, int modeledSpriteCount = SnesPpuLayout.OamSpriteCount)
+        : this(vram.ToArray(), cgram.ToArray(), oam.ToArray(), modeledSpriteCount)
+    {
+    }
+
+    /// <summary>
+    /// Takes ownership of arrays nothing will write again. Capture passes
+    /// <see cref="SnesVram.CaptureImage"/>, so snapshots of an unchanged VRAM share one image.
+    /// </summary>
+    private PpuMemorySnapshot(byte[] vram, ushort[] cgram, byte[] oam, int modeledSpriteCount)
     {
         if ((uint)modeledSpriteCount > SnesPpuLayout.OamSpriteCount)
             throw new ArgumentOutOfRangeException(nameof(modeledSpriteCount));
@@ -49,9 +58,9 @@ public sealed class PpuMemorySnapshot
             throw new ArgumentException("A frame requires a complete CGRAM image.", nameof(cgram));
         if (oam.Length != SnesPpuLayout.OamUploadByteCount)
             throw new ArgumentException("A frame requires both complete OAM tables.", nameof(oam));
-        this.vram = vram.ToArray();
-        this.cgram = cgram.ToArray();
-        this.oam = oam.ToArray();
+        this.vram = vram;
+        this.cgram = cgram;
+        this.oam = oam;
         ModeledSpriteCount = modeledSpriteCount;
     }
 
@@ -64,6 +73,6 @@ public sealed class PpuMemorySnapshot
         Span<byte> payload = stackalloc byte[SnesPpuLayout.OamUploadByteCount];
         oam.LowTable.CopyTo(payload);
         oam.HighTable.CopyTo(payload[SnesPpuLayout.OamLowTableByteCount..]);
-        return new(vram.Bytes, cgram.Colors, payload, oam.LastFinalizedSpriteCount);
+        return new(vram.CaptureImage(), cgram.Colors.ToArray(), payload.ToArray(), oam.LastFinalizedSpriteCount);
     }
 }

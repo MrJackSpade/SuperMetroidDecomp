@@ -161,14 +161,18 @@ public sealed partial class FileSelectMapMenuState
         }
     }
 
+    // Final frame for composed phases; a returned frame is valid until this menu renders again.
+    [NonSerialized] private Rgba32[]? frameBuffer;
+
     public Rgba32[] Render()
     {
-        if (!entry.IsComplete) return entry.Render(areaGraphics.Render(usedStations));
+        Rgba32[] composed = frameBuffer ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height];
+        if (!entry.IsComplete) return entry.Render(areaGraphics.Render(usedStations), composed);
         Rgba32[] pixels = Phase switch
         {
             FileSelectMapNavigationPhase.ExpandingWindow or FileSelectMapNavigationPhase.InitializingRoom =>
                 FileSelectMapWindowCompositor.Composite(areaGraphics.Render(usedStations, false),
-                    roomGraphics.RenderFrameOnly(), navigation.Window!),
+                    roomGraphics.RenderFrameOnly(), navigation.Window!, composed),
             FileSelectMapNavigationPhase.Room when !markerDrawn => roomGraphics.RenderBackgrounds(scroll.Horizontal, scroll.Vertical),
             FileSelectMapNavigationPhase.Room or FileSelectMapNavigationPhase.LoadRequested =>
                 roomGraphics.Render(scroll.Horizontal, scroll.Vertical, marker, drawArrows ? animations : null),
@@ -176,12 +180,12 @@ public sealed partial class FileSelectMapMenuState
                 roomGraphics.Render(scroll.Horizontal, scroll.Vertical, marker, drawArrows ? animations : null),
             FileSelectMapNavigationPhase.AreaReturnRequested when pendingFrames == FileSelectMapRomData.ReturnSetupFrames - 1 =>
                 FileSelectMapWindowCompositor.CompositeInitialEntryWindow(
-                    areaGraphics.Render(usedStations), roomGraphics.RenderFrameOnly()),
+                    areaGraphics.Render(usedStations), roomGraphics.RenderFrameOnly(), composed),
             FileSelectMapNavigationPhase.AreaReturnRequested when returnWindow is not null =>
                 // Return setup calls $81:A5B3 (CGADSUB=$25); unlike the forward
                 // expansion's $05, this retains backdrop addition outside the window.
                 FileSelectMapWindowCompositor.Composite(areaGraphics.Render(usedStations),
-                    roomGraphics.RenderFrameOnly(), returnWindow),
+                    roomGraphics.RenderFrameOnly(), returnWindow, composed),
             FileSelectMapNavigationPhase.AreaReturnRequested => roomGraphics.RenderFrameOnly(),
             _ => areaGraphics.Render(usedStations),
         };

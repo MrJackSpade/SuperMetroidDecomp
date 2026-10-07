@@ -81,7 +81,7 @@ public sealed partial class FileSelectRoomMapGraphics
     /// <summary>BG2-only endpoint of $81:AC2D; room-map cells are not installed until $81:AD17.</summary>
     public Rgba32[] RenderFrameOnly()
     {
-        var pixels = new Rgba32[FrontendFrame.Width * FrontendFrame.Height];
+        Rgba32[] pixels = frameOnlyBuffer ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height];
         Array.Fill(pixels, Cgram.GetRgba(0));
         // Composite directly: transparent cells leave the backdrop, as compositing a plane would.
         SnesBgTilemapRenderer.Composite4BppViewport(pixels,
@@ -105,6 +105,9 @@ public sealed partial class FileSelectRoomMapGraphics
 
     // OBJ scratch reused across draws; never part of saved state (restores reallocate it).
     [NonSerialized] private Rgba32[]? objScratch;
+    // Owned frames: each is valid until the same method renders again.
+    [NonSerialized] private Rgba32[]? frameOnlyBuffer;
+    [NonSerialized] private Rgba32[]? backgroundsBuffer;
 
     private OamBuffer PrepareIcons(ushort horizontalScroll, ushort verticalScroll, FileSelectStationMarker marker,
         FileSelectMapAnimations? animations)
@@ -122,7 +125,7 @@ public sealed partial class FileSelectRoomMapGraphics
     /// <summary>Renders Mode-1 BG priorities with independent scrolling for map and fixed frame.</summary>
     public Rgba32[] RenderBackgrounds(ushort horizontalScroll, ushort verticalScroll)
     {
-        var pixels = new Rgba32[256 * 224];
+        Rgba32[] pixels = backgroundsBuffer ??= new Rgba32[256 * 224];
         Array.Fill(pixels, ppu.Cgram.GetRgba(0));
         for (int tier = 0; tier < 2; tier++)
         {

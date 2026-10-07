@@ -116,8 +116,7 @@ internal static partial class Program
                     (ushort)cameraY,
                     bombs,
                     roomPlms: plms);
-                var gate = plms.PopulationSlots.Single(
-                    slot => slot.HeaderPointer == RoomPlmHeaders.DownwardGate);
+                var gate = plms.SinglePopulationSlot(RoomPlmHeaders.DownwardGate);
                 if (gate.LoopTimer != 0)
                 {
                     SamusProjectileSlot shot = shots.Slots[0];

@@ -32,7 +32,7 @@ internal static partial class Program
                     m.MatrixA, m.MatrixB, m.MatrixC, m.MatrixD, m.CenterX, m.CenterY, m.HorizontalOffset, m.VerticalOffset);
             var packet = new RenderFrameSnapshot(new(++samples, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 15));
             var restored = RoundTripRenderPacket(packet);
-            AssertTrue(expected.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(restored)),
+            AssertTrue(expected.AsSpan().SequenceEqual(RenderForComparison(restored)),
                 $"Mode-7 gameplay full pixel parity matrix {matrix}, scroll {scroll}, floor {floorEnabled}");
             AssertEqual(layer, (Mode7GameplayRenderLayer)restored.Layers!.Layers[0], "Mode-7 band codec preserves all register fields");
             if (samples == 1)
@@ -60,11 +60,11 @@ internal static partial class Program
         getaway.Mode7HorizontalOffset = 7; getaway.Mode7VerticalOffset = 19;
         Rgba32[] retail = SuperMetroidRuntimeFrameRenderer.Render(runtime);
         var retained = RoundTripRenderPacket(new(new(100, 1, 0), GameplayDisplayCapture.TryCaptureFrame(runtime)!));
-        AssertTrue(retail.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(retained)), "retail Ridley capture resolves mixed bands and haze");
+        AssertTrue(retail.AsSpan().SequenceEqual(RenderForComparison(retained)), "retail Ridley capture resolves mixed bands and haze");
         getaway.Mode7Active = false; getaway.Mode7MatrixA = 0;
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
         for (int i = 0; i < SnesPpuLayout.CgramColorCount; i++) runtime.Cgram.SetColor(i, 0);
-        AssertTrue(retail.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(retained)), "Ridley packet survives mode exit and live memory replacement");
+        AssertTrue(retail.AsSpan().SequenceEqual(RenderForComparison(retained)), "Ridley packet survives mode exit and live memory replacement");
         AssertThrows<ArgumentOutOfRangeException>(() => new Mode7GameplayRenderLayer(default, 0, 0, 31), "HUD must cover complete tile rows");
         AssertThrows<ArgumentOutOfRangeException>(() => new Mode7GameplayRenderLayer(default, 0, 0, 32,
             new Mode1FloorBand(31, 0, 0, 0, 0, 64, 32)), "floor cannot overlap HUD");

@@ -46,39 +46,53 @@ public static class PngWriter
 
         int outputWidth = width * scale;
         int outputHeight = height * scale;
-        using var scanlines = new MemoryStream();
-        for (int y = 0; y < outputHeight; y++)
+        int scanlineBytes = checked(outputHeight * (1 + outputWidth * 4));
+        // Stored DEFLATE blocks add five bytes per 64 KiB; zlib adds six. Leave far more than
+        // that, so incompressible art still fits and the fixed stream never needs to grow.
+        int compressedCapacity = checked(scanlineBytes + scanlineBytes / 8 + 1024);
+        byte[] raw = System.Buffers.ArrayPool<byte>.Shared.Rent(scanlineBytes);
+        byte[] deflated = System.Buffers.ArrayPool<byte>.Shared.Rent(compressedCapacity);
+        try
         {
-            // Each PNG scanline starts with its filter method. "None" is slightly larger
-            // than adaptive filtering but transparent and trivial to validate in a debugger.
-            scanlines.WriteByte(0);
-            int sourceY = y / scale;
-            for (int x = 0; x < outputWidth; x++)
+            int offset = 0;
+            for (int y = 0; y < outputHeight; y++)
             {
-                Rgba32 color = pixels[sourceY * width + x / scale];
-                scanlines.WriteByte(color.R);
-                scanlines.WriteByte(color.G);
-                scanlines.WriteByte(color.B);
-                scanlines.WriteByte(color.A);
+                // Each PNG scanline starts with its filter method. "None" is slightly larger
+                // than adaptive filtering but transparent and trivial to validate in a debugger.
+                raw[offset++] = 0;
+                int sourceY = y / scale;
+                for (int x = 0; x < outputWidth; x++)
+                {
+                    Rgba32 color = pixels[sourceY * width + x / scale];
+                    raw[offset++] = color.R;
+                    raw[offset++] = color.G;
+                    raw[offset++] = color.B;
+                    raw[offset++] = color.A;
+                }
             }
+
+            Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
+            using var file = File.Create(path);
+            file.Write(Signature);
+            Span<byte> header = stackalloc byte[13];
+            BinaryPrimitives.WriteUInt32BigEndian(header, (uint)outputWidth);
+            BinaryPrimitives.WriteUInt32BigEndian(header[4..], (uint)outputHeight);
+            header[8] = 8;
+            header[9] = 6; // PNG color type 6 is true-color RGBA.
+            WriteChunk(file, "IHDR", header);
+
+            // PNG's IDAT payload is a zlib stream, not a raw DEFLATE stream.
+            using var compressed = new MemoryStream(deflated, 0, compressedCapacity, writable: true);
+            using (var zlib = new ZLibStream(compressed, CompressionLevel.SmallestSize, leaveOpen: true))
+                zlib.Write(raw.AsSpan(0, scanlineBytes));
+            WriteChunk(file, "IDAT", deflated.AsSpan(0, checked((int)compressed.Position)));
+            WriteChunk(file, "IEND", []);
         }
-
-        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
-        using var file = File.Create(path);
-        file.Write(Signature);
-        Span<byte> header = stackalloc byte[13];
-        BinaryPrimitives.WriteUInt32BigEndian(header, (uint)outputWidth);
-        BinaryPrimitives.WriteUInt32BigEndian(header[4..], (uint)outputHeight);
-        header[8] = 8;
-        header[9] = 6; // PNG color type 6 is true-color RGBA.
-        WriteChunk(file, "IHDR", header);
-
-        // PNG's IDAT payload is a zlib stream, not a raw DEFLATE stream.
-        using var compressed = new MemoryStream();
-        using (var zlib = new ZLibStream(compressed, CompressionLevel.SmallestSize, leaveOpen: true))
-            zlib.Write(scanlines.GetBuffer().AsSpan(0, checked((int)scanlines.Length)));
-        WriteChunk(file, "IDAT", compressed.GetBuffer().AsSpan(0, checked((int)compressed.Length)));
-        WriteChunk(file, "IEND", []);
+        finally
+        {
+            System.Buffers.ArrayPool<byte>.Shared.Return(raw);
+            System.Buffers.ArrayPool<byte>.Shared.Return(deflated);
+        }
     }
 
     /// <summary>Writes a length/type/data/CRC PNG chunk.</summary>

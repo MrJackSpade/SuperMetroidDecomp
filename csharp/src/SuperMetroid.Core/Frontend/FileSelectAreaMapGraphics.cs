@@ -105,10 +105,12 @@ public sealed partial class FileSelectAreaMapGraphics
     [NonSerialized] private Rgba32[]? foregroundScratch;
     [NonSerialized] private Rgba32[]? subscreenScratch;
     [NonSerialized] private Rgba32[]? objScratch;
+    // Owned frame: valid until this map renders again.
+    [NonSerialized] private Rgba32[]? frameBuffer;
 
     public Rgba32[] RenderBackgrounds(bool includeBackdropInColorMath = true)
     {
-        Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, 256 * 224);
+        Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, 256 * 224, frameBuffer ??= new Rgba32[256 * 224]);
         Rgba32[] foreground = foregroundScratch ??= new Rgba32[256 * 224];
         foreground.AsSpan().Clear();
         SnesBgTilemapRenderer.Composite4BppViewport(

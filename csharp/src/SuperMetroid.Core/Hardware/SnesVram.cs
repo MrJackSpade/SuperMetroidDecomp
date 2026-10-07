@@ -14,6 +14,26 @@ public sealed class SnesVram
 
     private readonly byte[] _bytes = new byte[ByteCount];
 
+    // Every mutator below bumps this before writing, so a render capture can tell whether
+    // the image changed since its last immutable copy. Neither field is saved state.
+    [NonSerialized] private long writeGeneration;
+    [NonSerialized] private byte[]? capturedImage;
+    [NonSerialized] private long capturedGeneration;
+
+    /// <summary>
+    /// An immutable copy of the current 64 KiB image. Consecutive captures with no write in
+    /// between return the same array, so static scenes stop copying VRAM every frame.
+    /// </summary>
+    internal byte[] CaptureImage()
+    {
+        if (capturedImage is null || capturedGeneration != writeGeneration)
+        {
+            capturedImage = _bytes.ToArray();
+            capturedGeneration = writeGeneration;
+        }
+        return capturedImage;
+    }
+
     /// <summary>
     /// Provides a non-writable view for renderers, assertions, and debugger inspection.
     /// Writes should pass through DMA-aware methods so word stepping remains visible.
@@ -48,6 +68,7 @@ public sealed class SnesVram
     /// <param name="wordIncrement">One for a row (VMAIN=$80), 32 for a column (VMAIN=$81).</param>
     public void ExecuteWordTransfer(ReadOnlySpan<ushort> words, ushort destinationWord, int wordIncrement)
     {
+        writeGeneration++;
         if (wordIncrement is not (1 or 32))
             throw new ArgumentOutOfRangeException(nameof(wordIncrement), "Known tilemap DMA increments are one or 32 words.");
 
@@ -68,6 +89,7 @@ public sealed class SnesVram
     /// </summary>
     public void LoadBytes(int destinationByteOffset, ReadOnlySpan<byte> bytes)
     {
+        writeGeneration++;
         if (destinationByteOffset < 0 || destinationByteOffset + bytes.Length > ByteCount)
             throw new ArgumentOutOfRangeException(nameof(destinationByteOffset));
         bytes.CopyTo(_bytes.AsSpan(destinationByteOffset));
@@ -76,6 +98,7 @@ public sealed class SnesVram
     /// <summary>Loads bytes through Mode 7's high-byte-only $2119 DMA port.</summary>
     public void LoadMode7CharacterBytes(ReadOnlySpan<byte> bytes, ushort destinationWord = 0)
     {
+        writeGeneration++;
         if (bytes.Length > WordCount)
             throw new ArgumentOutOfRangeException(nameof(bytes));
         int destination = destinationWord & 0x7fff;
@@ -89,6 +112,7 @@ public sealed class SnesVram
     /// <summary>Loads bytes through Mode 7's low-byte-only $2118 DMA port.</summary>
     public void LoadMode7MapBytes(ReadOnlySpan<byte> bytes, ushort destinationWord = 0)
     {
+        writeGeneration++;
         if (bytes.Length > WordCount)
             throw new ArgumentOutOfRangeException(nameof(bytes));
         int destination = destinationWord & 0x7fff;
@@ -102,6 +126,7 @@ public sealed class SnesVram
     /// <summary>Fills Mode 7 low bytes as repeated writes to $2118 do.</summary>
     public void FillMode7MapBytes(byte value, int wordCount, ushort destinationWord = 0)
     {
+        writeGeneration++;
         if ((uint)wordCount > WordCount)
             throw new ArgumentOutOfRangeException(nameof(wordCount));
         int destination = destinationWord & 0x7fff;
@@ -182,6 +207,7 @@ public sealed class SnesVram
         int sizeInBytes,
         ushort encodedDestination)
     {
+        writeGeneration++;
         if (sizeInBytes is <= 0 or > 0x10000)
             throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
 
@@ -221,6 +247,7 @@ public sealed class SnesVram
     /// <summary>Runs the same mode-1 VRAM port sequence from compiled artwork, without synthesizing a CPU address space.</summary>
     public void ExecuteQueuedAssetWrite(ReadOnlySpan<byte> bytes, ushort encodedDestination)
     {
+        writeGeneration++;
         if (bytes.Length is <= 0 or > ushort.MaxValue) throw new ArgumentOutOfRangeException(nameof(bytes));
         int destinationWord = encodedDestination & 0x7fff;
         int increment = (encodedDestination & 0x8000) == 0 ? 1 : 32;
@@ -236,5 +263,9 @@ public sealed class SnesVram
     /// Clears all VRAM. This is a host-side convenience for resets and isolated tests;
     /// the original game normally clears memory through explicit PPU/DMA operations.
     /// </summary>
-    public void Clear() => Array.Clear(_bytes);
+    public void Clear()
+    {
+        writeGeneration++;
+        Array.Clear(_bytes);
+    }
 }

@@ -15,11 +15,12 @@ internal static partial class Program
     /// <summary>Exercises installed opening-scene art and tilemaps through the real VRAM loader.</summary>
     private static void VerifyIntroCinematicArtwork(string sourceRom, bool samusBodyOnly = false, bool presentationOnly = false)
     {
-        string root = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-            "intro-artwork-" + Guid.NewGuid().ToString("N")));
-        try
+        // Edits, corruption and repairs run on a private copy of the repository installation;
+        // ROM import itself is covered by the asset-import verification.
+        using PrivateInstallationCopy copy = RepositoryInstallation.CreatePrivateCopy();
+        string root = copy.Root;
         {
-            GameInstallation installation = GameAssetInstaller.Install(sourceRom, root);
+            GameInstallation installation = copy.Installation;
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
             if (samusBodyOnly)
             {
@@ -440,7 +441,7 @@ internal static partial class Program
                     typeof(IntroCinematicState).GetField("brightness", flags)!
                         .SetValue(editedScene, 15);
                     AssertTrue(!SoftwareLayeredSnapshotRenderer.Render(stockScene.CaptureTranslatedRenderSnapshot())
-                            .AsSpan().SequenceEqual(SoftwareLayeredSnapshotRenderer.Render(
+                            .AsSpan().SequenceEqual(RenderForComparison(
                                 editedScene.CaptureTranslatedRenderSnapshot())),
                         "edited opening BG page produces visible flashback pixels");
                 }
@@ -581,14 +582,6 @@ internal static partial class Program
                 "malformed selected intro Mother Brain sprites fail instead of silently falling back");
             Console.WriteLine(
                 "Intro art: three indexed PNGs, seven full tilemaps, eye/caret/Mother Brain/explosion/Rinka/egg-effect/discovery/scientist compositions and full RGB5 palette; native parity, edits, rebind, repair and strict failures pass.");
-        }
-        finally
-        {
-            string workspaceTemp = Path.GetFullPath(Path.Combine("csharp", "test-temp")) +
-                Path.DirectorySeparatorChar;
-            if (!root.StartsWith(workspaceTemp, StringComparison.OrdinalIgnoreCase))
-                throw new InvalidOperationException("Intro artwork test cleanup escaped the workspace temp directory.");
-            if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
         }
     }
 

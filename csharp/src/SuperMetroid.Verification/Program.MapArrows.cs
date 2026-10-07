@@ -38,7 +38,7 @@ internal static partial class Program
         AssertTrue(!Draw(changed).AsSpan().SequenceEqual(Draw(control)), "edited anchor moves actual emitted arrow sprite coordinates");
         var graphics = new FileSelectRoomMapGraphics(guard, new Bank80SystemState(), AreaId.Maridia, mapPresentation: original);
         var marker = new FileSelectStationMarker(guard, AreaId.Maridia, 0, original.SaveMarkers);
-        AssertTrue(!graphics.Render(0, 0, marker, changed).AsSpan().SequenceEqual(graphics.Render(0, 0, marker, control)),
+        AssertTrue(!graphics.Render(0, 0, marker, changed).ToArray().AsSpan().SequenceEqual(graphics.Render(0, 0, marker, control)),
             "edited arrow anchor changes actual composed room-map pixels");
         AssertEqual(11, Counters(changed)[0], "first native decrement advances to authored phase one duration");
         for (int tick = 0; tick < 11; tick++) changed.StepArrows(_ => true);

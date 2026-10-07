@@ -134,7 +134,7 @@ internal static partial class Program
         byte[] oldPriority = RenderFrameSnapshotCodec.Serialize(legacyPriority)[..^1];
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(oldPriority.AsSpan(RenderPacketFormat.Signature.Length), 19);
         AssertTrue(SoftwareFrameSnapshotRenderer.Render(RenderFrameSnapshotCodec.Deserialize(oldPriority)).AsSpan()
-            .SequenceEqual(SoftwareFrameSnapshotRenderer.Render(legacyPriority)), "legacy priority packets remain readable without color payload");
+            .SequenceEqual(RenderForComparison(legacyPriority)), "legacy priority packets remain readable without color payload");
     }
 
     private static void VerifyBg4SubscreenAddition()

@@ -88,7 +88,7 @@ internal static partial class Program
                 {
                     var changedPixels = pause.Render();
                     AssertTrue(!pixels.AsSpan().SequenceEqual(changedPixels), "authored frame/button changes are visible on map and equipment pages");
-                    AssertTrue(changedPixels.AsSpan().SequenceEqual(SoftwareLayeredSnapshotRenderer.Render(changed)), "edited backdrop agrees between direct and captured renderers");
+                    AssertTrue(changedPixels.AsSpan().SequenceEqual(RenderForComparison(changed)), "edited backdrop agrees between direct and captured renderers");
                     using var capture = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(capture, pause); capture.Position = 0;
                     pause = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(capture);
                 }

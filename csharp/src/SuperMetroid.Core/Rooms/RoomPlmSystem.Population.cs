@@ -176,24 +176,45 @@ public sealed partial class RoomPlmSystem
     {
         get
         {
-            var snapshots = new List<RoomPlmSlotSnapshot>(_slots.Length);
+            var snapshots = new RoomPlmSlotSnapshot[ActiveCount];
+            int next = 0;
             for (int index = _slots.Length - 1; index >= 0; index--)
-            {
-                PlmSlot slot = _slots[index];
-                if (!slot.Active) continue;
-                snapshots.Add(new RoomPlmSlotSnapshot(
-                    NativeSlotIndex: index,
-                    HeaderPointer: slot.HeaderPointer,
-                    BlockIndex: slot.BlockIndex,
-                    RoomArgument: slot.RoomArgument,
-                    InstructionPointer: slot.InstructionPointer,
-                    PreInstruction: slot.PreInstruction,
-                    InstructionTimer: slot.InstructionTimer,
-                    LinkInstruction: slot.LinkInstruction,
-                    LoopTimer: slot.LoopTimer));
-            }
+                if (_slots[index].Active) snapshots[next++] = Snapshot(index);
             return snapshots;
         }
+    }
+
+    /// <summary>
+    /// The one active slot running <paramref name="headerPointer"/>, without building the
+    /// whole population. Throws unless exactly one active slot uses that header.
+    /// </summary>
+    public RoomPlmSlotSnapshot SinglePopulationSlot(ushort headerPointer)
+    {
+        int found = -1;
+        for (int index = _slots.Length - 1; index >= 0; index--)
+        {
+            if (!_slots[index].Active || _slots[index].HeaderPointer != headerPointer) continue;
+            if (found >= 0)
+                throw new InvalidOperationException($"More than one active PLM uses header ${headerPointer:X4}.");
+            found = index;
+        }
+        return found >= 0 ? Snapshot(found)
+            : throw new InvalidOperationException($"No active PLM uses header ${headerPointer:X4}.");
+    }
+
+    private RoomPlmSlotSnapshot Snapshot(int index)
+    {
+        PlmSlot slot = _slots[index];
+        return new RoomPlmSlotSnapshot(
+            NativeSlotIndex: index,
+            HeaderPointer: slot.HeaderPointer,
+            BlockIndex: slot.BlockIndex,
+            RoomArgument: slot.RoomArgument,
+            InstructionPointer: slot.InstructionPointer,
+            PreInstruction: slot.PreInstruction,
+            InstructionTimer: slot.InstructionTimer,
+            LinkInstruction: slot.LinkInstruction,
+            LoopTimer: slot.LoopTimer);
     }
 
     private PlmSlot? AllocateRoomPopulationSlot(

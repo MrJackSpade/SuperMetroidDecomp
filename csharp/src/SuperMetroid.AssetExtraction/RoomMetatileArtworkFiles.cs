@@ -61,19 +61,20 @@ public static class RoomMetatileArtworkFiles
             RoomMetatileFileEntry entry = manifest.Entries[name];
             RoomMetatileFormat.ValidateBlockCount(entry.NativeByteCount);
             string stockPath = Path.Combine(stockDirectory, name);
-            byte[] stock = File.ReadAllBytes(stockPath);
-            if (!string.Equals(Convert.ToHexString(SHA256.HashData(stock)), entry.Sha256,
+            using PooledFileBytes stock = PooledFileBytes.Read(stockPath);
+            if (!string.Equals(Convert.ToHexString(SHA256.HashData(stock.Span)), entry.Sha256,
                     StringComparison.OrdinalIgnoreCase))
                 throw new InvalidDataException($"Stock room metatile JSON {stockPath} failed its manifest hash.");
             string? overridePath = overrideDirectory is null ? null : Path.Combine(overrideDirectory, name);
             string selectedPath = overridePath is not null && File.Exists(overridePath)
                 ? overridePath : stockPath;
-            byte[] json = selectedPath == stockPath ? stock : File.ReadAllBytes(selectedPath);
+            using PooledFileBytes? edited = selectedPath == stockPath ? null : PooledFileBytes.Read(selectedPath);
+            PooledFileBytes json = edited ?? stock;
             RoomMetatileAtlas atlas;
             try
             {
-                atlas = RoomMetatileAtlas.Load(new MemoryStream(json, writable: false),
-                    entry.NativeByteCount);
+                using MemoryStream jsonStream = json.OpenRead();
+                atlas = RoomMetatileAtlas.Load(jsonStream, entry.NativeByteCount);
             }
             catch (InvalidDataException error)
             {

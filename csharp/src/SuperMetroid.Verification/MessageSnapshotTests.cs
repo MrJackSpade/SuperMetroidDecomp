@@ -42,7 +42,7 @@ internal static partial class Program
                     RenderLayer[] layers = layer is null ? [] : [layer];
                     var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick),
                         new LayeredRenderSnapshot(memory, layers, 3, 15));
-                    AssertTrue(expected.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(RoundTripRenderPacket(packet))),
+                    AssertTrue(expected.AsSpan().SequenceEqual(RenderForComparison(RoundTripRenderPacket(packet))),
                         $"message {id}, radius {state.RadiusPixels}");
                     if (layer is not null)
                     {
@@ -64,7 +64,7 @@ internal static partial class Program
             AssertTrue(!state.IsActive, $"message {id} completes reveal/close fixture");
             // Reuse the same live owner after closing, replacing its tilemap and radius.
             state.Begin(bus, GameplayMessageIds.SaveCompleted);
-            AssertTrue(held is not null && heldPixels!.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(held)),
+            AssertTrue(held is not null && heldPixels!.AsSpan().SequenceEqual(RenderForComparison(held)),
                 "retained message survives closing and reuse of the source owner");
         }
 

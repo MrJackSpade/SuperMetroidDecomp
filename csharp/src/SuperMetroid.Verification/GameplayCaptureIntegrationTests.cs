@@ -61,11 +61,11 @@ internal static partial class Program
             && captured.Layers[1] is ScanlineColorAddRenderLayer && captured.Layers[2] is MessageBoxRenderLayer
             && captured.Layers[3] is ScanlineColorAddRenderLayer, "base/Power Bomb/message/suit order");
         var retained = RoundTripRenderPacket(new(new(1, 1, 0), captured));
-        AssertTrue(expected.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(retained)), "composed gameplay overlay parity");
+        AssertTrue(expected.AsSpan().SequenceEqual(RenderForComparison(retained)), "composed gameplay overlay parity");
         runtime.MessageBox.Step((ushort)SnesButton.A);
         runtime.SuitPickup.Step(bus, runtime.Samus!, runtime.Cgram);
         runtime.BombProjectiles.PowerBombExplosion.StepFrame(bus);
-        AssertTrue(expected.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(retained)), "composed gameplay packet survives all effect updates");
+        AssertTrue(expected.AsSpan().SequenceEqual(RenderForComparison(retained)), "composed gameplay packet survives all effect updates");
 
         var options = new SuperMetroidGameOptions { SkipOpeningCinematic = true };
         AreaMapPresentationCatalog presentation = RetailPresentationFixture();

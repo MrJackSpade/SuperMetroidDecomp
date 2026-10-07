@@ -39,7 +39,7 @@ internal static partial class Program
             var restoredRegisters = ((OrdinaryGameplayRenderLayer)restored.Layers!.Layers[0]).Registers;
             AssertEqual(windows, restoredRegisters.Windows, "window register bytes survive packet round trip");
             AssertEqual(admission, restoredRegisters.MainScreenWindowMask, "TMW survives packet round trip");
-            AssertTrue(actual.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(restored)),
+            AssertTrue(actual.AsSpan().SequenceEqual(RenderForComparison(restored)),
                 "windowed packet renders exact direct-composition pixels");
             if (operation == 0 && mask == 0)
             {
@@ -54,7 +54,7 @@ internal static partial class Program
                 var legacy = RenderFrameSnapshotCodec.Deserialize(old);
                 AssertEqual(default(SnesWindowRegisters), ((OrdinaryGameplayRenderLayer)legacy.Layers!.Layers[0]).Registers.Windows,
                     "v20 gameplay has no invented window registers");
-                AssertTrue(reference[layers].AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(legacy)),
+                AssertTrue(reference[layers].AsSpan().SequenceEqual(RenderForComparison(legacy)),
                     "v20 gameplay pixels remain unchanged");
                 AssertThrows<EndOfStreamException>(() => RenderFrameSnapshotCodec.Deserialize(modern.AsSpan(0, modern.Length - 1)),
                     "truncated current gameplay data remains a loud error");

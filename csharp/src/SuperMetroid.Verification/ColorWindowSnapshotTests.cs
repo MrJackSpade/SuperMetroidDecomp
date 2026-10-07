@@ -93,7 +93,7 @@ internal static partial class Program
         {
             var frame = new RenderFrameSnapshot(new(++samples, 1, (ushort)samples),
                 new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 15));
-            AssertTrue(expected.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(RoundTripRenderPacket(frame))),
+            AssertTrue(expected.AsSpan().SequenceEqual(RenderForComparison(RoundTripRenderPacket(frame))),
                 $"color window snapshot sample {samples}");
         }
     }

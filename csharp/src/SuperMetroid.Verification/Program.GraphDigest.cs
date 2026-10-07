@@ -69,3 +69,30 @@ internal static partial class Program
         return true;
     }
 }
+
+internal static partial class Program
+{
+    // Raster for a packet render consumed immediately by one comparison. Never keep the
+    // returned array, and never compare two of these renders with each other.
+    private static readonly SuperMetroid.Core.Assets.Rgba32[] comparisonRaster =
+        new SuperMetroid.Core.Assets.Rgba32[SuperMetroid.Core.Hardware.SnesPpuLayout.ScreenWidthPixels *
+            SuperMetroid.Core.Hardware.SnesPpuLayout.ScreenHeightPixels];
+
+    private static SuperMetroid.Core.Assets.Rgba32[] RenderForComparison(SuperMetroid.Core.Rendering.RenderFrameSnapshot frame) =>
+        SuperMetroid.Core.Rendering.SoftwareFrameSnapshotRenderer.Render(frame, comparisonRaster);
+
+    private static SuperMetroid.Core.Assets.Rgba32[] RenderForComparison(SuperMetroid.Core.Rendering.LayeredRenderSnapshot frame) =>
+        SuperMetroid.Core.Rendering.SoftwareLayeredSnapshotRenderer.Render(frame, comparisonRaster);
+}
+
+internal static partial class Program
+{
+    /// <summary>SHA-256 of a render packet's encoding, streamed without a serialized copy.</summary>
+    private static byte[] PacketDigest(SuperMetroid.Core.Rendering.RenderFrameSnapshot frame)
+    {
+        using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+        using (var stream = new HashingStream(hash))
+            SuperMetroid.Core.Rendering.RenderFrameSnapshotCodec.Serialize(frame, stream);
+        return hash.GetHashAndReset();
+    }
+}

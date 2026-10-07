@@ -9,12 +9,16 @@ public static class FileSelectMapWindowCompositor
     /// $81:A5B3 temporarily restores the initial centered window during return setup:
     /// area graphics are inside it, while the previously installed BG2 frame stays outside.
     /// </summary>
-    public static Rgba32[] CompositeInitialEntryWindow(ReadOnlySpan<Rgba32> area, ReadOnlySpan<Rgba32> roomFrame)
+    public static Rgba32[] CompositeInitialEntryWindow(ReadOnlySpan<Rgba32> area, ReadOnlySpan<Rgba32> roomFrame) =>
+        CompositeInitialEntryWindow(area, roomFrame, new Rgba32[FrontendFrame.Width * FrontendFrame.Height]);
+
+    /// <summary>As above, writing into <paramref name="pixels"/>, which must not alias either input.</summary>
+    public static Rgba32[] CompositeInitialEntryWindow(ReadOnlySpan<Rgba32> area, ReadOnlySpan<Rgba32> roomFrame, Rgba32[] pixels)
     {
         int length = FrontendFrame.Width * FrontendFrame.Height;
-        if (area.Length != length || roomFrame.Length != length)
-            throw new ArgumentException("File-select entry windows require two complete scenes.");
-        var pixels = roomFrame.ToArray();
+        if (area.Length != length || roomFrame.Length != length || pixels.Length != length)
+            throw new ArgumentException("File-select entry windows require two complete scenes and a complete output.");
+        roomFrame.CopyTo(pixels);
         for (int y = FileSelectMapRomData.EntryWindowTop; y < FrontendFrame.Height - FileSelectMapRomData.EntryWindowTop; y++)
         {
             int offset = y * FrontendFrame.Width + FileSelectMapRomData.EntryWindowLeft;
@@ -29,15 +33,24 @@ public static class FileSelectMapWindowCompositor
     /// Inputs must already have their own color math applied; this does not scale pixels.
     /// </summary>
     public static Rgba32[] Composite(ReadOnlySpan<Rgba32> area, ReadOnlySpan<Rgba32> roomFrame,
-        FileSelectMapWindow window)
+        FileSelectMapWindow window) =>
+        Composite(area, roomFrame, window, new Rgba32[FrontendFrame.Width * FrontendFrame.Height]);
+
+    /// <summary>As above, writing into <paramref name="pixels"/>, which must not alias either input.</summary>
+    public static Rgba32[] Composite(ReadOnlySpan<Rgba32> area, ReadOnlySpan<Rgba32> roomFrame,
+        FileSelectMapWindow window, Rgba32[] pixels)
     {
         ArgumentNullException.ThrowIfNull(window);
+        ArgumentNullException.ThrowIfNull(pixels);
         int length = FrontendFrame.Width * FrontendFrame.Height;
-        if (area.Length != length || roomFrame.Length != length)
-            throw new ArgumentException("File-select map windows require two complete 256x224 scenes.");
+        if (area.Length != length || roomFrame.Length != length || pixels.Length != length)
+            throw new ArgumentException("File-select map windows require two complete 256x224 scenes and a complete output.");
         if (window.IsComplete)
-            return window.IsReturning ? area.ToArray() : roomFrame.ToArray();
-        Rgba32[] pixels = area.ToArray();
+        {
+            (window.IsReturning ? area : roomFrame).CopyTo(pixels);
+            return pixels;
+        }
+        area.CopyTo(pixels);
         // HDMA encodes the top rows, then max(1,bottom-top) rows using the window.
         // WH0/WH1 include both horizontal endpoints, even for a zero-width window.
         int top = (byte)window.Top;

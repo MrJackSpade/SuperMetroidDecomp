@@ -82,15 +82,16 @@ public static class RoomVisualLayoutFiles
                 throw new InvalidDataException(
                     $"Room-layout manifest {manifestPath} has an invalid source entry.");
             string stockPath = Path.Combine(stockDirectory, name);
-            byte[] stock = File.ReadAllBytes(stockPath);
-            if (!string.Equals(Convert.ToHexString(SHA256.HashData(stock)), entry.Sha256,
+            using PooledFileBytes stock = PooledFileBytes.Read(stockPath);
+            if (!string.Equals(Convert.ToHexString(SHA256.HashData(stock.Span)), entry.Sha256,
                     StringComparison.OrdinalIgnoreCase))
                 throw new InvalidDataException($"Stock room layout {stockPath} failed its manifest hash.");
             string? overridePath = overrideDirectory is null ? null : Path.Combine(overrideDirectory, name);
             string selectedPath = overridePath is not null && File.Exists(overridePath)
                 ? overridePath : stockPath;
-            byte[] json = selectedPath == stockPath ? stock : File.ReadAllBytes(selectedPath);
-            using var jsonStream = new MemoryStream(json, writable: false);
+            using PooledFileBytes? edited = selectedPath == stockPath ? null : PooledFileBytes.Read(selectedPath);
+            PooledFileBytes json = edited ?? stock;
+            using MemoryStream jsonStream = json.OpenRead();
             RoomVisualLayoutDocument document = JsonAssetDocument.Read<RoomVisualLayoutDocument>(
                 jsonStream, JsonOptions, $"room layout {selectedPath}");
             if (document.FormatVersion != FormatVersion ||

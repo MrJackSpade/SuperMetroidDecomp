@@ -170,13 +170,18 @@ internal static partial class Program
             "audible PCM change and malformed-bank rejection pass.");
     }
 
-    private static AudioAssetManifest ReadAudioManifest(string path) =>
-        JsonSerializer.Deserialize<AudioAssetManifest>(
-            File.ReadAllText(path), AudioAssetJson.Options)
-        ?? throw new InvalidDataException($"Audio manifest '{path}' deserialized to null.");
+    private static AudioAssetManifest ReadAudioManifest(string path)
+    {
+        using var input = File.OpenRead(path);
+        return JsonSerializer.Deserialize<AudioAssetManifest>(input, AudioAssetJson.Options)
+            ?? throw new InvalidDataException($"Audio manifest '{path}' deserialized to null.");
+    }
 
-    private static void WriteAudioManifest(string path, AudioAssetManifest manifest) =>
-        File.WriteAllText(path, JsonSerializer.Serialize(manifest, AudioAssetJson.Options));
+    private static void WriteAudioManifest(string path, AudioAssetManifest manifest)
+    {
+        using var output = File.Create(path);
+        JsonSerializer.Serialize(output, manifest, AudioAssetJson.Options);
+    }
 
     private static void CopyAudioDirectory(string source, string destination)
     {

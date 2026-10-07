@@ -93,7 +93,7 @@ internal static partial class Program
         byte[] bytes = RenderFrameSnapshotCodec.Serialize(frame);
         RenderFrameSnapshot restored = RenderFrameSnapshotCodec.Deserialize(bytes);
         AssertEqual(frame.Identity, restored.Identity, "render fixture preserves frame identity");
-        AssertTrue(bytes.AsSpan().SequenceEqual(RenderFrameSnapshotCodec.Serialize(restored)),
+        AssertTrue(System.Security.Cryptography.SHA256.HashData(bytes).AsSpan().SequenceEqual(PacketDigest(restored)),
             "canonical fixture round trip preserves every encoded field");
         return restored;
     }
@@ -125,7 +125,7 @@ internal static partial class Program
                     Rgba32 pixel = full[((y + scroll) % 256) * 256 + x];
                     if (pixel.A != 0) expected[y * 256 + x] = pixel;
                 }
-            AssertTrue(expected.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(RoundTripRenderPacket(frame))),
+            AssertTrue(expected.AsSpan().SequenceEqual(RenderForComparison(RoundTripRenderPacket(frame))),
                 $"2bpp viewport scroll={scroll}, transparent={transparent}, priority={priority}");
         }
     }

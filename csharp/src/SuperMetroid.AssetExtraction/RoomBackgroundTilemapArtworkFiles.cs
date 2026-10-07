@@ -62,19 +62,20 @@ public static class RoomBackgroundTilemapArtworkFiles
                 throw new InvalidDataException($"Room background manifest {manifestPath} has an invalid source entry.");
             RoomBackgroundTilemapFormat.ValidatePageCount(entry.NativeByteCount);
             string stockPath = Path.Combine(stockDirectory, name);
-            byte[] stock = File.ReadAllBytes(stockPath);
-            if (!string.Equals(Convert.ToHexString(SHA256.HashData(stock)), entry.Sha256,
+            using PooledFileBytes stock = PooledFileBytes.Read(stockPath);
+            if (!string.Equals(Convert.ToHexString(SHA256.HashData(stock.Span)), entry.Sha256,
                     StringComparison.OrdinalIgnoreCase))
                 throw new InvalidDataException($"Stock room background {stockPath} failed its manifest hash.");
             string? overridePath = overrideDirectory is null ? null : Path.Combine(overrideDirectory, name);
             string selectedPath = overridePath is not null && File.Exists(overridePath)
                 ? overridePath : stockPath;
-            byte[] json = selectedPath == stockPath ? stock : File.ReadAllBytes(selectedPath);
+            using PooledFileBytes? edited = selectedPath == stockPath ? null : PooledFileBytes.Read(selectedPath);
+            PooledFileBytes json = edited ?? stock;
             RoomBackgroundTilemapAtlas atlas;
             try
             {
-                atlas = RoomBackgroundTilemapAtlas.Load(
-                    new MemoryStream(json, writable: false), entry.NativeByteCount);
+                using MemoryStream jsonStream = json.OpenRead();
+                atlas = RoomBackgroundTilemapAtlas.Load(jsonStream, entry.NativeByteCount);
             }
             catch (InvalidDataException error)
             {

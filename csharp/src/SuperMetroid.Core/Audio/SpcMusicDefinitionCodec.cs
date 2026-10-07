@@ -146,8 +146,9 @@ internal static class SpcMusicDefinitionCodec
             if (ended)
                 throw new InvalidDataException($"Music program '{program.Id}' contains data after end.");
             ValidateTiming(program.Id, instruction.Timing);
-            foreach (byte timing in instruction.Timing)
-                bytes.Add(timing);
+            // Index the operand lists: enumerating an IReadOnlyList boxes an enumerator per list.
+            for (int index = 0; index < instruction.Timing.Count; index++)
+                bytes.Add(instruction.Timing[index]);
 
             if (instruction.Operation == AudioMusicInstructionOperations.End)
             {
@@ -166,8 +167,8 @@ internal static class SpcMusicDefinitionCodec
                     instruction.Arguments.Count != SpcMusicTables.EffectByteLength(effectIndex))
                     throw InvalidProgramInstruction(program, instruction);
                 bytes.Add(instruction.Opcode);
-                foreach (byte argument in instruction.Arguments)
-                    bytes.Add(argument);
+                for (int index = 0; index < instruction.Arguments.Count; index++)
+                    bytes.Add(instruction.Arguments[index]);
                 continue;
             }
             string expected = GetNoteOperation(instruction.Opcode);
@@ -186,7 +187,10 @@ internal static class SpcMusicDefinitionCodec
     {
         Dictionary<string, AudioMusicProgramMetadata> programs = bank.MusicPrograms
             .ToDictionary(program => program.Id, StringComparer.Ordinal);
-        var writes = new Dictionary<int, byte>();
+        // Programs dominate the image; size the table once rather than rehashing as it grows.
+        int expectedBytes = bank.MusicPhrases.Count * SpcDriverData.ChannelCount * 2;
+        foreach (AudioMusicProgramMetadata program in bank.MusicPrograms) expectedBytes += program.ByteCapacity;
+        var writes = new Dictionary<int, byte>(expectedBytes);
         foreach (AudioMusicTrackMetadata track in bank.MusicTracks)
         {
             byte[] encoded = EncodeTrack(track);

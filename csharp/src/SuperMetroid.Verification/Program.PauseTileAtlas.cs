@@ -51,7 +51,7 @@ internal static partial class Program
             pause.BindMapPresentation(edited);
             var after = pause.Render();
             AssertTrue(!before.AsSpan().SequenceEqual(after), "pause UI PNG edit reaches actual equipment pixels immediately");
-            AssertTrue(after.AsSpan().SequenceEqual(SoftwareLayeredSnapshotRenderer.Render(pause.CaptureRenderSnapshot())), "edited pause artwork reaches captured rendering");
+            AssertTrue(after.AsSpan().SequenceEqual(RenderForComparison(pause.CaptureRenderSnapshot())), "edited pause artwork reaches captured rendering");
             AssertEqual(selected, (pause.SelectedCategory, pause.SelectedItem, samus.EquippedBeams, samus.CollectedBeams), "artwork rebind preserves selection and equipment");
             using var captured = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(captured, pause); captured.Position = 0;
             pause = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(captured);

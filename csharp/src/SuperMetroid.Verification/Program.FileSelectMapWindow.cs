@@ -115,7 +115,7 @@ internal static partial class Program
             "completed return disables room frame and restores entire area scene");
         var graphics = new FileSelectRoomMapGraphics(bus, new SuperMetroid.Core.Game.Bank80SystemState(),
             SuperMetroid.Core.Game.AreaId.Maridia, mapPresentation: RetailPresentationFixture());
-        Rgba32[] frameOnly = graphics.RenderFrameOnly();
+        Rgba32[] frameOnly = graphics.RenderFrameOnly().ToArray();
         graphics.Vram.LoadBytes(0xa000, new byte[] { 0x34, 0x12 });
         AssertTrue(frameOnly.SequenceEqual(graphics.RenderFrameOnly()), "transition frame never samples room-map BG1 tiles");
     }
@@ -150,7 +150,7 @@ internal static partial class Program
             Directory.CreateDirectory("csharp/test-temp/file-select-map");
             PngWriter.WriteRgba($"csharp/test-temp/file-select-map/area-{area}.png", 256, 224, frame);
             ushort[] used = [ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue];
-            Rgba32[] labelled = graphics.Render(used);
+            Rgba32[] labelled = graphics.Render(used).ToArray();
             AssertTrue(!labelled.SequenceEqual(graphics.Render(new ushort[6])), "visited-station masks control map labels");
             PngWriter.WriteRgba($"csharp/test-temp/file-select-map/area-{area}-labels.png", 256, 224, labelled);
         }

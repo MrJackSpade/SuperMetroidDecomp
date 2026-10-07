@@ -12,7 +12,7 @@ internal static partial class Program
         Rgba32[] pixels = SoftwareFrameSnapshotRenderer.Render(first);
         AssertEqual(new Rgba32(20, 12, 6, 255), pixels[0], "ordered fade rounding and owned operations");
         AssertEqual(pixels[0], pixels[^1], "solid packet covers native frame");
-        AssertTrue(pixels.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(first)),
+        AssertTrue(pixels.AsSpan().SequenceEqual(RenderForComparison(first)),
             "packet repeat render is observational");
         AssertThrows<ArgumentOutOfRangeException>(() => new RenderFrameSnapshot(new(0, 1, 0),
             default(Rgba32)), "zero sequence rejected");

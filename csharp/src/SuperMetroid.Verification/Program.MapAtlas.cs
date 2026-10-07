@@ -21,7 +21,7 @@ internal static partial class Program
         var pause = new PauseMenuState(guard, samus, system, AreaId.Crateria, 0, 0, mapPresentation: original);
         var nativePause = new PauseMenuState(bus, samus, system, AreaId.Crateria, 0, 0,
             mapPresentation: original);
-        Rgba32[] pauseBefore = pause.Render(), menuBefore = menu.RenderBackgrounds(0, 0);
+        Rgba32[] pauseBefore = pause.Render(), menuBefore = menu.RenderBackgrounds(0, 0).ToArray();
         AssertTrue(pauseBefore.AsSpan().SequenceEqual(nativePause.Render()), "installed stock atlas gives exact pause pixels with artwork ROM blocked");
         Directory.CreateDirectory(overrides);
         string replacement = Path.Combine(overrides, MapTileAtlasFormat.FileName);

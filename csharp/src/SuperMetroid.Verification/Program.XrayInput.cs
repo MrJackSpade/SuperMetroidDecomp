@@ -118,7 +118,7 @@ internal static partial class Program
         AssertTrue(!samus.Xray.IsActive && !runtime.TimeIsFrozen, "releasing Run restores ordinary gameplay");
         AssertTrue(!GameplayDisplayCapture.TryCaptureFrame(runtime)!.Layers.ToArray().Any(layer => layer is GameplayColorMathRenderLayer),
             "release removes the X-ray display window");
-        AssertTrue(pixels.SequenceEqual(SoftwareLayeredSnapshotRenderer.Render(captured)),
+        AssertTrue(pixels.SequenceEqual(RenderForComparison(captured)),
             "a queued X-ray frame remains immutable after gameplay resumes");
         AssertTrue(beforeRelease.SequenceEqual(RenderFrameSnapshotCodec.Serialize(new(new(1, 1, 0), captured))),
             "a queued X-ray packet retains its reveal memory after gameplay resumes");

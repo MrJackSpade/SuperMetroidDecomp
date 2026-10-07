@@ -69,12 +69,19 @@ public sealed class FileSelectMapEntry
     }
 
     /// <summary>BG1/OBJ/subscreen are visible inside window one; the cleared BG2 covers its exterior.</summary>
-    public Rgba32[] Render(ReadOnlySpan<Rgba32> areaScene)
+    public Rgba32[] Render(ReadOnlySpan<Rgba32> areaScene) => Render(areaScene, new Rgba32[areaScene.Length]);
+
+    /// <summary>As above, writing into <paramref name="pixels"/>, which must not alias the area scene.</summary>
+    public Rgba32[] Render(ReadOnlySpan<Rgba32> areaScene, Rgba32[] pixels)
     {
-        if (areaScene.Length != FrontendFrame.Width * FrontendFrame.Height)
-            throw new ArgumentException("Area reveal requires a complete frontend frame.", nameof(areaScene));
-        if (IsComplete) return areaScene.ToArray();
-        var pixels = new Rgba32[areaScene.Length];
+        ArgumentNullException.ThrowIfNull(pixels);
+        if (areaScene.Length != FrontendFrame.Width * FrontendFrame.Height || pixels.Length != areaScene.Length)
+            throw new ArgumentException("Area reveal requires a complete frontend frame and output.", nameof(areaScene));
+        if (IsComplete)
+        {
+            areaScene.CopyTo(pixels);
+            return pixels;
+        }
         Array.Fill(pixels, new Rgba32(0, 0, 0));
         if (Phase == FileSelectMapEntryPhase.Revealing)
             for (int y = Top; y < Bottom; y++)

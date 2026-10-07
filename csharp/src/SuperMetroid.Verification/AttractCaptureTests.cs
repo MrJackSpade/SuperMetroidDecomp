@@ -47,7 +47,7 @@ internal static partial class Program
                     or SuperMetroidGameState.PlayingDemo or SuperMetroidGameState.TransitionFromDemoA or SuperMetroidGameState.TransitionFromDemoB;
                 if (demo || tick % 31 == 0)
                 {
-                    AssertTrue(expected.Pixels.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(RoundTripRenderPacket(actual.Snapshot!))),
+                    AssertTrue(expected.Pixels.AsSpan().SequenceEqual(RenderForComparison(RoundTripRenderPacket(actual.Snapshot!))),
                         $"demo frame {tick} pixel parity");
                     samples++;
                 }
@@ -59,7 +59,7 @@ internal static partial class Program
                 }
                 if (states.Contains(SuperMetroidGameState.TransitionFromDemoB) && expected.GameState == SuperMetroidGameState.OpeningCinematic)
                 {
-                    AssertTrue(expected.Pixels.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(actual.Snapshot!)), "demo return title frame");
+                    AssertTrue(expected.Pixels.AsSpan().SequenceEqual(RenderForComparison(actual.Snapshot!)), "demo return title frame");
                     returned = true; break;
                 }
             }

@@ -125,7 +125,7 @@ internal static partial class Program
             if (sample)
             {
                 RenderFrameSnapshot packet = RoundTripRenderPacket(new(new(tick + 1, 1, (ushort)tick), snapshot));
-                AssertTrue(expected.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(packet)),
+                AssertTrue(expected.AsSpan().SequenceEqual(RenderForComparison(packet)),
                     $"intro captured pixels: {legacy.Phase}, tick {tick}");
                 samples++;
             }
@@ -138,7 +138,7 @@ internal static partial class Program
             AssertEqual(legacy.FlashbackSamusY, captured.FlashbackSamusY, "intro Samus Y after draw");
             AssertEqual(legacy.ActiveFlashbackProjectileCount, captured.ActiveFlashbackProjectileCount, "intro projectiles after draw");
             if (sample)
-                AssertTrue(expected.AsSpan().SequenceEqual(SoftwareLayeredSnapshotRenderer.Render(snapshot)),
+                AssertTrue(expected.AsSpan().SequenceEqual(RenderForComparison(snapshot)),
                     "intro packet survives subsequent simulation mutations");
         }
         AssertTrue(legacy.CeresFlightFinished && captured.CeresFlightFinished, "full intro capture reaches completed flight");

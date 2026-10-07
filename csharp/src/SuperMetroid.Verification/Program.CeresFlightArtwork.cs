@@ -347,7 +347,7 @@ internal static partial class Program
             AssertEqual(IntroCeresFlightPhase.FlyingIntoCamera, stockFlight.Phase,
                 "visible Ceres edit fixture reaches the front flight phase");
             AssertTrue(!SoftwareLayeredSnapshotRenderer.Render(stockFlight.CaptureRenderSnapshot())
-                    .AsSpan().SequenceEqual(SoftwareLayeredSnapshotRenderer.Render(
+                    .AsSpan().SequenceEqual(RenderForComparison(
                         editedFlight.CaptureRenderSnapshot())),
                 $"edited {name} changes visible Ceres approach pixels");
             File.Delete(overridePath);
@@ -376,7 +376,7 @@ internal static partial class Program
             changed.Step();
         }
         AssertTrue(!SoftwareLayeredSnapshotRenderer.Render(original.CaptureRenderSnapshot())
-                .AsSpan().SequenceEqual(SoftwareLayeredSnapshotRenderer.Render(
+                .AsSpan().SequenceEqual(RenderForComparison(
                     changed.CaptureRenderSnapshot())),
             "edited front Ceres Mode-7 map changes visible approach pixels");
         for (int tick = 0; tick < 100 &&
@@ -395,7 +395,7 @@ internal static partial class Program
             changed.Step();
         }
         AssertTrue(!SoftwareLayeredSnapshotRenderer.Render(original.CaptureRenderSnapshot())
-                .AsSpan().SequenceEqual(SoftwareLayeredSnapshotRenderer.Render(
+                .AsSpan().SequenceEqual(RenderForComparison(
                     changed.CaptureRenderSnapshot())),
             "edited rear Ceres Mode-7 map changes visible approach pixels");
         File.Delete(mapOverride);

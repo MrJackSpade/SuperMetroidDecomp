@@ -73,7 +73,7 @@ internal static partial class Program
                 EnterEquipment(pause);
                 AssertPage(pause, edited, kind);
                 var editedPixels = pause.Render();
-                AssertTrue(editedPixels.AsSpan().SequenceEqual(SoftwareLayeredSnapshotRenderer.Render(pause.CaptureRenderSnapshot())), "edited wireframe agrees between direct and captured rendering");
+                AssertTrue(editedPixels.AsSpan().SequenceEqual(RenderForComparison(pause.CaptureRenderSnapshot())), "edited wireframe agrees between direct and captured rendering");
                 var inventory = (samus.EquippedItems, samus.CollectedItems, samus.EquippedBeams, samus.CollectedBeams);
                 var cursor = (pause.SelectedCategory, pause.SelectedItem);
                 using var captured = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(captured, new object[] { pause, samus }); captured.Position = 0;

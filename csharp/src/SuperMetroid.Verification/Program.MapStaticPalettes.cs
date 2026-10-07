@@ -45,7 +45,7 @@ internal static partial class Program
         system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
         var room = new FileSelectRoomMapGraphics(guard, system, AreaId.Crateria, mapPresentation: original);
         var pause = new PauseMenuState(guard, new SamusState(), system, AreaId.Crateria, 0, 0, mapPresentation: original);
-        var roomBefore = room.RenderBackgrounds(0, 0); var pauseBefore = pause.Render();
+        var roomBefore = room.RenderBackgrounds(0, 0).ToArray(); var pauseBefore = pause.Render();
         room.BindMapPresentation(edited); pause.BindMapPresentation(edited);
         AssertTrue(!roomBefore.AsSpan().SequenceEqual(room.RenderBackgrounds(0, 0)), "static palette edit reaches room-map pixels");
         AssertTrue(!pauseBefore.AsSpan().SequenceEqual(pause.Render()), "static palette edit reaches pause-map pixels");

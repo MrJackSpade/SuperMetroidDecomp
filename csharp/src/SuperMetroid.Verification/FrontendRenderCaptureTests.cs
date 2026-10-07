@@ -60,9 +60,9 @@ internal static partial class Program
                 AssertEqual(expected.FrameNumber, retained.Identity.SimulationFrame, "republish retains simulation identity");
                 AssertEqual(expected.FrameNumber, captured.FrameNumber, "republish does not step simulation");
                 AssertEqual(7L, packet.Identity.Generation, "republish does not mutate in-flight identity");
-                AssertTrue(actualPixels.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(retained)),
+                AssertTrue(actualPixels.AsSpan().SequenceEqual(RenderForComparison(retained)),
                     "republished display preserves exact pixels and outer fades");
-                AssertTrue(actualPixels.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(repeated)),
+                AssertTrue(actualPixels.AsSpan().SequenceEqual(RenderForComparison(repeated)),
                     "repeated republish preserves exact display");
                 packetCount++;
                 if (held is null) { held = packet; heldPixels = actualPixels; }

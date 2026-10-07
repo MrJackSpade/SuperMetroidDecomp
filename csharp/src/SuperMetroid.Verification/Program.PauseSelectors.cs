@@ -85,7 +85,7 @@ internal static partial class Program
                 AssertTrue((oam.HighTable[0] & 2) != 0, "authored large selector sprite size");
                 AssertEqual(4, new SnesObjAttributeWord((ushort)(oam.LowTable[6] | oam.LowTable[7] << 8)).PaletteIndex, "null part palette inherits authored selector palette");
             }
-            AssertTrue(customMenu.Render().AsSpan().SequenceEqual(SoftwareLayeredSnapshotRenderer.Render(snapshot)), "custom selector animation reaches direct and captured rendering consistently");
+            AssertTrue(customMenu.Render().AsSpan().SequenceEqual(RenderForComparison(snapshot)), "custom selector animation reaches direct and captured rendering consistently");
         }
         var before = customMenu.Render(); var timing = customMenu.ItemSelectorAnimationState;
         using (var state = new MemoryStream())

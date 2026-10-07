@@ -36,7 +36,7 @@ internal static partial class Program
             {
                 legacy.Step(); captured.Step();
                 if (previousPacket is not null)
-                    AssertTrue(previousPixels.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(previousPacket)),
+                    AssertTrue(previousPixels.AsSpan().SequenceEqual(RenderForComparison(previousPacket)),
                         "ending packet survives subsequent palette/tile/sprite updates");
                 bool firstPhaseFrame = phases.Add(legacy.Phase);
                 if (firstPhaseFrame) phaseEntryFrames.Add(legacy.Phase, tick);
@@ -344,7 +344,7 @@ internal static partial class Program
                                 RenderFrameSnapshotCodec.Serialize(new(new(tick, 1, legacy.CinematicFrame), legacy.CaptureRenderSnapshot())));
                     }
                     packet = RoundTripRenderPacket(new(new(++samples, 1, (ushort)tick), captured.CaptureRenderSnapshot()));
-                    AssertTrue(expected.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(packet)),
+                    AssertTrue(expected.AsSpan().SequenceEqual(RenderForComparison(packet)),
                         $"ending reward {hours}, phase {legacy.Phase}, tick {tick} pixel parity");
                 }
                 audio.AdvanceFrame(bus, default); otherAudio.AdvanceFrame(otherBus, default);
@@ -352,7 +352,7 @@ internal static partial class Program
                 AssertEqual(legacy.CinematicFrame, captured.CinematicFrame, "ending capture preserves timer");
                 AssertEqual(legacy.CreditsVerticalScroll, captured.CreditsVerticalScroll, "ending capture preserves half-pixel scroll result");
                 if (packet is not null)
-                    AssertTrue(expected.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(packet)), "ending packet repeat rendering is observational");
+                    AssertTrue(expected.AsSpan().SequenceEqual(RenderForComparison(packet)), "ending packet repeat rendering is observational");
                 previousPacket = packet;
                 previousPixels = expected;
                 if (legacy.Phase == EndingCreditsPhase.SeeYouNextMission) break;
@@ -367,7 +367,7 @@ internal static partial class Program
             LayeredRenderSnapshot retained = captured.CaptureRenderSnapshot();
             for (int i = 0; i < 600; i++) captured.Step();
             PngWriter.WriteRgba($"csharp/test-temp/ending-504/{hours}-Final.png", 256, 224, captured.Render());
-            AssertTrue(final.AsSpan().SequenceEqual(SoftwareLayeredSnapshotRenderer.Render(retained)), "ending final packet survives simulation advance");
+            AssertTrue(final.AsSpan().SequenceEqual(RenderForComparison(retained)), "ending final packet survives simulation advance");
         }
         Console.WriteLine($"  Ending snapshots: {samples} sampled frames cover escape, credits and all three reward branches.");
     }

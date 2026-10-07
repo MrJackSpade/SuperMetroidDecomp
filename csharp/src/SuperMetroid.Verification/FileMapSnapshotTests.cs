@@ -47,7 +47,7 @@ internal static partial class Program
                     : tick is >= 110 and <= 119 ? (ushort)SnesButton.Right : (ushort)0;
                 legacy.Step(input); capture.Step(input);
                 if (previous is not null)
-                    AssertTrue(previousPixels.AsSpan().SequenceEqual(SoftwareLayeredSnapshotRenderer.Render(previous)), "map packet survives window/palette/marker update");
+                    AssertTrue(previousPixels.AsSpan().SequenceEqual(RenderForComparison(previous)), "map packet survives window/palette/marker update");
                 phases.Add(legacy.Phase);
                 Rgba32[] expected = legacy.Render();
                 LayeredRenderSnapshot packet = capture.CaptureRenderSnapshot();
@@ -79,7 +79,7 @@ internal static partial class Program
             var reference = game.Step(input); var actual = capturedGame.StepCaptured(input, tick + 1, 1);
             sawMap |= game.GameState == SuperMetroidGameState.FileSelectMap;
             AssertTrue(!actual.UsedLegacyRaster, "saved-file frontend never falls back to raster");
-            AssertTrue(reference.Pixels.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(actual.Snapshot!)), "saved-file frontend pixels");
+            AssertTrue(reference.Pixels.AsSpan().SequenceEqual(RenderForComparison(actual.Snapshot!)), "saved-file frontend pixels");
             AssertEqual(reference.GameState, actual.Frame.GameState, "saved-file frontend state");
             AssertEqual(reference.Phase, actual.Frame.Phase, "saved-file frontend phase");
             AssertSequenceEqual(reference.AudioCommands, actual.Frame.AudioCommands, "saved-file frontend audio order");
@@ -90,7 +90,7 @@ internal static partial class Program
         void Compare(Rgba32[] expected, LayeredRenderSnapshot captured, string name)
         {
             var packet = RoundTripRenderPacket(new(new(++samples, 1, 0), captured));
-            AssertTrue(expected.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(packet)), name);
+            AssertTrue(expected.AsSpan().SequenceEqual(RenderForComparison(packet)), name);
         }
     }
 

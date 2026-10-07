@@ -742,8 +742,90 @@ internal static class AudioAssetJson
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         WriteIndented = true,
-        Converters = { new ExactByteListConverter() },
+        Converters = { new ExactByteListConverter(), new MusicInstructionConverter() },
     };
+
+    /// <summary>
+    /// Reads each music instruction straight into its record. The generic constructor path
+    /// allocated argument state per instruction across thousands of instructions per load.
+    /// Semantics match the default record binding: unknown members are skipped, the last
+    /// duplicate wins, absent members take their defaults, and the written JSON is identical.
+    /// </summary>
+    private sealed class MusicInstructionConverter : JsonConverter<AudioMusicInstructionMetadata>
+    {
+        // Operation names repeat across every program; keep one instance of each.
+        [ThreadStatic] private static Dictionary<string, string>? operations;
+
+        public override AudioMusicInstructionMetadata Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            if (reader.TokenType != JsonTokenType.StartObject)
+                throw new JsonException("Expected a music instruction object.");
+            string? operation = null;
+            byte opcode = 0;
+            IReadOnlyList<byte>? timing = null, arguments = null;
+            var bytes = (JsonConverter<IReadOnlyList<byte>>)options.GetConverter(typeof(IReadOnlyList<byte>));
+            while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
+            {
+                if (reader.TokenType != JsonTokenType.PropertyName)
+                    throw new JsonException("Expected a music instruction property.");
+                if (reader.ValueTextEquals("operation"u8))
+                {
+                    reader.Read();
+                    operation = reader.TokenType == JsonTokenType.Null ? null : Operation(ref reader);
+                }
+                else if (reader.ValueTextEquals("opcode"u8))
+                {
+                    reader.Read();
+                    opcode = reader.GetByte();
+                }
+                else if (reader.ValueTextEquals("timing"u8))
+                {
+                    reader.Read();
+                    timing = reader.TokenType == JsonTokenType.Null ? null : bytes.Read(ref reader, typeof(IReadOnlyList<byte>), options);
+                }
+                else if (reader.ValueTextEquals("arguments"u8))
+                {
+                    reader.Read();
+                    arguments = reader.TokenType == JsonTokenType.Null ? null : bytes.Read(ref reader, typeof(IReadOnlyList<byte>), options);
+                }
+                else
+                {
+                    reader.Read();
+                    reader.Skip();
+                }
+            }
+            if (reader.TokenType != JsonTokenType.EndObject)
+                throw new JsonException("Music instruction is not terminated.");
+            return new AudioMusicInstructionMetadata(operation!, opcode, timing!, arguments!);
+        }
+
+        private static string Operation(ref Utf8JsonReader reader)
+        {
+            if (reader.TokenType != JsonTokenType.String)
+                throw new JsonException("Music instruction operation must be a string.");
+            int length = reader.HasValueSequence ? checked((int)reader.ValueSequence.Length) : reader.ValueSpan.Length;
+            Span<char> text = length <= 128 ? stackalloc char[length] : new char[length];
+            int written = reader.CopyString(text);
+            var lookup = (operations ??= new(StringComparer.Ordinal)).GetAlternateLookup<ReadOnlySpan<char>>();
+            if (lookup.TryGetValue(text[..written], out string? known))
+                return known;
+            string name = new(text[..written]);
+            operations.Add(name, name);
+            return name;
+        }
+
+        public override void Write(Utf8JsonWriter writer, AudioMusicInstructionMetadata value, JsonSerializerOptions options)
+        {
+            writer.WriteStartObject();
+            writer.WriteString("operation"u8, value.Operation);
+            writer.WriteNumber("opcode"u8, value.Opcode);
+            writer.WritePropertyName("timing"u8);
+            JsonSerializer.Serialize(writer, value.Timing, options);
+            writer.WritePropertyName("arguments"u8);
+            JsonSerializer.Serialize(writer, value.Arguments, options);
+            writer.WriteEndObject();
+        }
+    }
 
     /// <summary>
     /// Reads every instruction's timing/argument bytes into one exact array instead of a

@@ -12,8 +12,19 @@ public static partial class RenderFrameSnapshotCodec
     public static byte[] Serialize(RenderFrameSnapshot frame)
     {
         ArgumentNullException.ThrowIfNull(frame);
-        using var stream = new MemoryStream();
-        using var writer = new BinaryWriter(stream);
+        // Every packet carries a complete VRAM image; start large enough to never regrow for it.
+        using var stream = new MemoryStream(SnesPpuLayout.VramByteCount + 16 * 1024);
+        Serialize(frame, stream);
+        return stream.ToArray();
+    }
+
+    /// <summary>Writes the packet encoding to <paramref name="output"/>, e.g. a hash for comparison.</summary>
+    public static void Serialize(RenderFrameSnapshot frame, Stream output)
+    {
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(output);
+        var counted = new CountingStream(output);
+        using var writer = new BinaryWriter(counted, System.Text.Encoding.UTF8, leaveOpen: true);
         writer.Write(RenderPacketFormat.Signature);
         writer.Write(RenderPacketFormat.Version);
         writer.Write(frame.Identity.Sequence);
@@ -57,16 +68,42 @@ public static partial class RenderFrameSnapshotCodec
         }
         else throw new InvalidDataException("Display fixture has no supported composition.");
         writer.Flush();
-        if (stream.Length > RenderPacketFormat.MaximumPacketBytes)
+        if (counted.Written > RenderPacketFormat.MaximumPacketBytes)
             throw new InvalidDataException("Display fixture exceeds the bounded packet size.");
-        return stream.ToArray();
+    }
+
+    /// <summary>Forwards writes and counts them, so any destination gets the packet size bound.</summary>
+    private sealed class CountingStream(Stream inner) : Stream
+    {
+        public long Written { get; private set; }
+        public override bool CanRead => false;
+        public override bool CanSeek => false;
+        public override bool CanWrite => true;
+        public override long Length => throw new NotSupportedException();
+        public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
+        public override void Flush() => inner.Flush();
+        public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+        public override void SetLength(long value) => throw new NotSupportedException();
+        public override void Write(byte[] buffer, int offset, int count) { inner.Write(buffer, offset, count); Written += count; }
+        public override void Write(ReadOnlySpan<byte> buffer) { inner.Write(buffer); Written += buffer.Length; }
+        public override void WriteByte(byte value) { inner.WriteByte(value); Written++; }
     }
 
     public static RenderFrameSnapshot Deserialize(ReadOnlySpan<byte> bytes)
     {
         if (bytes.Length > RenderPacketFormat.MaximumPacketBytes)
             throw new InvalidDataException("Display fixture exceeds the bounded packet size.");
-        using var stream = new MemoryStream(bytes.ToArray(), writable: false);
+        return Deserialize(bytes.ToArray());
+    }
+
+    /// <summary>Reads a packet held in an array directly, without first copying it.</summary>
+    public static RenderFrameSnapshot Deserialize(byte[] bytes)
+    {
+        ArgumentNullException.ThrowIfNull(bytes);
+        if (bytes.Length > RenderPacketFormat.MaximumPacketBytes)
+            throw new InvalidDataException("Display fixture exceeds the bounded packet size.");
+        using var stream = new MemoryStream(bytes, writable: false);
         using var reader = new BinaryReader(stream);
         try
         {

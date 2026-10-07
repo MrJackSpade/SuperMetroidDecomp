@@ -68,7 +68,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot eye = state.Eye!;
         body.VariableE = 60;
         eye.VariableA = PhantoonTimerDefinitions.EyeClosed[_nextRandom!() & 7];
-        if ((nmiFrameCounter8 & 1) != 0)
+        if ((_enemyFrameNmiFrameCounter & 1) != 0)
         {
             if (eye.VariableC == 0)
                 body.VariableA = body.VariableA == 0 ? (ushort)533 : unchecked((ushort)(body.VariableA - 1));

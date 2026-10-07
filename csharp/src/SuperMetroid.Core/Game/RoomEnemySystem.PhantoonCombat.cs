@@ -233,7 +233,8 @@ public sealed partial class RoomEnemySystem
         StepPhantoonFigureEight(body, eye);
         StepPhantoonCasualFlameSchedule(body, state.Mouth!);
         eye.VariableA = unchecked((ushort)(eye.VariableA - 1));
-        if (unchecked((short)eye.VariableA) >= 0)
+        // $A7:D836 DEC/BEQ/BPL: reaching zero expires the timer, as does underflow.
+        if (unchecked((short)eye.VariableA) > 0)
             return;
 
         state.Tentacles!.VariableA = 0;
@@ -431,7 +432,7 @@ public sealed partial class RoomEnemySystem
         ushort denominator,
         byte nmiFrameCounter8)
     {
-        if ((nmiFrameCounter8 & 1) != 0 || state.Eye!.VariableF != 0)
+        if ((_enemyFrameNmiFrameCounter & 1) != 0 || state.Eye!.VariableF != 0)
             return;
 
         RoomEnemySlot eye = state.Eye;

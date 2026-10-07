@@ -267,6 +267,9 @@ public sealed partial class RoomEnemySystem
             .ToArray();
     private byte _currentEnemyProjectileFrame8;
 
+    /// <summary>The 16-bit NMI_FrameCounter ($05B6) for the current projectile pass.</summary>
+    private ushort _currentEnemyProjectileFrame16;
+
     /// <summary>All eighteen physical bank-$86 slots, including currently inactive slots.</summary>
     public IReadOnlyList<RoomEnemyProjectileSlot> EnemyProjectiles => _enemyProjectiles;
 
@@ -467,7 +470,8 @@ public sealed partial class RoomEnemySystem
         ushort cameraY = 0,
         byte? nmiFrameCounter8 = null,
         SamusBombProjectileSystem? samusBombs = null,
-        BackgroundScrollState? backgroundScroll = null)
+        BackgroundScrollState? backgroundScroll = null,
+        ushort? nmiFrameCounter = null)
     {
         ArgumentNullException.ThrowIfNull(level);
         EnsureLoaded();
@@ -492,6 +496,8 @@ public sealed partial class RoomEnemySystem
         // universal one-frame spawn delay.
         byte projectileFrame = nmiFrameCounter8 ?? _standaloneEnemyProjectileFrameCounter8++;
         _currentEnemyProjectileFrame8 = projectileFrame;
+        // Standalone audits seed both counters from the same projectile clock.
+        _currentEnemyProjectileFrame16 = nmiFrameCounter ?? projectileFrame;
         for (int projectileIndex = _enemyProjectiles.Length - 1;
              projectileIndex >= 0;
              projectileIndex--)
@@ -1075,7 +1081,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case EnemyProjectileCodePointers.PreInst_EnemyProjectile_PhantoonStartingFlames_Activated:
-                RunPhantoonStartingFlameOrbit(projectile, nmiFrameCounter8);
+                RunPhantoonStartingFlameOrbit(projectile);
                 return;
 
             case EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Casual_Falling:
@@ -1083,7 +1089,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Casual_HitGround:
-                RunPhantoonCasualFlameImpactPause(projectile, nmiFrameCounter8);
+                RunPhantoonCasualFlameImpactPause(projectile, _currentEnemyProjectileFrame16);
                 return;
 
             case EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Casual_Bouncing:

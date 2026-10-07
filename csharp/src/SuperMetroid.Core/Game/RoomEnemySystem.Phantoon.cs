@@ -319,7 +319,7 @@ public sealed partial class RoomEnemySystem
 
         RoomEnemySlot eye = state.Eye!;
         eye.Parameter1 = 0;
-        eye.VariableA = PhantoonTimerDefinitions.EyeClosed[(nmiFrameCounter8 >> 1) & 3];
+        eye.VariableA = PhantoonTimerDefinitions.EyeClosed[(_enemyFrameNmiFrameCounter >> 1) & 3];
         body.VariableF = (ushort)PhantoonAiFunction.MoveInFigureEightThenOpenEye;
         body.VariableB = 0;
         body.VariableD = 0;
@@ -526,7 +526,7 @@ public sealed partial class RoomEnemySystem
         ushort denominator,
         byte nmiFrameCounter8)
     {
-        if ((nmiFrameCounter8 & 1) != 0 || state.Eye!.VariableF != 0)
+        if ((_enemyFrameNmiFrameCounter & 1) != 0 || state.Eye!.VariableF != 0)
             return;
 
         RoomEnemySlot eye = state.Eye;

@@ -53,7 +53,7 @@ public sealed partial class SuperMetroidRuntime
             return;
         Enemies.StepEnemyProjectileInstructions(
             LevelData, Samus, Camera.XPosition, Camera.YPosition,
-            NmiFrameCounter8, BombProjectiles, BackgroundScroll);
+            NmiFrameCounter8, BombProjectiles, BackgroundScroll, NmiFrameCounter);
     }
 
     /// <summary>Shared HDMA/RNG prologue of an outer dispatch without a gameplay frame.</summary>

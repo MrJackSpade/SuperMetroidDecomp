@@ -42,11 +42,15 @@ internal static partial class Program
             AssertEqual((ushort)PhantoonAiFunction.SpawnFlameRain, body.VariableF, "Rain timer phase handoff");
             AssertEqual(priorCalls + 3, calls, "Each selection consumes exactly one RNG call");
         }
+        // $A7:D5A6 indexes the eye-closed timers with the 16-bit NMI_FrameCounter.
+        FieldInfo nmiCounter = typeof(RoomEnemySystem).GetField("_enemyFrameNmiFrameCounter",
+            BindingFlags.Instance | BindingFlags.NonPublic)!;
         for (int nmi = 0; nmi < 256; nmi++)
         {
             body.VariableE = 1;
             int priorCalls = calls;
-            first(body, state, (byte)nmi);
+            nmiCounter.SetValue(enemies, (ushort)nmi);
+            first(body, state, (byte)~nmi);
             AssertEqual(Word(0xa7cd53 + ((nmi >> 1) & 3) * 2), eye.VariableA, "Real first-round NMI selector uses four entries");
             AssertEqual(priorCalls + 1, calls, "First-round direction preserves RNG consumption");
         }

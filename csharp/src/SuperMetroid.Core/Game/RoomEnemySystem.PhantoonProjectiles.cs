@@ -122,9 +122,7 @@ public sealed partial class RoomEnemySystem
         flame.YVelocity = 48;
     }
 
-    private void RunPhantoonStartingFlameOrbit(
-        RoomEnemyProjectileSlot flame,
-        byte nmiFrameCounter8)
+    private void RunPhantoonStartingFlameOrbit(RoomEnemyProjectileSlot flame)
     {
         if (_phantoonState is not { } state)
         {
@@ -136,7 +134,8 @@ public sealed partial class RoomEnemySystem
         {
             flame.XVelocity = unchecked((ushort)(flame.XVelocity - 1));
         }
-        else if ((nmiFrameCounter8 & 1) != 0)
+        // $86:9B4C reads the 16-bit NMI_FrameCounter.
+        else if ((_currentEnemyProjectileFrame16 & 1) != 0)
         {
             flame.YVelocity = unchecked((ushort)(flame.YVelocity - 1));
             if (flame.YVelocity == 0)
@@ -179,7 +178,7 @@ public sealed partial class RoomEnemySystem
 
     private static void RunPhantoonCasualFlameImpactPause(
         RoomEnemyProjectileSlot flame,
-        byte nmiFrameCounter8)
+        ushort nmiFrameCounter)
     {
         ushort oldTimer = flame.Variable0;
         flame.Variable0 = unchecked((ushort)(flame.Variable0 - 1));
@@ -194,7 +193,8 @@ public sealed partial class RoomEnemySystem
         flame.YPosition = unchecked((ushort)(flame.YPosition - 8));
         flame.YVelocity = 0xfd00;
         flame.Variable0 = 0;
-        flame.XVelocity = (nmiFrameCounter8 & 1) == 0 ? (ushort)0x0080 : (ushort)0xff80;
+        // $86:99EB reads the 16-bit NMI_FrameCounter.
+        flame.XVelocity = (nmiFrameCounter & 1) == 0 ? (ushort)0x0080 : (ushort)0xff80;
     }
 
     private void RunPhantoonCasualFlameBouncing(

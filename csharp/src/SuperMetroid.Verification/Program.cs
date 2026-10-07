@@ -17,13 +17,31 @@ private static int Main(string[] args)
 {
 // This is deliberately a plain console executable rather than an xUnit/MSTest project.
 // It keeps the reverse-engineering workspace dependency-free and makes every check easy
-// to step through in Visual Studio. A failed check throws immediately with concrete state.
+// to step through in Visual Studio. A failed check throws immediately with concrete state;
+// its outermost suite records it and the run continues with the next suite.
 // Windows otherwise turns an unhandled CLR assertion into a modal "unknown software
 // exception" dialog. That is actively hostile to an automated verifier: the useful stack
 // trace belongs in this console and a dialog must never steal focus or stall the process.
 if (OperatingSystem.IsWindows())
     NativeConsoleProcess.SetErrorMode(0x0001 | 0x0002 | 0x8000);
 
+try
+{
+    int exit = RunFlags(args);
+    if (failedSuites.Count == 0)
+        return exit;
+    Console.Error.WriteLine($"{failedSuites.Count} suite(s) failed: {string.Join(", ", failedSuites)}");
+    return 1;
+}
+catch (Exception exception)
+{
+    Console.Error.WriteLine(exception);
+    return 1;
+}
+}
+
+private static int RunFlags(string[] args)
+{
 var flagWatch = System.Diagnostics.Stopwatch.StartNew();
 try
 {
@@ -7235,12 +7253,12 @@ if (args.Length == 1)
 }
 
 Suite(nameof(VerifyRandomNumberGeneratorExhaustively), () => VerifyRandomNumberGeneratorExhaustively());
-SaveLoadRandomAudit.Run(Path.GetFullPath("Super Metroid.smc"), RepositoryInstallation.BindGame);
-        VerifySandAnimatedTiles();
-        VerifyQuicksand();
-        VerifyTreadmillPhysics();
-        VerifyPhantoonPosition();
-        VerifyPausePaletteSound();
+Suite(nameof(SaveLoadRandomAudit), () => SaveLoadRandomAudit.Run(Path.GetFullPath("Super Metroid.smc"), RepositoryInstallation.BindGame));
+Suite(nameof(VerifySandAnimatedTiles), () => VerifySandAnimatedTiles());
+Suite(nameof(VerifyQuicksand), () => VerifyQuicksand());
+Suite(nameof(VerifyTreadmillPhysics), () => VerifyTreadmillPhysics());
+Suite(nameof(VerifyPhantoonPosition), () => VerifyPhantoonPosition());
+Suite(nameof(VerifyPausePaletteSound), () => VerifyPausePaletteSound());
 Suite(nameof(VerifyKnownRandomSequence), () => VerifyKnownRandomSequence());
 Suite(nameof(VerifyTimedHeldInputTimeline), () => VerifyTimedHeldInputTimeline());
 Suite(nameof(VerifyEventBitfield), () => VerifyEventBitfield());
@@ -7369,7 +7387,7 @@ Suite(nameof(VerifyCollectibleVisuals), () => VerifyCollectibleVisuals());
 Suite(nameof(VerifyEnemyDrops), () => VerifyEnemyDrops());
 Suite(nameof(VerifySamusPostureMovement), () => VerifySamusPostureMovement());
 Suite(nameof(VerifySamusPowerBeamProjectiles), () => VerifySamusPowerBeamProjectiles());
-ProbeProjectileVelocityInheritance();
+Suite(nameof(ProbeProjectileVelocityInheritance), () => ProbeProjectileVelocityInheritance());
 Suite(nameof(VerifyProjectileCooldowns), () => VerifyProjectileCooldowns());
 Suite(nameof(VerifyWrapShotTrace), () => VerifyWrapShotTrace("csharp/test-fixtures/movement-release/wrap-shot-409.csv"));
 Suite(nameof(VerifyRetailWrapShotDoors), () => VerifyRetailWrapShotDoors());
@@ -7522,7 +7540,7 @@ Suite(nameof(VerifySamusHyperBeamColors), () => VerifySamusHyperBeamColors());
 Suite(nameof(VerifySpcSoundLibrary2Pointers), () => VerifySpcSoundLibrary2Pointers());
 Suite(nameof(VerifyScrollingSkyState), () => VerifyScrollingSkyState());
 Suite(nameof(VerifyOceanSky), () => VerifyOceanSky());
-AuditBoostFloor();
+Suite(nameof(AuditBoostFloor), () => AuditBoostFloor());
 Suite(nameof(VerifyEnemyAiCodePointerCatalog), () => VerifyEnemyAiCodePointerCatalog());
 Suite(nameof(VerifyEnemyInstructionCodePointerCatalogs), () => VerifyEnemyInstructionCodePointerCatalogs());
 Suite(nameof(VerifyEnemyRomTablePointerCatalog), () => VerifyEnemyRomTablePointerCatalog());
@@ -7562,13 +7580,13 @@ Suite(nameof(VerifyCeresEscapeVramTransferDefinitions), () => VerifyCeresEscapeV
 Suite(nameof(VerifyCeresEscapeHandoff), () => VerifyCeresEscapeHandoff());
 Suite(nameof(VerifyCeresDestructionCinematic), () => VerifyCeresDestructionCinematic());
 
-Console.WriteLine("All bank $80 verification checks passed.");
+if (failedSuites.Count == 0)
+    Console.WriteLine("All bank $80 verification checks passed.");
 return 0;
 }
 catch (Exception exception)
 {
-    // This is deliberately handled here, at the process boundary. Assertions still stop the
-    // verifier immediately, but Windows never receives an unhandled CLR exception that it can
+    // A failure outside any suite ends the flag here. Windows never receives an unhandled CLR exception that it can
     // turn into a focus-stealing dialog. ToString() retains the type, message, inner exception,
     // and complete stack trace in the terminal where the failure is actually actionable.
     Console.Error.WriteLine(exception);

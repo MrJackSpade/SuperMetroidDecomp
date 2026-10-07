@@ -14,21 +14,34 @@ internal static partial class Program
     private static readonly Stack<TimeSpan> nestedSuiteTime = new();
     private static readonly Stack<long> nestedSuiteAllocation = new();
 
+    /// <summary>Outermost suites that failed during this run, in the order they failed.</summary>
+    private static readonly List<string> failedSuites = [];
+
     /// <summary>
     /// Runs one named verification suite and logs its elapsed time, nested under any enclosing
-    /// suite. The time is logged even when the suite fails; the failure still propagates. The
-    /// breakdown marker applies to self time: a bundle made of fast suites is already broken down.
+    /// suite. The time is logged even when the suite fails. A failure inside a nested suite
+    /// propagates to its outermost suite, whose remaining steps depend on it; the outermost
+    /// suite then writes the complete exception and records the failure so the run continues
+    /// with the next suite. <see cref="Main"/> reports every recorded failure and exits nonzero.
+    /// The breakdown marker applies to self time: a bundle made of fast suites is already broken down.
     /// </summary>
     private static void Suite(string name, Action body)
     {
         var watch = Stopwatch.StartNew();
         long allocatedBefore = GC.GetTotalAllocatedBytes();
+        bool outermost = suiteDepth == 0;
         suiteDepth++;
         nestedSuiteTime.Push(TimeSpan.Zero);
         nestedSuiteAllocation.Push(0);
         try
         {
             body();
+        }
+        catch (Exception exception) when (outermost)
+        {
+            failedSuites.Add(name);
+            Console.Error.WriteLine($"FAIL {name}");
+            Console.Error.WriteLine(exception);
         }
         finally
         {

@@ -1107,6 +1107,98 @@ public sealed partial class SuperMetroidRuntime
 
     internal void LoadDebugGrapplePalette() => LoadGrapplePalette();
 
+    /// <summary>
+    /// <c>GrappleBeamHandler</c> ($9B:C490), reached from the HUD-selection dispatch of
+    /// <c>HandleHUDSpecificBehaviorAndProjectiles</c> ($90:DCDD) in Samus's alpha pass.
+    /// It therefore runs before Samus's projectiles and before <c>Main_Enemy_Routine</c>,
+    /// so enemies see the beam endpoint and Samus position it leaves this frame. Only
+    /// connected and release functions own Samus's movement; an extending or cancelling
+    /// beam coexists with the current pose's ordinary movement.
+    /// </summary>
+    private bool RunGrappleBeamHandler(bool deathOwnsSamus, bool suitOwnsSamus)
+    {
+        if (Samus is null || LevelData is null)
+            throw new InvalidOperationException("The grapple handler requires Samus and room collision data.");
+        LastGrappleMovement = null;
+        bool grappleOwnsMovement = false;
+        if (deathOwnsSamus || suitOwnsSamus)
+        {
+            // Game states `$15-$18` do not call the ordinary Samus alpha/beta
+            // handlers. The death state advances later at the animation seam.
+        }
+        else if (Samus.Grapple.Phase == GrapplePhase.Firing)
+        {
+            LastGrappleMovement = SamusGrappleMovement.StepFiring(
+                _addressSpace,
+                LevelData,
+                Samus,
+                Controller1.Current,
+                Plms,
+                Enemies.ResolveGrappleEndpoint,
+                deferConnectionPoseChange: true);
+            grappleOwnsMovement = LastGrappleMovement.Value.OwnsMovement;
+        }
+        else if (Samus.Grapple.Phase == GrapplePhase.CancelPending)
+        {
+            LastGrappleMovement =
+                SamusGrappleMovement.CompleteFiringCancellation(_addressSpace, LevelData, Samus);
+            grappleOwnsMovement = LastGrappleMovement.Value.OwnsMovement;
+        }
+        else if (Samus.Grapple.Phase is
+            GrapplePhase.ConnectedSwinging or GrapplePhase.ReleaseFromSwing or
+            GrapplePhase.ConnectedLocked or GrapplePhase.WallGrab or
+            GrapplePhase.WallGrabRelease or GrapplePhase.WallJumping or
+            GrapplePhase.Dropped)
+        {
+            LastGrappleMovement = SamusGrappleMovement.Step(
+                _addressSpace,
+                LevelData,
+                Samus,
+                Controller1.Current,
+                Controller1.NewlyPressed,
+                NmiFrameCounter,
+                Enemies.ResolveGrappleEndpoint,
+                Plms,
+                deferDropPoseChange: true);
+            grappleOwnsMovement = LastGrappleMovement.Value.OwnsMovement;
+        }
+        else if (!TimeIsFrozen &&
+                 (DebugGrappleItemSelected || SamusGrappleHudInput.IsSelectedAndAdmitted(_addressSpace, Samus)) &&
+                 ((Controller1.NewlyPressed | Samus.PreviousDrawNewInput) & (ushort)SnesButton.X) != 0)
+        {
+            // Normal HUD item four now reaches the same bank-$9B actor as the
+            // diagnostic entry point, after bank-$90's movement-type admission.
+            SamusGrappleMovement.BeginFiring(_addressSpace, Samus, Controller1.Current);
+            LastGrappleMovement = new GrappleMovementResult(
+                Samus.Grapple.Phase,
+                Released: false,
+                ReleaseQueued: false,
+                Fired: Samus.Grapple.Phase == GrapplePhase.Firing,
+                Connected: false,
+                CancelQueued: Samus.Grapple.Phase == GrapplePhase.CancelPending,
+                Cancelled: false,
+                OwnsMovement: false);
+        }
+
+        if (LastGrappleMovement is { Fired: true })
+            LoadGrapplePalette();
+        else if (LastGrappleMovement is { Phase: GrapplePhase.Inactive })
+        {
+            // Native cancellation, drop, wall-jump and swing-release tails all
+            // reload the equipped beam palette before returning to inactive.
+            (beamArtwork?.Palettes ?? throw new InvalidOperationException(
+                "Grapple cleanup requires installed beam artwork."))
+                .LoadTo(Cgram, Samus.EquippedBeams & SamusGrappleRomData.Palettes.EquippedSelectionMask);
+        }
+
+        // `$9B:C4B1-$C4EA` runs after every grapple function, including inactive.
+        // Swing calculations above therefore consumed last frame's bit; this write
+        // publishes the current bottom-boundary result for the next frame exactly
+        // where the native bank-$9B handler does.
+        SamusGrappleMovement.RefreshLiquidPhysicsFlag(Samus);
+        return grappleOwnsMovement;
+    }
+
     private void LoadGrapplePalette()
     {
         // Both ordinary HUD firing and debug entry select the installed native palette.
@@ -1736,7 +1828,8 @@ public sealed partial class SuperMetroidRuntime
                 // selects its first bank-$93 art record in the placement frame itself.
                 // The door fade's EnemyMain/draw pass does not execute normal alpha.
                 // In particular its draw-only zero input must not release a held charge.
-                if (!TimeIsFrozen && !deathOwnsSamus && !Enemies.ElevatorDoorTransitionActive)
+                bool alphaRuns = !TimeIsFrozen && !deathOwnsSamus && !Enemies.ElevatorDoorTransitionActive;
+                if (alphaRuns)
                 {
                     // `$90:C4E7` runs before the movement-type HUD projectile producer.
                     // Consequently a Select edge can choose missiles and an X edge can
@@ -1788,6 +1881,12 @@ public sealed partial class SuperMetroidRuntime
                         Samus.LoadSuitPalette(_addressSpace, Cgram);
                     }
 
+                }
+
+                bool grappleOwnsMovement = RunGrappleBeamHandler(deathOwnsSamus, suitOwnsSamus);
+
+                if (alphaRuns)
+                {
                     // The bomb half above has already decremented shared cooldown $0CCC.
                     // `$90:DD31` then dispatches the humanoid HUD producer before the same
                     // HandleProjectile pass. Passing the live layer-1 position also gives
@@ -1857,7 +1956,6 @@ public sealed partial class SuperMetroidRuntime
                 LastBombJumpMovement = null;
                 LastKnockbackMovement = null;
                 LastCeresRidleyEjection = null;
-                LastGrappleMovement = null;
                 LastShinesparkMovement = null;
                 LastCrystalFlashMovement = null;
                 LastXrayAnimationFrame = null;
@@ -1868,85 +1966,6 @@ public sealed partial class SuperMetroidRuntime
                 LastDraygonGrabbedMovement = null;
                 LastDraygonEscape = null;
 
-                // GrappleBeamHandler precedes beta movement, but only connected/release
-                // functions own Samus's position. An extending or cancelling beam coexists
-                // with the current pose's ordinary movement in the same frame.
-                bool grappleOwnsMovement = false;
-                if (deathOwnsSamus || suitOwnsSamus)
-                {
-                    // Game states `$15-$18` do not call the ordinary Samus alpha/beta
-                    // handlers. The death state advances later at the animation seam.
-                }
-                else if (Samus.Grapple.Phase == GrapplePhase.Firing)
-                {
-                    LastGrappleMovement = SamusGrappleMovement.StepFiring(
-                        _addressSpace,
-                        LevelData,
-                        Samus,
-                        Controller1.Current,
-                        Plms,
-                        Enemies.ResolveGrappleEndpoint,
-                        deferConnectionPoseChange: true);
-                    grappleOwnsMovement = LastGrappleMovement.Value.OwnsMovement;
-                }
-                else if (Samus.Grapple.Phase == GrapplePhase.CancelPending)
-                {
-                    LastGrappleMovement =
-                        SamusGrappleMovement.CompleteFiringCancellation(_addressSpace, LevelData, Samus);
-                    grappleOwnsMovement = LastGrappleMovement.Value.OwnsMovement;
-                }
-                else if (Samus.Grapple.Phase is
-                    GrapplePhase.ConnectedSwinging or GrapplePhase.ReleaseFromSwing or
-                    GrapplePhase.ConnectedLocked or GrapplePhase.WallGrab or
-                    GrapplePhase.WallGrabRelease or GrapplePhase.WallJumping or
-                    GrapplePhase.Dropped)
-                {
-                    LastGrappleMovement = SamusGrappleMovement.Step(
-                        _addressSpace,
-                        LevelData,
-                        Samus,
-                        Controller1.Current,
-                        Controller1.NewlyPressed,
-                        NmiFrameCounter,
-                        Enemies.ResolveGrappleEndpoint,
-                        Plms,
-                        deferDropPoseChange: true);
-                    grappleOwnsMovement = LastGrappleMovement.Value.OwnsMovement;
-                }
-                else if (!TimeIsFrozen &&
-                         (DebugGrappleItemSelected || SamusGrappleHudInput.IsSelectedAndAdmitted(_addressSpace, Samus)) &&
-                         ((Controller1.NewlyPressed | Samus.PreviousDrawNewInput) & (ushort)SnesButton.X) != 0)
-                {
-                    // Normal HUD item four now reaches the same bank-$9B actor as the
-                    // diagnostic entry point, after bank-$90's movement-type admission.
-                    SamusGrappleMovement.BeginFiring(_addressSpace, Samus, Controller1.Current);
-                    LastGrappleMovement = new GrappleMovementResult(
-                        Samus.Grapple.Phase,
-                        Released: false,
-                        ReleaseQueued: false,
-                        Fired: Samus.Grapple.Phase == GrapplePhase.Firing,
-                        Connected: false,
-                        CancelQueued: Samus.Grapple.Phase == GrapplePhase.CancelPending,
-                        Cancelled: false,
-                        OwnsMovement: false);
-                }
-
-                if (LastGrappleMovement is { Fired: true })
-                    LoadGrapplePalette();
-                else if (LastGrappleMovement is { Phase: GrapplePhase.Inactive })
-                {
-                    // Native cancellation, drop, wall-jump and swing-release tails all
-                    // reload the equipped beam palette before returning to inactive.
-                    (beamArtwork?.Palettes ?? throw new InvalidOperationException(
-                        "Grapple cleanup requires installed beam artwork."))
-                        .LoadTo(Cgram, Samus.EquippedBeams & SamusGrappleRomData.Palettes.EquippedSelectionMask);
-                }
-
-                // `$9B:C4B1-$C4EA` runs after every grapple function, including inactive.
-                // Swing calculations above therefore consumed last frame's bit; this write
-                // publishes the current bottom-boundary result for the next frame exactly
-                // where the native bank-$9B handler does.
-                SamusGrappleMovement.RefreshLiquidPhysicsFlag(Samus);
 
                 bool grappleReleaseAcceptsPoseInput = false;
                 if (Samus.Grapple.ReleasedMovementActive)

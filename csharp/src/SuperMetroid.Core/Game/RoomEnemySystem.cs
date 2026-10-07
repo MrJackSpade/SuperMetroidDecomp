@@ -2348,8 +2348,13 @@ public sealed partial class RoomEnemySystem
         {
             RoomEnemySlot pad = _slots[top.SlotIndex + 2];
             top.VariableF = GunshipCodePointers.WaitForEntranceToOpen;
+            // $A2:AA17-AA1D stores the ship's X in both Samus X words, so the camera sees
+            // no horizontal motion from this alignment.
             if (samus.XPosition != 0x0480)
+            {
                 samus.XPosition = top.XPosition;
+                samus.WritePreviousXPosition(samus.XPosition);
+            }
             samus.ApplyForwardFacingPoseSetup(_bus!);
             samus.InputLocked = true;
             samus.PrimeGraphics(_bus!);

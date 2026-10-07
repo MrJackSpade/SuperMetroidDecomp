@@ -1828,7 +1828,11 @@ public sealed partial class SuperMetroidRuntime
                 // selects its first bank-$93 art record in the placement frame itself.
                 // The door fade's EnemyMain/draw pass does not execute normal alpha.
                 // In particular its draw-only zero input must not release a held charge.
-                bool alphaRuns = !TimeIsFrozen && !deathOwnsSamus && !Enemies.ElevatorDoorTransitionActive;
+                // X-ray's freeze leaves the normal state handler installed, so `$90:DCDD`
+                // still runs cooldown, HUD switching and the HUD handler; only its
+                // Handle_Projectiles tail stops (`$90:DCFB`), which both projectile owners
+                // apply themselves. A selection cancel during X-ray therefore takes effect.
+                bool alphaRuns = !GameplayTimeFrozen && !deathOwnsSamus && !Enemies.ElevatorDoorTransitionActive;
                 if (alphaRuns)
                 {
                     // `$90:C4E7` runs before the movement-type HUD projectile producer.

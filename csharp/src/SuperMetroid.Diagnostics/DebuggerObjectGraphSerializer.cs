@@ -147,8 +147,11 @@ internal static class DebuggerObjectGraphSerializer
 
             writer.Write((byte)PayloadKind.Array);
             WriteArrayShape(array);
-            foreach (int[] indices in EnumerateArrayIndices(array))
-                Write(array.GetValue(indices));
+            if (IsVector(array))
+                for (int index = 0; index < array.Length; index++) Write(array.GetValue(index));
+            else
+                foreach (int[] indices in EnumerateArrayIndices(array))
+                    Write(array.GetValue(indices));
         }
 
         private void WriteArrayShape(Array array)
@@ -265,8 +268,11 @@ internal static class DebuggerObjectGraphSerializer
                 ?? throw new InvalidDataException($"Serialized array {type.FullName} has no element type.");
             Array array = CreateArray(elementType);
             Register(referenceId, array);
-            foreach (int[] indices in EnumerateArrayIndices(array))
-                array.SetValue(Read(), indices);
+            if (IsVector(array))
+                for (int index = 0; index < array.Length; index++) array.SetValue(Read(), index);
+            else
+                foreach (int[] indices in EnumerateArrayIndices(array))
+                    array.SetValue(Read(), indices);
             return array;
         }
 
@@ -453,6 +459,14 @@ internal static class DebuggerObjectGraphSerializer
         }
     }
 
+    /// <summary>Single-dimension, zero-based arrays index directly without an index tuple.</summary>
+    private static bool IsVector(Array array) => array.Rank == 1 && array.GetLowerBound(0) == 0;
+
+    /// <summary>
+    /// Every index tuple in row-major order. The yielded buffer is reused: callers consume each
+    /// tuple immediately (one element read or write) before advancing, and each array has its
+    /// own enumerator, so nested arrays never share it.
+    /// </summary>
     private static IEnumerable<int[]> EnumerateArrayIndices(Array array)
     {
         if (array.Length == 0)
@@ -462,7 +476,7 @@ internal static class DebuggerObjectGraphSerializer
             indices[dimension] = array.GetLowerBound(dimension);
         while (true)
         {
-            yield return (int[])indices.Clone();
+            yield return indices;
             int dimension = array.Rank - 1;
             while (dimension >= 0)
             {

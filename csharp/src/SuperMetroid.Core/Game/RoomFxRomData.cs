@@ -232,6 +232,28 @@ public static class RoomFxRomData
         /// <summary>Number of one-scanline entries in either circular HDMA waveform.</summary>
         public const int WaveDisplacementCount = 16;
 
+        /// <summary>
+        /// Frames between lava's ambient sounds: <c>Instruction_LavaSoundTimer_70</c>
+        /// ($88:B3A9) and its reload at $88:B433.
+        /// </summary>
+        public const ushort AmbientSoundPeriod = 0x70;
+
+        /// <summary>Most library-two sounds queued when lava requests an ambient sound.</summary>
+        public const byte AmbientSoundMaximumQueued = 6;
+
+        /// <summary>
+        /// <c>Lava_SoundEffects</c> ($88:B3A1): library-two sounds chosen by the low three
+        /// RNG bits.
+        /// </summary>
+        public static SoundEffectId AmbientSound(int randomIndex) => SoundEffectId.FromCartridge(
+            SoundEffectLibrary.Library2,
+            (randomIndex & 7) switch
+            {
+                0 or 3 or 6 => 0x12,
+                1 or 4 or 7 => 0x13,
+                _ => 0x14,
+            });
+
         /// <summary>Calculates the vertical heat-haze displacement for index 0..15.</summary>
         /// <remarks>Native $88:B60A is independently verified as the same mirrored,
         /// sign-alternating integer wave as $88:C46E. Reuse that exact bounded mapping;

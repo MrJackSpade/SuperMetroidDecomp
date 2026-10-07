@@ -60,6 +60,9 @@ public sealed class RoomLayer3FxState
     // The spawned BG3 HDMA object's first pass installs its pre-instruction;
     // subsequent passes execute it before the main-loop RNG call.
     private bool lavaAcidBg3PreInstructionInstalled;
+
+    /// <summary>HDMA-object variable two of the lava/acid BG3 object: the ambient sound timer.</summary>
+    private ushort lavaSoundTimer;
     private LiquidRisePhase liquidRisePhase;
     private readonly List<RoomFxSoundRequest> soundRequests = [];
     [NonSerialized] private SamusPowerBombExplosionState? audioPowerBomb;
@@ -235,15 +238,37 @@ public sealed class RoomLayer3FxState
         soundRequests.Clear();
         if (!lavaAcidBg3PreInstructionInstalled)
         {
+            // $88:C3E7 sets the sound timer in the same pass that installs the pre-instruction.
             lavaAcidBg3PreInstructionInstalled = true;
+            lavaSoundTimer = RoomFxRomData.LavaAcid.AmbientSoundPeriod;
             return;
         }
         if (!timeIsFrozen)
         {
             ushort random = system.RandomNumber;
             AdvanceLiquidMotion(random);
+            QueueLavaAmbientSound(random);
             system.SetRandomNumber(unchecked((ushort)((random << 8) | (random >> 8))));
         }
+    }
+
+    /// <summary>
+    /// Ports <c>$88:B421-$B446</c>: while a lava surface's Y is not negative, its timer
+    /// counts down and, on reaching zero, reloads and queues a random ambient sound.
+    /// Acid shares the pre-instruction but not this sound.
+    /// </summary>
+    private void QueueLavaAmbientSound(ushort random)
+    {
+        if (Type != RoomFxType.Lava || unchecked((short)CurrentYPosition) < 0)
+            return;
+        lavaSoundTimer = unchecked((ushort)(lavaSoundTimer - 1));
+        if (lavaSoundTimer != 0)
+            return;
+        lavaSoundTimer = RoomFxRomData.LavaAcid.AmbientSoundPeriod;
+        soundRequests.Add(new RoomFxSoundRequest(
+            RoomFxRomData.LavaAcid.AmbientSound(random),
+            RoomFxRomData.LavaAcid.AmbientSoundMaximumQueued,
+            SoundSuppressed: audioPowerBomb?.IsActive == true));
     }
 
     /// <summary>Runs the active bank-$88 pre-instruction and rain animtile handler.</summary>
@@ -744,6 +769,7 @@ public sealed class RoomLayer3FxState
         lavaAcidBg2WavePhase = 0;
         liquidRisePhase = LiquidRisePhase.Dormant;
         lavaAcidBg3PreInstructionInstalled = false;
+        lavaSoundTimer = 0;
         soundRequests.Clear();
         EarthquakeRequest = null;
         earthquakeSoundTimer = 0;

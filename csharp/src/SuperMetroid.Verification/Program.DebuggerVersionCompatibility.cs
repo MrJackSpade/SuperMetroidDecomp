@@ -186,9 +186,13 @@ internal static partial class Program
         var layer3FxFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(RoomLayer3FxState)])!;
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(RoomLayer3FxState), layer3FxFields,
+                layer3FxFields.Length - 2).SequenceEqual(layer3FxFields.Where(field =>
+                    field.Name is not ("lavaAcidBg3PreInstructionInstalled" or "lavaSoundTimer"))),
+            "0.2.0 room-FX layout omits only the BG3 pre-instruction latch and lava sound timer");
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(RoomLayer3FxState), layer3FxFields,
                 layer3FxFields.Length - 1).SequenceEqual(layer3FxFields.Where(field =>
-                    field.Name != "lavaAcidBg3PreInstructionInstalled")),
-            "0.2.0 room-FX layout omits only the BG3 pre-instruction latch");
+                    field.Name != "lavaSoundTimer")),
+            "Pre-lava-sound room-FX layout omits only the lava sound timer");
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusProjectileSlot), projectileSlotFields, 19)
             .SequenceEqual(projectileSlotFields.Where(field => field.Name != "<AuxiliaryPhase>k__BackingField")),
             "legacy projectile slot retains the actual projectile type and trajectory");

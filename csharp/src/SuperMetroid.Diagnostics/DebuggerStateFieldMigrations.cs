@@ -442,6 +442,11 @@ internal static class DebuggerStateFieldMigrations
             Console.Error.WriteLine("WARNING: Legacy Ceres cinematic state lacks engine palette-FX timing; its glow restarts on the next approach frame.");
             return current.Where(field => field.Name != "paletteFx").ToArray();
         }
+        if (type == typeof(RoomLayer3FxState) && current.Any(field => field.Name == "lavaSoundTimer"))
+        {
+            // The lava ambient sound timer is initialized once the legacy object loads.
+            return SelectSerializedFields(type, current.Where(field => field.Name != "lavaSoundTimer").ToArray(), count);
+        }
         if (type == typeof(RoomLayer3FxState) && count == current.Length - 1 &&
             current.Any(field => field.Name == "lavaAcidBg3PreInstructionInstalled"))
         {
@@ -751,6 +756,13 @@ internal static class DebuggerStateFieldMigrations
         if (instance is SuperMetroid.Core.Runtime.SuperMetroidRuntime legacyRuntime &&
             serializedCount < GetCurrentInstanceFieldCount(typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime)))
             SeedLegacyRoomMainScratch(legacyRuntime);
+        if (instance is RoomLayer3FxState legacyFx &&
+            serializedCount < GetCurrentInstanceFieldCount(typeof(RoomLayer3FxState)))
+        {
+            Console.Error.WriteLine("WARNING: Legacy room FX predates lava's ambient sound timer; it restarts a full period.");
+            typeof(RoomLayer3FxState).GetField("lavaSoundTimer", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .SetValue(legacyFx, RoomFxRomData.LavaAcid.AmbientSoundPeriod);
+        }
         if (instance is RoomEnemySystem legacyEnemies && legacyEnemies.GradualColorChange is null)
             typeof(RoomEnemySystem).GetField("<GradualColorChange>k__BackingField",
                 BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(legacyEnemies, new GradualColorChangeCounter());

@@ -46,7 +46,7 @@ internal sealed class DeclarationCollector(SymbolIdentity identity, Reachability
         }
     }
 
-    private static ISymbol? DeclaredSymbol(SemanticModel model, SyntaxNode node) => node switch
+    internal static ISymbol? DeclaredSymbol(SemanticModel model, SyntaxNode node) => node switch
     {
         BaseTypeDeclarationSyntax or DelegateDeclarationSyntax or BaseMethodDeclarationSyntax
             or PropertyDeclarationSyntax or IndexerDeclarationSyntax or EventDeclarationSyntax

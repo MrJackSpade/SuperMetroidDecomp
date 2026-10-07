@@ -24,6 +24,21 @@ public sealed partial class SamusState
     }
 
     /// <summary>
+    /// Installs the lookup-failure pose of an aimed crouching turn when every input is
+    /// released ($91:81DB -> $91:82D9). Definition byte two is `$28` for all six records,
+    /// so the turn is abandoned for left-facing crouch art regardless of its direction.
+    /// Because the pose changes, $91:EBEE skips command two; only $91:F404 runs.
+    /// </summary>
+    public void ApplyAimedCrouchingTurnInputFallback(ISnesAddressSpace bus, byte targetPose)
+    {
+        if (!IsAimedCrouchingTurnPose(Pose))
+            throw new InvalidOperationException($"Aimed crouching turn fallback requires a type-$17 crouching turn, not ${Pose:X2}.");
+        if (!IsRightFacingCrouchingPose(targetPose) && !IsLeftFacingCrouchingPose(targetPose))
+            throw new InvalidDataException($"Aimed crouching turn ${Pose:X2} names non-crouching fallback ${targetPose:X2}.");
+        ApplySimpleGroundedPoseChange(bus, Pose, targetPose, "Aimed crouching turn release");
+    }
+
+    /// <summary>
     /// Applies prospective pose change command two ($91:ECD0) when a turn's input lookup
     /// fails and the pose definition retains the current pose. Movement types $0E, $17 and
     /// $18 all select command two in $91:8332. This stops reverse acceleration without

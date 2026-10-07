@@ -3633,6 +3633,16 @@ public sealed partial class SuperMetroidRuntime
                 else if (!animationTransitionApplied &&
                          usePoseDefinitionFallback && ProspectiveSamusPose is null &&
                          Samus.Pose == poseAtFrameStart &&
+                         SamusState.IsAimedCrouchingTurnPose(poseAtFrameStart) &&
+                         ProspectiveSamusFallbackPose is { } crouchingTurnFallback)
+                {
+                    Samus.ApplyAimedCrouchingTurnInputFallback(
+                        _addressSpace,
+                        unchecked((byte)crouchingTurnFallback));
+                }
+                else if (!animationTransitionApplied &&
+                         usePoseDefinitionFallback && ProspectiveSamusPose is null &&
+                         Samus.Pose == poseAtFrameStart &&
                          (SamusState.IsAerialTurnPose(poseAtFrameStart) ||
                           movementTypeAtFrameStart == SamusMovementType.TurningOnGround))
                 {

@@ -12,6 +12,8 @@ namespace SuperMetroid.Core.Game;
 public enum RoomEnemyProjectileKind : ushort
 {
     None = 0,
+    /// <summary>$86:A3B0, the pre-Phantoon room's BG2-offset keeper spawned by setup ASM $8F:C8C8.</summary>
+    PrePhantoonRoom = 0xa3b0,
     YappingMawBody = 0xec95,
     SkreeParticleDownRight = 0x8bc2,
     SkreeParticleUpRight = 0x8bd0,
@@ -464,11 +466,13 @@ public sealed partial class RoomEnemySystem
         ushort cameraX = 0,
         ushort cameraY = 0,
         byte? nmiFrameCounter8 = null,
-        SamusBombProjectileSystem? samusBombs = null)
+        SamusBombProjectileSystem? samusBombs = null,
+        BackgroundScrollState? backgroundScroll = null)
     {
         ArgumentNullException.ThrowIfNull(level);
         EnsureLoaded();
         _samusForEnemyDrops = samus;
+        _enemyProjectileBackgroundScroll = backgroundScroll;
         LastEnemyPickupSoundEffect = null;
         LastCollectedEnemyPickup = null;
         LastEnemyDeathSoundEffectLibrary2 = null;
@@ -782,6 +786,9 @@ public sealed partial class RoomEnemySystem
         if (TryStepTourianUnlockEffect(projectile)) return;
         switch (projectile.PreInstruction)
         {
+            case EnemyProjectileCodePointers.InitAI_PreInstruction_EnemyProjectile_PrePhantoonRoom:
+                RequireEnemyProjectileBackgroundScroll().Bg2YOffset = 0;
+                return;
             case 0:
             case EnemyProjectileCodePointers.RTS_868170:
             case EnemyProjectileCodePointers.RTS_86A327:
@@ -2027,6 +2034,9 @@ public sealed partial class RoomEnemySystem
         {
             return sharedImpactWord;
         }
+
+        if (projectile.Kind == RoomEnemyProjectileKind.PrePhantoonRoom)
+            return PrePhantoonRoomProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (KraidRockProjectileInstructionProgramDefinitions.Owns(projectile.Kind, address))
         {

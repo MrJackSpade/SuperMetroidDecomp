@@ -523,6 +523,12 @@ internal static class EnemyProjectileCodePointers
     /// <summary><c>$86:D8DF</c>: move a released-air bubble vertically.</summary>
     public const ushort PreInstruction_NoobTubeBubbleFlying = 0xd8df;
 
+    /// <summary>
+    /// <c>InitAI_PreInstruction_EnemyProjectile_PrePhantoonRoom</c> at $86:A3A3: zeroes
+    /// BG2YOffset ($0923) as both the initialization and the per-frame pre-instruction.
+    /// </summary>
+    public const ushort InitAI_PreInstruction_EnemyProjectile_PrePhantoonRoom = 0xa3a3;
+
     /// <summary><c>RTS_868170</c> at $86:8170. The common cleared-pre-instruction RTS.</summary>
     public const ushort RTS_868170 = 0x8170;
 

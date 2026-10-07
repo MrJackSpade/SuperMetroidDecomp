@@ -40,6 +40,11 @@ internal static class EnemyProjectileDefinitionCatalog
     /// <summary>Returns the complete native definition for one translated projectile identity.</summary>
     internal static EnemyProjectileDefinition Get(RoomEnemyProjectileKind kind) => kind switch
     {
+        RoomEnemyProjectileKind.PrePhantoonRoom => new(
+            EnemyProjectileCodePointers.InitAI_PreInstruction_EnemyProjectile_PrePhantoonRoom,
+            EnemyProjectileCodePointers.InitAI_PreInstruction_EnemyProjectile_PrePhantoonRoom,
+            PrePhantoonRoomProjectileInstructionProgramDefinitions.Initial,
+            0x0000, 0x3000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.YappingMawBody => new(
             0xEC62, 0xEC94, YappingMawBodyProjectileInstructionProgramDefinitions.FacingDown,
             0x0202, 0x2005, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),

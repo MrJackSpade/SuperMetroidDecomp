@@ -1106,6 +1106,9 @@ public sealed partial class SuperMetroidRuntime
         // requests here—the first point matching the cartridge's completed room teardown—
         // so the closed actor survives into the initial viewport.
         ApplyPendingDownwardGateProjectileRequests();
+        // Setup ASM $8F:C8C8 spawns into the pool that Enemies.Load has just cleared.
+        if (room.State.SetupCallback == RoomSetupCallback.SpawnPrePhantoonRoomEnemyProjectile)
+            Enemies.SpawnPrePhantoonRoomProjectile(BackgroundScroll);
         ApplyPendingBotwoonWallPlm();
         ApplyPendingSporeSpawnCeilingPlm();
         ApplyPendingCrocomireArenaPlms();

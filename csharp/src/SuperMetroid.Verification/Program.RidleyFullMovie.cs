@@ -1851,7 +1851,8 @@ internal static partial class Program
             // explicitly instead of replaying hardware upload time as gameplay.
             if (frame < length)
             {
-                if (updates[frame].GetProperty("timingClass").GetString() == "apu-upload-continuation")
+                if (updates[frame].GetProperty("timingClass").GetString() is
+                    "apu-upload-continuation" or "apu-upload-tail-continuation")
                     throw new InvalidDataException($"SMV source frame {updates[frame].GetProperty("sourceFrame").GetInt32()} is an APU upload continuation; hardware-wait input normalization is not implemented.");
                 previousBodyRecord = BodyRecord();
                 var output = game.Step((ushort)updates[frame].GetProperty("input").GetInt32());

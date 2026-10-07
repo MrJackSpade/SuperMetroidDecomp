@@ -90,10 +90,15 @@ Manifest v4 adds two conversion rules, both validated by retained input edges:
 - **Held input in door music waits.** The music-wait upload consumes no input, but
   each of its NMIs latches the controller. The last such read is retained as
   `hardwareWaitLatch` and applied before the next update without a dispatch.
+- **Upload tails.** When `SendAPUData` returns late in a frame, the rest of the
+  same dispatch's prologue (HDMA objects, layer blending, RNG) can overrun into one
+  more accepted NMI before the door function runs. `$0617` is already clear, but no
+  main-loop dispatch began, so this `apu-upload-tail-continuation` is the same
+  upload stall and is excluded like the music-wait NMIs.
 
-The conversion retains 426,470 updates (399,832 main-loop dispatches, 26,638
-continuations), excluding 149 prelude NMIs, 1,771 music-wait NMIs and 75,278
-refreshes without accepted input. Run:
+The conversion retains 426,466 updates (399,832 main-loop dispatches, 26,634
+continuations), excluding 149 prelude NMIs, 1,775 music-wait NMIs (four of them
+upload tails) and 75,278 refreshes without accepted input. Run:
 
 ```text
 dotnet csharp/src/SuperMetroid.Verification/bin/Release/net10.0/SuperMetroid.Verification.dll --full-playthrough-movie TRACE_DIRECTORY [--trace-from UPDATE]

@@ -5,7 +5,7 @@ pinned J/U main-loop and accepted-NMI controller-read boundaries. WRAM stays pri
 """
 
 
-def classify_timing(kind, upload_active, scroll_before, scroll_after):
+def classify_timing(kind, upload_active, scroll_before, scroll_after, previous_class=None):
     """Describe observed execution; this classification never drops an input."""
     if kind == "main-loop":
         return "main-loop"
@@ -15,6 +15,11 @@ def classify_timing(kind, upload_active, scroll_before, scroll_after):
         return "door-scroll-continuation"
     if upload_active:
         return "apu-upload-continuation"
+    if previous_class in ("apu-upload-continuation", "apu-upload-tail-continuation"):
+        # SendAPUData returned, but the rest of the same outer dispatch's prologue
+        # (HDMA objects, layer blending, RNG) overran into one more accepted NMI. No
+        # main-loop dispatch began in between, so this is still that upload's stall.
+        return "apu-upload-tail-continuation"
     return "other-continuation"
 
 
@@ -70,9 +75,10 @@ def normalize_upload_intervals(updates, initial_input, prelude=0):
         evidence = update["timingEvidence"]
         if record < prelude:
             continue
-        if update["timingClass"] == "apu-upload-continuation":
+        if update["timingClass"] in ("apu-upload-continuation", "apu-upload-tail-continuation"):
             # This contract is deliberately limited to the native door music wait.
-            # No CPU gameplay dispatch or moving door IRQ runs in this interval.
+            # No new CPU gameplay dispatch or moving door IRQ runs in this interval; an
+            # upload tail only finishes the dispatch its main-loop update already owns.
             if (not normalized or normalized[-1]["kind"] != "main-loop" or
                 not normalized[-1]["timingEvidence"]["apuUploadActiveAtNextBoundary"] or
                 evidence["nativeGameState"] != 11 or evidence["nativeDoorFunction"] != 0xe664 or
@@ -241,9 +247,12 @@ def run():
             "doorScrollFinished": boundary_loading[index][2],
             "doorLoaderCompletedEnemySlots": loader_progress[index + 1],
         }
-        update["timingClass"] = classify_timing(update["kind"], upload != 0, scroll, next_scroll)
+        update["timingClass"] = classify_timing(
+            update["kind"], upload != 0, scroll, next_scroll,
+            updates[index - 1]["timingClass"] if index else None)
     timing_counts = {name: sum(u["timingClass"] == name for u in updates) for name in (
-        "main-loop", "door-scroll-continuation", "apu-upload-continuation", "other-continuation")}
+        "main-loop", "door-scroll-continuation", "apu-upload-continuation",
+        "apu-upload-tail-continuation", "other-continuation")}
     source_frames = {u["sourceFrame"] for u in updates}
     accepted_input_count = len(updates)
     # SMV v4/v5 option bit 0: the recording starts at power-on (with SRAM) rather

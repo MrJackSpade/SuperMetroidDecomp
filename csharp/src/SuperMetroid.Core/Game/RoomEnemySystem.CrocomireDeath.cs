@@ -37,10 +37,7 @@ public sealed partial class RoomEnemySystem
                 RunCrocomireSinkingComposite(state, samus, tickAcidSound: true);
                 return;
             case CrocomireDeathPhases.InstallFirstMeltImage:
-                InitializeCrocomireMeltingTilemap(
-                    state,
-                    CrocomireMeltingArtworkAddresses.FirstTilemap,
-                    CrocomireInstructionProgramDefinitions.MeltingOneTopRow);
+                LoadFirstCrocomireMeltingTilemap(state);
                 return;
             case CrocomireDeathPhases.CopyFirstMeltGraphics:
                 InitializeCrocomireMeltingGraphics(state);
@@ -83,10 +80,7 @@ public sealed partial class RoomEnemySystem
                 RunCrocomireSinkingComposite(state, samus, tickAcidSound: false);
                 return;
             case CrocomireDeathPhases.InstallSecondMeltImage:
-                InitializeCrocomireMeltingTilemap(
-                    state,
-                    CrocomireMeltingArtworkAddresses.SecondTilemap,
-                    CrocomireInstructionProgramDefinitions.MeltingTwoTopRow);
+                LoadSecondCrocomireMeltingTilemap(state);
                 return;
             case CrocomireDeathPhases.CopySecondMeltGraphics:
                 InitializeCrocomireMeltingGraphics(state);

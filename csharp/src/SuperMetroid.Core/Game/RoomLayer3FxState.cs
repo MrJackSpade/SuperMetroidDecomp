@@ -58,7 +58,9 @@ public sealed class RoomLayer3FxState
     private ushort lavaAcidBg2WaveTimer;
     private int lavaAcidBg2WavePhase;
     // The spawned BG3 HDMA object's first pass installs its pre-instruction;
-    // subsequent passes execute it before the main-loop RNG call.
+    // subsequent passes execute it before the main-loop RNG call. The water lists at
+    // $88:D856 have the same shape, so this latch serves every liquid; the serialized
+    // name predates water's use of it.
     private bool lavaAcidBg3PreInstructionInstalled;
 
     /// <summary>HDMA-object variable two of the lava/acid BG3 object: the ambient sound timer.</summary>
@@ -223,33 +225,48 @@ public sealed class RoomLayer3FxState
     }
 
     /// <summary>
-    /// Runs liquid motion and shared-state writes from $88:B3B0 before main-loop RNG generation.
-    /// $88:C3E9 installs the callback on the first HDMA pass; $88:B44A-B44E swaps
-    /// the shared RNG bytes on subsequent unfrozen passes, even off screen.
-    /// Rising/tidal motion also runs during door fades and pause entry. Visual/VRAM
-    /// updates remain in <see cref="Step"/>, which must not advance that motion twice.
+    /// True for the liquids whose BG3 HDMA pre-instruction moves the surface: lava and
+    /// acid ($88:B3B0) and water ($88:C48E). That motion belongs to the HDMA pass.
+    /// </summary>
+    public bool MovesLiquidInHdmaPass =>
+        Type is RoomFxType.Lava or RoomFxType.Acid || RoomFxTypes.UsesWater(Type);
+
+    /// <summary>
+    /// Runs liquid motion and shared-state writes from $88:B3B0 and $88:C48E before
+    /// main-loop RNG generation. $88:C3E9 and $88:D85E install the callback on the
+    /// first HDMA pass; lava/acid's $88:B44A-B44E then swaps the shared RNG bytes on
+    /// subsequent unfrozen passes, even off screen. Rising/tidal motion also runs during
+    /// door fades and pause entry. Visual/VRAM updates remain in <see cref="Step"/>,
+    /// which must not advance that motion twice.
     /// </summary>
     public void AdvanceHdmaSharedState(Bank80SystemState system, bool timeIsFrozen)
     {
         ArgumentNullException.ThrowIfNull(system);
-        if (Type is not (RoomFxType.Lava or RoomFxType.Acid))
+        if (!MovesLiquidInHdmaPass)
             return;
+        bool lavaOrAcid = Type is RoomFxType.Lava or RoomFxType.Acid;
         EarthquakeRequest = null;
         soundRequests.Clear();
         if (!lavaAcidBg3PreInstructionInstalled)
         {
-            // $88:C3E7 sets the sound timer in the same pass that installs the pre-instruction.
             lavaAcidBg3PreInstructionInstalled = true;
-            lavaSoundTimer = RoomFxRomData.LavaAcid.AmbientSoundPeriod;
+            // $88:C3E7 sets the sound timer in the same pass that installs the pre-instruction.
+            if (lavaOrAcid)
+                lavaSoundTimer = RoomFxRomData.LavaAcid.AmbientSoundPeriod;
             return;
         }
-        if (!timeIsFrozen)
+        if (timeIsFrozen)
+            return;
+        if (!lavaOrAcid)
         {
-            ushort random = system.RandomNumber;
-            AdvanceLiquidMotion(random);
-            QueueLavaAmbientSound(random);
-            system.SetRandomNumber(unchecked((ushort)((random << 8) | (random >> 8))));
+            // $88:C4A3-C4BB: the rising function and tide; water leaves the RNG alone.
+            AdvanceLiquidMotion(system.RandomNumber);
+            return;
         }
+        ushort random = system.RandomNumber;
+        AdvanceLiquidMotion(random);
+        QueueLavaAmbientSound(random);
+        system.SetRandomNumber(unchecked((ushort)((random << 8) | (random >> 8))));
     }
 
     /// <summary>
@@ -315,7 +332,7 @@ public sealed class RoomLayer3FxState
 
         if (RoomFxTypes.UsesWater(Type))
         {
-            StepWater(bus, cameraX, cameraY, randomNumber);
+            StepWater(bus, cameraX, cameraY, randomNumber, liquidMotionAlreadyAdvanced);
             return;
         }
 
@@ -480,9 +497,11 @@ public sealed class RoomLayer3FxState
         ISnesAddressSpace bus,
         ushort cameraX,
         ushort cameraY,
-        ushort randomNumber)
+        ushort randomNumber,
+        bool liquidMotionAlreadyAdvanced)
     {
-        AdvanceLiquidMotion(randomNumber);
+        if (!liquidMotionAlreadyAdvanced)
+            AdvanceLiquidMotion(randomNumber);
         waterSurfaceScreenY = unchecked((short)(CurrentYPosition - cameraY));
         HorizontalScroll = unchecked((ushort)(
             cameraX + unchecked((sbyte)(waterHorizontalSubscroll >> 8))));

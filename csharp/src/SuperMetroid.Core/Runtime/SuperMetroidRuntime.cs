@@ -1516,7 +1516,7 @@ public sealed partial class SuperMetroidRuntime
                 System.RandomNumber,
                 Enemies.FirefleaDarknessLevel,
                 powerBomb: BombProjectiles.PowerBombExplosion,
-                liquidMotionAlreadyAdvanced: RoomLayer3Fx.Type is RoomFxType.Lava or RoomFxType.Acid);
+                liquidMotionAlreadyAdvanced: RoomLayer3Fx.MovesLiquidInHdmaPass);
             TourianStatues.StepDescent(this);
             if (RoomLayer3Fx.EarthquakeRequest is { } roomFxEarthquake)
             {

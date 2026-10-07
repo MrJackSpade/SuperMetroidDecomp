@@ -35,6 +35,14 @@ public sealed partial class SamusState
         _poseCollisionPreviousYPosition = correctedY;
 
     /// <summary>
+    /// The live SamusPreviousXPosition/SamusPreviousYPosition words ($0B10/$0B14): the
+    /// frame-start checkpoint with this frame's writes so far, without consuming them.
+    /// </summary>
+    internal (ushort X, ushort Y) PeekPreviousPositionWords(SamusCameraPoint previous) => (
+        _previousXPositionWrite ?? previous.XPosition,
+        unchecked((ushort)((_poseCollisionPreviousYPosition ?? previous.YPosition) + _poseAlignmentPreviousYDelta)));
+
+    /// <summary>
     /// Applies this frame's previous-position word writes before $90:94EC calculates
     /// distance. Its normal tail subsequently replaces the complete checkpoint.
     /// </summary>

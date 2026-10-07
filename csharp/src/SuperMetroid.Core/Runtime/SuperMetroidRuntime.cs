@@ -2150,7 +2150,8 @@ public sealed partial class SuperMetroidRuntime
                         playerInvincibilityEnabled: PlayerInvincibilityEnabled,
                         projectiles: Projectiles,
                         gameTimeFrames: GameTime.Frames,
-                        deferTimeoutPoseChange: true);
+                        deferTimeoutPoseChange: true,
+                        previousCheckpoint: previousCameraPoint);
                     if (LastShinesparkMovement.Value.WindupTimedOut)
                     {
                         // The movement handler publishes an interrupted vertical pose. That

@@ -112,7 +112,7 @@ public static class SamusBombJumpMovement
         if (samus.Kinematics.YDirection == 2)
             return End(samus, horizontal, null);
 
-        BlockMoveResult vertical = MoveUpWithGravity(
+        (BlockMoveResult vertical, bool movedDown) = MoveUpWithGravity(
             bus,
             level,
             samus,
@@ -124,10 +124,13 @@ public static class SamusBombJumpMovement
         if (vertical.Collided)
             return End(samus, horizontal, vertical);
 
-        return new BombJumpMovementResult(horizontal, vertical, Started: false, Ended: false);
+        // At the apex the negated speed is non-negative, so `$90:915E` moves down; finding
+        // no floor, `$90:E639` publishes the falling result for the pose pass.
+        return new BombJumpMovementResult(horizontal, vertical, Started: false, Ended: false,
+            FellWithoutFloor: movedDown);
     }
 
-    private static BlockMoveResult MoveUpWithGravity(
+    private static (BlockMoveResult Result, bool MovedDown) MoveUpWithGravity(
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
@@ -156,7 +159,8 @@ public static class SamusBombJumpMovement
             state.YSubspeed = 0;
             state.YDirection = 2;
         }
-        return result;
+        // $90:915C: a non-negative displacement, including the apex's zero, takes MoveSamus_Down.
+        return (result, displacement >= 0);
     }
 
     private static BombJumpMovementResult End(
@@ -178,4 +182,5 @@ public readonly record struct BombJumpMovementResult(
     BlockMoveResult? Horizontal,
     BlockMoveResult? Vertical,
     bool Started,
-    bool Ended);
+    bool Ended,
+    bool FellWithoutFloor = false);

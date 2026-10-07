@@ -630,6 +630,26 @@ public sealed partial class SamusState
     }
 
     /// <summary>
+    /// Applies `$91:E8F2` after a bomb-jump frame moved down without a floor. Only the pose
+    /// changes: the airborne ball's initializer leaves vertical speed for the next
+    /// handler frame, whose underflow test turns the jump downward. Movement types whose
+    /// `$90:E65A` entry is "no change" keep their pose.
+    /// </summary>
+    public void ApplyBombJumpFallingPose(ISnesAddressSpace bus)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        bool left = IsFacingLeft(bus);
+        if (IsGroundedSpringBallPose(Pose))
+            ApplyMorphBallPoseChange(bus, left ? SamusPoseIds.SpringBallFallingLeftPose : SamusPoseIds.SpringBallFallingRightPose);
+        else if (IsGroundedMorphBallPose(Pose))
+            ApplyMorphBallPoseChange(bus, left ? SamusPoseIds.MorphBallFallingLeftPose : SamusPoseIds.MorphBallFallingRightPose);
+        else if (ReadMovementType(bus) is SamusMovementType.Standing or SamusMovementType.Running or
+                 SamusMovementType.Crouching or SamusMovementType.Moonwalking or SamusMovementType.RanIntoWall)
+            throw new InvalidOperationException(
+                $"Bomb-jump falling result for humanoid pose ${Pose:X2} ($91:E8F2 airborne) is not translated.");
+    }
+
+    /// <summary>
     /// Applies `$91:E8F2`'s type-four walk-off endpoint, retaining the rolling animation
     /// while changing to ordinary airborne pose `$31/$32` and starting dry-air gravity.
     /// </summary>

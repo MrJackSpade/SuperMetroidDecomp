@@ -2906,6 +2906,17 @@ public sealed partial class SuperMetroidRuntime
                     animationTransitionApplied = true;
                 }
 
+                // $91:E8F2 overrides the input target when the bomb arc moved down through
+                // its apex with no floor below; the airborne pose is installed this frame.
+                if (!animationTransitionApplied &&
+                    LastBombJumpMovement is { FellWithoutFloor: true })
+                {
+                    Samus.ApplyBombJumpFallingPose(_addressSpace);
+                    ProspectiveSamusPose = null;
+                    ProspectiveSamusFallbackPose = null;
+                    animationTransitionApplied = true;
+                }
+
                 // `$91:EADE` runs inside UpdateSamusPose after beta movement/animation and
                 // only when no super-special animation command has already won. Its first
                 // branch consumes the X-speed-killed flag produced by CURRENT type-one

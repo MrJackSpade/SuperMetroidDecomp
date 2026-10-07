@@ -50,7 +50,14 @@ internal static class DebuggerStateTypeIdentity
         return Type.GetType(name, throwOnError: false);
     }
 
-    internal static string GetSerializedName(Type type)
+    // A type's serialized name is fixed for the process; the writer asks for it for every
+    // object and field, and building AssemblyQualifiedName allocates a new string each time.
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, string> serializedNames = new();
+
+    internal static string GetSerializedName(Type type) =>
+        serializedNames.GetOrAdd(type, CalculateSerializedName);
+
+    private static string CalculateSerializedName(Type type)
     {
         if (type.DeclaringType == typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime) &&
             type.GetMethod("<LoadCartridgeRoom>b__0",

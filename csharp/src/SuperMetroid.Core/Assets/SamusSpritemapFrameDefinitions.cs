@@ -77,7 +77,7 @@ internal static class SamusSpritemapFrameDefinitions
             }
             return false;
         }
-        foreach (bool upper in new[] { true, false })
+        foreach (bool upper in (ReadOnlySpan<bool>)[ true, false ])
         {
             if (Command(upper, SamusPoseId.ForwardFacingPowerSuitPose, AppearancePhases) ||
                 Command(upper, SamusPoseId.ForwardFacingSuitedPose, AppearancePhases) ||
@@ -104,7 +104,7 @@ internal static class SamusSpritemapFrameDefinitions
         if (Command(false, SamusPoseId.StandingTransitionLeftPose, 3)) return true;
         int morphPhase = index - FirstRightMorph;
         if ((uint)morphPhase < 8 + 1 && Command(true, SamusPoseId.MorphBallGroundRightPose, 9)) return true;
-        foreach (bool left in new[] { false, true })
+        foreach (bool left in (ReadOnlySpan<bool>)[ false, true ])
         {
             int phase = Phase(false, left ? SamusPoseId.DamageBoostLeftPose : SamusPoseId.DamageBoostRightPose);
             if (phase is >= 2 and < 9) return true;
@@ -156,23 +156,23 @@ internal static class SamusSpritemapFrameDefinitions
             if (phase < AppearanceDischargeEnd) return Top(SamusPoseId.ForwardFacingPowerSuitPose) + 2 + (phase - 2) % 6;
             if (phase >= 90) return index - 6;
         }
-        foreach (SamusPoseId pose in new[] { SamusPoseId.ForwardFacingPowerSuitPose, SamusPoseId.ForwardFacingSuitedPose })
+        foreach (SamusPoseId pose in (ReadOnlySpan<SamusPoseId>)[ SamusPoseId.ForwardFacingPowerSuitPose, SamusPoseId.ForwardFacingSuitedPose ])
         {
             phase = index - Bottom(pose);
             if (phase >= 2 && phase < AppearancePhases) return Bottom(pose) + 2;
             if (phase == 1) return Top(SamusPoseId.ForwardFacingPowerSuitPose) + 1;
         }
-        foreach (SamusPoseId pose in new[] { SamusPoseId.MoonwalkFacingLeftPose, SamusPoseId.MoonwalkFacingRightPose,
+        foreach (SamusPoseId pose in (ReadOnlySpan<SamusPoseId>)[ SamusPoseId.MoonwalkFacingLeftPose, SamusPoseId.MoonwalkFacingRightPose,
             SamusPoseId.MoonwalkAimUpLeftPose, SamusPoseId.MoonwalkAimUpRightPose,
-            SamusPoseId.MoonwalkAimDownLeftPose, SamusPoseId.MoonwalkAimDownRightPose })
+            SamusPoseId.MoonwalkAimDownLeftPose, SamusPoseId.MoonwalkAimDownRightPose ])
         {
             phase = index - Top(pose);
             if ((uint)phase < 6) return Top(pose) + (phase % 3 == 0 ? 0 : 1);
         }
-        foreach (SamusPoseId pose in new[] { SamusPoseId.RunningAimUpRightPose, SamusPoseId.RunningAimUpLeftPose,
+        foreach (SamusPoseId pose in (ReadOnlySpan<SamusPoseId>)[ SamusPoseId.RunningAimUpRightPose, SamusPoseId.RunningAimUpLeftPose,
             SamusPoseId.RunningAimDiagonalUpRightPose, SamusPoseId.RunningAimDiagonalUpLeftPose,
             SamusPoseId.RunningAimDiagonalDownRightPose, SamusPoseId.RunningAimDiagonalDownLeftPose,
-            SamusPoseId.UnusedPose45, SamusPoseId.UnusedPose46 })
+            SamusPoseId.UnusedPose45, SamusPoseId.UnusedPose46 ])
         {
             phase = index - Top(pose);
             if ((uint)phase < 10)
@@ -181,12 +181,12 @@ internal static class SamusSpritemapFrameDefinitions
                 return Top(pose) + (gait <= 1 ? 0 : gait == 4 ? 2 : gait);
             }
         }
-        foreach (SamusPoseId pose in new[] { SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose })
+        foreach (SamusPoseId pose in (ReadOnlySpan<SamusPoseId>)[ SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose ])
         {
             phase = index - Top(pose);
             if ((uint)phase < 9 && phase is 3 or 5 or 6 or 8) return Top(pose) + (phase == 5 ? 0 : 1);
         }
-        foreach (SamusPoseId pose in new[] { SamusPoseId.GrappleSwingRightPose, SamusPoseId.GrappleSwingLeftPose })
+        foreach (SamusPoseId pose in (ReadOnlySpan<SamusPoseId>)[ SamusPoseId.GrappleSwingRightPose, SamusPoseId.GrappleSwingLeftPose ])
         {
             phase = index - Top(pose);
             if ((uint)phase < GrappleTurnPhases * 2 + 2)
@@ -200,7 +200,7 @@ internal static class SamusSpritemapFrameDefinitions
             bool reverse = ((morphOffset / morphLength) & 1) != 0;
             return FirstRightMorph + (reverse && rotation < morphLength - 2 ? morphLength - 3 - rotation : rotation);
         }
-        foreach (bool left in new[] { false, true })
+        foreach (bool left in (ReadOnlySpan<bool>)[ false, true ])
         {
             int wall = Top(left ? SamusPoseId.WallJumpLeftPose : SamusPoseId.WallJumpRightPose);
             int spin = Top(left ? SamusPoseId.SpinJumpLeftPose : SamusPoseId.SpinJumpRightPose);
@@ -220,7 +220,7 @@ internal static class SamusSpritemapFrameDefinitions
             phase = index - Bottom(left ? SamusPoseId.ScrewAttackLeftPose : SamusPoseId.ScrewAttackRightPose);
             if ((uint)phase < 27) return lowerWall + (phase == 0 ? 1 : phase < 25 ? 13 + (phase - 1) % 8 : 2);
         }
-        foreach (SamusPoseId pose in new[] { SamusPoseId.GrappleSwingRightPose, SamusPoseId.GrappleSwingLeftPose })
+        foreach (SamusPoseId pose in (ReadOnlySpan<SamusPoseId>)[ SamusPoseId.GrappleSwingRightPose, SamusPoseId.GrappleSwingLeftPose ])
         {
             phase = index - Bottom(pose);
             if ((uint)phase < 64)
@@ -230,7 +230,7 @@ internal static class SamusSpritemapFrameDefinitions
                 return index - angle + sharedAngle;
             }
         }
-        foreach (SamusPoseId pose in new[] { SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose })
+        foreach (SamusPoseId pose in (ReadOnlySpan<SamusPoseId>)[ SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose ])
         {
             phase = index - Bottom(pose);
             if ((uint)phase < 9 && phase != 4)
@@ -239,7 +239,7 @@ internal static class SamusSpritemapFrameDefinitions
                 return Bottom(pose) + (breath == 3 ? 1 : breath);
             }
         }
-        foreach (bool left in new[] { false, true })
+        foreach (bool left in (ReadOnlySpan<bool>)[ false, true ])
         {
             int normalLanding = Top(left ? SamusPoseId.NormalLandingLeftPose : SamusPoseId.NormalLandingRightPose);
             phase = index - Top(left ? SamusPoseId.SpinLandingLeftPose : SamusPoseId.SpinLandingRightPose);
@@ -262,7 +262,7 @@ internal static class SamusSpritemapFrameDefinitions
                 if (phase == 13) return Bottom(flash);
             }
         }
-        foreach (bool left in new[] { false, true })
+        foreach (bool left in (ReadOnlySpan<bool>)[ false, true ])
         {
             SamusPoseId crouch = left ? SamusPoseId.DrainedCrouchingLeftPose : SamusPoseId.DrainedCrouchingRightPose;
             SamusPoseId standing = left ? SamusPoseId.DrainedStandingLeftPose : SamusPoseId.DrainedStandingRightPose;

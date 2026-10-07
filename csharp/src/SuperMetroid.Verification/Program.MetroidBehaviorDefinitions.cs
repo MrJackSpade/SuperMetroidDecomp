@@ -37,11 +37,12 @@ internal static partial class Program
         FieldInfo busField = typeof(RoomEnemySystem).GetField(
             "_bus", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var guarded = new MetroidBehaviorReadGuard(rom);
+        // One system serves every timer: the escape step is static and keeps no per-call state.
+        var enemies = new RoomEnemySystem();
+        busField.SetValue(enemies, guarded);
 
         for (int timer = 0; timer <= ushort.MaxValue; timer++)
         {
-            var enemies = new RoomEnemySystem();
-            busField.SetValue(enemies, guarded);
             var slot = new RoomEnemySlot(0)
             {
                 XPosition = 0x0001,

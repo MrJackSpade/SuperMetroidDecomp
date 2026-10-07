@@ -9,7 +9,7 @@ internal static partial class Program
     /// <summary>Verifies the statically identified enemy OAM owners after deleting their address readers.</summary>
     private static void VerifyEnemySpriteArtworkBoundary(string sourceRom)
     {
-        using var temporary = new MapCatalogTestDirectory();
+        using var temporary = new TestTempDirectory("map-catalog");
         var installation = GameAssetInstaller.Install(sourceRom, temporary.Root);
         var source = CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();

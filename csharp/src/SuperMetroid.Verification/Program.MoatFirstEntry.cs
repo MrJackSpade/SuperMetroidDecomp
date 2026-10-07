@@ -22,7 +22,7 @@ internal static partial class Program
         {
             // Each history starts with fresh mutable WRAM as well as fresh owners.
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-            var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
+            var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();
@@ -55,7 +55,7 @@ internal static partial class Program
             {
                 byte[] gameplayBeforePause = runtime.Vram.Bytes.ToArray();
                 var room = runtime.ActiveRoom!;
-                var pause = new PauseMenuState(bus, samus, runtime.System, room.AreaIndex,
+                var pause = CreateRetailPauseFixture(bus, samus, runtime.System, room.AreaIndex,
                     room.MapX, room.MapY, gameplayVram: runtime.Vram);
                 // Use the real menu owner, including a map -> equipment transition.
                 // This isolates VRAM ownership rather than claiming a complete host

@@ -4,6 +4,16 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Compares two memory images, reporting the first differing byte offset and values.</summary>
+    static void AssertSameBytes(ReadOnlySpan<byte> expected, ReadOnlySpan<byte> actual, string context)
+    {
+        AssertEqual(expected.Length, actual.Length, $"{context} length");
+        int first = expected.CommonPrefixLength(actual);
+        if (first != expected.Length)
+            throw new InvalidOperationException(
+                $"Verification failed: {context}; first difference at offset ${first:X5}: expected ${expected[first]:X2}, got ${actual[first]:X2}.");
+    }
+
     /// <summary>
     /// Compares ordered results while reporting the first bad element, rather than reducing
     /// a useful failure to "the sequences differ". Materializing once also makes this safe

@@ -11,7 +11,7 @@ internal static partial class Program
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         var audio = new CartridgeAudioState();
-        var ending = new EndingCreditsState(bus, audio, 0, 0);
+        var ending = CreateRetailEndingFixture(bus, audio, 0, 0);
         for (int frame = 0; frame < 20000 && ending.Phase != EndingCreditsPhase.PlanetEscapeFast; frame++)
         {
             ending.Step();
@@ -22,10 +22,10 @@ internal static partial class Program
         var definition = EndingCreditsRomData.Sprites.ExplosionAfterglow;
         var afterglow = new IntroDiscoverySprite(definition.X, definition.Y,
             definition.Attributes.Raw, definition.InstructionPointer);
-        afterglow.Step(bus);
+        afterglow.Step(bus, instructionWord: EndingCartridgeInstructionWord(bus));
         var expected = new OamBuffer();
         expected.BeginFrame();
-        afterglow.Draw(bus, expected);
+        afterglow.Draw(bus, expected, installedArt: runtimeFixtureInstallation.Value.LoadEndingObjectArt().ExplosionSprites);
         expected.FinalizeFrame();
         // F2FA installs the afterglow at byte slot 6 (index 3); the starfields occupy
         // byte slots 2 and 0. The native descending draw must give the complete

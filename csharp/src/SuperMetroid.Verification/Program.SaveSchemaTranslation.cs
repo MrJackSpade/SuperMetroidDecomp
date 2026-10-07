@@ -24,7 +24,7 @@ internal static partial class Program
         var target = SuperMetroidAddressSpace.CreateWithoutCartridge();
         target.SaveRam.Fill(0xa5);
         GameSaveJsonCodec.Apply(GameSaveJsonCodec.Deserialize(json), target, RetailPresentationFixture());
-        AssertTrue(target.SaveRam.SequenceEqual(bus.SaveRam), "named schema rebuilds canonical SRAM and clears stale target bytes");
+        AssertSameBytes(target.SaveRam, bus.SaveRam, "named schema rebuilds canonical SRAM and clears stale target bytes");
         var loaded = new SuperMetroidSaveRam(target, RetailPresentationFixture()).ReadSlot(0)!;
         var restoredSamus = new SamusState();
         var restoredSystem = new Bank80SystemState();

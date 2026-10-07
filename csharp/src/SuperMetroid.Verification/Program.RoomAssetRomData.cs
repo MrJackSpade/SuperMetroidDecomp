@@ -134,8 +134,8 @@ internal static partial class Program
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
             CartridgeRoomHeader header = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
-            CartridgeRoomAssets native = CartridgeRoomAssets.Load(bus, header, characters, palettes, metatiles, layouts);
-            CartridgeRoomAssets guarded = CartridgeRoomAssets.Load(guardedBus, header, characters, palettes, metatiles, layouts);
+            CartridgeRoomAssets native = LoadFixtureRoomAssets(bus, header, characters, palettes, metatiles, layouts);
+            CartridgeRoomAssets guarded = LoadFixtureRoomAssets(guardedBus, header, characters, palettes, metatiles, layouts);
             AssertEqual(native.Tileset, guarded.Tileset,
                 $"room $8F:{roomPointer:X4} resolves compiled graphics metadata");
             AssertTrue(native.CreCharacters.AsSpan().SequenceEqual(guarded.CreCharacters) &&
@@ -208,10 +208,10 @@ internal static partial class Program
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
             CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
-            CartridgeRoomAssets native = CartridgeRoomAssets.Load(bus, room);
+            CartridgeRoomAssets native = LoadFixtureRoomAssets(bus, room);
             int areaSource = native.Tileset.CharacterAddress;
             var guardedBus = new RoomCharacterReadGuard(bus, areaSource);
-            CartridgeRoomAssets installed = CartridgeRoomAssets.Load(guardedBus, room, catalog);
+            CartridgeRoomAssets installed = LoadFixtureRoomAssets(guardedBus, room, catalog);
             AssertTrue(installed.CreCharacters.AsSpan().SequenceEqual(native.CreCharacters) &&
                 installed.RoomCharacters.AsSpan().SequenceEqual(native.RoomCharacters),
                 $"room $8F:{roomPointer:X4} loads compiled characters with source reads forbidden");
@@ -243,7 +243,7 @@ internal static partial class Program
         compiledBySource[landingSource] = RoomCharacterAtlas.Load(
             new MemoryStream(paintedPng.ToArray()), landingNative.Length);
         var editedCatalog = new RoomCharacterAtlasCatalog(compiledCre!, compiledBySource);
-        CartridgeRoomAssets editedRoom = CartridgeRoomAssets.Load(
+        CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(
             new RoomCharacterReadGuard(bus, landingSource), landing, editedCatalog);
         AssertTrue(!editedRoom.RoomCharacters.AsSpan().SequenceEqual(landingNative),
             "edited installed room PNG changes real room-loader character bytes");

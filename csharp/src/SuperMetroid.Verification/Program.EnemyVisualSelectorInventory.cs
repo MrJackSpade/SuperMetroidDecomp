@@ -6,155 +6,13 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
-    /// <summary>
-    /// Cartridge-backed development inventory, never a production ROM fallback.
-    /// Flags plausible five-byte OAM records, not a rendering proof: an extended
-    /// or BG2 command payload may coincidentally pass the shallow count check.
-    /// Every family still needs a consumer and exact OAM parity test before extraction.
-    /// </summary>
-    private static void InspectEnemyVisualSelectors(bool generateCatalog = false)
+    /// <summary>The bank-resolved selector inventory matches the generated catalog address for address.</summary>
+    private static void InspectEnemyVisualSelectors()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        const BindingFlags staticFlags = BindingFlags.Static |
-            BindingFlags.NonPublic | BindingFlags.Public;
-        const BindingFlags instanceFlags = BindingFlags.Instance |
-            BindingFlags.NonPublic | BindingFlags.Public;
-        int catalogs = 0;
-        int discovered = 0;
-        int operands = 0;
-        int ordinary = 0;
-        int special = 0;
-        var unresolved = new List<string>();
-        var keyed = new Dictionary<int, ushort>();
-        var families = new List<(string Name, int Ordinary, int Special)>();
-
-        foreach (Type type in typeof(RoomEnemySystem).Assembly.GetTypes()
-                     .Where(type => type.Name.EndsWith("InstructionProgramDefinitions",
-                         StringComparison.Ordinal))
-                     .OrderBy(type => type.Name, StringComparer.Ordinal))
-        {
-            PropertyInfo? countProperty = type.GetProperty(
-                "PresentationWordCount", staticFlags);
-            FieldInfo? countField = type.GetField("PresentationWordCount", staticFlags);
-            object? countValue = countProperty?.GetValue(null) ??
-                (countField is { IsLiteral: true } ? countField.GetRawConstantValue() : null);
-            MethodInfo? addressMethod = type.GetMethod(
-                "PresentationWordAddress", staticFlags);
-            MethodInfo? mechanicsMethod = type.GetMethod("MechanicsWord", staticFlags);
-            MethodInfo? checkMethod = type.GetMethod(
-                "IsCompiledMechanicsByte", staticFlags);
-            // One-frame programs expose a constant instead of an indexed list.
-            // Ignoring that shape omitted Kzan's live operand (#1166).
-            FieldInfo? singleWord = type.GetField("PresentationWord", staticFlags);
-            if (addressMethod is null && singleWord is not { IsLiteral: true })
-                continue;
-            discovered++;
-            if (addressMethod is not null && countValue is null)
-            {
-                unresolved.Add($"{type.Name}: no presentation-word count");
-                continue;
-            }
-            catalogs++;
-            FieldInfo? bankField = type.GetField("Bank", staticFlags);
-            if (mechanicsMethod is null || (checkMethod is null && bankField is not { IsLiteral: true }))
-            {
-                unresolved.Add($"{type.Name}: no standard mechanics-word/bank probe");
-                continue;
-            }
-            object firstWord = mechanicsMethod.Invoke(null, [0])!;
-            PropertyInfo? addressProperty = firstWord.GetType().GetProperty(
-                "Address", instanceFlags);
-            if (addressProperty is null)
-            {
-                unresolved.Add($"{type.Name}: mechanics word has no address");
-                continue;
-            }
-            ushort firstAddress = Convert.ToUInt16(
-                addressProperty.GetValue(firstWord));
-            // A declared bank also covers catalogs with sparse mechanics words
-            // but no byte-level ownership probe, such as the cutscene Baby.
-            int? declaredBank = bankField is { IsLiteral: true }
-                ? Convert.ToInt32(bankField.GetRawConstantValue()) : null;
-            if (declaredBank is > byte.MaxValue) declaredBank >>= 16;
-            byte[] banks = declaredBank.HasValue
-                ? [checked((byte)declaredBank.Value)]
-                : Enumerable.Range(0x80, 0x60)
-                    .Where(bank => (bool)checkMethod!.Invoke(null,
-                        [(bank << 16) | firstAddress])!)
-                    .Select(bank => (byte)bank).ToArray();
-            if (banks.Length != 1)
-            {
-                unresolved.Add($"{type.Name}: {banks.Length} matching banks");
-                continue;
-            }
-            int count = addressMethod is null ? 1 : Convert.ToInt32(countValue);
-            int familyOrdinary = 0;
-            int familySpecial = 0;
-            for (int index = 0; index < count; index++)
-            {
-                ushort address = Convert.ToUInt16(addressMethod is null
-                    ? singleWord!.GetRawConstantValue()
-                    : addressMethod.Invoke(null, [index]));
-                int source = (banks[0] << 16) | address;
-                ushort pointer = ReadWord(rom, source);
-                if (keyed.TryGetValue(source, out ushort previous) &&
-                    previous != pointer)
-                    throw new InvalidDataException(
-                        $"Conflicting visual selector ${source:X6}.");
-                keyed[source] = pointer;
-                operands++;
-                bool ordinaryFrame = pointer >= 0x8000;
-                if (ordinaryFrame)
-                {
-                    ushort partCount = ReadWord(rom, (banks[0] << 16) | pointer);
-                    ordinaryFrame = partCount is > 0 and <= 128 &&
-                        pointer + 2 + partCount * 5 <= 0x10000;
-                }
-                if (ordinaryFrame)
-                {
-                    ordinary++;
-                    familyOrdinary++;
-                }
-                else
-                {
-                    special++;
-                    familySpecial++;
-                }
-            }
-            families.Add((type.Name, familyOrdinary, familySpecial));
-        }
-        // Ceres Baby deliberately split its old mixed presentation list into
-        // independently typed OAM and palette operands. Only the former belong
-        // in this sprite-pointer catalog; the thirteen palette addresses must
-        // never be interpreted as enemy spritemaps.
-        discovered++;
-        catalogs++;
-        for (int index = 0;
-             index < CeresBabyInstructionProgramDefinitions.SpritemapOperandCount;
-             index++)
-        {
-            ushort address = CeresBabyInstructionProgramDefinitions
-                .SpritemapOperandAddress(index);
-            int source = (CeresBabyInstructionProgramDefinitions.Bank << 16) | address;
-            ushort pointer = CeresBabyInstructionProgramDefinitions
-                .ReadSpritemapOperand(address);
-            AssertEqual(ReadWord(rom, source), pointer,
-                $"Ceres Baby sprite selector ${source:X6} matches its typed owner");
-            int frameAddress =
-                (CeresBabyInstructionProgramDefinitions.Bank << 16) | pointer;
-            ushort partCount = ReadWord(rom, frameAddress);
-            AssertTrue(partCount is > 0 and <= 128 &&
-                    pointer + 2 + partCount * 5 <= 0x10000,
-                $"Ceres Baby selector ${source:X6} targets an ordinary OAM frame");
-            if (!keyed.TryAdd(source, pointer))
-                throw new InvalidDataException(
-                    $"Ceres Baby sprite selector ${source:X6} overlaps another owner.");
-            operands++;
-            ordinary++;
-        }
-        families.Add((nameof(CeresBabyInstructionProgramDefinitions),
-            CeresBabyInstructionProgramDefinitions.SpritemapOperandCount, 0));
+        var (discovered, catalogs, operands, ordinary, special, keyed, families, unresolved) =
+            EnemyVisualSelectorInventory.Collect(rom);
         Console.WriteLine(
             $"Discovered={discovered}, catalogs={catalogs}, " +
             $"mapped families={families.Count}, " +
@@ -172,22 +30,17 @@ internal static partial class Program
         AssertEqual(158, discovered, "instruction catalogs with visual operands");
         AssertEqual(5247, operands, "counted native sprite-selector occurrences");
         AssertEqual(5102, keyed.Count, "distinct native sprite-selector addresses");
-        if (generateCatalog)
-            GenerateCompiledEnemyVisualSelectorCatalog(keyed);
-        else
+        AssertEqual(keyed.Count, CompiledEnemyVisualSelectors.Count,
+            "generated catalog covers every bank-resolved inventory address");
+        int catalogIndex = 0;
+        foreach ((int address, ushort pointer) in keyed.OrderBy(pair => pair.Key))
         {
-            AssertEqual(keyed.Count, CompiledEnemyVisualSelectors.Count,
-                "generated catalog covers every bank-resolved inventory address");
-            int index = 0;
-            foreach ((int address, ushort pointer) in keyed.OrderBy(pair => pair.Key))
-            {
-                CompiledEnemyVisualSelector entry =
-                    CompiledEnemyVisualSelectors.At(index++);
-                AssertEqual(address, entry.Address,
-                    "generated visual selector address matches catalog inventory");
-                AssertEqual(pointer, entry.Pointer,
-                    "generated visual selector target matches catalog inventory");
-            }
+            CompiledEnemyVisualSelector entry =
+                CompiledEnemyVisualSelectors.At(catalogIndex++);
+            AssertEqual(address, entry.Address,
+                "generated visual selector address matches catalog inventory");
+            AssertEqual(pointer, entry.Pointer,
+                "generated visual selector target matches catalog inventory");
         }
         foreach ((string name, int frameCount, int specialCount) in families
                      .OrderByDescending(family => family.Ordinary)
@@ -196,10 +49,6 @@ internal static partial class Program
         foreach (string item in unresolved)
             Console.WriteLine($"UNRESOLVED {item}");
 
-        static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadByte(address) |
-                bus.ReadByte((address & 0xff0000) |
-                    unchecked((ushort)(address + 1))) << 8);
     }
 
     /// <summary>Checks every checked-in selector directly against the pinned cartridge.</summary>
@@ -246,41 +95,5 @@ internal static partial class Program
         Console.WriteLine(
             $"Compiled enemy visuals: {CompiledEnemyVisualSelectors.Count:N0} distinct sprite selectors match the cartridge; " +
             "sorted lookup and unknown-key rejection pass.");
-    }
-
-    /// <summary>
-    /// Development-only mechanical source generation. The checked-in result contains
-    /// only sparse, fixed pointer selectors, not an executable ROM or hidden raw bank.
-    /// </summary>
-    private static void GenerateCompiledEnemyVisualSelectorCatalog(
-        Dictionary<int, ushort> selectors)
-    {
-        IGrouping<int, KeyValuePair<int, ushort>>[] banks = selectors
-            .Where(pair => !CompiledEnemyVisualSelectors.IsCalculatedSelector(pair.Key))
-            .GroupBy(pair => pair.Key >> 16)
-            .OrderBy(group => group.Key)
-            .ToArray();
-        foreach (IGrouping<int, KeyValuePair<int, ushort>> bank in banks)
-        {
-            var bankSource = new StringBuilder(bank.Count() * 40);
-            bankSource.AppendLine("// Generated from the pinned retail cartridge by --generate-enemy-visual-selectors.");
-            bankSource.AppendLine("namespace SuperMetroid.Core.Assets;");
-            bankSource.AppendLine();
-            bankSource.AppendLine("internal static partial class CompiledEnemyVisualSelectors");
-            bankSource.AppendLine("{");
-            bankSource.AppendLine($"    private static CompiledEnemyVisualSelector[] Bank{bank.Key:X2} =>");
-            bankSource.AppendLine("    [");
-            foreach ((int address, ushort pointer) in bank.OrderBy(pair => pair.Key))
-                bankSource.AppendLine($"        new(0x{address:X6}, 0x{pointer:X4}),");
-            bankSource.AppendLine("    ];");
-            bankSource.AppendLine("}");
-            string bankPath =
-                $"csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.Bank{bank.Key:X2}.Definitions.cs";
-            File.WriteAllText(bankPath, bankSource.ToString(), new UTF8Encoding(false));
-        }
-
-        // The calculated-family dispatcher is maintained separately from literal bank generation.
-        Console.WriteLine(
-            $"Generated {banks.Sum(bank => bank.Count())} remaining literal visual selectors in {banks.Length} bank files; calculated families stay in their dispatcher.");
     }
 }

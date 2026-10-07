@@ -29,11 +29,6 @@ try
 {
 if (args is ["--suite", var suiteName])
     return RunNamedSuite(suiteName);
-if (args is ["--dump-instruction-layouts", var instructionLayoutOutput])
-{
-    DumpInstructionLayouts(instructionLayoutOutput);
-    return 0;
-}
 if (args is ["--lookup-stream-4-hud-icons"])
 {
     var rom=CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -48,13 +43,6 @@ if (args is ["--lookup-stream-4-hud-template"])
     Suite(nameof(VerifyLookupStream4HudTemplate), () => VerifyLookupStream4HudTemplate(rom));
     return 0;
 }
-if (args is ["--lookup-stream-4-hud-template-source"])
-{
-    var rom=CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)),"HUD template source revision");
-    ExportLookupStream4HudTemplateSource(rom);
-    return 0;
-}
 if (args is ["--lookup-stream-4-hud-top-row"])
 {
     var rom=CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -67,12 +55,6 @@ if (args is ["--lookup-stream-4-hud-auto"])
     var rom=CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
     AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)),"AUTO source revision");
     Suite(nameof(VerifyLookupStream4HudAutoComplete), () => VerifyLookupStream4HudAutoComplete(rom));
-    return 0;
-}
-if (args is ["--lookup-stream-4-hud-auto-source"])
-{
-    var rom=CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-    ExportLookupStream4HudAutoSource(rom);
     return 0;
 }
 if (args is ["--lookup-stream-4-draygon-layout"])
@@ -104,7 +86,6 @@ if (args is ["--lookup-stream-4-draygon-background"])
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
     AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Draygon background oracle revision");
-    ExportLookupStream4DraygonHealthSource(rom);
     Suite(nameof(VerifyLookupStream4DraygonBackground), () => VerifyLookupStream4DraygonBackground(rom));
     Suite(nameof(VerifyLookupStream4DraygonHealth), () => VerifyLookupStream4DraygonHealth(rom));
     return 0;
@@ -114,7 +95,6 @@ if (args is ["--lookup-stream-4-draygon-health"])
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
     AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Draygon health oracle revision");
-    ExportLookupStream4DraygonHealthSource(rom);
     Suite(nameof(VerifyLookupStream4DraygonHealth), () => VerifyLookupStream4DraygonHealth(rom));
     return 0;
 }
@@ -124,14 +104,6 @@ if (args is ["--lookup-stream-4-norfair-reveal"])
     AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Norfair reveal oracle revision");
     Suite(nameof(VerifyLookupStream4NorfairReveal), () => VerifyLookupStream4NorfairReveal(rom));
-    return 0;
-}
-if (args is ["--lookup-stream-4-norfair-reveal-source"])
-{
-    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Norfair reveal source revision");
-    ExportLookupStream4NorfairRevealSource(rom);
     return 0;
 }
 if (args is ["--lookup-stream5-ceres-door-materials"])
@@ -568,7 +540,6 @@ if (args is ["--draygon-prebattle-xray"]) { VerifyDraygonPrebattleXray(); return
 if (args is ["--kihunter-spit-audio"]) { VerifyKiHunterSpitAudio(); return 0; }
 if (args is ["--samus-liquid-physics"]) { VerifySamusLiquidPhysics(); return 0; }
 if (args is ["--shallow-water-jump"]) { VerifyShallowWaterJump(); return 0; }
-if (args is ["--export-shallow-water-jump"]) { VerifyShallowWaterJump(exportOnly: true); return 0; }
 if (args is ["--yapping-maw-grapple-release"]) { VerifyYappingMawGrappleRelease(); return 0; }
 if (args is ["--ridley-acceleration-carry"])
 {
@@ -598,7 +569,7 @@ if (args is ["--ridley-center-facing"]) { VerifyRidleyCenterFacing(); return 0; 
 if (args is ["--ridley-pause-page-timing"]) { VerifyRidleyPausePageTiming(); return 0; }
 if (args is ["--ridley-palette-selection"]) { VerifyRidleyPaletteSelection(); return 0; }
 if (args is ["--ridley-door-entry"]) { VerifyRidleyDoorEntry(); return 0; }
-if (args is ["--ridley-full-movie", var traceDirectory]) { VerifyRidleyFullMovie(traceDirectory); return 0; }
+if (args is ["--ridley-full-movie"]) { VerifyRidleyFullMovie(Path.GetFullPath("native-captures/issue-1266-ridley")); return 0; }
 if (args is ["--ridley-player-opening"]) { VerifyRidleyPlayerOpening(); return 0; }
 if (args is ["--door-autosave"]) { VerifyDoorTransitionAutosave(); return 0; }
 if (args is ["--door-music-timing"]) { VerifyDoorMusicTiming(); return 0; }
@@ -1943,46 +1914,6 @@ if (args is ["--lookup-pause-reserve-anchors"])
     Console.WriteLine("Reserve anchors: native coordinate fields, independent edits, actual sprite output and bounds pass.");
     return 0;
 }
-if (args is ["--lookup-ending-reward-arm-art"] or ["--lookup-ending-reward-hair-art"])
-{
-    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Reward arm artwork oracle revision");
-    ExportEndingRewardGestureArtwork(rom, args[0] == "--lookup-ending-reward-hair-art");
-    return 0;
-}
-if (args is ["--lookup-zebes-planet-art"])
-{
-    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Zebes planet artwork oracle revision");
-    ExportZebesPlanetArtwork(rom);
-    return 0;
-}
-if (args is ["--lookup-ceres-large-blast-art"])
-{
-    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres large blast artwork oracle revision");
-    ExportCeresLargeBlastArtwork(rom);
-    return 0;
-}
-if (args is ["--lookup-ceres-asteroid-art"])
-{
-    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres asteroid artwork oracle revision");
-    ExportCeresAsteroidArtwork(rom);
-    return 0;
-}
-if (args is ["--lookup-ending-explosion-art"])
-{
-    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Explosion artwork oracle revision");
-    ExportEndingExplosionArtworkEvidence(rom);
-    return 0;
-}
 if (args is ["--lookup-ending-explosion-frame-catalog"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -2010,26 +1941,10 @@ if (args is ["--lookup-ending-glyphs"])
     Console.WriteLine("Ending glyphs: complete four-style alphabet/digit/blank mappings, both halves and all ushort decoder inputs pass.");
     return 0;
 }
-if (args is ["--lookup-ending-font-layout"])
-{
-    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending font layout oracle revision");
-    string output = Path.GetFullPath("csharp/test-temp/1165-ending-font-original.png");
-    Directory.CreateDirectory(Path.GetDirectoryName(output)!);
-    File.WriteAllBytes(output, SuperMetroid.AssetExtraction.EndingFontAtlasExtractor.Extract(rom));
-    Console.WriteLine(output);
-    return 0;
-}
 if (args is ["--lookup-ending-mode7-roles"])
 {
     Suite(nameof(VerifyEndingMode7RoleSelection), () => VerifyEndingMode7RoleSelection());
     Console.WriteLine("Ending Mode7 roles: six original sources, filenames, supplied references, identity ordering and bounds pass.");
-    return 0;
-}
-if (args is ["--lookup-ending-gunship-art"])
-{
-    ExportEndingGunshipPaletteEvidence();
     return 0;
 }
 if (args is ["--lookup-ending-gunship-program"])
@@ -2068,14 +1983,6 @@ if (args is ["--lookup-ending-logo-glare"])
     byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
     Suite(nameof(VerifyExtractedLogoGlarePaletteFxPresentation), () => VerifyExtractedLogoGlarePaletteFxPresentation(rom, RoomPaletteFxPresentation.Load(new MemoryStream(json))));
     Console.WriteLine("Logo glare: all224 native colors, full pointer domain, guarded program and independent edits pass.");
-    return 0;
-}
-if (args is ["--lookup-ending-logo-color-art"])
-{
-    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending logo artwork oracle revision");
-    ExportEndingLogoPaletteEvidence(rom);
     return 0;
 }
 if (args is ["--lookup-ending-logo-fade"])
@@ -2199,11 +2106,6 @@ if (args is ["--lookup-spc-pan-interpolation"])
 if (args is ["--lookup-spc-fir-addressing"])
 {
     Suite(nameof(VerifySpcFirAddressing), () => VerifySpcFirAddressing());
-    return 0;
-}
-if (args is ["--lookup-ceres-placement-art"])
-{
-    ExportCeresPlacementArtwork();
     return 0;
 }
 if (args is ["--lookup-ceres-initial-metadata"])
@@ -2402,14 +2304,6 @@ if (args is ["--lookup-intro-eye-instructions"])
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro eye oracle revision");
     Suite(nameof(VerifyIntroEyeInstructions), () => VerifyIntroEyeInstructions(rom));
     Console.WriteLine("Intro eye programs: all74 bytes, overlapping words, loop targets and read boundaries pass.");
-    return 0;
-}
-if (args is ["--lookup-intro-collision-art"])
-{
-    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro collision art oracle revision");
-    ExportIntroCollisionArtwork(rom);
     return 0;
 }
 if (args is ["--lookup-intro-mother-brain-instructions"])
@@ -3058,8 +2952,9 @@ if (args is ["--lookup-rain-velocity"])
     Console.WriteLine("Rain velocity: four signed 8.8 values, all 65536 RNG selections and invalid bounds pass.");
     return 0;
 }
-if (args is ["--room-fx-record-definitions", var roomFxDefinitionsRom])
+if (args is ["--room-fx-record-definitions"])
 {
+    string roomFxDefinitionsRom = RepositoryRomPath;
     Suite(nameof(VerifyRoomFxRecordDefinitions), () => VerifyRoomFxRecordDefinitions(roomFxDefinitionsRom));
     return 0;
 }
@@ -4533,40 +4428,23 @@ if (args is ["--lookup-palette-algorithms"])
     Suite(nameof(VerifyWorkRobotPaletteTimingDefinitions), () => VerifyWorkRobotPaletteTimingDefinitions(paletteOracle));
     return 0;
 }
-if (args is ["--gunship-landing-compositions", var gunshipAssetRoot, var gunshipRom, var gunshipOutput])
+if (args is ["--gunship-landing-compositions"])
 {
-    Suite(nameof(VerifyExtractedGunshipCompositions), () => VerifyExtractedGunshipCompositions(gunshipAssetRoot, gunshipRom, gunshipOutput));
-    return 0;
-}
-if (args is ["--gunship-landing-compositions", var gunshipInstallation])
-{
+    string gunshipInstallation = runtimeFixtureInstallation.Value.Root;
+    using var gunshipOutput = new TestTempDirectory("map-catalog");
+    Suite(nameof(VerifyExtractedGunshipCompositions), () => VerifyExtractedGunshipCompositions(gunshipInstallation, RepositoryRomPath, gunshipOutput.Root));
     Suite(nameof(VerifyGunshipLandingCompositions), () => VerifyGunshipLandingCompositions(gunshipInstallation));
     return 0;
 }
-if (args is ["--ceres-save-repair", var repairedAssetRoot, var originalCopy, var repairedCopy, var installedEnemies])
+if (args is ["--ceres-save-startup"])
 {
-    Suite(nameof(VerifyCeresSaveRepair), () => VerifyCeresSaveRepair(repairedAssetRoot, originalCopy, repairedCopy,
-        EnemyTileArtworkFiles.Load(installedEnemies, overrideDirectory: null)));
-    return 0;
-}
-if (args is ["--ceres-save-repair", var repairedInstallation, var originalSave, var repairedSave])
-{
-    Suite(nameof(VerifyCeresSaveRepair), () => VerifyCeresSaveRepair(repairedInstallation, originalSave, repairedSave));
-    return 0;
-}
-if (args is ["--ceres-save-startup", var ceresSaveAssets, var savedEnemyAssets])
-{
-    Suite(nameof(VerifyCeresSaveStartup), () => VerifyCeresSaveStartup(ceresSaveAssets,
-        EnemyTileArtworkFiles.Load(savedEnemyAssets, overrideDirectory: null)));
-    return 0;
-}
-if (args is ["--ceres-save-startup", var ceresSaveInstallation])
-{
+    string ceresSaveInstallation = runtimeFixtureInstallation.Value.Root;
     Suite(nameof(VerifyCeresSaveStartup), () => VerifyCeresSaveStartup(ceresSaveInstallation));
     return 0;
 }
-if (args is ["--ceres-engine-palette-binding", var ceresPaletteInstallation])
+if (args is ["--ceres-engine-palette-binding"])
 {
+    string ceresPaletteInstallation = runtimeFixtureInstallation.Value.Root;
     Suite(nameof(VerifyCeresEnginePaletteBinding), () => VerifyCeresEnginePaletteBinding(ceresPaletteInstallation));
     return 0;
 }
@@ -4583,8 +4461,9 @@ if (args is ["--room-content-identity"])
     Suite(nameof(VerifyRoomContentIdentity), () => VerifyRoomContentIdentity());
     return 0;
 }
-if (args is ["--projectile-file-contracts", var projectileInstallation])
+if (args is ["--projectile-file-contracts"])
 {
+    string projectileInstallation = runtimeFixtureInstallation.Value.Root;
     Suite(nameof(VerifyProjectileFileContracts), () => VerifyProjectileFileContracts(projectileInstallation));
     return 0;
 }
@@ -4661,8 +4540,9 @@ if (args is ["--tilemap-json-contracts"])
     Suite(nameof(VerifyTilemapJsonContracts), () => VerifyTilemapJsonContracts());
     return 0;
 }
-if (args is ["--room-asset-json-contracts", var roomAssetRoot])
+if (args is ["--room-asset-json-contracts"])
 {
+    string roomAssetRoot = runtimeFixtureInstallation.Value.Root;
     Suite(nameof(VerifyRoomAssetJsonContracts), () => VerifyRoomAssetJsonContracts(roomAssetRoot));
     return 0;
 }
@@ -4721,8 +4601,9 @@ if (args is ["--plm-draw-clone"])
     Suite(nameof(VerifyPlmDrawClone), () => VerifyPlmDrawClone());
     return 0;
 }
-if (args is ["--enemy-definition-boundary", string enemyDefinitionRom])
+if (args is ["--enemy-definition-boundary"])
 {
+    string enemyDefinitionRom = RepositoryRomPath;
     Suite(nameof(VerifyEnemyDefinitionBoundary), () => VerifyEnemyDefinitionBoundary(enemyDefinitionRom));
     return 0;
 }
@@ -4763,13 +4644,15 @@ if (args is ["--samus-atmospheric-effects"])
     Suite(nameof(VerifySamusAtmosphericEffects), () => VerifySamusAtmosphericEffects());
     return 0;
 }
-if (args is ["--samus-atmosphere-artwork-boundary", var atmosphereRom])
+if (args is ["--samus-atmosphere-artwork-boundary"])
 {
+    string atmosphereRom = RepositoryRomPath;
     Suite(nameof(VerifySamusAtmosphereArtworkBoundary), () => VerifySamusAtmosphereArtworkBoundary(atmosphereRom));
     return 0;
 }
-if (args is ["--samus-atmospheric-cadence", var atmosphereCadenceRom])
+if (args is ["--samus-atmospheric-cadence"])
 {
+    string atmosphereCadenceRom = RepositoryRomPath;
     Suite(nameof(VerifySamusAtmosphericAnimationDefinitions), () => VerifySamusAtmosphericAnimationDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(atmosphereCadenceRom)));
     return 0;
@@ -4884,11 +4767,6 @@ if (args is ["--spc-sound-library-2-pointers"])
 if (args is ["--room-fx-retail-inventory"])
 {
     Suite(nameof(VerifyRetailRoomFxInventory), () => VerifyRetailRoomFxInventory());
-    return 0;
-}
-if (args is ["--generate-room-fx-records", var roomFxGeneratorRom])
-{
-    GenerateRoomFxRecordDefinitions(roomFxGeneratorRom);
     return 0;
 }
 if (args is ["--enemy-projectile-instruction-mechanics"])
@@ -5660,19 +5538,19 @@ if (args is ["--hero-shot-runtime", var nativeHeroRuntimeTrace])
     Suite(nameof(VerifyHeroShotRuntimeCamera), () => VerifyHeroShotRuntimeCamera(nativeHeroRuntimeTrace));
     return 0;
 }
-if (args is ["--missile-edge", var missileEdgeTrace])
+if (args is ["--missile-edge"])
 {
-    Suite(nameof(VerifyMissileImpactCameraEdge), () => VerifyMissileImpactCameraEdge(missileEdgeTrace));
+    Suite(nameof(VerifyMissileImpactCameraEdge), () => VerifyMissileImpactCameraEdge("csharp/test-fixtures/movement-release/missile-edge-602.csv"));
     return 0;
 }
-if (args is ["--wrap-shots", var nativeWrapTrace])
+if (args is ["--wrap-shots"])
 {
-    Suite(nameof(VerifyWrapShotTrace), () => VerifyWrapShotTrace(nativeWrapTrace));
+    Suite(nameof(VerifyWrapShotTrace), () => VerifyWrapShotTrace("csharp/test-fixtures/movement-release/wrap-shot-409.csv"));
     return 0;
 }
-if (args is ["--ceiling-wrap", var nativeCeilingTrace])
+if (args is ["--ceiling-wrap"])
 {
-    Suite(nameof(VerifyCeilingWrapPlmTrace), () => VerifyCeilingWrapPlmTrace(nativeCeilingTrace));
+    Suite(nameof(VerifyCeilingWrapPlmTrace), () => VerifyCeilingWrapPlmTrace("csharp/test-fixtures/movement-release/ceiling-plm-410.csv"));
     return 0;
 }
 if (args is ["--ceiling-wrap-room"])
@@ -5680,14 +5558,15 @@ if (args is ["--ceiling-wrap-room"])
     Suite(nameof(VerifyFrogSpeedwayPoolCollision), () => VerifyFrogSpeedwayPoolCollision());
     return 0;
 }
-if (args is ["--ceiling-wrap-runtime", var nativeFrogTrace])
+if (args is ["--ceiling-wrap-runtime"])
 {
-    Suite(nameof(VerifyFrogSpeedwayRuntimeTrace), () => VerifyFrogSpeedwayRuntimeTrace(nativeFrogTrace));
+    Suite(nameof(VerifyFrogSpeedwayRuntimeTrace), () => VerifyFrogSpeedwayRuntimeTrace("csharp/test-fixtures/movement-release/frog-runtime-410.csv"));
     return 0;
 }
-if (args is ["--ceiling-wrap-success", var nativeFrogSuccess, var frogDash])
+if (args is ["--ceiling-wrap-success"])
 {
-    Suite(nameof(VerifyFrogSpeedwayRuntimeTrace), () => VerifyFrogSpeedwayRuntimeTrace(nativeFrogSuccess, 11, bool.Parse(frogDash)));
+    Suite(nameof(VerifyFrogSpeedwayRuntimeTrace), () => VerifyFrogSpeedwayRuntimeTrace("csharp/test-fixtures/movement-release/frog-success-run-410.csv", 11, true));
+    Suite(nameof(VerifyFrogSpeedwayRuntimeTrace), () => VerifyFrogSpeedwayRuntimeTrace("csharp/test-fixtures/movement-release/frog-success-walk-410.csv", 11, false));
     return 0;
 }
 if (args is ["--wrap-shot-rooms"])
@@ -5700,9 +5579,9 @@ if (args is ["--wrap-shot-enemies"])
     Suite(nameof(VerifyWrapShotEnemySeparation), () => VerifyWrapShotEnemySeparation());
     return 0;
 }
-if (args is ["--wrap-shot-widths", var nativeWrapWidths])
+if (args is ["--wrap-shot-widths"])
 {
-    Suite(nameof(VerifyWrapShotWidths), () => VerifyWrapShotWidths(nativeWrapWidths));
+    Suite(nameof(VerifyWrapShotWidths), () => VerifyWrapShotWidths("csharp/test-fixtures/movement-release/wrap-width-409.csv"));
     return 0;
 }
 if (args is ["--hero-shots"])
@@ -5756,15 +5635,17 @@ if (args is ["--compiled-enemy-sine"])
     Suite(nameof(VerifyCompiledEnemyTrigonometry), () => VerifyCompiledEnemyTrigonometry());
     return 0;
 }
-if (args is ["--charge-flare-compositions", var flareRom])
+if (args is ["--charge-flare-compositions"])
 {
+    string flareRom = RepositoryRomPath;
     Suite(nameof(VerifyChargeFlareCompositions), () => VerifyChargeFlareCompositions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath(flareRom)),
         flareOnly: true, sourceRom: flareRom));
     return 0;
 }
-if (args is ["--projectile-sprite-compositions", var projectileRom])
+if (args is ["--projectile-sprite-compositions"])
 {
+    string projectileRom = RepositoryRomPath;
     var source = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
         Path.GetFullPath(projectileRom));
     Suite(nameof(VerifyProjectileVisualParts), () => VerifyProjectileVisualParts());
@@ -6355,44 +6236,14 @@ if (args is ["--stock-attract-scenes"])
     Suite(nameof(VerifyStockAttractScenes), () => VerifyStockAttractScenes());
     return 0;
 }
-if (args is ["--native-boss-markers", var bossTrace])
-{
-    Suite(nameof(VerifyNativeBossMarkers), () => VerifyNativeBossMarkers(bossTrace));
-    return 0;
-}
 if (args is ["--pause-boss-markers"])
 {
     Suite(nameof(VerifyPauseBossMarkers), () => VerifyPauseBossMarkers());
     return 0;
 }
-if (args is ["--crystal-palette-native", var paletteRom, var paletteTrace])
-{
-    Suite(nameof(VerifyCrystalPaletteNative), () => VerifyCrystalPaletteNative(paletteRom, paletteTrace));
-    return 0;
-}
-if (args is ["--crystal-window-native", var windowRom, var windowTrace])
-{
-    Suite(nameof(VerifyCrystalWindowNative), () => VerifyCrystalWindowNative(windowRom, windowTrace));
-    return 0;
-}
-if (args is ["--crystal-flash-contact-native", var contactRom, var contactTrace])
-{
-    Suite(nameof(VerifyCrystalFlashContactNative), () => VerifyCrystalFlashContactNative(contactRom, contactTrace));
-    return 0;
-}
 if (args is ["--crystal-flash-runtime"])
 {
     Suite(nameof(VerifyCrystalFlashRuntime), () => VerifyCrystalFlashRuntime());
-    return 0;
-}
-if (args is ["--crystal-flash-lifetime", var lifetimeRom, var lifetimeTrace])
-{
-    Suite(nameof(VerifyCrystalFlashLifetime), () => VerifyCrystalFlashLifetime(lifetimeRom, lifetimeTrace));
-    return 0;
-}
-if (args is ["--crystal-flash-native", var crystalRom, var crystalTrace])
-{
-    Suite(nameof(VerifyCrystalFlashCleanup), () => VerifyCrystalFlashCleanup(crystalRom, crystalTrace));
     return 0;
 }
 if (args is ["--crystal-flash"])
@@ -6410,19 +6261,10 @@ if (args is ["--pcm-loop-entry"])
     Suite(nameof(VerifyManagedDspUsesIndependentLoopEntry), () => VerifyManagedDspUsesIndependentLoopEntry());
     return 0;
 }
-if (args is ["--audio-bank-transition", var audioDirectory])
+if (args is ["--audio-bank-transition"])
 {
+    string audioDirectory = runtimeFixtureInstallation.Value.AudioDirectory;
     Suite(nameof(VerifyAudioBankTransition), () => VerifyAudioBankTransition(audioDirectory));
-    return 0;
-}
-if (args is ["--wall-spread-trace", var wallTrace])
-{
-    Suite(nameof(VerifyAerialSpreadTransitions), () => VerifyAerialSpreadTransitions(outputPath: wallTrace, wallRoute: true));
-    return 0;
-}
-if (args is ["--wall-spread-transition", var wallNative])
-{
-    Suite(nameof(VerifyAerialSpreadTransitions), () => VerifyAerialSpreadTransitions(tracePath: wallNative, wallRoute: true));
     return 0;
 }
 if (args is ["--wall-spread-transition"])
@@ -6430,19 +6272,14 @@ if (args is ["--wall-spread-transition"])
     Suite(nameof(VerifyAerialSpreadTransitions), () => VerifyAerialSpreadTransitions(wallRoute: true));
     return 0;
 }
-if (args is ["--aerial-spread-trace", var aerialTrace])
+if (args is ["--wall-spread-transition"])
 {
-    Suite(nameof(VerifyAerialSpreadTransitions), () => VerifyAerialSpreadTransitions(outputPath: aerialTrace));
+    Suite(nameof(VerifyAerialSpreadTransitions), () => VerifyAerialSpreadTransitions(wallRoute: true));
     return 0;
 }
 if (args is ["--aerial-spread-transition"])
 {
     Suite(nameof(VerifyAerialSpreadTransitions), () => VerifyAerialSpreadTransitions());
-    return 0;
-}
-if (args is ["--aerial-spread-transition", var nativeAerialTrace])
-{
-    Suite(nameof(VerifyAerialSpreadTransitions), () => VerifyAerialSpreadTransitions(nativeAerialTrace));
     return 0;
 }
 if (args is ["--grounded-spread-transition"])
@@ -6455,18 +6292,14 @@ if (args is ["--grounded-spread-transition", var transitionTrace])
     Suite(nameof(VerifyGroundedSpreadTransition), () => VerifyGroundedSpreadTransition(transitionTrace));
     return 0;
 }
-if (args is ["--grounded-bomb-spread-native", var spreadTrace])
-{
-    Suite(nameof(VerifyGroundedBombSpreadNative), () => VerifyGroundedBombSpreadNative(spreadTrace));
-    return 0;
-}
 if (args is ["--grounded-bomb-spread"])
 {
     Suite(nameof(VerifyGroundedBombSpread), () => VerifyGroundedBombSpread());
     return 0;
 }
-if (args is ["--map-installation", var installationRom])
+if (args is ["--map-installation"])
 {
+    string installationRom = RepositoryRomPath;
     Suite(nameof(VerifyMapInstallation), () => VerifyMapInstallation(installationRom));
     return 0;
 }
@@ -6475,8 +6308,9 @@ if (args is ["--map-presentation"])
     Suite(nameof(VerifyMapPresentation), () => VerifyMapPresentation());
     return 0;
 }
-if (args is ["--escape-timer-pointer-definitions", var timerRom])
+if (args is ["--escape-timer-pointer-definitions"])
 {
+    string timerRom = RepositoryRomPath;
     Suite(nameof(VerifyEscapeTimerPointerDefinitions), () => VerifyEscapeTimerPointerDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath(timerRom))));
     return 0;
@@ -6501,9 +6335,10 @@ if (args is ["--library-background-loader"])
     Suite(nameof(VerifyLibraryBackgroundLoader), () => VerifyLibraryBackgroundLoader());
     return 0;
 }
-if (args is ["--library-background-artwork-boundary", var libraryArtworkRom])
+if (args is ["--library-background-artwork-boundary"])
 {
-    using var directory = new MapCatalogTestDirectory();
+    string libraryArtworkRom = RepositoryRomPath;
+    using var directory = new TestTempDirectory("map-catalog");
     var installation = GameAssetInstaller.Install(libraryArtworkRom, directory.Root);
     Suite(nameof(VerifyLibraryBackgroundLoader), () => VerifyLibraryBackgroundLoader());
     Suite(nameof(VerifyLibraryBackgroundInstalledParity), () => VerifyLibraryBackgroundInstalledParity(libraryArtworkRom, installation));
@@ -6536,24 +6371,9 @@ if (args is ["--enemy-visual-selector-inventory"])
     InspectEnemyVisualSelectors();
     return 0;
 }
-if (args is ["--generate-enemy-visual-selectors"])
-{
-    InspectEnemyVisualSelectors(generateCatalog: true);
-    return 0;
-}
 if (args is ["--verify-enemy-visual-selectors"])
 {
     Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
-    return 0;
-}
-if (args is ["--generate-space-pirate-collision"])
-{
-    GenerateSpacePirateCollisionDefinitions();
-    return 0;
-}
-if (args is ["--generate-room-level-stream-corpus"])
-{
-    GenerateRoomLevelStreamCorpus();
     return 0;
 }
 if (args is ["--verify-space-pirate-collision"])
@@ -6631,95 +6451,72 @@ if (args is ["--intro-artwork-components-fixture"])
     Suite(nameof(VerifyIntroCinematicArtwork), () => VerifyIntroCinematicArtwork(Path.GetFullPath("Super Metroid.smc"), presentationOnly: true));
     return 0;
 }
-if (args is ["--intro-cinematic-artwork", var introBackgroundRom])
+if (args is ["--intro-cinematic-artwork"])
 {
+    string introBackgroundRom = RepositoryRomPath;
     Suite(nameof(VerifyIntroCinematicArtwork), () => VerifyIntroCinematicArtwork(introBackgroundRom));
     return 0;
 }
-if (args is ["--samus-body-artwork", var samusBodyRom])
+if (args is ["--samus-body-artwork"])
 {
+    string samusBodyRom = RepositoryRomPath;
     Suite(nameof(VerifyIntroCinematicArtwork), () => VerifyIntroCinematicArtwork(samusBodyRom, samusBodyOnly: true));
     return 0;
 }
-if (args is ["--generic-sprite-artwork", var genericSpriteRom])
+if (args is ["--generic-sprite-artwork"])
 {
+    string genericSpriteRom = RepositoryRomPath;
     Suite(nameof(VerifyGenericSpriteArtwork), () => VerifyGenericSpriteArtwork(genericSpriteRom));
     return 0;
 }
-if (args is ["--enemy-sprite-artwork-boundary", var enemySpriteRom])
+if (args is ["--enemy-sprite-artwork-boundary"])
 {
+    string enemySpriteRom = RepositoryRomPath;
     Suite(nameof(VerifyEnemySpriteArtworkBoundary), () => VerifyEnemySpriteArtworkBoundary(enemySpriteRom));
     return 0;
 }
-if (args is ["--golden-torizo-rom-free", var goldenTorizoRom])
+if (args is ["--golden-torizo-rom-free"])
 {
+    string goldenTorizoRom = RepositoryRomPath;
     Suite(nameof(VerifyFrontendRomFreeGoldenTorizo), () => VerifyFrontendRomFreeGoldenTorizo(goldenTorizoRom, frameCount: 500));
     return 0;
 }
-if (args is ["--golden-torizo-rom-free", var goldenTorizoExtendedRom,
-        var goldenTorizoFrameText])
+if (args is ["--rom-free-startup"])
 {
-    if (!int.TryParse(goldenTorizoFrameText, out int goldenTorizoFrames) ||
-        goldenTorizoFrames is < 1 or > 5000)
-        throw new ArgumentOutOfRangeException(nameof(goldenTorizoFrameText),
-            "Golden Torizo room comparison requires 1 through 5000 frames.");
-    Suite(nameof(VerifyFrontendRomFreeGoldenTorizo), () => VerifyFrontendRomFreeGoldenTorizo(goldenTorizoExtendedRom,
-        goldenTorizoFrames));
+    Suite(nameof(VerifyFrontendRomFreeStartup), () => VerifyFrontendRomFreeStartup(runtimeFixtureInstallation.Value, RepositoryRomPath));
     return 0;
 }
-if (args is ["--golden-torizo-rom-free", var goldenTorizoInputRom,
-        var goldenTorizoInputFrameText, var goldenTorizoHeldInputText])
+if (args is ["--rom-free-room-census"])
 {
-    if (!int.TryParse(goldenTorizoInputFrameText, out int goldenTorizoInputFrames) ||
-        goldenTorizoInputFrames is < 1 or > 5000)
-        throw new ArgumentOutOfRangeException(nameof(goldenTorizoInputFrameText),
-            "Golden Torizo room comparison requires 1 through 5000 frames.");
-    if (!ushort.TryParse(goldenTorizoHeldInputText.TrimStart('$'),
-            System.Globalization.NumberStyles.HexNumber,
-            System.Globalization.CultureInfo.InvariantCulture,
-            out ushort goldenTorizoHeldInput))
-        throw new ArgumentOutOfRangeException(nameof(goldenTorizoHeldInputText),
-            "Held SNES input must be a hexadecimal 16-bit word.");
-    Suite(nameof(VerifyFrontendRomFreeGoldenTorizo), () => VerifyFrontendRomFreeGoldenTorizo(goldenTorizoInputRom,
-        goldenTorizoInputFrames, goldenTorizoHeldInput));
+    Suite(nameof(VerifyFrontendRomFreeStartup), () => VerifyFrontendRomFreeStartup(runtimeFixtureInstallation.Value, RepositoryRomPath, roomCensus: true));
     return 0;
 }
-if (args is ["--rom-free-room-census", var censusRom, var censusSnapshotDirectory])
+if (args is ["--rom-free-direct-room"])
 {
-    Suite(nameof(VerifyFrontendRomFreeRoomCensusFromSnapshots), () => VerifyFrontendRomFreeRoomCensusFromSnapshots(censusRom, censusSnapshotDirectory));
+    Suite(nameof(VerifyFrontendRomFreeDirectRoom), () => VerifyFrontendRomFreeDirectRoom());
     return 0;
 }
-if (args is ["--rom-free-direct-room", var directRoomRom,
-        var directRoomPointerText, var directRoomFrameText])
+if (args is ["--gameplay-base-palettes"])
 {
-    Suite(nameof(VerifyFrontendRomFreeDirectRoom), () => VerifyFrontendRomFreeDirectRoom(directRoomRom, directRoomPointerText,
-        directRoomFrameText));
-    return 0;
-}
-if (args is ["--rom-free-direct-room", var inputRoomRom,
-        var inputRoomPointerText, var inputRoomFrameText, var heldInputText])
-{
-    Suite(nameof(VerifyFrontendRomFreeDirectRoom), () => VerifyFrontendRomFreeDirectRoom(inputRoomRom, inputRoomPointerText,
-        inputRoomFrameText, heldInputText));
-    return 0;
-}
-if (args is ["--gameplay-base-palettes", var gameplayPaletteRom])
-{
+    string gameplayPaletteRom = RepositoryRomPath;
     Suite(nameof(VerifyGameplayBasePalettes), () => VerifyGameplayBasePalettes(gameplayPaletteRom));
     return 0;
 }
-if (args is ["--standard-object-artwork", var standardObjectRom])
+if (args is ["--standard-object-artwork"])
 {
+    string standardObjectRom = RepositoryRomPath;
     Suite(nameof(VerifyStandardObjectArtwork), () => VerifyStandardObjectArtwork(standardObjectRom));
     return 0;
 }
-if (args is ["--room-character-installation", var roomCharacterRom])
+if (args is ["--room-character-installation"])
 {
+    string roomCharacterRom = RepositoryRomPath;
     Suite(nameof(VerifyRoomArtworkInstallation), () => VerifyRoomArtworkInstallation(roomCharacterRom));
     return 0;
 }
-if (args is ["--room-artwork-installation", var roomArtworkRom])
+if (args is ["--room-artwork-installation"])
 {
+    string roomArtworkRom = RepositoryRomPath;
     Suite(nameof(VerifyRoomArtworkInstallation), () => VerifyRoomArtworkInstallation(roomArtworkRom));
     return 0;
 }
@@ -6779,18 +6576,21 @@ if (args is ["--room-definition-integration"])
     Suite(nameof(VerifyCompiledRoomDefinitionIntegration), () => VerifyCompiledRoomDefinitionIntegration());
     return 0;
 }
-if (args is ["--gameplay-message-titles", var messageTitleRom])
+if (args is ["--gameplay-message-titles"])
 {
+    string messageTitleRom = RepositoryRomPath;
     Suite(nameof(VerifyGameplayMessageTitles), () => VerifyGameplayMessageTitles(messageTitleRom));
     return 0;
 }
-if (args is ["--gameplay-message-panels", var messagePanelRom])
+if (args is ["--gameplay-message-panels"])
 {
+    string messagePanelRom = RepositoryRomPath;
     Suite(nameof(VerifyGameplayMessagePanels), () => VerifyGameplayMessagePanels(messagePanelRom));
     return 0;
 }
-if (args is ["--gameplay-message-notices", var messageNoticeRom])
+if (args is ["--gameplay-message-notices"])
 {
+    string messageNoticeRom = RepositoryRomPath;
     Suite(nameof(VerifyGameplayMessageNotices), () => VerifyGameplayMessageNotices(messageNoticeRom));
     return 0;
 }
@@ -6799,23 +6599,27 @@ if (args is ["--gameplay-message-definitions"])
     Suite(nameof(VerifyGameplayMessageDefinitions), () => VerifyGameplayMessageDefinitions());
     return 0;
 }
-if (args is ["--escape-typewriter-presentation", var escapeTextRom])
+if (args is ["--escape-typewriter-presentation"])
 {
+    string escapeTextRom = RepositoryRomPath;
     Suite(nameof(VerifyEscapeTypewriterPresentation), () => VerifyEscapeTypewriterPresentation(escapeTextRom));
     return 0;
 }
-if (args is ["--intro-narration-presentation", var narrationRom])
+if (args is ["--intro-narration-presentation"])
 {
+    string narrationRom = RepositoryRomPath;
     Suite(nameof(VerifyIntroNarrationPresentation), () => VerifyIntroNarrationPresentation(narrationRom));
     return 0;
 }
-if (args is ["--ending-text-presentation", var endingTextRom])
+if (args is ["--ending-text-presentation"])
 {
+    string endingTextRom = RepositoryRomPath;
     Suite(nameof(VerifyEndingTextPresentation), () => VerifyEndingTextPresentation(endingTextRom));
     return 0;
 }
-if (args is ["--credits-presentation", var creditsRom])
+if (args is ["--credits-presentation"])
 {
+    string creditsRom = RepositoryRomPath;
     Suite(nameof(VerifyCreditsPresentation), () => VerifyCreditsPresentation(creditsRom));
     return 0;
 }
@@ -6834,24 +6638,14 @@ if (args is ["--health-warning"])
     Suite(nameof(VerifyHealthWarning), () => VerifyHealthWarning());
     return 0;
 }
-if (args is ["--health-warning-native", var healthWarningTrace])
+if (args is ["--reserve-mode"])
 {
-    Suite(nameof(VerifyHealthWarningNative), () => VerifyHealthWarningNative(healthWarningTrace));
+    Suite(nameof(VerifyReserveMode), () => VerifyReserveMode("csharp/test-fixtures/movement-release/reserve-mode-433.csv"));
     return 0;
 }
-if (args is ["--reserve-native-trace", var reserveTrace])
+if (args is ["--cinematic-flash"])
 {
-    Suite(nameof(VerifyReserveNativeTrace), () => VerifyReserveNativeTrace(reserveTrace));
-    return 0;
-}
-if (args is ["--reserve-mode", var reserveModeTrace])
-{
-    Suite(nameof(VerifyReserveMode), () => VerifyReserveMode(reserveModeTrace));
-    return 0;
-}
-if (args is ["--cinematic-flash", var cinematicFlashTrace])
-{
-    Suite(nameof(VerifyCinematicCrystalFlash), () => VerifyCinematicCrystalFlash(cinematicFlashTrace));
+    Suite(nameof(VerifyCinematicCrystalFlash), () => VerifyCinematicCrystalFlash("csharp/test-fixtures/movement-release/cinematic-flash-432.csv"));
     return 0;
 }
 if (args is ["--pause-reserve-manual"])
@@ -6863,11 +6657,6 @@ if (args is ["--pause-reserve-arrow"])
 {
     Suite(nameof(VerifyPauseReserveArrow), () => VerifyPauseReserveArrow());
     Suite(nameof(VerifyPauseReserveArrowRebindKeepsLatch), () => VerifyPauseReserveArrowRebindKeepsLatch());
-    return 0;
-}
-if (args is ["--pause-reserve-native"])
-{
-    Suite(nameof(VerifyPauseReserveNativePixels), () => VerifyPauseReserveNativePixels());
     return 0;
 }
 if (args is ["--pause-reserve-tanks"])
@@ -6915,11 +6704,6 @@ if (args is ["--x-plasma-timers"])
     Suite(nameof(VerifyRipperEnemy), () => VerifyRipperEnemy(verifyXrayTimers: true));
     return 0;
 }
-if (args is ["--native-x-plasma-timers", var timerTrace])
-{
-    Suite(nameof(VerifyRipperEnemy), () => VerifyRipperEnemy(verifyXrayTimers: true, nativeXrayTimerTrace: timerTrace));
-    return 0;
-}
 if (args is ["--window-pixels"])
 {
     Suite(nameof(VerifyWindowPixels), () => VerifyWindowPixels());
@@ -6940,8 +6724,9 @@ if (args is ["--dma-source-routing"])
     Suite(nameof(VerifyQueuedVramAssets), () => VerifyQueuedVramAssets());
     return 0;
 }
-if (args is ["--dma-artwork-boundary", var dmaArtworkRom])
+if (args is ["--dma-artwork-boundary"])
 {
+    string dmaArtworkRom = RepositoryRomPath;
     Suite(nameof(VerifyDmaArtworkBoundary), () => VerifyDmaArtworkBoundary(dmaArtworkRom));
     return 0;
 }
@@ -6950,8 +6735,9 @@ if (args is ["--file-select-map-entry"])
     Suite(nameof(VerifyFileSelectMapEntry), () => VerifyFileSelectMapEntry());
     return 0;
 }
-if (args is ["--intro-artwork-post-slices", var postSliceRom])
+if (args is ["--intro-artwork-post-slices"])
 {
+    string postSliceRom = RepositoryRomPath;
     Suite(nameof(VerifyIntroArtworkPostSlices), () => VerifyIntroArtworkPostSlices(postSliceRom));
     return 0;
 }
@@ -7095,19 +6881,19 @@ if (args is ["--ending-planet-boundary"])
     Suite(nameof(VerifyEndingPlanetBoundary), () => VerifyEndingPlanetBoundary());
     return 0;
 }
-if (args is ["--ending-native-ppu"] or ["--ending-native-offset-check"])
+if (args is ["--ending-native-ppu"])
 {
-    Suite(nameof(VerifyEndingNativePpu), () => VerifyEndingNativePpu(args[0] == "--ending-native-offset-check"));
+    VerifyEndingNativePpu([512], burst: false);
     return 0;
 }
 if (args is ["--ending-native-finale"])
 {
-    for (int frame = 512; frame <= 800; frame += 16) VerifyEndingNativePpu(frame: frame);
+    VerifyEndingNativePpu(Enumerable.Range(0, 19).Select(step => 512 + step * 16), burst: false);
     return 0;
 }
 if (args is ["--ending-native-burst"])
 {
-    for (int frame = 400; frame <= 464; frame += 16) VerifyEndingNativePpu(frame: frame);
+    VerifyEndingNativePpu(Enumerable.Range(0, 5).Select(step => 400 + step * 16), burst: true);
     return 0;
 }
 if (args is ["--ending-reward-definitions"])
@@ -7282,11 +7068,6 @@ if (args is ["--audio-music-programs"])
     Suite(nameof(VerifyEditableMusicPrograms), () => VerifyEditableMusicPrograms());
     return 0;
 }
-if (args is ["--shutter-native-arc"])
-{
-    AuditMorphShutterApproaches(reproduceOnly: true, exportNativeArc: true);
-    return 0;
-}
 if (args is ["--bomb-wall"])
 {
     Suite(nameof(VerifyBombJumpWallContact), () => VerifyBombJumpWallContact());
@@ -7294,12 +7075,7 @@ if (args is ["--bomb-wall"])
 }
 if (args is ["--shutter-morph-repro"])
 {
-    AuditMorphShutterApproaches(reproduceOnly: true);
-    return 0;
-}
-if (args is ["--shutter-morph-approaches"])
-{
-    AuditMorphShutterApproaches();
+    Suite(nameof(VerifyShutterMorphBombArc), () => VerifyShutterMorphBombArc());
     return 0;
 }
 if (args is ["--shutter-repeat"])

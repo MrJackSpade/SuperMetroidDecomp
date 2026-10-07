@@ -31,6 +31,7 @@ enum BombArcInteractionFixture {
   NativeProjectileInteraction = 0xa09785, NativeEnemyBombInteraction = 0xa0a236, NativeEnemySamusInteraction = 0xa0a07a,
   NativeBombJumpSetup = 0x90df99,
   NativeBombJumpStart = 0x90e025, SamusMovementHandler = 0xa58,
+  NativeNormalInputHandler = 0x90e913, SamusInputHandler = 0xa60,
   ShutterFunction = 0xfa8, BombCount = 0xcd2,
   ProjectileX = 0xb64, ProjectileY = 0xb78, ProjectileRadiusX = 0xbb4,
   ProjectileRadiusY = 0xbc8, ProjectileDirection = 0xc04, ProjectileType = 0xc18,

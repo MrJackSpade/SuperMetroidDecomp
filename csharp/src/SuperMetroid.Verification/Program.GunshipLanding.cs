@@ -90,7 +90,7 @@ internal static partial class Program
         };
         var enemies = new RoomEnemySystem();
         samus.TileTransfers.BindArtwork(
-            new GameInstallation(GameAssetInstaller.DesktopRoot).LoadSamusBodyArt());
+            runtimeFixtureInstallation.Value.LoadSamusBodyArt());
         enemies.Load(
             new GunshipMotionDefinitionReadGuard(bus),
             populationPointer,

@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
-internal static partial class Program
+internal static partial class AssetTools
 {
     /// <summary>
     /// Development-only extraction of the native decompressed level allocations.
@@ -12,8 +12,7 @@ internal static partial class Program
     /// </summary>
     private static void GenerateRoomLevelStreamCorpus()
     {
-        string romPath = Path.GetFullPath("Super Metroid.smc");
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        var bus = LoadRepositoryRom();
         string path = Path.GetFullPath(
             "csharp/src/SuperMetroid.Core/Rooms/RoomLevelStreams.bin");
         using var file = new FileStream(path, FileMode.Create, FileAccess.Write);

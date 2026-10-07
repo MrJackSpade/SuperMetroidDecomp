@@ -642,12 +642,10 @@ internal static partial class Program
         void StepAndVerifySound(int frame)
         {
             // Verify the authored timer on every frame rather than freezing a
-            // total from the old global RNG sequence. The FX presentation owner
-            // currently samples after the main-loop RNG advance; this checks its
-            // cadence, not a claim that all HDMA/presentation ordering is audited.
-            ushort seed = runtime.System.RandomNumber;
-            if (frame != 0) seed = unchecked((ushort)((seed << 8) | (seed >> 8)));
-            ushort sampledRandom = ReferenceNextRandom(seed);
+            // total from the old global RNG sequence. The bank-$88 HDMA prologue
+            // samples the shared RNG before swapping it and before the main loop
+            // advances it.
+            ushort sampledRandom = runtime.System.RandomNumber;
             int expectedRequests = 0;
             if (frame >= 1 && frame <= RetailRoomFxDefinitions.Room28TargetFrame && --referenceSoundTimer < 0)
             {
@@ -660,6 +658,12 @@ internal static partial class Program
             AssertEqual(expectedRequests, runtime.RoomLayer3Fx.SoundRequests.Count,
                 $"room $02/$28 earthquake sound cadence frame {frame}");
         }
+
+        // $88:C3E9 installs the BG3 callback on the room's first HDMA pass; the
+        // verification load skips the door fade that would otherwise run it.
+        runtime.StepFrame(0);
+        AssertTrue(!runtime.Enemies.LastRoomShake.Applied, "room $02/$28 callback install pass does not shake");
+        AssertEqual(0, runtime.RoomLayer3Fx.SoundRequests.Count, "room $02/$28 callback install pass is silent");
 
         StepAndVerifySound(0);
         RoomShakeFrameResult dormantShake = runtime.Enemies.LastRoomShake;

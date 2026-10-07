@@ -26,7 +26,7 @@ Reproduce from the repository root:
 3. Run the resulting `csharp/test-temp/ending-native-ppu/probe.exe` with
    `fill-199.smframe`, `fill-199.native.bgra`, and `pause` as its arguments
    (use full paths to the fixture files).
-4. Run Verification `--pause-reserve-native`.
+4. Run Verification `--pause-reserve-native` (Removed in #1272: its private native capture is not in the repository; the managed contract remains in the no-argument verifier.).
 
 Before correction: the 542-pixel regional assertion fails.
 After correction: zero regional differences and zero differences over the

@@ -41,7 +41,7 @@ Apply `movement-release/native-reserve-refill-entrypoint.patch` in `upstream-sm`
 build Release x64, run `sm.exe --diagnostic-reserve-refill ROM NEW_OUTPUT.csv`,
 then reverse only that temporary patch. Verification accepts:
 
-`--health-warning-native NEW_OUTPUT.csv.warning.csv`
+`--health-warning-native NEW_OUTPUT.csv.warning.csv` (Removed in #1272: its private native capture is not in the repository; the managed contract remains in the no-argument verifier.) (Removed in #1272: its private native capture is not in the repository; the managed contract remains in the no-argument verifier.)
 
 Its companion `.warning-handlers.csv` is required. The probe exits before SDL
 initialization, bounds CPU execution, and reports errors on the console.

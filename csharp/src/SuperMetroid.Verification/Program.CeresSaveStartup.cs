@@ -9,65 +9,6 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     /// <summary>
-    /// Confirms the explicitly approved one-off repair, without mutating either
-    /// input file or adding compatibility guesses to production save loading.
-    /// </summary>
-    private static void VerifyCeresSaveRepair(string installationRoot, string originalPath, string repairedPath,
-        EnemyTileArtworkCatalog? enemyArtwork = null)
-    {
-        JsonNode original = JsonNode.Parse(File.ReadAllText(originalPath))!;
-        JsonNode expected = original.DeepClone();
-        expected["slots"]![0]!["loadingGameState"] = SaveLoadingGameStates.CeresDestruction;
-        JsonNode repaired = JsonNode.Parse(File.ReadAllText(repairedPath))!;
-        AssertTrue(JsonNode.DeepEquals(expected, repaired),
-            "#1153 repaired copy changes only slot zero's saved startup mode");
-        var installation = new GameInstallation(Path.GetFullPath(installationRoot));
-        var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        GameSaveJsonCodec.Apply(GameSaveJsonCodec.Deserialize(File.ReadAllText(repairedPath)), bus, RetailPresentationFixture());
-        var maps = installation.LoadMaps();
-        var game = new SuperMetroidGame(bus);
-        PrepareRomFreeBindings(installation, enemyArtwork)(game, true);
-        game.BindRoomPlmBlueDoorVisuals(installation.LoadRoomPlmBlueDoorVisuals());
-        game.BindRoomPlmElevatorPlatformVisuals(installation.LoadRoomPlmElevatorPlatformVisuals());
-        var options = new GameOptionsMenuState(bus, mapPresentation: maps);
-        typeof(GameOptionsMenuState).GetProperty(nameof(options.Phase))!
-            .SetValue(options, GameOptionsPhase.FadeOutToIntro);
-        SetField(game, "options", options);
-        SetField(game, "loadingExistingSave", true);
-        SetState(game, SuperMetroidGameState.GameOptionsMenu);
-        game.Step(0);
-        AssertEqual(SuperMetroidGameState.CeresGoesBoom, game.GameState,
-            "#1153 actual repaired copy resumes destruction rather than the escape shaft");
-        AssertTrue(game.RuntimeForVerification!.ActiveRoom is null,
-            "#1153 actual repaired copy does not construct a Ceres room");
-        AssertEqual((ushort)44, game.RuntimeForVerification.Samus!.Health,
-            "#1153 repaired cinematic retains the saved energy");
-
-        // Isolate the existing cinematic-completion boundary, not the full movie.
-        var scene = (CeresDestructionCinematicState)typeof(SuperMetroidGame)
-            .GetField("ceresDestruction", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(game)!;
-        typeof(CeresDestructionCinematicState).GetProperty(nameof(scene.Phase))!
-            .SetValue(scene, CeresDestructionPhase.Finished);
-        game.Step(0);
-        AssertEqual(SuperMetroidGameState.LoadingGameData, game.GameState,
-            "#1153 repaired cinematic retains the normal gameplay loader handoff");
-        game.Step(0);
-        AssertEqual(AreaId.Crateria, game.RuntimeForVerification!.ActiveRoom!.AreaIndex,
-            "#1153 repaired checkpoint hands off to Zebes, not Ceres");
-        AssertEqual(game.RuntimeForVerification.Samus!.MaxHealth, game.RuntimeForVerification.Samus.Health,
-            "#1153 Zebes landing loader retains its native energy refill");
-        // The first correction stopped at room construction, before the gameplay
-        // owner updated the HUD. Confirm that exact handoff, not the full movie.
-        for (int wait = 0; wait < 15; wait++) game.Step(0);
-        AssertEqual(SuperMetroidGameState.MainGameplayFadeIn, game.GameState,
-            "#1153 repaired-file handoff reaches the first Landing Site fade");
-        game.Step(0);
-        AssertTrue(game.RuntimeForVerification.Hud.IsInitialized,
-            "#1153 resumed cinematic retains an initialized gameplay HUD");
-        Console.WriteLine("#1153 approved repaired copy: only mode differs; normal-file dispatch resumes destruction, loads Zebes and draws its first gameplay fade with an initialized HUD (input files read only).");
-    }
-
-    /// <summary>
     /// #1153: confirm the native Ceres checkpoint mode, not a playthrough. Enter
     /// the actual options dispatcher at its completed fade with checksummed SRAM.
     /// The cinematic checkpoint must never construct an escaping Ceres room.

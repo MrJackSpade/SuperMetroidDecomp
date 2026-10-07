@@ -44,7 +44,7 @@ internal static partial class Program
         byte[] editedJson = JsonSerializer.SerializeToUtf8Bytes(document, options);
         var edited = ProjectileSpriteCatalog.Load(new MemoryStream(editedJson));
         Suite(nameof(VerifyProjectileFiles), () => VerifyProjectileFiles(rom, editedJson));
-        using var temporaryDirectory = new MapCatalogTestDirectory();
+        using var temporaryDirectory = new TestTempDirectory("map-catalog");
         GameInstallation installation = GameAssetInstaller.Install(
             Path.GetFullPath(sourceRom), temporaryDirectory.Root);
         var roomAssets = new MapPresentationInstalledRoomAssets(installation);
@@ -243,7 +243,8 @@ internal static partial class Program
 
     private static void VerifyProjectileFiles(ISnesAddressSpace bus, byte[] editedJson)
     {
-        string root = Path.GetFullPath(Path.Combine("csharp/test-temp", "projectile-install-" + Guid.NewGuid().ToString("N")));
+        using var rootScratch = new TestTempDirectory("projectile-install");
+        string root = rootScratch.Root;
         var installation = new GameInstallation(root);
         ProjectilePresentationFiles.Extract(bus, installation.ProjectileDirectory);
         var stock = installation.LoadProjectiles();

@@ -23,12 +23,14 @@ internal static partial class Program
 
         transfer.Invoke(enemies, [new MotherBrainSpriteTileTransferRequest(0, 1,
             MotherBrainCorpseRottingState.GraphicsBufferAddress, 0x7000)]);
-        transfer.Invoke(enemies, [new MotherBrainSpriteTileTransferRequest(0, 1,
-            0xa0c000, 0x7001)]);
         AssertEqual((byte)0x5a, vram.ReadByte(0x7000 * 2),
             "Mother Brain corpse tile transfer reads mutable WRAM");
-        AssertEqual((byte)0x6b, vram.ReadByte(0x7001 * 2),
-            "Mother Brain cartridge fallback reads the cartridge source");
+        // #549 removed the cartridge fallback: an unbound cartridge source is refused.
+        var refused = AssertThrows<TargetInvocationException>(() => transfer.Invoke(enemies,
+            [new MotherBrainSpriteTileTransferRequest(0, 1, 0xa0c000, 0x7001)]),
+            "Mother Brain refuses a cartridge-source transfer with no installed artwork binding");
+        AssertTrue(refused.InnerException is InvalidDataException,
+            "Mother Brain cartridge-source refusal names the missing installed artwork");
     }
 
     private sealed class MotherBrainTypedTransferReadGuard(TestAddressSpace source) :

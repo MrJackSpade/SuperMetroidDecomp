@@ -32,6 +32,8 @@ internal static partial class Program
         AssertEqual(SamusProjectileFamily.BeamExplosion, shot.PackedType.Family,
             "Mother Brain plasma-blocking property converts the shot into its impact");
         AssertEqual((ushort)0xf00, state.WalkCounter, "Accepted beam preserves native recoil bookkeeping");
+        AssertEqual(EnemyShotTiming.PlasmaInvincibilityFrames, head.InvincibilityTimer,
+            "The no-death damage tail grants Plasma's hit immunity");
         var level = CreateRoom(16, 16, new ushort[256], new byte[256]);
         for (int frame = 0; frame < 3; frame++)
         {
@@ -40,10 +42,13 @@ internal static partial class Program
             AssertEqual((ushort)17550, head.Health, "Later overlap preserves health after the one impact");
             AssertEqual((ushort)0xf00, state.WalkCounter, "Later overlap does not repeat recoil");
         }
+        // Later checks are new shots after that immunity has run out.
+        head.InvincibilityTimer = 0;
         state.Form = 0;
         SeedChargedPlasma();
         Hit();
         AssertEqual((ushort)17550, head.Health, "First form retains its missile-only damage restriction");
+        head.InvincibilityTimer = 0;
         state.Form = 4;
         state.RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence();
         state.RainbowBeamSequence.Body.Form = 4;

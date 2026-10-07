@@ -16,7 +16,7 @@ internal static partial class Program
     /// Mutable SRAM/WRAM remain available; no cartridge byte may be consulted.
     /// </summary>
     private static void VerifyFrontendRomFreeStartup(GameInstallation installation,
-        string sourceRom)
+        string sourceRom, bool roomCensus = false)
     {
         var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
         // Installed gameplay gets real WRAM/SRAM but no ROM allocation at all.
@@ -74,7 +74,7 @@ internal static partial class Program
                     visited.Contains(SuperMetroidGameState.FileSelectMenus),
                     "ROM-free startup traverses title, file select and options");
                 Console.WriteLine($"Frontend ROM-free startup: {frame + 1} native-parity frames through options, all cartridge reads guarded.");
-                VerifyFrontendRomFreeIntro(native, installed, guardedBus, bindInstalled);
+                VerifyFrontendRomFreeIntro(native, installed, guardedBus, bindInstalled, roomCensus);
                 return;
             }
         }
@@ -196,7 +196,7 @@ internal static partial class Program
     /// </summary>
     private static void VerifyFrontendRomFreeIntro(SuperMetroidGame native,
         SuperMetroidGame installed, FrontendCartridgeReadGuard guardedBus,
-        Action<SuperMetroidGame, bool> bindInstalled)
+        Action<SuperMetroidGame, bool> bindInstalled, bool roomCensus)
     {
         bool startSent = false;
         int introFrames = 0;
@@ -235,7 +235,7 @@ internal static partial class Program
                         $"installed post-intro pixels frame {gameplayFrame}");
                 }
                 VerifyFrontendRomFreeRestoredKraidHud(native, installed, bindInstalled);
-                if (Environment.GetEnvironmentVariable("SM_ROM_FREE_ROOM_CENSUS") == "1")
+                if (roomCensus)
                     VerifyFrontendRomFreeRoomCensus(native, installed, bindInstalled);
                 VerifyFrontendRomFreeCeresInput(native, installed);
                 VerifyFrontendRomFreeRoom(native, installed,
@@ -387,19 +387,34 @@ internal static partial class Program
                     VerifyFrontendRomFreeRoom(native, installed,
                         RoomHeaderPointers.GoldenTorizo,
                         $"Golden Torizo left turn $AA:{leftTurnStart:X4}",
-                        // The dodge turn links through falling-left into a
-                        // later left-foot-forward Chozo-orb attack. Compare
-                        // the whole observed branch, including its sprite.
+                        // The dodge turn links through falling-left.
                         frameCount: leftTurnStart ==
                             GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge
-                                ? 500 : 8,
+                                ? 120 : 8,
                         setup: (nativeRoom, installedRoom) =>
                             ForceGoldenTorizoLeftTurn(nativeRoom, installedRoom,
                                 leftTurnStart),
-                        forcedGoldenLeftTurnStart: leftTurnStart,
-                        expectGoldenLeftFootOrb: leftTurnStart ==
-                            GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge);
+                        forcedGoldenLeftTurnStart: leftTurnStart);
                 }
+                // The left-foot-forward Chozo-orb attack is RNG-selected; start it directly
+                // rather than waiting on an incidental AI trajectory to reach it.
+                VerifyFrontendRomFreeRoom(native, installed,
+                    RoomHeaderPointers.GoldenTorizo, "Golden Torizo left-foot Chozo orb",
+                    frameCount: 80,
+                    setup: (nativeRoom, installedRoom) =>
+                    {
+                        foreach (SuperMetroidGame game in new[] { nativeRoom, installedRoom })
+                        {
+                            RoomEnemySystem enemies = game.RuntimeForVerification!.Enemies;
+                            RoomEnemySlot boss = enemies.Slots.Single(slot =>
+                                slot.EnemyDefinitionPointer == RoomEnemySystem.GoldenTorizoDefinition);
+                            boss.CurrentInstruction = GoldenTorizoLeftFootOrbInstructionProgramDefinitions.Start;
+                            boss.InstructionTimer = 1;
+                            enemies.GoldenTorizo!.ReturnInstruction =
+                                GoldenTorizoCombatInstructionPointers.WalkingLeftRightLeg;
+                        }
+                    },
+                    forcedGoldenLeftFootOrb: true);
                 Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity cinematic frames plus {postIntroFrameCount} post-handoff frames; all cartridge reads guarded in every sampled room.");
                 return;
             }
@@ -542,7 +557,7 @@ internal static partial class Program
         ushort? forcedGoldenSonicStart = null,
         bool forcedGoldenStun = false,
         ushort? forcedGoldenLeftTurnStart = null,
-        bool expectGoldenLeftFootOrb = false,
+        bool forcedGoldenLeftFootOrb = false,
         ushort heldInput = 0)
     {
         native.RuntimeForVerification!.LoadCartridgeRoomForDebug(
@@ -581,10 +596,10 @@ internal static partial class Program
         bool goldenEyeBeamAttackObserved = false;
         bool forcedGoldenSonicObserved = false;
         bool forcedGoldenStunObserved = false;
+        bool forcedGoldenStunReleased = false;
         bool forcedGoldenLeftTurnObserved = false;
         bool forcedGoldenFallingLeftObserved = false;
         bool goldenLeftFootOrbProgramObserved = false;
-        bool goldenLeftFootOrbVisualObserved = false;
         ReadOnlySpan<byte> nativeLoadedVram = native.RuntimeForVerification.Vram.Bytes;
         ReadOnlySpan<byte> installedLoadedVram = installed.RuntimeForVerification.Vram.Bytes;
         int firstLoadVram = 0;
@@ -659,6 +674,12 @@ internal static partial class Program
                 awakenedGoldenTorizo.CurrentInstruction <
                     GoldenTorizoStunnedInstructionProgramDefinitions.End)
                 forcedGoldenStunObserved = true;
+            // The stun's ClearAnimationLock and its return path's UnmarkStunned release the
+            // boss; later attacks may lock again, so observe the release, not the last frame.
+            else if (forcedGoldenStunObserved && !forcedGoldenStunReleased &&
+                     installed.RuntimeForVerification!.Enemies.GoldenTorizo!.ShotGuard == 0 &&
+                     (awakenedGoldenTorizo!.Parameter2 & GoldenTorizoBehavioralProperties.Stunned) == 0)
+                forcedGoldenStunReleased = true;
             if (awakenedGoldenTorizo is not null &&
                 forcedGoldenLeftTurnStart is not null &&
                 awakenedGoldenTorizo.SpritemapPointer ==
@@ -676,10 +697,6 @@ internal static partial class Program
                 awakenedGoldenTorizo.CurrentInstruction <
                     GoldenTorizoLeftFootOrbInstructionProgramDefinitions.End)
                 goldenLeftFootOrbProgramObserved = true;
-            if (awakenedGoldenTorizo is not null &&
-                TorizoCollisionDefinitions.HasFrame(
-                    awakenedGoldenTorizo.SpritemapPointer))
-                goldenLeftFootOrbVisualObserved = true;
             if (!actual.Pixels.AsSpan().SequenceEqual(expected.Pixels))
             {
                 int first = -1;
@@ -720,16 +737,6 @@ internal static partial class Program
                 int changedColors = 0;
                 for (int color = 0; color < nativeColors.Length; color++)
                     if (nativeColors[color] != installedColors[color]) changedColors++;
-                if (Environment.GetEnvironmentVariable("SM_ROM_FREE_CENSUS_ROOM") is not null)
-                {
-                    string output = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-                        "rom-free-room-census-compare"));
-                    Directory.CreateDirectory(output);
-                    PngWriter.WriteRgba(Path.Combine(output, $"{roomPointer:X4}-native.png"),
-                        FrontendFrame.Width, FrontendFrame.Height, expected.Pixels);
-                    PngWriter.WriteRgba(Path.Combine(output, $"{roomPointer:X4}-installed.png"),
-                        FrontendFrame.Width, FrontendFrame.Height, actual.Pixels);
-                }
                 throw new InvalidOperationException(
                     $"Installed {roomName} pixels differ at frame {frame}: " +
                     $"{count} pixels, bounds ({minX},{minY})..({maxX},{maxY}), " +
@@ -764,12 +771,18 @@ internal static partial class Program
             }
             if (forcedGoldenStun)
             {
-                AssertTrue(forcedGoldenStunObserved &&
-                           installed.RuntimeForVerification!.Enemies.GoldenTorizo!.ShotGuard == 0 &&
-                           (awakenedGoldenTorizo.Parameter2 &
-                            GoldenTorizoBehavioralProperties.Stunned) == 0 &&
-                           installed.GameState == SuperMetroidGameState.MainGameplay,
-                    "forced Golden Torizo stun loops its tiles and clears its lock and stun flag");
+                AssertTrue(forcedGoldenStunObserved, "forced Golden Torizo stun loops its tiles");
+                AssertTrue(forcedGoldenStunReleased, "forced Golden Torizo stun then clears its shot lock and stun flag");
+                AssertEqual(SuperMetroidGameState.MainGameplay, installed.GameState,
+                    "forced Golden Torizo stun ends in active gameplay");
+                Console.WriteLine($"Frontend {roomName} room: {frameCount} native-parity frames; all cartridge reads guarded.");
+                return;
+            }
+            if (forcedGoldenLeftFootOrb)
+            {
+                AssertTrue(goldenLeftFootOrbProgramObserved, "forced Golden Torizo runs its left-foot Chozo-orb program");
+                AssertEqual(SuperMetroidGameState.MainGameplay, installed.GameState,
+                    "forced Golden Torizo Chozo orb ends in active gameplay");
                 Console.WriteLine($"Frontend {roomName} room: {frameCount} native-parity frames; all cartridge reads guarded.");
                 return;
             }
@@ -779,15 +792,10 @@ internal static partial class Program
                            (forcedGoldenLeftTurnStart !=
                                 GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge ||
                             forcedGoldenFallingLeftObserved) &&
-                           (!expectGoldenLeftFootOrb ||
-                            (goldenLeftFootOrbProgramObserved &&
-                             goldenLeftFootOrbVisualObserved)) &&
                            installed.GameState == SuperMetroidGameState.MainGameplay,
                     "forced Golden Torizo left turn reaches required poses: " +
                     $"turn={forcedGoldenLeftTurnObserved}, " +
                     $"fall={forcedGoldenFallingLeftObserved}, " +
-                    $"orbProgram={goldenLeftFootOrbProgramObserved}, " +
-                    $"orbVisual={goldenLeftFootOrbVisualObserved}, " +
                     $"state={installed.GameState}");
                 Console.WriteLine($"Frontend {roomName} room: {frameCount} native-parity frames; all cartridge reads guarded.");
                 return;

@@ -81,7 +81,8 @@ SolutionDir ending in `upstream-sm\`. Then run from repository root:
 
 ```
 upstream-sm/build/bin-x64-Release/sm.exe --diagnostic-crystal-flash "Super Metroid.smc" NEW_NATIVE.csv
-dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --crystal-flash-native "Super Metroid.smc" NEW_NATIVE.csv
+# Removed in #1272: its private native capture is not in the repository; the managed contract remains in the no-argument verifier.
+# --crystal-flash-native "Super Metroid.smc" NEW_NATIVE.csv
 ```
 
 The native output is exclusive-create. Temporary main/sm_rtl integration was
@@ -117,7 +118,8 @@ Commands after applying the same headless entrypoint patch:
 
 ```
 upstream-sm/build/bin-x64-Release/sm.exe --diagnostic-crystal-flash-lifetime "Super Metroid.smc" NEW_NATIVE.csv
-dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --crystal-flash-lifetime "Super Metroid.smc" NEW_NATIVE.csv
+# Removed in #1272: its private native capture is not in the repository; the managed contract remains in the no-argument verifier.
+# --crystal-flash-lifetime "Super Metroid.smc" NEW_NATIVE.csv
 ```
 
 The native and managed probes call movement/animation owners directly; they do
@@ -222,7 +224,7 @@ facings and eight initial NMI phases produce 12,264 compared frames through
 completion. Unlike the timer-injection lifetime probe, no artificial hit timers
 are inserted during these sequences.
 
-Managed comparison command: `--crystal-flash-contact-native ROM CSV`. Its
+Managed comparison command: `--crystal-flash-contact-native ROM CSV` (Removed in #1272: its private native capture is not in the repository; the managed contract remains in the no-argument verifier.). Its
 constructed overlapping Ripper enters the real ordinary contact dispatcher;
 the production interactive list is built in a frozen enemy pass so AI does not
 advance before this intentionally admitted contact. It asserts immediate damage
@@ -315,7 +317,7 @@ original-CPU lifetime frames across both facings/eight NMI offsets still match.
 
 Repeat with the shared entrypoint patch and
 `sm.exe --diagnostic-crystal-window ROM NEW.csv`, then Verification
-`--crystal-window-native ROM NEW.csv`. Accepted private trace
+`--crystal-window-native ROM NEW.csv` (Removed in #1272: its private native capture is not in the repository; the managed contract remains in the no-argument verifier.). Accepted private trace
 `csharp/test-temp/crystal-window-408-b.csv` SHA256:
 `282BFF5EBE3C4EB99ECC2CCD0214A9FB544FB0E18A437FD01065909BED57A9C4`.
 Probe commands remain headless. Temporary hooks removed; normal native binary
@@ -335,7 +337,7 @@ by the original-CPU lifetime comparison, not by this isolated palette probe.
 
 Repeat using the shared native entrypoint patch:
 `sm.exe --diagnostic-crystal-palette ROM NEW.csv`, then Verification
-`--crystal-palette-native ROM NEW.csv`. Accepted private trace SHA256:
+`--crystal-palette-native ROM NEW.csv` (Removed in #1272: its private native capture is not in the repository; the managed contract remains in the no-argument verifier.). Accepted private trace SHA256:
 `7DD811C738134358AB18F3C4BD609F455E6099AC90A2FAA29C9B9FECE5F209C8`.
 No ROM, trace, rendered image or audio is published. No additional production
 change was required. Native inactive body-timer scratch is not compared; active

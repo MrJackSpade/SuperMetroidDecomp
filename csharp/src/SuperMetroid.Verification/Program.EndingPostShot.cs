@@ -19,7 +19,7 @@ internal static partial class Program
         using var fontPng = new MemoryStream(
             SuperMetroid.AssetExtraction.EndingFontAtlasExtractor.Extract(bus), writable: false);
         EndingFontAtlas fontAtlas = EndingFontAtlas.Load(fontPng);
-        var shot = new EndingPostShot(guardedBus, cgram, fontAtlas);
+        var shot = new EndingPostShot(guardedBus, cgram, fontAtlas, runtimeFixtureInstallation.Value.LoadEndingObjectArt());
         byte[] tiles = RomDataReader.Decompress(SuperMetroid.Core.Rom.CartridgeImportSource.Require(bus), 0x99e089, 0x8000);
         byte[] map = RomDataReader.Decompress(SuperMetroid.Core.Rom.CartridgeImportSource.Require(bus), 0x99ecc4, 0x8000);
         for (int frame = 1; frame <= 216; frame++)

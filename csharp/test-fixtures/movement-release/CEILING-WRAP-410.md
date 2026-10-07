@@ -164,7 +164,7 @@ traversal result. Two independent native runs match byte-for-byte.
 
 ```
 sm.exe --frog-runtime-probe "Super Metroid.smc" NEW_OUTPUT.csv
-dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --ceiling-wrap-runtime csharp/test-fixtures/movement-release/frog-runtime-410.csv
+dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --ceiling-wrap-runtime
 ```
 
 The comparison runs in the default suite. This evidence rules out changing
@@ -211,8 +211,7 @@ Independent original-CPU captures repeat identically:
 ```
 sm.exe --frog-runtime-case "Super Metroid.smc" NEW_OUTPUT.csv 11 33360
 sm.exe --frog-runtime-case "Super Metroid.smc" NEW_OUTPUT.csv 11 592
-dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --ceiling-wrap-success csharp/test-fixtures/movement-release/frog-success-run-410.csv true
-dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --ceiling-wrap-success csharp/test-fixtures/movement-release/frog-success-walk-410.csv false
+dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --ceiling-wrap-success
 ```
 
 The parameterized native entry preserves `DiagnosticFrogRuntime` as the original

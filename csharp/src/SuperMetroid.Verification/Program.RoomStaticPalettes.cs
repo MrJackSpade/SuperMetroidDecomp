@@ -42,8 +42,8 @@ internal static partial class Program
         {
             CartridgeRoomHeader header = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
             int source = RoomTilesetDefinitions.Get(header.State.GraphicsSet).PaletteAddress;
-            CartridgeRoomAssets native = CartridgeRoomAssets.Load(bus, header);
-            CartridgeRoomAssets installed = CartridgeRoomAssets.Load(
+            CartridgeRoomAssets native = LoadFixtureRoomAssets(bus, header);
+            CartridgeRoomAssets installed = LoadFixtureRoomAssets(
                 new RoomBasePaletteReadGuard(bus, source), header, paletteArt: catalog);
             var nativeCgram = new SnesCgram();
             var installedCgram = new SnesCgram();
@@ -72,7 +72,7 @@ internal static partial class Program
                 .SequenceEqual(editedCgram.Colors[1..RoomStaticPaletteFormat.ColorCount]),
             "editing one RGB5 component changes only its selected runtime CGRAM color");
         compiled[selectedSource] = replacement;
-        CartridgeRoomAssets editedRoom = CartridgeRoomAssets.Load(
+        CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(
             new RoomBasePaletteReadGuard(bus, selectedSource), landing,
             paletteArt: new RoomStaticPaletteCatalog(compiled));
         var editedRoomCgram = new SnesCgram();

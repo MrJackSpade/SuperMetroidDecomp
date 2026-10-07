@@ -14,13 +14,17 @@ internal static partial class Program
         var cgram = new SnesCgram();
         var nativeCgram = new SnesCgram();
         int landings = 0;
-        var logo = new EndingLogo(guarded, cgram, () => landings++);
-        var nativeLogo = new EndingLogo(bus, nativeCgram, () => { });
+        EndingPaletteCatalog palettes = runtimeFixtureInstallation.Value.LoadEndingPalettes();
+        EndingLogoSpritePresentation logoSprites = runtimeFixtureInstallation.Value.LoadEndingObjectArt().LogoSprites;
+        var logo = new EndingLogo(guarded, cgram, () => landings++, palettes);
+        var nativeLogo = new EndingLogo(bus, nativeCgram, () => { }, palettes);
         int frame = 0, fadeStart = 0;
         var poses = new HashSet<string>();
         while (!logo.Completed && frame < 300)
         {
-            nativeLogo.Step(nativeCgram);
+            // The cartridge reference reads the logo program from the ROM; the compiled
+            // logo below reads the checked-in definitions.
+            nativeLogo.Step(nativeCgram, EndingCartridgeInstructionWord(bus));
             logo.Step(cgram, EndingLogoInstructionDefinitions.ReadWord);
             frame++;
             AssertEqual(nativeLogo.Completed, logo.Completed,
@@ -30,8 +34,8 @@ internal static partial class Program
             AssertEqual(nativeLogo.PaletteStep, logo.PaletteStep,
                 $"compiled logo palette step at frame {frame}");
             AssertTrue(nativeCgram.Colors.SequenceEqual(cgram.Colors) &&
-                    nativeLogo.Draw().LowTable.SequenceEqual(logo.Draw().LowTable) &&
-                    nativeLogo.Draw().HighTable.SequenceEqual(logo.Draw().HighTable),
+                    nativeLogo.Draw(logoSprites).LowTable.SequenceEqual(logo.Draw(logoSprites).LowTable) &&
+                    nativeLogo.Draw(logoSprites).HighTable.SequenceEqual(logo.Draw(logoSprites).HighTable),
                 $"compiled logo palette and OAM at frame {frame}");
             if (logo.CrossfadeStarted && fadeStart == 0) fadeStart = frame;
             if (logo.PaletteStep > 0)
@@ -44,7 +48,7 @@ internal static partial class Program
                         AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8c0000 | (pointer - 30 + i * 2)),
                             cgram.Colors[(p == 0 ? 16 : 240) + i], "native logo crossfade palette table entry");
                 }
-            poses.Add(Convert.ToHexString(logo.Draw().LowTable));
+            poses.Add(Convert.ToHexString(logo.Draw(logoSprites).LowTable));
         }
         AssertTrue(logo.Completed, "logo actors reach the final palette handoff");
         AssertEqual(171, fadeStart, "native circle list waits 96+5+5+64 frames before grey-out instruction");

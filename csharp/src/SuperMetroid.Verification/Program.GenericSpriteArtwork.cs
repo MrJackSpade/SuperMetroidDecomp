@@ -15,7 +15,7 @@ internal static partial class Program
     /// </summary>
     private static void VerifyGenericSpriteArtwork(string sourceRom)
     {
-        using var temporary = new MapCatalogTestDirectory();
+        using var temporary = new TestTempDirectory("map-catalog");
         GameInstallation installation = GameAssetInstaller.Install(sourceRom, temporary.Root);
         var reference = CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();

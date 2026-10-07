@@ -13,7 +13,7 @@ internal static partial class Program
     private static void VerifyChozoGrabAnimation(bool powerBomb = false)
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
-        var installation=new GameInstallation(GameAssetInstaller.DesktopRoot);
+        var installation=runtimeFixtureInstallation.Value;
         var bus=installation.OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(bus);
         game.BindMapPresentation(installation.LoadMaps());

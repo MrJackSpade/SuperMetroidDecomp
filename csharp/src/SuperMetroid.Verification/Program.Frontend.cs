@@ -266,8 +266,8 @@ static void VerifyFileSelectFreshSaveTilemap()
     mapStations[0] = 0xff;
 
     var addressSpace = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
-    string overrideRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-        "file-select-label-fixture-" + Guid.NewGuid().ToString("N")));
+    using var overrideRootScratch = new TestTempDirectory("file-select-label-fixture");
+    string overrideRoot = overrideRootScratch.Root;
     Directory.CreateDirectory(overrideRoot);
     File.WriteAllBytes(Path.Combine(overrideRoot, FileSelectPresentationDefinitions.FileName),
         SuperMetroid.AssetExtraction.FileSelectPresentationExtractor.Extract(addressSpace));

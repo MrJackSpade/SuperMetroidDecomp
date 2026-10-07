@@ -163,7 +163,7 @@ internal static partial class Program
         var guard = new GrappleConnectionReadGuard(rom);
         var empty = CreateRoom(64, 64, new ushort[4096], new byte[4096]);
         var samus = new SamusState { Pose = SamusPoseIds.FacingRightNormalPose, XPosition = 512, YPosition = 512 };
-        using var artworkDirectory = new MapCatalogTestDirectory();
+        using var artworkDirectory = new TestTempDirectory("map-catalog");
         SuperMetroid.AssetExtraction.SamusBodyArtworkFiles.Extract(rom, artworkDirectory.Root,
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc")))));
         samus.TileTransfers.BindArtwork(SuperMetroid.AssetExtraction.SamusBodyArtworkFiles.Load(artworkDirectory.Root, null));

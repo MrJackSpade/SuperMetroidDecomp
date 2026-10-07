@@ -66,8 +66,8 @@ internal static partial class Program
             AssertAnimationValues(expected.Enemies.RoomSpriteObjects[slot], actual.Enemies.RoomSpriteObjects[slot], context);
         AssertTrue(expected.Effect.MeltingColumnHeights.SequenceEqual(actual.Effect.MeltingColumnHeights), context + " erase schedule");
         AssertTrue(expected.Effect.Bg2ScrollByScanline.SequenceEqual(actual.Effect.Bg2ScrollByScanline), context + " HDMA geometry");
-        AssertTrue(expected.Memory.WorkRam.SequenceEqual(actual.Memory.WorkRam), context + " WRAM");
-        AssertTrue(expected.Memory.SaveRam.SequenceEqual(actual.Memory.SaveRam), context + " SRAM");
+        AssertSameBytes(expected.Memory.WorkRam, actual.Memory.WorkRam, context + " WRAM");
+        AssertSameBytes(expected.Memory.SaveRam, actual.Memory.SaveRam, context + " SRAM");
         AssertTrue(expected.Enemies.SoundRequests.SequenceEqual(actual.Enemies.SoundRequests), context + " audio");
         AssertTrue(expected.Enemies.MusicRequests.SequenceEqual(actual.Enemies.MusicRequests), context + " music");
         AssertTrue(expected.Enemies.CrocomirePlmRequests.SequenceEqual(actual.Enemies.CrocomirePlmRequests), context + " room changes");

@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
@@ -47,7 +48,7 @@ internal static partial class Program
         return samus;
     }
     private static readonly Lazy<Action<SuperMetroidRuntime>> runtimeFixtureBindings =
-        new(CreateRuntimeFixtureBindings);
+        new(() => InstalledRuntimeBindings.Create(runtimeFixtureInstallation.Value));
 
     // Tests using retail gameplay must supply the host's installed presentation
     // contract explicitly. Each fixture retains its own bus and mutable runtime.
@@ -65,95 +66,24 @@ internal static partial class Program
         return runtime;
     }
 
-    private static Action<SuperMetroidRuntime> CreateRuntimeFixtureBindings()
-    {
-        var installation = runtimeFixtureInstallation.Value;
-        var assetMapPresentation = installation.LoadMaps();
-        var assetStandardObjectArt = installation.LoadStandardObjects();
-        var assetSamusBodyArt = installation.LoadSamusBodyArt();
-        var assetRoomCharacterArt = installation.LoadRoomCharacters();
-        var assetRoomPaletteArt = installation.LoadRoomPalettes();
-        var assetRoomMetatileArt = installation.LoadRoomMetatiles();
-        var assetRoomVisualLayouts = installation.LoadRoomVisualLayouts();
-        var assetRoomPlmShotBlockVisuals = installation.LoadRoomPlmShotBlockVisuals();
-        var assetRoomPlmGrappleBlockVisuals = installation.LoadRoomPlmGrappleBlockVisuals();
-        var assetRoomPlmStationVisuals = installation.LoadRoomPlmStationVisuals();
-        var assetRoomPlmBlueDoorVisuals = installation.LoadRoomPlmBlueDoorVisuals();
-        var assetRoomPlmColoredDoorVisuals = installation.LoadRoomPlmColoredDoorVisuals();
-        var assetRoomPlmGreyDoorVisuals = installation.LoadRoomPlmGreyDoorVisuals();
-        var assetRoomPlmEyeDoorVisuals = installation.LoadRoomPlmEyeDoorVisuals();
-        var assetRoomPlmMotherBrainGlassVisuals = installation.LoadRoomPlmMotherBrainGlassVisuals();
-        var assetRoomPlmNoobTubeVisuals = installation.LoadRoomPlmNoobTubeVisuals();
-        var assetRoomPlmDownwardGateVisuals = installation.LoadRoomPlmDownwardGateVisuals();
-        var assetRoomPlmElevatorPlatformVisuals = installation.LoadRoomPlmElevatorPlatformVisuals();
-        var assetRoomPlmEscapeGateVisuals = installation.LoadRoomPlmEscapeGateVisuals();
-        var assetRoomPlmBombTorizoHandVisuals = installation.LoadRoomPlmBombTorizoHandVisuals();
-        var assetRoomPlmDraygonCannonVisuals = installation.LoadRoomPlmDraygonCannonVisuals();
-        var assetRoomPlmChozoStatueVisuals = installation.LoadRoomPlmChozoStatueVisuals();
-        var assetRoomPlmLinkedRestoreVisuals = installation.LoadRoomPlmLinkedRestoreVisuals();
-        var assetRoomPlmTourianAccessVisuals = installation.LoadRoomPlmTourianAccessVisuals();
-        var assetRoomPlmSpeedBoosterVisuals = installation.LoadRoomPlmSpeedBoosterVisuals();
-        var assetRoomPlmMaridiaElevatubeVisuals = installation.LoadRoomPlmMaridiaElevatubeVisuals();
-        var assetRoomPlmSporeSpawnCeilingVisuals = installation.LoadRoomPlmSporeSpawnCeilingVisuals();
-        var assetRoomPlmSamusEaterVisuals = installation.LoadRoomPlmSamusEaterVisuals();
-        var assetRoomPlmBotwoonWallVisuals = installation.LoadRoomPlmBotwoonWallVisuals();
-        var assetRoomPlmKraidVisuals = installation.LoadRoomPlmKraidVisuals();
-        var assetRoomPlmCrocomireVisuals = installation.LoadRoomPlmCrocomireVisuals();
-        var assetRoomPlmMotherBrainFakeDeathVisuals = installation.LoadRoomPlmMotherBrainFakeDeathVisuals();
-        var assetRoomPlmCollectibleVisuals = installation.LoadRoomPlmCollectibleVisuals();
-        var assetRoomPlmDynamicCollectibleArt = installation.LoadRoomPlmDynamicCollectibleArt();
-        var assetXrayRevealVisuals = installation.LoadXrayRevealVisuals();
-        var assetRoomBackgroundTilemapArt = installation.LoadRoomBackgroundTilemaps();
-        var assetRoomSkyTilemapArt = installation.LoadRoomSkyTilemaps();
-        var assetEnemyTileArtwork = installation.LoadEnemyTiles();
-        var projectiles = installation.LoadProjectiles();
-        return runtime =>
-        {
-            runtime.MapPresentation = assetMapPresentation;
-            runtime.StandardObjectArt = assetStandardObjectArt;
-            runtime.SamusBodyArt = assetSamusBodyArt;
-            runtime.RoomCharacterArt = assetRoomCharacterArt;
-            runtime.RoomPaletteArt = assetRoomPaletteArt;
-            runtime.RoomMetatileArt = assetRoomMetatileArt;
-            runtime.RoomVisualLayouts = assetRoomVisualLayouts;
-            runtime.RoomPlmShotBlockVisuals = assetRoomPlmShotBlockVisuals;
-            runtime.RoomPlmGrappleBlockVisuals = assetRoomPlmGrappleBlockVisuals;
-            runtime.RoomPlmStationVisuals = assetRoomPlmStationVisuals;
-            runtime.RoomPlmBlueDoorVisuals = assetRoomPlmBlueDoorVisuals;
-            runtime.RoomPlmColoredDoorVisuals = assetRoomPlmColoredDoorVisuals;
-            runtime.RoomPlmGreyDoorVisuals = assetRoomPlmGreyDoorVisuals;
-            runtime.RoomPlmEyeDoorVisuals = assetRoomPlmEyeDoorVisuals;
-            runtime.RoomPlmMotherBrainGlassVisuals = assetRoomPlmMotherBrainGlassVisuals;
-            runtime.RoomPlmNoobTubeVisuals = assetRoomPlmNoobTubeVisuals;
-            runtime.RoomPlmDownwardGateVisuals = assetRoomPlmDownwardGateVisuals;
-            runtime.RoomPlmElevatorPlatformVisuals = assetRoomPlmElevatorPlatformVisuals;
-            runtime.RoomPlmEscapeGateVisuals = assetRoomPlmEscapeGateVisuals;
-            runtime.RoomPlmBombTorizoHandVisuals = assetRoomPlmBombTorizoHandVisuals;
-            runtime.RoomPlmDraygonCannonVisuals = assetRoomPlmDraygonCannonVisuals;
-            runtime.RoomPlmChozoStatueVisuals = assetRoomPlmChozoStatueVisuals;
-            runtime.RoomPlmLinkedRestoreVisuals = assetRoomPlmLinkedRestoreVisuals;
-            runtime.RoomPlmTourianAccessVisuals = assetRoomPlmTourianAccessVisuals;
-            runtime.RoomPlmSpeedBoosterVisuals = assetRoomPlmSpeedBoosterVisuals;
-            runtime.RoomPlmMaridiaElevatubeVisuals = assetRoomPlmMaridiaElevatubeVisuals;
-            runtime.RoomPlmSporeSpawnCeilingVisuals = assetRoomPlmSporeSpawnCeilingVisuals;
-            runtime.RoomPlmSamusEaterVisuals = assetRoomPlmSamusEaterVisuals;
-            runtime.RoomPlmBotwoonWallVisuals = assetRoomPlmBotwoonWallVisuals;
-            runtime.RoomPlmKraidVisuals = assetRoomPlmKraidVisuals;
-            runtime.RoomPlmCrocomireVisuals = assetRoomPlmCrocomireVisuals;
-            runtime.RoomPlmMotherBrainFakeDeathVisuals = assetRoomPlmMotherBrainFakeDeathVisuals;
-            runtime.RoomPlmCollectibleVisuals = assetRoomPlmCollectibleVisuals;
-            runtime.RoomPlmDynamicCollectibleArt = assetRoomPlmDynamicCollectibleArt;
-            runtime.XrayRevealVisuals = assetXrayRevealVisuals;
-            runtime.RoomBackgroundTilemapArt = assetRoomBackgroundTilemapArt;
-            runtime.RoomSkyTilemapArt = assetRoomSkyTilemapArt;
-            runtime.Enemies.TileArtwork = assetEnemyTileArtwork;
-            runtime.ProjectileCompositions = projectiles.Catalog;
-            runtime.ProjectileFrameBindings = projectiles.FrameBindings;
-            runtime.BeamArtwork = projectiles.BeamTiles;
-            runtime.TrailArtwork = projectiles.Trails;
-            runtime.ChargeFlarePlacement = projectiles.FlarePlacement;
-            runtime.ChargeFlareCompositions = projectiles.FlareCompositions;
-            runtime.GrappleArtwork = projectiles.GrappleTiles;
-        };
-    }
+    private static readonly Lazy<EnemyTileArtworkCatalog> fixtureEnemyTileArtwork = new(() => runtimeFixtureInstallation.Value.LoadEnemyTiles());
+
+    /// <summary>The shared installation's stock enemy artwork, loaded once per process.</summary>
+    private static EnemyTileArtworkCatalog FixtureEnemyTileArtwork() => fixtureEnemyTileArtwork.Value;
+
+    private static readonly Lazy<RoomCharacterAtlasCatalog> fixtureRoomCharacters = new(() => runtimeFixtureInstallation.Value.LoadRoomCharacters());
+    private static readonly Lazy<RoomStaticPaletteCatalog> fixtureRoomPalettes = new(() => runtimeFixtureInstallation.Value.LoadRoomPalettes());
+    private static readonly Lazy<RoomMetatileCatalog> fixtureRoomMetatiles = new(() => runtimeFixtureInstallation.Value.LoadRoomMetatiles());
+    private static readonly Lazy<RoomVisualLayoutCatalog> fixtureRoomVisualLayouts = new(() => runtimeFixtureInstallation.Value.LoadRoomVisualLayouts());
+
+    /// <summary>
+    /// Loads a room's asset graph with the shared installation's stock catalogs, replacing only the
+    /// catalogs a case supplies. The stock catalogs are the cartridge reference extracted from the ROM.
+    /// </summary>
+    private static CartridgeRoomAssets LoadFixtureRoomAssets(ISnesAddressSpace bus, CartridgeRoomHeader room,
+        RoomCharacterAtlasCatalog? characterArt = null, RoomStaticPaletteCatalog? paletteArt = null,
+        RoomMetatileCatalog? metatileArt = null, RoomVisualLayoutCatalog? visualLayouts = null) =>
+        CartridgeRoomAssets.Load(bus, room, characterArt ?? fixtureRoomCharacters.Value,
+            paletteArt ?? fixtureRoomPalettes.Value, metatileArt ?? fixtureRoomMetatiles.Value,
+            visualLayouts ?? fixtureRoomVisualLayouts.Value);
 }

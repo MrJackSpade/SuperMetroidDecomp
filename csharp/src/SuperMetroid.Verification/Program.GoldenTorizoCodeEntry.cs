@@ -9,7 +9,7 @@ internal static partial class Program
     private static void VerifyGoldenTorizoCodeEntry()
     {
         // Isolated SRAM; installed artwork is read-only and no player save is loaded.
-        var installation = new GameInstallation(GameAssetInstaller.DesktopRoot);
+        var installation = runtimeFixtureInstallation.Value;
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var game = new SuperMetroidGame(memory, new SuperMetroidGameOptions { Invincibility = true }, renderGameplayFrames: false);
         PrepareRomFreeBindings(installation)(game, false);

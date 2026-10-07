@@ -1427,7 +1427,7 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => MotherBrainEscapeTextArtworkDefinitions.Transfer(invalid), "stream 3 escape transfer bounds");
         foreach (int invalid in new[] { -1, 2, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.Transfer(invalid), "stream 3 door transfer bounds");
-        using var temporary = new MapCatalogTestDirectory();
+        using var temporary = new TestTempDirectory("map-catalog");
         SuperMetroid.AssetExtraction.EnemyTileArtworkFiles.Extract(rom, temporary.Root, SuperMetroid.AssetExtraction.SupportedCartridge.Sha256);
         Suite(nameof(VerifyInstalledMotherBrainEscapeTextArtwork), () => VerifyInstalledMotherBrainEscapeTextArtwork(temporary.Root,
             SuperMetroid.AssetExtraction.EnemyTileArtworkFiles.Load(temporary.Root, null)));

@@ -85,7 +85,7 @@ internal static partial class Program
                 int blockCount = layerBytes / 2;
                 int bg2Offset = 2 + layerBytes + blockCount;
                 int availableBg2 = Math.Min(layerBytes, native.Length - bg2Offset);
-                RoomLevelData loaded = CartridgeRoomAssets.Load(
+                RoomLevelData loaded = LoadFixtureRoomAssets(
                     new RoomLevelCorpusReadGuard(bus, source), room,
                     characterArt: characters, paletteArt: palettes,
                     metatileArt: metatiles, visualLayouts: stock).LevelData;
@@ -132,11 +132,11 @@ internal static partial class Program
         string overridePath = Path.Combine(installed.RoomVisualLayoutOverrideDirectory, name);
         File.WriteAllText(overridePath, document.ToJsonString());
 
-        CartridgeRoomAssets nativeRoom = CartridgeRoomAssets.Load(bus, landing);
-        CartridgeRoomAssets stockRoom = CartridgeRoomAssets.Load(
+        CartridgeRoomAssets nativeRoom = LoadFixtureRoomAssets(bus, landing);
+        CartridgeRoomAssets stockRoom = LoadFixtureRoomAssets(
             new RoomLevelCorpusReadGuard(bus, landingSource), landing,
             visualLayouts: stock);
-        CartridgeRoomAssets editedRoom = CartridgeRoomAssets.Load(
+        CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(
             new RoomLevelCorpusReadGuard(bus, landingSource), landing,
             visualLayouts: installed.LoadRoomVisualLayouts());
         AssertTrue(nativeRoom.LevelData.ForegroundEntries.Span.SequenceEqual(
@@ -179,8 +179,8 @@ internal static partial class Program
         foreach (ushort pointer in new ushort[] { 0xdf8d, 0xc98e })
         {
             CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, pointer);
-            CartridgeRoomAssets nativeOther = CartridgeRoomAssets.Load(bus, room);
-            CartridgeRoomAssets compiledOther = CartridgeRoomAssets.Load(
+            CartridgeRoomAssets nativeOther = LoadFixtureRoomAssets(bus, room);
+            CartridgeRoomAssets compiledOther = LoadFixtureRoomAssets(
                 new RoomLevelCorpusReadGuard(bus, room.State.CompressedLevelDataAddress), room,
                 visualLayouts: stock);
             AssertTrue(nativeOther.LevelData.ForegroundEntries.Span.SequenceEqual(

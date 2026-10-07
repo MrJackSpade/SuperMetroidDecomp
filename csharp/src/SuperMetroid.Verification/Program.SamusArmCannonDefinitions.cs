@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifySamusArmCannonDefinitions(SuperMetroidAddressSpace rom)
     {
-        using var artworkDirectory = new MapCatalogTestDirectory();
+        using var artworkDirectory = new TestTempDirectory("map-catalog");
         SuperMetroid.AssetExtraction.SamusArmCannonArtworkFiles.Extract(
             rom, artworkDirectory.Root, SupportedCartridge.Sha256);
         var artwork = SuperMetroid.AssetExtraction.SamusArmCannonArtworkFiles.Load(

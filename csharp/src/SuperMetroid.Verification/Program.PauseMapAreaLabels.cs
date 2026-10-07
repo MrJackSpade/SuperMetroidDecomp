@@ -91,6 +91,12 @@ internal static partial class Program
             _ = pause.Render();
             AssertEqual(1, pause.ScreenMode, "equipment page reached");
             AssertTrue(Get<OamBuffer>("oam").LastFinalizedSpriteCount * 4 < labelBytes, "equipment page emits no destination names");
+            // Page input is accepted only once the equipment fade-in completes (#1266 cadence).
+            for (int frame = 0; pause.IsPageTransitionActive; frame++)
+            {
+                AssertTrue(frame < PausePageTransitionNativeLength, "equipment fade-in completes within its native length");
+                pause.Step(0, 0);
+            }
             pause.Step((ushort)SnesButton.L, 0);
             for (int frame = 0; frame < 16; frame++) pause.Step(0, 0);
             _ = pause.Render();

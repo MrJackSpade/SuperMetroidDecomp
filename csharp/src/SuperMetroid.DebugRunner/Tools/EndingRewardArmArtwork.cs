@@ -5,7 +5,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 
-internal static partial class Program
+internal static partial class AssetTools
 {
     private static void ExportEndingRewardGestureArtwork(CartridgeImportAddressSpace rom, bool suitless)
     {

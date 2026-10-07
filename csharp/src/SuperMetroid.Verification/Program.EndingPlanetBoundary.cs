@@ -7,25 +7,69 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
-    private static void VerifyEndingNativePpu(bool offsetCheck = false, int frame = 512)
+    /// <summary>
+    /// Compares sampled finale frames with the pinned upstream PPU (csharp/test-fixtures/ending-native-ppu).
+    /// The planet-boundary pass writes each frame's <c>.smframe</c>; the probe rasterizes it with retail
+    /// <c>$8B:F2FA</c> (or <c>$8B:F2B7</c> burst) registers into a <c>.bgra</c> beside it.
+    /// </summary>
+    private static void VerifyEndingNativePpu(IEnumerable<int> frames, bool burst)
     {
-        string prefix = $"csharp/test-temp/ending-506/later-{frame:D4}-ZebesExplosionAnimation";
-        byte[] bgra = File.ReadAllBytes(prefix + (offsetCheck ? ".offset-check.bgra" : ".bgra"));
-        AssertEqual(256 * 224 * 4, bgra.Length, "native PPU raster length");
-        var native = new Rgba32[256 * 224];
-        for (int i = 0; i < native.Length; i++) native[i] = new(bgra[i * 4 + 2], bgra[i * 4 + 1], bgra[i * 4]);
-        var actual = SoftwareFrameSnapshotRenderer.Render(RenderFrameSnapshotCodec.Deserialize(File.ReadAllBytes(prefix + ".smframe")));
-        PngWriter.WriteRgba(prefix + (offsetCheck ? ".offset-check.png" : ".native-ppu.png"), 256, 224, native);
-        int differences = actual.Zip(native).Count(pair => pair.First != pair.Second);
-        Console.WriteLine($"Native PPU finale frame {frame}: {differences} pixels differ.");
-        AssertEqual(0, differences, "finale matches pinned native PPU with cartridge register setup");
+        Suite(nameof(VerifyEndingPlanetBoundary), () => VerifyEndingPlanetBoundary());
+        string probe = EnsureEndingNativeProbe();
+        foreach (int frame in frames)
+        {
+            string prefix = Path.GetFullPath($"csharp/test-temp/ending-506/later-{frame:D4}-ZebesExplosionAnimation");
+            RunNativeTool(probe, burst
+                ? [prefix + ".smframe", prefix + ".bgra", "burst"]
+                : [prefix + ".smframe", prefix + ".bgra"]);
+            byte[] bgra = File.ReadAllBytes(prefix + ".bgra");
+            AssertEqual(256 * 224 * 4, bgra.Length, "native PPU raster length");
+            var native = new Rgba32[256 * 224];
+            for (int i = 0; i < native.Length; i++) native[i] = new(bgra[i * 4 + 2], bgra[i * 4 + 1], bgra[i * 4]);
+            var actual = SoftwareFrameSnapshotRenderer.Render(RenderFrameSnapshotCodec.Deserialize(File.ReadAllBytes(prefix + ".smframe")));
+            int differences = actual.Zip(native).Count(pair => pair.First != pair.Second);
+            Console.WriteLine($"Native PPU finale frame {frame}: {differences} pixels differ.");
+            AssertEqual(0, differences, $"finale frame {frame} matches pinned native PPU with cartridge register setup");
+        }
+    }
+
+    /// <summary>Builds the checked-in ending PPU probe once into ignored csharp/test-temp.</summary>
+    private static string EnsureEndingNativeProbe()
+    {
+        string probe = Path.GetFullPath("csharp/test-temp/ending-native-ppu/probe.exe");
+        // build.cmd compiles with cl directly; the C# Directory.Build settings would otherwise apply.
+        if (!File.Exists(probe))
+            RunNativeTool(Path.Combine(Environment.SystemDirectory, "cmd.exe"),
+                ["/c", Path.GetFullPath("csharp/test-fixtures/ending-native-ppu/build.cmd")]);
+        AssertTrue(File.Exists(probe), "ending native PPU probe was built");
+        return probe;
+    }
+
+    /// <summary>Runs a native tool to completion, failing with its output on a nonzero exit.</summary>
+    private static string RunNativeTool(string fileName, IReadOnlyList<string> arguments)
+    {
+        var start = new System.Diagnostics.ProcessStartInfo(fileName)
+        {
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+        };
+        foreach (string argument in arguments) start.ArgumentList.Add(argument);
+        using var process = System.Diagnostics.Process.Start(start)
+            ?? throw new InvalidOperationException($"Could not start {fileName}.");
+        var error = process.StandardError.ReadToEndAsync();
+        string output = process.StandardOutput.ReadToEnd();
+        process.WaitForExit();
+        if (process.ExitCode != 0)
+            throw new InvalidOperationException($"{Path.GetFileName(fileName)} exited {process.ExitCode}:{Environment.NewLine}{output}{error.Result}");
+        return output;
     }
 
     private static void VerifyEndingPlanetBoundary()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         var audio = new CartridgeAudioState();
-        var ending = new EndingCreditsState(bus, audio, 0, 0);
+        var ending = CreateRetailEndingFixture(bus, audio, 0, 0);
         for (int frame = 0; frame < 20000 && ending.Phase != EndingCreditsPhase.FadeInZebesExplosion; frame++)
         {
             ending.Step();

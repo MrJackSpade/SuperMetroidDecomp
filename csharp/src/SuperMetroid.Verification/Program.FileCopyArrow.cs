@@ -13,7 +13,7 @@ internal static partial class Program
     private static void VerifyFileCopyArrow()
     {
         var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var installation = new GameInstallation(GameAssetInstaller.DesktopRoot);
+        var installation = runtimeFixtureInstallation.Value;
         var art = installation.LoadMaps();
         // All SRAM changes belong to this private imported address space.
         var saves = new SuperMetroidSaveRam(rom, RetailPresentationFixture());

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
@@ -12,7 +13,8 @@ internal static partial class Program
         Suite(nameof(VerifyEndingLogo), () => VerifyEndingLogo(bus));
         Suite(nameof(VerifyEndingCloudMotion), () => VerifyEndingCloudMotion());
         var uploadBus = new EndingRewardUploadDefinitionReadGuard(bus);
-        var graphicsUpload = new EndingRewardGraphicsUpload(uploadBus);
+        var graphicsUpload = new EndingRewardGraphicsUpload(uploadBus,
+            runtimeFixtureInstallation.Value.LoadEndingMode7Art().RewardIcon);
         var graphicsVram = new SnesVram();
         byte[] expectedGraphics = RomDataReader.Decompress(bus,
             EndingCreditsRomData.Assets.PostCreditsMode7Characters,
@@ -44,6 +46,7 @@ internal static partial class Program
             () => EndingRewardGraphicsUploadDefinitions.DestinationWord(-1),
             "reward icon destination rejects a negative transfer");
         var rewardBus = new EndingRewardDefinitionReadGuard(bus);
+        EndingRewardSpritePresentation rewardSprites = runtimeFixtureInstallation.Value.LoadEndingObjectArt().RewardSprites;
         foreach (EndingReward reward in Enum.GetValues<EndingReward>())
         {
             var gesture = new EndingRewardGesture(rewardBus, reward);
@@ -51,9 +54,9 @@ internal static partial class Program
             int calls = 0;
             while (!gesture.JumpRequested && calls < 1000)
             {
-                gesture.Step();
+                gesture.Step(EndingRewardInstructionDefinitions.ReadWord);
                 calls++;
-                maps.Add(Convert.ToHexString(gesture.Draw().LowTable));
+                maps.Add(Convert.ToHexString(gesture.Draw(rewardSprites).LowTable));
             }
             AssertTrue(gesture.JumpRequested, "native reward gesture reaches jumping-actor instruction");
             AssertEqual(reward == EndingReward.Suitless, gesture.SuitlessJumpRequested, "reward-specific jump request");
@@ -69,7 +72,7 @@ internal static partial class Program
             while (!jump.ShotRequested && jumpCalls++ < 500)
             {
                 int beforeVelocity = jump.VerticalVelocity;
-                jump.Step();
+                jump.Step(EndingRewardInstructionDefinitions.ReadWord);
                 if (beforeVelocity == -16 * 65536 && !firstMotion)
                 {
                     AssertEqual(-16 * 65536 + (reward == EndingReward.Suitless ? 0x3800 : 0x7000),

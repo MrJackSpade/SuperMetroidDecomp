@@ -10,11 +10,11 @@ internal static partial class Program
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xa66a);
-        var assets = CartridgeRoomAssets.Load(bus, room);
+        var assets = LoadFixtureRoomAssets(bus, room);
         int splashes = 0;
         for (ushort random = 0; random < 64; random++)
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem { TileArtwork = FixtureEnemyTileArtwork() };
             enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer,
                 new SnesVram(), new SnesCgram(), () => random);
             foreach (var actor in enemies.EnemyProjectiles) actor.Kind = 0;
@@ -62,7 +62,7 @@ internal static partial class Program
                     {
                         var expectedOam = new OamBuffer();
                         expectedOam.BeginFrame();
-                        DrawImportedEnemyProjectileSpritemap(bus, expectedOam, splash.SpritemapPointer,
+                        DrawImportedEnemyProjectileSpritemap(bus, expectedOam, NativeEnemyProjectileSpritemap(bus, splash),
                             unchecked((ushort)(splashX - 32)), 164, splash.GraphicsIndex, true);
                         expectedOam.FinalizeFrame();
                         var actualOam = new OamBuffer();

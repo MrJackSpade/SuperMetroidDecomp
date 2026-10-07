@@ -65,3 +65,6 @@ csharp/test-temp/
 **/logs/
 stderr.txt
 stdout.txt
+
+# Private native emulator captures consumed by verifiers (never committed).
+/native-captures/

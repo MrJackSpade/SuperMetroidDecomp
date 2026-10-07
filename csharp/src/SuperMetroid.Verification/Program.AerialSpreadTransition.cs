@@ -1,101 +1,35 @@
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
     /// <summary>
-    /// Issue 415 turnaround and walljump comparisons using earned charge and input.
-    /// Exclusive-create keeps earlier evidence intact.
-    /// No pose, charge or animation state is forced after the initial fixture setup.
+    /// Issue 415 turnaround and walljump spreads, earned from charge and input alone: only the
+    /// native one-frame window releases the aerial spread, and the walljump retains its charge.
     /// </summary>
-    private static void VerifyAerialSpreadTransitions(string? tracePath = null, string? outputPath = null, bool wallRoute = false)
+    private static void VerifyAerialSpreadTransitions(bool wallRoute = false)
     {
-        using var output = outputPath is null ? null : new StreamWriter(new FileStream(outputPath, FileMode.CreateNew));
-        using var native = tracePath is null ? null : File.OpenText(tracePath);
-        const string header = "left,delay,frame,input,pose,x,xsub,y,ysub,charge,spread,bombs";
-        output?.WriteLine(header);
-        if (native is not null) AssertEqual(header, native.ReadLine(), "aerial native trace header");
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (bool left in new[] { false, true })
-        for (int timingCase = 0; timingCase < (wallRoute ? 14 : 10); timingCase++)
+        for (int timingCase = 0; timingCase < BombSpreadTransitionScenario.TimingCaseCount(wallRoute); timingCase++)
         {
-            int delay = timingCase < 10 ? timingCase : timingCase + 30;
-            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-            var runtime = CreateRetailRuntimeFixture(bus);
-            runtime.InitializeHud(HudSnapshot.CeresDebug);
-            runtime.InitializeStartingCeresRoom();
-            runtime.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
-            var level = runtime.LevelData!;
-            // Match the grounded technique clearing, extending it upward for the jump.
-            for (int y = 16; y < 36; y++)
-            for (int x = 16; x < 48; x++)
+            var scenario = new BombSpreadTransitionScenario(CreateRetailRuntimeFixture(bus), bus, left, timingCase, wallRoute);
+            var runtime = scenario.Runtime;
+            var samus = scenario.Samus;
+            for (int frame = 0; frame < scenario.FrameCount; frame++)
             {
-                int index = y * level.WidthInBlocks + x;
-                level.SetForegroundEntry(index, RoomLevelWord.Create(0, 0,
-                    y >= 32 || (wallRoute && x == (left ? 29 : 33)) ? RoomCollisionType.SolidBlock : RoomCollisionType.Air).Raw);
-                level.SetBehavior(index, 0);
-            }
-            var samus = runtime.Samus!;
-            samus.InputLocked = false;
-            samus.Pose = left ? SamusPoseIds.FacingLeftNormalPose : SamusPoseIds.FacingRightNormalPose;
-            samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);
-            samus.EquippedBeams = (ushort)SamusBeamFlags.Charge;
-            samus.XPosition = 512;
-            samus.YPosition = 490;
-            samus.RefreshCollisionRadii(bus);
-            samus.InitializeAnimation(bus);
-            for (int frame = 0; frame < (wallRoute ? 300 : 260); frame++)
-            {
-                ushort input = runtime.ControllerBindings.Shoot;
-                if (frame is >= 70 and < 125) input |= runtime.ControllerBindings.Jump;
-                if (frame >= 76 && frame < 105 && frame != 78 + delay)
-                    input |= (ushort)SnesButton.Down;
-                if (frame is >= 78 and < 125) input |= (ushort)(left ? SnesButton.Right : SnesButton.Left);
-                if (wallRoute)
-                {
-                    int morphDelay = timingCase >= 12 ? 0 : delay;
-                    input = timingCase == 12 || frame < 87 || frame >= 94 + morphDelay ? runtime.ControllerBindings.Shoot : (ushort)0;
-                    if (frame is >= 70 and < 86 or >= 89 and < 200) input |= runtime.ControllerBindings.Jump;
-                    if (frame is >= 68 and < 87) input |= (ushort)(left ? SnesButton.Left : SnesButton.Right);
-                    if (frame is >= 87 and < 140) input |= (ushort)(left ? SnesButton.Right : SnesButton.Left);
-                    if (timingCase == 13 && frame == 93)
-                    {
-                        input &= unchecked((ushort)~(SnesButton.Left | SnesButton.Right));
-                        input |= (ushort)(left ? SnesButton.Left : SnesButton.Right);
-                    }
-                    if (frame >= 94 + morphDelay && frame < 115 + morphDelay) input |= (ushort)SnesButton.Down;
-                }
                 uint previousY = ((uint)samus.YPosition << 16) | samus.Kinematics.YSubposition;
-                runtime.StepFrame(input);
-                string row = $"{(left ? 1 : 0)},{delay},{frame},{input:X4},{samus.Pose:X4},{samus.XPosition:X4},{samus.Kinematics.XSubposition:X4},{samus.YPosition:X4},{samus.Kinematics.YSubposition:X4},{samus.ProjectileFlareCounter:X4},{samus.BombSpreadChargeTimeoutCounter:X4},{runtime.BombProjectiles.BombCounter:X4}";
-                output?.WriteLine(row);
-                if (native is not null) AssertEqual(native.ReadLine(), row, $"native aerial transition left={left}, delay={delay}, frame={frame}");
+                runtime.StepFrame(scenario.Input(frame));
                 AssertEqual(samus.ProjectileFlareCounter, runtime.Projectiles.FlareCounter, "aerial charge mirror");
                 if (wallRoute)
-                    VerifyWallSpreadFrame(runtime, left, timingCase, delay, frame, previousY);
+                    VerifyWallSpreadFrame(runtime, left, timingCase, scenario.Delay, frame, previousY);
                 else
-                    VerifyTurnaroundSpreadFrame(runtime, left, delay, frame);
-                if (wallRoute ? frame >= 115 : delay == 6 && frame >= 105)
-                    for (int slotIndex = 0; slotIndex < SamusBombProjectileSystem.SlotCount; slotIndex++)
-                    {
-                        var slot = runtime.BombProjectiles.Slots[slotIndex];
-                        // Inactive native slots retain scratch words that are overwritten
-                        // at allocation. Compare their inactive ownership, not dead bytes.
-                        string bomb = $"bomb,{slotIndex},{(slot.IsActive ? 1 : 0)}";
-                        if (slot.IsActive)
-                            bomb += $",{slot.Type:X4},{slot.XPosition:X4},{slot.XSubposition:X4},{slot.YPosition:X4},{slot.YSubposition:X4},{slot.BombSpreadXVelocity:X4},{slot.BombSpreadYVelocity:X4},{slot.BombSpreadYSubvelocity:X4},{slot.BombTimer:X4},{slot.XRadius:X4},{slot.YRadius:X4},{slot.InstructionPointer:X4},{slot.InstructionTimer:X4},{slot.SpritemapPointer:X4}";
-                        output?.WriteLine(bomb);
-                        if (native is not null) AssertEqual(native.ReadLine(), bomb, $"native aerial bomb left={left}, frame={frame}");
-                    }
+                    VerifyTurnaroundSpreadFrame(runtime, left, scenario.Delay, frame);
             }
         }
-        if (native is not null) AssertTrue(native.ReadLine() is null, "aerial native trace fully consumed");
         Console.WriteLine(wallRoute
-            ? "Charged-walljump spread: 8400 frames, 25900 bomb-slot observations; early/late morph success and held-Shoot/turn controls agree."
-            : "Aerial down-aim spread: both directions and ten input timings (5200 frames), with 1550 bomb-slot observations through expiry.");
+            ? "Charged-walljump spread: early/late morph success and held-Shoot/turn controls agree in both directions."
+            : "Aerial down-aim spread: both directions and ten input timings, through expiry.");
     }
 
     private static void VerifyTurnaroundSpreadFrame(SuperMetroidRuntime runtime, bool left, int delay, int frame)

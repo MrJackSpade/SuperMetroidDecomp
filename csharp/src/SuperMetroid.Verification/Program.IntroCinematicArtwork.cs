@@ -23,10 +23,10 @@ internal static partial class Program
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
             if (samusBodyOnly)
             {
-                VerifySamusBodyArtwork(bus, installation);
+                Suite(nameof(VerifySamusBodyArtwork), () => VerifySamusBodyArtwork(bus, installation));
                 return;
             }
-            VerifySamusAnimationDelayDefinitions(bus, sourceRom);
+            Suite(nameof(VerifySamusAnimationDelayDefinitions), () => VerifySamusAnimationDelayDefinitions(bus, sourceRom));
             IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
             // The body-art override verifier intentionally edits this installation's
             // pose-$09 PNG. Compare the guarded frontend with retail *before* those
@@ -34,9 +34,9 @@ internal static partial class Program
             // the edit and falsely fails stock pixel parity.
             if (!presentationOnly)
             {
-                VerifyFrontendRomFreeStartup(installation, sourceRom);
-                VerifyGoldenTorizoCartridgeCombatFallback(sourceRom, installation);
-                VerifySamusBodyArtwork(bus, installation);
+                Suite(nameof(VerifyFrontendRomFreeStartup), () => VerifyFrontendRomFreeStartup(installation, sourceRom));
+                Suite(nameof(VerifyGoldenTorizoCartridgeCombatFallback), () => VerifyGoldenTorizoCartridgeCombatFallback(sourceRom, installation));
+                Suite(nameof(VerifySamusBodyArtwork), () => VerifySamusBodyArtwork(bus, installation));
             }
             AssertTrue(stock.BackgroundCharacters.Transfer.Span.SequenceEqual(
                     RomDataReader.Decompress(bus, IntroCinematicRomData.Assets.BackgroundCharacters,
@@ -69,7 +69,7 @@ internal static partial class Program
                 AssertEqual(nativeWord, stock.FinalLine.Words.Span[index],
                     $"opening divider tile {index} matches cartridge source");
             }
-            VerifyIntroEyeInstructions(bus);
+            Suite(nameof(VerifyIntroEyeInstructions), () => VerifyIntroEyeInstructions(bus));
             for (int frame = 0; frame < IntroEyeTilemapFormat.FrameCount; frame++)
             {
                 int source = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
@@ -84,16 +84,16 @@ internal static partial class Program
                         $"opening eye frame {frame} cell {cell} matches cartridge");
                 }
             }
-            VerifyIntroEyeArtwork(bus, stock, installation);
-            VerifyIntroCaretSpriteArtwork(bus, stock, installation);
-            VerifyIntroMotherBrainCollision(bus, stock);
-            VerifyIntroMotherBrainSpriteArtwork(bus, stock, installation);
-            VerifyIntroMotherBrainExplosionSpriteArtwork(bus, stock, installation);
-            VerifyIntroRinkaSpriteArtwork(bus, stock, installation);
-            VerifyIntroEggEffectSpriteArtwork(bus, stock, installation);
-            VerifyIntroDiscoveryActorSpriteArtwork(bus, stock, installation);
-            VerifyIntroScientistSpriteArtwork(bus, stock, installation);
-            VerifyIntroMotherBrainDemoInput(bus, stock);
+            Suite(nameof(VerifyIntroEyeArtwork), () => VerifyIntroEyeArtwork(bus, stock, installation));
+            Suite(nameof(VerifyIntroCaretSpriteArtwork), () => VerifyIntroCaretSpriteArtwork(bus, stock, installation));
+            Suite(nameof(VerifyIntroMotherBrainCollision), () => VerifyIntroMotherBrainCollision(bus, stock));
+            Suite(nameof(VerifyIntroMotherBrainSpriteArtwork), () => VerifyIntroMotherBrainSpriteArtwork(bus, stock, installation));
+            Suite(nameof(VerifyIntroMotherBrainExplosionSpriteArtwork), () => VerifyIntroMotherBrainExplosionSpriteArtwork(bus, stock, installation));
+            Suite(nameof(VerifyIntroRinkaSpriteArtwork), () => VerifyIntroRinkaSpriteArtwork(bus, stock, installation));
+            Suite(nameof(VerifyIntroEggEffectSpriteArtwork), () => VerifyIntroEggEffectSpriteArtwork(bus, stock, installation));
+            Suite(nameof(VerifyIntroDiscoveryActorSpriteArtwork), () => VerifyIntroDiscoveryActorSpriteArtwork(bus, stock, installation));
+            Suite(nameof(VerifyIntroScientistSpriteArtwork), () => VerifyIntroScientistSpriteArtwork(bus, stock, installation));
+            Suite(nameof(VerifyIntroMotherBrainDemoInput), () => VerifyIntroMotherBrainDemoInput(bus, stock));
             AssertTrue(stock.Palette.Transfer.Span.SequenceEqual(
                     RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), IntroCinematicRomData.Assets.Palette,
                         SnesCgram.ByteCount)),
@@ -314,12 +314,12 @@ internal static partial class Program
             File.Delete(dividerOverridePath);
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "installed opening divider never rereads its cartridge source");
-            VerifyCeresFlightArtwork(installation, bus);
-            VerifyCeresDestructionArtwork(installation, bus);
-            VerifyEndingFlyawayArtwork(installation);
-            VerifyEndingMode7Artwork(installation);
-            VerifyEndingObjectArtwork(installation);
-            VerifyEndingPaletteArtwork(installation);
+            Suite(nameof(VerifyCeresFlightArtwork), () => VerifyCeresFlightArtwork(installation, bus));
+            Suite(nameof(VerifyCeresDestructionArtwork), () => VerifyCeresDestructionArtwork(installation, bus));
+            Suite(nameof(VerifyEndingFlyawayArtwork), () => VerifyEndingFlyawayArtwork(installation));
+            Suite(nameof(VerifyEndingMode7Artwork), () => VerifyEndingMode7Artwork(installation));
+            Suite(nameof(VerifyEndingObjectArtwork), () => VerifyEndingObjectArtwork(installation));
+            Suite(nameof(VerifyEndingPaletteArtwork), () => VerifyEndingPaletteArtwork(installation));
 
             string[] names =
             [

@@ -10,7 +10,7 @@ internal static partial class Program
         var source = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var bus = new ChozoProgramAndDrawReadGuard(source);
-        var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
         var handEntries = ChozoStatuePlmDrawDefinitions.All.Select(draw =>
             new RoomPlmChozoStatueVisualEntry(
                 ChozoStatuePlmDrawDefinitions.VisualId(draw.Pointer),

@@ -49,8 +49,8 @@ static void VerifyCeresDestructionCinematic()
         [0x11, 0x22, 0x33, 0x44]);
     byte[] maps = RomDataReader.Decompress(new CartridgeImportAddressSpace(rom),
         CeresDestructionRomData.Assets.CeresTilemaps, maximumOutputBytes: 0x1000);
-    string overrideRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-        "ceres-timeline-" + Guid.NewGuid().ToString("N")));
+    using var overrideRootScratch = new TestTempDirectory("ceres-timeline");
+    string overrideRoot = overrideRootScratch.Root;
     Directory.CreateDirectory(overrideRoot);
     using (var stream = File.Create(Path.Combine(overrideRoot, CeresFlightArtworkFormat.MapFileName)))
         CeresFlightArtworkCatalog.WriteMap(stream, new CeresFlightMapDocument

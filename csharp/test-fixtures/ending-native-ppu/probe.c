@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
   if (!f) return 3;
   unsigned char signature[8]; unsigned short version; unsigned int fades;
   if (fread(signature, 1, 8, f) != 8 || memcmp(signature, "SMFRAME\0", 8)) return 4;
-  if (fread(&version, 2, 1, f) != 1 || version < 22 || version > 26) return 5;
+  if (fread(&version, 2, 1, f) != 1 || version < 22 || version > 29) return 5; /* v27-29 change only layer data after this prefix */
   fseek(f, 18, SEEK_CUR);
   if (fread(&fades, 4, 1, f) != 1 || fades != 0 || fgetc(f) != 3) return 6;
   Snes snes = {0};

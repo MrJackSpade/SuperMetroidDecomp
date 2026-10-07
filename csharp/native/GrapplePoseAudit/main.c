@@ -94,14 +94,7 @@ int main(int argc, char **argv) {
     int fields;
     while ((fields = fscanf(trace, "%u,%u,%u,%u,%u,%u,%u", &frame, &x, &y, &speed, &direction, &platform, &fraction)) == 7) {
       word(NmiFrameWord, readword(NmiFrameWord) + 1);
-      if (readword(BombJumpDirection) && !(readword(BombJumpDirection) & 0xff00)) {
-        word(SpecialPose, 0xffff); word(SuperSpecialPose, 0xffff); word(ProspectivePose, 0xffff);
-        run(NativeBombJumpSetup);
-        run(NativeUpdatePose);
-      }
       word(ExtraYWhole, 0);
-      run(NativeEnemySamusInteraction);
-      run(0xa20000 | readword(ShutterFunction));
       /* These are observed projectile inputs, not observed collision/direction
          outputs. Native $A0:9785 independently computes overlap using native
          Samus position before beta movement. Projectile lifecycle is not under
@@ -113,8 +106,20 @@ int main(int argc, char **argv) {
         word(bomb_fields[field] + slot * 2, low | high << 8);
       }
       word(BombCount, 5);
+      /* $82:8B44 runs $A0:9785, then EnemyMain: each enemy's bomb ($A0:A236) and Samus
+         ($A0:A07A) collision handlers precede its AI, all before Samus movement. */
       run(NativeProjectileInteraction);
       run(NativeEnemyBombInteraction);
+      run(NativeEnemySamusInteraction);
+      run(0xa20000 | readword(ShutterFunction));
+      /* $90:E9xx bomb-jump rising Y restores the normal input handler once upward speed
+         falls below one pixel per frame. Frame alpha then runs that handler and the pose
+         update before beta movement, exactly as the cartridge orders them. */
+      if (readword(SamusInputHandler) == (NativeNormalInputHandler & 0xffff)) {
+        word(SpecialPose, 0xffff); word(SuperSpecialPose, 0xffff); word(ProspectivePose, 0xffff);
+        run(NativeNormalInputHandler);
+        run(NativeUpdatePose);
+      }
       if (readword(SamusMovementHandler) == (NativeBombJumpStart & 0xffff)) run(NativeBombJumpStart);
       else if (readword(SamusMovementHandler) == (NativeBombJumpMain & 0xffff)) run(NativeBombJumpMain);
       else if (ram[MovementType] == 4) run(NativeGroundedMorphMovement);
@@ -130,11 +135,19 @@ int main(int argc, char **argv) {
         run(NativeCollisionPose);
         run(NativeUpdatePose);
       }
+      /* The interruption dispatcher arms a direction published this frame only after
+         movement and animation (#413's native capture), not at the next frame's start. */
+      if (readword(BombJumpDirection) && !(readword(BombJumpDirection) & 0xff00)) {
+        word(SpecialPose, 0xffff); word(SuperSpecialPose, 0xffff); word(ProspectivePose, 0xffff);
+        run(NativeBombJumpSetup);
+        run(NativeUpdatePose);
+      }
       unsigned actual_x = readword(SamusX) * 65536u + readword(SamusXFraction);
       unsigned actual_y = readword(SamusY) * 65536u + readword(SamusYFraction);
       unsigned actual_speed = readword(SamusYSpeed) * 65536u + readword(SamusYSubspeed);
-      printf("frame %u: native X=%08X Y=%08X VY=%08X dir=%04X; port X=%08X Y=%08X VY=%08X dir=%04X\n",
-        frame, actual_x, actual_y, actual_speed, readword(BombJumpDirection), x, y, speed, direction);
+      printf("frame %u: native X=%08X Y=%08X VY=%08X dir=%04X platform=%u.%04X pose=%02X shutter=%04X up=%04X down=%04X rev=%04X act=%04X; port X=%08X Y=%08X VY=%08X dir=%04X platform=%u.%04X\n",
+        frame, actual_x, actual_y, actual_speed, readword(BombJumpDirection), readword(EnemyY), readword(EnemyYFraction),
+        readword(Pose), readword(ShutterFunction), readword(0x7810), readword(0x7812), readword(0x8000), readword(0x7818), x, y, speed, direction, platform, fraction);
       if (actual_x != x || actual_y != y || actual_speed != speed || readword(BombJumpDirection) != direction ||
           readword(EnemyY) != platform || readword(EnemyYFraction) != fraction)
         Die("Native/port bomb-ascent divergence\n");

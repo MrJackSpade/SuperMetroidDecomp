@@ -50,7 +50,7 @@ internal static partial class Program
 
     private static void VerifyEnemyPopulationPresentationIsolation(CartridgeImportAddressSpace source)
     {
-        using var temporary = new MapCatalogTestDirectory();
+        using var temporary = new TestTempDirectory("map-catalog");
         string stockPath = Path.Combine(temporary.Root, "stock");
         string overridePath = Path.Combine(temporary.Root, "overrides");
         EnemyTileArtworkFiles.Extract(source, stockPath, SupportedCartridge.Sha256);

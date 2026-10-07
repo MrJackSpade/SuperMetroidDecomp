@@ -1484,7 +1484,7 @@ internal static partial class Program
 
     private static void VerifyLookupStream1CannonPoses(ISnesAddressSpace rom)
     {
-        using var directory = new MapCatalogTestDirectory();
+        using var directory = new TestTempDirectory("map-catalog");
         SamusArmCannonArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
         byte[] json = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.JsonFileName));
         byte[] png = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.TileFileName));
@@ -2557,7 +2557,7 @@ internal static partial class Program
         }
         foreach (int invalid in new[] { int.MinValue, -1, expected.Length, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => _ = sources[invalid], "Calculated cannon source index bounds preserve array contract");
-        using var directory = new MapCatalogTestDirectory();
+        using var directory = new TestTempDirectory("map-catalog");
         SamusArmCannonArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
         byte[] json = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.JsonFileName));
         byte[] png = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.TileFileName));
@@ -2662,7 +2662,7 @@ internal static partial class Program
     }
     private static void VerifyLookupStream1CannonDrawingControls(ISnesAddressSpace rom)
     {
-        using var directory = new MapCatalogTestDirectory();
+        using var directory = new TestTempDirectory("map-catalog");
         SamusArmCannonArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
         byte[] json = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.JsonFileName));
         byte[] png = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.TileFileName));
@@ -3279,7 +3279,7 @@ internal static partial class Program
     }
     private static void VerifyLookupStream1CannonPlacement(ISnesAddressSpace rom)
     {
-        using var directory = new MapCatalogTestDirectory();
+        using var directory = new TestTempDirectory("map-catalog");
         SamusBodyArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
         SamusBodyArtworkCatalog body = SamusBodyArtworkFiles.Load(directory.Root, null);
         byte[] json = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.JsonFileName));
@@ -3366,7 +3366,7 @@ internal static partial class Program
 
     private static void VerifyLookupStream1OamPointers(ISnesAddressSpace rom)
     {
-        using var directory = new MapCatalogTestDirectory();
+        using var directory = new TestTempDirectory("map-catalog");
         SamusBodyArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
         var body = SamusBodyArtworkFiles.Load(directory.Root, null);
         var stock = body.Spritemaps;
@@ -3435,7 +3435,7 @@ internal static partial class Program
 
     private static void VerifyLookupStream1BodyPixels(ISnesAddressSpace rom)
     {
-        using var directory = new MapCatalogTestDirectory();
+        using var directory = new TestTempDirectory("map-catalog");
         SamusBodyArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
         var body = SamusBodyArtworkFiles.Load(directory.Root, null);
         var field = typeof(SamusBodyTileDefinition).GetField("pixelInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
@@ -3520,7 +3520,7 @@ internal static partial class Program
     }
     private static void VerifyLookupStream1BodyTransfers(ISnesAddressSpace rom)
     {
-        using var directory = new MapCatalogTestDirectory();
+        using var directory = new TestTempDirectory("map-catalog");
         SamusBodyArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
         var body = SamusBodyArtworkFiles.Load(directory.Root, null);
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

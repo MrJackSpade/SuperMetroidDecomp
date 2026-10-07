@@ -9,54 +9,6 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
-    private static void ExportEndingLogoPaletteEvidence(CartridgeImportAddressSpace rom)
-    {
-        string directory = Path.GetFullPath("csharp/test-temp/1165-ending-logo-colors");
-        Directory.CreateDirectory(directory);
-        byte[] nativeTiles = RomDataReader.Decompress(rom, 0x99e089, EndingCreditsRomData.Rendering.DecompressionLimit);
-        byte[] tiles = SnesGraphics.DecodePlanarTiles(nativeTiles.AsSpan(0, 0x2000), 4, 16, out int width, out _);
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
-        Rgba32[] Palette(int address) => Enumerable.Range(0, 16)
-            .Select(color => SnesGraphics.DecodeBgr555Color(Word(address + color * 2))).ToArray();
-        Rgba32[] spritePalette = Palette(0x8cefe9), backgroundPalette = Palette(0x8cf1e9);
-        var spritePixels = new byte[256 * 256];
-        // Final OAM compositions and native landing/origin positions; no cinematic replay.
-        foreach (var frame in new[] { (0, 138, 111), (1, 126, 127), (4, 129, 110), (7, 135, 128) })
-        {
-            EndingLogoSpriteFrameDefinition definition = EndingLogoSpriteDefinitions.Frames[frame.Item1];
-            foreach (SpriteVisualPart part in IntroCinematicSpriteFrameExtractor.Extract(rom,
-                definition.Pointer, definition.StockPartCount, definition.Name))
-            for (int y = 0; y < part.Size; y++)
-            for (int x = 0; x < part.Size; x++)
-            {
-                int sx = part.FlipX ? part.Size - 1 - x : x, sy = part.FlipY ? part.Size - 1 - y : y;
-                int tile = part.TileRow * 16 + part.TileColumn + sy / 8 * 16 + sx / 8;
-                byte color = tiles[(tile / 16 * 8 + sy % 8) * width + tile % 16 * 8 + sx % 8];
-                int dx = frame.Item2 + part.OffsetX + x, dy = frame.Item3 + part.OffsetY + y;
-                if (color != 0 && (uint)dx < 256 && (uint)dy < 256) spritePixels[dy * 256 + dx] = color;
-            }
-        }
-        byte[] nativeMap = RomDataReader.Decompress(rom, 0x99ecc4, EndingCreditsRomData.Rendering.DecompressionLimit);
-        var backgroundPixels = new byte[256 * 256];
-        for (int cell = 0; cell < 1024; cell++)
-        {
-            int word = nativeMap[cell * 2] | nativeMap[cell * 2 + 1] << 8;
-            int tile = word & 0x3ff;
-            for (int y = 0; y < 8; y++)
-            for (int x = 0; x < 8; x++)
-            {
-                int sx = (word & 0x4000) != 0 ? 7 - x : x, sy = (word & 0x8000) != 0 ? 7 - y : y;
-                backgroundPixels[(cell / 32 * 8 + y) * 256 + cell % 32 * 8 + x] =
-                    tiles[(tile / 16 * 8 + sy) * width + tile % 16 * 8 + sx];
-            }
-        }
-        PngWriter.WriteIndexedAsRgba(Path.Combine(directory, "original-sprite-logo.png"), 256, 256, spritePixels, spritePalette, 2);
-        PngWriter.WriteIndexedAsRgba(Path.Combine(directory, "original-background-logo.png"), 256, 256, backgroundPixels, backgroundPalette, 2);
-        Console.WriteLine(directory);
-        for (int color = 0; color < 16; color++)
-            Console.WriteLine($"slot{color}: OBJ=${Word(0x8cefe9 + color * 2):X4}, pixels={spritePixels.Count(p => p == color)}; BG=${Word(0x8cf1e9 + color * 2):X4}, pixels={backgroundPixels.Count(p => p == color)}");
-    }
-
     private static void VerifyEndingLogoPaletteFade(CartridgeImportAddressSpace rom)
     {
         var original = new byte[512 * 2];

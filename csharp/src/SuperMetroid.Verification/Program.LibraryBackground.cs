@@ -85,7 +85,8 @@ static void VerifyKraidLibraryHudArtwork(
         transfer.ListPointer, activeDoorPointer: 0);
     var installedVram = new SnesVram();
     LibraryBackgroundExecutionResult installed = LibraryBackgroundLoader.Execute(bus, installedVram,
-        transfer.ListPointer, activeDoorPointer: 0, hudArt: Compile(pixels));
+        transfer.ListPointer, activeDoorPointer: 0, hudArt: Compile(pixels),
+        tilemapArt: runtimeFixtureInstallation.Value.LoadRoomBackgroundTilemaps());
     AssertEqual(native, installed, "Kraid command results stay unchanged with installed HUD art");
     int destinationByte = transfer.VramDestination!.Value * 2;
     for (int index = 0; index < planar.Length; index++)
@@ -96,7 +97,7 @@ static void VerifyKraidLibraryHudArtwork(
     pixels[0] = (byte)((pixels[0] + 1) & 3);
     var editedVram = new SnesVram();
     LibraryBackgroundLoader.Execute(bus, editedVram, transfer.ListPointer,
-        activeDoorPointer: 0, hudArt: Compile(pixels));
+        activeDoorPointer: 0, hudArt: Compile(pixels), tilemapArt: runtimeFixtureInstallation.Value.LoadRoomBackgroundTilemaps());
     if (editedVram.ReadByte(destinationByte) == stockVram.ReadByte(destinationByte))
         throw new InvalidDataException("Edited HUD pixel did not reach Kraid's native VRAM destination.");
     Console.WriteLine("  Kraid BG list: installed HUD PNG matches stock VRAM, and an edit reaches VRAM.");

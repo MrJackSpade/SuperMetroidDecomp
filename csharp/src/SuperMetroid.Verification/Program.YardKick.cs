@@ -7,13 +7,13 @@ internal static partial class Program
 {
     private static void VerifyYardKickWords(SuperMetroidAddressSpace bus, CartridgeRoomHeader room)
     {
-        var assets = CartridgeRoomAssets.Load(bus, room);
+        var assets = LoadFixtureRoomAssets(bus, room);
         int cases = 0;
         foreach (byte pose in new[] { SamusPoseIds.FacingRightNormalPose, SamusPoseIds.FacingLeftNormalPose })
         foreach (ushort whole in new ushort[] { 0, 1, 2, 15, 16, 32 })
         foreach (ushort fraction in new ushort[] { 0, 0x8000, 0xFFFF })
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem { TileArtwork = FixtureEnemyTileArtwork() };
             enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer,
                 new SnesVram(), new SnesCgram(), () => 0);
             var actor = enemies.Slots[0];

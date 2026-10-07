@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+    if (AssetTools.Run(args) is int toolExit)
+        return toolExit;
     if (args is ["--file-select-energy-tanks-audit", var tanksInstallation])
         return FileSelectEnergyTanksAudit.Run(tanksInstallation);
     if (args is ["--rescued-animals-ship-audit", var animalsInstallation])

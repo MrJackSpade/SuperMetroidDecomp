@@ -11,7 +11,7 @@ internal static partial class Program
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, DraygonProductionAuditDefinitions.Room);
         var installation = runtimeFixtureInstallation.Value;
-        var assets = CartridgeRoomAssets.Load(bus, room, installation.LoadRoomCharacters(),
+        var assets = LoadFixtureRoomAssets(bus, room, installation.LoadRoomCharacters(),
             installation.LoadRoomPalettes(), installation.LoadRoomMetatiles(), installation.LoadRoomVisualLayouts());
         var vram = new SnesVram(); var cgram = new SnesCgram(); assets.LoadGraphics(vram, cgram);
         var random = new Bank80SystemState(0x1234);

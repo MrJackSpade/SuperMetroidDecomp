@@ -42,7 +42,7 @@ internal static partial class Program
                 source.Command == LibraryBackgroundCommand.DecompressToWorkRam).SourceAddress;
         var nativeVram = new SnesVram();
         var selectedVram = new SnesVram();
-        LibraryBackgroundLoader.Execute(bus, nativeVram, ceresList, activeDoorPointer: 0);
+        SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeVram, ceresList, activeDoorPointer: 0);
         LibraryBackgroundLoader.Execute(new BackgroundTilemapReadGuard(bus, ceresSource),
             selectedVram, ceresList, activeDoorPointer: 0, tilemapArt: catalog);
         AssertTrue(nativeVram.Bytes.SequenceEqual(selectedVram.Bytes),
@@ -78,8 +78,15 @@ internal static partial class Program
     }
 
     private sealed class BackgroundTilemapReadGuard(ISnesAddressSpace source, int blockedSource)
-        : ISnesAddressSpace, IImportCartridgeSource
+        : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        private ISnesMutableMemory WorkMemory => source as ISnesMutableMemory ??
+            throw new InvalidOperationException("Background tilemap read guard source has no live WRAM.");
+
+        public byte ReadWorkRamByte(int cpuAddress) => WorkMemory.ReadWorkRamByte(cpuAddress);
+
+        public byte ReadSaveRamByte(int cpuAddress) => WorkMemory.ReadSaveRamByte(cpuAddress);
+
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address) => address == blockedSource

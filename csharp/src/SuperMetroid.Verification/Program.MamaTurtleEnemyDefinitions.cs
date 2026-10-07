@@ -27,7 +27,7 @@ internal static partial class Program
 
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(rom, 0xd055);
         var installation = runtimeFixtureInstallation.Value;
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(rom, room, installation.LoadRoomCharacters(),
+        CartridgeRoomAssets assets = LoadFixtureRoomAssets(rom, room, installation.LoadRoomCharacters(),
             installation.LoadRoomPalettes(), installation.LoadRoomMetatiles(), installation.LoadRoomVisualLayouts());
         var vram = new SnesVram();
         var cgram = new SnesCgram();

@@ -15,7 +15,6 @@ internal static partial class Program
         state.BindPresentation(maps.GameplayMessageTitles, maps.GameplayMessagePanels, maps.GameplayMessageNotices);
         return state;
     }
-    private static AreaMapPresentationCatalog? retailPresentationFixture;
 
     private static PauseMenuState CreateRetailPauseFixture(ISnesAddressSpace bus,
         SamusState samus, Bank80SystemState system, AreaId areaIndex,
@@ -24,21 +23,12 @@ internal static partial class Program
         new(bus, samus, system, areaIndex, roomMapX, roomMapY, audio,
             gameplayVram, mapRevealMode, RetailPresentationFixture());
 
-    /// <summary>
-    /// Installs the same extracted content contract used by the playable host in
-    /// frontend verifier fixtures. Reusing one catalog avoids repeated full-map
-    /// extraction while independent game instances still own their mutable state.
-    /// </summary>
-    private static AreaMapPresentationCatalog RetailPresentationFixture()
-    {
-        if (retailPresentationFixture is not null)
-            return retailPresentationFixture;
+    private static AreaMapPresentationCatalog? retailPresentationFixture;
 
-        string root = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-            "retail-presentation-fixture-" + Guid.NewGuid().ToString("N")));
-        MapPresentationExtractor.Extract(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")),
-            Path.Combine(root, "game", "maps"), "test-provenance");
-        return retailPresentationFixture = new GameInstallation(root).LoadMaps();
-    }
+    /// <summary>
+    /// The shared installation's map presentation, the same extracted content contract the
+    /// playable host uses. Independent game instances still own their mutable state.
+    /// </summary>
+    private static AreaMapPresentationCatalog RetailPresentationFixture() =>
+        retailPresentationFixture ??= runtimeFixtureInstallation.Value.LoadMaps();
 }

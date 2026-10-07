@@ -8,8 +8,8 @@ internal static partial class Program
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xd27e);
-        var assets = CartridgeRoomAssets.Load(bus, room);
-        var enemies = new RoomEnemySystem();
+        var assets = LoadFixtureRoomAssets(bus, room);
+        var enemies = new RoomEnemySystem { TileArtwork = FixtureEnemyTileArtwork() };
         var random = new Bank80SystemState();
         enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer,
             new SnesVram(), new SnesCgram(), random.NextRandom, random.SetRandomNumber);

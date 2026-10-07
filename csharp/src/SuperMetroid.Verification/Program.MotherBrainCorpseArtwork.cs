@@ -9,7 +9,7 @@ internal static partial class Program
 {
     private static void VerifyMotherBrainCorpseStockArtwork()
     {
-        using var temporary = new MapCatalogTestDirectory();
+        using var temporary = new TestTempDirectory("map-catalog");
         var source = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         EnemyTileArtworkFiles.Extract(source, temporary.Root, SupportedCartridge.Sha256);
         EnemyTileArtworkFiles.ValidateStock(temporary.Root);

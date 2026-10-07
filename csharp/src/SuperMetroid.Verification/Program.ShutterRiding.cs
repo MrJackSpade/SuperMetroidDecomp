@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
@@ -14,7 +15,7 @@ internal static partial class Program
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(ShutterRidingRomData.XrayScopeRoom, cameraX: 0x100, cameraY: 0);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BrinstarShutterRoom, cameraX: 0x100, cameraY: 0);
             var samus = runtime.Samus!;
             var platform = runtime.Enemies.Slots[slot];
             var state = runtime.Enemies.VerticalShutterStates[slot]!;

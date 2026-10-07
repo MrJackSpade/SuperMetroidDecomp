@@ -18,7 +18,7 @@ internal static partial class Program
         Directory.CreateDirectory(output);
 
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -69,6 +69,7 @@ internal static partial class Program
         int destinationFrames = 0;
         bool sawDestinationFade = false;
         Rgba32[]? lastDestinationFadePixels = null;
+        int lastDestinationFadeSurfaceRow = 0;
         for (int frame = 0; transition.IsActive && frame < 500; frame++)
         {
             DoorTransitionPhase phase = transition.Phase;
@@ -90,6 +91,7 @@ internal static partial class Program
                 AssertEqual(drainedAcidY, displayed.Value.CurrentYPosition,
                     "destination fade presents the event-restored acid height");
                 lastDestinationFadePixels = pixels;
+                lastDestinationFadeSurfaceRow = displayed.Value.WaterSurfaceScreenY;
             }
             PngWriter.WriteRgba(
                 Path.Combine(output, $"destination-{destinationFrames:D3}-{phase}.png"),
@@ -102,8 +104,14 @@ internal static partial class Program
         AssertTrue(!transition.IsActive, "Acid Statue room transition completes");
         AssertEqual(destinationRoom, runtime.ActiveRoom!.Pointer, "transition reaches the reported room");
         AssertTrue(sawDestinationFade, "transition captures the presented destination fade");
-        AssertEqual(new Rgba32(66, 0, 24), lastDestinationFadePixels![216 * 256 + 16],
-            "first-entry bottom edge contains the drained dark surface, not the bright high-acid flash");
+        // High acid ($00C8) would cover this whole screen. Just above the drained surface
+        // the room's dark background must show; just below it the drained acid is drawn.
+        AssertTrue(lastDestinationFadeSurfaceRow is > 8 and < 216, $"drained acid surface lies on the captured screen (row {lastDestinationFadeSurfaceRow})");
+        Rgba32 background = new(66, 0, 24);
+        AssertEqual(background, lastDestinationFadePixels![(lastDestinationFadeSurfaceRow - 8) * 256 + 16],
+            "first-entry fade shows the dark room above the drained surface, not the high-acid flash");
+        AssertTrue(lastDestinationFadePixels[(lastDestinationFadeSurfaceRow + 8) * 256 + 16] != background,
+            "first-entry fade draws the drained acid below its surface");
         ushort transitionEndY = runtime.RoomLayer3Fx.CurrentYPosition;
         for (int frame = 0; frame < 8; frame++)
         {

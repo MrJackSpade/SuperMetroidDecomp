@@ -69,7 +69,9 @@ Release/x64, and invoke only its headless command:
 
 ```
 sm.exe --diagnostic-grounded-spread <absolute-ROM-path> <new-private-CSV-path>
-SuperMetroid.Verification --grounded-bomb-spread-native <private-CSV-path>
+# Removed in #1272: its private native capture is not in the repository; the managed contract remains in the no-argument verifier.
+# # Removed in #1272: its private native capture is not in the repository; the managed contract remains in the no-argument verifier.
+# SuperMetroid.Verification --grounded-bomb-spread-native <private-CSV-path>
 ```
 
 The output path must not already exist. The entrypoint bypasses SDL and suppresses

@@ -48,10 +48,12 @@ internal static partial class Program
         EnemyExtendedFrameCatalog merged = EnemyExtendedFrameCatalog.Load(json.Json(legacy), baseline);
         AssertEqual(merged.ContentIdentity, EnemyExtendedFrameCatalog.Load(json.Json(legacy), baseline).ContentIdentity,
             "schema-26 merge persists identically across reload");
+        // Later schema versions also add ordinary OAM roots; only BG2-only roots must stay empty.
         foreach (EnemyExtendedFrameDefinition frame in EnemyExtendedFrameDefinitions.Frames[EnemyExtendedFrameDefinitions.PreBg2BossBindingsFrameCount..])
         {
             AssertTrue(merged.TryGetDisplay(frame.Bank, frame.Pointer, out var inherited), "legacy file inherits each newly declared root");
-            AssertEqual(0, inherited.Length, "native BG2-only roots do not fabricate OAM during legacy merge");
+            if (EnemyExtendedFrameDefinitions.IsBg2Only(frame))
+                AssertEqual(0, inherited.Length, "native BG2-only roots do not fabricate OAM during legacy merge");
             AssertEqual(frame.Pointer, merged.GetDisplayPointer(frame.Bank, frame.Pointer), "new stock binding remains identity");
         }
         Console.WriteLine("PASS boss display resources: missing binding/BG2 fail before VRAM writes, bounded empty-frame rules, cross-family rejection and schema-26 inheritance.");

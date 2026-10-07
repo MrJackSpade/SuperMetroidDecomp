@@ -2,7 +2,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rom;
 
-internal static partial class Program
+internal static partial class AssetTools
 {
     private static void ExportIntroCollisionArtwork(CartridgeImportAddressSpace rom)
     {

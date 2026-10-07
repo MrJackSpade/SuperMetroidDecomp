@@ -9,9 +9,9 @@ internal static partial class Program
 {
     private static void VerifyCinematicRenderSnapshots()
     {
-        VerifyCeresExplosionTimeline();
-        VerifyZebesDoesNotWrapDuringDescent();
-        VerifyIntroDisplayCapture();
+        Suite(nameof(VerifyCeresExplosionTimeline), () => VerifyCeresExplosionTimeline());
+        Suite(nameof(VerifyZebesDoesNotWrapDuringDescent), () => VerifyZebesDoesNotWrapDuringDescent());
+        Suite(nameof(VerifyIntroDisplayCapture), () => VerifyIntroDisplayCapture());
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var flight = new IntroCeresFlightState(bus, runtimeFixtureInstallation.Value.LoadIntroCinematicArt().CeresFlight);
         var flightPhases = new HashSet<IntroCeresFlightPhase>();

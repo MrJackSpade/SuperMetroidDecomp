@@ -177,7 +177,7 @@ To regenerate locally, apply `movement-release/native-reserve-refill-entrypoint.
 inside `upstream-sm`, build its Release x64 target, then run its executable with
 `--diagnostic-reserve-refill ROM NEW_OUTPUT.csv`. Output is exclusive-create and
 includes a companion `.oam.csv`. Run Verification with
-`--reserve-native-trace NEW_OUTPUT.csv`, then reverse only the temporary entrypoint
+`--reserve-native-trace NEW_OUTPUT.csv` (Removed in #1272: its private native capture is not in the repository; the managed contract remains in the no-argument verifier.), then reverse only the temporary entrypoint
 patch. The probe returns before SDL initialization and sends errors to the console.
 No native output, ROM data or screenshot is published. Local results are under
 `csharp/test-temp/reserve-native-527/refill-audio.csv`.

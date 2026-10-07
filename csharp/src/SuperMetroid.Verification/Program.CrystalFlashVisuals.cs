@@ -32,11 +32,6 @@ internal static partial class Program
         }
 
         var pixels = SoftwareLayeredSnapshotRenderer.Render(packet);
-        if (elapsed is 10 or 30 or 100 && Environment.GetEnvironmentVariable("SM_CRYSTAL_FLASH_CAPTURE") is { Length: > 0 } directory)
-        {
-            Directory.CreateDirectory(directory);
-            PngWriter.WriteRgba(Path.Combine(directory, $"crystal-{elapsed:D3}.png"), 256, 224, pixels);
-        }
         var colors = packet.Memory.Cgram.ToArray();
         Array.Clear(colors, CrystalFlash.BodyCgramStart, Common.ColorsPerObjPalette);
         var mutedMemory = new PpuMemorySnapshot(packet.Memory.Vram, colors, packet.Memory.Oam, packet.Memory.ModeledSpriteCount);

@@ -151,8 +151,15 @@ internal static partial class Program
     }
 
     private sealed class ChozoProgramAndDrawReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
+        : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        private ISnesMutableMemory WorkMemory => source as ISnesMutableMemory ??
+            throw new InvalidOperationException("Chozo read guard source has no live WRAM.");
+
+        public byte ReadWorkRamByte(int cpuAddress) => WorkMemory.ReadWorkRamByte(cpuAddress);
+
+        public byte ReadSaveRamByte(int cpuAddress) => WorkMemory.ReadSaveRamByte(cpuAddress);
+
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadCartridgeByte(int address) => ReadByte(address);

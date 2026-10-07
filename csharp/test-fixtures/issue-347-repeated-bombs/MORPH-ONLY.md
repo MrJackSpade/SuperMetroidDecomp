@@ -19,7 +19,7 @@ inputs to the native collision routines, not a native projectile-lifecycle repla
 The initial movement seed still begins at frame 117, not power-on. This evidence
 establishes the compared subsystem trajectory, not complete emulator parity.
 
-Regenerate with `Verification --shutter-native-arc`, then run native
+Regenerate with `DebugRunner --shutter-native-arc`, then run native
 `GrapplePoseAudit/audit.exe "Super Metroid.smc" shutter-bomb-arc`, and finally
 `Verification --shutter-morph-repro`. Regeneration alone is not validation:
 the native comparison must pass before accepting a changed baseline.
@@ -29,13 +29,28 @@ at this constrained ceiling corner, and their body-touch callback subsequently
 reverses the platform. No custom anti-overlap rule was added. Player confirmation
 is still required; the original issue has not been closed.
 
+## Baseline after #413 bomb-jump arbitration (#1272)
+
+#413 changed the managed trajectory before frame 117 (input returns during the late
+bomb rise), so the old seed no longer applied. Regenerating it exposed two ordering
+gaps in the native harness, both now corrected to the cartridge's `$82:8B44` frame:
+
+- once rising speed drops below one pixel per frame, `$90:E9xx` restores input handler
+  `$E913`; the harness now runs it and `$91:EB88` before movement;
+- `$A0:9785`, then each enemy's bomb (`$A0:A236`) and Samus (`$A0:A07A`) collision
+  handlers precede the shutter AI, and a published bomb direction is armed after
+  movement rather than at the next frame's start.
+
+With that order all 143 frames of the regenerated baseline match native movement,
+pose transitions and platform AI.
+
 ## Earlier 62-frame comparison and grounded-carry ceiling fix
 
 The historical conclusions below are refined by `shutter-bomb-arc`: unlike the
 earlier two-routine carry experiment, this comparison includes native solid
 collision pose selection and pose-command side effects.
 
-Run `Verification --shutter-native-arc` to export `bomb-arc.wram` and
+Run `DebugRunner --shutter-native-arc` to export `bomb-arc.wram` and
 `bomb-arc.csv`, then `GrapplePoseAudit/audit.exe "Super Metroid.smc"
 shutter-bomb-arc`. The WRAM fixture is a minimal state assembled from the actual
 room-local reproduction immediately before frame 117; it includes the complete
@@ -64,7 +79,7 @@ open while the later bomb interaction is investigated.
 
 The player explicitly ruled out unmorphing. The README's earlier unmorph/ceiling case is not a reproduction of their report.
 
-`--shutter-morph-approaches` runs 288 valid room-local Morph Ball-only sequences. It combines both platforms, centered and adjoining-passage starts, repeated bombs, rolling away and rolling back. Every frame asserts that Samus's collision height remains the Morph Ball radius (7). The sweep reaches 38 pixels of overlap.
+DebugRunner `--shutter-morph-approaches` runs 288 valid room-local Morph Ball-only sequences. It combines both platforms, centered and adjoining-passage starts, repeated bombs, rolling away and rolling back. Every frame asserts that Samus's collision height remains the Morph Ball radius (7). The sweep reaches 38 pixels of overlap.
 
 `dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --shutter-morph-repro` selects a single sequence and deliberately fails on the first overlap exceeding one pixel. It is an unresolved diagnostic, not part of the passing default suite.
 

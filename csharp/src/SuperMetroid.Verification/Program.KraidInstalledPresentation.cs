@@ -7,7 +7,7 @@ internal static partial class Program
     {
         Suite(nameof(VerifyKraidWorkingMapTail), () => VerifyKraidWorkingMapTail());
         var source = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        using var temporary = new MapCatalogTestDirectory();
+        using var temporary = new TestTempDirectory("map-catalog");
         string stockPath = Path.Combine(temporary.Root, "stock");
         EnemyTileArtworkFiles.Extract(source, stockPath, SupportedCartridge.Sha256);
         EnemyTileArtworkFiles.ValidateStock(stockPath);

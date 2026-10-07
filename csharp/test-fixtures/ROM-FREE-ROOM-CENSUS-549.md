@@ -87,7 +87,7 @@ one capture, repeat a specific room without replaying the cinematic:
 
 ```powershell
 $env:SM_ROM_FREE_CENSUS_ROOM = 'A59F'
-dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --rom-free-room-census 'Super Metroid.smc' 'csharp/test-temp/rom-free-room-census-cache'
+dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --rom-free-room-census
 ```
 
 Omit `SM_ROM_FREE_CENSUS_ROOM` to rerun all 262 rooms. A failing selected room
@@ -103,7 +103,7 @@ For a neutral-input sequence within one room, set
 ```powershell
 $env:SM_ROM_FREE_CENSUS_ROOM = 'B37A'
 $env:SM_ROM_FREE_CENSUS_FRAMES = '90'
-dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --rom-free-room-census 'Super Metroid.smc' 'csharp/test-temp/rom-free-room-census-cache'
+dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --rom-free-room-census
 ```
 
 The frame setting is rejected for an all-room census to avoid an accidental
@@ -116,7 +116,7 @@ For a single retail room, use the direct-room verifier instead of capturing
 and later deserializing the intro gameplay graph:
 
 ```powershell
-dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --rom-free-direct-room 'Super Metroid.smc' A59F 900
+dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --rom-free-direct-room
 ```
 
 The hexadecimal argument is a compiled retail room-header pointer. The last
@@ -125,7 +125,6 @@ same 16-bit SNES controller word throughout the probe. For example, `0040`
 holds X (the default fire button):
 
 ```powershell
-dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --rom-free-direct-room 'Super Metroid.smc' A59F 900 0040
 ```
 
 The verifier imports a fresh temporary

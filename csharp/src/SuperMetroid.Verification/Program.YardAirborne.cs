@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyYardRuntimeDistancePublication()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus);
+        var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom();
@@ -39,7 +39,7 @@ internal static partial class Program
         foreach (uint initialY in vertical)
         foreach (ushort behavior in new ushort[] { 3, 4, 5 })
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem { TileArtwork = FixtureEnemyTileArtwork() };
             enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer,
                 new SnesVram(), new SnesCgram(), () => 0);
             var actor = enemies.Slots[0];

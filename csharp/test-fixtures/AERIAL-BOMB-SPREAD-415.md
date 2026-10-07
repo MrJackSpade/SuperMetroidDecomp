@@ -46,7 +46,7 @@ Verification commands:
 ```text
 --aerial-spread-transition
 --aerial-spread-transition NATIVE_CSV
---aerial-spread-trace NEW_MANAGED_CSV
+DebugRunner DebugRunner --aerial-spread-trace NEW_MANAGED_CSV
 ```
 
 The no-argument variant is in the full suite and asserts the success/failure
@@ -134,8 +134,7 @@ Use the same temporary native entrypoint patch, now supporting
 
 ```text
 --wall-spread-transition
---wall-spread-transition NATIVE_CSV
---wall-spread-trace NEW_MANAGED_CSV
+DebugRunner --wall-spread-trace NEW_MANAGED_CSV
 ```
 
 The standard suite includes both route regressions: actual walljump admission,

@@ -87,8 +87,8 @@ internal static partial class Program
                 var actualPcm = restoredAudio.RenderFrame(actual.AudioCommands);
                 loaded.Game.SetAudioAcknowledgements(restoredAudio.ReadAcknowledgements());
                 AssertEqual(game.FrameNumber, loaded.Game.FrameNumber, "restored frame cadence");
-                AssertTrue(bus.WorkRam.SequenceEqual(loaded.AddressSpace.WorkRam), "restored continuation WRAM");
-                AssertTrue(bus.SaveRam.SequenceEqual(loaded.AddressSpace.SaveRam), "restored continuation SRAM");
+                AssertSameBytes(bus.WorkRam, loaded.AddressSpace.WorkRam, "restored continuation WRAM");
+                AssertSameBytes(bus.SaveRam, loaded.AddressSpace.SaveRam, "restored continuation SRAM");
                 AssertEqual(runtime.Samus!.XPosition, loaded.Game.RuntimeForVerification!.Samus!.XPosition, "restored Samus movement");
                 AssertEqual(runtime.System.RandomNumber, loaded.Game.RuntimeForVerification.System.RandomNumber, "restored RNG");
                 AssertTrue(expectedPcm.AsSpan().SequenceEqual(actualPcm), "restored continuation PCM");

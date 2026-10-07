@@ -13,16 +13,23 @@ internal static partial class Program
             new MemoryStream(extracted, writable: false));
 
         int comparedWords = 0;
+        int width = GameplayMessageRomData.Layout.TilemapWidth;
         foreach (GameplayMessageId id in GameplayMessageTitleDefinitions.MessageIds)
         {
-            var cartridge = new GameplayMessageBoxState();
-            cartridge.Begin(bus, id);
             var installed = new GameplayMessageBoxState();
             installed.BindPresentation(stock);
             installed.Begin(new ForbiddenGameplayMessageBus(), id);
-            AssertTrue(cartridge.Tilemap.SequenceEqual(installed.Tilemap),
-                $"installed UTF-8 gameplay title {id} matches cartridge tilemap");
-            comparedWords += installed.Tilemap.Length;
+            // The title's content row is the cartridge's one-row tilemap named by the
+            // message definition table; read it directly as the independent reference.
+            int definition = GameplayMessageRomData.Assets.DefinitionTable +
+                ((byte)id - 1) * GameplayMessageRomData.Layout.DefinitionBytes;
+            int content = GameplayMessageRomData.Assets.BankBase |
+                (bus.ReadByte(definition + 4) | bus.ReadByte(definition + 5) << 8);
+            ReadOnlySpan<ushort> row = installed.Tilemap.Slice(width, width);
+            for (int column = 0; column < width; column++)
+                AssertEqual((ushort)(bus.ReadByte(content + column * 2) | bus.ReadByte(content + column * 2 + 1) << 8),
+                    row[column], $"installed UTF-8 gameplay title {id} column {column} matches the cartridge tilemap");
+            comparedWords += width;
         }
 
         JsonObject document = JsonNode.Parse(extracted)!.AsObject();

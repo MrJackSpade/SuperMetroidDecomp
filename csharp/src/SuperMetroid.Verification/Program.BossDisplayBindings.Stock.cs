@@ -13,7 +13,7 @@ internal static partial class Program
     private static void VerifyBossDisplayStock()
     {
         var source = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        using var temporary = new MapCatalogTestDirectory();
+        using var temporary = new TestTempDirectory("map-catalog");
         string path = Path.Combine(temporary.Root, "stock"), overrides = Path.Combine(temporary.Root, "overrides");
         EnemyTileArtworkFiles.Extract(source, path, SupportedCartridge.Sha256);
         EnemyTileArtworkFiles.ValidateStock(path);

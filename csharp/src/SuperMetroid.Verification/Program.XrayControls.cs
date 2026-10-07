@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -14,7 +15,7 @@ internal static partial class Program
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(ShutterRidingRomData.XrayScopeRoom);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BrinstarShutterRoom);
             runtime.ControllerBindings = remapped
                 ? ControllerBindings.Default.AssignAndSwap(0, ControllerBindings.Default.Dash)
                 : ControllerBindings.Default;

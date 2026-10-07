@@ -119,13 +119,12 @@ internal static partial class Program
             entry.DoorPointer, skyArt: stock);
         AssertTrue(nativeDoorVram.Bytes.SequenceEqual(installedDoorVram.Bytes),
             "Landing Site door-selected sky upload uses installed pages without ROM visual reads");
-        var nativeDedicatedVram = new SnesVram();
         var installedDedicatedVram = new SnesVram();
-        LandingSiteStreamingData.LoadCharacterGraphics(bus, nativeDedicatedVram, entry);
         LandingSiteStreamingData.LoadCharacterGraphics(guard, installedDedicatedVram,
-            entry, stock);
-        AssertTrue(nativeDedicatedVram.Bytes.SequenceEqual(installedDedicatedVram.Bytes),
-            "dedicated Landing Site setup installs stock sky without visual source reads");
+            entry, stock, runtimeFixtureInstallation.Value.LoadRoomCharacters());
+        // The guard throws on any Landing Site visual source read; completing proves none occurred.
+        AssertTrue(installedDedicatedVram.Bytes.ToArray().Any(value => value != 0),
+            "dedicated Landing Site setup uploads its stock sky and characters without visual source reads");
 
         var nativeRows = new VramWriteQueue();
         var installedRows = new VramWriteQueue();

@@ -13,7 +13,7 @@ internal static partial class Program
         Suite(nameof(VerifyEndingExplosionSlotOrder), () => VerifyEndingExplosionSlotOrder());
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         var audio = new CartridgeAudioState();
-        var ending = new EndingCreditsState(bus, audio, 0, 0);
+        var ending = CreateRetailEndingFixture(bus, audio, 0, 0);
         ending.Step();
         var projection = ending.CaptureRenderSnapshot().Layers.ToArray().OfType<SuperMetroid.Core.Rendering.Mode7RenderLayer>().Single().Registers;
         AssertEqual((short)0, projection.HorizontalOffset, "native atmospheric scroll X");

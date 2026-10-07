@@ -1,7 +1,7 @@
 using System.Reflection;
 using System.Text.Json;
 
-internal static partial class Program
+internal static partial class AssetTools
 {
     /// <summary>
     /// #1165 conversion probe (<c>--dump-instruction-layouts &lt;file&gt;</c>): records every compiled

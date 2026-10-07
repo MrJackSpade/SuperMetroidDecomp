@@ -121,6 +121,14 @@ internal static partial class Program
         CartridgeAudioState? audio = null, IntroCinematicArtworkCatalog? artwork = null) => new(bus, audio, RetailPresentationFixture().PowerBombFixedColors,
             artwork ?? runtimeFixtureInstallation.Value.LoadIntroCinematicArt(), RetailPresentationFixture().RoomPaletteFx);
 
+    /// <summary>
+    /// Independent reference for ending-actor instruction streams: reads each word from the
+    /// cartridge's bank $8B, where production reads the compiled instruction definitions.
+    /// </summary>
+    private static Func<ushort, ushort> EndingCartridgeInstructionWord(ISnesAddressSpace bus) =>
+        pointer => (ushort)(bus.ReadByte(0x8b0000 | pointer) |
+            bus.ReadByte(0x8b0000 | unchecked((ushort)(pointer + 1))) << 8);
+
     private static EndingCreditsState CreateRetailEndingFixture(ISnesAddressSpace bus,
         CartridgeAudioState audio, ushort gameTimeHours, ushort gameTimeMinutes,
         EndingInventorySnapshot inventory = default, bool japaneseText = false)

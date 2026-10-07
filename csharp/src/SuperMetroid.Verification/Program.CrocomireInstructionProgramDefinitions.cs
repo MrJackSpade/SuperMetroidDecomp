@@ -33,7 +33,7 @@ internal static partial class Program
             rom,
             CrocomireInstructionAuditRoom);
         var installation = runtimeFixtureInstallation.Value;
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(rom, room,
+        CartridgeRoomAssets assets = LoadFixtureRoomAssets(rom, room,
             installation.LoadRoomCharacters(), installation.LoadRoomPalettes(),
             installation.LoadRoomMetatiles(), installation.LoadRoomVisualLayouts());
         var vram = new SnesVram();

@@ -1500,13 +1500,14 @@ internal static partial class Program
         var stock = Load(document);
         Check(stock,document);
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        AssertEqual(6,((ushort[])typeof(CeresDoorVisualCatalog).GetField("animationSeeds",flags)!.GetValue(stock)!).Length,"Ceres animation retains six unresolved seeds");
-        AssertEqual(4,((Dictionary<int,ushort>)typeof(CeresDoorVisualCatalog).GetField("animationPhaseResiduals",flags)!.GetValue(stock)!).Count,"Ceres animation retains four unresolved phase colors");
-        AssertEqual(0,((Dictionary<int,ushort>)typeof(CeresDoorVisualCatalog).GetField("animationRowEdits",flags)!.GetValue(stock)!).Count,"stock reverse phases require no row storage");
-        AssertEqual(9, ((ushort[])typeof(CeresDoorVisualCatalog).GetField("escapeUniqueColors", flags)!
-            .GetValue(stock)!).Length, "Nine independent escape colors remain pending");
-        AssertEqual(0, ((Dictionary<int, ushort>)typeof(CeresDoorVisualCatalog).GetField("escapeSharedEdits", flags)!
-            .GetValue(stock)!).Count, "Stock escape colors share six normal palette slots");
+        object animation = typeof(CeresDoorVisualCatalog).GetField("animation", flags)!.GetValue(stock)!;
+        object escape = typeof(CeresDoorVisualCatalog).GetField("escape", flags)!.GetValue(stock)!;
+        AssertEqual(0, ((Dictionary<int, ushort>)animation.GetType().GetField("seedEdits", flags)!.GetValue(animation)!).Count,
+            "stock animation seeds derive from the normal paint");
+        AssertEqual(0, ((Dictionary<int, ushort>)animation.GetType().GetField("edits", flags)!.GetValue(animation)!).Count,
+            "stock animation phases require no cell storage");
+        AssertEqual(0, ((Dictionary<int, ushort>)escape.GetType().GetField("edits", flags)!.GetValue(escape)!).Count,
+            "stock escape colors derive from the normal paint");
         for (int palette = 0; palette < 2; palette++)
         for (int color = 0; color < 15; color++)
         for (int channel = 0; channel < 3; channel++)
@@ -1532,7 +1533,7 @@ internal static partial class Program
         }
         AssertThrows<IndexOutOfRangeException>(() => stock.LoadAnimationColors(new SnesCgram(),-1),"Ceres animation lower bound");
         AssertThrows<IndexOutOfRangeException>(() => stock.LoadAnimationColors(new SnesCgram(),8),"Ceres animation upper bound");
-        Console.WriteLine("Stream 5 Ceres door ramp:48 native colors,48 independently edited cells, actual CGRAM,90 independent setup-channel edits, six shared setup slots and canonical identities pass; seed colors and four phase residuals remain pending.");
+        Console.WriteLine("Stream 5 Ceres door ramp:48 native colors,48 independently edited cells, actual CGRAM,90 independent setup-channel edits, six shared setup slots and canonical identities pass; stock seeds, phases and escape colors store no edits.");
 
         PaletteRgb5[] Colors(int source,int count) => Enumerable.Range(0,count).Select(index =>
         {
@@ -1951,8 +1952,11 @@ internal static partial class Program
         using var png = new MemoryStream(); IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         CeresDoorEscapePaintDefinitions stock = Check();
-        AssertEqual(4, ((int[])typeof(CeresDoorEscapePaintDefinitions).GetField("highlightAndEdgeLevels", flags)!.GetValue(stock)!).Length, "Four selected highlight/edge/outline levels");
+        // The highlight/edge/outline levels live in the surface paint the escape palette composes.
+        object surface = typeof(CeresDoorEscapePaintDefinitions).GetField("surface", flags)!.GetValue(stock)!;
+        AssertEqual(4, ((int[])typeof(CeresDoorEscapeSurfacePaintDefinitions).GetField("highlightAndEdgeLevels", flags)!.GetValue(surface)!).Length, "Four selected highlight/edge/outline levels");
         AssertEqual(0, ((Dictionary<int, ushort>)typeof(CeresDoorEscapePaintDefinitions).GetField("edits", flags)!.GetValue(stock)!).Count, "Native calculated channels need no unexplained overrides");
+        AssertEqual(0, ((Dictionary<int, ushort>)typeof(CeresDoorEscapeSurfacePaintDefinitions).GetField("edits", flags)!.GetValue(surface)!).Count, "Native calculated surface channels need no unexplained overrides");
         for (int color = 0; color < 15; color++)
         {
             PaletteRgb5 before = document.Escape[color];

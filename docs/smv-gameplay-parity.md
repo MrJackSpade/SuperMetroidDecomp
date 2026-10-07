@@ -343,7 +343,7 @@ Run the converted diagnostic from the hotfix worktree root:
 
 ```text
 python tools/convert-smv-updates.py MOVIE TRACE_DIRECTORY --rom ROM --output TRACE_DIRECTORY/updates.json
-dotnet csharp/src/SuperMetroid.Verification/bin/Release/net10.0/SuperMetroid.Verification.dll --ridley-full-movie TRACE_DIRECTORY
+dotnet csharp/src/SuperMetroid.Verification/bin/Release/net10.0/SuperMetroid.Verification.dll --ridley-full-movie   # reads ignored native-captures/issue-1266-ridley
 ```
 
 The current verifier deliberately requires the original supplied Ridley movie's

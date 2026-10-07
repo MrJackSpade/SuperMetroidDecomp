@@ -16,6 +16,17 @@ internal static partial class Program
             spritemapPointer, originX, originY, paletteBits, baseTileIndex,
             clipVerticalWrap, originYIsOnScreen);
 
+    /// <summary>
+    /// The cartridge spritemap an enemy projectile draws this frame. Installed-presentation frames
+    /// keep a blank spritemap and name the image by instruction operand; the cartridge's spritemap
+    /// for such a frame is the word stored at that operand in bank $86.
+    /// </summary>
+    private static ushort NativeEnemyProjectileSpritemap(ISnesAddressSpace bus, RoomEnemyProjectileSlot projectile) =>
+        projectile.PresentationOperandAddress != 0
+            ? SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                0x860000 | projectile.PresentationOperandAddress)
+            : projectile.SpritemapPointer;
+
     private static void DrawImportedEnemyProjectileSpritemap(ISnesAddressSpace bus, OamBuffer oam,
         ushort bank8dSpritemapPointer, ushort originX, ushort originY,
         ushort graphicsIndex, bool originYIsOnScreen) =>

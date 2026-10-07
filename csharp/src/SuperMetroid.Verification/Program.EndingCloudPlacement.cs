@@ -13,7 +13,7 @@ internal static partial class Program
         Suite(nameof(VerifyEndingTakeoffColorMath), () => VerifyEndingTakeoffColorMath(checkWrapping: false));
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         var audio = new CartridgeAudioState();
-        var ending = new EndingCreditsState(bus, audio, 0, 0);
+        var ending = CreateRetailEndingFixture(bus, audio, 0, 0);
         for (int frame = 0; frame < 20000 && ending.Phase != EndingCreditsPhase.FadeInEscapeSceneB; frame++)
         {
             ending.Step();
@@ -31,6 +31,7 @@ internal static partial class Program
         var actors = definitions.Select((definition, index) => new EndingSprite(
             new IntroDiscoverySprite(128, unchecked((ushort)nativeY[index]), definition.Attributes.Raw,
                 definition.InstructionPointer), roles[index])).ToArray();
+        var cloudSprites = runtimeFixtureInstallation.Value.LoadEndingObjectArt().CloudSprites;
         int checkedFrames = 0;
         for (int frame = 0; frame < 200; frame++)
         {
@@ -46,11 +47,11 @@ internal static partial class Program
                 // Do not reuse EndingCloudMotion as the expected-motion oracle.
                 if (frame != 0)
                     actor.Sprite.YPosition = unchecked((ushort)(actor.Sprite.YPosition + (index < 2 ? 1 : -1)));
-                actor.Sprite.Step(bus);
+                actor.Sprite.Step(bus, instructionWord: EndingCartridgeInstructionWord(bus));
             }
             var oam = new OamBuffer();
             oam.BeginFrame();
-            foreach (var actor in actors) actor.Sprite.Draw(bus, oam);
+            foreach (var actor in actors) actor.Sprite.Draw(bus, oam, installedArt: cloudSprites);
             oam.FinalizeFrame();
             var actual = ending.CaptureRenderSnapshot();
             byte[] oamBytes = [.. oam.LowTable.ToArray(), .. oam.HighTable.ToArray()];
@@ -76,7 +77,7 @@ internal static partial class Program
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         var audio = new CartridgeAudioState();
-        var ending = new EndingCreditsState(bus, audio, 0, 0);
+        var ending = CreateRetailEndingFixture(bus, audio, 0, 0);
         for (int frame = 0; frame < 20000 && ending.Phase != EndingCreditsPhase.EscapeSceneA; frame++)
         {
             ending.Step();

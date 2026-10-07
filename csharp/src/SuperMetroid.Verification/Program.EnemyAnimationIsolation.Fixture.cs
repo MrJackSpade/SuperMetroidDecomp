@@ -124,8 +124,15 @@ internal static partial class Program
         AssertAnimationValues(baseline.Samus, edited.Samus, context);
         AssertAnimationValues(baseline.Samus.Kinematics, edited.Samus.Kinematics, context);
         AssertAnimationValues(baseline.Enemies, edited.Enemies, context);
-        AssertTrue(baseline.Memory.WorkRam.SequenceEqual(edited.Memory.WorkRam), context + " preserves all WRAM");
-        AssertTrue(baseline.Memory.SaveRam.SequenceEqual(edited.Memory.SaveRam), context + " preserves all SRAM");
+        // EnemyBG2Tilemap is the cartridge's staging image for the visible BG2 frame, so an
+        // edited BG2 presentation legitimately changes it; every other WRAM byte must not.
+        int bg2Start = MotherBrainBg2Definitions.WorkAddress & 0xffff;
+        int bg2End = bg2Start + MotherBrainBg2Definitions.ClearWordCount * sizeof(ushort);
+        AssertSameBytes(baseline.Memory.WorkRam[..bg2Start], edited.Memory.WorkRam[..bg2Start],
+            context + " preserves WRAM below the enemy BG2 staging image");
+        AssertSameBytes(baseline.Memory.WorkRam[bg2End..], edited.Memory.WorkRam[bg2End..],
+            context + " preserves WRAM above the enemy BG2 staging image");
+        AssertSameBytes(baseline.Memory.SaveRam, edited.Memory.SaveRam, context + " preserves all SRAM");
         AssertTrue(baseline.Enemies.SoundRequests.SequenceEqual(edited.Enemies.SoundRequests), context + " preserves audio calls");
         AssertTrue(baseline.Enemies.MusicRequests.SequenceEqual(edited.Enemies.MusicRequests), context + " preserves music calls");
         AssertEqual(baseline.RandomWord, edited.RandomWord, context + " preserves RNG state");

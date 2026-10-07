@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyDraygonGoopDrops()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -28,7 +28,9 @@ internal static partial class Program
             AssertTrue(goop.IsActive, "goop survives both eight-frame burst images before drop callback");
             AssertEqual(1, enemies.EnemyProjectiles.Count(projectile => projectile.IsActive),
                 "drop is not allocated before the burst completes");
-            burstMaps.Add(goop.SpritemapPointer);
+            // Installed-presentation frames keep a blank spritemap and name the drawn image by
+            // its instruction operand; compiled frames name it by spritemap.
+            burstMaps.Add(goop.PresentationOperandAddress != 0 ? goop.PresentationOperandAddress : goop.SpritemapPointer);
         }
         AssertEqual(2, burstMaps.Count, "retail goop burst displays both spritemaps");
         enemies.StepEnemyProjectiles(runtime.LevelData!, runtime.Samus);

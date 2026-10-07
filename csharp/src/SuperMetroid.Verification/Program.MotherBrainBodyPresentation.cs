@@ -171,7 +171,7 @@ internal static partial class Program
         }
         Console.WriteLine($"PASS stock import: 17 Mother Brain roots, {limbs} OAM limbs/{sprites} sprites, " +
             $"16 BG2 frames/{runs} ordered runs/{tiles} tile words. Production runtime receives no cartridge source.");
-        using var temporary = new MapCatalogTestDirectory();
+        using var temporary = new TestTempDirectory("map-catalog");
         string stockPath = Path.Combine(temporary.Root, "stock"), overridePath = Path.Combine(temporary.Root, "overrides");
         EnemyTileArtworkFiles.Extract(source, stockPath, SupportedCartridge.Sha256);
         EnemyTileArtworkFiles.ValidateStock(stockPath);

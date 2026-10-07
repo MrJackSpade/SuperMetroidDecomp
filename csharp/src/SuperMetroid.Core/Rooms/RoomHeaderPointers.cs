@@ -99,8 +99,11 @@ public static class RoomHeaderPointers
     /// <summary>Crateria room $1F at $8F:9A90; contains the Morph Ball surveillance eye.</summary>
     public const ushort CrateriaMorphBallEyeRoom = 0x9a90;
 
-    /// <summary>Brinstar room $22 at $8F:A2CE; the room-census shutter fixture.</summary>
+    /// <summary><c>RoomHeader_XrayScope</c>: Brinstar room $22 at $8F:A2CE, with two bomb-activated shutters.</summary>
     public const ushort BrinstarShutterRoom = 0xa2ce;
+
+    /// <summary><c>kRoom_a408</c>: Brinstar room $28 at $8F:A408, with a shallow-water floor below a low ceiling.</summary>
+    public const ushort BrinstarShallowWaterRoom = 0xa408;
 
     /// <summary>Morph Ball Room at $8F:9E9F.</summary>
     public const ushort MorphBallRoom = 0x9e9f;

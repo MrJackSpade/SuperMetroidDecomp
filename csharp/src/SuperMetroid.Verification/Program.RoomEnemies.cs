@@ -703,8 +703,8 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
 
 private static EnemyTileArtworkCatalog CreateCeresDoorFixtureArtwork(TestAddressSpace bus)
 {
-    string directory = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-        "ceres-door-fixture-" + Guid.NewGuid().ToString("N")));
+    using var directoryScratch = new TestTempDirectory("ceres-door-fixture");
+    string directory = directoryScratch.Root;
     SuperMetroid.AssetExtraction.CeresDoorVisualFiles.Extract(bus, directory);
     var visuals = SuperMetroid.AssetExtraction.CeresDoorVisualFiles.Load(
         File.ReadAllBytes(Path.Combine(directory, CeresDoorVisualFormat.TilesFileName)),
@@ -1260,12 +1260,13 @@ static void VerifyCeresRidleyRoomEntry()
         "Ceres Ridley eye fade enables composite animation");
     AssertEqual(0, state.TailFunctionIndex,
         "Ceres Ridley resting tail has not started its liftoff motion");
-    AssertTrue(
-        state.TailSegments
+    // The native Ridley movie shows the resting tail with zero link offsets: every link is
+    // composed at the base point until a tail controller first runs.
+    AssertEqual(1, state.TailSegments
             .Select(segment => (segment.XPosition, segment.YPosition))
             .Distinct()
-            .Count() > 1,
-        "Ceres Ridley resting tail is articulated before liftoff");
+            .Count(),
+        "Ceres Ridley resting tail is composed at its base before liftoff");
 
     for (int frame = 0; frame < 32; frame++)
         enemies.StepFrame(cameraX: 0, cameraY: 0, timeIsFrozen: false);

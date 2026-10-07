@@ -6,12 +6,11 @@ save. It consumes the memory prefix of a generated `.smframe` and supplies the
 retail `$8B:F2FA` Mode-1 finale registers independently of C# layer descriptors.
 It is a raster oracle, **not** a complete native cinematic playback oracle.
 
-From the repository root in PowerShell:
+Each flag regenerates its inputs: it runs `--ending-planet-boundary` for the `.smframe`
+samples, builds the probe once with `build.cmd` (the Visual Studio C++ tools are required),
+and writes each `.bgra` raster before comparing. From the repository root:
 
 ```powershell
-dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --ending-planet-boundary
-& 'C:/Program Files/Microsoft Visual Studio/18/Community/MSBuild/Current/Bin/MSBuild.exe' csharp/test-fixtures/ending-native-ppu/probe.vcxproj /p:Configuration=Release /p:Platform=x64 /v:minimal
-& csharp/test-temp/ending-native-ppu/probe.exe csharp/test-temp/ending-506/later-0512-ZebesExplosionAnimation.smframe csharp/test-temp/ending-506/later-0512-ZebesExplosionAnimation.bgra
 dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --ending-native-ppu
 ```
 

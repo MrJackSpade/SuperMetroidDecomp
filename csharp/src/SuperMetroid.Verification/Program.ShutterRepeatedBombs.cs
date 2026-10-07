@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
@@ -14,11 +15,11 @@ internal static partial class Program
         foreach (int interval in new[] { 2, 4, 8, 12, 16, 20, 32, 48, 64 })
         foreach (int unmorphAt in new[] { -1, 45, 75, 105 })
         {
-            var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
+            var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(ShutterRidingRomData.XrayScopeRoom);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BrinstarShutterRoom);
             var samus = runtime.Samus!;
             var platform = runtime.Enemies.Slots[slotIndex];
             samus.InputLocked = false;

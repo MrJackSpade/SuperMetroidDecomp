@@ -10,7 +10,7 @@ internal static partial class Program
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var audio = new CartridgeAudioState();
-        var menu = new FileSelectMenuState(bus, audio);
+        var menu = new FileSelectMenuState(bus, audio, RetailPresentationFixture());
         var renderer = new CartridgeAudioRenderer(ExtractedAudioAssetCatalog.Load(Path.GetFullPath("standalone-assets/audio")));
         int writes = 0, nonzero = 0;
         for (int frame = 0; frame < 180; frame++)
@@ -35,7 +35,7 @@ internal static partial class Program
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         if (existingSave)
             new SuperMetroidSaveRam(bus, RetailPresentationFixture()).SaveSlot(0, new SuperMetroidSaveSnapshot());
-        var game = new SuperMetroidGame(bus);
+        var game = CreateRetailGameFixture(bus);
         game.BindMapPresentation(RetailPresentationFixture());
         var assets = ExtractedAudioAssetCatalog.Load(Path.GetFullPath("standalone-assets/audio"));
         var actual = new CartridgeAudioRenderer(assets);

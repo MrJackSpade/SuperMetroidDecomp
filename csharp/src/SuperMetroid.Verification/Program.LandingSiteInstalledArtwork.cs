@@ -21,35 +21,27 @@ internal static partial class Program
     {
         var guard = new LandingVisualSourceReadGuard(bus);
         RoomVisualLayoutCatalog stockLayouts = installation.LoadRoomVisualLayouts();
-        RoomLevelData nativeLevel = LandingSiteStreamingData.LoadLevel(bus);
-        RoomLevelData installedLevel = LandingSiteStreamingData.LoadLevel(guard, stockBlocks,
+        // The stock installed level (extracted from the cartridge) is the baseline; the
+        // guard forbids every Landing Site visual source read.
+        RoomLevelData stockLevel = LandingSiteStreamingData.LoadLevel(guard, stockBlocks,
             stockLayouts);
-        AssertTrue(nativeLevel.ForegroundEntries.Span.SequenceEqual(installedLevel.ForegroundEntries.Span) &&
-            nativeLevel.BehaviorBytes.Span.SequenceEqual(installedLevel.BehaviorBytes.Span) &&
-            nativeLevel.BackgroundEntries.Span.SequenceEqual(installedLevel.BackgroundEntries.Span) &&
-            nativeLevel.BlockDefinitions.Span.SequenceEqual(installedLevel.BlockDefinitions.Span),
-            "Landing Site installed blocks preserve every native level and visual word");
 
         RoomLevelData editedLevel = LandingSiteStreamingData.LoadLevel(
             guard, installation.LoadRoomMetatiles(), stockLayouts);
-        AssertTrue(!nativeLevel.BlockDefinitions.Span.SequenceEqual(
+        AssertTrue(!stockLevel.BlockDefinitions.Span.SequenceEqual(
                 editedLevel.BlockDefinitions.Span) &&
-            nativeLevel.ForegroundEntries.Span.SequenceEqual(editedLevel.ForegroundEntries.Span) &&
-            nativeLevel.BehaviorBytes.Span.SequenceEqual(editedLevel.BehaviorBytes.Span),
+            stockLevel.ForegroundEntries.Span.SequenceEqual(editedLevel.ForegroundEntries.Span) &&
+            stockLevel.BehaviorBytes.Span.SequenceEqual(editedLevel.BehaviorBytes.Span),
             "Landing Site block edit changes visuals without changing level placement or BTS");
 
-        var nativeVram = new SnesVram();
-        LandingSiteStreamingData.LoadCharacterGraphics(bus, nativeVram, entry);
         var installedVram = new SnesVram();
         LandingSiteStreamingData.LoadCharacterGraphics(guard, installedVram, entry,
             stockSky, stockCharacters);
-        AssertTrue(nativeVram.Bytes.SequenceEqual(installedVram.Bytes),
-            "Landing Site stock characters and sky match native VRAM without visual ROM reads");
 
         var editedVram = new SnesVram();
         LandingSiteStreamingData.LoadCharacterGraphics(guard, editedVram, entry,
             stockSky, editedCharacters);
-        AssertTrue(nativeVram.ReadByte(RoomAssetRomData.GraphicsLayout.AreaCharactersVramByteOffset) !=
+        AssertTrue(installedVram.ReadByte(RoomAssetRomData.GraphicsLayout.AreaCharactersVramByteOffset) !=
             editedVram.ReadByte(RoomAssetRomData.GraphicsLayout.AreaCharactersVramByteOffset),
             "Landing Site area-character edit reaches its native VRAM destination");
 

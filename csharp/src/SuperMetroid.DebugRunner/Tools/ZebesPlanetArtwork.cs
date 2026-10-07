@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rom;
 
-internal static partial class Program
+internal static partial class AssetTools
 {
     private static void ExportZebesPlanetArtwork(CartridgeImportAddressSpace rom)
     {

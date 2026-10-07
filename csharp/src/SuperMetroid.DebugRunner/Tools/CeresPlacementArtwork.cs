@@ -2,13 +2,11 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.AssetExtraction;
 
-internal static partial class Program
+internal static partial class AssetTools
 {
     private static void ExportEndingGunshipPaletteEvidence()
     {
-        var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Gunship art source revision");
+        var rom = LoadRepositoryRom();
         byte[] tiles = RomDataReader.Decompress(rom, 0x95a82f, maximumOutputBytes: 0x4000);
         byte[] maps = RomDataReader.Decompress(rom, 0x96fe69, maximumOutputBytes: 0x1000);
         const int width = 1024, height = 256;
@@ -49,9 +47,7 @@ internal static partial class Program
     // Static source inspection for #1165's unresolved explosion offsets; no scene execution.
     private static void ExportCeresPlacementArtwork()
     {
-        var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres art source revision");
+        var rom = LoadRepositoryRom();
         byte[] tiles = RomDataReader.Decompress(rom, 0x95a82f, maximumOutputBytes: 0x4000);
         byte[] maps = RomDataReader.Decompress(rom, 0x96fe69, maximumOutputBytes: 0x1000);
         var palette = SnesGraphics.DecodeBgr555Palette(RomDataReader.ReadFixedBank(rom, 0x8ce5e9, 512));

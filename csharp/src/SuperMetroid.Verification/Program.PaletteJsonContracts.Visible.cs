@@ -36,7 +36,7 @@ internal static partial class Program
             stockFx.Step(stockBus, stockCgram, original, 0, 0, false, false);
             editedFx.Step(editedBus, editedCgram, replacement, 0, 0, false, false);
             AssertPaletteContractFxState(stockFx, editedFx);
-            AssertTrue(stockBus.WorkRam.SequenceEqual(editedBus.WorkRam), "color replacement preserves all live WRAM");
+            AssertSameBytes(stockBus.WorkRam, editedBus.WorkRam, "color replacement preserves all live WRAM");
             foreach (var definition in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
             {
                 int destination = definition.ColorByteIndex / sizeof(ushort) + 1;

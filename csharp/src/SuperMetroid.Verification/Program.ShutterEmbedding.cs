@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -17,11 +18,11 @@ internal static partial class Program
         {
             int offset = slot == 0 ? 32 : -32;
             SnesButton direction = slot == 0 ? SnesButton.Left : SnesButton.Right;
-            var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
+            var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(ShutterRidingRomData.XrayScopeRoom, 0, 0);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BrinstarShutterRoom, 0, 0);
             var samus = runtime.Samus!;
             var platform = runtime.Enemies.Slots[slot];
             samus.Pose = SamusPoseIds.MorphBallGroundRightPose;

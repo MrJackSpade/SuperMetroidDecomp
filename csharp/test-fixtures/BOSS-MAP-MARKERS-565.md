@@ -47,7 +47,7 @@ This is original sprite construction, not an independent PPU raster capture.
 
 Regenerate with `movement-release/native-boss-map-entrypoint.patch` and
 `sm.exe --diagnostic-boss-map ROM NEW.csv`; compare using Verification
-`--native-boss-markers NEW.csv`. Accepted private trace SHA256:
+`--native-boss-markers NEW.csv` (Removed in #1272: its private native capture is not in the repository; the managed contract remains in the no-argument verifier.) Accepted private trace SHA256:
 `B6A536857F129A6F1F8BC1C92EFDECCA8C58EBAF9AC626DC2EC6E3FB5EDC50DD`.
 The command is bounded/headless and creates a new output exclusively. No
 production change was needed after the missing pause call was restored.

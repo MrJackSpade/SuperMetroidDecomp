@@ -81,7 +81,7 @@ reads blocked. This does not claim a full Kraid fight or all controller routes.
 
 ## Kraid arm extended collision (2026-09-28)
 
-The `--rom-free-direct-room 'Super Metroid.smc' A59F 1500 0140`
+The `--rom-free-direct-room` held Right+fire (`0140`, 1500 frames) Kraid case
 controller probe (held right and fire) reproduced an installed-ROM read of
 `$A7:9127` on frame 7. Stationary fire and neutral input did not exercise
 this path: a moving shot reached the arm's extended hitbox walker. The 22
@@ -1303,7 +1303,7 @@ test. Never bulk-install those candidates without a family-specific production
 consumer and exact OAM/visual parity proof.
 
 The 4,161 fixed selector operand/target pairs are now compiled into sparse,
-bank-scoped definition files. `--generate-enemy-visual-selectors` regenerates
+bank-scoped definition files. DebugRunner `--generate-enemy-visual-selectors` regenerates
 them from the pinned cartridge, and `--verify-enemy-visual-selectors` checks
 every value, sorted lookup, and unknown-key rejection. This compiles only the
 fixed pointer *selection* data; it does not install selected OAM artwork or

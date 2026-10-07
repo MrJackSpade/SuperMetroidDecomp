@@ -136,7 +136,7 @@ invincibility countdown. All 120 records match the production dispatcher:
 
 ```text
 sm.exe --diagnostic-xplasma-timers "Super Metroid.smc" <new-private-output.csv>
-Verification --native-x-plasma-timers <new-private-output.csv>
+Verification --native-x-plasma-timers <new-private-output.csv> (Removed in #1272: its private native capture is not in the repository; the managed contract remains in the no-argument verifier.)
 ```
 
 The native actor is an invisible, active-offscreen Ripper with time frozen,

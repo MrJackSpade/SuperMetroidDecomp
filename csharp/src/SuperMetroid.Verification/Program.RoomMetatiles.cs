@@ -54,8 +54,8 @@ internal static partial class Program
         {
             CartridgeRoomHeader header = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
             int areaSource = RoomTilesetDefinitions.Get(header.State.GraphicsSet).BlockDefinitionsAddress;
-            CartridgeRoomAssets native = CartridgeRoomAssets.Load(bus, header);
-            CartridgeRoomAssets installed = CartridgeRoomAssets.Load(
+            CartridgeRoomAssets native = LoadFixtureRoomAssets(bus, header);
+            CartridgeRoomAssets installed = LoadFixtureRoomAssets(
                 new RoomMetatileSourceReadGuard(bus, areaSource), header,
                 metatileArt: stockCatalog);
             AssertTrue(native.LevelData.BlockDefinitions.Span.SequenceEqual(
@@ -91,8 +91,8 @@ internal static partial class Program
             "edited JSON changes only the intended 8x8 visual child of a solid block");
         RoomMetatileCatalog editedCatalog = new(modified, bySource);
         CartridgeRoomHeader landing = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
-        CartridgeRoomAssets nativeLanding = CartridgeRoomAssets.Load(bus, landing);
-        CartridgeRoomAssets editedLanding = CartridgeRoomAssets.Load(
+        CartridgeRoomAssets nativeLanding = LoadFixtureRoomAssets(bus, landing);
+        CartridgeRoomAssets editedLanding = LoadFixtureRoomAssets(
             new RoomMetatileSourceReadGuard(bus,
                 RoomTilesetDefinitions.Get(landing.State.GraphicsSet).BlockDefinitionsAddress),
             landing, metatileArt: editedCatalog);

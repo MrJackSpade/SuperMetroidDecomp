@@ -16,7 +16,7 @@ internal static partial class Program
         {
             if (placement.GetProperty("Area").GetString() != "WreckedShip") continue;
             ushort pointer = Convert.ToUInt16(placement.GetProperty("RoomHeader").GetString()![2..], 16);
-            var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
+            var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();

@@ -128,7 +128,7 @@ internal static partial class Program
             SuperMetroidRuntime LoadRoom(bool installedArt)
             {
                 var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
-                var runtime = new SuperMetroidRuntime(bus);
+                var runtime = CreateRetailRuntimeFixture(bus);
                 if (installedArt)
                 {
                     runtime.RoomCharacterArt = installation.LoadRoomCharacters();

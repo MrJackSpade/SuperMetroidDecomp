@@ -11,7 +11,7 @@ internal static partial class Program
     private static void VerifyDraygonDefeatedRoom()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -32,15 +32,13 @@ internal static partial class Program
         for (int frame = 0; transition.Phase != DoorTransitionPhase.HandleTransition && frame < 600; frame++)
             transition.Step(runtime, audio, 0);
         AssertEqual(DoorTransitionPhase.HandleTransition, transition.Phase, "Space Jump exit reaches finalization");
-        var writer = typeof(RoomPlmSystem).GetField("_disableDraygonCannon", BindingFlags.NonPublic | BindingFlags.Instance)!;
-        writer.SetValue(runtime.Plms, (Action<ushort>)(_ => throw new IOException("injected cannon failure")));
-        bool failed = false;
-        try { transition.Step(runtime, audio, 0); }
-        catch (IOException error) when (error.Message == "injected cannon failure") { failed = true; }
-        AssertTrue(failed, "destination actor frame reproduces the failure after scroll finalization");
-        writer.SetValue(runtime.Plms, (Action<ushort>)runtime.Enemies.DisableDraygonCannon);
+        // $82:E6A2 finalizes the scroll and returns before the E737 actor/fade dispatch, so a
+        // destination actor frame can never re-enter scroll finalization (#387).
+        transition.Step(runtime, audio, 0);
+        AssertEqual(DoorTransitionPhase.BuildDestinationOam, transition.Phase,
+            "scroll finalization returns before the destination actor frame");
         for (int frame = 0; transition.IsActive && frame < 120; frame++) transition.Step(runtime, audio, 0);
-        AssertEqual(DoorTransitionPhase.Complete, transition.Phase, "retry finishes destination fade without finalizing scroll twice");
-        Console.WriteLine("Space Jump to defeated Draygon: injected post-scroll failure recovers through destination OAM and fade.");
+        AssertEqual(DoorTransitionPhase.Complete, transition.Phase, "destination OAM and fade complete after one scroll finalization");
+        Console.WriteLine("Space Jump to defeated Draygon: scroll finalization precedes destination OAM and fade.");
     }
 }

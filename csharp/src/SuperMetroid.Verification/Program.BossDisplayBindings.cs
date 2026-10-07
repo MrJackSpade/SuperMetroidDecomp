@@ -71,8 +71,8 @@ internal static partial class Program
     {
         AssertAnimationValues(baseline.Actor, edited.Actor, context);
         AssertAnimationValues(baseline.Enemies, edited.Enemies, context);
-        AssertTrue(baseline.Memory.WorkRam.SequenceEqual(edited.Memory.WorkRam), context + " preserves all WRAM");
-        AssertTrue(baseline.Memory.SaveRam.SequenceEqual(edited.Memory.SaveRam), context + " preserves all SRAM");
+        AssertSameBytes(baseline.Memory.WorkRam, edited.Memory.WorkRam, context + " preserves all WRAM");
+        AssertSameBytes(baseline.Memory.SaveRam, edited.Memory.SaveRam, context + " preserves all SRAM");
         AssertTrue(baseline.Enemies.SoundRequests.SequenceEqual(edited.Enemies.SoundRequests), context + " preserves audio callbacks");
         AssertTrue(baseline.Enemies.MusicRequests.SequenceEqual(edited.Enemies.MusicRequests), context + " preserves music callbacks");
     }

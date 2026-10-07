@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyProjectileQuake()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -18,6 +18,7 @@ internal static partial class Program
         var actor = enemies.EnemyProjectiles.First(p => p.Kind == RoomEnemyProjectileKind.TourianStatueRidley);
         foreach (var other in enemies.EnemyProjectiles)
             if (other != actor) other.Kind = 0;
+        ushort nativeSpritemap = NativeEnemyProjectileSpritemap(bus, actor);
         int cases = 0;
         foreach (ushort type in Enumerable.Range(0, 37).Select(x => (ushort)x))
         foreach (ushort timer in new ushort[] { 0, 1, 2, 3, 4 })
@@ -41,7 +42,7 @@ internal static partial class Program
             expected.BeginFrame();
             // Independent native $86:83D6 origin culling and spritemap dispatch.
             if (((x + 128) & 0xfe00) == 0 && ((y + 128) & 0xfe00) == 0)
-                DrawImportedEnemyProjectileSpritemap(bus, expected, actor.SpritemapPointer, x, y,
+                DrawImportedEnemyProjectileSpritemap(bus, expected, nativeSpritemap, x, y,
                     actor.GraphicsIndex, originYIsOnScreen: (y >> 8) == 0);
             expected.FinalizeFrame();
             var actual = new OamBuffer();
@@ -50,8 +51,9 @@ internal static partial class Program
                 enemies.DrawHighPriorityEnemyProjectiles(actual, 0, 0, frozen);
             else enemies.DrawLowPriorityEnemyProjectiles(actual, 0, 0, frozen);
             actual.FinalizeFrame();
-            AssertTrue(actual.LowTable.SequenceEqual(expected.LowTable) && actual.HighTable.SequenceEqual(expected.HighTable),
-                $"native quake OAM: type={type}, timer={timer}, priority={priority}, origin={position}");
+            string quakeCase = $"type={type}, timer={timer}, priority={priority}, origin={position}";
+            AssertSameBytes(expected.LowTable, actual.LowTable, $"native quake OAM low table: {quakeCase}");
+            AssertSameBytes(expected.HighTable, actual.HighTable, $"native quake OAM high table: {quakeCase}");
             AssertEqual(timer, enemies.EarthquakeTimer, "drawing leaves quake timer untouched");
             AssertEqual(unchecked((ushort)position), actor.XPosition, "drawing preserves world X");
             AssertEqual(unchecked((ushort)position), actor.YPosition, "drawing preserves world Y");

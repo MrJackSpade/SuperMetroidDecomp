@@ -27,7 +27,7 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(ShutterRidingRomData.XrayScopeRoom);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BrinstarShutterRoom);
         var samus = runtime.Samus!;
         var support = runtime.Enemies.Slots[1];
         samus.InputLocked = false;

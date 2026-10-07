@@ -42,7 +42,7 @@ public static partial class SamusGrappleMovement
 
         if ((controllerInput & (ushort)SnesButton.Left) != 0)
         {
-            if (grapple.Angle == SnesAngle.HalfTurn && grapple.AngularVelocity == 0)
+            if (HangsStraightDown(grapple) && grapple.AngularVelocity == 0)
                 grapple.AngularVelocity = 0x100;
             grapple.DirectionInputAcceleration = grapple.Submerged
                 ? (short)(SamusGrappleRomData.Physics.DirectionInputMagnitude / 2)
@@ -52,7 +52,7 @@ public static partial class SamusGrappleMovement
 
         if ((controllerInput & (ushort)SnesButton.Right) != 0)
         {
-            if (grapple.Angle == SnesAngle.HalfTurn && grapple.AngularVelocity == 0)
+            if (HangsStraightDown(grapple) && grapple.AngularVelocity == 0)
                 grapple.AngularVelocity = -0x100;
             grapple.DirectionInputAcceleration = grapple.Submerged
                 ? (short)-(SamusGrappleRomData.Physics.DirectionInputMagnitude / 2)
@@ -125,6 +125,13 @@ public static partial class SamusGrappleMovement
         return false;
     }
 
+    /// <summary>
+    /// The D-pad kick-start ($9B:BBB9/BBF0) compares only the angle's high byte with $80;
+    /// the release-time drop test ($9B:C7AC) instead requires exactly $8000.
+    /// </summary>
+    private static bool HangsStraightDown(SamusGrappleState grapple) =>
+        (grapple.Angle.RawValue & 0xff00) == SnesAngle.HalfTurn.RawValue;
+
     private static void CalculateGravity(SamusGrappleState grapple)
     {
         // $9B:BC1F is deliberately quadrant-based rather than trigonometric. The four
@@ -141,7 +148,7 @@ public static partial class SamusGrappleMovement
         else if ((angle & 0x8000) != 0)
         {
             // $9B:BC7B-BC84 compares only the high byte: all of $8000-$80FF hangs straight down.
-            if ((angle & 0xff00) == 0x8000)
+            if (HangsStraightDown(grapple))
             {
                 grapple.GravityAcceleration = 0;
                 grapple.VelocityCorrection = 0;

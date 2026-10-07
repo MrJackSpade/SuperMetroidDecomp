@@ -41,6 +41,8 @@ internal static partial class Program
         game.DoorMusicUploadNmis = uploadNmis;
         var loaderProgress = new EvidencedDoorLoaderProgress();
         game.DoorLoaderProgress = loaderProgress;
+        var soundAcknowledgements = new EvidencedSoundAcknowledgements(memory);
+        CartridgeAudioAcknowledgements spcAcknowledgements = audio.ReadAcknowledgements();
         int excludedBefore = 0;
         for (int update = 1; update <= updates.Count; update++)
         {
@@ -57,10 +59,12 @@ internal static partial class Program
             // cartridge consumed: it decides whether this update sees a new press.
             if (step.HardwareWaitLatch is { } latched)
                 game.AcceptDoorMusicWaitControllerRead(latched);
+            memory = checkpoints.ReadAfter(update);
+            game.SetAudioAcknowledgements(soundAcknowledgements.ForUpdate(spcAcknowledgements, memory));
             var output = game.Step(step.Input);
             uploadNmis.AssertSettled();
             audio.RenderFrame(output.AudioCommands);
-            game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
+            spcAcknowledgements = audio.ReadAcknowledgements();
             // Bank $85's message box runs inside this dispatch on lag frames, polling the
             // joypad registers rather than accepting NMIs, so the box spans this update's
             // remaining source frames. The port shows it one frame per step.
@@ -68,18 +72,22 @@ internal static partial class Program
             {
                 int endSourceFrame = update < updates.Count ? updates[update].SourceFrame : checkpoints.SourceFrameCount;
                 int frame = step.SourceFrame + 1;
+                // The box's own HandleSounds calls span frames the capture does not split,
+                // so they read the port's SPC model frame by frame.
+                game.SetAudioAcknowledgements(spcAcknowledgements);
                 for (; frame < endSourceFrame && game.RuntimeForVerification.MessageBox.IsActive; frame++)
                 {
                     output = game.Step(frameInputs[frame]);
                     audio.RenderFrame(output.AudioCommands);
-                    game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
+                    spcAcknowledgements = audio.ReadAcknowledgements();
+                    game.SetAudioAcknowledgements(spcAcknowledgements);
                 }
                 if (game.RuntimeForVerification.MessageBox.IsActive || frame != endSourceFrame)
                     throw new InvalidDataException(
                         $"The port's message box closed after SMV frame {frame - 1}, but native dispatch {update} " +
                         $"(SMV frames {step.SourceFrame}-{endSourceFrame}) ends at {endSourceFrame - 1}.");
             }
-            memory = checkpoints.ReadAfter(update);
+            soundAcknowledgements.Capture(memory);
 
             if (update >= traceFromUpdate)
                 TraceMovieSamus(game, memory, update, step);

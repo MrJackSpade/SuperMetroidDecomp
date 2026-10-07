@@ -59,17 +59,17 @@ public sealed partial class RoomEnemySystem
         ushort topPixel = unchecked((ushort)(slot.YPosition - slot.YRadius));
         ushort bottomPixel = unchecked((ushort)(slot.YPosition + slot.YRadius - 1));
         int spanMinusOne = unchecked((ushort)(bottomPixel - (topPixel & 0xfff0))) >> 4;
-        int column = targetEdge >> 4;
+        // $A0:C6E2-$C716: the 8-bit multiplier forms (top row & $FF) * width, the target
+        // column is added unbounded, and each scanned row adds the width again.
+        int firstIndex = ((topPixel >> 4) & 0xff) * level.WidthInBlocks + (targetEdge >> 4);
         bool collided = false;
         for (int scanIndex = 0; scanIndex <= spanMinusOne; scanIndex++)
         {
-            int row = (topPixel >> 4) + scanIndex;
             int remaining = spanMinusOne - scanIndex;
             if (EnemyHorizontalProbeIsSolid(
                     level,
                     slot,
-                    column,
-                    row,
+                    EnemyMoverBlockIndex(firstIndex + scanIndex * level.WidthInBlocks),
                     targetEdge,
                     remaining,
                     spanMinusOne,
@@ -126,17 +126,17 @@ public sealed partial class RoomEnemySystem
         ushort leftPixel = unchecked((ushort)(slot.XPosition - slot.XRadius));
         ushort rightPixel = unchecked((ushort)(slot.XPosition + slot.XRadius - 1));
         int spanMinusOne = unchecked((ushort)(rightPixel - (leftPixel & 0xfff0))) >> 4;
-        int row = targetEdge >> 4;
+        // $A0:C7D0-$C7F0: (target row & $FF) * width plus the left column, then each
+        // scanned column steps to the next native block index.
+        int firstIndex = ((targetEdge >> 4) & 0xff) * level.WidthInBlocks + (leftPixel >> 4);
         bool collided = false;
         for (int scanIndex = 0; scanIndex <= spanMinusOne; scanIndex++)
         {
-            int column = (leftPixel >> 4) + scanIndex;
             int remaining = spanMinusOne - scanIndex;
             if (EnemyVerticalProbeIsSolid(
                     level,
                     slot,
-                    column,
-                    row,
+                    EnemyMoverBlockIndex(firstIndex + scanIndex),
                     targetCenter,
                     targetEdge,
                     movingUp,
@@ -269,18 +269,14 @@ public sealed partial class RoomEnemySystem
     private bool EnemyHorizontalProbeIsSolid(
         RoomLevelData level,
         RoomEnemySlot slot,
-        int blockX,
-        int blockY,
+        int nativeIndex,
         ushort targetEdge,
         int remaining,
         int spanMinusOne,
         bool treatNonSquareSlopesAsWalls)
     {
-        int blockIndex = ResolveEnemyCollisionBlockIndex(level, blockX, blockY);
-        if (blockIndex < 0)
-            return true;
-
-        RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
+        RoomCollisionBlock block = ResolveEnemyMoverBlock(level, nativeIndex);
+        int blockIndex = block.Index;
         return block.CollisionType switch
         {
             RoomCollisionType.Air or
@@ -314,19 +310,15 @@ public sealed partial class RoomEnemySystem
     private bool EnemyVerticalProbeIsSolid(
         RoomLevelData level,
         RoomEnemySlot slot,
-        int blockX,
-        int blockY,
+        int nativeIndex,
         ushort targetCenter,
         ushort targetEdge,
         bool movingUp,
         int remaining,
         int spanMinusOne)
     {
-        int blockIndex = ResolveEnemyCollisionBlockIndex(level, blockX, blockY);
-        if (blockIndex < 0)
-            return true;
-
-        RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
+        RoomCollisionBlock block = ResolveEnemyMoverBlock(level, nativeIndex);
+        int blockIndex = block.Index;
         return block.CollisionType switch
         {
             RoomCollisionType.Air or
@@ -359,6 +351,65 @@ public sealed partial class RoomEnemySystem
             _ => throw new InvalidDataException(
                 $"Enemy vertical collision type ${block.CollisionType:X1} is invalid."),
         };
+    }
+
+    /// <summary>
+    /// The movers index <c>LevelData,X</c> with a 16-bit byte offset, so the block index
+    /// wraps at $8000 blocks.
+    /// </summary>
+    private static int EnemyMoverBlockIndex(int index) => ((index << 1) & 0xffff) >> 1;
+
+    /// <summary>
+    /// Reads a block for the bank-$A0 movers, which never bound the index to the authored
+    /// room: past the room plane they read the rest of the native level allocation (the
+    /// decompressed BTS/BG2 stream, then the $8000 prefill). Extension links are followed
+    /// as the native reaction dispatcher repeats them.
+    /// </summary>
+    private static RoomCollisionBlock ResolveEnemyMoverBlock(RoomLevelData level, int nativeIndex)
+    {
+        int blockIndex = nativeIndex;
+        int maximumLinks = level.WidthInBlocks * level.HeightInBlocks;
+        for (int link = 0; link <= maximumLinks; link++)
+        {
+            if (!level.IsLogicalBlockIndex(blockIndex))
+                return ReadEnemyMoverAllocationTail(level, blockIndex);
+            RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
+            int offset = block.CollisionType switch
+            {
+                RoomCollisionType.HorizontalExtension when
+                    block.Bts != RoomBlockBehaviorValues.None => block.Bts.ExtensionOffset,
+                RoomCollisionType.VerticalExtension when
+                    block.Bts != RoomBlockBehaviorValues.None =>
+                    block.Bts.ExtensionOffset * level.WidthInBlocks,
+                _ => 0,
+            };
+            if (offset == 0)
+                return block;
+            blockIndex = EnemyMoverBlockIndex(blockIndex + offset);
+        }
+
+        throw new InvalidDataException(
+            $"Enemy collision BTS chain from native block {nativeIndex} is cyclic.");
+    }
+
+    private static RoomCollisionBlock ReadEnemyMoverAllocationTail(RoomLevelData level, int blockIndex)
+    {
+        var block = new RoomCollisionBlock(
+            Index: -1,
+            LevelWord: level.ReadAllocationTailLevelWord(blockIndex),
+            Behavior: 0);
+        // Slopes, extensions and spike blocks read BTS, and native BTS past the authored
+        // room ($7F:6402 + index) is unbounded memory left by earlier rooms.
+        if (block.CollisionType is RoomCollisionType.Slope or
+            RoomCollisionType.HorizontalExtension or
+            RoomCollisionType.VerticalExtension or
+            RoomCollisionType.SpikeBlock)
+        {
+            throw new NotSupportedException(
+                $"Enemy collision reached BTS-dependent type ${(int)block.CollisionType:X1} at native " +
+                $"block {blockIndex}, past the room plane; native BTS there is unbounded memory.");
+        }
+        return block;
     }
 
     /// <summary>

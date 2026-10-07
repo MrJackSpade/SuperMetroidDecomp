@@ -544,12 +544,17 @@ public sealed partial class SuperMetroidGame
                     runtime.GameplayTimeFrozen = true;
                     GameState = SuperMetroidGameState.SamusEscapesFromZebes;
                 }
-                else if ((mapStationMessageOwnedFrame && !runtime.MessageBox.IsActive) ||
-                    CanEnterPause(messageBoxOwnedFrame, samusInputLockedAtFrameStart))
+                else if (mapStationMessageOwnedFrame && !runtime.MessageBox.IsActive)
                 {
                     // Bank $85's message-close return explicitly selects state $0C
                     // for map acquisition, independently of Start or station input lock.
                     // Keep this separate from admission of a manual pause request.
+                    BeginMapStationPauseFade();
+                    pauseMenu = null;
+                    GameState = SuperMetroidGameState.PausingDarkening;
+                }
+                else if (CanEnterPause(messageBoxOwnedFrame, samusInputLockedAtFrameStart))
+                {
                     // Samus_PauseCheck at `$90:EA45` executes during the already-completed
                     // state-eight frame. It initializes both fade counters and publishes
                     // state $0C; the following dispatcher call consumes the first delay.
@@ -779,7 +784,7 @@ public sealed partial class SuperMetroidGame
                 {
                     // $82:8CEA increments the state written by gameplay, including a
                     // door hit on this final fade frame ($09 becomes $0A).
-                    pauseFadeCounter = 0;
+                    ClearScreenFadeTiming();
                     GameState++;
                 }
                 break;
@@ -902,7 +907,7 @@ public sealed partial class SuperMetroidGame
                 if (pauseBrightness == PauseFadeTiming.FullyLit)
                 {
                     // $82:93BB explicitly restores state eight on the terminal frame.
-                    pauseFadeCounter = 0;
+                    ClearScreenFadeTiming();
                     GameState = SuperMetroidGameState.MainGameplay;
                 }
                 break;
@@ -986,6 +991,7 @@ public sealed partial class SuperMetroidGame
                         // eight; the Ceres arrival is ordinary gameplay with Samus locked.
                         GameState = SuperMetroidGameState.MainGameplay;
                         gameplayFadeLeadsToCeresArrival = false;
+                        ClearScreenFadeTiming();
                     }
                 }
                 break;

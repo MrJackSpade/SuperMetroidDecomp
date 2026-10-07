@@ -123,6 +123,14 @@ internal static class DebuggerStateFieldMigrations
                 and not "<UnlockTourianEnabled>k__BackingField").ToArray();
         }
         if (type == typeof(SuperMetroid.Core.Frontend.SuperMetroidGame) &&
+            current.Any(field => field.Name == "pauseFadeDelay"))
+        {
+            // Older builds hard-coded the fade reload. Outside a pause fade the native delay
+            // word is zero; a capture inside one restores the immediate-step cadence.
+            return SelectSerializedFields(type, current.Where(field =>
+                field.Name != "pauseFadeDelay").ToArray(), count);
+        }
+        if (type == typeof(SuperMetroid.Core.Frontend.SuperMetroidGame) &&
             current.Any(field => field.Name == "<DoorLoaderProgress>k__BackingField"))
         {
             // Door-loader progress is host policy; older captures restore the lag-free policy.

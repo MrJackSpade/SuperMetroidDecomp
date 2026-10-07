@@ -257,7 +257,7 @@ public sealed partial class RoomEnemySystem
             ReadEightBitCosineProduct(state.Angle, state.MaximumXRadius)));
         body.YPosition = unchecked((ushort)(
             state.MovementCenterY +
-            ReadEightBitSineProduct(
+            ReadEightBitNegativeSineProduct(
                 unchecked((ushort)(2 * (state.Angle - 64))),
                 unchecked((ushort)(state.MaximumXRadius - 16)))));
 

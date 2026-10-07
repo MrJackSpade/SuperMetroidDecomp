@@ -292,7 +292,11 @@ internal static partial class Program
 
         var enemyFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(RoomEnemySystem)])!;
-        FieldInfo[] preCounterEnemyFields = enemyFields.Where(field => field.Name != "<GradualColorChange>k__BackingField").ToArray();
+        FieldInfo[] preCameraEnemyFields = enemyFields.Where(field => field.Name != "<CameraDistanceIndex>k__BackingField").ToArray();
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(RoomEnemySystem), enemyFields,
+                preCameraEnemyFields.Length).SequenceEqual(preCameraEnemyFields),
+            "pre-shared-camera-distance enemy owner preserves every other saved field in order");
+        FieldInfo[] preCounterEnemyFields = preCameraEnemyFields.Where(field => field.Name != "<GradualColorChange>k__BackingField").ToArray();
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(RoomEnemySystem), enemyFields,
                 preCounterEnemyFields.Length).SequenceEqual(preCounterEnemyFields),
             "pre-shared-palette-counter enemy owner preserves every other saved field in order");

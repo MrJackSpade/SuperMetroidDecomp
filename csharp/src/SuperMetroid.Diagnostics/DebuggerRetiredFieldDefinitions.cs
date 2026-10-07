@@ -59,6 +59,10 @@ internal static class DebuggerRetiredFieldDefinitions
             if (transitionNumber != 0)
                 Console.Error.WriteLine("WARNING: Legacy palette fade was captured mid-transition; it resumes on its own counter rather than the shared PaletteChangeNumerator.");
         },
+        // CameraDistanceIndex ($0941) is now one shared word on the enemy system. Kraid's
+        // private copy seeds it; null meant an already-defeated room, which leaves it zero.
+        [(typeof(KraidEnemyState), "<CameraDistanceIndex>k__BackingField")] = (instance, name, value) =>
+            Remember(instance, name, value ?? (ushort)0),
         [(typeof(KraidEnemyState), "<RoomBackgroundFadeStep>k__BackingField")] = (_, _, value) =>
         {
             if (value is not ushort step)

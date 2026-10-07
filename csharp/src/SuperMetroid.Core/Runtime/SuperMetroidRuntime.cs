@@ -3929,7 +3929,7 @@ public sealed partial class SuperMetroidRuntime
                         MovementType: Samus.ReadMovementType(_addressSpace),
                         XAccelerationMode: Samus.HorizontalSpeed.AccelerationMode,
                         PoseXDirection: Samus.ReadPoseXDirection(_addressSpace),
-                        CameraDistanceIndex: Enemies.Kraid?.CameraDistanceIndex ?? 0));
+                        CameraDistanceIndex: (ushort)Enemies.CameraDistanceIndex));
                 // $90:96C0 writes the same distance-plus-one words consumed by Yard
                 // kick setup. Publish the camera calculation itself, including its
                 // integer-only sign test and previous scrolling checkpoint. A second

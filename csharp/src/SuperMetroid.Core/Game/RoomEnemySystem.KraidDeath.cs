@@ -193,7 +193,7 @@ public sealed partial class RoomEnemySystem
             _slots[slot].Properties = otherProperties;
         body.VariableA = (ushort)KraidAiFunction.DeathClearTopTilemap;
         // $A7:C594 returns the camera to distance index zero before the death drop.
-        state.CameraDistanceIndex = 0;
+        CameraDistanceIndex = CameraDistanceMode.NormalTracking;
 
         // $A0:B8EE fills the same sixteen-projectile pool used by ordinary deaths. Each
         // pickup gets a random position in Kraid's 256x64 floor strip and independently

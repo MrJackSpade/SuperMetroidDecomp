@@ -63,6 +63,13 @@ internal static class DebuggerStateFieldMigrations
                 field.Name != "<Layer1XBlockResetRequested>k__BackingField").ToArray(), count);
         }
         if (type == typeof(RoomEnemySystem) &&
+            current.Any(field => field.Name == "<CameraDistanceIndex>k__BackingField"))
+        {
+            // The shared camera distance word is seeded from legacy Kraid once the graph loads.
+            return SelectSerializedFields(type, current.Where(field =>
+                field.Name != "<CameraDistanceIndex>k__BackingField").ToArray(), count);
+        }
+        if (type == typeof(RoomEnemySystem) &&
             current.Any(field => field.Name == "<GradualColorChange>k__BackingField"))
         {
             // The shared PaletteChangeNumerator is initialized once the legacy graph loads.
@@ -762,6 +769,18 @@ internal static class DebuggerStateFieldMigrations
             Console.Error.WriteLine("WARNING: Legacy room FX predates lava's ambient sound timer; it restarts a full period.");
             typeof(RoomLayer3FxState).GetField("lavaSoundTimer", BindingFlags.Instance | BindingFlags.NonPublic)!
                 .SetValue(legacyFx, RoomFxRomData.LavaAcid.AmbientSoundPeriod);
+        }
+        if (instance is RoomEnemySystem legacyCameraOwner &&
+            serializedCount < GetCurrentInstanceFieldCount(typeof(RoomEnemySystem)))
+        {
+            ushort index = 0;
+            if (legacyCameraOwner.Kraid is { } legacyKraid &&
+                !DebuggerRetiredFieldDefinitions.TryGetLegacyWord(legacyKraid, "<CameraDistanceIndex>k__BackingField", out index))
+                throw new InvalidDataException("Legacy Kraid state lacks its camera distance index.");
+            if (legacyCameraOwner.Crocomire is not null)
+                Console.Error.WriteLine("WARNING: Legacy enemy state predates the shared camera distance index; Crocomire's camera target restores as normal tracking.");
+            typeof(RoomEnemySystem).GetField("<CameraDistanceIndex>k__BackingField",
+                BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(legacyCameraOwner, (CameraDistanceMode)index);
         }
         if (instance is RoomEnemySystem legacyEnemies && legacyEnemies.GradualColorChange is null)
             typeof(RoomEnemySystem).GetField("<GradualColorChange>k__BackingField",

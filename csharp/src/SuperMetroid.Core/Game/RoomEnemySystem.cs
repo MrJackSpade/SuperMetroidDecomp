@@ -284,6 +284,7 @@ public sealed partial class RoomEnemySystem
         LastMorphBallEyeSoundEffect = null;
         LastYappingMawSoundEffect = null;
         PaletteChangeNumber = 0;
+        CameraDistanceIndex = CameraDistanceMode.NormalTracking;
         _metroidDropRequests.Clear();
         LastHopperSoundEffect = null;
         LastYardSoundEffect = null;

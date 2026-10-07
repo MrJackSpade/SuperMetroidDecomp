@@ -172,6 +172,8 @@ public sealed partial class RoomEnemySystem
         state.DeathSequenceIndex = 0;
         state.ReactionTimer = 0;
         state.FightFunction = CrocomireFightFunction.Sleeping;
+        // $A4:8ABA-8ABD, on the living branch only.
+        CameraDistanceIndex = CameraDistanceMode.BossTracking;
         InstallCrocomireInstructionList(
             slot,
             CrocomireInstructionProgramDefinitions.Initial);

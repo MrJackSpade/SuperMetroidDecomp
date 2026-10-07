@@ -50,7 +50,8 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        state.CameraDistanceIndex = KraidCameraDefinitions.CameraDistanceIndex;
+        // $A7:A9E4-A9E7.
+        CameraDistanceIndex = CameraDistanceMode.BossTracking;
         ApplyKraidScrolls(grown: false);
         state.MinimumYPositionForEjection = 324;
         state.InitialHealth = body.Health;

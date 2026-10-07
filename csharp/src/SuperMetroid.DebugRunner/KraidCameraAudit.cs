@@ -74,7 +74,7 @@ internal static class KraidCameraAudit
             throw new InvalidDataException($"Kraid's BG2 body wrapped above the ceiling: " +
                 $"{bodyPixelsAboveCeiling} pixel-frame differences, first at frame {firstWrappedFrame}.");
         if (!initialScrolls.SequenceEqual(new byte[] { 0, 0, 1, 0 }) ||
-            minCameraY != 256 || maxCameraY != 256 || runtime.Enemies.Kraid!.CameraDistanceIndex != 2)
+            minCameraY != 256 || maxCameraY != 256 || runtime.Enemies.CameraDistanceIndex != CameraDistanceMode.BossTracking)
             throw new InvalidDataException("Kraid entry jump escaped the cartridge first-phase camera lock.");
         return 0;
     }

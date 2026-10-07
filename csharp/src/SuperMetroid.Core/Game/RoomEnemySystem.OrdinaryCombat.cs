@@ -652,10 +652,7 @@ public sealed partial class RoomEnemySystem
                 if (isTorizo && slot.Health == 0)
                     BeginBombTorizoDeath(slot, RequireBombTorizoState(slot));
                 if (isFakeKraid && healthBefore != 0 && slot.Health == 0)
-                {
-                    RequestFakeKraidDeathDrop(slot);
-                    StartGenericEnemyDeath(slot, deathAnimation: 3);
-                }
+                    KillFakeKraid(slot);
             }
             return true;
         }
@@ -1661,12 +1658,11 @@ public sealed partial class RoomEnemySystem
                             }
                         }
                         if (isFakeKraid)
-                            RequestFakeKraidDeathDrop(enemy);
-                        StartGenericEnemyDeath(
-                            enemy,
-                            isFakeKraid
-                                ? (ushort)3
-                                : SelectNormalShotDeathAnimation(
+                            KillFakeKraid(enemy);
+                        else
+                            StartGenericEnemyDeath(
+                                enemy,
+                                SelectNormalShotDeathAnimation(
                                     enemy,
                                     projectileType,
                                     forcePirateBigExplosion: isOrdinarySpacePirate && hitboxShotAi != EnemyAiCodePointers.BankB2.CommonShot));
@@ -1690,7 +1686,7 @@ public sealed partial class RoomEnemySystem
                 }
                 if (isFakeKraid && enemy.EnemyDefinitionPointer != 0 &&
                     enemyHealthBefore != 0 && enemy.Health == 0)
-                    RequestFakeKraidDeathDrop(enemy);
+                    SpawnFakeKraidDeathDrops(enemy.XPosition, enemy.YPosition, enemy.Definition.ItemDropChancesPointer);
                 if (isBabyTurtle)
                     ResolveBabyTurtleShotAfterCommon(RequireBabyTurtleState(enemy));
                 if (isKago)
@@ -2155,8 +2151,7 @@ public sealed partial class RoomEnemySystem
                                 // Fake Kraid saves its coordinates before common no-death AI,
                                 // then requests death variant three and the Mini-Kraid drop.
                                 // The host keeps those coordinates in the typed drop request.
-                                RequestFakeKraidDeathDrop(enemy);
-                                StartGenericEnemyDeath(enemy, deathAnimation: 3);
+                                KillFakeKraid(enemy);
                             }
                             if (enemy.EnemyDefinitionPointer == TripperDefinition &&
                                 selectedShotAi == TripperShotAi &&
@@ -2601,13 +2596,11 @@ public sealed partial class RoomEnemySystem
                             FinishMetroidDeath(enemy, samus, requestDrops: false);
 
                         // Mini Kraid's private power-bomb callback still owns its four
-                        // direct pickup explosions. Preserve the dying actor's position and
-                        // header before EnemyDeathAnimation clears the common enemy slot.
+                        // direct pickup explosions, spawned after its death explosion.
                         if (isFakeKraid)
-                            RequestFakeKraidDeathDrop(enemy);
-                        StartGenericEnemyDeath(
-                            enemy,
-                            deathAnimation: isFakeKraid ? (ushort)3 : (ushort)0);
+                            KillFakeKraid(enemy);
+                        else
+                            StartGenericEnemyDeath(enemy, deathAnimation: 0);
                     }
                 }
             }

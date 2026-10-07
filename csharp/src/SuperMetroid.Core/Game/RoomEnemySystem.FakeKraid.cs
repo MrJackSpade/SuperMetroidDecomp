@@ -355,11 +355,23 @@ public sealed partial class RoomEnemySystem
         _fakeKraidStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Fake Kraid state.");
 
-    private void RequestFakeKraidDeathDrop(RoomEnemySlot slot)
+    /// <summary>
+    /// Ports <c>Reaction_MiniKraid_Common</c> ($A6:9C50): <c>EnemyDeath</c> spawns death
+    /// explosion three and clears the slot, then <c>MiniKraidDeathItemDropRoutine</c>
+    /// ($A0:B8EE) scatters four pickups from the coordinates saved before the shot AI.
+    /// The explosion therefore takes the first free projectile slot.
+    /// </summary>
+    private void KillFakeKraid(RoomEnemySlot slot)
     {
         ushort originX = slot.XPosition;
         ushort originY = slot.YPosition;
         ushort chancePointer = slot.Definition.ItemDropChancesPointer;
+        StartGenericEnemyDeath(slot, deathAnimation: 3);
+        SpawnFakeKraidDeathDrops(originX, originY, chancePointer);
+    }
+
+    private void SpawnFakeKraidDeathDrops(ushort originX, ushort originY, ushort chancePointer)
+    {
         LastFakeKraidDropRequest = new FakeKraidDropRequest(
             originX,
             originY,

@@ -113,7 +113,7 @@ internal static partial class Program
             state.ThinkingTimer = 100;
             ResetSamus(180, 500);
             typeof(RoomEnemySystem).GetMethod("RunKraidBodyMain", flags)!.Invoke(runtime.Enemies,
-                new object?[] { body, samus, (ushort)0, (ushort)384, null });
+                new object?[] { body, samus, (ushort)0, (ushort)384, null, null, null });
             AssertEqual((ushort)172, samus.XPosition, "Kraid ejects Samus eight pixels left");
             AssertEqual((ushort)492, samus.YPosition, "Kraid ejects Samus eight pixels up");
             AssertEqual((ushort)(999 - body.Definition.Damage), samus.Health, "Kraid body touch damage");

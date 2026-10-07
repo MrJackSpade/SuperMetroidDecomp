@@ -139,11 +139,13 @@ public sealed partial class RoomEnemySystem
         body.VariableB = KraidHeadInstructionDefinitions.DeathContinuation;
         body.VariableC = KraidHeadInstructionDefinitions.DeathEntryTimer;
         state.RoomBackgroundFadeStep = 0;
-        foreach (int slot in new[] { 2, 3, 4, 6, 7 })
-        {
-            _slots[slot].Properties = _slots[slot].Properties.With(
-                EnemyProperties.Deleted | EnemyProperties.Invisible);
-        }
+        // $A7:C3A8-$C3E8 clear the fingernails' respawn bit, then run EnemyDeath for the
+        // nails, then the three lints. A still holds each slot's native index, which
+        // EnemyDeath treats as explosion type zero; every part leaves a death explosion.
+        foreach (int slot in new[] { 6, 7 })
+            _slots[slot].Properties = _slots[slot].Properties.Without(EnemyProperties.RespawnIfKilled);
+        foreach (int slot in new[] { 6, 7, 2, 3, 4 })
+            StartGenericEnemyDeath(_slots[slot], deathAnimation: _slots[slot].NativeIndex);
         // The live sequence crumbles successive blocks while Kraid fades/sinks.
         // It must not substitute the instantaneous already-defeated-room clear.
         _kraidPlmRequests.Add(KraidPlmDefinitions.LiveDeathSpikes);

@@ -175,14 +175,30 @@ public sealed partial class RoomEnemySystem
                 EnemyProperties.Deleted |
                 EnemyProperties.Invisible);
 
+    /// <summary>
+    /// Ports <c>MainAI_Kraid</c> ($A7:AC21): mouth-projectile collision, palette handling,
+    /// body-projectile collision and body-vs-Samus collision precede the function. A
+    /// killing mouth hit therefore reaches palette handling, which zeroes the hurt frame,
+    /// before the death initializer runs in this same frame.
+    /// </summary>
     private void RunKraidBodyMain(
         RoomEnemySlot body,
         SamusState? samus,
         ushort cameraX,
         ushort cameraY,
-        VramWriteQueue? vramWriteQueue)
+        VramWriteQueue? vramWriteQueue,
+        SamusProjectileSystem? samusProjectiles,
+        SamusBombProjectileSystem? sharedProjectiles)
     {
         KraidEnemyState state = RequireKraidState(body);
+        KraidShotSlots? shots = samusProjectiles is not null && sharedProjectiles is not null
+            ? new KraidShotSlots(samusProjectiles, sharedProjectiles)
+            : null;
+        if (shots is { } mouthShots)
+            ResolveKraidMouthProjectileHits(body, state, mouthShots);
+        RunKraidPaletteHandling(body, state);
+        if (shots is { } bodyShots)
+            ResolveKraidBodyProjectileHits(body, state, bodyShots);
         if (samus is not null)
             ResolveKraidBodyContact(body, state, samus);
         // `$A7:AC21` makes BG2 follow Kraid rather than the room. X radius is the native
@@ -190,7 +206,6 @@ public sealed partial class RoomEnemySystem
         state.Bg2HorizontalScroll = unchecked((ushort)(
             cameraX - body.XPosition + body.XRadius));
         state.Bg2VerticalScroll = unchecked((ushort)(cameraY - body.YPosition + 152));
-        RunKraidPaletteHandling(body, state);
         KraidAiFunction function = (KraidAiFunction)body.VariableA;
         if (function is >= KraidAiFunction.RestrictSamusToFirstScreen and
             <= KraidAiFunction.RaiseBody)

@@ -5,15 +5,11 @@ namespace SuperMetroid.Core.Runtime;
 
 public sealed partial class SuperMetroidRuntime
 {
-    // Only the remaining dedicated Ceres/Kraid adapters publish here. Ordinary
-    // shots, Phantoon beams and bombs dispatch per enemy before AI, never again here.
+    // Only the remaining dedicated Ceres adapter publishes here. Ordinary shots, Phantoon
+    // beams and bombs dispatch per enemy before AI, and Kraid's passes run inside its AI.
     private void ResolveUpdatedBeamHits()
     {
         Enemies.ResolveCeresRidleyProjectileHits(
-            _addressSpace,
-            Projectiles,
-            BombProjectiles);
-        Enemies.ResolveKraidProjectileHits(
             _addressSpace,
             Projectiles,
             BombProjectiles);

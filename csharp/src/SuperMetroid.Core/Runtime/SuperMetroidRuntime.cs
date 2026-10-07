@@ -3677,6 +3677,25 @@ public sealed partial class SuperMetroidRuntime
                     Samus.CommitPoseHistory(_addressSpace);
             }
 
+            if (!deathOwnsSamus && !IsAttractDemo)
+            {
+                // Normal beta ends with HandlePeriodicDamageToSamus ($90:E9CE), PauseCheck and
+                // LowEnergyCheck, before the enemy-projectile and PLM handlers. Damage those
+                // handlers accumulate this frame (e.g. $84:AC9D) therefore lands next frame.
+                // Demo beta omits these calls. X-ray freezes time and therefore clears
+                // rather than applies accumulated damage; fatal zero-energy game-state
+                // acquisition remains the outer seam.
+                Samus.LiquidPhysics.ApplyPeriodicDamage(
+                    Samus,
+                    timeIsFrozen: TimeIsFrozen);
+                // Locked/elevator/appearance handlers omit LowEnergyCheck; gunship command
+                // $1A installs a dedicated checker. Automatic reserves invoke their external
+                // check in the frontend.
+                if ((!Samus.InputLocked || Enemies.HasGunshipHealthHandler) &&
+                    !Samus.Xray.OwnsSamusControl)
+                    checkLowHealth?.Invoke();
+            }
+
             if (!deathOwnsSamus)
                 RunEnemyProjectileHandler();
 
@@ -3904,22 +3923,6 @@ public sealed partial class SuperMetroidRuntime
             }
 
             RestoreAttractPlayerInput();
-            if (!deathOwnsSamus && !IsAttractDemo)
-            {
-                // Demo beta omits periodic liquid damage and the pause/low-health calls.
-                // `$90:E74D` consumes the lava/acid words produced during AnimateSamus.
-                // X-ray freezes time and therefore clears rather than applies accumulated
-                // damage; fatal zero-energy game-state acquisition remains the outer seam.
-                Samus.LiquidPhysics.ApplyPeriodicDamage(
-                    Samus,
-                    timeIsFrozen: TimeIsFrozen);
-                // Normal beta ends in LowEnergyCheck. Locked/elevator/appearance
-                // handlers omit it; gunship command $1A installs a dedicated checker.
-                // Automatic reserves invoke their external check in the frontend.
-                if ((!Samus.InputLocked || Enemies.HasGunshipHealthHandler) &&
-                    !Samus.Xray.OwnsSamusControl)
-                    checkLowHealth?.Invoke();
-            }
 
             DrawGameplayActors(deathOwnsSamus, drawHighPriorityEnemyProjectiles,
                 drawLowPriorityEnemyProjectiles,

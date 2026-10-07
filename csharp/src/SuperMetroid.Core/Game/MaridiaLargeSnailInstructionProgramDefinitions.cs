@@ -2,16 +2,12 @@ using static SuperMetroid.Core.Game.InstructionItem;
 
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct MaridiaLargeSnailInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for Oum's idle, rolling, and attacking programs.
 /// Installed gameplay resolves the sixty extended-spritemap operands through the
 /// compiled selector catalog; uninstalled diagnostic streams may remain mutable.
 /// </summary>
-internal static class MaridiaLargeSnailInstructionProgramDefinitions
+internal abstract class MaridiaLargeSnailInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
 {
     /// <summary><c>InstList_Oum_FacingLeft_Idle</c> at $A2:CA4B.</summary>
     internal const ushort FacingLeftIdle = 0xca4b;
@@ -42,6 +38,7 @@ internal static class MaridiaLargeSnailInstructionProgramDefinitions
 
     /// <summary>Native program bank $A2.</summary>
     internal const byte Bank = 0xa2;
+    static int IDeclaredProgramBank.Bank => Bank;
 
     private static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xca4b),
@@ -134,19 +131,19 @@ internal static class MaridiaLargeSnailInstructionProgramDefinitions
         Op(MaridiaLargeSnailInstructionCodes.DisallowAttackRotation),
         Op(CommonEnemyInstructionCodes.Goto, FacingRightRollingBackwards));
 
-    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
-    internal static int PresentationWordCount => Layout.PresentationSlotCount;
-    internal static MaridiaLargeSnailInstructionMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => Layout.MechanicsWordCount;
+    public static int PresentationWordCount => Layout.PresentationSlotCount;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         (ushort address, ushort value) = Layout.MechanicsWord(index);
         return new(address, value);
     }
-    internal static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
+    public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(
                 $"Maridia Large Snail instruction mechanics pointer $A2:{address:X4} is not compiled.");
 
-    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
+    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

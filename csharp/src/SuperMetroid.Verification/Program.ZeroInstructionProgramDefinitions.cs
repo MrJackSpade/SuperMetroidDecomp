@@ -21,7 +21,7 @@ internal static partial class Program
              index < ZeroInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            ZeroInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 ZeroInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadZeroInstructionWord(rom, definition.Address),

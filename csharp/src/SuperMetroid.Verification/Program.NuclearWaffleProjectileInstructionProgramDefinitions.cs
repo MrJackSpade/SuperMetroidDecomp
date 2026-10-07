@@ -19,7 +19,7 @@ internal static partial class Program
              index < NuclearWaffleProjectileInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            NuclearWaffleProjectileInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 NuclearWaffleProjectileInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadNuclearWaffleProjectileInstructionWord(rom, definition.Address),

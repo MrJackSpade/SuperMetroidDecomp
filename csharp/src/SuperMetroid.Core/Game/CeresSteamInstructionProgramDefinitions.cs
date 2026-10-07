@@ -1,14 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct CeresSteamInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for the four directional Ceres steam programs.
 /// Extended-spritemap operands remain live cartridge presentation data.
 /// </summary>
-internal static class CeresSteamInstructionProgramDefinitions
+internal abstract class CeresSteamInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary>
     /// <c>InstList_CeresSteam_Up_0</c> at $A6:F04D. Its 17 mechanics words
@@ -105,15 +101,15 @@ internal static class CeresSteamInstructionProgramDefinitions
     /// <c>$F214 + $0A * frame</c> for frames 0..6. All nine pinned-ROM words
     /// match, completing the four directional presentation sequences.
     /// </summary>
-    internal static int MechanicsWordCount => 68;
-    internal static int PresentationWordCount => 36;
+    public static int MechanicsWordCount => 68;
+    public static int PresentationWordCount => 36;
 
     /// <summary>
     /// Each52-byte directional program waits invisibly for activation, holds hidden
     /// for64 ticks, displays seven three-tick frames and returns to the hidden hold.
     /// Its seventeen mechanics words interleave nine presentation operands.
     /// </summary>
-    internal static CeresSteamInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
@@ -136,7 +132,7 @@ internal static class CeresSteamInstructionProgramDefinitions
         };
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
@@ -151,7 +147,7 @@ internal static class CeresSteamInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            CeresSteamInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -164,7 +160,7 @@ internal static class CeresSteamInstructionProgramDefinitions
             $"Ceres steam instruction mechanics pointer $A6:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa60000)
             return false;

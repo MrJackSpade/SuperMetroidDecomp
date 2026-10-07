@@ -2,16 +2,12 @@ using static SuperMetroid.Core.Game.InstructionItem;
 
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct GoldenTorizoSuperMissileInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for Golden Torizo's reflected Super Missile programs at
 /// $86:B293-$B31A. Their twenty-four interleaved spritemap operands are extracted
 /// presentation data; the packed impact sound ID remains live cartridge audio data.
 /// </summary>
-internal static class GoldenTorizoSuperMissileInstructionProgramDefinitions
+internal abstract class GoldenTorizoSuperMissileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
 {
     /// <summary><c>InitAI_EnemyProjectile_GoldenTorizoSuperMissile</c> at $86:B1CE.</summary>
     internal const ushort InitializationAi = 0xb1ce;
@@ -28,6 +24,7 @@ internal static class GoldenTorizoSuperMissileInstructionProgramDefinitions
 
     /// <summary>Native program bank $86.</summary>
     internal const byte Bank = 0x86;
+    static int IDeclaredProgramBank.Bank => Bank;
 
     private static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xb293),
@@ -74,19 +71,19 @@ internal static class GoldenTorizoSuperMissileInstructionProgramDefinitions
         Frame(5),
         Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete));
 
-    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
-    internal static int PresentationWordCount => Layout.PresentationSlotCount;
-    internal static GoldenTorizoSuperMissileInstructionMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => Layout.MechanicsWordCount;
+    public static int PresentationWordCount => Layout.PresentationSlotCount;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         (ushort address, ushort value) = Layout.MechanicsWord(index);
         return new(address, value);
     }
-    internal static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
+    public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(
                 $"Golden Torizo Super Missile mechanics pointer $86:{address:X4} is not compiled.");
 
-    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
+    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

@@ -18,7 +18,7 @@ internal static partial class Program
              index < WreckedShipGhostInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            WreckedShipGhostInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 WreckedShipGhostInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadWreckedShipGhostInstructionWord(rom, definition.Address),

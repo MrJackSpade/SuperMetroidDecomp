@@ -1,14 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct StokeInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for Stoke's walking and attack programs.
 /// Interleaved spritemap operands are selected by the installed visual catalog.
 /// </summary>
-internal static class StokeInstructionProgramDefinitions
+internal abstract class StokeInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_Stoke_MovingLeft_0</c> at $A2:8932.</summary>
     internal const ushort MovingLeft = 0x8932;
@@ -26,10 +22,10 @@ internal static class StokeInstructionProgramDefinitions
     /// </summary>
     private static readonly ushort[] WalkingFrameDurations = [8, 16, 8, 8];
     // Attack holds of 16 are the same authored cadence (reviewed under #1165).
-    internal static int MechanicsWordCount => 26;
-    internal static int PresentationWordCount => 12;
+    public static int MechanicsWordCount => 26;
+    public static int PresentationWordCount => 12;
 
-    internal static StokeInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         int side = index / 13;
@@ -56,7 +52,7 @@ internal static class StokeInstructionProgramDefinitions
         return new((ushort)(attack + offset), value);
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         int local = index % 6;
@@ -71,7 +67,7 @@ internal static class StokeInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            StokeInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -84,7 +80,7 @@ internal static class StokeInstructionProgramDefinitions
             $"Stoke instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa20000)
             return false;

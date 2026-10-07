@@ -20,7 +20,7 @@ internal static partial class Program
              index < NorfairPipeBugInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            NorfairPipeBugInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 NorfairPipeBugInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadNorfairPipeBugInstructionWord(rom, 0xb30000 | definition.Address),

@@ -1,14 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct PowampInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for Powamp's body and balloon instruction programs.
 /// Spritemap selections resolve compiled identities to installed artwork.
 /// </summary>
-internal static class PowampInstructionProgramDefinitions
+internal abstract class PowampInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_Powamp_Body_FastAnimation</c> at $A8:C163.</summary>
     internal const ushort BodyFast = 0xc163;
@@ -57,11 +53,11 @@ internal static class PowampInstructionProgramDefinitions
     /// <summary>$A8:C183..C19E: each balloon transition has three frame controls and Sleep.</summary>
     private const int BalloonMechanicsCount = FramesPerProgram + 1;
 
-    internal static int MechanicsWordCount => 2 * (BodyMechanicsCount + BalloonMechanicsCount);
-    internal static int PresentationWordCount => 4 * FramesPerProgram;
+    public static int MechanicsWordCount => 2 * (BodyMechanicsCount + BalloonMechanicsCount);
+    public static int PresentationWordCount => 4 * FramesPerProgram;
 
     /// <summary>Native ordered controls calculated from the two loop programs followed by the two sleeping transitions.</summary>
-    internal static PowampInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         bool body = index < 2 * BodyMechanicsCount;
@@ -77,7 +73,7 @@ internal static class PowampInstructionProgramDefinitions
     }
 
     /// <summary>Visual operands follow each of the three frame-duration words; native source order is preserved.</summary>
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(ProgramStart(index / FramesPerProgram) + 4 * (index % FramesPerProgram) + sizeof(ushort));
@@ -95,7 +91,7 @@ internal static class PowampInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            PowampInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -108,7 +104,7 @@ internal static class PowampInstructionProgramDefinitions
             $"Powamp instruction mechanics pointer $A8:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa80000)
             return false;

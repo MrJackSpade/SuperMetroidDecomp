@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Fake Kraid projectile mechanics word at its bank-$86 address.</summary>
-internal readonly record struct FakeKraidProjectileInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for Fake Kraid's spit and left/right spike projectile poses.
 /// Their interleaved spritemap operands remain live cartridge presentation data.
 /// </summary>
-internal static class FakeKraidProjectileInstructionProgramDefinitions
+internal abstract class FakeKraidProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_EnemyProjectile_MiniKraidSpit</c> at $86:9DDA.</summary>
     internal const ushort Spit = 0x9dda;
@@ -34,10 +29,10 @@ internal static class FakeKraidProjectileInstructionProgramDefinitions
     internal const ushort SpikeRightSleep = 0x9dea;
 
     // Each pose occupies six bytes: duration, visual operand, terminal sleep.
-    internal static int MechanicsWordCount => 6;
-    internal static int PresentationWordCount => 3;
+    public static int MechanicsWordCount => 6;
+    public static int PresentationWordCount => 3;
 
-    internal static FakeKraidProjectileInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
@@ -45,7 +40,7 @@ internal static class FakeKraidProjectileInstructionProgramDefinitions
         return new(address, ReadMechanicsWord(address));
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
@@ -67,7 +62,7 @@ internal static class FakeKraidProjectileInstructionProgramDefinitions
             "is not compiled."),
     };
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
             return false;

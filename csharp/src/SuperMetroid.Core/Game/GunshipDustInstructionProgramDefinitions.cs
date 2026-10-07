@@ -1,10 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled gunship-dust mechanics word at its bank-$86 address.</summary>
-internal readonly record struct GunshipDustInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>One of the six authored gunship liftoff-dust animation programs.</summary>
 internal readonly record struct GunshipDustInstructionProgramDefinition(
     ushort Initial,
@@ -23,7 +18,7 @@ internal readonly record struct GunshipDustDurations(int Length, ushort Initial)
 /// Compiled control for all six gunship liftoff-dust instruction lists. Interleaved
 /// spritemap operands resolve through extracted presentation art.
 /// </summary>
-internal static class GunshipDustInstructionProgramDefinitions
+internal abstract class GunshipDustInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_EnemyProjectile_GunshipLiftoffDustClouds_Index0_0</c> at $86:A197.</summary>
     internal const ushort Index0 = 0xa197;
@@ -44,8 +39,8 @@ internal static class GunshipDustInstructionProgramDefinitions
     internal const ushort IndexA = 0xa265;
 
     internal static int ProgramCount => 6;
-    internal static int MechanicsWordCount => 76;
-    internal static int PresentationWordCount => 46;
+    public static int MechanicsWordCount => 76;
+    public static int PresentationWordCount => 46;
 
     internal static GunshipDustInstructionProgramDefinition Program(int index)
     {
@@ -69,7 +64,7 @@ internal static class GunshipDustInstructionProgramDefinitions
             nameof(parameter), parameter, "Gunship dust parameter must be 0,2,4,6,8,A."),
     };
 
-    internal static GunshipDustInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(index);
         for (int programIndex = 0; programIndex < ProgramCount; programIndex++)
@@ -112,7 +107,7 @@ internal static class GunshipDustInstructionProgramDefinitions
         throw new ArgumentOutOfRangeException(nameof(index));
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(index);
         for (int programIndex = 0; programIndex < ProgramCount; programIndex++)
@@ -132,7 +127,7 @@ internal static class GunshipDustInstructionProgramDefinitions
     {
         for (int index = 0; index < MechanicsWordCount; index++)
         {
-            GunshipDustInstructionMechanicsWord candidate = MechanicsWord(index);
+            InstructionMechanicsWord candidate = MechanicsWord(index);
             if (candidate.Address == address)
                 return candidate.Value;
         }
@@ -140,7 +135,7 @@ internal static class GunshipDustInstructionProgramDefinitions
             $"Gunship dust mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
             return false;

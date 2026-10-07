@@ -2,15 +2,12 @@ using static SuperMetroid.Core.Game.InstructionItem;
 
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct GoldenTorizoEyeBeamAttackMechanicsWord(
-    ushort Address, ushort Value);
-
 /// <summary>
 /// The callable Golden Torizo eye-beam attack at $AA:D10D-D17A. This list has
 /// no spritemap operands: it times and spawns projectiles while four existing
 /// $814B descriptors stream editable Torizo character art into VRAM.
 /// </summary>
-internal static class GoldenTorizoEyeBeamAttackInstructionProgramDefinitions
+internal abstract class GoldenTorizoEyeBeamAttackInstructionProgramDefinitions : IInstructionProgramCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
 {
     /// <summary><c>InstList_GoldenTorizo_EyeBeamAttack_0</c> at $AA:D10D.</summary>
     internal const ushort Start = 0xd10d;
@@ -28,6 +25,7 @@ internal static class GoldenTorizoEyeBeamAttackInstructionProgramDefinitions
 
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
+    static int IDeclaredProgramBank.Bank => Bank;
 
     private static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xd10d),
@@ -65,8 +63,8 @@ internal static class GoldenTorizoEyeBeamAttackInstructionProgramDefinitions
         Op(TorizoInstructionCodes.Instruction_Torizo_FunctionInY, TorizoNormalMovementFunction),
         Op(TorizoInstructionCodes.Instruction_Torizo_Return));
 
-    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
-    internal static GoldenTorizoEyeBeamAttackMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => Layout.MechanicsWordCount;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         (ushort address, ushort value) = Layout.MechanicsWord(index);
         return new(address, value);
@@ -75,5 +73,5 @@ internal static class GoldenTorizoEyeBeamAttackInstructionProgramDefinitions
     internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
         Layout.TryReadMechanicsWord(address, out value);
 
-    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
+    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

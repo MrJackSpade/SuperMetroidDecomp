@@ -1,15 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct GoldenTorizoEyeBeamInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for Golden Torizo's eye-beam programs at $86:B3CD-$B428. Their
 /// seventeen interleaved spritemap operands are extracted presentation data; the packed
 /// floor-impact sound ID remains live cartridge audio data.
 /// </summary>
-internal static class GoldenTorizoEyeBeamInstructionProgramDefinitions
+internal abstract class GoldenTorizoEyeBeamInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InitAI_EnemyProjectile_GoldenTorizoEyeBeam</c> at $86:B328.</summary>
     internal const ushort InitializationAi = 0xb328;
@@ -26,14 +22,14 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitions
     private const ushort WallHold = 4, LandingHold = 8, FlightHold = 1, ExplosionInitialHold = 4;
     /// <summary>$86:B3FC clears projectile property bit13, enabling Samus damage.</summary>
     private const ushort EnableSamusDamageMask = unchecked((ushort)~(1 << 13));
-    internal static int MechanicsWordCount => 28;
-    internal static int PresentationWordCount => 17;
-    internal static GoldenTorizoEyeBeamInstructionMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => 28;
+    public static int PresentationWordCount => 17;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         return Select(index, visual: false);
     }
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return Select(index, visual: true).Address;
@@ -44,7 +40,7 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitions
     /// explosion admission then slows its six poses by one tick per phase, and
     /// flight loops five poses. Floor sound uses a one-byte operand between words.
     /// </summary>
-    private static GoldenTorizoEyeBeamInstructionMechanicsWord Select(int index, bool visual)
+    private static InstructionMechanicsWord Select(int index, bool visual)
     {
         var layout = new Layout(index, visual);
         layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction);
@@ -76,7 +72,7 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitions
     {
         private ushort cursor = WallImpact;
         private int mechanics, presentation;
-        internal GoldenTorizoEyeBeamInstructionMechanicsWord Result { get; private set; }
+        internal InstructionMechanicsWord Result { get; private set; }
         internal void SkipByte() => cursor++;
         internal void Word(ushort value)
         {
@@ -97,7 +93,7 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            GoldenTorizoEyeBeamInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address) return candidate.Value;
             if (candidate.Address < address) low = middle + 1;
             else high = middle - 1;
@@ -107,7 +103,7 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitions
             $"Golden Torizo eye-beam mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
         ushort bankAddress = unchecked((ushort)address);

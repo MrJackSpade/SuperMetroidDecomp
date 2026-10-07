@@ -22,7 +22,7 @@ internal static partial class Program
              index < MetroidInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            MetroidInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 MetroidInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadMetroidInstructionWord(rom, definition.Address),

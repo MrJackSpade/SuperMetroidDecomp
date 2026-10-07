@@ -1,12 +1,7 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled mechanics-owned word at its native bank-$B3 address.</summary>
-internal readonly record struct BrinstarPipeBugInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>Compiled mechanics for normal and strong Brinstar Pipe Bug programs.</summary>
-internal static class BrinstarPipeBugInstructionProgramDefinitions
+internal abstract class BrinstarPipeBugInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_Zeb_FacingLeft_Rising</c> at $B3:87AB.</summary>
     internal const ushort NormalRisingLeft = 0x87ab;
@@ -25,8 +20,8 @@ internal static class BrinstarPipeBugInstructionProgramDefinitions
     /// <summary><c>InstList_Zebbo_FacingRight_Shooting</c> at $B3:8A59.</summary>
     internal const ushort StrongShootingRight = 0x8a59;
 
-    internal static int MechanicsWordCount => 60;
-    internal static int PresentationWordCount => 44;
+    public static int MechanicsWordCount => 60;
+    public static int PresentationWordCount => 44;
 
     private static ushort Start(int program) => program < 4
         ? (ushort)(NormalRisingLeft + program / 2 * 64 + program % 2 * 36)
@@ -34,7 +29,7 @@ internal static class BrinstarPipeBugInstructionProgramDefinitions
 
     private static int Frames(int program) => program < 4 ? 8 - 2 * (program & 1) : 4;
 
-    internal static BrinstarPipeBugInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
@@ -51,7 +46,7 @@ internal static class BrinstarPipeBugInstructionProgramDefinitions
         throw new IndexOutOfRangeException();
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
@@ -97,7 +92,7 @@ internal static class BrinstarPipeBugInstructionProgramDefinitions
         return false;
     }
 
-    internal static bool IsCompiledMechanicsByte(int address) =>
+    public static bool IsCompiledMechanicsByte(int address) =>
         (address & 0xff0000) == 0xb30000 &&
         (TryRead((ushort)address, out _) || TryRead((ushort)address - 1, out _));
 }

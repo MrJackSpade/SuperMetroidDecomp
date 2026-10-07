@@ -20,7 +20,7 @@ internal static partial class Program
              index < RoomSpriteObjectInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            RoomSpriteObjectInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 RoomSpriteObjectInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 ReadRoomSpriteObjectWord(rom, 0xb40000 | definition.Address),

@@ -1,14 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct SporeSpawnProjectileInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for Spore Spawn's stalk, ceiling emitter, and spore projectiles at
 /// $86:DC00-$DC58. Their seventeen spritemap operands identify compiled presentation.
 /// </summary>
-internal static class SporeSpawnProjectileInstructionProgramDefinitions
+internal abstract class SporeSpawnProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary>Closed/shot ceiling-emitter program at $86:DC00.</summary>
     internal const ushort SpawnerClosed = 0xdc00;
@@ -32,10 +28,10 @@ internal static class SporeSpawnProjectileInstructionProgramDefinitions
     /// </summary>
     private static readonly ushort[] ShotDurations = [1, 3, 6, 5, 5, 5, 6];
     // Closed-emitter hold 1 and airborne/stalk holds 5 are the same authored cadence (reviewed under #1165).
-    internal static int MechanicsWordCount => 28;
-    internal static int PresentationWordCount => 17;
+    public static int MechanicsWordCount => 28;
+    public static int PresentationWordCount => 17;
 
-    internal static SporeSpawnProjectileInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         if (index < 2) return new((ushort)(SpawnerClosed + 4 * index), index == 0 ? (ushort)1 : EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep);
@@ -74,7 +70,7 @@ internal static class SporeSpawnProjectileInstructionProgramDefinitions
         });
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         if (index == 0) return SpawnerClosed + 2;
@@ -96,7 +92,7 @@ internal static class SporeSpawnProjectileInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            SporeSpawnProjectileInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address) return candidate.Value;
             if (candidate.Address < address) low = middle + 1;
             else high = middle - 1;
@@ -105,7 +101,7 @@ internal static class SporeSpawnProjectileInstructionProgramDefinitions
             $"Spore Spawn projectile mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
         ushort bankAddress = unchecked((ushort)address);

@@ -134,7 +134,7 @@ internal static partial class Program
             ushort address = addresses[index];
             ushort original = ReadZoaInstructionWord(rom, 0xa30000 | address);
             AssertEqual(original, ZoaInstructionProgramDefinitions.ReadMechanicsWord(address), "Zoa original control word");
-            AssertEqual(new ZoaInstructionMechanicsWord(address, original),
+            AssertEqual(new InstructionMechanicsWord(address, original),
                 ZoaInstructionProgramDefinitions.MechanicsWord(index), "Zoa ordered control enumeration");
         }
         for (int address = 0xb3c0; address <= 0xb40e; address++)

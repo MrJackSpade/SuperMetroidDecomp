@@ -20,7 +20,7 @@ internal static partial class Program
              index < CeresSteamInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            CeresSteamInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 CeresSteamInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadCeresSteamInstructionWord(rom, 0xa60000 | definition.Address),

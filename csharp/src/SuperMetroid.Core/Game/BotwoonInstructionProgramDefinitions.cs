@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Botwoon head mechanics word at its bank-$B3 address.</summary>
-internal readonly record struct BotwoonInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for Botwoon's selector-reachable head movement,
 /// hiding, and spit programs. Interleaved spritemap operands select installed presentation art.
 /// </summary>
-internal static class BotwoonInstructionProgramDefinitions
+internal abstract class BotwoonInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_Botwoon_MouthClosed_AimingUpLeft</c> at $B3:9341.</summary>
     internal const ushort MovingUpLeft = 0x9341;
@@ -64,11 +59,11 @@ internal static class BotwoonInstructionProgramDefinitions
     /// </summary>
     internal const ushort FirstAdjacentProgram = 0x942f;
 
-    internal static int MechanicsWordCount => 74;
-    internal static int PresentationWordCount => 25;
+    public static int MechanicsWordCount => 74;
+    public static int PresentationWordCount => 25;
     private static int PhysicalDirection(int index) => index < 3 ? index : index + 1;
 
-    internal static BotwoonInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         ushort address;
@@ -86,7 +81,7 @@ internal static class BotwoonInstructionProgramDefinitions
         }
         return new(address, ReadMechanicsWord(address));
     }
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         if (index < 8) return (ushort)(MovingUpLeft + 8 * PhysicalDirection(index) + 4);
@@ -154,7 +149,7 @@ internal static class BotwoonInstructionProgramDefinitions
     private static bool IsMechanicsWord(ushort address) => address == Hidden || address == Hidden + 4 ||
         (TryDecodeDirectional(address, out bool spitting, out _, out int offset) &&
             (spitting ? offset is 0 or 4 or 6 or 8 or 10 or 14 : offset is 0 or 2 or 6));
-    internal static bool IsCompiledMechanicsByte(int address) =>
+    public static bool IsCompiledMechanicsByte(int address) =>
         (address & 0xff0000) == 0xb30000 &&
         (IsMechanicsWord(unchecked((ushort)address)) || IsMechanicsWord(unchecked((ushort)(address - 1))));
 }

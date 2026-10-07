@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Mother Brain glass-projectile mechanics word at its bank-$86 address.</summary>
-internal readonly record struct MotherBrainGlassInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for Mother Brain's eight glass-shard loops and finite sparkle program.
 /// Their interleaved spritemap operands resolve through extracted presentation art.
 /// </summary>
-internal static class MotherBrainGlassInstructionProgramDefinitions
+internal abstract class MotherBrainGlassInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary>First glass-shard angle-group loop at $86:CC93.</summary>
     internal const ushort ShardGroup0 = 0xcc93;
@@ -38,12 +33,12 @@ internal static class MotherBrainGlassInstructionProgramDefinitions
     /// <summary>Finite glass-sparkle animation at $86:CDB3.</summary>
     internal const ushort Sparkle = 0xcdb3;
 
-    internal static int MechanicsWordCount => 85;
-    internal static int PresentationWordCount => 68;
+    public static int MechanicsWordCount => 85;
+    public static int PresentationWordCount => 68;
     internal static int ShardProgramCount => 8;
 
     /// <summary>Enumerate ten mechanics words per shard loop, then five sparkle words.</summary>
-    internal static MotherBrainGlassInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         int address;
@@ -57,7 +52,7 @@ internal static class MotherBrainGlassInstructionProgramDefinitions
     }
 
     /// <summary>Sixty-four shard and four sparkle art operands, each two bytes after its duration.</summary>
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(index < 64 ? ShardProgram(index / 8) + (index % 8) * 4 + 2 :
@@ -126,7 +121,7 @@ internal static class MotherBrainGlassInstructionProgramDefinitions
             $"Mother Brain glass-projectile mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
         int offset = (ushort)address - ShardGroup0;

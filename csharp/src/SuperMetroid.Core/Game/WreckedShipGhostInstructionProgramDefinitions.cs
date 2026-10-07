@@ -1,14 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct WreckedShipGhostInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for the Wrecked Ship ghost (native Coven) animation
 /// loop. Its three spritemap selections resolve compiled identities to installed artwork.
 /// </summary>
-internal static class WreckedShipGhostInstructionProgramDefinitions
+internal abstract class WreckedShipGhostInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_Coven</c> at $A8:9A8C.</summary>
     internal const ushort Floating = 0x9a8c;
@@ -19,11 +15,11 @@ internal static class WreckedShipGhostInstructionProgramDefinitions
     /// <summary>The first non-program word after <c>InstList_Coven</c>, at $A8:9A9C.</summary>
     internal const ushort FirstAdjacentConstant = 0x9a9c;
 
-    internal static int MechanicsWordCount => 5;
-    internal static int PresentationWordCount => 3;
+    public static int MechanicsWordCount => 5;
+    public static int PresentationWordCount => 3;
 
     /// <summary>Three sixteen-tick poses followed by the native goto and loop target.</summary>
-    internal static WreckedShipGhostInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         if (index < PresentationWordCount) return new((ushort)(Floating + 4 * index), 16);
@@ -32,7 +28,7 @@ internal static class WreckedShipGhostInstructionProgramDefinitions
             : new((ushort)(LoopOpcode + 2), Floating);
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(Floating + 2 + 4 * index);
@@ -49,7 +45,7 @@ internal static class WreckedShipGhostInstructionProgramDefinitions
             $"Wrecked Ship ghost instruction mechanics pointer $A8:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa80000)
             return false;

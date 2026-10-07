@@ -1,12 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct BullInstructionMechanicsWord(ushort Address, ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for Bull's ordinary and immune-shot animation programs.
 /// Interleaved spritemap operands select installed presentation frames.
 /// </summary>
-internal static class BullInstructionProgramDefinitions
+internal abstract class BullInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_Bull_Normal</c> at $A8:D841.</summary>
     internal const ushort Normal = 0xd841;
@@ -15,11 +13,11 @@ internal static class BullInstructionProgramDefinitions
     /// <summary><c>InstList_Bull_Shot_1</c> at $A8:D859.</summary>
     internal const ushort ShotLoop = 0xd859;
 
-    internal static int MechanicsWordCount => 16;
-    internal static int PresentationWordCount => 8;
+    public static int MechanicsWordCount => 16;
+    public static int PresentationWordCount => 8;
 
     /// <summary>Normal loops four ten-frame drawings; shot loops four three-frame drawings five times and returns to normal.</summary>
-    internal static BullInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         if (index < 4) return new((ushort)(Normal + 4 * index), 10);
@@ -37,7 +35,7 @@ internal static class BullInstructionProgramDefinitions
         };
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)((index < 4 ? Normal : ShotLoop) + 2 + 4 * (index % 4));
@@ -60,7 +58,7 @@ internal static class BullInstructionProgramDefinitions
             $"Bull instruction mechanics pointer $A8:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa80000)
             return false;

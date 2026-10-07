@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyGoldenTorizoInitialDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = GoldenTorizoInitialFrameDefinitions.Bank;
-        foreach (GoldenTorizoInitialMechanicsWord word in
+        foreach (InstructionMechanicsWord word in
                  Enumerable.Range(0,
                      GoldenTorizoInitialInstructionProgramDefinitions.MechanicsWordCount)
                      .Select(GoldenTorizoInitialInstructionProgramDefinitions.MechanicsWord))
@@ -105,7 +105,7 @@ internal static partial class Program
              index < GoldenTorizoAwakeningInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            GoldenTorizoAwakeningMechanicsWord word =
+            InstructionMechanicsWord word =
                 GoldenTorizoAwakeningInstructionProgramDefinitions.MechanicsWord(index);
             AssertTrue(mechanicsAddresses.Add(word.Address),
                 $"Golden Torizo awakening mechanics $AA:{word.Address:X4} is unique");

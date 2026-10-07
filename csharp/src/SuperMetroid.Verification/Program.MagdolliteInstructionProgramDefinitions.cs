@@ -20,7 +20,7 @@ internal static partial class Program
              index < MagdolliteInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            MagdolliteInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 MagdolliteInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadMagdolliteInstructionWord(rom, 0xa80000 | definition.Address),

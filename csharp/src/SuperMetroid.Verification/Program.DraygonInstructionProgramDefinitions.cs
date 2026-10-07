@@ -19,7 +19,7 @@ internal static partial class Program
              index < DraygonInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            DraygonInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 DraygonInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 ReadDraygonWord(rom, 0xa50000 | definition.Address),
@@ -50,7 +50,7 @@ internal static partial class Program
                  index < DraygonInstructionProgramDefinitions.MechanicsWordCount;
                  index++)
             {
-                DraygonInstructionMechanicsWord word =
+                InstructionMechanicsWord word =
                     DraygonInstructionProgramDefinitions.MechanicsWord(index);
                 AssertEqual(
                     word.Value,

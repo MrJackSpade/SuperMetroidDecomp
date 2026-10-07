@@ -25,7 +25,7 @@ internal static partial class Program
              index < SporeSpawnInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            SporeSpawnInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 SporeSpawnInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 definition.Value,

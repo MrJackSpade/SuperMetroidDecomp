@@ -21,7 +21,7 @@ internal static partial class Program
              index < HZoomerInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            HZoomerInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 HZoomerInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadHZoomerInstructionWord(rom, definition.Address),

@@ -20,7 +20,7 @@ internal static partial class Program
              index < MotherBrainTurretInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            MotherBrainTurretInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 MotherBrainTurretInstructionProgramDefinitions.MechanicsWord(index);
             ushort native = unchecked((ushort)(
                 rom.ReadByte(EnemyProjectileCodePointers.BankBase | definition.Address) |

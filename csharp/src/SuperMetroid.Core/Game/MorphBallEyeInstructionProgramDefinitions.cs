@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Morph Ball eye mechanics word at its bank-$A8 address.</summary>
-internal readonly record struct MorphBallEyeInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled frame timing and terminal control for the Morph Ball eye body and mount.
 /// Interleaved spritemap operands select separately installed presentation data.
 /// </summary>
-internal static class MorphBallEyeInstructionProgramDefinitions
+internal abstract class MorphBallEyeInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_Eye_Active</c> at $A8:8FAC.</summary>
     internal const ushort Active = 0x8fac;
@@ -42,10 +37,10 @@ internal static class MorphBallEyeInstructionProgramDefinitions
     // opening reverses them after its activation delay; the reversal is calculated.
     private static readonly ushort[] EyelidDurations = [8, 48, 5];
 
-    internal static int MechanicsWordCount => 46;
-    internal static int PresentationWordCount => 36;
+    public static int MechanicsWordCount => 46;
+    public static int PresentationWordCount => 36;
 
-    internal static MorphBallEyeInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         if (index < 18)
@@ -80,7 +75,7 @@ internal static class MorphBallEyeInstructionProgramDefinitions
     /// sequences, two four-frame opening sequences and four one-frame mount programs.
     /// Sleep/goto control widths determine the gaps between their visual operands.
     /// </summary>
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         if (index < 16) return (ushort)(Active + index * 4 + 2);
@@ -107,7 +102,7 @@ internal static class MorphBallEyeInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            MorphBallEyeInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -120,7 +115,7 @@ internal static class MorphBallEyeInstructionProgramDefinitions
             $"Morph Ball eye instruction mechanics pointer $A8:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa80000)
             return false;

@@ -23,7 +23,7 @@ internal static partial class Program
              index < LowerNorfairRioInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            LowerNorfairRioInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 LowerNorfairRioInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadLowerNorfairRioInstructionWord(rom, definition.Address),

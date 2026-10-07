@@ -33,7 +33,7 @@ internal static partial class Program
              index < PuyoInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            PuyoInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 PuyoInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadPuyoInstructionWord(rom, definition.Address),

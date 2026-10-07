@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Dragon-fireball mechanics word at its bank-$86 address.</summary>
-internal readonly record struct DragonFireballInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for Dragon's left/right rising and falling fireball loops.
 /// Interleaved spritemap operands resolve through extracted presentation art.
 /// </summary>
-internal static class DragonFireballInstructionProgramDefinitions
+internal abstract class DragonFireballInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_EnemyProjectile_DragonFireball_Rising_Left</c> at $86:B4BF.</summary>
     internal const ushort RisingLeft = 0xb4bf;
@@ -23,10 +18,10 @@ internal static class DragonFireballInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_DragonFireball_Falling_Right</c> at $86:B4E3.</summary>
     internal const ushort FallingRight = 0xb4e3;
 
-    internal static int MechanicsWordCount => 16;
-    internal static int PresentationWordCount => 8;
+    public static int MechanicsWordCount => 16;
+    public static int PresentationWordCount => 8;
 
-    internal static DragonFireballInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         int step = index % 4;
@@ -34,7 +29,7 @@ internal static class DragonFireballInstructionProgramDefinitions
         return new(address, ReadMechanicsWord(address));
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(RisingLeft + index / 2 * 12 + index % 2 * 4 + 2);
@@ -63,7 +58,7 @@ internal static class DragonFireballInstructionProgramDefinitions
         return value != 0;
     }
 
-    internal static bool IsCompiledMechanicsByte(int address) =>
+    public static bool IsCompiledMechanicsByte(int address) =>
         (address & 0xff0000) == EnemyProjectileCodePointers.BankBase &&
         (TryRead((ushort)address, out _) || TryRead((ushort)address - 1, out _));
 }

@@ -1,17 +1,16 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct PolypInstructionMechanicsWord(ushort Address, ushort Value);
-
 /// <summary>
 /// Compiled one-pose sleep program for Polyp; its visual selector uses installed artwork.
 /// </summary>
-internal static class PolypInstructionProgramDefinitions
+internal abstract class PolypInstructionProgramDefinitions : IInstructionProgramCatalog, ISinglePresentationOperand, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_Polyp</c> at $A2:B51A.</summary>
     internal const ushort Stationary = 0xb51a;
 
     /// <summary>The compiled <c>Spritemap_Polyp</c> operand at $A2:B51C.</summary>
     internal const ushort PresentationWord = 0xb51c;
+    static ushort ISinglePresentationOperand.PresentationWord => PresentationWord;
 
     /// <summary><c>Spritemap_Polyp</c> at $A2:B5FB, selected by the one stationary pose at $B51C.</summary>
     internal const ushort StationaryFrame = 0xb5fb;
@@ -20,8 +19,8 @@ internal static class PolypInstructionProgramDefinitions
         operandAddress == PresentationWord ? StationaryFrame
             : throw new InvalidDataException("Polyp visual operand is outside its stationary program.");
 
-    internal static int MechanicsWordCount => 2;
-    internal static PolypInstructionMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => 2;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         return new((ushort)(Stationary + index * 4),
@@ -39,7 +38,7 @@ internal static class PolypInstructionProgramDefinitions
             $"Polyp instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa20000)
             return false;

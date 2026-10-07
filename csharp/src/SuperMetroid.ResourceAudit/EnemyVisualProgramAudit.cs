@@ -1,4 +1,3 @@
-using System.Reflection;
 using System.Text.Json;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -14,7 +13,6 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal static class EnemyVisualProgramAudit
 {
-    private const BindingFlags Flags = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
     internal sealed record ProgramRow(string Owner, int? Bank, string Shape, int Operands, int MechanicsWords);
 
     internal static int Run(string root, string output)
@@ -38,20 +36,19 @@ internal static class EnemyVisualProgramAudit
                 continue;
             }
             string source = parts[0].SyntaxTree.FilePath;
-            int? bank = ResolveBank(type, parts, compilation);
+            var catalog = InstructionProgramCatalog.Of(type);
+            int? bank = ResolveBank(type, catalog, parts, compilation);
             var addresses = new HashSet<ushort>();
             string shape = "unrecognized";
-            int? count = PresentationCount(type);
-            MethodInfo? at = type.GetMethod("PresentationWordAddress", Flags, [typeof(int)]);
-            if (count is not null && at is not null)
+            if (catalog.PresentationOperands is { } indexed)
             {
                 shape = "indexed";
-                for (int i = 0; i < count.Value; i++) addresses.Add((ushort)at.Invoke(null, [i])!);
+                addresses.UnionWith(indexed);
             }
-            else if (type.GetField("PresentationWord", Flags) is { IsLiteral: true } single)
+            else if (catalog.SinglePresentationOperand is { } single)
             {
                 shape = "single";
-                addresses.Add(Convert.ToUInt16(single.GetRawConstantValue()));
+                addresses.Add(single);
             }
             else if (type == typeof(DeadTourianCorpseInstructionProgramDefinitions))
             {
@@ -83,7 +80,7 @@ internal static class EnemyVisualProgramAudit
             else if (EnemyVisualProgramSpecializations.IsReviewedControlOnly(type, root))
                 shape = "control-only";
 
-            Dictionary<ushort, ushort> words = ReadWords(type);
+            Dictionary<ushort, ushort> words = ReadWords(type, catalog);
             // A compiled duration followed by a hole (including at the catalog end)
             // independently exposes interleaved operands, including missing declarations.
             addresses.UnionWith(InterleavedOperands(words));
@@ -108,13 +105,6 @@ internal static class EnemyVisualProgramAudit
         foreach (AuditFinding finding in report.Findings.DistinctBy(item => (item.Owner, item.Resource, item.Message)))
             Console.WriteLine($"{finding.Code} {finding.Owner} {finding.Resource}: {finding.Message}");
         return report.Findings.Count == 0 ? 0 : 1;
-    }
-
-    internal static int? PresentationCount(Type type)
-    {
-        if (type.GetProperty("PresentationWordCount", Flags)?.GetValue(null) is int count) return count;
-        return type.GetField("PresentationWordCount", Flags) is { IsLiteral: true } field
-            ? (int)field.GetRawConstantValue()! : null;
     }
 
     internal static IEnumerable<ushort> InterleavedOperands(Dictionary<ushort, ushort> words) =>
@@ -144,7 +134,7 @@ internal static class EnemyVisualProgramAudit
         return owners;
     }
 
-    private static Dictionary<ushort, ushort> ReadWords(Type type)
+    private static Dictionary<ushort, ushort> ReadWords(Type type, InstructionProgramCatalog catalog)
     {
         var result = new Dictionary<ushort, ushort>();
         if (type == typeof(MotherBrainBodyInstructionProgramDefinitions))
@@ -159,28 +149,25 @@ internal static class EnemyVisualProgramAudit
             }
             return result;
         }
-        PropertyInfo? count = type.GetProperty("MechanicsWordCount", Flags) ?? type.GetProperty("NativeWordCount", Flags);
-        MethodInfo? at = type.GetMethod("MechanicsWord", Flags, [typeof(int)]) ?? type.GetMethod("NativeWord", Flags, [typeof(int)]);
-        object? countValue = count?.GetValue(null) ?? type.GetField("MechanicsWordCount", Flags)?.GetRawConstantValue();
-        if (countValue is null || at is null) return result;
-        for (int i = 0; i < (int)countValue; i++)
+        if (type == typeof(MotherBrainHandBeamInstructionProgramDefinitions))
         {
-            object word = at.Invoke(null, [i])!;
-            Type wordType = word.GetType();
-            result.Add(Convert.ToUInt16(wordType.GetProperty("Address")!.GetValue(word)),
-                Convert.ToUInt16(wordType.GetProperty("Value")!.GetValue(word)));
+            for (int i = 0; i < MotherBrainHandBeamInstructionProgramDefinitions.NativeWordCount; i++)
+            {
+                var word = MotherBrainHandBeamInstructionProgramDefinitions.NativeWord(i);
+                result.Add(word.Address, word.Value);
+            }
+            return result;
         }
+        foreach (var word in catalog.MechanicsWords ?? [])
+            result.Add(word.Address, word.Value);
         return result;
     }
 
-    private static int? ResolveBank(Type type, ClassDeclarationSyntax[] parts, CSharpCompilation compilation)
+    private static int? ResolveBank(Type type, InstructionProgramCatalog catalog, ClassDeclarationSyntax[] parts, CSharpCompilation compilation)
     {
         if (EnemyVisualProgramSpecializations.IsMotherBrain(type)) return MotherBrainVisualDefinitions.Bank;
-        if (type.GetField("Bank", Flags) is { IsLiteral: true } field)
-        {
-            int value = Convert.ToInt32(field.GetRawConstantValue());
-            return value <= byte.MaxValue ? value : value >> 16;
-        }
+        if (catalog.DeclaredBank is { } declared)
+            return declared <= byte.MaxValue ? declared : declared >> 16;
         var banks = new HashSet<int>();
         foreach (var part in parts)
         {

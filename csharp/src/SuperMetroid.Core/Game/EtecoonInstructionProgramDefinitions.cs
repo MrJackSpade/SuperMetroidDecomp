@@ -2,13 +2,11 @@ using static SuperMetroid.Core.Game.InstructionItem;
 
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct EtecoonInstructionMechanicsWord(ushort Address, ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for the friendly Etecoon's overlapping animation programs.
 /// Their forty-five spritemap selections resolve compiled identities to installed artwork.
 /// </summary>
-internal static class EtecoonInstructionProgramDefinitions
+internal abstract class EtecoonInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
 {
     /// <summary><c>InstList_Etecoon_LookRightAtSamusAndRunLeft</c> at $A7:E81E.</summary>
     internal const ushort LookRightAtSamusAndRunLeft = 0xe81e;
@@ -55,6 +53,7 @@ internal static class EtecoonInstructionProgramDefinitions
 
     /// <summary>Native program bank $A7.</summary>
     internal const byte Bank = 0xa7;
+    static int IDeclaredProgramBank.Bank => Bank;
 
     private static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xe81e),
@@ -140,19 +139,19 @@ internal static class EtecoonInstructionProgramDefinitions
         Frame(32),
         Op(CommonEnemyInstructionCodes.Sleep));
 
-    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
-    internal static int PresentationWordCount => Layout.PresentationSlotCount;
-    internal static EtecoonInstructionMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => Layout.MechanicsWordCount;
+    public static int PresentationWordCount => Layout.PresentationSlotCount;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         (ushort address, ushort value) = Layout.MechanicsWord(index);
         return new(address, value);
     }
-    internal static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
+    public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(
                 $"Etecoon instruction mechanics pointer $A7:{address:X4} is not compiled.");
 
-    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
+    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

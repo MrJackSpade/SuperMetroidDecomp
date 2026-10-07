@@ -1,9 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct MotherBrainRoomPaletteMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control words for Mother Brain's fake-death room-palette flash program.
 /// Color rows are installed presentation data, indexed by the compiled timed-entry identity.
@@ -29,7 +25,7 @@ internal static class MotherBrainRoomPaletteProgramDefinitions
     /// <summary>$A9:D07E: closing Goto opcode following the timed frames.</summary>
     private const ushort LoopInstruction = FlashStart + PresentationWordCount * 4;
 
-    internal static MotherBrainRoomPaletteMechanicsWord MechanicsWord(int index)
+    internal static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         return index < PresentationWordCount

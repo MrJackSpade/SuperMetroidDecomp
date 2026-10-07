@@ -1,15 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct BotwoonProjectileInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for Botwoon's articulated body, tail, hidden, and spit projectile
 /// programs at $86:E80F-$E8F7 and $86:EBAE-$EBC5. Their forty-six spritemap operands
 /// select installed presentation artwork.
 /// </summary>
-internal static class BotwoonProjectileInstructionProgramDefinitions
+internal abstract class BotwoonProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_EnemyProjectile_BotwoonsBody_UpLeft</c> at $86:E80F.</summary>
     internal const ushort BodyUpLeft = 0xe80f;
@@ -48,8 +44,8 @@ internal static class BotwoonProjectileInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_BotwoonsSpit</c> at $86:EBAE.</summary>
     internal const ushort Spit = 0xebae;
 
-    internal const int MechanicsWordCount = 73;
-    internal const int PresentationWordCount = 46;
+    public static int MechanicsWordCount => 73;
+    public static int PresentationWordCount => 46;
     internal const int BodyProgramCount = 17;
 
     internal static ushort BodyProgram(int index)
@@ -61,7 +57,7 @@ internal static class BotwoonProjectileInstructionProgramDefinitions
             : (ushort)(TailUpFacingRight + 6 * (index - 8));
     }
 
-    internal static BotwoonProjectileInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         int address;
@@ -80,7 +76,7 @@ internal static class BotwoonProjectileInstructionProgramDefinitions
         return new((ushort)address, ReadMechanicsWord((ushort)address));
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         if (index < 32) return (ushort)(BodyProgram(index / 4) + 4 * (index % 4) + 2);
@@ -122,7 +118,7 @@ internal static class BotwoonProjectileInstructionProgramDefinitions
         return (uint)spit < 20 && spit % 4 == 2;
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
         ushort word = (ushort)(address & ~1);

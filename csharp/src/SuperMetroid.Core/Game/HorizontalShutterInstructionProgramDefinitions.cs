@@ -1,29 +1,25 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct HorizontalShutterInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for the horizontal shutter's stationary program.
 /// Its interleaved spritemap operand selects separately installed presentation data.
 /// </summary>
-internal static class HorizontalShutterInstructionProgramDefinitions
+internal abstract class HorizontalShutterInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_ShutterHorizontal</c> at $A2:E9D4.</summary>
     internal const ushort Stationary = 0xe9d4;
 
     private const ushort PresentationWord = 0xe9d6;
 
-    internal static int MechanicsWordCount => 2;
-    internal static int PresentationWordCount => 1;
-    internal static HorizontalShutterInstructionMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => 2;
+    public static int PresentationWordCount => 1;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         ushort address = (ushort)(Stationary + 4 * index);
         return new(address, ReadMechanicsWord(address));
     }
-    internal static ushort PresentationWordAddress(int index) => index == 0
+    public static ushort PresentationWordAddress(int index) => index == 0
         ? PresentationWord
         : throw new ArgumentOutOfRangeException(nameof(index));
 
@@ -38,7 +34,7 @@ internal static class HorizontalShutterInstructionProgramDefinitions
             $"Horizontal-shutter instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa20000) return false;
         int offset = unchecked((ushort)address) - Stationary;

@@ -56,7 +56,7 @@ internal static partial class Program
              index < SparkInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            SparkInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 SparkInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 definition.Value,

@@ -1,14 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct RioInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for Rio's idle, swooping, and cooldown programs.
 /// Their twenty-four spritemap operands select extracted presentation frames.
 /// </summary>
-internal static class RioInstructionProgramDefinitions
+internal abstract class RioInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_Rio_Idle</c> at $A2:BB4B.</summary>
     internal const ushort Idle = 0xbb4b;
@@ -39,9 +35,9 @@ internal static class RioInstructionProgramDefinitions
     /// <summary>$A2:BB7F-BBB3 swoop and recovery instruction cadence. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort SwoopFrameDuration = 3;
 
-    internal static int MechanicsWordCount => PresentationWordCount + 8;
-    internal static int PresentationWordCount => IdleFrameCount + 2 * TransitionFrameCount + SwoopLoopFrameCount;
-    internal static RioInstructionMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => PresentationWordCount + 8;
+    public static int PresentationWordCount => IdleFrameCount + 2 * TransitionFrameCount + SwoopLoopFrameCount;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         if (index < IdleFrameCount + 2)
@@ -58,12 +54,12 @@ internal static class RioInstructionProgramDefinitions
             RioInstructionCodes.SetAnimationFinished, CommonEnemyInstructionCodes.Sleep);
     }
 
-    private static RioInstructionMechanicsWord BlockWord(ushort start, int frames, int index,
+    private static InstructionMechanicsWord BlockWord(ushort start, int frames, int index,
         ushort duration, ushort firstTail, ushort lastTail) => index < frames
             ? new((ushort)(start + index * 4), duration)
             : new((ushort)(start + frames * 4 + (index - frames) * 2), index == frames ? firstTail : lastTail);
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         if (index < IdleFrameCount) return (ushort)(Idle + index * 4 + 2);
@@ -96,7 +92,7 @@ internal static class RioInstructionProgramDefinitions
             $"Rio instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa20000)
             return false;

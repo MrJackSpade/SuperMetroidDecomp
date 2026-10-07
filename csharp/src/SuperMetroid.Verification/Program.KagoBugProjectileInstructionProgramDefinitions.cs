@@ -19,7 +19,7 @@ internal static partial class Program
              index < KagoBugProjectileInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            KagoBugProjectileInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 KagoBugProjectileInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadKagoBugProjectileInstructionWord(rom, definition.Address),

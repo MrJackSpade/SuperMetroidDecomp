@@ -17,7 +17,7 @@ internal static partial class Program
              index < SaveStationElectricityInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            SaveStationElectricityInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 SaveStationElectricityInstructionProgramDefinitions.MechanicsWord(index);
             ushort native = unchecked((ushort)(
                 rom.ReadByte(EnemyProjectileCodePointers.BankBase | definition.Address) |

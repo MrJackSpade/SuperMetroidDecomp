@@ -1,17 +1,12 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled mechanics-owned word at its native bank-$A3 address.</summary>
-internal readonly record struct SkulteraInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>Compiled mechanics words from Skultera's swimming and turning programs.</summary>
 /// <remarks>
 /// Layer callbacks, durations, turn completion, sleeps, and loop control are immutable
 /// simulation data. The twenty-two interleaved spritemap pointers are compiled
 /// separately from their editable composition assets.
 /// </remarks>
-internal static class SkulteraInstructionProgramDefinitions
+internal abstract class SkulteraInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>$A3:902A</c>, the layer callback and three-frame left-swimming loop.</summary>
     internal const ushort SwimmingLeft = 0x902a;
@@ -33,10 +28,10 @@ internal static class SkulteraInstructionProgramDefinitions
     private static readonly ushort[] TurnHalfDurations = [13, 10, 8, 6];
     /// <summary>$A3:902C/9062: swimming cadence. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort SwimmingDuration = 14;
-    internal static int MechanicsWordCount => 32;
-    internal static int PresentationWordCount => 22;
+    public static int MechanicsWordCount => 32;
+    public static int PresentationWordCount => 22;
 
-    internal static SkulteraInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         bool startsLeft = index < 16;
@@ -60,7 +55,7 @@ internal static class SkulteraInstructionProgramDefinitions
             ? EnemyInstructionCodePointers.Instruction_Skultera_SetTurnFinishedFlag : CommonEnemyInstructionCodes.Sleep);
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         bool startsLeft = index < 11;
@@ -83,7 +78,7 @@ internal static class SkulteraInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            SkulteraInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -96,7 +91,7 @@ internal static class SkulteraInstructionProgramDefinitions
             $"Skultera instruction mechanics pointer $A3:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa30000)
             return false;

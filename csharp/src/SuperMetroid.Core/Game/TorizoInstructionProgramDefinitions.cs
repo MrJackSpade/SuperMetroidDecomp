@@ -2,17 +2,15 @@ using static SuperMetroid.Core.Game.InstructionItem;
 
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One simulation-owned bank-$AA instruction word; sprite operands are deliberately separate.</summary>
-internal readonly record struct TorizoMechanicsWord(ushort Address, ushort Value);
-
 /// <summary>
 /// Complete bounded Bomb/Golden Torizo instruction lists, compiled from the pinned NTSC cartridge.
 /// Branches, callbacks, timers, and movement operands are engine definitions; tile pixels and
 /// spritemap contents remain installed artwork. Packed DMA operands have their own typed catalog.
 /// </summary>
-internal static partial class TorizoInstructionProgramDefinitions
+internal abstract partial class TorizoInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
 {
     internal const byte Bank = 0xaa;
+    static int IDeclaredProgramBank.Bank => Bank;
 
     /// <summary><c>InstList_Torizo_SpecialCallable_BlowUpBombTorizosGut</c> at $AA:B0E5; native instruction-list identity.</summary>
     internal const ushort InstList_Torizo_SpecialCallable_BlowUpBombTorizosGut = 0xb0e5;
@@ -404,14 +402,14 @@ internal static partial class TorizoInstructionProgramDefinitions
     private static readonly InstructionProgramLayout Layout = new(Bank,
         [.. SharedItems, .. BombLeftItems, .. BombRightItems, .. GoldenLeftItems, .. GoldenRightItems]);
 
-    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
-    internal static TorizoMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => Layout.MechanicsWordCount;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         (ushort address, ushort value) = Layout.MechanicsWord(index);
         return new(address, value);
     }
-    internal static int PresentationWordCount => Layout.PresentationSlotCount;
-    internal static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
+    public static int PresentationWordCount => Layout.PresentationSlotCount;
+    public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
@@ -421,5 +419,5 @@ internal static partial class TorizoInstructionProgramDefinitions
     internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
         Layout.TryReadMechanicsWord(address, out value);
 
-    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
+    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

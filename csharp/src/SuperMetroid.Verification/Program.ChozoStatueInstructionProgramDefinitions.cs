@@ -16,7 +16,7 @@ internal static partial class Program
              index < ChozoStatueInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            ChozoStatueInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 ChozoStatueInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 definition.Value,

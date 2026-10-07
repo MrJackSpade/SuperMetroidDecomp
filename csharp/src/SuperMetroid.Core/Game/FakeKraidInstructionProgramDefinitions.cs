@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled mechanics-owned word at its native bank-$A6 address.</summary>
-internal readonly record struct FakeKraidInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for Fake Kraid's walking, action-selection, and spit programs.
 /// Interleaved spritemap operands are resolved by the installed visual definitions.
 /// </summary>
-internal static class FakeKraidInstructionProgramDefinitions
+internal abstract class FakeKraidInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_MiniKraid_ChooseAction</c> at $A6:99AC.</summary>
     internal const ushort ChooseActionFacingLeft = 0x99ac;
@@ -32,11 +27,11 @@ internal static class FakeKraidInstructionProgramDefinitions
     /// <summary><c>InstList_MiniKraid_FireSpit_FacingRight</c> at $A6:9A2A.</summary>
     internal const ushort FireSpitFacingRight = 0x9a2a;
 
-    internal static int MechanicsWordCount => 48;
-    internal static int PresentationWordCount => 24;
+    public static int MechanicsWordCount => 48;
+    public static int PresentationWordCount => 24;
 
     /// <summary>Enumerates control words in native program order, skipping visual operands.</summary>
-    internal static FakeKraidInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
@@ -49,7 +44,7 @@ internal static class FakeKraidInstructionProgramDefinitions
     }
 
     /// <summary>Visual operands follow each frame delay in the paired walking and firing programs.</summary>
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
@@ -116,7 +111,7 @@ internal static class FakeKraidInstructionProgramDefinitions
         return word >= 0;
     }
 
-    internal static bool IsCompiledMechanicsByte(int address) =>
+    public static bool IsCompiledMechanicsByte(int address) =>
         (address & 0xff0000) == 0xa60000 &&
         TryReadMechanicsWord(unchecked((ushort)(address & ~1)), out _);
 }

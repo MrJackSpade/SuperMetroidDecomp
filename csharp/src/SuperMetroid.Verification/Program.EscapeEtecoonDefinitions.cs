@@ -98,7 +98,7 @@ internal static partial class Program
              index < EscapeEtecoonInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            EscapeEtecoonInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 EscapeEtecoonInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadEscapeEtecoonInstructionWord(rom, 0xb30000 | definition.Address),

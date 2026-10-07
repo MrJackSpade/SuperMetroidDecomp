@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled mechanics-owned word at its native bank-$A3 address.</summary>
-internal readonly record struct PlatformInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for Tripper and Kamer's moving and vertically-still loops.
 /// Their thirty-two interleaved spritemap operands select installed presentation frames.
 /// </summary>
-internal static class PlatformInstructionProgramDefinitions
+internal abstract class PlatformInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_Kamer2_VerticallyMoving_Left_0</c> at $A3:9BBB.</summary>
     internal const ushort KamerMovingLeft = 0x9bbb;
@@ -51,9 +46,9 @@ internal static class PlatformInstructionProgramDefinitions
             (false, false, true) => TripperStillMovingLeft,
             (false, false, false) => TripperStillMovingRight,
         };
-    internal static int MechanicsWordCount => 56;
-    internal static int PresentationWordCount => 32;
-    internal static PlatformInstructionMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => 56;
+    public static int PresentationWordCount => 32;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         int word = index % 7;
@@ -61,7 +56,7 @@ internal static class PlatformInstructionProgramDefinitions
         ushort address = (ushort)(KamerMovingLeft + 22 * (index / 7) + offset);
         return new(address, ReadMechanicsWord(address));
     }
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(KamerMovingLeft + 22 * (index / 4) + 4 + 4 * (index % 4));
@@ -102,7 +97,7 @@ internal static class PlatformInstructionProgramDefinitions
         throw new InvalidDataException(
             $"Tripper/Kamer instruction mechanics pointer $A3:{address:X4} is not compiled.");
     }
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa30000) return false;
         int offset = unchecked((ushort)address) - KamerMovingLeft;

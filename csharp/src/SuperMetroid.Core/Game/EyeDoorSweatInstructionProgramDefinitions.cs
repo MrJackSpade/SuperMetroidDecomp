@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Eye Door sweat mechanics word at its bank-$86 address.</summary>
-internal readonly record struct EyeDoorSweatInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for an Eye Door sweat drop's falling loop and floor-impact animation.
 /// Interleaved spritemap operands resolve through extracted presentation art.
 /// </summary>
-internal static class EyeDoorSweatInstructionProgramDefinitions
+internal abstract class EyeDoorSweatInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_EnemyProjectile_EyeDoorSweat</c> at $86:B615.</summary>
     internal const ushort Initial = 0xb615;
@@ -17,11 +12,11 @@ internal static class EyeDoorSweatInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_EyeDoorSweat_Impact</c> at $86:B61D.</summary>
     internal const ushort Impact = 0xb61d;
 
-    internal static int MechanicsWordCount => 8;
-    internal static int PresentationWordCount => 4;
+    public static int MechanicsWordCount => 8;
+    public static int PresentationWordCount => 4;
 
     /// <summary>Falling draws once and loops; impact clears movement, draws three frames and deletes.</summary>
-    internal static EyeDoorSweatInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         if (index is >= 4 and <= 6) return new((ushort)(Impact + 2 + 4 * (index - 4)), 6);
@@ -35,7 +30,7 @@ internal static class EyeDoorSweatInstructionProgramDefinitions
         };
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(index == 0 ? Initial + 2 : Impact + 4 + 4 * (index - 1));
@@ -52,7 +47,7 @@ internal static class EyeDoorSweatInstructionProgramDefinitions
             "is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
             return false;

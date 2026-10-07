@@ -1,14 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct RipperInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for the GRipper, Ripper II, and Ripper animation loops.
 /// Interleaved spritemap operands are selected by the installed visual catalog.
 /// </summary>
-internal static class RipperInstructionProgramDefinitions
+internal abstract class RipperInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_GRipper_MovingLeft</c> at $A2:E19B.</summary>
     internal const ushort GRipperMovingLeft = 0xe19b;
@@ -39,8 +35,8 @@ internal static class RipperInstructionProgramDefinitions
 
     private static ushort VisualHold(int phase) =>
         (phase & 1) == 0 ? NeutralVisualHoldTicks : AlternateVisualHoldTicks;
-    internal static int MechanicsWordCount => 36;
-    internal static int PresentationWordCount => 24;
+    public static int MechanicsWordCount => 36;
+    public static int PresentationWordCount => 24;
 
     /// <summary>Three family pairs; each direction is four timed records followed by Goto and its target.</summary>
     private static ushort ProgramStart(int program) => (ushort)((program / 2) switch
@@ -51,7 +47,7 @@ internal static class RipperInstructionProgramDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(program)),
     });
 
-    internal static RipperInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
@@ -63,7 +59,7 @@ internal static class RipperInstructionProgramDefinitions
         return new((ushort)(start + offset), value);
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
@@ -78,7 +74,7 @@ internal static class RipperInstructionProgramDefinitions
             $"Ripper-family instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa20000)
             return false;

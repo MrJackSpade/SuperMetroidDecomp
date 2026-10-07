@@ -24,7 +24,7 @@ internal static partial class Program
              index < DachoraInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            DachoraInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 DachoraInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadDachoraInstructionWord(rom, definition.Address),

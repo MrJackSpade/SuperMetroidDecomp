@@ -1,15 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct BombTorizoStatueInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for the sixteen Bomb Torizo statue-fragment programs at
 /// $86:A4C3-$A5D3. Their thirty-two interleaved spritemap operands use extracted
 /// presentation art. The packed sound-ID byte has its own typed sound decoder.
 /// </summary>
-internal static class BombTorizoStatueInstructionProgramDefinitions
+internal abstract class BombTorizoStatueInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InitAI_EnemyProj_BombTorizoChozoBreaking</c> at $86:A764.</summary>
     internal const ushort InitializationAi = 0xa764;
@@ -31,8 +27,8 @@ internal static class BombTorizoStatueInstructionProgramDefinitions
     // Fragment release delays decrease by eight ticks, with a sixty-four-tick floor.
     private static ushort InitialDuration(int programIndex) => (ushort)Math.Max(64, 128 - 8 * programIndex);
 
-    internal static int MechanicsWordCount => ProgramCount * 6;
-    internal static int PresentationWordCount => ProgramCount * 2;
+    public static int MechanicsWordCount => ProgramCount * 6;
+    public static int PresentationWordCount => ProgramCount * 2;
 
     internal static ushort Program(int index)
     {
@@ -41,7 +37,7 @@ internal static class BombTorizoStatueInstructionProgramDefinitions
         return unchecked((ushort)(FirstProgram + index * ProgramStride));
     }
 
-    internal static BombTorizoStatueInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new ArgumentOutOfRangeException(nameof(index));
@@ -60,7 +56,7 @@ internal static class BombTorizoStatueInstructionProgramDefinitions
         ushort address = (ushort)(program + offset);
         return new(address, ReadMechanicsWord(address));
     }
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new ArgumentOutOfRangeException(nameof(index));
@@ -91,7 +87,7 @@ internal static class BombTorizoStatueInstructionProgramDefinitions
         };
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
         ushort bankAddress = unchecked((ushort)address);

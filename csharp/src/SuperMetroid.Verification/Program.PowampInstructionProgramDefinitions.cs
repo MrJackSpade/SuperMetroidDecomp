@@ -17,7 +17,7 @@ internal static partial class Program
              index < PowampInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            PowampInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 PowampInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadPowampInstructionWord(rom, definition.Address),

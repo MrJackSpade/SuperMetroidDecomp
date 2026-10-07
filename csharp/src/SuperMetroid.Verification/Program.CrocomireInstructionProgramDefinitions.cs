@@ -20,7 +20,7 @@ internal static partial class Program
              index < CrocomireInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            CrocomireInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 CrocomireInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 definition.Value,

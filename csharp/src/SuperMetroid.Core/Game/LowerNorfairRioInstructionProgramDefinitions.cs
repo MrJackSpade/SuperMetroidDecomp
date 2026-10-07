@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Lower Norfair Rio mechanics word at its bank-$A2 address.</summary>
-internal readonly record struct LowerNorfairRioInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled timing, private callbacks, and loop control for Lower Norfair Rio parent and
 /// flame programs. Interleaved spritemap operands select extracted presentation frames.
 /// </summary>
-internal static class LowerNorfairRioInstructionProgramDefinitions
+internal abstract class LowerNorfairRioInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_Holtz_Idle_0</c> at $A2:C61A.</summary>
     internal const ushort Idle = 0xc61a;
@@ -34,10 +29,10 @@ internal static class LowerNorfairRioInstructionProgramDefinitions
     private static readonly ushort[] CooldownDurations = [3, 3, 2, 1, 2, 3, 1, 1, 1];
     /// <summary>$A2:C6B0 flame display holds; three values do not establish a halving process. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private static readonly ushort[] FlameDurations = [6, 4, 3];
-    internal static int MechanicsWordCount => 51;
-    internal static int PresentationWordCount => 32;
+    public static int MechanicsWordCount => 51;
+    public static int PresentationWordCount => 32;
 
-    internal static LowerNorfairRioInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
@@ -49,7 +44,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitions
         throw new IndexOutOfRangeException();
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
@@ -132,7 +127,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitions
         _ => throw new InvalidDataException(),
     };
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa20000)
             return false;

@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Sciser mechanics word at its native bank-$A3 address.</summary>
-internal readonly record struct SciserInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for Sciser's four surface loops. The sixteen interleaved
 /// spritemap operands select separately installed presentation data.
 /// </summary>
-internal static class SciserInstructionProgramDefinitions
+internal abstract class SciserInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_Sciser_UpsideRight_0</c> at $A3:967B.</summary>
     internal const ushort UpsideRight = 0x967b;
@@ -24,9 +19,9 @@ internal static class SciserInstructionProgramDefinitions
 
     private const int SurfaceCount = 4;
     private const int ProgramBytes = 24;
-    internal static int MechanicsWordCount => SurfaceCount * 8;
-    internal static int PresentationWordCount => SurfaceCount * 4;
-    internal static SciserInstructionMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => SurfaceCount * 8;
+    public static int PresentationWordCount => SurfaceCount * 4;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         int word = index % 8;
@@ -34,7 +29,7 @@ internal static class SciserInstructionProgramDefinitions
         ushort address = (ushort)(UpsideRight + index / 8 * ProgramBytes + offset);
         return new(address, ReadMechanicsWord(address));
     }
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(UpsideRight + index / 4 * ProgramBytes + 6 + index % 4 * 4);
@@ -63,7 +58,7 @@ internal static class SciserInstructionProgramDefinitions
         }
         throw new InvalidDataException($"Sciser instruction mechanics pointer $A3:{address:X4} is not compiled.");
     }
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa30000) return false;
         int offset = (ushort)address - UpsideRight;

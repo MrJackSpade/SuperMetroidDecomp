@@ -18,7 +18,7 @@ internal static partial class Program
              index < EscapeDachoraInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            EscapeDachoraInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 EscapeDachoraInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadEscapeDachoraInstructionWord(rom, 0xb30000 | definition.Address),

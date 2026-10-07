@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Phantoon projectile mechanics word at its bank-$86 address.</summary>
-internal readonly record struct PhantoonProjectileInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for Phantoon's starting and destroyable flame instruction lists.
 /// Interleaved spritemap selectors address separately installed artwork.
 /// </summary>
-internal static class PhantoonProjectileInstructionProgramDefinitions
+internal abstract class PhantoonProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_EnemyProjectile_PhantoonDestroyableFlame_Idle</c> at $86:975C.</summary>
     internal const ushort DestroyableIdle = 0x975c;
@@ -48,11 +43,11 @@ internal static class PhantoonProjectileInstructionProgramDefinitions
     /// <summary>Falling-phase repetition at86:97B6/97C6/97D6. Reviewed under #1165 as an authored repetition count: it only repeats the chosen frames, and no simulation quantity derives it.</summary>
     private const ushort FallingRepeatCount = 4;
 
-    internal static int MechanicsWordCount => 58;
-    internal static int PresentationWordCount => 31;
+    public static int MechanicsWordCount => 58;
+    public static int PresentationWordCount => 31;
 
     /// <summary>Shared three-pose loops, counted falling cycles and impact/deletion tails.</summary>
-    internal static PhantoonProjectileInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         if (index < 5) return LoopWord(DestroyableIdle, index);
@@ -94,15 +89,15 @@ internal static class PhantoonProjectileInstructionProgramDefinitions
                 : EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
     }
 
-    private static PhantoonProjectileInstructionMechanicsWord Frame(ushort start, int frame, ushort duration) =>
+    private static InstructionMechanicsWord Frame(ushort start, int frame, ushort duration) =>
         new((ushort)(start + frame * 4), duration);
 
-    private static PhantoonProjectileInstructionMechanicsWord LoopWord(ushort start, int word) =>
+    private static InstructionMechanicsWord LoopWord(ushort start, int word) =>
         word < 3 ? Frame(start, word, FlamePoseFrames)
             : new((ushort)(start + 12 + (word - 3) * 2),
                 word == 3 ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY : start);
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         if (index < 3) return (ushort)(DestroyableIdle + index * 4 + 2);
@@ -128,7 +123,7 @@ internal static class PhantoonProjectileInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            PhantoonProjectileInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -141,7 +136,7 @@ internal static class PhantoonProjectileInstructionProgramDefinitions
             $"Phantoon projectile mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
             return false;

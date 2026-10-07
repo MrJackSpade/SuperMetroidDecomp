@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Eye Door projectile mechanics word at its bank-$86 address.</summary>
-internal readonly record struct EyeDoorProjectileInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for the Eye Door's aimed projectile, wall-impact animation, and shot
 /// animation. Interleaved spritemap operands identify compiled presentation.
 /// </summary>
-internal static class EyeDoorProjectileInstructionProgramDefinitions
+internal abstract class EyeDoorProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_EnemyProjectile_EyeDoorProjectile_Normal_0</c> at $86:B5D9.</summary>
     internal const ushort Initial = 0xb5d9;
@@ -23,10 +18,10 @@ internal static class EyeDoorProjectileInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_Shot_EyeDoorProjectile</c> at $86:B603.</summary>
     internal const ushort Shot = 0xb603;
 
-    internal static int MechanicsWordCount => 19;
-    internal static int PresentationWordCount => 11;
+    public static int MechanicsWordCount => 19;
+    public static int PresentationWordCount => 11;
 
-    internal static EyeDoorProjectileInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         if (index < 3) return new((ushort)(Initial + 4 * index), (ushort)(4 - index));
@@ -50,7 +45,7 @@ internal static class EyeDoorProjectileInstructionProgramDefinitions
         return new((ushort)(Shot + 4 * (index - 14)), index < 18 ? (ushort)4 : EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         if (index < 3) return (ushort)(Initial + 2 + 4 * index);
@@ -69,7 +64,7 @@ internal static class EyeDoorProjectileInstructionProgramDefinitions
         throw new InvalidDataException($"Eye Door projectile instruction mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
         ushort bankAddress = unchecked((ushort)address);

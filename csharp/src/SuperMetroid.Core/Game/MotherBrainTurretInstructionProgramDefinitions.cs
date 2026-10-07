@@ -1,16 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Mother Brain turret mechanics word at its bank-$86 address.</summary>
-internal readonly record struct MotherBrainTurretInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for Mother Brain's eight turret poses, direction-selected bullets, and
 /// shared bullet touch/shot smoke. Spritemap operands resolve through extracted
 /// presentation art.
 /// </summary>
-internal static class MotherBrainTurretInstructionProgramDefinitions
+internal abstract class MotherBrainTurretInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary>Left-facing turret pose at $86:C101.</summary>
     internal const ushort TurretLeft = 0xc101;
@@ -45,11 +40,11 @@ internal static class MotherBrainTurretInstructionProgramDefinitions
     /// <summary>Left-facing bullet pose at $86:C143; eight poses occupy six bytes each.</summary>
     private const ushort BulletLeft = 0xc143;
 
-    internal static int MechanicsWordCount => 49;
-    internal static int PresentationWordCount => 21;
+    public static int MechanicsWordCount => 49;
+    public static int PresentationWordCount => 21;
     internal static int DirectionCount => 8;
 
-    internal static MotherBrainTurretInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
@@ -70,7 +65,7 @@ internal static class MotherBrainTurretInstructionProgramDefinitions
         };
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
@@ -97,7 +92,7 @@ internal static class MotherBrainTurretInstructionProgramDefinitions
             $"Mother Brain turret mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address) =>
+    public static bool IsCompiledMechanicsByte(int address) =>
         (address & 0xff0000) == EnemyProjectileCodePointers.BankBase &&
         (TryRead(unchecked((ushort)address), out _) ||
          TryRead(unchecked((ushort)(address - 1)), out _));
@@ -111,7 +106,7 @@ internal static class MotherBrainTurretInstructionProgramDefinitions
         return (ushort)(first + 6 * index);
     }
 
-    private static MotherBrainTurretInstructionMechanicsWord PoseWord(ushort first, int index) =>
+    private static InstructionMechanicsWord PoseWord(ushort first, int index) =>
         new((ushort)(first + 6 * (index / 2) + 4 * (index % 2)),
             index % 2 == 0 ? (ushort)1 : EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep);
 

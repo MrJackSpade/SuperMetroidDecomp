@@ -12,7 +12,7 @@ internal static partial class Program
              index < TorizoFallingLeftInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            TorizoFallingLeftMechanicsWord word =
+            InstructionMechanicsWord word =
                 TorizoFallingLeftInstructionProgramDefinitions.MechanicsWord(index);
             AssertTrue(addresses.Add(word.Address),
                 $"Torizo falling-left control $AA:{word.Address:X4} is unique");

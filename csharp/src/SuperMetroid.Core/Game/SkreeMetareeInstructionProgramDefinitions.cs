@@ -1,10 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled mechanics-owned word at its native bank-$A3 address.</summary>
-internal readonly record struct SkreeMetareeInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>Compiled mechanics words from the parallel Skree and Metaree programs.</summary>
 internal static class SkreeMetareeInstructionProgramDefinitions
 {
@@ -30,7 +25,7 @@ internal static class SkreeMetareeInstructionProgramDefinitions
     internal static int MechanicsWordCount(bool metaree) => 20;
     internal static int PresentationWordCount(bool metaree) => 11;
 
-    internal static SkreeMetareeInstructionMechanicsWord MechanicsWord(bool metaree, int index)
+    internal static InstructionMechanicsWord MechanicsWord(bool metaree, int index)
     {
         if ((uint)index >= 20) throw new IndexOutOfRangeException();
         ushort idle = metaree ? MetareeIdling : SkreeIdling;

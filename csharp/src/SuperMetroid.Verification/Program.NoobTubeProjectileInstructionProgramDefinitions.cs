@@ -21,7 +21,7 @@ internal static partial class Program
              index < NoobTubeProjectileInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            NoobTubeProjectileInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 NoobTubeProjectileInstructionProgramDefinitions.MechanicsWord(index);
             ushort native = unchecked((ushort)(
                 rom.ReadByte(EnemyProjectileCodePointers.BankBase | definition.Address) |

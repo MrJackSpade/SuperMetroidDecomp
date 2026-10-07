@@ -1,10 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled gunship mechanics word at its native bank-$A2 address.</summary>
-internal readonly record struct GunshipInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>Named enemy definitions for the three-part Landing Site gunship actor.</summary>
 internal static class GunshipEnemyDefinitions
 {
@@ -19,7 +14,7 @@ internal static class GunshipEnemyDefinitions
 /// Interleaved visual selectors are compiled identities; their editable OAM
 /// compositions are installed assets, not live cartridge reads.
 /// </summary>
-internal static class GunshipInstructionProgramDefinitions
+internal abstract class GunshipInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_ShipEntrancePad_Opening_0</c> at $A2:A5BE.</summary>
     public const ushort EntrancePadOpening = 0xa5be;
@@ -34,8 +29,8 @@ internal static class GunshipInstructionProgramDefinitions
     /// <summary><c>InstList_ShipBottom</c> at $A2:A61C.</summary>
     public const ushort BottomHull = 0xa61c;
 
-    internal static int MechanicsWordCount => 28;
-    internal static int PresentationWordCount => 22;
+    public static int MechanicsWordCount => 28;
+    public static int PresentationWordCount => 22;
 
     /// <summary>Opening begins with a40-tick wait and a24-tick intermediate hold, then accelerates8..4; closing reverses the transition.</summary>
     private static ushort OpeningDuration(int frame) => (ushort)(frame switch
@@ -45,7 +40,7 @@ internal static class GunshipInstructionProgramDefinitions
         _ => Math.Clamp(13 - frame, 4, 8),
     });
 
-    internal static GunshipInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         if (index < 11) return new((ushort)(EntrancePadOpening + 4 * index), OpeningDuration(index));
@@ -61,7 +56,7 @@ internal static class GunshipInstructionProgramDefinitions
             local % 2 == 0 ? (ushort)1 : CommonEnemyInstructionCodes.Sleep);
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         if (index < 11) return (ushort)(EntrancePadOpening + 2 + 4 * index);
@@ -75,7 +70,7 @@ internal static class GunshipInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            GunshipInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -88,7 +83,7 @@ internal static class GunshipInstructionProgramDefinitions
             $"Gunship instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa20000)
             return false;

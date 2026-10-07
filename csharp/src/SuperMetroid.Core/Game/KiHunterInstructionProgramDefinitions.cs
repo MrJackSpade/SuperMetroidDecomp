@@ -2,15 +2,11 @@ using static SuperMetroid.Core.Game.InstructionItem;
 
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct KiHunterInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for KiHunter body and wing instruction programs.
 /// Interleaved spritemap operands are compiled selectors for installed presentation art.
 /// </summary>
-internal static class KiHunterInstructionProgramDefinitions
+internal abstract class KiHunterInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
 {
     /// <summary><c>InstList_Kihunter_Idling_FacingLeft</c> at $A8:E9FA.</summary>
     internal const ushort FlyingLeft = 0xe9fa;
@@ -52,6 +48,7 @@ internal static class KiHunterInstructionProgramDefinitions
 
     /// <summary>Native program bank $A8.</summary>
     internal const byte Bank = 0xa8;
+    static int IDeclaredProgramBank.Bank => Bank;
 
     private static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xe9fa),
@@ -151,19 +148,19 @@ internal static class KiHunterInstructionProgramDefinitions
         Frame(1),
         Op(CommonEnemyInstructionCodes.Sleep));
 
-    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
-    internal static int PresentationWordCount => Layout.PresentationSlotCount;
-    internal static KiHunterInstructionMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => Layout.MechanicsWordCount;
+    public static int PresentationWordCount => Layout.PresentationSlotCount;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         (ushort address, ushort value) = Layout.MechanicsWord(index);
         return new(address, value);
     }
-    internal static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
+    public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(
                 $"KiHunter instruction mechanics pointer $A8:{address:X4} is not compiled.");
 
-    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
+    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

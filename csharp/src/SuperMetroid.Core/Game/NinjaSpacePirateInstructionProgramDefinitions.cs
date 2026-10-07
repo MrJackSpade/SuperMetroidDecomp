@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled mechanics-owned word at its native bank-$B2 address.</summary>
-internal readonly record struct NinjaSpacePirateInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for every production ninja Space Pirate body program.
 /// Interleaved extended-spritemap pointers remain live cartridge presentation data.
 /// </summary>
-internal static class NinjaSpacePirateInstructionProgramDefinitions
+internal abstract class NinjaSpacePirateInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_PirateNinja_ProjectileClawAttack_Left</c> at $B2:F15C.</summary>
     internal const ushort ClawAttackLeft = 0xf15c;
@@ -72,14 +67,14 @@ internal static class NinjaSpacePirateInstructionProgramDefinitions
     /// <summary>$B2:F208/F3F6 queue library-two spin sound $3F.</summary>
     private const ushort SpinSound = 0x3f;
 
-    internal static int MechanicsWordCount => 308;
-    internal static int PresentationWordCount => 140;
-    internal static NinjaSpacePirateInstructionMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => 308;
+    public static int PresentationWordCount => 140;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         return Select(index, visual: false);
     }
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return Select(index, visual: true).Address;
@@ -90,7 +85,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitions
     /// four bytes; instructions and operands occupy two each. Explicit starts
     /// skip the native unused walking/pose programs and unreachable sleep words.
     /// </summary>
-    private static NinjaSpacePirateInstructionMechanicsWord Select(int index, bool visual)
+    private static InstructionMechanicsWord Select(int index, bool visual)
     {
         var layout = new Layout(index, visual);
         for (int facing = 0; facing < 2; facing++)
@@ -184,7 +179,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitions
     {
         internal ushort Cursor { get; private set; }
         private int mechanics, presentation;
-        internal NinjaSpacePirateInstructionMechanicsWord Result { get; private set; }
+        internal InstructionMechanicsWord Result { get; private set; }
         internal void Begin(ushort address) => Cursor = address;
         internal void Word(ushort value)
         {
@@ -235,7 +230,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            NinjaSpacePirateInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address) return candidate.Value;
             if (candidate.Address < address) low = middle + 1;
             else high = middle - 1;
@@ -244,7 +239,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitions
             $"Ninja Space Pirate instruction mechanics pointer $B2:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xb20000) return false;
         ushort bankAddress = unchecked((ushort)address);

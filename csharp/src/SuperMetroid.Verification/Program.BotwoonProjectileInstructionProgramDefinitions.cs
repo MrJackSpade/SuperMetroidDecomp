@@ -20,7 +20,7 @@ internal static partial class Program
              index < BotwoonProjectileInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            BotwoonProjectileInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 BotwoonProjectileInstructionProgramDefinitions.MechanicsWord(index);
             ushort native = unchecked((ushort)(
                 rom.ReadByte(EnemyProjectileCodePointers.BankBase | definition.Address) |

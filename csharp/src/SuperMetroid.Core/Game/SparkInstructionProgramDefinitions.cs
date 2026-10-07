@@ -1,14 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled mechanics-owned word at its native bank-$A8 address.</summary>
-internal readonly record struct SparkInstructionMechanicsWord(ushort Address, ushort Value);
-
 /// <summary>Compiled mechanics words from Wrecked Ship Spark's four animation programs.</summary>
 /// <remarks>
 /// Callback identities, durations, terminal control, and branch targets are immutable
 /// simulation data. Spritemap selections resolve compiled identities to installed artwork.
 /// </remarks>
-internal static class SparkInstructionProgramDefinitions
+internal abstract class SparkInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>$A8:E5A7</c>, make tangible and flicker into the active loop.</summary>
     internal const ushort FlickerOn = 0xe5a7;
@@ -41,9 +38,9 @@ internal static class SparkInstructionProgramDefinitions
     /// into the instruction timer; the separate intangibility callback and function timers own gameplay.</summary>
     private const ushort FlickerOutCadence = 1;
 
-    internal static int MechanicsWordCount => 33;
-    internal static int PresentationWordCount => 26;
-    internal static SparkInstructionMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => 33;
+    public static int PresentationWordCount => 26;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         if (index == 0) return new(FlickerOn, SetTangible);
@@ -60,11 +57,11 @@ internal static class SparkInstructionProgramDefinitions
         if ((frame & 1) == 0) return ActivationFlashOnTicks;
         return frame == 7 ? ActivationFinalGapTicks : ActivationFlashOffTicks;
     }
-    private static SparkInstructionMechanicsWord LoopWord(ushort start, int index) => index < 4
+    private static InstructionMechanicsWord LoopWord(ushort start, int index) => index < 4
         ? new((ushort)(start + index * 4), ContinuousVisualCadence)
         : new((ushort)(start + 16 + (index - 4) * 2), index == 4 ? CommonEnemyInstructionCodes.Goto : start);
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         if (index < 10) return (ushort)(FlickerOn + 4 + index * 4);
@@ -80,7 +77,7 @@ internal static class SparkInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            SparkInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -93,7 +90,7 @@ internal static class SparkInstructionProgramDefinitions
             $"Wrecked Ship Spark instruction mechanics pointer $A8:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa80000)
             return false;

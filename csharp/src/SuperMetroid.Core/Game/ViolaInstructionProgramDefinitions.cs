@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Viola mechanics word at its native bank-$A3 address.</summary>
-internal readonly record struct ViolaInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for Viola's four surface entry programs and shared normal
 /// loop. The fourteen interleaved spritemap operands remain live cartridge presentation data.
 /// </summary>
-internal static class ViolaInstructionProgramDefinitions
+internal abstract class ViolaInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_Viola_UpsideRight</c> at $A3:B5E3.</summary>
     internal const ushort UpsideRight = 0xb5e3;
@@ -24,11 +19,11 @@ internal static class ViolaInstructionProgramDefinitions
     /// <summary>The retail-unused X-flipped Viola program at $A3:B62B.</summary>
     internal const ushort UnusedXFlipped = 0xb62b;
 
-    internal static int MechanicsWordCount => 30;
-    internal static int PresentationWordCount => 14;
+    public static int MechanicsWordCount => 30;
+    public static int PresentationWordCount => 14;
 
     /// <summary>Four axis-setting entries converge on fourteen ten-tick frames; the last entry falls through.</summary>
-    internal static ViolaInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
@@ -49,7 +44,7 @@ internal static class ViolaInstructionProgramDefinitions
             : new((ushort)(NormalLoop + 56 + 2 * (word - 14)), word == 14 ? CommonEnemyInstructionCodes.Goto : NormalLoop);
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
@@ -62,7 +57,7 @@ internal static class ViolaInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            ViolaInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -75,7 +70,7 @@ internal static class ViolaInstructionProgramDefinitions
             $"Viola instruction mechanics pointer $A3:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa30000)
             return false;

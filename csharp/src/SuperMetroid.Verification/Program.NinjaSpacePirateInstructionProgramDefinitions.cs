@@ -19,7 +19,7 @@ internal static partial class Program
              index < NinjaSpacePirateInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            NinjaSpacePirateInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 NinjaSpacePirateInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadNinjaPirateWord(rom, 0xb20000 | definition.Address),

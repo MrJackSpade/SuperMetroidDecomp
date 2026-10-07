@@ -1,10 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Zebetite mechanics word at its native bank-$A6 address.</summary>
-internal readonly record struct ZebetiteInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// One of the ten health-tier programs used by the large and paired-small Zebetites.
 /// </summary>
@@ -17,7 +12,7 @@ internal readonly record struct ZebetiteInstructionProgram(
 /// Compiled timing and terminal control for every Zebetite health-tier program. The
 /// spritemap selections resolve compiled identities to installed artwork.
 /// </summary>
-internal static class ZebetiteInstructionProgramDefinitions
+internal abstract class ZebetiteInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_Big_HealthGreaterThanEqualTo800</c> at $A6:FDCC.</summary>
     internal const ushort BigHealthAtLeast800 = 0xfdcc;
@@ -43,8 +38,8 @@ internal static class ZebetiteInstructionProgramDefinitions
     internal const ushort FirstSpritemap = 0xfe08;
 
     internal static int ProgramCount => 10;
-    internal static int MechanicsWordCount => ProgramCount * 2;
-    internal static int PresentationWordCount => ProgramCount;
+    public static int MechanicsWordCount => ProgramCount * 2;
+    public static int PresentationWordCount => ProgramCount;
 
     /// <summary>
     /// $A6:FDCC-FE07 contains five large and five split-barrier health stages.
@@ -57,13 +52,13 @@ internal static class ZebetiteInstructionProgramDefinitions
         return Program((ushort)(BigHealthAtLeast800 + index * 3 * sizeof(ushort)));
     }
 
-    internal static ZebetiteInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         return Word(ProgramAt(index / 2).Entry, (ushort)((index & 1) * 4));
     }
 
-    internal static ushort PresentationWordAddress(int index) => ProgramAt(index).Presentation;
+    public static ushort PresentationWordAddress(int index) => ProgramAt(index).Presentation;
     /// <summary>Returns fixed Zebetite control or rejects pointers outside its ten lists.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
@@ -72,7 +67,7 @@ internal static class ZebetiteInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            ZebetiteInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -85,7 +80,7 @@ internal static class ZebetiteInstructionProgramDefinitions
             $"Zebetite instruction mechanics pointer $A6:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa60000)
             return false;
@@ -105,7 +100,7 @@ internal static class ZebetiteInstructionProgramDefinitions
     private static ZebetiteInstructionProgram Program(ushort entry) =>
         new(entry, unchecked((ushort)(entry + 2)), unchecked((ushort)(entry + 4)));
 
-    private static ZebetiteInstructionMechanicsWord Word(ushort entry, ushort offset) =>
+    private static InstructionMechanicsWord Word(ushort entry, ushort offset) =>
         new(
             unchecked((ushort)(entry + offset)),
             offset == 0 ? (ushort)1 : CommonEnemyInstructionCodes.Sleep);

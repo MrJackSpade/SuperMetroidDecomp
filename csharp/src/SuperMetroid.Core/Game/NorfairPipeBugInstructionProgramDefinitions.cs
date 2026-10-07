@@ -1,11 +1,7 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct NorfairPipeBugInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>Compiled control words for Norfair Pipe Bug rising and flight loops.</summary>
-internal static class NorfairPipeBugInstructionProgramDefinitions
+internal abstract class NorfairPipeBugInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>$B3:8AE1</c>, rising while facing left.</summary>
     internal const ushort RisingLeft = 0x8ae1;
@@ -16,14 +12,14 @@ internal static class NorfairPipeBugInstructionProgramDefinitions
     /// <summary><c>$B3:8B45</c>, horizontal flight facing right.</summary>
     internal const ushort FlyingRight = 0x8b45;
 
-    internal static int MechanicsWordCount => 36;
-    internal static int PresentationWordCount => 28;
+    public static int MechanicsWordCount => 36;
+    public static int PresentationWordCount => 28;
 
     /// <summary>
     /// $B3:8AE1-$8B60 contains two facing halves. Each half has eight two-tick rising
     /// frames and six one-tick flying frames, with a goto pair after each loop.
     /// </summary>
-    internal static NorfairPipeBugInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
@@ -41,7 +37,7 @@ internal static class NorfairPipeBugInstructionProgramDefinitions
     }
 
     /// <summary>Each timed record interleaves its visual selector two bytes after duration.</summary>
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
@@ -59,7 +55,7 @@ internal static class NorfairPipeBugInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            NorfairPipeBugInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -71,7 +67,7 @@ internal static class NorfairPipeBugInstructionProgramDefinitions
             $"Norfair Pipe Bug instruction mechanics pointer $B3:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xb30000)
             return false;

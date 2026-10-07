@@ -17,7 +17,7 @@ internal static partial class Program
              index < SporeSpawnProjectileInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            SporeSpawnProjectileInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 SporeSpawnProjectileInstructionProgramDefinitions.MechanicsWord(index);
             ushort native = unchecked((ushort)(
                 rom.ReadByte(EnemyProjectileCodePointers.BankBase | definition.Address) |

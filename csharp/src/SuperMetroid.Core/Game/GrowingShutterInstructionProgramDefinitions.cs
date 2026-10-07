@@ -1,14 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct GrowingShutterInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for the growing shutter's four height programs.
 /// Their interleaved spritemap operands select separately installed presentation data.
 /// </summary>
-internal static class GrowingShutterInstructionProgramDefinitions
+internal abstract class GrowingShutterInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstructionList_ShutterGrowing_10px</c> at $A2:E998.</summary>
     internal const ushort TenPixels = 0xe998;
@@ -22,18 +18,18 @@ internal static class GrowingShutterInstructionProgramDefinitions
     /// <summary><c>InstructionList_ShutterGrowing_40px</c> at $A2:E9AA.</summary>
     internal const ushort FortyPixels = 0xe9aa;
 
-    internal static int MechanicsWordCount => 8;
-    internal static int PresentationWordCount => 4;
+    public static int MechanicsWordCount => 8;
+    public static int PresentationWordCount => 4;
     internal static int ProgramCount => 4;
 
-    internal static GrowingShutterInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         ushort address = (ushort)(TenPixels + 6 * (index / 2) + 4 * (index % 2));
         return new(address, ReadMechanicsWord(address));
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(TenPixels + 6 * index + 2);
@@ -64,7 +60,7 @@ internal static class GrowingShutterInstructionProgramDefinitions
             $"Growing-shutter instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa20000) return false;
         int offset = unchecked((ushort)address) - TenPixels;

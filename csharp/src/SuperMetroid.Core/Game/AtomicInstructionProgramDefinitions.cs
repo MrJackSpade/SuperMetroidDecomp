@@ -1,15 +1,12 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled mechanics-owned word at its native bank-$A8 address.</summary>
-internal readonly record struct AtomicInstructionMechanicsWord(ushort Address, ushort Value);
-
 /// <summary>Compiled mechanics words from Atomic's four directional animation loops.</summary>
 /// <remarks>
 /// The six durations and terminal goto in each list are immutable simulation control. The
 /// interleaved visual selectors are compiled in
 /// <see cref="Assets.EnemySpritemapDefinitions"/>.
 /// </remarks>
-internal static class AtomicInstructionProgramDefinitions
+internal abstract class AtomicInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>$A8:E310</c>, spinning up-right.</summary>
     internal const ushort UpRight = 0xe310;
@@ -24,10 +21,10 @@ internal static class AtomicInstructionProgramDefinitions
     internal const ushort DownRight = 0xe364;
 
     // Four loops: six duration/visual pairs followed by goto and its target.
-    internal static int MechanicsWordCount => 4 * 8;
-    internal static int PresentationWordCount => 4 * 6;
+    public static int MechanicsWordCount => 4 * 8;
+    public static int PresentationWordCount => 4 * 6;
 
-    internal static AtomicInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         int word = index % 8;
@@ -36,7 +33,7 @@ internal static class AtomicInstructionProgramDefinitions
         return new(address, ReadMechanicsWord(address));
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(UpRight + 28 * (index / 6) + 4 * (index % 6) + 2);
@@ -64,7 +61,7 @@ internal static class AtomicInstructionProgramDefinitions
             $"Atomic instruction mechanics pointer $A8:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa80000) return false;
         int offset = (ushort)address - UpRight;

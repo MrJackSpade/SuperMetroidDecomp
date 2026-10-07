@@ -87,7 +87,7 @@ internal static partial class Program
              index < SbugInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            SbugInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 SbugInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 definition.Value,

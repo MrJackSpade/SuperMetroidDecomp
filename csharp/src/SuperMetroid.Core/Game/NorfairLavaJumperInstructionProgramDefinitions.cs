@@ -1,15 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct NorfairLavaJumperInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for the Norfair lava jumper's parent and follower programs.
 /// Their interleaved spritemap operands are compiled visual identities when
 /// installed artwork is bound; diagnostic address spaces may still supply them.
 /// </summary>
-internal static class NorfairLavaJumperInstructionProgramDefinitions
+internal abstract class NorfairLavaJumperInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstructionList_NorfairLavaJumper_Hidden</c> at $A2:BE3C.</summary>
     internal const ushort Hidden = 0xbe3c;
@@ -32,14 +28,14 @@ internal static class NorfairLavaJumperInstructionProgramDefinitions
     // Jump pose holds are authored animation cadence (reviewed under #1165).
     private static readonly ushort[] JumpHolds = [1, 5, 9, 7, 3, 10, 1];
 
-    internal static int MechanicsWordCount => 23;
-    internal static int PresentationWordCount => 14;
+    public static int MechanicsWordCount => 23;
+    public static int PresentationWordCount => 14;
 
     /// <summary>
     /// $A2:BE3C-BE85: hidden pose/sleep, seven-pose jump/callback/sleep,
     /// then two follower startup poses and a four-pose counted loop.
     /// </summary>
-    internal static NorfairLavaJumperInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         if (index < 2) return index == 0 ? new(Hidden, 1) : new(HiddenSleep, CommonEnemyInstructionCodes.Sleep);
@@ -58,7 +54,7 @@ internal static class NorfairLavaJumperInstructionProgramDefinitions
         });
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         if (index == 0) return Hidden + 2;
@@ -78,7 +74,7 @@ internal static class NorfairLavaJumperInstructionProgramDefinitions
             $"Norfair lava-jumper instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa20000)
             return false;

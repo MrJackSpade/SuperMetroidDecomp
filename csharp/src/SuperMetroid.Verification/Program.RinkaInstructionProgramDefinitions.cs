@@ -24,7 +24,7 @@ internal static partial class Program
              index < RinkaInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            RinkaInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 RinkaInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 definition.Value,

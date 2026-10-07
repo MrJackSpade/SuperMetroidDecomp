@@ -1,16 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled mechanics-owned word at its native bank-$A3 address.</summary>
-internal readonly record struct ZoaInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>Compiled mechanics words from Zoa's shooting and rising programs.</summary>
 /// <remarks>
 /// Speed callbacks, durations, and loop control are immutable simulation data. The twelve
 /// interleaved spritemap positions remain separate from mechanics word ownership.
 /// </remarks>
-internal static class ZoaInstructionProgramDefinitions
+internal abstract class ZoaInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>$A3:B3C1</c>, left-facing horizontal launch.</summary>
     internal const ushort FacingLeftShooting = 0xb3c1;
@@ -33,13 +28,13 @@ internal static class ZoaInstructionProgramDefinitions
     /// <summary>$A3:80ED Instruction_Common_GotoY, loops each program to its start.</summary>
     private const ushort Loop = 0x80ed;
 
-    internal static int MechanicsWordCount => 26;
-    internal static int PresentationWordCount => 12;
+    public static int MechanicsWordCount => 26;
+    public static int PresentationWordCount => 12;
 
     /// <summary>Enumerates the thirteen mechanics words per facing in native address order.
     /// Shooting has three callback/timer pairs and a loop pair; rising has three
     /// timers and a loop pair. Presentation words stay interleaved and separate.</summary>
-    internal static ZoaInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         int start = index < 13 ? FacingLeftShooting : FacingRightShooting;
@@ -52,7 +47,7 @@ internal static class ZoaInstructionProgramDefinitions
 
     /// <summary>Native sprite-pointer positions: three shooting frames at six-byte
     /// stride followed by three rising frames at four-byte stride, for each facing.</summary>
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         int start = index < 6 ? FacingLeftShooting : FacingRightShooting;
@@ -83,7 +78,7 @@ internal static class ZoaInstructionProgramDefinitions
         };
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa30000) return false;
         int relative = (address & 0xffff) - FacingLeftShooting;

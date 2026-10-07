@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled escape-Etecoon mechanics word at its bank-$B3 address.</summary>
-internal readonly record struct EscapeEtecoonInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control words for the escape-sequence Etecoon's low/high-tide walking,
 /// waiting, gratitude, and departure programs. Spritemap selections resolve installed artwork.
 /// </summary>
-internal static class EscapeEtecoonInstructionProgramDefinitions
+internal abstract class EscapeEtecoonInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_EtecoonEscape_RunningLeft_LowTide_0</c> at $B3:E556.</summary>
     internal const ushort RunningLeftLowTide = 0xe556;
@@ -28,10 +23,10 @@ internal static class EscapeEtecoonInstructionProgramDefinitions
     /// <summary><c>Instruction_EtecoonEscape_XPositionPlusY</c>, adjacent code at $B3:E610.</summary>
     internal const ushort FirstAdjacentCodeRoutine = 0xe610;
 
-    internal static int MechanicsWordCount => 63;
-    internal static int PresentationWordCount => 30;
+    public static int MechanicsWordCount => 63;
+    public static int PresentationWordCount => 30;
 
-    internal static EscapeEtecoonInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
@@ -97,11 +92,11 @@ internal static class EscapeEtecoonInstructionProgramDefinitions
         return new((ushort)(ExpressGratitudeThenEscape + offset), value);
     }
 
-    private static EscapeEtecoonInstructionMechanicsWord FourPoseLoop(ushort start, int word, ushort duration) =>
+    private static InstructionMechanicsWord FourPoseLoop(ushort start, int word, ushort duration) =>
         new((ushort)(start + (word < 5 ? 4 * word : 18)),
             word < 4 ? duration : word == 4 ? CommonEnemyInstructionCodes.Goto : start);
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
@@ -122,7 +117,7 @@ internal static class EscapeEtecoonInstructionProgramDefinitions
     {
         for (int index = 0; index < MechanicsWordCount; index++)
         {
-            EscapeEtecoonInstructionMechanicsWord word = MechanicsWord(index);
+            InstructionMechanicsWord word = MechanicsWord(index);
             if (word.Address == address)
                 return word.Value;
         }
@@ -130,7 +125,7 @@ internal static class EscapeEtecoonInstructionProgramDefinitions
             $"Escape Etecoon instruction mechanics pointer $B3:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xb30000)
             return false;

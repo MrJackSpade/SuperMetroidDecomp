@@ -1,9 +1,7 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct ChootInstructionMechanicsWord(ushort Address, ushort Value);
-
 /// <summary>Control flow for Choot idle, jump and fall animations; visual operands remain independently supplied.</summary>
-internal static class ChootInstructionProgramDefinitions
+internal abstract class ChootInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary>$A2:D82C: disable off-screen processing, display one frame, then sleep.</summary>
     internal const ushort Idle = 0xd82c;
@@ -12,10 +10,10 @@ internal static class ChootInstructionProgramDefinitions
     /// <summary>$A2:D840: jump control timing with a different final visual operand.</summary>
     internal const ushort Falling = 0xd840;
 
-    internal static int MechanicsWordCount => 11;
-    internal static int PresentationWordCount => 5;
+    public static int MechanicsWordCount => 11;
+    public static int PresentationWordCount => 5;
 
-    internal static ChootInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
@@ -31,7 +29,7 @@ internal static class ChootInstructionProgramDefinitions
         return new(address, ReadMechanicsWord(address));
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
@@ -56,7 +54,7 @@ internal static class ChootInstructionProgramDefinitions
             $"Choot instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa20000)
             return false;

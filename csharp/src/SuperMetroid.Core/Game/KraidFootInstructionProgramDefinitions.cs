@@ -1,16 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Kraid-foot mechanics word at its bank-$A7 address.</summary>
-internal readonly record struct KraidFootInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled timing, movement callbacks, sound callback, and flow control for Kraid's
 /// physical foot actor. Interleaved selections resolve compiled identities to installed
 /// extended OAM compositions.
 /// </summary>
-internal static class KraidFootInstructionProgramDefinitions
+internal abstract class KraidFootInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_KraidFoot_Initial</c> at $A7:86E7.</summary>
     internal const ushort Initial = 0x86e7;
@@ -63,11 +58,11 @@ internal static class KraidFootInstructionProgramDefinitions
     }
 
     /// <summary>Two initial frames, two 36-frame forward programs and 32 backward frames.</summary>
-    internal const int PresentationWordCount = 2 + 2 * 36 + 32;
+    public static int PresentationWordCount => 2 + 2 * 36 + 32;
     /// <summary>Every other word in the bounded native program region is mechanics.</summary>
-    internal const int MechanicsWordCount = (AdjacentUnusedFastBackward - Initial) / 2 - PresentationWordCount;
+    public static int MechanicsWordCount => (AdjacentUnusedFastBackward - Initial) / 2 - PresentationWordCount;
 
-    internal static KraidFootInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         var words = new MechanicsSelection(index, -1, false);
@@ -76,7 +71,7 @@ internal static class KraidFootInstructionProgramDefinitions
         return words.Selected;
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         var words = new MechanicsSelection(-1, -1, false);
@@ -96,7 +91,7 @@ internal static class KraidFootInstructionProgramDefinitions
         throw new InvalidDataException($"Kraid foot mechanics pointer $A7:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa70000) return false;
         var words = new MechanicsSelection(-1, unchecked((ushort)address), true);
@@ -109,8 +104,8 @@ internal static class KraidFootInstructionProgramDefinitions
     {
         private int count;
         internal bool Found;
-        internal KraidFootInstructionMechanicsWord Selected;
-        internal void Add(KraidFootInstructionMechanicsWord word)
+        internal InstructionMechanicsWord Selected;
+        internal void Add(InstructionMechanicsWord word)
         {
             if (count == targetIndex || word.Address == targetAddress ||
                 includeHighByte && unchecked((ushort)(word.Address + 1)) == targetAddress)

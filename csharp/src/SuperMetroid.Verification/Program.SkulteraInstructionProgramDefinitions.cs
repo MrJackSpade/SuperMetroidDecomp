@@ -20,7 +20,7 @@ internal static partial class Program
              index < SkulteraInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            SkulteraInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 SkulteraInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 definition.Value,

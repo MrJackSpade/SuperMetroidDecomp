@@ -1,10 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled mechanics-owned word at its native bank-$A2 address.</summary>
-internal readonly record struct RinkaInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled mechanics words from the ordinary and Mother Brain Rinka instruction programs.
 /// </summary>
@@ -15,7 +10,7 @@ internal readonly record struct RinkaInstructionMechanicsWord(
 /// are presentation selectors installed as editable artwork. Constructed
 /// diagnostic buses without installed artwork may still provide mutable words.
 /// </remarks>
-internal static class RinkaInstructionProgramDefinitions
+internal abstract class RinkaInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>$A2:B9E0</c>, ordinary room-Rinka animation program.</summary>
     internal const ushort OrdinaryInitial = 0xb9e0;
@@ -34,10 +29,10 @@ internal static class RinkaInstructionProgramDefinitions
     private const int ListBytes = SetupBytes + PoseCount * 4 + 4;
     private const int WordsPerList = 3 + PoseCount + 2;
 
-    internal static int MechanicsWordCount => 2 * WordsPerList;
-    internal static int PresentationWordCount => 2 * (PoseCount + 1);
+    public static int MechanicsWordCount => 2 * WordsPerList;
+    public static int PresentationWordCount => 2 * (PoseCount + 1);
 
-    internal static RinkaInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         int part = index % WordsPerList;
@@ -53,7 +48,7 @@ internal static class RinkaInstructionProgramDefinitions
         return new(address, ReadMechanicsWord(address));
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         int part = index % (PoseCount + 1);
@@ -86,7 +81,7 @@ internal static class RinkaInstructionProgramDefinitions
     private static bool IsPresentationOffset(int offset) => offset == 4 ||
         (offset >= SetupBytes && offset < ListBytes - 4 && (offset - SetupBytes) % 4 == 2);
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa20000) return false;
         int relative = (address & 0xfffe) - OrdinaryInitial;

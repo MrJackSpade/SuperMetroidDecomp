@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Kraid belly-lint mechanics word at its bank-$A7 address.</summary>
-internal readonly record struct KraidLintInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for Kraid's initial and post-growth belly-lint poses. Their two
 /// interleaved ordinary-spritemap selections resolve compiled identities to installed artwork.
 /// </summary>
-internal static class KraidLintInstructionProgramDefinitions
+internal abstract class KraidLintInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>kKraid_Ilist_8AFE</c> at $A7:8AFE.</summary>
     internal const ushort Initial = 0x8afe;
@@ -20,12 +15,12 @@ internal static class KraidLintInstructionProgramDefinitions
     /// <summary>The first adjacent Kraid fingernail program at $A7:8B0A.</summary>
     internal const ushort FirstAdjacentFootProgram = 0x8b0a;
 
-    internal const int MechanicsWordCount = 4;
-    internal const int PresentationWordCount = 2;
+    public static int MechanicsWordCount => 4;
+    public static int PresentationWordCount => 2;
 
     /// <summary>Two six-byte poses each contain duration, visual operand and Sleep.
     /// Mechanics ordinals alternate between the duration and terminal instruction.</summary>
-    internal static KraidLintInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         bool sleep = (index & 1) != 0;
@@ -34,7 +29,7 @@ internal static class KraidLintInstructionProgramDefinitions
     }
 
     /// <summary>The visual operand lies two bytes into each six-byte pose.</summary>
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(Initial + 6 * index + 2);
@@ -51,7 +46,7 @@ internal static class KraidLintInstructionProgramDefinitions
             $"Kraid lint instruction mechanics pointer $A7:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa70000)
             return false;

@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled n00b-tube projectile mechanics word at its bank-$86 address.</summary>
-internal readonly record struct NoobTubeProjectileInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for the tube crack, its ten glass shards, and six released-air bubbles.
 /// Their interleaved spritemap operands select separately installed presentation data.
 /// </summary>
-internal static class NoobTubeProjectileInstructionProgramDefinitions
+internal abstract class NoobTubeProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary>N00b-tube crack animation at $86:D3D7.</summary>
     internal const ushort Crack = 0xd3d7;
@@ -29,9 +24,9 @@ internal static class NoobTubeProjectileInstructionProgramDefinitions
     private static ReadOnlySpan<ushort> CrackFlickerTailDurations => [2,3,6,9,8];
 
     internal static NoobTubeShardProgramSequence ShardInstructionLists => default;
-    internal static int MechanicsWordCount => 207;
-    internal static int PresentationWordCount => 90;
-    internal static NoobTubeProjectileInstructionMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => 207;
+    public static int PresentationWordCount => 90;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         if (index < 46) return CrackWord(index);
@@ -51,7 +46,7 @@ internal static class NoobTubeProjectileInstructionProgramDefinitions
         return new((ushort)(ReleasedAirBubble+70),EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         if (index < 6) return (ushort)(Crack+2+4*index);
@@ -70,7 +65,7 @@ internal static class NoobTubeProjectileInstructionProgramDefinitions
         return (ushort)(ReleasedAirBubble+28+4*(index-79));
     }
 
-    private static NoobTubeProjectileInstructionMechanicsWord CrackWord(int index)
+    private static InstructionMechanicsWord CrackWord(int index)
     {
         if (index < 6) return new((ushort)(Crack+4*index),(ushort)Math.Max(6,12-2*index));
         if (index < 8) return new((ushort)(Crack+24+2*(index-6)),index == 6
@@ -92,7 +87,7 @@ internal static class NoobTubeProjectileInstructionProgramDefinitions
         });
     }
 
-    private static NoobTubeProjectileInstructionMechanicsWord ShardWord(int shard,int index)
+    private static InstructionMechanicsWord ShardWord(int shard,int index)
     {
         ushort start = ShardInstructionLists[shard];
         bool compact = shard == 8;
@@ -135,7 +130,7 @@ internal static class NoobTubeProjectileInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            NoobTubeProjectileInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -148,7 +143,7 @@ internal static class NoobTubeProjectileInstructionProgramDefinitions
             $"N00b-tube projectile mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
             return false;

@@ -59,7 +59,7 @@ internal static partial class Program
              index < HibashiInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            HibashiInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 HibashiInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 definition.Value,

@@ -16,7 +16,7 @@ internal static partial class Program
              index < DraygonProjectileInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            DraygonProjectileInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 DraygonProjectileInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value, ReadWord(rom, definition.Address),
                 $"Draygon projectile mechanics word $86:{definition.Address:X4}");

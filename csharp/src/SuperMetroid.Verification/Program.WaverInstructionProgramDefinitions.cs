@@ -21,7 +21,7 @@ internal static partial class Program
              index < WaverInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            WaverInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 WaverInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 definition.Value,

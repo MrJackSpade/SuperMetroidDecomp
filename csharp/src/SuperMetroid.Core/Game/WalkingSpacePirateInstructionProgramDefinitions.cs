@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled mechanics-owned word at its native bank-$B2 address.</summary>
-internal readonly record struct WalkingSpacePirateInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for all walking Space Pirate body programs.
 /// Interleaved extended-spritemap operands select installed presentation data.
 /// </summary>
-internal static class WalkingSpacePirateInstructionProgramDefinitions
+internal abstract class WalkingSpacePirateInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_PirateWalking_Flinch_FacingLeft</c> at $B2:FB4C.</summary>
     internal const ushort FlinchFacingLeft = 0xfb4c;
@@ -28,21 +23,21 @@ internal static class WalkingSpacePirateInstructionProgramDefinitions
     /// <summary><c>InstList_PirateWalking_LookingAround_FacingRight</c> at $B2:FC48.</summary>
     internal const ushort LookingFacingRight = 0xfc48;
 
-    internal static int MechanicsWordCount => 92;
-    internal static int PresentationWordCount => 50;
+    public static int MechanicsWordCount => 92;
+    public static int PresentationWordCount => 50;
 
     /// <summary>Walking Space Pirate pose holds. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort FlinchHold = 16, WalkHold = 10, AimHold = 24, FireHold = 8, LookHold = 32;
     /// <summary>$B2:FBA2/FBAA/FBB2: laser Y offsets 8/2/-8 at the gun barrel of each drawn aim pose. The +/-8 symmetry calculates; the barrel heights are placement attached to the artwork (reviewed under #1165).</summary>
     private const short OuterShotOffset = 8, MiddleShotOffset = 2;
 
-    internal static WalkingSpacePirateInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         return Select(index, visual: false);
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return Select(index, visual: true).Address;
@@ -53,7 +48,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitions
     /// Each half has a40-byte walk loop,58-byte three-shot attack and32-byte look/turn list.
     /// A timed pose occupies four bytes; functions, callbacks and jump operands two each.
     /// </summary>
-    private static WalkingSpacePirateInstructionMechanicsWord Select(int index, bool visual)
+    private static InstructionMechanicsWord Select(int index, bool visual)
     {
         var layout = new Layout(index, visual, FlinchFacingLeft);
         for (int facing = 0; facing < 2; facing++)
@@ -95,7 +90,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitions
     {
         private ushort cursor = start;
         private int mechanics, presentation;
-        internal WalkingSpacePirateInstructionMechanicsWord Result { get; private set; }
+        internal InstructionMechanicsWord Result { get; private set; }
 
         internal void Word(ushort value)
         {
@@ -136,7 +131,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitions
         throw new InvalidDataException($"Walking Space Pirate instruction mechanics pointer $B2:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xb20000) return false;
         ushort offset = unchecked((ushort)address);

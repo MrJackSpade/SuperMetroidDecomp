@@ -1,14 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct VerticalShutterInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for plain vertical shutters and Kamer platforms.
 /// Their interleaved spritemap operands select separately installed presentation data.
 /// </summary>
-internal static class VerticalShutterInstructionProgramDefinitions
+internal abstract class VerticalShutterInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstructionList_ShutterGrowing_40px</c> at $A2:E9AA.</summary>
     internal const ushort Plain = 0xe9aa;
@@ -16,10 +12,10 @@ internal static class VerticalShutterInstructionProgramDefinitions
     /// <summary><c>InstructionList_KamerPlatform</c> at $A2:EDE7.</summary>
     internal const ushort KamerPlatform = 0xede7;
 
-    internal static int MechanicsWordCount => 8;
-    internal static int PresentationWordCount => 5;
+    public static int MechanicsWordCount => 8;
+    public static int PresentationWordCount => 5;
 
-    internal static VerticalShutterInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         int frame = index - 2;
@@ -28,7 +24,7 @@ internal static class VerticalShutterInstructionProgramDefinitions
         return new(address, ReadMechanicsWord(address));
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(index == 0 ? Plain + 2 : KamerPlatform + 2 + 4 * (index - 1));
@@ -55,7 +51,7 @@ internal static class VerticalShutterInstructionProgramDefinitions
             $"Vertical-shutter instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa20000) return false;
         int bankAddress = unchecked((ushort)address);

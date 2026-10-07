@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Falling Spark mechanics word at its bank-$86 address.</summary>
-internal readonly record struct FallingSparkInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for Falling Spark's falling and floor-impact programs. Interleaved
 /// spritemap operands resolve through extracted presentation art.
 /// </summary>
-internal static class FallingSparkInstructionProgramDefinitions
+internal abstract class FallingSparkInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_EnemyProjectile_FallingSpark_Falling</c> at $86:F353.</summary>
     internal const ushort Falling = 0xf353;
@@ -23,10 +18,10 @@ internal static class FallingSparkInstructionProgramDefinitions
     /// </summary>
     internal const ushort HitFloorTerminalDelete = 0xf38f;
 
-    internal static int MechanicsWordCount => 17;
-    internal static int PresentationWordCount => 14;
+    public static int MechanicsWordCount => 17;
+    public static int PresentationWordCount => 14;
 
-    internal static FallingSparkInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         ushort address = index < 3 ? (ushort)(Falling + index * 4)
@@ -35,7 +30,7 @@ internal static class FallingSparkInstructionProgramDefinitions
         return new(address, ReadMechanicsWord(address));
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(index < 3 ? Falling + index * 4 + 2 : HitFloor + (index - 3) * 4 + 2);
@@ -44,7 +39,7 @@ internal static class FallingSparkInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address) => TryRead(address, out ushort value)
         ? value : throw new InvalidDataException($"Falling Spark instruction mechanics pointer $86:{address:X4} is not compiled.");
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
         int offset = (address & 0xffff) - Falling;

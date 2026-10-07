@@ -2,16 +2,12 @@ using static SuperMetroid.Core.Game.InstructionItem;
 
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct TorizoSonicBoomInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for Bomb and Golden Torizo's sonic-boom programs at
 /// $86:ADBF-$AE15. Their eleven interleaved spritemap operands use extracted artwork;
 /// two packed sound IDs remain cartridge audio data.
 /// </summary>
-internal static class TorizoSonicBoomInstructionProgramDefinitions
+internal abstract class TorizoSonicBoomInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
 {
     /// <summary><c>InitAI_EnemyProjectile_TorizoSonicBoom</c> at $86:AE15.</summary>
     internal const ushort InitializationAi = 0xae15;
@@ -30,6 +26,7 @@ internal static class TorizoSonicBoomInstructionProgramDefinitions
 
     /// <summary>Native program bank $86.</summary>
     internal const byte Bank = 0x86;
+    static int IDeclaredProgramBank.Bank => Bank;
 
     private static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xadbf),
@@ -67,14 +64,14 @@ internal static class TorizoSonicBoomInstructionProgramDefinitions
         Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero, WallImpactLoop),
         Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete));
 
-    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
-    internal static int PresentationWordCount => Layout.PresentationSlotCount;
-    internal static TorizoSonicBoomInstructionMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => Layout.MechanicsWordCount;
+    public static int PresentationWordCount => Layout.PresentationSlotCount;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         (ushort address, ushort value) = Layout.MechanicsWord(index);
         return new(address, value);
     }
-    internal static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
+    public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.BombTorizoSonicBoom or
@@ -85,5 +82,5 @@ internal static class TorizoSonicBoomInstructionProgramDefinitions
             throw new InvalidDataException(
                 $"Torizo sonic-boom mechanics pointer $86:{address:X4} is not compiled.");
 
-    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
+    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

@@ -5,10 +5,10 @@ internal static partial class Program
 {
     // Independent decoder of the pinned A7:86E7-893C byte stream: duration/frame
     // pairs, no-operand callbacks, and the terminal $80ED goto with one operand.
-    private static (List<KraidFootInstructionMechanicsWord> Mechanics, List<ushort> Presentation)
+    private static (List<InstructionMechanicsWord> Mechanics, List<ushort> Presentation)
         ReadOriginalKraidFootPrograms(SuperMetroidAddressSpace rom)
     {
-        var mechanics = new List<KraidFootInstructionMechanicsWord>();
+        var mechanics = new List<InstructionMechanicsWord>();
         var presentation = new List<ushort>();
         for (int address = 0x86e7; address < 0x893d;)
         {

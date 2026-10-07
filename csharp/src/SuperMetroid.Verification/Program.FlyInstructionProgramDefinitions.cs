@@ -17,7 +17,7 @@ internal static partial class Program
              index < FlyInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            FlyInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 FlyInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadFlyInstructionWord(rom, 0xa20000 | definition.Address),

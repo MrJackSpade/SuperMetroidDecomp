@@ -1,22 +1,20 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct FlyInstructionMechanicsWord(ushort Address, ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for the shared Mellow, Mella, and Memu animation loop.
 /// Interleaved spritemap operands select separately installed presentation data.
 /// </summary>
-internal static class FlyInstructionProgramDefinitions
+internal abstract class FlyInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_Mellow_Mella_Menu</c> at $A2:B013.</summary>
     internal const ushort Flight = 0xb013;
 
     /// <summary>Four two-frame drawings followed by goto-first-frame.</summary>
     private const int FrameCount = 4;
-    internal static int MechanicsWordCount => FrameCount + 2;
-    internal static int PresentationWordCount => FrameCount;
+    public static int MechanicsWordCount => FrameCount + 2;
+    public static int PresentationWordCount => FrameCount;
 
-    internal static FlyInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         if (index < FrameCount) return new((ushort)(Flight + 4 * index), 2);
@@ -24,7 +22,7 @@ internal static class FlyInstructionProgramDefinitions
             index == FrameCount ? CommonEnemyInstructionCodes.Goto : Flight);
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(Flight + 2 + 4 * index);
@@ -48,7 +46,7 @@ internal static class FlyInstructionProgramDefinitions
             $"Fly-family instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa20000)
             return false;

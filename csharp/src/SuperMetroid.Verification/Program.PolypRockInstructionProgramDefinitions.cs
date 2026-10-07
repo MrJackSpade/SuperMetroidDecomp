@@ -19,7 +19,7 @@ internal static partial class Program
              index < PolypRockInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            PolypRockInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 PolypRockInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadPolypRockInstructionWord(rom, definition.Address),

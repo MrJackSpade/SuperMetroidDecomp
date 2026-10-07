@@ -20,7 +20,7 @@ internal static partial class Program
              index < OwtchInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            OwtchInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 OwtchInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadOwtchInstructionWord(rom, 0xa20000 | definition.Address),

@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Evir mechanics word at its native bank-$A8 address.</summary>
-internal readonly record struct EvirInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled timing, callback, timer, and loop control for Evir's body, arms, and
 /// regenerating projectile. Interleaved spritemap operands remain live presentation data.
 /// </summary>
-internal static class EvirInstructionProgramDefinitions
+internal abstract class EvirInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_Evir_Body_FacingLeft</c> at $A8:86A7.</summary>
     internal const ushort BodyFacingLeft = 0x86a7;
@@ -31,15 +26,15 @@ internal static class EvirInstructionProgramDefinitions
     internal const int BodyFrameCount = 6;
     internal const int ArmsFrameCount = 17;
 
-    internal static int MechanicsWordCount => 67;
-    internal static int PresentationWordCount => 49;
+    public static int MechanicsWordCount => 67;
+    public static int PresentationWordCount => 49;
 
     /// <summary>
     /// Both facing halves contain a six-frame body loop and seventeen-frame arm loop.
     /// Frames last ten ticks except the arms' final48-tick rest. The projectile holds
     /// one pose or performs eight regeneration steps followed by a16-tick completion.
     /// </summary>
-    internal static EvirInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
@@ -75,7 +70,7 @@ internal static class EvirInstructionProgramDefinitions
         };
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
@@ -98,7 +93,7 @@ internal static class EvirInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            EvirInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -111,7 +106,7 @@ internal static class EvirInstructionProgramDefinitions
             $"Evir instruction mechanics pointer $A8:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa80000)
             return false;

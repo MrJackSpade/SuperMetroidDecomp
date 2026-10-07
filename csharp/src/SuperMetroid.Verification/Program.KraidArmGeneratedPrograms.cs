@@ -5,10 +5,10 @@ internal static partial class Program
 {
     // Independent decoder of the pinned four arm instruction regions: duration/frame
     // pairs, no-operand callbacks, and the terminal $80ED goto with one operand.
-    private static (List<KraidArmInstructionMechanicsWord> Mechanics, List<ushort> Presentation)
+    private static (List<InstructionMechanicsWord> Mechanics, List<ushort> Presentation)
         ReadOriginalKraidArmPrograms(SuperMetroidAddressSpace rom)
     {
-        var mechanics = new List<KraidArmInstructionMechanicsWord>();
+        var mechanics = new List<InstructionMechanicsWord>();
         var presentation = new List<ushort>();
         foreach (var (start, end) in new[] { (0x89f3, 0x8a41), (0x8a41, 0x8a8f), (0x8aa4, 0x8af0), (0x8af0, 0x8afe) })
         for (int address = start; address < end;)

@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled escape-Dachora mechanics word at its bank-$B3 address.</summary>
-internal readonly record struct EscapeDachoraInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control words for the escape-sequence Dachora's low/high-tide pacing and
 /// accelerating departure programs. Spritemap selections resolve installed artwork.
 /// </summary>
-internal static class EscapeDachoraInstructionProgramDefinitions
+internal abstract class EscapeDachoraInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_DachoraEscape_RunningAroundAimlessly_LowTide_0</c> at $B3:E964.</summary>
     internal const ushort RunningAroundLowTide = 0xe964;
@@ -65,10 +60,10 @@ internal static class EscapeDachoraInstructionProgramDefinitions
     private const int LowTideControls = 2 + 2 * LowDirectionControls;
     private const int HighTideControls = 2 + 2 * HighDirectionControls;
     private const int DepartureFrames = 3 * RunFrames;
-    internal static int MechanicsWordCount => LowTideControls + HighTideControls + 1 + 2 * DepartureFrames + 2;
-    internal static int PresentationWordCount => 4 * RunFrames + 1 + DepartureFrames;
+    public static int MechanicsWordCount => LowTideControls + HighTideControls + 1 + 2 * DepartureFrames + 2;
+    public static int PresentationWordCount => 4 * RunFrames + 1 + DepartureFrames;
 
-    internal static EscapeDachoraInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         if (index < LowTideControls + HighTideControls)
@@ -120,7 +115,7 @@ internal static class EscapeDachoraInstructionProgramDefinitions
             tail == 0 ? CommonEnemyInstructionCodes.Goto : RunningForEscapeMaximumSpeed);
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         if (index < 4 * RunFrames)
@@ -143,7 +138,7 @@ internal static class EscapeDachoraInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            EscapeDachoraInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -155,7 +150,7 @@ internal static class EscapeDachoraInstructionProgramDefinitions
             $"Escape Dachora instruction mechanics pointer $B3:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xb30000)
             return false;

@@ -1,14 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled mechanics-owned word at its native bank-$A3 address.</summary>
-internal readonly record struct SbugInstructionMechanicsWord(ushort Address, ushort Value);
-
 /// <summary>Compiled mechanics words from Sbug's eight directional animation loops.</summary>
 /// <remarks>
 /// Each list's frame durations and terminal goto are immutable simulation control. The
 /// interleaved spritemap pointers remain live cartridge presentation data.
 /// </remarks>
-internal static class SbugInstructionProgramDefinitions
+internal abstract class SbugInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>$A3:A071</c>, right-facing animation loop.</summary>
     internal const ushort Right = 0xa071;
@@ -34,11 +31,11 @@ internal static class SbugInstructionProgramDefinitions
     /// <summary><c>$A3:A0FD</c>, down-right-facing animation loop.</summary>
     internal const ushort DownRight = 0xa0fd;
 
-    internal static int MechanicsWordCount => 48;
-    internal static int PresentationWordCount => 32;
+    public static int MechanicsWordCount => 48;
+    public static int PresentationWordCount => 32;
 
     /// <summary>Eight directional programs each display four five-tick frames and branch back to their entry.</summary>
-    internal static SbugInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
@@ -48,7 +45,7 @@ internal static class SbugInstructionProgramDefinitions
             : new((ushort)(start + 16 + 2 * (word - 4)), word == 4 ? CommonEnemyInstructionCodes.Goto : start);
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
@@ -62,7 +59,7 @@ internal static class SbugInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            SbugInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -75,7 +72,7 @@ internal static class SbugInstructionProgramDefinitions
             $"Sbug instruction mechanics pointer $A3:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa30000)
             return false;

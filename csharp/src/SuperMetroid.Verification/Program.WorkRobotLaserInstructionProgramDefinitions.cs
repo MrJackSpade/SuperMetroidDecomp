@@ -18,7 +18,7 @@ internal static partial class Program
              index < WorkRobotLaserInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            WorkRobotLaserInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 WorkRobotLaserInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadWorkRobotLaserInstructionWord(rom, definition.Address),

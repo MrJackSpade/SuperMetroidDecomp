@@ -1,12 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct MochtroidInstructionMechanicsWord(ushort Address, ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for Mochtroid's free-flight and attached animation loops.
 /// Their eight spritemap operands select independently supplied presentation data.
 /// </summary>
-internal static class MochtroidInstructionProgramDefinitions
+internal abstract class MochtroidInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_Mochtroid_NotTouchingSamus</c> at $A3:A745.</summary>
     internal const ushort FreeFlight = 0xa745;
@@ -23,11 +21,11 @@ internal static class MochtroidInstructionProgramDefinitions
     /// the separate eighty-contact damage counter and global-frame sound cadence; fixed10x12
     /// collision radii do not follow these poses. Only this visual tempo is retained.</summary>
     private const ushort AttachedPulseTicks = 5;
-    internal static int MechanicsWordCount => 12;
-    internal static int PresentationWordCount => 8;
+    public static int MechanicsWordCount => 12;
+    public static int PresentationWordCount => 8;
 
     /// <summary>Each loop displays four timed records followed by Goto and its target; all records calculate on demand.</summary>
-    internal static MochtroidInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
@@ -37,7 +35,7 @@ internal static class MochtroidInstructionProgramDefinitions
         return new(address, ReadMechanicsWord(address));
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
@@ -62,7 +60,7 @@ internal static class MochtroidInstructionProgramDefinitions
             $"Mochtroid instruction mechanics pointer $A3:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa30000)
             return false;

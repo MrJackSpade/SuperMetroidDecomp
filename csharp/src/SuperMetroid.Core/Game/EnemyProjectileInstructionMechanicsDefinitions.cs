@@ -1,10 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One immutable mechanics-owned word in a translated bank-$86 projectile program.</summary>
-internal readonly record struct EnemyProjectileMechanicsWordDefinition(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// One bank-$86 timed program whose frame durations and control flow affect simulation.
 /// Spritemap operands remain outside this definition and select installed presentation content.
@@ -31,7 +26,7 @@ internal readonly record struct EnemyProjectilePresentationFrameDefinition(
 /// graphics operands in installed artwork preserves editable presentation data while preventing fixed
 /// gameplay timing and control flow from depending on a runtime cartridge read.
 /// </remarks>
-internal static class EnemyProjectileInstructionMechanicsDefinitions
+internal abstract class EnemyProjectileInstructionMechanicsDefinitions : IInstructionProgramCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>$86:C432</c>, Mother Brain blue/onion-ring radius-and-frame program.</summary>
     internal const ushort MotherBrainBlueRingInitial = 0xc432;
@@ -413,7 +408,7 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
     /// <summary>Native $86:E42C selector domain, including its final two out-of-order roots.</summary>
     internal static int MiscDustProgramCount => 30;
 
-    internal static int NativeWordCount
+    public static int MechanicsWordCount
     {
         get
         {
@@ -479,12 +474,12 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
         return false;
     }
 
-    internal static bool IsCompiledMechanicsByte(int address) => (address & 0xff0000) == 0x860000 &&
+    public static bool IsCompiledMechanicsByte(int address) => (address & 0xff0000) == 0x860000 &&
         (TryReadMechanicsWord((ushort)address, out _) || TryReadMechanicsWord(unchecked((ushort)(address - 1)), out _));
 
-    internal static EnemyProjectileMechanicsWordDefinition NativeWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
-        if ((uint)index >= NativeWordCount) throw new ArgumentOutOfRangeException(nameof(index));
+        if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         foreach (ushort address in MechanicsAddresses())
             if (index-- == 0) return new(address, ReadMechanicsWord(address));
         throw new InvalidOperationException("Projectile mechanics enumeration count disagrees with its programs.");

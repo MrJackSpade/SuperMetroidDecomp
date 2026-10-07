@@ -1,14 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct ChozoTourianDustInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for Wrecked Ship Chozo footsteps/explosions and Tourian statue descent
 /// dust. Their fourteen spritemap operands resolve through extracted presentation art.
 /// </summary>
-internal static class ChozoTourianDustInstructionProgramDefinitions
+internal abstract class ChozoTourianDustInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary>Wrecked Ship Chozo spike-clearing footsteps at $86:AEC4.</summary>
     internal const ushort Footsteps = 0xaec4;
@@ -22,10 +18,10 @@ internal static class ChozoTourianDustInstructionProgramDefinitions
     /// <summary>Reset/randomize loop at $86:AF18, after the initial loop counter.</summary>
     internal const ushort TourianLoop = TourianDescentDust + 4;
 
-    internal static int MechanicsWordCount => 31;
-    internal static int PresentationWordCount => 14;
+    public static int MechanicsWordCount => 31;
+    public static int PresentationWordCount => 14;
 
-    internal static ChozoTourianDustInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         if (index < 18)
@@ -68,7 +64,7 @@ internal static class ChozoTourianDustInstructionProgramDefinitions
         return new((ushort)(TourianDescentDust + 28 + 2 * (dust - 10)), control);
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         if (index < 4) return (ushort)(Footsteps + 8 + 4 * index);
@@ -87,7 +83,7 @@ internal static class ChozoTourianDustInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            ChozoTourianDustInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -99,14 +95,14 @@ internal static class ChozoTourianDustInstructionProgramDefinitions
             $"Chozo/Tourian dust mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
             return false;
         ushort bankAddress = unchecked((ushort)address);
         for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ChozoTourianDustInstructionMechanicsWord word = MechanicsWord(index);
+            InstructionMechanicsWord word = MechanicsWord(index);
             if (bankAddress == word.Address ||
                 bankAddress == unchecked((ushort)(word.Address + 1)))
                 return true;

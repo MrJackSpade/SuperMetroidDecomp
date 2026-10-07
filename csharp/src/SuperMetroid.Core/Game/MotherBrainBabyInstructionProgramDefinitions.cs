@@ -1,18 +1,14 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled cutscene-Baby mechanics word at its bank-$A9 address.</summary>
-internal readonly record struct MotherBrainBabyInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for the Baby Metroid used by Mother Brain's final
 /// cutscene. Interleaved selections resolve compiled identities to installed artwork.
 /// </summary>
-internal static class MotherBrainBabyInstructionProgramDefinitions
+internal abstract class MotherBrainBabyInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, IDeclaredProgramBank
 {
     /// <summary>Native Mother Brain cutscene-baby instruction and OAM bank $A9.</summary>
     internal const byte Bank = 0xa9;
+    static int IDeclaredProgramBank.Bank => Bank;
 
     /// <summary><c>InstList_BabyMetroid_Initial</c> at $A9:CFA2.</summary>
     internal const ushort Initial = 0xcfa2;
@@ -41,10 +37,10 @@ internal static class MotherBrainBabyInstructionProgramDefinitions
     /// <summary>Each loop has four duration/spritemap records followed by its native goto callback opcode.</summary>
     private const int LoopFrames = 4, FrameBytes = 2 * sizeof(ushort), LoopWords = LoopFrames + 1;
 
-    internal static int MechanicsWordCount => 2 * LoopWords + 2;
-    internal static int PresentationWordCount => 2 * LoopFrames + 1;
+    public static int MechanicsWordCount => 2 * LoopWords + 2;
+    public static int PresentationWordCount => 2 * LoopFrames + 1;
 
-    internal static MotherBrainBabyInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         ushort address = index < LoopWords ? (ushort)(Initial + index * FrameBytes) :
@@ -53,7 +49,7 @@ internal static class MotherBrainBabyInstructionProgramDefinitions
         return new(address, ReadMechanicsWord(address));
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return index < LoopFrames ? (ushort)(Initial + index * FrameBytes + sizeof(ushort)) :

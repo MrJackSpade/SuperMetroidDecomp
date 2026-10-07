@@ -17,7 +17,7 @@ internal static partial class Program
              index < TourianStatueProjectileInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            TourianStatueProjectileInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 TourianStatueProjectileInstructionProgramDefinitions.MechanicsWord(index);
             ushort native = unchecked((ushort)(
                 rom.ReadByte(EnemyProjectileCodePointers.BankBase | definition.Address) |

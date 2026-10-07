@@ -2,15 +2,12 @@ using static SuperMetroid.Core.Game.InstructionItem;
 
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Draygon mechanics word at its native bank-$A5 address.</summary>
-internal readonly record struct DraygonInstructionMechanicsWord(ushort Address, ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for Draygon's body, eye, tail, and arms programs.
 /// Interleaved physical frame identities are compiled selectors; installed display
 /// bindings may replace their OAM/BG2 art without changing mechanics or timing.
 /// </summary>
-internal static class DraygonInstructionProgramDefinitions
+internal abstract class DraygonInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
 {
     /// <summary><c>InstList_Draygon_Sleep</c> at $A5:97B9.</summary>
     public const ushort Sleep = 0x97b9;
@@ -154,6 +151,7 @@ internal static class DraygonInstructionProgramDefinitions
 
     /// <summary>Native program bank $A5.</summary>
     internal const byte Bank = 0xa5;
+    static int IDeclaredProgramBank.Bank => Bank;
 
     private static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0x97b9),
@@ -592,20 +590,20 @@ internal static class DraygonInstructionProgramDefinitions
         Frame(6),
         Op(CommonEnemyInstructionCodes.Goto, TailFacingRightIdle0));
 
-    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
-    internal static int PresentationWordCount => Layout.PresentationSlotCount;
+    public static int MechanicsWordCount => Layout.MechanicsWordCount;
+    public static int PresentationWordCount => Layout.PresentationSlotCount;
 
-    internal static DraygonInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         (ushort address, ushort value) = Layout.MechanicsWord(index);
         return new(address, value);
     }
-    internal static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
+    public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(
                 $"Draygon instruction mechanics pointer $A5:{address:X4} is not compiled.");
 
-    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
+    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

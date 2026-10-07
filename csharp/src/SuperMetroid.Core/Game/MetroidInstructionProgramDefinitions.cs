@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled ordinary-Metroid mechanics word at its bank-$A3 address.</summary>
-internal readonly record struct MetroidInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled animation timing, sound callbacks, and loop control for ordinary Metroids.
 /// Interleaved spritemap operands select separately installed presentation data.
 /// </summary>
-internal static class MetroidInstructionProgramDefinitions
+internal abstract class MetroidInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_Metroid_ChasingSamus</c> at $A3:E9CF.</summary>
     internal const ushort ChasingSamus = 0xe9cf;
@@ -47,9 +42,9 @@ internal static class MetroidInstructionProgramDefinitions
         PulseStage.ContractedRest or PulseStage.ExpandedRest or PulseStage.ReturnToExpanded => PulseBeatTicks,
         _ => throw new ArgumentOutOfRangeException(nameof(stage)),
     };
-    internal static int MechanicsWordCount => 31;
-    internal static int PresentationWordCount => 25;
-    internal static MetroidInstructionMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => 31;
+    public static int PresentationWordCount => 25;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         bool chasing = index < 23;
@@ -59,7 +54,7 @@ internal static class MetroidInstructionProgramDefinitions
         ushort address = (ushort)(start + (local < frames ? local * 4 : frames * 4 + (local - frames) * 2));
         return new(address, ReadMechanicsWord(address));
     }
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(index < 20 ? ChasingSamus + index * 4 + 2 : DrainingSamus + (index - 20) * 4 + 2);
@@ -84,7 +79,7 @@ internal static class MetroidInstructionProgramDefinitions
         if (offset == frames * 4 + 4) return (ushort)start;
         throw new InvalidDataException($"Metroid instruction mechanics pointer $A3:{address:X4} is not compiled.");
     }
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa30000) return false;
         int pointer = (ushort)address;

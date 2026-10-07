@@ -18,7 +18,7 @@ internal static partial class Program
              index < SkreeMetareeParticleInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            SkreeMetareeParticleInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 SkreeMetareeParticleInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 definition.Value,

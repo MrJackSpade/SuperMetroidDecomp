@@ -15,11 +15,11 @@ internal static class EnemyVisualProgramSpecializations
     // invalidates that disposition rather than granting a permanent exemption.
     private static readonly Dictionary<string, string> ControlOnly = new Dictionary<string, string>
     {
-        [nameof(CommonEnemyProjectileInstructionProgramDefinitions)] = "E681BB9CF421324D916B1AD8F50D4780A17678158323A05EBA36ABB7A9E3509D",
-        [nameof(GoldenTorizoEyeBeamAttackInstructionProgramDefinitions)] = "699E83B6058B7FDC925C9E6BC0D9FC38DD8A7B682D17856FC07261B352A3201C",
-        [nameof(GoldenTorizoJumpLandingInstructionProgramDefinitions)] = "3005930C469DDE29CCC5E38213020BE64F744E4BF92B41CB512D2ADF5536A0D0",
-        [nameof(GoldenTorizoStunnedInstructionProgramDefinitions)] = "54E323801E720755A2B549DB47F66CBD18B0E4BCB2051DFF3A2D506EE3EEBFC6",
-        [nameof(TourianEntranceStatueInstructionProgramDefinitions)] = "C59312C3A87CBDE15DB6397E86783EC62CD34942656F12CCA056EF94B838A322",
+        [nameof(CommonEnemyProjectileInstructionProgramDefinitions)] = "4FD899E369CA4566C8F4C97EEBA45ACF331E7563C20D604167EE8BEDDD8CA76C",
+        [nameof(GoldenTorizoEyeBeamAttackInstructionProgramDefinitions)] = "ABF35C94CD6CDBF895DF999850495924ED73E0D3A70B1F3BC4655445DB3832D7",
+        [nameof(GoldenTorizoJumpLandingInstructionProgramDefinitions)] = "DD9440E926C36EAC02FF9D1D9E3E92E01380DB0473F7492C04EF3782DCA3D809",
+        [nameof(GoldenTorizoStunnedInstructionProgramDefinitions)] = "3A341B43FDA0A823D1E12BD2C48A63F51659062A60DFFFB19D715936BE686165",
+        [nameof(TourianEntranceStatueInstructionProgramDefinitions)] = "E2FD883D4E035551B9DF569166E452972D7A2595976B0EA037864CB25D6EB255",
     };
 
     private static readonly Dictionary<string, string> CustomLayouts = new()

@@ -1,16 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled shared-crawler mechanics word at its native bank-$A3 address.</summary>
-internal readonly record struct SharedCrawlerInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words shared by Zeela, Sova, Zoomer, and Stone Zoomer. The
 /// twenty interleaved spritemap operands select the same installed compositions
 /// used by the Wrecked Ship HZoomer.
 /// </summary>
-internal static class SharedCrawlerInstructionProgramDefinitions
+internal abstract class SharedCrawlerInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_Zeela_Zoomer_UpsideRight_0</c> at $A3:E25C.</summary>
     internal const ushort UpsideRight = 0xe25c;
@@ -34,10 +29,10 @@ internal static class SharedCrawlerInstructionProgramDefinitions
     private const int ListBytes = SetupBytes + PoseCount * PoseBytes + LoopBytes;
     private const int WordsPerList = 2 + PoseCount + 2;
 
-    internal static int MechanicsWordCount => SurfaceCount * WordsPerList;
-    internal static int PresentationWordCount => SurfaceCount * PoseCount;
+    public static int MechanicsWordCount => SurfaceCount * WordsPerList;
+    public static int PresentationWordCount => SurfaceCount * PoseCount;
 
-    internal static SharedCrawlerInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         int part = index % WordsPerList;
@@ -48,7 +43,7 @@ internal static class SharedCrawlerInstructionProgramDefinitions
         return new(address, ReadMechanicsWord(address));
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(UpsideRight + index / PoseCount * ListBytes + SetupBytes + index % PoseCount * PoseBytes + 2);
@@ -80,7 +75,7 @@ internal static class SharedCrawlerInstructionProgramDefinitions
             $"Shared-crawler instruction mechanics pointer $A3:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa30000) return false;
         ushort word = (ushort)(address & 0xfffe);

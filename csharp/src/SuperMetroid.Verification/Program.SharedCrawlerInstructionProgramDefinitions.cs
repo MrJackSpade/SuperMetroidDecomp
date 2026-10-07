@@ -21,7 +21,7 @@ internal static partial class Program
              index < SharedCrawlerInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            SharedCrawlerInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 SharedCrawlerInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadSharedCrawlerInstructionWord(rom, definition.Address),

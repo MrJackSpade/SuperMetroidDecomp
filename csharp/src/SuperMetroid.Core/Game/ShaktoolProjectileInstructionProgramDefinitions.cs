@@ -1,14 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct ShaktoolProjectileInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for the cartridge's three unused Shaktool attack-circle programs.
 /// Their eight spritemap operands select installed presentation frames.
 /// </summary>
-internal static class ShaktoolProjectileInstructionProgramDefinitions
+internal abstract class ShaktoolProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary>Front attack-circle program at $86:BD68.</summary>
     internal const ushort Front = 0xbd68;
@@ -31,9 +27,9 @@ internal static class ShaktoolProjectileInstructionProgramDefinitions
     private const ushort HeldPoseTicks = 119;
     private const int PresentationOperand = -1;
 
-    internal static int MechanicsWordCount => 18;
-    internal static int PresentationWordCount => 8;
-    internal static ShaktoolProjectileInstructionMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => 18;
+    public static int PresentationWordCount => 8;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         for (int address = Front; address < End; address += 2)
@@ -43,7 +39,7 @@ internal static class ShaktoolProjectileInstructionProgramDefinitions
         }
         throw new InvalidOperationException("Shaktool projectile mechanics-word index is inconsistent.");
     }
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         if (index < 3) return (ushort)(Front + 2 + index * 4);
@@ -63,7 +59,7 @@ internal static class ShaktoolProjectileInstructionProgramDefinitions
         }
         throw new InvalidDataException($"Shaktool attack-circle mechanics pointer $86:{address:X4} is not compiled.");
     }
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
         ushort word = (ushort)(address & 0xfffe);

@@ -2,16 +2,11 @@ using static SuperMetroid.Core.Game.InstructionItem;
 
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Mother Brain ceiling-tube mechanics word at its bank-$86 address.</summary>
-internal readonly record struct MotherBrainTopTubeInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for the four falling ceiling-tube poses in Mother Brain's fake-death
 /// sequence. Their four spritemap operands resolve through extracted presentation art.
 /// </summary>
-internal static class MotherBrainTopTubeInstructionProgramDefinitions
+internal abstract class MotherBrainTopTubeInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
 {
     /// <summary>Top-right ceiling tube instruction list at $86:CC43.</summary>
     internal const ushort TopRight = 0xcc43;
@@ -27,6 +22,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitions
 
     /// <summary>Native program bank $86.</summary>
     internal const byte Bank = 0x86;
+    static int IDeclaredProgramBank.Bank => Bank;
 
     private static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xcc43),
@@ -43,14 +39,14 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitions
         Frame(1),
         Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep));
 
-    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
-    internal static int PresentationWordCount => Layout.PresentationSlotCount;
-    internal static MotherBrainTopTubeInstructionMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => Layout.MechanicsWordCount;
+    public static int PresentationWordCount => Layout.PresentationSlotCount;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         (ushort address, ushort value) = Layout.MechanicsWord(index);
         return new(address, value);
     }
-    internal static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
+    public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.MotherBrainTopRightTube or
@@ -63,5 +59,5 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitions
             throw new InvalidDataException(
                 $"Mother Brain ceiling-tube mechanics pointer $86:{address:X4} is not compiled.");
 
-    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
+    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

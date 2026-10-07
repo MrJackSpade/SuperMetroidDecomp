@@ -2,15 +2,11 @@ using static SuperMetroid.Core.Game.InstructionItem;
 
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct DeadTorizoInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for Dead Torizo's stationary corpse program. Its
 /// spritemap operand is resolved by the compiled enemy visual catalog.
 /// </summary>
-internal static class DeadTorizoInstructionProgramDefinitions
+internal abstract class DeadTorizoInstructionProgramDefinitions : IInstructionProgramCatalog, ISinglePresentationOperand, ICompiledMechanicsByteProbe, IDeclaredProgramBank
 {
     /// <summary><c>InstList_CorpseTorizo</c> at $A9:D6DC.</summary>
     internal const ushort Stationary = 0xd6dc;
@@ -23,9 +19,11 @@ internal static class DeadTorizoInstructionProgramDefinitions
 
     /// <summary>The <c>Spritemaps_CorpseTorizo</c> visual operand at $A9:D6DE.</summary>
     internal const ushort PresentationWord = 0xd6de;
+    static ushort ISinglePresentationOperand.PresentationWord => PresentationWord;
 
     /// <summary>Native program bank $A9.</summary>
     internal const byte Bank = 0xa9;
+    static int IDeclaredProgramBank.Bank => Bank;
 
     private static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xd6dc),
@@ -35,8 +33,8 @@ internal static class DeadTorizoInstructionProgramDefinitions
         Entry(SleepOpcode),
         Op(CommonEnemyInstructionCodes.Sleep));
 
-    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
-    internal static DeadTorizoInstructionMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => Layout.MechanicsWordCount;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         (ushort address, ushort value) = Layout.MechanicsWord(index);
         return new(address, value);
@@ -47,5 +45,5 @@ internal static class DeadTorizoInstructionProgramDefinitions
             throw new InvalidDataException(
                 $"Dead Torizo instruction mechanics pointer $A9:{address:X4} is not compiled.");
 
-    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
+    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

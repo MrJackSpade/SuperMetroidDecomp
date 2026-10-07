@@ -18,7 +18,7 @@ internal static partial class Program
              index < DragonFireballInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            DragonFireballInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 DragonFireballInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 definition.Value,

@@ -19,7 +19,7 @@ internal static partial class Program
              index < EyeDoorSweatInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            EyeDoorSweatInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 EyeDoorSweatInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 definition.Value,

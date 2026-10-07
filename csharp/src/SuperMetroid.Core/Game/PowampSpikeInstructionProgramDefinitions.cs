@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Powamp-spike mechanics word at its bank-$86 address.</summary>
-internal readonly record struct PowampSpikeInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for Powamp's looping spike animation and private delete list.
 /// Interleaved spritemap operands resolve through extracted presentation art.
 /// </summary>
-internal static class PowampSpikeInstructionProgramDefinitions
+internal abstract class PowampSpikeInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_EnemyProjectile_PowampSpike</c> at $86:D208.</summary>
     internal const ushort Initial = 0xd208;
@@ -22,17 +17,17 @@ internal static class PowampSpikeInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_PowampSpike_Delete</c> at $86:D218.</summary>
     internal const ushort Delete = 0xd218;
 
-    internal static int MechanicsWordCount => 6;
-    internal static int PresentationWordCount => 3;
+    public static int MechanicsWordCount => 6;
+    public static int PresentationWordCount => 3;
 
-    internal static PowampSpikeInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         ushort address = (ushort)(index < 3 ? Initial + index * 4 : LoopCommand + (index - 3) * 2);
         return new(address, ReadMechanicsWord(address));
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(Initial + index * 4 + 2);
@@ -41,7 +36,7 @@ internal static class PowampSpikeInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address) => TryRead(address, out ushort value)
         ? value : throw new InvalidDataException($"Powamp-spike instruction mechanics pointer $86:{address:X4} is not compiled.");
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
         int offset = (address & 0xffff) - Initial;

@@ -22,7 +22,7 @@ internal static partial class Program
              index < PhantoonInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            PhantoonInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 PhantoonInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadPhantoonInstructionWord(rom, definition.Address),

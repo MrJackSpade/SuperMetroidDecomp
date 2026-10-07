@@ -18,7 +18,7 @@ internal static partial class Program
              index < BullInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            BullInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 BullInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadBullInstructionWord(rom, 0xa80000 | definition.Address),

@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Space Pirate projectile mechanics word at its bank-$86 address.</summary>
-internal readonly record struct SpacePirateProjectileInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for the shared Pirate/Mother Brain laser and Ninja Pirate claw
 /// programs. Interleaved spritemap selectors address separately installed artwork.
 /// </summary>
-internal static class SpacePirateProjectileInstructionProgramDefinitions
+internal abstract class SpacePirateProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_EnemyProjectile_Pirate_MotherBrain_Laser_Left_0</c> at $86:9F41.</summary>
     internal const ushort LaserLeft = 0x9f41;
@@ -38,15 +33,15 @@ internal static class SpacePirateProjectileInstructionProgramDefinitions
     /// <summary>Laser startup dwell at $86:9F41/9F45/9F49 and right-facing equivalents. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort LaserStartupFrames = 2;
 
-    internal static int MechanicsWordCount => 58;
-    internal static int PresentationWordCount => 42;
+    public static int MechanicsWordCount => 58;
+    public static int PresentationWordCount => 42;
 
     /// <summary>
     /// Each laser has three two-tick startup poses, an immediate movement callback,
     /// ten one-tick poses and a two-pose loop. Each claw installs its movement callback
     /// then loops eight one-tick poses. Left/right variants share these widths.
     /// </summary>
-    internal static SpacePirateProjectileInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         if (index < 34)
@@ -82,7 +77,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitions
         }
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         if (index < 26)
@@ -106,7 +101,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            SpacePirateProjectileInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -119,7 +114,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitions
             $"Space Pirate projectile mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
             return false;

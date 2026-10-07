@@ -18,7 +18,7 @@ internal static partial class Program
              index < NorfairLavaJumperInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            NorfairLavaJumperInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 NorfairLavaJumperInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadNorfairLavaJumperInstructionWord(rom, 0xa20000 | definition.Address),

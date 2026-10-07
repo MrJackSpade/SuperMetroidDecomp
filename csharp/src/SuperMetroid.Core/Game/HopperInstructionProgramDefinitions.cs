@@ -1,16 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled mechanics-owned word at its native bank-$A3 address.</summary>
-internal readonly record struct HopperInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for Sidehopper and Dessgeega floor/ceiling animation
 /// programs. Their forty interleaved spritemap operands select installed artwork;
 /// the hop physics, sound, and instruction cadence remain compiled here.
 /// </summary>
-internal static class HopperInstructionProgramDefinitions
+internal abstract class HopperInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_Sidehopper_Hopping_UpsideUp</c> at $A3:AA76.</summary>
     internal const ushort SidehopperJumpingFloor = 0xaa76;
@@ -105,10 +100,10 @@ internal static class HopperInstructionProgramDefinitions
         return ProgramAt(group * 4 + (upsideDown ? 2 : 0) + (jumping ? 0 : 1)).Start;
     }
 
-    internal static int MechanicsWordCount => 96;
-    internal static int PresentationWordCount => 40;
+    public static int MechanicsWordCount => 96;
+    public static int PresentationWordCount => 40;
 
-    internal static HopperInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         for (int programIndex = 0; programIndex < 16; programIndex++)
@@ -120,7 +115,7 @@ internal static class HopperInstructionProgramDefinitions
         throw new IndexOutOfRangeException();
     }
 
-    private static HopperInstructionMechanicsWord Word(ProgramDefinition program, int index)
+    private static InstructionMechanicsWord Word(ProgramDefinition program, int index)
     {
         if (index == 0)
             return new(program.Start, program.Jumping ? CommonEnemyInstructionCodes.EnableOffScreenProcessing
@@ -147,7 +142,7 @@ internal static class HopperInstructionProgramDefinitions
                 : CommonEnemyInstructionCodes.Sleep);
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         int orientation = index / 5;
@@ -173,7 +168,7 @@ internal static class HopperInstructionProgramDefinitions
         throw new InvalidDataException($"Hopper instruction mechanics pointer $A3:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa30000) return false;
         ushort bankAddress = unchecked((ushort)address);

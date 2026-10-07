@@ -1,18 +1,14 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled mechanics-owned word at its native bank-$A6 address.</summary>
-internal readonly record struct CeresDoorInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control and visual-selector words for all seven Ceres
 /// door/control-actor variants. Spritemap payloads remain separate artwork.
 /// </summary>
-internal static class CeresDoorInstructionProgramDefinitions
+internal abstract class CeresDoorInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
 {
     /// <summary>Native Ceres door instruction and visual bank $A6.</summary>
     internal const byte Bank = 0xa6;
+    static int IDeclaredProgramBank.Bank => Bank;
     /// <summary><c>Enemy_CeresDoor</c>, the bank-$A6 enemy definition at $A6:E23F.</summary>
     internal const ushort EnemyDefinitionPointer = 0xe23f;
     /// <summary>The initial Ceres door spritemap at $A6:FAC7.</summary>
@@ -153,7 +149,7 @@ internal static class CeresDoorInstructionProgramDefinitions
     internal const ushort RidleyEscapeMode7RightWallLoop = 0xf636;
 
     /// <summary>Mechanics follow the Ridley handoff, two relocated normal doors, and four wall actors.</summary>
-    internal static CeresDoorInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
@@ -180,7 +176,7 @@ internal static class CeresDoorInstructionProgramDefinitions
         return WallLoopWord((ushort)(RidleyEscapeMode7LeftWall + 10 * (index / 4)), index % 4);
     }
 
-    private static CeresDoorInstructionMechanicsWord WallLoopWord(ushort start, int index) => index switch
+    private static InstructionMechanicsWord WallLoopWord(ushort start, int index) => index switch
     {
         0 => new(start, CeresEnemyCodePointers.MakeCeresDoorIntangible),
         1 => new((ushort)(start + 2), 1),
@@ -188,7 +184,7 @@ internal static class CeresDoorInstructionProgramDefinitions
         _ => new((ushort)(start + 8), (ushort)(start + 2)),
     };
 
-    private static CeresDoorInstructionMechanicsWord NormalDoorWord(int index, int facing)
+    private static InstructionMechanicsWord NormalDoorWord(int index, int facing)
     {
         int start = NormalFacingRight + facing * (NormalFacingLeft - NormalFacingRight);
         if (index is >= 12 and < 16)
@@ -223,7 +219,7 @@ internal static class CeresDoorInstructionProgramDefinitions
         return new((ushort)(start + offset), value);
     }
 
-    private static CeresDoorInstructionMechanicsWord RidleyWord(int index)
+    private static InstructionMechanicsWord RidleyWord(int index)
     {
         if (index is >= 5 and < 9)
             return new((ushort)(RidleyRoomFacingRight + 12 + 4 * (index - 5)), 2);
@@ -255,10 +251,10 @@ internal static class CeresDoorInstructionProgramDefinitions
     /// <summary>Spritemap_CeresDoor_RidleyEscapeMode7RightWall at $A6:FB2F.</summary>
     private const ushort RightWallSpritemap = 0xfb2f;
 
-    internal static int MechanicsWordCount => 97;
-    internal static int PresentationWordCount => 33;
+    public static int MechanicsWordCount => 97;
+    public static int PresentationWordCount => 33;
 
-    internal static ushort PresentationWordAddress(int index) => PresentationWord(index).Address;
+    public static ushort PresentationWordAddress(int index) => PresentationWord(index).Address;
     internal static ushort PresentationWordFrame(int index) => PresentationWord(index).Frame;
 
     /// <summary>
@@ -347,7 +343,7 @@ internal static class CeresDoorInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            CeresDoorInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -360,7 +356,7 @@ internal static class CeresDoorInstructionProgramDefinitions
             $"Ceres door instruction mechanics pointer $A6:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa60000)
             return false;

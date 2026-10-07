@@ -20,7 +20,7 @@ internal static partial class Program
              index < YellowPipeBugInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            YellowPipeBugInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 YellowPipeBugInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadYellowPipeBugInstructionWord(rom, 0xb30000 | definition.Address),

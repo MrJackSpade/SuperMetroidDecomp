@@ -1,16 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled mechanics-owned word at its native bank-$A6 address.</summary>
-internal readonly record struct HibashiInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>Compiled mechanics words from Hibashi's paired graphics and hitbox programs.</summary>
 /// <remarks>
 /// Durations and instruction callbacks are immutable simulation data. The 24 interleaved
 /// spritemap selections resolve compiled identities to installed artwork.
 /// </remarks>
-internal static class HibashiInstructionProgramDefinitions
+internal abstract class HibashiInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>$A6:8D1B</c>, the visible eruption graphics program.</summary>
     internal const ushort GraphicsProgram = 0x8d1b;
@@ -25,10 +20,10 @@ internal static class HibashiInstructionProgramDefinitions
     /// <summary><c>Instruction_Hibashi_ActivityFrame1</c> at $A6:8E2D starts the twenty-byte activity callback stride.</summary>
     private const ushort FollowingActivityFrames = 0x8e2d;
 
-    internal static int MechanicsWordCount => 50;
-    internal static int PresentationWordCount => 24;
+    public static int MechanicsWordCount => 50;
+    public static int PresentationWordCount => 24;
 
-    internal static HibashiInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         int address = index switch
@@ -42,7 +37,7 @@ internal static class HibashiInstructionProgramDefinitions
         return new((ushort)address, ReadMechanicsWord((ushort)address));
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(index < 23 ? GraphicsProgram + 4 + index * 6 : HitboxProgram + 2);
@@ -81,7 +76,7 @@ internal static class HibashiInstructionProgramDefinitions
         return false;
     }
 
-    internal static bool IsCompiledMechanicsByte(int address) =>
+    public static bool IsCompiledMechanicsByte(int address) =>
         (address & 0xff0000) == 0xa60000 &&
         (TryRead((ushort)address, out _) || TryRead((ushort)address - 1, out _));
 }

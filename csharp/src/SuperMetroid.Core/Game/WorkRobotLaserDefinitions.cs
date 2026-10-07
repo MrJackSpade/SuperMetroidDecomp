@@ -22,17 +22,12 @@ internal static class WorkRobotLaserDefinitions
     internal const ushort DownRight = 0xd2de;
 }
 
-/// <summary>One compiled Work Robot laser mechanics word at its bank-$86 address.</summary>
-internal readonly record struct WorkRobotLaserInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for the shared Work Robot laser animation program.
 /// Interleaved sprite operands select installed artwork bindings; only asset
 /// import reads their native bank-$8D compositions from the cartridge.
 /// </summary>
-internal static class WorkRobotLaserInstructionProgramDefinitions
+internal abstract class WorkRobotLaserInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_EnemyProjectile_WreckedShipRobotLaser_0</c> at $86:D2EC.</summary>
     internal const ushort Initial = 0xd2ec;
@@ -45,10 +40,10 @@ internal static class WorkRobotLaserInstructionProgramDefinitions
     /// </summary>
     internal const ushort LoopCommand = 0xd308;
 
-    internal static int MechanicsWordCount => 9;
-    internal static int PresentationWordCount => 7;
+    public static int MechanicsWordCount => 9;
+    public static int PresentationWordCount => 7;
 
-    internal static WorkRobotLaserInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
@@ -60,7 +55,7 @@ internal static class WorkRobotLaserInstructionProgramDefinitions
         };
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
@@ -86,7 +81,7 @@ internal static class WorkRobotLaserInstructionProgramDefinitions
             $"Work Robot laser instruction mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
             return false;

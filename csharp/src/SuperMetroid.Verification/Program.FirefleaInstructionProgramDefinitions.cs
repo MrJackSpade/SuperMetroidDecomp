@@ -25,7 +25,7 @@ internal static partial class Program
              index < FirefleaInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            FirefleaInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 FirefleaInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadFirefleaInstructionWord(rom, definition.Address),

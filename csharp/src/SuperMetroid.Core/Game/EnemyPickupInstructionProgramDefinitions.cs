@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled enemy-pickup mechanics word at its bank-$86 address.</summary>
-internal readonly record struct EnemyPickupInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for the five live enemy-pickup animation programs. Their sixteen
 /// spritemap operands resolve through extracted presentation art.
 /// </summary>
-internal static class EnemyPickupInstructionProgramDefinitions
+internal abstract class EnemyPickupInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_EnemyProjectile_Pickup_SmallEnergy</c> at $86:ED8D.</summary>
     internal const ushort SmallEnergy = 0xed8d;
@@ -26,8 +21,8 @@ internal static class EnemyPickupInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_Pickup_PowerBombs</c> at $86:EDEB.</summary>
     internal const ushort PowerBombs = 0xedeb;
 
-    internal static int MechanicsWordCount => 30;
-    internal static int PresentationWordCount => 16;
+    public static int MechanicsWordCount => 30;
+    public static int PresentationWordCount => 16;
 
     /// <summary>
     /// Energy pickups display four frames for eight ticks each. Missiles display
@@ -47,7 +42,7 @@ internal static class EnemyPickupInstructionProgramDefinitions
     private readonly record struct PickupLoop(ushort Start, int Frames, ushort Duration, bool HasSleep)
     {
         internal int MechanicsWords => Frames + (HasSleep ? 3 : 2);
-        internal EnemyPickupInstructionMechanicsWord Word(int index)
+        internal InstructionMechanicsWord Word(int index)
         {
             if (index < Frames)
                 return new((ushort)(Start + 4 * index), Duration);
@@ -61,7 +56,7 @@ internal static class EnemyPickupInstructionProgramDefinitions
         }
     }
 
-    internal static EnemyPickupInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
@@ -75,7 +70,7 @@ internal static class EnemyPickupInstructionProgramDefinitions
         throw new IndexOutOfRangeException();
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
@@ -102,7 +97,7 @@ internal static class EnemyPickupInstructionProgramDefinitions
             $"Enemy-pickup mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
             return false;

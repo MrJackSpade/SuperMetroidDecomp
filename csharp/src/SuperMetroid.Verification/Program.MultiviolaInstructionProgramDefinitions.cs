@@ -17,7 +17,7 @@ internal static partial class Program
              index < MultiviolaInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            MultiviolaInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 MultiviolaInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadMultiviolaInstructionWord(rom, definition.Address),

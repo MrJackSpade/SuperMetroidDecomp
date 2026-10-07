@@ -1,11 +1,7 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct YellowPipeBugInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>Compiled control words for Yellow Brinstar Pipe Bug straight and arc loops.</summary>
-internal static class YellowPipeBugInstructionProgramDefinitions
+internal abstract class YellowPipeBugInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>$B3:8EFC</c>, straight flight facing left.</summary>
     internal const ushort FlyingLeft = 0x8efc;
@@ -16,11 +12,11 @@ internal static class YellowPipeBugInstructionProgramDefinitions
     /// <summary><c>$B3:8F38</c>, arcing flight facing right.</summary>
     internal const ushort ArcingRight = 0x8f38;
 
-    internal static int MechanicsWordCount => 24;
-    internal static int PresentationWordCount => 16;
+    public static int MechanicsWordCount => 24;
+    public static int PresentationWordCount => 16;
 
     /// <summary>Each loop displays four timed records followed by Goto and its target; all records calculate on demand.</summary>
-    internal static YellowPipeBugInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
@@ -30,7 +26,7 @@ internal static class YellowPipeBugInstructionProgramDefinitions
         return new(address, ReadMechanicsWord(address));
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
@@ -55,7 +51,7 @@ internal static class YellowPipeBugInstructionProgramDefinitions
             $"YellowPipeBug instruction mechanics pointer $B3:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xb30000)
             return false;

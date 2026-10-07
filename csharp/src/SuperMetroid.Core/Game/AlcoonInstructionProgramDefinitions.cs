@@ -1,14 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct AlcoonInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for Alcoon's walking, fire-volley, and airborne
 /// programs. Their interleaved spritemap operands select installed presentation frames.
 /// </summary>
-internal static class AlcoonInstructionProgramDefinitions
+internal abstract class AlcoonInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_Alcoon_FacingLeft_Walking_0</c> at $A8:DBE7.</summary>
     internal const ushort WalkingLeft = 0xdbe7;
@@ -32,10 +28,10 @@ internal static class AlcoonInstructionProgramDefinitions
     internal const ushort AirborneRightLookingForward = 0xdcc1;
 
     // Each facing occupies112 bytes: walking28, three-shot volley72, two sleeping poses12.
-    internal static int MechanicsWordCount => 68;
-    internal static int PresentationWordCount => 44;
+    public static int MechanicsWordCount => 68;
+    public static int PresentationWordCount => 44;
 
-    internal static AlcoonInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         int word = index % 34;
@@ -54,7 +50,7 @@ internal static class AlcoonInstructionProgramDefinitions
         return new(address, ReadMechanicsWord(address));
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         int frame = index % 22;
@@ -136,7 +132,7 @@ internal static class AlcoonInstructionProgramDefinitions
         return value != 0;
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa80000) return false;
         int offset = (ushort)address - WalkingLeft;

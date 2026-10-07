@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Norfair Rio mechanics word at its bank-$A2 address.</summary>
-internal readonly record struct NorfairRioInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled timing, private callbacks, and loop control for Norfair Rio parent and flame
 /// programs. Interleaved spritemap operands select extracted presentation frames.
 /// </summary>
-internal static class NorfairRioInstructionProgramDefinitions
+internal abstract class NorfairRioInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_Geruta_Main_Idle</c> at $A2:C0F1.</summary>
     internal const ushort Idle = 0xc0f1;
@@ -33,15 +28,15 @@ internal static class NorfairRioInstructionProgramDefinitions
     private static readonly ushort[] IdleHolds = [13, 18];
     private static readonly ushort[] FlightHolds = [6, 5, 8, 6];
 
-    internal static int MechanicsWordCount => 65;
-    internal static int PresentationWordCount => 34;
+    public static int MechanicsWordCount => 65;
+    public static int PresentationWordCount => 34;
 
     /// <summary>
     /// $A2:C0F1-C1B6: three parent loops, two callback/pose transition sequences,
     /// and two flame loops. Each timed pose occupies four bytes; interleaved
     /// follower-offset callbacks make the transition poses six bytes wide.
     /// </summary>
-    internal static NorfairRioInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         if (index < 7) return LoopWord(index, Idle, NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_8_duplicate, true);
@@ -53,7 +48,7 @@ internal static class NorfairRioInstructionProgramDefinitions
         return LoopWord(index - 59, FlamesDescending, 0, false);
     }
 
-    private static NorfairRioInstructionMechanicsWord LoopWord(int index, ushort start, ushort setup, bool idle)
+    private static InstructionMechanicsWord LoopWord(int index, ushort start, ushort setup, bool idle)
     {
         int frameStart = start;
         if (setup != 0)
@@ -66,7 +61,7 @@ internal static class NorfairRioInstructionProgramDefinitions
         return new((ushort)(frameStart + 16 + (index - 4) * 2), index == 4 ? CommonEnemyInstructionCodes.Goto : start);
     }
 
-    private static NorfairRioInstructionMechanicsWord TransitionWord(int index, ushort start, bool ascending)
+    private static InstructionMechanicsWord TransitionWord(int index, ushort start, bool ascending)
     {
         int poses = ascending ? 8 : 6;
         if (index < poses * 2)
@@ -98,7 +93,7 @@ internal static class NorfairRioInstructionProgramDefinitions
         _ => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negative10,
     };
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         if (index < 4) return (ushort)(Idle + 4 + index * 4);
@@ -132,7 +127,7 @@ internal static class NorfairRioInstructionProgramDefinitions
         throw new InvalidDataException($"Norfair Rio instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa20000) return false;
         ushort bankAddress = unchecked((ushort)address);

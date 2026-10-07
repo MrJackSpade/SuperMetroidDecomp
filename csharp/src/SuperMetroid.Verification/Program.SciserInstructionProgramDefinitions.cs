@@ -20,7 +20,7 @@ internal static partial class Program
              index < SciserInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            SciserInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 SciserInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadSciserInstructionWord(rom, definition.Address),

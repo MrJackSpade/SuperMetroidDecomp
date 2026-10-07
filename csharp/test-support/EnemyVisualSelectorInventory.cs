@@ -1,4 +1,3 @@
-using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -16,10 +15,6 @@ internal sealed record EnemyVisualSelectorInventory(
     /// <summary>Scans every Core instruction-program catalog's presentation operands against the cartridge.</summary>
     internal static EnemyVisualSelectorInventory Collect(ISnesAddressSpace rom)
     {
-        const BindingFlags staticFlags = BindingFlags.Static |
-            BindingFlags.NonPublic | BindingFlags.Public;
-        const BindingFlags instanceFlags = BindingFlags.Instance |
-            BindingFlags.NonPublic | BindingFlags.Public;
         int catalogs = 0;
         int discovered = 0;
         int operands = 0;
@@ -29,73 +24,39 @@ internal sealed record EnemyVisualSelectorInventory(
         var keyed = new Dictionary<int, ushort>();
         var families = new List<(string Name, int Ordinary, int Special)>();
 
-        foreach (Type type in typeof(RoomEnemySystem).Assembly.GetTypes()
-                     .Where(type => type.Name.EndsWith("InstructionProgramDefinitions",
-                         StringComparison.Ordinal))
-                     .OrderBy(type => type.Name, StringComparer.Ordinal))
+        // One-frame programs declare a single operand instead of an indexed list.
+        // Ignoring that shape omitted Kzan's live operand (#1166).
+        foreach (var catalog in InstructionProgramCatalog.All()
+                     .Where(catalog => catalog.PresentationOperands is not null || catalog.SinglePresentationOperand is not null))
         {
-            PropertyInfo? countProperty = type.GetProperty(
-                "PresentationWordCount", staticFlags);
-            FieldInfo? countField = type.GetField("PresentationWordCount", staticFlags);
-            object? countValue = countProperty?.GetValue(null) ??
-                (countField is { IsLiteral: true } ? countField.GetRawConstantValue() : null);
-            MethodInfo? addressMethod = type.GetMethod(
-                "PresentationWordAddress", staticFlags);
-            MethodInfo? mechanicsMethod = type.GetMethod("MechanicsWord", staticFlags);
-            MethodInfo? checkMethod = type.GetMethod(
-                "IsCompiledMechanicsByte", staticFlags);
-            // One-frame programs expose a constant instead of an indexed list.
-            // Ignoring that shape omitted Kzan's live operand (#1166).
-            FieldInfo? singleWord = type.GetField("PresentationWord", staticFlags);
-            if (addressMethod is null && singleWord is not { IsLiteral: true })
-                continue;
+            string name = catalog.Type.Name;
             discovered++;
-            if (addressMethod is not null && countValue is null)
-            {
-                unresolved.Add($"{type.Name}: no presentation-word count");
-                continue;
-            }
             catalogs++;
-            FieldInfo? bankField = type.GetField("Bank", staticFlags);
-            if (mechanicsMethod is null || (checkMethod is null && bankField is not { IsLiteral: true }))
+            if (catalog.MechanicsWords is null || (catalog.CompiledMechanicsByteProbe is null && catalog.DeclaredBank is null))
             {
-                unresolved.Add($"{type.Name}: no standard mechanics-word/bank probe");
+                unresolved.Add($"{name}: no standard mechanics-word/bank probe");
                 continue;
             }
-            object firstWord = mechanicsMethod.Invoke(null, [0])!;
-            PropertyInfo? addressProperty = firstWord.GetType().GetProperty(
-                "Address", instanceFlags);
-            if (addressProperty is null)
-            {
-                unresolved.Add($"{type.Name}: mechanics word has no address");
-                continue;
-            }
-            ushort firstAddress = Convert.ToUInt16(
-                addressProperty.GetValue(firstWord));
+            ushort firstAddress = catalog.MechanicsWords[0].Address;
             // A declared bank also covers catalogs with sparse mechanics words
             // but no byte-level ownership probe, such as the cutscene Baby.
-            int? declaredBank = bankField is { IsLiteral: true }
-                ? Convert.ToInt32(bankField.GetRawConstantValue()) : null;
+            int? declaredBank = catalog.DeclaredBank;
             if (declaredBank is > byte.MaxValue) declaredBank >>= 16;
             byte[] banks = declaredBank.HasValue
                 ? [checked((byte)declaredBank.Value)]
                 : Enumerable.Range(0x80, 0x60)
-                    .Where(bank => (bool)checkMethod!.Invoke(null,
-                        [(bank << 16) | firstAddress])!)
+                    .Where(bank => catalog.CompiledMechanicsByteProbe!((bank << 16) | firstAddress))
                     .Select(bank => (byte)bank).ToArray();
             if (banks.Length != 1)
             {
-                unresolved.Add($"{type.Name}: {banks.Length} matching banks");
+                unresolved.Add($"{name}: {banks.Length} matching banks");
                 continue;
             }
-            int count = addressMethod is null ? 1 : Convert.ToInt32(countValue);
+            IReadOnlyList<ushort> presentation = catalog.PresentationOperands ?? [catalog.SinglePresentationOperand!.Value];
             int familyOrdinary = 0;
             int familySpecial = 0;
-            for (int index = 0; index < count; index++)
+            foreach (ushort address in presentation)
             {
-                ushort address = Convert.ToUInt16(addressMethod is null
-                    ? singleWord!.GetRawConstantValue()
-                    : addressMethod.Invoke(null, [index]));
                 int source = (banks[0] << 16) | address;
                 ushort pointer = ReadWord(rom, source);
                 if (keyed.TryGetValue(source, out ushort previous) &&
@@ -122,7 +83,7 @@ internal sealed record EnemyVisualSelectorInventory(
                     familySpecial++;
                 }
             }
-            families.Add((type.Name, familyOrdinary, familySpecial));
+            families.Add((name, familyOrdinary, familySpecial));
         }
         // Ceres Baby deliberately split its old mixed presentation list into
         // independently typed OAM and palette operands. Only the former belong

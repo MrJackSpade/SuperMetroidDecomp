@@ -13,7 +13,7 @@ internal static partial class Program
              index < MotherBrainRoomPaletteProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            MotherBrainRoomPaletteMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 MotherBrainRoomPaletteProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 ReadMotherBrainRoomPaletteWord(rom, 0xa90000 | definition.Address),

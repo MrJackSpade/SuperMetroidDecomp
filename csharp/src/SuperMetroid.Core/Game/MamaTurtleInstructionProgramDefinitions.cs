@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled tatori-family mechanics word at its bank-$A2 address.</summary>
-internal readonly record struct MamaTurtleInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled timing, callbacks, and control flow for Mama Turtle and Baby Turtle programs.
 /// Interleaved spritemap selections resolve compiled identities to installed artwork.
 /// </summary>
-internal static class MamaTurtleInstructionProgramDefinitions
+internal abstract class MamaTurtleInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_BabyTurtle_CrawlingLeft</c> at $A2:8B80.</summary>
     internal const ushort BabyCrawlingLeft = 0x8b80;
@@ -52,10 +47,10 @@ internal static class MamaTurtleInstructionProgramDefinitions
     private static readonly ushort[] MamaLeaveDurations = [16, 5, 5, 96];
     /// <summary>A2:8C62/8D40 baby exit holds. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private static readonly ushort[] BabyLeaveDurations = [5, 47];
-    internal static int MechanicsWordCount => 117;
-    internal static int PresentationWordCount => 75;
+    public static int MechanicsWordCount => 117;
+    public static int PresentationWordCount => 75;
 
-    internal static MamaTurtleInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         for (int address = BabyCrawlingLeft; address < AdjacentMovementDefinitions; address += 2)
@@ -64,7 +59,7 @@ internal static class MamaTurtleInstructionProgramDefinitions
         throw new InvalidDataException("Turtle control layout is incomplete.");
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         // Every sub-$8000 control is a draw duration; its next word owns the artwork selector.
@@ -77,7 +72,7 @@ internal static class MamaTurtleInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address) => TryControl(address, out ushort value)
         ? value : throw new InvalidDataException($"Tatori instruction mechanics pointer $A2:{address:X4} is not compiled.");
 
-    internal static bool IsCompiledMechanicsByte(int address) =>
+    public static bool IsCompiledMechanicsByte(int address) =>
         (address & 0xff0000) == 0xa20000 && TryControl((ushort)(address & 0xfffe), out _);
 
     private static bool TryControl(ushort address, out ushort value) =>

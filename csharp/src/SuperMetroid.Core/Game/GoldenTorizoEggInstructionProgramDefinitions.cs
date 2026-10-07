@@ -1,16 +1,12 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct GoldenTorizoEggInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for Golden Torizo's egg programs at $86:B104-$B1C0. Their twenty-six
 /// interleaved spritemap operands are extracted presentation data; two packed sound IDs
 /// remain live cartridge audio data. The shot path reuses the compiled Torizo-orb
 /// wall-break list.
 /// </summary>
-internal static class GoldenTorizoEggInstructionProgramDefinitions
+internal abstract class GoldenTorizoEggInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InitAI_EnemyProjectile_GoldenTorizoEgg</c> at $86:B001.</summary>
     internal const ushort InitializationAi = 0xb001;
@@ -33,10 +29,10 @@ internal static class GoldenTorizoEggInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_GoldenTorizoEgg_Break_FacingRight</c> at $86:B1A8.</summary>
     internal const ushort BreakRight = 0xb1a8;
 
-    internal static int MechanicsWordCount => 53;
-    internal static int PresentationWordCount => 26;
+    public static int MechanicsWordCount => 53;
+    public static int PresentationWordCount => 26;
 
-    internal static GoldenTorizoEggInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         if (index < 16)
@@ -92,7 +88,7 @@ internal static class GoldenTorizoEggInstructionProgramDefinitions
             breakWord == 5 ? (ushort)(facing == 0 ? 10 : 8) : (ushort)4);
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         if (index < 8)
@@ -118,7 +114,7 @@ internal static class GoldenTorizoEggInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            GoldenTorizoEggInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address) return candidate.Value;
             if (candidate.Address < address) low = middle + 1;
             else high = middle - 1;
@@ -128,7 +124,7 @@ internal static class GoldenTorizoEggInstructionProgramDefinitions
             $"Golden Torizo egg mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if (TorizoChozoOrbInstructionProgramDefinitions.IsCompiledMechanicsByte(address) &&
             unchecked((ushort)address) is >= TorizoChozoOrbInstructionProgramDefinitions.WallImpact and <= 0xab40)

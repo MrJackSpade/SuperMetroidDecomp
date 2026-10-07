@@ -1,17 +1,12 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled mechanics-owned word at its native bank-$A6 address.</summary>
-internal readonly record struct BoulderInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>Compiled mechanics words from Boulder's mirrored rolling programs.</summary>
 /// <remarks>
 /// Frame durations and loop control are immutable simulation data. The sixteen
 /// interleaved visual selectors are compiled in
 /// <see cref="Assets.EnemySpritemapDefinitions"/>.
 /// </remarks>
-internal static class BoulderInstructionProgramDefinitions
+internal abstract class BoulderInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>$A6:86A7</c>, the eight-frame left-moving rolling loop.</summary>
     internal const ushort Left = 0x86a7;
@@ -19,10 +14,10 @@ internal static class BoulderInstructionProgramDefinitions
     /// <summary><c>$A6:86CB</c>, the eight-frame right-moving rolling loop.</summary>
     internal const ushort Right = 0x86cb;
 
-    internal static int MechanicsWordCount => 20;
-    internal static int PresentationWordCount => 16;
+    public static int MechanicsWordCount => 20;
+    public static int PresentationWordCount => 16;
 
-    internal static BoulderInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         int word = index % 10;
@@ -30,7 +25,7 @@ internal static class BoulderInstructionProgramDefinitions
         return new(address, ReadMechanicsWord(address));
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(Left + 36 * (index / 8) + 4 * (index % 8) + 2);
@@ -58,7 +53,7 @@ internal static class BoulderInstructionProgramDefinitions
             $"Boulder instruction mechanics pointer $A6:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa60000) return false;
         int offset = (ushort)address - Left;

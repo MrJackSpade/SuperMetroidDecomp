@@ -17,7 +17,7 @@ internal static partial class Program
              index < RioInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            RioInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 RioInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadRioInstructionWord(rom, definition.Address),

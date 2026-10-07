@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Zero mechanics word at its native bank-$A3 address.</summary>
-internal readonly record struct ZeroInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for Zero's four production-selected surface loops. The
 /// twenty-four spritemap selections resolve compiled identities to installed artwork.
 /// </summary>
-internal static class ZeroInstructionProgramDefinitions
+internal abstract class ZeroInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_Zero_UpsideRight_FacingDown_0</c> at $A3:984B.</summary>
     internal const ushort UpsideRight = 0x984b;
@@ -22,8 +17,8 @@ internal static class ZeroInstructionProgramDefinitions
     /// <summary>The retail-unused alternate upside-right program at $A3:982B.</summary>
     internal const ushort UnusedAlternateUpsideRight = 0x982b;
 
-    internal static int MechanicsWordCount => 40;
-    internal static int PresentationWordCount => 24;
+    public static int MechanicsWordCount => 40;
+    public static int PresentationWordCount => 24;
 
     private static ushort Entry(CrawlerSurfaceOrientation surface) => surface switch
     {
@@ -35,7 +30,7 @@ internal static class ZeroInstructionProgramDefinitions
     };
 
     /// <summary>Each selected surface sets its axis, displays six four-tick frames and loops without repeating setup.</summary>
-    internal static ZeroInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
@@ -53,7 +48,7 @@ internal static class ZeroInstructionProgramDefinitions
         };
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
@@ -66,7 +61,7 @@ internal static class ZeroInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            ZeroInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -79,7 +74,7 @@ internal static class ZeroInstructionProgramDefinitions
             $"Zero instruction mechanics pointer $A3:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa30000)
             return false;

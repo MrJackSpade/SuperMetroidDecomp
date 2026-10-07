@@ -1364,7 +1364,7 @@ internal static partial class Program
         int address = 0xc9cb;
         for (int index = 0; index < 7; index++)
         {
-            GoldenTorizoInitialMechanicsWord actual =
+            InstructionMechanicsWord actual =
                 GoldenTorizoInitialInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual((ushort)address, actual.Address, "Golden initial native instruction cursor");
             ushort native = (ushort)(rom.ReadByte(0xaa0000 | address) |

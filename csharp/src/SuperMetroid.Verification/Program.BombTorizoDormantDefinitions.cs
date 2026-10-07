@@ -17,7 +17,7 @@ internal static partial class Program
              index < BombTorizoDormantInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            BombTorizoDormantMechanicsWord word =
+            InstructionMechanicsWord word =
                 BombTorizoDormantInstructionProgramDefinitions.MechanicsWord(index);
             ushort native = ReadWord(word.Address);
             AssertEqual(native, word.Value,

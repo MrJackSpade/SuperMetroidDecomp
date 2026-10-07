@@ -29,7 +29,7 @@ internal static partial class Program
              index < ZebetiteInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            ZebetiteInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 ZebetiteInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadZebetiteInstructionWord(rom, definition.Address),

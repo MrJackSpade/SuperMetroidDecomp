@@ -2,16 +2,11 @@ using static SuperMetroid.Core.Game.InstructionItem;
 
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled mechanics-owned word at its native bank-$B2 address.</summary>
-internal readonly record struct WallSpacePirateInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for all wall Space Pirate body programs.
 /// Interleaved extended-spritemap pointers remain live cartridge presentation data.
 /// </summary>
-internal static class WallSpacePirateInstructionProgramDefinitions
+internal abstract class WallSpacePirateInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
 {
     /// <summary><c>InstList_PirateWall_FireLaser_WallJumpLeft</c> at $B2:ECC0.</summary>
     internal const ushort FireAndJumpLeft = 0xecc0;
@@ -73,6 +68,7 @@ internal static class WallSpacePirateInstructionProgramDefinitions
 
     /// <summary>Native program bank $B2.</summary>
     internal const byte Bank = 0xb2;
+    static int IDeclaredProgramBank.Bank => Bank;
 
     private static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xecc0),
@@ -187,19 +183,19 @@ internal static class WallSpacePirateInstructionProgramDefinitions
         Op(CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate, PirateWallMovingUpRightWall1),
         Op(PirateWallRandomlyChooseADirectionRightWall));
 
-    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
-    internal static int PresentationWordCount => Layout.PresentationSlotCount;
-    internal static WallSpacePirateInstructionMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => Layout.MechanicsWordCount;
+    public static int PresentationWordCount => Layout.PresentationSlotCount;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         (ushort address, ushort value) = Layout.MechanicsWord(index);
         return new(address, value);
     }
-    internal static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
+    public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(
                 $"Wall Space Pirate instruction mechanics pointer $B2:{address:X4} is not compiled.");
 
-    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
+    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

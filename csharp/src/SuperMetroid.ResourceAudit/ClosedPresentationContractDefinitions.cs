@@ -81,7 +81,7 @@ internal static class ClosedPresentationContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/MotherBrainHealthPalettePresentation.cs", "05E148A6572B5F7FC629794FC4F0853D9E73DC2D861C721B4843CBB7FF3169E4"),
              new("csharp/src/SuperMetroid.Core/Assets/MotherBrainHealthPaintDefinitions.cs", "CED903B0B3BD50BFD557B00AF84843408D5E3476F04BAA309BE6C043B101C37D"),
              new("csharp/src/SuperMetroid.Core/Game/MotherBrainRoomPaletteProgramDefinitions.cs",
-                "B498159F68527B4428D6AADFCC65881BD4F6820D0C6266AD22830F451D17A39B")],
+                "8DF2C86FD271EC092B568582EBDD8FBA84E2DDC4E945AA3C3F93528D689CE938")],
             "The validated loader installs all fourteen aligned flash rows, seven recovery-light " +
             "rows and the fixed final/phase-two/room-entry arrays before private construction. " +
             "Legacy omissions inherit only from validated stock. Flash alignment/range and recovery " +

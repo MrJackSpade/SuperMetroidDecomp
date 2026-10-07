@@ -1,14 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct CacatacProjectileInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for all ten Cacatac spike projectile programs.
 /// Their interleaved spritemap operands remain live cartridge presentation data.
 /// </summary>
-internal static class CacatacProjectileInstructionProgramDefinitions
+internal abstract class CacatacProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_EnemyProjectile_CacatacSpike_Left_FacingUp</c> at $86:D92E.</summary>
     internal const ushort LeftFacingUp = 0xd92e;
@@ -33,10 +29,10 @@ internal static class CacatacProjectileInstructionProgramDefinitions
 
     /// <summary>Ten six-byte direction programs: one-frame drawing followed by sleep.</summary>
     private const int ProgramCount = 10;
-    internal static int MechanicsWordCount => 2 * ProgramCount;
-    internal static int PresentationWordCount => ProgramCount;
+    public static int MechanicsWordCount => 2 * ProgramCount;
+    public static int PresentationWordCount => ProgramCount;
 
-    internal static CacatacProjectileInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         bool sleep = (index & 1) != 0;
@@ -44,7 +40,7 @@ internal static class CacatacProjectileInstructionProgramDefinitions
             sleep ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep : (ushort)1);
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= ProgramCount) throw new IndexOutOfRangeException();
         return (ushort)(LeftFacingUp + 6 * index + 2);
@@ -61,7 +57,7 @@ internal static class CacatacProjectileInstructionProgramDefinitions
             $"Cacatac spike instruction mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0x860000)
             return false;

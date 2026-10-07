@@ -1,8 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct GoldenTorizoAwakeningMechanicsWord(
-    ushort Address, ushort Value);
-
 /// <summary>
 /// The bounded continuation of <c>InstList_GoldenTorizo_Initial_0</c> at
 /// $AA:C9E2-CACD: fall, sitting-down tile swaps, standing-up animation,
@@ -10,7 +7,7 @@ internal readonly record struct GoldenTorizoAwakeningMechanicsWord(
 /// interleaved extended-spritemap selectors are presentation data; the eight
 /// $814B upload descriptors and their pixels have separate installed owners.
 /// </summary>
-internal static class GoldenTorizoAwakeningInstructionProgramDefinitions
+internal abstract class GoldenTorizoAwakeningInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary>First instruction after the Samus-position sleep at $AA:C9E2.</summary>
     internal const ushort Start = 0xc9e2;
@@ -28,14 +25,14 @@ internal static class GoldenTorizoAwakeningInstructionProgramDefinitions
         StandFirstHold = 32, StandSecondHold = 12, StandRemainingHold = 8,
         ColorHold = 4, ColorIterations = 16, HandoffHold = 16;
 
-    internal static int MechanicsWordCount => 69;
-    internal static int PresentationWordCount => 21;
-    internal static GoldenTorizoAwakeningMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => 69;
+    public static int PresentationWordCount => 21;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         return Select(index, visual: false);
     }
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return Select(index, visual: true).Address;
@@ -46,7 +43,7 @@ internal static class GoldenTorizoAwakeningInstructionProgramDefinitions
     /// two, and each DMA opcode plus its separately owned descriptor occupies nine.
     /// Sitting movement traverses word offsets4,2,0; standing traverses0..10.
     /// </summary>
-    private static GoldenTorizoAwakeningMechanicsWord Select(int index, bool visual)
+    private static InstructionMechanicsWord Select(int index, bool visual)
     {
         var layout = new Layout(index, visual);
         layout.Function(FallingFunction);
@@ -97,7 +94,7 @@ internal static class GoldenTorizoAwakeningInstructionProgramDefinitions
     {
         internal ushort Cursor { get; private set; } = Start;
         private int mechanics, presentation;
-        internal GoldenTorizoAwakeningMechanicsWord Result { get; private set; }
+        internal InstructionMechanicsWord Result { get; private set; }
         internal void Word(ushort value)
         {
             if (!visual && mechanics == requested) Result = new(Cursor, value);
@@ -132,7 +129,7 @@ internal static class GoldenTorizoAwakeningInstructionProgramDefinitions
         return false;
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xaa0000)
             return false;

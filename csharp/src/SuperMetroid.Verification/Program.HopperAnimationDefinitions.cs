@@ -16,7 +16,7 @@ internal static partial class Program
              index < HopperInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            HopperInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 HopperInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 definition.Value,

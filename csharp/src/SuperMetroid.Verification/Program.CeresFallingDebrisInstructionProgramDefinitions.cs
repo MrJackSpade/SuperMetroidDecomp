@@ -17,7 +17,7 @@ internal static partial class Program
              index < CeresFallingDebrisInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            CeresFallingDebrisInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 CeresFallingDebrisInstructionProgramDefinitions.MechanicsWord(index);
             ushort native = unchecked((ushort)(
                 rom.ReadByte(EnemyProjectileCodePointers.BankBase | definition.Address) |

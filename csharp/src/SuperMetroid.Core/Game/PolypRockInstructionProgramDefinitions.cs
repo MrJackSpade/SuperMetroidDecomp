@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Polyp-rock mechanics word at its bank-$86 address.</summary>
-internal readonly record struct PolypRockInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for Polyp's single-frame lava-rock animation.
 /// Its sprite operand selects installed presentation artwork.
 /// </summary>
-internal static class PolypRockInstructionProgramDefinitions
+internal abstract class PolypRockInstructionProgramDefinitions : IInstructionProgramCatalog, ISinglePresentationOperand, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_EnemyProjectile_NorfairLavaquakeRocks</c> at $86:BBD5.</summary>
     internal const ushort Initial = 0xbbd5;
@@ -21,6 +16,7 @@ internal static class PolypRockInstructionProgramDefinitions
 
     /// <summary>Spritemap operand at $86:BBD7.</summary>
     internal const ushort PresentationWord = 0xbbd7;
+    static ushort ISinglePresentationOperand.PresentationWord => PresentationWord;
 
     /// <summary>EnemyProjSpritemaps_LavaquakeRocks at $8D:9340, selected by $86:BBD7.</summary>
     internal const ushort Spritemap = 0x9340;
@@ -29,9 +25,9 @@ internal static class PolypRockInstructionProgramDefinitions
         ? Spritemap
         : throw new InvalidDataException($"Unknown Polyp-rock visual operand $86:{operandAddress:X4}.");
 
-    internal static int MechanicsWordCount => 2;
+    public static int MechanicsWordCount => 2;
     /// <summary>$86:BBD5-BBD9 installs one static rock pose then sleeps.</summary>
-    internal static PolypRockInstructionMechanicsWord MechanicsWord(int index) => index switch
+    public static InstructionMechanicsWord MechanicsWord(int index) => index switch
     {
         0 => new(Initial, 1),
         1 => new(Sleep, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
@@ -45,7 +41,7 @@ internal static class PolypRockInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            PolypRockInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -58,7 +54,7 @@ internal static class PolypRockInstructionProgramDefinitions
             $"Polyp-rock instruction mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
             return false;

@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled generic enemy-death mechanics word at its bank-$86 address.</summary>
-internal readonly record struct EnemyDeathInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for the five generic enemy-death animations and their shared blank
 /// respawn tail. The thirty-one spritemap operands resolve through extracted presentation art.
 /// </summary>
-internal static class EnemyDeathInstructionProgramDefinitions
+internal abstract class EnemyDeathInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_EnemyProjectile_Pickup_HandleRespawningEnemy</c> at $86:ECA3.</summary>
     internal const ushort RespawnTail = 0xeca3;
@@ -50,10 +45,10 @@ internal static class EnemyDeathInstructionProgramDefinitions
     /// <summary>Samus-contact death pose hold 2 at $86:EDFF..EE3D. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort ContactDeathPoseDuration = 2;
 
-    internal static int MechanicsWordCount => 66;
-    internal static int PresentationWordCount => 31;
+    public static int MechanicsWordCount => 66;
+    public static int PresentationWordCount => 31;
 
-    internal static EnemyDeathInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         int address;
@@ -66,7 +61,7 @@ internal static class EnemyDeathInstructionProgramDefinitions
         return new((ushort)address, ReadMechanicsWord((ushort)address));
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(index switch
@@ -99,7 +94,7 @@ internal static class EnemyDeathInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address) => TryWord(address, out ushort value)
         ? value : throw new InvalidDataException($"Generic enemy-death mechanics pointer $86:{address:X4} is not compiled.");
 
-    internal static bool IsCompiledMechanicsByte(int address) =>
+    public static bool IsCompiledMechanicsByte(int address) =>
         (address & 0xff0000) == EnemyProjectileCodePointers.BankBase &&
         (TryWord(unchecked((ushort)address), out _) || TryWord(unchecked((ushort)(address - 1)), out _));
 

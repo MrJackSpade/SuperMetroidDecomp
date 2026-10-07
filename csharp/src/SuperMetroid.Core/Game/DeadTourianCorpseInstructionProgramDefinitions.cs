@@ -1,14 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct DeadTourianCorpseInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for the dead Zoomer, Ripper, and Skree corpse
 /// programs. Their eight spritemap operands select separately installed presentation data.
 /// </summary>
-internal static class DeadTourianCorpseInstructionProgramDefinitions
+internal abstract class DeadTourianCorpseInstructionProgramDefinitions : IInstructionProgramCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_CorpseZoomer_Param1_0</c> at $A9:ECF5.</summary>
     internal const ushort Zoomer0 = 0xecf5;
@@ -38,10 +34,10 @@ internal static class DeadTourianCorpseInstructionProgramDefinitions
     internal const ushort FirstAdjacentPresentationData = 0xed25;
 
     internal static int ProgramCount => 8;
-    internal static int MechanicsWordCount => 16;
+    public static int MechanicsWordCount => 16;
     internal static ushort Program(int index) => (uint)index < ProgramCount
         ? (ushort)(Zoomer0+6*index) : throw new IndexOutOfRangeException();
-    internal static DeadTourianCorpseInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         ushort start = Program(index/2);
@@ -61,7 +57,7 @@ internal static class DeadTourianCorpseInstructionProgramDefinitions
             $"Dead Tourian corpse instruction mechanics pointer $A9:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa90000)
             return false;

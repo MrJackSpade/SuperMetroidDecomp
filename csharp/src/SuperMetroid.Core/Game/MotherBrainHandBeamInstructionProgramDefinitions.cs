@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Executable layout of the three recursive hand-beam stages at $86:C796-C7FA.</summary>
-internal static class MotherBrainHandBeamInstructionProgramDefinitions
+internal abstract class MotherBrainHandBeamInstructionProgramDefinitions : IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary>$86:C796, shared charging/fired hand-beam instruction list.</summary>
     internal const ushort Initial = 0xc796;
@@ -24,10 +24,10 @@ internal static class MotherBrainHandBeamInstructionProgramDefinitions
 
     internal static int NativeWordCount => StageCount * WordsPerStage + 1;
     internal static int ExternalCallCount => StageCount;
-    internal static int PresentationWordCount => StageCount * FramesPerStage;
+    public static int PresentationWordCount => StageCount * FramesPerStage;
 
     /// <summary>Calculates the interleaved spritemap operand, skipping the first frame's external call.</summary>
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(StageStart(index / FramesPerStage) + FrameOffset(index % FramesPerStage) + sizeof(ushort));
@@ -59,7 +59,7 @@ internal static class MotherBrainHandBeamInstructionProgramDefinitions
             $"Mother Brain hand-beam external call ${instructionAddress:X4} is not translated.");
     }
 
-    internal static EnemyProjectileMechanicsWordDefinition NativeWord(int index)
+    internal static InstructionMechanicsWord NativeWord(int index)
     {
         if ((uint)index >= NativeWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         if (index == NativeWordCount - 1) return new(TerminalDelete, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
@@ -75,7 +75,7 @@ internal static class MotherBrainHandBeamInstructionProgramDefinitions
         return (ushort)(StageStart(index) + FrameBytes);
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
         int bankAddress = (ushort)address;

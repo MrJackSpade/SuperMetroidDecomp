@@ -19,7 +19,7 @@ internal static partial class Program
              index < YappingMawBodyProjectileInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            YappingMawBodyProjectileInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 YappingMawBodyProjectileInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadYappingMawBodyProjectileInstructionWord(rom, definition.Address),

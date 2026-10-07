@@ -1,16 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled mechanics-owned word at its native bank-$A3 address.</summary>
-internal readonly record struct WaverInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>Compiled mechanics words from Waver's steady and spinning programs.</summary>
 /// <remarks>
 /// Durations, spin completion, and terminal sleeps are immutable simulation data. The
 /// ten interleaved spritemap pointers remain live cartridge presentation data.
 /// </remarks>
-internal static class WaverInstructionProgramDefinitions
+internal abstract class WaverInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>$A3:86A7</c>, steady animation facing left.</summary>
     internal const ushort SteadyFacingLeft = 0x86a7;
@@ -24,11 +19,11 @@ internal static class WaverInstructionProgramDefinitions
     /// <summary><c>$A3:86C7</c>, four-frame spin facing right.</summary>
     internal const ushort SpinningFacingRight = 0x86c7;
 
-    internal static int MechanicsWordCount => 16;
-    internal static int PresentationWordCount => 10;
+    public static int MechanicsWordCount => 16;
+    public static int PresentationWordCount => 10;
 
     /// <summary>Two steady frame/sleep programs followed by two four-frame spin/completion/sleep programs.</summary>
-    internal static WaverInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
@@ -49,7 +44,7 @@ internal static class WaverInstructionProgramDefinitions
         };
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
@@ -64,7 +59,7 @@ internal static class WaverInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            WaverInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -77,7 +72,7 @@ internal static class WaverInstructionProgramDefinitions
             $"Waver instruction mechanics pointer $A3:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa30000)
             return false;

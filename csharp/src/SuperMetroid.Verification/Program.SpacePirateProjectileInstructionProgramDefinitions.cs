@@ -17,7 +17,7 @@ internal static partial class Program
              index < SpacePirateProjectileInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            SpacePirateProjectileInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 SpacePirateProjectileInstructionProgramDefinitions.MechanicsWord(index);
             ushort native = unchecked((ushort)(
                 rom.ReadByte(EnemyProjectileCodePointers.BankBase | definition.Address) |

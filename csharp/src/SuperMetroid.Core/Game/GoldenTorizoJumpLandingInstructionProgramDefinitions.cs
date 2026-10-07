@@ -1,26 +1,23 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct GoldenTorizoJumpLandingMechanicsWord(
-    ushort Address, ushort Value);
-
 /// <summary>
 /// Bank-$AA Golden Torizo backward-jump landing lists at $AA:CDAF-CDD6.
 /// Each landing chooses its foot/facing-specific orb or sonic attack, then
 /// returns to the matching walking leg. These are control-flow operands, not
 /// editable animation or sprite data.
 /// </summary>
-internal static class GoldenTorizoJumpLandingInstructionProgramDefinitions
+internal abstract class GoldenTorizoJumpLandingInstructionProgramDefinitions : IInstructionProgramCatalog, ICompiledMechanicsByteProbe
 {
     internal const ushort Start = 0xcdaf;
     internal const ushort End = 0xcdd7;
 
-    internal static int MechanicsWordCount => 4 * 5;
+    public static int MechanicsWordCount => 4 * 5;
 
     /// <summary>
     /// $AA:CDAF-CDD6: each of four facing/forward-foot cases calls an orb or sonic
     /// attack and returns to the opposite moving leg. Five words comprise each case.
     /// </summary>
-    internal static GoldenTorizoJumpLandingMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         int landing = index / 5;
@@ -53,7 +50,7 @@ internal static class GoldenTorizoJumpLandingInstructionProgramDefinitions
     {
         for (int index = 0; index < MechanicsWordCount; index++)
         {
-            GoldenTorizoJumpLandingMechanicsWord word = MechanicsWord(index);
+            InstructionMechanicsWord word = MechanicsWord(index);
             if (word.Address != address) continue;
             value = word.Value;
             return true;
@@ -62,14 +59,14 @@ internal static class GoldenTorizoJumpLandingInstructionProgramDefinitions
         return false;
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xaa0000)
             return false;
         ushort offset = unchecked((ushort)address);
         for (int index = 0; index < MechanicsWordCount; index++)
         {
-            GoldenTorizoJumpLandingMechanicsWord word = MechanicsWord(index);
+            InstructionMechanicsWord word = MechanicsWord(index);
             if (offset == word.Address || offset == unchecked((ushort)(word.Address + 1)))
                 return true;
         }

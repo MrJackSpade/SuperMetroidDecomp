@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Tourian entrance-statue mechanics word in bank $AA.</summary>
-internal readonly record struct TourianEntranceStatueInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled initial selectors and inert delete programs for the three entrance-statue
 /// enemy slots. The visible base and boss icons are separate bank-$86 projectile actors.
 /// </summary>
-internal static class TourianEntranceStatueInstructionProgramDefinitions
+internal abstract class TourianEntranceStatueInstructionProgramDefinitions : IInstructionProgramCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_TourianStatue_Ridley_0</c> at $AA:D7A5.</summary>
     internal const ushort Ridley = 0xd7a5;
@@ -20,14 +15,14 @@ internal static class TourianEntranceStatueInstructionProgramDefinitions
     /// <summary>First unused visible-loop list immediately after the live programs.</summary>
     internal const ushort AdjacentUnusedProgram = 0xd7bb;
 
-    internal static int MechanicsWordCount => 3;
+    public static int MechanicsWordCount => 3;
 
     /// <summary>
     /// $AA:D7A5/D7AF/D7B9: each live list stops immediately. The native layout
     /// separates entries by the two-byte stop plus an unused four-byte pose
     /// and four-byte back-edge; unused presentation remains outside this catalog.
     /// </summary>
-    internal static TourianEntranceStatueInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         return new((ushort)(Ridley + index * (2 + 4 + 4)), CommonEnemyInstructionCodes.StopScript);
@@ -58,7 +53,7 @@ internal static class TourianEntranceStatueInstructionProgramDefinitions
             $"Tourian entrance-statue mechanics pointer $AA:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xaa0000)
             return false;

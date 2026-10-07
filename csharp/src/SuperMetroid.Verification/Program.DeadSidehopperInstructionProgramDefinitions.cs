@@ -17,7 +17,7 @@ internal static partial class Program
              index < DeadSidehopperInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            DeadSidehopperInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 DeadSidehopperInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadDeadSidehopperInstructionWord(rom, definition.Address),

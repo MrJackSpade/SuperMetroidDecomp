@@ -2,7 +2,7 @@ using static SuperMetroid.Core.Game.InstructionItem;
 
 namespace SuperMetroid.Core.Game;
 
-internal static partial class TorizoInstructionProgramDefinitions
+internal abstract partial class TorizoInstructionProgramDefinitions
 {
     /// <summary>Shared instruction items at $AA:B0E5..B223; native list names identify each group.</summary>
     private static InstructionItem[] SharedItems =>

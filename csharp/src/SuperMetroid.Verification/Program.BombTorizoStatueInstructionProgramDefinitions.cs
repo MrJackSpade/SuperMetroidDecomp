@@ -22,7 +22,7 @@ internal static partial class Program
              index < BombTorizoStatueInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            BombTorizoStatueInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 BombTorizoStatueInstructionProgramDefinitions.MechanicsWord(index);
             ushort native = unchecked((ushort)(
                 rom.ReadByte(EnemyProjectileCodePointers.BankBase | definition.Address) |

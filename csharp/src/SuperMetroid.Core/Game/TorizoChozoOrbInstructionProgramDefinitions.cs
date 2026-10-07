@@ -1,14 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct TorizoChozoOrbInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for Bomb and Golden Torizo's Chozo-orb programs at $86:AB15-$AB89.
 /// Their eighteen interleaved spritemap operands use extracted presentation art.
 /// </summary>
-internal static class TorizoChozoOrbInstructionProgramDefinitions
+internal abstract class TorizoChozoOrbInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_EnemyProjectile_TorizoChozoOrbs_Left</c> at $86:AB15.</summary>
     internal const ushort MovingLeft = 0xab15;
@@ -25,10 +21,10 @@ internal static class TorizoChozoOrbInstructionProgramDefinitions
     /// <summary><c>EnemyHeaders_GoldenTorizoOrb</c> at $A0:EFBF.</summary>
     internal const ushort GoldenOrbEnemyHeader = 0xefbf;
 
-    internal static int MechanicsWordCount => 40;
-    internal static int PresentationWordCount => 18;
+    public static int MechanicsWordCount => 40;
+    public static int PresentationWordCount => 18;
 
-    internal static TorizoChozoOrbInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         if (index < 6)
@@ -63,7 +59,7 @@ internal static class TorizoChozoOrbInstructionProgramDefinitions
     }
 
     /// <summary>Wall and shot impacts share property setup and five four-tick poses; only shot impact emits drops.</summary>
-    private static TorizoChozoOrbInstructionMechanicsWord ImpactWord(ushort start, int index, bool shot)
+    private static InstructionMechanicsWord ImpactWord(ushort start, int index, bool shot)
     {
         if (index is >= 3 and < 8)
             return new((ushort)(start + 6 + 4 * (index - 3)), 4);
@@ -81,7 +77,7 @@ internal static class TorizoChozoOrbInstructionProgramDefinitions
         return new((ushort)(start + offset), value);
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         if (index < 2) return (ushort)(MovingLeft + 2 + 8 * index);
@@ -100,7 +96,7 @@ internal static class TorizoChozoOrbInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            TorizoChozoOrbInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address) return candidate.Value;
             if (candidate.Address < address) low = middle + 1;
             else high = middle - 1;
@@ -110,7 +106,7 @@ internal static class TorizoChozoOrbInstructionProgramDefinitions
             $"Torizo Chozo-orb mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
         ushort bankAddress = unchecked((ushort)address);

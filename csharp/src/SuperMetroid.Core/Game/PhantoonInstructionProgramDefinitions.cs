@@ -2,17 +2,12 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Phantoon instruction mechanics word at its bank-$A7 address.</summary>
-internal readonly record struct PhantoonInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled timing, control flow, and callback operands for Phantoon's four enemy
 /// records. Physical frame selectors are compiled separately; installed display
 /// bindings may replace their BG2/OAM art without changing mechanics or timing.
 /// </summary>
-internal static class PhantoonInstructionProgramDefinitions
+internal abstract class PhantoonInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_Phantoon_Body_Invulnerable</c> at $A7:CC41.</summary>
     public const ushort InvulnerableBody = 0xcc41;
@@ -62,11 +57,11 @@ internal static class PhantoonInstructionProgramDefinitions
     /// <summary>Mouth preparation dwell at A7:CCEB/CCEF. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort MouthPreparationFrames = 5;
 
-    internal static int MechanicsWordCount => 58;
-    internal static int PresentationWordCount => 27;
+    public static int MechanicsWordCount => 58;
+    public static int PresentationWordCount => 27;
 
     /// <summary>Calculates control positions from named sleep, transition, callback and loop layouts.</summary>
-    internal static PhantoonInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         if (index < 6) return SleepWord((ushort)(InvulnerableBody + index / 2 * 6), index % 2);
@@ -115,13 +110,13 @@ internal static class PhantoonInstructionProgramDefinitions
         return SleepWord(InitialMouth, index - 56);
     }
 
-    private static PhantoonInstructionMechanicsWord Frame(ushort start, int frame, ushort duration) =>
+    private static InstructionMechanicsWord Frame(ushort start, int frame, ushort duration) =>
         new((ushort)(start + frame * 4), duration);
 
-    private static PhantoonInstructionMechanicsWord SleepWord(ushort start, int word) =>
+    private static InstructionMechanicsWord SleepWord(ushort start, int word) =>
         new((ushort)(start + word * 4), word == 0 ? (ushort)1 : CommonEnemyInstructionCodes.Sleep);
 
-    private static PhantoonInstructionMechanicsWord CloseWord(ushort start, int word, bool pickPattern)
+    private static InstructionMechanicsWord CloseWord(ushort start, int word, bool pickPattern)
     {
         if (word < 2) return Frame(start, word, word == 0 ? (ushort)1 : EyeTransitionFrames);
         int command = word - 2;
@@ -135,7 +130,7 @@ internal static class PhantoonInstructionProgramDefinitions
     }
 
     /// <summary>Only four-byte pose records contribute visual operands; control commands leave gaps.</summary>
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         if (index < 3) return (ushort)(InvulnerableBody + index * 6 + 2);
@@ -201,7 +196,7 @@ internal static class PhantoonInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            PhantoonInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (address == candidate.Address)
                 return candidate.Value;
             if (address < candidate.Address)
@@ -214,7 +209,7 @@ internal static class PhantoonInstructionProgramDefinitions
             $"Phantoon instruction mechanics pointer $A7:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa70000)
             return false;

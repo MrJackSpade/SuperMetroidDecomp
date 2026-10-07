@@ -19,7 +19,7 @@ internal static partial class Program
              index < MagdolliteLavaInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            MagdolliteLavaInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 MagdolliteLavaInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 definition.Value,
@@ -31,7 +31,7 @@ internal static partial class Program
              index < CommonEnemyProjectileInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            CommonEnemyProjectileInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 CommonEnemyProjectileInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 definition.Value,

@@ -30,7 +30,7 @@ internal static partial class Program
              index < EnemyDeathInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            EnemyDeathInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 EnemyDeathInstructionProgramDefinitions.MechanicsWord(index);
             ushort native = unchecked((ushort)(
                 rom.ReadByte(EnemyProjectileCodePointers.BankBase | definition.Address) |

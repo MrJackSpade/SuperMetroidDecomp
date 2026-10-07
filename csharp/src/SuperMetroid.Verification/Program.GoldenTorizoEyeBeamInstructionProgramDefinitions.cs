@@ -18,7 +18,7 @@ internal static partial class Program
              index < GoldenTorizoEyeBeamInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            GoldenTorizoEyeBeamInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 GoldenTorizoEyeBeamInstructionProgramDefinitions.MechanicsWord(index);
             ushort native = unchecked((ushort)(
                 rom.ReadByte(EnemyProjectileCodePointers.BankBase | definition.Address) |

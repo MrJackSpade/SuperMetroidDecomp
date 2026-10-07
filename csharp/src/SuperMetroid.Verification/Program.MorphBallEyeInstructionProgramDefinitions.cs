@@ -76,7 +76,7 @@ internal static partial class Program
              index < MorphBallEyeInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            MorphBallEyeInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 MorphBallEyeInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadMorphBallEyeInstructionWord(rom, definition.Address),

@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Draygon projectile mechanics word at its bank-$86 address.</summary>
-internal readonly record struct DraygonProjectileInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for Draygon goop and wall-turret projectile instruction lists.
 /// Interleaved spritemap operands remain live cartridge presentation data.
 /// </summary>
-internal static class DraygonProjectileInstructionProgramDefinitions
+internal abstract class DraygonProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_EnemyProjectile_DraygonGoop_Touch</c> at $86:8C38.</summary>
     internal const ushort GoopTouch = 0x8c38;
@@ -26,10 +21,10 @@ internal static class DraygonProjectileInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_DraygonsWallTurretProjectile_1</c> at $86:8CE6.</summary>
     internal const ushort WallTurretFlight = 0x8ce6;
 
-    internal static int MechanicsWordCount => 38;
-    internal static int PresentationWordCount => 27;
+    public static int MechanicsWordCount => 38;
+    public static int PresentationWordCount => 27;
 
-    internal static DraygonProjectileInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
@@ -47,7 +42,7 @@ internal static class DraygonProjectileInstructionProgramDefinitions
         return new((ushort)address, ReadMechanicsWord((ushort)address));
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
@@ -110,7 +105,7 @@ internal static class DraygonProjectileInstructionProgramDefinitions
         return offset >= 0 && offset < frames * 4 && offset % 4 == 0;
     }
 
-    internal static bool IsCompiledMechanicsByte(int address) =>
+    public static bool IsCompiledMechanicsByte(int address) =>
         (address & 0xff0000) == EnemyProjectileCodePointers.BankBase &&
         TryRead((ushort)(address & ~1), out _);
 }

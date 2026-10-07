@@ -1,17 +1,12 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled mechanics-owned word at its native bank-$A8 address.</summary>
-internal readonly record struct FuneNamiheInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>Compiled mechanics words from all eight Fune and Namihe instruction programs.</summary>
 /// <remarks>
 /// Durations, callbacks, common sleep/goto opcodes, and loop targets affect simulation and
 /// live here. Each word following a duration selects replaceable spritemap presentation and
 /// resolves through separately compiled presentation selectors.
 /// </remarks>
-internal static class FuneNamiheInstructionProgramDefinitions
+internal abstract class FuneNamiheInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>$A8:939F</c>, active left-facing Fune program.</summary>
     internal const ushort FuneActiveLeft = 0x939f;
@@ -37,10 +32,10 @@ internal static class FuneNamiheInstructionProgramDefinitions
     /// <summary><c>$A8:95F1</c>, idle right-facing Namihe program.</summary>
     internal const ushort NamiheIdleRight = 0x95f1;
 
-    internal static int MechanicsWordCount => 62;
-    internal static int PresentationWordCount => 38;
+    public static int MechanicsWordCount => 62;
+    public static int PresentationWordCount => 38;
 
-    internal static FuneNamiheInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         bool namihe = index >= 30;
@@ -59,7 +54,7 @@ internal static class FuneNamiheInstructionProgramDefinitions
         return new(address, ReadMechanicsWord(address));
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         bool namihe = index >= 18;
@@ -121,7 +116,7 @@ internal static class FuneNamiheInstructionProgramDefinitions
             $"Fune/Namihe instruction mechanics pointer $A8:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa80000) return false;
         ushort bankAddress = unchecked((ushort)address);

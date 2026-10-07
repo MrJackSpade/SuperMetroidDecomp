@@ -1,17 +1,12 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Kago-bug projectile mechanics word at its bank-$86 address.</summary>
-internal readonly record struct KagoBugProjectileInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for Kago bug's landed, falling, jumping, and shot programs. The
 /// shared initial Kraid-rock pose is owned by
 /// <see cref="KraidRockProjectileInstructionProgramDefinitions"/>; interleaved
 /// spritemap operands select compiled presentation identities.
 /// </summary>
-internal static class KagoBugProjectileInstructionProgramDefinitions
+internal abstract class KagoBugProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_EnemyProjectile_KagoBug_HitFloor</c> at $86:D03C.</summary>
     internal const ushort Landed = 0xd03c;
@@ -49,9 +44,9 @@ internal static class KagoBugProjectileInstructionProgramDefinitions
     /// </summary>
     internal const ushort SpawnDropInstruction = 0xd1ce;
 
-    internal static int MechanicsWordCount => 23;
-    internal static int PresentationWordCount => 11;
-    internal static KagoBugProjectileInstructionMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => 23;
+    public static int PresentationWordCount => 11;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         if (index is >= 5 and < 8) return HoldLoop(Falling, index - 5);
@@ -74,14 +69,14 @@ internal static class KagoBugProjectileInstructionProgramDefinitions
         };
     }
 
-    private static KagoBugProjectileInstructionMechanicsWord HoldLoop(ushort start, int index) => index switch
+    private static InstructionMechanicsWord HoldLoop(ushort start, int index) => index switch
     {
         0 => new(start, 0x7fff),
         1 => new((ushort)(start + 4), EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
         _ => new((ushort)(start + 6), start),
     };
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         if (index >= 6) return (ushort)(Shot + 4 + 4 * (index - 6));
@@ -102,7 +97,7 @@ internal static class KagoBugProjectileInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            KagoBugProjectileInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -115,7 +110,7 @@ internal static class KagoBugProjectileInstructionProgramDefinitions
             $"Kago-bug projectile mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
             return false;

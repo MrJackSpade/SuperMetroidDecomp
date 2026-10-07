@@ -19,7 +19,7 @@ internal static partial class Program
              index < StokeProjectileInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            StokeProjectileInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 StokeProjectileInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadStokeProjectileInstructionWord(rom, definition.Address),

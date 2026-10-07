@@ -1,15 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct BeetomInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for Beetom's crawling, hopping, and draining programs.
 /// Their interleaved spritemap operands select installed Beetom artwork;
 /// crawling, hopping, draining, and their timing remain compiled here.
 /// </summary>
-internal static class BeetomInstructionProgramDefinitions
+internal abstract class BeetomInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_Beetom_Crawling_FacingLeft_0</c> at $A8:B696.</summary>
     internal const ushort CrawlingLeft = 0xb696;
@@ -48,10 +44,10 @@ internal static class BeetomInstructionProgramDefinitions
     internal const ushort DrainingRightLoop = 0xb73a;
 
     private const int FacingStride = CrawlingRight - CrawlingLeft;
-    internal static int MechanicsWordCount => 48;
-    internal static int PresentationWordCount => 32;
+    public static int MechanicsWordCount => 48;
+    public static int PresentationWordCount => 32;
 
-    internal static BeetomInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         int word = index % 24;
@@ -73,7 +69,7 @@ internal static class BeetomInstructionProgramDefinitions
         return new(address, ReadMechanicsWord(address));
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         int frame = index % 16;
@@ -141,7 +137,7 @@ internal static class BeetomInstructionProgramDefinitions
             (drain >= 18 && drain <= 30 && drain % 4 == 2) || drain is 34 or 36;
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa80000) return false;
         int offset = unchecked((ushort)address) - CrawlingLeft;

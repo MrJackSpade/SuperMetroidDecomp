@@ -20,7 +20,7 @@ internal static partial class Program
              index < ViolaInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            ViolaInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 ViolaInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadViolaInstructionWord(rom, definition.Address),

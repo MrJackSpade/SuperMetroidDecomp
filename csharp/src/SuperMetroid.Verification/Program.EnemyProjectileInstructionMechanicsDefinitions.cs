@@ -24,11 +24,11 @@ internal static partial class Program
 
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         for (int index = 0;
-             index < EnemyProjectileInstructionMechanicsDefinitions.NativeWordCount;
+             index < EnemyProjectileInstructionMechanicsDefinitions.MechanicsWordCount;
              index++)
         {
-            EnemyProjectileMechanicsWordDefinition definition =
-                EnemyProjectileInstructionMechanicsDefinitions.NativeWord(index);
+            InstructionMechanicsWord definition =
+                EnemyProjectileInstructionMechanicsDefinitions.MechanicsWord(index);
             ushort native = ReadEnemyProjectileMechanicsWord(
                 rom,
                 0x860000 | definition.Address);
@@ -41,7 +41,7 @@ internal static partial class Program
              index < MotherBrainHandBeamInstructionProgramDefinitions.NativeWordCount;
              index++)
         {
-            EnemyProjectileMechanicsWordDefinition definition =
+            InstructionMechanicsWord definition =
                 MotherBrainHandBeamInstructionProgramDefinitions.NativeWord(index);
             ushort native = ReadEnemyProjectileMechanicsWord(
                 rom,
@@ -133,7 +133,7 @@ internal static partial class Program
 
         Console.WriteLine(
             $"  Enemy-projectile instruction mechanics: " +
-            $"{EnemyProjectileInstructionMechanicsDefinitions.NativeWordCount} words and " +
+            $"{EnemyProjectileInstructionMechanicsDefinitions.MechanicsWordCount} words and " +
             "all 39 Mother Brain/misc-dust programs plus the 25-word recursive hand-beam " +
             "program pass with mechanics and callback reads forbidden.");
     }

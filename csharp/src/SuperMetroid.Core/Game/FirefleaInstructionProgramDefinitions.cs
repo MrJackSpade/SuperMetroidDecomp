@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Fireflea mechanics word at its native bank-$A3 address.</summary>
-internal readonly record struct FirefleaInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled timing and loop control for Fireflea's single 52-frame program. The interleaved
 /// spritemap selectors are compiled separately from their editable OAM compositions.
 /// </summary>
-internal static class FirefleaInstructionProgramDefinitions
+internal abstract class FirefleaInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_Fireflea</c> at $A3:8C2F.</summary>
     internal const ushort Loop = 0x8c2f;
@@ -17,11 +12,11 @@ internal static class FirefleaInstructionProgramDefinitions
     internal const ushort AdjacentUnusedData = 0x8d03;
     internal const int FrameCount = 52;
 
-    internal static int MechanicsWordCount => FrameCount + 2;
-    internal static int PresentationWordCount => FrameCount;
+    public static int MechanicsWordCount => FrameCount + 2;
+    public static int PresentationWordCount => FrameCount;
 
     /// <summary>Calculates alternating timed records followed by the loop command and its target.</summary>
-    internal static FirefleaInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
@@ -31,7 +26,7 @@ internal static class FirefleaInstructionProgramDefinitions
             index == FrameCount ? CommonEnemyInstructionCodes.Goto : Loop);
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= FrameCount)
             throw new IndexOutOfRangeException();
@@ -57,7 +52,7 @@ internal static class FirefleaInstructionProgramDefinitions
             $"Fireflea instruction mechanics pointer $A3:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa30000)
             return false;

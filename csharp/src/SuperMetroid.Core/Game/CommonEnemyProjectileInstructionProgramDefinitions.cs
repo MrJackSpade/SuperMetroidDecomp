@@ -1,22 +1,17 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled mechanics word in a shared bank-$86 projectile program.</summary>
-internal readonly record struct CommonEnemyProjectileInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for bank-$86 instruction programs shared by otherwise independent
 /// projectile families. These programs are checked before a projectile's private owner;
 /// family catalogs therefore remain strict without duplicating native shared targets.
 /// </summary>
-internal static class CommonEnemyProjectileInstructionProgramDefinitions
+internal abstract class CommonEnemyProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_EnemyProjectile_Delete</c> at $86:84FC.</summary>
     internal const ushort Delete = 0x84fc;
 
-    internal static int MechanicsWordCount => 1;
-    internal static CommonEnemyProjectileInstructionMechanicsWord MechanicsWord(int index) => index == 0
+    public static int MechanicsWordCount => 1;
+    public static InstructionMechanicsWord MechanicsWord(int index) => index == 0
         ? new(Delete, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete)
         : throw new IndexOutOfRangeException();
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
@@ -41,7 +36,7 @@ internal static class CommonEnemyProjectileInstructionProgramDefinitions
             "is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
             return false;

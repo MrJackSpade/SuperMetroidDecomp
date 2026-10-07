@@ -2,10 +2,6 @@ using static SuperMetroid.Core.Game.InstructionItem;
 
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Yard control word at its bank-$A3 address.</summary>
-internal readonly record struct YardInstructionMechanicsWord(
-    ushort Address, ushort Value);
-
 /// <summary>
 /// Compiled simulation control for Yard's bank-$A3 crawling, turn, hiding, and airborne
 /// instruction programs. Interleaved spritemap operands remain live cartridge presentation.
@@ -16,7 +12,7 @@ internal readonly record struct YardInstructionMechanicsWord(
 /// Frame durations are Yard's authored animation cadence and the movement-function and
 /// direction operands name the routines they select.
 /// </remarks>
-internal static class YardInstructionProgramDefinitions
+internal abstract class YardInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
 {
     /// <summary><c>InstList_Yard_OutsideTurn_UpsideRight_MovingUp</c> at $A3:C8C6.</summary>
     public const ushort OutsideTurnUpsideRightMovingUp = 0xc8c6;
@@ -130,6 +126,7 @@ internal static class YardInstructionProgramDefinitions
 
     /// <summary>Native program bank $A3.</summary>
     internal const byte Bank = 0xa3;
+    static int IDeclaredProgramBank.Bank => Bank;
 
     private static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xc8c6),
@@ -392,10 +389,10 @@ internal static class YardInstructionProgramDefinitions
         Frame(3),
         Op(CommonEnemyInstructionCodes.Goto, AirborneFacingRightLoop));
 
-    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
-    internal static int PresentationWordCount => Layout.PresentationSlotCount;
+    public static int MechanicsWordCount => Layout.MechanicsWordCount;
+    public static int PresentationWordCount => Layout.PresentationSlotCount;
 
-    internal static YardInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new ArgumentOutOfRangeException(nameof(index));
@@ -406,7 +403,7 @@ internal static class YardInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value : throw NotCompiled(address);
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new ArgumentOutOfRangeException(nameof(index));
@@ -416,7 +413,7 @@ internal static class YardInstructionProgramDefinitions
     /// <summary>Tests one native operand for an installed presentation slot.</summary>
     internal static bool IsPresentationWordAddress(ushort address) => Layout.IsPresentationWord(address);
 
-    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
+    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 
     private static InvalidDataException NotCompiled(ushort address) =>
         new($"Yard instruction mechanics pointer $A3:{address:X4} is not compiled.");

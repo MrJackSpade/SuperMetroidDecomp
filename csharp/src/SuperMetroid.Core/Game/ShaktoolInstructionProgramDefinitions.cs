@@ -1,16 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Shaktool mechanics word at its bank-$AA address.</summary>
-internal readonly record struct ShaktoolInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for every Shaktool instruction program reachable from
 /// its initialization, orientation, collision-recovery, and dormant-attack selectors.
 /// Interleaved spritemap operands select installed presentation frames.
 /// </summary>
-internal static class ShaktoolInstructionProgramDefinitions
+internal abstract class ShaktoolInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>UNUSED_InstList_Shaktool_SawHand_Attack_PrimaryPiece_AAD9EA</c> at $AA:D9EA.</summary>
     internal const ushort SawHandAttackPrimaryPiece = 0xd9ea;
@@ -80,9 +75,9 @@ internal static class ShaktoolInstructionProgramDefinitions
     /// <summary>$AA:DA8E/DAA2: final one-tick waits before head-program fallthrough; independent scheduling choice. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
     private const ushort HeadFallthroughTicks = 1;
 
-    internal static int MechanicsWordCount => 110;
-    internal static int PresentationWordCount => 15;
-    internal static ShaktoolInstructionMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => 110;
+    public static int PresentationWordCount => 15;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         for (int address = SawHandAttackPrimaryPiece; address < FirstAdjacentCodeRoutine; address += 2)
@@ -92,7 +87,7 @@ internal static class ShaktoolInstructionProgramDefinitions
         }
         throw new InvalidOperationException("Shaktool mechanics-word index is inconsistent.");
     }
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         if (index < 6) return (ushort)((index < 3 ? SawHandPrimaryPiece : SawHandFinalPiece) + (index % 3) * 4 + 2);
@@ -115,7 +110,7 @@ internal static class ShaktoolInstructionProgramDefinitions
             throw new InvalidDataException($"Shaktool instruction mechanics pointer $AA:{address:X4} is not compiled.");
         return (ushort)ProgramWord(address);
     }
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xaa0000) return false;
         ushort bankAddress = (ushort)(address & 0xfffe);

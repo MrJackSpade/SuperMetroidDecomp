@@ -22,7 +22,7 @@ internal static partial class Program
              index < MamaTurtleInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            MamaTurtleInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 MamaTurtleInstructionProgramDefinitions.MechanicsWord(index);
             AssertTrue(index == 0 || definition.Address > previous,
                 $"Mama Turtle mechanics word {index} is strictly ordered");

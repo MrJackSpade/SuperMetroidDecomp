@@ -12,7 +12,7 @@ internal static partial class Program
              index < TorizoJumpBackInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            TorizoJumpBackMechanicsWord word =
+            InstructionMechanicsWord word =
                 TorizoJumpBackInstructionProgramDefinitions.MechanicsWord(index);
             AssertTrue(mechanicsAddresses.Add(word.Address),
                 $"Torizo jump-back control $AA:{word.Address:X4} is unique");
@@ -132,7 +132,7 @@ internal static partial class Program
              index < TorizoJumpBackLeftInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            TorizoJumpBackMechanicsWord word =
+            InstructionMechanicsWord word =
                 TorizoJumpBackLeftInstructionProgramDefinitions.MechanicsWord(index);
             AssertTrue(mechanicsAddresses.Add(word.Address),
                 $"left-facing Torizo jump-back control $AA:{word.Address:X4} is unique");

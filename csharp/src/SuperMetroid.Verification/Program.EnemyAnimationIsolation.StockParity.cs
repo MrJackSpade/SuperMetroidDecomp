@@ -14,7 +14,7 @@ internal static partial class Program
         var source = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int index = 0; index < BoyonInstructionProgramDefinitions.MechanicsWordCount; index++)
         {
-            BoyonInstructionMechanicsWord word = BoyonInstructionProgramDefinitions.MechanicsWord(index);
+            InstructionMechanicsWord word = BoyonInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(ReadWord(EnemySpritemapDefinitions.BoyonBank, word.Address), word.Value,
                 $"stock Boyon control/timing word {word.Address:X4}");
         }
@@ -26,7 +26,7 @@ internal static partial class Program
         }
         for (int index = 0; index < TorizoInstructionProgramDefinitions.MechanicsWordCount; index++)
         {
-            TorizoMechanicsWord word = TorizoInstructionProgramDefinitions.MechanicsWord(index);
+            InstructionMechanicsWord word = TorizoInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(ReadWord(TorizoInstructionProgramDefinitions.Bank, word.Address), word.Value,
                 $"stock Torizo control/timing word {word.Address:X4}");
         }

@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled KiHunter-acid mechanics word at its bank-$86 address.</summary>
-internal readonly record struct KiHunterAcidSpitInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for both KiHunter acid-spit introductions and their shared splash.
 /// Interleaved spritemap operands resolve through extracted presentation art.
 /// </summary>
-internal static class KiHunterAcidSpitInstructionProgramDefinitions
+internal abstract class KiHunterAcidSpitInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_EnemyProjectile_KiHunterAcidSpit_Left</c> at $86:CF34.</summary>
     internal const ushort Left = 0xcf34;
@@ -26,15 +21,15 @@ internal static class KiHunterAcidSpitInstructionProgramDefinitions
     /// </summary>
     private static readonly ushort[] IntroductionHolds = [3, 3, 4, 3, 1];
 
-    internal static int MechanicsWordCount => 27;
-    internal static int PresentationWordCount => 19;
+    public static int MechanicsWordCount => 27;
+    public static int PresentationWordCount => 19;
 
     /// <summary>
     /// Seven poses per facing install movement after posefive, then sleep.
     /// The shared floor splash clears movement, displays five frames and deletes.
     /// Splash holds descend12,10,10,8,8: a two-tick reduction every two phases.
     /// </summary>
-    internal static KiHunterAcidSpitInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         if (index is >= 10 and < 17)
@@ -62,7 +57,7 @@ internal static class KiHunterAcidSpitInstructionProgramDefinitions
         };
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         if (index is >= 7 and < 12) return (ushort)(HitFloor + 4 + (index - 7) * 4);
@@ -81,7 +76,7 @@ internal static class KiHunterAcidSpitInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            KiHunterAcidSpitInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -94,7 +89,7 @@ internal static class KiHunterAcidSpitInstructionProgramDefinitions
             $"KiHunter acid-spit instruction mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
             return false;

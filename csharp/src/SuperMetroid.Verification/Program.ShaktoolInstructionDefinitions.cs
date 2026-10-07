@@ -103,7 +103,7 @@ internal static partial class Program
              index < ShaktoolInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            ShaktoolInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 ShaktoolInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 definition.Value,

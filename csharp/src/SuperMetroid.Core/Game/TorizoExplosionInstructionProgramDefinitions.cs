@@ -1,15 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct TorizoExplosionInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for Bomb Torizo's low-health and death-explosion programs at
 /// $86:A3CB-$A455. Their fifteen interleaved spritemap operands use extracted
 /// presentation art.
 /// </summary>
-internal static class TorizoExplosionInstructionProgramDefinitions
+internal abstract class TorizoExplosionInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_EnemyProjectile_BombTorizoLowHealthExplosion_0</c> at $86:A3CB.</summary>
     internal const ushort LowHealthInitial = 0xa3cb;
@@ -42,14 +38,14 @@ internal static class TorizoExplosionInstructionProgramDefinitions
 
     private enum ExplosionPhase { LowHealth, LargeDeath, DeathSmoke }
 
-    internal static int MechanicsWordCount => 53;
-    internal static int PresentationWordCount => 15;
-    internal static TorizoExplosionInstructionMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => 53;
+    public static int PresentationWordCount => 15;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         return BuildLayout(index, false).Selected;
     }
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         return BuildLayout(index, true).Selected.Address;
@@ -99,7 +95,7 @@ internal static class TorizoExplosionInstructionProgramDefinitions
     {
         private int remaining = target;
         internal ushort Address;
-        internal TorizoExplosionInstructionMechanicsWord Selected;
+        internal InstructionMechanicsWord Selected;
         internal void Word(ushort value)
         {
             if (!presentation && remaining-- == 0) Selected = new(Address, value);
@@ -124,7 +120,7 @@ internal static class TorizoExplosionInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            TorizoExplosionInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address) return candidate.Value;
             if (candidate.Address < address) low = middle + 1;
             else high = middle - 1;
@@ -134,7 +130,7 @@ internal static class TorizoExplosionInstructionProgramDefinitions
             $"Torizo explosion mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
         ushort bankAddress = unchecked((ushort)address);

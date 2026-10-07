@@ -2192,7 +2192,7 @@ internal static partial class Program
             {
                 ushort address = (ushort)(start + offset);
                 ushort value = (ushort)(rom.ReadByte(0xa20000 | address) | rom.ReadByte(0xa20000 | (address + 1)) << 8);
-                AssertEqual(new RipperInstructionMechanicsWord(address, value), RipperInstructionProgramDefinitions.MechanicsWord(wordIndex++),
+                AssertEqual(new InstructionMechanicsWord(address, value), RipperInstructionProgramDefinitions.MechanicsWord(wordIndex++),
                     "stream 3 Ripper mechanic order and value");
                 bytes.Add(address);
                 bytes.Add(address + 1);
@@ -2249,7 +2249,7 @@ internal static partial class Program
         {
             ushort address = mechanics[index];
             ushort value = Read(0xa20000 | address);
-            AssertEqual(new ChootInstructionMechanicsWord(address, value), ChootInstructionProgramDefinitions.MechanicsWord(index),
+            AssertEqual(new InstructionMechanicsWord(address, value), ChootInstructionProgramDefinitions.MechanicsWord(index),
                 "stream 3 Choot native control instruction");
             AssertEqual(value, ChootInstructionProgramDefinitions.ReadMechanicsWord(address), "stream 3 Choot control dispatch");
         }
@@ -2313,7 +2313,7 @@ internal static partial class Program
         for (int index = 0; index < pickupMechanics.Length; index++)
         {
             ushort address = pickupMechanics[index];
-            AssertEqual(new EnemyPickupInstructionMechanicsWord(address, Read(0x860000 | address)),
+            AssertEqual(new InstructionMechanicsWord(address, Read(0x860000 | address)),
                 EnemyPickupInstructionProgramDefinitions.MechanicsWord(index), "stream 3 native pickup mechanic");
             AssertEqual(Read(0x860000 | address), EnemyPickupInstructionProgramDefinitions.ReadMechanicsWord(address),
                 "stream 3 pickup mechanic dispatch");
@@ -2350,7 +2350,7 @@ internal static partial class Program
         {
             ushort address = (ushort)(index < 52 ? 0x8c2f + index * 4 : 0x8cff + (index - 52) * 2);
             ushort value = Read(0xa30000 | address);
-            AssertEqual(new FirefleaInstructionMechanicsWord(address, value), FirefleaInstructionProgramDefinitions.MechanicsWord(index),
+            AssertEqual(new InstructionMechanicsWord(address, value), FirefleaInstructionProgramDefinitions.MechanicsWord(index),
                 "stream 3 native Fireflea mechanic");
             AssertEqual(value, FirefleaInstructionProgramDefinitions.ReadMechanicsWord(address),
                 "stream 3 Fireflea mechanic dispatch");

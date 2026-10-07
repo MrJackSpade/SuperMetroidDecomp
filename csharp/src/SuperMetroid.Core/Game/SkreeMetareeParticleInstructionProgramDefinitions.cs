@@ -1,17 +1,12 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Skree/Metaree debris mechanics word at its bank-$86 address.</summary>
-internal readonly record struct SkreeMetareeParticleInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for the visually distinct Skree and Metaree death-particle programs.
 /// Their interleaved spritemap operands are visual identities: diagnostic sessions
 /// still read the cartridge, while installed sessions select the matching editable
 /// compositions through <see cref="SuperMetroid.Core.Assets.SkreeMetareeParticleVisualDefinitions"/>.
 /// </summary>
-internal static class SkreeMetareeParticleInstructionProgramDefinitions
+internal abstract class SkreeMetareeParticleInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_EnemyProjectile_MetalSkreeParticle</c> at $86:8ABD.</summary>
     internal const ushort Skree = 0x8abd;
@@ -19,11 +14,11 @@ internal static class SkreeMetareeParticleInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_MetareeParticle</c> at $86:8AC5.</summary>
     internal const ushort Metaree = 0x8ac5;
 
-    internal static int MechanicsWordCount => 6;
-    internal static int PresentationWordCount => 2;
+    public static int MechanicsWordCount => 6;
+    public static int PresentationWordCount => 2;
 
     /// <summary>Each eight-byte loop is a sixteen-frame drawing followed by goto-self.</summary>
-    internal static SkreeMetareeParticleInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         ushort start = index < 3 ? Skree : Metaree;
@@ -36,7 +31,7 @@ internal static class SkreeMetareeParticleInstructionProgramDefinitions
         };
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)((index == 0 ? Skree : Metaree) + 2);
@@ -69,7 +64,7 @@ internal static class SkreeMetareeParticleInstructionProgramDefinitions
             "is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
             return false;

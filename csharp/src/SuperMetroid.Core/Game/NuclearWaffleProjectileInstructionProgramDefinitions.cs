@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Nuclear Waffle projectile word at its bank-$86 address.</summary>
-internal readonly record struct NuclearWaffleProjectileInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for the twelve-frame articulated Nuclear Waffle/Puromi body loop.
 /// Interleaved spritemap operands select independently installed presentation data.
 /// </summary>
-internal static class NuclearWaffleProjectileInstructionProgramDefinitions
+internal abstract class NuclearWaffleProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_EnemyProjectile_PuromiBody</c> at $86:BB5E.</summary>
     internal const ushort Initial = 0xbb5e;
@@ -20,15 +15,15 @@ internal static class NuclearWaffleProjectileInstructionProgramDefinitions
     internal const ushort LoopCommand = 0xbb8e;
 
     private const int FrameCount = 12;
-    internal static int MechanicsWordCount => FrameCount + 2;
-    internal static int PresentationWordCount => FrameCount;
-    internal static NuclearWaffleProjectileInstructionMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => FrameCount + 2;
+    public static int PresentationWordCount => FrameCount;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         ushort address = (ushort)(Initial + (index < FrameCount ? index * 4 : FrameCount * 4 + (index - FrameCount) * 2));
         return new(address, ReadMechanicsWord(address));
     }
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(Initial + index * 4 + 2);
@@ -41,7 +36,7 @@ internal static class NuclearWaffleProjectileInstructionProgramDefinitions
         if (offset == FrameCount * 4 + 2) return Initial;
         throw new InvalidDataException($"Nuclear Waffle projectile mechanics pointer $86:{address:X4} is not compiled.");
     }
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
         int offset = (ushort)address - Initial;

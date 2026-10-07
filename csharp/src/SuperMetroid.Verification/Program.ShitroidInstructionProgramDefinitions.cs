@@ -18,7 +18,7 @@ internal static partial class Program
              index < ShitroidInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            ShitroidInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 ShitroidInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadShitroidInstructionWord(rom, definition.Address),

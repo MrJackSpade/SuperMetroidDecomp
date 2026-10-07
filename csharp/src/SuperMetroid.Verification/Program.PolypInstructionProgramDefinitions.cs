@@ -17,7 +17,7 @@ internal static partial class Program
              index < PolypInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            PolypInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 PolypInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadPolypInstructionWord(rom, definition.Address),

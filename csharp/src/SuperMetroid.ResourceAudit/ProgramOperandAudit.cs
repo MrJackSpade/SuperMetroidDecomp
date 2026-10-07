@@ -1,4 +1,3 @@
-using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.Core.Game;
@@ -38,21 +37,16 @@ internal sealed class ProgramOperandAudit(ResourceIndex exports, AuditReport rep
             return;
         }
         Type? metadata = typeof(RoomEnemySystem).Assembly.GetType(owner);
-        const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
-        PropertyInfo? countProperty = metadata?.GetProperty("PresentationWordCount", flags);
-        MethodInfo? addressMethod = metadata?.GetMethod("PresentationWordAddress", flags, [typeof(int)]);
-        if (countProperty is null || addressMethod is null || addressMethod.ReturnType != typeof(ushort))
+        InstructionProgramCatalog? catalog = metadata is null ? null : InstructionProgramCatalog.Of(metadata);
+        if (catalog?.PresentationOperands is not { } operands)
         {
             report.Gap(ResourceDomains.CompiledSelector, owner, source,
                 "Presentation operand catalog has no recognized count/address metadata contract.");
             return;
         }
-        int? bank = null;
-        if (metadata!.GetField("Bank", flags) is { IsLiteral: true } bankField)
-        {
-            int value = Convert.ToInt32(bankField.GetRawConstantValue());
-            bank = value <= byte.MaxValue ? value : value >> 16;
-        }
+        int? bank = catalog.DeclaredBank is { } declared
+            ? declared <= byte.MaxValue ? declared : declared >> 16
+            : null;
         // Existing catalogs often encode their bank only in the source ownership
         // guard. Read its compiler-resolved constants, never probe possible banks
         // by calling gameplay code or infer a bank from a coincidentally matching ID.
@@ -82,10 +76,8 @@ internal sealed class ProgramOperandAudit(ResourceIndex exports, AuditReport rep
                 "Program bank is not uniquely declared by a Bank constant or source ownership guard.");
             return;
         }
-        int count = (int)countProperty.GetValue(null)!;
-        for (int index = 0; index < count; index++)
+        foreach (ushort address in operands)
         {
-            ushort address = (ushort)addressMethod.Invoke(null, [index])!;
             if (bank.Value == ResourceBanks.EnemyProjectilePrograms)
                 ProjectileDefinitionAudit.RequireFrame(address, owner, source, exports, report);
             else

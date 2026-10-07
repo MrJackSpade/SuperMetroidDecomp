@@ -2,11 +2,6 @@ using static SuperMetroid.Core.Game.InstructionItem;
 
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled mechanics-owned word at its native bank-$A5 address.</summary>
-internal readonly record struct SporeSpawnInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled mechanics words from Spore Spawn's five bank-$A5 instruction programs.
 /// </summary>
@@ -17,7 +12,7 @@ internal readonly record struct SporeSpawnInstructionMechanicsWord(
 /// forty-one presentation operands belong to the separate compiled visual-selector
 /// catalog when artwork is installed; unbound native diagnostics can still read the bus.
 /// </remarks>
-internal static class SporeSpawnInstructionProgramDefinitions
+internal abstract class SporeSpawnInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
 {
     /// <summary><c>$A5:E6B9</c>, defeated-room initialization program.</summary>
     internal const ushort InitialDead = 0xe6b9;
@@ -80,6 +75,7 @@ internal static class SporeSpawnInstructionProgramDefinitions
 
     /// <summary>Native program bank $A5.</summary>
     internal const byte Bank = 0xa5;
+    static int IDeclaredProgramBank.Bank => Bank;
 
     private static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xe6b9),
@@ -176,20 +172,20 @@ internal static class SporeSpawnInstructionProgramDefinitions
         Op(SpawnCallSporeSpawnDeathItemDropRoutine),
         Op(CommonEnemyInstructionCodes.Sleep));
 
-    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
+    public static int MechanicsWordCount => Layout.MechanicsWordCount;
 
     /// <summary>Number of interleaved presentation words, compiled separately for installed play.</summary>
-    internal static int PresentationWordCount => Layout.PresentationSlotCount;
+    public static int PresentationWordCount => Layout.PresentationSlotCount;
 
     /// <summary>Returns one mechanics definition for cartridge-equivalence verification.</summary>
-    internal static SporeSpawnInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         (ushort address, ushort value) = Layout.MechanicsWord(index);
         return new(address, value);
     }
 
     /// <summary>Returns one live spritemap-word address for boundary verification.</summary>
-    internal static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
+    public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
     /// <summary>
     /// Reads one mechanics word and rejects presentation addresses or pointers outside the
@@ -201,5 +197,5 @@ internal static class SporeSpawnInstructionProgramDefinitions
                 $"Spore Spawn instruction mechanics pointer $A5:{address:X4} is not compiled.");
 
     /// <summary>True when an absolute address names a byte owned by compiled mechanics.</summary>
-    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
+    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

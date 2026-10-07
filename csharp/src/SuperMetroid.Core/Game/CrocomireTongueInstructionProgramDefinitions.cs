@@ -1,16 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Crocomire-tongue mechanics word at its bank-$A4 address.</summary>
-internal readonly record struct CrocomireTongueInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for Crocomire's independently scheduled tongue. Interleaved
 /// extended-spritemap operands are compiled selectors for installed artwork;
 /// constructed no-art fixtures may still supply mutable cartridge data.
 /// </summary>
-internal static class CrocomireTongueInstructionProgramDefinitions
+internal abstract class CrocomireTongueInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary>
     /// <c>InstList_CrocomireTongue_Fight</c> at $A4:BE56. In the pinned NTSC
@@ -37,12 +32,12 @@ internal static class CrocomireTongueInstructionProgramDefinitions
     /// </summary>
     internal const ushort Melting = 0xbf98;
 
-    internal static int MechanicsWordCount => 14;
-    internal static int PresentationWordCount => 9;
+    public static int MechanicsWordCount => 14;
+    public static int PresentationWordCount => 9;
 
     /// <summary>Enumerates four fight durations and their loop, terminal sleep,
     /// then five melting durations and their loop, in native address order.</summary>
-    internal static CrocomireTongueInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         if (index == 6) return new(Sleep, CommonEnemyInstructionCodes.Sleep);
@@ -56,7 +51,7 @@ internal static class CrocomireTongueInstructionProgramDefinitions
 
     /// <summary>Spritemap operand positions in the four-frame fight and five-frame
     /// melting loops: start + 2 + 4*frame. These positions do not own artwork.</summary>
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(index < 4 ? Fight + 2 + 4 * index : Melting + 2 + 4 * (index - 4));
@@ -78,7 +73,7 @@ internal static class CrocomireTongueInstructionProgramDefinitions
             $"Crocomire tongue instruction mechanics pointer $A4:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa40000) return false;
         int bankAddress = address & 0xffff;

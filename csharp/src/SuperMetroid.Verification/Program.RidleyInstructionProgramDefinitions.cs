@@ -20,7 +20,7 @@ internal static partial class Program
              index < RidleyInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            RidleyInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 RidleyInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 ReadRidleyWord(rom, 0xa60000 | definition.Address),

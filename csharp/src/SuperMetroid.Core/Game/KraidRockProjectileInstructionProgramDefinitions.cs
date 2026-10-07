@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Kraid-rock projectile mechanics word at its bank-$86 address.</summary>
-internal readonly record struct KraidRockProjectileInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for Kraid's rock projectiles and the initial Kago-bug pose they share.
 /// Their interleaved spritemap operands select compiled presentation identities.
 /// </summary>
-internal static class KraidRockProjectileInstructionProgramDefinitions
+internal abstract class KraidRockProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary>
     /// <c>InstList_EnemyProjectile_KraidRocks_KagoBug</c> at $86:9C7D.
@@ -41,12 +36,12 @@ internal static class KraidRockProjectileInstructionProgramDefinitions
     /// </summary>
     internal const ushort SpitRockShotDelete = 0x9ca1;
 
-    internal const int MechanicsWordCount = 12;
-    internal const int PresentationWordCount = 7;
+    public static int MechanicsWordCount => 12;
+    public static int PresentationWordCount => 7;
 
     /// <summary>Two fixed poses end in Sleep. The shot sequence installs its
     /// palette pre-instruction, emits five four-tick frames, then deletes itself.</summary>
-    internal static KraidRockProjectileInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         if (index < 4)
@@ -66,7 +61,7 @@ internal static class KraidRockProjectileInstructionProgramDefinitions
 
     /// <summary>Two fixed-pose operands followed by five shot-frame operands,
     /// each two bytes after its duration; skip the pre-instruction command pair.</summary>
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(index < 2 ? SharedRockAndKagoBug + 6 * index + 2
@@ -90,7 +85,7 @@ internal static class KraidRockProjectileInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            KraidRockProjectileInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -104,7 +99,7 @@ internal static class KraidRockProjectileInstructionProgramDefinitions
             "is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
             return false;

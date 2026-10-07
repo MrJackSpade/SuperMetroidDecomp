@@ -18,7 +18,7 @@ internal static partial class Program
              index < KzanInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            KzanInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 KzanInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadKzanInstructionWord(rom, 0xa60000 | definition.Address),

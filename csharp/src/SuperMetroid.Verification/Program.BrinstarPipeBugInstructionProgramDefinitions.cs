@@ -21,7 +21,7 @@ internal static partial class Program
              index < BrinstarPipeBugInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            BrinstarPipeBugInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 BrinstarPipeBugInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadBrinstarPipeBugInstructionWord(rom, 0xb30000 | definition.Address),

@@ -20,7 +20,7 @@ internal static partial class Program
              index < ChootInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            ChootInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 ChootInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadChootInstructionWord(rom, 0xa20000 | definition.Address),

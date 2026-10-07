@@ -16,7 +16,7 @@ internal static partial class Program
              index < MotherBrainBabyInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            MotherBrainBabyInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 MotherBrainBabyInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 definition.Value,

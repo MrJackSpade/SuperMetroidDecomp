@@ -1,10 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled mechanics word in the Ceres Baby's bank-$A6 draw program.</summary>
-internal readonly record struct CeresBabyInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Engine-owned control words from the Ceres Baby's mixed draw instruction program.
 /// </summary>
@@ -13,10 +8,11 @@ internal readonly record struct CeresBabyInstructionMechanicsWord(
 /// and control flow. Fixed spritemap and palette selectors are compiled; their
 /// OAM compositions and RGB5 colors live in editable presentation assets.
 /// </remarks>
-internal static class CeresBabyInstructionProgramDefinitions
+internal abstract class CeresBabyInstructionProgramDefinitions : IInstructionProgramCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
 {
     /// <summary>Bank $A6 owns the Ceres Baby's private draw program and OAM frames.</summary>
     internal const byte Bank = 0xa6;
+    static int IDeclaredProgramBank.Bank => Bank;
     /// <summary>The horizontal-squish Baby OAM frame at $A6:BFFD.</summary>
     internal const ushort HorizontalFrame = 0xbffd;
     /// <summary>The round Baby OAM frame at $A6:C018.</summary>
@@ -64,9 +60,9 @@ internal static class CeresBabyInstructionProgramDefinitions
     /// its pointer is $BFFD + $001B*q using the same four-pose cycle
     /// q = {0, 1, 2, 1} repeated three times.
     /// </summary>
-    internal static int MechanicsWordCount => 43;
+    public static int MechanicsWordCount => 43;
 
-    internal static CeresBabyInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         if (index < 12)
@@ -204,7 +200,7 @@ internal static class CeresBabyInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            CeresBabyInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -217,7 +213,7 @@ internal static class CeresBabyInstructionProgramDefinitions
             $"Ceres Baby instruction mechanics pointer $A6:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa60000)
             return false;

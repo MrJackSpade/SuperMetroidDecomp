@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled downward-gate projectile mechanics word at its bank-$86 address.</summary>
-internal readonly record struct DownwardGateProjectileInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for both downward-gate actors. Spritemap operands remain live cartridge
 /// presentation data; movement continues to use the shared translated pre-instruction.
 /// </summary>
-internal static class DownwardGateProjectileInstructionProgramDefinitions
+internal abstract class DownwardGateProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary>Downward-moving gate instruction list at $86:E53C.</summary>
     internal const ushort Moving = 0xe53c;
@@ -20,15 +15,15 @@ internal static class DownwardGateProjectileInstructionProgramDefinitions
     /// <summary>Initial closed-gate sleep instruction at $86:E566.</summary>
     internal const ushort ClosedSleep = 0xe566;
 
-    internal static int MechanicsWordCount => 28;
-    internal static int PresentationWordCount => 9;
+    public static int MechanicsWordCount => 28;
+    public static int PresentationWordCount => 9;
 
     /// <summary>
     /// Closing and opening each traverse four one-tick pose/sleep stages, advanced by
     /// the movement pre-instruction. The closed hold reverses velocity and waits before
     /// re-enabling movement; completed opening deletes the projectile.
     /// </summary>
-    internal static DownwardGateProjectileInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
@@ -53,14 +48,14 @@ internal static class DownwardGateProjectileInstructionProgramDefinitions
         };
     }
 
-    private static DownwardGateProjectileInstructionMechanicsWord MovementPoseWord(ushort start, int word)
+    private static InstructionMechanicsWord MovementPoseWord(ushort start, int word)
     {
         bool sleep = (word & 1) != 0;
         return new((ushort)(start + 6 * (word / 2) + (sleep ? 4 : 0)),
             sleep ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep : (ushort)1);
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
@@ -78,7 +73,7 @@ internal static class DownwardGateProjectileInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            DownwardGateProjectileInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -91,7 +86,7 @@ internal static class DownwardGateProjectileInstructionProgramDefinitions
             $"Downward-gate projectile mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
             return false;

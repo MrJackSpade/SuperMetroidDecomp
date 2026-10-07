@@ -20,7 +20,7 @@ internal static partial class Program
              index < CacatacInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            CacatacInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 CacatacInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadCacatacInstructionWord(rom, 0xa20000 | definition.Address),

@@ -2,15 +2,12 @@ using static SuperMetroid.Core.Game.InstructionItem;
 
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct GoldenTorizoStunnedMechanicsWord(
-    ushort Address, ushort Value);
-
 /// <summary>
 /// The callable bank-$AA Golden Torizo stunned program at $AA:D193-D1E6.
 /// All 28 words are control data; four existing $814B descriptors stream
 /// separately installed Torizo tile art, and the list selects no sprite pose.
 /// </summary>
-internal static class GoldenTorizoStunnedInstructionProgramDefinitions
+internal abstract class GoldenTorizoStunnedInstructionProgramDefinitions : IInstructionProgramCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
 {
     /// <summary><c>InstList_Torizo_Stunned_0</c> at $AA:D193.</summary>
     internal const ushort Start = 0xd193;
@@ -26,6 +23,7 @@ internal static class GoldenTorizoStunnedInstructionProgramDefinitions
 
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
+    static int IDeclaredProgramBank.Bank => Bank;
 
     private static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xd193),
@@ -54,8 +52,8 @@ internal static class GoldenTorizoStunnedInstructionProgramDefinitions
         Op(TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY, WalkingMovement),
         Op(TorizoInstructionCodes.Instruction_Torizo_Return));
 
-    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
-    internal static GoldenTorizoStunnedMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => Layout.MechanicsWordCount;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         (ushort address, ushort value) = Layout.MechanicsWord(index);
         return new(address, value);
@@ -64,5 +62,5 @@ internal static class GoldenTorizoStunnedInstructionProgramDefinitions
     internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
         Layout.TryReadMechanicsWord(address, out value);
 
-    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
+    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

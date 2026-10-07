@@ -19,7 +19,7 @@ internal static partial class Program
              index < DownwardGateProjectileInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            DownwardGateProjectileInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 DownwardGateProjectileInstructionProgramDefinitions.MechanicsWord(index);
             ushort native = unchecked((ushort)(
                 rom.ReadByte(EnemyProjectileCodePointers.BankBase | definition.Address) |

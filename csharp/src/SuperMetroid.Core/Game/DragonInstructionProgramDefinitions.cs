@@ -1,16 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled mechanics-owned word at its native bank-$A2 address.</summary>
-internal readonly record struct DragonInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>Compiled mechanics words from Dragon's body, wing, and attack programs.</summary>
 /// <remarks>
 /// Control words derive from the idle, wing and attack layouts; sixteen interleaved
 /// spritemap operands belong to the compiled presentation definitions.
 /// </remarks>
-internal static class DragonInstructionProgramDefinitions
+internal abstract class DragonInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>$A2:E59B</c>, sleeping body facing left.</summary>
     internal const ushort IdleFacingLeft = 0xe59b;
@@ -33,10 +28,10 @@ internal static class DragonInstructionProgramDefinitions
     /// <summary><c>$A2:E5FB</c>, marks the current body attack animation complete.</summary>
     internal const ushort AttackFinishedCallback = 0xe5fb;
 
-    internal static int MechanicsWordCount => 26;
-    internal static int PresentationWordCount => 16;
+    public static int MechanicsWordCount => 26;
+    public static int PresentationWordCount => 16;
 
-    internal static DragonInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
@@ -66,7 +61,7 @@ internal static class DragonInstructionProgramDefinitions
         return new((ushort)(attack + (attackWord < 6 ? 4 * attackWord : 22)), value);
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
@@ -85,7 +80,7 @@ internal static class DragonInstructionProgramDefinitions
     {
         for (int index = 0; index < MechanicsWordCount; index++)
         {
-            DragonInstructionMechanicsWord word = MechanicsWord(index);
+            InstructionMechanicsWord word = MechanicsWord(index);
             if (word.Address == address)
                 return word.Value;
         }
@@ -93,7 +88,7 @@ internal static class DragonInstructionProgramDefinitions
             $"Dragon instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa20000)
             return false;

@@ -21,7 +21,7 @@ internal static partial class Program
              index < RipperInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            RipperInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 RipperInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadRipperInstructionWord(rom, 0xa20000 | definition.Address),

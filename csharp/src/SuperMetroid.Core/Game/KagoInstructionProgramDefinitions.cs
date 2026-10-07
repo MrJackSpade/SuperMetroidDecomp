@@ -1,21 +1,19 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct KagoInstructionMechanicsWord(ushort Address, ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for Kago's slow and post-hit animation loops.
 /// Interleaved spritemap operands select separately installed presentation data.
 /// </summary>
-internal static class KagoInstructionProgramDefinitions
+internal abstract class KagoInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_Kago_Initial_SlowAnimation</c> at $A8:AB1E.</summary>
     internal const ushort Slow = 0xab1e;
     /// <summary><c>InstList_Kago_TakenHit_FastAnimation</c> at $A8:AB32.</summary>
     internal const ushort Fast = 0xab32;
 
-    internal static int MechanicsWordCount => 12;
-    internal static int PresentationWordCount => 8;
-    internal static KagoInstructionMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => 12;
+    public static int PresentationWordCount => 8;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         ushort start = index < 6 ? Slow : Fast;
@@ -25,7 +23,7 @@ internal static class KagoInstructionProgramDefinitions
             : new((ushort)(start + 18), start);
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(Slow + 20 * (index / 4) + 2 + 4 * (index % 4));
@@ -49,7 +47,7 @@ internal static class KagoInstructionProgramDefinitions
             $"Kago instruction mechanics pointer $A8:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa80000)
             return false;

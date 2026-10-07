@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Ceres falling-debris mechanics word at its bank-$86 address.</summary>
-internal readonly record struct CeresFallingDebrisInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for the light and dark Ceres falling-debris poses. Their spritemap
 /// operands resolve through extracted presentation art.
 /// </summary>
-internal static class CeresFallingDebrisInstructionProgramDefinitions
+internal abstract class CeresFallingDebrisInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary>
     /// <c>InstList_EnemyProjectile_CeresFallingTile_Light</c> at $86:9750,
@@ -30,11 +25,11 @@ internal static class CeresFallingDebrisInstructionProgramDefinitions
     /// </summary>
     internal const ushort Dark = 0x9756;
 
-    internal static int MechanicsWordCount => 4;
-    internal static int PresentationWordCount => 2;
+    public static int MechanicsWordCount => 4;
+    public static int PresentationWordCount => 2;
 
     /// <summary>Two six-byte programs each display one frame for one tick, then sleep.</summary>
-    internal static CeresFallingDebrisInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
@@ -48,7 +43,7 @@ internal static class CeresFallingDebrisInstructionProgramDefinitions
     /// Original $8ABF/$8AC6 selectors reference two seven-byte one-component poses;
     /// their artwork remains independently required under issue1165.
     /// </summary>
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
@@ -65,7 +60,7 @@ internal static class CeresFallingDebrisInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            CeresFallingDebrisInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -78,7 +73,7 @@ internal static class CeresFallingDebrisInstructionProgramDefinitions
             $"Ceres falling-debris mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
             return false;

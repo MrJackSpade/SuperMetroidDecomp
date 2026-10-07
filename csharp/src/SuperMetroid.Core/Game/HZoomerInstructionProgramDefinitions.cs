@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled HZoomer mechanics word at its native bank-$A3 address.</summary>
-internal readonly record struct HZoomerInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for the Wrecked Ship orange Zoomer's four surface loops.
 /// The twenty interleaved spritemap operands select installed presentation art.
 /// </summary>
-internal static class HZoomerInstructionProgramDefinitions
+internal abstract class HZoomerInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_HZoomer_UpsideRight_0</c> at $A3:DFCB.</summary>
     internal const ushort UpsideRight = 0xdfcb;
@@ -22,11 +17,11 @@ internal static class HZoomerInstructionProgramDefinitions
     /// <summary><c>Instruction_HZoomer_FunctionInY</c> immediately before the programs.</summary>
     internal const ushort AdjacentFunctionCode = 0xdfc2;
 
-    internal static int MechanicsWordCount => 36;
-    internal static int PresentationWordCount => 20;
+    public static int MechanicsWordCount => 36;
+    public static int PresentationWordCount => 20;
 
     /// <summary>Each surface initializes its axis, shows five three-tick frames, then loops to the first frame.</summary>
-    internal static HZoomerInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
@@ -44,7 +39,7 @@ internal static class HZoomerInstructionProgramDefinitions
         };
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
@@ -64,7 +59,7 @@ internal static class HZoomerInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            HZoomerInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -77,7 +72,7 @@ internal static class HZoomerInstructionProgramDefinitions
             $"HZoomer instruction mechanics pointer $A3:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa30000)
             return false;

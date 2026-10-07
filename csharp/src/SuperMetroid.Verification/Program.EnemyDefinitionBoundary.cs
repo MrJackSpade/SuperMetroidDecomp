@@ -62,7 +62,7 @@ internal static partial class Program
         ushort previous = 0;
         for (int index = 0; index < TorizoInstructionProgramDefinitions.MechanicsWordCount; index++)
         {
-            TorizoMechanicsWord word = TorizoInstructionProgramDefinitions.MechanicsWord(index);
+            InstructionMechanicsWord word = TorizoInstructionProgramDefinitions.MechanicsWord(index);
             AssertTrue(word.Address > previous, "Torizo mechanics are ordered and unique");
             previous = word.Address;
             AssertEqual(NativeWord(source, 0xaa0000 | word.Address), word.Value, $"Torizo word {word.Address:X4}");

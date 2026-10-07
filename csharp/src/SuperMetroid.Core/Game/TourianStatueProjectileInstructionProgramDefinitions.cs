@@ -1,14 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct TourianStatueProjectileInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for the Tourian entrance-statue actors at $86:B79F-$B878. The
 /// twenty-eight interleaved spritemap operands select installed presentation data.
 /// </summary>
-internal static class TourianStatueProjectileInstructionProgramDefinitions
+internal abstract class TourianStatueProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary>Private Tourian projectile deletion program at $86:B79F.</summary>
     internal const ushort Delete = 0xb79f;
@@ -38,15 +34,15 @@ internal static class TourianStatueProjectileInstructionProgramDefinitions
         DecorationInitialHold = 128, StatueHold = 0x0777;
     /// <summary>$86:B7E0-B7E6: the authored four-particle burst count; it sets how many particle frames repeat, not a physical quantity.</summary>
     private const int ParticleBurstCount = 4;
-    internal static int MechanicsWordCount => 57;
-    internal static int PresentationWordCount => 28;
+    public static int MechanicsWordCount => 57;
+    public static int PresentationWordCount => 28;
 
-    internal static TourianStatueProjectileInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         return Select(index, visual: false);
     }
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return Select(index, visual: true).Address;
@@ -57,7 +53,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitions
     /// functions separate the eye, particle, tail and soul lists. Tail displacement
     /// halves from eight to two pixels after its first three four-tick poses.
     /// </summary>
-    private static TourianStatueProjectileInstructionMechanicsWord Select(int index, bool visual)
+    private static InstructionMechanicsWord Select(int index, bool visual)
     {
         var layout = new Layout(index, visual, Delete);
         layout.Delete();
@@ -105,7 +101,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitions
     {
         internal ushort Cursor { get; private set; } = start;
         private int mechanics, presentation;
-        internal TourianStatueProjectileInstructionMechanicsWord Result { get; private set; }
+        internal InstructionMechanicsWord Result { get; private set; }
         internal void Start(ushort address) => Cursor = address;
         internal void SkipByte() => Cursor++;
         internal void Word(ushort value)
@@ -142,7 +138,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            TourianStatueProjectileInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address) return candidate.Value;
             if (candidate.Address < address) low = middle + 1;
             else high = middle - 1;
@@ -151,7 +147,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitions
             $"Tourian statue projectile mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
         ushort bankAddress = unchecked((ushort)address);

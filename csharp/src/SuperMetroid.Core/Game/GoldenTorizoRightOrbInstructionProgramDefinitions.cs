@@ -2,15 +2,12 @@ using static SuperMetroid.Core.Game.InstructionItem;
 
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct GoldenTorizoRightOrbMechanicsWord(
-    ushort Address, ushort Value);
-
 /// <summary>
 /// Bank-$AA callable Golden Torizo right-facing, right-foot-forward Chozo-orb
 /// attack at $AA:CC99-CCDA. Timers, callbacks and movement are compiled
 /// mechanics; its ten sprite selectors remain independently editable art.
 /// </summary>
-internal static class GoldenTorizoRightOrbInstructionProgramDefinitions
+internal abstract class GoldenTorizoRightOrbInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
 {
     internal const ushort Start = 0xcc99;
     internal const ushort End = 0xccdb;
@@ -24,6 +21,7 @@ internal static class GoldenTorizoRightOrbInstructionProgramDefinitions
 
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
+    static int IDeclaredProgramBank.Bank => Bank;
 
     private static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xcc99),
@@ -47,17 +45,17 @@ internal static class GoldenTorizoRightOrbInstructionProgramDefinitions
         Op(TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY, TorizoMovementWalkingFunction),
         Op(TorizoInstructionCodes.Instruction_Torizo_Return));
 
-    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
-    internal static GoldenTorizoRightOrbMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => Layout.MechanicsWordCount;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         (ushort address, ushort value) = Layout.MechanicsWord(index);
         return new(address, value);
     }
-    internal static int PresentationWordCount => Layout.PresentationSlotCount;
-    internal static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
+    public static int PresentationWordCount => Layout.PresentationSlotCount;
+    public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
     internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
         Layout.TryReadMechanicsWord(address, out value);
 
-    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
+    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

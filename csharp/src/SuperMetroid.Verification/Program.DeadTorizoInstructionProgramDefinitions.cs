@@ -17,7 +17,7 @@ internal static partial class Program
              index < DeadTorizoInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            DeadTorizoInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 DeadTorizoInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadDeadTorizoInstructionWord(rom, definition.Address),

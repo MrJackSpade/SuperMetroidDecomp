@@ -12,12 +12,6 @@ internal static class EnemyVisualProgramAuditChecks
 {
     internal static void Run()
     {
-        Require(EnemyVisualProgramAudit.PresentationCount(typeof(ConstantCount)) == 46,
-            "calculated programs expose their presentation count as a constant");
-        Require(EnemyVisualProgramAudit.PresentationCount(typeof(PropertyCount)) == 2,
-            "stored programs retain their property count");
-        Require(EnemyVisualProgramAudit.PresentationCount(typeof(MutableCount)) is null,
-            "mutable fields do not silently become audited constant domains");
         var syntax = CSharpSyntaxTree.ParseText("""
             static class SingleInstructionProgramDefinitions { const ushort PresentationWord = 1; }
             static class UnknownInstructionProgramDefinitions { }
@@ -90,8 +84,4 @@ internal static class EnemyVisualProgramAuditChecks
     {
         if (!condition) throw new InvalidOperationException("Enemy visual audit contract failed: " + message);
     }
-
-    private static class ConstantCount { internal const int PresentationWordCount = 46; }
-    private static class PropertyCount { internal static int PresentationWordCount => 2; }
-    private static class MutableCount { internal static int PresentationWordCount = 46; }
 }

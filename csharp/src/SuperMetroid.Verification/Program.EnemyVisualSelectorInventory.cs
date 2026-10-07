@@ -27,7 +27,7 @@ internal static partial class Program
                     Console.WriteLine($"CATALOG-ONLY ${entry.Address:X6} -> ${entry.Pointer:X4}");
             }
         }
-        AssertEqual(158, discovered, "instruction catalogs with visual operands");
+        AssertEqual(156, discovered, "instruction catalogs with visual operands");
         AssertEqual(5247, operands, "counted native sprite-selector occurrences");
         AssertEqual(5102, keyed.Count, "distinct native sprite-selector addresses");
         AssertEqual(keyed.Count, CompiledEnemyVisualSelectors.Count,

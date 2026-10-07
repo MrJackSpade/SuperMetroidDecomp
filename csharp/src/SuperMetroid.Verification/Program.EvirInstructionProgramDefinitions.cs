@@ -42,7 +42,7 @@ internal static partial class Program
              index < EvirInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            EvirInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 EvirInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadEvirInstructionWord(rom, definition.Address),

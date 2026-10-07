@@ -19,7 +19,7 @@ internal static partial class Program
              index < KiHunterInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            KiHunterInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 KiHunterInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadKiHunterInstructionWord(rom, 0xa80000 | definition.Address),

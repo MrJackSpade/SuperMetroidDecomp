@@ -1,16 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Magdollite-lava mechanics word at its bank-$86 address.</summary>
-internal readonly record struct MagdolliteLavaInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for Magdollite's left/right thrown-lava poses and shot program.
 /// Interleaved spritemap operands resolve through extracted presentation art; the shot
 /// program's final target belongs to the shared projectile-program catalog.
 /// </summary>
-internal static class MagdolliteLavaInstructionProgramDefinitions
+internal abstract class MagdolliteLavaInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_EnemyProjectile_MagdolliteFlame_Left</c> at $86:DFD8.</summary>
     internal const ushort Left = 0xdfd8;
@@ -21,11 +16,11 @@ internal static class MagdolliteLavaInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_Shot_MagdolliteFlame</c> at $86:DFE4.</summary>
     internal const ushort Shot = 0xdfe4;
 
-    internal static int MechanicsWordCount => 7;
-    internal static int PresentationWordCount => 2;
+    public static int MechanicsWordCount => 7;
+    public static int PresentationWordCount => 2;
 
     /// <summary>Each facing displays a one-tick pose then sleeps; being shot spawns drops and deletes.</summary>
-    internal static MagdolliteLavaInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
@@ -44,7 +39,7 @@ internal static class MagdolliteLavaInstructionProgramDefinitions
         return new((ushort)(Shot + 2 * (index - 4)), command);
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
@@ -57,7 +52,7 @@ internal static class MagdolliteLavaInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            MagdolliteLavaInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -71,7 +66,7 @@ internal static class MagdolliteLavaInstructionProgramDefinitions
             "is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
             return false;

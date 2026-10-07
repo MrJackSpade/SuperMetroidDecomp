@@ -2,15 +2,11 @@ using static SuperMetroid.Core.Game.InstructionItem;
 
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct RoomSpriteObjectInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words reachable from all 62 bank-$B4 room sprite-object
 /// programs. Interleaved spritemap pointers remain live cartridge presentation data.
 /// </summary>
-internal static class RoomSpriteObjectInstructionProgramDefinitions
+internal abstract class RoomSpriteObjectInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
 {
     /// <summary><c>SpriteObject_Instr_RepeatLast</c> at $B4:BCF0.</summary>
     public const ushort RepeatLast = 0xbcf0;
@@ -66,6 +62,7 @@ internal static class RoomSpriteObjectInstructionProgramDefinitions
 
     /// <summary>Native program bank $B4.</summary>
     internal const byte Bank = 0xb4;
+    static int IDeclaredProgramBank.Bank => Bank;
 
     private static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xbe24),
@@ -602,21 +599,21 @@ internal static class RoomSpriteObjectInstructionProgramDefinitions
         Frame(10),
         Op(Goto, SpriteObject3CEvirFacingRight));
 
-    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
-    internal static int PresentationWordCount => Layout.PresentationSlotCount;
-    internal static RoomSpriteObjectInstructionMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => Layout.MechanicsWordCount;
+    public static int PresentationWordCount => Layout.PresentationSlotCount;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         (ushort address, ushort value) = Layout.MechanicsWord(index);
         return new(address, value);
     }
-    internal static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
+    public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(
                 $"Room sprite-object instruction mechanics pointer $B4:{address:X4} is not compiled.");
 
-    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
+    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 
     internal static bool TryGetPresentationWord(int address, out ushort wordAddress) =>
         Layout.TryGetPresentationWord(address, out wordAddress);

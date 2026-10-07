@@ -1,14 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct MultiviolaInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for Multiviola's production animation loop. The
 /// interleaved spritemap operands select installed presentation frames.
 /// </summary>
-internal static class MultiviolaInstructionProgramDefinitions
+internal abstract class MultiviolaInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_Multiviola</c> at $A2:B2DC.</summary>
     internal const ushort Flying = 0xb2dc;
@@ -20,16 +16,16 @@ internal static class MultiviolaInstructionProgramDefinitions
     /// <summary>$A2:B314 Instruction_Common_GotoY after the timed loop.</summary>
     private const ushort LoopOpcode = Flying + TimedFrameCount * 4;
 
-    internal static int MechanicsWordCount => TimedFrameCount + 2;
-    internal static int PresentationWordCount => TimedFrameCount;
-    internal static MultiviolaInstructionMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => TimedFrameCount + 2;
+    public static int PresentationWordCount => TimedFrameCount;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         return index < TimedFrameCount ? new((ushort)(Flying + index * 4), FrameDuration)
             : new((ushort)(LoopOpcode + (index - TimedFrameCount) * 2),
                 index == TimedFrameCount ? CommonEnemyInstructionCodes.Goto : Flying);
     }
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= TimedFrameCount) throw new IndexOutOfRangeException();
         return (ushort)(Flying + index * 4 + 2);
@@ -41,7 +37,7 @@ internal static class MultiviolaInstructionProgramDefinitions
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            MultiviolaInstructionMechanicsWord candidate = MechanicsWord(middle);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -54,7 +50,7 @@ internal static class MultiviolaInstructionProgramDefinitions
             $"Multiviola instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa20000)
             return false;

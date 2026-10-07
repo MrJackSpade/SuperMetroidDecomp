@@ -18,7 +18,7 @@ internal static partial class Program
              index < WalkingSpacePirateInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            WalkingSpacePirateInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 WalkingSpacePirateInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadWalkingPirateWord(rom, 0xb20000 | definition.Address),

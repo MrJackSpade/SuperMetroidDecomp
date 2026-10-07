@@ -1,17 +1,12 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled mechanics-owned word at its native bank-$A2 address.</summary>
-internal readonly record struct BoyonInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>Compiled mechanics words from Boyon's idle and bouncing programs.</summary>
 /// <remarks>
 /// Property commands, callbacks, durations, and loop control are immutable simulation
 /// data. The ten interleaved visual selectors are compiled separately in
 /// <see cref="Assets.EnemySpritemapDefinitions"/>; neither belongs in editable artwork.
 /// </remarks>
-internal static class BoyonInstructionProgramDefinitions
+internal abstract class BoyonInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>$A2:86A7</c>, the four-frame idle loop.</summary>
     internal const ushort Idle = 0x86a7;
@@ -19,10 +14,10 @@ internal static class BoyonInstructionProgramDefinitions
     /// <summary><c>$A2:86BF</c>, the six-frame bouncing loop.</summary>
     internal const ushort Bouncing = 0x86bf;
 
-    internal static int MechanicsWordCount => 18;
-    internal static int PresentationWordCount => 10;
+    public static int MechanicsWordCount => 18;
+    public static int PresentationWordCount => 10;
 
-    internal static BoyonInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         bool bouncing = index >= 8;
@@ -34,7 +29,7 @@ internal static class BoyonInstructionProgramDefinitions
         return new(address, ReadMechanicsWord(address));
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(index < 4 ? Idle + 6 + 4 * index : Bouncing + 6 + 4 * (index - 4));
@@ -67,7 +62,7 @@ internal static class BoyonInstructionProgramDefinitions
             $"Boyon instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa20000) return false;
         int offset = (ushort)address - Idle;

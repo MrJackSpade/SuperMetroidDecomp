@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Fune/Namihe fireball mechanics word at its bank-$86 address.</summary>
-internal readonly record struct FuneNamiheFireballInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for both directional Fune/Namihe fireball programs. Their
 /// interleaved spritemap operands resolve through extracted presentation art.
 /// </summary>
-internal static class FuneNamiheFireballInstructionProgramDefinitions
+internal abstract class FuneNamiheFireballInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_EnemyProjectile_NamiFuneFireball_Left</c> at $86:DE96.</summary>
     internal const ushort Left = 0xde96;
@@ -18,10 +13,10 @@ internal static class FuneNamiheFireballInstructionProgramDefinitions
     internal const ushort Right = 0xdea6;
 
     // Each facing has three five-tick frames followed by a jump to its start.
-    internal static int MechanicsWordCount => 10;
-    internal static int PresentationWordCount => 6;
+    public static int MechanicsWordCount => 10;
+    public static int PresentationWordCount => 6;
 
-    internal static FuneNamiheFireballInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
@@ -31,7 +26,7 @@ internal static class FuneNamiheFireballInstructionProgramDefinitions
         return new(address, ReadMechanicsWord(address));
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
@@ -61,7 +56,7 @@ internal static class FuneNamiheFireballInstructionProgramDefinitions
             "is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
             return false;

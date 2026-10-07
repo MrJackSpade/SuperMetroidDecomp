@@ -1,16 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Kraid-arm mechanics word at its bank-$A7 address.</summary>
-internal readonly record struct KraidArmInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled timing and control for Kraid's independently scheduled arm actor. The
 /// interleaved extended-spritemap selectors are compiled presentation data;
 /// their selected OAM frames live in the installed enemy-art catalog.
 /// </summary>
-internal static class KraidArmInstructionProgramDefinitions
+internal abstract class KraidArmInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_KraidArm_Normal_0</c> at $A7:89F3.</summary>
     internal const ushort Normal = 0x89f3;
@@ -25,15 +20,15 @@ internal static class KraidArmInstructionProgramDefinitions
     /// <summary>First adjacent Kraid-lint instruction program at $A7:8AFE.</summary>
     internal const ushort AdjacentLintProgram = 0x8afe;
 
-    internal const int MechanicsWordCount = 2 * 21 + 20 + 4;
-    internal const int PresentationWordCount = 3 * 18 + 3;
+    public static int MechanicsWordCount => 2 * 21 + 20 + 4;
+    public static int PresentationWordCount => 3 * 18 + 3;
 
     /// <summary>Normal and slow loops each have eighteen frames, a health
     /// callback and a two-word goto. Rising/sinking omits the callback; the
     /// final program has three frames and Sleep. Frame pairs are four bytes,
     /// while control words are two bytes. The intervening native callback
     /// body is outside the instruction-list domain.</summary>
-    internal static KraidArmInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         if (index < 42)
@@ -70,7 +65,7 @@ internal static class KraidArmInstructionProgramDefinitions
 
     /// <summary>Three eighteen-frame lists and the final three-frame list;
     /// every presentation operand is two bytes after its duration word.</summary>
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         ushort entry = index < 18 ? Normal : index < 36 ? Slow : index < 54 ? RisingOrSinking : DyingOrPreparingToLunge;
@@ -89,7 +84,7 @@ internal static class KraidArmInstructionProgramDefinitions
         throw new InvalidDataException($"Kraid arm mechanics pointer $A7:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa70000) return false;
         ushort bankAddress = unchecked((ushort)address);

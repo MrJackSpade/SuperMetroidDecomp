@@ -1,14 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct BombTorizoDroolInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for Bomb Torizo's low-health drool programs at $86:A46A-$A49D.
 /// The seven interleaved spritemap operands resolve through extracted presentation art.
 /// </summary>
-internal static class BombTorizoDroolInstructionProgramDefinitions
+internal abstract class BombTorizoDroolInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_EnemyProj_BombTorizoLowHealthDrool_4FrameDelay</c> at $86:A46A.</summary>
     internal const ushort FourFrameDelay = 0xa46a;
@@ -25,9 +21,9 @@ internal static class BombTorizoDroolInstructionProgramDefinitions
     /// <summary><c>PreInst_EnemyProjectile_BombTorizoLowHealthDrool_Falling</c> at $86:A887.</summary>
     internal const ushort FallingPreInstruction = 0xa887;
 
-    internal static int MechanicsWordCount => 19;
-    internal static int PresentationWordCount => 7;
-    internal static BombTorizoDroolInstructionMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => 19;
+    public static int PresentationWordCount => 7;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         // Every two-byte word in the bounded program is control except the seven visuals.
@@ -38,7 +34,7 @@ internal static class BombTorizoDroolInstructionProgramDefinitions
         }
         throw new InvalidOperationException("Drool program word count does not match its layout.");
     }
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return index switch
@@ -94,7 +90,7 @@ internal static class BombTorizoDroolInstructionProgramDefinitions
         _ => throw new InvalidDataException($"Bomb Torizo drool mechanics pointer $86:{address:X4} is not compiled."),
     };
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
         int offset = unchecked((ushort)address) - FourFrameDelay;

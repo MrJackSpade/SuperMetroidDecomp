@@ -23,7 +23,7 @@ internal static partial class Program
              index < TourianEntranceStatueInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            TourianEntranceStatueInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 TourianEntranceStatueInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadTourianEntranceStatueInstructionWord(rom, definition.Address),

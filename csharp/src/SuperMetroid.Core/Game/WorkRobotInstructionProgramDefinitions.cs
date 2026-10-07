@@ -1,10 +1,6 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Work Robot control word at its bank-$A8 address.</summary>
-internal readonly record struct WorkRobotInstructionMechanicsWord(
-    ushort Address, ushort Value);
-
-internal static class WorkRobotInstructionProgramDefinitions
+internal abstract class WorkRobotInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_RobotNoPower_Neutral</c> at $A8:C6D3.</summary>
     public const ushort NoPowerNeutral = 0xc6d3;
@@ -81,10 +77,10 @@ internal static class WorkRobotInstructionProgramDefinitions
     /// <summary>$A8:CA61: right-facing shot retreat's second contact pose differs from its five-tick peers. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
     private const ushort RightRetreatContactTicks = 10;
 
-    internal const int MechanicsWordCount = 367;
-    internal static int PresentationWordCount => 227;
+    public static int MechanicsWordCount => 367;
+    public static int PresentationWordCount => 227;
 
-    internal static WorkRobotInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         for (int address = NoPowerNeutral; address < EndAddress; address += 2)
@@ -100,7 +96,7 @@ internal static class WorkRobotInstructionProgramDefinitions
         int value = ProgramWord(address);
         return value == PresentationOperand ? throw NotCompiled(address) : (ushort)value;
     }
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         for (int address = NoPowerNeutral; address < EndAddress; address += 2)
@@ -111,7 +107,7 @@ internal static class WorkRobotInstructionProgramDefinitions
         IsWordAddress(address) && ProgramWord(address) == PresentationOperand;
     private static bool IsWordAddress(ushort address) => address >= NoPowerNeutral && address < EndAddress &&
         ((address - NoPowerNeutral) & 1) == 0;
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa80000) return false;
         ushort bankAddress = (ushort)address;

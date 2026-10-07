@@ -17,7 +17,7 @@ internal static partial class Program
              index < EtecoonInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            EtecoonInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 EtecoonInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadEtecoonInstructionWord(rom, definition.Address),

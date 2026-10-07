@@ -49,7 +49,7 @@ internal static partial class Program
              index < MaridiaLargeSnailInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            MaridiaLargeSnailInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 MaridiaLargeSnailInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadMaridiaLargeSnailInstructionWord(

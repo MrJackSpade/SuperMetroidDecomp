@@ -1,15 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct CacatacInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for Cacatac's upright and inverted idle/attack programs.
 /// Interleaved visual selectors are compiled separately in
 /// <see cref="Assets.EnemySpritemapDefinitions"/>.
 /// </summary>
-internal static class CacatacInstructionProgramDefinitions
+internal abstract class CacatacInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary>
     /// <c>InstList_Cacatac_UpsideUp_Idling</c> at $A2:9E8A-$A2:9EAF.
@@ -52,10 +48,10 @@ internal static class CacatacInstructionProgramDefinitions
     /// </summary>
     internal const ushort UpsideDownAttack = 0x9f00;
 
-    internal static int MechanicsWordCount => 56;
-    internal static int PresentationWordCount => 24;
+    public static int MechanicsWordCount => 56;
+    public static int PresentationWordCount => 24;
 
-    internal static CacatacInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         int start = UpsideUpIdle + index / 28 * 80;
@@ -72,7 +68,7 @@ internal static class CacatacInstructionProgramDefinitions
         return new(address, ReadMechanicsWord(address));
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         int pose = index % 12;
@@ -126,6 +122,6 @@ internal static class CacatacInstructionProgramDefinitions
         return true;
     }
 
-    internal static bool IsCompiledMechanicsByte(int address) =>
+    public static bool IsCompiledMechanicsByte(int address) =>
         (address & 0xff0000) == 0xa20000 && TryRead((ushort)(address & ~1), out _);
 }

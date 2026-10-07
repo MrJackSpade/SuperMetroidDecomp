@@ -134,7 +134,7 @@ internal static partial class Program
              index < BotwoonInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            BotwoonInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 BotwoonInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 definition.Value,

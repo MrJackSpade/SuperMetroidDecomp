@@ -17,7 +17,7 @@ internal static partial class Program
              index < MochtroidInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            MochtroidInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 MochtroidInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadMochtroidInstructionWord(rom, definition.Address),

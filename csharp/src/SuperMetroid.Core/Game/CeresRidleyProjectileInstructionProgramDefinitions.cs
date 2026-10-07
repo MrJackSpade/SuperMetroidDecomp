@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Ceres Ridley projectile mechanics word at its bank-$86 address.</summary>
-internal readonly record struct CeresRidleyProjectileInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for Ceres Ridley's fireball, center-afterburn, directional-afterburn,
 /// and final-impact programs. Interleaved spritemap operands remain live cartridge data.
 /// </summary>
-internal static class CeresRidleyProjectileInstructionProgramDefinitions
+internal abstract class CeresRidleyProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_EnemyProjectile_RidleysFireball_0</c> at $86:9552.</summary>
     /// <remarks>
@@ -78,10 +73,10 @@ internal static class CeresRidleyProjectileInstructionProgramDefinitions
 
     // Each draw occupies a duration word and a presentation operand. Spawning
     // programs insert their callback immediately after the first draw.
-    internal static int MechanicsWordCount => 42;
-    internal static int PresentationWordCount => 26;
+    public static int MechanicsWordCount => 42;
+    public static int PresentationWordCount => 26;
 
-    internal static CeresRidleyProjectileInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
@@ -120,7 +115,7 @@ internal static class CeresRidleyProjectileInstructionProgramDefinitions
     }
 
     /// <summary>Calculated locations of the interleaved bank-$86 spritemap operands.</summary>
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
@@ -221,7 +216,7 @@ internal static class CeresRidleyProjectileInstructionProgramDefinitions
         return offset == 22;
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
             return false;

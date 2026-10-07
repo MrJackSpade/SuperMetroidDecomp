@@ -1,16 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Alcoon-fireball mechanics word at its bank-$86 address.</summary>
-internal readonly record struct AlcoonFireballInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for Alcoon's four-frame fireball animation loop.
 /// Interleaved spritemap operands are visual identities in the installed
 /// enemy-projectile artwork catalog; mechanics remain compiled here.
 /// </summary>
-internal static class AlcoonFireballInstructionProgramDefinitions
+internal abstract class AlcoonFireballInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_EnemyProjectile_AlcoonFireball</c> at $86:9E9E.</summary>
     internal const ushort Initial = 0x9e9e;
@@ -20,17 +15,17 @@ internal static class AlcoonFireballInstructionProgramDefinitions
     /// </summary>
     internal const ushort Loop = 0x9eae;
 
-    internal static int MechanicsWordCount => 6;
-    internal static int PresentationWordCount => 4;
+    public static int MechanicsWordCount => 6;
+    public static int PresentationWordCount => 4;
 
-    internal static AlcoonFireballInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         ushort address = (ushort)(Initial + (index < 4 ? 4 * index : 16 + 2 * (index - 4)));
         return new(address, ReadMechanicsWord(address));
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(Initial + 2 + 4 * index);
@@ -52,7 +47,7 @@ internal static class AlcoonFireballInstructionProgramDefinitions
             $"Alcoon-fireball instruction mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
         int offset = (ushort)address - Initial;

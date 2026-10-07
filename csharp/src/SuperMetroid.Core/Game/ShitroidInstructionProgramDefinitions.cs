@@ -1,15 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
-internal readonly record struct ShitroidInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for the Tourian Shitroid's finish-draining,
 /// normal, latched, and remorse programs. Their thirty spritemap selections resolve
 /// compiled identities to installed artwork.
 /// </summary>
-internal static class ShitroidInstructionProgramDefinitions
+internal abstract class ShitroidInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_BabyMetroid_FinishDraining</c> at $A9:F906.</summary>
     internal const ushort FinishDraining = 0xf906;
@@ -45,9 +41,9 @@ internal static class ShitroidInstructionProgramDefinitions
     /// <summary>$A9:F95E: pose0 starts the speed-up/slow-down pulse after the remorse SFX callback.</summary>
     private const ushort RemorseSoundPulse = RemorseRandomBranchOpcode + 4;
 
-    internal static int MechanicsWordCount => 35;
-    internal static int PresentationWordCount => 30;
-    internal static ShitroidInstructionMechanicsWord MechanicsWord(int index)
+    public static int MechanicsWordCount => 35;
+    public static int PresentationWordCount => 30;
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         if (index < 2) return new((ushort)(FinishDraining + index * 4), index == 0 ? FinishDrainHold : NormalFrameDuration);
@@ -70,7 +66,7 @@ internal static class ShitroidInstructionProgramDefinitions
     /// turning at the next pose0 after one four-pose contraction cycle.</summary>
     private static ushort RemorsePulseDuration(int frame) => (ushort)(2 + Math.Abs(frame - 4));
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         if (index < 2) return (ushort)(FinishDraining + index * 4 + 2);
@@ -93,7 +89,7 @@ internal static class ShitroidInstructionProgramDefinitions
             $"Shitroid instruction mechanics pointer $A9:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa90000)
             return false;

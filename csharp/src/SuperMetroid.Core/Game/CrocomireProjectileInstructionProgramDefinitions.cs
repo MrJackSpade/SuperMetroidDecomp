@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Crocomire projectile mechanics word at its bank-$86 address.</summary>
-internal readonly record struct CrocomireProjectileInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled control for Crocomire's mouth projectile, bridge fragments, and spike-wall
 /// pieces. Their interleaved spritemap operands remain live cartridge presentation data.
 /// </summary>
-internal static class CrocomireProjectileInstructionProgramDefinitions
+internal abstract class CrocomireProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary>
     /// <c>InstList_EnemyProjectile_CrocomiresProjectile</c> at $86:8FCF.
@@ -49,12 +44,12 @@ internal static class CrocomireProjectileInstructionProgramDefinitions
     /// </summary>
     internal const ushort MouthProjectileShot = 0x9007;
 
-    internal static int MechanicsWordCount => 22;
-    internal static int PresentationWordCount => 13;
+    public static int MechanicsWordCount => 22;
+    public static int PresentationWordCount => 13;
 
     /// <summary>Enumerates each program's timed frames followed by its control
     /// trailer: a self-loop, or the shot program's drop/goto/delete sequence.</summary>
-    internal static CrocomireProjectileInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         ushort start = index < 8 ? MouthProjectile : index < 11 ? BridgeFragment
@@ -71,7 +66,7 @@ internal static class CrocomireProjectileInstructionProgramDefinitions
     /// <summary>Spritemap operands are two bytes after each frame duration.
     /// Enumerate six mouth frames, one bridge frame, one spike frame and five
     /// shot frames. These are operand positions, not stored artwork identities.</summary>
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(index < 6 ? MouthProjectile + 2 + 4 * index
@@ -106,7 +101,7 @@ internal static class CrocomireProjectileInstructionProgramDefinitions
             $"Crocomire projectile mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
         ushort bankAddress = unchecked((ushort)address);

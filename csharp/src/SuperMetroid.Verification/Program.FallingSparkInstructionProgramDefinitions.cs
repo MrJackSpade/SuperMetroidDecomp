@@ -18,7 +18,7 @@ internal static partial class Program
              index < FallingSparkInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            FallingSparkInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 FallingSparkInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 definition.Value,

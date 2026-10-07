@@ -1,16 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled mechanics-owned word at its native bank-$AA address.</summary>
-internal readonly record struct ChozoStatueInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled engine-control words for the Lower Norfair and Wrecked Ship Chozo-statue
 /// sequences. Interleaved spritemap operands resolve to installed presentation
 /// identities when artwork is bound; diagnostic buses may still supply them.
 /// </summary>
-internal static class ChozoStatueInstructionProgramDefinitions
+internal abstract class ChozoStatueInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_Chozo_LowerNorfair_Initial</c> at $AA:E39D.</summary>
     internal const ushort LowerNorfairInitial = 0xe39d;
@@ -36,16 +31,16 @@ internal static class ChozoStatueInstructionProgramDefinitions
     private static readonly ushort[] StrideHolds = [8, 11, 8, 6];
     private static readonly short[] FootstepOffsets = [-8, -20, -16, 0];
 
-    internal static int MechanicsWordCount => 166;
-    internal static int PresentationWordCount => 52;
+    public static int MechanicsWordCount => 166;
+    public static int PresentationWordCount => 52;
 
-    internal static ChozoStatueInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         return BuildLayout(index, false).Selected;
     }
 
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         return BuildLayout(index, true).Selected.Address;
@@ -127,7 +122,7 @@ internal static class ChozoStatueInstructionProgramDefinitions
     {
         private int remaining = target;
         internal ushort Address;
-        internal ChozoStatueInstructionMechanicsWord Selected;
+        internal InstructionMechanicsWord Selected;
 
         internal void Word(ushort value)
         {
@@ -159,7 +154,7 @@ internal static class ChozoStatueInstructionProgramDefinitions
         throw new InvalidDataException($"Chozo statue instruction mechanics pointer $AA:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xaa0000) return false;
         ushort bankAddress = unchecked((ushort)address);

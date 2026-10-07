@@ -19,7 +19,7 @@ internal static partial class Program
              index < GunshipInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            GunshipInstructionMechanicsWord definition =
+            InstructionMechanicsWord definition =
                 GunshipInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 definition.Value,

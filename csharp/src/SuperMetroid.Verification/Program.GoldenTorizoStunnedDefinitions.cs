@@ -11,7 +11,7 @@ internal static partial class Program
              index < GoldenTorizoStunnedInstructionProgramDefinitions.MechanicsWordCount;
              index++)
         {
-            GoldenTorizoStunnedMechanicsWord word =
+            InstructionMechanicsWord word =
                 GoldenTorizoStunnedInstructionProgramDefinitions.MechanicsWord(index);
             AssertTrue(addresses.Add(word.Address),
                 $"Golden Torizo stunned control $AA:{word.Address:X4} is unique");

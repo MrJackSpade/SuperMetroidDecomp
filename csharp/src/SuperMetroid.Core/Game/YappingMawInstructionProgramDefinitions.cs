@@ -1,15 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One compiled Yapping Maw mechanics word at its bank-$A8 address.</summary>
-internal readonly record struct YappingMawInstructionMechanicsWord(
-    ushort Address,
-    ushort Value);
-
 /// <summary>
 /// Compiled timing, callback, and loop control for Yapping Maw's attack and cooldown
 /// programs. Interleaved spritemap operands are compiled selectors for installed art.
 /// </summary>
-internal static class YappingMawInstructionProgramDefinitions
+internal abstract class YappingMawInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     /// <summary><c>InstList_YappingMaw_Attacking_FacingUp</c> at $A8:9F6F.</summary>
     internal const ushort AttackingFacingUp = 0x9f6f;
@@ -44,8 +39,8 @@ internal static class YappingMawInstructionProgramDefinitions
     /// <summary><c>InstListPointers_YappingMaw</c>, adjacent selector data at $A8:A097.</summary>
     internal const ushort AdjacentAttackSelectorTable = 0xa097;
 
-    internal static int MechanicsWordCount => 96;
-    internal static int PresentationWordCount => 52;
+    public static int MechanicsWordCount => 96;
+    public static int PresentationWordCount => 52;
 
     /// <summary>Yapping Maw animation holds. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort OpenHold = 5, ClosingHold = 3, ExtendedHold = 80, DiagonalAdjustmentHold = 4;
@@ -63,7 +58,7 @@ internal static class YappingMawInstructionProgramDefinitions
     /// adjust Samus diagonally then vertically, sharing the same four-pose cooldown loop.
     /// Four-byte timed records and two-byte callbacks/control operands determine layout.
     /// </summary>
-    internal static YappingMawInstructionMechanicsWord MechanicsWord(int index)
+    public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         if (index < 56)
@@ -101,7 +96,7 @@ internal static class YappingMawInstructionProgramDefinitions
         return CooldownWord((ushort)(entry + 8), local - 3);
     }
 
-    private static YappingMawInstructionMechanicsWord CooldownWord(ushort entry, int field)
+    private static InstructionMechanicsWord CooldownWord(ushort entry, int field)
     {
         int offset = field < 5 ? field * 4 : 16 + 2 * (field - 4);
         ushort value = field switch
@@ -117,7 +112,7 @@ internal static class YappingMawInstructionProgramDefinitions
     }
 
     /// <summary>Visual operands lie two bytes into timed poses; sound/carry callbacks occupy two bytes.</summary>
-    internal static ushort PresentationWordAddress(int index)
+    public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         if (index < 32)
@@ -145,7 +140,7 @@ internal static class YappingMawInstructionProgramDefinitions
         throw new InvalidDataException($"Yapping Maw instruction mechanics pointer $A8:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa80000) return false;
         ushort offset = unchecked((ushort)address);

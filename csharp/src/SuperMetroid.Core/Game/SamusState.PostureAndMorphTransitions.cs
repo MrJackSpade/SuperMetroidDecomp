@@ -201,9 +201,14 @@ public sealed partial class SamusState
             RefreshCollisionRadii(bus);
 
             // Prospective command seven reads five from $91:ED36, installs the target's
-            // radius 16, then moves center Y down five. Old radius 21 and new radius 16
-            // therefore share exactly the same bottom collision boundary.
-            Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + 5));
+            // radius 16, then probes those five pixels down through $94:96AB. On level
+            // ground the bottom boundary is unchanged; descending a slope, the probe meets
+            // the surface first and the shorter clipped distance is what moves center Y.
+            BlockMoveResult alignment = ProbeChangedPoseVertical(
+                bus, level, SamusPostureDefinitions.CrouchEntryDownwardPixels << 16,
+                (nmiFrameCounter & 1) == 0, plms, includeSolidEnemies: false);
+            Kinematics.YPosition = unchecked((ushort)(
+                Kinematics.YPosition + (alignment.AcceptedDisplacement >> 16)));
             // Command seven publishes the aligned whole Y before scrolling; the
             // posture change itself must not become camera movement.
             WritePreviousYPosition(Kinematics.YPosition);

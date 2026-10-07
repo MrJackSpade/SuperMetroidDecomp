@@ -461,6 +461,25 @@ static void VerifySamusPostureMovement()
     AssertEqual(16, samus.Kinematics.YRadius, "crouch transition radius");
     AssertEqual(48, samus.YPosition, "command seven moves crouch center down five");
 
+    // #1269: command seven clips its five-pixel request through $94:96AB with the new
+    // radius. Descending a slope leaves the standing body overlapping the surface, so the
+    // crouch moves center down only to the floor. Model that overlap with a body sunk into
+    // the row-four floor: the radius-16 probe from bottom pixel 60 stops at 63, so center
+    // moves three pixels rather than the unconditional five.
+    var sunkSamus = new SamusState
+    {
+        Pose = SamusPoseIds.FacingRightNormalPose,
+        XPosition = 48,
+        YPosition = 45, // standing bottom pixel 65 overlaps the floor starting at 64
+    };
+    sunkSamus.RefreshCollisionRadii(bus);
+    sunkSamus.InitializeAnimation(bus);
+    AssertTrue(
+        sunkSamus.TryApplyPostureTransition(
+            bus, level, SamusPoseIds.CrouchingTransitionRightPose, nmiFrameCounter: 0),
+        "overlapping stand begins crouch transition");
+    AssertEqual(48, sunkSamus.YPosition, "command seven clips its crouch descent at the floor");
+
     for (int tick = 0; tick < 3; tick++)
         samus.AnimateNoFx(bus);
     AssertEqual(0xfd, samus.LastAnimationDelayCommand!.Value, "crouch transition reaches FD");

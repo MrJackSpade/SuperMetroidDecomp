@@ -9,4 +9,11 @@ public static class SamusPostureDefinitions
     /// source radius, and clips that request through $94:96AB block collision.
     /// </summary>
     public const int MorphEntryDownwardPixels = 9;
+
+    /// <summary>
+    /// $91:ED36/$ED38 for poses $35/$36, and the literal five at $91:ED2D for aimed
+    /// crouching transitions $F1-$F6. Command seven requests five pixels downward with the
+    /// new radius 16 and clips that request through $94:96AB block collision.
+    /// </summary>
+    public const int CrouchEntryDownwardPixels = 5;
 }

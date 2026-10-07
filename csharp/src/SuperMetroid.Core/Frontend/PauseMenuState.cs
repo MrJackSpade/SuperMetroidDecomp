@@ -141,6 +141,9 @@ internal sealed partial class PauseMenuState
     /// <summary>Zero for the map and one for the equipment page, matching WRAM $0753.</summary>
     public int ScreenMode { get; private set; }
 
+    /// <summary>True while a map/equipment page change is fading or loading; page input waits for it.</summary>
+    internal bool IsPageTransitionActive => transition != default;
+
     /// <summary>Low byte of the native category/item selector word.</summary>
     public int SelectedCategory => selectedCategory;
 
@@ -302,6 +305,11 @@ internal sealed partial class PauseMenuState
     }
 
     /// <summary>Composes the cartridge's BG2 frame and current BG1 page at 256x224.</summary>
+    // Raster scratch reused across draws; never part of saved state (restores reallocate it).
+    [NonSerialized] private Rgba32[]? objScratchPixels;
+    [NonSerialized] private byte[]? objScratchPriorities;
+    [NonSerialized] private Rgba32[]? bg3ScratchPlane;
+
     public Rgba32[] Render()
     {
         Rgba32[] output = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
@@ -310,8 +318,11 @@ internal sealed partial class PauseMenuState
         // the low-priority full-area map to paint over BG2's high-priority holder/chrome.
         // Build OAM first and then follow the literal Mode-1-with-BG3-priority ladder.
         PrepareRenderOam();
-        ResolvedObjFrame objects = SnesObjRenderer.RenderResolved(
-            oam, vram, cgram, PauseMenuLayout.ObjectSelection, 256, 224);
+        objScratchPixels ??= new Rgba32[256 * 224];
+        objScratchPriorities ??= new byte[256 * 224];
+        SnesObjRenderer.RenderResolved(oam, vram, cgram, PauseMenuLayout.ObjectSelection,
+            objScratchPixels, objScratchPriorities, 256, 224);
+        var objects = new ResolvedObjFrame(objScratchPixels, objScratchPriorities, 256, 224);
 
         // Back to front for BGMODE=$09:
         // OBJ0, BG3-low, OBJ1, BG2-low, BG1-low, OBJ2, BG2-high, BG1-high,
@@ -407,7 +418,11 @@ internal sealed partial class PauseMenuState
 
     private void CompositePauseBg3(Span<Rgba32> output, bool priority)
     {
-        Rgba32[] plane = SnesBgTilemapRenderer.Render2Bpp(
+        Rgba32[] plane = bg3ScratchPlane ??= new Rgba32[32 * 8 * 32 * 8];
+        // The renderer skips tiles of the other priority, so clear the reused plane first.
+        plane.AsSpan().Clear();
+        SnesBgTilemapRenderer.Render2Bpp(
+            plane,
             vram,
             cgram,
             tilemapBaseWord: 0x5800,

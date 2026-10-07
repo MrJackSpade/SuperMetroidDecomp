@@ -27,9 +27,10 @@ internal static partial class Program
             AreaId.Norfair, 0, 0, mapPresentation: original);
         var installed = new PauseMenuState(guard, Samus(), new Bank80SystemState(), AreaId.Norfair, 0, 0,
             mapPresentation: original);
-        for (int frame = 0; frame < 80; frame++)
+        int toMap = PausePageTransitionNativeLength + 1;
+        for (int frame = 0; frame < toMap + PausePageTransitionNativeLength + 2; frame++)
         {
-            ushort input = frame == 0 ? (ushort)SnesButton.R : frame == 48 ? (ushort)SnesButton.L : (ushort)0;
+            ushort input = frame == 0 ? (ushort)SnesButton.R : frame == toMap ? (ushort)SnesButton.L : (ushort)0;
             native.Step(input, input, nmiFrameCounter8: (byte)frame);
             installed.Step(input, input, nmiFrameCounter8: (byte)frame);
             AssertTrue(native.CaptureRenderSnapshot().Memory.Vram.SequenceEqual(installed.CaptureRenderSnapshot().Memory.Vram),
@@ -37,6 +38,7 @@ internal static partial class Program
             AssertTrue(native.Render().AsSpan().SequenceEqual(installed.Render()),
                 "equipment base migration retains native pixels with its source forbidden");
         }
+        AssertEqual(0, installed.ScreenMode, "equipment base fixture returns to the map page");
 
         const int editedCell = 194;
         AssertTrue(!PauseEquipmentBaseDefinitions.IsLiveOwnedCell(editedCell) &&
@@ -121,8 +123,7 @@ internal static partial class Program
         };
         static void EnterEquipment(PauseMenuState pause)
         {
-            pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R);
-            for (int frame = 0; frame < 32; frame++) pause.Step(0, 0, nmiFrameCounter8: (byte)frame);
+            byte nmiFrame = 0; ChangePausePage(pause, SnesButton.R, input => pause.Step(input, input, nmiFrameCounter8: nmiFrame++));
             AssertEqual(1, pause.ScreenMode, "equipment-base fixture enters equipment");
         }
         static int FirstDifference(ReadOnlySpan<byte> left, ReadOnlySpan<byte> right)

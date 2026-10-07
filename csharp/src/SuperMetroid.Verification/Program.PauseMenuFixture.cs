@@ -35,7 +35,7 @@ internal static partial class Program
                 .ToDictionary(area => area, area => stock.Palettes.World(area).ToArray()));
         var areas = Enum.GetValues<AreaId>().Select(stock.Get).ToArray();
         areas[AreaIds.ToIndex(AreaId.Crateria)] = AreaMapImporter.Load(bus, AreaId.Crateria);
-        var backdrops = Construct<PauseBackdropPresentation>(
+        var backdrops = PauseBackdropPresentation.FromTilemaps(
             Enum.GetValues<AreaId>().Select(_ => Read(0xb6e000, 0x0800)).ToArray(),
             Read(PauseBackdropDefinitions.ButtonSource, PauseBackdropDefinitions.ButtonCells * 2));
         var hud = new byte[HudTileAtlasFormat.TransferByteCount];

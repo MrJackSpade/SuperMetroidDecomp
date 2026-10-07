@@ -13,8 +13,11 @@ public sealed class WorldMapArtwork
     // independent supplied differences from the calculated primitive/outline view.
     private readonly Dictionary<int, byte> background;
     private readonly Dictionary<int, ulong> digitFill = new();
+    // One delegate for the per-pixel font derivation, rather than one per pixel.
+    private readonly Func<int, ulong> fontMask;
     private WorldMapArtwork(byte[] foreground, byte[] background)
     {
+        fontMask = FontMask;
         var masks = new ulong[WorldMapArtworkFormat.ForegroundTileCount];
         for (int tile = 0; tile < masks.Length; tile++)
         {
@@ -36,7 +39,7 @@ public sealed class WorldMapArtwork
         {
             int source = WorldMapTileDefinitions.ForegroundSourcePixel(index);
             if (source != index) return foreground[index] != (source < 0 ? 0 : foreground[source]);
-            return !WorldMapTileDefinitions.TryForegroundFontPixel(index, FontMask, out byte value) || foreground[index] != value;
+            return !WorldMapTileDefinitions.TryForegroundFontPixel(index, fontMask, out byte value) || foreground[index] != value;
         }).ToDictionary(index => index, index => foreground[index]);
         for (int tile = 0; tile < WorldMapArtworkFormat.BackgroundTileCount; tile++)
         {
@@ -97,7 +100,7 @@ public sealed class WorldMapArtwork
         int source = WorldMapTileDefinitions.ForegroundSourcePixel(index);
         if (source < 0) return 0;
         if (source != index) return ForegroundPixel(source);
-        return WorldMapTileDefinitions.TryForegroundFontPixel(index, FontMask, out value) ? value
+        return WorldMapTileDefinitions.TryForegroundFontPixel(index, fontMask, out value) ? value
             : throw new InvalidDataException("World foreground source pixel is unavailable.");
     }
 

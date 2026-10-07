@@ -48,13 +48,16 @@ internal static partial class Program
                     new Bank80SystemState(), AreaId.Maridia, 5, 5,
                     mapPresentation: original);
                 var pause = new PauseMenuState(guard, samus, new Bank80SystemState(), AreaId.Maridia, 5, 5, mapPresentation: original);
-                for (int tick = 0; tick < 72; tick++)
+                void StepBoth(ushort input)
                 {
-                    ushort input = tick == 0 ? (ushort)SnesButton.R : tick == 36 ? (ushort)SnesButton.L : (ushort)0;
                     native.Step(input, input); pause.Step(input, input);
                     AssertTrue(native.CaptureRenderSnapshot().Memory.Vram.SequenceEqual(pause.CaptureRenderSnapshot().Memory.Vram), "every native wireframe variant retains exact VRAM through page transitions, including Gravity");
                     AssertTrue(native.Render().AsSpan().SequenceEqual(pause.Render()), "wireframe migration retains actual native pixels with all artwork reads blocked");
                 }
+                // To the equipment page and back, each change run to completion (#1266 cadence).
+                ChangePausePage(pause, SnesButton.R, StepBoth);
+                ChangePausePage(pause, SnesButton.L, StepBoth);
+                AssertEqual(0, pause.ScreenMode, "wireframe fixture returns to the map page");
                 // Rebind on the map must not replace the map's shared BG1 page.
                 byte[] map = pause.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x1000).ToArray();
                 pause.BindMapPresentation(edited);
@@ -116,7 +119,7 @@ internal static partial class Program
         Console.WriteLine("Pause wireframes: four exact patches/untouched surroundings, 576 guarded native transition frames, isolated visual edits, actual equipment toggles, current-content restore and strict failures pass.");
 
         static void EnterEquipment(PauseMenuState pause)
-        { pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R); for (int i = 0; i < 32; i++) pause.Step(0, 0); AssertEqual(1, pause.ScreenMode, "wireframe fixture enters equipment"); }
+        { EnterPauseEquipment(pause); AssertEqual(1, pause.ScreenMode, "wireframe fixture enters equipment"); }
         static void AssertPage(PauseMenuState pause, AreaMapPresentationCatalog catalog, PauseWireframeKind kind)
         {
             byte[] actual = pause.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x800).ToArray();

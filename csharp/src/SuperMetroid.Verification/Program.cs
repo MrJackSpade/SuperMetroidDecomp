@@ -626,6 +626,7 @@ if (args is ["--pause-fixtures"])
     Suite(nameof(VerifyPausePaletteSound), () => VerifyPausePaletteSound());
     Suite(nameof(VerifyPauseReserveManual), () => VerifyPauseReserveManual());
     Suite(nameof(VerifyPauseReserveArrow), () => VerifyPauseReserveArrow());
+    Suite(nameof(VerifyPauseReserveArrowRebindKeepsLatch), () => VerifyPauseReserveArrowRebindKeepsLatch());
     Suite(nameof(VerifyPauseReserveTanks), () => VerifyPauseReserveTanks());
     Suite(nameof(VerifyPauseReserveHud), () => VerifyPauseReserveHud());
     return 0;
@@ -6861,6 +6862,7 @@ if (args is ["--pause-reserve-manual"])
 if (args is ["--pause-reserve-arrow"])
 {
     Suite(nameof(VerifyPauseReserveArrow), () => VerifyPauseReserveArrow());
+    Suite(nameof(VerifyPauseReserveArrowRebindKeepsLatch), () => VerifyPauseReserveArrowRebindKeepsLatch());
     return 0;
 }
 if (args is ["--pause-reserve-native"])
@@ -7484,6 +7486,7 @@ Suite(nameof(VerifyHealthWarning), () => VerifyHealthWarning());
 Suite(nameof(VerifyReserveAutoFrontend), () => VerifyReserveAutoFrontend());
 Suite(nameof(VerifyPauseReserveManual), () => VerifyPauseReserveManual());
 Suite(nameof(VerifyPauseReserveArrow), () => VerifyPauseReserveArrow());
+Suite(nameof(VerifyPauseReserveArrowRebindKeepsLatch), () => VerifyPauseReserveArrowRebindKeepsLatch());
 Suite(nameof(VerifyPauseReserveTanks), () => VerifyPauseReserveTanks());
 Suite(nameof(VerifyPauseReserveHud), () => VerifyPauseReserveHud());
 Suite(nameof(VerifyDoorMusicTiming), () => VerifyDoorMusicTiming());

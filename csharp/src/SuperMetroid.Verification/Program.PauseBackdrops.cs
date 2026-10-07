@@ -35,6 +35,7 @@ internal static partial class Program
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "backdrop/button-only edits change catalog identity");
         AssertTrue(original.PauseBackdrops.CreateButtonTilemap().AsSpan().SequenceEqual(
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0xb6e400, 0x400)), "all native mutable button words survive extraction");
+        AreaId everyTickArea = Enum.GetValues<AreaId>()[0];
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
             byte[] expected = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0xb6e000, 0x800);
@@ -48,12 +49,20 @@ internal static partial class Program
             // Rebind at every page/fade position, including the instant R/L updates
             // buttons before ScreenMode changes. Compare the following transition
             // too, so a hidden timing/selection reset cannot pass a single-frame test.
-            for (int tick = 0; tick < 76; tick++)
+            // Each page button lands on the first tick after the previous change completes.
+            int toMap = 2 + PausePageTransitionNativeLength + 1, unpause = toMap + PausePageTransitionNativeLength + 1;
+            for (int tick = 0; tick < unpause + 2; tick++)
             {
-                ushort input = tick == 2 ? (ushort)SnesButton.R : tick == 39 ? (ushort)SnesButton.L :
-                    tick == 74 ? (ushort)SnesButton.Start : (ushort)0;
+                ushort input = tick == 2 ? (ushort)SnesButton.R : tick == toMap ? (ushort)SnesButton.L :
+                    tick == unpause ? (ushort)SnesButton.Start : (ushort)0;
                 AssertEqual(native.Step(input, input), pause.Step(input, input), "backdrop migration preserves Start acceptance and page controls");
                 persistentEdit.Step(input, input);
+                // Each area's complete backdrop is compared word-for-word above, and the fade and
+                // page logic is area-independent: one area compares every tick, the others the
+                // page-change, mid-fade, settled and unpause ticks.
+                bool checkpoint = tick is 0 or 2 or 3 || tick == 2 + PausePageTransitionNativeLength / 2 ||
+                    tick == toMap || tick == toMap + 1 || tick == unpause || tick == unpause + 1;
+                if (area != everyTickArea && !checkpoint) continue;
                 var snapshot = pause.CaptureRenderSnapshot();
                 AssertTrue(native.CaptureRenderSnapshot().Memory.Vram.SequenceEqual(snapshot.Memory.Vram), "every stock transition frame retains exact native VRAM");
                 var pixels = pause.Render();
@@ -74,7 +83,8 @@ internal static partial class Program
                     AssertEqual(before.PaletteIndex, after.PaletteIndex, "live button highlight wins over replacement palette at every fade position");
                     AssertTrue(before.CharacterIndex != after.CharacterIndex, "replacement button characters reach live highlighted words");
                 }
-                if (tick is 0 or 36 or 73)
+                // Map page, mid page change, and the settled equipment page.
+                if (tick == 0 || tick == 2 + PausePageTransitionNativeLength / 2 || tick == toMap)
                 {
                     var changedPixels = pause.Render();
                     AssertTrue(!pixels.AsSpan().SequenceEqual(changedPixels), "authored frame/button changes are visible on map and equipment pages");
@@ -88,11 +98,11 @@ internal static partial class Program
         }
         // The native invalid-beam selection deliberately leaves an overlong label
         // in equipment VRAM. A full inventory rebuild during content rebind loses it.
-        var samus = new SamusState { CollectedItems = (ushort)SamusEquipmentFlags.HiJumpBoots, EquippedItems = (ushort)SamusEquipmentFlags.HiJumpBoots };
+        var samus = new SamusState { CollectedItems = 0x3300, EquippedItems = 0x3300, CollectedBeams = 0x100f, EquippedBeams = 4 };
         var glitch = new PauseMenuState(guard, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0, mapPresentation: original);
-        samus.CollectedBeams = 0x100f; samus.EquippedBeams = 4; samus.CollectedItems = samus.EquippedItems = 0x3300;
-        glitch.Step((ushort)SnesButton.R, (ushort)SnesButton.R);
-        for (int tick = 0; tick < 32; tick++) glitch.Step(0, 0);
+        EnterPauseEquipment(glitch);
+        SelectPauseBoots(glitch);
+        AssertEqual(0, glitch.SelectedItem, "fixture selects Hi-Jump Boots");
         glitch.Step(0, (ushort)(SnesButton.Left | SnesButton.A));
         AssertEqual((ushort)12, samus.EquippedBeams, "fixture actually performs native Boots-to-Plasma simultaneous-input glitch");
         byte[] glitchPage = glitch.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x800).ToArray();
@@ -139,7 +149,10 @@ internal static partial class Program
 
         static PauseMenuState Create(ISnesAddressSpace addressSpace, AreaId area, AreaMapPresentationCatalog catalog)
         {
-            var system = new Bank80SystemState(); system.SetAreaMapAcquired(area);
+            // Ceres has no map station, so its map byte is never set natively; since #1252 the
+            // pause map draws elevator destinations for acquired maps, which Ceres does not have.
+            var system = new Bank80SystemState();
+            if (area != AreaId.Ceres) system.SetAreaMapAcquired(area);
             return new(addressSpace, new SamusState { CollectedBeams = (ushort)SamusBeamFlags.Charge, EquippedBeams = (ushort)SamusBeamFlags.Charge },
                 system, area, 10, 10, mapPresentation: catalog);
         }

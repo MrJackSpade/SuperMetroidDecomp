@@ -83,9 +83,10 @@ public sealed partial class FileSelectRoomMapGraphics
     {
         var pixels = new Rgba32[FrontendFrame.Width * FrontendFrame.Height];
         Array.Fill(pixels, Cgram.GetRgba(0));
-        SnesLayerCompositor.Composite(pixels, SnesBgTilemapRenderer.Render4BppViewport(
+        // Composite directly: transparent cells leave the backdrop, as compositing a plane would.
+        SnesBgTilemapRenderer.Composite4BppViewport(pixels,
             Vram, Cgram, MenuPpuState.Bg2TilemapWord, FileSelectMapRomData.RoomCharacters,
-            0, 24, FrontendFrame.Width, FrontendFrame.Height, 32, 32));
+            0, 24, FrontendFrame.Width, FrontendFrame.Height, 32, 32);
         return pixels;
     }
 
@@ -96,9 +97,14 @@ public sealed partial class FileSelectRoomMapGraphics
         ArgumentNullException.ThrowIfNull(marker);
         Rgba32[] pixels = RenderBackgrounds(horizontalScroll, verticalScroll);
         OamBuffer oam = PrepareIcons(horizontalScroll, verticalScroll, marker, animations);
-        SnesLayerCompositor.Composite(pixels, SnesObjRenderer.Render(oam, Vram, Cgram, obsel: 0x03));
+        Rgba32[] objects = objScratch ??= new Rgba32[256 * 224];
+        SnesObjRenderer.Render(objects, oam, Vram, Cgram, obsel: 0x03);
+        SnesLayerCompositor.Composite(pixels, objects);
         return pixels;
     }
+
+    // OBJ scratch reused across draws; never part of saved state (restores reallocate it).
+    [NonSerialized] private Rgba32[]? objScratch;
 
     private OamBuffer PrepareIcons(ushort horizontalScroll, ushort verticalScroll, FileSelectStationMarker marker,
         FileSelectMapAnimations? animations)
@@ -118,15 +124,17 @@ public sealed partial class FileSelectRoomMapGraphics
     {
         var pixels = new Rgba32[256 * 224];
         Array.Fill(pixels, ppu.Cgram.GetRgba(0));
-        foreach (bool priority in new[] { false, true })
+        for (int tier = 0; tier < 2; tier++)
         {
             // Mode 1 orders BG2 before BG1 within each background priority tier.
-            SnesLayerCompositor.Composite(pixels, SnesBgTilemapRenderer.Render4BppViewport(
+            bool priority = tier == 1;
+            // Composited directly into the frame; transparent pixels leave it untouched.
+            SnesBgTilemapRenderer.Composite4BppViewport(pixels,
                 Vram, Cgram, MenuPpuState.Bg2TilemapWord, FileSelectMapRomData.RoomCharacters,
-                0, 24, 256, 224, 32, 32, priority: priority));
-            SnesLayerCompositor.Composite(pixels, SnesBgTilemapRenderer.Render4BppViewport(
+                0, 24, 256, 224, 32, 32, priority: priority);
+            SnesBgTilemapRenderer.Composite4BppViewport(pixels,
                 Vram, Cgram, MenuPpuState.Bg1TilemapWord, FileSelectMapRomData.RoomCharacters,
-                horizontalScroll, verticalScroll, 256, 224, priority: priority));
+                horizontalScroll, verticalScroll, 256, 224, priority: priority);
         }
         return pixels;
     }

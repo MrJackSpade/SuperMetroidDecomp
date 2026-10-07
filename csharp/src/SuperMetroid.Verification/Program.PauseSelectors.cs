@@ -26,11 +26,22 @@ internal static partial class Program
             var native = Create(bus, catalog, anchor.Category, anchor.Item);
             var pause = Create(guard, catalog, anchor.Category, anchor.Item);
             AssertEqual((anchor.Category, anchor.Item), (pause.SelectedCategory, pause.SelectedItem), "real menu fixture reaches the reported semantic selector");
+            // Every tick compares the complete render inputs; pixels are rasterized once per
+            // displayed selector frame, since identical inputs cannot render differently.
+            int renderedFrame = -1;
             for (int tick = 0; tick < 100; tick++)
             {
                 native.Step(0, 0); pause.Step(0, 0);
                 AssertEqual(native.ItemSelectorAnimationState, pause.ItemSelectorAnimationState, "real selector phase and timer follow native decrement/advance order");
-                AssertTrue(native.Render().AsSpan().SequenceEqual(pause.Render()), "all sixteen selectors match native pixels with pointer/art/position/timing reads forbidden");
+                var nativeInputs = native.CaptureRenderSnapshot(); var portInputs = pause.CaptureRenderSnapshot();
+                AssertTrue(nativeInputs.Memory.Oam.SequenceEqual(portInputs.Memory.Oam) && nativeInputs.Memory.Cgram.SequenceEqual(portInputs.Memory.Cgram) &&
+                    nativeInputs.Memory.Vram.SequenceEqual(portInputs.Memory.Vram) && nativeInputs.Brightness == portInputs.Brightness,
+                    "all sixteen selectors match native render inputs with pointer/art/position/timing reads forbidden");
+                if (pause.ItemSelectorAnimationState.Frame != renderedFrame)
+                {
+                    renderedFrame = pause.ItemSelectorAnimationState.Frame;
+                    AssertTrue(native.Render().AsSpan().SequenceEqual(pause.Render()), "all sixteen selectors match native pixels with pointer/art/position/timing reads forbidden");
+                }
                 if (tick == 51)
                 {
                     using var state = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(state, pause); state.Position = 0;
@@ -100,7 +111,7 @@ internal static partial class Program
         for (int tick = 0; tick < oldTiming.Timer; tick++) shortened.Step(0, 0);
         AssertEqual((1, 3), shortened.ItemSelectorAnimationState, "next expiry advances into the authored short cycle");
         var empty = new PauseMenuState(guard, new SamusState(), new Bank80SystemState(), AreaId.Crateria, 0, 0, mapPresentation: edited);
-        empty.Step((ushort)SnesButton.R, (ushort)SnesButton.R); for (int tick = 0; tick < 32; tick++) empty.Step(0, 0);
+        EnterPauseEquipment(empty);
         var emptyTiming = empty.ItemSelectorAnimationState;
         for (int tick = 0; tick < 40; tick++) empty.Step(0, 0);
         AssertEqual(emptyTiming, empty.ItemSelectorAnimationState, "empty inventory retains native animation gating");
@@ -128,7 +139,7 @@ internal static partial class Program
             else if (category == 1) samus.CollectedBeams = samus.EquippedBeams = PauseEquipmentRules.Mask(category, item);
             else samus.CollectedItems = samus.EquippedItems = PauseEquipmentRules.Mask(category, item);
             var pause = new PauseMenuState(addressSpace, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0, mapPresentation: content);
-            pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R); for (int i = 0; i < 32; i++) pause.Step(0, 0);
+            EnterPauseEquipment(pause);
             if (category == 0 && item == 1) pause.Step(0, (ushort)SnesButton.Down);
             return pause;
         }

@@ -74,8 +74,24 @@ internal static partial class Program
                 .SequenceEqual(stockMemory.Cgram.Slice(MapAnimationRomData.PaletteDestination, 16));
             AssertTrue(editedMemory.Cgram.Slice(240, 16).SequenceEqual(stockMemory.Cgram.Slice(240, 16)),
                 "highlight edit leaves the native palette-seven pause cursor colors unchanged");
-            AssertTrue(pause.Render().AsSpan().SequenceEqual(nativePause.Render()),
-                "palette-three highlight edit does not recolor the palette-seven pause cursor");
+            // Since #1251 the pause-map scroll arrows draw with OBJ palette 3 as on the cartridge,
+            // so the highlight edit may recolor them. Every differing pixel must therefore show a
+            // palette-3 color in both renders; nothing drawn from other palettes may change.
+            var editedPalette3 = new HashSet<SuperMetroid.Core.Assets.Rgba32>();
+            var stockPalette3 = new HashSet<SuperMetroid.Core.Assets.Rgba32>();
+            for (int color = 0; color < 16; color++)
+            {
+                editedPalette3.Add(SuperMetroid.Core.Assets.SnesGraphics.DecodeBgr555Color(
+                    editedMemory.Cgram[MapAnimationRomData.PaletteDestination + color]));
+                stockPalette3.Add(SuperMetroid.Core.Assets.SnesGraphics.DecodeBgr555Color(
+                    stockMemory.Cgram[MapAnimationRomData.PaletteDestination + color]));
+            }
+            var editedPixels = pause.Render();
+            var stockPixels = nativePause.Render();
+            for (int pixel = 0; pixel < editedPixels.Length; pixel++)
+                if (editedPixels[pixel] != stockPixels[pixel])
+                    AssertTrue(editedPalette3.Contains(editedPixels[pixel]) && stockPalette3.Contains(stockPixels[pixel]),
+                        "palette-three highlight edit recolors only palette-three pixels, not the palette-seven pause cursor");
             AssertEqual(nativePause.MapHorizontalScroll, pause.MapHorizontalScroll, "palette-only edit preserves map horizontal navigation");
             AssertEqual(nativePause.MapVerticalScroll, pause.MapVerticalScroll, "palette-only edit preserves map vertical navigation");
         }

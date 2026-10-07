@@ -15,8 +15,7 @@ internal static partial class Program
             MaxReserveEnergy = 100, ReserveTankMode = 1,
             CollectedBeams = (ushort)SamusBeamFlags.Charge };
         var pause = CreateRetailPauseFixture(bus, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0);
-        pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R);
-        for (int i = 0; i < 32; i++) pause.Step(0, 0);
+        EnterPauseEquipment(pause);
         AssertEqual(PauseEquipmentCategories.Reserves, pause.SelectedCategory, "equipment entry selects owned reserve controls without Up");
         AssertEqual(PauseReserveTransferRomData.ModeItem, pause.SelectedItem, "equipment entry selects reserve mode item");
         pause.Step(0, (ushort)SnesButton.A);
@@ -64,8 +63,7 @@ internal static partial class Program
                 MaxReserveEnergy = 100, ReserveTankMode = 2, CollectedBeams = (ushort)SamusBeamFlags.Charge };
             var audio = new CartridgeAudioState();
             var pause = CreateRetailPauseFixture(bus, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0, audio);
-            pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R);
-            for (int i = 0; i < 32; i++) pause.Step(0, 0);
+            EnterPauseEquipment(pause);
             pause.Step(0, (ushort)SnesButton.Up);
             pause.Step(0, (ushort)SnesButton.Down);
             audio.Reset();

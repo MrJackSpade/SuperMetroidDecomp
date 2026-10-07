@@ -48,8 +48,30 @@ public static class SnesObjRenderer
         ArgumentNullException.ThrowIfNull(cgram);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
-
         var output = new Rgba32[checked(width * height)];
+        Render(output, oam, vram, cgram, obsel, width, height, priority);
+        return output;
+    }
+
+    /// <summary>Renders finalized OAM into caller-owned storage, clearing it to transparent first.</summary>
+    public static void Render(
+        Span<Rgba32> output,
+        OamBuffer oam,
+        SnesVram vram,
+        SnesCgram cgram,
+        byte obsel,
+        int width = SnesPpuLayout.ScreenWidthPixels,
+        int height = SnesPpuLayout.ScreenHeightPixels,
+        int? priority = null)
+    {
+        ArgumentNullException.ThrowIfNull(oam);
+        ArgumentNullException.ThrowIfNull(vram);
+        ArgumentNullException.ThrowIfNull(cgram);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
+        if (output.Length != checked(width * height))
+            throw new ArgumentException("OBJ output buffer has the wrong size.", nameof(output));
+        output.Clear();
 
         // A lower OAM number wins an OBJ-vs-OBJ overlap on the normal SNES priority
         // rotation setting. Painting records backwards lets the lower index overwrite
@@ -67,8 +89,6 @@ public static class SnesObjRenderer
             OamEntry entry = oam.GetEntry(spriteIndex);
             DrawSprite(output, width, height, entry, vram, cgram, obsel, priority);
         }
-
-        return output;
     }
 
     /// <summary>

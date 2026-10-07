@@ -35,15 +35,16 @@ internal static partial class Program
             var native = new PauseMenuState(bus, nativeSamus, system, area,
                 10, 10, mapPresentation: original);
             var pause = new PauseMenuState(new PauseArtworkReadGuard(bus), samus, system, area, 10, 10, mapPresentation: original);
-            for (int tick = 0; tick < 72; tick++)
+            int toMap = 2 + PausePageTransitionNativeLength + 1;
+            for (int tick = 0; tick < toMap + PausePageTransitionNativeLength + 2; tick++)
             {
-                ushort pressed = tick == 2 ? (ushort)SnesButton.R : tick == 38 ? (ushort)SnesButton.L : (ushort)0;
+                ushort pressed = tick == 2 ? (ushort)SnesButton.R : tick == toMap ? (ushort)SnesButton.L : (ushort)0;
                 AssertEqual(native.Step(pressed, pressed), pause.Step(pressed, pressed), "pause PNG migration preserves unpause result");
                 AssertEqual(native.ScreenMode, pause.ScreenMode, "pause PNG migration preserves page timing");
                 AssertTrue(native.Render().AsSpan().SequenceEqual(pause.Render()), "pause map/equipment transitions match native pixels with artwork reads blocked");
             }
-            pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R);
-            for (int tick = 0; tick < 32; tick++) pause.Step(0, 0);
+            AssertEqual(0, pause.ScreenMode, "pause PNG fixture returns to the map page");
+            EnterPauseEquipment(pause);
             AssertEqual(1, pause.ScreenMode, "artwork edit fixture reaches equipment page");
             var before = pause.Render();
             var selected = (pause.SelectedCategory, pause.SelectedItem, samus.EquippedBeams, samus.CollectedBeams);

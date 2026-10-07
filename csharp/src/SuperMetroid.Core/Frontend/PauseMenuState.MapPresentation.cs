@@ -54,10 +54,11 @@ internal sealed partial class PauseMenuState
         {
             WriteReserveLabels();
             WriteReserveSupplyDigits();
-            // The arrow owner intentionally leaves its last palette/colors latched when
-            // the selector moves into another category. Recompute only while reserve
-            // controls own it; otherwise state restore must retain those live fields.
-            if (selectedCategory == PauseEquipmentCategories.Reserves)
+            // A rebind is not a tank dispatch: re-apply the owner's latched arrow state with the
+            // new palettes. Only a bind before anything has latched asks the owner.
+            if (reserveArrowLatched)
+                ReapplyLatchedReserveArrow();
+            else if (selectedCategory == PauseEquipmentCategories.Reserves)
                 UpdateReserveArrow(pauseNmiFrameCounter8);
         }
         if (ScreenMode != 0) UploadEquipmentTilemap();

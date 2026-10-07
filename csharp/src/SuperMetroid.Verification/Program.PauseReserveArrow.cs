@@ -15,8 +15,7 @@ internal static partial class Program
         var samus = new SamusState { Health = 20, MaxHealth = 99, ReserveEnergy = 2,
             MaxReserveEnergy = 100, ReserveTankMode = 1, CollectedBeams = (ushort)SamusBeamFlags.Charge };
         var pause = CreateRetailPauseFixture(bus, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0);
-        pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R);
-        for (int i = 0; i < 32; i++) pause.Step(0, 0);
+        EnterPauseEquipment(pause);
         pause.Step(0, (ushort)SnesButton.Up);
         Rgba32[]? first = null;
         for (byte frame = 0; frame < 32; frame++)

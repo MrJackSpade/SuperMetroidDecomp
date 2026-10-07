@@ -17,9 +17,9 @@ internal static partial class Program
         {
             var samus = new SamusState { MaxReserveEnergy = capacity, ReserveTankMode = mode,
                 CollectedItems = (ushort)SamusEquipmentFlags.MorphBall };
-            var pause = new PauseMenuState(bus, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0);
-            pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R);
-            for (int frame = 0; frame < 32; frame++) pause.Step(0, 0);
+            var pause = new PauseMenuState(bus, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0,
+                mapPresentation: RetailPresentationFixture());
+            EnterPauseEquipment(pause);
             AssertEqual(1, pause.ScreenMode, "reserve label test reached equipment page");
             var snapshot = pause.CaptureRenderSnapshot();
             byte[] expectedVram = snapshot.Memory.Vram.ToArray();

@@ -63,14 +63,12 @@ internal static partial class Program
 
         // Exercise the retail nine-word Boots-to-Plasma copy after an asset-identity
         // change. The first four Varia words must remain the contiguous source tail.
-        var glitchSamus = new SamusState { CollectedItems = (ushort)SamusEquipmentFlags.HiJumpBoots,
-            EquippedItems = (ushort)SamusEquipmentFlags.HiJumpBoots };
+        var glitchSamus = new SamusState { CollectedItems = 0x3300, EquippedItems = 0x3300,
+            CollectedBeams = 0x100f, EquippedBeams = 4 };
         var glitch = new PauseMenuState(guard, glitchSamus, new Bank80SystemState(), AreaId.Crateria,
             0, 0, mapPresentation: original);
-        glitchSamus.CollectedBeams = 0x100f;
-        glitchSamus.EquippedBeams = 4;
-        glitchSamus.CollectedItems = glitchSamus.EquippedItems = 0x3300;
         EquipmentPage(glitch);
+        SelectPauseBoots(glitch);
         glitch.Step(0, (ushort)(SnesButton.Left | SnesButton.A));
         glitch.BindMapPresentation(edited);
         byte[] glitchPage = glitch.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x800).ToArray();
@@ -111,8 +109,7 @@ internal static partial class Program
 
         static byte[] EquipmentPage(PauseMenuState pause)
         {
-            pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R);
-            for (int frame = 0; frame < 32; frame++) pause.Step(0, 0);
+            EnterPauseEquipment(pause);
             return pause.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x800).ToArray();
         }
 

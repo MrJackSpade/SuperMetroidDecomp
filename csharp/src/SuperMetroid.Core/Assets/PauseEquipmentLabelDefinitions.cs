@@ -42,13 +42,13 @@ public static class PauseEquipmentLabelDefinitions
     /// <summary>Uses the reviewed category contract, including zero labels for reserves.</summary>
     public static int ItemCount(int category) => PauseEquipmentCategories.Get(category).ItemCount;
 
-    /// <summary>Enumerates the ordinary label view without storing another identity table.</summary>
-    public static IEnumerable<(int Category, int Item, string Key)> Labels()
-    {
-        foreach (var anchor in PauseSelectorDefinitions.Anchors())
-            if (anchor.Category != PauseEquipmentCategories.Reserves)
-                yield return (anchor.Category, anchor.Item, anchor.Name);
-    }
+    /// <summary>The ordinary label view of the selector anchors, derived once rather than per lookup.</summary>
+    public static IReadOnlyList<(int Category, int Item, string Key)> Labels() => labels.Value;
+
+    private static readonly Lazy<(int Category, int Item, string Key)[]> labels = new(() =>
+        PauseSelectorDefinitions.Anchors()
+            .Where(anchor => anchor.Category != PauseEquipmentCategories.Reserves)
+            .Select(anchor => (anchor.Category, anchor.Item, anchor.Name)).ToArray());
 
     public static int WordCount(int category) => category == 1 ? BeamWords : EquipmentWords;
     /// <summary>$82:BF32-C018: all collected labels use BG palette two and the marker character $FF.</summary>
@@ -102,9 +102,14 @@ public static class PauseEquipmentLabelDefinitions
     internal static int StockDestinationByte(string key)
     {
         if (key == HyperKey) key = Key(PauseEquipmentCategories.Beams, HyperBeamItem);
-        foreach (var label in Labels())
+        return destinations.Value.TryGetValue(key, out int destination) ? destination
+            : throw new ArgumentOutOfRangeException(nameof(key));
+    }
+
+    // Every label's destination by the rule above, derived once: lookups run per tilemap cell.
+    private static readonly Lazy<Dictionary<string, int>> destinations = new(() =>
+        Labels().ToDictionary(label => label.Key, label =>
         {
-            if (label.Key != key) continue;
             (int column, int firstRow) = label.Category switch
             {
                 PauseEquipmentCategories.Beams => (4, 16),
@@ -113,9 +118,7 @@ public static class PauseEquipmentLabelDefinitions
                 _ => throw new InvalidDataException("Unknown equipment label category."),
             };
             return ((firstRow + label.Item) * TilemapColumns + column) * sizeof(ushort);
-        }
-        throw new ArgumentOutOfRangeException(nameof(key));
-    }
+        }, StringComparer.Ordinal));
 
     /// <summary>Assembles named equipment text from its packed atlas runs, shared suffixes and padding.</summary>
     /// <remarks>The referenced glyph pixels remain independently authored interface artwork.</remarks>

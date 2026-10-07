@@ -31,8 +31,7 @@ internal static partial class Program
             var pause = new PauseMenuState(bus, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0, audio);
             if (group.Key.Manual)
             {
-                pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R);
-                for (int i = 0; i < 32; i++) pause.Step(0, 0);
+                EnterPauseEquipment(pause);
                 pause.Step(0, (ushort)SnesButton.Up);
                 pause.Step(0, (ushort)SnesButton.Down);
             }

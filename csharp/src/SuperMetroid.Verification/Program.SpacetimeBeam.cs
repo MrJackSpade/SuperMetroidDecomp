@@ -42,6 +42,8 @@ internal static partial class Program
         {
             CollectedItems = (ushort)SamusEquipmentFlags.HiJumpBoots,
             EquippedItems = (ushort)SamusEquipmentFlags.HiJumpBoots,
+            CollectedBeams = 0x100f,
+            EquippedBeams = 0x1006,
         };
         var selection = CreateRetailPauseFixture(
             bus,
@@ -50,11 +52,8 @@ internal static partial class Program
             AreaId.Crateria,
             0,
             0);
-        samus.CollectedBeams = 0x100f;
-        samus.EquippedBeams = 0x1006;
-        selection.Step((ushort)SnesButton.R, (ushort)SnesButton.R);
-        for (int frame = 0; frame < 32; frame++)
-            selection.Step(0, 0);
+        EnterPauseEquipment(selection);
+        SelectPauseBoots(selection);
         selection.Step(0, (ushort)(SnesButton.Left | SnesButton.A));
         AssertEqual((ushort)0x100e, samus.EquippedBeams,
             "same-frame Boots Left+A creates the SpaceTime beam word");

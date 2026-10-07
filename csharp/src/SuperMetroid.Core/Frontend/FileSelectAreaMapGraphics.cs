@@ -90,13 +90,22 @@ public sealed partial class FileSelectAreaMapGraphics
     /// Steady state six leaves BG1 on main and BG3 on sub, with additive color math
     /// enabled for BG1 and backdrop. Menu OBJ labels must be composed afterwards.
     /// </summary>
+    // Layer scratch reused across draws; never part of saved state (restores reallocate it).
+    [NonSerialized] private Rgba32[]? foregroundScratch;
+    [NonSerialized] private Rgba32[]? subscreenScratch;
+    [NonSerialized] private Rgba32[]? objScratch;
+
     public Rgba32[] RenderBackgrounds(bool includeBackdropInColorMath = true)
     {
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, 256 * 224);
-        Rgba32[] foreground = SnesBgTilemapRenderer.Render4BppViewport(
-            ppu.Vram, ppu.Cgram, MenuPpuState.Bg1TilemapWord, 0, 0, 0, 256, 224, 32, 32);
+        Rgba32[] foreground = foregroundScratch ??= new Rgba32[256 * 224];
+        foreground.AsSpan().Clear();
+        SnesBgTilemapRenderer.Composite4BppViewport(
+            foreground, ppu.Vram, ppu.Cgram, MenuPpuState.Bg1TilemapWord, 0, 0, 0, 256, 224, 32, 32);
         SnesLayerCompositor.Composite(pixels, foreground);
-        Rgba32[] subscreen = SnesBgTilemapRenderer.Render2Bpp(ppu.Vram, ppu.Cgram,
+        Rgba32[] subscreen = subscreenScratch ??= new Rgba32[256 * 28 * 8];
+        subscreen.AsSpan().Clear();
+        SnesBgTilemapRenderer.Render2Bpp(subscreen, ppu.Vram, ppu.Cgram,
             FileSelectMapRomData.AreaBackgroundVram, FileSelectMapRomData.AreaBackgroundCharacters,
             28, transparentColorZero: true);
         // $81:AAAC changes CGADSUB from $25 to $05: BG1 still adds BG3, but
@@ -120,7 +129,9 @@ public sealed partial class FileSelectAreaMapGraphics
         Rgba32[] frame = RenderBackgrounds(includeBackdropInColorMath);
         OamBuffer oam = PrepareLabels(usedStationMasks);
         // CGADSUB excludes OBJ: labels are composited after BG1/subscreen addition.
-        SnesLayerCompositor.Composite(frame, SnesObjRenderer.Render(oam, ppu.Vram, ppu.Cgram, obsel: 0x03));
+        Rgba32[] objects = objScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
+        SnesObjRenderer.Render(objects, oam, ppu.Vram, ppu.Cgram, obsel: 0x03);
+        SnesLayerCompositor.Composite(frame, objects);
         return frame;
     }
 

@@ -45,14 +45,8 @@ internal static partial class Program
             AreaId.Crateria,
             0,
             0);
-        pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R);
-        for (int frame = 0; frame < 32; frame++)
-            pause.Step(0, 0);
-        pause.Step(0, (ushort)SnesButton.Right);
-        for (int step = 0; pause.SelectedCategory != 3 && step < 6; step++)
-            pause.Step(0, (ushort)SnesButton.Down);
-        AssertEqual(3, pause.SelectedCategory,
-            "Murder Beam setup moves the equipment marker to Boots");
+        EnterPauseEquipment(pause);
+        SelectPauseBoots(pause);
         pause.Step(0, (ushort)(SnesButton.Left | SnesButton.A));
         AssertEqual((ushort)0x100f, samus.EquippedBeams,
             "same-frame Boots Left+A equips all four beams while retaining Charge");

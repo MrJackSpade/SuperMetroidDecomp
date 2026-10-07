@@ -8,8 +8,10 @@ internal static partial class Program
     {
         ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
         var noReads = new SlopeHeightNoReadBus();
-        var bomb = new SamusState { XPosition = 128, YPosition = 128 };
-        bomb.Kinematics.YRadius = 12;
+        // Bomb jumps start in morph ball. Since #1258 the medium test samples the current pose's
+        // native collision radius, so the liquid threshold is that pose's bottom edge.
+        var bomb = new SamusState { Pose = SamusPoseIds.MorphBallGroundRightPose, XPosition = 128, YPosition = 128 };
+        int bombBottom = 128 + SamusPoseCollisionDefinitions.ReadVerticalRadius(bomb.Pose) - 1;
         int bombCases = 0;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         for (int liquid = 1; liquid <= 2; liquid++)
@@ -28,7 +30,7 @@ internal static partial class Program
             bomb.Kinematics.YAcceleration = 7;
             bomb.Kinematics.YSubacceleration = 123;
             var result = SamusBombJumpMovement.Start(noReads, bomb);
-            int medium = gravity == 0 && raw < 139 ? liquid : 0;
+            int medium = gravity == 0 && raw < bombBottom ? liquid : 0;
             AssertEqual(Word(0x909ef5 + medium * 2), bomb.Kinematics.YSpeed, "Bomb native whole launch");
             AssertEqual(Word(0x909efb + medium * 2), bomb.Kinematics.YSubspeed, "Bomb native fractional launch");
             AssertEqual((ushort)1, bomb.Kinematics.YDirection, "Bomb upward launch");

@@ -109,8 +109,7 @@ internal static partial class Program
         };
         static void EnterEquipment(PauseMenuState pause)
         {
-            pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R);
-            for (int frame = 0; frame < 32; frame++) pause.Step(0, 0, nmiFrameCounter8: (byte)frame);
+            byte nmiFrame = 0; ChangePausePage(pause, SnesButton.R, input => pause.Step(input, input, nmiFrameCounter8: nmiFrame++));
             AssertEqual(1, pause.ScreenMode, "reserve UI fixture enters equipment");
         }
     }

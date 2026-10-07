@@ -30,8 +30,10 @@ internal static class WorldMapTileDefinitions
         int tile = imageY / Side * WorldMapArtworkFormat.TileColumns + index % WorldMapArtworkFormat.Width / Side;
         value = 0;
         if (!IsForegroundFontTile(tile)) return false;
-        bool Inside(int selected, int px, int py) => (footprint(selected) & (1UL << (py * Side + px))) != 0;
-        if (Inside(tile, x, y)) { value = ForegroundFontFace; return true; }
+        // Static so the per-pixel call captures nothing and allocates no closure.
+        static bool Inside(Func<int, ulong> footprint, int selected, int px, int py) =>
+            (footprint(selected) & (1UL << (py * Side + px))) != 0;
+        if (Inside(footprint, tile, x, y)) { value = ForegroundFontFace; return true; }
         bool downward = tile is >= 0x9d and <= 0x9f or >= 0xad and <= 0xaf or 0xcc;
         int sourceX = downward ? x : x - 1;
         int sourceTile = tile, sourceY = y - 1;
@@ -49,7 +51,7 @@ internal static class WorldMapTileDefinitions
             sourceTile -= WorldMapArtworkFormat.TileColumns;
             sourceY += Side;
         }
-        if (Inside(sourceTile, sourceX, sourceY)) value = ForegroundFontShadow;
+        if (Inside(footprint, sourceTile, sourceX, sourceY)) value = ForegroundFontShadow;
         return true;
     }
 

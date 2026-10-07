@@ -124,12 +124,14 @@ internal static partial class Program
             "pause map label bright palette reached BG2");
         AssertEqual(0x0800, pause.ReadPauseButtonLabelWord(822) & 0x1c00,
             "pause equipment label dim palette reached BG2");
-        pause.Step((ushort)SnesButton.R, 0);
-        for (int frame = 0; frame < 32; frame++)
-            pause.Step(0, 0);
+        EnterPauseEquipment(pause);
         AssertEqual(1, pause.ScreenMode, "pause R transition reaches equipment page");
-        AssertEqual(2, pause.SelectedCategory, "pause selects suits/misc category");
-        AssertEqual(2, pause.SelectedItem, "pause selects first collected Morph Ball item");
+        // $82:ABAD-$ABB5 selects the reserve mode control whenever reserve capacity exists (#1266).
+        AssertEqual((PauseEquipmentCategories.Reserves, PauseReserveTransferRomData.ModeItem),
+            (pause.SelectedCategory, pause.SelectedItem), "pause entry selects the reserve mode control");
+        pause.Step(0, (ushort)SnesButton.Right);
+        AssertEqual(2, pause.SelectedCategory, "pause Right moves to suits/misc category");
+        AssertEqual(2, pause.SelectedItem, "pause Right selects first collected Morph Ball item");
         pause.Render();
         AssertEqual((int)PauseSelectorDefinitions.NativeSpriteId(2), pause.LastIndicatorSpritemapId, "pause selector category base ID");
         AssertEqual(0x90, pause.LastIndicatorOriginX, "pause Morph selector X origin");
@@ -183,11 +185,10 @@ internal static partial class Program
             roomMapX: 28,
             roomMapY: 1,
             gameplayVram: gameplayVram, mapPresentation: presentation);
-        beamPause.Step((ushort)SnesButton.R, 0);
-        for (int frame = 0; frame < 32; frame++)
-            beamPause.Step(0, 0);
-        AssertEqual(1, beamPause.SelectedCategory,
-            "Wave-only pause fixture selects beam category");
+        EnterPauseEquipment(beamPause);
+        AssertEqual(PauseEquipmentCategories.Reserves, beamPause.SelectedCategory,
+            "Wave-only pause entry selects the reserve mode control while capacity exists");
+        SelectPauseBeams(beamPause);
         beamPause.Step(0, (ushort)SnesButton.A);
         AssertEqual((ushort)SamusBeamFlags.Wave, samus.EquippedBeams,
             "pause toggle immediately mutates live Wave equipment word");

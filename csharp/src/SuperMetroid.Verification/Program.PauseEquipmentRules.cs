@@ -70,7 +70,7 @@ internal static partial class Program
             {
                 var samus = Inventory(category, masks[item]);
                 var pause = Create(samus);
-                EnterEquipment(pause);
+                EnterPauseEquipment(pause);
                 AssertEqual((category, item), (pause.SelectedCategory, pause.SelectedItem), "single owned upgrade selects its actual native menu entry");
                 pause.Step(0, (ushort)SnesButton.A);
                 AssertEqual((ushort)0, category == 1 ? samus.EquippedBeams : samus.EquippedItems, "A toggles exactly the compiled upgrade bit off");
@@ -92,7 +92,7 @@ internal static partial class Program
         Suite(nameof(VerifyPauseWireframeSelection), () => VerifyPauseWireframeSelection(bus));
         foreach (ushort items in wireframeMasks.SelectMany(mask => new[] { mask, (ushort)(mask | (ushort)SamusEquipmentFlags.GravitySuit) }))
         {
-            var pause = Create(new SamusState { EquippedItems = items, CollectedItems = items }); EnterEquipment(pause);
+            var pause = Create(new SamusState { EquippedItems = items, CollectedItems = items }); EnterPauseEquipment(pause);
             int variant = Array.IndexOf(wireframeMasks, (ushort)(items & 0x0101));
             int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuRomData.EquipmentTilemapPatchPointerTable + variant * 2);
             var memory = pause.CaptureRenderSnapshot().Memory;
@@ -108,7 +108,7 @@ internal static partial class Program
         {
             var samus = new SamusState { Health = (ushort)scenario.Health, MaxHealth = 99, ReserveEnergy = (ushort)scenario.Reserve,
                 MaxReserveEnergy = 100, ReserveTankMode = 2, CollectedBeams = (ushort)SamusBeamFlags.Charge };
-            var pause = Create(samus); EnterEquipment(pause);
+            var pause = Create(samus); EnterPauseEquipment(pause);
             pause.Step(0, (ushort)SnesButton.Up); pause.Step(0, (ushort)SnesButton.Down);
             AssertEqual((0, 1), (pause.SelectedCategory, pause.SelectedItem), "manual transfer fixture reaches reserve dispatcher");
             int health = scenario.Health, reserve = scenario.Reserve;
@@ -126,12 +126,6 @@ internal static partial class Program
         static SamusState Inventory(int category, ushort owned) => category == 1
             ? new SamusState { CollectedBeams = owned, EquippedBeams = owned }
             : new SamusState { CollectedItems = owned, EquippedItems = owned };
-        static void EnterEquipment(PauseMenuState pause)
-        {
-            pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R);
-            for (int tick = 0; tick < 32; tick++) pause.Step(0, 0);
-            AssertEqual(1, pause.ScreenMode, "fixture actually enters equipment screen");
-        }
     }
 
     private sealed class PauseRulesReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
@@ -148,5 +142,60 @@ internal static partial class Program
             return source.ReadByte(address);
         }
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+    }
+
+    /// <summary>
+    /// Native page-change length since #1266: fifteen fade-out steps, one load step, then
+    /// fifteen brightness writes each spending CounterReload counter-only updates first.
+    /// </summary>
+    private static int PausePageTransitionNativeLength => 15 + 1 + 15 * (PauseFadeTiming.CounterReload + 1);
+
+    /// <summary>
+    /// Presses a page button, then steps until the page change completes, advancing through
+    /// <paramref name="step"/> (default: the pause menu alone). Page input is accepted only once the
+    /// transition completes, so fixtures wait for it rather than a fixed tick count.
+    /// </summary>
+    private static void ChangePausePage(PauseMenuState pause, SnesButton page, Action<ushort>? step = null)
+    {
+        step ??= input => pause.Step(input, input);
+        step((ushort)page);
+        int ticks = 0;
+        do
+        {
+            step(0);
+            AssertTrue(++ticks <= PausePageTransitionNativeLength, "pause page transition completes within its native length");
+        }
+        while (pause.IsPageTransitionActive);
+    }
+
+    /// <summary>
+    /// Moves the equipment selector from its entry selection ($82:AB47 selects the first beam on
+    /// every page entry, #1266) to the Boots category with real input, for the simultaneous
+    /// Boots Left+A beam-selection glitches.
+    /// </summary>
+    private static void SelectPauseBoots(PauseMenuState pause)
+    {
+        pause.Step(0, (ushort)SnesButton.Right);
+        for (int step = 0; pause.SelectedCategory != 3 && step < 6; step++)
+            pause.Step(0, (ushort)SnesButton.Down);
+        AssertEqual(3, pause.SelectedCategory, "fixture moves the equipment selector to Boots");
+    }
+
+    /// <summary>
+    /// Moves the equipment selector down to the beam category with real input. With reserve
+    /// capacity, $82:ABAD-$ABB5 selects the reserve mode control on entry (#1266).
+    /// </summary>
+    private static void SelectPauseBeams(PauseMenuState pause)
+    {
+        for (int step = 0; pause.SelectedCategory != 1 && step < 6; step++)
+            pause.Step(0, (ushort)SnesButton.Down);
+        AssertEqual(1, pause.SelectedCategory, "fixture moves the equipment selector to the beams");
+    }
+
+    /// <summary>Presses R and steps until the equipment page is ready for input (#1266 cadence).</summary>
+    private static void EnterPauseEquipment(PauseMenuState pause)
+    {
+        ChangePausePage(pause, SnesButton.R);
+        AssertEqual(1, pause.ScreenMode, "fixture actually enters equipment screen");
     }
 }

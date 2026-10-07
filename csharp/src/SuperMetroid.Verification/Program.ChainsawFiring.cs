@@ -19,6 +19,8 @@ internal static partial class Program
         {
             CollectedItems = (ushort)SamusEquipmentFlags.HiJumpBoots,
             EquippedItems = (ushort)SamusEquipmentFlags.HiJumpBoots,
+            CollectedBeams = 0x100f,
+            EquippedBeams = (ushort)(SamusBeamFlags.Wave | SamusBeamFlags.Spazer),
         };
         var pause = CreateRetailPauseFixture(
             bus,
@@ -27,11 +29,8 @@ internal static partial class Program
             AreaId.Crateria,
             0,
             0);
-        samus.CollectedBeams = 0x100f;
-        samus.EquippedBeams = (ushort)(SamusBeamFlags.Wave | SamusBeamFlags.Spazer);
-        pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R);
-        for (int frame = 0; frame < 32; frame++)
-            pause.Step(0, 0);
+        EnterPauseEquipment(pause);
+        SelectPauseBoots(pause);
         pause.Step(0, (ushort)(SnesButton.Left | SnesButton.A));
         AssertEqual((ushort)0x000d, samus.EquippedBeams,
             "same-frame Boots Left+A equips Wave, Spazer, and Plasma without Ice");

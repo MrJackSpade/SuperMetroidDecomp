@@ -26,7 +26,7 @@ internal static partial class Program
             var installedSamus = new SamusState { MaxReserveEnergy = capacity, ReserveTankMode = 2 };
             var native = Create(bus, nativeSamus, catalog);
             var installed = Create(guard, installedSamus, catalog);
-            for (ushort supply = 0; supply <= capacity; supply++)
+            foreach (ushort supply in ReserveSupplySamples(capacity))
             foreach (byte phase in new byte[] { 0, 4 })
             {
                 nativeSamus.ReserveEnergy = installedSamus.ReserveEnergy = supply;
@@ -88,11 +88,32 @@ internal static partial class Program
             File.WriteAllText(stockPath, "corrupt stock"); AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "override cannot hide corrupt reserve provenance");
         }
         finally { File.WriteAllBytes(stockPath, bytes); }
-        Console.WriteLine($"Reserve presentation: 180 native composition/capacity cases and {comparisons} exhaustive supply/flicker menu frames; edits, restore, transfer and strict failures pass.");
+        Console.WriteLine($"Reserve presentation: 180 native composition/capacity cases and {comparisons} fill-step boundary supply/flicker menu frames; edits, restore, transfer and strict failures pass.");
+        // $82:B2AA draws full tanks from supply / 100, then one partial tank from the remainder's
+        // 14-unit fill step, flickering when the remainder is between steps. Each tank's empty,
+        // step-start, step-start+1 and step-end supplies cover every distinct drawing case.
+        static IEnumerable<ushort> ReserveSupplySamples(ushort capacity)
+        {
+            var samples = new SortedSet<ushort>();
+            for (int tank = 0; tank * PauseReserveTankRomData.EnergyPerTank <= capacity; tank++)
+            {
+                int baseSupply = tank * PauseReserveTankRomData.EnergyPerTank;
+                samples.Add((ushort)baseSupply);
+                for (int step = 0; step * PauseReserveTankRomData.EnergyPerFillStep < PauseReserveTankRomData.EnergyPerTank; step++)
+                {
+                    int start = step * PauseReserveTankRomData.EnergyPerFillStep;
+                    int end = Math.Min(start + PauseReserveTankRomData.EnergyPerFillStep, PauseReserveTankRomData.EnergyPerTank) - 1;
+                    foreach (int remainder in new[] { start, start + 1, end })
+                        if (remainder is > 0 and < PauseReserveTankRomData.EnergyPerTank && baseSupply + remainder <= capacity)
+                            samples.Add((ushort)(baseSupply + remainder));
+                }
+            }
+            return samples;
+        }
         static PauseMenuState Create(ISnesAddressSpace source, SamusState state, AreaMapPresentationCatalog content)
         {
             var pause = new PauseMenuState(source, state, new Bank80SystemState(), AreaId.Crateria, 0, 0, mapPresentation: content);
-            pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R); for (int i = 0; i < 32; i++) pause.Step(0, 0);
+            EnterPauseEquipment(pause);
             return pause;
         }
     }

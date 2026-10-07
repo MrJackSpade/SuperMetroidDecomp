@@ -300,6 +300,11 @@ if (args is ["--power-bomb-death-radius"])
     VerifyPowerBombDeathRadius();
     return 0;
 }
+if (args is ["--respawned-enemy-contact"])
+{
+    VerifyRespawnedEnemyContact();
+    return 0;
+}
 if (args is ["--single-frame-enemy-visuals"])
 {
     VerifyKzanInstructionProgramDefinitions();
@@ -7141,6 +7146,7 @@ VerifyPowerBombRuntimeRendererIntegration();
 VerifyPowerBombFuse();
 VerifyPowerBombBoundary();
 VerifyPowerBombDeathRadius();
+VerifyRespawnedEnemyContact();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

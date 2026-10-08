@@ -11,15 +11,25 @@ namespace SuperMetroid.Core.Assets;
 /// </remarks>
 public sealed partial class SamusBodyArtworkCatalog
 {
+    /// <summary>SNES address of the first four-byte Samus frame selector.</summary>
     public const int FirstFrameAddress = 0x92DB48;
+    /// <summary>Exclusive SNES address ending the extracted frame-selector interval.</summary>
     public const int FrameEndExclusive = 0x92ED24;
+    /// <summary>Bank-$92 offset of the first four-byte frame selector.</summary>
     public const int FirstFrameOffset = 0xDB48;
+    /// <summary>Exclusive bank-$92 offset ending the frame-selector interval.</summary>
     public const int FrameEndOffset = 0xED24;
+    /// <summary>Number of four-byte frame selectors in the contiguous interval.</summary>
     public const int FrameCount = (FrameEndExclusive - FirstFrameAddress) / 4;
+    /// <summary>Number of native Samus pose entries with body-art selectors.</summary>
     public const int PoseCount = 253;
+    /// <summary>Number of upper-body definition groups.</summary>
     public const int TopSetCount = 13;
+    /// <summary>Number of lower-body definition groups.</summary>
     public const int BottomSetCount = 11;
+    /// <summary>Maximum tile count represented by one definition slot.</summary>
     public const int TilesPerDefinition = 16;
+    /// <summary>Maximum planar-byte capacity of one definition slot.</summary>
     public const int BytesPerDefinitionSlot = TilesPerDefinition * 32;
 
     private readonly Dictionary<int, ushort> topPointers;
@@ -49,6 +59,22 @@ public sealed partial class SamusBodyArtworkCatalog
     /// <summary>Editable pose placement and cover characters for the independent arm-cannon OBJ.</summary>
     public SamusArmCannonArtworkCatalog ArmCannon { get; }
 
+    /// <summary>Creates and validates a complete editable Samus body-art catalog.</summary>
+    /// <param name="topPointers">Bank-$92 pointers to upper-body definition groups.</param>
+    /// <param name="bottomPointers">Bank-$92 pointers to lower-body definition groups.</param>
+    /// <param name="posePointers">Per-pose pointers to four-byte frame-selector lists.</param>
+    /// <param name="graphicsYOffsets">Per-pose signed vertical art origins.</param>
+    /// <param name="frames">The contiguous native frame-selector interval.</param>
+    /// <param name="top">Upper-body tile definitions grouped by pointer table entry.</param>
+    /// <param name="bottom">Lower-body tile definitions grouped by pointer table entry.</param>
+    /// <param name="spritemaps">Editable Samus OAM compositions.</param>
+    /// <param name="atmosphere">Editable atmospheric-effect OBJ attributes.</param>
+    /// <param name="deathPalettes">Editable fatal-damage and death palettes.</param>
+    /// <param name="deathTiles">Editable death-explosion tile characters.</param>
+    /// <param name="armCannon">Editable arm-cannon placement and cover artwork.</param>
+    /// <param name="landingYOffsets">Native landing vertical-offset bytes.</param>
+    /// <param name="postureYOffsets">Native posture-transition vertical offsets.</param>
+    /// <param name="drainedYOffsets">Native drained-state vertical offsets.</param>
     public SamusBodyArtworkCatalog(ushort[] topPointers, ushort[] bottomPointers,
         ushort[] posePointers, sbyte[] graphicsYOffsets,
         SamusBodyFrameSelection[] frames,
@@ -155,13 +181,19 @@ public sealed partial class SamusBodyArtworkCatalog
     /// <summary>SHA-256 of selected body art, all visual selectors and every bundled Samus catalog.</summary>
     public string ContentIdentity => CreateContentIdentity();
 
+    /// <summary>Gets the resolved upper-body definition-group pointers.</summary>
     public ReadOnlySpan<ushort> TopSetPointers => Enumerable.Range(0, TopSetCount).Select(index => SetPointer(true, index)).ToArray();
+    /// <summary>Gets the resolved lower-body definition-group pointers.</summary>
     public ReadOnlySpan<ushort> BottomSetPointers => Enumerable.Range(0, BottomSetCount).Select(index => SetPointer(false, index)).ToArray();
+    /// <summary>Gets the resolved per-pose frame-list pointers.</summary>
     public ReadOnlySpan<ushort> PosePointers => Enumerable.Range(0, PoseCount).Select(pose => PosePointer((byte)pose)).ToArray();
+    /// <summary>Gets the resolved signed art-origin offset for every pose.</summary>
     public ReadOnlySpan<sbyte> GraphicsYOffsets => Enumerable.Range(0, PoseCount).Select(index => GraphicsYOffset((byte)index)).ToArray();
     /// <summary>Native landing table, including the one adjacent byte read by an unaligned word.</summary>
     public ReadOnlySpan<ushort> LandingYOffsets => Enumerable.Range(0, SamusRenderingRomData.Body.LandingVerticalOffsetByteCount).Select(LandingByte).ToArray();
+    /// <summary>Gets the resolved posture-transition vertical-offset table.</summary>
     public ReadOnlySpan<sbyte> PostureYOffsets => Enumerable.Range(0, SamusRenderingRomData.Body.PostureTransitionVerticalOffsetByteCount).Select(PostureByte).ToArray();
+    /// <summary>Gets the resolved drained-state vertical-offset table.</summary>
     public ReadOnlySpan<sbyte> DrainedYOffsets => Enumerable.Range(0, SamusRenderingRomData.Body.DrainedVerticalOffsetByteCount).Select(DrainedByte).ToArray();
     private ushort LandingByte(int index) => landingYOffsets.TryGetValue(index, out ushort value)
         ? value : SamusBodyPlacementDefinitions.LandingSourceIndex(index) == index
@@ -175,6 +207,10 @@ public sealed partial class SamusBodyArtworkCatalog
     private sbyte DrainedByte(int index) => drainedYOffsets.TryGetValue(index, out sbyte value)
         ? value : SamusBodyPlacementDefinitions.TryDefaultDrainedByte(this, index, out sbyte calculated)
             ? calculated : throw new InvalidDataException("Selected drained geometry no longer supplies its installed offset.");
+    /// <summary>Attempts to read the native unaligned landing-offset word at a byte index.</summary>
+    /// <param name="index">The starting byte index.</param>
+    /// <param name="value">Receives the little-endian landing-offset word.</param>
+    /// <returns><see langword="true"/> when two bytes are available.</returns>
     public bool TryLandingYOffset(int index, out ushort value)
     {
         if ((uint)index >= SamusRenderingRomData.Body.LandingVerticalOffsetByteCount - 1)
@@ -185,12 +221,20 @@ public sealed partial class SamusBodyArtworkCatalog
         value = (ushort)(LandingByte(index) | LandingByte(index + 1) << 8);
         return true;
     }
+    /// <summary>Attempts to read a signed posture-transition art offset.</summary>
+    /// <param name="index">The table byte index.</param>
+    /// <param name="value">Receives the signed vertical offset.</param>
+    /// <returns><see langword="true"/> when the index is in range.</returns>
     public bool TryPostureYOffset(int index, out sbyte value)
     {
         if ((uint)index >= SamusRenderingRomData.Body.PostureTransitionVerticalOffsetByteCount) { value = 0; return false; }
         value = PostureByte(index);
         return true;
     }
+    /// <summary>Attempts to read a signed drained-state art offset.</summary>
+    /// <param name="index">The table byte index.</param>
+    /// <param name="value">Receives the signed vertical offset.</param>
+    /// <returns><see langword="true"/> when the index is in range.</returns>
     public bool TryDrainedYOffset(int index, out sbyte value)
     {
         if ((uint)index >= SamusRenderingRomData.Body.DrainedVerticalOffsetByteCount) { value = 0; return false; }
@@ -201,6 +245,7 @@ public sealed partial class SamusBodyArtworkCatalog
     public sbyte GraphicsYOffset(byte pose) =>
         pose < PoseCount ? graphicsYOffsets.TryGetValue(pose, out sbyte value) ? value : SamusBodyPlacementDefinitions.DefaultGraphicsYOffset(pose) :
             throw new InvalidDataException($"Pose ${pose:X2} has no authored graphics Y offset.");
+    /// <summary>Gets the resolved contiguous bank-$92 frame-selector interval.</summary>
     public ReadOnlySpan<SamusBodyFrameSelection> Frames => Enumerable.Range(0, FrameCount).Select(FrameAt).ToArray();
     private byte FrameComponent(int index) => frames.TryGetValue(index, out byte value)
         ? value : SamusBodyFrameDefinitions.SourceComponent(index) != index
@@ -209,7 +254,9 @@ public sealed partial class SamusBodyArtworkCatalog
                 : throw new InvalidDataException("Installed body frame has no selected component.");
     private SamusBodyFrameSelection FrameAt(int index) => new(FrameComponent(index * 4), FrameComponent(index * 4 + 1),
         FrameComponent(index * 4 + 2), FrameComponent(index * 4 + 3));
+    /// <summary>Gets an upper-body definition group by pointer-table index.</summary>
     public IReadOnlyList<SamusBodyTileDefinition> TopSet(int set) => top[set];
+    /// <summary>Gets a lower-body definition group by pointer-table index.</summary>
     public IReadOnlyList<SamusBodyTileDefinition> BottomSet(int set) => bottom[set];
 
     private ushort PosePointer(byte pose) => posePointers.TryGetValue(pose, out ushort value)
@@ -237,6 +284,7 @@ public sealed partial class SamusBodyArtworkCatalog
         return overrides.TryGetValue(set, out ushort value) ? value : upperHalf
             ? SamusBodyDefinitionLayout.DefaultTopPointer(set) : SamusBodyDefinitionLayout.DefaultBottomPointer(set);
     }
+    /// <summary>Resolves a native set and position to its physical body tile definition.</summary>
     public SamusBodyTileDefinition GetDefinition(bool upperHalf, byte set, byte position)
     {
         if (set >= (upperHalf ? TopSetCount : BottomSetCount))
@@ -250,6 +298,7 @@ public sealed partial class SamusBodyArtworkCatalog
         return DefinitionAt(upperHalf, address);
     }
 
+    /// <summary>Returns the SNES address selected by a native body set and position.</summary>
     public int DefinitionAddress(bool upperHalf, byte set, byte position)
     {
         _ = GetDefinition(upperHalf, set, position);
@@ -326,6 +375,11 @@ public sealed class SamusBodyTileDefinition
     private readonly int set;
     private readonly int position;
 
+    /// <summary>Creates one standalone native body-transfer definition.</summary>
+    /// <param name="sourceAddress">SNES source address of the first planar payload.</param>
+    /// <param name="firstSize">Byte count of the first VRAM transfer.</param>
+    /// <param name="secondSize">Byte count of the optional second VRAM transfer.</param>
+    /// <param name="planar">Combined SNES planar character bytes.</param>
     public SamusBodyTileDefinition(int sourceAddress, ushort firstSize, ushort secondSize,
         byte[] planar)
     {
@@ -393,9 +447,12 @@ public sealed class SamusBodyTileDefinition
         ReadOnlySpan<ushort> pointers, ReadOnlySpan<SamusBodyFrameSelection> frames) =>
         new(this, body, upper, set, position, pointers, frames);
 
+    /// <summary>Gets the SNES source address of the definition's first payload.</summary>
     public int SourceAddress => sourceAddressOverride ?? SamusBodyTransferDefinitions.SourceAddress(body!, upper, set, position);
+    /// <summary>Gets the byte count of the first VRAM transfer.</summary>
     public ushort FirstSize => firstSizeOverride ?? calculatedFirstSize ??
         throw new InvalidDataException("Installed body composition no longer supplies its transfer row.");
+    /// <summary>Gets the byte count of the optional second VRAM transfer.</summary>
     public ushort SecondSize => body is null ? standaloneSecondSize : (ushort)(PayloadLength - FirstSize);
     /// <summary>Canonical planar snapshot; native padding and shared angle patches calculate.</summary>
     public ReadOnlyMemory<byte> Planar

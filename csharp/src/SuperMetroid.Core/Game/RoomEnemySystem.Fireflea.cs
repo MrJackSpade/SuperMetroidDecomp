@@ -55,24 +55,28 @@ public sealed class FirefleaEnemyState
         internal set => _slot.VariableD = value;
     }
 
+    /// <summary>Native Fireflea.XCenter ($0FB0 plus slot offset): initial whole-pixel room X used as the fixed circular-motion center.</summary>
     public ushort XCenter
     {
         get => _slot.VariableE;
         internal set => _slot.VariableE = value;
     }
 
+    /// <summary>Native Fireflea.YCenter ($0FB2 plus slot offset): initial whole-pixel room Y used as the fixed circular-motion center.</summary>
     public ushort YCenter
     {
         get => _slot.VariableF;
         internal set => _slot.VariableF = value;
     }
 
+    /// <summary>Per-slot extra-WRAM upper extent, initialized to Y minus radius in wrapped room pixels for vertical motion; crossing below it reverses speed after movement.</summary>
     public ushort MinimumYPosition
     {
         get => _minimumYPositions[_slot.SlotIndex];
         internal set => _minimumYPositions[_slot.SlotIndex] = value;
     }
 
+    /// <summary>Per-slot extra-WRAM lower extent, initialized to Y plus radius in wrapped room pixels for vertical motion; reaching or passing it reverses speed without clamping.</summary>
     public ushort MaximumYPosition
     {
         get => _maximumYPositions[_slot.SlotIndex];
@@ -86,6 +90,7 @@ public sealed class FirefleaEnemyState
         internal set => _speedTableIndexes[_slot.SlotIndex] = value;
     }
 
+    /// <summary>Native init0/parameter-one bit $0002 selects circular motion; otherwise the actor moves vertically between its saved extrema.</summary>
     public bool UsesCircularMovement => (_slot.Parameter1 & 0x0002) != 0;
 }
 

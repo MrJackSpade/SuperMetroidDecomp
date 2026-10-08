@@ -218,7 +218,9 @@ public sealed partial class EnemyTileArtworkCatalog
 /// <summary>Host-file geometry for native four-bit enemy tile DMA sheets.</summary>
 public static class EnemyTileArtworkFormat
 {
+    /// <summary>File name of the versioned manifest binding native enemy-definition identities to artwork sheets.</summary>
     public const string ManifestFileName = "enemy-tiles.json";
+    /// <summary>Current enemy-tile installation schema revision.</summary>
     public const int Version = 69;
     /// <summary>Stable, source-address-free name for a gunship takeoff character chunk.</summary>
     public static string GunshipLiftoffFileName(int index) =>
@@ -235,6 +237,8 @@ public static class EnemyTileArtworkFormat
     public const string RetailDefinitionIdsSha256 =
         "8B665DEC36A4AA649CDF2327E4B7F60197D42B84534CD354347F4581D1442DD1";
 
+    /// <summary>Creates the indexed-PNG filename for a bank-$A0 enemy-definition pointer.</summary>
     public static string FileName(ushort definitionPointer) => $"enemy-{definitionPointer:X4}-tiles.png";
+    /// <summary>Creates the RGB5 palette JSON filename for a bank-$A0 enemy-definition pointer.</summary>
     public static string PaletteFileName(ushort definitionPointer) => $"enemy-{definitionPointer:X4}-colors.json";
 }

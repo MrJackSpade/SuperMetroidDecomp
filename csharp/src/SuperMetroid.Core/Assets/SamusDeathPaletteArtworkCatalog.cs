@@ -39,7 +39,9 @@ namespace SuperMetroid.Core.Assets;
 /// Explosion durations have their own independently documented disposition.</remarks>
 public sealed class SamusDeathPaletteArtworkCatalog
 {
+    /// <summary>Three suited families in $9B:B7D3's pointer-table order: Power, Varia, then Gravity.</summary>
     public const int SuitCount = 3;
+    /// <summary>Sixteen RGB5 words per OBJ palette row, including the transparent sprite ink at index zero.</summary>
     public const int ColorCount = SamusPaletteRomData.Common.ColorsPerObjPalette;
 
     /// <summary>Native9B9420 yellow flash: full red and green,zero blue in RGB5.</summary>
@@ -57,6 +59,13 @@ public sealed class SamusDeathPaletteArtworkCatalog
     private readonly WhiteoutInputs whiteout;
     private readonly Dictionary<int, ushort> explosionPaletteIndices = new();
 
+    /// <summary>Captures selected death artwork as owned inputs and independent channel overrides; no caller arrays are retained or modified.</summary>
+    /// <param name="suited">Three suit families, each with ten rows of sixteen RGB5 words, in $9B:B7D3 pointer-table order.</param>
+    /// <param name="suitless">Ten rows of sixteen RGB5 words in $9B:B80F pointer-table order, separate from suited artwork.</param>
+    /// <param name="whiteout">Twenty-two RGB5 shades corresponding to ShadesOfWhite at $9B:B835, indexed by whiteout counter rather than explosion frame.</param>
+    /// <param name="explosionPaletteIndices">Nine row selectors 0..9 corresponding to the odd bytes at $9B:B824..B834; animation durations are not part of this input.</param>
+    /// <exception cref="ArgumentNullException">A top-level input array is null.</exception>
+    /// <exception cref="InvalidDataException">An input has the wrong dimensions, a nested family or row is null, a color exceeds $7FFF, or an explosion selector exceeds 9.</exception>
     public SamusDeathPaletteArtworkCatalog(ushort[][][] suited, ushort[][] suitless,
         ushort[] whiteout, ushort[] explosionPaletteIndices)
     {
@@ -197,6 +206,11 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// Varia differs at2/10/11,Gravity at0/1/2/10/11/12. Independently supplied
     /// differences remain inputs,including source-only edits. Differing fade channels
     /// override shared arithmetic. Preserve the former array bounds exception.</remarks>
+    /// <param name="suit">Family index 0=Power, 1=Varia, 2=Gravity; not the native byte offsets 0, 2, and 4.</param>
+    /// <param name="palette">Pointer-table row 0..9: base, flash, seven whitening steps, then final foreground row.</param>
+    /// <param name="color">Ink index 0..15, copied by the consumer to CGRAM 192..207; index-zero pixels remain transparent.</param>
+    /// <returns>The selected RGB5 word with red in bits 0..4, green in 5..9, and blue in 10..14; no palette is written.</returns>
+    /// <exception cref="IndexOutOfRangeException">Any index is outside its documented range.</exception>
     public ushort SuitedColor(int suit, int palette, int color)
     {
         if ((uint)suit >= SuitCount || (uint)palette >= SamusPaletteRomData.Death.PaletteCount || (uint)color >= ColorCount)
@@ -216,6 +230,10 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// Base ink5 is full RGB5 white; resolve that named color directly and
     /// retain only independently edited channels. White stays white throughout
     /// the seven computed fade steps. No generated color cache is stored.</remarks>
+    /// <param name="palette">Pointer-table row 0..9; stock rows 0 and 1 repeat the base, 2..8 whiten it, and 9 is the final foreground row.</param>
+    /// <param name="color">Ink index 0..15, copied by the consumer to CGRAM 240..255; index-zero pixels remain transparent.</param>
+    /// <returns>The selected RGB5 word without changing CGRAM or advancing the death sequence.</returns>
+    /// <exception cref="IndexOutOfRangeException">Either index is outside its documented range.</exception>
     public ushort SuitlessColor(int palette, int color)
     {
         if ((uint)palette >= SamusPaletteRomData.Death.PaletteCount || (uint)color >= ColorCount)
@@ -368,6 +386,10 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// is bounded0..31; bit replication needs no rounding or saturation.
     /// This converts channel duplication,not the separate intensity choices.</remarks>
     private static ushort NeutralFromRed(ushort color) => (ushort)((color & 31) * 0x421);
+    /// <summary>Resolves a $9B:B835 ShadesOfWhite entry, retaining independent edits to the calculated two-rate whiteout.</summary>
+    /// <param name="index">Whiteout shade 0..21, not an explosion frame; the terminal call selects 21 explicitly.</param>
+    /// <returns>The RGB5 word used by the consumer to fill CGRAM 0..191 and 208..239, excluding suited and suitless Samus palettes.</returns>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> is outside 0..21.</exception>
     public ushort WhiteoutColor(int index) => whiteout.Resolve(index);
 
     /// <summary>Independent edits to the calculated two-rate whiteout.</summary>
@@ -424,6 +446,9 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// The native caller advances the explosion frame before selecting its
     /// next palette and terminates at9 without another lookup. Edited asset
     /// selectors remain independent. Preserve the original array bounds exception.</remarks>
+    /// <param name="frame">Explosion drawing index 0..8, selecting one of the nine native timing/selector records.</param>
+    /// <returns>A row index 0..9 for both foreground palette families, not a RGB5 word or countdown duration.</returns>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="frame"/> is outside 0..8.</exception>
     public ushort ExplosionPaletteIndex(int frame)
     {
         ushort expected = DefaultExplosionPaletteIndex(frame);

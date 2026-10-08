@@ -5,9 +5,11 @@ public static class MotherBrainDeathRomData
 {
     /// <summary>$AD:EA0A, first of sixteen contiguous 28-color body/leg fade images.</summary>
     public const int FirstBodyFadeSource = 0xadea0a;
+    /// <summary>Sixteen body/leg fade images consumed in ascending order before clearing the BG2 body.</summary>
     public const int BodyFadeFrameCount = 16;
     /// <summary>$AD:F119, first of eight contiguous fifteen-color corpse-head images.</summary>
     public const int FirstCorpseFadeSource = 0xadf119;
+    /// <summary>Eight corpse-head fade images consumed in ascending order during the rot-away phase.</summary>
     public const int CorpseFadeFrameCount = 8;
     /// <summary>$A9:AF77 copies the live brain colors beginning at CGRAM entry 145.</summary>
     public const int BrainColors = 145;
@@ -38,11 +40,13 @@ public static class MotherBrainDeathRomData
     /// <summary>$A9:9534 fourteen colors installed for the exploded escape door.</summary>
     public const int DoorPalette = 0xa99534;
 
+    /// <summary>Returns the 24-bit address of a 28-color body-and-leg fade image.</summary>
     public static int BodyFadeSource(int frame) =>
         (uint)frame < BodyFadeFrameCount
             ? FirstBodyFadeSource + frame * BodyColorCount * 2 * sizeof(ushort)
             : throw new ArgumentOutOfRangeException(nameof(frame));
 
+    /// <summary>Returns the 24-bit address of a fifteen-color corpse-head fade image.</summary>
     public static int CorpseFadeSource(int frame) =>
         (uint)frame < CorpseFadeFrameCount
             ? FirstCorpseFadeSource + frame * CorpseColorCount * sizeof(ushort)

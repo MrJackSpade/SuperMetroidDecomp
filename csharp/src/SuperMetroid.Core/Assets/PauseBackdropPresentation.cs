@@ -15,6 +15,8 @@ public sealed class PauseBackdropPresentation
     private PauseBackdropPresentation(Dictionary<int, ushort>[] areas, Dictionary<int, ushort> buttons)
     { this.areas = areas; this.buttons = buttons; }
 
+    /// <summary>Materializes the selected 32-by-16 button/foreground image without caching or modifying the presentation.</summary>
+    /// <returns>A new caller-owned 1024-byte array containing 512 little-endian BG tilemap words in row-major order; the live pause menu may change its button palette fields.</returns>
     public byte[] CreateButtonTilemap()
     {
         var result = new byte[PauseBackdropDefinitions.ButtonCells * sizeof(ushort)];
@@ -24,6 +26,11 @@ public sealed class PauseBackdropPresentation
         return result;
     }
 
+    /// <summary>Writes the selected area's complete 32-by-32 backdrop, including its authored area lettering, directly into VRAM.</summary>
+    /// <param name="vram">Destination video memory; bytes outside the 2048-byte tilemap image remain unchanged.</param>
+    /// <param name="destinationByteAddress">Physical VRAM byte offset, from 0 through <see cref="SnesVram.ByteCount"/> minus 2048; this is not a native word address.</param>
+    /// <param name="area">Retail area whose installed backdrop is selected; the native Ceres label is COLONY.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="area"/> is not a retail area.</exception>
     public void LoadTo(SnesVram vram, int destinationByteAddress, AreaId area)
     {
         var selected = areas[AreaIds.ToIndex(area)];
@@ -47,6 +54,11 @@ public sealed class PauseBackdropPresentation
         }
         return result;
     }
+    /// <summary>Validates all seven authored area pages and the separate button page, compiling independent tile words and retaining only their differences from stock.</summary>
+    /// <param name="json">UTF-8 JSON read from its current position to the end and left open.</param>
+    /// <returns>An immutable selection of backdrop and button artwork that does not retain the document's mutable dictionaries or arrays.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
+    /// <exception cref="InvalidDataException">JSON is invalid or ambiguous, the version or area/page counts are wrong, or a cell has an invalid atlas, coordinate or palette.</exception>
     public static PauseBackdropPresentation Load(Stream json)
     {
         PauseBackdropDocument document;
@@ -90,6 +102,10 @@ public sealed class PauseBackdropPresentation
         return new(areas, Differences(buttonTilemap, PauseBackdropDefinitions.StockButtonWord));
     }
 
+    /// <summary>Serializes and validates every backdrop and button cell before writing the UTF-8 JSON document.</summary>
+    /// <param name="output">Destination stream written at its current position and left open; existing trailing bytes are not truncated.</param>
+    /// <param name="document">Editable page collections read for serialization, not retained by the writer.</param>
+    /// <exception cref="InvalidDataException">The serialized document fails <see cref="Load"/>'s schema or artwork-reference validation.</exception>
     public static void Write(Stream output, PauseBackdropDocument document)
     {
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
@@ -101,19 +117,29 @@ public sealed class PauseBackdropPresentation
 /// <summary>One complete 32x32 backdrop per area; live buttons are a separate foreground overlay.</summary>
 public sealed record PauseBackdropDocument
 {
+    /// <summary>Schema revision; loading requires <see cref="PauseBackdropDefinitions.Version"/>.</summary>
     public required int Version { get; init; }
+    /// <summary>Exactly Crateria, Brinstar, Norfair, WreckedShip, Maridia, Tourian and Ceres, each containing 1024 nonnull cells in 32-column row-major order; collections remain caller-mutable.</summary>
     public required Dictionary<string, PauseBackdropCell[]> Areas { get; init; }
+    /// <summary>Separate foreground/button page with 512 nonnull cells in 32-column, 16-row order, initially corresponding to the lower half of native $B6:E000's backdrop.</summary>
     public required PauseBackdropCell[] Buttons { get; init; }
 }
 
 /// <summary>Native-size artwork references, not tile numbers, addresses or gameplay commands.</summary>
 public sealed record PauseBackdropCell
 {
+    /// <summary>Case-sensitive artwork sheet key, Map or Interface, selecting the first or second 256-character page of the loaded pause graphics.</summary>
     public required string Atlas { get; init; }
+    /// <summary>Zero-based column 0..31 of an eight-pixel tile within the selected atlas, not its destination tilemap column.</summary>
     public required int TileColumn { get; init; }
+    /// <summary>Zero-based row 0..7 of an eight-pixel tile within the selected atlas, not its destination tilemap row.</summary>
     public required int TileRow { get; init; }
+    /// <summary>BG palette selector 0..7, encoded in tilemap attribute bits 10 through 12.</summary>
     public required int Palette { get; init; }
+    /// <summary>Whether the tilemap's BG priority bit 13 is set; this is not an OBJ priority tier.</summary>
     public required bool Priority { get; init; }
+    /// <summary>Whether the selected tile's pixels are reflected horizontally via attribute bit 14.</summary>
     public required bool FlipX { get; init; }
+    /// <summary>Whether the selected tile's pixels are reflected vertically via attribute bit 15.</summary>
     public required bool FlipY { get; init; }
 }

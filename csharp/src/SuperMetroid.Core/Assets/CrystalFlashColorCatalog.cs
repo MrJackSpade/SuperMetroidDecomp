@@ -39,6 +39,11 @@ public sealed class CrystalFlashColorCatalog
         WriteIndented = true,
     };
 
+    /// <summary>Returns one editable body color for a native playback record, calculating stock rows when they require no stored overrides.</summary>
+    /// <param name="frame">Zero-based body record index, 0 through 9 in playback order.</param>
+    /// <param name="color">Zero-based color within the ten-color body portion, including transparent color zero.</param>
+    /// <returns>SNES RGB555 color word, with red in bits 0..4, green in bits 5..9, and blue in bits 10..14.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The frame or color index is outside the body dimensions.</exception>
     public ushort ResolveBody(int frame, int color)
     {
         if ((uint)frame >= CrystalFlashColorFormat.BodyFrameCount)
@@ -61,6 +66,11 @@ public sealed class CrystalFlashColorCatalog
         int grey = frame == 0 ? 16 : 27 - 4 * Math.Abs((frame - 1) % 4 - 2);
         return (ushort)(grey | grey << 5 | grey << 10);
     }
+    /// <summary>Returns one editable bubble color from the independently cycling six-frame sequence, preserving supplied edits and the native painted white sample.</summary>
+    /// <param name="frame">Zero-based bubble palette index, 0 through 5.</param>
+    /// <param name="color">Zero-based color within the six-color bubble portion, 0 through 5.</param>
+    /// <returns>SNES RGB555 color word, with red in bits 0..4, green in bits 5..9, and blue in bits 10..14.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The frame or color index is outside the bubble dimensions.</exception>
     public ushort ResolveBubble(int frame, int color)
     {
         if ((uint)frame >= CrystalFlashColorFormat.BubbleFrameCount)
@@ -88,6 +98,11 @@ public sealed class CrystalFlashColorCatalog
         return (ushort)(31 | channel << 5 | channel << 10);
     }
 
+    /// <summary>Copies one body frame to CGRAM colors $E0-$E9 without changing the bubble colors or advancing any gameplay timer.</summary>
+    /// <param name="cgram">Destination color memory.</param>
+    /// <param name="frame">Zero-based body playback record index, 0 through 9.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The body frame index is outside the sequence.</exception>
     public void ApplyBody(SnesCgram cgram, int frame)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -95,6 +110,11 @@ public sealed class CrystalFlashColorCatalog
             cgram.SetColor(SamusPaletteRomData.CrystalFlash.BodyCgramStart + color,
                 ResolveBody(frame, color));
     }
+    /// <summary>Copies one bubble frame to CGRAM colors $EA-$EF without changing the body colors or advancing any gameplay timer.</summary>
+    /// <param name="cgram">Destination color memory.</param>
+    /// <param name="frame">Zero-based bubble palette index, 0 through 5.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The bubble frame index is outside the sequence.</exception>
     public void ApplyBubble(SnesCgram cgram, int frame)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -103,6 +123,11 @@ public sealed class CrystalFlashColorCatalog
                 ResolveBubble(frame, color));
     }
 
+    /// <summary>Loads the supported camel-case JSON schema, rejecting duplicate or unknown properties, incorrect frame dimensions, null colors, and RGB5 channels outside 0..31.</summary>
+    /// <param name="json">Readable JSON stream; ownership remains with the caller.</param>
+    /// <returns>Validated body and bubble colors independent of cartridge reads and gameplay timing.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
+    /// <exception cref="InvalidDataException">The JSON, schema version, palette dimensions, or color values are invalid.</exception>
     public static CrystalFlashColorCatalog Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -126,6 +151,10 @@ public sealed class CrystalFlashColorCatalog
                 CrystalFlashColorFormat.BubbleColorCount, "bubble"));
     }
 
+    /// <summary>Serializes an editable document as indented camel-case UTF-8 JSON and validates the result through <see cref="Load"/> before returning it.</summary>
+    /// <param name="document">Body and bubble RGB5 frame arrays with the supported schema version.</param>
+    /// <returns>Validated JSON bytes ready to store as the catalog resource.</returns>
+    /// <exception cref="InvalidDataException">The serialized document fails catalog validation.</exception>
     public static byte[] Write(CrystalFlashColorDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
@@ -164,8 +193,10 @@ public sealed class CrystalFlashColorCatalog
             name => new InvalidDataException($"Duplicate Crystal Flash color property {name}."));
 }
 
+/// <summary>Editable JSON payload containing Crystal Flash body and bubble RGB5 frames; native playback timing is not part of this schema.</summary>
 public sealed record CrystalFlashColorDocument
 {
+    /// <summary>Schema revision, required to equal <see cref="CrystalFlashColorFormat.Version"/> during loading.</summary>
     public required int Version { get; init; }
     /// <summary>Ten native body records in playback order, ten colors each.</summary>
     public required PaletteRgb5[][] Body { get; init; }
@@ -173,12 +204,19 @@ public sealed record CrystalFlashColorDocument
     public required PaletteRgb5[][] Bubble { get; init; }
 }
 
+/// <summary>Resource identity, supported JSON version, and fixed dimensions derived from the native Crystal Flash palette programs.</summary>
 public static class CrystalFlashColorFormat
 {
+    /// <summary>Installed presentation resource name, <c>crystal-flash-colors.json</c>.</summary>
     public const string FileName = "crystal-flash-colors.json";
+    /// <summary>Supported JSON schema revision one, checked before palette compilation.</summary>
     public const int Version = 1;
+    /// <summary>Ten editable body frames, one per pointer/timer record at $91:DC00-$DC27 in native playback order.</summary>
     public const int BodyFrameCount = SamusPaletteRomData.CrystalFlash.BodyRecordCount;
+    /// <summary>Six editable bubble frames selected independently by the pointer table at $91:DC28-$DC33.</summary>
     public const int BubbleFrameCount = SamusPaletteRomData.CrystalFlash.BubblePaletteCount;
+    /// <summary>Ten colors in each body frame, occupying sprite palette six colors 0..9 at CGRAM $E0-$E9.</summary>
     public const int BodyColorCount = SamusPaletteRomData.CrystalFlash.BodyColorCount;
+    /// <summary>Six colors in each bubble frame, occupying sprite palette six colors $A..$F at CGRAM $EA-$EF.</summary>
     public const int BubbleColorCount = SamusPaletteRomData.CrystalFlash.BubbleColorCount;
 }

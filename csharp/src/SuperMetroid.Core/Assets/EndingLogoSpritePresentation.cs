@@ -14,6 +14,13 @@ public sealed class EndingLogoSpritePresentation : IIntroCinematicSpritePresenta
     /// <summary>Canonical identity of the selected decoded visual frames, not JSON formatting.</summary>
     public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(EndingLogoSpritePresentation), frames);
 
+    /// <summary>Draws the ending-logo composition identified by its bank-$8C spritemap pointer.</summary>
+    /// <param name="pointer">Bank-$8C pointer identifying one of the eight installed logo frames.</param>
+    /// <param name="oam">Object-attribute buffer that receives the composition.</param>
+    /// <param name="x">Horizontal origin in screen-space coordinates.</param>
+    /// <param name="y">Vertical origin in screen-space coordinates.</param>
+    /// <param name="paletteBits">SNES OAM attribute bits to combine with each part.</param>
+    /// <param name="originIsOnScreen">Whether the origin is already in the visible coordinate range.</param>
     public void Draw(ushort pointer, OamBuffer oam, ushort x, ushort y,
         ushort paletteBits, bool originIsOnScreen)
     {
@@ -26,6 +33,9 @@ public sealed class EndingLogoSpritePresentation : IIntroCinematicSpritePresenta
             frame.DrawOffScreen(oam, x, y, paletteBits);
     }
 
+    /// <summary>Loads and validates the eight named final-logo compositions from JSON.</summary>
+    /// <param name="json">Stream containing an ending-logo sprite document.</param>
+    /// <returns>The compiled ending-logo presentation.</returns>
     public static EndingLogoSpritePresentation Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -70,6 +80,9 @@ public sealed class EndingLogoSpritePresentation : IIntroCinematicSpritePresenta
         return new EndingLogoSpritePresentation(frames);
     }
 
+    /// <summary>Validates and writes an ending-logo sprite document as JSON.</summary>
+    /// <param name="json">Destination stream.</param>
+    /// <param name="document">Document to validate and serialize.</param>
     public static void Write(Stream json, EndingLogoSpriteDocument document)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -80,9 +93,13 @@ public sealed class EndingLogoSpritePresentation : IIntroCinematicSpritePresenta
     }
 }
 
+/// <summary>JSON schema for the editable final-logo sprite compositions.</summary>
 public sealed record EndingLogoSpriteDocument
 {
+    /// <summary>Gets the schema version, which must equal <see cref="EndingLogoSpriteFormat.Version"/>.</summary>
     public required int Version { get; init; }
+
+    /// <summary>Gets the compositions keyed by the published frame names.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
 }
 
@@ -95,6 +112,7 @@ public static class EndingLogoSpriteDefinitions
     private const int FrameCount = 8, SParts = 14;
     private enum CircleStage { First, Second, Complete }
 
+    /// <summary>Gets the two letter segments followed by three right-wrap and three left-wrap stages.</summary>
     public static IReadOnlyList<EndingLogoSpriteFrameDefinition> Frames { get; } = new FrameView();
 
     internal static ushort FramePointer(int index)
@@ -143,11 +161,19 @@ public static class EndingLogoSpriteDefinitions
 
 }
 
+/// <summary>Identifies one editable final-logo composition and its stock cartridge shape.</summary>
+/// <param name="Name">Stable JSON key for the frame.</param>
+/// <param name="Pointer">Bank-$8C pointer used by the cinematic script.</param>
+/// <param name="StockPartCount">Number of OAM parts in the cartridge composition.</param>
 public readonly record struct EndingLogoSpriteFrameDefinition(
     string Name, ushort Pointer, int StockPartCount);
 
+/// <summary>Defines the ending-logo sprite document contract.</summary>
 public static class EndingLogoSpriteFormat
 {
+    /// <summary>Current ending-logo sprite schema version.</summary>
     public const int Version = 1;
+
+    /// <summary>Canonical ending-logo sprite asset file name.</summary>
     public const string FileName = "ending-logo-sprites.json";
 }

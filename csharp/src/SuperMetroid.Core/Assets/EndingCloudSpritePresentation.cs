@@ -14,6 +14,13 @@ public sealed class EndingCloudSpritePresentation : IIntroCinematicSpritePresent
     /// <summary>Canonical identity of the selected decoded visual frames, not JSON formatting.</summary>
     public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(EndingCloudSpritePresentation), frames);
 
+    /// <summary>Draws the ending-cloud composition identified by its bank-$8C spritemap pointer.</summary>
+    /// <param name="pointer">Bank-$8C pointer identifying one of the six installed cloud frames.</param>
+    /// <param name="oam">Object-attribute buffer that receives the composition.</param>
+    /// <param name="x">Horizontal origin in screen-space coordinates.</param>
+    /// <param name="y">Vertical origin in screen-space coordinates.</param>
+    /// <param name="paletteBits">SNES OAM attribute bits to combine with each part.</param>
+    /// <param name="originIsOnScreen">Whether the origin is already in the visible coordinate range.</param>
     public void Draw(ushort pointer, OamBuffer oam, ushort x, ushort y,
         ushort paletteBits, bool originIsOnScreen)
     {
@@ -26,6 +33,9 @@ public sealed class EndingCloudSpritePresentation : IIntroCinematicSpritePresent
             frame.DrawOffScreen(oam, x, y, paletteBits);
     }
 
+    /// <summary>Loads and validates the six named atmospheric cloud compositions from JSON.</summary>
+    /// <param name="json">Stream containing an ending-cloud sprite document.</param>
+    /// <returns>The compiled ending-cloud presentation.</returns>
     public static EndingCloudSpritePresentation Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -61,6 +71,9 @@ public sealed class EndingCloudSpritePresentation : IIntroCinematicSpritePresent
         return new EndingCloudSpritePresentation(frames);
     }
 
+    /// <summary>Validates and writes an ending-cloud sprite document as JSON.</summary>
+    /// <param name="json">Destination stream.</param>
+    /// <param name="document">Document to validate and serialize.</param>
     public static void Write(Stream json, EndingCloudSpriteDocument document)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -71,9 +84,13 @@ public sealed class EndingCloudSpritePresentation : IIntroCinematicSpritePresent
     }
 }
 
+/// <summary>JSON schema for the editable atmospheric ending-cloud compositions.</summary>
 public sealed record EndingCloudSpriteDocument
 {
+    /// <summary>Gets the schema version, which must equal <see cref="EndingCloudSpriteFormat.Version"/>.</summary>
     public required int Version { get; init; }
+
+    /// <summary>Gets the compositions keyed by the published cloud-frame names.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
 }
 
@@ -91,6 +108,7 @@ public static class EndingCloudSpriteDefinitions
     private enum Record { BottomPattern, TopPattern, BottomEdge, TopEdge, Right, Left }
     internal enum Role { UpperPattern, UpperEdge, LowerEdge, LowerPattern, Right, Left }
 
+    /// <summary>Gets the ordered upper, lower, right, and left cloud roles used by the ending actors.</summary>
     public static IReadOnlyList<EndingCloudSpriteFrameDefinition> Frames { get; } = new FrameView();
 
     private static EndingCloudSpriteFrameDefinition Get(int index) => (Role)index switch
@@ -126,11 +144,19 @@ public static class EndingCloudSpriteDefinitions
 
 }
 
+/// <summary>Identifies one editable ending-cloud composition and its stock cartridge shape.</summary>
+/// <param name="Name">Stable JSON key for the frame.</param>
+/// <param name="Pointer">Bank-$8C pointer used by the cinematic instruction list.</param>
+/// <param name="StockPartCount">Number of OAM parts in the cartridge composition.</param>
 public readonly record struct EndingCloudSpriteFrameDefinition(
     string Name, ushort Pointer, int StockPartCount);
 
+/// <summary>Defines the ending-cloud sprite document contract.</summary>
 public static class EndingCloudSpriteFormat
 {
+    /// <summary>Current ending-cloud sprite schema version.</summary>
     public const int Version = 1;
+
+    /// <summary>Canonical ending-cloud sprite asset file name.</summary>
     public const string FileName = "ending-cloud-sprites.json";
 }

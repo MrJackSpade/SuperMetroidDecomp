@@ -14,6 +14,13 @@ public sealed class EndingCompletionTextSpritePresentation : IIntroCinematicSpri
     /// <summary>Canonical identity of the selected decoded visual frames, not JSON formatting.</summary>
     public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(EndingCompletionTextSpritePresentation), frames);
 
+    /// <summary>Appends the selected completion-text composition's parts in authored OAM order, preserving inherited palettes and the native on-screen/off-screen clipping path.</summary>
+    /// <param name="pointer">Bank-$8C spritemap identity for a phrase prefix, digit, or colon; an uninstalled identity is rejected.</param>
+    /// <param name="oam">Destination OAM buffer for this frame's text parts.</param>
+    /// <param name="x">Native 16-bit screen-origin X coordinate in pixels, retaining wrapped negative values for off-screen drawing.</param>
+    /// <param name="y">Native 16-bit screen-origin Y coordinate in pixels.</param>
+    /// <param name="paletteBits">Packed OBJ palette bits used only by parts whose editable palette is null.</param>
+    /// <param name="originIsOnScreen">Selects ordinary origin clipping when true or the native negative-origin Y-wrap path when false.</param>
     public void Draw(ushort pointer, OamBuffer oam, ushort x, ushort y,
         ushort paletteBits, bool originIsOnScreen)
     {
@@ -26,6 +33,9 @@ public sealed class EndingCompletionTextSpritePresentation : IIntroCinematicSpri
             frame.DrawOffScreen(oam, x, y, paletteBits);
     }
 
+    /// <summary>Loads version-1 <c>ending-completion-text-sprites.json</c>, requiring all 56 named compositions and validating each ordered part's offsets, tile region, size, palette, and priority.</summary>
+    /// <param name="json">Caller-owned JSON stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>
+    /// <returns>Compiled editable compositions, using calculated stock letter parts only when every supplied visual field matches.</returns>
     public static EndingCompletionTextSpritePresentation Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -63,6 +73,9 @@ public sealed class EndingCompletionTextSpritePresentation : IIntroCinematicSpri
         return new EndingCompletionTextSpritePresentation(frames);
     }
 
+    /// <summary>Serializes completion-text compositions as UTF-8 JSON and validates the complete named-frame set and OAM fields before writing any bytes.</summary>
+    /// <param name="json">Destination written at its current position and left open.</param>
+    /// <param name="document">Versioned phrase-prefix, digit, and colon compositions to serialize.</param>
     public static void Write(Stream json, EndingCompletionTextSpriteDocument document)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -73,9 +86,12 @@ public sealed class EndingCompletionTextSpritePresentation : IIntroCinematicSpri
     }
 }
 
+/// <summary>Editable completion-message OAM schema, independent of the fixed bank-$8B typewriter pacing, program transitions, and recorded clear-time values.</summary>
 public sealed record EndingCompletionTextSpriteDocument
 {
+    /// <summary>Composition schema revision; loading currently requires version 1.</summary>
     public required int Version { get; init; }
+    /// <summary>Exactly 56 named ordered part arrays: operation-00..14, completed-00..20, clear-time-00..08, digit-00..09, and colon-00; null part palettes inherit the drawing owner's palette.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
 }
 
@@ -100,6 +116,7 @@ public static class EndingCompletionTextSpriteDefinitions
     private const int PrefixCount = OperationLetters + CompletedLetters + ClearLetters;
     private const int FrameCount = PrefixCount + 11;
 
+    /// <summary>Stable 56-frame catalog: 15 THE OPERATION WAS prefixes at $8C:A69D, 21 COMPLETED SUCCESSFULLY prefixes at $AB6B, nine CLEAR TIME prefixes at $B49B, then ten digits at $B67B and the colon at $B66F.</summary>
     public static IReadOnlyList<EndingCompletionTextSpriteFrameDefinition> Frames { get; } = new FrameView();
 
     /// <summary>Sum preceding records: two header bytes and two five-byte OAM parts
@@ -134,11 +151,18 @@ public static class EndingCompletionTextSpriteDefinitions
 
 }
 
+/// <summary>One named native completion-text composition identity and its original OAM part geometry; the part count describes stock artwork rather than imposing a timing or edit restriction.</summary>
+/// <param name="Name">Stable JSON key identifying a phrase prefix, decimal digit, or colon composition.</param>
+/// <param name="Pointer">Bank-relative $8C spritemap pointer selected by the fixed ending instruction lists.</param>
+/// <param name="StockPartCount">Original ordered OAM part count: two per revealed letter, or two for a digit or colon.</param>
 public readonly record struct EndingCompletionTextSpriteFrameDefinition(
     string Name, ushort Pointer, int StockPartCount);
 
+/// <summary>Installed filename and supported schema revision for editable completion-message OAM compositions.</summary>
 public static class EndingCompletionTextSpriteFormat
 {
+    /// <summary>Supported composition schema revision, requiring the complete 56-name frame set.</summary>
     public const int Version = 1;
+    /// <summary>Installed editable JSON filename for completion phrase prefixes and clear-time digit/colon sprites.</summary>
     public const string FileName = "ending-completion-text-sprites.json";
 }

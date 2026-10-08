@@ -14,6 +14,13 @@ public sealed class EndingExplosionSpritePresentation : IIntroCinematicSpritePre
     /// <summary>Canonical identity of the selected decoded visual frames, not JSON formatting.</summary>
     public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(EndingExplosionSpritePresentation), frames);
 
+    /// <summary>Draws the Zebes-explosion composition identified by its bank-$8C spritemap pointer.</summary>
+    /// <param name="pointer">Bank-$8C pointer identifying one of the installed explosion frames.</param>
+    /// <param name="oam">Object-attribute buffer that receives the composition.</param>
+    /// <param name="x">Horizontal origin in screen-space coordinates.</param>
+    /// <param name="y">Vertical origin in screen-space coordinates.</param>
+    /// <param name="paletteBits">SNES OAM attribute bits to combine with each part.</param>
+    /// <param name="originIsOnScreen">Whether the origin is already in the visible coordinate range.</param>
     public void Draw(ushort pointer, OamBuffer oam, ushort x, ushort y,
         ushort paletteBits, bool originIsOnScreen)
     {
@@ -26,6 +33,9 @@ public sealed class EndingExplosionSpritePresentation : IIntroCinematicSpritePre
             frame.DrawOffScreen(oam, x, y, paletteBits);
     }
 
+    /// <summary>Loads and validates the 16 named Zebes-explosion compositions from JSON.</summary>
+    /// <param name="json">Stream containing an ending-explosion sprite document.</param>
+    /// <returns>The compiled ending-explosion presentation.</returns>
     public static EndingExplosionSpritePresentation Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -65,6 +75,9 @@ public sealed class EndingExplosionSpritePresentation : IIntroCinematicSpritePre
         return new EndingExplosionSpritePresentation(frames);
     }
 
+    /// <summary>Validates and writes an ending-explosion sprite document as JSON.</summary>
+    /// <param name="json">Destination stream.</param>
+    /// <param name="document">Document to validate and serialize.</param>
     public static void Write(Stream json, EndingExplosionSpriteDocument document)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -75,9 +88,13 @@ public sealed class EndingExplosionSpritePresentation : IIntroCinematicSpritePre
     }
 }
 
+/// <summary>JSON schema for the editable Zebes-explosion compositions.</summary>
 public sealed record EndingExplosionSpriteDocument
 {
+    /// <summary>Gets the schema version, which must equal <see cref="EndingExplosionSpriteFormat.Version"/>.</summary>
     public required int Version { get; init; }
+
+    /// <summary>Gets the compositions keyed by the published explosion-frame names.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
 }
 
@@ -162,11 +179,19 @@ public static class EndingExplosionSpriteDefinitions
 
 }
 
+/// <summary>Identifies one editable ending-explosion composition and its stock cartridge shape.</summary>
+/// <param name="Name">Stable JSON key for the frame.</param>
+/// <param name="Pointer">Bank-$8C pointer used by the cinematic instruction lists.</param>
+/// <param name="StockPartCount">Number of OAM parts in the cartridge composition.</param>
 public readonly record struct EndingExplosionSpriteFrameDefinition(
     string Name, ushort Pointer, int StockPartCount);
 
+/// <summary>Defines the ending-explosion sprite document contract.</summary>
 public static class EndingExplosionSpriteFormat
 {
+    /// <summary>Current ending-explosion sprite schema version.</summary>
     public const int Version = 1;
+
+    /// <summary>Canonical ending-explosion sprite asset file name.</summary>
     public const string FileName = "ending-explosion-sprites.json";
 }

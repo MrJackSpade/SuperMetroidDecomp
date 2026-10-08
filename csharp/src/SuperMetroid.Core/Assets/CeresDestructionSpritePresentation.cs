@@ -14,8 +14,16 @@ public sealed class CeresDestructionSpritePresentation : IIntroCinematicSpritePr
     private CeresDestructionSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 
+    /// <summary>Whether a bank-$8C spritemap identity belongs to this destruction/reveal catalog; the scene router uses this to distinguish unique frames from shared Ceres-flight artwork.</summary>
     public bool Contains(ushort pointer) => frames.ContainsKey(pointer);
 
+    /// <summary>Appends the selected blast or backdrop composition in authored OAM order, applying palette inheritance and the requested native origin-clipping path.</summary>
+    /// <param name="pointer">Installed bank-$8C spritemap identity; shared flight-frame identities must be routed to the flight catalog.</param>
+    /// <param name="oam">Destination OAM buffer for this frame's ordered visual parts.</param>
+    /// <param name="x">Native 16-bit screen-origin X coordinate in pixels, retaining wrapped negative values.</param>
+    /// <param name="y">Native 16-bit screen-origin Y coordinate in pixels.</param>
+    /// <param name="paletteBits">Packed OBJ palette bits used only by parts whose editable palette is null.</param>
+    /// <param name="originIsOnScreen">True for ordinary origin clipping, false for the native off-screen Y-wrap path.</param>
     public void Draw(ushort pointer, OamBuffer oam, ushort x, ushort y,
         ushort paletteBits, bool originIsOnScreen)
     {
@@ -28,6 +36,9 @@ public sealed class CeresDestructionSpritePresentation : IIntroCinematicSpritePr
             frame.DrawOffScreen(oam, x, y, paletteBits);
     }
 
+    /// <summary>Loads version-1 <c>ceres-destruction-sprites.json</c>, requiring all 23 named compositions and validating each ordered part's offset, atlas region, size, palette, and priority.</summary>
+    /// <param name="json">Caller-owned JSON stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>
+    /// <returns>Selected compiled frames, sharing calculated stock compositions only when all supplied visual fields match.</returns>
     public static CeresDestructionSpritePresentation Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -70,6 +81,9 @@ public sealed class CeresDestructionSpritePresentation : IIntroCinematicSpritePr
         return new CeresDestructionSpritePresentation(frames);
     }
 
+    /// <summary>Serializes the destruction/reveal compositions as UTF-8 JSON and validates the complete named-frame set and OAM fields before writing any bytes.</summary>
+    /// <param name="json">Destination written at its current position and left open.</param>
+    /// <param name="document">Versioned selected backdrop and blast compositions to serialize.</param>
     public static void Write(Stream json, CeresDestructionSpriteDocument document)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -94,18 +108,28 @@ internal sealed class CeresSceneSpritePresentation(
     }
 }
 
+/// <summary>Editable OAM composition schema for the Ceres explosion and Zebes reveal, separate from cinematic actors, motion, timing, and the shared approach artwork.</summary>
 public sealed record CeresDestructionSpriteDocument
 {
+    /// <summary>Composition schema revision; loading currently requires version 1.</summary>
     public required int Version { get; init; }
+    /// <summary>Exactly 23 named ordered part arrays: seven asteroid/planet/title/star backdrops, six small blasts, four large blasts, and six station blasts; null part palettes inherit the actor's palette.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
 }
 
+/// <summary>One stable destruction/reveal composition identity with its original native OAM geometry; stock part count is descriptive and does not restrict independently edited compositions.</summary>
+/// <param name="Name">Stable JSON key for a backdrop or numbered blast frame.</param>
+/// <param name="Pointer">Bank-relative $8C spritemap pointer selected by the scene's compiled sprite instruction lists.</param>
+/// <param name="StockPartCount">Number of ordered five-byte OAM parts in the original record, excluding its two-byte count header.</param>
 public readonly record struct CeresDestructionSpriteFrameDefinition(
     string Name, ushort Pointer, int StockPartCount);
 
+/// <summary>Installed filename and supported schema revision for the selected Ceres-destruction and Zebes-reveal OAM compositions.</summary>
 public static class CeresDestructionSpriteFormat
 {
+    /// <summary>Supported composition schema revision, requiring the complete 23-name frame set.</summary>
     public const int Version = 1;
+    /// <summary>Installed editable JSON filename for unique destruction/reveal backdrops and blast frames.</summary>
     public const string FileName = "ceres-destruction-sprites.json";
 }
 

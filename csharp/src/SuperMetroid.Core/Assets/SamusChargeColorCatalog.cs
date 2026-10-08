@@ -47,15 +47,22 @@ public sealed class SamusChargeColorCatalog
         WriteIndented = true,
     };
 
+    /// <summary>Gets packed RGB5 ink 0–15 from Hyper-shot playback frame 0–9 in the native $91:D82B reverse-cycle pointer order; this asset's edits are independent of the full-body Hyper cycle.</summary>
     public ushort ResolveHyper(int frame, int color)
     {
         if ((uint)frame >= SamusChargeColorFormat.HyperFrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
         return hyperShot.Resolve(SamusChargeColorFormat.HyperFrameCount - 1 - frame, color);
     }
 
+    /// <summary>Installs all sixteen selected charge or pseudo-Screw inks at CGRAM 192–207, including the retained transparent-slot word; charge admission and phase advancement remain Samus behavior.</summary>
+    /// <param name="cgram">Current Samus OBJ palette destination.</param>
+    /// <param name="pseudo">True for pseudo-Screw's bright/normal holds; false for the charged-beam whitening pulse.</param>
+    /// <param name="suit">Suit index: Power 0, Varia 1, Gravity 2.</param>
+    /// <param name="phase">Playback phase 0–5; stock charge shades follow 0/1/2/3/2/1, while pseudo-Screw holds bright for 0–2 and normal for 3–5.</param>
     public void ApplyCharge(SnesCgram cgram, bool pseudo, int suit, int phase) =>
         Apply(cgram, pseudo ? pseudoScrew : chargedBeam, suit, phase);
 
+    /// <summary>Installs all sixteen Hyper-shot inks at CGRAM 192–207 for playback frame 0–9; shot-glow timing and the native decrementing palette cursor remain engine-owned.</summary>
     public void ApplyHyper(SnesCgram cgram, int frame)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -64,6 +71,9 @@ public sealed class SamusChargeColorCatalog
             cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + color, ResolveHyper(frame, color));
     }
 
+    /// <summary>Loads version-1 <c>samus-charge-colors.json</c>, validating three suits with six phases each, ten Hyper-shot frames, sixteen colors per row, and RGB5 channels from 0 through 31.</summary>
+    /// <param name="json">Caller-owned JSON stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>
+    /// <returns>Compiled selected colors, sharing stock repeated phases and calculated fades only when supplied values agree.</returns>
     public static SamusChargeColorCatalog Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -86,6 +96,7 @@ public sealed class SamusChargeColorCatalog
             CompileHyper(document.HyperShot));
     }
 
+    /// <summary>Serializes the charge/pseudo-Screw/Hyper-shot colors as indented camel-case UTF-8 JSON, validating schema, array dimensions, and RGB5 channel bounds before returning the bytes.</summary>
     public static byte[] Write(SamusChargeColorDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
@@ -219,8 +230,10 @@ public sealed class SamusChargeColorCatalog
             name => new InvalidDataException($"Duplicate Samus charge color property {name}."));
 }
 
+/// <summary>Editable RGB5 body-palette rows for charge, pseudo-Screw, and Hyper-shot playback; each row contains sixteen native OBJ slots, including the nonvisible transparent slot.</summary>
 public sealed record SamusChargeColorDocument
 {
+    /// <summary>Color schema revision; loading currently requires version 1.</summary>
     public required int Version { get; init; }
     /// <summary>Power/Varia/Gravity suits, each with six playback phases.</summary>
     public required PaletteRgb5[][][] ChargedBeam { get; init; }
@@ -230,6 +243,7 @@ public sealed record SamusChargeColorDocument
     public required PaletteRgb5[][] HyperShot { get; init; }
 }
 
+/// <summary>Installed filename and bounded suit, phase, frame, and palette geometry for selected Samus charge-related body colors.</summary>
 public static class SamusChargeColorFormat
 {
     /// <summary>Returns the first phase using a native charge palette.</summary>
@@ -258,10 +272,16 @@ public static class SamusChargeColorFormat
         return SamusFullBodyCycleColorFormat.TryActiveGoldRamp(suit * 16 + 11, color, basis, out ushort gold)
             ? gold : SamusFullBodyCycleColorFormat.ActiveShineTint(basis, 3);
     }
+    /// <summary>Installed editable JSON filename for charged-beam, pseudo-Screw, and Hyper-shot palette rows.</summary>
     public const string FileName = "samus-charge-colors.json";
+    /// <summary>Supported color schema revision, requiring the complete suit/phase and Hyper-shot row sets.</summary>
     public const int Version = 1;
+    /// <summary>Three ordered suit variants: Power, Varia, and Gravity.</summary>
     public const int SuitCount = 3;
+    /// <summary>Six playback phases per suit, matching native charge lists $91:D7DB/$D7E7/$D7F3 and pseudo-Screw lists $D805/$D811/$D81D.</summary>
     public const int PhasesPerSuit = 6;
+    /// <summary>Ten Hyper-shot playback frames in the native $91:D82B–$D83D reverse palette sequence.</summary>
     public const int HyperFrameCount = 10;
+    /// <summary>Sixteen RGB5 words per Samus OBJ palette row, including the retained transparent-slot word and fifteen visible inks.</summary>
     public const int ColorsPerPalette = SamusPaletteRomData.Common.ColorsPerObjPalette;
 }

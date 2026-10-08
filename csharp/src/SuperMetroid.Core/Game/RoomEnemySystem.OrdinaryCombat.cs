@@ -1023,17 +1023,7 @@ public sealed partial class RoomEnemySystem
 
                 if (isMotherBrainHead)
                 {
-                    if (!ResolveMotherBrainHeadShot(
-                        bus,
-                        enemy,
-                        projectile,
-                        projectiles,
-                        sharedProjectiles,
-                        projectileType,
-                        projectileDamage))
-                    {
-                        continue;
-                    }
+                    ResolveMotherBrainHeadShot(enemy, projectile, projectiles, projectileType, projectileDamage);
                     hitCount++;
                     break;
                 }

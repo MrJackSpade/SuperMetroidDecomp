@@ -219,43 +219,30 @@ public sealed partial class RoomEnemySystem
             head.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                 (projectileType.BeamCombinationIndex & (int)SamusBeamFlags.Plasma) == 0);
 
-        // DetermineMotherBrainShotReactionType maps beams to two, missiles/supers to one,
-        // and every other projectile family to zero. Form four's beam branch is the Hyper
-        // Beam recoil routine at `$A9:B5A9`; by then the long rainbow/Baby/phase-three state
-        // machine owns the same native walk counter and neck-function words. Route the hit
-        // through that owner instead of maintaining a second, subtly divergent recoil copy.
-        ushort reactionType = family switch
+        // `$B58E` indexes its reaction table with the type word's high byte masked to three
+        // bits, so missile explosions (`$08`) alias beams exactly as natively.
+        var reactionProjectile = (MotherBrainProjectileType)((projectileType.Raw >> 8) & 7);
+        if (state.RainbowBeamSequence is { } sequence)
         {
-            SamusProjectileFamily.Beam => 2,
-            SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile => 1,
-            _ => 0,
-        };
-        if (state.Form == 4 && reactionType == 2)
-        {
-            MotherBrainRainbowBeamAttackSequence sequence = state.RainbowBeamSequence ??
-                throw new InvalidOperationException(
-                    "Mother Brain received a form-four beam without its phase-three state owner.");
-            sequence.ApplyPhase2Or3ShotReaction(MotherBrainProjectileType.Beam);
-
-            // These are not host-only mirrors. `$B5BA/$B5BD` clears the body function timer
-            // on recoil underflow and `$B5C0` always publishes the post-subtraction walk
-            // counter immediately, before common projectile damage runs. The sequence keeps
-            // the authoritative phase-three copies; expose the same writes on the encounter
-            // state so debugger watches retain their native WRAM meaning between enemy turns.
+            // Once attached, the rainbow/Baby/phase-three state machine owns walk counter
+            // `$7E:780E` and republishes it every body turn, so every reaction must reach it;
+            // a write to the encounter projection alone is overwritten on the next turn.
+            // `$B5BA/$B5BD` clears the body function timer on recoil underflow and `$B5C0`
+            // publishes the counter immediately, before common projectile damage runs.
+            sequence.ApplyPhase2Or3ShotReaction(reactionProjectile);
             state.FunctionTimer = sequence.FunctionTimer;
             state.WalkCounter = sequence.Phase3WalkCounter;
         }
-        else if (reactionType == 1)
-        {
-            state.WalkCounter = 0;
-        }
         else
         {
-            // `$B57C-$B589` subtracts $0100 and clamps a negative signed result to zero.
-            // This is an animation-distance accumulator, not health or a frame countdown.
-            state.WalkCounter = state.WalkCounter < 0x0100
-                ? (ushort)0
-                : unchecked((ushort)(state.WalkCounter - 0x0100));
+            MotherBrainShotReactionResult reaction =
+                MotherBrainShotReaction.Resolve(state.Form, reactionProjectile, state.WalkCounter);
+            if (reaction.HyperBeamRecoil)
+            {
+                throw new InvalidOperationException(
+                    "Mother Brain received a form-four beam without its phase-three state owner.");
+            }
+            state.WalkCounter = reaction.WalkCounter;
         }
 
         if (state.Form == 1)

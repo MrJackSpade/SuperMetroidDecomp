@@ -560,52 +560,16 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         // `$B58E` masks the projectile type to three bits before indexing an eight-byte
         // table. Validate the host enum so a caller cannot accidentally smuggle a larger
         // value past that native domain.
-        if ((uint)projectileType > 7)
-            throw new ArgumentOutOfRangeException(nameof(projectileType));
-
-        // The table returns two for beams, one for missiles/supers, and zero for every
-        // remaining projectile class. Form four gives only reaction type two the special
-        // Hyper Beam path; ordinary phase-two beams continue through the generic branch.
-        ushort reactionType = projectileType switch
+        MotherBrainShotReactionResult reaction =
+            MotherBrainShotReaction.Resolve(Body.Form, projectileType, Phase3WalkCounter);
+        Phase3WalkCounter = reaction.WalkCounter;
+        if (reaction.HyperBeamRecoil)
         {
-            MotherBrainProjectileType.Beam => 2,
-            MotherBrainProjectileType.Missile or MotherBrainProjectileType.SuperMissile => 1,
-            _ => 0,
-        };
-        if (Body.Form == 4 && reactionType == 2)
-        {
-            ushort candidate = unchecked((ushort)(Phase3WalkCounter - 0x010a));
-            if ((candidate & 0x8000) == 0)
-            {
-                // BPL at `$B5B1` keeps the nonnegative remainder and does not recoil. This
-                // is why sustained Hyper Beam fire first consumes accumulated walk credit.
-                Phase3WalkCounter = candidate;
-                return;
-            }
-
-            // On underflow the native accumulator is replaced by zero before the common
-            // store: do not retain the wrapped subtraction. The neck function itself runs
-            // on Mother Brain's next ordinary phase-three main call.
+            // The neck function itself runs on Mother Brain's next ordinary phase-three
+            // main call.
             Phase3NeckPhase = MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil;
             FunctionTimer = 0;
-            Phase3WalkCounter = 0;
-            return;
         }
-
-        // DEC turns reaction one into zero, sending either missile kind directly to the
-        // zero label. Reaction zero wraps to `$FFFF`; reaction two outside form four leaves
-        // one. Both nonzero cases subtract `$0100` and clamp signed underflow to zero.
-        reactionType = unchecked((ushort)(reactionType - 1));
-        if (reactionType == 0)
-        {
-            Phase3WalkCounter = 0;
-            return;
-        }
-
-        ushort genericCandidate = unchecked((ushort)(Phase3WalkCounter - 0x0100));
-        Phase3WalkCounter = (genericCandidate & 0x8000) == 0
-            ? genericCandidate
-            : (ushort)0;
     }
 
     /// <summary>

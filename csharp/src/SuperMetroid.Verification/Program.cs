@@ -330,6 +330,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--mother-brain-missile-walk-reset"])
+{
+    VerifyMotherBrainMissileWalkReset();
+    return 0;
+}
 if (args is ["--baby-metroid-fatal-blow-shake"])
 {
     VerifyBabyMetroidFatalBlowShake();
@@ -7399,6 +7404,7 @@ VerifyMotherBrainWalkBackwardsPose();
 VerifyMotherBrainRingBabyHealth();
 VerifyBabyMetroidWrongWaySpeed();
 VerifyBabyMetroidFatalBlowShake();
+VerifyMotherBrainMissileWalkReset();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

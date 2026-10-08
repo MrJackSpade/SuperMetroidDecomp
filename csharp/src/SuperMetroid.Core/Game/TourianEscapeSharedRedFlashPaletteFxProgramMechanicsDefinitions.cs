@@ -46,7 +46,7 @@ public static class TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefiniti
     private const ushort GeneralColorByte = 0x00a8;
     /// <summary>CGRAM byte $E8: Arkanoid-block and red-orb flash destination.</summary>
     private const ushort ArkanoidColorByte = 0x00e8;
-    private static readonly IReadOnlyList<TourianEscapeSharedRedFlashPaletteFxProgramDefinition> Definitions = new ProgramEntries();
+    internal static readonly IReadOnlyList<TourianEscapeSharedRedFlashPaletteFxProgramDefinition> Definitions = new ProgramEntries();
     private sealed class ProgramEntries : IReadOnlyList<TourianEscapeSharedRedFlashPaletteFxProgramDefinition>
     {
         public int Count => 2;
@@ -68,10 +68,6 @@ public static class TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefiniti
         }
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
-    /// <summary>The two entries into the shared red-flash loop.</summary>
-    [AccessedByReflection]
-    public static IReadOnlyList<TourianEscapeSharedRedFlashPaletteFxProgramDefinition> All =>
-        Definitions;
 
     /// <summary>Returns one shared timed-record pointer.</summary>
     public static ushort FramePointer(int frame)

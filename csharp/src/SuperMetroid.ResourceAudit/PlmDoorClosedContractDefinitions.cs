@@ -12,7 +12,7 @@ internal static class PlmDoorClosedContractDefinitions
         new("SuperMetroid.Core.Rooms.RoomPlmBlueDoorVisualCatalog", "plm-blue-door-complete-aliased-draws", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmBlueDoorVisualCatalog.cs", "F8253FFD84E9B420B8C2DFDD41362D4C4D5267529746EC4684284D502F0900A4"),
-             new("csharp/src/SuperMetroid.Core/Rooms/BlueDoorPlmDrawDefinitions.cs", "EB429CBF26BEABFEF685F387F755BA02846EE5BCE2739576808D04DCCE3DE616")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/BlueDoorPlmDrawDefinitions.cs", "4483A780911A0C23D4696649D8C70549D6A7D8D4BF18CA76617EC037924881BD")]),
         new("SuperMetroid.Core.Rooms.RoomPlmColoredDoorVisualCatalog", "plm-colored-door-complete-draws", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmColoredDoorVisualCatalog.cs", "BA079DCA87D7D4BE9B3DAD74B69E506AAB8FA4FD22F2B34BE1DC56A03193F757"),

@@ -117,7 +117,7 @@ internal static partial class Program
                     {
                         File.WriteAllBytes("csharp/test-temp/ending-504/explosion-finale.smframe",
                             RenderFrameSnapshotCodec.Serialize(new(new(tick, 1, legacy.CinematicFrame), finale)));
-                        PngWriter.WriteRgba("csharp/test-temp/ending-504/explosion-finale.png", 256, 224, legacy.Render());
+                        PngWriterTooling.WriteRgba("csharp/test-temp/ending-504/explosion-finale.png", 256, 224, legacy.Render());
                     }
                     finaleDisplayFrames++;
                 }
@@ -203,7 +203,7 @@ internal static partial class Program
                     {
                         File.WriteAllBytes("csharp/test-temp/ending-504/live-shot.smframe",
                             RenderFrameSnapshotCodec.Serialize(new(new(tick, 1, legacy.CinematicFrame), shotFrame)));
-                        PngWriter.WriteRgba("csharp/test-temp/ending-504/live-shot.png", 256, 224, legacy.Render());
+                        PngWriterTooling.WriteRgba("csharp/test-temp/ending-504/live-shot.png", 256, 224, legacy.Render());
                     }
                 }
                 if (hours < 10 && phaseEntryFrames.TryGetValue(EndingCreditsPhase.PostCreditsReward, out int rewardStart)
@@ -338,7 +338,7 @@ internal static partial class Program
                     if (legacy.Brightness == 15)
                     {
                         Directory.CreateDirectory("csharp/test-temp/ending-504");
-                        PngWriter.WriteRgba($"csharp/test-temp/ending-504/{hours}-{legacy.Phase}.png", 256, 224, expected);
+                        PngWriterTooling.WriteRgba($"csharp/test-temp/ending-504/{hours}-{legacy.Phase}.png", 256, 224, expected);
                         if (legacy.Phase == EndingCreditsPhase.PostCreditsReward)
                             File.WriteAllBytes($"csharp/test-temp/ending-504/{hours}-reward.smframe",
                                 RenderFrameSnapshotCodec.Serialize(new(new(tick, 1, legacy.CinematicFrame), legacy.CaptureRenderSnapshot())));
@@ -366,7 +366,7 @@ internal static partial class Program
             Rgba32[] final = legacy.Render();
             LayeredRenderSnapshot retained = captured.CaptureRenderSnapshot();
             for (int i = 0; i < 600; i++) captured.Step();
-            PngWriter.WriteRgba($"csharp/test-temp/ending-504/{hours}-Final.png", 256, 224, captured.Render());
+            PngWriterTooling.WriteRgba($"csharp/test-temp/ending-504/{hours}-Final.png", 256, 224, captured.Render());
             AssertTrue(final.AsSpan().SequenceEqual(RenderForComparison(retained)), "ending final packet survives simulation advance");
         }
         Console.WriteLine($"  Ending snapshots: {samples} sampled frames cover escape, credits and all three reward branches.");

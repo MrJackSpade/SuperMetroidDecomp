@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyMagdolliteLavaInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMagdolliteLavaInstructionProgramDefinitions), () => VerifyMagdolliteLavaInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyMagdolliteLavaInstructionProgramDefinitions(
@@ -28,11 +28,11 @@ internal static partial class Program
         }
 
         for (int index = 0;
-             index < CommonEnemyProjectileInstructionProgramDefinitions.MechanicsWordCount;
+             index < CommonEnemyProjectileInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                CommonEnemyProjectileInstructionProgramDefinitions.MechanicsWord(index);
+                CommonEnemyProjectileInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(
                 definition.Value,
                 ReadMagdolliteLavaInstructionWord(rom, definition.Address),
@@ -214,8 +214,8 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (MagdolliteLavaInstructionProgramDefinitions.IsCompiledMechanicsByte(address) ||
-                CommonEnemyProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (MagdolliteLavaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
+                CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

@@ -35,13 +35,13 @@ internal static class VramDmaDomains
                 var page = CeresEscapeOverlayTilemapDefinitions.Emergency;
                 return Native([(page.SourceAddress, page.WordCount * sizeof(ushort))]);
             case "ceres":
-                return Native(CeresEscapeVramTransferDefinitions.All.ToArray().Select(frame => (frame.SourceAddress, (int)frame.ByteCount)));
+                return Native(CeresEscapeVramTransferDefinitionsTooling.All.ToArray().Select(frame => (frame.SourceAddress, (int)frame.ByteCount)));
             case "ceres-japanese":
-                return Native(CeresEscapeVramTransferDefinitions.All.ToArray().Where(frame =>
+                return Native(CeresEscapeVramTransferDefinitionsTooling.All.ToArray().Where(frame =>
                     frame.Pointer >= CeresEscapeVramTransferDefinitions.JapaneseOverlay &&
                     frame.Pointer < CeresEscapeVramTransferDefinitions.TimerSprites).Select(frame => (frame.SourceAddress, (int)frame.ByteCount)));
             case "corpse":
-                return Native(DeadMonsterRottingDefinitions.AllTransfers.Select(frame => (frame.SourceAddress, (int)frame.SizeInBytes)));
+                return Native(DeadMonsterRottingDefinitionsTooling.AllTransfers.Select(frame => (frame.SourceAddress, (int)frame.SizeInBytes)));
             case "dead-torizo":
                 return Native(DeadTorizoVramTransferDefinitions.ForPhase(0).ToArray().Concat(
                     DeadTorizoVramTransferDefinitions.ForPhase(1).ToArray()).Select(frame => (frame.SourceAddress, (int)frame.SizeInBytes)));
@@ -76,7 +76,7 @@ internal static class VramDmaDomains
                 return Native(Enumerable.Range(0, RoomFxAnimatedTileAtlasFormat.TreadmillFrameCount).Select(index =>
                     (WreckedShipTreadmillRomData.FrameSource(index), (int)WreckedShipTreadmillRomData.TransferByteCount)));
             case "landing":
-                return Native(LibraryBackgroundProgramDefinitions.Get(unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress)).Instructions
+                return Native(LibraryBackgroundProgramDefinitionsTooling.Get(unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress)).Instructions
                     .Where(instruction => instruction.Command == LibraryBackgroundCommand.TransferForDoor)
                     .Select(instruction => (instruction.SourceAddress, (int)instruction.ByteCount)));
             case "sky":

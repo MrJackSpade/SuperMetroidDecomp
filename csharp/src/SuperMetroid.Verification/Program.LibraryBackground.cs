@@ -8,7 +8,7 @@ internal static partial class Program
 {
 static void VerifyLibraryBackgroundSourceInventory()
 {
-    ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+    ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
         Path.GetFullPath("Super Metroid.smc"));
     IReadOnlyList<LibraryBackgroundSource> sources =
         LibraryBackgroundSourceInventory.Scan(bus);

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled frame timing and terminal control for the Morph Ball eye body and mount.
 /// Interleaved spritemap operands select separately installed presentation data.
 /// </summary>
-internal abstract class MorphBallEyeInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class MorphBallEyeInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Eye_Active</c> at $A8:8FAC.</summary>
     internal const ushort Active = 0x8fac;
@@ -111,23 +111,6 @@ internal abstract class MorphBallEyeInstructionProgramDefinitions : IInstruction
 
         throw new InvalidDataException(
             $"Morph Ball eye instruction mechanics pointer $A8:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa80000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 
 }

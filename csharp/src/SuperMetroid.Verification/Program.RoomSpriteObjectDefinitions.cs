@@ -17,11 +17,11 @@ internal static partial class Program
         FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus", flags)!;
 
         for (int index = 0;
-             index < RoomSpriteObjectInstructionProgramDefinitions.MechanicsWordCount;
+             index < RoomSpriteObjectInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                RoomSpriteObjectInstructionProgramDefinitions.MechanicsWord(index);
+                RoomSpriteObjectInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(
                 ReadRoomSpriteObjectWord(rom, 0xb40000 | definition.Address),
                 definition.Value,
@@ -111,7 +111,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Room sprite object definitions: all 62 native selectors and complete " +
-            $"production programs pass with {RoomSpriteObjectInstructionProgramDefinitions.MechanicsWordCount} " +
+            $"production programs pass with {RoomSpriteObjectInstructionProgramDefinitionsTooling.MechanicsWordCount} " +
             "compiled mechanics words, " +
             $"{RoomSpriteObjectInstructionProgramDefinitions.PresentationWordCount} executed " +
             "cartridge-matching selectors, strict rejection, and allocation-free lookup.");
@@ -158,7 +158,7 @@ internal static partial class Program
                 throw new InvalidOperationException(
                     $"Room sprite object attempted migrated selector read ${address:X6}.");
             }
-            if (RoomSpriteObjectInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (RoomSpriteObjectInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenMechanicsReadAttempts++;
                 throw new InvalidOperationException(

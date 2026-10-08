@@ -6,6 +6,7 @@
   <ItemGroup>
     <ProjectReference Include="../SuperMetroid.Diagnostics/SuperMetroid.Diagnostics.csproj" />
     <ProjectReference Include="../SuperMetroid.Core/SuperMetroid.Core.csproj" />
+    <ProjectReference Include="../SuperMetroid.Tooling/SuperMetroid.Tooling.csproj" />
     <ProjectReference Include="../SuperMetroid.AssetExtraction/SuperMetroid.AssetExtraction.csproj" />
     <Compile Include="../../tools/ProductionMagicNumberAudit.cs" Link="ProductionMagicNumberAudit.cs" />
     <Compile Include="../../test-support/SaveLoadRandomAudit.cs" Link="SaveLoadRandomAudit.cs" />
@@ -22,6 +23,8 @@
     <Compile Include="../SuperMetroid.DebugRunner/Assets/MapAssetExtractor.cs" Link="MapAssetExtractor.cs" />
   </ItemGroup>
   <Import Project="../../test-support/RepositoryInstallation.projitems" />
+  <Import Project="../../test-support/RepositoryInstallation.Verification.projitems" />
+  <Import Project="../../test-support/RoomHeaderImport.projitems" />
   <Import Project="../../test-support/VerificationAccess.Core.projitems" />
   <Import Project="../../test-support/VerificationImporters.projitems" />
 </Project>

@@ -30,7 +30,7 @@ internal static class DoorCatalogAudit
         }
         foreach (NativeDoorRoom room in native.Rooms)
         {
-            if (!RoomHeaderDefinitions.Contains(room.Room) || RoomHeaderDefinitions.Get(room.Room).DoorListPointer != room.List)
+            if (!RoomHeaderDefinitionsTooling.Contains(room.Room) || RoomHeaderDefinitions.Get(room.Room).DoorListPointer != room.List)
                 findings.Add(new("DOOR004", room.Name, "Compiled room/list ownership differs from native header."));
             else if (!RoomStateSelectionDefinitions.GetStatePointers(room.Room).Order().SequenceEqual(room.States.Select(s => s.State).Order()))
                 findings.Add(new("DOOR004", room.Name, "Compiled room-state inventory differs from native labels."));
@@ -111,7 +111,7 @@ internal static class DoorCatalogAudit
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             DoorListDefinition list;
-            try { list = DoorDefinitions.GetList((ushort)value); }
+            try { list = DoorDefinitionsTooling.GetList((ushort)value); }
             catch (ArgumentOutOfRangeException) { continue; }
             lists.Add(list.Pointer, list.DoorPointers.ToArray());
         }

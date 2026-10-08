@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyCeresDoorInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyCeresDoorInstructionProgramDefinitions), () => VerifyCeresDoorInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyCeresDoorInstructionProgramDefinitions(
@@ -32,7 +32,7 @@ internal static partial class Program
              index++)
         {
             ushort address =
-                CeresDoorInstructionProgramDefinitions.PresentationWordAddress(index);
+                CeresDoorInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertEqual(CeresDoorInstructionProgramDefinitions.PresentationWordFrame(index),
                 ReadCeresDoorInstructionWord(rom, 0xa60000 | address),
                 $"Ceres door visual selector $A6:{address:X4}");
@@ -240,7 +240,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (CeresDoorInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (CeresDoorInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -255,7 +255,7 @@ internal static partial class Program
                      index++)
                 {
                     ushort presentation =
-                        CeresDoorInstructionProgramDefinitions.PresentationWordAddress(index);
+                        CeresDoorInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

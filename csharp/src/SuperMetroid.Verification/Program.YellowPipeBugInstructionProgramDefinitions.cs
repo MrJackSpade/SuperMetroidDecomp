@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyYellowPipeBugInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyYellowPipeBugInstructionProgramDefinitions), () => VerifyYellowPipeBugInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyYellowPipeBugInstructionProgramDefinitions(
@@ -17,11 +17,11 @@ internal static partial class Program
         const BindingFlags flags =
             BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
         for (int index = 0;
-             index < YellowPipeBugInstructionProgramDefinitions.MechanicsWordCount;
+             index < YellowPipeBugInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                YellowPipeBugInstructionProgramDefinitions.MechanicsWord(index);
+                YellowPipeBugInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadYellowPipeBugInstructionWord(rom, 0xb30000 | definition.Address),
                 $"Yellow Pipe Bug instruction mechanics word $B3:{definition.Address:X4}");
@@ -46,11 +46,11 @@ internal static partial class Program
         AssertEqual(0, guard.ForbiddenPresentationReadAttempts,
             "Yellow Pipe Bug programs never read installed visual selectors");
         for (int index = 0;
-             index < YellowPipeBugInstructionProgramDefinitions.PresentationWordCount;
+             index < YellowPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
             ushort address =
-                YellowPipeBugInstructionProgramDefinitions.PresentationWordAddress(index);
+                YellowPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertEqual(ReadYellowPipeBugInstructionWord(rom, 0xb30000 | address),
                 PipeBugVisualDefinitions.FrameAt(
                     PipeBugDefinitions.YellowEnemyDefinition, address),
@@ -132,7 +132,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (YellowPipeBugInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (YellowPipeBugInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -142,11 +142,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < YellowPipeBugInstructionProgramDefinitions.PresentationWordCount;
+                     index < YellowPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        YellowPipeBugInstructionProgramDefinitions.PresentationWordAddress(index);
+                        YellowPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

@@ -82,14 +82,14 @@ internal static class PlmProgramContractChecks
         var missingArtwork = new PlmProgramAuditReport();
         new PlmProgramAudit.Walker(RoomPlmProgramDefinitions.TryReadWord,
             RoomPlmProgramDefinitions.TryReadByte, _ => true, missingArtwork,
-            (_, _) => false).Visit(BombTorizoHandPlmProgramDefinitions.DebrisUploadInstruction, "reported missing debris art");
+            (_, _) => false).Visit(BombTorizoHandPlmProgramDefinitionsTooling.DebrisUploadInstruction, "reported missing debris art");
         Require(missingArtwork.Findings.Single().Code == "missing-artwork-transfer" &&
             missingArtwork.ArtworkTransfers == 1,
             "The Bomb Torizo DMA must fail static closure when its artwork provider is absent.");
         var installedArtwork = new PlmProgramAuditReport();
         new PlmProgramAudit.Walker(RoomPlmProgramDefinitions.TryReadWord,
             RoomPlmProgramDefinitions.TryReadByte, _ => true, installedArtwork)
-            .Visit(BombTorizoHandPlmProgramDefinitions.DebrisUploadInstruction, "installed debris art");
+            .Visit(BombTorizoHandPlmProgramDefinitionsTooling.DebrisUploadInstruction, "installed debris art");
         Require(installedArtwork.Findings.Count == 0 && installedArtwork.ArtworkTransfers == 1,
             "The actual Torizo DMA must resolve the complete installed page.");
         TorizoInstructionTileSheetDefinition debris = TorizoInstructionVramArtworkDefinitions.ChozoDebris;

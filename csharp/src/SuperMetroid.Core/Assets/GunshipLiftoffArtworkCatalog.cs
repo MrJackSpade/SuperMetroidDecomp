@@ -15,11 +15,8 @@ internal static class GunshipLiftoffTransferDefinitions
     /// <summary>$7600, first VRAM word selected by the destination list at $A2:AC11.</summary>
     private const int FirstDestinationWord = 0x7600;
 
-    /// <summary>First $94:C800 character chunk, uploaded to VRAM word $7600.</summary>
-    internal static GunshipLiftoffTransferDefinition First => Frame(0);
-
     /// <summary>$A2:AC07/$AC11 select five consecutive $400-byte source and VRAM regions.</summary>
-    private static GunshipLiftoffTransferDefinition Frame(int index)
+    internal static GunshipLiftoffTransferDefinition Frame(int index)
     {
         if ((uint)index >= 5)
             throw new IndexOutOfRangeException();

@@ -85,8 +85,7 @@ internal static class CeresEscapeVramTransferDefinitions
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
-    private static readonly IReadOnlyList<CeresEscapeVramTransferDefinition> Records = new TransferRecords();
-    internal static IReadOnlyList<CeresEscapeVramTransferDefinition> All => Records;
+    internal static readonly IReadOnlyList<CeresEscapeVramTransferDefinition> Records = new TransferRecords();
     internal static bool IsTerminator(ushort pointer) =>
         pointer is 0xc3d4 or 0xc4fc or 0xc536;
 

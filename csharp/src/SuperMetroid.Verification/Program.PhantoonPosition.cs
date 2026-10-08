@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyPhantoonPosition()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         // The native NTSC negative caps must hold at -8 and -6 pixels/frame.
         // PAL thresholds used here previously allowed continued acceleration.
         var capEnemies = new RoomEnemySystem();

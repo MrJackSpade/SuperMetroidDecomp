@@ -34,7 +34,7 @@ internal static partial class Program
     private static void VerifyWorkRobotInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyWorkRobotInstructionProgramDefinitions), () => VerifyWorkRobotInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyWorkRobotInstructionProgramDefinitions(
@@ -44,7 +44,7 @@ internal static partial class Program
         int presentation = 0;
         for (int address = 0xc6d3; address < 0xcb77; address += 2)
         {
-            if (WorkRobotInstructionProgramDefinitions.IsCompiledMechanicsByte(
+            if (WorkRobotInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(
                     0xa80000 | address))
             {
                 mechanics++;
@@ -62,9 +62,9 @@ internal static partial class Program
                     $"Work Robot presentation word $A8:{address:X4} is rejected as mechanics");
             }
         }
-        AssertEqual(WorkRobotInstructionProgramDefinitions.MechanicsWordCount, mechanics,
+        AssertEqual(WorkRobotInstructionProgramDefinitionsTooling.MechanicsWordCount, mechanics,
             "Work Robot compiled mechanics word count");
-        AssertEqual(WorkRobotInstructionProgramDefinitions.PresentationWordCount, presentation,
+        AssertEqual(WorkRobotInstructionProgramDefinitionsTooling.PresentationWordCount, presentation,
             "Work Robot live presentation word count");
 
         var guard = new WorkRobotInstructionReadGuard(rom);
@@ -94,10 +94,10 @@ internal static partial class Program
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Work Robot production execution avoids compiled mechanics bytes");
         for (int index = 0;
-             index < WorkRobotInstructionProgramDefinitions.PresentationWordCount;
+             index < WorkRobotInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort address = WorkRobotInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort address = WorkRobotInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertCompiledEnemyVisualSelector(rom, RoomEnemySystem.WorkRobotDefinition,
                 0xa8, address, $"Work Robot $A8:{address:X4}");
         }
@@ -185,7 +185,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (WorkRobotInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (WorkRobotInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -196,10 +196,10 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < WorkRobotInstructionProgramDefinitions.PresentationWordCount;
+                     index < WorkRobotInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
-                    ushort presentation = WorkRobotInstructionProgramDefinitions
+                    ushort presentation = WorkRobotInstructionProgramDefinitionsTooling
                         .PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))

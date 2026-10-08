@@ -9,11 +9,11 @@ internal static partial class Program
         const byte bank = TorizoCollisionDefinitions.Bank;
         var mechanicsAddresses = new HashSet<ushort>();
         for (int index = 0;
-             index < TorizoJumpBackInstructionProgramDefinitions.MechanicsWordCount;
+             index < TorizoJumpBackInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord word =
-                TorizoJumpBackInstructionProgramDefinitions.MechanicsWord(index);
+                TorizoJumpBackInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertTrue(mechanicsAddresses.Add(word.Address),
                 $"Torizo jump-back control $AA:{word.Address:X4} is unique");
             AssertTrue(word.Address >= TorizoJumpBackInstructionProgramDefinitions.Start &&
@@ -25,9 +25,9 @@ internal static partial class Program
                     .TryReadMechanicsWord(word.Address, out ushort selected) &&
                        selected == word.Value,
                 $"Torizo jump-back control $AA:{word.Address:X4} lookup");
-            AssertTrue(TorizoJumpBackInstructionProgramDefinitions
+            AssertTrue(TorizoJumpBackInstructionProgramDefinitionsTooling
                     .IsCompiledMechanicsByte((bank << 16) | word.Address) &&
-                       TorizoJumpBackInstructionProgramDefinitions
+                       TorizoJumpBackInstructionProgramDefinitionsTooling
                     .IsCompiledMechanicsByte((bank << 16) |
                         unchecked((ushort)(word.Address + 1))),
                 $"Torizo jump-back control $AA:{word.Address:X4} owns both bytes");
@@ -129,11 +129,11 @@ internal static partial class Program
         const byte bank = TorizoCollisionDefinitions.Bank;
         var mechanicsAddresses = new HashSet<ushort>();
         for (int index = 0;
-             index < TorizoJumpBackLeftInstructionProgramDefinitions.MechanicsWordCount;
+             index < TorizoJumpBackLeftInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord word =
-                TorizoJumpBackLeftInstructionProgramDefinitions.MechanicsWord(index);
+                TorizoJumpBackLeftInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertTrue(mechanicsAddresses.Add(word.Address),
                 $"left-facing Torizo jump-back control $AA:{word.Address:X4} is unique");
             AssertTrue(word.Address >= TorizoJumpBackLeftInstructionProgramDefinitions.Start &&
@@ -145,9 +145,9 @@ internal static partial class Program
                     .TryReadMechanicsWord(word.Address, out ushort selected) &&
                        selected == word.Value,
                 $"left-facing Torizo jump-back control $AA:{word.Address:X4} lookup");
-            AssertTrue(TorizoJumpBackLeftInstructionProgramDefinitions
+            AssertTrue(TorizoJumpBackLeftInstructionProgramDefinitionsTooling
                     .IsCompiledMechanicsByte((bank << 16) | word.Address) &&
-                       TorizoJumpBackLeftInstructionProgramDefinitions
+                       TorizoJumpBackLeftInstructionProgramDefinitionsTooling
                     .IsCompiledMechanicsByte((bank << 16) |
                         unchecked((ushort)(word.Address + 1))),
                 $"left-facing Torizo jump-back control $AA:{word.Address:X4} owns both bytes");

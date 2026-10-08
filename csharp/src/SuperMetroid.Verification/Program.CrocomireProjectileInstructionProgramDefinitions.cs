@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyCrocomireProjectileInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyCrocomireProjectileInstructionProgramDefinitions), () => VerifyCrocomireProjectileInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyCrocomireProjectileInstructionProgramDefinitions(
@@ -177,11 +177,11 @@ internal static partial class Program
             0x8feb, 0x8fef, 0x8ff1, 0x8ff3, 0x8ff7, 0x8ff9,
             0x9007, 0x900b, 0x900f, 0x9013, 0x9017, 0x901b, 0x901d, 0x901f,
         ];
-        AssertEqual(addresses.Length, CrocomireProjectileInstructionProgramDefinitions.MechanicsWordCount, "Crocomire projectile mechanics count");
+        AssertEqual(addresses.Length, CrocomireProjectileInstructionProgramDefinitionsTooling.MechanicsWordCount, "Crocomire projectile mechanics count");
         for (int i = 0; i < addresses.Length; i++)
         {
             ushort address = addresses[i];
-            var definition = CrocomireProjectileInstructionProgramDefinitions.MechanicsWord(i);
+            var definition = CrocomireProjectileInstructionProgramDefinitionsTooling.MechanicsWord(i);
             ushort expected = ReadCrocomireProjectileInstructionWord(rom, address);
             AssertEqual(address, definition.Address, "Crocomire projectile independent mechanics address");
             AssertEqual(expected, definition.Value, "Crocomire projectile enumerated native word");
@@ -193,13 +193,13 @@ internal static partial class Program
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
             bool expected = Array.Exists(addresses, word => address == word || address == word + 1);
-            AssertEqual(expected, CrocomireProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(0x860000 | address), "Crocomire projectile mechanics byte domain");
+            AssertEqual(expected, CrocomireProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x860000 | address), "Crocomire projectile mechanics byte domain");
         }
-        AssertTrue(!CrocomireProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(0x878fcf), "Crocomire projectile rejects another bank");
+        AssertTrue(!CrocomireProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x878fcf), "Crocomire projectile rejects another bank");
         foreach (ushort address in new ushort[] { 0, 0x8fcd, 0x8fd1, 0x8fed, 0x8ff5, 0x8ffb, 0x9003, 0x9005, 0x9009, 0x9021, 0xffff })
             AssertThrows<InvalidDataException>(() => CrocomireProjectileInstructionProgramDefinitions.ReadMechanicsWord(address), "Crocomire projectile rejects nonmechanics address");
-        AssertThrows<IndexOutOfRangeException>(() => CrocomireProjectileInstructionProgramDefinitions.MechanicsWord(-1), "negative Crocomire projectile mechanics index");
-        AssertThrows<IndexOutOfRangeException>(() => CrocomireProjectileInstructionProgramDefinitions.MechanicsWord(22), "Crocomire projectile mechanics index past end");
+        AssertThrows<IndexOutOfRangeException>(() => CrocomireProjectileInstructionProgramDefinitionsTooling.MechanicsWord(-1), "negative Crocomire projectile mechanics index");
+        AssertThrows<IndexOutOfRangeException>(() => CrocomireProjectileInstructionProgramDefinitionsTooling.MechanicsWord(22), "Crocomire projectile mechanics index past end");
     }
 
     private static void VerifyCrocomireProjectilePresentationPositions(SuperMetroidAddressSpace rom)
@@ -252,8 +252,8 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (CrocomireProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(address) ||
-                CommonEnemyProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (CrocomireProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
+                CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

@@ -7,8 +7,6 @@ public abstract class EnemySpritemapParts : IReadOnlyList<EnemySpritemapPart>
 {
     private protected EnemySpritemapParts() { }
     public abstract int Count { get; }
-    public int Length => Count;
-    public bool IsEmpty => Count == 0;
     public abstract EnemySpritemapPart this[int index] { get; }
     public IEnumerator<EnemySpritemapPart> GetEnumerator()
     {

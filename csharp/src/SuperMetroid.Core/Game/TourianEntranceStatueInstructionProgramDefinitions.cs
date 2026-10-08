@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled initial selectors and inert delete programs for the three entrance-statue
 /// enemy slots. The visible base and boss icons are separate bank-$86 projectile actors.
 /// </summary>
-internal abstract class TourianEntranceStatueInstructionProgramDefinitions : IInstructionProgramCatalog, ICompiledMechanicsByteProbe
+internal abstract class TourianEntranceStatueInstructionProgramDefinitions
 {
     /// <summary><c>InstList_TourianStatue_Ridley_0</c> at $AA:D7A5.</summary>
     internal const ushort Ridley = 0xd7a5;
@@ -49,23 +49,5 @@ internal abstract class TourianEntranceStatueInstructionProgramDefinitions : IIn
 
         throw new InvalidDataException(
             $"Tourian entrance-statue mechanics pointer $AA:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xaa0000)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 }

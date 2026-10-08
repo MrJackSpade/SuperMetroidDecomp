@@ -8,7 +8,7 @@ internal static partial class Program
     private static int VerifyBabyMetroidTheme()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();
         var state = new MotherBrainEnemyState(enemies.Slots[0]);
         typeof(RoomEnemySystem).GetField("_motherBrain", flags)!.SetValue(enemies, state);

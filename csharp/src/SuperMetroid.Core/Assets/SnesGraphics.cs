@@ -5,20 +5,6 @@ public readonly record struct Rgba32(byte R, byte G, byte B, byte A = 255);
 /// <summary>Decoders for the native color and tile formats consumed by the SNES PPU.</summary>
 public static class SnesGraphics
 {
-    /// <summary>
-    /// Converts little-endian SNES BGR555 colors into 8-bit RGBA. The console stores five
-    /// bits per channel in the order RRRRR, GGGGG, BBBBB from least to most significant.
-    /// </summary>
-    public static IReadOnlyList<Rgba32> DecodeBgr555Palette(ReadOnlySpan<byte> bytes)
-    {
-        var colors = new Rgba32[bytes.Length / 2];
-        for (int i = 0; i < colors.Length; i++)
-        {
-            int value = bytes[i * 2] | (bytes[i * 2 + 1] << 8);
-            colors[i] = DecodeBgr555Color((ushort)value);
-        }
-        return colors;
-    }
 
     /// <summary>Converts one native 15-bit CGRAM word into host RGBA.</summary>
     public static Rgba32 DecodeBgr555Color(ushort value)

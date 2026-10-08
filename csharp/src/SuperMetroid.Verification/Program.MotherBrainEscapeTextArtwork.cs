@@ -12,7 +12,7 @@ internal static partial class Program
     {
         RoomCharacterAtlas artwork = stock.MotherBrainEscapeText ??
             throw new InvalidDataException("Extracted Mother Brain escape-text PNG was not bound.");
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         byte[] native = RomDataReader.ReadFixedBank(rom,
             MotherBrainEscapeTextArtworkDefinitions.SourceAddress,
             MotherBrainEscapeTextArtworkDefinitions.ByteCount);
@@ -21,7 +21,7 @@ internal static partial class Program
 
         SnesVram installedVram = TransferMotherBrainEscapeTextPages(stock,
             new MotherBrainEscapeTextReadGuard(
-                SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc")));
+                SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")));
         // The oracle owns cartridge bytes; production has no uninstalled-ROM fallback.
         var cartridgeVram = new SnesVram();
         for (int page = 0; page < 5; page++)
@@ -63,7 +63,7 @@ internal static partial class Program
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
         SnesVram editedVram = TransferMotherBrainEscapeTextPages(edited,
             new MotherBrainEscapeTextReadGuard(
-                SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc")));
+                SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")));
         int firstDestination = MotherBrainEscapeTextArtworkDefinitions.PageDestination(0) * 2;
         AssertEqual((byte)(installedVram.ReadByte(firstDestination) ^ 0x80),
             editedVram.ReadByte(firstDestination),

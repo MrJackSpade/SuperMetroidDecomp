@@ -11,7 +11,7 @@ internal static partial class Program
 {
     private static void VerifyPauseReserveTanks()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int cases = 0;
         foreach (ushort capacity in new ushort[] { 0, 100, 200, 300, 400 })
         {
@@ -62,7 +62,7 @@ internal static partial class Program
                 if (capacity == 400 && supply == 199 && phase == 0)
                 {
                     Directory.CreateDirectory("csharp/test-temp/pause-reserve-tanks-527");
-                    PngWriter.WriteRgba("csharp/test-temp/pause-reserve-tanks-527/fill-199.png", 256, 224, actual);
+                    PngWriterTooling.WriteRgba("csharp/test-temp/pause-reserve-tanks-527/fill-199.png", 256, 224, actual);
                     File.WriteAllBytes("csharp/test-temp/pause-reserve-tanks-527/fill-199.smframe",
                         RenderFrameSnapshotCodec.Serialize(new(new(1, 1, 1), capture)));
                 }

@@ -70,7 +70,6 @@ internal static partial class Program
             var door = new CartridgeDoorHeader(
                 Pointer: 0,
                 DestinationRoomPointer: 0,
-                BitFlags: 0,
                 Orientation: direction,
                 PlmX: 1,
                 PlmY: 1,
@@ -180,7 +179,6 @@ internal static partial class Program
             var enteringDoor = new CartridgeDoorHeader(
                 Pointer: 0,
                 DestinationRoomPointer: 0,
-                BitFlags: 0,
                 Orientation: 5,
                 PlmX: blockX,
                 PlmY: blockY,
@@ -383,7 +381,6 @@ internal static partial class Program
         var enteringDoor = new CartridgeDoorHeader(
             Pointer: 0x8bc2,
             DestinationRoomPointer: RoomHeaderPointers.BombTorizoRoom,
-            BitFlags: 0,
             Orientation: 5,
             PlmX: doorX,
             PlmY: doorY,
@@ -518,7 +515,6 @@ internal static partial class Program
         var enteringDoor = new CartridgeDoorHeader(
             Pointer: 0x8cb2,
             DestinationRoomPointer: 0x9b9d,
-            BitFlags: 0,
             Orientation: 5,
             PlmX: doorX,
             PlmY: doorY,
@@ -565,7 +561,7 @@ internal static partial class Program
             0x840000 | unchecked((ushort)(RoomPlmHeaders.WreckedShipAttic + 2)),
             RoomPlmInstructionLists.WreckedShipAttic);
         SuperMetroidAddressSpace? rom = File.Exists("Super Metroid.smc")
-            ? SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc")
+            ? SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")
             : null;
         for (int index = 0; index < 3; index++)
         {
@@ -920,7 +916,7 @@ internal static partial class Program
         const ushort closedGateMiddleWord = 0x8ae8;
 
         WriteWord(bus, 0x84c8ca, 0xb3c1);
-        WriteWord(bus, 0x84c8cc, RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosed);
+        WriteWord(bus, 0x84c8cc, RoomPlmInstructionListsTooling.MotherBrainEscapeRoomGateClosed);
         WriteWord(bus, 0x84c8ce, RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing);
         WriteWord(bus, 0x84c8d0, 0xb3c1);
         bus.WriteBytes(0x8f0000 | population,
@@ -970,7 +966,7 @@ internal static partial class Program
             "C8CA setup clears collision class bits without deleting its resident slot");
         AssertEqual(39, ordinary.PopulationSlots.Single().NativeSlotIndex,
             "escape gate retains the highest native population slot");
-        AssertEqual(RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosed,
+        AssertEqual(RoomPlmInstructionListsTooling.MotherBrainEscapeRoomGateClosed,
             ordinary.PopulationSlots.Single().InstructionPointer,
             "ordinary entry retains C8CA's first closed-gate list");
         ordinary.Step(guarded, ordinaryLevel, ordinaryStreamer, 0, 0, 0);
@@ -1004,7 +1000,6 @@ internal static partial class Program
         var motherBrainExit = new CartridgeDoorHeader(
             Pointer: 0xaa8c,
             DestinationRoomPointer: 0xde4d,
-            BitFlags: 0,
             Orientation: 9,
             PlmX: gateX,
             PlmY: gateY,
@@ -1130,7 +1125,7 @@ internal static partial class Program
             "Metroids-cleared instruction owner excludes adjacent PLM header");
         if (File.Exists("Super Metroid.smc"))
         {
-            SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+            SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
                 "Super Metroid.smc");
             int source = 0x840000 | RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired;
             ushort nativeInstruction = (ushort)(rom.ReadByte(source) |
@@ -1231,7 +1226,7 @@ internal static partial class Program
     {
         var bus = new TestAddressSpace();
         SuperMetroidAddressSpace? rom = File.Exists("Super Metroid.smc")
-            ? SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc")
+            ? SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")
             : null;
         for (int index = 0; index < 3; index++)
         {

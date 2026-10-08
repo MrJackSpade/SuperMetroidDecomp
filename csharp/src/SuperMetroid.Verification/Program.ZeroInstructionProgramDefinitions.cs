@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyZeroInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyZeroInstructionProgramDefinitions), () => VerifyZeroInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyZeroInstructionProgramDefinitions(
@@ -141,7 +141,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (ZeroInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (ZeroInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

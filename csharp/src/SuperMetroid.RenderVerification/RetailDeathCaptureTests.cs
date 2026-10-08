@@ -4,6 +4,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Runtime;
 
 internal static class RetailDeathCaptureTests
 {

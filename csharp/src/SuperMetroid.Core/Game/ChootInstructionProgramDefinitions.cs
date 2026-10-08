@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Control flow for Choot idle, jump and fall animations; visual operands remain independently supplied.</summary>
-internal abstract class ChootInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class ChootInstructionProgramDefinitions
 {
     /// <summary>$A2:D82C: disable off-screen processing, display one frame, then sleep.</summary>
     internal const ushort Idle = 0xd82c;
@@ -9,33 +9,6 @@ internal abstract class ChootInstructionProgramDefinitions : IInstructionProgram
     internal const ushort Jumping = 0xd834;
     /// <summary>$A2:D840: jump control timing with a different final visual operand.</summary>
     internal const ushort Falling = 0xd840;
-
-    public static int MechanicsWordCount => 11;
-    public static int PresentationWordCount => 5;
-
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount)
-            throw new IndexOutOfRangeException();
-        ushort address;
-        if (index < 3)
-            address = (ushort)(Idle + (index == 2 ? 6 : index * 2));
-        else
-        {
-            int frame = (index - 3) % 4;
-            int program = (index - 3) / 4;
-            address = (ushort)(Jumping + (Falling - Jumping) * program + (frame == 0 ? 0 : frame * 4 - 2));
-        }
-        return new(address, ReadMechanicsWord(address));
-    }
-
-    public static ushort PresentationWordAddress(int index)
-    {
-        if ((uint)index >= PresentationWordCount)
-            throw new IndexOutOfRangeException();
-        return index == 0 ? (ushort)(Idle + 4) :
-            (ushort)(Jumping + (Falling - Jumping) * ((index - 1) / 2) + 4 + 4 * ((index - 1) % 2));
-    }
 
     internal static bool IsPresentationWord(ushort address)
     {
@@ -54,15 +27,7 @@ internal abstract class ChootInstructionProgramDefinitions : IInstructionProgram
             $"Choot instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa20000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        return TryRead(bankAddress, out _) || TryRead(unchecked((ushort)(bankAddress - 1)), out _);
-    }
-
-    private static bool TryRead(ushort address, out ushort value)
+    internal static bool TryRead(ushort address, out ushort value)
     {
         if (address < Jumping)
         {

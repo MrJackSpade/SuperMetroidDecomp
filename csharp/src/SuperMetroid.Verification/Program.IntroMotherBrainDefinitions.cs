@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyIntroMotherBrainDefinitions()
     {
-        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyIntroMotherBrainInstructions), () => VerifyIntroMotherBrainInstructions(retail));
         Suite(nameof(VerifyIntroMotherBrainExplosionPrograms), () => VerifyIntroMotherBrainExplosionPrograms(retail));
 

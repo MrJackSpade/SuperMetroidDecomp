@@ -39,7 +39,7 @@ internal static partial class Program
             AssertTrue(fragment.SpritemapPointer != CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap &&
                 fragment.SpritemapPointer != 0, "first breakup instruction replaces empty frame");
         }
-        var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] stockBytes = EnemySpritemapFiles.Extract(rom);
         var stock = EnemySpritemapCatalog.Load(new MemoryStream(stockBytes));
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
@@ -63,7 +63,7 @@ internal static partial class Program
         var draw = typeof(RoomEnemySystem).GetMethod("DrawEnemySpritemap", flags)!;
         for (int index = 0; index < RidleyExplosionInstructionProgramDefinitions.ProgramCount; index++)
         {
-            ushort operand = RidleyExplosionInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort operand = RidleyExplosionInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             ushort start = (ushort)(operand - 2);
             ushort expectedPointer = (ushort)(rom.ReadByte(0xa60000 | operand) | rom.ReadByte(0xa60000 | (operand + 1)) << 8);
             foreach (int offset in new[] { 0, 4 })

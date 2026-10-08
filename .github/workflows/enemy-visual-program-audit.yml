@@ -2,9 +2,9 @@ name: Static enemy visual program audit
 
 on:
   push:
-    paths: ['csharp/src/SuperMetroid.Core/**', 'csharp/src/SuperMetroid.AssetExtraction/**', 'csharp/src/SuperMetroid.ResourceAudit/**', '.github/workflows/enemy-visual-program-audit.yml']
+    paths: ['csharp/src/SuperMetroid.Core/**', 'csharp/src/SuperMetroid.AssetExtraction/**', 'csharp/src/SuperMetroid.Tooling/**', 'csharp/src/SuperMetroid.ResourceAudit/**', '.github/workflows/enemy-visual-program-audit.yml']
   pull_request:
-    paths: ['csharp/src/SuperMetroid.Core/**', 'csharp/src/SuperMetroid.AssetExtraction/**', 'csharp/src/SuperMetroid.ResourceAudit/**', '.github/workflows/enemy-visual-program-audit.yml']
+    paths: ['csharp/src/SuperMetroid.Core/**', 'csharp/src/SuperMetroid.AssetExtraction/**', 'csharp/src/SuperMetroid.Tooling/**', 'csharp/src/SuperMetroid.ResourceAudit/**', '.github/workflows/enemy-visual-program-audit.yml']
   workflow_dispatch:
 
 permissions:

@@ -52,13 +52,6 @@ public static partial class LibraryBackgroundProgramDefinitions
         program = null!;
         return false;
     }
-
-    /// <summary>Gets a pinned retail list or fails rather than reading an uncatalogued source.</summary>
-    public static LibraryBackgroundProgram Get(ushort pointer) =>
-        TryGet(pointer, out LibraryBackgroundProgram program)
-            ? program
-            : throw new InvalidDataException(
-                $"No compiled library-background program for $8F:{pointer:X4}.");
 }
 
 /// <summary>One ordered, fixed native list; the terminator is implicit in the command count.</summary>

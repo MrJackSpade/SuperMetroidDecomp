@@ -3,6 +3,5 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)RepositoryInstallation.cs" Link="TestSupport/RepositoryInstallation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)InstalledRuntimeBindings.cs" Link="TestSupport/InstalledRuntimeBindings.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)InstalledGameBindings.cs" Link="TestSupport/InstalledGameBindings.cs" />
   </ItemGroup>
 </Project>

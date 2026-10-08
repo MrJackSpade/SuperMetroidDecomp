@@ -9,7 +9,7 @@ internal static partial class Program
 {
     private static void VerifyGrappleDemoTrajectory()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var scene = SuperMetroid.AssetExtraction.AttractDemoSceneImporter.Read(bus, 0, 4)!;
         AssertEqual(AttractDemoRomDataInputObjects.GrappleBeam, scene.InputObject,
             "retail basic grapple demo identity");

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Game;
 /// Their interleaved spritemap operands are compiled visual identities when
 /// installed artwork is bound; diagnostic address spaces may still supply them.
 /// </summary>
-internal abstract class NorfairLavaJumperInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class NorfairLavaJumperInstructionProgramDefinitions
 {
     /// <summary><c>InstructionList_NorfairLavaJumper_Hidden</c> at $A2:BE3C.</summary>
     internal const ushort Hidden = 0xbe3c;
@@ -72,20 +72,5 @@ internal abstract class NorfairLavaJumperInstructionProgramDefinitions : IInstru
 
         throw new InvalidDataException(
             $"Norfair lava-jumper instruction mechanics pointer $A2:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa20000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-                return true;
-        }
-        return false;
     }
 }

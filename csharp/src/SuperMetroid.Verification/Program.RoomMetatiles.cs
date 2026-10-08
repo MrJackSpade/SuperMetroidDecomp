@@ -16,7 +16,7 @@ internal static partial class Program
             return;
         }
 
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         IReadOnlyDictionary<string, byte[]> files = RoomMetatileExtractor.Extract(bus);
         var sources = new Dictionary<string, int>
         {

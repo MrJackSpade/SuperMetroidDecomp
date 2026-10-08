@@ -7,10 +7,9 @@ namespace SuperMetroid.Core.Game;
 /// Branches, callbacks, timers, and movement operands are engine definitions; tile pixels and
 /// spritemap contents remain installed artwork. Packed DMA operands have their own typed catalog.
 /// </summary>
-internal abstract partial class TorizoInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
+internal abstract partial class TorizoInstructionProgramDefinitions
 {
     internal const byte Bank = 0xaa;
-    static int IDeclaredProgramBank.Bank => Bank;
 
     /// <summary><c>InstList_Torizo_SpecialCallable_BlowUpBombTorizosGut</c> at $AA:B0E5; native instruction-list identity.</summary>
     internal const ushort InstList_Torizo_SpecialCallable_BlowUpBombTorizosGut = 0xb0e5;
@@ -399,15 +398,8 @@ internal abstract partial class TorizoInstructionProgramDefinitions : IInstructi
     /// <summary><c>Function_GoldenTorizo_NormalMovement</c> at $AA:D5E6; native instruction callback operand.</summary>
     private const ushort Function_GoldenTorizo_NormalMovement = 0xd5e6;
 
-    private static readonly InstructionProgramLayout Layout = new(Bank,
+    internal static readonly InstructionProgramLayout Layout = new(Bank,
         [.. SharedItems, .. BombLeftItems, .. BombRightItems, .. GoldenLeftItems, .. GoldenRightItems]);
-
-    public static int MechanicsWordCount => Layout.MechanicsWordCount;
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        (ushort address, ushort value) = Layout.MechanicsWord(index);
-        return new(address, value);
-    }
     public static int PresentationWordCount => Layout.PresentationSlotCount;
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
@@ -415,6 +407,4 @@ internal abstract partial class TorizoInstructionProgramDefinitions : IInstructi
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(
                 $"Torizo instruction word $AA:{address:X4} has no compiled mechanics definition.");
-
-    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

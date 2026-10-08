@@ -7,18 +7,18 @@ internal static partial class Program
     private static void VerifyEtecoonInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyEtecoonInstructionProgramDefinitions), () => VerifyEtecoonInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyEtecoonInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         for (int index = 0;
-             index < EtecoonInstructionProgramDefinitions.MechanicsWordCount;
+             index < EtecoonInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                EtecoonInstructionProgramDefinitions.MechanicsWord(index);
+                EtecoonInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadEtecoonInstructionWord(rom, definition.Address),
                 $"Etecoon mechanics word $A7:{definition.Address:X4}");
@@ -121,7 +121,7 @@ internal static partial class Program
 
         Console.WriteLine(
             $"Etecoon instruction mechanics: " +
-            $"{EtecoonInstructionProgramDefinitions.MechanicsWordCount} compiled words, " +
+            $"{EtecoonInstructionProgramDefinitionsTooling.MechanicsWordCount} compiled words, " +
             "all overlapping entries and the four-cycle flex program, and forty-five executed " +
             "spritemap selectors match cartridge data with runtime reads forbidden.");
     }
@@ -176,7 +176,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (EtecoonInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (EtecoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

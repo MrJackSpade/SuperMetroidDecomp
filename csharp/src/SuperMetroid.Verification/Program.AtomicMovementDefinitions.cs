@@ -24,14 +24,14 @@ internal static partial class Program
             0xe348, 0xe34c, 0xe350, 0xe354, 0xe358, 0xe35c, 0xe360, 0xe362,
             0xe364, 0xe368, 0xe36c, 0xe370, 0xe374, 0xe378, 0xe37c, 0xe37e,
         ];
-        AssertEqual(addresses.Length, AtomicInstructionProgramDefinitions.MechanicsWordCount,
+        AssertEqual(addresses.Length, AtomicInstructionProgramDefinitionsTooling.MechanicsWordCount,
             "Atomic mechanics count");
         var ownedBytes = new HashSet<int>();
         for (int index = 0; index < addresses.Length; index++)
         {
             ushort address = addresses[index];
             ushort expected = ReadAtomicProgramWord(rom, address);
-            var actual = AtomicInstructionProgramDefinitions.MechanicsWord(index);
+            var actual = AtomicInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(address, actual.Address, "Atomic native word enumeration");
             AssertEqual(expected, actual.Value, "Atomic enumerated native value");
             AssertEqual(expected, AtomicInstructionProgramDefinitions.ReadMechanicsWord(address),
@@ -42,11 +42,11 @@ internal static partial class Program
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
             bool expected = ownedBytes.Contains(address);
-            AssertEqual(expected, AtomicInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa80000 | address),
+            AssertEqual(expected, AtomicInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa80000 | address),
                 "Atomic full bank ownership");
-            AssertEqual(expected, AtomicInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1a80000 | address),
+            AssertEqual(expected, AtomicInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x1a80000 | address),
                 "Atomic high address bits remain masked");
-            AssertTrue(!AtomicInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa70000 | address),
+            AssertTrue(!AtomicInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa70000 | address),
                 "Atomic wrong bank rejected");
         }
         var words = addresses.ToHashSet();
@@ -59,7 +59,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => AtomicInstructionProgramDefinitions.ReadMechanicsWord(address),
                 "Atomic distant invalid word");
         foreach (int index in new[] { int.MinValue, -1, 32, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => AtomicInstructionProgramDefinitions.MechanicsWord(index),
+            AssertThrows<IndexOutOfRangeException>(() => AtomicInstructionProgramDefinitionsTooling.MechanicsWord(index),
                 "Atomic mechanics ordinal bounds");
     }
 
@@ -74,17 +74,17 @@ internal static partial class Program
     private static void VerifyAtomicPresentationAddresses()
     {
         ushort[] expected = AtomicPresentationAddressOracle();
-        AssertEqual(expected.Length, AtomicInstructionProgramDefinitions.PresentationWordCount,
+        AssertEqual(expected.Length, AtomicInstructionProgramDefinitionsTooling.PresentationWordCount,
             "Atomic presentation operand count");
         for (int index = 0; index < expected.Length; index++)
-            AssertEqual(expected[index], AtomicInstructionProgramDefinitions.PresentationWordAddress(index),
+            AssertEqual(expected[index], AtomicInstructionProgramDefinitionsTooling.PresentationWordAddress(index),
                 "Atomic native presentation operand position");
         var words = expected.ToHashSet();
         for (int address = 0; address <= ushort.MaxValue; address++)
             AssertEqual(words.Contains((ushort)address), AtomicInstructionProgramDefinitions.IsPresentationWord((ushort)address),
                 "Atomic full presentation membership domain");
         foreach (int index in new[] { int.MinValue, -1, 24, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => AtomicInstructionProgramDefinitions.PresentationWordAddress(index),
+            AssertThrows<IndexOutOfRangeException>(() => AtomicInstructionProgramDefinitionsTooling.PresentationWordAddress(index),
                 "Atomic presentation ordinal bounds");
     }
 
@@ -238,7 +238,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (AtomicInstructionProgramDefinitions.IsCompiledMechanicsByte(address) ||
+            if (AtomicInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
                 IsCompiledPresentationByte(address))
             {
                 ForbiddenReadAttempts++;
@@ -255,11 +255,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < AtomicInstructionProgramDefinitions.PresentationWordCount;
+                     index < AtomicInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        AtomicInstructionProgramDefinitions.PresentationWordAddress(index);
+                        AtomicInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

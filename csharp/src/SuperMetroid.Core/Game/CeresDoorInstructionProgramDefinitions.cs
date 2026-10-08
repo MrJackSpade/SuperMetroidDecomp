@@ -4,11 +4,10 @@ namespace SuperMetroid.Core.Game;
 /// Compiled engine-control and visual-selector words for all seven Ceres
 /// door/control-actor variants. Spritemap payloads remain separate artwork.
 /// </summary>
-internal abstract class CeresDoorInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
+internal abstract class CeresDoorInstructionProgramDefinitions
 {
     /// <summary>Native Ceres door instruction and visual bank $A6.</summary>
     internal const byte Bank = 0xa6;
-    static int IDeclaredProgramBank.Bank => Bank;
     /// <summary><c>Enemy_CeresDoor</c>, the bank-$A6 enemy definition at $A6:E23F.</summary>
     internal const ushort EnemyDefinitionPointer = 0xe23f;
     /// <summary>The initial Ceres door spritemap at $A6:FAC7.</summary>
@@ -230,8 +229,6 @@ internal abstract class CeresDoorInstructionProgramDefinitions : IInstructionPro
     public static int MechanicsWordCount => 97;
     public static int PresentationWordCount => 33;
 
-    public static ushort PresentationWordAddress(int index) => PresentationWord(index).Address;
-
     /// <summary>
     /// $A6:F95F-FAC6 contains five opening poses per facing. Four inner OAM parts
     /// accompany four outer parts for the closed/first-opening pose, then two outer
@@ -248,7 +245,7 @@ internal abstract class CeresDoorInstructionProgramDefinitions : IInstructionPro
             Math.Min(openingPhase, 2) * wideRecord + Math.Max(openingPhase - 2, 0) * narrowRecord);
     }
 
-    private static (ushort Address, ushort Frame) PresentationWord(int index)
+    internal static (ushort Address, ushort Frame) PresentationWord(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
@@ -329,22 +326,5 @@ internal abstract class CeresDoorInstructionProgramDefinitions : IInstructionPro
 
         throw new InvalidDataException(
             $"Ceres door instruction mechanics pointer $A6:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa60000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 }

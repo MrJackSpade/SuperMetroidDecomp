@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifySaveStationElectricityInstructionProgramDefinitions() =>
         Suite(nameof(VerifySaveStationElectricityInstructionProgramDefinitions), () => VerifySaveStationElectricityInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     private static void VerifySaveStationElectricityInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -158,9 +158,9 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (SaveStationElectricityInstructionProgramDefinitions
+            if (SaveStationElectricityInstructionProgramDefinitionsTooling
                     .IsCompiledMechanicsByte(address) ||
-                CommonEnemyProjectileInstructionProgramDefinitions
+                CommonEnemyProjectileInstructionProgramDefinitionsTooling
                     .IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;

@@ -41,7 +41,7 @@ internal static class SpinJumpMissingAudioAudit
                 var pixels = new Rgba32[snapshot.Width * snapshot.Height];
                 SoftwareFrameSnapshotRenderer.Render(snapshot, pixels);
                 Directory.CreateDirectory("csharp/test-temp/issue-480-spin");
-                PngWriter.WriteRgba("csharp/test-temp/issue-480-spin/start.png", snapshot.Width, snapshot.Height, pixels);
+                PngWriterTooling.WriteRgba("csharp/test-temp/issue-480-spin/start.png", snapshot.Width, snapshot.Height, pixels);
             }
         }
         if (!heardScrewAttackStart)

@@ -51,14 +51,6 @@ public static class ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
     /// <summary>Each record lasts fourteen frames.</summary>
     public const ushort FrameDuration = 14;
 
-    /// <summary>All native definitions whose mechanics are owned by this catalog.</summary>
-    [AccessedByReflection]
-    public static IReadOnlyList<ZebesExplosionWhiteoutPaletteFxProgramDefinition> All { get; } =
-    [
-        new(),
-        new(),
-    ];
-
     /// <summary>Returns one shared timed-record pointer.</summary>
     public static ushort FramePointer(int frame)
     {
@@ -110,6 +102,3 @@ public static class ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
         return false;
     }
 }
-
-/// <summary>One native entry into the shared Zebes-explosion whiteout program.</summary>
-public readonly record struct ZebesExplosionWhiteoutPaletteFxProgramDefinition();

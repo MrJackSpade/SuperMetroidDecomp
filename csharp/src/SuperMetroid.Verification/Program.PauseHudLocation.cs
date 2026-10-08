@@ -11,7 +11,7 @@ internal static partial class Program
 {
     private static void VerifyPauseHudLocation()
     {
-        var bus = CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var cart = CartridgeImportSource.Require(bus);
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
@@ -64,7 +64,7 @@ internal static partial class Program
                 }
                 AssertTrue(opaque > 0, "current location test examines opaque native pixels");
                 if (frame == 0)
-                    PngWriter.WriteRgba($"csharp/test-temp/issue-1253-hud/phase-{phase}.png", 256, 224, actual);
+                    PngWriterTooling.WriteRgba($"csharp/test-temp/issue-1253-hud/phase-{phase}.png", 256, 224, actual);
             }
             Console.WriteLine($"Pause HUD location: phase {phase}, tile ${center:X4}, native pixels retained through 24 paused HUD/NMI updates.");
         }

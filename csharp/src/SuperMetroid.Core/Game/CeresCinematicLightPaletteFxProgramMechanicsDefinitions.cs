@@ -1,19 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>Identifies one compiled Ceres cinematic-light palette program.</summary>
-public enum CeresCinematicLightPaletteFxProgramOwner
-{
-    /// <summary>The cutscene gunship engine flicker.</summary>
-    GunshipEngine,
-    /// <summary>The navigation lights on sprite Ceres.</summary>
-    SpriteNavigationLights,
-    /// <summary>The navigation lights on background Ceres.</summary>
-    BackgroundNavigationLights,
-}
-
-/// <summary>Immutable entry metadata for one Ceres cinematic-light palette program.</summary>
-public readonly record struct CeresCinematicLightPaletteFxProgramDefinition();
-
 /// <summary>
 /// Immutable mechanics for the cutscene gunship-engine and shared Ceres navigation-light
 /// palette programs.
@@ -82,29 +68,6 @@ public static class CeresCinematicLightPaletteFxProgramMechanicsDefinitions
     public const int NavigationLightsFrameByteCount = 8;
     /// <summary>Each Ceres navigation-light record lasts four frames.</summary>
     public const ushort NavigationLightsFrameDuration = 4;
-
-    /// <summary>All native definitions whose mechanics are owned by this catalog.</summary>
-    [AccessedByReflection]
-    public static IReadOnlyList<CeresCinematicLightPaletteFxProgramDefinition> All { get; } = new ProgramEntries();
-
-    private sealed class ProgramEntries : IReadOnlyList<CeresCinematicLightPaletteFxProgramDefinition>
-    {
-        public int Count => 3;
-        public CeresCinematicLightPaletteFxProgramDefinition this[int index] =>
-            (CeresCinematicLightPaletteFxProgramOwner)index switch
-            {
-                CeresCinematicLightPaletteFxProgramOwner.GunshipEngine => new(),
-                CeresCinematicLightPaletteFxProgramOwner.SpriteNavigationLights => new(),
-                CeresCinematicLightPaletteFxProgramOwner.BackgroundNavigationLights => new(),
-                _ => throw new ArgumentOutOfRangeException(nameof(index)),
-            };
-        public IEnumerator<CeresCinematicLightPaletteFxProgramDefinition> GetEnumerator()
-        {
-            for (int index = 0; index < Count; index++)
-                yield return this[index];
-        }
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
     /// <summary>Returns one gunship-engine timed-record pointer.</summary>
     public static ushort GunshipEngineFramePointer(int frame)
     {

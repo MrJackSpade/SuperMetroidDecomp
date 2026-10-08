@@ -11,7 +11,7 @@ internal static partial class Program
     {
         using var temporary = new TestTempDirectory("map-catalog");
         var installation = GameAssetInstaller.Install(sourceRom, temporary.Root);
-        var source = CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
+        var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         EnemyTileArtworkCatalog artwork = installation.LoadEnemyTiles();
         EnemyProjectileSpritemapCatalog projectileArtwork = artwork.ProjectileSpritemaps!;

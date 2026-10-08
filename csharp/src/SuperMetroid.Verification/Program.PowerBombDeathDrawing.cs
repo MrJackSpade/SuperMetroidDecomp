@@ -8,7 +8,7 @@ internal static partial class Program
     // #1168: reproduce the runtime's queue -> power-bomb damage -> draw ordering.
     private static void VerifyPowerBombDeathDrawing()
     {
-        var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var spritemaps = EnemySpritemapCatalog.Load(new MemoryStream(EnemySpritemapFiles.Extract(rom)));
         var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
             new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(),

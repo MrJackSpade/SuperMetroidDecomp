@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Game;
 /// are presentation selectors installed as editable artwork. Constructed
 /// diagnostic buses without installed artwork may still provide mutable words.
 /// </remarks>
-internal abstract class RinkaInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class RinkaInstructionProgramDefinitions
 {
     /// <summary><c>$A2:B9E0</c>, ordinary room-Rinka animation program.</summary>
     internal const ushort OrdinaryInitial = 0xb9e0;
@@ -24,29 +24,10 @@ internal abstract class RinkaInstructionProgramDefinitions : IInstructionProgram
     private const ushort HiddenHold = 64;
     private const ushort SeedHold = 16;
     private const int MinimumPulseHold = 5;
-    private const int PoseCount = 8;
-    private const int SetupBytes = 8;
-    private const int ListBytes = SetupBytes + PoseCount * 4 + 4;
-    private const int WordsPerList = 3 + PoseCount + 2;
-
-    public static int MechanicsWordCount => 2 * WordsPerList;
+    internal const int PoseCount = 8;
+    internal const int SetupBytes = 8;
+    internal const int ListBytes = SetupBytes + PoseCount * 4 + 4;
     public static int PresentationWordCount => 2 * (PoseCount + 1);
-
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        int part = index % WordsPerList;
-        int offset = part switch
-        {
-            0 => 0,
-            1 => 2,
-            2 => 6,
-            _ when part < 3 + PoseCount => SetupBytes + (part - 3) * 4,
-            _ => SetupBytes + PoseCount * 4 + (part - 3 - PoseCount) * 2,
-        };
-        ushort address = (ushort)(OrdinaryInitial + index / WordsPerList * ListBytes + offset);
-        return new(address, ReadMechanicsWord(address));
-    }
 
     public static ushort PresentationWordAddress(int index)
     {
@@ -78,13 +59,6 @@ internal abstract class RinkaInstructionProgramDefinitions : IInstructionProgram
         throw new InvalidDataException($"Rinka instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
-    private static bool IsPresentationOffset(int offset) => offset == 4 ||
+    internal static bool IsPresentationOffset(int offset) => offset == 4 ||
         (offset >= SetupBytes && offset < ListBytes - 4 && (offset - SetupBytes) % 4 == 2);
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa20000) return false;
-        int relative = (address & 0xfffe) - OrdinaryInitial;
-        return (uint)relative < 2 * ListBytes && !IsPresentationOffset(relative % ListBytes);
-    }
 }

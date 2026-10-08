@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control for Wrecked Ship Chozo footsteps/explosions and Tourian statue descent
 /// dust. Their fourteen spritemap operands resolve through extracted presentation art.
 /// </summary>
-internal abstract class ChozoTourianDustInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class ChozoTourianDustInstructionProgramDefinitions
 {
     /// <summary>Wrecked Ship Chozo spike-clearing footsteps at $86:AEC4.</summary>
     internal const ushort Footsteps = 0xaec4;
@@ -93,20 +93,5 @@ internal abstract class ChozoTourianDustInstructionProgramDefinitions : IInstruc
         }
         throw new InvalidDataException(
             $"Chozo/Tourian dust mechanics pointer $86:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            InstructionMechanicsWord word = MechanicsWord(index);
-            if (bankAddress == word.Address ||
-                bankAddress == unchecked((ushort)(word.Address + 1)))
-                return true;
-        }
-        return false;
     }
 }

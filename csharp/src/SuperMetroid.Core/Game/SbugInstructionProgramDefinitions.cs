@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Game;
 /// Each list's frame durations and terminal goto are immutable simulation control. The
 /// interleaved spritemap pointers remain live cartridge presentation data.
 /// </remarks>
-internal abstract class SbugInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class SbugInstructionProgramDefinitions
 {
     /// <summary><c>$A3:A071</c>, right-facing animation loop.</summary>
     internal const ushort Right = 0xa071;
@@ -49,22 +49,5 @@ internal abstract class SbugInstructionProgramDefinitions : IInstructionProgramC
 
         throw new InvalidDataException(
             $"Sbug instruction mechanics pointer $A3:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa30000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 }

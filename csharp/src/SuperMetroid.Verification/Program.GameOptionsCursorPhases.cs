@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyGameOptionsCursorPhases()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)), "Options cursor oracle revision");
         (GameOptionsPhase Phase, int Native)[] phases =

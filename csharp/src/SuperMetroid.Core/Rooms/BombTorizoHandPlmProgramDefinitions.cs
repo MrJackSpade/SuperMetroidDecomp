@@ -10,8 +10,6 @@ internal static class BombTorizoHandPlmProgramDefinitions
     internal const ushort FirstAddress = 0xd368;
     /// <summary>Last byte of the hand instruction list at $84:D3C6.</summary>
     internal const ushort LastAddress = 0xd3c6;
-    /// <summary><c>Instruction_PLM_TransferBytesToVRAM</c> record at $84:D376, reached after the hand wakes from sleep.</summary>
-    internal const ushort DebrisUploadInstruction = 0xd376;
     /// <summary>Native fragment-sheet destination, VRAM word $6E00, from the $84:D376 record.</summary>
     internal const ushort DebrisDestinationWord = 0x6e00;
 

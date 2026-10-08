@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
@@ -12,10 +13,10 @@ internal static partial class Program
     static void VerifyRoomFxRomData()
     {
         AssertEqual(16, RoomFxRomData.Record.ByteCount, "room FX record width");
-        AssertEqual(9, RoomFxRomData.Record.TypeOffset, "room FX type field");
-        AssertEqual(11, RoomFxRomData.Record.Layer3LayerBlendConfigurationOffset,
+        AssertEqual(9, RoomFxRomDataRecordTooling.TypeOffset, "room FX type field");
+        AssertEqual(11, RoomFxRomDataRecordTooling.Layer3LayerBlendConfigurationOffset,
             "room FX layer-three blend field");
-        AssertEqual(15, RoomFxRomData.Record.PaletteBlendOffset,
+        AssertEqual(15, RoomFxRomDataRecordTooling.PaletteBlendOffset,
             "room FX palette-blend field");
         AssertEqual(23, RoomFxRomData.ScrollingSky.SectionCount,
             "scrolling-sky section count");
@@ -49,7 +50,7 @@ internal static partial class Program
 
     private static void VerifyFxValidationBoundaries()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "FX validation oracle revision");
         Suite(nameof(VerifyRoomFxTypeValidation), () => VerifyRoomFxTypeValidation(rom));
@@ -139,10 +140,10 @@ internal static partial class Program
             AnimatedTileArtwork = presentation.RoomFxAnimatedTiles,
         };
         const ushort record = 0x9400;
-        int recordAddress = RoomFxRomData.Banks.RoomDefinitions | record;
-        WriteTestWord(bus, recordAddress + RoomFxRomData.Record.DoorPointerOffset, 0);
+        int recordAddress = RoomFxRomDataBanksTooling.RoomDefinitions | record;
+        WriteTestWord(bus, recordAddress + RoomFxRomDataRecordTooling.DoorPointerOffset, 0);
         bus.WriteByte(
-            recordAddress + RoomFxRomData.Record.Layer3LayerBlendConfigurationOffset,
+            recordAddress + RoomFxRomDataRecordTooling.Layer3LayerBlendConfigurationOffset,
             (byte)LayerBlendingConfiguration.NormalGameplay);
 
         RoomFxType[] nonLayer3Types =
@@ -154,7 +155,7 @@ internal static partial class Program
         ];
         foreach (RoomFxType type in nonLayer3Types)
         {
-            bus.WriteByte(recordAddress + RoomFxRomData.Record.TypeOffset, (byte)type);
+            bus.WriteByte(recordAddress + RoomFxRomDataRecordTooling.TypeOffset, (byte)type);
             LoadSyntheticRoomFx(state, bus, vram, cgram, record);
             AssertEqual(type, state.Type, $"{type} FX record type");
             AssertEqual(
@@ -180,8 +181,8 @@ internal static partial class Program
         RoomFxType type)
     {
         bus.WriteByte(
-            RoomFxRomData.Banks.RoomDefinitions |
-                unchecked((ushort)(record + RoomFxRomData.Record.TypeOffset)),
+            RoomFxRomDataBanksTooling.RoomDefinitions |
+                unchecked((ushort)(record + RoomFxRomDataRecordTooling.TypeOffset)),
             (byte)type);
         LayerBlendingConfiguration layerBlend = type switch
         {
@@ -193,9 +194,9 @@ internal static partial class Program
             _ => throw new InvalidOperationException($"Unexpected renderable room FX {type}."),
         };
         bus.WriteByte(
-            RoomFxRomData.Banks.RoomDefinitions |
+            RoomFxRomDataBanksTooling.RoomDefinitions |
                 unchecked((ushort)(record +
-                    RoomFxRomData.Record.Layer3LayerBlendConfigurationOffset)),
+                    RoomFxRomDataRecordTooling.Layer3LayerBlendConfigurationOffset)),
             (byte)layerBlend);
 
         LoadSyntheticRoomFx(state, bus, vram, cgram, record);
@@ -207,15 +208,15 @@ internal static partial class Program
         {
             const ushort surfaceY = 100;
             bus.WriteByte(
-                RoomFxRomData.Banks.RoomDefinitions |
-                    unchecked((ushort)(record + RoomFxRomData.Record.LiquidOptionsOffset)),
+                RoomFxRomDataBanksTooling.RoomDefinitions |
+                    unchecked((ushort)(record + RoomFxRomDataRecordTooling.LiquidOptionsOffset)),
                 type == RoomFxType.Water
                     ? (byte)3
                     : (byte)RoomFxRomData.LavaAcid.VerticalBg2WaveOption);
             WriteTestWord(
                 bus,
-                RoomFxRomData.Banks.RoomDefinitions |
-                    unchecked((ushort)(record + RoomFxRomData.Record.BaseYPositionOffset)),
+                RoomFxRomDataBanksTooling.RoomDefinitions |
+                    unchecked((ushort)(record + RoomFxRomDataRecordTooling.BaseYPositionOffset)),
                 surfaceY);
             LoadSyntheticRoomFx(state, bus, vram, cgram, record);
             state.PrimeViewport(cameraX: 0x0100, cameraY: 0);

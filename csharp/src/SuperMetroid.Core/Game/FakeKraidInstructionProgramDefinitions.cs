@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled engine-control words for Fake Kraid's walking, action-selection, and spit programs.
 /// Interleaved spritemap operands are resolved by the installed visual definitions.
 /// </summary>
-internal abstract class FakeKraidInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class FakeKraidInstructionProgramDefinitions
 {
     /// <summary><c>InstList_MiniKraid_ChooseAction</c> at $A6:99AC.</summary>
     internal const ushort ChooseActionFacingLeft = 0x99ac;
@@ -27,41 +27,6 @@ internal abstract class FakeKraidInstructionProgramDefinitions : IInstructionPro
     /// <summary><c>InstList_MiniKraid_FireSpit_FacingRight</c> at $A6:9A2A.</summary>
     internal const ushort FireSpitFacingRight = 0x9a2a;
 
-    public static int MechanicsWordCount => 48;
-    public static int PresentationWordCount => 24;
-
-    /// <summary>Enumerates control words in native program order, skipping visual operands.</summary>
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount)
-            throw new IndexOutOfRangeException();
-        for (int address = ChooseActionFacingLeft; address < FireSpitFacingRight + 24; address += 2)
-        {
-            if (TryReadMechanicsWord((ushort)address, out ushort value) && index-- == 0)
-                return new((ushort)address, value);
-        }
-        throw new InvalidOperationException("Fake Kraid instruction enumeration is incomplete.");
-    }
-
-    /// <summary>Visual operands follow each frame delay in the paired walking and firing programs.</summary>
-    public static ushort PresentationWordAddress(int index)
-    {
-        if ((uint)index >= PresentationWordCount)
-            throw new IndexOutOfRangeException();
-        int facing = index / 12;
-        int frame = index % 12;
-        int offset = frame switch
-        {
-            < 4 => 4 + 4 * frame,
-            4 => 0x1c,
-            < 8 => 0x22 + 4 * (frame - 5),
-            < 11 => 0x32 + 6 * (frame - 8),
-            _ => 0x42,
-        };
-        return (ushort)(ChooseActionFacingLeft +
-            facing * (ChooseActionFacingRight - ChooseActionFacingLeft) + offset);
-    }
-
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - ChooseActionFacingLeft;
@@ -83,7 +48,7 @@ internal abstract class FakeKraidInstructionProgramDefinitions : IInstructionPro
             $"Fake Kraid instruction mechanics pointer $A6:{address:X4} is not compiled.");
     }
 
-    private static bool TryReadMechanicsWord(ushort address, out ushort value)
+    internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         bool right = address >= ChooseActionFacingRight;
         ushort choose = right ? ChooseActionFacingRight : ChooseActionFacingLeft;
@@ -110,8 +75,4 @@ internal abstract class FakeKraidInstructionProgramDefinitions : IInstructionPro
         value = unchecked((ushort)word);
         return word >= 0;
     }
-
-    public static bool IsCompiledMechanicsByte(int address) =>
-        (address & 0xff0000) == 0xa60000 &&
-        TryReadMechanicsWord(unchecked((ushort)(address & ~1)), out _);
 }

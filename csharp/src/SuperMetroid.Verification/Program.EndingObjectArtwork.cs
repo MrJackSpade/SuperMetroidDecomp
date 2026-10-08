@@ -118,7 +118,7 @@ internal static partial class Program
     private static void VerifyEndingObjectArtwork(GameInstallation installation)
     {
         EndingObjectArtworkCatalog stock = installation.LoadEndingObjectArt();
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         Suite(nameof(VerifyEndingObjectFragmentMetadata), () => VerifyEndingObjectFragmentMetadata(bus));
         AssertSheet(stock.Clouds, EndingCreditsRomData.Assets.EscapeCloudCharacters,
             EndingObjectArtworkFormat.CloudByteCount, "clouds");
@@ -197,7 +197,7 @@ internal static partial class Program
         Suite(nameof(VerifyEndingLogoSpriteArtwork), () => VerifyEndingLogoSpriteArtwork(bus, stock));
 
         var guard = new EndingObjectSourceReadGuard(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();
         var native = CreateRetailEndingFixture(bus, nativeAudio, 0, 0);
@@ -316,7 +316,7 @@ internal static partial class Program
                 _ => EndingObjectArtworkFormat.FragmentByteCount,
             };
             var sceneBus = new EndingObjectSourceReadGuard(
-                SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"));
+                SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
             var audio = new CartridgeAudioState();
             var scene = CreateRetailEndingFixture(sceneBus, audio, 0, 0);
             scene.BindObjectArtwork(stock);

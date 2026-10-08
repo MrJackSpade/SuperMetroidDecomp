@@ -6,18 +6,18 @@ internal static partial class Program
     private static void VerifyMotherBrainBabyInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMotherBrainBabyInstructionProgramDefinitions), () => VerifyMotherBrainBabyInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyMotherBrainBabyInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         for (int index = 0;
-             index < MotherBrainBabyInstructionProgramDefinitions.MechanicsWordCount;
+             index < MotherBrainBabyInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                MotherBrainBabyInstructionProgramDefinitions.MechanicsWord(index);
+                MotherBrainBabyInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(
                 definition.Value,
                 ReadMotherBrainBabyInstructionWord(
@@ -27,11 +27,11 @@ internal static partial class Program
         }
 
         for (int index = 0;
-             index < MotherBrainBabyInstructionProgramDefinitions.PresentationWordCount;
+             index < MotherBrainBabyInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
             ushort address =
-                MotherBrainBabyInstructionProgramDefinitions.PresentationWordAddress(index);
+                MotherBrainBabyInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertThrows<InvalidDataException>(
                 () => MotherBrainBabyInstructionProgramDefinitions.ReadMechanicsWord(address),
                 $"Mother Brain Baby spritemap $A9:{address:X4} is rejected as mechanics");

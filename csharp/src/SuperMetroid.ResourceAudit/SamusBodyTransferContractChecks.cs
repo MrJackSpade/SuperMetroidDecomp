@@ -66,7 +66,7 @@ internal static class SamusBodyTransferContractChecks
                     (int)SamusArmCannonArtworkFormat.TileSourcePointers[0], (int)SamusArmCannonArtworkFormat.TileSourcePointers[0] }).ToArray() };
         using var cannonJson = new MemoryStream(SamusArmCannonArtworkCatalog.Write(cannonDocument));
         using var cannonPng = Png(SamusArmCannonArtworkFormat.TileSourcePointers.Length * 8, 8);
-        SamusArmCannonArtworkCatalog cannon = SamusArmCannonArtworkCatalog.Load(cannonJson, cannonPng);
+        SamusArmCannonArtworkCatalog cannon = SamusArmCannonArtworkCatalogTooling.Load(cannonJson, cannonPng);
         var frames = new SamusBodyFrameSelection[SamusBodyArtworkCatalog.FrameCount];
         if (invalidAdjacentFrame) frames[1] = new(byte.MaxValue, 0, byte.MaxValue, 0);
         return new SamusBodyArtworkCatalog(pointers[..SamusBodyArtworkCatalog.TopSetCount],

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Game;
 /// shared bullet touch/shot smoke. Spritemap operands resolve through extracted
 /// presentation art.
 /// </summary>
-internal abstract class MotherBrainTurretInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class MotherBrainTurretInstructionProgramDefinitions
 {
     /// <summary>Left-facing turret pose at $86:C101.</summary>
     internal const ushort TurretLeft = 0xc101;
@@ -20,31 +20,8 @@ internal abstract class MotherBrainTurretInstructionProgramDefinitions : IInstru
     internal const ushort BulletTouchOrShot = 0xc19a;
 
     /// <summary>Left-facing bullet pose at $86:C143; eight poses occupy six bytes each.</summary>
-    private const ushort BulletLeft = 0xc143;
-
-    public static int MechanicsWordCount => 49;
+    internal const ushort BulletLeft = 0xc143;
     public static int PresentationWordCount => 21;
-
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount)
-            throw new IndexOutOfRangeException();
-        if (index < 16)
-            return PoseWord(TurretLeft, index);
-        if (index == 16)
-            return new(BulletSelector, EnemyProjectileCodePointers.Instruction_EnemyProjectile_MotherBrainsTurretBullets_GotoY);
-        if (index < 25)
-            return new((ushort)(BulletSelector + 2 + 2 * (index - 17)), (ushort)(BulletLeft + 6 * (index - 17)));
-        if (index < 41)
-            return PoseWord(BulletLeft, index - 25);
-        return index switch
-        {
-            41 => new(BulletTouchOrShot, EnemyProjectileCodePointers.Instruction_EnemyProjectile_UsePalette0),
-            42 => new(BulletTouchOrShot + 2, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
-            48 => new(BulletTouchOrShot + 24, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-            _ => new((ushort)(BulletTouchOrShot + 4 + 4 * (index - 43)), index == 47 ? (ushort)32 : (ushort)8),
-        };
-    }
 
     public static ushort PresentationWordAddress(int index)
     {
@@ -67,16 +44,7 @@ internal abstract class MotherBrainTurretInstructionProgramDefinitions : IInstru
             $"Mother Brain turret mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    public static bool IsCompiledMechanicsByte(int address) =>
-        (address & 0xff0000) == EnemyProjectileCodePointers.BankBase &&
-        (TryRead(unchecked((ushort)address), out _) ||
-         TryRead(unchecked((ushort)(address - 1)), out _));
-
-    private static InstructionMechanicsWord PoseWord(ushort first, int index) =>
-        new((ushort)(first + 6 * (index / 2) + 4 * (index % 2)),
-            index % 2 == 0 ? (ushort)1 : EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep);
-
-    private static bool TryRead(ushort address, out ushort value)
+    internal static bool TryRead(ushort address, out ushort value)
     {
         int poseOffset = address - TurretLeft;
         if (poseOffset < 0 || poseOffset >= 48)

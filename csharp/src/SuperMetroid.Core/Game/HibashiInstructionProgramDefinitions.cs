@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Game;
 /// Durations and instruction callbacks are immutable simulation data. The 24 interleaved
 /// spritemap selections resolve compiled identities to installed artwork.
 /// </remarks>
-internal abstract class HibashiInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class HibashiInstructionProgramDefinitions
 {
     /// <summary><c>$A6:8D1B</c>, the visible eruption graphics program.</summary>
     internal const ushort GraphicsProgram = 0x8d1b;
@@ -19,23 +19,7 @@ internal abstract class HibashiInstructionProgramDefinitions : IInstructionProgr
     private const ushort FirstActivityFrame = 0x8e13;
     /// <summary><c>Instruction_Hibashi_ActivityFrame1</c> at $A6:8E2D starts the twenty-byte activity callback stride.</summary>
     private const ushort FollowingActivityFrames = 0x8e2d;
-
-    public static int MechanicsWordCount => 50;
     public static int PresentationWordCount => 24;
-
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        int address = index switch
-        {
-            0 => GraphicsProgram,
-            < 47 => GraphicsProgram + 2 + (index - 1) / 2 * 6 + (index - 1) % 2 * 4,
-            47 => HitboxProgram - 2,
-            48 => HitboxProgram,
-            _ => HitboxProgram + 4,
-        };
-        return new((ushort)address, ReadMechanicsWord((ushort)address));
-    }
 
     public static ushort PresentationWordAddress(int index)
     {
@@ -50,7 +34,7 @@ internal abstract class HibashiInstructionProgramDefinitions : IInstructionProgr
             $"Hibashi instruction mechanics pointer $A6:{address:X4} is not compiled.");
     }
 
-    private static bool TryRead(int address, out ushort value)
+    internal static bool TryRead(int address, out ushort value)
     {
         value = address switch
         {
@@ -75,8 +59,4 @@ internal abstract class HibashiInstructionProgramDefinitions : IInstructionProgr
         }
         return false;
     }
-
-    public static bool IsCompiledMechanicsByte(int address) =>
-        (address & 0xff0000) == 0xa60000 &&
-        (TryRead((ushort)address, out _) || TryRead((ushort)address - 1, out _));
 }

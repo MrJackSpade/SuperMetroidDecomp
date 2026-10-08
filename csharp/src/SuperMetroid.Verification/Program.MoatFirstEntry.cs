@@ -21,7 +21,7 @@ internal static partial class Program
         foreach (bool pauseBeforeEntry in new[] { false, true })
         {
             // Each history starts with fresh mutable WRAM as well as fresh owners.
-            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
@@ -87,7 +87,7 @@ internal static partial class Program
                 if (!pauseBeforeEntry) unpausedTransitionFrames[(source, frame)] = pixels;
                 else AssertTrue(pixels.SequenceEqual(unpausedTransitionFrames[(source, frame)]),
                     $"pause/equipment history leaves identical transition pixels at {phase}, frame {frame}");
-                PngWriter.WriteRgba($"{output}/from-{source:X4}-pause-{pauseBeforeEntry}-transition-{frame:D3}-{phase}.png",
+                PngWriterTooling.WriteRgba($"{output}/from-{source:X4}-pause-{pauseBeforeEntry}-transition-{frame:D3}-{phase}.png",
                     256, 224, pixels);
                 transitionFrames++;
             }
@@ -101,7 +101,7 @@ internal static partial class Program
                 if (!pauseBeforeEntry) unpausedFrames[(source, frame)] = pixels;
                 else AssertTrue(pixels.SequenceEqual(unpausedFrames[(source, frame)]),
                     "pause/equipment history leaves identical first-entry water and scene pixels");
-                PngWriter.WriteRgba($"{output}/from-{source:X4}-pause-{pauseBeforeEntry}-frame-{frame}.png", 256, 224,
+                PngWriterTooling.WriteRgba($"{output}/from-{source:X4}-pause-{pauseBeforeEntry}-frame-{frame}.png", 256, 224,
                     pixels);
             }
             Console.WriteLine($"Moat first entry from {source:X4}, pause={pauseBeforeEntry}: FX={runtime.RoomLayer3Fx.Type}, BG3 characters={runtime.GameplayHudCharacterBaseWord:X4}, camera={runtime.Camera!.XPosition}/{runtime.Camera.YPosition}. Captured {transitionFrames} transition frames and four gameplay frames; visual diagnosis remains required.");

@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyFallingSparkInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyFallingSparkInstructionProgramDefinitions), () => VerifyFallingSparkInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyFallingSparkInstructionProgramDefinitions(
@@ -15,11 +15,11 @@ internal static partial class Program
     {
         const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int index = 0;
-             index < FallingSparkInstructionProgramDefinitions.MechanicsWordCount;
+             index < FallingSparkInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                FallingSparkInstructionProgramDefinitions.MechanicsWord(index);
+                FallingSparkInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(
                 definition.Value,
                 ReadFallingSparkInstructionWord(rom, definition.Address),
@@ -162,7 +162,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (FallingSparkInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (FallingSparkInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

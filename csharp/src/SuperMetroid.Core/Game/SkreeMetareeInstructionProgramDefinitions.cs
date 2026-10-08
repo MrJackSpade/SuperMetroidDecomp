@@ -1,10 +1,8 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Compiled mechanics words from the parallel Skree and Metaree programs.</summary>
-internal abstract class SkreeMetareeInstructionProgramDefinitions : IDeclaredProgramBank
+internal abstract class SkreeMetareeInstructionProgramDefinitions
 {
-    /// <summary>Bank $A3, which holds both species' instruction programs.</summary>
-    static int IDeclaredProgramBank.Bank => 0xa3;
 
     /// <summary><c>InstList_Metaree_Idling</c> at $A3:8910.</summary>
     internal const ushort MetareeIdling = 0x8910;
@@ -23,10 +21,6 @@ internal abstract class SkreeMetareeInstructionProgramDefinitions : IDeclaredPro
     internal const ushort SkreeDiving = 0xc67e;
     /// <summary><c>UNUSED_InstList_Skree_StopAnimating_A3C694</c> at $A3:C694.</summary>
     internal const ushort SkreeStopAnimating = 0xc694;
-
-    // Idle 10, preparation 16/8, dive 2 and stop 1 holds are authored animation cadence (reviewed under #1165).
-    internal static int MechanicsWordCount(bool metaree) => 20;
-    internal static int PresentationWordCount(bool metaree) => 11;
 
     internal static InstructionMechanicsWord MechanicsWord(bool metaree, int index)
     {
@@ -65,15 +59,6 @@ internal abstract class SkreeMetareeInstructionProgramDefinitions : IDeclaredPro
             1 => 1,
             _ => CommonEnemyInstructionCodes.Sleep,
         });
-    }
-
-    internal static ushort PresentationWordAddress(bool metaree, int index)
-    {
-        if ((uint)index >= 11) throw new IndexOutOfRangeException();
-        if (index < 4) return (ushort)((metaree ? MetareeIdling : SkreeIdling) + 2 + 4 * index);
-        if (index < 6) return (ushort)((metaree ? MetareePreparingAttack : SkreePreparingAttack) + 2 + 4 * (index - 4));
-        if (index < 10) return (ushort)((metaree ? MetareeDiving : SkreeDiving) + 4 + 4 * (index - 6));
-        return (ushort)((metaree ? MetareeStopAnimating : SkreeStopAnimating) + 4);
     }
 
     internal static ushort ReadMetareeMechanicsWord(ushort address) => ReadMechanicsWord(true, address);

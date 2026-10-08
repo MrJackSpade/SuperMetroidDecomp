@@ -49,7 +49,7 @@ internal static class PlmDoorPresentationContractChecks
             """;
         // Feed named constant declarations from the actual compiled identities,
         // not address arithmetic borrowed from an unrelated family.
-        ushort closedBlue = BlueDoorPlmDrawDefinitions.All.First(frame =>
+        ushort closedBlue = BlueDoorPlmDrawDefinitionsTooling.All.First(frame =>
             BlueDoorPlmDrawDefinitions.VisualSource(frame.Pointer) != frame.Pointer).Pointer;
         ushort twoWordEye = EyeDoorPlmDrawDefinitions.Editable.Single(frame =>
             EyeDoorPlmDrawDefinitions.VisualId(frame.Pointer) == "left-eye-frame-0").Pointer;
@@ -110,7 +110,7 @@ internal static class PlmDoorPresentationContractChecks
         // just the source adapter. The constructed catalog contains no ROM art.
         var blue = new RoomPlmBlueDoorVisualCatalog(BlueDoorPlmDrawDefinitions.Editable.Select(frame =>
             new RoomPlmBlueDoorVisualEntry(BlueDoorPlmDrawDefinitions.VisualId(frame.Pointer), VisualRuns(frame)[0])));
-        foreach (var frame in BlueDoorPlmDrawDefinitions.All.Where(frame => BlueDoorPlmDrawDefinitions.VisualSource(frame.Pointer) != frame.Pointer))
+        foreach (var frame in BlueDoorPlmDrawDefinitionsTooling.All.Where(frame => BlueDoorPlmDrawDefinitions.VisualSource(frame.Pointer) != frame.Pointer))
             Require(Enumerable.Range(0, frame.Runs.Span[0].LevelWords.Length).All(word =>
                 blue.GetWord(frame.Pointer, word) == blue.GetWord(BlueDoorPlmDrawDefinitions.VisualSource(frame.Pointer), word)),
                 "each compiled closed cap resolves to its required opening artwork");

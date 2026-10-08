@@ -74,11 +74,11 @@ internal static partial class Program
             "Nuclear Waffle restored direction does not read adjacent enemy code");
 
         for (int index = 0;
-             index < NuclearWaffleInstructionProgramDefinitions.MechanicsWordCount;
+             index < NuclearWaffleInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                NuclearWaffleInstructionProgramDefinitions.MechanicsWord(index);
+                NuclearWaffleInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(
                 definition.Value,
                 ReadNuclearWaffleWord(rom, 0xa60000 | definition.Address),
@@ -187,7 +187,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (NuclearWaffleInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (NuclearWaffleInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

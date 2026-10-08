@@ -31,7 +31,7 @@ internal static class EnemyArtworkDomainAudit
         bool complete = EnemyTileSourceDefinitions.All.Any(definition =>
             definition.SourceAddress == source && definition.ByteCount == byteCount) ||
             CeresEscapeTileArtworkDefinitions.Contains(source, byteCount) ||
-            CeresEscapeOverlayTilemapDefinitions.IsSource(source, byteCount) ||
+            CeresEscapeOverlayTilemapDefinitionsTooling.IsSource(source, byteCount) ||
             TorizoInstructionVramArtworkDefinitions.All.ToArray().Any(page => byteCount > 0 &&
                 source >= page.SourceAddress && source - page.SourceAddress <= page.ByteCount - byteCount);
         return complete ? null : "Owned enemy DMA source/length is not a complete ordinary sheet, bounded Ceres/Torizo tile slice, or exact overlay page.";

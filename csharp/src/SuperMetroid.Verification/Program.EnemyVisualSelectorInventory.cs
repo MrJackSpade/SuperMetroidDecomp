@@ -9,62 +9,50 @@ internal static partial class Program
     /// <summary>The bank-resolved selector inventory matches the generated catalog address for address.</summary>
     private static void InspectEnemyVisualSelectors()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        var (discovered, catalogs, operands, ordinary, special, keyed, families, unresolved) =
-            EnemyVisualSelectorInventory.Collect(rom);
-        Console.WriteLine(
-            $"Discovered={discovered}, catalogs={catalogs}, " +
-            $"mapped families={families.Count}, " +
-            $"operands={operands}, unique addresses={keyed.Count}, " +
-            $"plausible OAM={ordinary}, nonstandard={special}.");
-        if (keyed.Count != CompiledEnemyVisualSelectors.Count)
+        var (keyed, unresolved) = EnemyVisualSelectorInventory.Collect(rom);
+        Console.WriteLine($"Enemy visual selectors: {keyed.Count} unique bank-resolved addresses.");
+        if (keyed.Count != CompiledEnemyVisualSelectorsTooling.Count)
         {
-            for (int index = 0; index < CompiledEnemyVisualSelectors.Count; index++)
+            for (int index = 0; index < CompiledEnemyVisualSelectorsTooling.Count; index++)
             {
-                CompiledEnemyVisualSelector entry = CompiledEnemyVisualSelectors.At(index);
+                CompiledEnemyVisualSelector entry = CompiledEnemyVisualSelectorsTooling.At(index);
                 if (!keyed.ContainsKey(entry.Address))
                     Console.WriteLine($"CATALOG-ONLY ${entry.Address:X6} -> ${entry.Pointer:X4}");
             }
         }
-        AssertEqual(156, discovered, "instruction catalogs with visual operands");
-        AssertEqual(5247, operands, "counted native sprite-selector occurrences");
         AssertEqual(5102, keyed.Count, "distinct native sprite-selector addresses");
-        AssertEqual(keyed.Count, CompiledEnemyVisualSelectors.Count,
+        AssertEqual(keyed.Count, CompiledEnemyVisualSelectorsTooling.Count,
             "generated catalog covers every bank-resolved inventory address");
         int catalogIndex = 0;
         foreach ((int address, ushort pointer) in keyed.OrderBy(pair => pair.Key))
         {
             CompiledEnemyVisualSelector entry =
-                CompiledEnemyVisualSelectors.At(catalogIndex++);
+                CompiledEnemyVisualSelectorsTooling.At(catalogIndex++);
             AssertEqual(address, entry.Address,
                 "generated visual selector address matches catalog inventory");
             AssertEqual(pointer, entry.Pointer,
                 "generated visual selector target matches catalog inventory");
         }
-        foreach ((string name, int frameCount, int specialCount) in families
-                     .OrderByDescending(family => family.Ordinary)
-                     .ThenBy(family => family.Name, StringComparer.Ordinal))
-            Console.WriteLine($"{name}: ordinary={frameCount}, special={specialCount}");
         foreach (string item in unresolved)
             Console.WriteLine($"UNRESOLVED {item}");
-
     }
 
     /// <summary>Checks every checked-in selector directly against the pinned cartridge.</summary>
     private static void VerifyCompiledEnemyVisualSelectors()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(5102, CompiledEnemyVisualSelectors.Count,
+        AssertEqual(5102, CompiledEnemyVisualSelectorsTooling.Count,
             "generated fixed visual-selector count");
-        foreach (int index in new[] { int.MinValue, -1, CompiledEnemyVisualSelectors.Count, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => CompiledEnemyVisualSelectors.At(index),
+        foreach (int index in new[] { int.MinValue, -1, CompiledEnemyVisualSelectorsTooling.Count, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => CompiledEnemyVisualSelectorsTooling.At(index),
                 "Shared selector enumeration bounds");
         int previousAddress = -1;
-        for (int index = 0; index < CompiledEnemyVisualSelectors.Count; index++)
+        for (int index = 0; index < CompiledEnemyVisualSelectorsTooling.Count; index++)
         {
-            CompiledEnemyVisualSelector entry = CompiledEnemyVisualSelectors.At(index);
+            CompiledEnemyVisualSelector entry = CompiledEnemyVisualSelectorsTooling.At(index);
             AssertTrue(entry.Address > previousAddress,
                 "generated visual selectors are distinct and sorted");
             previousAddress = entry.Address;
@@ -93,7 +81,7 @@ internal static partial class Program
                 $"Ceres Baby palette operand $A6:{address:X4} is not a sprite selector");
         }
         Console.WriteLine(
-            $"Compiled enemy visuals: {CompiledEnemyVisualSelectors.Count:N0} distinct sprite selectors match the cartridge; " +
+            $"Compiled enemy visuals: {CompiledEnemyVisualSelectorsTooling.Count:N0} distinct sprite selectors match the cartridge; " +
             "sorted lookup and unknown-key rejection pass.");
     }
 }

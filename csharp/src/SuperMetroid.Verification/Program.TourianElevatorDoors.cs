@@ -15,10 +15,10 @@ internal static partial class Program
         // The same omitted native sentinel also terminates the Maridia elevator list.
         CheckCollision(0xd332, 3, 1, horizontal: false, elevator: true);
 
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (ushort listPointer in new ushort[] { 0xdad5, 0xd332 })
         {
-            AssertEqual(4, DoorDefinitions.GetList(listPointer).DoorPointers.Length,
+            AssertEqual(4, DoorDefinitionsTooling.GetList(listPointer).DoorPointers.Length,
                 "native elevator list has four entries");
             for (byte index = 0; index < 4; index++)
             {

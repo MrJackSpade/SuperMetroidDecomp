@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyKagoInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKagoInstructionProgramDefinitions), () => VerifyKagoInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyKagoInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
@@ -116,7 +116,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (KagoInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (KagoInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -127,11 +127,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < KagoInstructionProgramDefinitions.PresentationWordCount;
+                     index < KagoInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        KagoInstructionProgramDefinitions.PresentationWordAddress(index);
+                        KagoInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

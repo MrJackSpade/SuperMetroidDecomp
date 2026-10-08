@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled engine-control words for the friendly Etecoon's overlapping animation programs.
 /// Their forty-five spritemap selections resolve compiled identities to installed artwork.
 /// </summary>
-internal abstract class EtecoonInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
+internal abstract class EtecoonInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Etecoon_LookRightAtSamusAndRunLeft</c> at $A7:E81E.</summary>
     internal const ushort LookRightAtSamusAndRunLeft = 0xe81e;
@@ -51,9 +51,8 @@ internal abstract class EtecoonInstructionProgramDefinitions : IInstructionProgr
 
     /// <summary>Native program bank $A7.</summary>
     internal const byte Bank = 0xa7;
-    static int IDeclaredProgramBank.Bank => Bank;
 
-    private static readonly InstructionProgramLayout Layout = new(Bank,
+    internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xe81e),
         Entry(LookRightAtSamusAndRunLeft),
         Frame(5),
@@ -136,20 +135,11 @@ internal abstract class EtecoonInstructionProgramDefinitions : IInstructionProgr
         Frame(32),
         Frame(32),
         Op(CommonEnemyInstructionCodes.Sleep));
-
-    public static int MechanicsWordCount => Layout.MechanicsWordCount;
     public static int PresentationWordCount => Layout.PresentationSlotCount;
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        (ushort address, ushort value) = Layout.MechanicsWord(index);
-        return new(address, value);
-    }
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(
                 $"Etecoon instruction mechanics pointer $A7:{address:X4} is not compiled.");
-
-    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

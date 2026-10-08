@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyZoaInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyZoaInstructionProgramDefinitions), () => VerifyZoaInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyZoaInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
@@ -57,10 +57,10 @@ internal static partial class Program
         AssertEqual(0, guard.ForbiddenPresentationReadAttempts,
             "Zoa production programs never read installed visual selectors");
         for (int index = 0;
-             index < ZoaInstructionProgramDefinitions.PresentationWordCount;
+             index < ZoaInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort address = ZoaInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort address = ZoaInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertEqual(ReadZoaInstructionWord(rom, 0xa30000 | address),
                 EnemySpritemapDefinitions.ZoaFrameAt(address),
                 $"compiled Zoa frame selection $A3:{address:X4}");
@@ -128,28 +128,28 @@ internal static partial class Program
         ushort[] addresses = [0xb3c1, 0xb3c3, 0xb3c7, 0xb3c9, 0xb3cd, 0xb3cf, 0xb3d3,
             0xb3d5, 0xb3d7, 0xb3db, 0xb3df, 0xb3e3, 0xb3e5, 0xb3e7, 0xb3e9, 0xb3ed,
             0xb3ef, 0xb3f3, 0xb3f5, 0xb3f9, 0xb3fb, 0xb3fd, 0xb401, 0xb405, 0xb409, 0xb40b];
-        AssertEqual(addresses.Length, ZoaInstructionProgramDefinitions.MechanicsWordCount, "Zoa mechanics count");
+        AssertEqual(addresses.Length, ZoaInstructionProgramDefinitionsTooling.MechanicsWordCount, "Zoa mechanics count");
         for (int index = 0; index < addresses.Length; index++)
         {
             ushort address = addresses[index];
             ushort original = ReadZoaInstructionWord(rom, 0xa30000 | address);
             AssertEqual(original, ZoaInstructionProgramDefinitions.ReadMechanicsWord(address), "Zoa original control word");
             AssertEqual(new InstructionMechanicsWord(address, original),
-                ZoaInstructionProgramDefinitions.MechanicsWord(index), "Zoa ordered control enumeration");
+                ZoaInstructionProgramDefinitionsTooling.MechanicsWord(index), "Zoa ordered control enumeration");
         }
         for (int address = 0xb3c0; address <= 0xb40e; address++)
         {
             bool isWord = addresses.Contains((ushort)address);
             bool isByte = isWord || addresses.Contains((ushort)(address - 1));
-            AssertEqual(isByte, ZoaInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa30000 | address),
+            AssertEqual(isByte, ZoaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa30000 | address),
                 "Zoa mechanics byte ownership");
-            AssertEqual(false, ZoaInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa40000 | address),
+            AssertEqual(false, ZoaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa40000 | address),
                 "Zoa mechanics bank ownership");
             if (!isWord) AssertThrows<InvalidDataException>(() =>
                 ZoaInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "Zoa excludes noncontrol word");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 26, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => ZoaInstructionProgramDefinitions.MechanicsWord(invalid),
+            AssertThrows<IndexOutOfRangeException>(() => ZoaInstructionProgramDefinitionsTooling.MechanicsWord(invalid),
                 "Zoa mechanics enumeration bounds");
     }
 
@@ -157,16 +157,16 @@ internal static partial class Program
     {
         ushort[] addresses = [0xb3c5, 0xb3cb, 0xb3d1, 0xb3d9, 0xb3dd, 0xb3e1,
             0xb3eb, 0xb3f1, 0xb3f7, 0xb3ff, 0xb403, 0xb407];
-        AssertEqual(addresses.Length, ZoaInstructionProgramDefinitions.PresentationWordCount, "Zoa presentation count");
+        AssertEqual(addresses.Length, ZoaInstructionProgramDefinitionsTooling.PresentationWordCount, "Zoa presentation count");
         for (int index = 0; index < addresses.Length; index++)
         {
-            ushort address = ZoaInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort address = ZoaInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertEqual(addresses[index], address, "Zoa native presentation position");
             AssertEqual(ReadZoaInstructionWord(rom, 0xa30000 | addresses[index]),
                 ReadZoaInstructionWord(rom, 0xa30000 | address), "Zoa original presentation word at position");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => ZoaInstructionProgramDefinitions.PresentationWordAddress(invalid),
+            AssertThrows<IndexOutOfRangeException>(() => ZoaInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid),
                 "Zoa presentation enumeration bounds");
     }
     private static int ProbeZoaInstructionMechanicsAllocation()
@@ -193,7 +193,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (ZoaInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (ZoaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -203,11 +203,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < ZoaInstructionProgramDefinitions.PresentationWordCount;
+                     index < ZoaInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        ZoaInstructionProgramDefinitions.PresentationWordAddress(index);
+                        ZoaInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

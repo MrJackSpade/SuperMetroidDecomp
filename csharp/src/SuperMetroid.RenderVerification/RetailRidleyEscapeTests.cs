@@ -12,7 +12,7 @@ internal static class RetailRidleyEscapeTests
     {
         foreach (bool hitThreshold in new[] { false, true })
         {
-            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var runtime = RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true);
             runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
             runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();

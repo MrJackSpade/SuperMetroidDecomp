@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled timing, callback, timer, and loop control for Evir's body, arms, and
 /// regenerating projectile. Interleaved spritemap operands remain live presentation data.
 /// </summary>
-internal abstract class EvirInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class EvirInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Evir_Body_FacingLeft</c> at $A8:86A7.</summary>
     internal const ushort BodyFacingLeft = 0x86a7;
@@ -102,23 +102,6 @@ internal abstract class EvirInstructionProgramDefinitions : IInstructionProgramC
 
         throw new InvalidDataException(
             $"Evir instruction mechanics pointer $A8:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa80000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 
 }

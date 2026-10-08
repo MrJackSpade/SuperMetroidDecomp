@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled engine-control words for Botwoon's selector-reachable head movement,
 /// hiding, and spit programs. Interleaved spritemap operands select installed presentation art.
 /// </summary>
-internal abstract class BotwoonInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class BotwoonInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Botwoon_MouthClosed_AimingUpLeft</c> at $B3:9341.</summary>
     internal const ushort MovingUpLeft = 0x9341;
@@ -31,29 +31,8 @@ internal abstract class BotwoonInstructionProgramDefinitions : IInstructionProgr
 
     /// <summary><c>InstList_Botwoon_Spit_AimingUpLeft</c> at $B3:939F.</summary>
     internal const ushort SpittingUpLeft = 0x939f;
-
-    public static int MechanicsWordCount => 74;
     public static int PresentationWordCount => 25;
-    private static int PhysicalDirection(int index) => index < 3 ? index : index + 1;
-
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        ushort address;
-        if (index < 24)
-        {
-            int word = index % 3;
-            address = (ushort)(MovingUpLeft + 8 * PhysicalDirection(index / 3) + (word == 0 ? 0 : word == 1 ? 2 : 6));
-        }
-        else if (index < 26) address = (ushort)(Hidden + 4 * (index - 24));
-        else
-        {
-            int word = (index - 26) % 6;
-            int offset = word == 0 ? 0 : word == 5 ? 14 : 2 + 2 * word;
-            address = (ushort)(SpittingUpLeft + 16 * PhysicalDirection((index - 26) / 6) + offset);
-        }
-        return new(address, ReadMechanicsWord(address));
-    }
+    internal static int PhysicalDirection(int index) => index < 3 ? index : index + 1;
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -105,7 +84,7 @@ internal abstract class BotwoonInstructionProgramDefinitions : IInstructionProgr
         MovingUp => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_8x10_duplicate_again2,
         _ => throw new InvalidDataException("Unknown Botwoon movement program."),
     };
-    private static bool TryDecodeDirectional(ushort address, out bool spitting, out ushort movement, out int offset)
+    internal static bool TryDecodeDirectional(ushort address, out bool spitting, out ushort movement, out int offset)
     {
         spitting = address >= SpittingUpLeft;
         int relative = address - (spitting ? SpittingUpLeft : MovingUpLeft);
@@ -119,10 +98,4 @@ internal abstract class BotwoonInstructionProgramDefinitions : IInstructionProgr
         offset = relative % stride;
         return true;
     }
-    private static bool IsMechanicsWord(ushort address) => address == Hidden || address == Hidden + 4 ||
-        (TryDecodeDirectional(address, out bool spitting, out _, out int offset) &&
-            (spitting ? offset is 0 or 4 or 6 or 8 or 10 or 14 : offset is 0 or 2 or 6));
-    public static bool IsCompiledMechanicsByte(int address) =>
-        (address & 0xff0000) == 0xb30000 &&
-        (IsMechanicsWord(unchecked((ushort)address)) || IsMechanicsWord(unchecked((ushort)(address - 1))));
 }

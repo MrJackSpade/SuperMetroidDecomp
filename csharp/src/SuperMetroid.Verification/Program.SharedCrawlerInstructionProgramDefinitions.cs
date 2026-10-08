@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifySharedCrawlerInstructionProgramDefinitions()
     {
         Suite(nameof(VerifySharedCrawlerInstructionProgramDefinitions), () => VerifySharedCrawlerInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifySharedCrawlerInstructionProgramDefinitions(
@@ -18,11 +18,11 @@ internal static partial class Program
             BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
 
         for (int index = 0;
-             index < SharedCrawlerInstructionProgramDefinitions.MechanicsWordCount;
+             index < SharedCrawlerInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                SharedCrawlerInstructionProgramDefinitions.MechanicsWord(index);
+                SharedCrawlerInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadSharedCrawlerInstructionWord(rom, definition.Address),
                 $"shared-crawler mechanics word $A3:{definition.Address:X4}");
@@ -75,7 +75,7 @@ internal static partial class Program
 
         AssertThrows<InvalidDataException>(
             () => SharedCrawlerInstructionProgramDefinitions.ReadMechanicsWord(
-                SharedCrawlerInstructionProgramDefinitions.PresentationWordAddress(0)),
+                SharedCrawlerInstructionProgramDefinitionsTooling.PresentationWordAddress(0)),
             "shared-crawler spritemap pointer is rejected as mechanics");
         AssertThrows<InvalidDataException>(
             () => SharedCrawlerInstructionProgramDefinitions.ReadMechanicsWord(
@@ -142,7 +142,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (SharedCrawlerInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (SharedCrawlerInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -152,11 +152,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < SharedCrawlerInstructionProgramDefinitions.PresentationWordCount;
+                     index < SharedCrawlerInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        SharedCrawlerInstructionProgramDefinitions.PresentationWordAddress(index);
+                        SharedCrawlerInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

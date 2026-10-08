@@ -28,7 +28,7 @@ internal static partial class Program
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
         SuperMetroidAddressSpace? bus = File.Exists(romPath)
-            ? SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath)
+            ? SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath)
             : null;
         foreach (FieldInfo field in callbacks.Concat(lists))
         {

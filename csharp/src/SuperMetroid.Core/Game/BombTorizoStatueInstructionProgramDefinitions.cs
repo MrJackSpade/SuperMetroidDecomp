@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Game;
 /// $86:A4C3-$A5D3. Their thirty-two interleaved spritemap operands use extracted
 /// presentation art. The packed sound-ID byte has its own typed sound decoder.
 /// </summary>
-internal abstract class BombTorizoStatueInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class BombTorizoStatueInstructionProgramDefinitions
 {
     /// <summary>First program, <c>InstList_EnemyProjectile_BombTorizoChozoBreaking_Index0</c>, at $86:A4C3.</summary>
     internal const ushort FirstProgram = 0xa4c3;
@@ -24,8 +24,6 @@ internal abstract class BombTorizoStatueInstructionProgramDefinitions : IInstruc
 
     // Fragment release delays decrease by eight ticks, with a sixty-four-tick floor.
     private static ushort InitialDuration(int programIndex) => (ushort)Math.Max(64, 128 - 8 * programIndex);
-
-    public static int MechanicsWordCount => ProgramCount * 6;
     public static int PresentationWordCount => ProgramCount * 2;
 
     internal static ushort Program(int index)
@@ -33,26 +31,6 @@ internal abstract class BombTorizoStatueInstructionProgramDefinitions : IInstruc
         if ((uint)index >= ProgramCount)
             throw new ArgumentOutOfRangeException(nameof(index));
         return unchecked((ushort)(FirstProgram + index * ProgramStride));
-    }
-
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount)
-            throw new ArgumentOutOfRangeException(nameof(index));
-        int programIndex = index / 6;
-        ushort program = Program(programIndex);
-        int word = index % 6;
-        // First timed frame, three-byte sound command, callback plus argument,
-        // second timed frame, then delete. Reuse the direct reader for values.
-        int offset = word switch
-        {
-            0 => 0,
-            1 => 4,
-            2 or 3 or 4 => 7 + 2 * (word - 2),
-            _ => 15,
-        };
-        ushort address = (ushort)(program + offset);
-        return new(address, ReadMechanicsWord(address));
     }
     public static ushort PresentationWordAddress(int index)
     {
@@ -85,19 +63,7 @@ internal abstract class BombTorizoStatueInstructionProgramDefinitions : IInstruc
         };
     }
 
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
-        ushort bankAddress = unchecked((ushort)address);
-        return IsMechanicsWordStart(bankAddress) ||
-            IsMechanicsWordStart(unchecked((ushort)(bankAddress - 1)));
-    }
-
-    private static bool IsMechanicsWordStart(ushort address) =>
-        TryDecodeProgramOffset(address, out _, out int offset) &&
-        offset is 0 or 4 or 7 or 9 or 11 or 15;
-
-    private static bool TryDecodeProgramOffset(
+    internal static bool TryDecodeProgramOffset(
         ushort address,
         out int programIndex,
         out int offset)

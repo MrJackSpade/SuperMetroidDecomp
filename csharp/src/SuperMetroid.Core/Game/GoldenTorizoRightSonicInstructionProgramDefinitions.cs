@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Game;
 /// $AA:CCDB-CDAE. Their 66 timers, callbacks, movement and loop words are
 /// immutable mechanics; 40 interleaved sprite selectors are presentation.
 /// </summary>
-internal abstract class GoldenTorizoRightSonicInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
+internal abstract class GoldenTorizoRightSonicInstructionProgramDefinitions
 {
     internal const ushort Start = 0xccdb;
     internal const ushort RightFootForward = 0xcd45;
@@ -23,9 +23,8 @@ internal abstract class GoldenTorizoRightSonicInstructionProgramDefinitions : II
 
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
-    static int IDeclaredProgramBank.Bank => Bank;
 
-    private static readonly InstructionProgramLayout Layout = new(Bank,
+    internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xccdb),
         Entry(Start),
         Op(TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY, TorizoMovementAttackingFunction),
@@ -83,15 +82,6 @@ internal abstract class GoldenTorizoRightSonicInstructionProgramDefinitions : II
         Op(CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate, TorizoSonicBoomsFacingRightRightFootFwd1),
         Op(TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY, TorizoMovementWalkingFunction),
         Op(TorizoInstructionCodes.Instruction_Torizo_Return));
-
-    public static int MechanicsWordCount => Layout.MechanicsWordCount;
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        (ushort address, ushort value) = Layout.MechanicsWord(index);
-        return new(address, value);
-    }
     public static int PresentationWordCount => Layout.PresentationSlotCount;
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
-
-    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

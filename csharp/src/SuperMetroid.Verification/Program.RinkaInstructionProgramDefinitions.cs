@@ -19,13 +19,13 @@ internal static partial class Program
             return;
         }
 
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         for (int index = 0;
-             index < RinkaInstructionProgramDefinitions.MechanicsWordCount;
+             index < RinkaInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                RinkaInstructionProgramDefinitions.MechanicsWord(index);
+                RinkaInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(
                 definition.Value,
                 ReadRinkaProgramWord(rom, definition.Address),
@@ -96,7 +96,7 @@ internal static partial class Program
 
         Console.WriteLine(
             $"  Rinka instruction mechanics: " +
-            $"{RinkaInstructionProgramDefinitions.MechanicsWordCount} words, " +
+            $"{RinkaInstructionProgramDefinitionsTooling.MechanicsWordCount} words, " +
             $"{RinkaInstructionProgramDefinitions.PresentationWordCount} live " +
             "spritemap words, and both production programs pass with mechanics reads " +
             "forbidden.");
@@ -154,7 +154,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (RinkaInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (RinkaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

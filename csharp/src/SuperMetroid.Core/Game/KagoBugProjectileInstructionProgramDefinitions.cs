@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Game;
 /// <see cref="KraidRockProjectileInstructionProgramDefinitions"/>; interleaved
 /// spritemap operands select compiled presentation identities.
 /// </summary>
-internal abstract class KagoBugProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class KagoBugProjectileInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProjectile_KagoBug_HitFloor</c> at $86:D03C.</summary>
     internal const ushort Landed = 0xd03c;
@@ -108,24 +108,5 @@ internal abstract class KagoBugProjectileInstructionProgramDefinitions : IInstru
 
         throw new InvalidDataException(
             $"Kago-bug projectile mechanics pointer $86:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

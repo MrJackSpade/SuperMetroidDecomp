@@ -6,7 +6,7 @@ internal static class CinematicClosedContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.TitlePalettePresentation", "title-complete-initial-palette", ["Apply"],
-            [new("csharp/src/SuperMetroid.Core/Assets/TitlePalettePresentation.cs", "84395C03DB49402D7131CFFEB5252BE7B27BF705D195C60786DEFDD482238E46"),
+            [new("csharp/src/SuperMetroid.Core/Assets/TitlePalettePresentation.cs", "00BAFA3B426D8815A10D257CB5031859818B5EED413B49325C56C439140677E1"),
              new("csharp/src/SuperMetroid.Core/Game/TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.cs", "EA1903CD7ECBE81C391C41FB2FFCF0E464D99D4F9F3F5079FC23E763D3A813D6"),
              new("csharp/src/SuperMetroid.Core/Assets/TitleAmbientColorDefinitions.cs", "541DA5049CBBDEC86EE34FC0EC4013B486E2989630A01E629C92CF7E5C87CED6"),
              new("csharp/src/SuperMetroid.Core/Frontend/TitleSequenceRomData.cs", "55FB939A7977CA89913E2250DFCA24B3981F78FFB1C3B4C93D9BCCBCB8B8075F")]),
@@ -46,8 +46,8 @@ internal static class CinematicClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerTileAtlas.cs", "E2A5D6F4B5EF50E10D293A29679D4B64F3573FD140426DFB90A553ABBD67FE15"),
              new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerGlyphDefinitions.cs", "4942E6802A8F4B086F7C8D3F4A0FD3530E1C07B5C2F467D97CF76FE6855A1366")]),
         new("SuperMetroid.Core.Assets.CeresEscapeOverlayTilemapCatalog", "ceres-overlay-complete-owned-membership-query", ["TryResolve"],
-            [new("csharp/src/SuperMetroid.Core/Assets/CeresEscapeOverlayTilemapCatalog.cs", "DCEEA9B948035D40AC9E6145E50C6B79E9F2D1977CB669EE3C16EE4FD9AB0DC3"),
-             new("csharp/src/SuperMetroid.Core/Game/CeresEscapeVramTransferDefinitions.cs", "3BA73AC61F296986D8A753AA84AC3DE271EE9AB9B2E73BB54E2B19DBEDB51D39"),
+            [new("csharp/src/SuperMetroid.Core/Assets/CeresEscapeOverlayTilemapCatalog.cs", "86BA4A70C1CBA5DBC226469B3AB5F7432C03D106113A3DE9D266B7AD4AE84829"),
+             new("csharp/src/SuperMetroid.Core/Game/CeresEscapeVramTransferDefinitions.cs", "E5E588808193AAAD1B53E3659AFD7F3C4E840A766222E0B8DF121E363F8A9B5B"),
              new("csharp/src/SuperMetroid.Core/Game/CeresRidleyPaletteRomData.cs", "A5FEEC244162AEA362469C0106D049D25DA76D015B6E2ECBD010F349541A9876")]),
     ];
 }

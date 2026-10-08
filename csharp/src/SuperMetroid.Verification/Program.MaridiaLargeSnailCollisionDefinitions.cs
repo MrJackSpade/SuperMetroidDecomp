@@ -20,10 +20,10 @@ internal static partial class Program
         { Bank = MaridiaLargeSnailCollisionDefinitions.Bank };
         var seen = new HashSet<ushort>();
         for (int index = 0;
-             index < MaridiaLargeSnailInstructionProgramDefinitions.PresentationWordCount;
+             index < MaridiaLargeSnailInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort operand = MaridiaLargeSnailInstructionProgramDefinitions
+            ushort operand = MaridiaLargeSnailInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             ushort native = (ushort)(rom.ReadByte(0xa20000 | operand) |
                 rom.ReadByte(0xa20000 | unchecked((ushort)(operand + 1))) << 8);
@@ -45,7 +45,7 @@ internal static partial class Program
 
     private static void VerifyMaridiaLargeSnailCollisionDefinitions()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var denied = new OumNoReadBus();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

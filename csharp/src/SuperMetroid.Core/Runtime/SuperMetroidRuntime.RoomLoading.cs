@@ -20,7 +20,7 @@ public sealed partial class SuperMetroidRuntime
     internal SnesMainScreenLayers? DoorTransitionMainScreenLayers { get; private set; }
 
     /// <summary>The load-station record that most recently established this runtime.</summary>
-    public LoadStationEntry? ActiveLoadStation { get; private set; }
+    public LoadStationEntry? ActiveLoadStation { get; internal set; }
 
     /// <summary>The selected room/state header for a generic cartridge-backed room.</summary>
     public CartridgeRoomHeader? ActiveRoom { get; private set; }
@@ -32,7 +32,7 @@ public sealed partial class SuperMetroidRuntime
     public CartridgeRoomAssets? ActiveRoomAssets { get; private set; }
 
     /// <summary>The two native bank-$86 objects that carry Samus into fresh Ceres.</summary>
-    public CeresElevatorArrivalState? CeresElevatorArrival { get; private set; }
+    public CeresElevatorArrivalState? CeresElevatorArrival { get; internal set; }
 
     /// <summary>
     /// Executes the data-loading portion of native loading-state $1F: area six, station
@@ -693,77 +693,8 @@ public sealed partial class SuperMetroidRuntime
         return viewport;
     }
 
-    /// <summary>
-    /// Loads one retail room header directly for the ROM-backed debug runner. Gameplay never
-    /// calls this seam: normal play must still arrive through a bank-$83 door so placement
-    /// and setup code remain authoritative. Keeping the helper internal lets end-to-end
-    /// audits exercise the complete runtime, renderer, enemy scheduler, and Samus handlers
-    /// in a late room without duplicating several minutes of controller input.
-    /// </summary>
-    internal InitialViewportResult LoadCartridgeRoomForDebug(
-        ushort roomPointer,
-        ushort cameraX = 0,
-        ushort cameraY = 0)
-    {
-        if (Samus is null)
-            throw new InvalidOperationException("Direct debug room loading requires initialized Samus state.");
-
-        CartridgeRoomHeader room = LoadCartridgeRoomHeader(roomPointer);
-        // The debug seam intentionally supplies an inert synthetic door. Any room whose
-        // correctness depends on setup code must instead be audited through its real door;
-        // Ceres Ridley's ordinary mode-nine room has no incoming setup routine dependency.
-        var door = new CartridgeDoorHeader(
-            Pointer: 0,
-            DestinationRoomPointer: roomPointer,
-            BitFlags: 0,
-            Orientation: 0,
-            PlmX: 0,
-            PlmY: 0,
-            DestinationScreenX: unchecked((byte)(cameraX >> 8)),
-            DestinationScreenY: unchecked((byte)(cameraY >> 8)),
-            SamusDistance: 0,
-            SetupCodePointer: 0);
-
-        ActiveLoadStation = null;
-        CeresElevatorArrival = null;
-        InitialViewportResult viewport = LoadCartridgeRoom(
-            door,
-            room,
-            cameraX,
-            cameraY,
-            RoomViewportLoadMode.DisplayInitialViewport);
-        Samus.LiquidPhysics.RoomIdentity = room.Identity;
-        Samus.RefreshCollisionRadii(_addressSpace);
-        Samus.PrimeGraphics(_addressSpace);
-        GroundedSamusMovementEnabled = true;
-        return viewport;
-    }
-
-    /// <summary>
-    /// Loads a retail destination through its real bank-$83 header for exhaustive callback
-    /// verification. Production reaches the same private loader through door collision.
-    /// </summary>
-    internal InitialViewportResult LoadCartridgeRoomThroughDoorForVerification(
-        CartridgeDoorHeader door,
-        ushort cameraX = 0,
-        ushort cameraY = 0)
-    {
-        ArgumentNullException.ThrowIfNull(door);
-        if (Samus is null)
-            throw new InvalidOperationException("Door verification requires initialized Samus state.");
-
-        CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoomPointer);
-        return LoadCartridgeRoom(
-            door,
-            room,
-            cameraX,
-            cameraY,
-            RoomViewportLoadMode.DisplayInitialViewport,
-            runDoorClosingPlm: true);
-    }
-
     /// <summary>Shared cartridge room/state/graphics load used by stations and doors.</summary>
-    private InitialViewportResult LoadCartridgeRoom(
+    internal InitialViewportResult LoadCartridgeRoom(
         CartridgeDoorHeader door,
         CartridgeRoomHeader room,
         ushort cameraX,
@@ -1122,7 +1053,7 @@ public sealed partial class SuperMetroidRuntime
     /// no production path executes bank-$8F selector bytes. Keeping this at the shared loader
     /// boundary prevents doors, save stations, and attract scenes from choosing differently.
     /// </remarks>
-    private CartridgeRoomHeader LoadCartridgeRoomHeader(ushort roomPointer)
+    internal CartridgeRoomHeader LoadCartridgeRoomHeader(ushort roomPointer)
     {
         AreaId areaIndex = CartridgeRoomHeader.ReadAreaIndex(roomPointer);
 

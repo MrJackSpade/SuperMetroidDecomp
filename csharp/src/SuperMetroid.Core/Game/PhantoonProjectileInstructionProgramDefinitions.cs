@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control for Phantoon's starting and destroyable flame instruction lists.
 /// Interleaved spritemap selectors address separately installed artwork.
 /// </summary>
-internal abstract class PhantoonProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class PhantoonProjectileInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProjectile_PhantoonDestroyableFlame_Idle</c> at $86:975C.</summary>
     internal const ushort DestroyableIdle = 0x975c;
@@ -134,24 +134,5 @@ internal abstract class PhantoonProjectileInstructionProgramDefinitions : IInstr
 
         throw new InvalidDataException(
             $"Phantoon projectile mechanics pointer $86:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

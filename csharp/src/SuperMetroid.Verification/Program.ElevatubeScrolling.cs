@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyElevatubeScrolling()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (bool fromNorth in new[] { true, false })
         {
             var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);

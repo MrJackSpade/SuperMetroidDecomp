@@ -50,7 +50,7 @@ internal static partial class Program
 
             framesCompared += frames;
         }
-        AssertEqual(SporeSpawnInstructionProgramDefinitions.PresentationWordCount,
+        AssertEqual(SporeSpawnInstructionProgramDefinitionsTooling.PresentationWordCount,
             allNativeSelectors.Count,
             "all Spore Spawn selector operands execute in the five native programs");
         Console.WriteLine($"  Installed Spore Spawn visual selectors: {allNativeSelectors.Count} compiled operands and {framesCompared} native-parity program ticks, with presentation ROM reads forbidden.");

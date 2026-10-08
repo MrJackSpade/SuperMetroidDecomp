@@ -94,7 +94,7 @@ internal sealed class InstructionProgramLayout
     private readonly InstructionItem[] items;
     // Lookups run per instruction and per byte; the layout is immutable, so its words are laid
     // out once and indexed by address instead of walked on every query.
-    private readonly Lazy<WordIndex> index;
+    internal readonly Lazy<WordIndex> index;
 
     internal InstructionProgramLayout(byte bank, params InstructionItem[] items)
     {
@@ -137,14 +137,6 @@ internal sealed class InstructionProgramLayout
     /// <summary>Exclusive end of the last item.</summary>
     internal int EndAddress { get; }
 
-    /// <summary>The <paramref name="index"/>th mechanics word in address order.</summary>
-    internal (ushort Address, ushort Value) MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        var (address, word) = this.index.Value.Words[this.index.Value.Mechanics[index]];
-        return (address, word.Value);
-    }
-
     /// <summary>Address of the <paramref name="index"/>th presentation slot.</summary>
     internal ushort PresentationSlotAddress(int index)
     {
@@ -181,37 +173,11 @@ internal sealed class InstructionProgramLayout
     internal bool IsPresentationWord(ushort address) =>
         index.Value.TryGet(address, out InstructionWord word) && word.IsPresentation;
 
-    /// <summary>The word containing <paramref name="bankAddress"/>, checking the earlier start first.</summary>
-    private bool TryWordContaining(int bankAddress, out ushort start, out InstructionWord word)
-    {
-        if (bankAddress > 0 && index.Value.TryGet((ushort)(bankAddress - 1), out word))
-        {
-            start = (ushort)(bankAddress - 1);
-            return true;
-        }
-        if (bankAddress <= ushort.MaxValue && index.Value.TryGet((ushort)bankAddress, out word))
-        {
-            start = (ushort)bankAddress;
-            return true;
-        }
-        start = 0;
-        word = default;
-        return false;
-    }
-
-    /// <summary>True when either byte of a mechanics word lies at <paramref name="longAddress"/>.</summary>
-    internal bool IsCompiledMechanicsByte(int longAddress)
-    {
-        if (longAddress >> 16 != Bank) return false;
-        int bankAddress = longAddress & ushort.MaxValue;
-        return TryWordContaining(bankAddress, out _, out InstructionWord word) && !word.IsPresentation;
-    }
-
     /// <summary>True when <paramref name="address"/> is the first byte of any laid-out word.</summary>
     internal bool Owns(ushort address) => index.Value.TryGet(address, out _);
 
     /// <summary>Every laid-out word in address order, its address index, and its two orderings.</summary>
-    private sealed class WordIndex
+    internal sealed class WordIndex
     {
         internal readonly (ushort Address, InstructionWord Word)[] Words;
         internal readonly int[] Mechanics, Presentation;
@@ -242,7 +208,7 @@ internal sealed class InstructionProgramLayout
     }
 
     /// <summary>Allocation-free walk of every laid-out word in address order.</summary>
-    private struct WordWalker(InstructionItem[] items)
+    internal struct WordWalker(InstructionItem[] items)
     {
         private int item = -1;
         private int word = -1;

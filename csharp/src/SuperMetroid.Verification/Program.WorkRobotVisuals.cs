@@ -13,10 +13,10 @@ internal static partial class Program
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessInstructions", BindingFlags.Instance | BindingFlags.NonPublic)!;
         for (int index = 0;
-             index < WorkRobotInstructionProgramDefinitions.PresentationWordCount;
+             index < WorkRobotInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort operand = WorkRobotInstructionProgramDefinitions
+            ushort operand = WorkRobotInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             int selectorAddress = (WorkRobotVisualDefinitions.Bank << 16) | operand;
             ushort nativePointer = unchecked((ushort)(

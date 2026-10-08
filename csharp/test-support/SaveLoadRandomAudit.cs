@@ -11,7 +11,7 @@ internal static class SaveLoadRandomAudit
     {
         foreach (int wait in new[] { 0, 1, 2 })
         {
-            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(rom);
             var save = new SuperMetroidSaveSnapshot
             {
                 Area = (ushort)AreaId.Tourian, SaveStation = 0,

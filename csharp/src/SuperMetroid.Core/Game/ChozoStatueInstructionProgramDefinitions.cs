@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Game;
 /// sequences. Interleaved spritemap operands resolve to installed presentation
 /// identities when artwork is bound; diagnostic buses may still supply them.
 /// </summary>
-internal abstract class ChozoStatueInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class ChozoStatueInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Chozo_LowerNorfair_Initial</c> at $AA:E39D.</summary>
     internal const ushort LowerNorfairInitial = 0xe39d;
@@ -152,17 +152,5 @@ internal abstract class ChozoStatueInstructionProgramDefinitions : IInstructionP
             else high = middle - 1;
         }
         throw new InvalidDataException($"Chozo statue instruction mechanics pointer $AA:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xaa0000) return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress || bankAddress == unchecked((ushort)(wordAddress + 1))) return true;
-        }
-        return false;
     }
 }

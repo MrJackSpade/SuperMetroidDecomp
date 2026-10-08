@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled engine-control words for Bull's ordinary and immune-shot animation programs.
 /// Interleaved spritemap operands select installed presentation frames.
 /// </summary>
-internal abstract class BullInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class BullInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Bull_Normal</c> at $A8:D841.</summary>
     internal const ushort Normal = 0xd841;
@@ -14,7 +14,6 @@ internal abstract class BullInstructionProgramDefinitions : IInstructionProgramC
     internal const ushort ShotLoop = 0xd859;
 
     public static int MechanicsWordCount => 16;
-    public static int PresentationWordCount => 8;
 
     /// <summary>Normal loops four ten-frame drawings; shot loops four three-frame drawings five times and returns to normal.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
@@ -35,12 +34,6 @@ internal abstract class BullInstructionProgramDefinitions : IInstructionProgramC
         };
     }
 
-    public static ushort PresentationWordAddress(int index)
-    {
-        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
-        return (ushort)((index < 4 ? Normal : ShotLoop) + 2 + 4 * (index % 4));
-    }
-
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - (address < ShotLoop ? Normal + 2 : ShotLoop + 2);
@@ -56,24 +49,5 @@ internal abstract class BullInstructionProgramDefinitions : IInstructionProgramC
 
         throw new InvalidDataException(
             $"Bull instruction mechanics pointer $A8:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa80000)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

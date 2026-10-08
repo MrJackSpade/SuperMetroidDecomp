@@ -4,11 +4,14 @@
     <OutputType>Exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="../SuperMetroid.Tooling/SuperMetroid.Tooling.csproj" />
     <ProjectReference Include="../SuperMetroid.AssetExtraction/SuperMetroid.AssetExtraction.csproj" />
     <ProjectReference Include="../SuperMetroid.Diagnostics/SuperMetroid.Diagnostics.csproj" />
   </ItemGroup>
   <Import Project="../../test-support/StateFixtures.projitems" />
   <Import Project="../../test-support/WindowsConsole.projitems" />
+  <Import Project="../../test-support/WindowsConsole.Verification.projitems" />
   <Import Project="../../test-support/RepositoryInstallation.projitems" />
+  <Import Project="../../test-support/RepositoryInstallation.Verification.projitems" />
   <Import Project="../../test-support/VerificationAccess.Core.projitems" />
 </Project>

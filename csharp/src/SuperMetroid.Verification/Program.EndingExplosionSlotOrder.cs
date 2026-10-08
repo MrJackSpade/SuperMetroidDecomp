@@ -9,7 +9,7 @@ internal static partial class Program
 {
     private static void VerifyEndingExplosionSlotOrder()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var audio = new CartridgeAudioState();
         var ending = CreateRetailEndingFixture(bus, audio, 0, 0);
         for (int frame = 0; frame < 20000 && ending.Phase != EndingCreditsPhase.PlanetEscapeFast; frame++)
@@ -44,8 +44,8 @@ internal static partial class Program
             snapshot.ObjectSelection, snapshot.Brightness));
         var actualPixels = ending.Render();
         Directory.CreateDirectory("csharp/test-temp/ending-507");
-        PngWriter.WriteRgba("csharp/test-temp/ending-507/actual.png", 256, 224, actualPixels);
-        PngWriter.WriteRgba("csharp/test-temp/ending-507/native-priority.png", 256, 224, nativePixels);
+        PngWriterTooling.WriteRgba("csharp/test-temp/ending-507/actual.png", 256, 224, actualPixels);
+        PngWriterTooling.WriteRgba("csharp/test-temp/ending-507/native-priority.png", 256, 224, nativePixels);
         AssertTrue(actualPixels.AsSpan().SequenceEqual(nativePixels),
             "live getaway ship occludes priority-zero afterglow pixels");
     }

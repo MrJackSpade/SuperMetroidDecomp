@@ -1,0 +1,7 @@
+<Project>
+  <!-- Installation fixtures only the verifiers use; the developer tools import RepositoryInstallation.projitems alone. -->
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)RepositoryInstallation.Verification.cs" Link="TestSupport/RepositoryInstallation.Verification.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)InstalledGameBindings.cs" Link="TestSupport/InstalledGameBindings.cs" />
+  </ItemGroup>
+</Project>

@@ -7,9 +7,9 @@ internal static partial class Program
     private static void VerifyKraidFootFrameGeometry(SuperMetroidAddressSpace rom)
     {
         var selected = new SortedSet<ushort>();
-        for (int index = 0; index < KraidFootInstructionProgramDefinitions.PresentationWordCount; index++)
+        for (int index = 0; index < KraidFootInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
         {
-            int operand = 0xa70000 | KraidFootInstructionProgramDefinitions.PresentationWordAddress(index);
+            int operand = 0xa70000 | KraidFootInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             selected.Add((ushort)(rom.ReadByte(operand) | rom.ReadByte(operand + 1) << 8));
         }
         AssertEqual(35, selected.Count, "original selected Kraid foot roots");

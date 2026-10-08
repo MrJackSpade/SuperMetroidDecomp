@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control for Bomb Torizo's low-health drool programs at $86:A46A-$A49D.
 /// The seven interleaved spritemap operands resolve through extracted presentation art.
 /// </summary>
-internal abstract class BombTorizoDroolInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class BombTorizoDroolInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProj_BombTorizoLowHealthDrool_4FrameDelay</c> at $86:A46A.</summary>
     internal const ushort FourFrameDelay = 0xa46a;
@@ -20,20 +20,7 @@ internal abstract class BombTorizoDroolInstructionProgramDefinitions : IInstruct
     internal const ushort FloorImpact = 0xa48e;
     /// <summary><c>PreInst_EnemyProjectile_BombTorizoLowHealthDrool_Falling</c> at $86:A887.</summary>
     internal const ushort FallingPreInstruction = 0xa887;
-
-    public static int MechanicsWordCount => 19;
     public static int PresentationWordCount => 7;
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        // Every two-byte word in the bounded program is control except the seven visuals.
-        for (ushort address = FourFrameDelay; address <= FloorImpact + 14; address += 2)
-        {
-            if (IsPresentationWord(address)) continue;
-            if (index-- == 0) return new(address, ReadMechanicsWord(address));
-        }
-        throw new InvalidOperationException("Drool program word count does not match its layout.");
-    }
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -89,12 +76,4 @@ internal abstract class BombTorizoDroolInstructionProgramDefinitions : IInstruct
         FloorImpact + 2 or FloorImpact + 6 or FloorImpact + 10 => 8,
         _ => throw new InvalidDataException($"Bomb Torizo drool mechanics pointer $86:{address:X4} is not compiled."),
     };
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
-        int offset = unchecked((ushort)address) - FourFrameDelay;
-        return (uint)offset < FloorImpact + 16 - FourFrameDelay &&
-            !IsPresentationWord((ushort)(FourFrameDelay + (offset & ~1)));
-    }
 }

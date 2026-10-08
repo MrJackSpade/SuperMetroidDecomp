@@ -6,13 +6,13 @@ internal static partial class Program
     private static void VerifyFakeKraidProjectileMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0x9dda, 0x9dde, 0x9de0, 0x9de4, 0x9de6, 0x9dea];
-        AssertEqual(addresses.Length, FakeKraidProjectileInstructionProgramDefinitions.MechanicsWordCount,
+        AssertEqual(addresses.Length, FakeKraidProjectileInstructionProgramDefinitionsTooling.MechanicsWordCount,
             "Fake Kraid projectile control word count");
         for (int index = 0; index < addresses.Length; index++)
         {
             ushort address = addresses[index];
             ushort expected = ReadFakeKraidProjectileInstructionWord(rom, address);
-            var actual = FakeKraidProjectileInstructionProgramDefinitions.MechanicsWord(index);
+            var actual = FakeKraidProjectileInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(address, actual.Address, "Fake Kraid projectile control enumeration address");
             AssertEqual(expected, actual.Value, "Fake Kraid projectile enumerated native control");
             AssertEqual(expected, FakeKraidProjectileInstructionProgramDefinitions.ReadMechanicsWord(address),
@@ -23,12 +23,12 @@ internal static partial class Program
         {
             bool expected = words.Contains((ushort)(address & ~1));
             AssertEqual(expected,
-                FakeKraidProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(0x860000 | address),
+                FakeKraidProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x860000 | address),
                 "Fake Kraid projectile complete bank ownership");
             AssertEqual(expected,
-                FakeKraidProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(0x12860000 | address),
+                FakeKraidProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x12860000 | address),
                 "Fake Kraid projectile preserves high-address-bit masking");
-            AssertTrue(!FakeKraidProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa60000 | address),
+            AssertTrue(!FakeKraidProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa60000 | address),
                 "Fake Kraid projectile rejects other banks");
         }
         for (int address = 0x9dd8; address <= 0x9dee; address++)
@@ -42,7 +42,7 @@ internal static partial class Program
                 "Fake Kraid projectile rejects distant control addresses");
         foreach (int index in new[] { int.MinValue, -1, 6, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(
-                () => FakeKraidProjectileInstructionProgramDefinitions.MechanicsWord(index),
+                () => FakeKraidProjectileInstructionProgramDefinitionsTooling.MechanicsWord(index),
                 "Fake Kraid projectile control enumeration bounds");
     }
 

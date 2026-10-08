@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled engine-control words for all walking Space Pirate body programs.
 /// Interleaved extended-spritemap operands select installed presentation data.
 /// </summary>
-internal abstract class WalkingSpacePirateInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class WalkingSpacePirateInstructionProgramDefinitions
 {
     /// <summary><c>InstList_PirateWalking_Flinch_FacingLeft</c> at $B2:FB4C.</summary>
     internal const ushort FlinchFacingLeft = 0xfb4c;
@@ -129,17 +129,5 @@ internal abstract class WalkingSpacePirateInstructionProgramDefinitions : IInstr
             else high = middle - 1;
         }
         throw new InvalidDataException($"Walking Space Pirate instruction mechanics pointer $B2:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xb20000) return false;
-        ushort offset = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort word = MechanicsWord(index).Address;
-            if (offset == word || offset == word + 1) return true;
-        }
-        return false;
     }
 }

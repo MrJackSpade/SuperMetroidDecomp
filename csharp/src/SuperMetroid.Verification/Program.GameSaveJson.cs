@@ -14,7 +14,7 @@ internal static partial class Program
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(romPath))
             throw new FileNotFoundException("JSON save verification requires the private retail ROM.", romPath);
-        SuperMetroidAddressSpace source = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace source = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         var saveRam = new SuperMetroidSaveRam(source, RetailPresentationFixture());
         var samus = new SamusState
         {
@@ -81,7 +81,7 @@ internal static partial class Program
         AssertEqual(json, GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Deserialize(json)),
             "JSON save formatting and property order are deterministic");
 
-        SuperMetroidAddressSpace restored = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace restored = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         GameSaveJsonCodec.Apply(GameSaveJsonCodec.Deserialize(json), restored, RetailPresentationFixture());
         AssertTrue(expectedSram.SequenceEqual(restored.SaveRam),
             "JSON save round trip rebuilds canonical SRAM from named state");
@@ -121,7 +121,7 @@ internal static partial class Program
             string legacyPath = Path.Combine(temporaryDirectory, "game.srm");
             string jsonPath = Path.Combine(temporaryDirectory, "game.save.json");
             File.WriteAllBytes(legacyPath, expectedSram);
-            SuperMetroidAddressSpace migrated = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+            SuperMetroidAddressSpace migrated = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
             GameSaveLoadResult firstLoad = GameSaveFileStore.LoadOrMigrate(
                 migrated,
                 jsonPath,
@@ -133,7 +133,7 @@ internal static partial class Program
             AssertTrue(expectedSram.SequenceEqual(migrated.SaveRam),
                 "legacy migration retains the exact SRAM image");
 
-            SuperMetroidAddressSpace jsonReload = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+            SuperMetroidAddressSpace jsonReload = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
             GameSaveLoadResult secondLoad = GameSaveFileStore.LoadOrMigrate(
                 jsonReload,
                 jsonPath,

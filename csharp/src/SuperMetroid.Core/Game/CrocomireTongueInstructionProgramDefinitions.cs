@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Game;
 /// extended-spritemap operands are compiled selectors for installed artwork;
 /// constructed no-art fixtures may still supply mutable cartridge data.
 /// </summary>
-internal abstract class CrocomireTongueInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class CrocomireTongueInstructionProgramDefinitions
 {
     /// <summary>
     /// <c>InstList_CrocomireTongue_Fight</c> at $A4:BE56. In the pinned NTSC
@@ -32,31 +32,6 @@ internal abstract class CrocomireTongueInstructionProgramDefinitions : IInstruct
     /// </summary>
     internal const ushort Melting = 0xbf98;
 
-    public static int MechanicsWordCount => 14;
-    public static int PresentationWordCount => 9;
-
-    /// <summary>Enumerates four fight durations and their loop, terminal sleep,
-    /// then five melting durations and their loop, in native address order.</summary>
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        if (index == 6) return new(Sleep, CommonEnemyInstructionCodes.Sleep);
-        int start = index < 6 ? Fight : Melting;
-        int frameCount = index < 6 ? 4 : 5;
-        int field = index < 6 ? index : index - 7;
-        int offset = field < frameCount ? 4 * field : 4 * frameCount + 2 * (field - frameCount);
-        ushort address = (ushort)(start + offset);
-        return new(address, ReadMechanicsWord(address));
-    }
-
-    /// <summary>Spritemap operand positions in the four-frame fight and five-frame
-    /// melting loops: start + 2 + 4*frame. These positions do not own artwork.</summary>
-    public static ushort PresentationWordAddress(int index)
-    {
-        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
-        return (ushort)(index < 4 ? Fight + 2 + 4 * index : Melting + 2 + 4 * (index - 4));
-    }
-
     /// <summary>Dispatches five-frame durations, self-loop control, and terminal
     /// sleep. Only exact mechanics addresses are accepted; interleaved sprite
     /// selectors, odd addresses, and adjacent lists remain outside this contract.</summary>
@@ -71,16 +46,5 @@ internal abstract class CrocomireTongueInstructionProgramDefinitions : IInstruct
         if (offset == frameCount * 4 + 2) return (ushort)start;
         throw new InvalidDataException(
             $"Crocomire tongue instruction mechanics pointer $A4:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa40000) return false;
-        int bankAddress = address & 0xffff;
-        if (bankAddress == Sleep || bankAddress == Sleep + 1) return true;
-        int offset = bankAddress < Melting ? bankAddress - Fight : bankAddress - Melting;
-        int frameCount = bankAddress < Melting ? 4 : 5;
-        return offset >= 0 && offset < frameCount * 4 + 4 &&
-            (offset >= frameCount * 4 || offset % 4 < 2);
     }
 }

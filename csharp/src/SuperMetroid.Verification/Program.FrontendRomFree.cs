@@ -7,6 +7,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Desktop;
 using System.Reflection;
+using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
@@ -18,7 +19,7 @@ internal static partial class Program
     private static void VerifyFrontendRomFreeStartup(GameInstallation installation,
         string sourceRom, bool roomCensus = false)
     {
-        var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
+        var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         // Installed gameplay gets real WRAM/SRAM but no ROM allocation at all.
         // The native reference remains available only to the development probe
         // that identifies the exact BG2 source ranges to forbid.
@@ -257,7 +258,7 @@ internal static partial class Program
                 VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.EastTunnel, "Maridia east tunnel");
                 VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.CrateriaSaveStation, "Crateria save station");
+                    RoomHeaderPointersTooling.CrateriaSaveStation, "Crateria save station");
                 VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.LowerNorfairMainHall,
                     "Lower Norfair main hall");
@@ -284,7 +285,7 @@ internal static partial class Program
                     RoomHeaderPointers.CrateriaMorphBallEyeRoom, "Crateria Morph Ball eye",
                     frameCount: 90);
                 VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.BrinstarShutterRoom, "Brinstar shutters", frameCount: 90);
+                    RoomHeaderPointersTooling.BrinstarShutterRoom, "Brinstar shutters", frameCount: 90);
                 VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.TourianMetroidRoom, "Tourian ordinary Metroids",
                     frameCount: 90);

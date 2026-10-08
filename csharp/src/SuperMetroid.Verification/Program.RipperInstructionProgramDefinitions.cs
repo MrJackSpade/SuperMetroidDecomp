@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyRipperInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyRipperInstructionProgramDefinitions), () => VerifyRipperInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyRipperInstructionProgramDefinitions(
@@ -18,21 +18,21 @@ internal static partial class Program
             BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
 
         for (int index = 0;
-             index < RipperInstructionProgramDefinitions.MechanicsWordCount;
+             index < RipperInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                RipperInstructionProgramDefinitions.MechanicsWord(index);
+                RipperInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadRipperInstructionWord(rom, 0xa20000 | definition.Address),
                 $"Ripper-family instruction mechanics word $A2:{definition.Address:X4}");
         }
 
         for (int index = 0;
-             index < RipperInstructionProgramDefinitions.PresentationWordCount;
+             index < RipperInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort address = RipperInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort address = RipperInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             ushort definition = address >= RipperInstructionProgramDefinitions.RipperMovingRight
                 ? RoomEnemySystem.RipperDefinition
                 : address >= RipperInstructionProgramDefinitions.Ripper2MovingRight
@@ -239,7 +239,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (RipperInstructionProgramDefinitions.IsCompiledMechanicsByte(address) ||
+            if (RipperInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
                 IsPresentationByte(address))
             {
                 ForbiddenReadAttempts++;
@@ -255,11 +255,11 @@ internal static partial class Program
                 return false;
             ushort bankAddress = unchecked((ushort)address);
             for (int index = 0;
-                 index < RipperInstructionProgramDefinitions.PresentationWordCount;
+                 index < RipperInstructionProgramDefinitionsTooling.PresentationWordCount;
                  index++)
             {
                 ushort presentation =
-                    RipperInstructionProgramDefinitions.PresentationWordAddress(index);
+                    RipperInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                 if (bankAddress == presentation ||
                     bankAddress == unchecked((ushort)(presentation + 1)))
                     return true;

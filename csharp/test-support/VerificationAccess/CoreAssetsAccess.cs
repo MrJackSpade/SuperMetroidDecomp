@@ -136,19 +136,6 @@ internal static class CrocomireColorCatalogAccess
     }
 }
 
-/// <summary>Verification access to <see cref="CrocomireSkeletonFrameSequence"/> members production does not use.</summary>
-internal static class CrocomireSkeletonFrameSequenceAccess
-{
-    extension(CrocomireSkeletonFrameSequence self)
-    {
-        internal IEnumerator<EnemyExtendedFrameDefinition> GetEnumerator()
-        {
-            for (int index = 0; index < self.Length; index++)
-                yield return self[index];
-        }
-    }
-}
-
 /// <summary>Verification access to <see cref="EndingFontAtlas"/> members production does not use.</summary>
 internal static class EndingFontAtlasAccess
 {
@@ -310,19 +297,6 @@ internal static class GoldenTorizoStrideGeometryDefinitionsAccess
         {
             if ((uint)phase >= 10) throw new ArgumentOutOfRangeException(nameof(phase));
             return PrivateState.StaticField<int>(typeof(GoldenTorizoStrideGeometryDefinitions), "FirstFrame") + PrivateState.StaticField<int>(typeof(GoldenTorizoStrideGeometryDefinitions), "FrameBytes") * phase;
-        }
-    }
-}
-
-/// <summary>Verification access to <see cref="KraidFootFrameSequence"/> members production does not use.</summary>
-internal static class KraidFootFrameSequenceAccess
-{
-    extension(KraidFootFrameSequence self)
-    {
-        internal IEnumerator<EnemyExtendedFrameDefinition> GetEnumerator()
-        {
-            for (int index = 0; index < self.Length; index++)
-                yield return self[index];
         }
     }
 }

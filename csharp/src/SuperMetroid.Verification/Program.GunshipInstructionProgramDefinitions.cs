@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyGunshipInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyGunshipInstructionProgramDefinitions), () => VerifyGunshipInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyGunshipInstructionProgramDefinitions(
@@ -195,7 +195,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (GunshipInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (GunshipInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

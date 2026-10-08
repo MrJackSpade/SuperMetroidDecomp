@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Game;
 /// remain live cartridge audio data. The shot path reuses the compiled Torizo-orb
 /// wall-break list.
 /// </summary>
-internal abstract class GoldenTorizoEggInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class GoldenTorizoEggInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProjectile_GoldenTorizoEgg_BouncingLeft</c> at $86:B104.</summary>
     internal const ushort BouncingLeft = 0xb104;
@@ -116,23 +116,5 @@ internal abstract class GoldenTorizoEggInstructionProgramDefinitions : IInstruct
 
         throw new InvalidDataException(
             $"Golden Torizo egg mechanics pointer $86:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if (TorizoChozoOrbInstructionProgramDefinitions.IsCompiledMechanicsByte(address) &&
-            unchecked((ushort)address) is >= TorizoChozoOrbInstructionProgramDefinitions.WallImpact and <= 0xab40)
-        {
-            return true;
-        }
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            var word = MechanicsWord(index);
-            if (bankAddress == word.Address || bankAddress == unchecked((ushort)(word.Address + 1)))
-                return true;
-        }
-        return false;
     }
 }

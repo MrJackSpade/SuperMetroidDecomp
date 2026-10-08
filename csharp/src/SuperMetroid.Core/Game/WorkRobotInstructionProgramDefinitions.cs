@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Game;
 
-internal abstract class WorkRobotInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class WorkRobotInstructionProgramDefinitions
 {
     /// <summary><c>InstList_RobotNoPower_Neutral</c> at $A8:C6D3.</summary>
     public const ushort NoPowerNeutral = 0xc6d3;
@@ -47,9 +47,9 @@ internal abstract class WorkRobotInstructionProgramDefinitions : IInstructionPro
     /// <summary><c>InstList_Robot_ApproachingFallLeft</c> at $A8:CB65.</summary>
     public const ushort ApproachingFallLeft = 0xcb65;
 
-    private const int PresentationOperand = -1;
+    internal const int PresentationOperand = -1;
     /// <summary>$A8:CB77, first code after the complete robot instruction region.</summary>
-    private const ushort EndAddress = 0xcb77;
+    internal const ushort EndAddress = 0xcb77;
     /// <summary>$A8:C6D3/D9/DF: unpowered pose hold before sleep: the maximum positive timer, holding indefinitely (InstructionItem.IndefiniteDuration) rather than a chosen cadence.</summary>
     private const ushort UnpoweredTicks = InstructionItem.IndefiniteDuration;
     /// <summary>$A8:C6E9/C73F/C92D/C985/CA01: entry pose scheduling before the ongoing gait. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
@@ -76,49 +76,20 @@ internal abstract class WorkRobotInstructionProgramDefinitions : IInstructionPro
     private const ushort LedgeTicks = 128;
     /// <summary>$A8:CA61: right-facing shot retreat's second contact pose differs from its five-tick peers. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
     private const ushort RightRetreatContactTicks = 10;
-
-    public static int MechanicsWordCount => 367;
-    public static int PresentationWordCount => 227;
-
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
-        for (int address = NoPowerNeutral; address < EndAddress; address += 2)
-        {
-            int value = ProgramWord((ushort)address);
-            if (value != PresentationOperand && index-- == 0) return new((ushort)address, (ushort)value);
-        }
-        throw new InvalidOperationException("Work Robot mechanics-word index is inconsistent.");
-    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (!IsWordAddress(address)) throw NotCompiled(address);
         int value = ProgramWord(address);
         return value == PresentationOperand ? throw NotCompiled(address) : (ushort)value;
     }
-    public static ushort PresentationWordAddress(int index)
-    {
-        if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
-        for (int address = NoPowerNeutral; address < EndAddress; address += 2)
-            if (ProgramWord((ushort)address) == PresentationOperand && index-- == 0) return (ushort)address;
-        throw new InvalidOperationException("Work Robot presentation-word index is inconsistent.");
-    }
     internal static bool IsPresentationWordAddress(ushort address) =>
         IsWordAddress(address) && ProgramWord(address) == PresentationOperand;
     private static bool IsWordAddress(ushort address) => address >= NoPowerNeutral && address < EndAddress &&
         ((address - NoPowerNeutral) & 1) == 0;
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa80000) return false;
-        ushort bankAddress = (ushort)address;
-        if (bankAddress < NoPowerNeutral || bankAddress >= EndAddress) return false;
-        ushort wordAddress = (ushort)(bankAddress - ((bankAddress - NoPowerNeutral) & 1));
-        return ProgramWord(wordAddress) != PresentationOperand;
-    }
 
     // Each phase emits its executable instruction shape into a scalar selector. No
     // generated words or presentation-address table are retained between calls.
-    private static int ProgramWord(ushort address)
+    internal static int ProgramWord(ushort address)
     {
         ushort start;
         if (address < Initial)

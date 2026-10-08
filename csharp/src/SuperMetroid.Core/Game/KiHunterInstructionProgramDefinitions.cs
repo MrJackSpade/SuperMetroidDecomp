@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled engine-control words for KiHunter body and wing instruction programs.
 /// Interleaved spritemap operands are compiled selectors for installed presentation art.
 /// </summary>
-internal abstract class KiHunterInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
+internal abstract class KiHunterInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Kihunter_Idling_FacingLeft</c> at $A8:E9FA.</summary>
     internal const ushort FlyingLeft = 0xe9fa;
@@ -48,9 +48,8 @@ internal abstract class KiHunterInstructionProgramDefinitions : IInstructionProg
 
     /// <summary>Native program bank $A8.</summary>
     internal const byte Bank = 0xa8;
-    static int IDeclaredProgramBank.Bank => Bank;
 
-    private static readonly InstructionProgramLayout Layout = new(Bank,
+    internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xe9fa),
         Entry(FlyingLeft),
         Frame(2),
@@ -147,20 +146,11 @@ internal abstract class KiHunterInstructionProgramDefinitions : IInstructionProg
         Op(KihunterSetFunctionToWinglessThinking),
         Frame(1),
         Op(CommonEnemyInstructionCodes.Sleep));
-
-    public static int MechanicsWordCount => Layout.MechanicsWordCount;
     public static int PresentationWordCount => Layout.PresentationSlotCount;
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        (ushort address, ushort value) = Layout.MechanicsWord(index);
-        return new(address, value);
-    }
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(
                 $"KiHunter instruction mechanics pointer $A8:{address:X4} is not compiled.");
-
-    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

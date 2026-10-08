@@ -126,7 +126,7 @@ internal static partial class Program
             TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameCount,
             TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
             TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorPointer,
-            TourianStatueGreyPaletteFxProgramMechanicsDefinitions.All
+            TourianStatueGreyPaletteFxProgramMechanicsDefinitionsTooling.All
                 .Select(definition => definition.DefinitionPointer)
                 .ToArray(),
             TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FramesThroughDeletion));
@@ -294,7 +294,7 @@ internal static partial class Program
             TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount,
             TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
             TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.ColorPointer,
-            TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.All
+            TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitionsTooling.All
                 .Select(definition => definition.DefinitionPointer).ToArray(),
             TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.CycleFrames * 2));
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(

@@ -12,7 +12,7 @@ internal static partial class Program
         Suite(nameof(VerifyCeresExplosionTimeline), () => VerifyCeresExplosionTimeline());
         Suite(nameof(VerifyZebesDoesNotWrapDuringDescent), () => VerifyZebesDoesNotWrapDuringDescent());
         Suite(nameof(VerifyIntroDisplayCapture), () => VerifyIntroDisplayCapture());
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var flight = new IntroCeresFlightState(bus, RepositoryInstallation.IntroArtwork.CeresFlight);
         var flightPhases = new HashSet<IntroCeresFlightPhase>();
         int flightSamples = 0;

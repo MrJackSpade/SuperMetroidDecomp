@@ -10,7 +10,7 @@ internal static partial class Program
     {
         foreach (ushort room in new ushort[] { 0xde4d, 0xde7a, 0xdea7, 0xdede, 0x92fd, 0x9804 })
         {
-            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
             var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
@@ -58,7 +58,7 @@ internal static partial class Program
                     if (visibleExplosion && visibleShake)
                     {
                         Directory.CreateDirectory("csharp/test-temp/escape-effects");
-                        PngWriter.WriteRgba($"csharp/test-temp/escape-effects/{room:X4}.png", 256, 224, actual);
+                        PngWriterTooling.WriteRgba($"csharp/test-temp/escape-effects/{room:X4}.png", 256, 224, actual);
                     }
                 }
             }

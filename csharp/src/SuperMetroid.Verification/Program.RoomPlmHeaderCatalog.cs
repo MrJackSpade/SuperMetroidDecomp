@@ -35,7 +35,7 @@ internal static partial class Program
             .Select(ParseRoomPlmPopulationPointer)
             .Distinct()
             .ToArray();
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         var retailHeaders = new List<ushort>();
         foreach (ushort populationPointer in populationPointers)
         {

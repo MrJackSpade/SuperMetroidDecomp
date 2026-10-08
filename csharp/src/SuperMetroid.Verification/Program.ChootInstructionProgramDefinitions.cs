@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyChootInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyChootInstructionProgramDefinitions), () => VerifyChootInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyChootInstructionProgramDefinitions(
@@ -17,11 +17,11 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
             BindingFlags.NonPublic;
         for (int index = 0;
-             index < ChootInstructionProgramDefinitions.MechanicsWordCount;
+             index < ChootInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                ChootInstructionProgramDefinitions.MechanicsWord(index);
+                ChootInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadChootInstructionWord(rom, 0xa20000 | definition.Address),
                 $"Choot instruction mechanics word $A2:{definition.Address:X4}");
@@ -163,7 +163,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (ChootInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (ChootInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -174,11 +174,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < ChootInstructionProgramDefinitions.PresentationWordCount;
+                     index < ChootInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        ChootInstructionProgramDefinitions.PresentationWordAddress(index);
+                        ChootInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

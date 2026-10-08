@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyHorizontalShutterInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyHorizontalShutterInstructionProgramDefinitions), () => VerifyHorizontalShutterInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyHorizontalShutterInstructionProgramDefinitions(
@@ -79,13 +79,13 @@ internal static partial class Program
     private static void VerifyHorizontalShutterMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xe9d4, 0xe9d8];
-        AssertEqual(addresses.Length, HorizontalShutterInstructionProgramDefinitions.MechanicsWordCount, "Horizontal shutter native mechanics count");
+        AssertEqual(addresses.Length, HorizontalShutterInstructionProgramDefinitionsTooling.MechanicsWordCount, "Horizontal shutter native mechanics count");
         var bytes = new HashSet<int>();
         for (int index = 0; index < addresses.Length; index++)
         {
             ushort address = addresses[index];
             ushort native = ReadHorizontalShutterInstructionWord(rom, 0xa20000 | address);
-            var word = HorizontalShutterInstructionProgramDefinitions.MechanicsWord(index);
+            var word = HorizontalShutterInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(address, word.Address, "Horizontal shutter native word address");
             AssertEqual(native, word.Value, "Horizontal shutter enumerated native word");
             AssertEqual(native, HorizontalShutterInstructionProgramDefinitions.ReadMechanicsWord(address), "Horizontal shutter direct native word");
@@ -94,29 +94,29 @@ internal static partial class Program
         }
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
-            AssertEqual(bytes.Contains(address), HorizontalShutterInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa20000 | address), "Horizontal shutter full byte ownership");
-            AssertEqual(bytes.Contains(address), HorizontalShutterInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1a20000 | address), "Horizontal shutter bank mask aliases");
-            AssertTrue(!HorizontalShutterInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa30000 | address), "Horizontal shutter rejects other bank");
+            AssertEqual(bytes.Contains(address), HorizontalShutterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa20000 | address), "Horizontal shutter full byte ownership");
+            AssertEqual(bytes.Contains(address), HorizontalShutterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x1a20000 | address), "Horizontal shutter bank mask aliases");
+            AssertTrue(!HorizontalShutterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa30000 | address), "Horizontal shutter rejects other bank");
         }
         var words = addresses.ToHashSet();
         for (int address = addresses[0] - 2; address <= addresses[^1] + 4; address++)
             if (!words.Contains((ushort)address))
                 AssertThrows<InvalidDataException>(() => HorizontalShutterInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "Horizontal shutter rejects visual words, odd addresses and adjacent programs");
         foreach (int index in new[] { int.MinValue, -1, addresses.Length, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => HorizontalShutterInstructionProgramDefinitions.MechanicsWord(index), "Horizontal shutter mechanics bounds");
+            AssertThrows<IndexOutOfRangeException>(() => HorizontalShutterInstructionProgramDefinitionsTooling.MechanicsWord(index), "Horizontal shutter mechanics bounds");
     }
 
     private static void VerifyHorizontalShutterPresentationMapping()
     {
         ushort[] addresses = [0xe9d6];
-        AssertEqual(addresses.Length, HorizontalShutterInstructionProgramDefinitions.PresentationWordCount, "Horizontal shutter visual count");
+        AssertEqual(addresses.Length, HorizontalShutterInstructionProgramDefinitionsTooling.PresentationWordCount, "Horizontal shutter visual count");
         for (int index = 0; index < addresses.Length; index++)
-            AssertEqual(addresses[index], HorizontalShutterInstructionProgramDefinitions.PresentationWordAddress(index), "Horizontal shutter native visual position");
+            AssertEqual(addresses[index], HorizontalShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "Horizontal shutter native visual position");
         var expected = addresses.ToHashSet();
         for (int address = 0; address <= ushort.MaxValue; address++)
             AssertEqual(expected.Contains((ushort)address), HorizontalShutterInstructionProgramDefinitions.IsPresentationWord((ushort)address), "Horizontal shutter full visual membership domain");
         foreach (int index in new[] { int.MinValue, -1, addresses.Length, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => HorizontalShutterInstructionProgramDefinitions.PresentationWordAddress(index), "Horizontal shutter visual bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => HorizontalShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "Horizontal shutter visual bounds");
     }
     private static int ProbeHorizontalShutterInstructionMechanicsAllocation()
     {
@@ -143,7 +143,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (HorizontalShutterInstructionProgramDefinitions.IsCompiledMechanicsByte(
+            if (HorizontalShutterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(
                 address))
             {
                 ForbiddenReadAttempts++;
@@ -154,7 +154,7 @@ internal static partial class Program
             if ((address & 0xff0000) == 0xa20000)
             {
                 ushort presentation =
-                    HorizontalShutterInstructionProgramDefinitions.PresentationWordAddress(0);
+                    HorizontalShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(0);
                 ushort bankAddress = unchecked((ushort)address);
                 if (bankAddress == presentation ||
                     bankAddress == unchecked((ushort)(presentation + 1)))

@@ -13,7 +13,7 @@ internal static partial class Program
         for (int left = 0; left < 2; left++)
         for (int beam = 0; beam < 3; beam++)
         {
-            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var words = new ushort[64 * 128];
             for (int row = 0; row < 128; row++)
             {

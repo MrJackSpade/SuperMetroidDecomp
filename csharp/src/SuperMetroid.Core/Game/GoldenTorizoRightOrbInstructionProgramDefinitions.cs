@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Game;
 /// attack at $AA:CC99-CCDA. Timers, callbacks and movement are compiled
 /// mechanics; its ten sprite selectors remain independently editable art.
 /// </summary>
-internal abstract class GoldenTorizoRightOrbInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
+internal abstract class GoldenTorizoRightOrbInstructionProgramDefinitions
 {
     internal const ushort Start = 0xcc99;
 
@@ -20,9 +20,8 @@ internal abstract class GoldenTorizoRightOrbInstructionProgramDefinitions : IIns
 
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
-    static int IDeclaredProgramBank.Bank => Bank;
 
-    private static readonly InstructionProgramLayout Layout = new(Bank,
+    internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xcc99),
         Entry(Start),
         Op(TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY, TorizoMovementAttackingFunction),
@@ -43,15 +42,6 @@ internal abstract class GoldenTorizoRightOrbInstructionProgramDefinitions : IIns
         Frame(3),
         Op(TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY, TorizoMovementWalkingFunction),
         Op(TorizoInstructionCodes.Instruction_Torizo_Return));
-
-    public static int MechanicsWordCount => Layout.MechanicsWordCount;
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        (ushort address, ushort value) = Layout.MechanicsWord(index);
-        return new(address, value);
-    }
     public static int PresentationWordCount => Layout.PresentationSlotCount;
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
-
-    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

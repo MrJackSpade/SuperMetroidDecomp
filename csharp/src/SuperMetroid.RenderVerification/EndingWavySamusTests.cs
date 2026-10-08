@@ -13,7 +13,7 @@ internal static class EndingWavySamusTests
     {
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
         var installed = RepositoryInstallation.Installation;
-        var rom = CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var maps = installed.LoadMaps();
         var scene = new EndingCreditsState(installed.OpenRuntimeAddressSpace(), new CartridgeAudioState(), 2, 0);
         scene.BindObjectArtwork(installed.LoadEndingObjectArt());

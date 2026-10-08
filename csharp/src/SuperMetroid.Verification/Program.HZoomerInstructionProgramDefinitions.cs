@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyHZoomerInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyHZoomerInstructionProgramDefinitions), () => VerifyHZoomerInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyHZoomerInstructionProgramDefinitions(
@@ -72,7 +72,7 @@ internal static partial class Program
 
         AssertThrows<InvalidDataException>(
             () => HZoomerInstructionProgramDefinitions.ReadMechanicsWord(
-                HZoomerInstructionProgramDefinitions.PresentationWordAddress(0)),
+                HZoomerInstructionProgramDefinitionsTooling.PresentationWordAddress(0)),
             "HZoomer spritemap pointer is rejected as mechanics");
         AssertThrows<InvalidDataException>(
             () => HZoomerInstructionProgramDefinitions.ReadMechanicsWord(
@@ -139,7 +139,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (HZoomerInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (HZoomerInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -149,11 +149,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < HZoomerInstructionProgramDefinitions.PresentationWordCount;
+                     index < HZoomerInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        HZoomerInstructionProgramDefinitions.PresentationWordAddress(index);
+                        HZoomerInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

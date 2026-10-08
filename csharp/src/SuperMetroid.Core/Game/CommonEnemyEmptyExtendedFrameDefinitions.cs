@@ -12,17 +12,6 @@ internal static class CommonEnemyEmptyExtendedFrameDefinitions
     /// <summary>Bank-local empty ordinary spritemap at $804D.</summary>
     internal const ushort EmptySpritemap = 0x804d;
 
-    /// <summary>Enemy banks carrying the common $804D/$804F/$8059 frame records.</summary>
-    internal static IEnumerable<byte> SupportedBanks
-    {
-        get
-        {
-            yield return 0xa0;
-            for (byte bank = 0xa2; bank <= 0xaa; bank++) yield return bank;
-            for (byte bank = 0xb2; bank <= 0xb3; bank++) yield return bank;
-        }
-    }
-
     private static bool IsSupportedBank(byte bank) => bank is 0xa0 or >= 0xa2 and <= 0xaa or 0xb2 or 0xb3;
     internal static bool HasFrame(byte bank, ushort pointer) =>
         pointer == Frame && IsSupportedBank(bank);

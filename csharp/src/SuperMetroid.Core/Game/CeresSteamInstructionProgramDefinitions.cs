@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled engine-control words for the four directional Ceres steam programs.
 /// Extended-spritemap operands remain live cartridge presentation data.
 /// </summary>
-internal abstract class CeresSteamInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class CeresSteamInstructionProgramDefinitions
 {
     /// <summary>
     /// <c>InstList_CeresSteam_Up_0</c> at $A6:F04D. Its 17 mechanics words
@@ -61,7 +61,6 @@ internal abstract class CeresSteamInstructionProgramDefinitions : IInstructionPr
     /// match, completing the four directional presentation sequences.
     /// </summary>
     public static int MechanicsWordCount => 68;
-    public static int PresentationWordCount => 36;
 
     /// <summary>
     /// Each52-byte directional program waits invisibly for activation, holds hidden
@@ -90,15 +89,6 @@ internal abstract class CeresSteamInstructionProgramDefinitions : IInstructionPr
             _ => new((ushort)(start + 50), (ushort)(start + 12)),
         };
     }
-
-    public static ushort PresentationWordAddress(int index)
-    {
-        if ((uint)index >= PresentationWordCount)
-            throw new IndexOutOfRangeException();
-        int start = Up + 52 * (index / 9);
-        int frame = index % 9;
-        return (ushort)(start + (frame < 2 ? 4 + 12 * frame : 22 + 4 * (frame - 2)));
-    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
@@ -117,24 +107,5 @@ internal abstract class CeresSteamInstructionProgramDefinitions : IInstructionPr
 
         throw new InvalidDataException(
             $"Ceres steam instruction mechanics pointer $A6:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa60000)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

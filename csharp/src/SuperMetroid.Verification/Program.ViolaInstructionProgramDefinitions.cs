@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyViolaInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyViolaInstructionProgramDefinitions), () => VerifyViolaInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyViolaInstructionProgramDefinitions(
@@ -140,7 +140,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (ViolaInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (ViolaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

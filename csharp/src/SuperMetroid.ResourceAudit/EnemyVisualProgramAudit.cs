@@ -29,7 +29,8 @@ internal static class EnemyVisualProgramAudit
         foreach (string owner in owners.Order(StringComparer.Ordinal))
         {
             ClassDeclarationSyntax[] parts = declarations.Where(type => type.Identifier.ValueText == owner).ToArray();
-            Type? type = typeof(RoomEnemySystem).Assembly.GetType("SuperMetroid.Core.Game." + owner);
+            ClassDeclarationSyntax[] adapterParts = declarations.Where(type => type.Identifier.ValueText == owner + "Tooling").ToArray();
+            Type? type = ConsumerAudit.ProgramOwnerType("SuperMetroid.Core.Game." + owner);
             if (type is null || parts.Length == 0)
             {
                 report.Gap(ResourceDomains.CompiledSelector, owner, "source inventory", "Program has no matched compiled/source owner.");
@@ -37,7 +38,7 @@ internal static class EnemyVisualProgramAudit
             }
             string source = parts[0].SyntaxTree.FilePath;
             var catalog = InstructionProgramCatalog.Of(type);
-            int? bank = ResolveBank(type, catalog, parts, compilation);
+            int? bank = ResolveBank(type, catalog, [.. parts, .. adapterParts], compilation);
             var addresses = new HashSet<ushort>();
             string shape = "unrecognized";
             if (catalog.PresentationOperands is { } indexed)
@@ -54,14 +55,14 @@ internal static class EnemyVisualProgramAudit
             {
                 shape = "corpse-programs";
                 for (int i = 0; i < DeadTourianCorpseInstructionProgramDefinitions.ProgramCount; i++)
-                    addresses.Add(DeadTourianCorpseInstructionProgramDefinitions.PresentationWordAddress(i));
+                    addresses.Add(DeadTourianCorpseInstructionProgramDefinitionsTooling.PresentationWordAddress(i));
             }
             else if (type == typeof(SkreeMetareeInstructionProgramDefinitions))
             {
                 shape = "two-families";
                 foreach (bool metaree in new[] { false, true })
-                for (int i = 0; i < SkreeMetareeInstructionProgramDefinitions.PresentationWordCount(metaree); i++)
-                    addresses.Add(SkreeMetareeInstructionProgramDefinitions.PresentationWordAddress(metaree, i));
+                for (int i = 0; i < SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordCount(metaree); i++)
+                    addresses.Add(SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordAddress(metaree, i));
             }
             else if (type == typeof(CeresBabyInstructionProgramDefinitions))
             {
@@ -138,11 +139,11 @@ internal static class EnemyVisualProgramAudit
     {
         var result = new Dictionary<ushort, ushort>();
         if (type == typeof(MotherBrainBodyInstructionProgramDefinitions))
-            return MotherBrainBodyInstructionProgramDefinitions.AllWords.ToDictionary(word => word.Address, word => word.Word);
+            return MotherBrainBodyInstructionProgramDefinitionsTooling.AllWords.ToDictionary(word => word.Address, word => word.Word);
         if (type == typeof(SkreeMetareeInstructionProgramDefinitions))
         {
             foreach (bool metaree in new[] { false, true })
-            for (int i = 0; i < SkreeMetareeInstructionProgramDefinitions.MechanicsWordCount(metaree); i++)
+            for (int i = 0; i < SkreeMetareeInstructionProgramDefinitionsTooling.MechanicsWordCount(metaree); i++)
             {
                 var word = SkreeMetareeInstructionProgramDefinitions.MechanicsWord(metaree, i);
                 result.Add(word.Address, word.Value);
@@ -151,9 +152,9 @@ internal static class EnemyVisualProgramAudit
         }
         if (type == typeof(MotherBrainHandBeamInstructionProgramDefinitions))
         {
-            for (int i = 0; i < MotherBrainHandBeamInstructionProgramDefinitions.NativeWordCount; i++)
+            for (int i = 0; i < MotherBrainHandBeamInstructionProgramDefinitionsTooling.NativeWordCount; i++)
             {
-                var word = MotherBrainHandBeamInstructionProgramDefinitions.NativeWord(i);
+                var word = MotherBrainHandBeamInstructionProgramDefinitionsTooling.NativeWord(i);
                 result.Add(word.Address, word.Value);
             }
             return result;
@@ -204,8 +205,8 @@ internal static class EnemyVisualProgramAudit
             pointer = DeadTourianCorpseVisualDefinitions.FrameAt(operand);
         else if (type == typeof(SkreeMetareeInstructionProgramDefinitions))
             pointer = EnemySpritemapDefinitions.SkreeMetareeFrameAt(
-                Enumerable.Range(0, SkreeMetareeInstructionProgramDefinitions.PresentationWordCount(true))
-                    .Any(i => SkreeMetareeInstructionProgramDefinitions.PresentationWordAddress(true, i) == operand), operand);
+                Enumerable.Range(0, SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordCount(true))
+                    .Any(i => SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordAddress(true, i) == operand), operand);
         else if (!CompiledEnemyVisualSelectors.TryGet(bank, operand, out pointer))
         {
             RequireResolvedOperand(bank, operand, null, owner, source, exports, report);

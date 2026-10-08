@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyElevatorInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyElevatorInstructionProgramDefinitions), () => VerifyElevatorInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyElevatorInstructionProgramDefinitions(
@@ -48,7 +48,7 @@ internal static partial class Program
             "production execution avoids every compiled elevator mechanics byte");
         AssertThrows<InvalidDataException>(
             () => ElevatorInstructionProgramDefinitions.ReadMechanicsWord(
-                ElevatorInstructionProgramDefinitions.PresentationWordAddress(0)),
+                ElevatorInstructionProgramDefinitionsTooling.PresentationWordAddress(0)),
             "elevator spritemap pointer is rejected as mechanics");
         AssertThrows<InvalidDataException>(
             () => ElevatorInstructionProgramDefinitions.ReadMechanicsWord(
@@ -71,12 +71,12 @@ internal static partial class Program
     private static void VerifyElevatorMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0x94d6, 0x94da, 0x94de, 0x94e0];
-        AssertEqual(addresses.Length, ElevatorInstructionProgramDefinitions.MechanicsWordCount, "elevator native mechanics count");
+        AssertEqual(addresses.Length, ElevatorInstructionProgramDefinitionsTooling.MechanicsWordCount, "elevator native mechanics count");
         var bytes = new HashSet<int>();
         for (int index = 0; index < addresses.Length; index++)
         {
             ushort native = ReadElevatorInstructionWord(rom, addresses[index]);
-            var word = ElevatorInstructionProgramDefinitions.MechanicsWord(index);
+            var word = ElevatorInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(addresses[index], word.Address, "elevator native word position");
             AssertEqual(native, word.Value, "elevator enumerated native word");
             AssertEqual(native, ElevatorInstructionProgramDefinitions.ReadMechanicsWord(addresses[index]), "elevator direct native word");
@@ -84,27 +84,27 @@ internal static partial class Program
         }
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
-            AssertEqual(bytes.Contains(address), ElevatorInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa30000 | address), "elevator full byte ownership");
-            AssertEqual(bytes.Contains(address), ElevatorInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1a30000 | address), "elevator bank mask aliases");
-            AssertTrue(!ElevatorInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa20000 | address), "elevator other bank rejected");
+            AssertEqual(bytes.Contains(address), ElevatorInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa30000 | address), "elevator full byte ownership");
+            AssertEqual(bytes.Contains(address), ElevatorInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x1a30000 | address), "elevator bank mask aliases");
+            AssertTrue(!ElevatorInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa20000 | address), "elevator other bank rejected");
         }
         var words = addresses.ToHashSet();
         for (int address = 0x94d4; address <= 0x94e4; address++)
             if (!words.Contains((ushort)address))
                 AssertThrows<InvalidDataException>(() => ElevatorInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "elevator invalid mechanics word");
         foreach (int index in new[] { int.MinValue, -1, 4, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => ElevatorInstructionProgramDefinitions.MechanicsWord(index), "elevator mechanics bounds");
+            AssertThrows<IndexOutOfRangeException>(() => ElevatorInstructionProgramDefinitionsTooling.MechanicsWord(index), "elevator mechanics bounds");
     }
     private static void VerifyElevatorPresentationMapping()
     {
         ushort[] expected = [0x94d8, 0x94dc];
-        AssertEqual(expected.Length, ElevatorInstructionProgramDefinitions.PresentationWordCount, "elevator native visual count");
+        AssertEqual(expected.Length, ElevatorInstructionProgramDefinitionsTooling.PresentationWordCount, "elevator native visual count");
         for (int index = 0; index < expected.Length; index++)
-            AssertEqual(expected[index], ElevatorInstructionProgramDefinitions.PresentationWordAddress(index), "elevator native visual position");
+            AssertEqual(expected[index], ElevatorInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "elevator native visual position");
         for (int address = 0; address <= ushort.MaxValue; address++)
             AssertEqual(address is 0x94d8 or 0x94dc, ElevatorInstructionProgramDefinitions.IsPresentationWord((ushort)address), "elevator full visual membership");
         foreach (int index in new[] { int.MinValue, -1, 2, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => ElevatorInstructionProgramDefinitions.PresentationWordAddress(index), "elevator visual ordinal bounds");
+            AssertThrows<IndexOutOfRangeException>(() => ElevatorInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "elevator visual ordinal bounds");
     }
     private static void VerifyElevatorVisualPointers(SuperMetroidAddressSpace rom)
     {
@@ -153,7 +153,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (ElevatorInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (ElevatorInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -163,11 +163,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < ElevatorInstructionProgramDefinitions.PresentationWordCount;
+                     index < ElevatorInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        ElevatorInstructionProgramDefinitions.PresentationWordAddress(index);
+                        ElevatorInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

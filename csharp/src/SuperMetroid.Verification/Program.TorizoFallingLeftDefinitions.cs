@@ -9,11 +9,11 @@ internal static partial class Program
         const byte bank = TorizoCollisionDefinitions.Bank;
         var addresses = new HashSet<ushort>();
         for (int index = 0;
-             index < TorizoFallingLeftInstructionProgramDefinitions.MechanicsWordCount;
+             index < TorizoFallingLeftInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord word =
-                TorizoFallingLeftInstructionProgramDefinitions.MechanicsWord(index);
+                TorizoFallingLeftInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertTrue(addresses.Add(word.Address),
                 $"Torizo falling-left control $AA:{word.Address:X4} is unique");
             AssertTrue(word.Address >= TorizoFallingLeftInstructionProgramDefinitions.Start &&
@@ -25,15 +25,15 @@ internal static partial class Program
                     .TryReadMechanicsWord(word.Address, out ushort selected) &&
                        selected == word.Value,
                 $"Torizo falling-left control $AA:{word.Address:X4} lookup");
-            AssertTrue(TorizoFallingLeftInstructionProgramDefinitions
+            AssertTrue(TorizoFallingLeftInstructionProgramDefinitionsTooling
                     .IsCompiledMechanicsByte((bank << 16) | word.Address) &&
-                       TorizoFallingLeftInstructionProgramDefinitions
+                       TorizoFallingLeftInstructionProgramDefinitionsTooling
                     .IsCompiledMechanicsByte((bank << 16) |
                         unchecked((ushort)(word.Address + 1))),
                 $"Torizo falling-left control $AA:{word.Address:X4} owns both bytes");
         }
         AssertEqual(14, addresses.Count, "Torizo falling-left control-word count");
-        AssertEqual(1, TorizoFallingLeftInstructionProgramDefinitions.PresentationWordCount,
+        AssertEqual(1, TorizoFallingLeftInstructionProgramDefinitionsTooling.PresentationWordCount,
             "Torizo falling-left visual occurrence count");
         ushort operand = TorizoFallingLeftInstructionProgramDefinitions
             .PresentationWordAddress(0);

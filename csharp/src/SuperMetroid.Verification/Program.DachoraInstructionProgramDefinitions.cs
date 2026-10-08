@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyDachoraInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyDachoraInstructionProgramDefinitions), () => VerifyDachoraInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyDachoraInstructionProgramDefinitions(
@@ -16,16 +16,16 @@ internal static partial class Program
         const BindingFlags flags =
             BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
 
-        AssertEqual(110, DachoraInstructionProgramDefinitions.MechanicsWordCount,
+        AssertEqual(110, DachoraInstructionProgramDefinitionsTooling.MechanicsWordCount,
             "Dachora compiled mechanics word count");
         AssertEqual(81, DachoraInstructionProgramDefinitions.PresentationWordCount,
             "Dachora live presentation word count");
         for (int index = 0;
-             index < DachoraInstructionProgramDefinitions.MechanicsWordCount;
+             index < DachoraInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                DachoraInstructionProgramDefinitions.MechanicsWord(index);
+                DachoraInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadDachoraInstructionWord(rom, definition.Address),
                 $"Dachora mechanics word $A7:{definition.Address:X4}");
@@ -178,7 +178,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (DachoraInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (DachoraInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyMotherBrainGlassInstructionProgramDefinitions() =>
         Suite(nameof(VerifyMotherBrainGlassInstructionProgramDefinitions), () => VerifyMotherBrainGlassInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     private static void VerifyMotherBrainGlassInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -178,8 +178,8 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (MotherBrainGlassInstructionProgramDefinitions.IsCompiledMechanicsByte(address) ||
-                CommonEnemyProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (MotherBrainGlassInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
+                CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

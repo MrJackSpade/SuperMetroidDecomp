@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyEnemyDeathInstructionProgramDefinitions() =>
         Suite(nameof(VerifyEnemyDeathInstructionProgramDefinitions), () => VerifyEnemyDeathInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     private static void VerifyEnemyDeathInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -27,11 +27,11 @@ internal static partial class Program
             "enemy pickup does not own the following death-explosion program");
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int index = 0;
-             index < EnemyDeathInstructionProgramDefinitions.MechanicsWordCount;
+             index < EnemyDeathInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                EnemyDeathInstructionProgramDefinitions.MechanicsWord(index);
+                EnemyDeathInstructionProgramDefinitionsTooling.MechanicsWord(index);
             ushort native = unchecked((ushort)(
                 rom.ReadByte(EnemyProjectileCodePointers.BankBase | definition.Address) |
                 rom.ReadByte(EnemyProjectileCodePointers.BankBase |
@@ -174,7 +174,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (EnemyDeathInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (EnemyDeathInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

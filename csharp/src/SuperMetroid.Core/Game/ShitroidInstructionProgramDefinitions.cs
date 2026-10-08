@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Game;
 /// normal, latched, and remorse programs. Their thirty spritemap selections resolve
 /// compiled identities to installed artwork.
 /// </summary>
-internal abstract class ShitroidInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class ShitroidInstructionProgramDefinitions
 {
     /// <summary><c>InstList_BabyMetroid_FinishDraining</c> at $A9:F906.</summary>
     internal const ushort FinishDraining = 0xf906;
@@ -84,23 +84,5 @@ internal abstract class ShitroidInstructionProgramDefinitions : IInstructionProg
 
         throw new InvalidDataException(
             $"Shitroid instruction mechanics pointer $A9:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa90000)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 }

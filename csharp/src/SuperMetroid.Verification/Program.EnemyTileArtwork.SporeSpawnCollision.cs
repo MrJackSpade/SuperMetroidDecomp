@@ -10,10 +10,10 @@ internal static partial class Program
     {
         var selected = new HashSet<ushort>();
         for (int index = 0;
-             index < SporeSpawnInstructionProgramDefinitions.PresentationWordCount;
+             index < SporeSpawnInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort address = SporeSpawnInstructionProgramDefinitions
+            ushort address = SporeSpawnInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             selected.Add(ReadWord((DraygonBg2FrameDefinitions.Bank << 16) | address));
         }

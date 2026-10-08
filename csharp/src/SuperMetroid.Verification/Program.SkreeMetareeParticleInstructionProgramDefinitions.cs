@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifySkreeMetareeParticleInstructionProgramDefinitions()
     {
         Suite(nameof(VerifySkreeMetareeParticleInstructionProgramDefinitions), () => VerifySkreeMetareeParticleInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifySkreeMetareeParticleInstructionProgramDefinitions(
@@ -15,11 +15,11 @@ internal static partial class Program
     {
         const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int index = 0;
-             index < SkreeMetareeParticleInstructionProgramDefinitions.MechanicsWordCount;
+             index < SkreeMetareeParticleInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                SkreeMetareeParticleInstructionProgramDefinitions.MechanicsWord(index);
+                SkreeMetareeParticleInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(
                 definition.Value,
                 ReadSkreeMetareeParticleInstructionWord(rom, definition.Address),
@@ -89,14 +89,14 @@ internal static partial class Program
             SkreeMetareeParticleInstructionProgramDefinitions.Metaree);
 
         AssertEqual(
-            SkreeMetareeParticleInstructionProgramDefinitions.PresentationWordCount,
+            SkreeMetareeParticleInstructionProgramDefinitionsTooling.PresentationWordCount,
             selectedCompositions.Count,
             "production selects both installed Skree/Metaree particle compositions");
         for (int index = 0;
-             index < SkreeMetareeParticleInstructionProgramDefinitions.PresentationWordCount;
+             index < SkreeMetareeParticleInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort address = SkreeMetareeParticleInstructionProgramDefinitions
+            ushort address = SkreeMetareeParticleInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             AssertTrue(selectedCompositions.Contains(ReadSkreeMetareeParticleInstructionWord(rom, address)),
                 $"production execution selects native particle composition from $86:{address:X4}");
@@ -195,8 +195,8 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (SkreeMetareeParticleInstructionProgramDefinitions.IsCompiledMechanicsByte(address) ||
-                CommonEnemyProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (SkreeMetareeParticleInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
+                CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -207,10 +207,10 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < SkreeMetareeParticleInstructionProgramDefinitions.PresentationWordCount;
+                     index < SkreeMetareeParticleInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
-                    ushort presentation = SkreeMetareeParticleInstructionProgramDefinitions
+                    ushort presentation = SkreeMetareeParticleInstructionProgramDefinitionsTooling
                         .PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))

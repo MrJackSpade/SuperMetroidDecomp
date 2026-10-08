@@ -56,11 +56,11 @@ internal static partial class Program
             "Hibashi production activity index beyond authored table");
 
         for (int index = 0;
-             index < HibashiInstructionProgramDefinitions.MechanicsWordCount;
+             index < HibashiInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                HibashiInstructionProgramDefinitions.MechanicsWord(index);
+                HibashiInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(
                 definition.Value,
                 ReadHibashiWord(rom, 0xa60000 | definition.Address),
@@ -206,7 +206,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (HibashiInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (HibashiInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

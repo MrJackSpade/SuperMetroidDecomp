@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled engine-control words for the growing shutter's four height programs.
 /// Their interleaved spritemap operands select separately installed presentation data.
 /// </summary>
-internal abstract class GrowingShutterInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class GrowingShutterInstructionProgramDefinitions
 {
     /// <summary><c>InstructionList_ShutterGrowing_10px</c> at $A2:E998.</summary>
     internal const ushort TenPixels = 0xe998;
@@ -17,22 +17,6 @@ internal abstract class GrowingShutterInstructionProgramDefinitions : IInstructi
 
     /// <summary><c>InstructionList_ShutterGrowing_40px</c> at $A2:E9AA.</summary>
     internal const ushort FortyPixels = 0xe9aa;
-
-    public static int MechanicsWordCount => 8;
-    public static int PresentationWordCount => 4;
-
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        ushort address = (ushort)(TenPixels + 6 * (index / 2) + 4 * (index % 2));
-        return new(address, ReadMechanicsWord(address));
-    }
-
-    public static ushort PresentationWordAddress(int index)
-    {
-        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
-        return (ushort)(TenPixels + 6 * index + 2);
-    }
 
     internal static bool IsPresentationWord(ushort address)
     {
@@ -50,12 +34,5 @@ internal abstract class GrowingShutterInstructionProgramDefinitions : IInstructi
         }
         throw new InvalidDataException(
             $"Growing-shutter instruction mechanics pointer $A2:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa20000) return false;
-        int offset = unchecked((ushort)address) - TenPixels;
-        return (uint)offset < 24 && (offset % 6 < 2 || offset % 6 >= 4);
     }
 }

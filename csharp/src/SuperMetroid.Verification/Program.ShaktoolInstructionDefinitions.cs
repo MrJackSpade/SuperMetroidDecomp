@@ -77,7 +77,7 @@ internal static partial class Program
     private static void VerifyShaktoolInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyShaktoolInstructionProgramDefinitions), () => VerifyShaktoolInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyShaktoolInstructionProgramDefinitions(
@@ -86,11 +86,11 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         for (int index = 0;
-             index < ShaktoolInstructionProgramDefinitions.MechanicsWordCount;
+             index < ShaktoolInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                ShaktoolInstructionProgramDefinitions.MechanicsWord(index);
+                ShaktoolInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(
                 definition.Value,
                 ReadShaktoolInstructionWord(rom, 0xaa0000 | definition.Address),
@@ -135,11 +135,11 @@ internal static partial class Program
         AssertEqual(0, guard.ObservedPresentationWords.Count,
             "Shaktool execution uses compiled spritemap selectors");
         for (int index = 0;
-             index < ShaktoolInstructionProgramDefinitions.PresentationWordCount;
+             index < ShaktoolInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
             ushort address =
-                ShaktoolInstructionProgramDefinitions.PresentationWordAddress(index);
+                ShaktoolInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertCompiledEnemyVisualSelector(rom, RoomEnemySystem.ShaktoolDefinition,
                 0xaa, address, $"Shaktool $AA:{address:X4}");
             AssertThrows<InvalidDataException>(
@@ -231,7 +231,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (ShaktoolInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (ShaktoolInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -246,11 +246,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < ShaktoolInstructionProgramDefinitions.PresentationWordCount;
+                     index < ShaktoolInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        ShaktoolInstructionProgramDefinitions.PresentationWordAddress(index);
+                        ShaktoolInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

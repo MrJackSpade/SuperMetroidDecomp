@@ -53,7 +53,7 @@ internal static partial class Program
 
     private static void VerifyBotwoonWallVisuals()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
             "botwoon-wall-visual-" + Guid.NewGuid().ToString("N")));

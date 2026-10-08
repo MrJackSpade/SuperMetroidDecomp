@@ -11,22 +11,22 @@ internal static partial class Program
     /// </summary>
     private static void VerifyEnemyAnimationStockParity()
     {
-        var source = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        for (int index = 0; index < BoyonInstructionProgramDefinitions.MechanicsWordCount; index++)
+        var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        for (int index = 0; index < BoyonInstructionProgramDefinitionsTooling.MechanicsWordCount; index++)
         {
-            InstructionMechanicsWord word = BoyonInstructionProgramDefinitions.MechanicsWord(index);
+            InstructionMechanicsWord word = BoyonInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(ReadWord(EnemySpritemapDefinitions.BoyonBank, word.Address), word.Value,
                 $"stock Boyon control/timing word {word.Address:X4}");
         }
-        for (int index = 0; index < BoyonInstructionProgramDefinitions.PresentationWordCount; index++)
+        for (int index = 0; index < BoyonInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
         {
-            ushort address = BoyonInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort address = BoyonInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertEqual(ReadWord(EnemySpritemapDefinitions.BoyonBank, address), EnemySpritemapDefinitions.BoyonFrameAt(address),
                 $"stock Boyon native visual identity {address:X4}");
         }
-        for (int index = 0; index < TorizoInstructionProgramDefinitions.MechanicsWordCount; index++)
+        for (int index = 0; index < TorizoInstructionProgramDefinitionsTooling.MechanicsWordCount; index++)
         {
-            InstructionMechanicsWord word = TorizoInstructionProgramDefinitions.MechanicsWord(index);
+            InstructionMechanicsWord word = TorizoInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(ReadWord(TorizoInstructionProgramDefinitions.Bank, word.Address), word.Value,
                 $"stock Torizo control/timing word {word.Address:X4}");
         }
@@ -39,9 +39,9 @@ internal static partial class Program
                 $"stock Torizo native visual identity {address:X4}");
         }
         Suite(nameof(VerifyGoldenTorizoRightOrbDefinitions), () => VerifyGoldenTorizoRightOrbDefinitions(source));
-        Console.WriteLine($"Animation stock parity: {BoyonInstructionProgramDefinitions.MechanicsWordCount} Boyon and " +
-            $"{TorizoInstructionProgramDefinitions.MechanicsWordCount} shared/Bomb/Golden Torizo control/timing words; " +
-            $"{BoyonInstructionProgramDefinitions.PresentationWordCount + TorizoInstructionProgramDefinitions.PresentationWordCount} " +
+        Console.WriteLine($"Animation stock parity: {BoyonInstructionProgramDefinitionsTooling.MechanicsWordCount} Boyon and " +
+            $"{TorizoInstructionProgramDefinitionsTooling.MechanicsWordCount} shared/Bomb/Golden Torizo control/timing words; " +
+            $"{BoyonInstructionProgramDefinitionsTooling.PresentationWordCount + TorizoInstructionProgramDefinitions.PresentationWordCount} " +
             "separate native visual selectors match the pinned import source.");
 
         ushort ReadWord(byte bank, ushort address) => (ushort)(source.ReadCartridgeByte((bank << 16) | address) |

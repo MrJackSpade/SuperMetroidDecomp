@@ -6,35 +6,35 @@ internal static partial class Program
     private static void VerifyMamaTurtleInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMamaTurtleInstructionProgramDefinitions), () => VerifyMamaTurtleInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyMamaTurtleInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        AssertEqual(117, MamaTurtleInstructionProgramDefinitions.MechanicsWordCount,
+        AssertEqual(117, MamaTurtleInstructionProgramDefinitionsTooling.MechanicsWordCount,
             "Mama Turtle compiled mechanics word count");
         AssertEqual(75, MamaTurtleInstructionProgramDefinitions.PresentationWordCount,
             "Mama Turtle live presentation word count");
 
         ushort previous = 0;
         for (int index = 0;
-             index < MamaTurtleInstructionProgramDefinitions.MechanicsWordCount;
+             index < MamaTurtleInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                MamaTurtleInstructionProgramDefinitions.MechanicsWord(index);
+                MamaTurtleInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertTrue(index == 0 || definition.Address > previous,
                 $"Mama Turtle mechanics word {index} is strictly ordered");
             AssertEqual(definition.Value,
                 ReadMamaTurtleInstructionWord(rom, definition.Address),
                 $"Mama Turtle mechanics word $A2:{definition.Address:X4}");
             AssertTrue(
-                MamaTurtleInstructionProgramDefinitions.IsCompiledMechanicsByte(
+                MamaTurtleInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(
                     0xa20000 | definition.Address),
                 $"Mama Turtle mechanics low byte $A2:{definition.Address:X4} is guarded");
             AssertTrue(
-                MamaTurtleInstructionProgramDefinitions.IsCompiledMechanicsByte(
+                MamaTurtleInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(
                     0xa20000 | unchecked((ushort)(definition.Address + 1))),
                 $"Mama Turtle mechanics high byte $A2:{definition.Address + 1:X4} is guarded");
             previous = definition.Address;
@@ -49,7 +49,7 @@ internal static partial class Program
                 MamaTurtleInstructionProgramDefinitions.PresentationWordAddress(index);
             AssertTrue(presentation.Add(address),
                 $"Mama Turtle presentation word $A2:{address:X4} is unique");
-            AssertTrue(!MamaTurtleInstructionProgramDefinitions.IsCompiledMechanicsByte(
+            AssertTrue(!MamaTurtleInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(
                     0xa20000 | address),
                 $"Mama Turtle spritemap word $A2:{address:X4} remains live");
             AssertThrows<InvalidDataException>(

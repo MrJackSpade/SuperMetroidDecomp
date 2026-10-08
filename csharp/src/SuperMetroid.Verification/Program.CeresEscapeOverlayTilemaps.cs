@@ -50,7 +50,7 @@ internal static partial class Program
             title.SourceAddress,
             CeresEscapeOverlayTilemapDefinitions.EmergencyDestination);
         foreach (CeresEscapeVramTransferDefinition transfer in
-                 CeresEscapeVramTransferDefinitions.All)
+                 CeresEscapeVramTransferDefinitionsTooling.All)
         {
             if (transfer.Pointer >= CeresEscapeVramTransferDefinitions.TimerSprites)
                 break;

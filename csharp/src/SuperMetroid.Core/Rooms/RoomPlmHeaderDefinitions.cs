@@ -14,8 +14,6 @@ public readonly record struct RoomPlmHeaderDefinition(
 internal static partial class RoomPlmHeaderDefinitions
 {
 
-    internal static IEnumerable<RoomPlmHeaderDefinition> All => Enumerate();
-
     internal static RoomPlmHeaderDefinition Get(ushort header) =>
         TrySelect(header, out var definition) ? definition : throw new InvalidDataException(
             $"Compiled room PLM headers lack retail header $84:{header:X4}.");

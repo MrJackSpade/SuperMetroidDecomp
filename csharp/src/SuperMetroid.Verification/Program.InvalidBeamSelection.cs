@@ -9,7 +9,7 @@ internal static partial class Program
 {
     private static void VerifyInvalidBeamSelection()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int boot = 0; boot < 3; boot++)
         {
             var navigationSamus = new SamusState { CollectedItems = ushort.MaxValue, CollectedBeams = 0x100f,
@@ -75,7 +75,7 @@ internal static partial class Program
                     Console.WriteLine($"tile mismatch {offset:X4}: expected {Convert.ToHexString(expectedVram.AsSpan(offset, 2))}, actual {Convert.ToHexString(after.Memory.Vram.Slice(offset, 2))}");
         AssertTrue(expectedPixels.AsSpan().SequenceEqual(actualPixels), $"native rendered VAR/adjacent-frame label, scenario {scenario}");
         Directory.CreateDirectory("csharp/test-temp/issue-395-inventory");
-        SuperMetroid.Core.Assets.PngWriter.WriteRgba($"csharp/test-temp/issue-395-inventory/scenario-{scenario}.png", 256, 224, actualPixels);
+        SuperMetroid.Core.Assets.PngWriterTooling.WriteRgba($"csharp/test-temp/issue-395-inventory/scenario-{scenario}.png", 256, 224, actualPixels);
         }
         Console.WriteLine("Inventory beam glitch: simultaneous/adjacent/left-only inputs match retail bits, tile footprint and rendered labels.");
     }

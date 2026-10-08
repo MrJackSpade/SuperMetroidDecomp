@@ -8,28 +8,9 @@ namespace SuperMetroid.Core.Rooms;
 /// </remarks>
 public static class RoomPlmInstructionLists
 {
-    /// <summary>Downward gate's close-and-wait loop at <c>$84:BC13</c>.</summary>
-    public const ushort DownwardGateClosing = 0xbc13;
-
-    /// <summary>Downward gate's open-and-wait loop at <c>$84:BC3A</c>.</summary>
-    public const ushort DownwardGateOpening = 0xbc3a;
 
     /// <summary><c>$84:BCAF InstList_PLM_DownwardsGateShotblock_BlueLeft</c>.</summary>
     public const ushort DownwardGateShotBlockBlueLeft = 0xbcaf;
-    /// <summary><c>$84:BCB5 InstList_PLM_DownwardsGateShotblock_BlueRight</c>.</summary>
-    public const ushort DownwardGateShotBlockBlueRight = 0xbcb5;
-    /// <summary><c>$84:BCBB InstList_PLM_DownwardsGateShotblock_RedLeft</c>.</summary>
-    public const ushort DownwardGateShotBlockRedLeft = 0xbcbb;
-    /// <summary><c>$84:BCC1 InstList_PLM_DownwardsGateShotblock_RedRight</c>.</summary>
-    public const ushort DownwardGateShotBlockRedRight = 0xbcc1;
-    /// <summary><c>$84:BCC7 InstList_PLM_DownwardsGateShotblock_GreenLeft</c>.</summary>
-    public const ushort DownwardGateShotBlockGreenLeft = 0xbcc7;
-    /// <summary><c>$84:BCCD InstList_PLM_DownwardsGateShotblock_GreenRight</c>.</summary>
-    public const ushort DownwardGateShotBlockGreenRight = 0xbccd;
-    /// <summary><c>$84:BCD3 InstList_PLM_DownwardsGateShotblock_YellowLeft</c>.</summary>
-    public const ushort DownwardGateShotBlockYellowLeft = 0xbcd3;
-    /// <summary><c>$84:BCD9 InstList_PLM_DownwardsGateShotblock_YellowRight</c>.</summary>
-    public const ushort DownwardGateShotBlockYellowRight = 0xbcd9;
     /// <summary><c>$84:AAE3 InstList_PLM_Delete</c>.</summary>
     public const ushort Delete = 0xaae3;
 
@@ -109,9 +90,6 @@ public static class RoomPlmInstructionLists
     /// <summary><c>$84:AF8A InstList_PLM_ScrollPLM_1</c>, the sleeping trigger loop.</summary>
     public const ushort ScrollTriggerWaiting = 0xaf8a;
 
-    /// <summary>Entry two bytes into the scroll list after collision wakes it.</summary>
-    public const ushort ScrollTriggerActivated = 0xaf8c;
-
     /// <summary>Idle save-pod draw entry at $84:AFE8, before its trigger sleeps.</summary>
     public const ushort SaveStationIdleDraw = 0xafe8;
 
@@ -137,12 +115,6 @@ public static class RoomPlmInstructionLists
     public const ushort BlueDoorFacingRightOpening = 0xc4ba;
     public const ushort BlueDoorFacingUpOpening = 0xc4eb;
     public const ushort BlueDoorFacingDownOpening = 0xc51c;
-
-    /// <summary>
-    /// <c>$84:BB34 InstList_PLM_GateThatClosesDuringEscapeAfterMotherBrain_0</c>:
-    /// draw the already-closed gate for six frames, then release the resident PLM slot.
-    /// </summary>
-    public const ushort MotherBrainEscapeRoomGateClosed = 0xbb34;
 
     /// <summary>
     /// <c>$84:BB44 InstList_PLM_GateThatClosesDuringEscapeAfterMotherBrain_1</c>:

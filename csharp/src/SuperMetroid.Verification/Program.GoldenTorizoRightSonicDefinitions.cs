@@ -9,11 +9,11 @@ internal static partial class Program
         const byte bank = TorizoCollisionDefinitions.Bank;
         var mechanicsAddresses = new HashSet<ushort>();
         for (int index = 0;
-             index < GoldenTorizoRightSonicInstructionProgramDefinitions.MechanicsWordCount;
+             index < GoldenTorizoRightSonicInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord word =
-                GoldenTorizoRightSonicInstructionProgramDefinitions.MechanicsWord(index);
+                GoldenTorizoRightSonicInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertTrue(mechanicsAddresses.Add(word.Address),
                 $"Golden Torizo right-sonic control $AA:{word.Address:X4} is unique");
             AssertTrue(word.Address >= GoldenTorizoRightSonicInstructionProgramDefinitions.Start &&
@@ -25,9 +25,9 @@ internal static partial class Program
                     .TryReadMechanicsWord(word.Address, out ushort selected) &&
                        selected == word.Value,
                 $"Golden Torizo right-sonic control $AA:{word.Address:X4} lookup");
-            AssertTrue(GoldenTorizoRightSonicInstructionProgramDefinitions
+            AssertTrue(GoldenTorizoRightSonicInstructionProgramDefinitionsTooling
                     .IsCompiledMechanicsByte((bank << 16) | word.Address) &&
-                       GoldenTorizoRightSonicInstructionProgramDefinitions
+                       GoldenTorizoRightSonicInstructionProgramDefinitionsTooling
                     .IsCompiledMechanicsByte((bank << 16) |
                         unchecked((ushort)(word.Address + 1))),
                 $"Golden Torizo right-sonic control $AA:{word.Address:X4} owns both bytes");

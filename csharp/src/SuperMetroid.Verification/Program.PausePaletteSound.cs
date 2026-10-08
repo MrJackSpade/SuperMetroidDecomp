@@ -9,7 +9,7 @@ internal static partial class Program
     {
         string rom = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(rom)) throw new FileNotFoundException("Pause palette integration requires the private ROM.", rom);
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(rom);
         var audio = new CartridgeAudioState();
         var pause = CreateRetailPauseFixture(bus, new SamusState(), new Bank80SystemState(), AreaId.Crateria, 0, 0, audio);
         var assets = ExtractedAudioAssetCatalog.Load(Path.GetFullPath("standalone-assets/audio"));

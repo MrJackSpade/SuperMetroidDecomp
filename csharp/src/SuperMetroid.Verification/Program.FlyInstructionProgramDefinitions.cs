@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyFlyInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyFlyInstructionProgramDefinitions), () => VerifyFlyInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyFlyInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
@@ -101,7 +101,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (FlyInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (FlyInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -112,11 +112,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < FlyInstructionProgramDefinitions.PresentationWordCount;
+                     index < FlyInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        FlyInstructionProgramDefinitions.PresentationWordAddress(index);
+                        FlyInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

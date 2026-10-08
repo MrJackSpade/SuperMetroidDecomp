@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Game;
 
 internal static partial class AssetTools
 {

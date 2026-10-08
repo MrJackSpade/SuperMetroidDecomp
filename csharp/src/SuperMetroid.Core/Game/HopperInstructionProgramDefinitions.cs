@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Game;
 /// programs. Their forty interleaved spritemap operands select installed artwork;
 /// the hop physics, sound, and instruction cadence remain compiled here.
 /// </summary>
-internal abstract class HopperInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class HopperInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Sidehopper_Hopping_UpsideUp</c> at $A3:AA76.</summary>
     internal const ushort SidehopperJumpingFloor = 0xaa76;
@@ -139,17 +139,5 @@ internal abstract class HopperInstructionProgramDefinitions : IInstructionProgra
             if (word.Address == address) return word.Value;
         }
         throw new InvalidDataException($"Hopper instruction mechanics pointer $A3:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa30000) return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress || bankAddress == unchecked((ushort)(wordAddress + 1))) return true;
-        }
-        return false;
     }
 }

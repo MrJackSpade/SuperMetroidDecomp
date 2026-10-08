@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyGoldenTorizoCode()
     {
-        var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         ushort input = Word(0xaac91a);
         ushort[] native = [Word(0xaac91f), Word(0xaac928), Word(0xaac931),

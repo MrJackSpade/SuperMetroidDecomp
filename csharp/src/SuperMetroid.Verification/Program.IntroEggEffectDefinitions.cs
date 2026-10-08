@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyIntroEggEffectDefinitions()
     {
-        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyIntroEggEffectPrograms), () => VerifyIntroEggEffectPrograms(retail));
         for (int index = 0; index < IntroEggEffectDefinitions.ParticleCount; index++)
             VerifyIntroEggEffectActor(retail, unchecked((ushort)(0xcecd + index * 6)), IntroEggEffectDefinitions.Particle(index),

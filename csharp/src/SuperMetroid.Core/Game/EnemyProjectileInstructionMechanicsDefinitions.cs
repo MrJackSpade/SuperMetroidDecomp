@@ -26,7 +26,7 @@ internal readonly record struct EnemyProjectilePresentationFrameDefinition(
 /// graphics operands in installed artwork preserves editable presentation data while preventing fixed
 /// gameplay timing and control flow from depending on a runtime cartridge read.
 /// </remarks>
-internal abstract class EnemyProjectileInstructionMechanicsDefinitions : IInstructionProgramCatalog, ICompiledMechanicsByteProbe
+internal abstract class EnemyProjectileInstructionMechanicsDefinitions
 {
     /// <summary><c>$86:C432</c>, Mother Brain blue/onion-ring radius-and-frame program.</summary>
     internal const ushort MotherBrainBlueRingInitial = 0xc432;
@@ -120,7 +120,7 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions : IInstru
     /// <summary>$86:E1FC, <c>UNUSED_InstList_EnemyProj_MiscDust_1C_ElevatorPad_86E1FC</c>, native misc-dust selector 28: LoopingElevatorPad.</summary>
     internal const ushort MiscDustLoopingElevatorPad = 0xe1fc;
 
-    private const int BlueRingRadiusCount = 6;
+    internal const int BlueRingRadiusCount = 6;
 
     /// <summary>$8D:8276/827D/8284..82C6: mutually exclusive tiny seed, single ring and composite radial growth forms.</summary>
     private enum RingGrowthPhase { Seed, Formation, RadialExpansion }
@@ -262,8 +262,8 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions : IInstru
         RainbowBurstPhase phase = frame < 2 ? RainbowBurstPhase.Compact : RainbowBurstPhase.Expanded;
         return phase == RainbowBurstPhase.Compact ? CompactRainbowBurstFrames : ExpandedRainbowBurstFrames;
     }
-    private const int TimedProgramCount = 36;
-    private static EnemyProjectileTimedProgramDefinition TimedProgram(int index) => index switch
+    internal const int TimedProgramCount = 36;
+    internal static EnemyProjectileTimedProgramDefinition TimedProgram(int index) => index switch
     {
         0 => new(MotherBrainBombInitial, 9, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY, MotherBrainBombInitial),
         1 => new(MotherBrainRainbowBeamChargingInitial, 6, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
@@ -405,21 +405,6 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions : IInstru
         };
     }
 
-    public static int MechanicsWordCount
-    {
-        get
-        {
-            int count = 38;
-            for (int index = 0; index < TimedProgramCount; index++)
-            {
-                var program = TimedProgram(index);
-                count += program.FrameCount + 1 + (program.PrefixInstruction.HasValue ? 1 : 0)
-                    + (program.TerminalOperand.HasValue ? 1 : 0);
-            }
-            return count;
-        }
-    }
-
     internal static ushort ReadMechanicsWord(ushort address) => TryReadMechanicsWord(address, out ushort value)
         ? value : throw new InvalidDataException($"Bank-$86 projectile mechanics pointer ${address:X4} is outside the translated program domain.");
 
@@ -469,44 +454,6 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions : IInstru
         }
         value = 0;
         return false;
-    }
-
-    public static bool IsCompiledMechanicsByte(int address) => (address & 0xff0000) == 0x860000 &&
-        (TryReadMechanicsWord((ushort)address, out _) || TryReadMechanicsWord(unchecked((ushort)(address - 1)), out _));
-
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
-        foreach (ushort address in MechanicsAddresses())
-            if (index-- == 0) return new(address, ReadMechanicsWord(address));
-        throw new InvalidOperationException("Projectile mechanics enumeration count disagrees with its programs.");
-    }
-
-    private static IEnumerable<ushort> MechanicsAddresses()
-    {
-        for (int frame = 0; frame < BlueRingRadiusCount; frame++)
-            for (int field = 0; field < 3; field++)
-                yield return (ushort)(MotherBrainBlueRingInitial + frame * 8 + field * 2);
-        yield return MotherBrainBlueRingInitial + 48;
-        yield return MotherBrainBlueRingTouch;
-        yield return MotherBrainBlueRingTouch + 2;
-        for (int frame = 0; frame < 6; frame++) yield return (ushort)(MotherBrainBlueRingTouch + 4 + frame * 4);
-        yield return MotherBrainBlueRingTouch + 28;
-        for (int index = 0; index < TimedProgramCount; index++)
-        {
-            var program = TimedProgram(index);
-            if (program.InitialPointer == MotherBrainDroolFalling)
-            {
-                for (int frame = 0; frame < 5; frame++) yield return (ushort)(MotherBrainDroolInitial + frame * 4);
-                for (int field = 0; field < 4; field++) yield return (ushort)(MotherBrainDroolInitial + 20 + field * 2);
-                yield return MotherBrainDroolInitial + 30;
-            }
-            int first = program.InitialPointer;
-            if (program.PrefixInstruction.HasValue) { yield return (ushort)first; first += 2; }
-            for (int frame = 0; frame < program.FrameCount; frame++) yield return (ushort)(first + frame * 4);
-            yield return (ushort)(first + program.FrameCount * 4);
-            if (program.TerminalOperand.HasValue) yield return (ushort)(first + program.FrameCount * 4 + 2);
-        }
     }
 
     internal static VisualFrameList VisualFrames { get; } = new();

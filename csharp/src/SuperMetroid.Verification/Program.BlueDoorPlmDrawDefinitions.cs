@@ -14,7 +14,7 @@ internal static partial class Program
             (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
-            BlueDoorPlmDrawDefinitions.All.OrderBy(list => list.Pointer).ToArray();
+            BlueDoorPlmDrawDefinitionsTooling.All.OrderBy(list => list.Pointer).ToArray();
         RoomPlmBlueDoorVisualEntry[] entries = BlueDoorPlmDrawDefinitions.Editable.Select(draw =>
             new RoomPlmBlueDoorVisualEntry(BlueDoorPlmDrawDefinitions.VisualId(draw.Pointer),
                 draw.Runs.Span[0].LevelWords.Span.ToArray()

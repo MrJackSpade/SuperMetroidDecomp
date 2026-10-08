@@ -15,10 +15,10 @@ internal static partial class Program
             RoomEnemySystem.StoneZoomerDefinition,
         ];
         for (int index = 0;
-             index < SharedCrawlerInstructionProgramDefinitions.PresentationWordCount;
+             index < SharedCrawlerInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort operand = SharedCrawlerInstructionProgramDefinitions
+            ushort operand = SharedCrawlerInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             ushort compiled = EnemySpritemapDefinitions.SharedCrawlerFrameAt(operand);
             AssertEqual(ReadSharedCrawlerInstructionWord(rom, operand), compiled,

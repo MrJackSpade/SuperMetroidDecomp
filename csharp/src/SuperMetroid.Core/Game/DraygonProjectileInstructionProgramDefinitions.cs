@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control for Draygon goop and wall-turret projectile instruction lists.
 /// Interleaved spritemap operands remain live cartridge presentation data.
 /// </summary>
-internal abstract class DraygonProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class DraygonProjectileInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProjectile_DraygonGoop_Touch</c> at $86:8C38.</summary>
     internal const ushort GoopTouch = 0x8c38;
@@ -20,27 +20,7 @@ internal abstract class DraygonProjectileInstructionProgramDefinitions : IInstru
 
     /// <summary><c>InstList_EnemyProjectile_DraygonsWallTurretProjectile_1</c> at $86:8CE6.</summary>
     internal const ushort WallTurretFlight = 0x8ce6;
-
-    public static int MechanicsWordCount => 38;
     public static int PresentationWordCount => 27;
-
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount)
-            throw new IndexOutOfRangeException();
-        int address = index switch
-        {
-            0 => GoopTouch,
-            < 7 => Goop + (index - 1) * 4,
-            < 10 => Goop + 24 + (index - 7) * 2,
-            < 12 => GoopShot + (index - 10) * 4,
-            < 16 => GoopShot + 8 + (index - 12) * 2,
-            < 33 => WallTurretBloom + (index - 16) * 4,
-            < 36 => WallTurretFlight + (index - 33) * 4,
-            _ => WallTurretFlight + 12 + (index - 36) * 2,
-        };
-        return new((ushort)address, ReadMechanicsWord((ushort)address));
-    }
 
     public static ushort PresentationWordAddress(int index)
     {
@@ -66,7 +46,7 @@ internal abstract class DraygonProjectileInstructionProgramDefinitions : IInstru
             $"Draygon projectile mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    private static bool TryRead(int address, out ushort value)
+    internal static bool TryRead(int address, out ushort value)
     {
         value = address switch
         {
@@ -104,8 +84,4 @@ internal abstract class DraygonProjectileInstructionProgramDefinitions : IInstru
         int offset = address - first;
         return offset >= 0 && offset < frames * 4 && offset % 4 == 0;
     }
-
-    public static bool IsCompiledMechanicsByte(int address) =>
-        (address & 0xff0000) == EnemyProjectileCodePointers.BankBase &&
-        TryRead((ushort)(address & ~1), out _);
 }

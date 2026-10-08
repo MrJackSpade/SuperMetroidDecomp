@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Game;
 /// interleaved extended-spritemap selectors are presentation data; the eight
 /// $814B upload descriptors and their pixels have separate installed owners.
 /// </summary>
-internal abstract class GoldenTorizoAwakeningInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class GoldenTorizoAwakeningInstructionProgramDefinitions
 {
     /// <summary>First instruction after the Samus-position sleep at $AA:C9E2.</summary>
     internal const ushort Start = 0xc9e2;
@@ -21,14 +21,7 @@ internal abstract class GoldenTorizoAwakeningInstructionProgramDefinitions : IIn
         UploadInitialHold = 32, UploadLoopHold = 4, UploadLoopCount = 2,
         StandFirstHold = 32, StandSecondHold = 12, StandRemainingHold = 8,
         ColorHold = 4, ColorIterations = 16, HandoffHold = 16;
-
-    public static int MechanicsWordCount => 69;
     public static int PresentationWordCount => 21;
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        return Select(index, visual: false);
-    }
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -40,7 +33,7 @@ internal abstract class GoldenTorizoAwakeningInstructionProgramDefinitions : IIn
     /// two, and each DMA opcode plus its separately owned descriptor occupies nine.
     /// Sitting movement traverses word offsets4,2,0; standing traverses0..10.
     /// </summary>
-    private static InstructionMechanicsWord Select(int index, bool visual)
+    internal static InstructionMechanicsWord Select(int index, bool visual)
     {
         var layout = new Layout(index, visual);
         layout.Function(FallingFunction);
@@ -112,20 +105,5 @@ internal abstract class GoldenTorizoAwakeningInstructionProgramDefinitions : IIn
             Word(CommonEnemyInstructionCodes.CopyToVram);
             Cursor += sizeof(ushort) + 3 + sizeof(ushort);
         }
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xaa0000)
-            return false;
-        ushort offset = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            var word = MechanicsWord(index);
-            if (offset == word.Address ||
-                offset == unchecked((ushort)(word.Address + 1)))
-                return true;
-        }
-        return false;
     }
 }

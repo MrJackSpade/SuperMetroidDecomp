@@ -41,7 +41,7 @@ internal static partial class Program
             // HUD initialization now requires installed presentation. The import-only
             // cartridge reader supplies its stock fixture; minimap updates below use
             // the ROM-free bus and still exercise the production HUD owner.
-            var source = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+            var source = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
             var hudArt = GameplayHudPresentation.Load(new MemoryStream(
                 SuperMetroid.AssetExtraction.GameplayHudPresentationExtractor.Extract(source)));
             var hud = new HudState();
@@ -65,7 +65,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => Load(Json(document).Replace("\"version\":1", "\"version\":1,\"revealEverything\":true")), "reject editable gameplay commands");
         if (File.Exists("Super Metroid.smc"))
         {
-            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
             foreach (AreaId area in Enum.GetValues<AreaId>())
             {
                 var stock = SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, area);
@@ -862,7 +862,7 @@ internal static partial class Program
                 $"{torizoDefinition.Owner} belly");
         }
         TourianStatueGreyPaletteFxProgramDefinition statueDefinition =
-            TourianStatueGreyPaletteFxProgramMechanicsDefinitions.All[0];
+            TourianStatueGreyPaletteFxProgramMechanicsDefinitionsTooling.All[0];
         AssertOverride(statueDefinition.DefinitionPointer,
             statueDefinition.ColorByteIndex, "Tourian statue grey-out");
         foreach (CrateriaLightningPaletteFxProgramDefinition lightningDefinition in
@@ -992,7 +992,7 @@ internal static partial class Program
                 $"Tourian escape {flashDefinition.Owner}");
         }
         foreach (TourianEscapeSharedRedFlashPaletteFxProgramDefinition sharedDefinition in
-                 TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.All)
+                 TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitionsTooling.All)
         {
             AssertOverride(sharedDefinition.DefinitionPointer, sharedDefinition.ColorByteIndex,
                 $"Tourian escape shared {sharedDefinition.Owner}");

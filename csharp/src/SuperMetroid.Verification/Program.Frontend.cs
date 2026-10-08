@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
@@ -188,7 +189,7 @@ static void VerifyBgPriorityPlaneRendering()
 
 static void VerifyFileSelectFreshSaveTilemap()
 {
-    var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace
+    var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling
         .LoadRetailRom(Path.GetFullPath("Super Metroid.smc")).Rom.ToArray();
 
     // FileSelectMenuState also loads the labels surrounding NO DATA. Empty streams are
@@ -446,7 +447,7 @@ static void VerifySavedGameLoadAppearance()
         return;
     }
 
-    var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+    var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
     var saveRam = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
     saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot
     {

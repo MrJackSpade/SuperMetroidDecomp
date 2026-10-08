@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Compiled control words for Yellow Brinstar Pipe Bug straight and arc loops.</summary>
-internal abstract class YellowPipeBugInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class YellowPipeBugInstructionProgramDefinitions
 {
     /// <summary><c>$B3:8EFC</c>, straight flight facing left.</summary>
     internal const ushort FlyingLeft = 0x8efc;
@@ -11,27 +11,6 @@ internal abstract class YellowPipeBugInstructionProgramDefinitions : IInstructio
     internal const ushort FlyingRight = 0x8f24;
     /// <summary><c>$B3:8F38</c>, arcing flight facing right.</summary>
     internal const ushort ArcingRight = 0x8f38;
-
-    public static int MechanicsWordCount => 24;
-    public static int PresentationWordCount => 16;
-
-    /// <summary>Each loop displays four timed records followed by Goto and its target; all records calculate on demand.</summary>
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount)
-            throw new IndexOutOfRangeException();
-        int program = index / 6;
-        int record = index % 6;
-        ushort address = (ushort)(FlyingLeft + 20 * program + (record < 4 ? 4 * record : 16 + 2 * (record - 4)));
-        return new(address, ReadMechanicsWord(address));
-    }
-
-    public static ushort PresentationWordAddress(int index)
-    {
-        if ((uint)index >= PresentationWordCount)
-            throw new IndexOutOfRangeException();
-        return (ushort)(FlyingLeft + 20 * (index / 4) + 4 * (index % 4) + 2);
-    }
 
     internal static ushort ReadMechanicsWord(ushort address)
     {
@@ -49,16 +28,5 @@ internal abstract class YellowPipeBugInstructionProgramDefinitions : IInstructio
         }
         throw new InvalidDataException(
             $"YellowPipeBug instruction mechanics pointer $B3:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xb30000)
-            return false;
-        int offset = unchecked((ushort)address) - FlyingLeft;
-        if (offset < 0 || offset >= 80)
-            return false;
-        int local = offset % 20;
-        return local >= 16 || (local & 3) < 2;
     }
 }

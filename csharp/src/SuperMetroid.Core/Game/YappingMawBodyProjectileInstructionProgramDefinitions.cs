@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled timing and terminal sleep control for the two Yapping Maw body-link poses.
 /// Their interleaved sprite operands select installed presentation artwork.
 /// </summary>
-internal abstract class YappingMawBodyProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class YappingMawBodyProjectileInstructionProgramDefinitions
 {
     /// <summary>
     /// <c>InstList_EnemyProjectile_YappingMawsBody_FacingDown</c> at $86:EC56.
@@ -47,24 +47,5 @@ internal abstract class YappingMawBodyProjectileInstructionProgramDefinitions : 
 
         throw new InvalidDataException(
             $"Yapping Maw body-projectile mechanics pointer $86:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

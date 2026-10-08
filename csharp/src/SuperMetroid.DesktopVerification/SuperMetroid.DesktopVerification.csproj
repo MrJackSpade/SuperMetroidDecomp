@@ -5,14 +5,17 @@
     <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="../SuperMetroid.Tooling/SuperMetroid.Tooling.csproj" />
     <ProjectReference Include="../SuperMetroid.Desktop/SuperMetroid.Desktop.csproj" />
   </ItemGroup>
   <Import Project="../../test-support/StateFixtures.projitems" />
   <Import Project="../../test-support/WindowsConsole.projitems" />
+  <Import Project="../../test-support/WindowsConsole.Verification.projitems" />
   <ItemGroup>
     <Compile Include="../../test-support/SaveMapPresentationFixture.cs" Link="SaveMapPresentationFixture.cs" />
   </ItemGroup>
   <Import Project="../../test-support/RepositoryInstallation.projitems" />
+  <Import Project="../../test-support/RepositoryInstallation.Verification.projitems" />
   <Import Project="../../test-support/VerificationAccess.Core.projitems" />
   <Import Project="../../test-support/VerificationAccess.Desktop.projitems" />
   <Import Project="../../test-support/VerificationAccess.Rendering.projitems" />

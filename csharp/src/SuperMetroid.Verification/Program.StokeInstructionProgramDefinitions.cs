@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyStokeInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyStokeInstructionProgramDefinitions), () => VerifyStokeInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyStokeInstructionProgramDefinitions(
@@ -28,10 +28,10 @@ internal static partial class Program
         }
 
         for (int index = 0;
-             index < StokeInstructionProgramDefinitions.PresentationWordCount;
+             index < StokeInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort address = StokeInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort address = StokeInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertEqual(ReadStokeInstructionWord(rom, 0xa20000 | address),
                 OwtchStokeVisualDefinitions.FrameAt(RoomEnemySystem.StokeDefinition, address),
                 $"compiled Stoke frame selector $A2:{address:X4}");
@@ -207,7 +207,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (StokeInstructionProgramDefinitions.IsCompiledMechanicsByte(address) ||
+            if (StokeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
                 IsPresentationByte(address))
             {
                 ForbiddenReadAttempts++;
@@ -223,11 +223,11 @@ internal static partial class Program
                 return false;
             ushort bankAddress = unchecked((ushort)address);
             for (int index = 0;
-                 index < StokeInstructionProgramDefinitions.PresentationWordCount;
+                 index < StokeInstructionProgramDefinitionsTooling.PresentationWordCount;
                  index++)
             {
                 ushort presentation =
-                    StokeInstructionProgramDefinitions.PresentationWordAddress(index);
+                    StokeInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                 if (bankAddress == presentation ||
                     bankAddress == unchecked((ushort)(presentation + 1)))
                     return true;

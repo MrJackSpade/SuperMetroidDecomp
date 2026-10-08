@@ -19,6 +19,14 @@ internal sealed class ProgramOperandAudit(ResourceIndex exports, AuditReport rep
         if (!declaration.Members.OfType<PropertyDeclarationSyntax>()
             .Any(property => property.Identifier.ValueText == "PresentationWordCount")) return;
         if (semantic.GetDeclaredSymbol(declaration) is not INamedTypeSymbol symbol) return;
+        // The contract may live in the owner's development adapter; the shipped owner is audited.
+        if (symbol.Name.EndsWith("Tooling", StringComparison.Ordinal) &&
+            semantic.Compilation.GetTypeByMetadataName(symbol.ToDisplayString()[..^"Tooling".Length]) is { } shipped)
+        {
+            symbol = shipped;
+            declaration = (ClassDeclarationSyntax)shipped.DeclaringSyntaxReferences[0].GetSyntax();
+            semantic = semantic.Compilation.GetSemanticModel(declaration.SyntaxTree);
+        }
         string owner = symbol.ToDisplayString();
         if (!inspected.Add(owner)) return;
         string source = declaration.SyntaxTree.FilePath + ":" +
@@ -36,7 +44,7 @@ internal sealed class ProgramOperandAudit(ResourceIndex exports, AuditReport rep
                 "Presentation operand kind is not an enemy/sprite instruction selector; requires a domain-specific adapter.");
             return;
         }
-        Type? metadata = typeof(RoomEnemySystem).Assembly.GetType(owner);
+        Type? metadata = ConsumerAudit.ProgramOwnerType(owner);
         InstructionProgramCatalog? catalog = metadata is null ? null : InstructionProgramCatalog.Of(metadata);
         if (catalog?.PresentationOperands is not { } operands)
         {
@@ -51,9 +59,12 @@ internal sealed class ProgramOperandAudit(ResourceIndex exports, AuditReport rep
         // guard. Read its compiler-resolved constants, never probe possible banks
         // by calling gameplay code or infer a bank from a coincidentally matching ID.
         var guardBanks = new HashSet<int>();
-        foreach (SyntaxReference syntax in symbol.DeclaringSyntaxReferences)
+        // The owner's ownership guard may live in its development adapter.
+        IEnumerable<ClassDeclarationSyntax> adapterParts = semantic.Compilation.GetTypeByMetadataName(owner + "Tooling")
+            ?.DeclaringSyntaxReferences.Select(reference => (ClassDeclarationSyntax)reference.GetSyntax()) ?? [];
+        foreach (var part in symbol.DeclaringSyntaxReferences.Select(reference => (ClassDeclarationSyntax)reference.GetSyntax())
+                     .Concat(adapterParts))
         {
-            var part = (ClassDeclarationSyntax)syntax.GetSyntax();
             SemanticModel partModel = semantic.Compilation.GetSemanticModel(part.SyntaxTree);
             foreach (var guard in part.Members.OfType<MethodDeclarationSyntax>()
                 .Where(method => method.Identifier.ValueText is "IsCompiledMechanicsByte" or "TryGetPresentationWord"))

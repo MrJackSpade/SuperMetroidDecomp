@@ -10,9 +10,9 @@ internal static partial class Program
     private static void VerifyCrocomireBodyFrameGeometry(SuperMetroidAddressSpace rom)
     {
         var original = new SortedSet<ushort>();
-        for (int index = 0; index < CrocomireInstructionProgramDefinitions.PresentationWordCount; index++)
+        for (int index = 0; index < CrocomireInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
         {
-            int operand = CrocomireInstructionProgramDefinitions.PresentationWordAddress(index);
+            int operand = CrocomireInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             ushort frame = (ushort)(rom.ReadByte(0xa40000 | operand) | rom.ReadByte(0xa40000 | (operand + 1)) << 8);
             if (frame < 0xe1fe) original.Add(frame);
         }
@@ -41,9 +41,9 @@ internal static partial class Program
     private static void VerifyCrocomireBg2GeneratedCatalog(SuperMetroidAddressSpace rom)
     {
         var pointers = new SortedSet<ushort>();
-        for (int i = 0; i < CrocomireInstructionProgramDefinitions.PresentationWordCount; i++)
+        for (int i = 0; i < CrocomireInstructionProgramDefinitionsTooling.PresentationWordCount; i++)
         {
-            int operand = CrocomireInstructionProgramDefinitions.PresentationWordAddress(i);
+            int operand = CrocomireInstructionProgramDefinitionsTooling.PresentationWordAddress(i);
             ushort pointer = (ushort)(rom.ReadByte(0xa40000 | operand) | rom.ReadByte(0xa40000 | (operand + 1)) << 8);
             if (pointer < 0xca7e) pointers.Add(pointer);
         }
@@ -80,10 +80,10 @@ internal static partial class Program
             "installed Crocomire body has both OAM and BG2 presentations");
         Suite(nameof(VerifyCrocomireBodyFrameGeometry), () => VerifyCrocomireBodyFrameGeometry(rom));
         for (int index = 0;
-             index < CrocomireInstructionProgramDefinitions.PresentationWordCount;
+             index < CrocomireInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort operand = CrocomireInstructionProgramDefinitions
+            ushort operand = CrocomireInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             ushort native = ReadWord(0xa40000 | operand);
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(

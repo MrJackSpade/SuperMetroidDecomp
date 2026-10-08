@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled engine-control words for Zero's four production-selected surface loops. The
 /// twenty-four spritemap selections resolve compiled identities to installed artwork.
 /// </summary>
-internal abstract class ZeroInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class ZeroInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Zero_UpsideRight_FacingDown_0</c> at $A3:984B.</summary>
     internal const ushort UpsideRight = 0x984b;
@@ -70,22 +70,5 @@ internal abstract class ZeroInstructionProgramDefinitions : IInstructionProgramC
 
         throw new InvalidDataException(
             $"Zero instruction mechanics pointer $A3:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa30000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 }

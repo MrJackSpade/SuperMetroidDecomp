@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyGrowingShutterInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyGrowingShutterInstructionProgramDefinitions), () => VerifyGrowingShutterInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyGrowingShutterInstructionProgramDefinitions(
@@ -95,13 +95,13 @@ internal static partial class Program
     private static void VerifyGrowingShutterMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xe998, 0xe99c, 0xe99e, 0xe9a2, 0xe9a4, 0xe9a8, 0xe9aa, 0xe9ae];
-        AssertEqual(addresses.Length, GrowingShutterInstructionProgramDefinitions.MechanicsWordCount, "Growing shutter native mechanics count");
+        AssertEqual(addresses.Length, GrowingShutterInstructionProgramDefinitionsTooling.MechanicsWordCount, "Growing shutter native mechanics count");
         var bytes = new HashSet<int>();
         for (int index = 0; index < addresses.Length; index++)
         {
             ushort address = addresses[index];
             ushort native = ReadGrowingShutterInstructionWord(rom, 0xa20000 | address);
-            var word = GrowingShutterInstructionProgramDefinitions.MechanicsWord(index);
+            var word = GrowingShutterInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(address, word.Address, "Growing shutter native word address");
             AssertEqual(native, word.Value, "Growing shutter enumerated native word");
             AssertEqual(native, GrowingShutterInstructionProgramDefinitions.ReadMechanicsWord(address), "Growing shutter direct native word");
@@ -110,29 +110,29 @@ internal static partial class Program
         }
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
-            AssertEqual(bytes.Contains(address), GrowingShutterInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa20000 | address), "Growing shutter full byte ownership");
-            AssertEqual(bytes.Contains(address), GrowingShutterInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1a20000 | address), "Growing shutter bank mask aliases");
-            AssertTrue(!GrowingShutterInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa30000 | address), "Growing shutter rejects other bank");
+            AssertEqual(bytes.Contains(address), GrowingShutterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa20000 | address), "Growing shutter full byte ownership");
+            AssertEqual(bytes.Contains(address), GrowingShutterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x1a20000 | address), "Growing shutter bank mask aliases");
+            AssertTrue(!GrowingShutterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa30000 | address), "Growing shutter rejects other bank");
         }
         var words = addresses.ToHashSet();
         for (int address = addresses[0] - 2; address <= addresses[^1] + 4; address++)
             if (!words.Contains((ushort)address))
                 AssertThrows<InvalidDataException>(() => GrowingShutterInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "Growing shutter rejects visual words, odd addresses and adjacent programs");
         foreach (int index in new[] { int.MinValue, -1, addresses.Length, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => GrowingShutterInstructionProgramDefinitions.MechanicsWord(index), "Growing shutter mechanics bounds");
+            AssertThrows<IndexOutOfRangeException>(() => GrowingShutterInstructionProgramDefinitionsTooling.MechanicsWord(index), "Growing shutter mechanics bounds");
     }
 
     private static void VerifyGrowingShutterPresentationMapping()
     {
         ushort[] addresses = [0xe99a, 0xe9a0, 0xe9a6, 0xe9ac];
-        AssertEqual(addresses.Length, GrowingShutterInstructionProgramDefinitions.PresentationWordCount, "Growing shutter visual count");
+        AssertEqual(addresses.Length, GrowingShutterInstructionProgramDefinitionsTooling.PresentationWordCount, "Growing shutter visual count");
         for (int index = 0; index < addresses.Length; index++)
-            AssertEqual(addresses[index], GrowingShutterInstructionProgramDefinitions.PresentationWordAddress(index), "Growing shutter native visual position");
+            AssertEqual(addresses[index], GrowingShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "Growing shutter native visual position");
         var expected = addresses.ToHashSet();
         for (int address = 0; address <= ushort.MaxValue; address++)
             AssertEqual(expected.Contains((ushort)address), GrowingShutterInstructionProgramDefinitions.IsPresentationWord((ushort)address), "Growing shutter full visual membership domain");
         foreach (int index in new[] { int.MinValue, -1, addresses.Length, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => GrowingShutterInstructionProgramDefinitions.PresentationWordAddress(index), "Growing shutter visual bounds");
+            AssertThrows<IndexOutOfRangeException>(() => GrowingShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "Growing shutter visual bounds");
     }
     private static void VerifyGrowingShutterProgramEntries()
     {
@@ -168,7 +168,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (GrowingShutterInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (GrowingShutterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -179,11 +179,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < GrowingShutterInstructionProgramDefinitions.PresentationWordCount;
+                     index < GrowingShutterInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        GrowingShutterInstructionProgramDefinitions.PresentationWordAddress(index);
+                        GrowingShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

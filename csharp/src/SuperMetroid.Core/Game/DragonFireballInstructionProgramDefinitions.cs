@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control for Dragon's left/right rising and falling fireball loops.
 /// Interleaved spritemap operands resolve through extracted presentation art.
 /// </summary>
-internal abstract class DragonFireballInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class DragonFireballInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProjectile_DragonFireball_Rising_Left</c> at $86:B4BF.</summary>
     internal const ushort RisingLeft = 0xb4bf;
@@ -17,17 +17,7 @@ internal abstract class DragonFireballInstructionProgramDefinitions : IInstructi
 
     /// <summary><c>InstList_EnemyProjectile_DragonFireball_Falling_Right</c> at $86:B4E3.</summary>
     internal const ushort FallingRight = 0xb4e3;
-
-    public static int MechanicsWordCount => 16;
     public static int PresentationWordCount => 8;
-
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        int step = index % 4;
-        ushort address = (ushort)(RisingLeft + index / 4 * 12 + (step < 3 ? step * 4 : 10));
-        return new(address, ReadMechanicsWord(address));
-    }
 
     public static ushort PresentationWordAddress(int index)
     {
@@ -42,7 +32,7 @@ internal abstract class DragonFireballInstructionProgramDefinitions : IInstructi
             $"Dragon-fireball instruction mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    private static bool TryRead(int address, out ushort value)
+    internal static bool TryRead(int address, out ushort value)
     {
         int offset = address - RisingLeft;
         value = 0;
@@ -57,8 +47,4 @@ internal abstract class DragonFireballInstructionProgramDefinitions : IInstructi
         };
         return value != 0;
     }
-
-    public static bool IsCompiledMechanicsByte(int address) =>
-        (address & 0xff0000) == EnemyProjectileCodePointers.BankBase &&
-        (TryRead((ushort)address, out _) || TryRead((ushort)address - 1, out _));
 }

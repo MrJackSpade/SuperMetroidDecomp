@@ -196,7 +196,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (SparkInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (SparkInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

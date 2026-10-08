@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyDownwardGateProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyDownwardGateProjectileInstructionProgramDefinitions), () => VerifyDownwardGateProjectileInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     private static void VerifyDownwardGateProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -209,9 +209,9 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (DownwardGateProjectileInstructionProgramDefinitions
+            if (DownwardGateProjectileInstructionProgramDefinitionsTooling
                     .IsCompiledMechanicsByte(address) ||
-                CommonEnemyProjectileInstructionProgramDefinitions
+                CommonEnemyProjectileInstructionProgramDefinitionsTooling
                     .IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;

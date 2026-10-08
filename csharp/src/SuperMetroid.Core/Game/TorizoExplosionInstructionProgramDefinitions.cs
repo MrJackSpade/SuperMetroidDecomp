@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Game;
 /// $86:A3CB-$A455. Their fifteen interleaved spritemap operands use extracted
 /// presentation art.
 /// </summary>
-internal abstract class TorizoExplosionInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class TorizoExplosionInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProjectile_BombTorizoLowHealthExplosion_0</c> at $86:A3CB.</summary>
     internal const ushort LowHealthInitial = 0xa3cb;
@@ -122,18 +122,5 @@ internal abstract class TorizoExplosionInstructionProgramDefinitions : IInstruct
 
         throw new InvalidDataException(
             $"Torizo explosion mechanics pointer $86:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            var word = MechanicsWord(index);
-            if (bankAddress == word.Address || bankAddress == unchecked((ushort)(word.Address + 1)))
-                return true;
-        }
-        return false;
     }
 }

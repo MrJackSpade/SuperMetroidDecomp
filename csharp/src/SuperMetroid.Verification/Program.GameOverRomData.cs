@@ -16,7 +16,7 @@ internal static partial class Program
             "game-over tilemap row stride");
 
         var bus = new TestAddressSpace();
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         ushort Word(int offset) => (ushort)(rom.ReadCartridgeByte(0x820000 | (ushort)offset) |
             rom.ReadCartridgeByte(0x820000 | (ushort)(offset + 1)) << 8);

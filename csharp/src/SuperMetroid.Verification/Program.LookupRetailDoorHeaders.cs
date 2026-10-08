@@ -7,7 +7,6 @@ internal static partial class Program
     {
         Suite(nameof(VerifyDoorHeaderIdentities), () => VerifyDoorHeaderIdentities());
         Suite(nameof(VerifyDoorHeaderDestinationRoomPointer), () => VerifyDoorHeaderDestinationRoomPointer(rom));
-        Suite(nameof(VerifyDoorHeaderBitFlags), () => VerifyDoorHeaderBitFlags(rom));
         Suite(nameof(VerifyDoorHeaderOrientation), () => VerifyDoorHeaderOrientation(rom));
         Suite(nameof(VerifyDoorHeaderPlmX), () => VerifyDoorHeaderPlmX(rom));
         Suite(nameof(VerifyDoorHeaderPlmY), () => VerifyDoorHeaderPlmY(rom));
@@ -37,7 +36,6 @@ internal static partial class Program
     }
 
     private static void VerifyDoorHeaderDestinationRoomPointer(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField(rom, 0, 2, header => header.DestinationRoomPointer);
-    private static void VerifyDoorHeaderBitFlags(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField(rom, 2, 1, header => header.BitFlags);
     private static void VerifyDoorHeaderOrientation(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField(rom, 3, 1, header => header.Orientation);
     private static void VerifyDoorHeaderPlmX(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField(rom, 4, 1, header => header.PlmX);
     private static void VerifyDoorHeaderPlmY(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField(rom, 5, 1, header => header.PlmY);

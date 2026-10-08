@@ -7,6 +7,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Desktop;
+using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
@@ -34,7 +35,7 @@ internal static partial class Program
         string directory = Directory.CreateDirectory(Path.Combine(parent, "door-autosave-" + Guid.NewGuid().ToString("N"))).FullName;
         try
         {
-            var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+            var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();

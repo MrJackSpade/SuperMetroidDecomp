@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control for the Eye Door's aimed projectile, wall-impact animation, and shot
 /// animation. Interleaved spritemap operands identify compiled presentation.
 /// </summary>
-internal abstract class EyeDoorProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class EyeDoorProjectileInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProjectile_EyeDoorProjectile_Normal_0</c> at $86:B5D9.</summary>
     internal const ushort Initial = 0xb5d9;
@@ -62,17 +62,5 @@ internal abstract class EyeDoorProjectileInstructionProgramDefinitions : IInstru
             if (word.Address == address) return word.Value;
         }
         throw new InvalidDataException($"Eye Door projectile instruction mechanics pointer $86:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress || bankAddress == wordAddress + 1) return true;
-        }
-        return false;
     }
 }

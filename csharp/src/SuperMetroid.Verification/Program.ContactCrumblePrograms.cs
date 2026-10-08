@@ -121,7 +121,7 @@ internal static partial class Program
 
     private static void VerifyContactCrumblePrograms()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyContactCrumbleControlMapping), () => VerifyContactCrumbleControlMapping(rom));
         Suite(nameof(VerifyContactCrumbleDrawMapping), () => VerifyContactCrumbleDrawMapping(rom));

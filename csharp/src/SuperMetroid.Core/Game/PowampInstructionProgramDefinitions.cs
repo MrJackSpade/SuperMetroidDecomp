@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled engine-control words for Powamp's body and balloon instruction programs.
 /// Spritemap selections resolve compiled identities to installed artwork.
 /// </summary>
-internal abstract class PowampInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class PowampInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Powamp_Body_FastAnimation</c> at $A8:C163.</summary>
     internal const ushort BodyFast = 0xc163;
@@ -93,23 +93,5 @@ internal abstract class PowampInstructionProgramDefinitions : IInstructionProgra
 
         throw new InvalidDataException(
             $"Powamp instruction mechanics pointer $A8:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa80000)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 }

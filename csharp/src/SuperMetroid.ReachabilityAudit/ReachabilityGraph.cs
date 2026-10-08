@@ -47,4 +47,32 @@ internal sealed class ReachabilityGraph
         }
         return reached;
     }
+
+    /// <summary>The shortest chain of keys from a root to <paramref name="target"/>, or null when unreachable.</summary>
+    public IReadOnlyList<string>? PathTo(IEnumerable<string> roots, string target)
+    {
+        var parent = new Dictionary<string, string?>();
+        var pending = new Queue<string>();
+        foreach (string root in roots)
+            if (parent.TryAdd(root, null))
+                pending.Enqueue(root);
+        while (pending.Count > 0)
+        {
+            string current = pending.Dequeue();
+            if (current == target)
+            {
+                var path = new List<string>();
+                for (string? step = current; step is not null; step = parent[step])
+                    path.Add(step);
+                path.Reverse();
+                return path;
+            }
+            IEnumerable<string> next = (edges.TryGetValue(current, out var targets) ? targets : [])
+                .Concat(typeImplied.TryGetValue(current, out var members) ? members : []);
+            foreach (string step in next)
+                if (parent.TryAdd(step, current))
+                    pending.Enqueue(step);
+        }
+        return null;
+    }
 }

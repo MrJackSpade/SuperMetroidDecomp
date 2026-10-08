@@ -9,7 +9,7 @@ internal static partial class Program
             KraidRockProjectileInstructionProgramDefinitions.MechanicsWordCount,
             index => { var word = KraidRockProjectileInstructionProgramDefinitions.MechanicsWord(index); return (word.Address, word.Value); },
             KraidRockProjectileInstructionProgramDefinitions.ReadMechanicsWord,
-            KraidRockProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte, bank: 0x86));
+            KraidRockProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, bank: 0x86));
 
     private static void VerifyKraidRockPresentationMapping() =>
         Suite(nameof(VerifyKraidSmallPresentation), () => VerifyKraidSmallPresentation([0x9c7f, 0x9c85, 0x9c8f, 0x9c93, 0x9c97, 0x9c9b, 0x9c9f],

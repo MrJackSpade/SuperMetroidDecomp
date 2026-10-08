@@ -59,7 +59,7 @@ internal static partial class Program
                 $"pose={samus.Pose:X2} grapple={samus.Grapple.Phase} feet={feet.LevelWord:X4} " +
                 $"Yspeed={samus.Kinematics.YSpeed:X4}.{samus.Kinematics.YSubspeed:X4}");
             if (frame is 0 or 3 or 12)
-                PngWriter.WriteRgba($"csharp/test-temp/issue-350-release/frame-{frame}.png", 256, 224,
+                PngWriterTooling.WriteRgba($"csharp/test-temp/issue-350-release/frame-{frame}.png", 256, 224,
                     SuperMetroidRuntimeFrameRenderer.Render(runtime));
             if (frame >= 2 && samus.Grapple.Phase == GrapplePhase.Inactive)
             {

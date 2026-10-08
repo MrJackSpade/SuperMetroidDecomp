@@ -23,7 +23,6 @@ internal static class CrocomireSkeletonVisualDefinitions
     /// <summary>$A4:E6A8, ExtendedSpritemap_CrocomireCorpse_15; first of twelve single-component roots.</summary>
     private const ushort SingleComponentStart = ThreeComponentCollapse + 2 + 8 * 3;
 
-    internal static CrocomireSkeletonFrameSequence Frames => new(FrameCount);
 
     internal static bool IsFrame(byte bank, ushort pointer)
     {
@@ -55,17 +54,5 @@ internal static class CrocomireSkeletonVisualDefinitions
     {
         ushort pointer = FramePointer(index);
         return new(Bank, pointer, $"crocomire_skeleton_oam_{pointer:X4}");
-    }
-}
-
-/// <summary>Calculated skeleton definitions without a cached lookup.</summary>
-internal readonly record struct CrocomireSkeletonFrameSequence(int Length)
-{
-    internal EnemyExtendedFrameDefinition this[int index] => CrocomireSkeletonVisualDefinitions.Frame(index);
-    internal EnemyExtendedFrameDefinition[] ToArray()
-    {
-        var result = new EnemyExtendedFrameDefinition[Length];
-        for (int index = 0; index < result.Length; index++) result[index] = this[index];
-        return result;
     }
 }

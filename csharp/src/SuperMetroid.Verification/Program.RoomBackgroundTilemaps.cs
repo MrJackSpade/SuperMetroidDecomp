@@ -10,7 +10,7 @@ internal static partial class Program
     private static void VerifyRoomBackgroundTilemapExtraction()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
-        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         IReadOnlyDictionary<string, byte[]> files = RoomBackgroundTilemapExtractor.Extract(bus);
         int[] sources = LibraryBackgroundSourceInventory.Scan(bus)
             .Where(source => source.Command == LibraryBackgroundCommand.DecompressToWorkRam)

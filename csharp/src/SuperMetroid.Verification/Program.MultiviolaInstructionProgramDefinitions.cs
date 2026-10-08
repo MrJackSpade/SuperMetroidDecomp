@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyMultiviolaInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMultiviolaInstructionProgramDefinitions), () => VerifyMultiviolaInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyMultiviolaInstructionProgramDefinitions(
@@ -108,7 +108,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (MultiviolaInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (MultiviolaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

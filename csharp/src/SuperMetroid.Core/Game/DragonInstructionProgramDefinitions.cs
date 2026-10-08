@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Game;
 /// Control words derive from the idle, wing and attack layouts; sixteen interleaved
 /// spritemap operands belong to the compiled presentation definitions.
 /// </remarks>
-internal abstract class DragonInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class DragonInstructionProgramDefinitions
 {
     /// <summary><c>$A2:E59B</c>, sleeping body facing left.</summary>
     internal const ushort IdleFacingLeft = 0xe59b;
@@ -86,19 +86,5 @@ internal abstract class DragonInstructionProgramDefinitions : IInstructionProgra
         }
         throw new InvalidDataException(
             $"Dragon instruction mechanics pointer $A2:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa20000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress || bankAddress == wordAddress + 1)
-                return true;
-        }
-        return false;
     }
 }

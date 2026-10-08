@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyOwtchInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyOwtchInstructionProgramDefinitions), () => VerifyOwtchInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyOwtchInstructionProgramDefinitions(
@@ -17,21 +17,21 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         for (int index = 0;
-             index < OwtchInstructionProgramDefinitions.MechanicsWordCount;
+             index < OwtchInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                OwtchInstructionProgramDefinitions.MechanicsWord(index);
+                OwtchInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadOwtchInstructionWord(rom, 0xa20000 | definition.Address),
                 $"Owtch instruction mechanics word $A2:{definition.Address:X4}");
         }
 
         for (int index = 0;
-             index < OwtchInstructionProgramDefinitions.PresentationWordCount;
+             index < OwtchInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort address = OwtchInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort address = OwtchInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertEqual(ReadOwtchInstructionWord(rom, 0xa20000 | address),
                 OwtchStokeVisualDefinitions.FrameAt(RoomEnemySystem.OwtchDefinition, address),
                 $"compiled Owtch frame selector $A2:{address:X4}");
@@ -152,7 +152,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (OwtchInstructionProgramDefinitions.IsCompiledMechanicsByte(address) ||
+            if (OwtchInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
                 IsPresentationByte(address))
             {
                 ForbiddenReadAttempts++;
@@ -168,11 +168,11 @@ internal static partial class Program
                 return false;
             ushort bankAddress = unchecked((ushort)address);
             for (int index = 0;
-                 index < OwtchInstructionProgramDefinitions.PresentationWordCount;
+                 index < OwtchInstructionProgramDefinitionsTooling.PresentationWordCount;
                  index++)
             {
                 ushort presentation =
-                    OwtchInstructionProgramDefinitions.PresentationWordAddress(index);
+                    OwtchInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                 if (bankAddress == presentation ||
                     bankAddress == unchecked((ushort)(presentation + 1)))
                     return true;

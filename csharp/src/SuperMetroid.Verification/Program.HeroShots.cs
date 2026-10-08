@@ -17,7 +17,7 @@ internal static partial class Program
         for (int cameraMode = 0; cameraMode < 4; cameraMode++)
         {
             bool followShot = cameraMode != 0;
-            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var blocks = new ushort[64 * 16];
             for (int row = 0; row < 16; row++) blocks[vertical ? 16 * 16 + row : row * 64 + 32] = 0x8000;
             var room = CreateRoom(vertical ? 16 : 64, vertical ? 64 : 16, blocks, new byte[blocks.Length]);

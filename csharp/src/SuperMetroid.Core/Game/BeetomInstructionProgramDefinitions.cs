@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Game;
 /// Their interleaved spritemap operands select installed Beetom artwork;
 /// crawling, hopping, draining, and their timing remain compiled here.
 /// </summary>
-internal abstract class BeetomInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class BeetomInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Beetom_Crawling_FacingLeft_0</c> at $A8:B696.</summary>
     internal const ushort CrawlingLeft = 0xb696;
@@ -31,40 +31,7 @@ internal abstract class BeetomInstructionProgramDefinitions : IInstructionProgra
     /// <summary>The repeating left-drain frame list at $A8:B6DE.</summary>
     internal const ushort DrainingLeftLoop = 0xb6de;
 
-    private const int FacingStride = CrawlingRight - CrawlingLeft;
-    public static int MechanicsWordCount => 48;
-    public static int PresentationWordCount => 32;
-
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        int word = index % 24;
-        int offset;
-        if (word < 7)
-            offset = word == 0 ? 0 : word < 5 ? 2 + 4 * (word - 1) : 18 + 2 * (word - 5);
-        else if (word < 13)
-        {
-            int hopWord = word - 7;
-            offset = HopLeft - CrawlingLeft + (hopWord == 0 ? 0 : hopWord < 5 ? 2 + 4 * (hopWord - 1) : 18);
-        }
-        else
-        {
-            int drainWord = word - 13;
-            offset = DrainingLeft - CrawlingLeft + (drainWord < 4 ? 4 * drainWord : drainWord == 4 ? 16 :
-                drainWord < 9 ? 18 + 4 * (drainWord - 5) : 34 + 2 * (drainWord - 9));
-        }
-        ushort address = (ushort)(CrawlingLeft + FacingStride * (index / 24) + offset);
-        return new(address, ReadMechanicsWord(address));
-    }
-
-    public static ushort PresentationWordAddress(int index)
-    {
-        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
-        int frame = index % 16;
-        int offset = frame < 4 ? 4 + 4 * frame : frame < 8 ? HopLeft - CrawlingLeft + 4 + 4 * (frame - 4) :
-            DrainingLeft - CrawlingLeft + 2 + 4 * (frame - 8) + (frame >= 12 ? 2 : 0);
-        return (ushort)(CrawlingLeft + FacingStride * (index / 16) + offset);
-    }
+    internal const int FacingStride = CrawlingRight - CrawlingLeft;
 
     internal static bool IsPresentationWord(ushort address)
     {
@@ -111,7 +78,7 @@ internal abstract class BeetomInstructionProgramDefinitions : IInstructionProgra
         throw new InvalidDataException($"Beetom instruction mechanics pointer $A8:{address:X4} is not compiled.");
     }
 
-    private static bool IsMechanicsPosition(int local)
+    internal static bool IsMechanicsPosition(int local)
     {
         if (local < HopLeft - CrawlingLeft)
             return local == 0 || (local >= 2 && local <= 14 && local % 4 == 2) || local is 18 or 20;
@@ -123,12 +90,5 @@ internal abstract class BeetomInstructionProgramDefinitions : IInstructionProgra
         int drain = local - (DrainingLeft - CrawlingLeft);
         return (drain <= 16 && drain % 4 == 0) ||
             (drain >= 18 && drain <= 30 && drain % 4 == 2) || drain is 34 or 36;
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa80000) return false;
-        int offset = unchecked((ushort)address) - CrawlingLeft;
-        return (uint)offset < 2 * FacingStride && IsMechanicsPosition((offset % FacingStride) & ~1);
     }
 }

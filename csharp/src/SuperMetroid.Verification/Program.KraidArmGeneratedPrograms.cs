@@ -47,9 +47,9 @@ internal static partial class Program
                 "high mechanics byte is not a word address");
         }
         for (int address = 0; address <= ushort.MaxValue; address++)
-            AssertEqual(bytes.Contains(address), KraidArmInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa70000 | address),
+            AssertEqual(bytes.Contains(address), KraidArmInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa70000 | address),
                 "complete native mechanics byte domain");
-        AssertTrue(!KraidArmInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa689f3), "wrong mechanics bank");
+        AssertTrue(!KraidArmInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa689f3), "wrong mechanics bank");
         AssertThrows<InvalidDataException>(() => KraidArmInstructionProgramDefinitions.ReadMechanicsWord(0x8a8f), "native callback body is not list data");
         AssertThrows<InvalidDataException>(() => KraidArmInstructionProgramDefinitions.ReadMechanicsWord(0x8afe), "adjacent lint program");
         AssertThrows<IndexOutOfRangeException>(() => KraidArmInstructionProgramDefinitions.MechanicsWord(-1), "negative mechanics index");

@@ -12,7 +12,7 @@ internal static class EndingShootingStarsTests
 {
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
-        var rom = CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         for (int index = 0; index < 40; index++)
         {
             var definition = EndingShootingStarDefinitions.Records[index];

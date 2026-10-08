@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Game;
 /// Interleaved spritemap operands resolve through extracted presentation art; the shot
 /// program's final target belongs to the shared projectile-program catalog.
 /// </summary>
-internal abstract class MagdolliteLavaInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class MagdolliteLavaInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProjectile_MagdolliteFlame_Left</c> at $86:DFD8.</summary>
     internal const ushort Left = 0xdfd8;
@@ -64,24 +64,5 @@ internal abstract class MagdolliteLavaInstructionProgramDefinitions : IInstructi
         throw new InvalidDataException(
             $"Magdollite-lava instruction mechanics pointer $86:{address:X4} " +
             "is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

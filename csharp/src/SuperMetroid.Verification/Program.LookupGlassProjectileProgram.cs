@@ -40,12 +40,12 @@ internal static partial class Program
         AssertEqual(68, art.Count, "Glass native presentation count");
         if (field == 0)
         {
-            AssertEqual(words.Count, MotherBrainGlassInstructionProgramDefinitions.MechanicsWordCount, "Glass calculated mechanics count");
+            AssertEqual(words.Count, MotherBrainGlassInstructionProgramDefinitionsTooling.MechanicsWordCount, "Glass calculated mechanics count");
             for (int index = 0; index < words.Count; index++)
-                AssertEqual(words[index].Address, MotherBrainGlassInstructionProgramDefinitions.MechanicsWord(index).Address,
+                AssertEqual(words[index].Address, MotherBrainGlassInstructionProgramDefinitionsTooling.MechanicsWord(index).Address,
                     "Glass original ordered mechanics address");
             foreach (int bad in new[] {int.MinValue,-1,85,int.MaxValue})
-                AssertThrows<IndexOutOfRangeException>(() => MotherBrainGlassInstructionProgramDefinitions.MechanicsWord(bad), "Glass mechanics index bounds");
+                AssertThrows<IndexOutOfRangeException>(() => MotherBrainGlassInstructionProgramDefinitionsTooling.MechanicsWord(bad), "Glass mechanics index bounds");
             var addresses = words.Select(word => word.Address).ToHashSet();
             var bytes = words.SelectMany(word => new[] {(int)word.Address,word.Address+1}).ToHashSet();
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -55,7 +55,7 @@ internal static partial class Program
                     AssertThrows<InvalidDataException>(() => MotherBrainGlassInstructionProgramDefinitions.ReadMechanicsWord(address), "Glass rejects nonmechanics word starts");
                 foreach (int bank in new[] {0x860000,0x01860000,0x850000,0,unchecked((int)0xff860000)})
                     AssertEqual((bank & 0xff0000) == 0x860000 && bytes.Contains(raw),
-                        MotherBrainGlassInstructionProgramDefinitions.IsCompiledMechanicsByte(bank | raw), "Glass byte ownership and bank-mask aliases");
+                        MotherBrainGlassInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(bank | raw), "Glass byte ownership and bank-mask aliases");
             }
         }
         else if (field == 1)
@@ -75,7 +75,7 @@ internal static partial class Program
                 if (expected.Field != field) continue;
                 count++;
                 AssertEqual(expected.Value, MotherBrainGlassInstructionProgramDefinitions.ReadMechanicsWord(expected.Address), "Glass native mechanics value");
-                AssertEqual(expected.Value, MotherBrainGlassInstructionProgramDefinitions.MechanicsWord(index).Value, "Glass native enumerated value");
+                AssertEqual(expected.Value, MotherBrainGlassInstructionProgramDefinitionsTooling.MechanicsWord(index).Value, "Glass native enumerated value");
             }
             AssertEqual(field switch {2 => 64,3 => 4,4 => 9,_ => 8}, count, "Glass independent field count");
         }

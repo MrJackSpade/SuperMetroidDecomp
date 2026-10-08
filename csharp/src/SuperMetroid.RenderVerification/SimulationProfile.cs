@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
+using SuperMetroid.Core.Runtime;
 
 /// <summary>Unpaced, room-local CPU baseline. Not a presentation, waveOut-underrun, or five-minute soak gate.</summary>
 internal static class SimulationProfile
@@ -40,7 +41,7 @@ internal static class SimulationProfile
 
     private static object Measure(ushort room, bool paused)
     {
-        var game = RepositoryInstallation.CreateGame(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"),
+        var game = RepositoryInstallation.CreateGame(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"),
             new SuperMetroidGameOptions { SkipOpeningCinematic = true, Invincibility = true });
         using var audio = DesktopAccess.CreateAudioEngine();
         using var publicationProfile = new RenderPublicationProfile();

@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyPowampSpikeInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyPowampSpikeInstructionProgramDefinitions), () => VerifyPowampSpikeInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyPowampSpikeInstructionProgramDefinitions(
@@ -16,11 +16,11 @@ internal static partial class Program
         const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         const BindingFlags staticFlags = BindingFlags.Static | BindingFlags.NonPublic;
         for (int index = 0;
-             index < PowampSpikeInstructionProgramDefinitions.MechanicsWordCount;
+             index < PowampSpikeInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                PowampSpikeInstructionProgramDefinitions.MechanicsWord(index);
+                PowampSpikeInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadPowampSpikeInstructionWord(rom, definition.Address),
                 $"Powamp-spike mechanics word $86:{definition.Address:X4}");
@@ -163,7 +163,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (PowampSpikeInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (PowampSpikeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

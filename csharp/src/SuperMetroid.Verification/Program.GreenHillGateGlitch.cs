@@ -54,7 +54,7 @@ internal static partial class Program
         int startX,
         int baseSpeed)
     {
-        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);

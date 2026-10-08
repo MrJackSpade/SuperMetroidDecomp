@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control for Spore Spawn's stalk, ceiling emitter, and spore projectiles at
 /// $86:DC00-$DC58. Their seventeen spritemap operands identify compiled presentation.
 /// </summary>
-internal abstract class SporeSpawnProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class SporeSpawnProjectileInstructionProgramDefinitions
 {
     /// <summary>Closed/shot ceiling-emitter program at $86:DC00.</summary>
     internal const ushort SpawnerClosed = 0xdc00;
@@ -99,18 +99,5 @@ internal abstract class SporeSpawnProjectileInstructionProgramDefinitions : IIns
         }
         throw new InvalidDataException(
             $"Spore Spawn projectile mechanics pointer $86:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            var word = MechanicsWord(index);
-            if (bankAddress == word.Address || bankAddress == unchecked((ushort)(word.Address + 1)))
-                return true;
-        }
-        return false;
     }
 }

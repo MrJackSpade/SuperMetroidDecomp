@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyKiHunterInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKiHunterInstructionProgramDefinitions), () => VerifyKiHunterInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyKiHunterInstructionProgramDefinitions(
@@ -16,11 +16,11 @@ internal static partial class Program
         const BindingFlags flags =
             BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
         for (int index = 0;
-             index < KiHunterInstructionProgramDefinitions.MechanicsWordCount;
+             index < KiHunterInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                KiHunterInstructionProgramDefinitions.MechanicsWord(index);
+                KiHunterInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadKiHunterInstructionWord(rom, 0xa80000 | definition.Address),
                 $"KiHunter instruction mechanics word $A8:{definition.Address:X4}");
@@ -59,7 +59,7 @@ internal static partial class Program
 
         Console.WriteLine(
             $"KiHunter instruction mechanics: " +
-            $"{KiHunterInstructionProgramDefinitions.MechanicsWordCount} compiled words, " +
+            $"{KiHunterInstructionProgramDefinitionsTooling.MechanicsWordCount} compiled words, " +
             "thirteen complete body/wing programs, two real acid spawns, and " +
             $"{KiHunterInstructionProgramDefinitions.PresentationWordCount} compiled " +
             "visual selectors pass with cartridge reads forbidden.");
@@ -222,7 +222,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (KiHunterInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (KiHunterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

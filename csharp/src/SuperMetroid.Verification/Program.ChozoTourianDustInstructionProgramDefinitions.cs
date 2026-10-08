@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyChozoTourianDustInstructionProgramDefinitions() =>
         Suite(nameof(VerifyChozoTourianDustInstructionProgramDefinitions), () => VerifyChozoTourianDustInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     private static void VerifyChozoTourianDustInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -178,7 +178,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (ChozoTourianDustInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (ChozoTourianDustInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

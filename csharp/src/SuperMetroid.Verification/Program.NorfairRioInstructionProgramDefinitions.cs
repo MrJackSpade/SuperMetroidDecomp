@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyNorfairRioInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyNorfairRioInstructionProgramDefinitions), () => VerifyNorfairRioInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyNorfairRioInstructionProgramDefinitions(
@@ -223,7 +223,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (NorfairRioInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (NorfairRioInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

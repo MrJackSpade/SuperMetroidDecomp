@@ -4,12 +4,13 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
     private static void VerifyKiHunterSpitAudio()
     {
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] nativeQueueCall = [0xa9, 0x4c, 0x00, 0x22, 0xcb, 0x90, 0x80];
         AssertSequenceEqual(nativeQueueCall, Enumerable.Range(0, nativeQueueCall.Length)
             .Select(offset => bus.ReadCartridgeByte(0xa8f6dc + offset)),

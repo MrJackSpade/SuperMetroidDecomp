@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyEndingRewardGesture()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         Suite(nameof(VerifyEndingRewardActorDefinitions), () => VerifyEndingRewardActorDefinitions(bus));
         Suite(nameof(VerifyEndingPostShot), () => VerifyEndingPostShot(bus));
         Suite(nameof(VerifyEndingLogo), () => VerifyEndingLogo(bus));

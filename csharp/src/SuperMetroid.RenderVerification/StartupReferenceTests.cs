@@ -89,7 +89,7 @@ internal static class StartupReferenceTests
         }
         string directory = Path.GetFullPath(Path.Combine("csharp", "test-temp", "render-comparison", Guid.NewGuid().ToString("N")));
         Directory.CreateDirectory(directory);
-        if (lastPixels is not null) SuperMetroid.Core.Assets.PngWriter.WriteRgba(Path.Combine(directory, $"managed-{scene}.png"), 256, 224, lastPixels);
+        if (lastPixels is not null) SuperMetroid.Core.Assets.PngWriterTooling.WriteRgba(Path.Combine(directory, $"managed-{scene}.png"), 256, 224, lastPixels);
         throw new InvalidOperationException($"Managed {scene} never matched the preserved independent Snes9x pixels. Maximum red during search: {maximumGlyphRed}. Last frame: {directory}");
     }
 }

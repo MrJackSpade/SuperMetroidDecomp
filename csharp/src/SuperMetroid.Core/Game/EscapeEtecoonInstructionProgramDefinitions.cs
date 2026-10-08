@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control words for the escape-sequence Etecoon's low/high-tide walking,
 /// waiting, gratitude, and departure programs. Spritemap selections resolve installed artwork.
 /// </summary>
-internal abstract class EscapeEtecoonInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class EscapeEtecoonInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EtecoonEscape_RunningLeft_LowTide_0</c> at $B3:E556.</summary>
     internal const ushort RunningLeftLowTide = 0xe556;
@@ -121,19 +121,5 @@ internal abstract class EscapeEtecoonInstructionProgramDefinitions : IInstructio
         }
         throw new InvalidDataException(
             $"Escape Etecoon instruction mechanics pointer $B3:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xb30000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress || bankAddress == wordAddress + 1)
-                return true;
-        }
-        return false;
     }
 }

@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyPowampInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyPowampInstructionProgramDefinitions), () => VerifyPowampInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyPowampInstructionProgramDefinitions(
@@ -155,7 +155,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (PowampInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (PowampInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

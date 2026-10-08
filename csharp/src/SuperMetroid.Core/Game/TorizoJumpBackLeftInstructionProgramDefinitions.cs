@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Game;
 /// pointers remain presentation selectors, independent of the instruction
 /// callbacks, durations, and branch destinations compiled here.
 /// </summary>
-internal abstract class TorizoJumpBackLeftInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
+internal abstract class TorizoJumpBackLeftInstructionProgramDefinitions
 {
     internal const ushort Start = 0xbc96;
 
@@ -53,9 +53,8 @@ internal abstract class TorizoJumpBackLeftInstructionProgramDefinitions : IInstr
 
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
-    static int IDeclaredProgramBank.Bank => Bank;
 
-    private static readonly InstructionProgramLayout Layout = new(Bank,
+    internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xbc96),
         Entry(Start),
         Op(TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY, MovementJumpingFallingFunction),
@@ -88,15 +87,6 @@ internal abstract class TorizoJumpBackLeftInstructionProgramDefinitions : IInstr
         Op(TorizoInstructionCodes.Instruction_Torizo_GotoY_IfFaceBlownUp_ElseGotoY2_IfGolden, FacingLeftFacelessWalkingLeftLegMoving, GTLandedFromBackwardsJumpFacingLeftRightFootFwd),
         Op(TorizoInstructionCodes.Instruction_Torizo_CallY_OrY2_ForBombTorizoAttack, FacingLeftSpewingChozoOrbsRightFootFwd0, FacingLeftSonicBoomsRightFootForward0),
         Op(CommonEnemyInstructionCodes.Goto, FacingLeftWalkingLeftLegMoving));
-
-    public static int MechanicsWordCount => Layout.MechanicsWordCount;
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        (ushort address, ushort value) = Layout.MechanicsWord(index);
-        return new(address, value);
-    }
     public static int PresentationWordCount => Layout.PresentationSlotCount;
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
-
-    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

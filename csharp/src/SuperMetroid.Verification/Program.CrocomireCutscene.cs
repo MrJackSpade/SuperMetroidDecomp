@@ -19,7 +19,7 @@ internal static partial class Program
         var walker = typeof(RoomEnemySystem).GetMethod("TryFindExtendedHitboxCallback", flags)!;
         object?[] arguments = [slot, (ushort)0, (ushort)0, (ushort)8, (ushort)8, false, (ushort)0];
         AssertTrue(!(bool)walker.Invoke(enemies, arguments)!, "river corpse has native empty collision");
-        var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         ushort Word(int address) => (ushort)(rom.ReadByte(0xa40000 | address) | rom.ReadByte(0xa40000 | (address + 1)) << 8);
         foreach (var frame in CrocomireSkeletonVisualDefinitions.Frames)
         {
@@ -71,7 +71,7 @@ internal static partial class Program
 
     private static void VerifyCrocomireCutsceneCamera()
     {
-        var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] storage = Enumerable.Range(0, RoomScrollGrid.StorageByteCount).Select(index => rom.ReadByte(0x8fa9d7 + index)).ToArray();
         var scrolls = RoomScrollGrid.LoadCompiled(rom, storage, 8, 1);
         var camera = new ScrollBoundaryCamera(scrolls);

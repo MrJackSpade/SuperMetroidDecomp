@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyShutterEmbedding()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int activatedCases = 0;
         int carriedCases = 0;
         int minimumGap = 0;
@@ -22,7 +22,7 @@ internal static partial class Program
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BrinstarShutterRoom, 0, 0);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom, 0, 0);
             var samus = runtime.Samus!;
             var platform = runtime.Enemies.Slots[slot];
             samus.Pose = SamusPoseIds.MorphBallGroundRightPose;

@@ -21,7 +21,7 @@ internal static partial class Program
                 AssertEqual((long)expected[^1], right, "integer window floor endpoint");
             }
         }
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         VerifyReportedEyeNativeEndpoints(bus);
         var cgram = new SnesCgram(); cgram.SetColor(0, 0x392a);
         var oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame();

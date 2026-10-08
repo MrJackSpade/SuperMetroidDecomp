@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyWalkingSpacePirateInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyWalkingSpacePirateInstructionProgramDefinitions), () => VerifyWalkingSpacePirateInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyWalkingSpacePirateInstructionProgramDefinitions(
@@ -193,7 +193,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (WalkingSpacePirateInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (WalkingSpacePirateInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

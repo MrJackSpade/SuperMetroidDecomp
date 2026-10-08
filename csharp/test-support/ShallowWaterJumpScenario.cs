@@ -11,7 +11,6 @@ using SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class ShallowWaterJumpScenario
 {
-    internal const string NativeTracePath = "csharp/test-fixtures/issue-1258-water-jump/native.csv";
     internal const string TraceHeader = "frame,pose,y,yspeed,ydir,radius,medium";
     internal const int JumpFrameCount = 60;
 
@@ -25,10 +24,10 @@ internal sealed class ShallowWaterJumpScenario
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BrinstarShallowWaterRoom, cameraY: 256);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShallowWaterRoom, cameraY: 256);
         var samus = Samus;
         samus.InputLocked = false;
-        samus.PoseId = SamusPoseId.FacingRightNormalPose;
+        samus.Pose = (byte)SamusPoseId.FacingRightNormalPose;
         samus.XPosition = 104; samus.YPosition = 427;
         samus.Kinematics.YSubposition = 0xffff;
         samus.EquippedItems = 0;

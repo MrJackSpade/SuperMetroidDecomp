@@ -28,7 +28,7 @@ internal static class PlmVisualDomainDefinitions
         "SuperMetroid.Core.Rooms.RoomPlmMotherBrainFakeDeathVisualCatalog" => MotherBrainFakeDeathPlmDrawDefinitions.All.ToArray(),
         // All includes the supported closed/mirrored pointers, not just the
         // authored keys required by construction. Aliases retain exact widths.
-        "SuperMetroid.Core.Rooms.RoomPlmBlueDoorVisualCatalog" => BlueDoorPlmDrawDefinitions.All.ToArray(),
+        "SuperMetroid.Core.Rooms.RoomPlmBlueDoorVisualCatalog" => BlueDoorPlmDrawDefinitionsTooling.All.ToArray(),
         "SuperMetroid.Core.Rooms.RoomPlmColoredDoorVisualCatalog" => ColoredDoorPlmDrawDefinitions.All.ToArray(),
         "SuperMetroid.Core.Rooms.RoomPlmGreyDoorVisualCatalog" => GreyDoorPlmDrawDefinitions.All.ToArray(),
         "SuperMetroid.Core.Rooms.RoomPlmEyeDoorVisualCatalog" => EyeDoorPlmDrawDefinitions.All.ToArray(),

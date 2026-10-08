@@ -7,6 +7,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
+using SuperMetroid.AssetExtraction;
 
 /// <summary>
 /// Replays one explicitly selected journal from an Android export without extracting
@@ -32,7 +33,7 @@ internal static class AndroidBundleReplay
             throw new InvalidDataException("Recording seed must name a sibling preserved debugger state.");
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
-        var importBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        var importBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         SuperMetroidAddressSpace bus = importBus;
         if (!SHA256.HashData(importBus.Rom).AsSpan().SequenceEqual(recording.RomSha256))
             throw new InvalidDataException("Local ROM does not match Android recording digest.");
@@ -50,7 +51,7 @@ internal static class AndroidBundleReplay
             }
             else
             {
-                var store = new DebuggerSaveStateStore(romPath, importBus.Rom, temporary);
+                var store = DebuggerSaveStateStoreTooling.ForCartridge(romPath, importBus.Rom, temporary);
                 using (var output = File.Create(store.GetSlotPath(0)))
                 using (var input = Required(bundle, "input-recordings/" + seed).Open()) input.CopyTo(output);
                 var loaded = store.Load(0);

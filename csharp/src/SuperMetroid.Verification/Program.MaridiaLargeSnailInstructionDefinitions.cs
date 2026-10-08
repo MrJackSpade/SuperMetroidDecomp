@@ -46,11 +46,11 @@ internal static partial class Program
         }
 
         for (int index = 0;
-             index < MaridiaLargeSnailInstructionProgramDefinitions.MechanicsWordCount;
+             index < MaridiaLargeSnailInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                MaridiaLargeSnailInstructionProgramDefinitions.MechanicsWord(index);
+                MaridiaLargeSnailInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadMaridiaLargeSnailInstructionWord(
                     rom, 0xa20000 | definition.Address),
@@ -143,11 +143,11 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(
             () => MaridiaLargeSnailInstructionDefinitions.InstructionPointer(8),
             "Maridia Large Snail selector past table");
-        AssertEqual(MaridiaLargeSnailInstructionProgramDefinitions.PresentationWordCount,
+        AssertEqual(MaridiaLargeSnailInstructionProgramDefinitionsTooling.PresentationWordCount,
             executedOperands.Count,
             "all executed visual selectors match the cartridge");
-        for (int operandIndex = 0; operandIndex < MaridiaLargeSnailInstructionProgramDefinitions.PresentationWordCount; operandIndex++)
-            AssertTrue(executedOperands.Contains(MaridiaLargeSnailInstructionProgramDefinitions.PresentationWordAddress(operandIndex)),
+        for (int operandIndex = 0; operandIndex < MaridiaLargeSnailInstructionProgramDefinitionsTooling.PresentationWordCount; operandIndex++)
+            AssertTrue(executedOperands.Contains(MaridiaLargeSnailInstructionProgramDefinitionsTooling.PresentationWordAddress(operandIndex)),
                 "execution covers each authored presentation operand");
         AssertEqual(0, guarded.ObservedPresentationWords.Count,
             "compiled visual selectors require no runtime cartridge reads");
@@ -155,7 +155,7 @@ internal static partial class Program
             "production execution avoids compiled Maridia Large Snail mechanics bytes");
         AssertThrows<InvalidDataException>(
             () => MaridiaLargeSnailInstructionProgramDefinitions.ReadMechanicsWord(
-                MaridiaLargeSnailInstructionProgramDefinitions.PresentationWordAddress(0)),
+                MaridiaLargeSnailInstructionProgramDefinitionsTooling.PresentationWordAddress(0)),
             "Maridia Large Snail presentation pointer is rejected as mechanics");
         AssertThrows<InvalidDataException>(
             () => MaridiaLargeSnailInstructionProgramDefinitions.ReadMechanicsWord(
@@ -226,7 +226,7 @@ internal static partial class Program
         public byte ReadByte(int address)
         {
             if (address is >= 0xa2cb77 and < 0xa2cb87 ||
-                MaridiaLargeSnailInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+                MaridiaLargeSnailInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -237,11 +237,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < MaridiaLargeSnailInstructionProgramDefinitions.PresentationWordCount;
+                     index < MaridiaLargeSnailInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        MaridiaLargeSnailInstructionProgramDefinitions.PresentationWordAddress(index);
+                        MaridiaLargeSnailInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

@@ -124,7 +124,7 @@ internal static partial class Program
 
     private static void VerifyBombBlockPrograms()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyBombBlockControlMapping), () => VerifyBombBlockControlMapping(rom));
         Suite(nameof(VerifyBombBlockDrawMapping), () => VerifyBombBlockDrawMapping(rom));

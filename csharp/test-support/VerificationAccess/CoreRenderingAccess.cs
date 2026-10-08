@@ -94,6 +94,24 @@ internal static class SnesBgTilemapRendererAccess
 /// <summary>Verification access to <see cref="SnesGameplayFrameRenderer"/> members production does not use.</summary>
 internal static class SnesGameplayFrameRendererAccess
 {
+    /// <summary>
+    /// Halved color math with the X-ray fixed color outside the window. Colors are expanded BGR555,
+    /// so reducing with <c>&gt;&gt; 3</c>, halving the full sum before saturation and expanding again
+    /// preserves the carry.
+    /// </summary>
+    private static Rgba32 ApplyXrayOutsideHalfColor(Rgba32 source)
+    {
+        const int FixedComponent = XrayWindowRenderDefinitions.FixedColorComponent;
+        return new Rgba32(
+            ExpandFiveBit((byte)Math.Min(31, ((source.R >> 3) + FixedComponent) >> 1)),
+            ExpandFiveBit((byte)Math.Min(31, ((source.G >> 3) + FixedComponent) >> 1)),
+            ExpandFiveBit((byte)Math.Min(31, ((source.B >> 3) + FixedComponent) >> 1)),
+            source.A);
+    }
+
+    private static byte ExpandFiveBit(byte value) =>
+        (byte)(((value & 0x1f) << 3) | ((value & 0x1f) >> 2));
+
     extension(SnesGameplayFrameRenderer)
     {
         /// <summary>
@@ -225,7 +243,7 @@ internal static class SnesGameplayFrameRendererAccess
                     }
 
                     if (!inside)
-                        frame[row + screenX] = SnesGameplayFrameRenderer.ApplyXrayOutsideHalfColor(frame[row + screenX]);
+                        frame[row + screenX] = ApplyXrayOutsideHalfColor(frame[row + screenX]);
                 }
             }
         }

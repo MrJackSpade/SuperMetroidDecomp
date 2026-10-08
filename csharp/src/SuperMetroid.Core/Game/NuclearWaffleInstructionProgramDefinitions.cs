@@ -5,20 +5,13 @@ namespace SuperMetroid.Core.Game;
 /// Frame durations and terminal loop control are immutable simulation data. The twelve
 /// interleaved selections resolve compiled identities to installed head compositions.
 /// </remarks>
-internal abstract class NuclearWaffleInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class NuclearWaffleInstructionProgramDefinitions
 {
     /// <summary><c>$A6:9490</c>, the twelve-frame body animation loop.</summary>
     internal const ushort BodyLoop = 0x9490;
 
-    private const int FrameCount = 12;
-    public static int MechanicsWordCount => FrameCount + 2;
+    internal const int FrameCount = 12;
     public static int PresentationWordCount => FrameCount;
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        ushort address = (ushort)(BodyLoop + (index < FrameCount ? index * 4 : FrameCount * 4 + (index - FrameCount) * 2));
-        return new(address, ReadMechanicsWord(address));
-    }
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -31,11 +24,5 @@ internal abstract class NuclearWaffleInstructionProgramDefinitions : IInstructio
         if (offset == FrameCount * 4) return CommonEnemyInstructionCodes.Goto;
         if (offset == FrameCount * 4 + 2) return BodyLoop;
         throw new InvalidDataException($"Nuclear Waffle instruction mechanics pointer $A6:{address:X4} is not compiled.");
-    }
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa60000) return false;
-        int offset = (ushort)address - BodyLoop;
-        return (uint)offset < FrameCount * 4 + 4 && (offset >= FrameCount * 4 || offset % 4 < 2);
     }
 }

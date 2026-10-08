@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled engine-control words for Rio's idle, swooping, and cooldown programs.
 /// Their twenty-four spritemap operands select extracted presentation frames.
 /// </summary>
-internal abstract class RioInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class RioInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Rio_Idle</c> at $A2:BB4B.</summary>
     internal const ushort Idle = 0xbb4b;
@@ -87,23 +87,5 @@ internal abstract class RioInstructionProgramDefinitions : IInstructionProgramCa
 
         throw new InvalidDataException(
             $"Rio instruction mechanics pointer $A2:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa20000)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 }

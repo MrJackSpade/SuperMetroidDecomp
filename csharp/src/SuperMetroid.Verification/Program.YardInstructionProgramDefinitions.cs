@@ -49,7 +49,7 @@ internal static partial class Program
     private static void VerifyYardInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyYardInstructionProgramDefinitions), () => VerifyYardInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyYardInstructionProgramDefinitions(
@@ -59,7 +59,7 @@ internal static partial class Program
         int presentation = 0;
         for (int address = 0xc8c6; address < 0xcc36; address += 2)
         {
-            if (YardInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa30000 | address))
+            if (YardInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa30000 | address))
             {
                 mechanics++;
                 AssertEqual(ReadYardInstructionWord(rom, unchecked((ushort)address)),
@@ -76,7 +76,7 @@ internal static partial class Program
                     $"Yard presentation word $A3:{address:X4} is rejected as mechanics");
             }
         }
-        AssertEqual(YardInstructionProgramDefinitions.MechanicsWordCount, mechanics,
+        AssertEqual(YardInstructionProgramDefinitionsTooling.MechanicsWordCount, mechanics,
             "Yard compiled mechanics word count");
         AssertEqual(YardInstructionProgramDefinitions.PresentationWordCount, presentation,
             "Yard live presentation word count");
@@ -179,7 +179,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (YardInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (YardInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyMagdolliteInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMagdolliteInstructionProgramDefinitions), () => VerifyMagdolliteInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyMagdolliteInstructionProgramDefinitions(
@@ -17,11 +17,11 @@ internal static partial class Program
         const BindingFlags flags =
             BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
         for (int index = 0;
-             index < MagdolliteInstructionProgramDefinitions.MechanicsWordCount;
+             index < MagdolliteInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                MagdolliteInstructionProgramDefinitions.MechanicsWord(index);
+                MagdolliteInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadMagdolliteInstructionWord(rom, 0xa80000 | definition.Address),
                 $"Magdollite instruction mechanics word $A8:{definition.Address:X4}");
@@ -56,11 +56,11 @@ internal static partial class Program
             "pillar cap"));
 
         for (int index = 0;
-             index < MagdolliteInstructionProgramDefinitions.PresentationWordCount;
+             index < MagdolliteInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
             ushort address =
-                MagdolliteInstructionProgramDefinitions.PresentationWordAddress(index);
+                MagdolliteInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertEqual(ReadMagdolliteInstructionWord(rom, 0xa80000 | address),
                 EnemySpritemapDefinitions.MagdolliteFrameAt(address),
                 $"compiled Magdollite presentation $A8:{address:X4}");
@@ -87,9 +87,9 @@ internal static partial class Program
 
         Console.WriteLine(
             $"Magdollite instruction mechanics: " +
-            $"{MagdolliteInstructionProgramDefinitions.MechanicsWordCount} compiled words, " +
+            $"{MagdolliteInstructionProgramDefinitionsTooling.MechanicsWordCount} compiled words, " +
             "seventeen complete head/pillar/hand programs, six real lava spawns, and " +
-            $"{MagdolliteInstructionProgramDefinitions.PresentationWordCount} compiled " +
+            $"{MagdolliteInstructionProgramDefinitionsTooling.PresentationWordCount} compiled " +
             "visual selections pass with both source classes forbidden.");
 
         void VerifyIdle(ushort program, string direction)
@@ -226,7 +226,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (MagdolliteInstructionProgramDefinitions.IsCompiledMechanicsByte(address) ||
+            if (MagdolliteInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
                 IsPresentationByte(address))
             {
                 ForbiddenReadAttempts++;

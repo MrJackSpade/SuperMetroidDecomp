@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control for the save station's twenty-cycle electricity animation. The eight
 /// spritemap operands resolve through extracted presentation art.
 /// </summary>
-internal abstract class SaveStationElectricityInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class SaveStationElectricityInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProjectile_SaveStationElectricity_0</c> at $86:E683.</summary>
     internal const ushort Initial = 0xe683;
@@ -48,24 +48,5 @@ internal abstract class SaveStationElectricityInstructionProgramDefinitions : II
         }
         throw new InvalidDataException(
             $"Save-station electricity mechanics pointer $86:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

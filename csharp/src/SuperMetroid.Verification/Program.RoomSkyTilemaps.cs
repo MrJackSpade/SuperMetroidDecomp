@@ -10,7 +10,7 @@ internal static partial class Program
 {
     private static void VerifyRoomSkyTilemaps()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyLandSkyChunkPointers), () => VerifyLandSkyChunkPointers(bus));
         Suite(nameof(VerifyOceanSkyChunkPointers), () => VerifyOceanSkyChunkPointers(bus));
@@ -71,7 +71,7 @@ internal static partial class Program
             .Where(source => source.ListPointer ==
                 unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress))
             .ToArray();
-        LibraryBackgroundProgram landingProgram = LibraryBackgroundProgramDefinitions.Get(
+        LibraryBackgroundProgram landingProgram = LibraryBackgroundProgramDefinitionsTooling.Get(
             unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress));
         AssertEqual(landingProgram.Instructions.Count, landingSources.Length,
             "compiled Landing Site transfer count matches the native list");
@@ -226,7 +226,7 @@ internal static partial class Program
             if (blockLandingList &&
                 address >= LandingSiteRomData.LibraryBackgroundListAddress &&
                 address < LandingSiteRomData.LibraryBackgroundListAddress +
-                    LibraryBackgroundProgramDefinitions.Get(
+                    LibraryBackgroundProgramDefinitionsTooling.Get(
                         unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress))
                         .NativeByteCount)
                 throw new InvalidOperationException(

@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyMorphBallEyeInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMorphBallEyeInstructionProgramDefinitions), () => VerifyMorphBallEyeInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyMorphBallEyeInstructionProgramDefinitions(
@@ -251,7 +251,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (MorphBallEyeInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (MorphBallEyeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

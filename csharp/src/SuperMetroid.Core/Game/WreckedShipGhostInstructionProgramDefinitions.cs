@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled engine-control words for the Wrecked Ship ghost (native Coven) animation
 /// loop. Its three spritemap selections resolve compiled identities to installed artwork.
 /// </summary>
-internal abstract class WreckedShipGhostInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class WreckedShipGhostInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Coven</c> at $A8:9A8C.</summary>
     internal const ushort Floating = 0x9a8c;
@@ -40,23 +40,5 @@ internal abstract class WreckedShipGhostInstructionProgramDefinitions : IInstruc
 
         throw new InvalidDataException(
             $"Wrecked Ship ghost instruction mechanics pointer $A8:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa80000)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 }

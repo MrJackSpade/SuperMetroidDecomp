@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyCreditsPresentation(string romPath)
     {
-        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         byte[] extracted = SuperMetroid.AssetExtraction.CreditsPresentationExtractor.Extract(bus);
         byte[] repeated = SuperMetroid.AssetExtraction.CreditsPresentationExtractor.Extract(bus);
         AssertTrue(extracted.AsSpan().SequenceEqual(repeated),

@@ -11,11 +11,11 @@ internal static class RetailSaveCaptureTests
 {
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.CrateriaSaveStation, 0, 0);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.CrateriaSaveStation, 0, 0);
         var station = runtime.Plms.Stations.Single(s => s.Kind == StationKind.Save);
         var level = runtime.LevelData!;
         var samus = runtime.Samus!;

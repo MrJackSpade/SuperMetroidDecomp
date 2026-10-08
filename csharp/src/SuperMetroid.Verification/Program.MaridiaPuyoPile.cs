@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyMaridiaPuyoPile()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xd27e);
         var assets = LoadFixtureRoomAssets(bus, room);
         var enemies = new RoomEnemySystem { TileArtwork = FixtureEnemyTileArtwork() };

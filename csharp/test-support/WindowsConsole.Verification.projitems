@@ -1,0 +1,6 @@
+<Project>
+  <!-- Verifier-side check of the no-dialog process policy that WindowsConsole.projitems installs. -->
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)WindowsConsole/NativeConsoleErrors.Verification.cs" Link="TestSupport/WindowsConsole/NativeConsoleErrors.Verification.cs" />
+  </ItemGroup>
+</Project>

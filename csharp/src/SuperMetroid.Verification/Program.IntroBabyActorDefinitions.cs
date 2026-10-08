@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyIntroBabyActorDefinitions()
     {
-        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyIntroBabyDiscoveryInstructions), () => VerifyIntroBabyDiscoveryInstructions(retail));
         Suite(nameof(VerifyIntroScientistInstructions), () => VerifyIntroScientistInstructions(retail));
         Suite(nameof(VerifyIntroBabyDiscoveryInput), () => VerifyIntroBabyDiscoveryInput(retail));
@@ -82,7 +82,7 @@ internal static partial class Program
         byte[] nativeCollision = VerifyIntroDiscoveryCollision(retail);
         var discovery = new IntroBabyDiscoveryState(guarded,
             existingSamus: PrepareRetailSamusFixture(new SuperMetroid.Core.Game.SamusState()));
-        var referenceBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var referenceBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var reference = new IntroBabyDiscoveryState(referenceBus,
             existingSamus: PrepareRetailSamusFixture(new SuperMetroid.Core.Game.SamusState()),

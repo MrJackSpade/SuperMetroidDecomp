@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyWaverInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyWaverInstructionProgramDefinitions), () => VerifyWaverInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyWaverInstructionProgramDefinitions(
@@ -56,10 +56,10 @@ internal static partial class Program
         AssertEqual(0, guard.ForbiddenPresentationReadAttempts,
             "Waver production programs never read installed visual selectors");
         for (int index = 0;
-             index < WaverInstructionProgramDefinitions.PresentationWordCount;
+             index < WaverInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort address = WaverInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort address = WaverInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertEqual(ReadWaverInstructionWord(rom, 0xa30000 | address),
                 EnemySpritemapDefinitions.WaverFrameAt(address),
                 $"compiled Waver frame selection $A3:{address:X4}");
@@ -150,7 +150,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (WaverInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (WaverInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -161,11 +161,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < WaverInstructionProgramDefinitions.PresentationWordCount;
+                     index < WaverInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        WaverInstructionProgramDefinitions.PresentationWordAddress(index);
+                        WaverInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

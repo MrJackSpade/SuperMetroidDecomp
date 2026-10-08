@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
@@ -9,7 +10,7 @@ internal static partial class Program
     // but the following PLM empty draw and main-loop HUD update wait for return.
     private static void VerifyCollectibleMessageTiming()
     {
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();

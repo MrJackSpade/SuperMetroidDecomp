@@ -190,11 +190,10 @@ public sealed partial class RoomEnemySystem
     private const ushort PermanentStopRestTime = 0x0ff0;
 
     private readonly GrowingShutterEnemyState?[] _growingShutterStates = new GrowingShutterEnemyState?[MaximumEnemyCount];
-    private readonly VerticalShutterEnemyState?[] _verticalShutterStates = new VerticalShutterEnemyState?[MaximumEnemyCount];
+    internal readonly VerticalShutterEnemyState?[] _verticalShutterStates = new VerticalShutterEnemyState?[MaximumEnemyCount];
     private readonly HorizontalShutterEnemyState?[] _horizontalShutterStates = new HorizontalShutterEnemyState?[MaximumEnemyCount];
     private ushort _shutterCameraX;
     private ushort _shutterCameraY;
-    public IReadOnlyList<VerticalShutterEnemyState?> VerticalShutterStates => _verticalShutterStates;
 
     /// <summary>Last library-two shutter sound queued during the current enemy frame.</summary>
     public ushort? LastShutterSoundEffect { get; private set; }

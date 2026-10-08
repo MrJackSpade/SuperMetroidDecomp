@@ -6,7 +6,6 @@ static const uint OpScanlineAdd = 8;
 static const uint OpBgAdd = 9, OpBgSubtract = 10;
 static const uint OpSubscreenAdd = 11;
 static const uint OpMessage = 12;
-static const uint OpXrayHalfColor = 13;
 static const uint OpXrayGameplay = 14;
 static const uint PaletteOffset = 16384;
 cbuffer TileParameters : register(b0)
@@ -104,14 +103,6 @@ void Main(uint3 id : SV_DispatchThreadID)
     if (id.y < FirstScanline || id.y >= EndScanline) return;
     if (WindowEnabled != 0 && HardwareWindowMasked(id.x)) return;
     if (Operation == OpXrayGameplay) { Output[id.xy] = XrayGameplay(id.xy); return; }
-    if (Operation == OpXrayHalfColor)
-    {
-        uint pixel = Output[id.xy];
-        // Keep the addition carry until after halving, as the PPU does.
-        uint3 c = min(31, ((Unpack(pixel) >> 3) + 7) >> 1);
-        Output[id.xy] = Pack((c << 3) | (c >> 2), pixel >> 24);
-        return;
-    }
     if (Operation == OpMessage)
     {
         if (id.y < TilemapWord || id.y >= TilemapWord + HorizontalScroll * 8) return;

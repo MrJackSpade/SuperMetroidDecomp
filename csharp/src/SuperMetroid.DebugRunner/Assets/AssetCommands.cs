@@ -31,16 +31,8 @@ if (args.Length == 3 && args[0].Equals("maps", StringComparison.OrdinalIgnoreCas
 {
     string romPath = ResolveWorkspacePath(args[1], mustAlreadyExist: true);
     string mapOutputDirectory = ResolveWorkspacePath(args[2], mustAlreadyExist: false);
-    string repositoryRoot = FindRepositoryRoot() ?? throw new DirectoryNotFoundException(
-        "Map extraction requires the repository's upstream-sm/assets/names.txt room catalog.");
-    string roomSymbolPath = Path.Combine(repositoryRoot, "upstream-sm", "assets", "names.txt");
-    MapAssetManifest manifest = MapAssetExtractor.Extract(
-        romPath,
-        mapOutputDirectory,
-        roomSymbolPath);
-    Console.WriteLine(
-        $"Extracted {manifest.Areas.Count} area maps and {manifest.RoomPlacementCount} " +
-        $"room placements into {mapOutputDirectory}");
+    int areas = MapAssetExtractor.Extract(romPath, mapOutputDirectory);
+    Console.WriteLine($"Extracted {areas} area maps into {mapOutputDirectory}");
     return 0;
 }
 
@@ -77,7 +69,7 @@ if (args.Length == 3 && args[0].Equals("audio", StringComparison.OrdinalIgnoreCa
 {
     string rawDirectory = ResolveWorkspacePath(args[1], mustAlreadyExist: true);
     string audioDirectory = ResolveWorkspacePath(args[2], mustAlreadyExist: false);
-    AudioAssetManifest manifest = SpcAudioAssetExtractor.Extract(rawDirectory, audioDirectory);
+    AudioAssetManifest manifest = SpcAudioAssetExtractorTooling.Extract(rawDirectory, audioDirectory);
     Console.WriteLine(
         $"Extracted {manifest.Uploads.Count} SPC streams and " +
         $"{manifest.Banks.Sum(bank => bank.Samples.Count)} source aliases into " +
@@ -91,7 +83,7 @@ if (args.Length == 3 && args[0].Equals("room", StringComparison.OrdinalIgnoreCas
     string outputPath = ResolveWorkspacePath(args[2], mustAlreadyExist: false);
     RequireRawAssetDirectory(rawDirectory);
     RenderedRoom room = RoomRenderer.Render(rawDirectory, RoomRenderer.LandingSite);
-    PngWriter.WriteRgba(outputPath, room.Width, room.Height, room.Pixels);
+    PngWriterTooling.WriteRgba(outputPath, room.Width, room.Height, room.Pixels);
     Console.WriteLine($"Rendered {RoomRenderer.LandingSite.Name} at {room.Width}x{room.Height} to {outputPath}");
     return 0;
 }
@@ -135,13 +127,13 @@ foreach (string path in Directory.EnumerateFiles(inputDirectory, "*.bin", Search
     {
         // Palette previews use real BGR555 colors. Enlarging each one-pixel swatch to 8x8
         // makes all eight 16-color sub-palettes readable without modifying their order.
-        IReadOnlyList<Rgba32> colors = SnesGraphics.DecodeBgr555Palette(decoded);
+        IReadOnlyList<Rgba32> colors = SnesGraphicsTooling.DecodeBgr555Palette(decoded);
         byte[] indexes = Enumerable.Range(0, colors.Count).Select(i => (byte)i).ToArray();
         int width = Math.Min(16, colors.Count);
         int height = (colors.Count + width - 1) / width;
         Array.Resize(ref indexes, width * height);
         png = Path.Combine("palettes", name + ".png");
-        PngWriter.WriteIndexedAsRgba(Path.Combine(outputDirectory, png), width, height, indexes, colors, scale: 8);
+        PngWriterTooling.WriteIndexedAsRgba(Path.Combine(outputDirectory, png), width, height, indexes, colors, scale: 8);
     }
     else if (format is not null)
     {
@@ -161,7 +153,7 @@ foreach (string path in Directory.EnumerateFiles(inputDirectory, "*.bin", Search
             colorCount = 1 << bits;
         }
         png = Path.Combine("tiles", name + ".png");
-        PngWriter.WriteIndexedAsRgba(
+        PngWriterTooling.WriteIndexedAsRgba(
             Path.Combine(outputDirectory, png), width, height, indexes,
             SnesGraphics.DiagnosticPalette(colorCount));
     }

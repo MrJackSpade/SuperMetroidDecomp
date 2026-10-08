@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifySciserInstructionProgramDefinitions()
     {
         Suite(nameof(VerifySciserInstructionProgramDefinitions), () => VerifySciserInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifySciserInstructionProgramDefinitions(
@@ -17,11 +17,11 @@ internal static partial class Program
             BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
 
         for (int index = 0;
-             index < SciserInstructionProgramDefinitions.MechanicsWordCount;
+             index < SciserInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                SciserInstructionProgramDefinitions.MechanicsWord(index);
+                SciserInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadSciserInstructionWord(rom, definition.Address),
                 $"Sciser mechanics word $A3:{definition.Address:X4}");
@@ -61,11 +61,11 @@ internal static partial class Program
         AssertEqual(0, guard.ObservedPresentationWords.Count,
             "Sciser instruction execution uses compiled spritemap selectors");
         for (int index = 0;
-             index < SciserInstructionProgramDefinitions.PresentationWordCount;
+             index < SciserInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
             ushort address =
-                SciserInstructionProgramDefinitions.PresentationWordAddress(index);
+                SciserInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertTrue(!guard.ObservedPresentationWords.Contains(address),
                 $"production execution avoids Sciser presentation word $A3:{address:X4}");
         }
@@ -74,7 +74,7 @@ internal static partial class Program
 
         AssertThrows<InvalidDataException>(
             () => SciserInstructionProgramDefinitions.ReadMechanicsWord(
-                SciserInstructionProgramDefinitions.PresentationWordAddress(0)),
+                SciserInstructionProgramDefinitionsTooling.PresentationWordAddress(0)),
             "Sciser spritemap pointer is rejected as mechanics");
         AssertThrows<InvalidDataException>(
             () => SciserInstructionProgramDefinitions.ReadMechanicsWord(
@@ -139,7 +139,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (SciserInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (SciserInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -149,11 +149,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < SciserInstructionProgramDefinitions.PresentationWordCount;
+                     index < SciserInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        SciserInstructionProgramDefinitions.PresentationWordAddress(index);
+                        SciserInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

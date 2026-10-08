@@ -18,7 +18,7 @@ internal readonly record struct GunshipDustDurations(int Length, ushort Initial)
 /// Compiled control for all six gunship liftoff-dust instruction lists. Interleaved
 /// spritemap operands resolve through extracted presentation art.
 /// </summary>
-internal abstract class GunshipDustInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class GunshipDustInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProjectile_GunshipLiftoffDustClouds_Index0_0</c> at $86:A197.</summary>
     internal const ushort Index0 = 0xa197;
@@ -122,22 +122,5 @@ internal abstract class GunshipDustInstructionProgramDefinitions : IInstructionP
         }
         throw new InvalidDataException(
             $"Gunship dust mechanics pointer $86:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 }

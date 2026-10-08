@@ -14,7 +14,7 @@ internal static class PlmVramArtworkAudit
          TorizoInstructionVramArtworkDefinitions.All.ToArray().Any(page =>
              source >= page.SourceAddress && source - page.SourceAddress <= page.ByteCount - count) ||
          CeresEscapeTileArtworkDefinitions.Contains(source, count) ||
-         CeresEscapeOverlayTilemapDefinitions.IsSource(source, count));
+         CeresEscapeOverlayTilemapDefinitionsTooling.IsSource(source, count));
 
     internal static void VerifySource(string root, PlmProgramAuditReport report)
     {

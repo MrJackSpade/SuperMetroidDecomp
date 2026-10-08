@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control for an Eye Door sweat drop's falling loop and floor-impact animation.
 /// Interleaved spritemap operands resolve through extracted presentation art.
 /// </summary>
-internal abstract class EyeDoorSweatInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class EyeDoorSweatInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProjectile_EyeDoorSweat</c> at $86:B615.</summary>
     internal const ushort Initial = 0xb615;
@@ -45,24 +45,5 @@ internal abstract class EyeDoorSweatInstructionProgramDefinitions : IInstruction
         throw new InvalidDataException(
             $"Eye Door sweat instruction mechanics pointer $86:{address:X4} " +
             "is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

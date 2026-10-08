@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control for the four falling ceiling-tube poses in Mother Brain's fake-death
 /// sequence. Their four spritemap operands resolve through extracted presentation art.
 /// </summary>
-internal abstract class MotherBrainTopTubeInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
+internal abstract class MotherBrainTopTubeInstructionProgramDefinitions
 {
     /// <summary>Top-right ceiling tube instruction list at $86:CC43.</summary>
     internal const ushort TopRight = 0xcc43;
@@ -22,9 +22,8 @@ internal abstract class MotherBrainTopTubeInstructionProgramDefinitions : IInstr
 
     /// <summary>Native program bank $86.</summary>
     internal const byte Bank = 0x86;
-    static int IDeclaredProgramBank.Bank => Bank;
 
-    private static readonly InstructionProgramLayout Layout = new(Bank,
+    internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xcc43),
         Entry(TopRight),
         Frame(1),
@@ -38,14 +37,7 @@ internal abstract class MotherBrainTopTubeInstructionProgramDefinitions : IInstr
         Entry(TopMiddleRight),
         Frame(1),
         Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep));
-
-    public static int MechanicsWordCount => Layout.MechanicsWordCount;
     public static int PresentationWordCount => Layout.PresentationSlotCount;
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        (ushort address, ushort value) = Layout.MechanicsWord(index);
-        return new(address, value);
-    }
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
@@ -58,6 +50,4 @@ internal abstract class MotherBrainTopTubeInstructionProgramDefinitions : IInstr
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(
                 $"Mother Brain ceiling-tube mechanics pointer $86:{address:X4} is not compiled.");
-
-    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

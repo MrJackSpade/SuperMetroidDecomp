@@ -99,7 +99,7 @@ internal static partial class Program
         try
         {
             var installation = new GameInstallation(testRoot);
-            var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+            var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
                 Path.GetFullPath("Super Metroid.smc"));
             RoomPlmDownwardGateVisualFiles.Extract(rom,
                 installation.RoomPlmDownwardGateVisualDirectory, SupportedCartridge.Sha256);

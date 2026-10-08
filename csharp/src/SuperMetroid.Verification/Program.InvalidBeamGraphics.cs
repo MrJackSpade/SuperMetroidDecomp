@@ -5,7 +5,7 @@ internal static partial class Program
 {
     private static void VerifyInvalidBeamGraphics()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(0x9090, SnesIndirectLongDataRead.ReadWord(bus, 0x90, 0x7ffe, 0),
             "both expansion bytes retain the fetched pointer bank");
         AssertEqual(0x0890, SnesIndirectLongDataRead.ReadWord(bus, 0x90, 0x7fff, 0,

@@ -11,7 +11,7 @@ internal static partial class Program
     private static void VerifyPhantoonIntroFlameSound()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = CreatePhantoonInstructionSystem(bus);
         var state = enemies.Phantoon!;
         typeof(RoomEnemySystem).GetMethod("BeginEnemySoundRequestFrame", flags)!.Invoke(enemies, null);

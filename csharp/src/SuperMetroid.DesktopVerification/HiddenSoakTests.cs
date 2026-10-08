@@ -17,7 +17,7 @@ internal static partial class Program
         var results = new List<object>();
         foreach (bool paused in new[] { false, true })
         {
-            var game = RepositoryInstallation.CreateGame(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"),
+            var game = RepositoryInstallation.CreateGame(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"),
                 new SuperMetroidGameOptions { SkipOpeningCinematic = true, Invincibility = true });
             using var audio = DesktopAccess.CreateAudioEngine();
             long sequence = 0;

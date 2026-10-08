@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyCompiledRoomHeaderDefinitions()
     {
-        var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Room header oracle revision");
         ushort[] rooms = File.ReadLines(Path.GetFullPath(Path.Combine("upstream-sm", "assets", "names.txt")))
@@ -36,7 +36,7 @@ internal static partial class Program
         {
             ushort pointer = (ushort)value;
             bool expected = known.Contains(pointer);
-            AssertEqual(expected, RoomHeaderDefinitions.Contains(pointer), $"Room membership {pointer:X4}");
+            AssertEqual(expected, RoomHeaderDefinitionsTooling.Contains(pointer), $"Room membership {pointer:X4}");
             if (expected)
             {
                 AssertEqual(pointer, RoomHeaderDefinitions.Get(pointer).Pointer, "Header preserves selected identity");

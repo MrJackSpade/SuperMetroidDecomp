@@ -94,15 +94,6 @@ internal static class CeresEscapeOverlayTilemapDefinitions
         }
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
-
-    internal static bool IsSource(int sourceAddress, int byteCount)
-    {
-        foreach (CeresEscapeOverlayTilemapDefinition page in All)
-            if (page.SourceAddress == sourceAddress &&
-                page.WordCount * sizeof(ushort) == byteCount)
-                return true;
-        return false;
-    }
 }
 
 /// <summary>Human-readable visual tile words; DMA timing and destinations are not editable.</summary>

@@ -19,10 +19,10 @@ internal static class EnemyArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/EnemyPaletteSheet.cs", "A315AC77B3BC2E0E17D83FFFB7ED84F8F9353A129BC06714BF4E8BB8998B9CB5"),
              new("csharp/src/SuperMetroid.Core/Assets/CeresEscapeTileArtwork.cs", "EEDA9FFC087B4CFDB12BF640D8AEE275DCD02E18309A69B6ADB67693B96EEADE"),
              new("csharp/src/SuperMetroid.Core/Assets/CeresEscapeTileRomData.cs", "DF8836E127366B910D5649CE661AFA7F33554113B28D4A126745013489B664CA"),
-             new("csharp/src/SuperMetroid.Core/Assets/CeresEscapeOverlayTilemapCatalog.cs", "DCEEA9B948035D40AC9E6145E50C6B79E9F2D1977CB669EE3C16EE4FD9AB0DC3"),
+             new("csharp/src/SuperMetroid.Core/Assets/CeresEscapeOverlayTilemapCatalog.cs", "86BA4A70C1CBA5DBC226469B3AB5F7432C03D106113A3DE9D266B7AD4AE84829"),
              new("csharp/src/SuperMetroid.Core/Assets/TorizoInstructionVramArtwork.cs", "E713CC6BBF734DD700CBE4397EF8D81ABEDF19299DB65A359453DFC1AEB43FBC"),
              new("csharp/src/SuperMetroid.Core/Assets/TorizoInstructionTileRomData.cs", "10F23555CAF58BB4A559874B08847132683CB1EB1487B3BF51C6B381F93286F1"),
-             new("csharp/src/SuperMetroid.Core/Game/CeresEscapeVramTransferDefinitions.cs", "3BA73AC61F296986D8A753AA84AC3DE271EE9AB9B2E73BB54E2B19DBEDB51D39"),
+             new("csharp/src/SuperMetroid.Core/Game/CeresEscapeVramTransferDefinitions.cs", "E5E588808193AAAD1B53E3659AFD7F3C4E840A766222E0B8DF121E363F8A9B5B"),
              new("csharp/src/SuperMetroid.Core/Game/CeresRidleyPaletteRomData.cs", "A5FEEC244162AEA362469C0106D049D25DA76D015B6E2ECBD010F349541A9876")]),
     ];
 }

@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Native bank-$83 door-header ranges retained for cartridge parity diagnostics.</summary>
 public static class DoorHeaderRomData
 {
-    /// <summary>SNES bank containing all physical retail door records.</summary>
-    public const int BankAddress = 0x830000;
 
     /// <summary>
     /// Shared elevator pseudo-door at <c>$83:88FC</c>. Its zero destination word is the

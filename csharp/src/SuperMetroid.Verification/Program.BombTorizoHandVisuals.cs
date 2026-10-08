@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyBombTorizoHandVisualInstallation()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
             "bomb-torizo-hand-visual-" + Guid.NewGuid().ToString("N")));

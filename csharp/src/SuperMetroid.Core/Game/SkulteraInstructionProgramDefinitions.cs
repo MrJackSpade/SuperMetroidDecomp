@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Game;
 /// simulation data. The twenty-two interleaved spritemap pointers are compiled
 /// separately from their editable composition assets.
 /// </remarks>
-internal abstract class SkulteraInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class SkulteraInstructionProgramDefinitions
 {
     /// <summary><c>$A3:902A</c>, the layer callback and three-frame left-swimming loop.</summary>
     internal const ushort SwimmingLeft = 0x902a;
@@ -89,22 +89,5 @@ internal abstract class SkulteraInstructionProgramDefinitions : IInstructionProg
 
         throw new InvalidDataException(
             $"Skultera instruction mechanics pointer $A3:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa30000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 }

@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyZebetiteInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyZebetiteInstructionProgramDefinitions), () => VerifyZebetiteInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyZebetiteInstructionProgramDefinitions(
@@ -155,7 +155,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (ZebetiteInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (ZebetiteInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

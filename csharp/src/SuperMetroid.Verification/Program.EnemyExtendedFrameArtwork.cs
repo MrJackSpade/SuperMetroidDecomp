@@ -149,9 +149,9 @@ internal static partial class Program
             .ToHashSet();
         var draygonBg2Pointers = new HashSet<ushort>();
         for (int index = 0; index <
-             DraygonInstructionProgramDefinitions.PresentationWordCount; index++)
+             DraygonInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
         {
-            ushort operand = DraygonInstructionProgramDefinitions
+            ushort operand = DraygonInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             ushort pointer = (ushort)(rom.ReadByte(0xa50000 | operand) |
                 rom.ReadByte(0xa50000 | unchecked((ushort)(operand + 1))) << 8);

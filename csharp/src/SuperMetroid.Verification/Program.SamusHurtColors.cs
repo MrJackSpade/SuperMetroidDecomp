@@ -16,7 +16,7 @@ internal static partial class Program
             return;
         }
 
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         SamusHurtColorCatalog catalog = SamusHurtColorCatalog.Load(
             new MemoryStream(SamusHurtColorExtractor.Extract(rom)));
         foreach (SamusHurtColorVariant variant in Enum.GetValues<SamusHurtColorVariant>())

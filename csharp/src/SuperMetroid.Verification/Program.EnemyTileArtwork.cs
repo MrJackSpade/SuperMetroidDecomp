@@ -15,7 +15,7 @@ internal static partial class Program
             Console.WriteLine("  Enemy tile artwork: private ROM absent; retail extraction skipped.");
             return;
         }
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         Suite(nameof(VerifyBombTorizoDormantDefinitions), () => VerifyBombTorizoDormantDefinitions(bus));
         Suite(nameof(VerifyGoldenTorizoInitialDefinitions), () => VerifyGoldenTorizoInitialDefinitions(bus));
         string directory = Path.Combine(Path.GetFullPath("csharp/test-temp"),

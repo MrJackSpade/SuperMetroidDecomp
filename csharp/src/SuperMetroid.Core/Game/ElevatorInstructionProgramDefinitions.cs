@@ -4,24 +4,10 @@ namespace SuperMetroid.Core.Game;
 /// Compiled engine-control words for the ordinary elevator's two-frame animation loop.
 /// Its two spritemap operands resolve through compiled presentation selectors.
 /// </summary>
-internal abstract class ElevatorInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class ElevatorInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Elevator</c> at $A3:94D6.</summary>
     internal const ushort Loop = 0x94d6;
-
-    public static int MechanicsWordCount => 4;
-    public static int PresentationWordCount => 2;
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        ushort address = (ushort)(Loop + (index < 2 ? 4 * index : 8 + 2 * (index - 2)));
-        return new(address, ReadMechanicsWord(address));
-    }
-    public static ushort PresentationWordAddress(int index)
-    {
-        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
-        return (ushort)(Loop + 2 + 4 * index);
-    }
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - (Loop + 2);
@@ -35,11 +21,5 @@ internal abstract class ElevatorInstructionProgramDefinitions : IInstructionProg
         if (offset == 10) return Loop;
         throw new InvalidDataException(
             $"Elevator instruction mechanics pointer $A3:{address:X4} is not compiled.");
-    }
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa30000) return false;
-        int offset = unchecked((ushort)address) - Loop;
-        return (uint)offset < 12 && (offset >= 8 || offset % 4 < 2);
     }
 }

@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void AuditRepeatedShutterBombs()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int cases = 0, worstGap = 0;
         foreach (int slotIndex in new[] { 0, 1 })
         foreach (int offset in new[] { -3, 0, 3 })
@@ -19,7 +19,7 @@ internal static partial class Program
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BrinstarShutterRoom);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom);
             var samus = runtime.Samus!;
             var platform = runtime.Enemies.Slots[slotIndex];
             samus.InputLocked = false;

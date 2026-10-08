@@ -14,8 +14,8 @@ internal static partial class Program
         // copy layouts. The installed path forbids reads from the visual source bank.
         foreach (ushort parameter in new ushort[] { 0, 2 })
         {
-            var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
-            var installedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+            var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
+            var installedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
             ReferenceDeadTourianCorpseGraphics(nativeBus, RoomEnemySystem.DeadSidehopperDefinition, parameter / 2);
             InitializeDeadSidehopperArtwork(installedBus, stock, parameter);
             for (int offset = 0; offset < 0x1000; offset++)
@@ -33,8 +33,8 @@ internal static partial class Program
         {
             for (int variant = 0; variant < variantCount; variant++)
             {
-                var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
-                var installedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+                var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
+                var installedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
                 ReferenceDeadTourianCorpseGraphics(nativeBus, definition, variant);
                 InitializeDeadTourianCorpseArtwork(installedBus, stock, definition, variant);
                 for (int offset = 0; offset < 0x1000; offset++)
@@ -48,7 +48,7 @@ internal static partial class Program
             new Dictionary<ushort, RoomCharacterAtlas>(),
             new Dictionary<ushort, EnemyPaletteSheet>());
         AssertThrows<InvalidDataException>(() => InitializeDeadSidehopperArtwork(
-                SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"), missing, 0),
+                SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"), missing, 0),
             "bound dead-sidehopper art cannot silently fall back to ROM");
 
         string fileName = EnemyTileArtworkFormat.FileName(RoomEnemySystem.DeadSidehopperDefinition);
@@ -64,8 +64,8 @@ internal static partial class Program
         Directory.CreateDirectory(overrideDirectory);
         using (var output = File.Create(Path.Combine(overrideDirectory, fileName)))
             IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
-        var stockBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
-        var editedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var stockBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
+        var editedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         InitializeDeadSidehopperArtwork(stockBus, stock, 0);
         InitializeDeadSidehopperArtwork(editedBus,
             EnemyTileArtworkFiles.Load(directory, overrideDirectory), 0);
@@ -80,7 +80,7 @@ internal static partial class Program
                 editedBus.ReadByte(0x7e2000 + offset),
                 "dead-sidehopper PNG edit leaves other corpse bytes unchanged");
         }
-        var reloadedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var reloadedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         InitializeDeadSidehopperArtwork(reloadedBus,
             EnemyTileArtworkFiles.Load(directory, overrideDirectory), 0);
         AssertEqual(editedBus.ReadByte(0x7e2040), reloadedBus.ReadByte(0x7e2040),
@@ -92,7 +92,7 @@ internal static partial class Program
     private static void VerifyDeadTourianCorpseVisuals(
         EnemyTileArtworkCatalog stock)
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         AssertEqual(DeadTourianCorpseVisualDefinitions.CorpseFrameCount,
             DeadTourianCorpseInstructionProgramDefinitions.ProgramCount,
             "every dead Tourian corpse program has an editable composition");
@@ -100,7 +100,7 @@ internal static partial class Program
              index < DeadTourianCorpseInstructionProgramDefinitions.ProgramCount;
              index++)
         {
-            ushort operand = DeadTourianCorpseInstructionProgramDefinitions
+            ushort operand = DeadTourianCorpseInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             int selectorAddress = (DeadTourianCorpseVisualDefinitions.Bank << 16) | operand;
             ushort nativePointer = unchecked((ushort)(
@@ -132,10 +132,10 @@ internal static partial class Program
         }
         var sidehopperPointers = new HashSet<ushort>();
         for (int index = 0;
-             index < DeadSidehopperInstructionProgramDefinitions.PresentationWordCount;
+             index < DeadSidehopperInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort operand = DeadSidehopperInstructionProgramDefinitions
+            ushort operand = DeadSidehopperInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             int selectorAddress = (DeadTourianCorpseVisualDefinitions.Bank << 16) | operand;
             ushort nativePointer = unchecked((ushort)(

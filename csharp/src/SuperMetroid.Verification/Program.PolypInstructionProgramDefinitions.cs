@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyPolypInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyPolypInstructionProgramDefinitions), () => VerifyPolypInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyPolypInstructionProgramDefinitions(
@@ -112,7 +112,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (PolypInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (PolypInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

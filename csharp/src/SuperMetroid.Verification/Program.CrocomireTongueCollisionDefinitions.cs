@@ -20,10 +20,10 @@ internal static partial class Program
         { Bank = CrocomireTongueCollisionDefinitions.Bank };
         var seen = new HashSet<ushort>();
         for (int index = 0;
-             index < CrocomireTongueInstructionProgramDefinitions.PresentationWordCount;
+             index < CrocomireTongueInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort operand = CrocomireTongueInstructionProgramDefinitions
+            ushort operand = CrocomireTongueInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             ushort native = (ushort)(rom.ReadByte(0xa40000 | operand) |
                 rom.ReadByte(0xa40000 | unchecked((ushort)(operand + 1))) << 8);
@@ -79,7 +79,7 @@ internal static partial class Program
     }
     private static void VerifyCrocomireTongueCollisionDefinitions()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyCrocomireTongueFramePositions), () => VerifyCrocomireTongueFramePositions(rom));
         Suite(nameof(VerifyCrocomireTongueComponentCases), () => VerifyCrocomireTongueComponentCases(rom));

@@ -33,17 +33,6 @@ public static class SoftwareLayeredSnapshotRenderer
                 case GameplayColorMathRenderLayer gameplayXray:
                     output = SoftwareGameplayColorMathRenderer.Render(memory, gameplayXray, snapshot.ObjectSelection, gameplayOutputBuffer);
                     break;
-                case XrayWindowRenderLayer xray:
-                    Rgba32[] revealed = Render(xray.Reveal, scratch.Colors(SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels));
-                    for (int y = SnesPpuLayout.GameplayHudHeightPixels; y < SnesPpuLayout.ScreenHeightPixels; y++)
-                    for (int x = 0; x < SnesPpuLayout.ScreenWidthPixels; x++)
-                    {
-                        int index = y * SnesPpuLayout.ScreenWidthPixels + x;
-                        XrayWindowLine line = xray.Lines[y];
-                        output[index] = x >= line.Left && x <= line.Right
-                            ? revealed[index] : SnesGameplayFrameRenderer.ApplyXrayOutsideHalfColor(output[index]);
-                    }
-                    break;
                 case WindowedSceneRenderLayer window:
                     Rgba32[] scene = Render(window.Scene, scratch.Colors(SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels));
                     for (int y = window.Top; y < window.Bottom; y++)

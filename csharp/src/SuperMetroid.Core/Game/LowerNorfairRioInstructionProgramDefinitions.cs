@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled timing, private callbacks, and loop control for Lower Norfair Rio parent and
 /// flame programs. Interleaved spritemap operands select extracted presentation frames.
 /// </summary>
-internal abstract class LowerNorfairRioInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class LowerNorfairRioInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Holtz_Idle_0</c> at $A2:C61A.</summary>
     internal const ushort Idle = 0xc61a;
@@ -29,34 +29,8 @@ internal abstract class LowerNorfairRioInstructionProgramDefinitions : IInstruct
     private static readonly ushort[] CooldownDurations = [3, 3, 2, 1, 2, 3, 1, 1, 1];
     /// <summary>$A2:C6B0 flame display holds; three values do not establish a halving process. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private static readonly ushort[] FlameDurations = [6, 4, 3];
-    public static int MechanicsWordCount => 51;
-    public static int PresentationWordCount => 32;
 
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount)
-            throw new IndexOutOfRangeException();
-        for (int address = Idle; address < AdjacentMovementDefinitions; address += 2)
-        {
-            if (!IsPresentationWord((ushort)address) && index-- == 0)
-                return new((ushort)address, ReadMechanicsWord((ushort)address));
-        }
-        throw new IndexOutOfRangeException();
-    }
-
-    public static ushort PresentationWordAddress(int index)
-    {
-        if ((uint)index >= PresentationWordCount)
-            throw new IndexOutOfRangeException();
-        for (int address = Idle; address < AdjacentMovementDefinitions; address += 2)
-        {
-            if (IsPresentationWord((ushort)address) && index-- == 0)
-                return (ushort)address;
-        }
-        throw new IndexOutOfRangeException();
-    }
-
-    private static ushort ProgramAt(ushort address) => address switch
+    internal static ushort ProgramAt(ushort address) => address switch
     {
         >= Idle and < PrepareToSwoop => Idle,
         >= PrepareToSwoop and < Descending => PrepareToSwoop,
@@ -126,12 +100,4 @@ internal abstract class LowerNorfairRioInstructionProgramDefinitions : IInstruct
         Flames => FlameDurations[frame],
         _ => throw new InvalidDataException(),
     };
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa20000)
-            return false;
-        ushort word = (ushort)(address & ~1);
-        return ProgramAt(word) != 0 && !IsPresentationWord(word);
-    }
 }

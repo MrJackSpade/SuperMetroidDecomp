@@ -14,7 +14,7 @@ internal static partial class Program
     /// </summary>
     private static void VerifySpacetimeBeam()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SpacetimeBeamCopyDefinitions.LastSourceAddress - SpacetimeBeamCopyDefinitions.FirstSourceAddress + 1,
             SpacetimeBeamCopyDefinitions.SourceBytes.Length, "bounded native copy definition size");
@@ -242,7 +242,7 @@ internal static partial class Program
 
         SuperMetroidGame CreateGame(bool skipOpening)
         {
-            var restartBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+            var restartBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
                 Path.GetFullPath("Super Metroid.smc"));
             var restartSaves = new SuperMetroidSaveRam(restartBus, RetailPresentationFixture());
             restartSaves.SaveSlot(0, CreateResetSnapshot());
@@ -311,7 +311,7 @@ internal static partial class Program
     }
     private static void VerifySpacetimeBeamGraphics()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var gameplayBus = new SpacetimeMutableOnlyBus(bus);
         var artwork = RepositoryInstallation.Projectiles.BeamTiles;
         AssertEqual(SpacetimeBeamGraphicsDefinitions.TileSource & 0xffff,

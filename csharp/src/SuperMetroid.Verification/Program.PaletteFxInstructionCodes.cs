@@ -28,7 +28,7 @@ internal static partial class Program
             return;
         }
 
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         Type[] catalogs =
         [
             PaletteFxInstructionCodesType(),
@@ -264,7 +264,7 @@ internal static partial class Program
             ("Copyright",
                 NintendoLogoFadePaletteFxProgramMechanicsDefinitions.CopyrightDefinitionPointer),
         ];
-        AssertEqual(nintendoLogoEntries.Length, NintendoLogoFadePaletteFxProgramMechanicsDefinitions.All.Count,
+        AssertEqual(nintendoLogoEntries.Length, NintendoLogoFadePaletteFxProgramMechanicsDefinitionsTooling.All.Count,
             "Nintendo-logo fade exposes one definition per entry");
         foreach ((string owner, ushort definitionPointer) in nintendoLogoEntries)
         {
@@ -954,7 +954,7 @@ internal static partial class Program
             ("SpaceWhiteout",
                 ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.SpaceWhiteoutDefinitionPointer),
         ];
-        AssertEqual(whiteoutEntries.Length, ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.All.Count,
+        AssertEqual(whiteoutEntries.Length, ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitionsTooling.All.Count,
             "Zebes explosion whiteout exposes one definition per entry");
         foreach ((string owner, ushort definitionPointer) in whiteoutEntries)
         {
@@ -1391,7 +1391,7 @@ internal static partial class Program
             (CeresCinematicLightPaletteFxProgramOwner.BackgroundNavigationLights,
                 CeresCinematicLightPaletteFxProgramMechanicsDefinitions.BackgroundNavigationLightsDefinitionPointer),
         ];
-        AssertEqual(ceresLightEntries.Length, CeresCinematicLightPaletteFxProgramMechanicsDefinitions.All.Count,
+        AssertEqual(ceresLightEntries.Length, CeresCinematicLightPaletteFxProgramMechanicsDefinitionsTooling.All.Count,
             "Ceres cinematic lights expose one definition per entry");
         foreach ((CeresCinematicLightPaletteFxProgramOwner owner, ushort definitionPointer) in ceresLightEntries)
         {
@@ -1722,7 +1722,7 @@ internal static partial class Program
         }
 
         foreach (TourianEscapeSharedRedFlashPaletteFxProgramDefinition definition in
-                 TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.All)
+                 TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitionsTooling.All)
         {
             var guarded = new PaletteFxMechanicsForbiddenBus(bus);
             var paletteFx = new RoomPaletteFxSystem();
@@ -2621,7 +2621,7 @@ internal static partial class Program
     {
         var expected = new Dictionary<ushort, ushort>();
         foreach (TourianStatueGreyPaletteFxProgramDefinition definition in
-                 TourianStatueGreyPaletteFxProgramMechanicsDefinitions.All)
+                 TourianStatueGreyPaletteFxProgramMechanicsDefinitionsTooling.All)
         {
             expected.Add(definition.ProgramStart, PaletteFxInstructionCodes.SetColorIndex);
             expected.Add(unchecked((ushort)(definition.ProgramStart + 2)),
@@ -2680,7 +2680,7 @@ internal static partial class Program
         }
 
         foreach (TourianStatueGreyPaletteFxProgramDefinition definition in
-                 TourianStatueGreyPaletteFxProgramMechanicsDefinitions.All)
+                 TourianStatueGreyPaletteFxProgramMechanicsDefinitionsTooling.All)
         {
             var guarded = new PaletteFxMechanicsForbiddenBus(bus);
             var paletteFx = new RoomPaletteFxSystem();

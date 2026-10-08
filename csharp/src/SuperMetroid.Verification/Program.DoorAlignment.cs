@@ -59,7 +59,6 @@ internal static partial class Program
             var door = new CartridgeDoorHeader(
                 Pointer: 0x8000,
                 DestinationRoomPointer: 0x9000,
-                BitFlags: 0,
                 Orientation: (byte)direction,
                 PlmX: 0,
                 PlmY: 0,
@@ -99,7 +98,7 @@ internal static partial class Program
     {
         const ushort sourceRoom = 0xb236;
         const ushort destinationRoom = 0xb1e5;
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();

@@ -12,7 +12,7 @@ internal static partial class Program
 {
     private static void VerifyFileCopyArrow()
     {
-        var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var installation = RepositoryInstallation.Installation;
         var art = RepositoryInstallation.Maps;
         // All SRAM changes belong to this private imported address space.

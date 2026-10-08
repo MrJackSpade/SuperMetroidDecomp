@@ -196,7 +196,7 @@ internal static partial class Program
     private static void VerifyCrocomireSpikeCompatibility(SuperMetroidRuntime runtime,
         ISnesAddressSpace bus, RoomFxAnimatedTileAtlas stock)
     {
-        var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         using var png = new MemoryStream(RoomFxAnimatedTileAtlasExtractor.Extract(rom));
         var image = IndexedPng.Read(png, RoomFxAnimatedTileAtlasFormat.Width, 8);
         int oldWidth = RoomFxAnimatedTileAtlasFormat.PreSpikesWidth;

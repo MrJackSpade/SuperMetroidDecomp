@@ -8,7 +8,7 @@ internal static partial class Program
     // GR-2: the Chozo pickup must arm native lava motion only on message return.
     private static void VerifySpeedBoosterPickupContinuation()
     {
-        var cartridge = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var cartridge = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (bool chozo in new[] { true, false })
         {
             var bus = new TestAddressSpace();

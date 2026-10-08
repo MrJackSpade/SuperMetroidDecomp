@@ -13,10 +13,10 @@ internal static partial class Program
         // never broaden Draygon's empty-list shortcut to a different enemy.
         var sporePointers = new HashSet<ushort>();
         for (int index = 0;
-             index < SporeSpawnInstructionProgramDefinitions.PresentationWordCount;
+             index < SporeSpawnInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort address = SporeSpawnInstructionProgramDefinitions
+            ushort address = SporeSpawnInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             sporePointers.Add(ReadWord(
                 (DraygonBg2FrameDefinitions.Bank << 16) | address));

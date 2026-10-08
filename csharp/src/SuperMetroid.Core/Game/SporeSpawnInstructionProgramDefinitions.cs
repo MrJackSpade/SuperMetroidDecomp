@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Game;
 /// forty-one presentation operands belong to the separate compiled visual-selector
 /// catalog when artwork is installed; unbound native diagnostics can still read the bus.
 /// </remarks>
-internal abstract class SporeSpawnInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
+internal abstract class SporeSpawnInstructionProgramDefinitions
 {
     /// <summary><c>$A5:E6B9</c>, defeated-room initialization program.</summary>
     internal const ushort InitialDead = 0xe6b9;
@@ -75,9 +75,8 @@ internal abstract class SporeSpawnInstructionProgramDefinitions : IInstructionPr
 
     /// <summary>Native program bank $A5.</summary>
     internal const byte Bank = 0xa5;
-    static int IDeclaredProgramBank.Bank => Bank;
 
-    private static readonly InstructionProgramLayout Layout = new(Bank,
+    internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xe6b9),
         Entry(InitialDead),
         Op(SpawnLoadDeathSequenceTargetPalette, 0x00c0),
@@ -172,21 +171,6 @@ internal abstract class SporeSpawnInstructionProgramDefinitions : IInstructionPr
         Op(SpawnCallSporeSpawnDeathItemDropRoutine),
         Op(CommonEnemyInstructionCodes.Sleep));
 
-    public static int MechanicsWordCount => Layout.MechanicsWordCount;
-
-    /// <summary>Number of interleaved presentation words, compiled separately for installed play.</summary>
-    public static int PresentationWordCount => Layout.PresentationSlotCount;
-
-    /// <summary>Returns one mechanics definition for cartridge-equivalence verification.</summary>
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        (ushort address, ushort value) = Layout.MechanicsWord(index);
-        return new(address, value);
-    }
-
-    /// <summary>Returns one live spritemap-word address for boundary verification.</summary>
-    public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
-
     /// <summary>
     /// Reads one mechanics word and rejects presentation addresses or pointers outside the
     /// translated family. A restored invalid cursor must not silently resume ROM execution.
@@ -195,7 +179,4 @@ internal abstract class SporeSpawnInstructionProgramDefinitions : IInstructionPr
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(
                 $"Spore Spawn instruction mechanics pointer $A5:{address:X4} is not compiled.");
-
-    /// <summary>True when an absolute address names a byte owned by compiled mechanics.</summary>
-    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

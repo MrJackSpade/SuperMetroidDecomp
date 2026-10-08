@@ -50,7 +50,7 @@ internal static partial class Program
         string romPath = Path.GetFullPath("Super Metroid.smc");
         string symbolPath = Path.GetFullPath(
             Path.Combine("upstream-sm", "assets", "names.txt"));
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         RetailFxRoomState[] states = File.ReadLines(symbolPath)
             .Select(ParseRetailFxRoomState)
             .Where(state => state.HasValue)
@@ -159,7 +159,7 @@ internal static partial class Program
                         (ReadRetailFxRecordByte(
                             bus,
                             selectedRecord,
-                            RoomFxRomData.Record.LiquidOptionsOffset) &
+                            RoomFxRomDataRecordTooling.LiquidOptionsOffset) &
                             (RoomFxRomData.LiquidTide.SmallTideOption |
                              RoomFxRomData.LiquidTide.LargeTideOption)) != 0)
                     {
@@ -213,7 +213,7 @@ internal static partial class Program
         if (expectedRecord != 0)
         {
             byte blend = ReadRetailFxRecordByte(bus, expectedRecord,
-                RoomFxRomData.Record.PaletteBlendOffset);
+                RoomFxRomDataRecordTooling.PaletteBlendOffset);
             AssertTrue(blend == 0 || RoomFxPaletteBlendDefinitions.Ids.Contains(blend),
                 $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
                 $"$83:{doorPointer:X4} uses an extracted FX palette blend (${blend:X2})");
@@ -224,7 +224,7 @@ internal static partial class Program
                 ReadRetailFxRecordByte(
                     bus,
                     expectedRecord,
-                    RoomFxRomData.Record.TypeOffset),
+                    RoomFxRomDataRecordTooling.TypeOffset),
                 $"retail room {room.Identity} state $8F:{room.State.Pointer:X4} " +
                 $"entry $83:{doorPointer:X4}");
         ushort expectedBase = expectedRecord == 0
@@ -232,19 +232,19 @@ internal static partial class Program
             : ReadRetailFxRecordWord(
                 bus,
                 expectedRecord,
-                RoomFxRomData.Record.BaseYPositionOffset);
+                RoomFxRomDataRecordTooling.BaseYPositionOffset);
         ushort expectedTarget = expectedRecord == 0
             ? (ushort)0
             : ReadRetailFxRecordWord(
                 bus,
                 expectedRecord,
-                RoomFxRomData.Record.TargetYPositionOffset);
+                RoomFxRomDataRecordTooling.TargetYPositionOffset);
         ushort expectedVelocity = expectedRecord == 0
             ? (ushort)0
             : ReadRetailFxRecordWord(
                 bus,
                 expectedRecord,
-                RoomFxRomData.Record.YVelocityOffset);
+                RoomFxRomDataRecordTooling.YVelocityOffset);
 
         var vram = new SnesVram();
         var cgram = new SnesCgram();
@@ -490,7 +490,7 @@ internal static partial class Program
         if ((uint)fieldOffset >= RoomFxRomData.Record.ByteCount)
             throw new ArgumentOutOfRangeException(nameof(fieldOffset));
         return CartridgeImportSource.Require(bus).ReadCartridgeByte(
-            RoomFxRomData.Banks.RoomDefinitions | (record + fieldOffset));
+            RoomFxRomDataBanksTooling.RoomDefinitions | (record + fieldOffset));
     }
 
     /// <summary>Reads a native FX word directly from the import-only cartridge source.</summary>
@@ -499,7 +499,7 @@ internal static partial class Program
         if ((uint)fieldOffset > RoomFxRomData.Record.ByteCount - sizeof(ushort))
             throw new ArgumentOutOfRangeException(nameof(fieldOffset));
         return RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-            RoomFxRomData.Banks.RoomDefinitions | (record + fieldOffset));
+            RoomFxRomDataBanksTooling.RoomDefinitions | (record + fieldOffset));
     }
 
     /// <summary>
@@ -520,7 +520,7 @@ internal static partial class Program
             ushort candidateDoor = ReadRetailFxRecordWord(
                 bus,
                 cursor,
-                RoomFxRomData.Record.DoorPointerOffset);
+                RoomFxRomDataRecordTooling.DoorPointerOffset);
             if (candidateDoor == RoomFxRomData.Record.TerminatorDoorPointer)
                 return 0;
             if (candidateDoor == 0 || candidateDoor == doorPointer)
@@ -545,7 +545,7 @@ internal static partial class Program
             ushort doorPointer = ReadRetailFxRecordWord(
                 bus,
                 cursor,
-                RoomFxRomData.Record.DoorPointerOffset);
+                RoomFxRomDataRecordTooling.DoorPointerOffset);
             if (doorPointer == 0 || doorPointer == RoomFxRomData.Record.TerminatorDoorPointer)
                 yield break;
             yield return doorPointer;

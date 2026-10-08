@@ -118,7 +118,7 @@ internal static partial class Program
         if (edit == "cannon-attributes") cannonDocument.SpriteAttributes[0] = 1;
         if (edit == "cannon-sources") cannonDocument.TileSources[0][1] = SamusArmCannonArtworkFormat.TileSourcePointers[1];
         int cannonWidth = SamusArmCannonArtworkFormat.TileSourcePointers.Length * 8;
-        SamusArmCannonArtworkCatalog cannon = SamusArmCannonArtworkCatalog.Load(
+        SamusArmCannonArtworkCatalog cannon = SamusArmCannonArtworkCatalogTooling.Load(
             new MemoryStream(SamusArmCannonArtworkCatalog.Write(cannonDocument)),
             Png(cannonWidth, 8, edit == "cannon-tiles"));
         return new SamusBodyArtworkCatalog(topPointers, bottomPointers, poses, graphics, frames,

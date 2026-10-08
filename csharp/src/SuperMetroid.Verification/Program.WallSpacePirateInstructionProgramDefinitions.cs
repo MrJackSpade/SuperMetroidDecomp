@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyWallSpacePirateInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyWallSpacePirateInstructionProgramDefinitions), () => VerifyWallSpacePirateInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyWallSpacePirateInstructionProgramDefinitions(
@@ -16,11 +16,11 @@ internal static partial class Program
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int index = 0;
-             index < WallSpacePirateInstructionProgramDefinitions.MechanicsWordCount;
+             index < WallSpacePirateInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                WallSpacePirateInstructionProgramDefinitions.MechanicsWord(index);
+                WallSpacePirateInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadWallPirateWord(rom, 0xb20000 | definition.Address),
                 $"wall Pirate mechanics word $B2:{definition.Address:X4}");
@@ -261,7 +261,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (WallSpacePirateInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (WallSpacePirateInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

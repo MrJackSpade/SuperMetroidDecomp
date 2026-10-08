@@ -106,7 +106,7 @@ internal static partial class Program
 
     private static void VerifyGrappleBlockPrograms()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyGrappleBlockStockVisualMapping), () => VerifyGrappleBlockStockVisualMapping(rom));
         Suite(nameof(VerifyGrappleBlockControlMapping), () => VerifyGrappleBlockControlMapping(rom));

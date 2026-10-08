@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Game;
 /// interleaved extended-spritemap selectors are compiled presentation data;
 /// their selected OAM frames live in the installed enemy-art catalog.
 /// </summary>
-internal abstract class KraidArmInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class KraidArmInstructionProgramDefinitions
 {
     /// <summary><c>InstList_KraidArm_Normal_0</c> at $A7:89F3.</summary>
     internal const ushort Normal = 0x89f3;
@@ -80,17 +80,5 @@ internal abstract class KraidArmInstructionProgramDefinitions : IInstructionProg
             if (word.Address == address) return word.Value;
         }
         throw new InvalidDataException($"Kraid arm mechanics pointer $A7:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa70000) return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress || bankAddress == unchecked((ushort)(wordAddress + 1))) return true;
-        }
-        return false;
     }
 }

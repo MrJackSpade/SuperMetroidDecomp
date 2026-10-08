@@ -62,7 +62,7 @@ internal static class ClosedPresentationContractDefinitions
         new("SuperMetroid.Core.Assets.MotherBrainRoomColorPresentation", "mother-brain-room-v3-complete-rows",
             ["ApplyFlash", "ApplyFinal", "ApplyPhaseTwoInitial", "ApplyRoomEntry", "ApplyRecoveryLights"],
             [new("csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs", "9858BA667DD808C94E9984AE34F086C5411FE58CA24B9B52CA0E025C0DAD4619"),
-             new("csharp/src/SuperMetroid.Core/Game/MotherBrainRoomColorRomData.cs", "C5CFB5EE9E88A3B4BD02307EB5C0C8512C53F67720D99128A77C583492954003"),
+             new("csharp/src/SuperMetroid.Core/Game/MotherBrainRoomColorRomData.cs", "803A616ED9BCFEA112F306393FBB10FC56FBB2BA328923A73DBB9B60DB2C4971"),
              new("csharp/src/SuperMetroid.Core/Assets/MotherBrainAttackPaintDefinitions.cs", "6A30A7BD6A6D487987ED6F3372ED19E301AF3F9FF2EAEC4F37CD43D17830610F"),
              new("csharp/src/SuperMetroid.Core/Assets/MotherBrainRecoveryPaintDefinitions.cs", "182FCC0906C39FD23DB0C005AA8A25B85D841FB9D7A02ADC0B906C9AA389C928"),
              new("csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomFlashPaintDefinitions.cs", "B41FFDAFEDA73C02387816FB9FABD5B5E61983C859ABC3BAFB4511FAC6E6B0F1"),

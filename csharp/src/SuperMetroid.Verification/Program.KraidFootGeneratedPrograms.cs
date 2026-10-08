@@ -33,12 +33,12 @@ internal static partial class Program
     {
         var original = ReadOriginalKraidFootPrograms(rom).Mechanics;
         AssertEqual(193, original.Count, "native Kraid foot mechanics count");
-        AssertEqual(original.Count, KraidFootInstructionProgramDefinitions.MechanicsWordCount, "generated mechanics count");
+        AssertEqual(original.Count, KraidFootInstructionProgramDefinitionsTooling.MechanicsWordCount, "generated mechanics count");
         var bytes = new HashSet<int>();
         for (int index = 0; index < original.Count; index++)
         {
             var word = original[index];
-            AssertEqual(word, KraidFootInstructionProgramDefinitions.MechanicsWord(index), "original indexed mechanics");
+            AssertEqual(word, KraidFootInstructionProgramDefinitionsTooling.MechanicsWord(index), "original indexed mechanics");
             AssertEqual(word.Value, KraidFootInstructionProgramDefinitions.ReadMechanicsWord(word.Address), "original mechanics read");
             bytes.Add(word.Address);
             bytes.Add(word.Address + 1);
@@ -46,27 +46,27 @@ internal static partial class Program
                 "high mechanics byte is not a word address");
         }
         for (int address = 0; address <= ushort.MaxValue; address++)
-            AssertEqual(bytes.Contains(address), KraidFootInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa70000 | address),
+            AssertEqual(bytes.Contains(address), KraidFootInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa70000 | address),
                 "complete native mechanics byte domain");
-        AssertTrue(!KraidFootInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa686e7), "wrong mechanics bank");
+        AssertTrue(!KraidFootInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa686e7), "wrong mechanics bank");
         AssertThrows<InvalidDataException>(() => KraidFootInstructionProgramDefinitions.ReadMechanicsWord(0x893d), "unused adjacent program");
-        AssertThrows<IndexOutOfRangeException>(() => KraidFootInstructionProgramDefinitions.MechanicsWord(-1), "negative mechanics index");
-        AssertThrows<IndexOutOfRangeException>(() => KraidFootInstructionProgramDefinitions.MechanicsWord(193), "mechanics index past end");
+        AssertThrows<IndexOutOfRangeException>(() => KraidFootInstructionProgramDefinitionsTooling.MechanicsWord(-1), "negative mechanics index");
+        AssertThrows<IndexOutOfRangeException>(() => KraidFootInstructionProgramDefinitionsTooling.MechanicsWord(193), "mechanics index past end");
     }
 
     private static void VerifyKraidFootGeneratedPresentation(SuperMetroidAddressSpace rom)
     {
         var original = ReadOriginalKraidFootPrograms(rom).Presentation;
         AssertEqual(106, original.Count, "native foot presentation count");
-        AssertEqual(original.Count, KraidFootInstructionProgramDefinitions.PresentationWordCount, "generated presentation count");
+        AssertEqual(original.Count, KraidFootInstructionProgramDefinitionsTooling.PresentationWordCount, "generated presentation count");
         for (int index = 0; index < original.Count; index++)
         {
             ushort address = original[index];
-            AssertEqual(address, KraidFootInstructionProgramDefinitions.PresentationWordAddress(index), "native presentation address");
+            AssertEqual(address, KraidFootInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "native presentation address");
             AssertThrows<InvalidDataException>(() => KraidFootInstructionProgramDefinitions.ReadMechanicsWord(address),
                 "presentation operand is not mechanics");
         }
-        AssertThrows<IndexOutOfRangeException>(() => KraidFootInstructionProgramDefinitions.PresentationWordAddress(-1), "negative presentation index");
-        AssertThrows<IndexOutOfRangeException>(() => KraidFootInstructionProgramDefinitions.PresentationWordAddress(106), "presentation index past end");
+        AssertThrows<IndexOutOfRangeException>(() => KraidFootInstructionProgramDefinitionsTooling.PresentationWordAddress(-1), "negative presentation index");
+        AssertThrows<IndexOutOfRangeException>(() => KraidFootInstructionProgramDefinitionsTooling.PresentationWordAddress(106), "presentation index past end");
     }
 }

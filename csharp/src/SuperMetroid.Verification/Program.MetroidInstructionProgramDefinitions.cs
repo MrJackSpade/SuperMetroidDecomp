@@ -7,23 +7,23 @@ internal static partial class Program
     private static void VerifyMetroidInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMetroidInstructionProgramDefinitions), () => VerifyMetroidInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyMetroidInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        AssertEqual(31, MetroidInstructionProgramDefinitions.MechanicsWordCount,
+        AssertEqual(31, MetroidInstructionProgramDefinitionsTooling.MechanicsWordCount,
             "Metroid compiled mechanics word count");
-        AssertEqual(25, MetroidInstructionProgramDefinitions.PresentationWordCount,
+        AssertEqual(25, MetroidInstructionProgramDefinitionsTooling.PresentationWordCount,
             "Metroid compiled presentation word count");
         for (int index = 0;
-             index < MetroidInstructionProgramDefinitions.MechanicsWordCount;
+             index < MetroidInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                MetroidInstructionProgramDefinitions.MechanicsWord(index);
+                MetroidInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadMetroidInstructionWord(rom, definition.Address),
                 $"Metroid mechanics word $A3:{definition.Address:X4}");
@@ -89,7 +89,7 @@ internal static partial class Program
 
         AssertThrows<InvalidDataException>(
             () => MetroidInstructionProgramDefinitions.ReadMechanicsWord(
-                MetroidInstructionProgramDefinitions.PresentationWordAddress(0)),
+                MetroidInstructionProgramDefinitionsTooling.PresentationWordAddress(0)),
             "Metroid spritemap pointer is rejected as mechanics");
         AssertThrows<InvalidDataException>(
             () => MetroidInstructionProgramDefinitions.ReadMechanicsWord(
@@ -195,7 +195,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (MetroidInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (MetroidInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -205,11 +205,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < MetroidInstructionProgramDefinitions.PresentationWordCount;
+                     index < MetroidInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        MetroidInstructionProgramDefinitions.PresentationWordAddress(index);
+                        MetroidInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

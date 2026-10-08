@@ -59,7 +59,7 @@ internal static partial class Program
 
         var nativeQueue = new VramWriteQueue();
         foreach (CeresEscapeVramTransferDefinition transfer in
-                 CeresEscapeVramTransferDefinitions.All)
+                 CeresEscapeVramTransferDefinitionsTooling.All)
         {
             if (transfer.Pointer < CeresEscapeVramTransferDefinitions.TimerSprites)
                 continue;

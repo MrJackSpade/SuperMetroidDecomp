@@ -7,18 +7,18 @@ internal static partial class Program
     private static void VerifyDeadSidehopperInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyDeadSidehopperInstructionProgramDefinitions), () => VerifyDeadSidehopperInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyDeadSidehopperInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         for (int index = 0;
-             index < DeadSidehopperInstructionProgramDefinitions.MechanicsWordCount;
+             index < DeadSidehopperInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                DeadSidehopperInstructionProgramDefinitions.MechanicsWord(index);
+                DeadSidehopperInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadDeadSidehopperInstructionWord(rom, definition.Address),
                 $"Dead sidehopper mechanics word $A9:{definition.Address:X4}");
@@ -82,10 +82,10 @@ internal static partial class Program
         AssertEqual(0, guard.ObservedPresentationWords.Count,
             "Dead sidehopper execution uses compiled spritemap selectors");
         for (int index = 0;
-             index < DeadSidehopperInstructionProgramDefinitions.PresentationWordCount;
+             index < DeadSidehopperInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort operand = DeadSidehopperInstructionProgramDefinitions
+            ushort operand = DeadSidehopperInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             AssertCompiledEnemyVisualSelector(rom, RoomEnemySystem.DeadSidehopperDefinition,
                 0xa9, operand, $"Dead sidehopper $A9:{operand:X4}");
@@ -94,7 +94,7 @@ internal static partial class Program
             "production execution avoids every compiled Dead sidehopper mechanics byte");
         AssertThrows<InvalidDataException>(
             () => DeadSidehopperInstructionProgramDefinitions.ReadMechanicsWord(
-                DeadSidehopperInstructionProgramDefinitions.PresentationWordAddress(0)),
+                DeadSidehopperInstructionProgramDefinitionsTooling.PresentationWordAddress(0)),
             "Dead sidehopper spritemap pointer is rejected as mechanics");
         AssertThrows<InvalidDataException>(
             () => DeadSidehopperInstructionProgramDefinitions.ReadMechanicsWord(
@@ -161,7 +161,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (DeadSidehopperInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (DeadSidehopperInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -172,11 +172,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < DeadSidehopperInstructionProgramDefinitions.PresentationWordCount;
+                     index < DeadSidehopperInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        DeadSidehopperInstructionProgramDefinitions.PresentationWordAddress(index);
+                        DeadSidehopperInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

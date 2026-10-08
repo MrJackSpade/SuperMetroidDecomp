@@ -60,6 +60,10 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
         }
         if (IsInsideNameof(node) || OwnerKey(project, model, node) is not { } owner)
             return;
+        // Listing an interface in a base list declares it; only uses through the interface reach it.
+        if (node is TypeSyntax { Parent: SimpleBaseTypeSyntax { Parent: BaseListSyntax } } &&
+            model.GetTypeInfo(node).Type is { TypeKind: TypeKind.Interface })
+            return;
 
         var targets = new List<ISymbol?>();
         var info = model.GetSymbolInfo(node);

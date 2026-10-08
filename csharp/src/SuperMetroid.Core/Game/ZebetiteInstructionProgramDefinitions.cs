@@ -11,7 +11,7 @@ internal readonly record struct ZebetiteInstructionProgram(
 /// Compiled timing and terminal control for every Zebetite health-tier program. The
 /// spritemap selections resolve compiled identities to installed artwork.
 /// </summary>
-internal abstract class ZebetiteInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class ZebetiteInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Big_HealthGreaterThanEqualTo800</c> at $A6:FDCC.</summary>
     internal const ushort BigHealthAtLeast800 = 0xfdcc;
@@ -57,23 +57,6 @@ internal abstract class ZebetiteInstructionProgramDefinitions : IInstructionProg
 
         throw new InvalidDataException(
             $"Zebetite instruction mechanics pointer $A6:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa60000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 
     private static ZebetiteInstructionProgram Program(ushort entry) =>

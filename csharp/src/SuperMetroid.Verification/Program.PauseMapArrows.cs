@@ -13,7 +13,7 @@ internal static partial class Program
 {
     private static void VerifyPauseMapArrows()
     {
-        var bus = CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var cart = CartridgeImportSource.Require(bus);
         var pause = CreateRetailPauseFixture(bus, new SamusState(), new Bank80SystemState(), AreaId.Crateria, 10, 10);
         Set("mapScroll", new PauseMapScroll(0, 512, 0, 256));

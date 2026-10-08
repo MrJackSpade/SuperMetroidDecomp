@@ -54,7 +54,7 @@ internal static partial class Program
 
     private static void VerifyCeresSteamCollisionDefinitions()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var denied = new CeresSteamCollisionNoReadBus();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

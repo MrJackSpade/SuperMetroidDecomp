@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Game;
 /// Its five spritemap operands use extracted presentation art; its packed sound ID
 /// remains cartridge audio data.
 /// </summary>
-internal abstract class TorizoExplosiveSwipeInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class TorizoExplosiveSwipeInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProjectile_BombTorizoExplosionSwipe</c> at $86:A4AA.</summary>
     internal const ushort Initial = 0xa4aa;
@@ -43,18 +43,5 @@ internal abstract class TorizoExplosiveSwipeInstructionProgramDefinitions : IIns
 
         throw new InvalidDataException(
             $"Torizo explosive-swipe mechanics pointer $86:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            var word = MechanicsWord(index);
-            if (bankAddress == word.Address || bankAddress == unchecked((ushort)(word.Address + 1)))
-                return true;
-        }
-        return false;
     }
 }

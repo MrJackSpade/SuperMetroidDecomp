@@ -9,7 +9,7 @@ internal static partial class Program
     private static void VerifyFakeKraidInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyFakeKraidInstructionProgramDefinitions), () => VerifyFakeKraidInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyFakeKraidInstructionProgramDefinitions(
@@ -226,7 +226,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (FakeKraidInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (FakeKraidInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -237,11 +237,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < FakeKraidInstructionProgramDefinitions.PresentationWordCount;
+                     index < FakeKraidInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        FakeKraidInstructionProgramDefinitions.PresentationWordAddress(index);
+                        FakeKraidInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

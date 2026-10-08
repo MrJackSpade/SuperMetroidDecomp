@@ -1,5 +1,6 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.ResourceAudit;
 

@@ -38,6 +38,36 @@ internal static class ReachabilityReport
         Console.Write(summary);
     }
 
+    /// <summary>
+    /// The CI gate: writes the report, then fails on any finding the allow-list does not name and on
+    /// any allow-list entry that no longer matches a finding. An entry is a findings.tsv row's
+    /// category, kind, symbol and file, tab-separated; blank lines and <c>#</c> comments are ignored.
+    /// </summary>
+    public static int Check(ReachabilityResult result, string outputDirectory, string allowListPath)
+    {
+        Write(result, outputDirectory);
+        var allowed = File.ReadAllLines(allowListPath)
+            .Where(line => line.Length > 0 && !line.StartsWith('#'))
+            .ToHashSet(StringComparer.Ordinal);
+        var found = ReachabilityFindings.Classify(result)
+            .Select(f => $"{f.Category}\t{f.Declaration.Kind}\t{f.Declaration.Display}\t{f.Declaration.File}")
+            .ToHashSet(StringComparer.Ordinal);
+        var unexpected = found.Where(f => !allowed.Contains(f)).Order(StringComparer.Ordinal).ToList();
+        var stale = allowed.Where(a => !found.Contains(a)).Order(StringComparer.Ordinal).ToList();
+        foreach (string finding in unexpected)
+            Console.Error.WriteLine("DEAD " + finding);
+        foreach (string entry in stale)
+            Console.Error.WriteLine("STALE ALLOW-LIST ENTRY " + entry);
+        if (unexpected.Count == 0 && stale.Count == 0)
+        {
+            Console.WriteLine("Reachability gate passed: no unallowed findings.");
+            return 0;
+        }
+        Console.Error.WriteLine($"Reachability gate failed: {unexpected.Count} unallowed findings, {stale.Count} stale allow-list entries. " +
+            "Delete dead code, or move code only tools reach into SuperMetroid.Tooling.");
+        return 1;
+    }
+
     private static string SimpleName(string display) => display.Split('(')[0].Split('.')[^1].Split('<')[0];
 
     private static void WriteLines(string directory, string name, IEnumerable<string> lines) =>

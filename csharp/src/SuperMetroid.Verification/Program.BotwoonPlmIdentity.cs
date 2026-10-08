@@ -5,7 +5,7 @@ internal static partial class Program
 {
     private static void VerifyBotwoonPlmIdentity()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, RoomHeaderPointers.Botwoon);
         var installation = RepositoryInstallation.Installation;
         var assets = LoadFixtureRoomAssets(bus, room, installation.LoadRoomCharacters(),

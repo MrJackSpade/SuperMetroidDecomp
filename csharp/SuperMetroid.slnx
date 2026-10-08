@@ -11,6 +11,7 @@
     <Project Path="src/SuperMetroid.Game/SuperMetroid.Game.csproj" />
   </Folder>
   <Folder Name="/Tools/">
+    <Project Path="src/SuperMetroid.Tooling/SuperMetroid.Tooling.csproj" />
     <Project Path="src/SuperMetroid.ResourceAudit/SuperMetroid.ResourceAudit.csproj" />
     <Project Path="src/SuperMetroid.DebugRunner/SuperMetroid.DebugRunner.csproj" />
     <Project Path="src/SuperMetroid.ReachabilityAudit/SuperMetroid.ReachabilityAudit.csproj" />

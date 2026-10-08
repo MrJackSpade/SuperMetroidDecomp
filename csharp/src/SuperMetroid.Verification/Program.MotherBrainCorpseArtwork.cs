@@ -10,7 +10,7 @@ internal static partial class Program
     private static void VerifyMotherBrainCorpseStockArtwork()
     {
         using var temporary = new TestTempDirectory("map-catalog");
-        var source = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         EnemyTileArtworkFiles.Extract(source, temporary.Root, SupportedCartridge.Sha256);
         EnemyTileArtworkFiles.ValidateStock(temporary.Root);
         Suite(nameof(VerifyInstalledMotherBrainCorpseArtwork), () => VerifyInstalledMotherBrainCorpseArtwork(temporary.Root, EnemyTileArtworkFiles.Load(temporary.Root, null)));
@@ -21,7 +21,7 @@ internal static partial class Program
     {
         RoomCharacterAtlas artwork = stock.MotherBrainCorpse ??
             throw new InvalidDataException("Extracted Mother Brain corpse PNG was not bound.");
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         byte[] native = RomDataReader.ReadFixedBank(rom,
             MotherBrainCorpseArtworkDefinitions.SourceAddress,
             MotherBrainCorpseArtworkDefinitions.ByteCount);

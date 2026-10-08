@@ -1,11 +1,12 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
     private static void VerifySpcSoundLibrary2Pointers()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "SPC stream oracle revision");
         Suite(nameof(VerifySpcSoundStream2), () => VerifySpcSoundStream2(rom));

@@ -13,7 +13,7 @@ internal static partial class Program
     /// </summary>
     private static void VerifyRoomAssetJsonContracts(string installationRoot)
     {
-        GameInstallation installed = GameAssetInstaller.ValidateExtractedContent(installationRoot);
+        GameInstallation installed = GameAssetInstallerTooling.ValidateExtractedContent(installationRoot);
         string temporary = Directory.CreateTempSubdirectory("SuperMetroid-room-json-contract-").FullName;
         var accepted = new List<string>();
         int rejected = 0;

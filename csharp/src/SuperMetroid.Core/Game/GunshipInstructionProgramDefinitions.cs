@@ -14,7 +14,7 @@ internal static class GunshipEnemyDefinitions
 /// Interleaved visual selectors are compiled identities; their editable OAM
 /// compositions are installed assets, not live cartridge reads.
 /// </summary>
-internal abstract class GunshipInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class GunshipInstructionProgramDefinitions
 {
     /// <summary><c>InstList_ShipEntrancePad_Opening_0</c> at $A2:A5BE.</summary>
     public const ushort EntrancePadOpening = 0xa5be;
@@ -81,22 +81,5 @@ internal abstract class GunshipInstructionProgramDefinitions : IInstructionProgr
 
         throw new InvalidDataException(
             $"Gunship instruction mechanics pointer $A2:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa20000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 }

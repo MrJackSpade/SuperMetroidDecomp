@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control for the five generic enemy-death animations and their shared blank
 /// respawn tail. The thirty-one spritemap operands resolve through extracted presentation art.
 /// </summary>
-internal abstract class EnemyDeathInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class EnemyDeathInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProjectile_Pickup_HandleRespawningEnemy</c> at $86:ECA3.</summary>
     internal const ushort RespawnTail = 0xeca3;
@@ -44,22 +44,7 @@ internal abstract class EnemyDeathInstructionProgramDefinitions : IInstructionPr
 
     /// <summary>Samus-contact death pose hold 2 at $86:EDFF..EE3D. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort ContactDeathPoseDuration = 2;
-
-    public static int MechanicsWordCount => 66;
     public static int PresentationWordCount => 31;
-
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        int address;
-        if (index < 3) address = RespawnTail + (index == 0 ? 0 : 2 * (index + 1));
-        else if (index < 15) address = BigExplosion + LoopMechanicsOffset(index - 3, 12);
-        else if (index < 29) address = MiniKraidExplosion + LoopMechanicsOffset(index - 15, 16);
-        else if (index < 38) address = NormalExplosion + FrameMechanicsOffset(index - 29, 3, 6);
-        else if (index < 47) address = SmallExplosion + FrameMechanicsOffset(index - 38, 3, 6);
-        else address = KilledBySamusContact + FrameMechanicsOffset(index - 47, 7, 16);
-        return new((ushort)address, ReadMechanicsWord((ushort)address));
-    }
 
     public static ushort PresentationWordAddress(int index)
     {
@@ -75,14 +60,6 @@ internal abstract class EnemyDeathInstructionProgramDefinitions : IInstructionPr
         });
     }
 
-    private static int LoopMechanicsOffset(int index, int delayOffset) =>
-        index * 2 + (index > delayOffset / 2 ? 2 : 0);
-
-    private static int FrameMechanicsOffset(int index, int framesBeforeSound, int frameCount) =>
-        index <= framesBeforeSound ? 4 * index
-        : index <= frameCount ? 4 * (index - 1) + 2
-        : 4 * frameCount + 2 + 2 * (index - frameCount - 1);
-
     private static int FrameVisualOffset(int frame, int framesBeforeSound) =>
         frame * 4 + 2 + (frame >= framesBeforeSound ? 2 : 0);
 
@@ -94,11 +71,7 @@ internal abstract class EnemyDeathInstructionProgramDefinitions : IInstructionPr
     internal static ushort ReadMechanicsWord(ushort address) => TryWord(address, out ushort value)
         ? value : throw new InvalidDataException($"Generic enemy-death mechanics pointer $86:{address:X4} is not compiled.");
 
-    public static bool IsCompiledMechanicsByte(int address) =>
-        (address & 0xff0000) == EnemyProjectileCodePointers.BankBase &&
-        (TryWord(unchecked((ushort)address), out _) || TryWord(unchecked((ushort)(address - 1)), out _));
-
-    private static bool TryWord(ushort address, out ushort value)
+    internal static bool TryWord(ushort address, out ushort value)
     {
         ushort? result = null;
         if (address >= RespawnTail && address < BigExplosion && ((address - RespawnTail) & 1) == 0)

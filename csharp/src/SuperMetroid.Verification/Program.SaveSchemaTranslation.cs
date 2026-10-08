@@ -100,7 +100,7 @@ internal static partial class Program
         AssertEqual(4, frontend.AvailableDemoSetCount(), "completed save exposes fourth demo set");
         AssertEqual(2, ram.ReadSelectedSlot(), "twelve-byte completion signature preserves selected slot");
         ram.SetGameCompleted(false);
-        var native = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var native = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var text = SuperMetroid.Core.Assets.EndingTextPresentation.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.EndingTextExtractor.Extract(native), writable: false));
         var ending = new EndingCreditsState(bus, new SuperMetroid.Core.Audio.CartridgeAudioState(), 0, 0, endingText: text);

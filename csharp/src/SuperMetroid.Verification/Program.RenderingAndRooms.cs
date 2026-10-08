@@ -1324,7 +1324,7 @@ static void VerifyPowerBombColorMathWindow()
     // the explosion Y coordinate; it is not indexed by adding a screen-space midpoint.
     while (explosion.Phase == PowerBombExplosionPhase.PreExplosionWhite)
         explosion.StepFrame(bus);
-    var shapeReference = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    var shapeReference = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
     explosion.StepFrame(bus);
     AssertEqual(PowerBombExplosionPhase.PreExplosionYellow, explosion.RenderedPhase,
         "first pre-scaled yellow frame is retained for composition");

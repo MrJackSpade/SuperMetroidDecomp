@@ -1,11 +1,12 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
     private static void VerifyCompiledDoorDefinitions()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)), "Door header oracle revision");
@@ -17,7 +18,7 @@ internal static partial class Program
 
     private static void VerifyCompiledDoorListCollision()
     {
-        DoorListDefinition landingDoors = DoorDefinitions.GetList(
+        DoorListDefinition landingDoors = DoorDefinitionsTooling.GetList(
             RoomHeaderDefinitions.Get(RoomHeaderPointers.LandingSite).DoorListPointer);
         var level = new RoomLevelData(
             1, 1, [0], [0], [0], [], doorListPointer: landingDoors.Pointer);

@@ -20,13 +20,13 @@ internal static partial class Program
             return;
         }
 
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         for (int index = 0;
-             index < SporeSpawnInstructionProgramDefinitions.MechanicsWordCount;
+             index < SporeSpawnInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                SporeSpawnInstructionProgramDefinitions.MechanicsWord(index);
+                SporeSpawnInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(
                 definition.Value,
                 ReadSporeSpawnProgramWord(rom, definition.Address),
@@ -79,11 +79,11 @@ internal static partial class Program
         foreach ((ushort pointer, int frames) in new (ushort, int)[]
                  { (0xe6b9, 4), (0xe6c7, 260), (0xe6d5, 2200), (0xe729, 1600), (0xe77d, 500) })
             _ = ReadReferenceSporeSpawnProgram(rom, pointer, frames, selected);
-        AssertEqual(SporeSpawnInstructionProgramDefinitions.PresentationWordCount,
+        AssertEqual(SporeSpawnInstructionProgramDefinitionsTooling.PresentationWordCount,
             selected.Count, "all native Spore Spawn selectors execute in the five fixture programs");
-        for (int index = 0; index < SporeSpawnInstructionProgramDefinitions.PresentationWordCount; index++)
+        for (int index = 0; index < SporeSpawnInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
         {
-            ushort address = SporeSpawnInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort address = SporeSpawnInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertTrue(selected.Contains(address), "native stream covers the declared selector");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa5, address, out ushort value),
                 "Spore Spawn selector is compiled");
@@ -118,8 +118,8 @@ internal static partial class Program
 
         Console.WriteLine(
             $"  Spore Spawn instruction mechanics: " +
-            $"{SporeSpawnInstructionProgramDefinitions.MechanicsWordCount} words, " +
-            $"{SporeSpawnInstructionProgramDefinitions.PresentationWordCount} live " +
+            $"{SporeSpawnInstructionProgramDefinitionsTooling.MechanicsWordCount} words, " +
+            $"{SporeSpawnInstructionProgramDefinitionsTooling.PresentationWordCount} live " +
             "spritemap words, and all five production entry points pass with mechanics " +
             "reads forbidden.");
     }
@@ -214,7 +214,7 @@ internal static partial class Program
 
         private void CheckRead(int address)
         {
-            if (SporeSpawnInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (SporeSpawnInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -225,11 +225,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < SporeSpawnInstructionProgramDefinitions.PresentationWordCount;
+                     index < SporeSpawnInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        SporeSpawnInstructionProgramDefinitions.PresentationWordAddress(index);
+                        SporeSpawnInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

@@ -18,7 +18,7 @@ internal static partial class Program
 
     private static void VerifyExploredMapPackingDefinitions()
     {
-        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         ushort Word(int address) => unchecked((ushort)(
             retail.ReadByte(address) | retail.ReadByte(address + 1) << 8));

@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -32,7 +33,7 @@ internal static class EnemyDisplayArtworkContractChecks
         var extendedDocument = new EnemyExtendedFrameDocument {
             Version = EnemyExtendedFrameDefinitions.Version, Frames = extendedFrames, DisplayFrames = extendedBindings };
         EnemyExtendedFrameCatalog extended = EnemyExtendedFrameCatalog.Load(Json(extendedDocument));
-        EnemyExtendedFrameDefinition extendedId = EnemyExtendedFrameDefinitions.Frames[0];
+        EnemyExtendedFrameDefinition extendedId = EnemyExtendedFrameDefinitions.Frames.First();
         Require(extended.TryGetDisplay(extendedId.Bank, extendedId.Pointer, out var components) && components.Length == 1 &&
             extended.TryGetDisplay(0xa5, CommonEnemyEmptyExtendedFrameDefinitions.Frame, out components) && components.IsEmpty,
             "installed extended binding and compiled empty fallback");

@@ -3,12 +3,13 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
     private static void VerifyLookupStream5MeltingTilemaps()
     {
-        var oracle = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var oracle = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Melt tilemap source revision");
         string directory = Path.Combine(Path.GetFullPath("csharp/test-temp"), "lookup-melt-maps-" + Guid.NewGuid().ToString("N"));
@@ -56,7 +57,7 @@ internal static partial class Program
     }
     private static void VerifyLookupStream5SkeletonTransfers()
     {
-        var oracle = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var oracle = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)),
@@ -531,8 +532,8 @@ internal static partial class Program
         AssertTrue(overlays.SequenceEqual(CeresEscapeOverlayTilemapDefinitions.All), "Original named overlay order/source/extent");
         foreach (var page in overlays)
         {
-            AssertTrue(CeresEscapeOverlayTilemapDefinitions.IsSource(page.SourceAddress, page.WordCount * 2), "Exact overlay extent admitted");
-            AssertTrue(!CeresEscapeOverlayTilemapDefinitions.IsSource(page.SourceAddress, page.WordCount * 2 - 1), "Partial overlay extent rejected");
+            AssertTrue(CeresEscapeOverlayTilemapDefinitionsTooling.IsSource(page.SourceAddress, page.WordCount * 2), "Exact overlay extent admitted");
+            AssertTrue(!CeresEscapeOverlayTilemapDefinitionsTooling.IsSource(page.SourceAddress, page.WordCount * 2 - 1), "Partial overlay extent rejected");
             AssertTrue(CeresEscapeOverlayTilemapDefinitions.ContainsByteAddress(page.SourceAddress) && CeresEscapeOverlayTilemapDefinitions.ContainsByteAddress(page.SourceAddress + page.WordCount * 2 - 1), "Overlay byte endpoints admitted");
         }
         AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeTileArtworkDefinitions.All[-1], "Tile page lower bound");
@@ -1570,7 +1571,7 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => { _ = rows[-1]; }, "corpse DMA negative index");
             AssertThrows<IndexOutOfRangeException>(() => { _ = rows[rows.Length]; }, "corpse DMA past end");
         }
-        AssertTrue(expected.SequenceEqual(DeadMonsterRottingDefinitions.AllTransfers), "audit DMA order matches all native lists");
+        AssertTrue(expected.SequenceEqual(DeadMonsterRottingDefinitionsTooling.AllTransfers), "audit DMA order matches all native lists");
         AssertThrows<InvalidDataException>(() => DeadMonsterRottingDefinitions.ForTransferTable(0xe0e1), "unaligned DMA list rejected");
         AssertThrows<InvalidDataException>(() => DeadMonsterRottingDefinitions.RotationOffset(0xe227, 0), "unknown corpse row layout rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => DeadMonsterRottingDefinitions.RotationOffset(0xe226, 104), "corpse row past end rejected");
@@ -1694,15 +1695,15 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => CeresSteamDefinitions.Initialization((CeresSteamVariant)ushort.MaxValue), "Ceres steam full-word rejection");
         AssertThrows<InvalidDataException>(() => MagdollitePhaseDefinitions.Phase(-1), "Magdollite lower bound");
         AssertThrows<InvalidDataException>(() => MagdollitePhaseDefinitions.Phase(9), "Magdollite upper bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => { _ = CeresEscapeVramTransferDefinitions.All[-1]; }, "Ceres DMA list lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => { _ = CeresEscapeVramTransferDefinitions.All[19]; }, "Ceres DMA list upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => { _ = CeresEscapeVramTransferDefinitionsTooling.All[-1]; }, "Ceres DMA list lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => { _ = CeresEscapeVramTransferDefinitionsTooling.All[19]; }, "Ceres DMA list upper bound");
         Console.WriteLine("Stream 5 initialization: all 53 native selector/phase words and rejected domains pass.");
     }
     private static void VerifyLookupStream5PaletteEntries(ISnesAddressSpace rom)
     {
         // Ceres light entries carry no identity; their native definition/program pairs are
         // the compiled owner constants, checked against the original definition list.
-        CheckEntryCount(CeresCinematicLightPaletteFxProgramMechanicsDefinitions.All, 3);
+        CheckEntryCount(CeresCinematicLightPaletteFxProgramMechanicsDefinitionsTooling.All, 3);
         foreach ((ushort definition, ushort program) in new[]
         {
             (CeresCinematicLightPaletteFxProgramMechanicsDefinitions.GunshipEngineDefinitionPointer,
@@ -1718,9 +1719,9 @@ internal static partial class Program
         }
         CheckEntries(CinematicGlowPaletteFxProgramMechanicsDefinitions.All,
             entry => (entry.DefinitionPointer, entry.ProgramStart), 2);
-        CheckEntries(TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.All,
+        CheckEntries(TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitionsTooling.All,
             entry => (entry.DefinitionPointer, entry.ProgramStart), 2);
-        CheckEntries(TourianStatueGreyPaletteFxProgramMechanicsDefinitions.All,
+        CheckEntries(TourianStatueGreyPaletteFxProgramMechanicsDefinitionsTooling.All,
             entry => (entry.DefinitionPointer, entry.ProgramStart), 4);
         int lightWords = 0, glowWords = 0, redWords = 0, greyWords = 0;
         for (int address = 0; address <= ushort.MaxValue; address++)

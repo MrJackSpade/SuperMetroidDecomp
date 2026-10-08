@@ -23,18 +23,18 @@ internal static partial class Program
     private static void VerifyPuyoInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyPuyoInstructionProgramDefinitions), () => VerifyPuyoInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyPuyoInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         for (int index = 0;
-             index < PuyoInstructionProgramDefinitions.MechanicsWordCount;
+             index < PuyoInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                PuyoInstructionProgramDefinitions.MechanicsWord(index);
+                PuyoInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadPuyoInstructionWord(rom, definition.Address),
                 $"Puyo mechanics word $A2:{definition.Address:X4}");
@@ -83,7 +83,7 @@ internal static partial class Program
             "production execution avoids every compiled Puyo mechanics byte");
         AssertThrows<InvalidDataException>(
             () => PuyoInstructionProgramDefinitions.ReadMechanicsWord(
-                PuyoInstructionProgramDefinitions.PresentationWordAddress(0)),
+                PuyoInstructionProgramDefinitionsTooling.PresentationWordAddress(0)),
             "Puyo spritemap pointer is rejected as mechanics");
         AssertThrows<InvalidDataException>(
             () => PuyoInstructionProgramDefinitions.ReadMechanicsWord(
@@ -147,7 +147,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (PuyoInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (PuyoInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -158,11 +158,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < PuyoInstructionProgramDefinitions.PresentationWordCount;
+                     index < PuyoInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        PuyoInstructionProgramDefinitions.PresentationWordAddress(index);
+                        PuyoInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyGameplayMessageNotices(string romPath)
     {
-        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         byte[] extracted = SuperMetroid.AssetExtraction.GameplayMessageNoticeExtractor.Extract(bus);
         GameplayMessageNoticePresentation stock = GameplayMessageNoticePresentation.Load(
             new MemoryStream(extracted, writable: false));

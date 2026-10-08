@@ -9,7 +9,7 @@ internal static partial class Program
 {
     private static void VerifyOceanSky()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
@@ -23,7 +23,7 @@ internal static partial class Program
         var ordinary = (OrdinaryGameplayRenderLayer)scene.Layers[0];
         Console.WriteLine($"Ocean room: main={runtime.ActiveRoom!.State.MainCodePointer:X4}, BG2={ordinary.Registers.Bg2WidthTiles}x{ordinary.Registers.Bg2HeightTiles}, sky={runtime.ScrollingSky is not null}");
         Directory.CreateDirectory("csharp/test-temp/issue-349-ocean");
-        PngWriter.WriteRgba("csharp/test-temp/issue-349-ocean/current.png", 256, 224,
+        PngWriterTooling.WriteRgba("csharp/test-temp/issue-349-ocean/current.png", 256, 224,
             SoftwareLayeredSnapshotRenderer.Render(scene));
         AssertEqual(32, ordinary.Registers.Bg2WidthTiles, "Ocean setup $88:A800 writes BG2SC=$4A: 32 tiles wide");
         AssertEqual(64, ordinary.Registers.Bg2HeightTiles, "Ocean setup uses two vertically stacked BG2 pages");
@@ -67,9 +67,9 @@ internal static partial class Program
         AssertEqual(32, bgOnly.Registers.Bg2FirstScanline, "accepted ocean NMI exposes BG2 below the HUD");
         AssertEqual(224, bgOnly.Registers.Bg2EndScanline, "accepted ocean NMI exposes the full gameplay height");
         AssertTrue(!background.SequenceEqual(wrongPixels), "fixture exposes the old horizontal-page interpretation visibly");
-        PngWriter.WriteRgba("csharp/test-temp/issue-349-ocean/wrong-layout.png", 256, 224, wrongPixels);
-        PngWriter.WriteRgba("csharp/test-temp/issue-349-ocean/background.png", 256, 224, background);
-        PngWriter.WriteRgba("csharp/test-temp/issue-349-ocean/after.png", 256, 224, SoftwareLayeredSnapshotRenderer.Render(scene));
+        PngWriterTooling.WriteRgba("csharp/test-temp/issue-349-ocean/wrong-layout.png", 256, 224, wrongPixels);
+        PngWriterTooling.WriteRgba("csharp/test-temp/issue-349-ocean/background.png", 256, 224, background);
+        PngWriterTooling.WriteRgba("csharp/test-temp/issue-349-ocean/after.png", 256, 224, SoftwareLayeredSnapshotRenderer.Render(scene));
         var samus = runtime.Samus!;
         samus.InputLocked = false;
         samus.Pose = SamusPoseIds.FacingRightNormalPose;

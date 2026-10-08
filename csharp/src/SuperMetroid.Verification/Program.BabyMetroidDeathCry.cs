@@ -9,7 +9,7 @@ internal static partial class Program
     private static int VerifyBabyMetroidDeathCry()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();
         var installation = RepositoryInstallation.Installation;
         enemies.MotherBrainRoomColors = RepositoryInstallation.Maps.MotherBrainRoomColors;

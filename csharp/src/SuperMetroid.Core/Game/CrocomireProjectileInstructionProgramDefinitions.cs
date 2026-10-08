@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control for Crocomire's mouth projectile, bridge fragments, and spike-wall
 /// pieces. Their interleaved spritemap operands remain live cartridge presentation data.
 /// </summary>
-internal abstract class CrocomireProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class CrocomireProjectileInstructionProgramDefinitions
 {
     /// <summary>
     /// <c>InstList_EnemyProjectile_CrocomiresProjectile</c> at $86:8FCF.
@@ -43,25 +43,7 @@ internal abstract class CrocomireProjectileInstructionProgramDefinitions : IInst
     /// compiled word. Interleaved explosion spritemaps remain live reads.
     /// </summary>
     internal const ushort MouthProjectileShot = 0x9007;
-
-    public static int MechanicsWordCount => 22;
     public static int PresentationWordCount => 13;
-
-    /// <summary>Enumerates each program's timed frames followed by its control
-    /// trailer: a self-loop, or the shot program's drop/goto/delete sequence.</summary>
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        ushort start = index < 8 ? MouthProjectile : index < 11 ? BridgeFragment
-            : index < 14 ? SpikeWallPiece : MouthProjectileShot;
-        int field = index < 8 ? index : index < 11 ? index - 8
-            : index < 14 ? index - 11 : index - 14;
-        var layout = Layout(start);
-        int offset = field < layout.Frames ? 4 * field
-            : 4 * layout.Frames + 2 * (field - layout.Frames);
-        ushort address = (ushort)(start + offset);
-        return new(address, ReadMechanicsWord(address));
-    }
 
     /// <summary>Spritemap operands are two bytes after each frame duration.
     /// Enumerate six mouth frames, one bridge frame, one spike frame and five
@@ -101,19 +83,8 @@ internal abstract class CrocomireProjectileInstructionProgramDefinitions : IInst
             $"Crocomire projectile mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
-        ushort bankAddress = unchecked((ushort)address);
-        var layout = Layout(bankAddress);
-        int offset = bankAddress - layout.Start;
-        int trailer = 4 * layout.Frames;
-        int length = trailer + (layout.Start == MouthProjectileShot ? 6 : 4);
-        return offset >= 0 && offset < length && (offset >= trailer || offset % 4 < 2);
-    }
-
     // Select the preceding program; the caller validates its exact field domain.
-    private static (ushort Start, int Frames, ushort Duration) Layout(ushort address) =>
+    internal static (ushort Start, int Frames, ushort Duration) Layout(ushort address) =>
         address < BridgeFragment ? (MouthProjectile, 6, (ushort)3)
         : address < SpikeWallPiece ? (BridgeFragment, 1, (ushort)0x7fff)
         : address < MouthProjectileShot ? (SpikeWallPiece, 1, (ushort)0x7fff)

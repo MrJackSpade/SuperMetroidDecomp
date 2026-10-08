@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Game;
 /// seventeen interleaved spritemap operands are extracted presentation data; the packed
 /// floor-impact sound ID remains live cartridge audio data.
 /// </summary>
-internal abstract class GoldenTorizoEyeBeamInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class GoldenTorizoEyeBeamInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProjectile_GoldenTorizoEyeBeam_HitWall</c> at $86:B3CD.</summary>
     internal const ushort WallImpact = 0xb3cd;
@@ -99,18 +99,5 @@ internal abstract class GoldenTorizoEyeBeamInstructionProgramDefinitions : IInst
 
         throw new InvalidDataException(
             $"Golden Torizo eye-beam mechanics pointer $86:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            var word = MechanicsWord(index);
-            if (bankAddress == word.Address || bankAddress == unchecked((ushort)(word.Address + 1)))
-                return true;
-        }
-        return false;
     }
 }

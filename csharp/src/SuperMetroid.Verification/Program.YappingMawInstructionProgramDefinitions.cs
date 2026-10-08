@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyYappingMawInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyYappingMawInstructionProgramDefinitions), () => VerifyYappingMawInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyYappingMawInstructionProgramDefinitions(
@@ -232,7 +232,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (YappingMawInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (YappingMawInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

@@ -6,6 +6,7 @@
   <ItemGroup>
     <ProjectReference Include="../SuperMetroid.AssetExtraction/SuperMetroid.AssetExtraction.csproj" />
     <ProjectReference Include="../SuperMetroid.Core/SuperMetroid.Core.csproj" />
+    <ProjectReference Include="../SuperMetroid.Tooling/SuperMetroid.Tooling.csproj" />
     <ProjectReference Include="../SuperMetroid.Diagnostics/SuperMetroid.Diagnostics.csproj" />
     <ProjectReference Include="../SuperMetroid.Rendering.Direct3D11/SuperMetroid.Rendering.Direct3D11.csproj" />
     <Compile Include="../../test-support/ReferenceBusReadExtensions.cs" Link="ReferenceBusReadExtensions.cs" />
@@ -15,6 +16,7 @@
     <Compile Include="../../test-support/EnemyVisualSelectorInventory.cs" Link="EnemyVisualSelectorInventory.cs" />
     <Compile Include="../../test-support/RoomFxRecordCatalogSource.cs" Link="RoomFxRecordCatalogSource.cs" />
     <Compile Include="../../test-support/PixelComparison.cs" Link="TestSupport/PixelComparison.cs" />
+    <Compile Include="../../test-support/D3D11FrameReadback.cs" Link="TestSupport/D3D11FrameReadback.cs" />
   </ItemGroup>
   <Import Project="../../test-support/RepositoryInstallation.projitems" />
 </Project>

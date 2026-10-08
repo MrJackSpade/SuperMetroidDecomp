@@ -83,17 +83,6 @@ public sealed class SamusArmCannonArtworkCatalog
         content.Append("characters", this.tiles.Transfer.Span);
     });
 
-    public static SamusArmCannonArtworkCatalog Load(Stream json, Stream tilePng)
-    {
-        ArgumentNullException.ThrowIfNull(json);
-        ArgumentNullException.ThrowIfNull(tilePng);
-        Placement placement = LoadPlacement(json);
-        RoomCharacterAtlas tiles = RoomCharacterAtlas.Load(tilePng,
-            SamusArmCannonArtworkFormat.TileSourcePointers.Length *
-                SamusRenderingRomData.ArmCannon.TileUploadByteCount);
-        return FromPlacement(placement, tiles);
-    }
-
     // Placement and PNG admission are distinct file boundaries. The installer can
     // identify the failing file without attributing JSON errors to the tile sheet.
     internal sealed record Placement(ushort[] PosePointers, byte[] DrawingData,

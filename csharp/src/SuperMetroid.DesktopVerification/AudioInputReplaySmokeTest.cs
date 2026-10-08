@@ -49,7 +49,7 @@ public static class AudioInputReplaySmokeTest
         if (!CryptographicOperations.FixedTimeEquals(actualRomDigest, recording.RomSha256))
             throw new InvalidDataException("Replay ROM SHA-256 does not match the recording.");
 
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(fullRomPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
         var game = new SuperMetroidGame(bus, recording.GameOptions);
         using var audio = DesktopAccess.CreateAudioEngine();
@@ -170,7 +170,7 @@ public static class AudioInputReplaySmokeTest
         if (!CryptographicOperations.FixedTimeEquals(actualRomDigest, recording.RomSha256))
             throw new InvalidDataException("Replay ROM SHA-256 does not match the recording.");
 
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(fullRomPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
         var game = new SuperMetroidGame(bus, recording.GameOptions);
         using var audio = DesktopAccess.CreateAudioEngine();
@@ -214,7 +214,7 @@ public static class AudioInputReplaySmokeTest
         if (!CryptographicOperations.FixedTimeEquals(actualRomDigest, recording.RomSha256))
             throw new InvalidDataException("Replay ROM SHA-256 does not match the recording.");
 
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(fullRomPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
         var game = new SuperMetroidGame(bus, recording.GameOptions);
         using var audio = DesktopAccess.CreateAudioEngine();
@@ -327,7 +327,7 @@ public static class AudioInputReplaySmokeTest
     {
         if (pixels is null)
             throw new InvalidDataException($"Replay did not produce capture '{fileName}'.");
-        PngWriter.WriteRgba(
+        PngWriterTooling.WriteRgba(
             Path.Combine(directory, fileName),
             FrontendFrame.Width,
             FrontendFrame.Height,

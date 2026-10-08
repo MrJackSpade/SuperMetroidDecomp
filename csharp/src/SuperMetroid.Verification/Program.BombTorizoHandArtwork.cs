@@ -9,7 +9,7 @@ internal static partial class Program
     /// <summary>Confirm #1162's exact PLM-to-installed-art-to-NMI handoff, not a room sweep.</summary>
     private static void VerifyBombTorizoHandArtwork()
     {
-        var importer = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var importer = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         string directory = Path.Combine(Path.GetFullPath("csharp/test-temp"),
             "bomb-torizo-hand-artwork-" + Guid.NewGuid().ToString("N"));
         try

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Game;
 /// Durations, spin completion, and terminal sleeps are immutable simulation data. The
 /// ten interleaved spritemap pointers remain live cartridge presentation data.
 /// </remarks>
-internal abstract class WaverInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class WaverInstructionProgramDefinitions
 {
     /// <summary><c>$A3:86A7</c>, steady animation facing left.</summary>
     internal const ushort SteadyFacingLeft = 0x86a7;
@@ -20,7 +20,6 @@ internal abstract class WaverInstructionProgramDefinitions : IInstructionProgram
     internal const ushort SpinningFacingRight = 0x86c7;
 
     public static int MechanicsWordCount => 16;
-    public static int PresentationWordCount => 10;
 
     /// <summary>Two steady frame/sleep programs followed by two four-frame spin/completion/sleep programs.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
@@ -43,14 +42,6 @@ internal abstract class WaverInstructionProgramDefinitions : IInstructionProgram
             _ => new((ushort)(start + 18), CommonEnemyInstructionCodes.Sleep),
         };
     }
-
-    public static ushort PresentationWordAddress(int index)
-    {
-        if ((uint)index >= PresentationWordCount)
-            throw new IndexOutOfRangeException();
-        return index < 2 ? (ushort)(SteadyFacingLeft + 6 * index + 2)
-            : (ushort)(SpinningFacingLeft + 20 * ((index - 2) / 4) + 2 + 4 * ((index - 2) % 4));
-    }
     /// <summary>Returns fixed Waver control or rejects pointers outside all four programs.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
@@ -70,22 +61,5 @@ internal abstract class WaverInstructionProgramDefinitions : IInstructionProgram
 
         throw new InvalidDataException(
             $"Waver instruction mechanics pointer $A3:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa30000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 }

@@ -15,19 +15,19 @@ internal static class EnemyVisualProgramSpecializations
     // invalidates that disposition rather than granting a permanent exemption.
     private static readonly Dictionary<string, string> ControlOnly = new Dictionary<string, string>
     {
-        [nameof(CommonEnemyProjectileInstructionProgramDefinitions)] = "7876561037204067C252810C120DB60BFDEC95EC64B418EBCC8BAD68B5F7E930",
+        [nameof(CommonEnemyProjectileInstructionProgramDefinitions)] = "745F2209AFBF057E617830A089E9CDA8D518CF2E5C327750D1BE8745AACED221",
         [nameof(GoldenTorizoEyeBeamAttackInstructionProgramDefinitions)] = "4DCD82EAE1D6A1D3BC8FAE9F8A4E7E8DB7544B27DAE930FEC37005AD90344ADE",
         [nameof(GoldenTorizoJumpLandingInstructionProgramDefinitions)] = "F8EF0540D791B3715DE310B0F68F6DBE7E4FE32FB6F2D0CAA899008613455AA5",
         [nameof(GoldenTorizoStunnedInstructionProgramDefinitions)] = "3DA0A675BA4413792DFA683B0D8D0F51D6B54C8E4BE00909E91443D2A74C39E9",
-        [nameof(TourianEntranceStatueInstructionProgramDefinitions)] = "95C8B79AAC02871F10F74E62B5F6E5EA55C33FD8C0D2440FF761759053F9D39C",
+        [nameof(TourianEntranceStatueInstructionProgramDefinitions)] = "BB51936C0584E148468F52405BBB88D117E4830915FC2050C4DD7E3C060A7AA4",
     };
 
     private static readonly Dictionary<string, string> CustomLayouts = new()
     {
-        [nameof(MotherBrainBodyInstructionProgramDefinitions)] = "6EE26AC824E03B3697720FA6B9A18294EC171E834B5CACC01ACBEE8B1A87757E",
-        [nameof(MotherBrainHeadInstructionProgramDefinitions)] = "27E177BB75857BDACFAEA5677E00FE40CE86677D70E2E22AEBD65DDB3D715EF5",
-        [nameof(MotherBrainHandBeamBodyInstructionDefinitions)] = "1BDCF55B7F53E321BC293DAAA6DD82712484A305B44D0E533C18612E8B7F3D71",
-        [nameof(MotherBrainFallingTubeInstructionDefinitions)] = "FCA4060649CFE4B7A5177FB4F311CBE357F56F44987AA88C33779E621A1362E8",
+        [nameof(MotherBrainBodyInstructionProgramDefinitions)] = "A1820853D30EFE3E4622BBA57B70CF3C054274CABC40D863A06CB6F57F8C677A",
+        [nameof(MotherBrainHeadInstructionProgramDefinitions)] = "E36A1D0F040DF490E7C1D1755F03E63F3ED4705B075466D2110EAD6E5093199A",
+        [nameof(MotherBrainHandBeamBodyInstructionDefinitions)] = "AE97385D5C904FABA81D5E2219D9BAF156BE4133F34F981BB76941C8AF7C309B",
+        [nameof(MotherBrainFallingTubeInstructionDefinitions)] = "1C2F7138D82495CFF28A271C948A6A34FC9F0258C7493E6BF5A70572C4F60AE0",
     };
 
     internal static void GuardCustomLayouts(string root)
@@ -35,7 +35,26 @@ internal static class EnemyVisualProgramSpecializations
         // Falling-tube layout delegates its five visual identities to this calculated catalog.
         GuardSource(root, "csharp/src/SuperMetroid.Core/Assets/MotherBrainVisualDefinitions.cs", "8A566B9D6A4B899CD9790E9EA79394935234CB6013C6DFC92855D81223D89419");
         foreach ((string name, string expected) in CustomLayouts)
-            GuardSource(root, "csharp/src/SuperMetroid.Core/Game/" + name + ".cs", expected);
+            GuardOwner(root, name, expected);
+    }
+
+    /// <summary>
+    /// The reviewed source of a Core program owner: its shipped definition file, or the development
+    /// file it moved to whole, followed by the development adapter holding what only tools read.
+    /// </summary>
+    internal static string OwnerSource(string root, string name)
+    {
+        string shipped = Path.Combine(root, "csharp/src/SuperMetroid.Core/Game", name + ".cs");
+        string tooling = Path.Combine(root, "csharp/src/SuperMetroid.Tooling/Core/Game", name + ".cs");
+        string adapter = Path.Combine(root, "csharp/src/SuperMetroid.Tooling/Core/Game", name + "Tooling.cs");
+        string definition = File.Exists(shipped) ? shipped : tooling;
+        return File.ReadAllText(definition) + (File.Exists(adapter) ? File.ReadAllText(adapter) : "");
+    }
+
+    private static void GuardOwner(string root, string name, string expected)
+    {
+        if (!SourceMatches(OwnerSource(root, name), expected))
+            throw new InvalidDataException(name + ": reviewed static layout changed; update its adapter after source review.");
     }
 
     internal static void GuardSource(string root, string path, string expected)
@@ -52,7 +71,7 @@ internal static class EnemyVisualProgramSpecializations
     internal static bool IsReviewedControlOnly(Type type, string root)
     {
         if (!ControlOnly.TryGetValue(type.Name, out string? expected)) return false;
-        GuardSource(root, "csharp/src/SuperMetroid.Core/Game/" + type.Name + ".cs", expected);
+        GuardOwner(root, type.Name, expected);
         return true;
     }
 
@@ -71,14 +90,14 @@ internal static class EnemyVisualProgramSpecializations
         }
         if (type == typeof(MotherBrainFallingTubeInstructionDefinitions))
         {
-            for (int i = 0; i < MotherBrainFallingTubeInstructionDefinitions.ListCount; i++)
+            for (int i = 0; i < MotherBrainFallingTubeInstructionDefinitionsTooling.ListCount; i++)
                 operands.Add(checked((ushort)(MotherBrainFallingTubeInstructionDefinitions.FirstList +
                     i * MotherBrainFallingTubeInstructionDefinitions.ListStride + 2)));
             return true;
         }
         if (type == typeof(MotherBrainHandBeamBodyInstructionDefinitions))
         {
-            foreach (ushort operand in MotherBrainHandBeamBodyInstructionDefinitions.PresentationOperands) operands.Add(operand);
+            foreach (ushort operand in MotherBrainHandBeamBodyInstructionDefinitionsTooling.PresentationOperands) operands.Add(operand);
             return true;
         }
         if (type != typeof(MotherBrainHeadInstructionProgramDefinitions)) return false;
@@ -107,12 +126,12 @@ internal static class EnemyVisualProgramSpecializations
 
     private static readonly (ushort Start, ushort End)[] HeadRegions =
     [
-        (MotherBrainHeadInstructionProgramDefinitions.EarlyStart, MotherBrainHeadInstructionProgramDefinitions.EarlyEnd),
-        (MotherBrainHeadInstructionProgramDefinitions.RainbowAndNeutralPhaseTwoStart, MotherBrainHeadInstructionProgramDefinitions.RainbowAndNeutralPhaseTwoEnd),
-        (MotherBrainHeadInstructionProgramDefinitions.NeutralStart, MotherBrainHeadInstructionProgramDefinitions.NeutralRegionEnd),
-        (MotherBrainHeadInstructionProgramDefinitions.CorpseAndRingsStart, MotherBrainHeadInstructionProgramDefinitions.CorpseAndRingsEnd),
-        (MotherBrainHeadInstructionProgramDefinitions.BombAndLaserStart, MotherBrainHeadInstructionProgramDefinitions.BombAndLaserEnd),
-        (MotherBrainHeadInstructionProgramDefinitions.RainbowChargeStart, MotherBrainHeadInstructionProgramDefinitions.RainbowChargeEnd),
+        (MotherBrainHeadInstructionProgramDefinitionsTooling.EarlyStart, MotherBrainHeadInstructionProgramDefinitionsTooling.EarlyEnd),
+        (MotherBrainHeadInstructionProgramDefinitionsTooling.RainbowAndNeutralPhaseTwoStart, MotherBrainHeadInstructionProgramDefinitionsTooling.RainbowAndNeutralPhaseTwoEnd),
+        (MotherBrainHeadInstructionProgramDefinitionsTooling.NeutralStart, MotherBrainHeadInstructionProgramDefinitionsTooling.NeutralRegionEnd),
+        (MotherBrainHeadInstructionProgramDefinitionsTooling.CorpseAndRingsStart, MotherBrainHeadInstructionProgramDefinitionsTooling.CorpseAndRingsEnd),
+        (MotherBrainHeadInstructionProgramDefinitionsTooling.BombAndLaserStart, MotherBrainHeadInstructionProgramDefinitionsTooling.BombAndLaserEnd),
+        (MotherBrainHeadInstructionProgramDefinitionsTooling.RainbowChargeStart, MotherBrainHeadInstructionProgramDefinitionsTooling.RainbowChargeEnd),
     ];
 
     private static int HeadCommandBytes(ushort opcode) => opcode switch

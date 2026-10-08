@@ -8,7 +8,7 @@ internal static partial class Program
 {
     /// <summary>The repository ROM, the independent source of Draygon's authored tilemap words.</summary>
     private static readonly Lazy<SuperMetroid.AssetExtraction.CartridgeImportAddressSpace> draygonReferenceRom =
-        new(() => SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        new(() => SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
 
     /// <summary>Check the ROM-authored words, not just the compositor's interpretation of them.</summary>
     private static int VerifyDraygonBodyTilemap(SuperMetroidRuntime runtime)

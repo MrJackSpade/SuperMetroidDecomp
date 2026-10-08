@@ -14,7 +14,6 @@ public static class RoomFxRomData
     /// <summary>SNES banks that own the translated room-FX data and bytecode.</summary>
     public static class Banks
     {
-        public const int RoomDefinitions = 0x830000;
         public const int AnimatedTiles = 0x870000;
         public const int Tilemaps = 0x8a0000;
         public const int PaletteFx = 0x8d0000;
@@ -24,18 +23,6 @@ public static class RoomFxRomData
     public static class Record
     {
         public const int ByteCount = 16;
-        public const int DoorPointerOffset = 0;
-        public const int BaseYPositionOffset = 2;
-        public const int TargetYPositionOffset = 4;
-        public const int YVelocityOffset = 6;
-        public const int TimerOffset = 8;
-        public const int TypeOffset = 9;
-        public const int DefaultLayerBlendConfigurationOffset = 10;
-        public const int Layer3LayerBlendConfigurationOffset = 11;
-        public const int LiquidOptionsOffset = 12;
-        public const int PaletteFxBitsetOffset = 13;
-        public const int AnimatedTileBitsetOffset = 14;
-        public const int PaletteBlendOffset = 15;
 
         /// <summary>Door word that terminates an FX list without selecting a record.</summary>
         public const ushort TerminatorDoorPointer = ushort.MaxValue;

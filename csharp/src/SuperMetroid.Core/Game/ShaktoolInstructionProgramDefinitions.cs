@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Game;
 /// its initialization, orientation, collision-recovery, and dormant-attack selectors.
 /// Interleaved spritemap operands select installed presentation frames.
 /// </summary>
-internal abstract class ShaktoolInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class ShaktoolInstructionProgramDefinitions
 {
     /// <summary><c>UNUSED_InstList_Shaktool_SawHand_Attack_PrimaryPiece_AAD9EA</c> at $AA:D9EA.</summary>
     internal const ushort SawHandAttackPrimaryPiece = 0xd9ea;
@@ -41,7 +41,7 @@ internal abstract class ShaktoolInstructionProgramDefinitions : IInstructionProg
     /// <summary><c>RTS_AADAE4</c>, the first adjacent code routine at $AA:DAE4.</summary>
     internal const ushort FirstAdjacentCodeRoutine = 0xdae4;
 
-    private const int PresentationOperand = -1;
+    internal const int PresentationOperand = -1;
     /// <summary>$AA:D9EC/D9F4: total dormant attack duration shared by the saw pieces. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
     private const ushort AttackTicks = 576;
     /// <summary>$AA:DA36/DA4A/DA7C/DA84: shared attack displacement interval. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
@@ -62,26 +62,6 @@ internal abstract class ShaktoolInstructionProgramDefinitions : IInstructionProg
     private const ushort FirstFacingTicks = 0x0774;
     /// <summary>$AA:DA8E/DAA2: final one-tick waits before head-program fallthrough; independent scheduling choice. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
     private const ushort HeadFallthroughTicks = 1;
-
-    public static int MechanicsWordCount => 110;
-    public static int PresentationWordCount => 15;
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        for (int address = SawHandAttackPrimaryPiece; address < FirstAdjacentCodeRoutine; address += 2)
-        {
-            int value = ProgramWord((ushort)address);
-            if (value != PresentationOperand && index-- == 0) return new((ushort)address, (ushort)value);
-        }
-        throw new InvalidOperationException("Shaktool mechanics-word index is inconsistent.");
-    }
-    public static ushort PresentationWordAddress(int index)
-    {
-        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
-        if (index < 6) return (ushort)((index < 3 ? SawHandPrimaryPiece : SawHandFinalPiece) + (index % 3) * 4 + 2);
-        if (index == 6) return ArmPieceNormal + 2;
-        return (ushort)(HeadAimingLeft + (index - 7) * 8 + 2);
-    }
     internal static bool IsPresentationWord(ushort address)
     {
         if (address >= SawHandPrimaryPiece && address < ArmPieceAttackBack)
@@ -98,13 +78,7 @@ internal abstract class ShaktoolInstructionProgramDefinitions : IInstructionProg
             throw new InvalidDataException($"Shaktool instruction mechanics pointer $AA:{address:X4} is not compiled.");
         return (ushort)ProgramWord(address);
     }
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xaa0000) return false;
-        ushort bankAddress = (ushort)(address & 0xfffe);
-        return bankAddress >= SawHandAttackPrimaryPiece && bankAddress < FirstAdjacentCodeRoutine && !IsPresentationWord(bankAddress);
-    }
-    private static int ProgramWord(ushort address)
+    internal static int ProgramWord(ushort address)
     {
         if (address < SawHandPrimaryPiece)
         {

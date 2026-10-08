@@ -8,11 +8,10 @@ namespace SuperMetroid.Core.Game;
 /// and control flow. Fixed spritemap and palette selectors are compiled; their
 /// OAM compositions and RGB5 colors live in editable presentation assets.
 /// </remarks>
-internal abstract class CeresBabyInstructionProgramDefinitions : IInstructionProgramCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
+internal abstract class CeresBabyInstructionProgramDefinitions
 {
     /// <summary>Bank $A6 owns the Ceres Baby's private draw program and OAM frames.</summary>
     internal const byte Bank = 0xa6;
-    static int IDeclaredProgramBank.Bank => Bank;
     /// <summary>The horizontal-squish Baby OAM frame at $A6:BFFD.</summary>
     internal const ushort HorizontalFrame = 0xbffd;
     /// <summary>The round Baby OAM frame at $A6:C018.</summary>
@@ -183,20 +182,6 @@ internal abstract class CeresBabyInstructionProgramDefinitions : IInstructionPro
 
         throw new InvalidDataException(
             $"Ceres Baby instruction mechanics pointer $A6:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa60000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress || bankAddress == unchecked((ushort)(wordAddress + 1)))
-                return true;
-        }
-        return false;
     }
 
 }

@@ -11,7 +11,7 @@ internal static partial class Program
     /// <summary>Verifies only the already statically identified enemy-reader conversions; no gameplay read discovery.</summary>
     private static void VerifyEnemyDefinitionBoundary(string sourceRom)
     {
-        var source = CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
+        var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         Suite(nameof(VerifyEnemyMappedSourceRouting), () => VerifyEnemyMappedSourceRouting());
         Suite(nameof(VerifyCompleteTorizoDefinitions), () => VerifyCompleteTorizoDefinitions(source));
         Suite(nameof(VerifyCorpseMetadataDefinitions), () => VerifyCorpseMetadataDefinitions(source));
@@ -54,15 +54,15 @@ internal static partial class Program
 
     private static void VerifyCompleteTorizoDefinitions(ISnesAddressSpace source)
     {
-        AssertEqual(1761, TorizoInstructionProgramDefinitions.MechanicsWordCount, "complete Torizo mechanics count");
+        AssertEqual(1761, TorizoInstructionProgramDefinitionsTooling.MechanicsWordCount, "complete Torizo mechanics count");
         AssertEqual(564, TorizoInstructionProgramDefinitions.PresentationWordCount, "complete Torizo visual operand count");
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
         MethodInfo read = typeof(RoomEnemySystem).GetMethod("ReadEnemyInstructionMechanicsWord", flags)!;
         ushort previous = 0;
-        for (int index = 0; index < TorizoInstructionProgramDefinitions.MechanicsWordCount; index++)
+        for (int index = 0; index < TorizoInstructionProgramDefinitionsTooling.MechanicsWordCount; index++)
         {
-            InstructionMechanicsWord word = TorizoInstructionProgramDefinitions.MechanicsWord(index);
+            InstructionMechanicsWord word = TorizoInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertTrue(word.Address > previous, "Torizo mechanics are ordered and unique");
             previous = word.Address;
             AssertEqual(NativeWord(source, 0xaa0000 | word.Address), word.Value, $"Torizo word {word.Address:X4}");

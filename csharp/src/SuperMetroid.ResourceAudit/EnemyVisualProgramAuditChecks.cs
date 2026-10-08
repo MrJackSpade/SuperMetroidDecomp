@@ -33,15 +33,15 @@ internal static class EnemyVisualProgramAuditChecks
             [unchecked((ushort)(KzanInstructionProgramDefinitions.Idle + 4))] = CommonEnemyInstructionCodes.Sleep,
         };
         Require(EnemyVisualProgramAudit.InterleavedOperands(missingDeclarations)
-                .SequenceEqual([KzanInstructionProgramDefinitions.PresentationWord]),
+                .SequenceEqual([KzanInstructionProgramDefinitionsTooling.PresentationWord]),
             "mechanics gaps expose Kzan's operand even without its presentation declaration");
         missingDeclarations.Remove(unchecked((ushort)(KzanInstructionProgramDefinitions.Idle + 4)));
         Require(EnemyVisualProgramAudit.InterleavedOperands(missingDeclarations)
-                .SequenceEqual([KzanInstructionProgramDefinitions.PresentationWord]),
+                .SequenceEqual([KzanInstructionProgramDefinitionsTooling.PresentationWord]),
             "terminal frame operands cannot escape the independent inventory");
 
         var frame = SingleFrameEnemyVisualDefinitions.Kzan;
-        ushort operand = KzanInstructionProgramDefinitions.PresentationWord;
+        ushort operand = KzanInstructionProgramDefinitionsTooling.PresentationWord;
         var exports = new ResourceIndex();
         exports.Add(ResourceDomains.EnemyDisplay, ResourceIndex.Address(frame.Bank, frame.Pointer));
         var missingSelector = new AuditReport();

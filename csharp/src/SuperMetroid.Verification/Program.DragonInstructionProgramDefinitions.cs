@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyDragonInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyDragonInstructionProgramDefinitions), () => VerifyDragonInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyDragonInstructionProgramDefinitions(
@@ -147,7 +147,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (DragonInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (DragonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

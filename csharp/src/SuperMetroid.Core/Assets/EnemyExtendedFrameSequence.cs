@@ -6,15 +6,6 @@ namespace SuperMetroid.Core.Assets;
 /// Ranges preserve the historical schema prefixes; entries are emitted by their owners.</summary>
 internal readonly record struct EnemyExtendedFrameSequence(int Start, int Length) : IEnumerable<EnemyExtendedFrameDefinition>
 {
-    internal EnemyExtendedFrameDefinition this[int index]
-    {
-        get
-        {
-            if ((uint)index >= Length) throw new IndexOutOfRangeException();
-            return EnemyExtendedFrameDefinitions.EnumerateFrames().ElementAt(Start + index);
-        }
-    }
-
     internal EnemyExtendedFrameSequence this[Range range]
     {
         get

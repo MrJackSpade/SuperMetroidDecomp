@@ -5,7 +5,7 @@ internal static partial class Program
 {
     private static void VerifyCeresShaftCompiledRotation()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         ushort Word(int offset) => (ushort)(rom.ReadByte(CeresShaftRotationDefinitions.ReferenceAddress + offset) |
             rom.ReadByte(CeresShaftRotationDefinitions.ReferenceAddress + offset + 1) << 8);
         // Numeric coefficients/phases were proven by the #1165 research; this check covers

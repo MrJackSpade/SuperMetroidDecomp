@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyDeadTourianCorpseInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyDeadTourianCorpseInstructionProgramDefinitions), () => VerifyDeadTourianCorpseInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyDeadTourianCorpseInstructionProgramDefinitions(
@@ -67,7 +67,7 @@ internal static partial class Program
                     DeadTourianCorpseInstructionProgramDefinitions.SleepWordAddress(programIndex),
                     corpse.CurrentInstruction,
                     $"dead {family.Species} variant {variantIndex} reaches terminal sleep");
-                ushort operand = DeadTourianCorpseInstructionProgramDefinitions
+                ushort operand = DeadTourianCorpseInstructionProgramDefinitionsTooling
                     .PresentationWordAddress(programIndex);
                 AssertCompiledEnemyVisualSelector(rom, family.EnemyDefinition, 0xa9,
                     operand, $"dead {family.Species} variant {variantIndex}");
@@ -84,7 +84,7 @@ internal static partial class Program
             "production execution avoids every compiled Dead Tourian corpse mechanics byte");
         AssertThrows<InvalidDataException>(
             () => DeadTourianCorpseInstructionProgramDefinitions.ReadMechanicsWord(
-                DeadTourianCorpseInstructionProgramDefinitions.PresentationWordAddress(0)),
+                DeadTourianCorpseInstructionProgramDefinitionsTooling.PresentationWordAddress(0)),
             "Dead Tourian corpse spritemap pointer is rejected as mechanics");
         AssertThrows<InvalidDataException>(
             () => DeadTourianCorpseInstructionProgramDefinitions.ReadMechanicsWord(
@@ -135,7 +135,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (DeadTourianCorpseInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (DeadTourianCorpseInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -150,7 +150,7 @@ internal static partial class Program
                      index++)
                 {
                     ushort presentation =
-                        DeadTourianCorpseInstructionProgramDefinitions.PresentationWordAddress(index);
+                        DeadTourianCorpseInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

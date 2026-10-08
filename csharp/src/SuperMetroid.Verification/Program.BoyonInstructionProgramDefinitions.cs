@@ -12,13 +12,13 @@ internal static partial class Program
     {
         ushort[] addresses = [0x86a7,0x86a9,0x86ab,0x86af,0x86b3,0x86b7,0x86bb,0x86bd,
             0x86bf,0x86c1,0x86c3,0x86c7,0x86cb,0x86cf,0x86d3,0x86d7,0x86db,0x86dd];
-        AssertEqual(addresses.Length, BoyonInstructionProgramDefinitions.MechanicsWordCount, "Boyon word count");
+        AssertEqual(addresses.Length, BoyonInstructionProgramDefinitionsTooling.MechanicsWordCount, "Boyon word count");
         var bytes = new HashSet<int>();
         for (int index = 0; index < addresses.Length; index++)
         {
             ushort address = addresses[index];
             ushort expected = ReadBoyonInstructionWord(rom, 0xa20000 | address);
-            var actual = BoyonInstructionProgramDefinitions.MechanicsWord(index);
+            var actual = BoyonInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(address, actual.Address, "Boyon native word position");
             AssertEqual(expected, actual.Value, "Boyon native enumerated word");
             AssertEqual(expected, BoyonInstructionProgramDefinitions.ReadMechanicsWord(address), "Boyon direct native word");
@@ -28,9 +28,9 @@ internal static partial class Program
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
             bool expected = bytes.Contains(address);
-            AssertEqual(expected, BoyonInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa20000 | address), "Boyon full bank byte ownership");
-            AssertEqual(expected, BoyonInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1a20000 | address), "Boyon high-bit alias preserved");
-            AssertTrue(!BoyonInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa30000 | address), "Boyon wrong bank rejected");
+            AssertEqual(expected, BoyonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa20000 | address), "Boyon full bank byte ownership");
+            AssertEqual(expected, BoyonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x1a20000 | address), "Boyon high-bit alias preserved");
+            AssertTrue(!BoyonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa30000 | address), "Boyon wrong bank rejected");
         }
         var words = addresses.ToHashSet();
         for (int address = 0x86a5; address <= 0x86e1; address++)
@@ -40,20 +40,20 @@ internal static partial class Program
         foreach (ushort address in new ushort[] { 0, 0x7fff, 0xffff })
             AssertThrows<InvalidDataException>(() => BoyonInstructionProgramDefinitions.ReadMechanicsWord(address), "Boyon far invalid word");
         foreach (int index in new[] { int.MinValue, -1, 18, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => BoyonInstructionProgramDefinitions.MechanicsWord(index), "Boyon mechanics ordinal bounds");
+            AssertThrows<IndexOutOfRangeException>(() => BoyonInstructionProgramDefinitionsTooling.MechanicsWord(index), "Boyon mechanics ordinal bounds");
     }
 
     private static void VerifyBoyonPresentationAddresses()
     {
         ushort[] addresses = BoyonPresentationOracle();
-        AssertEqual(addresses.Length, BoyonInstructionProgramDefinitions.PresentationWordCount, "Boyon visual count");
+        AssertEqual(addresses.Length, BoyonInstructionProgramDefinitionsTooling.PresentationWordCount, "Boyon visual count");
         for (int index = 0; index < addresses.Length; index++)
-            AssertEqual(addresses[index], BoyonInstructionProgramDefinitions.PresentationWordAddress(index), "Boyon original visual position");
+            AssertEqual(addresses[index], BoyonInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "Boyon original visual position");
         var valid = addresses.ToHashSet();
         for (int address = 0; address <= ushort.MaxValue; address++)
             AssertEqual(valid.Contains((ushort)address), BoyonInstructionProgramDefinitions.IsPresentationWord((ushort)address), "Boyon full visual membership");
         foreach (int index in new[] { int.MinValue, -1, 10, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => BoyonInstructionProgramDefinitions.PresentationWordAddress(index), "Boyon presentation ordinal bounds");
+            AssertThrows<IndexOutOfRangeException>(() => BoyonInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "Boyon presentation ordinal bounds");
     }
 
     private static void VerifyBoyonVisualSelectors(SuperMetroidAddressSpace rom)
@@ -80,7 +80,7 @@ internal static partial class Program
     private static void VerifyBoyonInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyBoyonInstructionProgramDefinitions), () => VerifyBoyonInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyBoyonInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
@@ -193,7 +193,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (BoyonInstructionProgramDefinitions.IsCompiledMechanicsByte(address) ||
+            if (BoyonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
                 IsCompiledPresentationByte(address))
             {
                 ForbiddenReadAttempts++;
@@ -210,11 +210,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < BoyonInstructionProgramDefinitions.PresentationWordCount;
+                     index < BoyonInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        BoyonInstructionProgramDefinitions.PresentationWordAddress(index);
+                        BoyonInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

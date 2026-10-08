@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -23,6 +24,8 @@ internal static class ConsumerAudit
             SemanticModel semantic = compilation.GetSemanticModel(tree);
             foreach (ClassDeclarationSyntax declaration in tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>())
                 operands.Inspect(declaration, semantic);
+            // Development tooling never runs in the game, so its calls are not resource consumers.
+            if (IsTooling(tree)) continue;
             foreach (InvocationExpressionSyntax call in tree.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
                 Inspect(call, semantic, exports, report, closedProviders);
         }
@@ -30,12 +33,25 @@ internal static class ConsumerAudit
         closedProviders.Complete(exports, report);
     }
 
+    /// <summary>Whether a compiled source belongs to the development tool library rather than shipped Core.</summary>
+    internal static bool IsTooling(SyntaxTree tree) =>
+        tree.FilePath.StartsWith("csharp/src/SuperMetroid.Tooling/", StringComparison.Ordinal);
+
+    /// <summary>A Core program owner's runtime type, or the development type it moved to whole.</summary>
+    internal static Type? ProgramOwnerType(string fullName) =>
+        typeof(SuperMetroid.Core.Game.RoomEnemySystem).Assembly.GetType(fullName) ?? typeof(ToolingTypes).Assembly.GetType(fullName);
+
     internal static CSharpCompilation CreateCompilation(string root)
     {
         string directory = Path.Combine(root, "csharp/src/SuperMetroid.Core");
         if (!Directory.Exists(directory)) throw new DirectoryNotFoundException(directory);
+        // Catalog members only tools read live in the development library's Core mirror; they
+        // belong to the same owners, so ownership guards and program discovery see them too.
+        string tooling = Path.Combine(root, "csharp/src/SuperMetroid.Tooling");
+        if (!Directory.Exists(tooling)) throw new DirectoryNotFoundException(tooling);
         var options = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Preview);
         var trees = Directory.EnumerateFiles(directory, "*.cs", SearchOption.AllDirectories)
+            .Concat(Directory.EnumerateFiles(tooling, "*.cs", SearchOption.AllDirectories))
             .Where(path => !path.Contains(Path.DirectorySeparatorChar + "obj" + Path.DirectorySeparatorChar) &&
                            !path.Contains(Path.DirectorySeparatorChar + "bin" + Path.DirectorySeparatorChar))
             .OrderBy(path => path, StringComparer.Ordinal)

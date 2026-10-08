@@ -527,11 +527,11 @@ internal static class EnemyExtendedFrameDefinitions
         if (count != PreCrocomireSkeletonFrameCount)
             throw new InvalidDataException("BG2-only boss display-binding coverage changed.");
         for (int index = 0; index < CrocomireSkeletonVisualDefinitions.FrameCount; index++)
-            yield return Emit(CrocomireSkeletonVisualDefinitions.Frames[index]);
+            yield return Emit(CrocomireSkeletonVisualDefinitions.Frame(index));
         if (count != PreKraidFootFrameCount)
             throw new InvalidDataException("Crocomire skeleton display-binding coverage changed.");
         for (int index = 0; index < KraidFootVisualDefinitions.FrameCount; index++)
-            yield return Emit(KraidFootVisualDefinitions.Frames[index]);
+            yield return Emit(KraidFootVisualDefinitions.Frame(index));
         if (count != ExpectedFrameCount)
             throw new InvalidDataException("Kraid foot display-binding coverage changed.");
     }

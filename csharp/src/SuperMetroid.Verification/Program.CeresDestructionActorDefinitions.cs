@@ -5,7 +5,7 @@ internal static partial class Program
 {
     private static void VerifyCeresDestructionActorDefinitions()
     {
-        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
 
         Suite(nameof(VerifyCeresInitialActorMetadata), () => VerifyCeresInitialActorMetadata(retail));
 

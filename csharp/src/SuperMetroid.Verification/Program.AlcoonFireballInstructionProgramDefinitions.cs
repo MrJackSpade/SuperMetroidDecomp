@@ -2,12 +2,13 @@ using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
     private static void VerifyAlcoonFireballInstructionProgramDefinitions()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)),
             "Alcoon-fireball oracle is NTSC J/U v1.0");
@@ -50,14 +51,14 @@ internal static partial class Program
     private static void VerifyAlcoonFireballMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0x9e9e, 0x9ea2, 0x9ea6, 0x9eaa, 0x9eae, 0x9eb0];
-        AssertEqual(addresses.Length, AlcoonFireballInstructionProgramDefinitions.MechanicsWordCount,
+        AssertEqual(addresses.Length, AlcoonFireballInstructionProgramDefinitionsTooling.MechanicsWordCount,
             "Alcoon-fireball mechanics count");
         var bytes = new HashSet<int>();
         for (int index = 0; index < addresses.Length; index++)
         {
             ushort address = addresses[index];
             ushort expected = ReadAlcoonFireballInstructionWord(rom, address);
-            var definition = AlcoonFireballInstructionProgramDefinitions.MechanicsWord(index);
+            var definition = AlcoonFireballInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(address, definition.Address, "Alcoon-fireball native word position");
             AssertEqual(expected, definition.Value, "Alcoon-fireball native enumerated word");
             AssertEqual(expected, AlcoonFireballInstructionProgramDefinitions.ReadMechanicsWord(address),
@@ -68,11 +69,11 @@ internal static partial class Program
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
             bool expected = bytes.Contains(address);
-            AssertEqual(expected, AlcoonFireballInstructionProgramDefinitions.IsCompiledMechanicsByte(0x860000 | address),
+            AssertEqual(expected, AlcoonFireballInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x860000 | address),
                 "Alcoon-fireball full bank ownership");
-            AssertEqual(expected, AlcoonFireballInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1860000 | address),
+            AssertEqual(expected, AlcoonFireballInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x1860000 | address),
                 "Alcoon-fireball preserves high-bit masking");
-            AssertTrue(!AlcoonFireballInstructionProgramDefinitions.IsCompiledMechanicsByte(0x850000 | address),
+            AssertTrue(!AlcoonFireballInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x850000 | address),
                 "Alcoon-fireball rejects other bank");
         }
         var words = addresses.ToHashSet();
@@ -85,7 +86,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => AlcoonFireballInstructionProgramDefinitions.ReadMechanicsWord(address),
                 "Alcoon-fireball rejects distant invalid word");
         foreach (int index in new[] { int.MinValue, -1, 6, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => AlcoonFireballInstructionProgramDefinitions.MechanicsWord(index),
+            AssertThrows<IndexOutOfRangeException>(() => AlcoonFireballInstructionProgramDefinitionsTooling.MechanicsWord(index),
                 "Alcoon-fireball mechanics ordinal bounds");
     }
 
@@ -246,7 +247,7 @@ internal static partial class Program
         public byte ReadByte(int address)
         {
             if (((address & 0xff0000) == 0x860000 && (ushort)address is >= 0x9e9e and <= 0x9eb1) ||
-                CommonEnemyProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+                CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

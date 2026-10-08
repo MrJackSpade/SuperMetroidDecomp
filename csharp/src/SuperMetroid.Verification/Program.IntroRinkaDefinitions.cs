@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyIntroRinkaDefinitions()
     {
-        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyIntroRinkaPrograms), () => VerifyIntroRinkaPrograms(retail));
         // Native six-byte definitions $8B:CF21 (Rinka) and $8B:CF27 (spawner). Their first
         // word, the initialization callback, has no port counterpart.

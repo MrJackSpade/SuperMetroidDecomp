@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled timing, callbacks, and control flow for Mama Turtle and Baby Turtle programs.
 /// Interleaved spritemap selections resolve compiled identities to installed artwork.
 /// </summary>
-internal abstract class MamaTurtleInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class MamaTurtleInstructionProgramDefinitions
 {
     /// <summary><c>InstList_BabyTurtle_CrawlingLeft</c> at $A2:8B80.</summary>
     internal const ushort BabyCrawlingLeft = 0x8b80;
@@ -47,17 +47,7 @@ internal abstract class MamaTurtleInstructionProgramDefinitions : IInstructionPr
     private static readonly ushort[] MamaLeaveDurations = [16, 5, 5, 96];
     /// <summary>A2:8C62/8D40 baby exit holds. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private static readonly ushort[] BabyLeaveDurations = [5, 47];
-    public static int MechanicsWordCount => 117;
     public static int PresentationWordCount => 75;
-
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        for (int address = BabyCrawlingLeft; address < AdjacentMovementDefinitions; address += 2)
-            if (TryControl((ushort)address, out ushort value) && index-- == 0)
-                return new((ushort)address, value);
-        throw new InvalidDataException("Turtle control layout is incomplete.");
-    }
 
     public static ushort PresentationWordAddress(int index)
     {
@@ -72,10 +62,7 @@ internal abstract class MamaTurtleInstructionProgramDefinitions : IInstructionPr
     internal static ushort ReadMechanicsWord(ushort address) => TryControl(address, out ushort value)
         ? value : throw new InvalidDataException($"Tatori instruction mechanics pointer $A2:{address:X4} is not compiled.");
 
-    public static bool IsCompiledMechanicsByte(int address) =>
-        (address & 0xff0000) == 0xa20000 && TryControl((ushort)(address & 0xfffe), out _);
-
-    private static bool TryControl(ushort address, out ushort value) =>
+    internal static bool TryControl(ushort address, out ushort value) =>
         TryCrawl(address, BabyCrawlingLeft, out value) || TryCrawl(address, BabyCrawlingRight, out value) ||
         TrySpin(address, BabySpinning, baby: true, out value) || TrySpin(address, MamaSpinning, baby: false, out value) ||
         TryShell(address, MamaEnterShellLeft, ShellProgram.MamaEnterLeft, out value) ||

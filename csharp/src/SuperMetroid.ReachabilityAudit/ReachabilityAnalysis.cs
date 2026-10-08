@@ -8,7 +8,10 @@ internal sealed record ReachabilityResult(
     HashSet<string> Referenced,
     HashSet<string> SerializerAccessed,
     ReflectionScan Reflection,
-    HashSet<string> VerificationSourceFiles);
+    HashSet<string> VerificationSourceFiles,
+    ReachabilityGraph Graph,
+    IReadOnlySet<string> ProductionRoots,
+    IReadOnlySet<string> Roots);
 
 /// <summary>
 /// Builds the reference graph for a loaded solution and computes reachability from its roots.
@@ -52,6 +55,6 @@ internal static class ReachabilityAnalysis
             .SelectMany(p => p.Compilation.SyntaxTrees).Where(identity.IsRepositorySource)
             .Select(tree => identity.Relative(tree.FilePath)).ToHashSet(StringComparer.Ordinal);
         return new ReachabilityResult(declarations.Declarations, graph.Reach(roots.Roots), graph.Reach(roots.ProductionRoots),
-            references.Referenced, json.SerializerAccessedMembers(), reflection, verificationSources);
+            references.Referenced, json.SerializerAccessedMembers(), reflection, verificationSources, graph, roots.ProductionRoots, roots.Roots);
     }
 }

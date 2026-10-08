@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyEscapeAnimalBlocks(string romPath)
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         ushort[] words = Enumerable.Repeat((ushort)0x8123, 256).ToArray();
         var level = new RoomLevelData(16, 16, words, new byte[256], new ushort[256], new byte[8192]);
         var streamer = new BackgroundTilemapStreamer(16, words, new ushort[256], new byte[8192]);

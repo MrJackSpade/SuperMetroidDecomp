@@ -6,18 +6,18 @@ internal static partial class Program
 {
     private static void VerifyDraygonProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyDraygonProjectileInstructionProgramDefinitions), () => VerifyDraygonProjectileInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     private static void VerifyDraygonProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int index = 0;
-             index < DraygonProjectileInstructionProgramDefinitions.MechanicsWordCount;
+             index < DraygonProjectileInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                DraygonProjectileInstructionProgramDefinitions.MechanicsWord(index);
+                DraygonProjectileInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value, ReadWord(rom, definition.Address),
                 $"Draygon projectile mechanics word $86:{definition.Address:X4}");
         }
@@ -204,8 +204,8 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (DraygonProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(address) ||
-                CommonEnemyProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (DraygonProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
+                CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

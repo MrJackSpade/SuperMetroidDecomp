@@ -15,8 +15,7 @@ internal static partial class Program
         AssertEqual(588, frames.Length, "original extended-frame count");
         var sequence = EnemyExtendedFrameDefinitions.Frames;
         AssertEqual(frames.Length, sequence.Length, "sequence length");
-        for (int index = 0; index < frames.Length; index++)
-            AssertEqual(frames[index], sequence[index], "indexed extended frame");
+        AssertTrue(frames.SequenceEqual(sequence), "ordered extended frames");
         foreach (int prefix in new[] { 0, 37, 55, 131, 142, 202, 230, 260, 269, 319,
             320, 321, 343, 349, 359, 370, 373, 379, 400, 401, 406, 408, 420, 447, 464, 520, 553, 588 })
         {
@@ -24,13 +23,6 @@ internal static partial class Program
             AssertTrue(frames[prefix..].SequenceEqual(sequence[prefix..]), "schema suffix");
         }
         AssertTrue(frames[447..464].SequenceEqual(sequence[420..520][27..44]), "nested range offsets");
-        foreach (int invalid in new[] { -1, 588 })
-        {
-            bool rejected = false;
-            try { _ = sequence[invalid]; }
-            catch (IndexOutOfRangeException) { rejected = true; }
-            AssertTrue(rejected, "invalid sequence index rejected");
-        }
         bool badRangeRejected = false;
         try { _ = sequence[..589]; }
         catch (ArgumentOutOfRangeException) { badRangeRejected = true; }

@@ -26,7 +26,7 @@ internal static partial class Program
         foreach (ushort address in controls)
         {
             AssertTrue(readControl(address, out ushort control), $"{family} declared control exists");
-            if ((control & RoomPlmMemoryLayout.RoutineWordMask) != 0) continue;
+            if ((control & RoomPlmMemoryLayoutTooling.RoutineWordMask) != 0) continue;
             ushort operand = checked((ushort)(address + sizeof(ushort)));
             AssertTrue(readDraw(operand, out ushort draw), $"{family} timer ${address:X4} has a compiled draw operand");
             AssertEqual(readNative(operand), draw, $"{family} draw operand ${operand:X4} matches pinned import");

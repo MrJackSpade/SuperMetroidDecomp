@@ -269,7 +269,7 @@ internal static class LibraryBackgroundProgramDefinitionsAccess
         internal static LibraryBackgroundInstruction GetDoorTransfer(ushort listPointer,
             ushort doorPointer)
         {
-            foreach (LibraryBackgroundInstruction instruction in LibraryBackgroundProgramDefinitions.Get(listPointer).Instructions)
+            foreach (LibraryBackgroundInstruction instruction in LibraryBackgroundProgramDefinitionsTooling.Get(listPointer).Instructions)
             {
                 if (instruction.Command == LibraryBackgroundCommand.TransferForDoor &&
                     instruction.DoorPointer == doorPointer)

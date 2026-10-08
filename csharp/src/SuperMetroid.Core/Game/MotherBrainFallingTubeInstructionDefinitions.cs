@@ -18,9 +18,6 @@ public static class MotherBrainFallingTubeInstructionDefinitions
     /// <summary>Native byte stride between the five tube instruction lists.</summary>
     public const ushort ListStride = 6;
 
-    /// <summary>Number of independently selected falling-tube compositions.</summary>
-    public const int ListCount = 5;
-
     /// <summary>Reads a duration or terminal opcode, rejecting visual operands.</summary>
     public static ushort ReadMechanicsWord(ushort address)
     {

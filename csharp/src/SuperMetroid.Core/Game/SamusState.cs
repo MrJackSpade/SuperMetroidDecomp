@@ -33,16 +33,6 @@ public sealed partial class SamusState
         }
     }
 
-    /// <summary>
-    /// Typed view of <see cref="Pose"/> for debugger watches and typed gameplay APIs.
-    /// Explicit casting preserves undefined cartridge bytes for strict diagnostics.
-    /// </summary>
-    public SamusPoseId PoseId
-    {
-        get => (SamusPoseId)_pose;
-        set => Pose = (byte)value;
-    }
-
     /// <summary>Current animation-frame index, corresponding to WRAM <c>$0A96</c>.</summary>
     public ushort AnimationFrame { get; set; }
 

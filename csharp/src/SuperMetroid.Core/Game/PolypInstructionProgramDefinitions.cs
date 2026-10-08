@@ -3,14 +3,13 @@ namespace SuperMetroid.Core.Game;
 /// <summary>
 /// Compiled one-pose sleep program for Polyp; its visual selector uses installed artwork.
 /// </summary>
-internal abstract class PolypInstructionProgramDefinitions : IInstructionProgramCatalog, ISinglePresentationOperand, ICompiledMechanicsByteProbe
+internal abstract class PolypInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Polyp</c> at $A2:B51A.</summary>
     internal const ushort Stationary = 0xb51a;
 
     /// <summary>The compiled <c>Spritemap_Polyp</c> operand at $A2:B51C.</summary>
     internal const ushort PresentationWord = 0xb51c;
-    static ushort ISinglePresentationOperand.PresentationWord => PresentationWord;
 
     /// <summary><c>Spritemap_Polyp</c> at $A2:B5FB, selected by the one stationary pose at $B51C.</summary>
     internal const ushort StationaryFrame = 0xb5fb;
@@ -36,13 +35,5 @@ internal abstract class PolypInstructionProgramDefinitions : IInstructionProgram
         }
         throw new InvalidDataException(
             $"Polyp instruction mechanics pointer $A2:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa20000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        return bankAddress is 0xb51a or 0xb51b or 0xb51e or 0xb51f;
     }
 }

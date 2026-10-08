@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Game;
 /// Callback identities, durations, terminal control, and branch targets are immutable
 /// simulation data. Spritemap selections resolve compiled identities to installed artwork.
 /// </remarks>
-internal abstract class SparkInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class SparkInstructionProgramDefinitions
 {
     /// <summary><c>$A8:E5A7</c>, make tangible and flicker into the active loop.</summary>
     internal const ushort FlickerOn = 0xe5a7;
@@ -88,22 +88,5 @@ internal abstract class SparkInstructionProgramDefinitions : IInstructionProgram
 
         throw new InvalidDataException(
             $"Wrecked Ship Spark instruction mechanics pointer $A8:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa80000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 }

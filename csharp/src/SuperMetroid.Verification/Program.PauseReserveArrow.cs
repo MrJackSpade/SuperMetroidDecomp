@@ -11,7 +11,7 @@ internal static partial class Program
 {
     private static void VerifyPauseReserveArrow()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState { Health = 20, MaxHealth = 99, ReserveEnergy = 2,
             MaxReserveEnergy = 100, ReserveTankMode = 1, CollectedBeams = (ushort)SamusBeamFlags.Charge };
         var pause = CreateRetailPauseFixture(bus, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0);
@@ -30,7 +30,7 @@ internal static partial class Program
                 AssertTrue(Enumerable.Range(32, 64).Any(y => Enumerable.Range(8, 8).Any(x => pixels[y * 256 + x] != first![y * 256 + x])),
                     "arrow itself visibly changes color, not only a palette entry");
                 Directory.CreateDirectory("csharp/test-temp/pause-reserve-arrow-527");
-                PngWriter.WriteRgba("csharp/test-temp/pause-reserve-arrow-527/auto.png", 256, 224, pixels);
+                PngWriterTooling.WriteRgba("csharp/test-temp/pause-reserve-arrow-527/auto.png", 256, 224, pixels);
             }
         }
         pause.Step(0, (ushort)SnesButton.A);

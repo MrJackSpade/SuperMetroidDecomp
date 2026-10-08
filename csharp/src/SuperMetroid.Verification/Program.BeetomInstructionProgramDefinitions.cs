@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyBeetomInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyBeetomInstructionProgramDefinitions), () => VerifyBeetomInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyBeetomInstructionProgramDefinitions(
@@ -151,12 +151,12 @@ internal static partial class Program
             0xb6f2,0xb6f4,0xb6f8,0xb6fc,0xb700,0xb704,0xb706,
             0xb708,0xb70a,0xb70e,0xb712,0xb716,0xb71a,
             0xb728,0xb72c,0xb730,0xb734,0xb738,0xb73a,0xb73e,0xb742,0xb746,0xb74a,0xb74c];
-        AssertEqual(addresses.Length, BeetomInstructionProgramDefinitions.MechanicsWordCount, "Beetom native control count");
+        AssertEqual(addresses.Length, BeetomInstructionProgramDefinitionsTooling.MechanicsWordCount, "Beetom native control count");
         var bytes = new HashSet<int>();
         for (int i = 0; i < addresses.Length; i++)
         {
             ushort address = addresses[i];
-            var actual = BeetomInstructionProgramDefinitions.MechanicsWord(i);
+            var actual = BeetomInstructionProgramDefinitionsTooling.MechanicsWord(i);
             AssertEqual(address, actual.Address, "Beetom native control address order");
             ushort expected = ReadBeetomInstructionWord(rom, address);
             AssertEqual(expected, actual.Value, "Beetom enumerated native control word");
@@ -165,9 +165,9 @@ internal static partial class Program
         }
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
-            AssertEqual(bytes.Contains(address), BeetomInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa80000 | address), "Beetom full native byte ownership");
-            AssertEqual(bytes.Contains(address), BeetomInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1a80000 | address), "Beetom existing high-bit alias");
-            AssertTrue(!BeetomInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa90000 | address), "Beetom rejects other bank");
+            AssertEqual(bytes.Contains(address), BeetomInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa80000 | address), "Beetom full native byte ownership");
+            AssertEqual(bytes.Contains(address), BeetomInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x1a80000 | address), "Beetom existing high-bit alias");
+            AssertTrue(!BeetomInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa90000 | address), "Beetom rejects other bank");
         }
         var words = addresses.ToHashSet();
         for (int address = 0xb694; address <= 0xb750; address++)
@@ -176,7 +176,7 @@ internal static partial class Program
         foreach (ushort address in new ushort[] {0, 0x7fff, 0xffff})
             AssertThrows<InvalidDataException>(() => BeetomInstructionProgramDefinitions.ReadMechanicsWord(address), "Beetom rejects distant pointers");
         foreach (int index in new[] {int.MinValue, -1, 48, int.MaxValue})
-            AssertThrows<IndexOutOfRangeException>(() => BeetomInstructionProgramDefinitions.MechanicsWord(index), "Beetom mechanics ordinal bounds");
+            AssertThrows<IndexOutOfRangeException>(() => BeetomInstructionProgramDefinitionsTooling.MechanicsWord(index), "Beetom mechanics ordinal bounds");
     }
 
     private static (RoomEnemySystem Enemies, BeetomEnemyState State, Action<BeetomEnemyState> Choose)
@@ -267,14 +267,14 @@ internal static partial class Program
             0xb6ce,0xb6d2,0xb6d6,0xb6da,0xb6e0,0xb6e4,0xb6e8,0xb6ec,
             0xb6f6,0xb6fa,0xb6fe,0xb702,0xb70c,0xb710,0xb714,0xb718,
             0xb72a,0xb72e,0xb732,0xb736,0xb73c,0xb740,0xb744,0xb748];
-        AssertEqual(expected.Length, BeetomInstructionProgramDefinitions.PresentationWordCount, "Beetom native operand count");
+        AssertEqual(expected.Length, BeetomInstructionProgramDefinitionsTooling.PresentationWordCount, "Beetom native operand count");
         for (int i = 0; i < expected.Length; i++)
-            AssertEqual(expected[i], BeetomInstructionProgramDefinitions.PresentationWordAddress(i), "Beetom native operand order");
+            AssertEqual(expected[i], BeetomInstructionProgramDefinitionsTooling.PresentationWordAddress(i), "Beetom native operand order");
         var words = expected.ToHashSet();
         for (int address = 0; address <= ushort.MaxValue; address++)
             AssertEqual(words.Contains((ushort)address), BeetomInstructionProgramDefinitions.IsPresentationWord((ushort)address), "Beetom full operand membership");
         foreach (int index in new[] {int.MinValue, -1, 32, int.MaxValue})
-            AssertThrows<IndexOutOfRangeException>(() => BeetomInstructionProgramDefinitions.PresentationWordAddress(index), "Beetom operand ordinal bounds");
+            AssertThrows<IndexOutOfRangeException>(() => BeetomInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "Beetom operand ordinal bounds");
     }
     private static void StartBeetomHop(
         MethodInfo startHop,
@@ -359,7 +359,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (BeetomInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (BeetomInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -370,11 +370,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < BeetomInstructionProgramDefinitions.PresentationWordCount;
+                     index < BeetomInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        BeetomInstructionProgramDefinitions.PresentationWordAddress(index);
+                        BeetomInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

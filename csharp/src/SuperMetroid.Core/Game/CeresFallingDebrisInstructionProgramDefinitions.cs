@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control for the light and dark Ceres falling-debris poses. Their spritemap
 /// operands resolve through extracted presentation art.
 /// </summary>
-internal abstract class CeresFallingDebrisInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class CeresFallingDebrisInstructionProgramDefinitions
 {
     /// <summary>
     /// <c>InstList_EnemyProjectile_CeresFallingTile_Light</c> at $86:9750,
@@ -71,24 +71,5 @@ internal abstract class CeresFallingDebrisInstructionProgramDefinitions : IInstr
 
         throw new InvalidDataException(
             $"Ceres falling-debris mechanics pointer $86:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

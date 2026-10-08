@@ -17,7 +17,7 @@ internal static partial class Program
             0xdf59,0xdf65,0xdf71,0xeed7,0xeedb,0xeedf,0xeee3,0xef23,0xef2f,0xef33,
             0xef37,0xef3b,0xef3f,0xef43,0xef47,0xef4b,0xef4f,0xef53,0xef57,0xef5b,
             0xef5f,0xef63,0xef67,0xef6b,0xef6f,0xef73,0xef7b,0xef7f,0xef83,0xef87];
-        var exported = RoomPlmHeaderDefinitions.All.ToArray();
+        var exported = RoomPlmHeaderDefinitionsTooling.All.ToArray();
         AssertEqual(70, RoomPlmHeaderDefinitions.RetailHeaderCount, "Retail header contract count");
         AssertEqual(70, exported.Length, "Retail header enumeration count");
         for (int index = 0; index < headers.Length; index++)

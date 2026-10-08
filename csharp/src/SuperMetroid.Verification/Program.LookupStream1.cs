@@ -1604,8 +1604,8 @@ internal static partial class Program
         for (int address = 0xe963; address <= 0xeaa9; address++)
         {
             AssertEqual(controls.Any(word => address == word || address == word + 1),
-                EscapeDachoraInstructionProgramDefinitions.IsCompiledMechanicsByte(0xb30000 | address), "Dachora exact control byte coverage");
-            AssertTrue(!EscapeDachoraInstructionProgramDefinitions.IsCompiledMechanicsByte(0xb20000 | address), "Dachora wrong bank rejects");
+                EscapeDachoraInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xb30000 | address), "Dachora exact control byte coverage");
+            AssertTrue(!EscapeDachoraInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xb20000 | address), "Dachora wrong bank rejects");
         }
         foreach (int invalid in new[] { int.MinValue, -1, controls.Count, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => EscapeDachoraInstructionProgramDefinitions.MechanicsWord(invalid), "Dachora control bounds");
@@ -1646,8 +1646,8 @@ internal static partial class Program
         for (int address = 0xc162; address <= 0xc1a0; address++)
         {
             bool expected = expectedMechanics.Any(word => address == word || address == word + 1);
-            AssertEqual(expected, PowampInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa80000 | address), "Powamp exact native control byte coverage");
-            AssertTrue(!PowampInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa70000 | address), "Powamp wrong bank rejects");
+            AssertEqual(expected, PowampInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa80000 | address), "Powamp exact native control byte coverage");
+            AssertTrue(!PowampInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa70000 | address), "Powamp wrong bank rejects");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 18, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => PowampInstructionProgramDefinitions.MechanicsWord(invalid), "Powamp control index rejection");
@@ -1970,16 +1970,16 @@ internal static partial class Program
         foreach (int invalid in new[] { int.MinValue, 0x90c480, 0x90c4b5, int.MaxValue })
             AssertThrows<InvalidDataException>(() => ChargeFlareAnimationDefinitions.ReadByte(invalid), "stream1 flare byte domain");
         Check(0xa80000, 0xd841, 0xd871, BullInstructionProgramDefinitions.MechanicsWordCount,
-            BullInstructionProgramDefinitions.PresentationWordCount,
+            BullInstructionProgramDefinitionsTooling.PresentationWordCount,
             i => { var word = BullInstructionProgramDefinitions.MechanicsWord(i); return (word.Address, word.Value); },
-            BullInstructionProgramDefinitions.PresentationWordAddress, BullInstructionProgramDefinitions.ReadMechanicsWord,
-            BullInstructionProgramDefinitions.IsCompiledMechanicsByte,
+            BullInstructionProgramDefinitionsTooling.PresentationWordAddress, BullInstructionProgramDefinitions.ReadMechanicsWord,
+            BullInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
             a => a is 0xd843 or 0xd847 or 0xd84b or 0xd84f or 0xd85b or 0xd85f or 0xd863 or 0xd867);
-        Check(0x860000, 0xd92e, 0xd96a, CacatacProjectileInstructionProgramDefinitions.MechanicsWordCount,
+        Check(0x860000, 0xd92e, 0xd96a, CacatacProjectileInstructionProgramDefinitionsTooling.MechanicsWordCount,
             CacatacProjectileInstructionProgramDefinitions.PresentationWordCount,
-            i => { var word = CacatacProjectileInstructionProgramDefinitions.MechanicsWord(i); return (word.Address, word.Value); },
+            i => { var word = CacatacProjectileInstructionProgramDefinitionsTooling.MechanicsWord(i); return (word.Address, word.Value); },
             CacatacProjectileInstructionProgramDefinitions.PresentationWordAddress, CacatacProjectileInstructionProgramDefinitions.ReadMechanicsWord,
-            CacatacProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte,
+            CacatacProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
             a => (a - 0xd930) % 6 == 0);
         for (int address = 0xd840; address <= 0xd871; address++)
             AssertEqual(address is 0xd843 or 0xd847 or 0xd84b or 0xd84f or 0xd85b or 0xd85f or 0xd863 or 0xd867,
@@ -2094,16 +2094,16 @@ internal static partial class Program
     {
         Check(0xf353, 0xf391, 17, 14,
             a => a < 0xf35f ? (a - 0xf353) % 4 == 2 : a >= 0xf363 && a < 0xf38f && (a - 0xf363) % 4 == 2,
-            i => { var w = FallingSparkInstructionProgramDefinitions.MechanicsWord(i); return (w.Address, w.Value); },
+            i => { var w = FallingSparkInstructionProgramDefinitionsTooling.MechanicsWord(i); return (w.Address, w.Value); },
             FallingSparkInstructionProgramDefinitions.PresentationWordAddress,
             FallingSparkInstructionProgramDefinitions.ReadMechanicsWord,
-            FallingSparkInstructionProgramDefinitions.IsCompiledMechanicsByte);
+            FallingSparkInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte);
         Check(0xd208, 0xd21a, 6, 3,
             a => a < 0xd214 && (a - 0xd208) % 4 == 2,
-            i => { var w = PowampSpikeInstructionProgramDefinitions.MechanicsWord(i); return (w.Address, w.Value); },
+            i => { var w = PowampSpikeInstructionProgramDefinitionsTooling.MechanicsWord(i); return (w.Address, w.Value); },
             PowampSpikeInstructionProgramDefinitions.PresentationWordAddress,
             PowampSpikeInstructionProgramDefinitions.ReadMechanicsWord,
-            PowampSpikeInstructionProgramDefinitions.IsCompiledMechanicsByte);
+            PowampSpikeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte);
 
         void Check(int first, int end, int mechanicsCount, int presentationCount, Func<int, bool> isVisual,
             Func<int, (ushort Address, ushort Value)> mechanics, Func<int, ushort> presentation,
@@ -2143,7 +2143,7 @@ internal static partial class Program
     private static void VerifyLookupStream1CommonFrames(ISnesAddressSpace rom)
     {
         byte[] originalBanks = [0xa0, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 0xaa, 0xb2, 0xb3];
-        AssertTrue(originalBanks.SequenceEqual(CommonEnemyEmptyExtendedFrameDefinitions.SupportedBanks), "common empty-frame original bank order");
+        AssertTrue(originalBanks.SequenceEqual(CommonEnemyEmptyExtendedFrameDefinitionsTooling.SupportedBanks), "common empty-frame original bank order");
         for (int bank = 0; bank <= byte.MaxValue; bank++)
         {
             bool expected = originalBanks.Contains((byte)bank);
@@ -2156,26 +2156,26 @@ internal static partial class Program
                 AssertEqual((byte)1, rom.ReadByte(bank << 16 | 0x804f), "native common extended frame has one component");
             }
         }
-        var deletion = CommonEnemyProjectileInstructionProgramDefinitions.MechanicsWord(0);
+        var deletion = CommonEnemyProjectileInstructionProgramDefinitionsTooling.MechanicsWord(0);
         AssertEqual((ushort)0x84fc, deletion.Address, "shared projectile delete identity");
         AssertEqual((ushort)(rom.ReadByte(0x8684fc) | rom.ReadByte(0x8684fd) << 8), deletion.Value, "shared projectile delete native instruction");
         foreach (int invalid in new[] { int.MinValue, -1, 1, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => CommonEnemyProjectileInstructionProgramDefinitions.MechanicsWord(invalid), "shared delete enumeration bounds");
+            AssertThrows<IndexOutOfRangeException>(() => CommonEnemyProjectileInstructionProgramDefinitionsTooling.MechanicsWord(invalid), "shared delete enumeration bounds");
     }
     private static void VerifyLookupStream1HibashiDragonFireball(ISnesAddressSpace rom)
     {
         Check(0x860000, 0xb4bf, 0xb4ef, 16, 8,
             address => (address - 0xb4bf) % 12 is 2 or 6,
-            i => { var w = DragonFireballInstructionProgramDefinitions.MechanicsWord(i); return (w.Address, w.Value); },
+            i => { var w = DragonFireballInstructionProgramDefinitionsTooling.MechanicsWord(i); return (w.Address, w.Value); },
             DragonFireballInstructionProgramDefinitions.PresentationWordAddress,
             DragonFireballInstructionProgramDefinitions.ReadMechanicsWord,
-            DragonFireballInstructionProgramDefinitions.IsCompiledMechanicsByte);
+            DragonFireballInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte);
         Check(0xa60000, 0x8d1b, 0x8daf, 50, 24,
             address => address == 0x8dab || address >= 0x8d1f && address <= 0x8da3 && (address - 0x8d1f) % 6 == 0,
-            i => { var w = HibashiInstructionProgramDefinitions.MechanicsWord(i); return (w.Address, w.Value); },
+            i => { var w = HibashiInstructionProgramDefinitionsTooling.MechanicsWord(i); return (w.Address, w.Value); },
             HibashiInstructionProgramDefinitions.PresentationWordAddress,
             HibashiInstructionProgramDefinitions.ReadMechanicsWord,
-            HibashiInstructionProgramDefinitions.IsCompiledMechanicsByte);
+            HibashiInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte);
         void Check(int bank, int first, int end, int count, int visualCount, Func<int, bool> isVisual,
             Func<int, (ushort Address, ushort Value)> mechanics, Func<int, ushort> presentation,
             Func<ushort, ushort> read, Func<int, bool> owns)
@@ -2241,23 +2241,23 @@ internal static partial class Program
             AssertEqual(visuals.Contains((ushort)pointer), SciserInstructionProgramDefinitions.IsPresentationWord((ushort)pointer),
                 "Sciser exact presentation domain");
             AssertEqual(controls.Contains((ushort)pointer) || controls.Contains((ushort)(pointer - 1)),
-                SciserInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa30000 | pointer), "Sciser exact byte guard domain");
+                SciserInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa30000 | pointer), "Sciser exact byte guard domain");
             if (controls.Contains((ushort)pointer))
             {
-                var actual = SciserInstructionProgramDefinitions.MechanicsWord(controlIndex++);
+                var actual = SciserInstructionProgramDefinitionsTooling.MechanicsWord(controlIndex++);
                 AssertEqual((ushort)pointer, actual.Address, "Sciser native control order");
                 AssertEqual(Word(0xa30000 | pointer), actual.Value, "Sciser native control value");
             }
             else AssertThrows<InvalidDataException>(() => SciserInstructionProgramDefinitions.ReadMechanicsWord((ushort)pointer),
                 "Sciser rejects every noncontrol address");
             if (visuals.Contains((ushort)pointer))
-                AssertEqual((ushort)pointer, SciserInstructionProgramDefinitions.PresentationWordAddress(visualIndex++),
+                AssertEqual((ushort)pointer, SciserInstructionProgramDefinitionsTooling.PresentationWordAddress(visualIndex++),
                     "Sciser native visual order");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 32, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => SciserInstructionProgramDefinitions.MechanicsWord(invalid), "Sciser control index domain");
+            AssertThrows<IndexOutOfRangeException>(() => SciserInstructionProgramDefinitionsTooling.MechanicsWord(invalid), "Sciser control index domain");
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => SciserInstructionProgramDefinitions.PresentationWordAddress(invalid), "Sciser visual index domain");
+            AssertThrows<IndexOutOfRangeException>(() => SciserInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid), "Sciser visual index domain");
     }
     private static void VerifyLookupStream1DeathDefinitions(ISnesAddressSpace rom)
     {
@@ -2288,12 +2288,12 @@ internal static partial class Program
     private static void VerifyLookupStream1NuclearWaffle(ISnesAddressSpace rom)
     {
         Confirm(0xa6, 0x9490, NuclearWaffleInstructionProgramDefinitions.ReadMechanicsWord,
-            NuclearWaffleInstructionProgramDefinitions.IsCompiledMechanicsByte,
-            index => { var word = NuclearWaffleInstructionProgramDefinitions.MechanicsWord(index); return (word.Address, word.Value); },
+            NuclearWaffleInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+            index => { var word = NuclearWaffleInstructionProgramDefinitionsTooling.MechanicsWord(index); return (word.Address, word.Value); },
             NuclearWaffleInstructionProgramDefinitions.PresentationWordAddress);
         Confirm(0x86, 0xbb5e, NuclearWaffleProjectileInstructionProgramDefinitions.ReadMechanicsWord,
-            NuclearWaffleProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte,
-            index => { var word = NuclearWaffleProjectileInstructionProgramDefinitions.MechanicsWord(index); return (word.Address, word.Value); },
+            NuclearWaffleProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+            index => { var word = NuclearWaffleProjectileInstructionProgramDefinitionsTooling.MechanicsWord(index); return (word.Address, word.Value); },
             NuclearWaffleProjectileInstructionProgramDefinitions.PresentationWordAddress);
         void Confirm(int bank, int start, Func<ushort, ushort> read, Func<int, bool> guarded,
             Func<int, (ushort Address, ushort Value)> mechanics, Func<int, ushort> visual)
@@ -2389,16 +2389,16 @@ internal static partial class Program
         for (int pointer = 0xa3aa; pointer <= 0xa3d0; pointer++)
         {
             AssertEqual(controls.Contains(pointer) || controls.Contains(pointer - 1),
-                OwtchInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa20000 | pointer), "Owtch exact byte guard domain");
+                OwtchInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa20000 | pointer), "Owtch exact byte guard domain");
             if (controls.Contains(pointer))
             {
-                var actual = OwtchInstructionProgramDefinitions.MechanicsWord(controlIndex++);
+                var actual = OwtchInstructionProgramDefinitionsTooling.MechanicsWord(controlIndex++);
                 AssertEqual((ushort)pointer, actual.Address, "Owtch native control order");
                 AssertEqual(Word(0xa20000 | pointer), actual.Value, "Owtch native controls");
             }
             else AssertThrows<InvalidDataException>(() => OwtchInstructionProgramDefinitions.ReadMechanicsWord((ushort)pointer), "Owtch noncontrol rejection");
             if (visuals.Contains(pointer))
-                AssertEqual((ushort)pointer, OwtchInstructionProgramDefinitions.PresentationWordAddress(visualIndex++), "Owtch native visual order");
+                AssertEqual((ushort)pointer, OwtchInstructionProgramDefinitionsTooling.PresentationWordAddress(visualIndex++), "Owtch native visual order");
             else AssertThrows<InvalidDataException>(() => OwtchStokeVisualDefinitions.FrameAt(RoomEnemySystem.OwtchDefinition, (ushort)pointer), "Owtch nonvisual rejection");
         }
         var stokeVisuals = new HashSet<int>();
@@ -2409,9 +2409,9 @@ internal static partial class Program
                 AssertEqual(Word(0xa20000 | pointer), OwtchStokeVisualDefinitions.FrameAt(RoomEnemySystem.StokeDefinition, (ushort)pointer), "Stoke native visual selection");
             else AssertThrows<InvalidDataException>(() => OwtchStokeVisualDefinitions.FrameAt(RoomEnemySystem.StokeDefinition, (ushort)pointer), "Stoke nonvisual rejection");
         foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => OwtchInstructionProgramDefinitions.MechanicsWord(invalid), "Owtch control bounds");
+            AssertThrows<IndexOutOfRangeException>(() => OwtchInstructionProgramDefinitionsTooling.MechanicsWord(invalid), "Owtch control bounds");
         foreach (int invalid in new[] { int.MinValue, -1, 6, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => OwtchInstructionProgramDefinitions.PresentationWordAddress(invalid), "Owtch visual bounds");
+            AssertThrows<IndexOutOfRangeException>(() => OwtchInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid), "Owtch visual bounds");
         AssertThrows<InvalidDataException>(() => OwtchStokeVisualDefinitions.FrameAt(0, 0xa3af), "unknown visual owner rejected");
     }
     private static void VerifyLookupStream1PuyoAndQuota(ISnesAddressSpace rom)
@@ -2451,21 +2451,21 @@ internal static partial class Program
         for (int pointer = 0x99ac; pointer <= 0x9a08; pointer++)
         {
             AssertEqual(controls.Contains(pointer) || controls.Contains(pointer - 1),
-                PuyoInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa20000 | pointer), "Puyo exact byte guard domain");
+                PuyoInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa20000 | pointer), "Puyo exact byte guard domain");
             AssertEqual(visuals.Contains(pointer), PuyoInstructionProgramDefinitions.IsPresentationWord((ushort)pointer), "Puyo exact visual domain");
             if (controls.Contains(pointer))
             {
-                var actual = PuyoInstructionProgramDefinitions.MechanicsWord(controlIndex++);
+                var actual = PuyoInstructionProgramDefinitionsTooling.MechanicsWord(controlIndex++);
                 AssertEqual((ushort)pointer, actual.Address, "Puyo native control order");
                 AssertEqual(Word(0xa20000 | pointer), actual.Value, "Puyo native control value");
             }
             else AssertThrows<InvalidDataException>(() => PuyoInstructionProgramDefinitions.ReadMechanicsWord((ushort)pointer), "Puyo noncontrol rejection");
-            if (visuals.Contains(pointer)) AssertEqual((ushort)pointer, PuyoInstructionProgramDefinitions.PresentationWordAddress(visualIndex++), "Puyo native visual order");
+            if (visuals.Contains(pointer)) AssertEqual((ushort)pointer, PuyoInstructionProgramDefinitionsTooling.PresentationWordAddress(visualIndex++), "Puyo native visual order");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 28, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => PuyoInstructionProgramDefinitions.MechanicsWord(invalid), "Puyo control bounds");
+            AssertThrows<IndexOutOfRangeException>(() => PuyoInstructionProgramDefinitionsTooling.MechanicsWord(invalid), "Puyo control bounds");
         foreach (int invalid in new[] { int.MinValue, -1, 17, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => PuyoInstructionProgramDefinitions.PresentationWordAddress(invalid), "Puyo visual bounds");
+            AssertThrows<IndexOutOfRangeException>(() => PuyoInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid), "Puyo visual bounds");
     }
     private static void VerifyLookupStream1MetroidLayout(ISnesAddressSpace rom)
     {
@@ -2494,21 +2494,21 @@ internal static partial class Program
         for (int pointer = 0xe9ce; pointer <= 0xea40; pointer++)
         {
             AssertEqual(controls.Contains(pointer) || controls.Contains(pointer - 1),
-                MetroidInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa30000 | pointer), "Metroid exact byte guard");
+                MetroidInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa30000 | pointer), "Metroid exact byte guard");
             AssertEqual(visuals.Contains(pointer), MetroidInstructionProgramDefinitions.IsPresentationWord((ushort)pointer), "Metroid exact visual domain");
             if (controls.Contains(pointer))
             {
-                var actual = MetroidInstructionProgramDefinitions.MechanicsWord(controlIndex++);
+                var actual = MetroidInstructionProgramDefinitionsTooling.MechanicsWord(controlIndex++);
                 AssertEqual((ushort)pointer, actual.Address, "Metroid original control order");
                 AssertEqual(Word(0xa30000 | pointer), actual.Value, "Metroid original control value");
             }
             else AssertThrows<InvalidDataException>(() => MetroidInstructionProgramDefinitions.ReadMechanicsWord((ushort)pointer), "Metroid noncontrol rejection");
-            if (visuals.Contains(pointer)) AssertEqual((ushort)pointer, MetroidInstructionProgramDefinitions.PresentationWordAddress(visualIndex++), "Metroid original visual order");
+            if (visuals.Contains(pointer)) AssertEqual((ushort)pointer, MetroidInstructionProgramDefinitionsTooling.PresentationWordAddress(visualIndex++), "Metroid original visual order");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 31, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => MetroidInstructionProgramDefinitions.MechanicsWord(invalid), "Metroid control index bounds");
+            AssertThrows<IndexOutOfRangeException>(() => MetroidInstructionProgramDefinitionsTooling.MechanicsWord(invalid), "Metroid control index bounds");
         foreach (int invalid in new[] { int.MinValue, -1, 25, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => MetroidInstructionProgramDefinitions.PresentationWordAddress(invalid), "Metroid visual index bounds");
+            AssertThrows<IndexOutOfRangeException>(() => MetroidInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid), "Metroid visual index bounds");
     }
     private static void VerifyLookupStream1SamusPolicyDomains(ISnesAddressSpace rom)
     {
@@ -2561,7 +2561,7 @@ internal static partial class Program
         SamusArmCannonArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
         byte[] json = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.JsonFileName));
         byte[] png = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.TileFileName));
-        var stock = SamusArmCannonArtworkCatalog.Load(new MemoryStream(json), new MemoryStream(png));
+        var stock = SamusArmCannonArtworkCatalogTooling.Load(new MemoryStream(json), new MemoryStream(png));
         foreach (string fieldName in new[] { "attributes", "tileSources" })
         {
             var field = typeof(SamusArmCannonArtworkCatalog).GetField(fieldName,
@@ -2589,7 +2589,7 @@ internal static partial class Program
             document["tileSources"]![direction]![2] = replacement;
             document["spriteAttributes"]![direction] = stock.SpriteAttributes(direction) ^ 0x4000;
             byte[] changedJson = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString());
-            var changed = SamusArmCannonArtworkCatalog.Load(new MemoryStream(changedJson), new MemoryStream(png));
+            var changed = SamusArmCannonArtworkCatalogTooling.Load(new MemoryStream(changedJson), new MemoryStream(png));
             VerifySelectors(changed, direction, replacement);
             AssertEqual(ReferenceIdentity(changedJson, nativePlanar), changed.ContentIdentity, "Independent cannon selector edits preserve canonical hash framing/order");
             VerifySelectors(stock, -1, 0);
@@ -2608,7 +2608,7 @@ internal static partial class Program
         using var editedPng = new MemoryStream();
         IndexedPng.Write(editedPng, image.Width, image.Height, pixels, image.Palette);
         editedPng.Position = 0;
-        var edited = SamusArmCannonArtworkCatalog.Load(new MemoryStream(json), editedPng);
+        var edited = SamusArmCannonArtworkCatalogTooling.Load(new MemoryStream(json), editedPng);
         Verify(edited, true);
         Verify(stock, false);
         AssertTrue(!stock.TryResolveTile(0x9b0000 | expected[0], 32, out _), "Cannon transfer retains native bank boundary");

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled animation timing, sound callbacks, and loop control for ordinary Metroids.
 /// Interleaved spritemap operands select separately installed presentation data.
 /// </summary>
-internal abstract class MetroidInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class MetroidInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Metroid_ChasingSamus</c> at $A3:E9CF.</summary>
     internal const ushort ChasingSamus = 0xe9cf;
@@ -36,23 +36,6 @@ internal abstract class MetroidInstructionProgramDefinitions : IInstructionProgr
         PulseStage.ContractedRest or PulseStage.ExpandedRest or PulseStage.ReturnToExpanded => PulseBeatTicks,
         _ => throw new ArgumentOutOfRangeException(nameof(stage)),
     };
-    public static int MechanicsWordCount => 31;
-    public static int PresentationWordCount => 25;
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        bool chasing = index < 23;
-        int local = chasing ? index : index - 23;
-        int frames = chasing ? 20 : 5;
-        ushort start = chasing ? ChasingSamus : DrainingSamus;
-        ushort address = (ushort)(start + (local < frames ? local * 4 : frames * 4 + (local - frames) * 2));
-        return new(address, ReadMechanicsWord(address));
-    }
-    public static ushort PresentationWordAddress(int index)
-    {
-        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
-        return (ushort)(index < 20 ? ChasingSamus + index * 4 + 2 : DrainingSamus + (index - 20) * 4 + 2);
-    }
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - ChasingSamus;
@@ -72,14 +55,5 @@ internal abstract class MetroidInstructionProgramDefinitions : IInstructionProgr
         if (offset == frames * 4 + 2) return CommonEnemyInstructionCodes.Goto;
         if (offset == frames * 4 + 4) return (ushort)start;
         throw new InvalidDataException($"Metroid instruction mechanics pointer $A3:{address:X4} is not compiled.");
-    }
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa30000) return false;
-        int pointer = (ushort)address;
-        bool chasing = pointer < DrainingSamus;
-        int offset = pointer - (chasing ? ChasingSamus : DrainingSamus);
-        int timedBytes = chasing ? 80 : 20;
-        return (uint)offset < timedBytes + 6 && (offset >= timedBytes || offset % 4 < 2);
     }
 }

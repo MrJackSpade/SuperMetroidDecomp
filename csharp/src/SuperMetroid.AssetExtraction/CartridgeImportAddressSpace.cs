@@ -12,7 +12,7 @@ public sealed class CartridgeImportAddressSpace : SuperMetroidAddressSpace,
     public const int RetailRomByteCount = 0x300000;
 
     // The immutable image is shared through CartridgeImageCache; debugger graphs carry its digest.
-    [NonSerialized] private byte[] _rom;
+    [NonSerialized] internal byte[] _rom;
     private readonly byte[] _romSha256;
 
     public CartridgeImportAddressSpace(ReadOnlySpan<byte> unheaderedRom)
@@ -27,30 +27,6 @@ public sealed class CartridgeImportAddressSpace : SuperMetroidAddressSpace,
     }
 
     void IRestoredSharedContent.ReattachSharedContent() => _rom = CartridgeImageCache.Resolve(_romSha256);
-
-    public ReadOnlySpan<byte> Rom => _rom;
-
-    public static CartridgeImportAddressSpace LoadRetailRom(string path)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(path);
-        // Read through a pooled buffer: the shared image cache copies only content it has not seen.
-        using var file = File.OpenRead(path);
-        long length = file.Length;
-        if (length is not (RetailRomByteCount or RetailRomByteCount + 512))
-            throw new InvalidDataException(
-                $"Expected a ${RetailRomByteCount:X} byte retail ROM (optionally plus a 512-byte copier header), " +
-                $"but '{path}' contains ${length:X} bytes.");
-        byte[] buffer = System.Buffers.ArrayPool<byte>.Shared.Rent((int)length);
-        try
-        {
-            file.ReadExactly(buffer, 0, (int)length);
-            ReadOnlySpan<byte> romBytes = buffer.AsSpan((int)length - RetailRomByteCount, RetailRomByteCount);
-            if (!romBytes.Slice(0x7fc0, "Super Metroid"u8.Length).SequenceEqual("Super Metroid"u8))
-                throw new InvalidDataException($"'{path}' does not contain the expected SUPER METROID LoROM header title.");
-            return new CartridgeImportAddressSpace(romBytes);
-        }
-        finally { System.Buffers.ArrayPool<byte>.Shared.Return(buffer); }
-    }
 
     public byte ReadCartridgeByte(int cpuAddress)
     {

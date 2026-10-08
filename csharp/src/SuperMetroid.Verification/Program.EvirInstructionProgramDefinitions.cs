@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyEvirInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyEvirInstructionProgramDefinitions), () => VerifyEvirInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyEvirInstructionProgramDefinitions(
@@ -210,7 +210,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (EvirInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (EvirInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

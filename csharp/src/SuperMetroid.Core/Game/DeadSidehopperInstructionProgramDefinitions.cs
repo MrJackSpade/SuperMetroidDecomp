@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled engine-control words for the sidehopper corpse's hopping, idle, and
 /// corpse programs. Their eleven spritemap operands remain live cartridge data.
 /// </summary>
-internal abstract class DeadSidehopperInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
+internal abstract class DeadSidehopperInstructionProgramDefinitions
 {
     /// <summary><c>InstList_CorpseSidehopper_Alive_Hopping</c> at $A9:ECAC.</summary>
     internal const ushort AliveHopping = 0xecac;
@@ -31,9 +31,8 @@ internal abstract class DeadSidehopperInstructionProgramDefinitions : IInstructi
 
     /// <summary>Native program bank $A9.</summary>
     internal const byte Bank = 0xa9;
-    static int IDeclaredProgramBank.Bank => Bank;
 
-    private static readonly InstructionProgramLayout Layout = new(Bank,
+    internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xecac),
         Entry(AliveHopping),
         Frame(2),
@@ -59,19 +58,8 @@ internal abstract class DeadSidehopperInstructionProgramDefinitions : IInstructi
         Frame(1),
         Op(CommonEnemyInstructionCodes.Sleep));
 
-    public static int MechanicsWordCount => Layout.MechanicsWordCount;
-    public static int PresentationWordCount => Layout.PresentationSlotCount;
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        (ushort address, ushort value) = Layout.MechanicsWord(index);
-        return new(address, value);
-    }
-    public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
-
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(
                 $"Dead sidehopper instruction mechanics pointer $A9:{address:X4} is not compiled.");
-
-    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

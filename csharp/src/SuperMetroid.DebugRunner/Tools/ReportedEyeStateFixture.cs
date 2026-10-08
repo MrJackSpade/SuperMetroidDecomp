@@ -21,8 +21,7 @@ internal static class ReportedEyeStateFixture
         var runtime = (SuperMetroidRuntime)typeof(SuperMetroidGame).GetField("runtime", fields)!.GetValue(data.Game)!;
         // Room identity is fixture data; normal room loading owns its population,
         // graphics, HDMA initialization, and camera-dependent render snapshots.
-        typeof(SuperMetroidRuntime).GetMethod("LoadCartridgeRoomForDebug", fields)!
-            .Invoke(runtime, [RoomHeaderPointers.BlueBrinstarEnergyTankRoom, (ushort)384, (ushort)512]);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BlueBrinstarEnergyTankRoom, 384, 512);
         var body = runtime.Enemies.Slots[1];
         var samus = runtime.Samus!;
         samus.CollectedItems = (ushort)SamusEquipmentFlags.MorphBall;

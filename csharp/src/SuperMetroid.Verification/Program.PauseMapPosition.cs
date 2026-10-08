@@ -10,7 +10,7 @@ internal static partial class Program
 {
     private static void VerifyPauseMapPosition()
     {
-        var bus = CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var cart = CartridgeImportSource.Require(bus);
         var rawVram = new SnesVram();
         rawVram.LoadBytes(0x4000, RomDataReader.ReadFixedBank(cart, 0xb6c000, 0x2000));

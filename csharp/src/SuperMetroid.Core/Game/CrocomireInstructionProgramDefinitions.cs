@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control for Crocomire's body, melting and skeleton instruction programs.
 /// Interleaved selections resolve compiled physical identities to installed presentation data.
 /// </summary>
-internal abstract class CrocomireInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
+internal abstract class CrocomireInstructionProgramDefinitions
 {
     /// <summary>
     /// <c>InstList_Crocomire_Initial</c> at $A4:BADE. The pinned NTSC J/U
@@ -345,9 +345,8 @@ internal abstract class CrocomireInstructionProgramDefinitions : IInstructionPro
 
     /// <summary>Native program bank $A4.</summary>
     internal const byte Bank = 0xa4;
-    static int IDeclaredProgramBank.Bank => Bank;
 
-    private static readonly InstructionProgramLayout Layout = new(Bank,
+    internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xbade),
         Entry(Initial),
         Frame(1),
@@ -814,19 +813,8 @@ internal abstract class CrocomireInstructionProgramDefinitions : IInstructionPro
         Frame(20),
         Op(CommonEnemyInstructionCodes.Goto, SkeletonFlowingDownRiver));
 
-    public static int MechanicsWordCount => Layout.MechanicsWordCount;
-    public static int PresentationWordCount => Layout.PresentationSlotCount;
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        (ushort address, ushort value) = Layout.MechanicsWord(index);
-        return new(address, value);
-    }
-    public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
-
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(
                 $"Crocomire instruction mechanics pointer $A4:{address:X4} is not compiled.");
-
-    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

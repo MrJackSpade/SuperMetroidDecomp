@@ -7,7 +7,11 @@ internal static partial class AssetTools
     /// <summary>Regenerates the checked-in compiled enemy visual-selector catalog from the inventory.</summary>
     internal static int GenerateEnemyVisualSelectors()
     {
-        GenerateCompiledEnemyVisualSelectorCatalog(EnemyVisualSelectorInventory.Collect(LoadRepositoryRom()).Keyed);
+        var inventory = EnemyVisualSelectorInventory.Collect(LoadRepositoryRom());
+        // These catalogs keep hand-written selector handling; list them so a new one is noticed.
+        foreach (string skipped in inventory.Unresolved)
+            Console.WriteLine($"SKIPPED {skipped}");
+        GenerateCompiledEnemyVisualSelectorCatalog(inventory.Keyed);
         return 0;
     }
 

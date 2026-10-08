@@ -277,6 +277,7 @@ internal static class DebuggerRetiredFieldDefinitions
         ("SuperMetroid.Core.Game.XrayPoseInputResult", "<CompletedTurn>k__BackingField"),
         ("SuperMetroid.Core.Game.XrayPoseInputResult", "<Pose>k__BackingField"),
         ("SuperMetroid.Core.Game.XrayPoseInputResult", "<StartedTurn>k__BackingField"),
+        ("SuperMetroid.Core.Rooms.CartridgeDoorHeader", "<BitFlags>k__BackingField"),
         ("SuperMetroid.Core.Rooms.CollectiblePickupEvent", "<BlockIndex>k__BackingField"),
         ("SuperMetroid.Core.Rooms.CollectiblePickupEvent", "<Presentation>k__BackingField"),
         ("SuperMetroid.Core.Rooms.CollectiblePickupEvent", "<RoomArgument>k__BackingField"),

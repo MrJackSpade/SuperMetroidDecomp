@@ -12,14 +12,14 @@ internal static class IntegrationTools
         switch (args)
         {
             case ["--validate-extracted-installation", var extractedRoot]:
-                var validated = GameAssetInstaller.ValidateExtractedContent(extractedRoot);
+                var validated = GameAssetInstallerTooling.ValidateExtractedContent(extractedRoot);
                 Console.WriteLine($"PASS all required extracted resources: {validated.ContentDirectory}; no ROM import or repair.");
                 return 0;
             case ["--prepare-extracted-installation", var importRom, var importRoot]:
                 if (Directory.Exists(importRoot))
                     throw new IOException($"The diagnostic import destination already exists: {importRoot}");
                 var installed = GameAssetInstaller.Install(importRom, importRoot);
-                GameAssetInstaller.ValidateExtractedContent(installed.Root);
+                GameAssetInstallerTooling.ValidateExtractedContent(installed.Root);
                 Console.WriteLine($"PASS fresh extracted installation: {installed.Root}; source ROM was imported, not mapped into gameplay.");
                 return 0;
             case ["--compare-assembly-metadata", var originalAssembly, var linkedAssembly]:

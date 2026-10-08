@@ -5,7 +5,7 @@ internal static partial class Program
 {
     private static void VerifyCompiledKraidRoomPlms()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyKraidRoomProgramMapping), () => VerifyKraidRoomProgramMapping(rom));
 

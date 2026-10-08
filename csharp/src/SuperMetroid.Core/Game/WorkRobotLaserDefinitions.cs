@@ -27,7 +27,7 @@ internal static class WorkRobotLaserDefinitions
 /// Interleaved sprite operands select installed artwork bindings; only asset
 /// import reads their native bank-$8D compositions from the cartridge.
 /// </summary>
-internal abstract class WorkRobotLaserInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class WorkRobotLaserInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProjectile_WreckedShipRobotLaser_0</c> at $86:D2EC.</summary>
     internal const ushort Initial = 0xd2ec;
@@ -39,21 +39,7 @@ internal abstract class WorkRobotLaserInstructionProgramDefinitions : IInstructi
     /// <c>Instruction_EnemyProjectile_GotoY</c> closing the laser loop at $86:D308.
     /// </summary>
     internal const ushort LoopCommand = 0xd308;
-
-    public static int MechanicsWordCount => 9;
     public static int PresentationWordCount => 7;
-
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount)
-            throw new IndexOutOfRangeException();
-        return index switch
-        {
-            7 => new(LoopCommand, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-            8 => new(LoopCommand + 2, Loop),
-            _ => new((ushort)(Initial + 4 * index), 4),
-        };
-    }
 
     public static ushort PresentationWordAddress(int index)
     {
@@ -79,13 +65,5 @@ internal abstract class WorkRobotLaserInstructionProgramDefinitions : IInstructi
             return 4;
         throw new InvalidDataException(
             $"Work Robot laser instruction mechanics pointer $86:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
-        int offset = unchecked((ushort)address) - Initial;
-        return offset >= 0 && offset < 28 && offset % 4 < 2 || offset >= 28 && offset < 32;
     }
 }

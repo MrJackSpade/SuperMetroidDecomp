@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Game;
 /// Installed gameplay resolves the sixty extended-spritemap operands through the
 /// compiled selector catalog; uninstalled diagnostic streams may remain mutable.
 /// </summary>
-internal abstract class MaridiaLargeSnailInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
+internal abstract class MaridiaLargeSnailInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Oum_FacingLeft_Idle</c> at $A2:CA4B.</summary>
     internal const ushort FacingLeftIdle = 0xca4b;
@@ -35,9 +35,8 @@ internal abstract class MaridiaLargeSnailInstructionProgramDefinitions : IInstru
 
     /// <summary>Native program bank $A2.</summary>
     internal const byte Bank = 0xa2;
-    static int IDeclaredProgramBank.Bank => Bank;
 
-    private static readonly InstructionProgramLayout Layout = new(Bank,
+    internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xca4b),
         Entry(FacingLeftIdle),
         Frame(1),
@@ -128,19 +127,8 @@ internal abstract class MaridiaLargeSnailInstructionProgramDefinitions : IInstru
         Op(MaridiaLargeSnailInstructionCodes.DisallowAttackRotation),
         Op(CommonEnemyInstructionCodes.Goto, FacingRightRollingBackwards));
 
-    public static int MechanicsWordCount => Layout.MechanicsWordCount;
-    public static int PresentationWordCount => Layout.PresentationSlotCount;
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        (ushort address, ushort value) = Layout.MechanicsWord(index);
-        return new(address, value);
-    }
-    public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
-
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(
                 $"Maridia Large Snail instruction mechanics pointer $A2:{address:X4} is not compiled.");
-
-    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

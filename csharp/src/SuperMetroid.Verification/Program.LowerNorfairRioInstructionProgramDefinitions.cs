@@ -8,23 +8,23 @@ internal static partial class Program
     private static void VerifyLowerNorfairRioInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyLowerNorfairRioInstructionProgramDefinitions), () => VerifyLowerNorfairRioInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyLowerNorfairRioInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        AssertEqual(51, LowerNorfairRioInstructionProgramDefinitions.MechanicsWordCount,
+        AssertEqual(51, LowerNorfairRioInstructionProgramDefinitionsTooling.MechanicsWordCount,
             "Lower Norfair Rio compiled mechanics word count");
-        AssertEqual(32, LowerNorfairRioInstructionProgramDefinitions.PresentationWordCount,
+        AssertEqual(32, LowerNorfairRioInstructionProgramDefinitionsTooling.PresentationWordCount,
             "Lower Norfair Rio live presentation word count");
         for (int index = 0;
-             index < LowerNorfairRioInstructionProgramDefinitions.MechanicsWordCount;
+             index < LowerNorfairRioInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                LowerNorfairRioInstructionProgramDefinitions.MechanicsWord(index);
+                LowerNorfairRioInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadLowerNorfairRioInstructionWord(rom, definition.Address),
                 $"Lower Norfair Rio mechanics word $A2:{definition.Address:X4}");
@@ -96,11 +96,11 @@ internal static partial class Program
         AssertEqual(0, guard.ObservedPresentationWords.Count,
             "Lower Norfair Rio presentation selectors are compiled, not ROM reads");
         for (int index = 0;
-             index < LowerNorfairRioInstructionProgramDefinitions.PresentationWordCount;
+             index < LowerNorfairRioInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
             ushort address =
-                LowerNorfairRioInstructionProgramDefinitions.PresentationWordAddress(index);
+                LowerNorfairRioInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertEqual(ReadLowerNorfairRioInstructionWord(rom, address),
                 EnemySpritemapDefinitions.LowerNorfairRioFrameAt(address),
                 $"compiled Lower Norfair Rio selector $A2:{address:X4} matches ROM");
@@ -110,7 +110,7 @@ internal static partial class Program
 
         AssertThrows<InvalidDataException>(
             () => LowerNorfairRioInstructionProgramDefinitions.ReadMechanicsWord(
-                LowerNorfairRioInstructionProgramDefinitions.PresentationWordAddress(0)),
+                LowerNorfairRioInstructionProgramDefinitionsTooling.PresentationWordAddress(0)),
             "Lower Norfair Rio spritemap pointer is rejected as mechanics");
         AssertThrows<InvalidDataException>(
             () => LowerNorfairRioInstructionProgramDefinitions.ReadMechanicsWord(
@@ -226,7 +226,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (LowerNorfairRioInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (LowerNorfairRioInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -237,10 +237,10 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < LowerNorfairRioInstructionProgramDefinitions.PresentationWordCount;
+                     index < LowerNorfairRioInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
-                    ushort presentation = LowerNorfairRioInstructionProgramDefinitions
+                    ushort presentation = LowerNorfairRioInstructionProgramDefinitionsTooling
                         .PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))

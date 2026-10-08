@@ -4,20 +4,13 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control for the twelve-frame articulated Nuclear Waffle/Puromi body loop.
 /// Interleaved spritemap operands select independently installed presentation data.
 /// </summary>
-internal abstract class NuclearWaffleProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class NuclearWaffleProjectileInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProjectile_PuromiBody</c> at $86:BB5E.</summary>
     internal const ushort Initial = 0xbb5e;
 
-    private const int FrameCount = 12;
-    public static int MechanicsWordCount => FrameCount + 2;
+    internal const int FrameCount = 12;
     public static int PresentationWordCount => FrameCount;
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        ushort address = (ushort)(Initial + (index < FrameCount ? index * 4 : FrameCount * 4 + (index - FrameCount) * 2));
-        return new(address, ReadMechanicsWord(address));
-    }
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -30,11 +23,5 @@ internal abstract class NuclearWaffleProjectileInstructionProgramDefinitions : I
         if (offset == FrameCount * 4) return EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY;
         if (offset == FrameCount * 4 + 2) return Initial;
         throw new InvalidDataException($"Nuclear Waffle projectile mechanics pointer $86:{address:X4} is not compiled.");
-    }
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
-        int offset = (ushort)address - Initial;
-        return (uint)offset < FrameCount * 4 + 4 && (offset >= FrameCount * 4 || offset % 4 < 2);
     }
 }

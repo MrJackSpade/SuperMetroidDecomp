@@ -32,7 +32,7 @@ internal static class MotherBrainRoomFlashAudit
         int before = report.ReferenceCount;
         foreach (ushort operand in operands)
             report.Require(ResourceDomains.MotherBrainRoomFlash, nameof(MotherBrainRoomPaletteProgramDefinitions),
-                Key(checked((ushort)(operand - MotherBrainRoomColorRomData.PaletteOperandByteOffset))), source, exports);
+                Key(checked((ushort)(operand - MotherBrainRoomColorRomDataTooling.PaletteOperandByteOffset))), source, exports);
         report.Coverage.Add(new(ResourceDomains.MotherBrainRoomFlash, report.ReferenceCount - before,
             exports.Count(ResourceDomains.MotherBrainRoomFlash)));
     }

@@ -7,7 +7,7 @@ internal static partial class Program
     private static int VerifyMotherBrainPlasmaImpact()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
         var head = enemies.Slots[1];

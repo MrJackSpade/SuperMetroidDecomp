@@ -1233,7 +1233,7 @@ static void VerifyCeresRidleyRoomEntry()
     AssertEqual((ushort)RidleyAiFunction.InitialDelay, (ushort)state.Function,
         "Ceres Ridley door-clear transition");
     AssertEqual(511, state.FunctionTimer, "Ceres Ridley first delay decrement");
-    var nativeRidleyRom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+    var nativeRidleyRom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
         Path.GetFullPath("Super Metroid.smc"));
     ushort initialRidleyMap = (ushort)(nativeRidleyRom.ReadByte(0xa6e53e) |
         nativeRidleyRom.ReadByte(0xa6e53f) << 8);
@@ -1342,7 +1342,7 @@ static void VerifyCeresRidleyRoomEntry()
     bool observedNormalRidleyPalette = false;
     bool observedFlashRidleyPalette = false;
     int nativeExplosionFrames = NativeProjectileLifetime(
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")), 0x93867b) + 1;
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")), 0x93867b) + 1;
     WriteTestWord(bus, SamusBeamPreInstructionCodes.UnchargedTable, SamusBeamPreInstructionCodes.NoWave);
     for (int hit = 0; hit < 100; hit++)
     {

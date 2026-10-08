@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled engine-control words for the Wrecked Ship orange Zoomer's four surface loops.
 /// The twenty interleaved spritemap operands select installed presentation art.
 /// </summary>
-internal abstract class HZoomerInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class HZoomerInstructionProgramDefinitions
 {
     /// <summary><c>InstList_HZoomer_UpsideRight_0</c> at $A3:DFCB.</summary>
     internal const ushort UpsideRight = 0xdfcb;
@@ -16,7 +16,6 @@ internal abstract class HZoomerInstructionProgramDefinitions : IInstructionProgr
     internal const ushort UpsideUp = 0xe01f;
 
     public static int MechanicsWordCount => 36;
-    public static int PresentationWordCount => 20;
 
     /// <summary>Each surface initializes its axis, shows five three-tick frames, then loops to the first frame.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
@@ -35,13 +34,6 @@ internal abstract class HZoomerInstructionProgramDefinitions : IInstructionProgr
             7 => new((ushort)(start + 24), CommonEnemyInstructionCodes.Goto),
             _ => new((ushort)(start + 26), (ushort)(start + 4)),
         };
-    }
-
-    public static ushort PresentationWordAddress(int index)
-    {
-        if ((uint)index >= PresentationWordCount)
-            throw new IndexOutOfRangeException();
-        return (ushort)(UpsideRight + 28 * (index / 5) + 6 + 4 * (index % 5));
     }
 
     internal static bool IsPresentationWord(ushort address)
@@ -68,22 +60,5 @@ internal abstract class HZoomerInstructionProgramDefinitions : IInstructionProgr
 
         throw new InvalidDataException(
             $"HZoomer instruction mechanics pointer $A3:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa30000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 }

@@ -7,23 +7,23 @@ internal static partial class Program
 {
     private static readonly (ushort Start, ushort End)[] MotherBrainHeadRegions =
     [
-        (MotherBrainHeadInstructionProgramDefinitions.EarlyStart,
-            MotherBrainHeadInstructionProgramDefinitions.EarlyEnd),
-        (MotherBrainHeadInstructionProgramDefinitions.RainbowAndNeutralPhaseTwoStart,
-            MotherBrainHeadInstructionProgramDefinitions.RainbowAndNeutralPhaseTwoEnd),
-        (MotherBrainHeadInstructionProgramDefinitions.NeutralStart,
-            MotherBrainHeadInstructionProgramDefinitions.NeutralRegionEnd),
-        (MotherBrainHeadInstructionProgramDefinitions.CorpseAndRingsStart,
-            MotherBrainHeadInstructionProgramDefinitions.CorpseAndRingsEnd),
-        (MotherBrainHeadInstructionProgramDefinitions.BombAndLaserStart,
-            MotherBrainHeadInstructionProgramDefinitions.BombAndLaserEnd),
-        (MotherBrainHeadInstructionProgramDefinitions.RainbowChargeStart,
-            MotherBrainHeadInstructionProgramDefinitions.RainbowChargeEnd),
+        (MotherBrainHeadInstructionProgramDefinitionsTooling.EarlyStart,
+            MotherBrainHeadInstructionProgramDefinitionsTooling.EarlyEnd),
+        (MotherBrainHeadInstructionProgramDefinitionsTooling.RainbowAndNeutralPhaseTwoStart,
+            MotherBrainHeadInstructionProgramDefinitionsTooling.RainbowAndNeutralPhaseTwoEnd),
+        (MotherBrainHeadInstructionProgramDefinitionsTooling.NeutralStart,
+            MotherBrainHeadInstructionProgramDefinitionsTooling.NeutralRegionEnd),
+        (MotherBrainHeadInstructionProgramDefinitionsTooling.CorpseAndRingsStart,
+            MotherBrainHeadInstructionProgramDefinitionsTooling.CorpseAndRingsEnd),
+        (MotherBrainHeadInstructionProgramDefinitionsTooling.BombAndLaserStart,
+            MotherBrainHeadInstructionProgramDefinitionsTooling.BombAndLaserEnd),
+        (MotherBrainHeadInstructionProgramDefinitionsTooling.RainbowChargeStart,
+            MotherBrainHeadInstructionProgramDefinitionsTooling.RainbowChargeEnd),
     ];
 
     private static void VerifyMotherBrainHeadInstructionProgramDefinitions()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         int checkedWords = 0;
         foreach ((ushort start, ushort end) in MotherBrainHeadRegions)
         {
@@ -40,7 +40,7 @@ internal static partial class Program
         }
         (ushort Start, ushort ActiveEnd)[] dedicatedLists =
         [
-            (MotherBrainHeadInstructionProgramDefinitions.NeutralStart,
+            (MotherBrainHeadInstructionProgramDefinitionsTooling.NeutralStart,
                 MotherBrainHeadInstructionProgramDefinitions.NeutralActiveEnd),
             (MotherBrainHeadInstructionProgramDefinitions.BabyAttackStart,
                 MotherBrainHeadInstructionProgramDefinitions.BabyAttackActiveEnd),
@@ -78,10 +78,10 @@ internal static partial class Program
             ((ushort)0x9c21, (ushort)4, (ushort)0xa586),
             ((ushort)0x9c77, (ushort)1, (ushort)0xa5f8),
             ((ushort)0x9c87, (ushort)4, (ushort)0xa586),
-            (MotherBrainHeadInstructionProgramDefinitions.NeutralStart,
+            (MotherBrainHeadInstructionProgramDefinitionsTooling.NeutralStart,
                 (ushort)4, (ushort)0xa69b),
             ((ushort)0x9d25, (ushort)2, (ushort)0xa69b),
-            (MotherBrainHeadInstructionProgramDefinitions.BombAndLaserStart,
+            (MotherBrainHeadInstructionProgramDefinitionsTooling.BombAndLaserStart,
                 (ushort)4, (ushort)0xa586),
             (MotherBrainHeadInstructionProgramDefinitions.BombStart,
                 (ushort)4, (ushort)0xa69b),

@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyPowerBombAfterglowShape()
     {
-        var rom = CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var colors = PowerBombFixedColorCatalog.Load(new MemoryStream(PowerBombFixedColorExtractor.Extract(rom)));
         // Near the bottom-left, the last oval still leaves visible corners outside it.
         var explosion = new SamusPowerBombExplosionState { PresentationColors = colors };

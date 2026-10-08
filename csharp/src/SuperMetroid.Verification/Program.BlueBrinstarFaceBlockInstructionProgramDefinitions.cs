@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions), () => VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions(
@@ -49,11 +49,11 @@ internal static partial class Program
         AssertEqual(0, guard.ObservedPresentationWords.Count,
             "face-block programs use compiled spritemap selectors");
         for (int index = 0;
-             index < BlueBrinstarFaceBlockInstructionProgramDefinitions.PresentationWordCount;
+             index < BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
             ushort address =
-                BlueBrinstarFaceBlockInstructionProgramDefinitions.PresentationWordAddress(index);
+                BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertTrue(!guard.ObservedPresentationWords.Contains(address),
                 $"production execution avoids face-block presentation word $A8:{address:X4}");
         }
@@ -135,11 +135,11 @@ internal static partial class Program
     private static void VerifyFaceBlockMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] expected = [0xe80c,0xe810,0xe814,0xe818,0xe81a,0xe81e,0xe822,0xe826,0xe828,0xe82c];
-        AssertEqual(expected.Length, BlueBrinstarFaceBlockInstructionProgramDefinitions.MechanicsWordCount, "face-block native control count");
+        AssertEqual(expected.Length, BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.MechanicsWordCount, "face-block native control count");
         var bytes = new HashSet<int>();
         for (int i = 0; i < expected.Length; i++)
         {
-            var actual = BlueBrinstarFaceBlockInstructionProgramDefinitions.MechanicsWord(i);
+            var actual = BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.MechanicsWord(i);
             AssertEqual(expected[i], actual.Address, "face-block native control position");
             ushort native = ReadBlueBrinstarFaceBlockWord(rom, 0xa80000 | expected[i]);
             AssertEqual(native, actual.Value, "face-block enumerated native control");
@@ -148,9 +148,9 @@ internal static partial class Program
         }
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
-            AssertEqual(bytes.Contains(address), BlueBrinstarFaceBlockInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa80000 | address), "face-block full byte ownership");
-            AssertEqual(bytes.Contains(address), BlueBrinstarFaceBlockInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1a80000 | address), "face-block high-bit alias");
-            AssertTrue(!BlueBrinstarFaceBlockInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa90000 | address), "face-block other bank rejected");
+            AssertEqual(bytes.Contains(address), BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa80000 | address), "face-block full byte ownership");
+            AssertEqual(bytes.Contains(address), BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x1a80000 | address), "face-block high-bit alias");
+            AssertTrue(!BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa90000 | address), "face-block other bank rejected");
         }
         var words = expected.ToHashSet();
         for (int address = 0xe80a; address <= 0xe830; address++)
@@ -159,19 +159,19 @@ internal static partial class Program
         foreach (ushort address in new ushort[] {0,0x7fff,0xffff})
             AssertThrows<InvalidDataException>(() => BlueBrinstarFaceBlockInstructionProgramDefinitions.ReadMechanicsWord(address), "face-block distant invalid controls");
         foreach (int index in new[] {int.MinValue,-1,10,int.MaxValue})
-            AssertThrows<IndexOutOfRangeException>(() => BlueBrinstarFaceBlockInstructionProgramDefinitions.MechanicsWord(index), "face-block control ordinal bounds");
+            AssertThrows<IndexOutOfRangeException>(() => BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.MechanicsWord(index), "face-block control ordinal bounds");
     }
     private static void VerifyFaceBlockPresentationMapping()
     {
         ushort[] expected = [0xe80e,0xe812,0xe816,0xe81c,0xe820,0xe824,0xe82a];
-        AssertEqual(expected.Length, BlueBrinstarFaceBlockInstructionProgramDefinitions.PresentationWordCount, "face-block native operand count");
+        AssertEqual(expected.Length, BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordCount, "face-block native operand count");
         for (int i = 0; i < expected.Length; i++)
-            AssertEqual(expected[i], BlueBrinstarFaceBlockInstructionProgramDefinitions.PresentationWordAddress(i), "face-block native operand position");
+            AssertEqual(expected[i], BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordAddress(i), "face-block native operand position");
         var words = expected.ToHashSet();
         for (int address = 0; address <= ushort.MaxValue; address++)
             AssertEqual(words.Contains((ushort)address), BlueBrinstarFaceBlockInstructionProgramDefinitions.IsPresentationWord((ushort)address), "face-block full operand membership");
         foreach (int index in new[] {int.MinValue,-1,7,int.MaxValue})
-            AssertThrows<IndexOutOfRangeException>(() => BlueBrinstarFaceBlockInstructionProgramDefinitions.PresentationWordAddress(index), "face-block operand ordinal bounds");
+            AssertThrows<IndexOutOfRangeException>(() => BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "face-block operand ordinal bounds");
     }
     private static void VerifyFaceBlockVisualMapping(SuperMetroidAddressSpace rom)
     {
@@ -232,7 +232,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (BlueBrinstarFaceBlockInstructionProgramDefinitions.IsCompiledMechanicsByte(
+            if (BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(
                     address))
             {
                 ForbiddenReadAttempts++;
@@ -244,11 +244,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < BlueBrinstarFaceBlockInstructionProgramDefinitions
+                     index < BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling
                          .PresentationWordCount;
                      index++)
                 {
-                    ushort presentation = BlueBrinstarFaceBlockInstructionProgramDefinitions
+                    ushort presentation = BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling
                         .PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))

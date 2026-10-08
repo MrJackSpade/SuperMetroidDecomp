@@ -20,13 +20,13 @@ internal static partial class Program
             0xdc99,0xdc9b,0xdc9f,0xdca3,0xdca7,0xdcab,0xdcaf,0xdcb1,0xdcb5,0xdcb7,
             0xdcbb,0xdcbf,0xdcc1,0xdcc5,
         ];
-        AssertEqual(addresses.Length, AlcoonInstructionProgramDefinitions.MechanicsWordCount, "Alcoon word count");
+        AssertEqual(addresses.Length, AlcoonInstructionProgramDefinitionsTooling.MechanicsWordCount, "Alcoon word count");
         var bytes = new HashSet<int>();
         for (int index = 0; index < addresses.Length; index++)
         {
             ushort address = addresses[index];
             ushort expected = ReadAlcoonInstructionWord(rom, address);
-            var actual = AlcoonInstructionProgramDefinitions.MechanicsWord(index);
+            var actual = AlcoonInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(address, actual.Address, "Alcoon original word position");
             AssertEqual(expected, actual.Value, "Alcoon original enumerated word");
             AssertEqual(expected, AlcoonInstructionProgramDefinitions.ReadMechanicsWord(address), "Alcoon direct word");
@@ -36,11 +36,11 @@ internal static partial class Program
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
             bool expected = bytes.Contains(address);
-            AssertEqual(expected, AlcoonInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa80000 | address),
+            AssertEqual(expected, AlcoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa80000 | address),
                 "Alcoon full bank byte ownership including odd word starts");
-            AssertEqual(expected, AlcoonInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1a80000 | address),
+            AssertEqual(expected, AlcoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x1a80000 | address),
                 "Alcoon preserves high-bit mask");
-            AssertTrue(!AlcoonInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa70000 | address),
+            AssertTrue(!AlcoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa70000 | address),
                 "Alcoon rejects other bank");
         }
         var words = addresses.ToHashSet();
@@ -52,7 +52,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => AlcoonInstructionProgramDefinitions.ReadMechanicsWord(address),
                 "Alcoon rejects distant invalid word");
         foreach (int index in new[] { int.MinValue, -1, 68, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => AlcoonInstructionProgramDefinitions.MechanicsWord(index),
+            AssertThrows<IndexOutOfRangeException>(() => AlcoonInstructionProgramDefinitionsTooling.MechanicsWord(index),
                 "Alcoon mechanics ordinal bounds");
     }
 
@@ -69,16 +69,16 @@ internal static partial class Program
     private static void VerifyAlcoonPresentationAddressMapping()
     {
         ushort[] expected = AlcoonPresentationAddressOracle();
-        AssertEqual(expected.Length, AlcoonInstructionProgramDefinitions.PresentationWordCount, "Alcoon visual count");
+        AssertEqual(expected.Length, AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount, "Alcoon visual count");
         for (int index = 0; index < expected.Length; index++)
-            AssertEqual(expected[index], AlcoonInstructionProgramDefinitions.PresentationWordAddress(index),
+            AssertEqual(expected[index], AlcoonInstructionProgramDefinitionsTooling.PresentationWordAddress(index),
                 "Alcoon original presentation operand position");
         var words = expected.ToHashSet();
         for (int address = 0; address <= ushort.MaxValue; address++)
             AssertEqual(words.Contains((ushort)address), AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address),
                 "Alcoon full presentation word membership domain");
         foreach (int index in new[] { int.MinValue, -1, 44, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => AlcoonInstructionProgramDefinitions.PresentationWordAddress(index),
+            AssertThrows<IndexOutOfRangeException>(() => AlcoonInstructionProgramDefinitionsTooling.PresentationWordAddress(index),
                 "Alcoon presentation ordinal bounds");
     }
 
@@ -113,7 +113,7 @@ internal static partial class Program
     private static void VerifyAlcoonInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyAlcoonInstructionProgramDefinitions), () => VerifyAlcoonInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyAlcoonInstructionProgramDefinitions(
@@ -192,8 +192,8 @@ internal static partial class Program
         AssertTrue(sawLeftFireball && sawRightFireball,
             "real Alcoon programs execute fire callbacks in both facings");
         string missedOperands = string.Join(", ", Enumerable.Range(0,
-                AlcoonInstructionProgramDefinitions.PresentationWordCount)
-            .Select(AlcoonInstructionProgramDefinitions.PresentationWordAddress)
+                AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount)
+            .Select(AlcoonInstructionProgramDefinitionsTooling.PresentationWordAddress)
             .Where(address => !selectedPresentationOperands.Contains(address))
             .Select(address => $"$A8:{address:X4}"));
         AssertEqual(42, selectedPresentationOperands.Count,
@@ -261,7 +261,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (AlcoonInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (AlcoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -272,11 +272,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < AlcoonInstructionProgramDefinitions.PresentationWordCount;
+                     index < AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        AlcoonInstructionProgramDefinitions.PresentationWordAddress(index);
+                        AlcoonInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

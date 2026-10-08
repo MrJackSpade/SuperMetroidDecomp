@@ -10,12 +10,11 @@ namespace SuperMetroid.Rendering.Direct3D11;
 /// <remarks>Unsupported operations fail explicitly. Readback is diagnostic, not the presentation path.</remarks>
 public sealed partial class D3D11FrameRenderer : IDisposable
 {
-    private readonly D3D11RenderDevice owner;
+    internal readonly D3D11RenderDevice owner;
     private readonly Func<string, Stream?> openShaderResource;
     private readonly ID3D11ComputeShader shader;
-    private readonly ID3D11Texture2D output;
-    private ID3D11Texture2D? staging;
-    private RenderFrameIdentity? renderedIdentity;
+    internal readonly ID3D11Texture2D output;
+    internal RenderFrameIdentity? renderedIdentity;
     internal RenderFrameIdentity? SubmittedIdentity => renderedIdentity;
     internal D3D11RenderDevice DeviceOwner => owner;
     private readonly ID3D11UnorderedAccessView view;
@@ -30,7 +29,7 @@ public sealed partial class D3D11FrameRenderer : IDisposable
     private readonly ID3D11Texture2D resolvedObjects;
     private readonly ID3D11UnorderedAccessView objectView;
     private readonly List<IDisposable> resources = [];
-    private bool disposed;
+    internal bool disposed;
     private readonly uint[] memoryUpload = new uint[D3D11ShaderLayout.PpuMemoryWords];
     private readonly uint[] constantUpload = new uint[D3D11ShaderLayout.SolidConstantWords];
 
@@ -86,13 +85,6 @@ public sealed partial class D3D11FrameRenderer : IDisposable
         renderedIdentity = packet.Identity;
     }
 
-    /// <summary>Diagnostic convenience; production presentation must use Render without readback.</summary>
-    public Rgba32[] RenderForReadback(RenderFrameSnapshot packet)
-    {
-        Render(packet);
-        return Readback();
-    }
-
     private unsafe void RenderCore(RenderFrameSnapshot packet)
     {
         if (packet.Layers is { } layers) { DrawLayers(packet, layers); return; }
@@ -120,35 +112,6 @@ public sealed partial class D3D11FrameRenderer : IDisposable
             (uint)((packet.Height + D3D11ShaderLayout.DispatchTileEdge - 1) / D3D11ShaderLayout.DispatchTileEdge), 1);
     }
 
-    /// <summary>Reads the last completed submission for diagnostics; never advances simulation.</summary>
-    public unsafe Rgba32[] Readback()
-    {
-        owner.VerifyOwner(); ObjectDisposedException.ThrowIf(disposed, this);
-        if (renderedIdentity is null) throw new InvalidOperationException("No successful frame submission is available for readback.");
-        const int width = SnesPpuLayout.ScreenWidthPixels, height = SnesPpuLayout.ScreenHeightPixels;
-        staging ??= Own(owner.Device.CreateTexture2D(new Texture2DDescription(Format.R32_UInt,
-            width, height, 1, 1, BindFlags.None, ResourceUsage.Staging, CpuAccessFlags.Read)));
-        owner.Context.CSSetUnorderedAccessView(0, null);
-        owner.Context.CSSetUnorderedAccessView(1, null);
-        owner.Context.CopyResource(staging, output);
-        MappedSubresource mapped = owner.Context.Map(staging, 0, MapMode.Read);
-        try
-        {
-            var pixels = new Rgba32[width * height];
-            for (int y = 0; y < height; y++)
-            {
-                uint* row = (uint*)((byte*)mapped.DataPointer + y * mapped.RowPitch);
-                for (int x = 0; x < width; x++)
-                {
-                    uint packed = row[x];
-                    pixels[y * width + x] = new((byte)packed, (byte)(packed >> 8), (byte)(packed >> 16), (byte)(packed >> 24));
-                }
-            }
-            return pixels;
-        }
-        finally { owner.Context.Unmap(staging, 0); }
-    }
-
     public void Dispose()
     {
         if (disposed) return;
@@ -165,7 +128,7 @@ public sealed partial class D3D11FrameRenderer : IDisposable
         disposed = true;
     }
 
-    private T Own<T>(T value) where T : IDisposable { resources.Add(value); return value; }
+    internal T Own<T>(T value) where T : IDisposable { resources.Add(value); return value; }
     private void DisposeResources()
     {
         for (int i = resources.Count - 1; i >= 0; i--) resources[i].Dispose();

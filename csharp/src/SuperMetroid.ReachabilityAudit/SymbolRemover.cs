@@ -15,13 +15,16 @@ namespace SuperMetroid.ReachabilityAudit;
 internal static class SymbolRemover
 {
     public static void Remove(LoadedSolution solution, ReachabilityResult result, IReadOnlySet<string> categories,
-        string? pathPrefix, string retiredFieldsPath)
-    {
-        var identity = new SymbolIdentity(solution.RepositoryRoot);
-        var targets = ReachabilityFindings.Classify(result)
+        string? pathPrefix, string retiredFieldsPath) =>
+        Remove(solution, ReachabilityFindings.Classify(result)
             .Where(f => categories.Contains(f.Category) && f.Category != ReachabilityFindings.TestSupportUnusedByTools
                 && (pathPrefix is null || f.Declaration.File.StartsWith(pathPrefix, StringComparison.Ordinal)))
-            .Select(f => f.Declaration.Key).ToHashSet();
+            .Select(f => f.Declaration.Key).ToHashSet(), retiredFieldsPath);
+
+    /// <summary>Deletes the named declarations, given by their symbol keys.</summary>
+    public static void Remove(LoadedSolution solution, HashSet<string> targets, string retiredFieldsPath)
+    {
+        var identity = new SymbolIdentity(solution.RepositoryRoot);
         var retired = new SortedSet<string>(StringComparer.Ordinal);
         var processed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         int removedNodes = 0, deletedFiles = 0;

@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyBotwoonInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyBotwoonInstructionProgramDefinitions), () => VerifyBotwoonInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyBotwoonInstructionDefinitions(SuperMetroidAddressSpace rom)
@@ -131,11 +131,11 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         for (int index = 0;
-             index < BotwoonInstructionProgramDefinitions.MechanicsWordCount;
+             index < BotwoonInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                BotwoonInstructionProgramDefinitions.MechanicsWord(index);
+                BotwoonInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(
                 definition.Value,
                 ReadBotwoonInstructionWord(rom, 0xb30000 | definition.Address),
@@ -314,7 +314,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (BotwoonInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (BotwoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -356,12 +356,12 @@ internal static partial class Program
         addresses.Add(0x9389); addresses.Add(0x938d);
         foreach (ushort start in spit)
             foreach (int offset in new[] {0,4,6,8,10,14}) addresses.Add((ushort)(start + offset));
-        AssertEqual(addresses.Count, BotwoonInstructionProgramDefinitions.MechanicsWordCount, "Botwoon native control count");
+        AssertEqual(addresses.Count, BotwoonInstructionProgramDefinitionsTooling.MechanicsWordCount, "Botwoon native control count");
         var bytes = new HashSet<int>();
         for (int i = 0; i < addresses.Count; i++)
         {
             ushort address = addresses[i];
-            var actual = BotwoonInstructionProgramDefinitions.MechanicsWord(i);
+            var actual = BotwoonInstructionProgramDefinitionsTooling.MechanicsWord(i);
             ushort native = ReadBotwoonInstructionWord(rom, 0xb30000 | address);
             AssertEqual(address, actual.Address, "Botwoon native control order");
             AssertEqual(native, actual.Value, "Botwoon enumerated control including distinct radius callbacks and left-spit hold");
@@ -370,9 +370,9 @@ internal static partial class Program
         }
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
-            AssertEqual(bytes.Contains(address), BotwoonInstructionProgramDefinitions.IsCompiledMechanicsByte(0xb30000 | address), "Botwoon full byte ownership");
-            AssertEqual(bytes.Contains(address), BotwoonInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1b30000 | address), "Botwoon existing high-bit alias");
-            AssertTrue(!BotwoonInstructionProgramDefinitions.IsCompiledMechanicsByte(0xb40000 | address), "Botwoon other bank rejected");
+            AssertEqual(bytes.Contains(address), BotwoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xb30000 | address), "Botwoon full byte ownership");
+            AssertEqual(bytes.Contains(address), BotwoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x1b30000 | address), "Botwoon existing high-bit alias");
+            AssertTrue(!BotwoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xb40000 | address), "Botwoon other bank rejected");
         }
         var words = addresses.ToHashSet();
         for (int address = 0x933f; address <= 0x9431; address++)
@@ -381,7 +381,7 @@ internal static partial class Program
         foreach (ushort address in new ushort[] {0,0x7fff,0xffff})
             AssertThrows<InvalidDataException>(() => BotwoonInstructionProgramDefinitions.ReadMechanicsWord(address), "Botwoon distant invalid word");
         foreach (int index in new[] {int.MinValue,-1,74,int.MaxValue})
-            AssertThrows<IndexOutOfRangeException>(() => BotwoonInstructionProgramDefinitions.MechanicsWord(index), "Botwoon mechanics ordinal bounds");
+            AssertThrows<IndexOutOfRangeException>(() => BotwoonInstructionProgramDefinitionsTooling.MechanicsWord(index), "Botwoon mechanics ordinal bounds");
     }
     private static void VerifyBotwoonHeadMovementSelection(SuperMetroidAddressSpace rom)
     {

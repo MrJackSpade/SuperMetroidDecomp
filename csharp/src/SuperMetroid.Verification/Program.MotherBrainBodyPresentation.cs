@@ -19,11 +19,11 @@ internal static partial class Program
         var baseline = new MotherBrainPresentationFixture(Build(stockOam, stockBg2));
         var mixed = MotherBrainBodyVisualDefinitions.Frames.ToArray()
             .Where(frame => MotherBrainBodyVisualDefinitions.HasBg2(frame.Pointer)).ToArray();
-        var physicalFrames = MotherBrainBodyInstructionProgramDefinitions.AllWords
+        var physicalFrames = MotherBrainBodyInstructionProgramDefinitionsTooling.AllWords
             .Where(word => word.Word < 0x8000)
             .Select(word => MotherBrainBodyInstructionProgramDefinitions.ReadVisualSelector(
                 checked((ushort)(word.Address + 2)))).ToHashSet();
-        physicalFrames.UnionWith(MotherBrainHandBeamBodyInstructionDefinitions.PresentationOperands.ToArray()
+        physicalFrames.UnionWith(MotherBrainHandBeamBodyInstructionDefinitionsTooling.PresentationOperands.ToArray()
             .Select(MotherBrainHandBeamBodyInstructionDefinitions.ReadVisualSelector));
         AssertTrue(physicalFrames.SetEquals(MotherBrainBodyVisualDefinitions.Frames.ToArray()
             .Select(frame => frame.Pointer)), "installed body inventory covers every compiled program selector, not only exercised paths");
@@ -152,7 +152,7 @@ internal static partial class Program
     /// <summary>Invokes import-only parsers for the 17 statically inventoried body roots.</summary>
     private static void VerifyMotherBrainBodyStockPresentation()
     {
-        var source = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         MotherBrainBodyBg2FrameCatalog bg2 = MotherBrainBodyBg2FrameCatalog.Load(new MemoryStream(
             MotherBrainBodyBg2FrameFiles.Extract(source), writable: false));
         EnemyExtendedFrameCatalog oam = EnemyExtendedFrameCatalog.Load(new MemoryStream(

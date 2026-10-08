@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control for Bomb and Golden Torizo's Chozo-orb programs at $86:AB15-$AB89.
 /// Their eighteen interleaved spritemap operands use extracted presentation art.
 /// </summary>
-internal abstract class TorizoChozoOrbInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class TorizoChozoOrbInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProjectile_TorizoChozoOrbs_Left</c> at $86:AB15.</summary>
     internal const ushort MovingLeft = 0xab15;
@@ -102,18 +102,5 @@ internal abstract class TorizoChozoOrbInstructionProgramDefinitions : IInstructi
 
         throw new InvalidDataException(
             $"Torizo Chozo-orb mechanics pointer $86:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            var word = MechanicsWord(index);
-            if (bankAddress == word.Address || bankAddress == unchecked((ushort)(word.Address + 1)))
-                return true;
-        }
-        return false;
     }
 }

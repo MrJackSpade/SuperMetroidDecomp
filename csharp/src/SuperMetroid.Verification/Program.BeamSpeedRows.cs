@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyBeamSpeedRows()
     {
-        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte AimPose(byte direction) => (byte)Enumerable.Range(0, 253).First(pose =>
             retail.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 3) == direction);
         var room = new RoomLevelData(16, 16, new ushort[256], new byte[256],

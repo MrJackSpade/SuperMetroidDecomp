@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyCompiledBotwoonWallPlms()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         ushort[] addresses = [0xab31,0xab34,0xab36,0xab39,0xab3b,0xab3d,0xab3f,0xab41,0xab43,
             0xab45,0xab47,0xab49,0xab4b,0xab4d,0xab4f,0xab67,0xab69,0xab6b];

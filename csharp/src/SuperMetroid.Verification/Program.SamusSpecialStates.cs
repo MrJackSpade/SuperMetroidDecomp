@@ -207,7 +207,7 @@ static void VerifySamusCrystalFlash()
 
     // Editable RGB reaches black after four calls, but the native lifetime remains
     // tied to the stock color row. Compare that lifetime against the cartridge itself.
-    var nativeColors = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+    var nativeColors = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
         Path.GetFullPath("Super Metroid.smc"));
     int stockFadeSteps = Enumerable.Range(0, 3).Max(component =>
         nativeColors.ReadByte(0x888d85 + 3 * 3 + component));

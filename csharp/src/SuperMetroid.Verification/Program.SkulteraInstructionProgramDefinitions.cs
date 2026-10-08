@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifySkulteraInstructionProgramDefinitions()
     {
         Suite(nameof(VerifySkulteraInstructionProgramDefinitions), () => VerifySkulteraInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifySkulteraInstructionProgramDefinitions(
@@ -168,7 +168,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (SkulteraInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (SkulteraInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

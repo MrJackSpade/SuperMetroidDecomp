@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyGoldenTorizoEyeBeamInstructionProgramDefinitions() =>
         Suite(nameof(VerifyGoldenTorizoEyeBeamInstructionProgramDefinitions), () => VerifyGoldenTorizoEyeBeamInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     private static void VerifyGoldenTorizoEyeBeamInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -295,7 +295,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (GoldenTorizoEyeBeamInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (GoldenTorizoEyeBeamInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

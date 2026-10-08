@@ -25,21 +25,15 @@ internal static class PixelComparison
         string directory = Path.GetFullPath(Path.Combine("csharp", "test-temp", "render-comparison", Guid.NewGuid().ToString("N")));
         Directory.CreateDirectory(directory);
         File.WriteAllBytes(Path.Combine(directory, "frame.smframe"), RenderFrameSnapshotCodec.Serialize(packet));
-        PngWriter.WriteRgba(Path.Combine(directory, "expected.png"), packet.Width, packet.Height, expected);
-        PngWriter.WriteRgba(Path.Combine(directory, "actual.png"), packet.Width, packet.Height, actual);
-        PngWriter.WriteRgba(Path.Combine(directory, "difference.png"), packet.Width, packet.Height, difference);
+        PngWriterTooling.WriteRgba(Path.Combine(directory, "expected.png"), packet.Width, packet.Height, expected);
+        PngWriterTooling.WriteRgba(Path.Combine(directory, "actual.png"), packet.Width, packet.Height, actual);
+        PngWriterTooling.WriteRgba(Path.Combine(directory, "difference.png"), packet.Width, packet.Height, difference);
         File.WriteAllText(Path.Combine(directory, "comparison.json"), JsonSerializer.Serialize(new {
             Context = context, packet.Identity, MismatchedPixels = count,
             FirstX = first % packet.Width, FirstY = first / packet.Width,
             Expected = expected[first].ToString(), Actual = actual[first].ToString(),
             Bounds = new { Left = left, Top = top, RightInclusive = right, BottomInclusive = bottom }
         }, new JsonSerializerOptions { WriteIndented = true }));
-        throw new PixelComparisonException($"{context}: {count} pixels differ; first ({first % packet.Width},{first / packet.Width}); artifacts: {directory}", directory);
+        throw new InvalidOperationException($"{context}: {count} pixels differ; first ({first % packet.Width},{first / packet.Width}); artifacts: {directory}");
     }
-}
-
-/// <summary>Preserves the reproduction directory without requiring callers to parse diagnostic prose.</summary>
-internal sealed class PixelComparisonException(string message, string artifactDirectory) : InvalidOperationException(message)
-{
-    internal string ArtifactDirectory { get; } = artifactDirectory;
 }

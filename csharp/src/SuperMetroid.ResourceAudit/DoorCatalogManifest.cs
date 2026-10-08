@@ -33,7 +33,7 @@ internal static class DoorCatalogManifest
             "4421EA74AC219B27F1E17391B31D214B87D4A8C04DA33932E549EE609E31DE29");
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(rom))) != RomHash)
             throw new InvalidDataException("Door oracle requires the pinned unheadered J/U NTSC 1.0 cartridge.");
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath(rom));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath(rom));
         // Every label ends the previous allocation, even when its address is not a door.
         var labels83 = Labels(bank83);
         var symbols = labels83.Where(item => item.Name.StartsWith("Door_", StringComparison.Ordinal) ||

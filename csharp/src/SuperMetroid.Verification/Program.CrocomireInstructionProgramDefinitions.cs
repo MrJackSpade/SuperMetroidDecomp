@@ -10,18 +10,18 @@ internal static partial class Program
     private static void VerifyCrocomireInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyCrocomireInstructionProgramDefinitions), () => VerifyCrocomireInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyCrocomireInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         for (int index = 0;
-             index < CrocomireInstructionProgramDefinitions.MechanicsWordCount;
+             index < CrocomireInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                CrocomireInstructionProgramDefinitions.MechanicsWord(index);
+                CrocomireInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(
                 definition.Value,
                 ReadCrocomireInstructionWord(rom, definition.Address),
@@ -81,11 +81,11 @@ internal static partial class Program
         // Compare the selected sprite against the independent cartridge operand.
         var executedOperands = new HashSet<ushort>();
         for (int index = 0;
-             index < CrocomireInstructionProgramDefinitions.PresentationWordCount;
+             index < CrocomireInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
             ushort presentation =
-                CrocomireInstructionProgramDefinitions.PresentationWordAddress(index);
+                CrocomireInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             body.CurrentInstruction = unchecked((ushort)(presentation - 2));
             body.InstructionTimer = 1;
             process.Invoke(enemies, arguments);
@@ -102,7 +102,7 @@ internal static partial class Program
             "production avoids every compiled Crocomire mechanics byte");
         AssertThrows<InvalidDataException>(
             () => CrocomireInstructionProgramDefinitions.ReadMechanicsWord(
-                CrocomireInstructionProgramDefinitions.PresentationWordAddress(0)),
+                CrocomireInstructionProgramDefinitionsTooling.PresentationWordAddress(0)),
             "Crocomire spritemap operand is rejected as mechanics");
         AssertThrows<InvalidDataException>(
             () => CrocomireInstructionProgramDefinitions.ReadMechanicsWord(
@@ -156,7 +156,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (CrocomireInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (CrocomireInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -167,10 +167,10 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < CrocomireInstructionProgramDefinitions.PresentationWordCount;
+                     index < CrocomireInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
-                    ushort presentation = CrocomireInstructionProgramDefinitions
+                    ushort presentation = CrocomireInstructionProgramDefinitionsTooling
                         .PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))

@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyNormalSuitPalettePointers()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SamusSuitColorCatalog suitColors = SamusSuitColorCatalog.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(rom)));
         ushort[] equipment =

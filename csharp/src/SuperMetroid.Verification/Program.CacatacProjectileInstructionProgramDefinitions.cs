@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyCacatacProjectileInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyCacatacProjectileInstructionProgramDefinitions), () => VerifyCacatacProjectileInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyCacatacProjectileInstructionProgramDefinitions(
@@ -15,11 +15,11 @@ internal static partial class Program
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int index = 0;
-             index < CacatacProjectileInstructionProgramDefinitions.MechanicsWordCount;
+             index < CacatacProjectileInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                CacatacProjectileInstructionProgramDefinitions.MechanicsWord(index);
+                CacatacProjectileInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadCacatacProjectileInstructionWord(rom, 0x860000 | definition.Address),
                 $"Cacatac spike instruction mechanics word $86:{definition.Address:X4}");
@@ -122,7 +122,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (CacatacProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (CacatacProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

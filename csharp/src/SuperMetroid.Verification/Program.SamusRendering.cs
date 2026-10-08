@@ -504,7 +504,7 @@ static void VerifySamusArmCannon()
     document["tileSources"]![2] = new System.Text.Json.Nodes.JsonArray(0, 0x9a00, 0x9c00, 0x9e00);
     using var placement = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString()));
     using var tiles = File.OpenRead(Path.Combine(directory, SamusArmCannonArtworkFormat.TileFileName));
-    var artwork = SamusArmCannonArtworkCatalog.Load(placement, tiles);
+    var artwork = SamusArmCannonArtworkCatalogTooling.Load(placement, tiles);
     var samus = new SamusState
     {
         Pose = SamusPoseIds.FacingRightNormalPose,

@@ -11,10 +11,10 @@ internal static partial class Program
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
         for (int index = 0;
-             index < AlcoonInstructionProgramDefinitions.PresentationWordCount;
+             index < AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort operand = AlcoonInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort operand = AlcoonInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                     RoomEnemySystem.AlcoonDefinition, operand, out ushort frame),
                 $"Alcoon visual operand $A8:{operand:X4} is compiled");
@@ -31,10 +31,10 @@ internal static partial class Program
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
         for (int index = 0;
-             index < BeetomInstructionProgramDefinitions.PresentationWordCount;
+             index < BeetomInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort operand = BeetomInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort operand = BeetomInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                     RoomEnemySystem.BeetomDefinition, operand, out ushort frame),
                 $"Beetom visual operand $A8:{operand:X4} is compiled");
@@ -84,10 +84,10 @@ internal static partial class Program
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
         for (int index = 0;
-             index < ChootInstructionProgramDefinitions.PresentationWordCount;
+             index < ChootInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort operand = ChootInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort operand = ChootInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                     RoomEnemySystem.ChootDefinition, operand, out ushort frame),
                 $"Choot visual operand $A2:{operand:X4} is compiled");
@@ -105,10 +105,10 @@ internal static partial class Program
         BindingFlags flags)
     {
         for (int index = 0;
-             index < BullInstructionProgramDefinitions.PresentationWordCount;
+             index < BullInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort operand = BullInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort operand = BullInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                     RoomEnemySystem.BullDefinition, operand, out ushort frame),
                 $"Bull visual operand $A8:{operand:X4} is compiled");
@@ -159,10 +159,10 @@ internal static partial class Program
         BindingFlags flags)
     {
         for (int index = 0;
-             index < PuyoInstructionProgramDefinitions.PresentationWordCount;
+             index < PuyoInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort operand = PuyoInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort operand = PuyoInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                     RoomEnemySystem.PuyoDefinition, operand, out ushort frame),
                 $"Puyo visual operand $A2:{operand:X4} is compiled");
@@ -461,10 +461,10 @@ internal static partial class Program
                 RoomSpriteObjectDefinitions.InstructionPointer(
                     RoomSpriteObjectKind.DraygonIntroEvir)),
             "room sprite-object mechanics are not presentation selectors");
-        for (int index = 0; index < ElevatorInstructionProgramDefinitions.PresentationWordCount;
+        for (int index = 0; index < ElevatorInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort operand = ElevatorInstructionProgramDefinitions
+            ushort operand = ElevatorInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             ushort native = unchecked((ushort)(rom.ReadByte(0xa30000 | operand) |
                 rom.ReadByte(0xa30000 | unchecked((ushort)(operand + 1))) << 8));
@@ -480,7 +480,7 @@ internal static partial class Program
             "elevator rejects adjacent instruction mechanics as presentation");
         for (int index = 0; index < 4; index++)
         {
-            ushort operand = VerticalShutterInstructionProgramDefinitions
+            ushort operand = VerticalShutterInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index + 1);
             ushort native = unchecked((ushort)(rom.ReadByte(0xa20000 | operand) |
                 rom.ReadByte(0xa20000 | unchecked((ushort)(operand + 1))) << 8));
@@ -496,9 +496,9 @@ internal static partial class Program
                 VerticalShutterInstructionProgramDefinitions.KamerPlatform),
             "Kamer rejects adjacent instruction mechanics as presentation");
         for (int index = 0;
-             index < FuneNamiheInstructionProgramDefinitions.PresentationWordCount; index++)
+             index < FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
         {
-            ushort operand = FuneNamiheInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort operand = FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             ushort definition = operand < FuneNamiheInstructionProgramDefinitions.NamiheIdleLeft
                 ? FuneNamiheDefinitions.FuneEnemyDefinition
                 : FuneNamiheDefinitions.NamiheEnemyDefinition;
@@ -568,10 +568,10 @@ internal static partial class Program
         AssertEqual(0, rioGuard.ObservedPresentationWords.Count,
             "installed Rio programs never read ROM visual selectors");
         for (int index = 0;
-             index < LowerNorfairRioInstructionProgramDefinitions.PresentationWordCount;
+             index < LowerNorfairRioInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort operand = LowerNorfairRioInstructionProgramDefinitions
+            ushort operand = LowerNorfairRioInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                     RoomEnemySystem.LowerNorfairRioDefinition, operand, out ushort frame),
@@ -660,10 +660,10 @@ internal static partial class Program
         Suite(nameof(VerifyInstalledChootInstructionFrames), () => VerifyInstalledChootInstructionFrames(rom, stock));
         Suite(nameof(VerifyInstalledHZoomerInstructionFrames), () => VerifyInstalledHZoomerInstructionFrames(rom, stock));
         Suite(nameof(VerifyInstalledSharedCrawlerFrames), () => VerifyInstalledSharedCrawlerFrames(rom, stock));
-        for (int index = 0; index < SciserInstructionProgramDefinitions.PresentationWordCount;
+        for (int index = 0; index < SciserInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort operand = SciserInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort operand = SciserInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                     RoomEnemySystem.SciserDefinition, operand, out ushort selected),
                 $"Sciser visual operand $A3:{operand:X4} is compiled");
@@ -673,10 +673,10 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => SciserVisualDefinitions.FrameAt(SciserInstructionProgramDefinitions.UpsideUp),
             "Sciser rejects adjacent mechanics as a visual selector");
-        for (int index = 0; index < FlyInstructionProgramDefinitions.PresentationWordCount;
+        for (int index = 0; index < FlyInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort operand = FlyInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort operand = FlyInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             ushort expected = ReadFlyInstructionWord(rom, 0xa20000 | operand);
             foreach (ushort definition in new ushort[]
                      { RoomEnemySystem.MellowDefinition, RoomEnemySystem.MellaDefinition,
@@ -692,10 +692,10 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => FlyVisualDefinitions.FrameAt(FlyInstructionProgramDefinitions.Flight),
             "fly family rejects adjacent mechanics as presentation");
-        for (int index = 0; index < KagoInstructionProgramDefinitions.PresentationWordCount;
+        for (int index = 0; index < KagoInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort operand = KagoInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort operand = KagoInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                     RoomEnemySystem.KagoDefinition, operand, out ushort selected),
                 $"Kago visual operand $A8:{operand:X4} is compiled");
@@ -706,10 +706,10 @@ internal static partial class Program
             () => KagoVisualDefinitions.FrameAt(KagoInstructionProgramDefinitions.Slow),
             "Kago rejects adjacent mechanics as presentation");
         for (int index = 0;
-             index < BlueBrinstarFaceBlockInstructionProgramDefinitions.PresentationWordCount;
+             index < BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort operand = BlueBrinstarFaceBlockInstructionProgramDefinitions
+            ushort operand = BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                     RoomEnemySystem.BlueBrinstarFaceBlockDefinition, operand,
@@ -740,10 +740,10 @@ internal static partial class Program
                 MorphBallEyeInstructionProgramDefinitions.AdjacentProximityDefinitions),
             "eye visual selector rejects adjacent proximity definitions");
         for (int index = 0;
-             index < GrowingShutterInstructionProgramDefinitions.PresentationWordCount;
+             index < GrowingShutterInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort operand = GrowingShutterInstructionProgramDefinitions
+            ushort operand = GrowingShutterInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                     RoomEnemySystem.GrowingShutterDefinition, operand,
@@ -753,7 +753,7 @@ internal static partial class Program
                 selected, $"growing-shutter selector $A2:{operand:X4} matches the cartridge");
         }
         ushort verticalOperand =
-            VerticalShutterInstructionProgramDefinitions.PresentationWordAddress(0);
+            VerticalShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(0);
         foreach (ushort definition in new ushort[]
                  { RoomEnemySystem.ShootableVerticalShutterDefinition,
                    RoomEnemySystem.DestroyableVerticalShutterDefinition })
@@ -766,7 +766,7 @@ internal static partial class Program
                 $"vertical shutter ${definition:X4} selector matches the cartridge");
         }
         ushort horizontalOperand =
-            HorizontalShutterInstructionProgramDefinitions.PresentationWordAddress(0);
+            HorizontalShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(0);
         AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                 RoomEnemySystem.ShootableHorizontalShutterDefinition,
                 horizontalOperand, out ushort horizontalSelected),
@@ -780,10 +780,10 @@ internal static partial class Program
                 GrowingShutterInstructionProgramDefinitions.ProgramEntryPoint(0)),
             "shutter visual selector rejects adjacent frame timing");
         for (int index = 0;
-             index < MetroidInstructionProgramDefinitions.PresentationWordCount;
+             index < MetroidInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort operand = MetroidInstructionProgramDefinitions
+            ushort operand = MetroidInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                     RoomEnemySystem.MetroidDefinition, operand, out ushort selected),
@@ -800,10 +800,10 @@ internal static partial class Program
         AssertEqual(15, shaktoolFrames.Count,
             "Shaktool's visual frame identities are distinct");
         for (int index = 0;
-             index < ShaktoolInstructionProgramDefinitions.PresentationWordCount;
+             index < ShaktoolInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort operand = ShaktoolInstructionProgramDefinitions
+            ushort operand = ShaktoolInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                     RoomEnemySystem.ShaktoolDefinition, operand, out ushort selected),
@@ -827,10 +827,10 @@ internal static partial class Program
             "Tripper/Kamer visual frame identities are distinct");
         var selectedPlatformFrames = new HashSet<ushort>();
         for (int index = 0;
-             index < PlatformInstructionProgramDefinitions.PresentationWordCount;
+             index < PlatformInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort operand = PlatformInstructionProgramDefinitions
+            ushort operand = PlatformInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             ushort native = unchecked((ushort)(rom.ReadByte(0xa30000 | operand) |
                 rom.ReadByte(0xa30000 | unchecked((ushort)(operand + 1))) << 8));
@@ -1893,11 +1893,11 @@ internal static partial class Program
             "Rinka authored body offset changes installed room OAM");
         OamBuffer stockSciser = DrawEnemy(stock, new FrameReadGuard(rom),
             SciserVisualDefinitions.FrameAt(
-                SciserInstructionProgramDefinitions.PresentationWordAddress(12)),
+                SciserInstructionProgramDefinitionsTooling.PresentationWordAddress(12)),
             RoomEnemySystem.SciserDefinition);
         OamBuffer editedSciser = DrawEnemy(edited, new FrameReadGuard(rom),
             SciserVisualDefinitions.FrameAt(
-                SciserInstructionProgramDefinitions.PresentationWordAddress(12)),
+                SciserInstructionProgramDefinitionsTooling.PresentationWordAddress(12)),
             RoomEnemySystem.SciserDefinition);
         AssertEqual(unchecked((byte)(stockSciser.LowTable[0] + 1)),
             editedSciser.LowTable[0],
@@ -1908,27 +1908,27 @@ internal static partial class Program
         {
             OamBuffer stockFly = DrawEnemy(stock, new FrameReadGuard(rom),
                 FlyVisualDefinitions.FrameAt(
-                    FlyInstructionProgramDefinitions.PresentationWordAddress(0)), definition);
+                    FlyInstructionProgramDefinitionsTooling.PresentationWordAddress(0)), definition);
             OamBuffer editedFly = DrawEnemy(edited, new FrameReadGuard(rom),
                 FlyVisualDefinitions.FrameAt(
-                    FlyInstructionProgramDefinitions.PresentationWordAddress(0)), definition);
+                    FlyInstructionProgramDefinitionsTooling.PresentationWordAddress(0)), definition);
             AssertEqual(unchecked((byte)(stockFly.LowTable[0] + 1)),
                 editedFly.LowTable[0],
                 $"fly ${definition:X4} uses edited shared presentation");
         }
         OamBuffer stockKago = DrawEnemy(stock, new FrameReadGuard(rom),
             KagoVisualDefinitions.FrameAt(
-                KagoInstructionProgramDefinitions.PresentationWordAddress(0)),
+                KagoInstructionProgramDefinitionsTooling.PresentationWordAddress(0)),
             RoomEnemySystem.KagoDefinition);
         OamBuffer editedKago = DrawEnemy(edited, new FrameReadGuard(rom),
             KagoVisualDefinitions.FrameAt(
-                KagoInstructionProgramDefinitions.PresentationWordAddress(0)),
+                KagoInstructionProgramDefinitionsTooling.PresentationWordAddress(0)),
             RoomEnemySystem.KagoDefinition);
         AssertEqual(unchecked((byte)(stockKago.LowTable[0] + 1)),
             editedKago.LowTable[0],
             "Kago authored offset changes installed presentation");
         ushort faceBlockPointer = BlueBrinstarFaceBlockVisualDefinitions.FrameAt(
-            BlueBrinstarFaceBlockInstructionProgramDefinitions.PresentationWordAddress(6));
+            BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordAddress(6));
         OamBuffer stockFaceBlock = DrawEnemy(stock, new FrameReadGuard(rom),
             faceBlockPointer, RoomEnemySystem.BlueBrinstarFaceBlockDefinition);
         OamBuffer editedFaceBlock = DrawEnemy(edited, new FrameReadGuard(rom),
@@ -1947,7 +1947,7 @@ internal static partial class Program
             "Morph Ball eye mount art edit changes installed presentation");
         ushort shutterPointer = ShutterVisualDefinitions.FrameAt(
             RoomEnemySystem.GrowingShutterDefinition,
-            GrowingShutterInstructionProgramDefinitions.PresentationWordAddress(3));
+            GrowingShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(3));
         foreach (ushort definition in new ushort[]
                  { RoomEnemySystem.GrowingShutterDefinition,
                    RoomEnemySystem.ShootableVerticalShutterDefinition,
@@ -1964,7 +1964,7 @@ internal static partial class Program
                 $"shutter ${definition:X4} visual edit leaves physical Y unchanged");
         }
         ushort metroidPointer = MetroidVisualDefinitions.FrameAt(
-            MetroidInstructionProgramDefinitions.PresentationWordAddress(0));
+            MetroidInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
         OamBuffer stockMetroid = DrawEnemy(stock, new FrameReadGuard(rom),
             metroidPointer, RoomEnemySystem.MetroidDefinition);
         OamBuffer editedMetroid = DrawEnemy(edited, new FrameReadGuard(rom),
@@ -2253,7 +2253,7 @@ internal static partial class Program
         AssertEqual(unchecked((byte)(stockFrozen.LowTable[1] + 1)),
             editedFrozen.LowTable[1], "authored frozen GRipper Y offset changes live room OAM");
         ushort firefleaPointer = EnemySpritemapDefinitions.FirefleaFrameAt(
-            FirefleaInstructionProgramDefinitions.PresentationWordAddress(0));
+            FirefleaInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
         OamBuffer stockFireflea = DrawEnemy(stock, new FrameReadGuard(rom),
             firefleaPointer, RoomEnemySystem.FirefleaDefinition);
         OamBuffer editedFireflea = DrawEnemy(edited, new FrameReadGuard(rom),
@@ -2264,7 +2264,7 @@ internal static partial class Program
         AssertEqual(stockFireflea.LowTable[0], editedFireflea.LowTable[0],
             "Fireflea visual edit leaves X position unchanged");
         ushort magdollitePointer = EnemySpritemapDefinitions.MagdolliteFrameAt(
-            MagdolliteInstructionProgramDefinitions.PresentationWordAddress(0));
+            MagdolliteInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
         OamBuffer stockMagdollite = DrawEnemy(stock, new FrameReadGuard(rom),
             magdollitePointer, RoomEnemySystem.MagdolliteDefinition);
         OamBuffer editedMagdollite = DrawEnemy(edited, new FrameReadGuard(rom),
@@ -2286,7 +2286,7 @@ internal static partial class Program
         AssertEqual(stockRio.LowTable[0], editedRio.LowTable[0],
             "Rio visual edit leaves physical X unchanged");
         ushort lowerRioPointer = EnemySpritemapDefinitions.LowerNorfairRioFrameAt(
-            LowerNorfairRioInstructionProgramDefinitions.PresentationWordAddress(0));
+            LowerNorfairRioInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
         OamBuffer stockLowerRio = DrawEnemy(stock, new FrameReadGuard(rom),
             lowerRioPointer, RoomEnemySystem.LowerNorfairRioDefinition);
         OamBuffer editedLowerRio = DrawEnemy(edited, new FrameReadGuard(rom),
@@ -2308,7 +2308,7 @@ internal static partial class Program
         AssertEqual(stockNorfairRio.LowTable[0], editedNorfairRio.LowTable[0],
             "Norfair Rio visual edit leaves physical X unchanged");
         ushort puyoPointer = EnemySpritemapDefinitions.PuyoFrameAt(
-            PuyoInstructionProgramDefinitions.PresentationWordAddress(0));
+            PuyoInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
         OamBuffer stockPuyo = DrawEnemy(stock, new FrameReadGuard(rom),
             puyoPointer, RoomEnemySystem.PuyoDefinition);
         OamBuffer editedPuyo = DrawEnemy(edited, new FrameReadGuard(rom),
@@ -2319,7 +2319,7 @@ internal static partial class Program
         AssertEqual(stockPuyo.LowTable[0], editedPuyo.LowTable[0],
             "Puyo visual edit leaves physical X unchanged");
         ushort bullPointer = EnemySpritemapDefinitions.BullFrameAt(
-            BullInstructionProgramDefinitions.PresentationWordAddress(0));
+            BullInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
         OamBuffer stockBull = DrawEnemy(stock, new FrameReadGuard(rom),
             bullPointer, RoomEnemySystem.BullDefinition);
         OamBuffer editedBull = DrawEnemy(edited, new FrameReadGuard(rom),
@@ -2330,7 +2330,7 @@ internal static partial class Program
         AssertEqual(stockBull.LowTable[0], editedBull.LowTable[0],
             "Bull visual edit leaves physical X unchanged");
         ushort alcoonPointer = EnemySpritemapDefinitions.AlcoonFrameAt(
-            AlcoonInstructionProgramDefinitions.PresentationWordAddress(0));
+            AlcoonInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
         OamBuffer stockAlcoon = DrawEnemy(stock, new FrameReadGuard(rom),
             alcoonPointer, RoomEnemySystem.AlcoonDefinition);
         OamBuffer editedAlcoon = DrawEnemy(edited, new FrameReadGuard(rom),
@@ -2341,7 +2341,7 @@ internal static partial class Program
         AssertEqual(stockAlcoon.LowTable[0], editedAlcoon.LowTable[0],
             "Alcoon visual edit leaves physical X unchanged");
         ushort beetomPointer = EnemySpritemapDefinitions.BeetomFrameAt(
-            BeetomInstructionProgramDefinitions.PresentationWordAddress(0));
+            BeetomInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
         OamBuffer stockBeetom = DrawEnemy(stock, new FrameReadGuard(rom),
             beetomPointer, RoomEnemySystem.BeetomDefinition);
         OamBuffer editedBeetom = DrawEnemy(edited, new FrameReadGuard(rom),
@@ -2363,7 +2363,7 @@ internal static partial class Program
         AssertEqual(stockHopper.LowTable[0], editedHopper.LowTable[0],
             "Sidehopper visual edit leaves physical X unchanged");
         ushort chootPointer = EnemySpritemapDefinitions.ChootFrameAt(
-            ChootInstructionProgramDefinitions.PresentationWordAddress(0));
+            ChootInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
         OamBuffer stockChoot = DrawEnemy(stock, new FrameReadGuard(rom),
             chootPointer, RoomEnemySystem.ChootDefinition);
         OamBuffer editedChoot = DrawEnemy(edited, new FrameReadGuard(rom),
@@ -2374,7 +2374,7 @@ internal static partial class Program
         AssertEqual(stockChoot.LowTable[0], editedChoot.LowTable[0],
             "Choot visual edit leaves physical X unchanged");
         ushort hzoomerPointer = EnemySpritemapDefinitions.HZoomerFrameAt(
-            HZoomerInstructionProgramDefinitions.PresentationWordAddress(0));
+            HZoomerInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
         OamBuffer stockHZoomer = DrawEnemy(stock, new FrameReadGuard(rom),
             hzoomerPointer, RoomEnemySystem.HZoomerDefinition);
         OamBuffer editedHZoomer = DrawEnemy(edited, new FrameReadGuard(rom),

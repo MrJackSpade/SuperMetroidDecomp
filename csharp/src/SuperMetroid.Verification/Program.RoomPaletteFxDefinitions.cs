@@ -66,7 +66,7 @@ internal static partial class Program
             ushort nativeList = Word(pointerAddress);
             for (int bit = 0; bit < RoomPaletteFxDefinitions.DefinitionsPerArea; bit++)
             {
-                int entryAddress = RoomFxRomData.Banks.RoomDefinitions |
+                int entryAddress = RoomFxRomDataBanksTooling.RoomDefinitions |
                     unchecked((ushort)(nativeList + bit * 2));
                 forbidden.Add(entryAddress);
                 forbidden.Add(entryAddress + 1);

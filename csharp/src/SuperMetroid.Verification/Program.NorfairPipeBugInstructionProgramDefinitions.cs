@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyNorfairPipeBugInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyNorfairPipeBugInstructionProgramDefinitions), () => VerifyNorfairPipeBugInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyNorfairPipeBugInstructionProgramDefinitions(
@@ -46,11 +46,11 @@ internal static partial class Program
         AssertEqual(0, guard.ForbiddenPresentationReadAttempts,
             "Norfair Pipe Bug programs never read installed visual selectors");
         for (int index = 0;
-             index < NorfairPipeBugInstructionProgramDefinitions.PresentationWordCount;
+             index < NorfairPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
             ushort address =
-                NorfairPipeBugInstructionProgramDefinitions.PresentationWordAddress(index);
+                NorfairPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertEqual(ReadNorfairPipeBugInstructionWord(rom, 0xb30000 | address),
                 PipeBugVisualDefinitions.FrameAt(
                     PipeBugDefinitions.NorfairEnemyDefinition, address),
@@ -132,7 +132,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (NorfairPipeBugInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (NorfairPipeBugInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -142,11 +142,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < NorfairPipeBugInstructionProgramDefinitions.PresentationWordCount;
+                     index < NorfairPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        NorfairPipeBugInstructionProgramDefinitions.PresentationWordAddress(index);
+                        NorfairPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

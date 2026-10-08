@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyKraidFootInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKraidFootInstructionProgramDefinitions), () => VerifyKraidFootInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyKraidFootInstructionProgramDefinitions(
@@ -98,11 +98,11 @@ internal static partial class Program
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Kraid foot execution avoids compiled mechanics bytes");
         for (int index = 0;
-             index < KraidFootInstructionProgramDefinitions.PresentationWordCount;
+             index < KraidFootInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
             ushort address =
-                KraidFootInstructionProgramDefinitions.PresentationWordAddress(index);
+                KraidFootInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertTrue(executedOperands.Contains(address),
                 $"production execution covers Kraid foot presentation $A7:{address:X4}");
             AssertThrows<InvalidDataException>(
@@ -224,7 +224,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (KraidFootInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (KraidFootInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -234,11 +234,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < KraidFootInstructionProgramDefinitions.PresentationWordCount;
+                     index < KraidFootInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        KraidFootInstructionProgramDefinitions.PresentationWordAddress(index);
+                        KraidFootInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

@@ -7,21 +7,21 @@ internal static partial class Program
 {
     private static void VerifyMotherBrainTurretInstructionProgramDefinitions() =>
         Suite(nameof(VerifyMotherBrainTurretInstructionProgramDefinitions), () => VerifyMotherBrainTurretInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     private static void VerifyMotherBrainTurretInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         AssertEqual(49,
-            MotherBrainTurretInstructionProgramDefinitions.MechanicsWordCount,
+            MotherBrainTurretInstructionProgramDefinitionsTooling.MechanicsWordCount,
             "Mother Brain turret catalog contains every mechanics word");
         for (int index = 0;
-             index < MotherBrainTurretInstructionProgramDefinitions.MechanicsWordCount;
+             index < MotherBrainTurretInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                MotherBrainTurretInstructionProgramDefinitions.MechanicsWord(index);
+                MotherBrainTurretInstructionProgramDefinitionsTooling.MechanicsWord(index);
             ushort native = unchecked((ushort)(
                 rom.ReadByte(EnemyProjectileCodePointers.BankBase | definition.Address) |
                 rom.ReadByte(EnemyProjectileCodePointers.BankBase |
@@ -218,8 +218,8 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (MotherBrainTurretInstructionProgramDefinitions.IsCompiledMechanicsByte(address) ||
-                CommonEnemyProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (MotherBrainTurretInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
+                CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

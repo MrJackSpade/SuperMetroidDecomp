@@ -404,7 +404,7 @@ internal static partial class Program
 
     private static void SeedEnemyPickupRom(TestAddressSpace bus)
     {
-        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] placeholder = new byte[64];
         for (int i = 0; i < placeholder.Length; i++)
             placeholder[i] = retail.ReadByte(0xa00000 + EnemyLifecycleDefinitions.RespawnPlaceholder + i);

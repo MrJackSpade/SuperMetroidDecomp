@@ -9,7 +9,7 @@ internal static partial class Program
     private static void VerifyEtecoonFanfareAfterDoor()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
         for (int index = 0; index < 3; index++)

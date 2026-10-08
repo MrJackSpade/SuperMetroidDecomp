@@ -29,7 +29,7 @@ internal static partial class Program
             return;
         }
 
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         ushort[] roomPointers = File.ReadLines(symbolPath)
             .Select(TryParseRoomHeaderPointer)
             .Where(pointer => pointer.HasValue)

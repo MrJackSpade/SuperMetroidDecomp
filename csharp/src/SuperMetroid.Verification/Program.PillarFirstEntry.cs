@@ -17,7 +17,7 @@ internal static partial class Program
         const ushort source = 0xb3a5, destination = 0xb457;
         const string output = "csharp/test-temp/issue-619-pillar";
         Directory.CreateDirectory(output);
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
@@ -103,7 +103,7 @@ internal static partial class Program
                 visibleFrames[actor]++;
                 visiblePositions[actor].Add((heads[actor].XPosition, heads[actor].YPosition));
             }
-            PngWriter.WriteRgba(Path.Combine(output, $"frame-{frame:D3}.png"), 256, 224, pixels);
+            PngWriterTooling.WriteRgba(Path.Combine(output, $"frame-{frame:D3}.png"), 256, 224, pixels);
         }
         for (int actor = 0; actor < 2; actor++)
         {

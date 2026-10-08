@@ -83,8 +83,8 @@ internal static partial class Program
         var stored = (Dictionary<ushort, ushort>)typeof(TitlePalettePresentation).GetField("animatedColors",
             BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
         AssertEqual(0, stored.Count, "all ambient stock colors calculate from independent initial-palette paint");
-        AssertEqual(36, stock.ColorPointers.Count, "title color identity count preserved");
-        AssertEqual(36, stock.ColorPointers.Distinct().Count(), "title color identities enumerate once");
+        AssertEqual(36, TitlePalettePresentationTooling.ColorPointers.Count, "title color identity count preserved");
+        AssertEqual(36, TitlePalettePresentationTooling.ColorPointers.Distinct().Count(), "title color identities enumerate once");
         for (int pointer = 0xc7fa; pointer <= 0xc87a; pointer++)
             AssertEqual(native.ContainsKey((ushort)pointer), stock.TryReadColor((ushort)pointer, out _),
                 "title ambient color domain excludes controls and unaligned bytes");
@@ -2074,21 +2074,21 @@ internal static partial class Program
             bool presentation = address is 0x8abf or 0x8ac7;
             if (presentation)
             {
-                AssertEqual((ushort)address, SkreeMetareeParticleInstructionProgramDefinitions.PresentationWordAddress(particlePresentation++), "stream4 debris presentation ordering");
+                AssertEqual((ushort)address, SkreeMetareeParticleInstructionProgramDefinitionsTooling.PresentationWordAddress(particlePresentation++), "stream4 debris presentation ordering");
                 AssertThrows<InvalidDataException>(() => SkreeMetareeParticleInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "stream4 debris presentation not mechanics");
             }
             else
             {
-                var actual = SkreeMetareeParticleInstructionProgramDefinitions.MechanicsWord(particleMechanics++);
+                var actual = SkreeMetareeParticleInstructionProgramDefinitionsTooling.MechanicsWord(particleMechanics++);
                 AssertEqual((ushort)address, actual.Address, "stream4 debris mechanics ordering");
                 AssertEqual(Word(0x860000 | address), actual.Value, "stream4 native debris mechanics");
                 AssertEqual(actual.Value, SkreeMetareeParticleInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "stream4 debris direct mechanics");
             }
             for (int half = 0; half < 2; half++)
-                AssertEqual(!presentation, SkreeMetareeParticleInstructionProgramDefinitions.IsCompiledMechanicsByte(0x860000 | (address + half)), "stream4 debris byte ownership");
+                AssertEqual(!presentation, SkreeMetareeParticleInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x860000 | (address + half)), "stream4 debris byte ownership");
         }
-        AssertEqual(particleMechanics, SkreeMetareeParticleInstructionProgramDefinitions.MechanicsWordCount, "stream4 debris mechanics count");
-        AssertEqual(particlePresentation, SkreeMetareeParticleInstructionProgramDefinitions.PresentationWordCount, "stream4 debris presentation count");
+        AssertEqual(particleMechanics, SkreeMetareeParticleInstructionProgramDefinitionsTooling.MechanicsWordCount, "stream4 debris mechanics count");
+        AssertEqual(particlePresentation, SkreeMetareeParticleInstructionProgramDefinitionsTooling.PresentationWordCount, "stream4 debris presentation count");
         int electricMechanics = 0, electricPresentation = 0;
         for (int address = 0xe683; address < 0xe6ad; address += 2)
         {
@@ -2106,19 +2106,19 @@ internal static partial class Program
                 AssertEqual(actual.Value, SaveStationElectricityInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "stream4 electricity direct mechanics");
             }
             for (int half = 0; half < 2; half++)
-                AssertEqual(!presentation, SaveStationElectricityInstructionProgramDefinitions.IsCompiledMechanicsByte(0x860000 | (address + half)), "stream4 electricity byte ownership");
+                AssertEqual(!presentation, SaveStationElectricityInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x860000 | (address + half)), "stream4 electricity byte ownership");
         }
         AssertEqual(electricMechanics, SaveStationElectricityInstructionProgramDefinitions.MechanicsWordCount, "stream4 electricity mechanics count");
         AssertEqual(electricPresentation, SaveStationElectricityInstructionProgramDefinitions.PresentationWordCount, "stream4 electricity presentation count");
         foreach (int invalid in new[] { -1, int.MaxValue })
         {
-            AssertThrows<IndexOutOfRangeException>(() => SkreeMetareeParticleInstructionProgramDefinitions.MechanicsWord(invalid), "stream4 debris mechanics bounds");
-            AssertThrows<IndexOutOfRangeException>(() => SkreeMetareeParticleInstructionProgramDefinitions.PresentationWordAddress(invalid), "stream4 debris presentation bounds");
+            AssertThrows<IndexOutOfRangeException>(() => SkreeMetareeParticleInstructionProgramDefinitionsTooling.MechanicsWord(invalid), "stream4 debris mechanics bounds");
+            AssertThrows<IndexOutOfRangeException>(() => SkreeMetareeParticleInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid), "stream4 debris presentation bounds");
             AssertThrows<IndexOutOfRangeException>(() => SaveStationElectricityInstructionProgramDefinitions.MechanicsWord(invalid), "stream4 electricity mechanics bounds");
             AssertThrows<IndexOutOfRangeException>(() => SaveStationElectricityInstructionProgramDefinitions.PresentationWordAddress(invalid), "stream4 electricity presentation bounds");
         }
-        AssertThrows<IndexOutOfRangeException>(() => SkreeMetareeParticleInstructionProgramDefinitions.MechanicsWord(particleMechanics), "stream4 debris mechanics end");
-        AssertThrows<IndexOutOfRangeException>(() => SkreeMetareeParticleInstructionProgramDefinitions.PresentationWordAddress(particlePresentation), "stream4 debris presentation end");
+        AssertThrows<IndexOutOfRangeException>(() => SkreeMetareeParticleInstructionProgramDefinitionsTooling.MechanicsWord(particleMechanics), "stream4 debris mechanics end");
+        AssertThrows<IndexOutOfRangeException>(() => SkreeMetareeParticleInstructionProgramDefinitionsTooling.PresentationWordAddress(particlePresentation), "stream4 debris presentation end");
         AssertThrows<IndexOutOfRangeException>(() => SaveStationElectricityInstructionProgramDefinitions.MechanicsWord(electricMechanics), "stream4 electricity mechanics end");
         AssertThrows<IndexOutOfRangeException>(() => SaveStationElectricityInstructionProgramDefinitions.PresentationWordAddress(electricPresentation), "stream4 electricity presentation end");
     }
@@ -2253,16 +2253,16 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => SporeSpawnProjectileDefinitions.SpawnerX(invalid), "stream4 emitter spawn domain");
         }
         Check(0xa20000, 0xb013, 0xb027, FlyInstructionProgramDefinitions.MechanicsWordCount,
-            FlyInstructionProgramDefinitions.PresentationWordCount,
+            FlyInstructionProgramDefinitionsTooling.PresentationWordCount,
             i => { var word = FlyInstructionProgramDefinitions.MechanicsWord(i); return (word.Address, word.Value); },
-            FlyInstructionProgramDefinitions.PresentationWordAddress, FlyInstructionProgramDefinitions.ReadMechanicsWord,
-            FlyInstructionProgramDefinitions.IsCompiledMechanicsByte,
+            FlyInstructionProgramDefinitionsTooling.PresentationWordAddress, FlyInstructionProgramDefinitions.ReadMechanicsWord,
+            FlyInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
             a => a is 0xb015 or 0xb019 or 0xb01d or 0xb021);
         Check(0x860000, 0xb615, 0xb62d, EyeDoorSweatInstructionProgramDefinitions.MechanicsWordCount,
             EyeDoorSweatInstructionProgramDefinitions.PresentationWordCount,
             i => { var word = EyeDoorSweatInstructionProgramDefinitions.MechanicsWord(i); return (word.Address, word.Value); },
             EyeDoorSweatInstructionProgramDefinitions.PresentationWordAddress, EyeDoorSweatInstructionProgramDefinitions.ReadMechanicsWord,
-            EyeDoorSweatInstructionProgramDefinitions.IsCompiledMechanicsByte,
+            EyeDoorSweatInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
             a => a is 0xb617 or 0xb621 or 0xb625 or 0xb629);
         for (int address = 0xb012; address <= 0xb027; address++)
             AssertEqual(address is 0xb015 or 0xb019 or 0xb01d or 0xb021,
@@ -2397,41 +2397,41 @@ internal static partial class Program
                 }
                 else
                 {
-                    var word = CeresRidleyProjectileInstructionProgramDefinitions.MechanicsWord(mechanical++);
+                    var word = CeresRidleyProjectileInstructionProgramDefinitionsTooling.MechanicsWord(mechanical++);
                     AssertEqual((ushort)address, word.Address, "Ceres ordered control word");
                     AssertEqual(Word(0x860000 | address), word.Value, "Ceres original control word");
                     AssertEqual(word.Value, CeresRidleyProjectileInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "Ceres direct control word");
                 }
-                AssertEqual(!presentation, CeresRidleyProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(0x860000 | address), "Ceres control low byte");
-                AssertEqual(!presentation, CeresRidleyProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(0x860000 | (address + 1)), "Ceres control high byte");
+                AssertEqual(!presentation, CeresRidleyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x860000 | address), "Ceres control low byte");
+                AssertEqual(!presentation, CeresRidleyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x860000 | (address + 1)), "Ceres control high byte");
                 AssertThrows<InvalidDataException>(() => CeresRidleyProjectileInstructionProgramDefinitions.ReadMechanicsWord((ushort)(address + 1)), "Ceres unaligned control word");
             }
-            AssertTrue(!CeresRidleyProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(0x850000 | program.Item1), "Ceres wrong bank rejected");
+            AssertTrue(!CeresRidleyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x850000 | program.Item1), "Ceres wrong bank rejected");
         }
         AssertEqual(42, mechanical, "Ceres total control words");
         AssertEqual(26, visual, "Ceres total presentation words");
         foreach (int address in new[] { 0x9551, 0x958c, 0x959f, 0x95ba, 0x95d2, 0x95ed, 0x9605, 0x9620 })
-            AssertTrue(!CeresRidleyProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(0x860000 | address), "Ceres bounded programs exclude adjacent code");
+            AssertTrue(!CeresRidleyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x860000 | address), "Ceres bounded programs exclude adjacent code");
         for (int index = 0; index < 2; index++)
         {
-            var word = KzanInstructionProgramDefinitions.MechanicsWord(index);
+            var word = KzanInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual((ushort)(0x8b29 + index * 4), word.Address, "Kzan draw then sleep addresses");
             AssertEqual(Word(0xa60000 | word.Address), word.Value, "Kzan original control word");
             AssertEqual(word.Value, KzanInstructionProgramDefinitions.ReadMechanicsWord(word.Address), "Kzan direct control word");
         }
         for (int offset = -1; offset <= 6; offset++)
-            AssertEqual(offset is 0 or 1 or 4 or 5, KzanInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa68b29 + offset), "Kzan exact byte coverage");
+            AssertEqual(offset is 0 or 1 or 4 or 5, KzanInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa68b29 + offset), "Kzan exact byte coverage");
         foreach (int invalid in new[] { int.MinValue, -1, 42, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => CeresRidleyProjectileInstructionProgramDefinitions.MechanicsWord(invalid), "Ceres control index bounds");
+            AssertThrows<IndexOutOfRangeException>(() => CeresRidleyProjectileInstructionProgramDefinitionsTooling.MechanicsWord(invalid), "Ceres control index bounds");
         foreach (int invalid in new[] { int.MinValue, -1, 26, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => CeresRidleyProjectileInstructionProgramDefinitions.PresentationWordAddress(invalid), "Ceres presentation index bounds");
         foreach (int invalid in new[] { int.MinValue, -1, 2, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => KzanInstructionProgramDefinitions.MechanicsWord(invalid), "Kzan control index bounds");
+            AssertThrows<IndexOutOfRangeException>(() => KzanInstructionProgramDefinitionsTooling.MechanicsWord(invalid), "Kzan control index bounds");
     }
     private static void VerifyLookupStream4DraygonPresentationLayout(ISnesAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        AssertEqual(250, DraygonInstructionProgramDefinitions.PresentationWordCount, "Native Draygon timed-record count");
+        AssertEqual(250, DraygonInstructionProgramDefinitionsTooling.PresentationWordCount, "Native Draygon timed-record count");
         byte[] identities = new byte[500];
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus",flags)!.SetValue(enemies,new ProjectileCompositionForbiddenBus());
@@ -2440,7 +2440,7 @@ internal static partial class Program
         var read = typeof(RoomEnemySystem).GetMethod("ReadEnemyVisualSelector",flags)!.CreateDelegate<Func<RoomEnemySlot,ushort,ushort>>(enemies);
         for(int index=0;index<250;index++)
         {
-            ushort address=DraygonInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort address=DraygonInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             identities[index*2]=(byte)address; identities[index*2+1]=(byte)(address>>8);
             ushort duration=(ushort)(rom.ReadByte(0xa50000+address-2)|rom.ReadByte(0xa50000+address-1)<<8);
             ushort selector=(ushort)(rom.ReadByte(0xa50000+address)|rom.ReadByte(0xa50000+address+1)<<8);
@@ -2450,7 +2450,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(()=>DraygonInstructionProgramDefinitions.ReadMechanicsWord(address),"Selector remains outside mechanics");
         }
         AssertEqual("D35407018D9032B43BC27AE2341FDBE7647C7B87D36E21BBDAB88B65C2DEFAF0",Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(identities)),"Exact ordered native selector-address identity");
-        foreach(int invalid in new[]{-1,250,int.MinValue,int.MaxValue})AssertThrows<IndexOutOfRangeException>(()=>DraygonInstructionProgramDefinitions.PresentationWordAddress(invalid),"Original presentation enumeration domain");
+        foreach(int invalid in new[]{-1,250,int.MinValue,int.MaxValue})AssertThrows<IndexOutOfRangeException>(()=>DraygonInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid),"Original presentation enumeration domain");
         Suite(nameof(VerifyDraygonInstructionProgramDefinitions), () => VerifyDraygonInstructionProgramDefinitions());
         Console.WriteLine("Draygon presentation layout:250 exact ordered native operand identities/actual selector reads,mechanics separation/domains and existing four-owner reset/IRQ proof pass.");
     }

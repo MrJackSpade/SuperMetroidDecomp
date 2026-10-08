@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled engine-control words for Magdollite's head, pillar, and hand programs.
 /// Interleaved spritemap selectors are compiled separately from editable OAM frames.
 /// </summary>
-internal abstract class MagdolliteInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
+internal abstract class MagdolliteInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Magdollite_Idling_FacingLeft</c> at $A8:AC9C.</summary>
     internal const ushort LeftIdle = 0xac9c;
@@ -53,9 +53,8 @@ internal abstract class MagdolliteInstructionProgramDefinitions : IInstructionPr
 
     /// <summary>Native program bank $A8.</summary>
     internal const byte Bank = 0xa8;
-    static int IDeclaredProgramBank.Bank => Bank;
 
-    private static readonly InstructionProgramLayout Layout = new(Bank,
+    internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xac9c),
         Entry(LeftIdle),
         Frame(13),
@@ -201,15 +200,6 @@ internal abstract class MagdolliteInstructionProgramDefinitions : IInstructionPr
         Frame(1),
         Op(CommonEnemyInstructionCodes.Sleep));
 
-    public static int MechanicsWordCount => Layout.MechanicsWordCount;
-    public static int PresentationWordCount => Layout.PresentationSlotCount;
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        (ushort address, ushort value) = Layout.MechanicsWord(index);
-        return new(address, value);
-    }
-    public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
-
     /// <summary>Whether an address is one of the 53 authored visual operands.</summary>
     internal static bool IsPresentationWord(ushort address) => Layout.IsPresentationWord(address);
 
@@ -217,6 +207,4 @@ internal abstract class MagdolliteInstructionProgramDefinitions : IInstructionPr
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(
                 $"Magdollite instruction mechanics pointer $A8:{address:X4} is not compiled.");
-
-    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

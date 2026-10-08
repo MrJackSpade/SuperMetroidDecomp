@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Game;
 /// Interleaved spritemap operands are visual identities in the installed
 /// enemy-projectile artwork catalog; mechanics remain compiled here.
 /// </summary>
-internal abstract class AlcoonFireballInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class AlcoonFireballInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProjectile_AlcoonFireball</c> at $86:9E9E.</summary>
     internal const ushort Initial = 0x9e9e;
@@ -14,16 +14,7 @@ internal abstract class AlcoonFireballInstructionProgramDefinitions : IInstructi
     /// <c>Instruction_EnemyProjectile_GotoY</c> closing the fireball loop at $86:9EAE.
     /// </summary>
     internal const ushort Loop = 0x9eae;
-
-    public static int MechanicsWordCount => 6;
     public static int PresentationWordCount => 4;
-
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        ushort address = (ushort)(Initial + (index < 4 ? 4 * index : 16 + 2 * (index - 4)));
-        return new(address, ReadMechanicsWord(address));
-    }
 
     public static ushort PresentationWordAddress(int index)
     {
@@ -45,12 +36,5 @@ internal abstract class AlcoonFireballInstructionProgramDefinitions : IInstructi
         if (address == Loop + 2) return Initial;
         throw new InvalidDataException(
             $"Alcoon-fireball instruction mechanics pointer $86:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
-        int offset = (ushort)address - Initial;
-        return (uint)offset < 20 && (offset >= 16 || offset % 4 < 2);
     }
 }

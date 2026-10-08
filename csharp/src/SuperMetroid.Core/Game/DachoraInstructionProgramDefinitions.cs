@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled engine-control words for Dachora's body and four echo actors. The eighty-one
 /// spritemap selections resolve compiled identities to installed artwork.
 /// </summary>
-internal abstract class DachoraInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
+internal abstract class DachoraInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Dachora_RunningLeft</c> at $A7:F345.</summary>
     internal const ushort RunningLeft = 0xf345;
@@ -41,9 +41,8 @@ internal abstract class DachoraInstructionProgramDefinitions : IInstructionProgr
 
     /// <summary>Native program bank $A7.</summary>
     internal const byte Bank = 0xa7;
-    static int IDeclaredProgramBank.Bank => Bank;
 
-    private static readonly InstructionProgramLayout Layout = new(Bank,
+    internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xf345),
         Entry(RunningLeft),
         Frame(5),
@@ -157,14 +156,7 @@ internal abstract class DachoraInstructionProgramDefinitions : IInstructionProgr
         Entry(FallingRight),
         Frame(5),
         Op(CommonEnemyInstructionCodes.Goto, FallingRight));
-    public static int MechanicsWordCount => Layout.MechanicsWordCount;
     public static int PresentationWordCount => Layout.PresentationSlotCount;
-
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        (ushort address, ushort value) = Layout.MechanicsWord(index);
-        return new(address, value);
-    }
 
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
@@ -172,6 +164,4 @@ internal abstract class DachoraInstructionProgramDefinitions : IInstructionProgr
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(
                 $"Dachora instruction mechanics pointer $A7:{address:X4} is not compiled.");
-
-    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

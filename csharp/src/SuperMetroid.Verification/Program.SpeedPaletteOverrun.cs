@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifySpeedPaletteOverrun()
     {
-        var rom = CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var cart = CartridgeImportSource.Require(rom);
         var colors = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(SamusFullBodyCycleColorExtractor.Extract(rom)));
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();

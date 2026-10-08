@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled engine-control words for the GRipper, Ripper II, and Ripper animation loops.
 /// Interleaved spritemap operands are selected by the installed visual catalog.
 /// </summary>
-internal abstract class RipperInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class RipperInstructionProgramDefinitions
 {
     /// <summary><c>InstList_GRipper_MovingLeft</c> at $A2:E19B.</summary>
     internal const ushort GRipperMovingLeft = 0xe19b;
@@ -33,38 +33,17 @@ internal abstract class RipperInstructionProgramDefinitions : IInstructionProgra
     /// grapple/freeze behavior or the one-tick list reset on direction reversal.</summary>
     private const ushort AlternateVisualHoldTicks = 7;
 
-    private static ushort VisualHold(int phase) =>
+    internal static ushort VisualHold(int phase) =>
         (phase & 1) == 0 ? NeutralVisualHoldTicks : AlternateVisualHoldTicks;
-    public static int MechanicsWordCount => 36;
-    public static int PresentationWordCount => 24;
 
     /// <summary>Three family pairs; each direction is four timed records followed by Goto and its target.</summary>
-    private static ushort ProgramStart(int program) => (ushort)((program / 2) switch
+    internal static ushort ProgramStart(int program) => (ushort)((program / 2) switch
     {
         0 => GRipperMovingLeft + 20 * (program & 1),
         1 => Ripper2MovingRight + 20 * (program & 1),
         2 => RipperMovingRight + 20 * (program & 1),
         _ => throw new ArgumentOutOfRangeException(nameof(program)),
     });
-
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount)
-            throw new IndexOutOfRangeException();
-        ushort start = ProgramStart(index / 6);
-        int record = index % 6;
-        int offset = record < 4 ? record * 4 : 16 + 2 * (record - 4);
-        ushort value = record < 4 ? VisualHold(record) :
-            record == 4 ? CommonEnemyInstructionCodes.Goto : start;
-        return new((ushort)(start + offset), value);
-    }
-
-    public static ushort PresentationWordAddress(int index)
-    {
-        if ((uint)index >= PresentationWordCount)
-            throw new IndexOutOfRangeException();
-        return (ushort)(ProgramStart(index / 4) + 4 * (index % 4) + 2);
-    }
 
     internal static ushort ReadMechanicsWord(ushort address)
     {
@@ -74,15 +53,7 @@ internal abstract class RipperInstructionProgramDefinitions : IInstructionProgra
             $"Ripper-family instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa20000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        return TryRead(bankAddress, out _) || TryRead(unchecked((ushort)(bankAddress - 1)), out _);
-    }
-
-    private static bool TryRead(ushort address, out ushort value)
+    internal static bool TryRead(ushort address, out ushort value)
     {
         for (int program = 0; program < 6; program++)
         {

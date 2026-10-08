@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyCompiledEnemyTrigonometry()
     {
         Suite(nameof(VerifyRidleyPowerBombNeutralTail), () => VerifyRidleyPowerBombNeutralTail());
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var bytes = new byte[128];
         var words = new ushort[128];
         for (int i = 0; i < 128; i++)

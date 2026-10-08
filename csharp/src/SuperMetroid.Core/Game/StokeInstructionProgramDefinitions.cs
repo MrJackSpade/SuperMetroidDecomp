@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled engine-control words for Stoke's walking and attack programs.
 /// Interleaved spritemap operands are selected by the installed visual catalog.
 /// </summary>
-internal abstract class StokeInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class StokeInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Stoke_MovingLeft_0</c> at $A2:8932.</summary>
     internal const ushort MovingLeft = 0x8932;
@@ -23,7 +23,6 @@ internal abstract class StokeInstructionProgramDefinitions : IInstructionProgram
     private static readonly ushort[] WalkingFrameDurations = [8, 16, 8, 8];
     // Attack holds of 16 are the same authored cadence (reviewed under #1165).
     public static int MechanicsWordCount => 26;
-    public static int PresentationWordCount => 12;
 
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
@@ -51,15 +50,6 @@ internal abstract class StokeInstructionProgramDefinitions : IInstructionProgram
         };
         return new((ushort)(attack + offset), value);
     }
-
-    public static ushort PresentationWordAddress(int index)
-    {
-        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
-        int local = index % 6;
-        ushort move = index < 6 ? MovingLeft : MovingRight;
-        ushort attack = index < 6 ? AttackingLeft : AttackingRight;
-        return (ushort)(local < 4 ? move + 4 + 4 * local : attack + 2 + 8 * (local - 4));
-    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
@@ -78,24 +68,5 @@ internal abstract class StokeInstructionProgramDefinitions : IInstructionProgram
 
         throw new InvalidDataException(
             $"Stoke instruction mechanics pointer $A2:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa20000)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

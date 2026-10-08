@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled engine-control words for Viola's four surface entry programs and shared normal
 /// loop. The fourteen interleaved spritemap operands remain live cartridge presentation data.
 /// </summary>
-internal abstract class ViolaInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class ViolaInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Viola_UpsideRight</c> at $A3:B5E3.</summary>
     internal const ushort UpsideRight = 0xb5e3;
@@ -66,22 +66,5 @@ internal abstract class ViolaInstructionProgramDefinitions : IInstructionProgram
 
         throw new InvalidDataException(
             $"Viola instruction mechanics pointer $A3:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa30000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 }

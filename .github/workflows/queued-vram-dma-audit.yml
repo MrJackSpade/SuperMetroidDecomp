@@ -3,9 +3,9 @@ name: Static queued VRAM DMA audit
 on:
   workflow_dispatch:
   push:
-    paths: ['csharp/src/SuperMetroid.Core/**', 'csharp/src/SuperMetroid.AssetExtraction/**', 'csharp/src/SuperMetroid.ResourceAudit/**', '.github/workflows/queued-vram-dma-audit.yml']
+    paths: ['csharp/src/SuperMetroid.Core/**', 'csharp/src/SuperMetroid.AssetExtraction/**', 'csharp/src/SuperMetroid.Tooling/**', 'csharp/src/SuperMetroid.ResourceAudit/**', '.github/workflows/queued-vram-dma-audit.yml']
   pull_request:
-    paths: ['csharp/src/SuperMetroid.Core/**', 'csharp/src/SuperMetroid.AssetExtraction/**', 'csharp/src/SuperMetroid.ResourceAudit/**', '.github/workflows/queued-vram-dma-audit.yml']
+    paths: ['csharp/src/SuperMetroid.Core/**', 'csharp/src/SuperMetroid.AssetExtraction/**', 'csharp/src/SuperMetroid.Tooling/**', 'csharp/src/SuperMetroid.ResourceAudit/**', '.github/workflows/queued-vram-dma-audit.yml']
 
 permissions:
   contents: read

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Game;
 /// records. Physical frame selectors are compiled separately; installed display
 /// bindings may replace their BG2/OAM art without changing mechanics or timing.
 /// </summary>
-internal abstract class PhantoonInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class PhantoonInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Phantoon_Body_Invulnerable</c> at $A7:CC41.</summary>
     public const ushort InvulnerableBody = 0xcc41;
@@ -205,23 +205,5 @@ internal abstract class PhantoonInstructionProgramDefinitions : IInstructionProg
 
         throw new InvalidDataException(
             $"Phantoon instruction mechanics pointer $A7:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa70000)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 }

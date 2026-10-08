@@ -7,9 +7,9 @@ internal static partial class Program
     private static void VerifyCrocomireSkeletonFrameGeometry(SuperMetroidAddressSpace rom)
     {
         var selected = new SortedSet<ushort>();
-        for (int index = 0; index < CrocomireInstructionProgramDefinitions.PresentationWordCount; index++)
+        for (int index = 0; index < CrocomireInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
         {
-            int operand = 0xa40000 | CrocomireInstructionProgramDefinitions.PresentationWordAddress(index);
+            int operand = 0xa40000 | CrocomireInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             ushort pointer = (ushort)(rom.ReadByte(operand) | rom.ReadByte(operand + 1) << 8);
             if (pointer >= 0xe1fe) selected.Add(pointer);
         }

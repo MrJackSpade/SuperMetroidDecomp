@@ -14,14 +14,14 @@ internal static partial class Program
         const BindingFlags staticFlags = BindingFlags.Static | BindingFlags.NonPublic;
         ushort ceresRidleyDefinition = (ushort)typeof(RoomEnemySystem)
             .GetField("CeresRidleyDefinition", staticFlags)!.GetRawConstantValue()!;
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         for (int index = 0;
-             index < RidleyInstructionProgramDefinitions.MechanicsWordCount;
+             index < RidleyInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                RidleyInstructionProgramDefinitions.MechanicsWord(index);
+                RidleyInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(
                 ReadRidleyWord(rom, 0xa60000 | definition.Address),
                 definition.Value,
@@ -61,14 +61,14 @@ internal static partial class Program
         AssertEqual(0,
             guard.ObservedPresentationWords.Count,
             "Ridley extended-spritemap selection performs zero live cartridge reads");
-        AssertEqual(RidleyInstructionProgramDefinitions.PresentationWordCount, executedOperands.Count,
+        AssertEqual(RidleyInstructionProgramDefinitionsTooling.PresentationWordCount, executedOperands.Count,
             "Ridley programs execute every native visual operand");
         for (int index = 0;
-             index < RidleyInstructionProgramDefinitions.PresentationWordCount;
+             index < RidleyInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
             ushort address =
-                RidleyInstructionProgramDefinitions.PresentationWordAddress(index);
+                RidleyInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertTrue(executedOperands.Contains(address),
                 $"production execution selects Ridley presentation $A6:{address:X4}");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa6, address, out ushort selector),
@@ -93,9 +93,9 @@ internal static partial class Program
 
         Console.WriteLine(
             $"Ridley instruction mechanics: " +
-            $"{RidleyInstructionProgramDefinitions.MechanicsWordCount} compiled words, " +
+            $"{RidleyInstructionProgramDefinitionsTooling.MechanicsWordCount} compiled words, " +
             "nine production entry programs, both facing paths, and " +
-            $"{RidleyInstructionProgramDefinitions.PresentationWordCount} native " +
+            $"{RidleyInstructionProgramDefinitionsTooling.PresentationWordCount} native " +
             "extended-sprite selections pass with zero live operand reads.");
     }
 
@@ -179,7 +179,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (RidleyInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (RidleyInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -190,11 +190,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < RidleyInstructionProgramDefinitions.PresentationWordCount;
+                     index < RidleyInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        RidleyInstructionProgramDefinitions.PresentationWordAddress(index);
+                        RidleyInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

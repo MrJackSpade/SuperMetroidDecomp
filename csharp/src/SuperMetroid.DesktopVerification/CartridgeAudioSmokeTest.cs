@@ -17,7 +17,7 @@ public static class CartridgeAudioSmokeTest
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(frames);
 
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         var queue = new CartridgeAudioState();
         queue.QueueMusicDelayed8(MusicCommand.LoadData(0x03));
         queue.QueueMusicDelayed8(MusicCommand.SelectTrack(5));

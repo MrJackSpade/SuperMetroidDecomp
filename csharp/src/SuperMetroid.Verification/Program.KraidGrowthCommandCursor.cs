@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyKraidGrowthCommandCursor()
     {
-        var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var guard = new KraidHeadProgramReadGuard(rom);
         var referenceArt = new EnemyIdentityFixture().Build().KraidBackground!;
         var head = KraidHeadTilemapAtlas.Load(new MemoryStream(KraidHeadTilemapAtlas.Encode(

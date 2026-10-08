@@ -191,7 +191,6 @@ static void VerifyDoorOpeningTrajectories()
         var door = new CartridgeDoorHeader(
             Pointer: 0x8000,
             DestinationRoomPointer: 0x9000,
-            BitFlags: 0,
             Orientation: (byte)direction,
             PlmX: 0,
             PlmY: 0,

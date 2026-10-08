@@ -10,12 +10,12 @@ internal static partial class Program
 {
     private static void VerifyXrayInput()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BrinstarShutterRoom);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom);
         var samus = runtime.Samus!;
         samus.InputLocked = false;
         samus.Pose = SamusPoseIds.FacingRightNormalPose;
@@ -66,7 +66,7 @@ internal static partial class Program
         if (Environment.GetCommandLineArgs().Contains("--xray-input"))
         {
             Directory.CreateDirectory("csharp/test-temp/issue-348-xray");
-            PngWriter.WriteRgba("csharp/test-temp/issue-348-xray/horizontal.png", 256, 224, horizontalPixels);
+            PngWriterTooling.WriteRgba("csharp/test-temp/issue-348-xray/horizontal.png", 256, 224, horizontalPixels);
             File.WriteAllBytes("csharp/test-temp/issue-348-xray/horizontal.smframe",
                 RenderFrameSnapshotCodec.Serialize(new(new(1, 1, 0), horizontal)));
         }
@@ -90,7 +90,7 @@ internal static partial class Program
             AssertEqual(frozenMap[i], (ushort)(captured.Memory.Vram[offset] | captured.Memory.Vram[offset + 1] << 8), "captured BG2 is the setup-owned reveal map");
         }
         if (Environment.GetCommandLineArgs().Contains("--xray-input"))
-            PngWriter.WriteRgba("csharp/test-temp/issue-348-xray/aimed.png", 256, 224, pixels);
+            PngWriterTooling.WriteRgba("csharp/test-temp/issue-348-xray/aimed.png", 256, 224, pixels);
         var beforeRelease = RenderFrameSnapshotCodec.Serialize(new(new(1, 1, 0), captured));
         runtime.StepFrame(0);
         var releaseEdge = GameplayDisplayCapture.TryCaptureFrame(runtime)!;

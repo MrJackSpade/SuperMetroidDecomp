@@ -68,11 +68,11 @@ internal static partial class Program
         var mechanicsAddresses = new HashSet<ushort>();
         int transfers = 0;
         for (int index = 0;
-             index < GoldenTorizoAwakeningInstructionProgramDefinitions.MechanicsWordCount;
+             index < GoldenTorizoAwakeningInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord word =
-                GoldenTorizoAwakeningInstructionProgramDefinitions.MechanicsWord(index);
+                GoldenTorizoAwakeningInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertTrue(mechanicsAddresses.Add(word.Address),
                 $"Golden Torizo awakening mechanics $AA:{word.Address:X4} is unique");
             AssertTrue(word.Address >= GoldenTorizoAwakeningInstructionProgramDefinitions.Start &&
@@ -84,9 +84,9 @@ internal static partial class Program
                     .TryReadMechanicsWord(word.Address, out ushort selected) &&
                        selected == word.Value,
                 $"Golden Torizo awakening word $AA:{word.Address:X4} lookup");
-            AssertTrue(GoldenTorizoAwakeningInstructionProgramDefinitions
+            AssertTrue(GoldenTorizoAwakeningInstructionProgramDefinitionsTooling
                     .IsCompiledMechanicsByte((bank << 16) | word.Address) &&
-                       GoldenTorizoAwakeningInstructionProgramDefinitions
+                       GoldenTorizoAwakeningInstructionProgramDefinitionsTooling
                     .IsCompiledMechanicsByte((bank << 16) |
                         unchecked((ushort)(word.Address + 1))),
                 $"Golden Torizo awakening word $AA:{word.Address:X4} owns both bytes");

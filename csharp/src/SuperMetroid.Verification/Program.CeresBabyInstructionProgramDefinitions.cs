@@ -18,7 +18,7 @@ internal static partial class Program
             return;
         }
 
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         for (int index = 0;
              index < CeresBabyInstructionProgramDefinitions.MechanicsWordCount;
              index++)
@@ -266,7 +266,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (CeresBabyInstructionProgramDefinitions.IsCompiledMechanicsByte(address) ||
+            if (CeresBabyInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
                 CeresBabyInstructionProgramDefinitions.IsCompiledSpritemapByte(address) ||
                 CeresBabyInstructionProgramDefinitions.IsCompiledPaletteByte(address) ||
                 address is >= CeresRidleyPaletteRomData.BabyColors and <

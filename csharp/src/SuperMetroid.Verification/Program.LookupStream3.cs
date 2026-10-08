@@ -183,7 +183,7 @@ internal static partial class Program
     {
         ushort[] nativeOperands = [0x9a46, 0x9a4a, 0x9a4e, 0x9a5a, 0x9a66, 0x9a72,
             0x9a7e, 0x9a8a, 0x9a96, 0x9aa2, 0x9aae, 0x9ab2, 0x9ab8, 0x9abc, 0x9ac0];
-        IReadOnlyList<ushort> calculated = MotherBrainHandBeamBodyInstructionDefinitions.PresentationOperands;
+        IReadOnlyList<ushort> calculated = MotherBrainHandBeamBodyInstructionDefinitionsTooling.PresentationOperands;
         AssertEqual(nativeOperands.Length, calculated.Count, "hand-beam body visual operand count");
         for (int index = 0; index < nativeOperands.Length; index++)
             AssertEqual(nativeOperands[index], calculated[index], $"hand-beam body native operand {index}");
@@ -1271,10 +1271,10 @@ internal static partial class Program
                 MotherBrainTurretInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "stream 3 turret calculated word read");
         for (int address = 0; address <= ushort.MaxValue; address++)
             AssertEqual(turretMechanics.Contains(address) || turretMechanics.Contains(address - 1),
-                MotherBrainTurretInstructionProgramDefinitions.IsCompiledMechanicsByte(0x860000 | address),
+                MotherBrainTurretInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x860000 | address),
                 "stream 3 turret mechanics byte ownership domain");
         foreach (int invalid in new[] { -1, 49, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => MotherBrainTurretInstructionProgramDefinitions.MechanicsWord(invalid), "stream 3 turret mechanics index bounds");
+            AssertThrows<IndexOutOfRangeException>(() => MotherBrainTurretInstructionProgramDefinitionsTooling.MechanicsWord(invalid), "stream 3 turret mechanics index bounds");
         foreach (int invalid in new[] { -1, 21, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => MotherBrainTurretInstructionProgramDefinitions.PresentationWordAddress(invalid), "stream 3 turret visual index bounds");
         foreach (MotherBrainContactPart part in Enum.GetValues<MotherBrainContactPart>())
@@ -2120,19 +2120,19 @@ internal static partial class Program
         Check(0xa30000, [0xa745, 0xa759],
             index =>
             {
-                var word = MochtroidInstructionProgramDefinitions.MechanicsWord(index);
+                var word = MochtroidInstructionProgramDefinitionsTooling.MechanicsWord(index);
                 return (word.Address, word.Value);
-            }, MochtroidInstructionProgramDefinitions.PresentationWordAddress,
+            }, MochtroidInstructionProgramDefinitionsTooling.PresentationWordAddress,
             MochtroidInstructionProgramDefinitions.ReadMechanicsWord,
-            MochtroidInstructionProgramDefinitions.IsCompiledMechanicsByte);
+            MochtroidInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte);
         Check(0xb30000, [0x8efc, 0x8f10, 0x8f24, 0x8f38],
             index =>
             {
-                var word = YellowPipeBugInstructionProgramDefinitions.MechanicsWord(index);
+                var word = YellowPipeBugInstructionProgramDefinitionsTooling.MechanicsWord(index);
                 return (word.Address, word.Value);
-            }, YellowPipeBugInstructionProgramDefinitions.PresentationWordAddress,
+            }, YellowPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress,
             YellowPipeBugInstructionProgramDefinitions.ReadMechanicsWord,
-            YellowPipeBugInstructionProgramDefinitions.IsCompiledMechanicsByte);
+            YellowPipeBugInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte);
 
         void Check(int bank, ushort[] starts,
             Func<int, (ushort Address, ushort Value)> wordAt, Func<int, ushort> visualAt,
@@ -2179,7 +2179,7 @@ internal static partial class Program
             {
                 ushort address = (ushort)(start + offset);
                 ushort value = (ushort)(rom.ReadByte(0xa20000 | address) | rom.ReadByte(0xa20000 | (address + 1)) << 8);
-                AssertEqual(new InstructionMechanicsWord(address, value), RipperInstructionProgramDefinitions.MechanicsWord(wordIndex++),
+                AssertEqual(new InstructionMechanicsWord(address, value), RipperInstructionProgramDefinitionsTooling.MechanicsWord(wordIndex++),
                     "stream 3 Ripper mechanic order and value");
                 bytes.Add(address);
                 bytes.Add(address + 1);
@@ -2187,7 +2187,7 @@ internal static partial class Program
             for (int frame = 0; frame < 4; frame++)
             {
                 ushort address = (ushort)(start + 4 * frame + 2);
-                AssertEqual(address, RipperInstructionProgramDefinitions.PresentationWordAddress(visualIndex++),
+                AssertEqual(address, RipperInstructionProgramDefinitionsTooling.PresentationWordAddress(visualIndex++),
                     "stream 3 Ripper visual operand order");
                 if (start < 0xe477)
                 {
@@ -2200,13 +2200,13 @@ internal static partial class Program
             }
         }
         for (int address = 0; address <= ushort.MaxValue; address++)
-            AssertEqual(bytes.Contains(address), RipperInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa20000 | address),
+            AssertEqual(bytes.Contains(address), RipperInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa20000 | address),
                 "stream 3 Ripper byte ownership domain");
         foreach (int invalid in new[] { -1, 36, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => RipperInstructionProgramDefinitions.MechanicsWord(invalid),
+            AssertThrows<IndexOutOfRangeException>(() => RipperInstructionProgramDefinitionsTooling.MechanicsWord(invalid),
                 "stream 3 Ripper mechanic bounds");
         foreach (int invalid in new[] { -1, 24, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => RipperInstructionProgramDefinitions.PresentationWordAddress(invalid),
+            AssertThrows<IndexOutOfRangeException>(() => RipperInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid),
                 "stream 3 Ripper visual bounds");
         foreach (ushort invalid in new ushort[] { 0xe19b, 0xe1ad, 0xe1bf, 0xe477, 0xffff })
             AssertThrows<InvalidDataException>(() => RipperVisualDefinitions.FrameAt(RoomEnemySystem.GRipperDefinition, invalid),
@@ -2230,20 +2230,20 @@ internal static partial class Program
                 "stream 3 Choot rejects alias and invalid patterns");
         ushort[] mechanics = [0xd82c, 0xd82e, 0xd832, 0xd834, 0xd836, 0xd83a, 0xd83e, 0xd840, 0xd842, 0xd846, 0xd84a];
         ushort[] presentation = [0xd830, 0xd838, 0xd83c, 0xd844, 0xd848];
-        AssertEqual(mechanics.Length, ChootInstructionProgramDefinitions.MechanicsWordCount, "stream 3 Choot mechanics count");
-        AssertEqual(presentation.Length, ChootInstructionProgramDefinitions.PresentationWordCount, "stream 3 Choot visual count");
+        AssertEqual(mechanics.Length, ChootInstructionProgramDefinitionsTooling.MechanicsWordCount, "stream 3 Choot mechanics count");
+        AssertEqual(presentation.Length, ChootInstructionProgramDefinitionsTooling.PresentationWordCount, "stream 3 Choot visual count");
         for (int index = 0; index < mechanics.Length; index++)
         {
             ushort address = mechanics[index];
             ushort value = Read(0xa20000 | address);
-            AssertEqual(new InstructionMechanicsWord(address, value), ChootInstructionProgramDefinitions.MechanicsWord(index),
+            AssertEqual(new InstructionMechanicsWord(address, value), ChootInstructionProgramDefinitionsTooling.MechanicsWord(index),
                 "stream 3 Choot native control instruction");
             AssertEqual(value, ChootInstructionProgramDefinitions.ReadMechanicsWord(address), "stream 3 Choot control dispatch");
         }
         for (int index = 0; index < presentation.Length; index++)
         {
             ushort address = presentation[index];
-            AssertEqual(address, ChootInstructionProgramDefinitions.PresentationWordAddress(index), "stream 3 Choot visual operand");
+            AssertEqual(address, ChootInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "stream 3 Choot visual operand");
             AssertThrows<InvalidDataException>(() => ChootInstructionProgramDefinitions.ReadMechanicsWord(address),
                 "stream 3 Choot visual operand remains excluded");
         }
@@ -2251,16 +2251,16 @@ internal static partial class Program
         var visualWords = presentation.ToHashSet();
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
-            AssertEqual(bytes.Contains(address), ChootInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa20000 | address),
+            AssertEqual(bytes.Contains(address), ChootInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa20000 | address),
                 "stream 3 Choot byte ownership");
             AssertEqual(visualWords.Contains((ushort)address), ChootInstructionProgramDefinitions.IsPresentationWord((ushort)address),
                 "stream 3 Choot presentation ownership");
         }
         foreach (int invalid in new[] { -1, 11, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => ChootInstructionProgramDefinitions.MechanicsWord(invalid),
+            AssertThrows<IndexOutOfRangeException>(() => ChootInstructionProgramDefinitionsTooling.MechanicsWord(invalid),
                 "stream 3 Choot mechanics bounds");
         foreach (int invalid in new[] { -1, 5, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => ChootInstructionProgramDefinitions.PresentationWordAddress(invalid),
+            AssertThrows<IndexOutOfRangeException>(() => ChootInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid),
                 "stream 3 Choot visual bounds");
     }
 
@@ -2293,7 +2293,7 @@ internal static partial class Program
             0xed8f, 0xed93, 0xed97, 0xed9b, 0xeda5, 0xeda9, 0xedad, 0xedb1,
             0xedbb, 0xedbf, 0xeddf, 0xede3, 0xeded, 0xedf1, 0xedf5, 0xedf9,
         ];
-        AssertEqual(pickupMechanics.Length, EnemyPickupInstructionProgramDefinitions.MechanicsWordCount,
+        AssertEqual(pickupMechanics.Length, EnemyPickupInstructionProgramDefinitionsTooling.MechanicsWordCount,
             "stream 3 pickup mechanic count");
         AssertEqual(pickupPresentation.Length, EnemyPickupInstructionProgramDefinitions.PresentationWordCount,
             "stream 3 pickup visual operand count");
@@ -2301,7 +2301,7 @@ internal static partial class Program
         {
             ushort address = pickupMechanics[index];
             AssertEqual(new InstructionMechanicsWord(address, Read(0x860000 | address)),
-                EnemyPickupInstructionProgramDefinitions.MechanicsWord(index), "stream 3 native pickup mechanic");
+                EnemyPickupInstructionProgramDefinitionsTooling.MechanicsWord(index), "stream 3 native pickup mechanic");
             AssertEqual(Read(0x860000 | address), EnemyPickupInstructionProgramDefinitions.ReadMechanicsWord(address),
                 "stream 3 pickup mechanic dispatch");
         }
@@ -2322,22 +2322,22 @@ internal static partial class Program
                 "stream 3 pickup ownership domain");
             AssertEqual(owned, EnemyPickupInstructionProgramDefinitions.Owns(RoomEnemyProjectileKind.EnemyDeathExplosion, (ushort)address),
                 "stream 3 explosion pickup ownership domain");
-            AssertEqual(byteSet.Contains(address), EnemyPickupInstructionProgramDefinitions.IsCompiledMechanicsByte(0x860000 | address),
+            AssertEqual(byteSet.Contains(address), EnemyPickupInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x860000 | address),
                 "stream 3 pickup byte ownership domain");
         }
         AssertTrue(!EnemyPickupInstructionProgramDefinitions.Owns(RoomEnemyProjectileKind.ShaktoolAttackFrontCircle, pickupMechanics[0]),
             "stream 3 unrelated actor does not own pickup instructions");
-        AssertTrue(!EnemyPickupInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa3ed8d),
+        AssertTrue(!EnemyPickupInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa3ed8d),
             "stream 3 pickup excludes other bank");
 
-        AssertEqual(54, FirefleaInstructionProgramDefinitions.MechanicsWordCount, "stream 3 Fireflea mechanic count");
-        AssertEqual(52, FirefleaInstructionProgramDefinitions.PresentationWordCount, "stream 3 Fireflea visual count");
+        AssertEqual(54, FirefleaInstructionProgramDefinitionsTooling.MechanicsWordCount, "stream 3 Fireflea mechanic count");
+        AssertEqual(52, FirefleaInstructionProgramDefinitionsTooling.PresentationWordCount, "stream 3 Fireflea visual count");
         var fireBytes = new HashSet<int>();
         for (int index = 0; index < 54; index++)
         {
             ushort address = (ushort)(index < 52 ? 0x8c2f + index * 4 : 0x8cff + (index - 52) * 2);
             ushort value = Read(0xa30000 | address);
-            AssertEqual(new InstructionMechanicsWord(address, value), FirefleaInstructionProgramDefinitions.MechanicsWord(index),
+            AssertEqual(new InstructionMechanicsWord(address, value), FirefleaInstructionProgramDefinitionsTooling.MechanicsWord(index),
                 "stream 3 native Fireflea mechanic");
             AssertEqual(value, FirefleaInstructionProgramDefinitions.ReadMechanicsWord(address),
                 "stream 3 Fireflea mechanic dispatch");
@@ -2346,26 +2346,26 @@ internal static partial class Program
             if (index < 52)
             {
                 ushort visual = (ushort)(address + 2);
-                AssertEqual(visual, FirefleaInstructionProgramDefinitions.PresentationWordAddress(index),
+                AssertEqual(visual, FirefleaInstructionProgramDefinitionsTooling.PresentationWordAddress(index),
                     "stream 3 Fireflea visual operand");
                 AssertThrows<InvalidDataException>(() => FirefleaInstructionProgramDefinitions.ReadMechanicsWord(visual),
                     "stream 3 Fireflea visual remains excluded");
             }
         }
         for (int address = 0; address <= ushort.MaxValue; address++)
-            AssertEqual(fireBytes.Contains(address), FirefleaInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa30000 | address),
+            AssertEqual(fireBytes.Contains(address), FirefleaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa30000 | address),
                 "stream 3 Fireflea byte ownership domain");
         foreach (int invalid in new[] { -1, 30, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => EnemyPickupInstructionProgramDefinitions.MechanicsWord(invalid),
+            AssertThrows<IndexOutOfRangeException>(() => EnemyPickupInstructionProgramDefinitionsTooling.MechanicsWord(invalid),
                 "stream 3 pickup mechanic bounds");
         foreach (int invalid in new[] { -1, 16, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => EnemyPickupInstructionProgramDefinitions.PresentationWordAddress(invalid),
                 "stream 3 pickup visual bounds");
         foreach (int invalid in new[] { -1, 54, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => FirefleaInstructionProgramDefinitions.MechanicsWord(invalid),
+            AssertThrows<IndexOutOfRangeException>(() => FirefleaInstructionProgramDefinitionsTooling.MechanicsWord(invalid),
                 "stream 3 Fireflea mechanic bounds");
         foreach (int invalid in new[] { -1, 52, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => FirefleaInstructionProgramDefinitions.PresentationWordAddress(invalid),
+            AssertThrows<IndexOutOfRangeException>(() => FirefleaInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid),
                 "stream 3 Fireflea visual bounds");
     }
 
@@ -2623,7 +2623,7 @@ internal static partial class Program
         for (int frame = 0; frame < MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount; frame++)
         {
             ushort entry = checked((ushort)(MotherBrainRoomPaletteProgramDefinitions.FlashStart + frame * MotherBrainRoomColorRomData.TimedEntryByteCount));
-            int operand = MotherBrainRoomColorRomData.SourceBank + entry + MotherBrainRoomColorRomData.PaletteOperandByteOffset;
+            int operand = MotherBrainRoomColorRomData.SourceBank + entry + MotherBrainRoomColorRomDataTooling.PaletteOperandByteOffset;
             int source = MotherBrainRoomColorRomData.SourceBank | rom.ReadByte(operand) | rom.ReadByte(operand + 1) << 8;
             var actual = new SnesCgram();
             stock.ApplyFlash(actual, entry);
@@ -3004,17 +3004,17 @@ internal static partial class Program
         mechanics.Add(0xc7fa);
         for (int address = 0xc795; address <= 0xc7fb; address++)
         {
-            AssertEqual(mechanics.Contains(address), MotherBrainHandBeamInstructionProgramDefinitions.IsCompiledMechanicsByte(0x860000 | address),
+            AssertEqual(mechanics.Contains(address), MotherBrainHandBeamInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x860000 | address),
                 "hand-beam exact mechanics/callback byte ownership");
             AssertEqual(presentation.Contains(address), MotherBrainHandBeamInstructionProgramDefinitions.IsPresentationByte(0x860000 | address),
                 "hand-beam exact visual byte ownership");
         }
-        AssertTrue(!MotherBrainHandBeamInstructionProgramDefinitions.IsCompiledMechanicsByte(0x85c796), "hand-beam mechanics rejects other bank");
+        AssertTrue(!MotherBrainHandBeamInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x85c796), "hand-beam mechanics rejects other bank");
         AssertTrue(!MotherBrainHandBeamInstructionProgramDefinitions.IsPresentationByte(0x85c798), "hand-beam artwork rejects other bank");
         foreach (int index in new[] { -1, 21, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => MotherBrainHandBeamInstructionProgramDefinitions.PresentationWordAddress(index), "hand-beam visual index domain");
         foreach (int index in new[] { -1, 25, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainHandBeamInstructionProgramDefinitions.NativeWord(index), "hand-beam mechanics index domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainHandBeamInstructionProgramDefinitionsTooling.NativeWord(index), "hand-beam mechanics index domain");
         foreach (int index in new[] { -1, 3, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallInstruction(index), "hand-beam callback index domain");
     }
@@ -3022,25 +3022,25 @@ internal static partial class Program
     {
         ushort[] mechanics = [0xcfa2,0xcfa6,0xcfaa,0xcfae,0xcfb2,0xcfb8,0xcfbc,0xcfc0,0xcfc4,0xcfc8,0xcfce,0xcfd2];
         ushort[] visual = [0xcfa4,0xcfa8,0xcfac,0xcfb0,0xcfba,0xcfbe,0xcfc2,0xcfc6,0xcfd0];
-        AssertEqual(mechanics.Length, MotherBrainBabyInstructionProgramDefinitions.MechanicsWordCount, "Baby native mechanics count");
-        AssertEqual(visual.Length, MotherBrainBabyInstructionProgramDefinitions.PresentationWordCount, "Baby native visual count");
+        AssertEqual(mechanics.Length, MotherBrainBabyInstructionProgramDefinitionsTooling.MechanicsWordCount, "Baby native mechanics count");
+        AssertEqual(visual.Length, MotherBrainBabyInstructionProgramDefinitionsTooling.PresentationWordCount, "Baby native visual count");
         for (int index = 0; index < mechanics.Length; index++)
         {
-            var word = MotherBrainBabyInstructionProgramDefinitions.MechanicsWord(index);
+            var word = MotherBrainBabyInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(mechanics[index], word.Address, "Baby exact native mechanics enumeration");
             AssertEqual((ushort)(rom.ReadByte(0xa90000 | word.Address) | rom.ReadByte(0xa90000 | (word.Address + 1)) << 8),
                 word.Value, "Baby exact native mechanics operand");
         }
         for (int index = 0; index < visual.Length; index++)
-            AssertEqual(visual[index], MotherBrainBabyInstructionProgramDefinitions.PresentationWordAddress(index), "Baby exact native visual enumeration");
+            AssertEqual(visual[index], MotherBrainBabyInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "Baby exact native visual enumeration");
         for (int address = 0xcfa1; address <= 0xcfd4; address++)
             if (!mechanics.Contains((ushort)address))
                 AssertThrows<InvalidDataException>(() => MotherBrainBabyInstructionProgramDefinitions.ReadMechanicsWord((ushort)address),
                     "Baby program rejects operand bytes and adjacent callbacks as mechanics");
         foreach (int index in new[] { -1,12,int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => MotherBrainBabyInstructionProgramDefinitions.MechanicsWord(index), "Baby mechanics enumeration domain");
+            AssertThrows<IndexOutOfRangeException>(() => MotherBrainBabyInstructionProgramDefinitionsTooling.MechanicsWord(index), "Baby mechanics enumeration domain");
         foreach (int index in new[] { -1,9,int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => MotherBrainBabyInstructionProgramDefinitions.PresentationWordAddress(index), "Baby visual enumeration domain");
+            AssertThrows<IndexOutOfRangeException>(() => MotherBrainBabyInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "Baby visual enumeration domain");
     }
     private static void VerifyStream3MotherBrainAttackPalette(ISnesAddressSpace rom)
     {
@@ -3316,7 +3316,7 @@ internal static partial class Program
         try
         {
             string source = Path.GetFullPath("Super Metroid.smc");
-            var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(source);
+            var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(source);
             byte[] native = SuperMetroid.Core.Rom.RomDataReader.Decompress(rom,
                 IntroCinematicRomData.Assets.FirstNarrationTilemap, maximumOutputBytes: 2048);
             var installation = SuperMetroid.AssetExtraction.GameAssetInstaller.Install(source, root);
@@ -3454,7 +3454,7 @@ internal static partial class Program
     }
     private static void VerifyStream3IntroFont()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] native = SuperMetroid.Core.Rom.RomDataReader.Decompress(rom,
             IntroCinematicRomData.Assets.FontOne, maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
         var stock = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.IntroFontAtlasExtractor.Extract(rom)));
@@ -3507,7 +3507,7 @@ internal static partial class Program
         try
         {
             string source = Path.GetFullPath("Super Metroid.smc");
-            var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(source);
+            var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(source);
             byte[] native = SuperMetroid.Core.Rom.RomDataReader.Decompress(rom,
                 IntroCinematicRomData.Assets.BackgroundPageTilemaps, maximumOutputBytes: 8192);
             var installation = SuperMetroid.AssetExtraction.GameAssetInstaller.Install(source, root);
@@ -3564,7 +3564,7 @@ internal static partial class Program
 
     private static void VerifyStream3WorkRobotRegistry()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         EnemySpritemapDefinition[] frames = WorkRobotVisualDefinitions.Frames().ToArray();
         AssertEqual(27, frames.Length, "all Work Robot registration identities");
         string identities = string.Concat(frames.Select(frame => $"{frame.Bank:x2}:{frame.Pointer:x4}:{frame.Name}\n"));
@@ -3592,7 +3592,7 @@ internal static partial class Program
 
     private static void VerifyStream3ShaktoolRegistry()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         EnemySpritemapDefinition[] frames = ShaktoolVisualDefinitions.Frames().ToArray();
         AssertEqual(15, frames.Length, "all Shaktool registration identities");
         string identities = string.Concat(frames.Select(frame => $"{frame.Bank:x2}:{frame.Pointer:x4}:{frame.Name}\n"));
@@ -3613,8 +3613,8 @@ internal static partial class Program
 
     private static void VerifyStream3NintendoFadeEntries()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var entries = NintendoLogoFadePaletteFxProgramMechanicsDefinitions.All;
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var entries = NintendoLogoFadePaletteFxProgramMechanicsDefinitionsTooling.All;
         AssertEqual(2, entries.Count, "both semantic Nintendo fade entries");
         foreach (var entry in new[]
         {
@@ -3656,7 +3656,7 @@ internal static partial class Program
         try
         {
             string source = Path.GetFullPath("Super Metroid.smc");
-            var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(source);
+            var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(source);
             byte[] native = SuperMetroid.Core.Rom.RomDataReader.Decompress(rom,
                 IntroCinematicRomData.Assets.SamusHeadTilemap, maximumOutputBytes: 2048);
             var installation = SuperMetroid.AssetExtraction.GameAssetInstaller.Install(source, root);

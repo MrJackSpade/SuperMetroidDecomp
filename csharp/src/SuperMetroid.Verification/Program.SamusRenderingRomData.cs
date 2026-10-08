@@ -26,7 +26,7 @@ internal static partial class Program
             return;
         }
 
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         int poseCount = CatalogFields.Of(typeof(SamusPoseIds), BindingFlags.Public | BindingFlags.Static)
             .Where(field => field.IsLiteral && field.FieldType == typeof(byte))
             .Select(field => (byte)field.GetRawConstantValue()!)

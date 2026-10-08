@@ -1,4 +1,3 @@
-using System.Text.Json;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -30,54 +29,26 @@ internal static partial class Program
 {
     /// <summary>
     /// Compares every freshly exported lossless area-map artifact with its originating cartridge
-    /// range and checks the decoded room-placement inventory used by map tooling.
+    /// range and checks the station-visible and secret-only coverage counts.
     /// </summary>
     static void VerifyAreaMapAssets()
     {
         string root = Path.GetFullPath(AreaMapAssetVerificationDefinitions.AssetRoot);
         string romPath = Path.GetFullPath("Super Metroid.smc");
-        MapAssetExtractor.Extract(romPath, root,
-            Path.GetFullPath("upstream-sm/assets/names.txt"));
-        string manifestPath = Path.Combine(root, "manifest.json");
-        string roomsPath = Path.Combine(root, "room-placements.json");
-        AssertTrue(File.Exists(manifestPath), "area-map asset manifest exists");
-        AssertTrue(File.Exists(roomsPath), "area-map room-placement inventory exists");
-        using JsonDocument manifest = JsonDocument.Parse(File.ReadAllText(manifestPath));
-        using JsonDocument rooms = JsonDocument.Parse(File.ReadAllText(roomsPath));
-        AssertEqual(1, manifest.RootElement.GetProperty("FormatVersion").GetInt32(),
-            "area-map asset format version");
-        AssertEqual(AreaIds.RetailCount,
-            manifest.RootElement.GetProperty("Areas").GetArrayLength(),
-            "area-map manifest area count");
-        AssertEqual(262, rooms.RootElement.GetArrayLength(), "area-map room placement count");
-        AssertTrue(rooms.RootElement.EnumerateArray().Any(room =>
-                room.GetProperty("RoomHeader").GetString() == "0xA3AE" &&
-                room.GetProperty("Identity").GetString() == "$01/$26" &&
-                room.GetProperty("Area").GetString() == nameof(AreaId.Brinstar)),
-            "Alpha Power Bomb room placement is decoded from its room header");
-
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-        JsonElement[] manifestAreas = manifest.RootElement.GetProperty("Areas")
-            .EnumerateArray()
-            .ToArray();
+        AssertEqual(AreaIds.RetailCount, MapAssetExtractor.Extract(romPath, root), "exported area-map count");
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
             int index = AreaIds.ToIndex(area);
             AreaMapCartridgeData map = SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, area);
-            JsonElement record = manifestAreas[index];
-            AssertEqual(area.ToString(), record.GetProperty("Area").GetString(),
-                $"{area} map manifest identity");
             AssertEqual(AreaMapAssetVerificationDefinitions.TilemapAddresses[index],
                 map.TilemapAddress,
                 $"{area} tilemap address");
 
-            string tilemapPath = Path.Combine(
-                root,
-                record.GetProperty("TilemapFile").GetString()!.Replace('/', Path.DirectorySeparatorChar));
-            string revealPath = Path.Combine(
-                root,
-                record.GetProperty("StationRevealMaskFile").GetString()!
-                    .Replace('/', Path.DirectorySeparatorChar));
+            string stem = Path.Combine(root, "areas", MapAssetExtractor.FileStem(area));
+            string tilemapPath = stem + ".tilemap.bin";
+            string revealPath = stem + ".station-reveal-mask.bin";
+            AssertTrue(File.Exists(stem + ".coverage.png"), $"{area} coverage image exported");
             AssertSequenceEqual(map.RawTilemapBytes, File.ReadAllBytes(tilemapPath),
                 $"{area} extracted tilemap bytes");
             AssertSequenceEqual(map.StationRevealMaskBytes, File.ReadAllBytes(revealPath),
@@ -112,6 +83,6 @@ internal static partial class Program
                    !brinstar.IsRevealedByMapStation(23, 2),
             "representative Brinstar secret-only map cell");
         Console.WriteLine(
-            "  Area maps: seven tilemaps/masks, coverage counts, and 262 room placements agree.");
+            "  Area maps: seven tilemaps/masks and coverage counts agree.");
     }
 }

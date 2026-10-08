@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control for the two-frame Stoke projectile animation loop.
 /// Interleaved spritemap operands identify compiled presentation.
 /// </summary>
-internal abstract class StokeProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class StokeProjectileInstructionProgramDefinitions
 {
     /// <summary><c>UNUSED_InstList_EnemyProjectile_StokeProjectile_86DB0B</c> at $86:DB0C.</summary>
     internal const ushort Initial = 0xdb0c;
@@ -41,24 +41,5 @@ internal abstract class StokeProjectileInstructionProgramDefinitions : IInstruct
 
         throw new InvalidDataException(
             $"Stoke-projectile instruction mechanics pointer $86:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

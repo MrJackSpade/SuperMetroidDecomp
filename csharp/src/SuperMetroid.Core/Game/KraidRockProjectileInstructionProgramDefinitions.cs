@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control for Kraid's rock projectiles and the initial Kago-bug pose they share.
 /// Their interleaved spritemap operands select compiled presentation identities.
 /// </summary>
-internal abstract class KraidRockProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class KraidRockProjectileInstructionProgramDefinitions
 {
     /// <summary>
     /// <c>InstList_EnemyProjectile_KraidRocks_KagoBug</c> at $86:9C7D.
@@ -97,25 +97,6 @@ internal abstract class KraidRockProjectileInstructionProgramDefinitions : IInst
         throw new InvalidDataException(
             $"Kraid-rock projectile instruction mechanics pointer $86:{address:X4} " +
             "is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private static bool IsSharedProgramAddress(ushort address) =>

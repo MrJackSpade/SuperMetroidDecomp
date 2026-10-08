@@ -7,18 +7,13 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable Mother Brain fake-death room flash and phase-two initial colors.</summary>
 public sealed class MotherBrainRoomColorPresentation
 {
-    private readonly RoomFlash flash;
+    internal readonly RoomFlash flash;
     private readonly FinalRoomPalette finalRoom;
     private readonly AttackPalette phaseTwoAttack;
     private readonly ushort[]? phaseTwoRearLeg;
     private readonly GlassPalette initialGlassShard;
     private readonly TubePalette initialTubeProjectile;
     private readonly RecoveryLightFade recoveryLights;
-
-    /// <summary>Timed-entry identities installed by the validated flash rows; exposes no color payload.</summary>
-    internal IEnumerable<ushort> FlashEntryPointers => Enumerable.Range(0, flash.FrameCount)
-        .Select(index => checked((ushort)(MotherBrainRoomPaletteProgramDefinitions.FlashStart +
-            index * MotherBrainRoomColorRomData.TimedEntryByteCount)));
 
     private MotherBrainRoomColorPresentation(ushort[][] flash, FinalRoomPalette finalRoom,
         ushort[] phaseTwoAttack, ushort[] phaseTwoRearLeg,
@@ -158,7 +153,7 @@ public sealed class MotherBrainRoomColorPresentation
                 : new RecoveryLightFade(CompileRecoveryLights(document.RecoveryLights), finalRoom));
     }
 
-    private sealed class FinalRoomPalette
+    internal sealed class FinalRoomPalette
     {
         private readonly ushort[]? supplied;
         public int Length { get; }
@@ -293,7 +288,7 @@ public sealed class MotherBrainRoomColorPresentation
                 : room[MotherBrainRoomColorRomData.RoomOutlineColor + color - MotherBrainRoomColorRomData.TubeNeutralCount];
     }
     /// <summary>Background highlight interpolation paired with darkening level colors.</summary>
-    private sealed class RoomFlash
+    internal sealed class RoomFlash
     {
         private readonly FinalRoomPalette basis;
         private readonly ushort[][]? supplied;

@@ -14,14 +14,14 @@ internal static class ComparisonArtifactTests
         int first = packet.Width + 2, last = 3 * packet.Width + 5;
         actual[first] = new(255, 0, 0);
         actual[last] = new(0, 255, 0);
-        PixelComparisonException failure;
-        try
-        {
-            PixelComparison.Verify(packet, expected, actual, "intentional artifact verification");
+        string? failure = null;
+        try { PixelComparison.Verify(packet, expected, actual, "intentional artifact verification"); }
+        catch (InvalidOperationException error) { failure = error.Message; }
+        if (failure is null)
             throw new InvalidOperationException("Deliberate pixel mismatch was accepted.");
-        }
-        catch (PixelComparisonException error) { failure = error; }
-        string directory = failure.ArtifactDirectory;
+        // The comparison names its reproduction directory as the message's final field.
+        const string ArtifactsField = "; artifacts: ";
+        string directory = failure[(failure.LastIndexOf(ArtifactsField, StringComparison.Ordinal) + ArtifactsField.Length)..];
         // Only remove this freshly-created diagnostic directory after successful
         // verification. A failing artifact test deliberately preserves its evidence.
         using (var json = JsonDocument.Parse(File.ReadAllText(Path.Combine(directory, "comparison.json"))))
@@ -41,7 +41,7 @@ internal static class ComparisonArtifactTests
         foreach (var (name, pixels) in new[] { ("expected.png", expected), ("actual.png", actual), ("difference.png", difference) })
         {
             string check = Path.Combine(directory, "check.png");
-            PngWriter.WriteRgba(check, packet.Width, packet.Height, pixels);
+            PngWriterTooling.WriteRgba(check, packet.Width, packet.Height, pixels);
             if (!File.ReadAllBytes(check).AsSpan().SequenceEqual(File.ReadAllBytes(Path.Combine(directory, name))))
                 throw new InvalidOperationException($"Mismatch artifact {name} contains the wrong image.");
         }

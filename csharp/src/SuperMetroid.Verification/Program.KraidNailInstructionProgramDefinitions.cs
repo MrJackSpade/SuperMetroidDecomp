@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyKraidNailInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKraidNailInstructionProgramDefinitions), () => VerifyKraidNailInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyKraidNailInstructionProgramDefinitions(
@@ -83,7 +83,7 @@ internal static partial class Program
              index++)
         {
             ushort address =
-                KraidNailInstructionProgramDefinitions.PresentationWordAddress(index);
+                KraidNailInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertThrows<InvalidDataException>(
                 () => KraidNailInstructionProgramDefinitions.ReadMechanicsWord(address),
                 $"Kraid fingernail spritemap $A7:{address:X4} is rejected as mechanics");
@@ -166,7 +166,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (KraidNailInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (KraidNailInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -180,7 +180,7 @@ internal static partial class Program
                      index++)
                 {
                     ushort presentation =
-                        KraidNailInstructionProgramDefinitions.PresentationWordAddress(index);
+                        KraidNailInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control for Polyp's single-frame lava-rock animation.
 /// Its sprite operand selects installed presentation artwork.
 /// </summary>
-internal abstract class PolypRockInstructionProgramDefinitions : IInstructionProgramCatalog, ISinglePresentationOperand, ICompiledMechanicsByteProbe
+internal abstract class PolypRockInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProjectile_NorfairLavaquakeRocks</c> at $86:BBD5.</summary>
     internal const ushort Initial = 0xbbd5;
@@ -16,7 +16,6 @@ internal abstract class PolypRockInstructionProgramDefinitions : IInstructionPro
 
     /// <summary>Spritemap operand at $86:BBD7.</summary>
     internal const ushort PresentationWord = 0xbbd7;
-    static ushort ISinglePresentationOperand.PresentationWord => PresentationWord;
 
     /// <summary>EnemyProjSpritemaps_LavaquakeRocks at $8D:9340, selected by $86:BBD7.</summary>
     internal const ushort Spritemap = 0x9340;
@@ -52,24 +51,5 @@ internal abstract class PolypRockInstructionProgramDefinitions : IInstructionPro
 
         throw new InvalidDataException(
             $"Polyp-rock instruction mechanics pointer $86:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

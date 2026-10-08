@@ -12,7 +12,7 @@ internal static partial class Program
         int compared = 0;
         for (int edge = 0; edge < 2; edge++)
         {
-            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var blocks = new ushort[64 * 16];
             for (int row = 0; row < 16; row++) blocks[row * 64 + 32] = 0x8000;
             var room = CreateRoom(64, 16, blocks, new byte[blocks.Length]);

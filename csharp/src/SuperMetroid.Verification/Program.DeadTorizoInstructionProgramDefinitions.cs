@@ -7,18 +7,18 @@ internal static partial class Program
     private static void VerifyDeadTorizoInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyDeadTorizoInstructionProgramDefinitions), () => VerifyDeadTorizoInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyDeadTorizoInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         for (int index = 0;
-             index < DeadTorizoInstructionProgramDefinitions.MechanicsWordCount;
+             index < DeadTorizoInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                DeadTorizoInstructionProgramDefinitions.MechanicsWord(index);
+                DeadTorizoInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadDeadTorizoInstructionWord(rom, definition.Address),
                 $"Dead Torizo mechanics word $A9:{definition.Address:X4}");
@@ -51,7 +51,7 @@ internal static partial class Program
             corpse.CurrentInstruction,
             "Dead Torizo program reaches terminal sleep");
         AssertEqual(ReadDeadTorizoInstructionWord(
-                rom, DeadTorizoInstructionProgramDefinitions.PresentationWord),
+                rom, DeadTorizoInstructionProgramDefinitionsTooling.PresentationWord),
             corpse.SpritemapPointer,
             "compiled Dead Torizo spritemap selector matches the cartridge");
         AssertTrue(!guard.SawPresentationWord,
@@ -60,7 +60,7 @@ internal static partial class Program
             "production execution avoids both compiled Dead Torizo mechanics words");
         AssertThrows<InvalidDataException>(
             () => DeadTorizoInstructionProgramDefinitions.ReadMechanicsWord(
-                DeadTorizoInstructionProgramDefinitions.PresentationWord),
+                DeadTorizoInstructionProgramDefinitionsTooling.PresentationWord),
             "Dead Torizo spritemap pointer is rejected as mechanics");
         AssertThrows<InvalidDataException>(
             () => DeadTorizoInstructionProgramDefinitions.ReadMechanicsWord(
@@ -109,7 +109,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (DeadTorizoInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (DeadTorizoInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -117,7 +117,7 @@ internal static partial class Program
             }
 
             int presentation =
-                0xa90000 | DeadTorizoInstructionProgramDefinitions.PresentationWord;
+                0xa90000 | DeadTorizoInstructionProgramDefinitionsTooling.PresentationWord;
             if (address == presentation || address == presentation + 1)
                 SawPresentationWord = true;
             return source.ReadByte(address);

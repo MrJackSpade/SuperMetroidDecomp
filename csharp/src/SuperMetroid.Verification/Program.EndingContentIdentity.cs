@@ -8,7 +8,7 @@ internal static partial class Program
     /// <summary>Checks ending scene selection and original import metadata without a playthrough.</summary>
     private static void VerifyEndingMode7RoleSelection()
     {
-        var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Mode7 metadata oracle revision");
         int Source(int instruction)

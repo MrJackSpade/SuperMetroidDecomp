@@ -71,7 +71,7 @@ internal static partial class Program
             restored.PaletteTransition!.Step(restoredColors, TorizoPaletteDefinitions.BodyPaletteMask);
             AssertTrue(cgram.Colors.SequenceEqual(restoredColors.Colors), "Mid-fade save preserves each color step");
         }
-        var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int i = 0; i < 32; i++)
         {
             int address = 0xaa8707 + i * 2;

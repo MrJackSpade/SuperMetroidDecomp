@@ -13,7 +13,7 @@ internal static partial class InstalledSporesTests
         byte[] planar = SnesPlanarTileEncoder.Encode(image.Pixels, image.Width, image.Height, 2);
         // Appending spores must not shift any earlier strip: every segment of the installed sheet,
         // frames and shared treadmill/statue strips alike, equals its native cartridge bytes.
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         int segmentOffset = 0;
         foreach (RoomFxAtlasSegment segment in RoomFxAnimatedTileAtlasFormat.Segments)
         {

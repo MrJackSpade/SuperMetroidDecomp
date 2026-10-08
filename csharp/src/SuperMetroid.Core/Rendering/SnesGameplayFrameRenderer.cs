@@ -1046,20 +1046,6 @@ public static partial class SnesGameplayFrameRenderer
         return new XrayDirection(-tangent, -SamusXrayRomData.Window.UnitVector);
     }
 
-    internal static Rgba32 ApplyXrayOutsideHalfColor(Rgba32 source)
-    {
-        // This fixed-color operation applies only where half-color math is enabled;
-        // window/subscreen selection is the compositor's responsibility.
-        // All compositor colors originated as expanded BGR555, so reducing with `>> 3`,
-        // halving the full sum BEFORE saturation, and expanding again preserves the carry.
-        const int FixedComponent = XrayWindowRenderDefinitions.FixedColorComponent;
-        return new Rgba32(
-            ExpandFiveBit((byte)Math.Min(31, ((source.R >> 3) + FixedComponent) >> 1)),
-            ExpandFiveBit((byte)Math.Min(31, ((source.G >> 3) + FixedComponent) >> 1)),
-            ExpandFiveBit((byte)Math.Min(31, ((source.B >> 3) + FixedComponent) >> 1)),
-            source.A);
-    }
-
     private static Rgba32[] CreateBackdrop(SnesCgram cgram, Rgba32[]? outputBuffer = null)
     {
         ArgumentNullException.ThrowIfNull(cgram);

@@ -9,7 +9,7 @@ internal static partial class Program
     {
         var native = File.ReadLines(tracePath).Skip(1).ToArray();
         AssertEqual(135, native.Length, "Native ceiling PLM allocation matrix");
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         // Invoke the real producer collision path with the native probe's stationary
         // projectile registers. This isolates collision/PLM allocation from launch AI.
         var collide = typeof(SamusProjectileSystem).GetMethod("RunInitialBeamCollision",

@@ -9,7 +9,7 @@ internal static partial class Program
     private static void VerifyCeresEscapeVramTransferDefinitions(ISnesAddressSpace rom)
     {
         IReadOnlyList<CeresEscapeVramTransferDefinition> records =
-            CeresEscapeVramTransferDefinitions.All;
+            CeresEscapeVramTransferDefinitionsTooling.All;
         AssertEqual(19, records.Count, "Ceres transfer metadata record count");
         foreach (CeresEscapeVramTransferDefinition record in records)
         {

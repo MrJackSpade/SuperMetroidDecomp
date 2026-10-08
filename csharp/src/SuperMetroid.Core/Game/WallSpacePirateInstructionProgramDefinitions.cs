@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled engine-control words for all wall Space Pirate body programs.
 /// Interleaved extended-spritemap pointers remain live cartridge presentation data.
 /// </summary>
-internal abstract class WallSpacePirateInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
+internal abstract class WallSpacePirateInstructionProgramDefinitions
 {
     /// <summary><c>InstList_PirateWall_FireLaser_WallJumpLeft</c> at $B2:ECC0.</summary>
     internal const ushort FireAndJumpLeft = 0xecc0;
@@ -68,9 +68,8 @@ internal abstract class WallSpacePirateInstructionProgramDefinitions : IInstruct
 
     /// <summary>Native program bank $B2.</summary>
     internal const byte Bank = 0xb2;
-    static int IDeclaredProgramBank.Bank => Bank;
 
-    private static readonly InstructionProgramLayout Layout = new(Bank,
+    internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xecc0),
         Entry(FireAndJumpLeft),
         Op(PirateWallFunctionInY, EmptyRoutineF0E3),
@@ -182,20 +181,11 @@ internal abstract class WallSpacePirateInstructionProgramDefinitions : IInstruct
         Frame(8),
         Op(CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate, PirateWallMovingUpRightWall1),
         Op(PirateWallRandomlyChooseADirectionRightWall));
-
-    public static int MechanicsWordCount => Layout.MechanicsWordCount;
     public static int PresentationWordCount => Layout.PresentationSlotCount;
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        (ushort address, ushort value) = Layout.MechanicsWord(index);
-        return new(address, value);
-    }
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(
                 $"Wall Space Pirate instruction mechanics pointer $B2:{address:X4} is not compiled.");
-
-    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

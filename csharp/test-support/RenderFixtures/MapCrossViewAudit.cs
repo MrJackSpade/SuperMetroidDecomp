@@ -33,7 +33,7 @@ internal static class MapCrossViewAudit
 {
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         int comparisonCount = 0;
         foreach (ushort roomPointer in MapCrossViewAuditDefinitions.RepresentativeRooms)
         {

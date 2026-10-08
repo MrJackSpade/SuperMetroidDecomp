@@ -30,7 +30,7 @@ internal static class BackgroundTransferClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/RoomFxLiquidTilemapDefinitions.cs", "1C54C0A3A730806D3DC500A0A4B35D217A06546BA6AC27E54396A936AC6DD3BF")]),
         new("SuperMetroid.Core.Assets.RoomFxPaletteBlendCatalog", "room-fx-complete-eight-blends-and-zero-clear", ["Apply", "Resolve"],
             [new("csharp/src/SuperMetroid.Core/Assets/RoomFxPaletteBlendCatalog.cs", "E78396C5CA47FDE5A33D5B253E53C44571B789185B29E4D2F221CCBD24B66B13"),
-             new("csharp/src/SuperMetroid.Core/Game/RoomFxRomData.cs", "3357C4AF41CEE8B1D02DA07845455D962C70DEEC9DF22B82978F76669C0101CD")]),
+             new("csharp/src/SuperMetroid.Core/Game/RoomFxRomData.cs", "B3F2088A2CBEA03FC3F2E392CDBC832109DFC1A1AFEA51C7456B20372AB4D1EC")]),
         new("SuperMetroid.Core.Assets.EndingObjectArtworkCatalog", "ending-complete-four-fragments", ["Fragment"],
             [new("csharp/src/SuperMetroid.Core/Assets/EndingObjectArtworkCatalog.cs", "D94FD0E6CF4AAA49FB58B35E2E1BC9C6AF2798A290550961F0913A06B80862D6")]),
         new("SuperMetroid.Core.Assets.GunshipLiftoffArtworkCatalog", "gunship-complete-five-takeoff-transfers", ["Resolve", "TryResolve"],

@@ -10,7 +10,7 @@ internal static partial class Program
     /// </summary>
     private static void VerifyMamaTurtleShellContourDefinitions()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int index = 0; index < MamaTurtleShellContourDefinitions.EntryCount; index++)
         {
             int address = MamaTurtleShellContourDefinitions.SourceAddress + index * 2;

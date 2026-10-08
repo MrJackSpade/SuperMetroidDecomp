@@ -220,7 +220,7 @@ internal static partial class Program
                 throw new InvalidOperationException(
                     $"Hopper attempted migrated animation-selector read ${address:X6}.");
             }
-            if (HopperInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (HopperInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

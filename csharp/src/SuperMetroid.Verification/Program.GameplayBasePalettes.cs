@@ -13,7 +13,7 @@ internal static partial class Program
             "gameplay-base-palettes-" + Guid.NewGuid().ToString("N")));
         string stock = Path.Combine(directory, "stock");
         string overrides = Path.Combine(directory, "overrides");
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         try
         {
             GameplayBasePaletteFiles.Extract(bus, stock, SupportedCartridge.Sha256);
@@ -26,7 +26,7 @@ internal static partial class Program
                     baseline.CommonSprites[color], $"installed shared OBJ color {color}");
 
             var guarded = new FrontendCartridgeReadGuard(
-                SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(sourceRom));
+                SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom));
             var runtime = new SuperMetroidRuntime(guarded, initialPaletteArt: baseline);
             AssertTrue(runtime.Cgram.Colors.SequenceEqual(baseline.Initial.ToArray()),
                 "runtime construction consumes installed starting colors without cartridge reads");

@@ -11,7 +11,7 @@ internal static class MapPresentationJsonContractVerification
 {
     internal static int Run(string installationRoot)
     {
-        GameInstallation installation = GameAssetInstaller.ValidateExtractedContent(installationRoot);
+        GameInstallation installation = GameAssetInstallerTooling.ValidateExtractedContent(installationRoot);
         string temporary = Directory.CreateTempSubdirectory("SuperMetroid-presentation-json-").FullName;
         var accepted = new List<string>();
         int rejected = 0;

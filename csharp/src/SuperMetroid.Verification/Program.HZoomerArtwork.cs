@@ -8,10 +8,10 @@ internal static partial class Program
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
         for (int index = 0;
-             index < HZoomerInstructionProgramDefinitions.PresentationWordCount;
+             index < HZoomerInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort operand = HZoomerInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort operand = HZoomerInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                     RoomEnemySystem.HZoomerDefinition, operand, out ushort frame),
                 $"HZoomer visual operand $A3:{operand:X4} is compiled");

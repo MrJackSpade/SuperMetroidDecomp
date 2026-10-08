@@ -7,23 +7,9 @@ namespace SuperMetroid.AssetExtraction;
 
 public static partial class GameAssetInstaller
 {
-    /// <summary>
-    /// Strictly validates every required extracted resource using the exact startup
-    /// contract. Unlike a repair-admission query, preserves the failing path/format
-    /// exception for tools. Never opens a ROM or imports, repairs or replaces content.
-    /// </summary>
-    public static GameInstallation ValidateExtractedContent(string root)
-    {
-        var installation = new GameInstallation(Path.GetFullPath(root));
-        if (!Directory.Exists(installation.ContentDirectory))
-            throw new DirectoryNotFoundException($"Extracted content directory is missing: {installation.ContentDirectory}");
-        using FileStream gate = Lock(installation.Root);
-        ValidateRequiredExtractedContent(installation);
-        return installation;
-    }
 
     /// <summary>Shared strict implementation; startup may use its exception to decide whether repair is needed.</summary>
-    private static void ValidateRequiredExtractedContent(GameInstallation installation)
+    internal static void ValidateRequiredExtractedContent(GameInstallation installation)
     {
         ValidateReceipt(installation);
         // This is the startup inventory, not a sample of whichever room was run.

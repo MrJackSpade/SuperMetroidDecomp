@@ -10,13 +10,13 @@ internal static partial class Program
     private static void VerifyCompiledRoomDefinitionIntegration()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
-        SuperMetroidAddressSpace oracleBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace oracleBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         HashSet<int> forbidden = BuildCompiledRoomDefinitionAddressSet(oracleBus);
         var guard = new CompiledRoomDefinitionReadGuard(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath), forbidden);
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath), forbidden);
 
         var expected = CreateRetailRuntimeFixture(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath));
         var actual = CreateRetailRuntimeFixture(guard);
         InitialViewportResult expectedViewport = InitializePostCeresLanding(expected);
         InitialViewportResult actualViewport = InitializePostCeresLanding(actual);
@@ -103,7 +103,7 @@ internal static partial class Program
                      .Distinct())
         {
             AddAddressRange(forbidden,
-                DoorHeaderRomData.BankAddress | doorPointer,
+                DoorHeaderRomDataTooling.BankAddress | doorPointer,
                 DoorHeaderRomData.RecordByteCount);
             CartridgeDoorHeader door = DoorDefinitions.Get(doorPointer);
             if (door.SetupCodePointer != 0)
@@ -133,7 +133,7 @@ internal static partial class Program
             }
 
             RoomHeaderDefinition header = RoomHeaderDefinitions.Get(roomPointer);
-            DoorListDefinition doors = DoorDefinitions.GetList(header.DoorListPointer);
+            DoorListDefinition doors = DoorDefinitionsTooling.GetList(header.DoorListPointer);
             AddAddressRange(forbidden,
                 RoomHeaderRomData.BankAddress | header.DoorListPointer,
                 doors.DoorPointers.Length * sizeof(ushort));

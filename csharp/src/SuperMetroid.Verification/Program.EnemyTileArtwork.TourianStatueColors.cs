@@ -104,10 +104,10 @@ internal static partial class Program
         string romPath = Path.GetFullPath("Super Metroid.smc");
         var installedRoom = CreateGreyRoom(
             new TourianStatueColorReadGuard(
-                SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath), forbidden), stock);
+                SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath), forbidden), stock);
         var editedRoom = CreateGreyRoom(
             new TourianStatueColorReadGuard(
-                SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath), forbidden), editedGrey);
+                SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath), forbidden), editedGrey);
         // Use the room's pre-step palette as the unchanged background, then apply
         // only the native grey instruction writes read from the four retail programs.
         var nativeGreyCgram = new SnesCgram();

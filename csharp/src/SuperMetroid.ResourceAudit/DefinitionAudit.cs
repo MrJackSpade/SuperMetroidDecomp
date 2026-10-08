@@ -45,9 +45,9 @@ internal static class DefinitionAudit
             exports.Add(ResourceDomains.SamusProjectile, ResourceIndex.Address(ResourceBanks.SamusProjectiles, pointer));
 
         int enemyReferences = 0, projectileReferences = 0;
-        for (int index = 0; index < CompiledEnemyVisualSelectors.Count; index++)
+        for (int index = 0; index < CompiledEnemyVisualSelectorsTooling.Count; index++)
         {
-            CompiledEnemyVisualSelector selector = CompiledEnemyVisualSelectors.At(index);
+            CompiledEnemyVisualSelector selector = CompiledEnemyVisualSelectorsTooling.At(index);
             exports.Add(ResourceDomains.CompiledSelector,
                 ResourceIndex.Address(selector.Address >> 16, selector.Address & 0xffff));
             int bank = selector.Address >> 16;

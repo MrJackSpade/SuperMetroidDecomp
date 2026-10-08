@@ -2,9 +2,9 @@ name: Static door catalog audit
 
 on:
   push:
-    paths: ['csharp/src/SuperMetroid.Core/**', 'csharp/src/SuperMetroid.ResourceAudit/**', '.github/workflows/door-catalog-audit.yml']
+    paths: ['csharp/src/SuperMetroid.Core/**', 'csharp/src/SuperMetroid.Tooling/**', 'csharp/src/SuperMetroid.ResourceAudit/**', '.github/workflows/door-catalog-audit.yml']
   pull_request:
-    paths: ['csharp/src/SuperMetroid.Core/**', 'csharp/src/SuperMetroid.ResourceAudit/**', '.github/workflows/door-catalog-audit.yml']
+    paths: ['csharp/src/SuperMetroid.Core/**', 'csharp/src/SuperMetroid.Tooling/**', 'csharp/src/SuperMetroid.ResourceAudit/**', '.github/workflows/door-catalog-audit.yml']
   workflow_dispatch:
 
 permissions:

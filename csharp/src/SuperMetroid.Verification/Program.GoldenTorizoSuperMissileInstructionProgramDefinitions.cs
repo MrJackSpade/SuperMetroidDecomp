@@ -8,18 +8,18 @@ internal static partial class Program
 {
     private static void VerifyGoldenTorizoSuperMissileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyGoldenTorizoSuperMissileInstructionProgramDefinitions), () => VerifyGoldenTorizoSuperMissileInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     private static void VerifyGoldenTorizoSuperMissileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int index = 0;
-             index < GoldenTorizoSuperMissileInstructionProgramDefinitions.MechanicsWordCount;
+             index < GoldenTorizoSuperMissileInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                GoldenTorizoSuperMissileInstructionProgramDefinitions.MechanicsWord(index);
+                GoldenTorizoSuperMissileInstructionProgramDefinitionsTooling.MechanicsWord(index);
             ushort native = unchecked((ushort)(
                 rom.ReadByte(EnemyProjectileCodePointers.BankBase | definition.Address) |
                 rom.ReadByte(EnemyProjectileCodePointers.BankBase |
@@ -228,7 +228,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (GoldenTorizoSuperMissileInstructionProgramDefinitions.IsCompiledMechanicsByte(
+            if (GoldenTorizoSuperMissileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(
                     address))
             {
                 ForbiddenReadAttempts++;

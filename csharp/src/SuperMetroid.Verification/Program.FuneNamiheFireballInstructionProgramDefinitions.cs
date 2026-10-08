@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyFuneNamiheFireballInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyFuneNamiheFireballInstructionProgramDefinitions), () => VerifyFuneNamiheFireballInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyFuneNamiheFireballInstructionProgramDefinitions(
@@ -136,14 +136,14 @@ internal static partial class Program
     private static void VerifyFuneNamiheFireballMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xde96, 0xde9a, 0xde9e, 0xdea2, 0xdea4, 0xdea6, 0xdeaa, 0xdeae, 0xdeb2, 0xdeb4];
-        AssertEqual(addresses.Length, FuneNamiheFireballInstructionProgramDefinitions.MechanicsWordCount,
+        AssertEqual(addresses.Length, FuneNamiheFireballInstructionProgramDefinitionsTooling.MechanicsWordCount,
             "FuneNamihe-fireball mechanics count");
         var bytes = new HashSet<int>();
         for (int index = 0; index < addresses.Length; index++)
         {
             ushort address = addresses[index];
             ushort expected = ReadFuneNamiheFireballInstructionWord(rom, address);
-            var definition = FuneNamiheFireballInstructionProgramDefinitions.MechanicsWord(index);
+            var definition = FuneNamiheFireballInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(address, definition.Address, "FuneNamihe-fireball native word position");
             AssertEqual(expected, definition.Value, "FuneNamihe-fireball native enumerated word");
             AssertEqual(expected, FuneNamiheFireballInstructionProgramDefinitions.ReadMechanicsWord(address),
@@ -154,11 +154,11 @@ internal static partial class Program
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
             bool expected = bytes.Contains(address);
-            AssertEqual(expected, FuneNamiheFireballInstructionProgramDefinitions.IsCompiledMechanicsByte(0x860000 | address),
+            AssertEqual(expected, FuneNamiheFireballInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x860000 | address),
                 "FuneNamihe-fireball full bank ownership");
-            AssertEqual(expected, FuneNamiheFireballInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1860000 | address),
+            AssertEqual(expected, FuneNamiheFireballInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x1860000 | address),
                 "FuneNamihe-fireball preserves high-bit masking");
-            AssertTrue(!FuneNamiheFireballInstructionProgramDefinitions.IsCompiledMechanicsByte(0x850000 | address),
+            AssertTrue(!FuneNamiheFireballInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x850000 | address),
                 "FuneNamihe-fireball rejects other bank");
         }
         var words = addresses.ToHashSet();
@@ -171,7 +171,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => FuneNamiheFireballInstructionProgramDefinitions.ReadMechanicsWord(address),
                 "FuneNamihe-fireball rejects distant invalid word");
         foreach (int index in new[] { int.MinValue, -1, 10, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => FuneNamiheFireballInstructionProgramDefinitions.MechanicsWord(index),
+            AssertThrows<IndexOutOfRangeException>(() => FuneNamiheFireballInstructionProgramDefinitionsTooling.MechanicsWord(index),
                 "FuneNamihe-fireball mechanics ordinal bounds");
     }
 

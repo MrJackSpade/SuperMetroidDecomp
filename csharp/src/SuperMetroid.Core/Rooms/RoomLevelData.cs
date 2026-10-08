@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Rooms;
 public sealed class RoomLevelData
 {
     private readonly ushort[] _foregroundEntries;
-    private readonly byte[] _behaviorBytes;
+    internal readonly byte[] _behaviorBytes;
     private readonly ushort[] _backgroundEntries;
     private readonly byte[] _blockDefinitions;
     private readonly ushort[] _streamingForegroundAllocation;
@@ -157,9 +157,6 @@ public sealed class RoomLevelData
 
     /// <summary>Read-only logical BG1 words, including collision type in bits 12–15.</summary>
     public ReadOnlyMemory<ushort> ForegroundEntries => _foregroundEntries;
-
-    /// <summary>Read-only parallel BTS (“block type special”) byte plane.</summary>
-    public ReadOnlyMemory<byte> BehaviorBytes => _behaviorBytes;
 
     /// <summary>CRE definitions followed by area definitions, eight bytes per visual block.</summary>
     public ReadOnlyMemory<byte> BlockDefinitions => _blockDefinitions;

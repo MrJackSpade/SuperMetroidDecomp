@@ -9,9 +9,6 @@ public static class RoomHeaderPointers
     /// <summary>Parlor and Alcatraz at $8F:92FD.</summary>
     public const ushort ParlorAndAlcatraz = 0x92fd;
 
-    /// <summary>Crateria save station at $8F:93D5.</summary>
-    public const ushort CrateriaSaveStation = 0x93d5;
-
     /// <summary>Climb at $8F:96BA.</summary>
     public const ushort Climb = 0x96ba;
 
@@ -23,12 +20,6 @@ public static class RoomHeaderPointers
 
     /// <summary>Flyway at $8F:9879.</summary>
     public const ushort Flyway = 0x9879;
-
-    /// <summary><c>RoomHeader_XrayScope</c>: Brinstar room $22 at $8F:A2CE, with two bomb-activated shutters.</summary>
-    public const ushort BrinstarShutterRoom = 0xa2ce;
-
-    /// <summary><c>kRoom_a408</c>: Brinstar room $28 at $8F:A408, with a shallow-water floor below a low ceiling.</summary>
-    public const ushort BrinstarShallowWaterRoom = 0xa408;
 
     /// <summary>Morph Ball Room at $8F:9E9F.</summary>
     public const ushort MorphBallRoom = 0x9e9f;

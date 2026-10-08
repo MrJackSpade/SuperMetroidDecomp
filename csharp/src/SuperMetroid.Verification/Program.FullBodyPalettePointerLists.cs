@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyFullBodyPalettePointerLists()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var guarded = new FullBodyPalettePointerReadGuard(rom);
         SamusFullBodyCycleColorCatalog cycleColors = SamusFullBodyCycleColorCatalog.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.SamusFullBodyCycleColorExtractor.Extract(rom)));

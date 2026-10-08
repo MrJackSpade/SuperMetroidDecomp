@@ -14,13 +14,13 @@ internal static partial class Program
         ushort[] addresses =
             [0x86a7,0x86ab,0x86af,0x86b3,0x86b7,0x86bb,0x86bf,0x86c3,0x86c7,0x86c9,
              0x86cb,0x86cf,0x86d3,0x86d7,0x86db,0x86df,0x86e3,0x86e7,0x86eb,0x86ed];
-        AssertEqual(addresses.Length, BoulderInstructionProgramDefinitions.MechanicsWordCount, "Boulder word count");
+        AssertEqual(addresses.Length, BoulderInstructionProgramDefinitionsTooling.MechanicsWordCount, "Boulder word count");
         var bytes = new HashSet<int>();
         for (int index = 0; index < addresses.Length; index++)
         {
             ushort address = addresses[index];
             ushort expected = ReadBoulderInstructionWord(rom, 0xa60000 | address);
-            var actual = BoulderInstructionProgramDefinitions.MechanicsWord(index);
+            var actual = BoulderInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(address, actual.Address, "Boulder native word position");
             AssertEqual(expected, actual.Value, "Boulder native enumerated word");
             AssertEqual(expected, BoulderInstructionProgramDefinitions.ReadMechanicsWord(address), "Boulder native direct word");
@@ -30,11 +30,11 @@ internal static partial class Program
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
             bool expected = bytes.Contains(address);
-            AssertEqual(expected, BoulderInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa60000 | address),
+            AssertEqual(expected, BoulderInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa60000 | address),
                 "Boulder full bank byte ownership with odd word starts");
-            AssertEqual(expected, BoulderInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1a60000 | address),
+            AssertEqual(expected, BoulderInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x1a60000 | address),
                 "Boulder high-bit alias preserved");
-            AssertTrue(!BoulderInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa70000 | address),
+            AssertTrue(!BoulderInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa70000 | address),
                 "Boulder wrong bank rejected");
         }
         var words = addresses.ToHashSet();
@@ -46,23 +46,23 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => BoulderInstructionProgramDefinitions.ReadMechanicsWord(address),
                 "Boulder distant invalid word");
         foreach (int index in new[] { int.MinValue, -1, 20, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => BoulderInstructionProgramDefinitions.MechanicsWord(index),
+            AssertThrows<IndexOutOfRangeException>(() => BoulderInstructionProgramDefinitionsTooling.MechanicsWord(index),
                 "Boulder mechanics ordinal bounds");
     }
 
     private static void VerifyBoulderPresentationAddresses()
     {
         ushort[] addresses = BoulderPresentationOracle();
-        AssertEqual(addresses.Length, BoulderInstructionProgramDefinitions.PresentationWordCount, "Boulder visual count");
+        AssertEqual(addresses.Length, BoulderInstructionProgramDefinitionsTooling.PresentationWordCount, "Boulder visual count");
         for (int index = 0; index < addresses.Length; index++)
-            AssertEqual(addresses[index], BoulderInstructionProgramDefinitions.PresentationWordAddress(index),
+            AssertEqual(addresses[index], BoulderInstructionProgramDefinitionsTooling.PresentationWordAddress(index),
                 "Boulder original visual position");
         var valid = addresses.ToHashSet();
         for (int address = 0; address <= ushort.MaxValue; address++)
             AssertEqual(valid.Contains((ushort)address), BoulderInstructionProgramDefinitions.IsPresentationWord((ushort)address),
                 "Boulder full visual membership");
         foreach (int index in new[] { int.MinValue, -1, 16, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => BoulderInstructionProgramDefinitions.PresentationWordAddress(index),
+            AssertThrows<IndexOutOfRangeException>(() => BoulderInstructionProgramDefinitionsTooling.PresentationWordAddress(index),
                 "Boulder presentation ordinal bounds");
     }
 
@@ -92,7 +92,7 @@ internal static partial class Program
     private static void VerifyBoulderInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyBoulderInstructionProgramDefinitions), () => VerifyBoulderInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyBoulderInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
@@ -191,7 +191,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (BoulderInstructionProgramDefinitions.IsCompiledMechanicsByte(address) ||
+            if (BoulderInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
                 IsCompiledPresentationByte(address))
             {
                 ForbiddenReadAttempts++;
@@ -208,11 +208,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < BoulderInstructionProgramDefinitions.PresentationWordCount;
+                     index < BoulderInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        BoulderInstructionProgramDefinitions.PresentationWordAddress(index);
+                        BoulderInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

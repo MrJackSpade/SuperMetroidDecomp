@@ -108,7 +108,6 @@ internal static partial class Program
                 var enteringDoor = new CartridgeDoorHeader(
                     Pointer: 0,
                     DestinationRoomPointer: 0,
-                    BitFlags: 0,
                     Orientation: 5,
                     PlmX: 4,
                     PlmY: 4,
@@ -183,7 +182,6 @@ internal static partial class Program
         var enteringDoor = new CartridgeDoorHeader(
             Pointer: 0,
             DestinationRoomPointer: 0,
-            BitFlags: 0,
             Orientation: 5,
             PlmX: 4,
             PlmY: 4,

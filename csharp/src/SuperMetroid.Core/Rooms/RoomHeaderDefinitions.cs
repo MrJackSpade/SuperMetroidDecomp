@@ -39,15 +39,12 @@ public static class RoomHeaderDefinitions
         }
     }
 
-    /// <summary>Whether this is exactly one of the selected retail room identities.</summary>
-    public static bool Contains(ushort roomPointer) => Select(roomPointer) is not null;
-
     /// <summary>Constructs the selected room's fixed configuration.</summary>
     public static RoomHeaderDefinition Get(ushort roomPointer) => Select(roomPointer) ??
         throw new ArgumentOutOfRangeException(nameof(roomPointer), roomPointer,
             "Pointer is not one of the 262 retail room headers.");
 
-    private static RoomHeaderDefinition? Select(ushort roomPointer) => roomPointer switch
+    internal static RoomHeaderDefinition? Select(ushort roomPointer) => roomPointer switch
     {
         0x91F8 =>
             new(0x91F8, 0x00, AreaId.Crateria, 0x17, 0x00, 0x09, 0x05, 0x70, 0xA0, 0x00, 0x927B),

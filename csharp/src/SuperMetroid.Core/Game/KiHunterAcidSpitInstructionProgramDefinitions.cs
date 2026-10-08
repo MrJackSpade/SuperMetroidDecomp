@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control for both KiHunter acid-spit introductions and their shared splash.
 /// Interleaved spritemap operands resolve through extracted presentation art.
 /// </summary>
-internal abstract class KiHunterAcidSpitInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class KiHunterAcidSpitInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProjectile_KiHunterAcidSpit_Left</c> at $86:CF34.</summary>
     internal const ushort Left = 0xcf34;
@@ -87,24 +87,5 @@ internal abstract class KiHunterAcidSpitInstructionProgramDefinitions : IInstruc
 
         throw new InvalidDataException(
             $"KiHunter acid-spit instruction mechanics pointer $86:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

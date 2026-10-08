@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled engine-control words reachable from all 62 bank-$B4 room sprite-object
 /// programs. Interleaved spritemap pointers remain live cartridge presentation data.
 /// </summary>
-internal abstract class RoomSpriteObjectInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
+internal abstract class RoomSpriteObjectInstructionProgramDefinitions
 {
     /// <summary><c>SpriteObject_Instr_RepeatLast</c> at $B4:BCF0.</summary>
     public const ushort RepeatLast = 0xbcf0;
@@ -62,9 +62,8 @@ internal abstract class RoomSpriteObjectInstructionProgramDefinitions : IInstruc
 
     /// <summary>Native program bank $B4.</summary>
     internal const byte Bank = 0xb4;
-    static int IDeclaredProgramBank.Bank => Bank;
 
-    private static readonly InstructionProgramLayout Layout = new(Bank,
+    internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xbe24),
         Frame(6),
         Frame(6),
@@ -598,20 +597,11 @@ internal abstract class RoomSpriteObjectInstructionProgramDefinitions : IInstruc
         Frame(10),
         Frame(10),
         Op(Goto, SpriteObject3CEvirFacingRight));
-
-    public static int MechanicsWordCount => Layout.MechanicsWordCount;
     public static int PresentationWordCount => Layout.PresentationSlotCount;
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        (ushort address, ushort value) = Layout.MechanicsWord(index);
-        return new(address, value);
-    }
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(
                 $"Room sprite-object instruction mechanics pointer $B4:{address:X4} is not compiled.");
-
-    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

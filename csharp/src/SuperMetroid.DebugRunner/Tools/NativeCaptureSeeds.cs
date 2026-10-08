@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms;
+
 internal static partial class AssetTools
 {
     /// <summary>

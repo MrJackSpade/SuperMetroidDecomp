@@ -22,7 +22,7 @@ internal static partial class Program
         }
         else if (required.Length == 1)
         {
-            var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+            var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             if (!required[0].ParameterType.IsInstanceOfType(rom))
                 throw new ArgumentException($"{name} needs a {required[0].ParameterType.Name}, not the retail cartridge; run its parent flag.");
             arguments[Array.IndexOf(parameters, required[0])] = rom;

@@ -14,7 +14,7 @@ internal static partial class Program
         try
         {
             GameInstallation installation = GameAssetInstaller.Install(sourceRom, root);
-            CartridgeImportAddressSpace bus = CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
+            CartridgeImportAddressSpace bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
             VerifyCeresFlightArtwork(installation, bus);
             VerifyCeresDestructionArtwork(installation, bus);
             VerifyEndingFlyawayArtwork(installation);

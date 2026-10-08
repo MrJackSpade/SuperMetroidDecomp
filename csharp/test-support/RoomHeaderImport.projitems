@@ -1,0 +1,7 @@
+<Project>
+  <!-- Retail room-header decoding from the cartridge, for verifiers that compare compiled rooms against it. -->
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Importers/CartridgeRoomHeaderImporter.cs" Link="TestSupport/Importers/CartridgeRoomHeaderImporter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Importers/RoomStateSelectorCodes.cs" Link="TestSupport/Importers/RoomStateSelectorCodes.cs" />
+  </ItemGroup>
+</Project>

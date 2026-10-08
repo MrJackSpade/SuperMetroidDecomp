@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyMotherBrainHandBeamBodyInstructionDefinitions()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         MethodInfo readMechanics = typeof(RoomEnemySystem).GetMethod(
             "ReadEnemyInstructionMechanicsWord", flags)!;

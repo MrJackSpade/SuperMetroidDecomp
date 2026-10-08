@@ -11,7 +11,7 @@ internal static partial class Program
     {
         ushort[] pointers = [0xa9b3,0xa9bf,0xa9cb,0xa9d7,0xa9ef,0xa9fb,0xaa07,0xaa13,0xaa2b,0xaa37,0xaa43,0xaa4f,0xaa67,0xaa73,0xaa7f,0xaa8b,0xa9a7,0xa9e3,0xaa1f,0xaa5b];
         string[] ids = ["left-frame-0","left-frame-1","left-frame-2","left-frame-3","right-frame-0","right-frame-1","right-frame-2","right-frame-3","up-frame-0","up-frame-1","up-frame-2","up-frame-3","down-frame-0","down-frame-1","down-frame-2","down-frame-3","left-frame-0","right-frame-0","up-frame-0","down-frame-0"];
-        var exported = BlueDoorPlmDrawDefinitions.All.ToArray();
+        var exported = BlueDoorPlmDrawDefinitionsTooling.All.ToArray();
         AssertEqual(20, exported.Length, "Blue cap export count");
         AssertTrue(BlueDoorPlmDrawDefinitions.Editable.Select(frame => frame.Pointer).SequenceEqual(pointers.Take(16)), "Blue cap editable identity domain and order");
         if (field == 0)

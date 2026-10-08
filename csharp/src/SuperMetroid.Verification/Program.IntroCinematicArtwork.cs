@@ -21,7 +21,7 @@ internal static partial class Program
         string root = copy.Root;
         {
             GameInstallation installation = copy.Installation;
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
             if (samusBodyOnly)
             {
                 Suite(nameof(VerifySamusBodyArtwork), () => VerifySamusBodyArtwork(bus, installation));

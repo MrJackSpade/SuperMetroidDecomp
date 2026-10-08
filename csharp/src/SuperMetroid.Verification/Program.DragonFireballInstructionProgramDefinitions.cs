@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyDragonFireballInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyDragonFireballInstructionProgramDefinitions), () => VerifyDragonFireballInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyDragonFireballInstructionProgramDefinitions(
@@ -15,11 +15,11 @@ internal static partial class Program
     {
         const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int index = 0;
-             index < DragonFireballInstructionProgramDefinitions.MechanicsWordCount;
+             index < DragonFireballInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                DragonFireballInstructionProgramDefinitions.MechanicsWord(index);
+                DragonFireballInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(
                 definition.Value,
                 ReadDragonFireballInstructionWord(rom, definition.Address),
@@ -190,8 +190,8 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (DragonFireballInstructionProgramDefinitions.IsCompiledMechanicsByte(address) ||
-                CommonEnemyProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (DragonFireballInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
+                CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

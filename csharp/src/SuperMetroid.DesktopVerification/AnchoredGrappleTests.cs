@@ -14,7 +14,7 @@ internal static partial class Program
         var samus = runtime.Samus!;
         Console.WriteLine($"room={game.GameplayActiveRoomPointer:X4} pos={samus.XPosition},{samus.YPosition} pose={samus.Pose:X2} grapple={samus.Grapple.Phase}");
         Directory.CreateDirectory("csharp/test-temp/issue-376-anchored-grapple");
-        PngWriter.WriteRgba("csharp/test-temp/issue-376-anchored-grapple/start.png", 256, 224,
+        PngWriterTooling.WriteRgba("csharp/test-temp/issue-376-anchored-grapple/start.png", 256, 224,
             SuperMetroidRuntimeFrameRenderer.Render(runtime));
         int grabbedFrames = 0;
         for (int frame = 0; frame < 160; frame++)
@@ -40,7 +40,7 @@ internal static partial class Program
             if (frame is 43 or 50 || grabbedFrames == 1)
             {
                 Console.WriteLine($"GRAPHICS frame={frame} phase={samus.Grapple.Phase} pose={samus.Pose:X2} anim={samus.AnimationFrame} top={samus.TopSpritemapIndex:X4} bottom={samus.BottomSpritemapIndex:X4} topDMA={samus.TileTransfers.TopDefinitionAddress:X6} bottomDMA={samus.TileTransfers.BottomDefinitionAddress:X6}");
-                PngWriter.WriteRgba($"csharp/test-temp/issue-376-anchored-grapple/graphics-{frame}.png", 256, 224,
+                PngWriterTooling.WriteRgba($"csharp/test-temp/issue-376-anchored-grapple/graphics-{frame}.png", 256, 224,
                     SuperMetroidRuntimeFrameRenderer.Render(runtime));
             }
             if (grabbedFrames is >= 1 and <= 7)
@@ -74,7 +74,7 @@ internal static partial class Program
                     samus.Pose == SamusPoseIds.WallJumpLeftPose && samus.Grapple.Phase == GrapplePhase.Inactive,
                     "Accepted grapple wall jump must detach and select the leftward wall-jump pose.");
             if (grabbedFrames is 1 or 8 or 21)
-                PngWriter.WriteRgba($"csharp/test-temp/issue-376-anchored-grapple/grab-step-{grabbedFrames}.png", 256, 224,
+                PngWriterTooling.WriteRgba($"csharp/test-temp/issue-376-anchored-grapple/grab-step-{grabbedFrames}.png", 256, 224,
                     SuperMetroidRuntimeFrameRenderer.Render(runtime));
             if (grabbedFrames == 21)
             {
@@ -93,7 +93,7 @@ internal static partial class Program
     {
         // The preserved state is RAM-only; cartridge reference bytes live in this
         // verification-only importer, never in the resumed gameplay address space.
-        var reference = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var reference = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         int source = reference.ReadCartridgeByte(definition) | reference.ReadCartridgeByte(definition + 1) << 8 | reference.ReadCartridgeByte(definition + 2) << 16;
         int firstSize = reference.ReadCartridgeByte(definition + 3) | reference.ReadCartridgeByte(definition + 4) << 8;

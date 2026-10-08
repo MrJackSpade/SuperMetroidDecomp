@@ -15,8 +15,8 @@ internal static partial class Program
         ValidateTilemapTransfer(RoomAssetRomData.LibraryBackground.ClearFx, "clear FX");
         ValidateTilemapTransfer(RoomAssetRomData.LibraryBackground.ClearBg2, "clear BG2");
         AssertEqual(
-            RoomAssetRomData.GraphicsLayout.CreBlockDefinitionsByteCount,
-            RoomAssetRomData.GraphicsLayout.CreBlockDefinitionCount *
+            RoomAssetRomDataGraphicsLayoutTooling.CreBlockDefinitionsByteCount,
+            RoomAssetRomDataGraphicsLayoutTooling.CreBlockDefinitionCount *
                 RoomAssetRomData.GraphicsLayout.BytesPerBlockDefinition,
             "CRE block-table geometry");
 
@@ -31,7 +31,7 @@ internal static partial class Program
             return;
         }
 
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
 
         ushort[] roomPointers = File.ReadLines(symbolPath)
             .Select(TryParseRoomHeaderPointer)
@@ -145,7 +145,7 @@ internal static partial class Program
             return;
         }
 
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         IReadOnlyDictionary<string, byte[]> files = RoomCharacterAtlasExtractor.Extract(bus);
         var sources = new Dictionary<string, int>
         {

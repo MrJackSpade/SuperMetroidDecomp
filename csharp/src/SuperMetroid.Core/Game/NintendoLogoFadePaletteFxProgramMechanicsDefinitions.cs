@@ -50,29 +50,6 @@ public static class NintendoLogoFadePaletteFxProgramMechanicsDefinitions
 
     /// <summary>Each record lasts three frames.</summary>
     public const ushort FrameDuration = 3;
-
-    private static readonly DefinitionList ReadOnlyDefinitions = new();
-
-    /// <summary>The boot-logo and copyright entries in native definition order, calculated from their semantic entry contracts.</summary>
-    [AccessedByReflection]
-    public static IReadOnlyList<NintendoLogoFadePaletteFxProgramDefinition> All => ReadOnlyDefinitions;
-
-    /// <summary>$8D:E198/E19C select two distinct entry operations: boot sets its slot then falls through; copyright sets its slot then explicitly branches to the shared fade body.</summary>
-    private sealed class DefinitionList : IReadOnlyList<NintendoLogoFadePaletteFxProgramDefinition>
-    {
-        public int Count => 2;
-        public NintendoLogoFadePaletteFxProgramDefinition this[int index] => index switch
-        {
-            0 => new(),
-            1 => new(),
-            _ => throw new ArgumentOutOfRangeException(nameof(index)),
-        };
-        public IEnumerator<NintendoLogoFadePaletteFxProgramDefinition> GetEnumerator()
-        {
-            for (int index = 0; index < Count; index++) yield return this[index];
-        }
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
     /// <summary>Returns one shared timed-record pointer.</summary>
     public static ushort FramePointer(int frame)
     {
@@ -123,6 +100,3 @@ public static class NintendoLogoFadePaletteFxProgramMechanicsDefinitions
         return false;
     }
 }
-
-/// <summary>One entry into the shared Nintendo-logo fade body.</summary>
-public sealed record NintendoLogoFadePaletteFxProgramDefinition();

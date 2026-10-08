@@ -7,13 +7,13 @@ internal static partial class Program
 {
     private static void VerifyMotherBrainFallingTubeInstructionDefinitions()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         MethodInfo processInstructions = typeof(RoomEnemySystem).GetMethod(
             "ProcessInstructions", flags)!;
         FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus", flags)!;
 
-        for (int index = 0; index < MotherBrainFallingTubeInstructionDefinitions.ListCount;
+        for (int index = 0; index < MotherBrainFallingTubeInstructionDefinitionsTooling.ListCount;
             index++)
         {
             ushort start = unchecked((ushort)(

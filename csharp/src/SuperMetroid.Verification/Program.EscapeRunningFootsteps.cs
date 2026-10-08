@@ -9,7 +9,7 @@ internal static partial class Program
 {
     private static void VerifyEscapeRunningFootsteps()
     {
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (bool able in new[] { false, true })
         foreach (byte pose in new[] { SamusPoseIds.MovingRightNormalPose, SamusPoseIds.MovingLeftNormalPose })
         {

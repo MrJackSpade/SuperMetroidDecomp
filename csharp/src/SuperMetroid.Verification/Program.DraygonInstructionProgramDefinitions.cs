@@ -12,15 +12,15 @@ internal static partial class Program
     {
         const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         const BindingFlags staticFlags = BindingFlags.Static | BindingFlags.NonPublic;
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
 
         for (int index = 0;
-             index < DraygonInstructionProgramDefinitions.MechanicsWordCount;
+             index < DraygonInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                DraygonInstructionProgramDefinitions.MechanicsWord(index);
+                DraygonInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(
                 ReadDraygonWord(rom, 0xa50000 | definition.Address),
                 definition.Value,
@@ -47,11 +47,11 @@ internal static partial class Program
                 Definition = default(RoomEnemyDefinition) with { Bank = 0xa5 },
             };
             for (int index = 0;
-                 index < DraygonInstructionProgramDefinitions.MechanicsWordCount;
+                 index < DraygonInstructionProgramDefinitionsTooling.MechanicsWordCount;
                  index++)
             {
                 InstructionMechanicsWord word =
-                    DraygonInstructionProgramDefinitions.MechanicsWord(index);
+                    DraygonInstructionProgramDefinitionsTooling.MechanicsWord(index);
                 AssertEqual(
                     word.Value,
                     (ushort)readMechanics.Invoke(enemies, [slot, word.Address])!,
@@ -116,7 +116,7 @@ internal static partial class Program
 
         AssertThrows<InvalidDataException>(
             () => DraygonInstructionProgramDefinitions.ReadMechanicsWord(
-                DraygonInstructionProgramDefinitions.PresentationWordAddress(0)),
+                DraygonInstructionProgramDefinitionsTooling.PresentationWordAddress(0)),
             "Draygon extended-spritemap pointer is rejected as mechanics");
         AssertThrows<InvalidDataException>(
             () => DraygonInstructionProgramDefinitions.ReadMechanicsWord(0x8000),
@@ -131,8 +131,8 @@ internal static partial class Program
 
         Console.WriteLine(
             $"Draygon instruction mechanics: " +
-            $"{DraygonInstructionProgramDefinitions.MechanicsWordCount} compiled words, " +
-            $"{DraygonInstructionProgramDefinitions.PresentationWordCount} live presentation " +
+            $"{DraygonInstructionProgramDefinitionsTooling.MechanicsWordCount} compiled words, " +
+            $"{DraygonInstructionProgramDefinitionsTooling.PresentationWordCount} live presentation " +
             "operands, four physical owners, atomic list handoff, and both HUD IRQ opcodes pass.");
     }
 

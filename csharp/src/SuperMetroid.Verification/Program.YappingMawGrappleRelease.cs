@@ -1,11 +1,12 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
     private static void VerifyYappingMawGrappleRelease()
     {
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual((ushort)0xc8c5, (ushort)(bus.ReadCartridgeByte(0x90f15b) | bus.ReadCartridgeByte(0x90f15c) << 8), "pinned cartridge command three selects Dropped");
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
         runtime.InitializeHud(HudSnapshot.CeresDebug);

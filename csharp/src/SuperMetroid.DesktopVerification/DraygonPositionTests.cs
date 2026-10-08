@@ -69,7 +69,7 @@ internal static partial class Program
             previousY = expectedY;
             positions.Add((boss.Body.XPosition, boss.Body.YPosition));
             if (frame is 1 or 120 or 240 or 360 or 480)
-                PngWriter.WriteRgba($"{output}/frame-{frame}.png", 256, 224,
+                PngWriterTooling.WriteRgba($"{output}/frame-{frame}.png", 256, 224,
                     SuperMetroidRuntimeFrameRenderer.Render(runtime));
         }
         if (positions.Count < 20) throw new InvalidOperationException("Draygon fixture did not exercise a moving body.");

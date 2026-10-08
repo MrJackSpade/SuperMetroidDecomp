@@ -16,7 +16,7 @@ internal static partial class Program
     private static void VerifyGoldenTorizoCartridgeCombatFallback(
         string sourceRom, GameInstallation installation)
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.Enemies.TileArtwork = installation.LoadEnemyTiles();
         runtime.InitializeHud(HudSnapshot.CeresDebug);

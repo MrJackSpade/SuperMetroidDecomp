@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control words for the escape-sequence Dachora's low/high-tide pacing and
 /// accelerating departure programs. Spritemap selections resolve installed artwork.
 /// </summary>
-internal abstract class EscapeDachoraInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class EscapeDachoraInstructionProgramDefinitions
 {
     /// <summary><c>InstList_DachoraEscape_RunningAroundAimlessly_LowTide_0</c> at $B3:E964.</summary>
     internal const ushort RunningAroundLowTide = 0xe964;
@@ -146,22 +146,5 @@ internal abstract class EscapeDachoraInstructionProgramDefinitions : IInstructio
         }
         throw new InvalidDataException(
             $"Escape Dachora instruction mechanics pointer $B3:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xb30000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 }

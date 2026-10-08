@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Runtime;
 /// </remarks>
 public sealed partial class SuperMetroidRuntime
 {
-    private readonly ISnesAddressSpace _addressSpace;
+    internal readonly ISnesAddressSpace _addressSpace;
     private SamusSuitPickupKind? _pendingSuitPickup;
     private StationActivationEvent? _pendingSaveStation;
     private StationActivationEvent? _pendingSaveStationCompletion;
@@ -178,7 +178,7 @@ public sealed partial class SuperMetroidRuntime
     /// True only for the explicit grounded gameplay-debug scenario. The cinematic render
     /// stimulus remains stationary and continues treating pose matches as diagnostics.
     /// </summary>
-    public bool GroundedSamusMovementEnabled { get; private set; }
+    public bool GroundedSamusMovementEnabled { get; internal set; }
 
     /// <summary>
     /// Host-readable equivalent of the native Moonwalk options word consumed by

@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyWreckedShipGhostInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyWreckedShipGhostInstructionProgramDefinitions), () => VerifyWreckedShipGhostInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyWreckedShipGhostInstructionProgramDefinitions(
@@ -120,7 +120,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (WreckedShipGhostInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (WreckedShipGhostInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

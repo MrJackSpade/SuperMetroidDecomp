@@ -229,7 +229,7 @@ internal static partial class Program
 
     private static void VerifyNoobTubeProgramDefinitions()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Tube oracle revision");
@@ -396,7 +396,7 @@ internal static partial class Program
     {
         // FX mechanics now come from compiled records. Use the actual Glass Tunnel
         // record and import its presentation dependencies at this verification boundary.
-        var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var roomFx = CreateRetailFxState(rom);
         roomFx.Load(bus, new SnesVram(), new SnesCgram(), 0x9c94, doorPointer: 0,
             randomNumber: 0);

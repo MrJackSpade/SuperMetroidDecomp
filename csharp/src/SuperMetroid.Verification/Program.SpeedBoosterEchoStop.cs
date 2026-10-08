@@ -11,7 +11,7 @@ internal static partial class Program
 {
     private static void VerifySpeedBoosterEchoStop()
     {
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var renderer = new CartridgeAudioRenderer(RepositoryInstallation.Installation.LoadAudio());
         var queue = new CartridgeAudioState();
         renderer.RenderFrame(queue.AdvanceFrame(bus, renderer.ReadAcknowledgements()));

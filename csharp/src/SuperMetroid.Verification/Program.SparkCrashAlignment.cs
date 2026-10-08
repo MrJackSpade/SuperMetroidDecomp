@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifySparkCrashAlignment()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (byte pose in new byte[] { SamusPoseIds.ShinesparkDiagonalRightPose, SamusPoseIds.ShinesparkDiagonalLeftPose })
         {
             var samus = new SamusState { Pose = pose, XPosition = 700, YPosition = 35 };

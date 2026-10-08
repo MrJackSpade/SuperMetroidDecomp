@@ -65,7 +65,7 @@ internal static class BackgroundTransferPresentationContractChecks
         // First.SourceAddress is an immutable record field, not a language constant.
         // Materialize its actual compiled value so the negative case tests constant correlation.
         calls = CSharpSyntaxTree.ParseText(calls.GetText().ToString().Replace(
-            "GunshipLiftoffTransferDefinitions.First.SourceAddress", GunshipLiftoffTransferDefinitions.First.SourceAddress
+            "GunshipLiftoffTransferDefinitions.First.SourceAddress", GunshipLiftoffTransferDefinitionsTooling.First.SourceAddress
                 .ToString(System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal), path: calls.FilePath);
         trees[^1] = calls;
         string[] platforms = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator);

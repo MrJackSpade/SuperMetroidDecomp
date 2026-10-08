@@ -9,7 +9,7 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         MethodInfo walker = typeof(RoomEnemySystem).GetMethod(
             "TryFindExtendedHitboxCallback", flags)!;
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var denied = new KraidFootCollisionNoReadBus();
         var installed = new RoomEnemySystem();
@@ -34,10 +34,10 @@ internal static partial class Program
         Suite(nameof(VerifyKraidFootSharedHitbox), () => VerifyKraidFootSharedHitbox(rom));
 
         for (int index = 0;
-             index < KraidFootInstructionProgramDefinitions.PresentationWordCount;
+             index < KraidFootInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort address = KraidFootInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort address = KraidFootInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             ushort selectedFrame = ReadWord(address);
             AssertTrue(KraidFootCollisionDefinitions.TryGetComponents(selectedFrame, out _),
                 $"Kraid foot instruction $A7:{address:X4} selects compiled physical frame");

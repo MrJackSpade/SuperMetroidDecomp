@@ -11,7 +11,7 @@ internal static partial class Program
 {
     private static void VerifyEndingMode7Artwork(GameInstallation installation)
     {
-        var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         EndingMode7ArtworkCatalog stock = installation.LoadEndingMode7Art();
         foreach (EndingMode7SceneId id in Enum.GetValues<EndingMode7SceneId>())
         {
@@ -30,7 +30,7 @@ internal static partial class Program
         }
 
         var guardedBus = new EndingMode7SourceReadGuard(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();
         var native = CreateRetailEndingFixture(nativeBus, nativeAudio, 0, 0);
@@ -80,7 +80,7 @@ internal static partial class Program
                 _ => throw new ArgumentOutOfRangeException(nameof(id)),
             };
             var sceneBus = new EndingMode7SourceReadGuard(
-                SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"));
+                SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
             var audio = new CartridgeAudioState();
             var state = CreateRetailEndingFixture(sceneBus, audio, 0, 0);
             state.BindMode7Artwork(stock);
@@ -124,7 +124,7 @@ internal static partial class Program
             if (id == EndingMode7SceneId.PlanetExplosion)
             {
                 var partialBus = new EndingMode7SourceReadGuard(
-                    SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"));
+                    SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
                 var partialAudio = new CartridgeAudioState();
                 var partial = CreateRetailEndingFixture(partialBus, partialAudio, 0, 0);
                 partial.BindMode7Artwork(stock);

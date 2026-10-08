@@ -1,28 +1,25 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Executable layout of the three recursive hand-beam stages at $86:C796-C7FA.</summary>
-internal abstract class MotherBrainHandBeamInstructionProgramDefinitions : IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class MotherBrainHandBeamInstructionProgramDefinitions
 {
     /// <summary>$86:C796, shared charging/fired hand-beam instruction list.</summary>
     internal const ushort Initial = 0xc796;
     /// <summary>$86:C7FB, Spawn_MotherBrainRedBeam_Fired callback.</summary>
     internal const int SpawnNextCallback = 0x86c7fb;
     /// <summary>$86:C796/C7B7/C7D8 repeat the same seven-frame sequence before C7F9 Delete.</summary>
-    private const int StageCount = 3, FramesPerStage = 7;
+    internal const int StageCount = 3, FramesPerStage = 7;
     /// <summary>Each native frame stores one duration word and one spritemap word.</summary>
-    private const int FrameBytes = 2 * sizeof(ushort);
+    internal const int FrameBytes = 2 * sizeof(ushort);
     /// <summary>$86:C79A/C7BB/C7DC store a call opcode word followed by its three-byte callback.</summary>
-    private const int CallbackBytes = sizeof(ushort) + 3;
-    private const int StageBytes = FramesPerStage * FrameBytes + CallbackBytes;
-    private const int WordsPerStage = FramesPerStage + 1;
+    internal const int CallbackBytes = sizeof(ushort) + 3;
+    internal const int StageBytes = FramesPerStage * FrameBytes + CallbackBytes;
     /// <summary>$86:C7F9, Delete following all three complete stages.</summary>
-    private const ushort TerminalDelete = Initial + StageCount * StageBytes;
+    internal const ushort TerminalDelete = Initial + StageCount * StageBytes;
 
     /// <summary>$86:C796/C79F/C7A3/C7A7/C7AB/C7AF/C7B3: selected frame holds,
     /// repeated in the next two stages (the repetition is calculated). Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private static readonly ushort[] Durations = [3, 3, 2, 2, 1, 1, 1];
-
-    internal static int NativeWordCount => StageCount * WordsPerStage + 1;
     public static int PresentationWordCount => StageCount * FramesPerStage;
 
     /// <summary>Calculates the interleaved spritemap operand, skipping the first frame's external call.</summary>
@@ -58,29 +55,6 @@ internal abstract class MotherBrainHandBeamInstructionProgramDefinitions : IPres
             $"Mother Brain hand-beam external call ${instructionAddress:X4} is not translated.");
     }
 
-    internal static InstructionMechanicsWord NativeWord(int index)
-    {
-        if ((uint)index >= NativeWordCount) throw new ArgumentOutOfRangeException(nameof(index));
-        if (index == NativeWordCount - 1) return new(TerminalDelete, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
-        int record = index % WordsPerStage;
-        ushort address = (ushort)(StageStart(index / WordsPerStage) +
-            (record == 1 ? FrameBytes : FrameOffset(record == 0 ? 0 : record - 1)));
-        return new(address, ReadMechanicsWord(address));
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
-        int bankAddress = (ushort)address;
-        if (bankAddress == TerminalDelete || bankAddress == TerminalDelete + 1) return true;
-        if (bankAddress < Initial || bankAddress >= TerminalDelete) return false;
-        int offset = (bankAddress - Initial) % StageBytes;
-        if (offset < sizeof(ushort)) return true;
-        if (offset < FrameBytes) return false;
-        if (offset < FrameBytes + CallbackBytes) return true;
-        return (offset - CallbackBytes) % FrameBytes < sizeof(ushort);
-    }
-
-    private static int StageStart(int stage) => Initial + stage * StageBytes;
-    private static int FrameOffset(int frame) => frame * FrameBytes + (frame == 0 ? 0 : CallbackBytes);
+    internal static int StageStart(int stage) => Initial + stage * StageBytes;
+    internal static int FrameOffset(int frame) => frame * FrameBytes + (frame == 0 ? 0 : CallbackBytes);
 }

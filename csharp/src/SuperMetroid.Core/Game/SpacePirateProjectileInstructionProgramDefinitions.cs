@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control for the shared Pirate/Mother Brain laser and Ninja Pirate claw
 /// programs. Interleaved spritemap selectors address separately installed artwork.
 /// </summary>
-internal abstract class SpacePirateProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class SpacePirateProjectileInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProjectile_Pirate_MotherBrain_Laser_Left_0</c> at $86:9F41.</summary>
     internal const ushort LaserLeft = 0x9f41;
@@ -112,22 +112,5 @@ internal abstract class SpacePirateProjectileInstructionProgramDefinitions : IIn
 
         throw new InvalidDataException(
             $"Space Pirate projectile mechanics pointer $86:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 }

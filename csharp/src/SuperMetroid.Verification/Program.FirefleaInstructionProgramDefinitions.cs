@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyFirefleaInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyFirefleaInstructionProgramDefinitions), () => VerifyFirefleaInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyFirefleaInstructionProgramDefinitions(
@@ -17,16 +17,16 @@ internal static partial class Program
         const BindingFlags flags =
             BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
 
-        AssertEqual(54, FirefleaInstructionProgramDefinitions.MechanicsWordCount,
+        AssertEqual(54, FirefleaInstructionProgramDefinitionsTooling.MechanicsWordCount,
             "Fireflea compiled mechanics word count");
-        AssertEqual(52, FirefleaInstructionProgramDefinitions.PresentationWordCount,
+        AssertEqual(52, FirefleaInstructionProgramDefinitionsTooling.PresentationWordCount,
             "Fireflea live presentation word count");
         for (int index = 0;
-             index < FirefleaInstructionProgramDefinitions.MechanicsWordCount;
+             index < FirefleaInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                FirefleaInstructionProgramDefinitions.MechanicsWord(index);
+                FirefleaInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadFirefleaInstructionWord(rom, definition.Address),
                 $"Fireflea mechanics word $A3:{definition.Address:X4}");
@@ -55,7 +55,7 @@ internal static partial class Program
         {
             slot.InstructionTimer = 1;
             process.Invoke(enemies, arguments);
-            ushort operand = FirefleaInstructionProgramDefinitions.PresentationWordAddress(
+            ushort operand = FirefleaInstructionProgramDefinitionsTooling.PresentationWordAddress(
                 call % FirefleaInstructionProgramDefinitions.FrameCount);
             ushort native = ReadFirefleaInstructionWord(rom, operand);
             AssertEqual(native, EnemySpritemapDefinitions.FirefleaFrameAt(operand),
@@ -72,7 +72,7 @@ internal static partial class Program
 
         AssertThrows<InvalidDataException>(
             () => FirefleaInstructionProgramDefinitions.ReadMechanicsWord(
-                FirefleaInstructionProgramDefinitions.PresentationWordAddress(0)),
+                FirefleaInstructionProgramDefinitionsTooling.PresentationWordAddress(0)),
             "Fireflea spritemap pointer is rejected as mechanics");
         AssertThrows<InvalidDataException>(
             () => FirefleaInstructionProgramDefinitions.ReadMechanicsWord(
@@ -124,7 +124,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (FirefleaInstructionProgramDefinitions.IsCompiledMechanicsByte(address) ||
+            if (FirefleaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
                 IsPresentationByte(address))
             {
                 ForbiddenReadAttempts++;

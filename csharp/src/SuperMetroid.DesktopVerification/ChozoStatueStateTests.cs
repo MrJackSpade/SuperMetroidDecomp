@@ -76,7 +76,7 @@ internal static partial class Program
 
     private static ushort ReadChozoWord(SuperMetroid.Core.Hardware.SuperMetroidAddressSpace bus, int address)
     {
-        var reference = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var reference = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         return (ushort)(reference.ReadCartridgeByte(address) | reference.ReadCartridgeByte(address + 1) << 8);
     }

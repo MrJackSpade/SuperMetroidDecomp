@@ -9,7 +9,7 @@ internal static partial class Program
 {
     private static void VerifyPauseBossMarkers()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int markers = 0;
         for (int area = 0; area < 6; area++)
         {
@@ -52,11 +52,11 @@ internal static partial class Program
 
                 // Exercise the production snapshot, SRAM checksum/slot codec, JSON
                 // format and restore path, entirely in disposable memory.
-                var source = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+                var source = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
                 new SuperMetroidSaveRam(source, RetailPresentationFixture()).SaveSlot(0,
                     SuperMetroidSaveSnapshot.Capture(new SamusState(), system, (ushort)area, 0));
                 string json = GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(source, RetailPresentationFixture()));
-                var restored = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+                var restored = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
                 GameSaveJsonCodec.Apply(GameSaveJsonCodec.Deserialize(json), restored, RetailPresentationFixture());
                 var slot = new SuperMetroidSaveRam(restored, RetailPresentationFixture()).ReadSlot(0) ??
                     throw new InvalidDataException("Boss-marker fixture lost its save slot.");

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Compiled mechanics for normal and strong Brinstar Pipe Bug programs.</summary>
-internal abstract class BrinstarPipeBugInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class BrinstarPipeBugInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Zeb_FacingLeft_Rising</c> at $B3:87AB.</summary>
     internal const ushort NormalRisingLeft = 0x87ab;
@@ -20,45 +20,11 @@ internal abstract class BrinstarPipeBugInstructionProgramDefinitions : IInstruct
     /// <summary><c>InstList_Zebbo_FacingRight_Shooting</c> at $B3:8A59.</summary>
     internal const ushort StrongShootingRight = 0x8a59;
 
-    public static int MechanicsWordCount => 60;
-    public static int PresentationWordCount => 44;
-
-    private static ushort Start(int program) => program < 4
+    internal static ushort Start(int program) => program < 4
         ? (ushort)(NormalRisingLeft + program / 2 * 64 + program % 2 * 36)
         : (ushort)(StrongRisingLeft + (program - 4) * 20);
 
-    private static int Frames(int program) => program < 4 ? 8 - 2 * (program & 1) : 4;
-
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount)
-            throw new IndexOutOfRangeException();
-        for (int program = 0; program < 8; program++)
-        {
-            int frames = Frames(program);
-            if (index < frames + 2)
-            {
-                ushort address = (ushort)(Start(program) + (index < frames ? index * 4 : frames * 4 + (index - frames) * 2));
-                return new(address, ReadMechanicsWord(address));
-            }
-            index -= frames + 2;
-        }
-        throw new IndexOutOfRangeException();
-    }
-
-    public static ushort PresentationWordAddress(int index)
-    {
-        if ((uint)index >= PresentationWordCount)
-            throw new IndexOutOfRangeException();
-        for (int program = 0; program < 8; program++)
-        {
-            int frames = Frames(program);
-            if (index < frames)
-                return (ushort)(Start(program) + index * 4 + 2);
-            index -= frames;
-        }
-        throw new IndexOutOfRangeException();
-    }
+    internal static int Frames(int program) => program < 4 ? 8 - 2 * (program & 1) : 4;
 
     internal static ushort ReadMechanicsWord(ushort address)
     {
@@ -67,7 +33,7 @@ internal abstract class BrinstarPipeBugInstructionProgramDefinitions : IInstruct
             $"Brinstar Pipe Bug instruction mechanics pointer $B3:{address:X4} is not compiled.");
     }
 
-    private static bool TryRead(int address, out ushort value)
+    internal static bool TryRead(int address, out ushort value)
     {
         for (int program = 0; program < 8; program++)
         {
@@ -91,8 +57,4 @@ internal abstract class BrinstarPipeBugInstructionProgramDefinitions : IInstruct
         value = 0;
         return false;
     }
-
-    public static bool IsCompiledMechanicsByte(int address) =>
-        (address & 0xff0000) == 0xb30000 &&
-        (TryRead((ushort)address, out _) || TryRead((ushort)address - 1, out _));
 }

@@ -42,7 +42,7 @@ internal static class CrocomireSkeletonResourceChecks
         document.Frames[frame.Name] = [.. extracted, extracted[0]];
         Reject(() => ExtendedEnemyCompositionResourceChecks.Load(document),
             "the skeleton loader must still reject a fourteenth component");
-        var ordinary = EnemyExtendedFrameDefinitions.Frames[0];
+        var ordinary = EnemyExtendedFrameDefinitions.Frames.First();
         int ordinaryCount = EnemyExtendedFrameDefinitions.MaximumComponents + 1;
         Reject(() => EnemyExtendedFrameFiles.ExtractComponents(new ConstructedComponentSource(ordinary, ordinaryCount), ordinary),
             "other native OAM families must retain their existing component bound");

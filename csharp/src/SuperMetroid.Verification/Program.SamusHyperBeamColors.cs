@@ -15,7 +15,7 @@ internal static partial class Program
             return;
         }
 
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Hyper Beam color oracle revision");
         SamusHyperBeamColorCatalog catalog = SamusHyperBeamColorCatalog.Load(
             new MemoryStream(SamusHyperBeamColorExtractor.Extract(rom)));

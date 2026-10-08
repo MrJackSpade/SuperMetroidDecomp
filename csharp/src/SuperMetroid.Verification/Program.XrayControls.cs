@@ -8,14 +8,14 @@ internal static partial class Program
 {
     private static void VerifyXrayControls()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (bool remapped in new[] { false, true })
         {
             var runtime = CreateRetailRuntimeFixture(bus);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BrinstarShutterRoom);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom);
             runtime.ControllerBindings = remapped
                 ? ControllerBindings.Default.AssignAndSwap(0, ControllerBindings.Default.Dash)
                 : ControllerBindings.Default;

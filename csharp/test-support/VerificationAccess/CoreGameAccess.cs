@@ -495,9 +495,9 @@ internal static class GoldenTorizoAwakeningInstructionProgramDefinitionsAccess
     {
         internal static bool TryReadMechanicsWord(ushort address, out ushort value)
         {
-            for (int index = 0; index < GoldenTorizoAwakeningInstructionProgramDefinitions.MechanicsWordCount; index++)
+            for (int index = 0; index < GoldenTorizoAwakeningInstructionProgramDefinitionsTooling.MechanicsWordCount; index++)
             {
-                var word = GoldenTorizoAwakeningInstructionProgramDefinitions.MechanicsWord(index);
+                var word = GoldenTorizoAwakeningInstructionProgramDefinitionsTooling.MechanicsWord(index);
                 if (word.Address != address) continue;
                 value = word.Value;
                 return true;
@@ -1036,7 +1036,7 @@ internal static class MotherBrainHeadInstructionProgramDefinitionsAccess
     {
         /// <summary>The precise pointer windows executed by the dedicated head interpreter.</summary>
         internal static bool IsActivePointer(ushort pointer) =>
-            pointer is >= MotherBrainHeadInstructionProgramDefinitions.NeutralStart and <= MotherBrainHeadInstructionProgramDefinitionsConstants.NeutralActiveEnd or
+            pointer is >= MotherBrainHeadInstructionProgramDefinitionsTooling.NeutralStart and <= MotherBrainHeadInstructionProgramDefinitionsConstants.NeutralActiveEnd or
                 >= MotherBrainHeadInstructionProgramDefinitionsConstants.BabyAttackStart and <= MotherBrainHeadInstructionProgramDefinitionsConstants.BabyAttackActiveEnd or
                 >= MotherBrainHeadInstructionProgramDefinitionsConstants.BombStart and <= MotherBrainHeadInstructionProgramDefinitionsConstants.BombActiveEnd;
     }
@@ -2105,6 +2105,13 @@ internal static class SamusStateAccess
 {
     extension(SamusState self)
     {
+        /// <summary>Typed view of <see cref="SamusState.Pose"/>; casting preserves undefined cartridge bytes.</summary>
+        internal SamusPoseId PoseId
+        {
+            get => (SamusPoseId)self.Pose;
+            set => self.Pose = (byte)value;
+        }
+
         /// <summary>
         /// Compatibility name for the `$13/$14` Fire subset. Keeping this narrow wrapper makes
         /// existing focused tests readable while all input-table exits share one native handler.

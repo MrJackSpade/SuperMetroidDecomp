@@ -33,7 +33,7 @@ internal static class AutonomousPerformanceStateFixture
             Console.WriteLine($"Frame {frame}: {result.Frame.GameState}, room {(byte?)data.Game.GameplayActiveAreaIndex:X2}/{data.Game.GameplayActiveRoomIndex:X2}, render={Stopwatch.GetElapsedTime(start).TotalMilliseconds / 100:F3}ms");
             if (packet.Layers is { } layers)
                 foreach (var layer in layers.Layers) Console.WriteLine($"Layer: {layer.GetType().Name}");
-            PngWriter.WriteRgba(Path.Combine(root, "frame.png"), packet.Width, packet.Height, pixels);
+            PngWriterTooling.WriteRgba(Path.Combine(root, "frame.png"), packet.Width, packet.Height, pixels);
             Console.WriteLine(data.SaveSlot(9));
         }
         return 0;

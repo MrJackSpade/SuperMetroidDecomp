@@ -11,7 +11,7 @@ internal static partial class Program
             "samus-atmosphere-boundary-" + Guid.NewGuid().ToString("N")));
         try
         {
-            var importBus = CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
+            var importBus = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
             SamusAtmosphericArtworkFiles.Extract(importBus, root, SupportedCartridge.Sha256);
             SamusAtmosphericArtworkCatalog artwork = SamusAtmosphericArtworkFiles.Load(root, null);
             var runtimeBus = SuperMetroidAddressSpace.CreateWithoutCartridge();

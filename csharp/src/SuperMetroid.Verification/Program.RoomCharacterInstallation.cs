@@ -31,7 +31,7 @@ internal static partial class Program
                 "full installer publishes all retail enemy palettes");
             _ = installed.LoadEnemyTiles();
             RoomCharacterAtlasCatalog stock = installed.LoadRoomCharacters();
-            CartridgeImportAddressSpace bus = CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
+            CartridgeImportAddressSpace bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
             CartridgeRoomHeader landing = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
             VerifyRoomVisualLayouts(installed, bus, landing);
             VerifyXrayRevealVisualInstallation(installed);

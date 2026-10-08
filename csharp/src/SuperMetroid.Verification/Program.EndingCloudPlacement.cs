@@ -11,7 +11,7 @@ internal static partial class Program
     {
         Suite(nameof(VerifyEndingTakeoffColorMath), () => VerifyEndingTakeoffColorMath(checkWrapping: true));
         Suite(nameof(VerifyEndingTakeoffColorMath), () => VerifyEndingTakeoffColorMath(checkWrapping: false));
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var audio = new CartridgeAudioState();
         var ending = CreateRetailEndingFixture(bus, audio, 0, 0);
         for (int frame = 0; frame < 20000 && ending.Phase != EndingCreditsPhase.FadeInEscapeSceneB; frame++)
@@ -63,8 +63,8 @@ internal static partial class Program
             if (frame == 19 || !pixels.AsSpan().SequenceEqual(expected))
             {
                 Directory.CreateDirectory("csharp/test-temp/ending-505");
-                PngWriter.WriteRgba("csharp/test-temp/ending-505/actual.png", 256, 224, pixels);
-                PngWriter.WriteRgba("csharp/test-temp/ending-505/native-placement.png", 256, 224, expected);
+                PngWriterTooling.WriteRgba("csharp/test-temp/ending-505/actual.png", 256, 224, pixels);
+                PngWriterTooling.WriteRgba("csharp/test-temp/ending-505/native-placement.png", 256, 224, expected);
             }
             AssertTrue(pixels.AsSpan().SequenceEqual(expected), $"scene B cloud positions/motion frame {frame} ({ending.Phase})");
             checkedFrames++;
@@ -75,7 +75,7 @@ internal static partial class Program
 
     private static void VerifyEndingTakeoffColorMath(bool checkWrapping)
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var audio = new CartridgeAudioState();
         var ending = CreateRetailEndingFixture(bus, audio, 0, 0);
         for (int frame = 0; frame < 20000 && ending.Phase != EndingCreditsPhase.EscapeSceneA; frame++)
@@ -128,8 +128,8 @@ internal static partial class Program
         }
         var actual = ending.Render();
         Directory.CreateDirectory("csharp/test-temp/ending-505");
-        PngWriter.WriteRgba("csharp/test-temp/ending-505/takeoff-actual.png", 256, 224, actual);
-        PngWriter.WriteRgba(checkWrapping ? "csharp/test-temp/ending-505/takeoff-native-wrap-and-math.png"
+        PngWriterTooling.WriteRgba("csharp/test-temp/ending-505/takeoff-actual.png", 256, 224, actual);
+        PngWriterTooling.WriteRgba(checkWrapping ? "csharp/test-temp/ending-505/takeoff-native-wrap-and-math.png"
             : "csharp/test-temp/ending-505/takeoff-native-math.png", 256, 224, expected);
         if (checkWrapping)
         {

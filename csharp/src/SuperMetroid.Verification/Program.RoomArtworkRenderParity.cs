@@ -28,7 +28,7 @@ internal static partial class Program
             SuperMetroidRuntime installed = LoadRoom(installedArt: true);
             if (useRealLandingDoor)
             {
-                var sourceBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
+                var sourceBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
                 ushort landingDoor = LandingSiteRomData.LandingCutsceneDoorPointer;
                 LibraryBackgroundInstruction skyTransfer = LibraryBackgroundProgramDefinitions.GetDoorTransfer(
                     unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress), landingDoor);
@@ -129,7 +129,7 @@ internal static partial class Program
 
             SuperMetroidRuntime LoadRoom(bool installedArt)
             {
-                var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
+                var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
                 var runtime = CreateRetailRuntimeFixture(bus);
                 if (installedArt)
                 {

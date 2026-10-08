@@ -26,7 +26,7 @@ internal static class RoomFxRecordCatalogSource
             {
                 if (pointer < 0x8000)
                     throw new InvalidDataException($"Room state $8F:{state.Pointer:X4} FX list crossed below the LoROM window.");
-                int source = RoomFxRomData.Banks.RoomDefinitions | pointer;
+                int source = RoomFxRomDataBanksTooling.RoomDefinitions | pointer;
                 ushort door = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), source);
                 RoomFxRecordDefinition record;
                 if (door == RoomFxRomData.Record.TerminatorDoorPointer)
@@ -40,17 +40,17 @@ internal static class RoomFxRecordCatalogSource
                     static ushort Word(byte[] bytes, int offset) =>
                         (ushort)(bytes[offset] | bytes[offset + 1] << 8);
                     record = new(pointer, door,
-                        Word(native, RoomFxRomData.Record.BaseYPositionOffset),
-                        Word(native, RoomFxRomData.Record.TargetYPositionOffset),
-                        Word(native, RoomFxRomData.Record.YVelocityOffset),
-                        native[RoomFxRomData.Record.TimerOffset],
-                        native[RoomFxRomData.Record.TypeOffset],
-                        native[RoomFxRomData.Record.DefaultLayerBlendConfigurationOffset],
-                        native[RoomFxRomData.Record.Layer3LayerBlendConfigurationOffset],
-                        native[RoomFxRomData.Record.LiquidOptionsOffset],
-                        native[RoomFxRomData.Record.PaletteFxBitsetOffset],
-                        native[RoomFxRomData.Record.AnimatedTileBitsetOffset],
-                        native[RoomFxRomData.Record.PaletteBlendOffset]);
+                        Word(native, RoomFxRomDataRecordTooling.BaseYPositionOffset),
+                        Word(native, RoomFxRomDataRecordTooling.TargetYPositionOffset),
+                        Word(native, RoomFxRomDataRecordTooling.YVelocityOffset),
+                        native[RoomFxRomDataRecordTooling.TimerOffset],
+                        native[RoomFxRomDataRecordTooling.TypeOffset],
+                        native[RoomFxRomDataRecordTooling.DefaultLayerBlendConfigurationOffset],
+                        native[RoomFxRomDataRecordTooling.Layer3LayerBlendConfigurationOffset],
+                        native[RoomFxRomDataRecordTooling.LiquidOptionsOffset],
+                        native[RoomFxRomDataRecordTooling.PaletteFxBitsetOffset],
+                        native[RoomFxRomDataRecordTooling.AnimatedTileBitsetOffset],
+                        native[RoomFxRomDataRecordTooling.PaletteBlendOffset]);
                 }
                 if (records.TryGetValue(pointer, out RoomFxRecordDefinition? existing))
                 {
@@ -75,24 +75,24 @@ internal static class RoomFxRecordCatalogSource
         foreach (ushort pointer in MotherBrainFxRecordPointers.DirectRecords)
         {
             byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                RoomFxRomData.Banks.RoomDefinitions | pointer,
+                RoomFxRomDataBanksTooling.RoomDefinitions | pointer,
                 RoomFxRomData.Record.ByteCount);
             static ushort Word(byte[] bytes, int offset) =>
                 (ushort)(bytes[offset] | bytes[offset + 1] << 8);
             records.Add(pointer, new RoomFxRecordDefinition(
                 pointer,
-                Word(native, RoomFxRomData.Record.DoorPointerOffset),
-                Word(native, RoomFxRomData.Record.BaseYPositionOffset),
-                Word(native, RoomFxRomData.Record.TargetYPositionOffset),
-                Word(native, RoomFxRomData.Record.YVelocityOffset),
-                native[RoomFxRomData.Record.TimerOffset],
-                native[RoomFxRomData.Record.TypeOffset],
-                native[RoomFxRomData.Record.DefaultLayerBlendConfigurationOffset],
-                native[RoomFxRomData.Record.Layer3LayerBlendConfigurationOffset],
-                native[RoomFxRomData.Record.LiquidOptionsOffset],
-                native[RoomFxRomData.Record.PaletteFxBitsetOffset],
-                native[RoomFxRomData.Record.AnimatedTileBitsetOffset],
-                native[RoomFxRomData.Record.PaletteBlendOffset]));
+                Word(native, RoomFxRomDataRecordTooling.DoorPointerOffset),
+                Word(native, RoomFxRomDataRecordTooling.BaseYPositionOffset),
+                Word(native, RoomFxRomDataRecordTooling.TargetYPositionOffset),
+                Word(native, RoomFxRomDataRecordTooling.YVelocityOffset),
+                native[RoomFxRomDataRecordTooling.TimerOffset],
+                native[RoomFxRomDataRecordTooling.TypeOffset],
+                native[RoomFxRomDataRecordTooling.DefaultLayerBlendConfigurationOffset],
+                native[RoomFxRomDataRecordTooling.Layer3LayerBlendConfigurationOffset],
+                native[RoomFxRomDataRecordTooling.LiquidOptionsOffset],
+                native[RoomFxRomDataRecordTooling.PaletteFxBitsetOffset],
+                native[RoomFxRomDataRecordTooling.AnimatedTileBitsetOffset],
+                native[RoomFxRomDataRecordTooling.PaletteBlendOffset]));
         }
         return records;
     }

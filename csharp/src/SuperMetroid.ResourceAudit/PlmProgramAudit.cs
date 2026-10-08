@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.Core.Rooms;
@@ -38,14 +39,16 @@ internal static class PlmProgramAudit
 
         // Header/list identity inventories are independent of the definitions being
         // checked. A completely absent family is caught even if it exports no words.
-        foreach (RoomPlmHeaderDefinition header in RoomPlmHeaderDefinitions.All)
+        foreach (RoomPlmHeaderDefinition header in RoomPlmHeaderDefinitionsTooling.All)
         {
             string? route = TypedHeaderRoute(header.Header);
             if (route is not null)
                 report.Classifications.Add(new());
             else walker.Visit(header.InitialInstruction, $"header ${header.Header:X4}");
         }
-        foreach (FieldInfo field in typeof(RoomPlmInstructionLists).GetFields(BindingFlags.Public | BindingFlags.Static))
+        FieldInfo[] instructionLists = [.. ToolingTypes.WithAdapter(typeof(RoomPlmInstructionLists))
+            .SelectMany(type => type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))];
+        foreach (FieldInfo field in instructionLists)
         {
             if (!field.IsLiteral || field.FieldType != typeof(ushort)) continue;
             ushort address = (ushort)field.GetRawConstantValue()!;
@@ -56,8 +59,7 @@ internal static class PlmProgramAudit
         foreach ((ushort address, string owner) in source.AssignedConstantRoots())
         {
             // Reuse the same typed route for assignments to scroll/save identities.
-            string? name = typeof(RoomPlmInstructionLists).GetFields(BindingFlags.Public | BindingFlags.Static)
-                .FirstOrDefault(field => field.IsLiteral && field.FieldType == typeof(ushort) &&
+            string? name = instructionLists.FirstOrDefault(field => field.IsLiteral && field.FieldType == typeof(ushort) &&
                     (ushort)field.GetRawConstantValue()! == address)?.Name;
             if (name is null || TypedListRoute(name) is null) walker.Visit(address, owner);
         }
@@ -113,7 +115,7 @@ internal static class PlmProgramAudit
     private static string? TypedListRoute(string name) => name switch
     {
         nameof(RoomPlmInstructionLists.ScrollTriggerWaiting) or
-        nameof(RoomPlmInstructionLists.ScrollTriggerActivated) => "TryStepScrollPlm",
+        nameof(RoomPlmInstructionListsTooling.ScrollTriggerActivated) => "TryStepScrollPlm",
         nameof(RoomPlmInstructionLists.SaveStationIdleDraw) or
         nameof(RoomPlmInstructionLists.SaveStationAnimationFirstFrame) or
         nameof(RoomPlmInstructionLists.SaveStationAnimationSecondFrame) => "TryStepStation / SaveStationAnimationDefinitions",
@@ -148,7 +150,7 @@ internal static class PlmProgramAudit
                     continue;
                 }
                 report.Records++;
-                if ((opcode & RoomPlmMemoryLayout.RoutineWordMask) == 0)
+                if ((opcode & RoomPlmMemoryLayoutTooling.RoutineWordMask) == 0)
                 {
                     report.TimedDraws++;
                     if (RequireWord(2, out ushort draw) && !ownsDraw(draw))

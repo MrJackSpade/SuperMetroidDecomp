@@ -10,7 +10,7 @@ internal static class RetailTransitionTests
 {
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var destruction = RenderRetailFixture.CreateDestruction(bus);
         var phases = new HashSet<CeresDestructionPhase>();
         bool mode1 = false, mode7 = false;

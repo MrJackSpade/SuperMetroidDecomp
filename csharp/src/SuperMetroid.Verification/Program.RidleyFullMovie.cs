@@ -16,7 +16,7 @@ internal static partial class Program
 {
     private static void VerifyRidleySpinFireball()
     {
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
@@ -43,7 +43,7 @@ internal static partial class Program
 
     private static void VerifyRidleyContactOrdering()
     {
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
@@ -71,7 +71,7 @@ internal static partial class Program
 
     private static void VerifyRidleySwoopTimer()
     {
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
@@ -95,7 +95,7 @@ internal static partial class Program
 
     private static void VerifyRidleyDeathFinish()
     {
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
@@ -117,7 +117,7 @@ internal static partial class Program
 
     private static void VerifyRidleyGrabEntry()
     {
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
@@ -190,7 +190,7 @@ internal static partial class Program
 
     private static void VerifyRidleyMapInitialization()
     {
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (bool defeated in new[] { false, true })
         {
             var runtime = CreateRetailRuntimeFixture(bus);
@@ -221,7 +221,7 @@ internal static partial class Program
 
     private static void VerifyRetainedHorizontalSpeed()
     {
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var room = CreateRoom(16, 16, new ushort[256], new byte[256]);
         foreach (int branch in new[] { 0, 1, 2, 3 })
         {
@@ -258,7 +258,7 @@ internal static partial class Program
 
     private static void VerifyPauseDispatcherRandom()
     {
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
@@ -286,7 +286,7 @@ internal static partial class Program
 
     private static void VerifySpinFallbackHistory()
     {
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (byte pose in new[] { SamusPoseIds.SpinJumpRightPose, SamusPoseIds.SpinJumpLeftPose,
             SamusPoseIds.SpaceJumpRightPose, SamusPoseIds.SpaceJumpLeftPose,
             SamusPoseIds.ScrewAttackRightPose, SamusPoseIds.ScrewAttackLeftPose })
@@ -317,7 +317,7 @@ internal static partial class Program
 
     private static void VerifyMorphCameraCheckpoint()
     {
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var level = CreateRoom(16, 32, new ushort[16 * 32], new byte[16 * 32]);
         foreach (bool left in new[] { false, true })
         {
@@ -352,7 +352,7 @@ internal static partial class Program
 
     private static void VerifyAimUpLandingAnimation()
     {
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var level = CreateRoom(16, 32, new ushort[16 * 32], new byte[16 * 32]);
         foreach (byte pose in new[] { SamusPoseIds.FallingAimUpRightPose, SamusPoseIds.FallingAimUpLeftPose })
         {
@@ -377,7 +377,7 @@ internal static partial class Program
 
     private static void VerifyRidleyFireballSquareSlope()
     {
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
@@ -407,7 +407,7 @@ internal static partial class Program
 
     private static void VerifyRidleyFireballDamage()
     {
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
@@ -436,7 +436,7 @@ internal static partial class Program
 
     private static void VerifyRidleyTailImpact()
     {
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
@@ -481,7 +481,7 @@ internal static partial class Program
 
     private static void VerifySpringBallRelease()
     {
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
@@ -614,7 +614,7 @@ internal static partial class Program
 
     private static void VerifyRidleyPausePageTiming()
     {
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState { MaxReserveEnergy = 300, ReserveEnergy = 300, ReserveTankMode = 1 };
         var menu = new PauseMenuState(bus, samus, new Bank80SystemState(), AreaId.Norfair, 0, 0,
             mapPresentation: RetailPresentationFixture());
@@ -648,7 +648,7 @@ internal static partial class Program
 
     private static void VerifyRidleyPaletteSelection()
     {
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
@@ -702,7 +702,7 @@ internal static partial class Program
 
     private static void VerifyRidleyDoorEntry()
     {
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
@@ -886,7 +886,7 @@ internal static partial class Program
         }
         byte[] memory = ReadFrame(0);
         ushort W(int address) => BinaryPrimitives.ReadUInt16LittleEndian(memory.AsSpan(address));
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();

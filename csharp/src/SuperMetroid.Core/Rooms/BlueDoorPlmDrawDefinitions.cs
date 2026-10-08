@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms;
 internal static class BlueDoorPlmDrawDefinitions
 {
     /// <summary>Left-facing blue-cap frame zero at $84:A9B3.</summary>
-    private const ushort LeftFrame0 = 0xa9b3;
+    internal const ushort LeftFrame0 = 0xa9b3;
     /// <summary>Right-facing blue-cap frame zero at $84:A9EF.</summary>
     private const ushort RightFrame0 = 0xa9ef;
     /// <summary>Up-facing blue-cap frame zero at $84:AA2B.</summary>
@@ -52,19 +52,6 @@ internal static class BlueDoorPlmDrawDefinitions
         int index = offset / DrawListBytes;
         draw = owned ? new(index / 5, index % 5 - 1) : default;
         return owned;
-    }
-
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
-    {
-        get
-        {
-            foreach (var frame in Editable) yield return frame;
-            for (int orientation = 0; orientation < 4; orientation++)
-            {
-                TryGet((ushort)(LeftFrame0 + orientation * 60 - DrawListBytes), out var draw);
-                yield return draw;
-            }
-        }
     }
 
     /// <summary>Sixteen original artwork identities; the four physical aliases share frame zero.</summary>

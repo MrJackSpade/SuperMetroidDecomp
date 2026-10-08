@@ -19,7 +19,7 @@ internal static class ReachabilityFindings
     public const string TestSupportUnusedByTools = "test-support-unused-by-tools";
 
     /// <summary>Assemblies that ship to players; symbols here must be reachable from the player hosts.</summary>
-    private static readonly HashSet<string> ProductionAssemblies =
+    internal static readonly HashSet<string> ProductionAssemblies =
         ["SuperMetroid.Core", "SuperMetroid.AssetExtraction", "SuperMetroid.Diagnostics", "SuperMetroid.Desktop",
          "SuperMetroid.Rendering.Direct3D11", "SuperMetroid.Game", "SuperMetroid.Android"];
 

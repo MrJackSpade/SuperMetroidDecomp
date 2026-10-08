@@ -11,7 +11,7 @@ internal static partial class Program
     /// </summary>
     private static void VerifyMamaTurtleEnemyDefinitions()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var guard = new MamaTurtleDefinitionReadGuard(rom);
         foreach (ushort pointer in new ushort[]
                  {

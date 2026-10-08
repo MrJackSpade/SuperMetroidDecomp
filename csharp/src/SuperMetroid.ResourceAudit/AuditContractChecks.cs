@@ -162,25 +162,25 @@ internal static class AuditContractChecks
     {
         // Confirms only the two identified metadata gaps. No AI, room, frame,
         // palette effect or gameplay callback is executed.
-        Require(MotherBrainBabyInstructionProgramDefinitions.Bank ==
+        Require(MotherBrainBabyInstructionProgramDefinitionsTooling.Bank ==
             MotherBrainRoomColorRomData.SourceBank >> 16, "cutscene-baby bank ownership must be explicit");
         // Pinned InstList_BabyMetroid initial, drain and fatal-blow sequences.
         ushort[] expected = [0xf9a8, 0xfa40, 0xfad8, 0xfa40,
             0xf9a8, 0xfa40, 0xfad8, 0xfa40, 0xfad8];
-        Require(expected.Length == MotherBrainBabyInstructionProgramDefinitions.PresentationWordCount,
+        Require(expected.Length == MotherBrainBabyInstructionProgramDefinitionsTooling.PresentationWordCount,
             "the reviewed cutscene-baby sequences must not silently grow");
         for (int index = 0; index < expected.Length; index++)
         {
             Require(SuperMetroid.Core.Assets.CompiledEnemyVisualSelectors.TryGet(
-                MotherBrainBabyInstructionProgramDefinitions.Bank,
-                MotherBrainBabyInstructionProgramDefinitions.PresentationWordAddress(index), out ushort selected)
+                MotherBrainBabyInstructionProgramDefinitionsTooling.Bank,
+                MotherBrainBabyInstructionProgramDefinitionsTooling.PresentationWordAddress(index), out ushort selected)
                 && selected == expected[index], "every cutscene-baby operand must select its pinned native frame");
             Require(SuperMetroid.Core.Assets.EnemySpritemapDefinitions.Frames.ToArray().Any(frame =>
-                frame.Bank == MotherBrainBabyInstructionProgramDefinitions.Bank && frame.Pointer == selected),
+                frame.Bank == MotherBrainBabyInstructionProgramDefinitionsTooling.Bank && frame.Pointer == selected),
                 "each selected cutscene-baby frame must be installed, not just bound");
         }
         Require(!SuperMetroid.Core.Assets.CompiledEnemyVisualSelectors.TryGet(
-            MotherBrainBabyInstructionProgramDefinitions.Bank, MotherBrainBabyInstructionProgramDefinitions.Initial, out _),
+            MotherBrainBabyInstructionProgramDefinitionsTooling.Bank, MotherBrainBabyInstructionProgramDefinitions.Initial, out _),
             "an adjacent mechanics word must not become a visual selector");
 
         var exports = new ResourceIndex();

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled engine-control words for Owtch's left/right animation programs.
 /// Interleaved spritemap operands are selected by the installed visual catalog.
 /// </summary>
-internal abstract class OwtchInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class OwtchInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Owtch_MovingLeft_0</c> at $A2:A3AB.</summary>
     internal const ushort MovingLeft = 0xa3ab;
@@ -23,22 +23,7 @@ internal abstract class OwtchInstructionProgramDefinitions : IInstructionProgram
     /// only hold8, not instruction-reset1, motion, radii, sprite selection or pixel art.</remarks>
     internal const ushort CyclicVisualHold = 8;
 
-    private const int ProgramBytes = 18;
-    public static int MechanicsWordCount => 12;
-    public static int PresentationWordCount => 6;
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        int word = index % 6;
-        int offset = word == 0 ? 0 : word <= 4 ? 2 + (word - 1) * 4 : 16;
-        ushort address = (ushort)(MovingLeft + index / 6 * ProgramBytes + offset);
-        return new(address, ReadMechanicsWord(address));
-    }
-    public static ushort PresentationWordAddress(int index)
-    {
-        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
-        return (ushort)(MovingLeft + index / 3 * ProgramBytes + 4 + index % 3 * 4);
-    }
+    internal const int ProgramBytes = 18;
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - MovingLeft;
@@ -54,12 +39,5 @@ internal abstract class OwtchInstructionProgramDefinitions : IInstructionProgram
             }
         }
         throw new InvalidDataException($"Owtch instruction mechanics pointer $A2:{address:X4} is not compiled.");
-    }
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa20000) return false;
-        int offset = (ushort)address - MovingLeft;
-        return (uint)offset < 2 * ProgramBytes &&
-            ((offset % ProgramBytes & ~1) is 0 or 2 or 6 or 10 or 14 or 16);
     }
 }

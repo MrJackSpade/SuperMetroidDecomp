@@ -25,7 +25,7 @@ internal static partial class Program
         for (int f = 0; f < 180; f++)
         {
             if (f is 0 or 179)
-                PngWriter.WriteRgba($"csharp/test-temp/issue-376-stuck-grapple/frame-{f}.png",256,224,SuperMetroidRuntimeFrameRenderer.Render(runtime));
+                PngWriterTooling.WriteRgba($"csharp/test-temp/issue-376-stuck-grapple/frame-{f}.png",256,224,SuperMetroidRuntimeFrameRenderer.Render(runtime));
             loaded.Game.Step((ushort)(SnesButton.X | SnesButton.Up | (f < 45 ? SnesButton.Left : SnesButton.Right) |
                 (f % 8 == 0 ? kickButton : SnesButton.None)));
             sawKick |= grapple.JumpImpulse != 0;
@@ -57,7 +57,7 @@ internal static partial class Program
         for (int f = 0; f < 13; f++) loaded.Game.Step((ushort)(SnesButton.A | SnesButton.Left));
         Check(samus.XPosition < 175 && samus.YPosition < 454,
             "Wall jump from the player's stuck setup must move away and rise by more than 50 pixels.");
-        PngWriter.WriteRgba("csharp/test-temp/issue-376-stuck-grapple/jumped.png",256,224,SuperMetroidRuntimeFrameRenderer.Render(runtime));
+        PngWriterTooling.WriteRgba("csharp/test-temp/issue-376-stuck-grapple/jumped.png",256,224,SuperMetroidRuntimeFrameRenderer.Render(runtime));
         Console.WriteLine($"PASS Jump frees rope: length 12 -> 8, wall-grab sprite at (175,504), wall jump to ({samus.XPosition},{samus.YPosition}).");
     }
 }

@@ -84,7 +84,7 @@ internal sealed class PlmProgramSource
             // This is a finite inventory of pure compiled definitions, not a CPU
             // read or a frame/parameter probe. Only the exact registered providers
             // are consulted; the interpreter's fixture/WRAM fallbacks never run.
-            for (int address = RoomPlmMemoryLayout.CompiledProgramStart; address <= ushort.MaxValue; address++)
+            for (int address = RoomPlmMemoryLayoutTooling.CompiledProgramStart; address <= ushort.MaxValue; address++)
                 if (reader((ushort)address, out _)) result.TryAdd((ushort)address, provider.DeclaringType!.Name);
         }
         return result;
@@ -111,7 +111,7 @@ internal sealed class PlmProgramSource
                                 ? field.GetRawConstantValue() : null,
                         _ => null,
                     };
-                    if (value is ushort or int && Convert.ToInt32(value) is >= RoomPlmMemoryLayout.CompiledProgramStart and <= ushort.MaxValue)
+                    if (value is ushort or int && Convert.ToInt32(value) is >= RoomPlmMemoryLayoutTooling.CompiledProgramStart and <= ushort.MaxValue)
                         yield return ((ushort)Convert.ToInt32(value), method.Identifier.Text + ": " + expression);
                 }
             }

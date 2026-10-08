@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyKraidLintInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKraidLintInstructionProgramDefinitions), () => VerifyKraidLintInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyKraidLintInstructionProgramDefinitions(
@@ -121,7 +121,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (KraidLintInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (KraidLintInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

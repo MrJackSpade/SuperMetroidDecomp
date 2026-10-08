@@ -14,7 +14,7 @@ internal static partial class AssetTools
     internal static CartridgeImportAddressSpace LoadRepositoryRom()
     {
         string path = Path.GetFullPath("Super Metroid.smc");
-        var rom = CartridgeImportAddressSpace.LoadRetailRom(path);
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(path);
         string actual = Convert.ToHexString(SHA256.HashData(rom.Rom));
         if (!actual.Equals(SupportedCartridge.Sha256, StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException(

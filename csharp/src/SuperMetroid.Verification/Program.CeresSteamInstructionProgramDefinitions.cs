@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyCeresSteamInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyCeresSteamInstructionProgramDefinitions), () => VerifyCeresSteamInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyCeresSteamInstructionProgramDefinitions(
@@ -75,15 +75,15 @@ internal static partial class Program
                 $"Ceres steam {variant} completes its full cycle");
         }
 
-        AssertEqual(CeresSteamInstructionProgramDefinitions.PresentationWordCount,
+        AssertEqual(CeresSteamInstructionProgramDefinitionsTooling.PresentationWordCount,
             executedOperands.Count,
             "all executed visual selectors match the cartridge");
         for (int index = 0;
-             index < CeresSteamInstructionProgramDefinitions.PresentationWordCount;
+             index < CeresSteamInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
             ushort address =
-                CeresSteamInstructionProgramDefinitions.PresentationWordAddress(index);
+                CeresSteamInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertTrue(executedOperands.Contains(address),
                 $"Ceres steam execution covers presentation $A6:{address:X4}");
         }
@@ -92,9 +92,9 @@ internal static partial class Program
             "compiled visual selectors require no runtime cartridge reads");
         AssertEqual(0, guard.ObservedPresentationWords.Count,
             "Ceres Steam production uses compiled visual selectors without ROM reads");
-        for (int index = 0; index < CeresSteamInstructionProgramDefinitions.PresentationWordCount; index++)
+        for (int index = 0; index < CeresSteamInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
         {
-            ushort address = CeresSteamInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort address = CeresSteamInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa6, address, out ushort selector),
                 "Ceres Steam visual operand has a compiled selector");
             AssertEqual(ReadVerificationWord(rom, (0xa6 << 16) | address), selector,
@@ -178,7 +178,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (CeresSteamInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (CeresSteamInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -189,11 +189,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < CeresSteamInstructionProgramDefinitions.PresentationWordCount;
+                     index < CeresSteamInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        CeresSteamInstructionProgramDefinitions.PresentationWordAddress(index);
+                        CeresSteamInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

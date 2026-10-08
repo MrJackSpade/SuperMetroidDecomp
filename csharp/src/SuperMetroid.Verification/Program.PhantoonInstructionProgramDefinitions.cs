@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyPhantoonInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyPhantoonInstructionProgramDefinitions), () => VerifyPhantoonInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyPhantoonInstructionProgramDefinitions(
@@ -280,7 +280,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (PhantoonInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (PhantoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

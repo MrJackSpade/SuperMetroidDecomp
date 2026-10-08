@@ -17,7 +17,7 @@ internal static partial class Program
         Suite(nameof(VerifyQueuedVramAssets), () => VerifyQueuedVramAssets());
         using var temporary = new TestTempDirectory("map-catalog");
         GameInstallation installation = GameAssetInstaller.Install(sourceRom, temporary.Root);
-        var reference = CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
+        var reference = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         AreaMapPresentationCatalog maps = installation.LoadMaps();
         EnemyTileArtworkCatalog art = installation.LoadEnemyTiles();
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled timing, callback, and loop control for Yapping Maw's attack and cooldown
 /// programs. Interleaved spritemap operands are compiled selectors for installed art.
 /// </summary>
-internal abstract class YappingMawInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class YappingMawInstructionProgramDefinitions
 {
     /// <summary><c>InstList_YappingMaw_Attacking_FacingUp</c> at $A8:9F6F.</summary>
     internal const ushort AttackingFacingUp = 0x9f6f;
@@ -123,17 +123,5 @@ internal abstract class YappingMawInstructionProgramDefinitions : IInstructionPr
             else high = middle - 1;
         }
         throw new InvalidDataException($"Yapping Maw instruction mechanics pointer $A8:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa80000) return false;
-        ushort offset = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort word = MechanicsWord(index).Address;
-            if (offset == word || offset == word + 1) return true;
-        }
-        return false;
     }
 }

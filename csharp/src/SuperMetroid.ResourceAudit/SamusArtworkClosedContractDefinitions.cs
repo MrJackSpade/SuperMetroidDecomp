@@ -59,7 +59,7 @@ internal static class SamusArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Game/SamusMovementRomData.cs", "6AB68CB5AC06A57552E94F85625D0178987F777AE0634F1360876BFAB96F731D")]),
         new("SuperMetroid.Core.Assets.SamusArmCannonArtworkCatalog", "samus-complete-cannon-placement-and-tile-membership",
             ["PoseDrawingData", "ReadDrawingByte", "SpriteAttributes", "TileSource", "TryResolveTile"],
-            [new("csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs", "7B275E8DA030A931D654971F806C7D6E1F7A47E709C62FC785C65F2645ECFF9F"),
+            [new("csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs", "B69DFCDA983C8E2B1178798B02FA71D278F2E8D0C95FAEF296976C0BD2189267"),
              new("csharp/src/SuperMetroid.Core/Game/SamusComboMechanicsDefinitions.cs", "09B7001995AF8DD5373C1599A837379832D0257A24CF77B5BD249678B73355B8"),
              new("csharp/src/SuperMetroid.Core/Game/SamusComboRomData.cs", "6FDDD952484A8AEB74FB025C711E27F009EDBEA0AA32D8FD6C0EC11F471A8182"),
              new("csharp/src/SuperMetroid.Core/Game/SamusPoseId.cs", "2F8BDCD3C9AF53A6E0F5EB931AEFCE136B74F7B6D8D5A26FF9A1AA84AD83999A"),

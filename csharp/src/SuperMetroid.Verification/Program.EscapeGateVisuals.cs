@@ -68,7 +68,7 @@ internal static partial class Program
         // draw payloads are compiled and therefore guarded below.
         WriteWord(bus, 0x84c8ca, 0xb3c1);
         WriteWord(bus, 0x84c8cc,
-            RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosed);
+            RoomPlmInstructionListsTooling.MotherBrainEscapeRoomGateClosed);
         WriteWord(bus, 0x84c8ce,
             RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing);
         bus.WriteBytes(0x8f0000 | population,
@@ -113,7 +113,6 @@ internal static partial class Program
         var enteringDoor = new CartridgeDoorHeader(
             Pointer: 0xaa8c,
             DestinationRoomPointer: 0xde4d,
-            BitFlags: 0,
             Orientation: 9,
             PlmX: gateX,
             PlmY: gateY,

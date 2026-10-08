@@ -12,7 +12,7 @@ internal static class ExtractedInstallationValidationVerification
 {
     internal static int Run(string sourceRoot)
     {
-        GameInstallation source = GameAssetInstaller.ValidateExtractedContent(sourceRoot);
+        GameInstallation source = GameAssetInstallerTooling.ValidateExtractedContent(sourceRoot);
         string temporary = Directory.CreateTempSubdirectory("SuperMetroid-extracted-validation-").FullName;
         try
         {
@@ -29,7 +29,7 @@ internal static class ExtractedInstallationValidationVerification
                 File.Copy(file, destination);
             }
             Dictionary<string, string> baseline = Snapshot(fixture.ContentDirectory);
-            Assert(GameAssetInstaller.ValidateExtractedContent(fixture.Root).Root == fixture.Root,
+            Assert(GameAssetInstallerTooling.ValidateExtractedContent(fixture.Root).Root == fixture.Root,
                 "valid extracted-only content must pass the strict contract");
             Assert(GameAssetInstaller.OpenOrRepair(fixture.Root) is not null,
                 "normal startup must still accept valid content without a ROM");
@@ -69,7 +69,7 @@ internal static class ExtractedInstallationValidationVerification
             finally { Directory.Move(heldDomain, fixture.RoomPlmSamusEaterVisualDirectory); }
 
             AssertUnchanged(baseline, fixture, "restored fixture after all rejection cases");
-            Assert(GameAssetInstaller.ValidateExtractedContent(fixture.Root).Root == fixture.Root,
+            Assert(GameAssetInstallerTooling.ValidateExtractedContent(fixture.Root).Root == fixture.Root,
                 "validation must succeed again after the known fixture defects are restored");
             Console.WriteLine($"PASS extracted validation contract: {baseline.Count} stock files; valid ROM-free startup, " +
                 "missing root, old receipt, wrong provenance, index hash, stale nested manifest and missing PLM domain; " +
@@ -90,7 +90,7 @@ internal static class ExtractedInstallationValidationVerification
 
     private static void Reject<T>(string root, string failingPath) where T : Exception
     {
-        try { GameAssetInstaller.ValidateExtractedContent(root); }
+        try { GameAssetInstallerTooling.ValidateExtractedContent(root); }
         catch (T error)
         {
             Assert(error.ToString().Contains(Path.GetFullPath(failingPath), StringComparison.Ordinal),

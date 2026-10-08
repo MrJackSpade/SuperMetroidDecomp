@@ -13,7 +13,7 @@ internal static partial class Program
     /// </summary>
     private static void VerifyProjectileFileContracts(string installationRoot)
     {
-        GameInstallation installed = GameAssetInstaller.ValidateExtractedContent(installationRoot);
+        GameInstallation installed = GameAssetInstallerTooling.ValidateExtractedContent(installationRoot);
         string temporary = Directory.CreateTempSubdirectory("SuperMetroid-projectile-file-contract-").FullName;
         var failures = new List<string>();
         int rejections = 0;

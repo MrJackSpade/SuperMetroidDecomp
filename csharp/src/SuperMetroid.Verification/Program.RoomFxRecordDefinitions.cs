@@ -11,7 +11,7 @@ internal static partial class Program
     /// <summary>Checks the complete generated catalog and every source field against the ROM.</summary>
     private static void VerifyRoomFxRecordDefinitions(string romPath)
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)), "FX oracle revision");
         SortedDictionary<ushort, RoomFxRecordDefinition> records = RoomFxRecordCatalogSource.CaptureRetailRoomFxRecords(bus);
         Suite(nameof(VerifyRoomFxFields), () => VerifyRoomFxFields(bus, records));
@@ -106,7 +106,7 @@ internal static partial class Program
                 int length = record.DoorPointer == RoomFxRomData.Record.TerminatorDoorPointer
                     ? sizeof(ushort) : RoomFxRomData.Record.ByteCount;
                 for (int offset = 0; offset < length; offset++)
-                    result.Add(RoomFxRomData.Banks.RoomDefinitions | (record.Pointer + offset));
+                    result.Add(RoomFxRomDataBanksTooling.RoomDefinitions | (record.Pointer + offset));
             }
             return result;
         }

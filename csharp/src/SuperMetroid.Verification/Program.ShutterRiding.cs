@@ -8,14 +8,14 @@ internal static partial class Program
 {
     private static void VerifyShutterRiding()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (int slot in new[] { 0, 1 })
         {
             var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BrinstarShutterRoom, cameraX: 0x100, cameraY: 0);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom, cameraX: 0x100, cameraY: 0);
             var samus = runtime.Samus!;
             var platform = runtime.Enemies.Slots[slot];
             var state = runtime.Enemies.VerticalShutterStates[slot]!;

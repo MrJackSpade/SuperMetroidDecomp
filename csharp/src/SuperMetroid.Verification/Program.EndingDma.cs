@@ -11,7 +11,7 @@ internal static partial class Program
         Suite(nameof(VerifyEndingRewardGesture), () => VerifyEndingRewardGesture());
         Suite(nameof(VerifyEndingCloudPlacement), () => VerifyEndingCloudPlacement());
         Suite(nameof(VerifyEndingExplosionSlotOrder), () => VerifyEndingExplosionSlotOrder());
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var audio = new CartridgeAudioState();
         var ending = CreateRetailEndingFixture(bus, audio, 0, 0);
         ending.Step();

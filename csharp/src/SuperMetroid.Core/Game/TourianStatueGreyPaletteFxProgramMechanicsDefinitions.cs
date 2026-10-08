@@ -29,7 +29,7 @@ public static class TourianStatueGreyPaletteFxProgramMechanicsDefinitions
     /// <summary>CGRAM byte $C0: first statue palette, with palette row eight skipped.</summary>
     private const ushort FirstColorByte = 0xc0;
 
-    private static readonly IReadOnlyList<TourianStatueGreyPaletteFxProgramDefinition> Definitions = new ProgramEntries();
+    internal static readonly IReadOnlyList<TourianStatueGreyPaletteFxProgramDefinition> Definitions = new ProgramEntries();
     private sealed class ProgramEntries : IReadOnlyList<TourianStatueGreyPaletteFxProgramDefinition>
     {
         public int Count => 4;
@@ -67,11 +67,6 @@ public static class TourianStatueGreyPaletteFxProgramMechanicsDefinitions
 
     /// <summary>Terminal <c>delete</c> instruction at $8D:E2DE.</summary>
     public const ushort DeleteInstructionPointer = 0xe2de;
-
-    /// <summary>The Draygon, Kraid, Ridley, and Phantoon entries in cartridge order.</summary>
-    [AccessedByReflection]
-    public static IReadOnlyList<TourianStatueGreyPaletteFxProgramDefinition> All =>
-        Definitions;
 
     /// <summary>Resolves one compiled mechanics word across all four statue entries.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)

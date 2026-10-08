@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyZeroDistanceJumpContact()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var level = CreateRoom(16, 16, new ushort[256], new byte[256]);
         foreach (bool left in new[] { false, true })
         foreach (bool frozen in new[] { false, true })

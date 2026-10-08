@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Globalization;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
@@ -32,7 +33,7 @@ internal static partial class Program
                 parts => parts.Skip(1).Select(value => ushort.Parse(value, NumberStyles.HexNumber, CultureInfo.InvariantCulture)).ToArray());
         ushort[] Read(int frame) => rows[frame];
         ushort W(ushort[] words, int address) => words[Array.IndexOf(addresses, address)];
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();

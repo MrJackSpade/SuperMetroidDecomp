@@ -10,7 +10,7 @@ internal static partial class Program
     {
         foreach (bool facingRight in new[] { false, true })
         {
-            var runtime = CreateRetailRuntimeFixture(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"));
+            var runtime = CreateRetailRuntimeFixture(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();

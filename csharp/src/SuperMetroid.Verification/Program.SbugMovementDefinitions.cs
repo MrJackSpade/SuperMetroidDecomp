@@ -208,7 +208,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (SbugInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (SbugInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

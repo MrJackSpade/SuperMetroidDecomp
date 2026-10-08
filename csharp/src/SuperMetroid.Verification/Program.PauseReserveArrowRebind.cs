@@ -11,7 +11,7 @@ internal static partial class Program
     /// </summary>
     private static void VerifyPauseReserveArrowRebindKeepsLatch()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var catalog = RetailPresentationFixture();
         var samus = new SamusState { MaxReserveEnergy = 100, ReserveEnergy = 100, ReserveTankMode = 2, Health = 50, MaxHealth = 99 };
         var menu = new PauseMenuState(bus, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0, mapPresentation: catalog);

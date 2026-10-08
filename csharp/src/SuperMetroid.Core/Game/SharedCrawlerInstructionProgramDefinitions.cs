@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Game;
 /// twenty interleaved spritemap operands select the same installed compositions
 /// used by the Wrecked Ship HZoomer.
 /// </summary>
-internal abstract class SharedCrawlerInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class SharedCrawlerInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Zeela_Zoomer_UpsideRight_0</c> at $A3:E25C.</summary>
     internal const ushort UpsideRight = 0xe25c;
@@ -18,34 +18,13 @@ internal abstract class SharedCrawlerInstructionProgramDefinitions : IInstructio
 
     // Authored animation cadence (reviewed under #1165): five poses are held for three ticks each.
     // The repeated program layout derives from those still-independent choices.
-    private const int PoseCount = 5;
+    internal const int PoseCount = 5;
     private const ushort PoseHold = 3;
-    private const int SurfaceCount = 4;
-    private const int SetupBytes = 4;
-    private const int PoseBytes = 4;
+    internal const int SurfaceCount = 4;
+    internal const int SetupBytes = 4;
+    internal const int PoseBytes = 4;
     private const int LoopBytes = 4;
-    private const int ListBytes = SetupBytes + PoseCount * PoseBytes + LoopBytes;
-    private const int WordsPerList = 2 + PoseCount + 2;
-
-    public static int MechanicsWordCount => SurfaceCount * WordsPerList;
-    public static int PresentationWordCount => SurfaceCount * PoseCount;
-
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        int part = index % WordsPerList;
-        int offset = part < 2 ? part * 2
-            : part < 2 + PoseCount ? SetupBytes + (part - 2) * PoseBytes
-            : SetupBytes + PoseCount * PoseBytes + (part - 2 - PoseCount) * 2;
-        ushort address = (ushort)(UpsideRight + index / WordsPerList * ListBytes + offset);
-        return new(address, ReadMechanicsWord(address));
-    }
-
-    public static ushort PresentationWordAddress(int index)
-    {
-        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
-        return (ushort)(UpsideRight + index / PoseCount * ListBytes + SetupBytes + index % PoseCount * PoseBytes + 2);
-    }
+    internal const int ListBytes = SetupBytes + PoseCount * PoseBytes + LoopBytes;
 
     internal static bool IsPresentationWord(ushort address)
     {
@@ -71,13 +50,5 @@ internal abstract class SharedCrawlerInstructionProgramDefinitions : IInstructio
         }
         throw new InvalidDataException(
             $"Shared-crawler instruction mechanics pointer $A3:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa30000) return false;
-        ushort word = (ushort)(address & 0xfffe);
-        int relative = word - UpsideRight;
-        return (uint)relative < SurfaceCount * ListBytes && !IsPresentationWord(word);
     }
 }

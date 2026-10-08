@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled engine-control words for the shared Ceres and Lower Norfair Ridley programs.
 /// Interleaved extended-spritemap pointers remain live cartridge presentation data.
 /// </summary>
-internal abstract class RidleyInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
+internal abstract class RidleyInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Ridley_FacingLeft_Initial</c> at $A6:E538.</summary>
     public const ushort Initial = 0xe538;
@@ -76,9 +76,8 @@ internal abstract class RidleyInstructionProgramDefinitions : IInstructionProgra
 
     /// <summary>Native program bank $A6.</summary>
     internal const byte Bank = 0xa6;
-    static int IDeclaredProgramBank.Bank => Bank;
 
-    private static readonly InstructionProgramLayout Layout = new(Bank,
+    internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xe538),
         Entry(Initial),
         Op(GotoYIfNotFacingLeft, FacingRightInitial),
@@ -279,20 +278,9 @@ internal abstract class RidleyInstructionProgramDefinitions : IInstructionProgra
         Frame(17),
         Op(CommonEnemyInstructionCodes.Sleep));
 
-    public static int MechanicsWordCount => Layout.MechanicsWordCount;
-    public static int PresentationWordCount => Layout.PresentationSlotCount;
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        (ushort address, ushort value) = Layout.MechanicsWord(index);
-        return new(address, value);
-    }
-    public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
-
     /// <summary>Reads one compiled mechanics word and rejects presentation or foreign data.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(
                 $"Ridley instruction mechanics pointer $A6:{address:X4} is not compiled.");
-
-    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

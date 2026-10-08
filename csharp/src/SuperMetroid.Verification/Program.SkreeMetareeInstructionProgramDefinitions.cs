@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifySkreeMetareeInstructionProgramDefinitions()
     {
         Suite(nameof(VerifySkreeMetareeInstructionProgramDefinitions), () => VerifySkreeMetareeInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifySkreeMetareeInstructionProgramDefinitions(
@@ -18,7 +18,7 @@ internal static partial class Program
         {
             bool metaree = species == 0;
             for (int index = 0;
-                 index < SkreeMetareeInstructionProgramDefinitions.MechanicsWordCount(metaree);
+                 index < SkreeMetareeInstructionProgramDefinitionsTooling.MechanicsWordCount(metaree);
                  index++)
             {
                 InstructionMechanicsWord definition =
@@ -39,11 +39,11 @@ internal static partial class Program
         {
             bool metaree = species == 0;
             for (int index = 0;
-                 index < SkreeMetareeInstructionProgramDefinitions.PresentationWordCount(metaree);
+                 index < SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordCount(metaree);
                  index++)
             {
                 ushort address =
-                    SkreeMetareeInstructionProgramDefinitions.PresentationWordAddress(
+                    SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordAddress(
                         metaree, index);
                 AssertEqual(ReadSkreeMetareeInstructionWord(rom, 0xa30000 | address),
                     EnemySpritemapDefinitions.SkreeMetareeFrameAt(metaree, address),
@@ -208,11 +208,11 @@ internal static partial class Program
                 {
                     bool metaree = species == 0;
                     for (int index = 0;
-                         index < SkreeMetareeInstructionProgramDefinitions.PresentationWordCount(metaree);
+                         index < SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordCount(metaree);
                          index++)
                     {
                         ushort presentation =
-                            SkreeMetareeInstructionProgramDefinitions.PresentationWordAddress(
+                            SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordAddress(
                                 metaree, index);
                         if (bankAddress == presentation ||
                             bankAddress == unchecked((ushort)(presentation + 1)))

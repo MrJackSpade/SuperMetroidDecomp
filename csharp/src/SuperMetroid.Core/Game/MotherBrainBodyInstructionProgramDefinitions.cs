@@ -121,7 +121,7 @@ internal static class MotherBrainBodyInstructionProgramDefinitions
     /// compiled extended-spritemap identity, and sleep terminators. Durations are authored walk,
     /// crouch and stand cadence (reviewed under #1165); speed variants differ only in them.
     /// </summary>
-    private static readonly InstructionProgramLayout Layout = new(Bank,
+    internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0x9730),
         Entry(ForwardWalkReallyFast),
         Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToWalking),
@@ -420,14 +420,6 @@ internal static class MotherBrainBodyInstructionProgramDefinitions
         Frame(0, InitialDummyVisualFrame),
         Op(CommonEnemyInstructionCodes.Sleep));
 
-    /// <summary>All compiled mechanics words in address order, for cartridge-equivalence tests.</summary>
-    internal static IReadOnlyList<MotherBrainBodyInstructionMechanicsWord> AllWords =>
-        Enumerable.Range(0, Layout.MechanicsWordCount).Select(index =>
-        {
-            (ushort address, ushort value) = Layout.MechanicsWord(index);
-            return new MotherBrainBodyInstructionMechanicsWord(address, value);
-        }).ToArray();
-
     /// <summary>
     /// Looks up a mechanics word while returning false for interleaved spritemap words and
     /// for instruction streams outside the translated body-program family.
@@ -443,8 +435,3 @@ internal static class MotherBrainBodyInstructionProgramDefinitions
             throw new InvalidDataException(
                 $"Mother Brain body instruction mechanics pointer $A9:{address:X4} is not compiled.");
 }
-
-/// <summary>One compiled command or duration word at its native bank-$A9 address.</summary>
-internal readonly record struct MotherBrainBodyInstructionMechanicsWord(
-    ushort Address,
-    ushort Word);

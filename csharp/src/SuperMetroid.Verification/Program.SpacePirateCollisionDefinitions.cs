@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifySpacePirateCollisionDefinitions()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var walkingFramePointers = EnemyExtendedFrameDefinitions.Frames.ToArray()
             .Where(frame => frame.Name.StartsWith("walking_pirate_",

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control for Mother Brain's eight glass-shard loops and finite sparkle program.
 /// Their interleaved spritemap operands resolve through extracted presentation art.
 /// </summary>
-internal abstract class MotherBrainGlassInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class MotherBrainGlassInstructionProgramDefinitions
 {
     /// <summary>First glass-shard angle-group loop at $86:CC93.</summary>
     internal const ushort ShardGroup0 = 0xcc93;
@@ -32,24 +32,8 @@ internal abstract class MotherBrainGlassInstructionProgramDefinitions : IInstruc
 
     /// <summary>Finite glass-sparkle animation at $86:CDB3.</summary>
     internal const ushort Sparkle = 0xcdb3;
-
-    public static int MechanicsWordCount => 85;
     public static int PresentationWordCount => 68;
     internal static int ShardProgramCount => 8;
-
-    /// <summary>Enumerate ten mechanics words per shard loop, then five sparkle words.</summary>
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        int address;
-        if (index < 80)
-        {
-            int local = index % 10;
-            address = ShardProgram(index / 10) + (local < 8 ? local * 4 : 32 + (local - 8) * 2);
-        }
-        else address = Sparkle + (index - 80) * 4;
-        return new((ushort)address, ReadMechanicsWord((ushort)address));
-    }
 
     /// <summary>Sixty-four shard and four sparkle art operands, each two bytes after its duration.</summary>
     public static ushort PresentationWordAddress(int index)
@@ -119,18 +103,5 @@ internal abstract class MotherBrainGlassInstructionProgramDefinitions : IInstruc
         if (sparkleOffset == 16) return EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete;
         throw new InvalidDataException(
             $"Mother Brain glass-projectile mechanics pointer $86:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
-        int offset = (ushort)address - ShardGroup0;
-        if (offset >= 0 && offset < 8 * 36)
-        {
-            int local = offset % 36;
-            return local >= 32 || local % 4 < 2;
-        }
-        int sparkleOffset = (ushort)address - Sparkle;
-        return sparkleOffset >= 0 && sparkleOffset < 18 && sparkleOffset % 4 < 2;
     }
 }

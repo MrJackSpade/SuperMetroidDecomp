@@ -1287,13 +1287,13 @@ internal static partial class Program
         Suite(nameof(VerifyBrinstarPipeBugInstructionProgramDefinitions), () => VerifyBrinstarPipeBugInstructionProgramDefinitions(rom));
         Suite(nameof(VerifyNorfairPipeBugInstructionProgramDefinitions), () => VerifyNorfairPipeBugInstructionProgramDefinitions(rom));
         Suite(nameof(VerifyYellowPipeBugInstructionProgramDefinitions), () => VerifyYellowPipeBugInstructionProgramDefinitions(rom));
-        for (int index = 0; index < BrinstarPipeBugInstructionProgramDefinitions.PresentationWordCount; index++)
+        for (int index = 0; index < BrinstarPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
             Check(index < 28 ? PipeBugDefinitions.BrinstarEnemyDefinition : PipeBugDefinitions.StrongBrinstarEnemyDefinition,
-                BrinstarPipeBugInstructionProgramDefinitions.PresentationWordAddress(index));
-        for (int index = 0; index < NorfairPipeBugInstructionProgramDefinitions.PresentationWordCount; index++)
-            Check(PipeBugDefinitions.NorfairEnemyDefinition, NorfairPipeBugInstructionProgramDefinitions.PresentationWordAddress(index));
-        for (int index = 0; index < YellowPipeBugInstructionProgramDefinitions.PresentationWordCount; index++)
-            Check(PipeBugDefinitions.YellowEnemyDefinition, YellowPipeBugInstructionProgramDefinitions.PresentationWordAddress(index));
+                BrinstarPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress(index));
+        for (int index = 0; index < NorfairPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
+            Check(PipeBugDefinitions.NorfairEnemyDefinition, NorfairPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress(index));
+        for (int index = 0; index < YellowPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
+            Check(PipeBugDefinitions.YellowEnemyDefinition, YellowPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress(index));
         Console.WriteLine("Pipe Bug visual geometry:88 native selectors/single-part headers, adjacent mechanics rejection and existing actual variant program checks pass.");
 
         void Check(ushort enemy, ushort address)

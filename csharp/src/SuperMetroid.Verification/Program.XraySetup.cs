@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyXraySetupBuffers()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
         // Change only the installed art for air reveals; the runtime still executes
         // the cartridge's compiled collision lookup and X-ray setup stages.
@@ -27,7 +27,7 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BrinstarShutterRoom);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom);
         var samus = runtime.Samus!;
         var support = runtime.Enemies.Slots[1];
         samus.InputLocked = false;

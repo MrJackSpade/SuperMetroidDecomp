@@ -11,7 +11,7 @@ internal static partial class Program
     // the installed compositions consumed immediately after instruction selection.
     private static void VerifySingleFrameEnemyVisuals()
     {
-        var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         byte[] stockBytes = EnemySpritemapFiles.Extract(rom);
         var stock = EnemySpritemapCatalog.Load(new MemoryStream(stockBytes));
@@ -44,7 +44,7 @@ internal static partial class Program
             BindingFlags.Instance | BindingFlags.NonPublic)!;
         foreach (var (definition, operand, count) in new[]
         {
-            (SingleFrameEnemyVisualDefinitions.Kzan, KzanInstructionProgramDefinitions.PresentationWord, 4),
+            (SingleFrameEnemyVisualDefinitions.Kzan, KzanInstructionProgramDefinitionsTooling.PresentationWord, 4),
             (SingleFrameEnemyVisualDefinitions.Polyp, PolypInstructionProgramDefinitions.PresentationWord, 1),
         })
         {

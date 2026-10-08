@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyBrinstarPipeBugInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyBrinstarPipeBugInstructionProgramDefinitions), () => VerifyBrinstarPipeBugInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyBrinstarPipeBugInstructionProgramDefinitions(
@@ -18,11 +18,11 @@ internal static partial class Program
             BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
 
         for (int index = 0;
-             index < BrinstarPipeBugInstructionProgramDefinitions.MechanicsWordCount;
+             index < BrinstarPipeBugInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                BrinstarPipeBugInstructionProgramDefinitions.MechanicsWord(index);
+                BrinstarPipeBugInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadBrinstarPipeBugInstructionWord(rom, 0xb30000 | definition.Address),
                 $"Brinstar Pipe Bug instruction mechanics word $B3:{definition.Address:X4}");
@@ -50,11 +50,11 @@ internal static partial class Program
         AssertEqual(0, guard.ForbiddenPresentationReadAttempts,
             "Brinstar Pipe Bug programs never read installed visual selectors");
         for (int index = 0;
-             index < BrinstarPipeBugInstructionProgramDefinitions.PresentationWordCount;
+             index < BrinstarPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
             ushort address =
-                BrinstarPipeBugInstructionProgramDefinitions.PresentationWordAddress(index);
+                BrinstarPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             ushort definition = address < 0x8a00
                 ? PipeBugDefinitions.BrinstarEnemyDefinition
                 : PipeBugDefinitions.StrongBrinstarEnemyDefinition;
@@ -174,7 +174,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (BrinstarPipeBugInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (BrinstarPipeBugInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -184,11 +184,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < BrinstarPipeBugInstructionProgramDefinitions.PresentationWordCount;
+                     index < BrinstarPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        BrinstarPipeBugInstructionProgramDefinitions.PresentationWordAddress(index);
+                        BrinstarPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

@@ -12,7 +12,7 @@ internal static partial class Program
         var queue = new VramWriteQueue();
         var sand = new RoomSandAnimatedTilesState();
         const ushort sandFxRecord = 0x9e44;
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         AssertEqual((byte)0x0c, rom.ReadByte(0x830000 | (sandFxRecord + 14)),
             "selected retail FX record enables ceiling and falling sand");
         ushort[] definitions = [AnimatedTileObjectPointers.MaridiaSandCeiling, AnimatedTileObjectPointers.MaridiaSandFalling];

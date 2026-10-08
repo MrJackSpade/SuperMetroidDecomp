@@ -67,7 +67,7 @@ internal static partial class Program
 
     private static void VerifyEndingPlanetBoundary()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var audio = new CartridgeAudioState();
         var ending = CreateRetailEndingFixture(bus, audio, 0, 0);
         for (int frame = 0; frame < 20000 && ending.Phase != EndingCreditsPhase.FadeInZebesExplosion; frame++)
@@ -104,8 +104,8 @@ internal static partial class Program
             differences += changed;
             if (checkedFrames % 8 == 0 || changed != 0)
             {
-                PngWriter.WriteRgba($"csharp/test-temp/ending-506/actual-{checkedFrames:D2}.png", 256, 224, actual);
-                PngWriter.WriteRgba($"csharp/test-temp/ending-506/native-{checkedFrames:D2}.png", 256, 224, expected);
+                PngWriterTooling.WriteRgba($"csharp/test-temp/ending-506/actual-{checkedFrames:D2}.png", 256, 224, actual);
+                PngWriterTooling.WriteRgba($"csharp/test-temp/ending-506/native-{checkedFrames:D2}.png", 256, 224, expected);
             }
             checkedFrames++;
             ending.Step();
@@ -122,8 +122,8 @@ internal static partial class Program
             differences += ending.Render().Zip(nativePixels).Count(pair => pair.First != pair.Second);
             if (frame % 16 == 0)
             {
-                PngWriter.WriteRgba($"csharp/test-temp/ending-506/later-{frame:D4}-{ending.Phase}.png", 256, 224, ending.Render());
-                PngWriter.WriteRgba($"csharp/test-temp/ending-506/later-native-{frame:D4}-{ending.Phase}.png", 256, 224, nativePixels);
+                PngWriterTooling.WriteRgba($"csharp/test-temp/ending-506/later-{frame:D4}-{ending.Phase}.png", 256, 224, ending.Render());
+                PngWriterTooling.WriteRgba($"csharp/test-temp/ending-506/later-native-{frame:D4}-{ending.Phase}.png", 256, 224, nativePixels);
                 // Preserve raw graphics/register/layer evidence alongside each image.
                 // A later renderer comparison can replay exactly this sample without
                 // re-running the cinematic or depending on a mutable debugger slot.

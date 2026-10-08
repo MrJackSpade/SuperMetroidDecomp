@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control for Ceres Ridley's fireball, center-afterburn, directional-afterburn,
 /// and final-impact programs. Interleaved spritemap operands remain live cartridge data.
 /// </summary>
-internal abstract class CeresRidleyProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class CeresRidleyProjectileInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProjectile_RidleysFireball_0</c> at $86:9552.</summary>
     /// <remarks>
@@ -70,49 +70,7 @@ internal abstract class CeresRidleyProjectileInstructionProgramDefinitions : IIn
     /// pinned NTSC J/U v1.0 ROM. Its five spritemap operands stay live.
     /// </remarks>
     internal const ushort DirectionalAfterburn = 0x9606;
-
-    // Each draw occupies a duration word and a presentation operand. Spawning
-    // programs insert their callback immediately after the first draw.
-    public static int MechanicsWordCount => 42;
     public static int PresentationWordCount => 26;
-
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount)
-            throw new IndexOutOfRangeException();
-        int address;
-        if (index < 11)
-        {
-            address = index switch
-            {
-                0 => Fireball,
-                1 => Fireball + 2,
-                2 => Fireball + 6,
-                3 => Fireball + 8,
-                4 => Fireball + 10,
-                < 9 => FireballLoop + (index - 5) * 4,
-                _ => FireballLoop + 16 + (index - 9) * 2,
-            };
-        }
-        else if (index < 18)
-        {
-            int step = index - 11;
-            address = AfterburnFinal + (step == 0 ? 0 : step == 6 ? 22 : 2 + (step - 1) * 4);
-        }
-        else
-        {
-            int step = (index - 18) % 8;
-            address = SpawnProgram((index - 18) / 8) + (step switch
-            {
-                0 => 0,
-                1 => 2,
-                2 => 6,
-                < 7 => 8 + (step - 3) * 4,
-                _ => 24,
-            });
-        }
-        return new((ushort)address, ReadMechanicsWord((ushort)address));
-    }
 
     /// <summary>Calculated locations of the interleaved bank-$86 spritemap operands.</summary>
     public static ushort PresentationWordAddress(int index)
@@ -127,7 +85,7 @@ internal abstract class CeresRidleyProjectileInstructionProgramDefinitions : IIn
         return (ushort)(SpawnProgram((index - 11) / 5) + 4 + frame * 4 + (frame == 0 ? 0 : 2));
     }
 
-    private static ushort SpawnProgram(int kind) => kind switch
+    internal static ushort SpawnProgram(int kind) => kind switch
     {
         0 => HorizontalCenter,
         1 => VerticalCenter,
@@ -151,7 +109,7 @@ internal abstract class CeresRidleyProjectileInstructionProgramDefinitions : IIn
             $"Ceres Ridley projectile mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    private static bool TryRead(int address, out ushort value)
+    internal static bool TryRead(int address, out ushort value)
     {
         int offset = address - Fireball;
         if (offset is 0 or 2 or 6 or 8 or 10)
@@ -214,13 +172,5 @@ internal abstract class CeresRidleyProjectileInstructionProgramDefinitions : IIn
         }
         value = EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete;
         return offset == 22;
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
-        int bankAddress = (ushort)address;
-        return TryRead(bankAddress, out _) || TryRead(bankAddress - 1, out _);
     }
 }

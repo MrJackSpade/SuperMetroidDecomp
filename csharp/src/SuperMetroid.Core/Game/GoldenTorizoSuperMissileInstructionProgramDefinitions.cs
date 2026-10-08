@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Game;
 /// $86:B293-$B31A. Their twenty-four interleaved spritemap operands are extracted
 /// presentation data; the packed impact sound ID remains live cartridge audio data.
 /// </summary>
-internal abstract class GoldenTorizoSuperMissileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
+internal abstract class GoldenTorizoSuperMissileInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProj_GoldenTorizoSuperMissile_Rightwards_0</c> at $86:B293.</summary>
     internal const ushort RightInitial = 0xb293;
@@ -22,9 +22,8 @@ internal abstract class GoldenTorizoSuperMissileInstructionProgramDefinitions : 
 
     /// <summary>Native program bank $86.</summary>
     internal const byte Bank = 0x86;
-    static int IDeclaredProgramBank.Bank => Bank;
 
-    private static readonly InstructionProgramLayout Layout = new(Bank,
+    internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xb293),
         Entry(RightInitial),
         Frame(48),
@@ -68,20 +67,11 @@ internal abstract class GoldenTorizoSuperMissileInstructionProgramDefinitions : 
         Frame(5),
         Frame(5),
         Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete));
-
-    public static int MechanicsWordCount => Layout.MechanicsWordCount;
     public static int PresentationWordCount => Layout.PresentationSlotCount;
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        (ushort address, ushort value) = Layout.MechanicsWord(index);
-        return new(address, value);
-    }
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(
                 $"Golden Torizo Super Missile mechanics pointer $86:{address:X4} is not compiled.");
-
-    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

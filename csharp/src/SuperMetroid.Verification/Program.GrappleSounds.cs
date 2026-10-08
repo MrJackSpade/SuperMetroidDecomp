@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyGrappleSounds()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var air = new RoomLevelData(16, 16, new ushort[256], new byte[256], new ushort[256], new byte[8]);
         var anchors = new RoomLevelData(16, 16,
             Enumerable.Repeat((ushort)((int)RoomCollisionType.GrappleBlock << 12), 256).ToArray(),

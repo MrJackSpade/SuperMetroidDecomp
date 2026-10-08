@@ -7,17 +7,17 @@ internal static partial class Program
 {
     private static void VerifyShaktoolProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyShaktoolProjectileInstructionProgramDefinitions), () => VerifyShaktoolProjectileInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     private static void VerifyShaktoolProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         for (int index = 0;
-             index < ShaktoolProjectileInstructionProgramDefinitions.MechanicsWordCount;
+             index < ShaktoolProjectileInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                ShaktoolProjectileInstructionProgramDefinitions.MechanicsWord(index);
+                ShaktoolProjectileInstructionProgramDefinitionsTooling.MechanicsWord(index);
             ushort native = unchecked((ushort)(
                 rom.ReadByte(EnemyProjectileCodePointers.BankBase | definition.Address) |
                 rom.ReadByte(EnemyProjectileCodePointers.BankBase |
@@ -50,7 +50,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (ShaktoolProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (ShaktoolProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

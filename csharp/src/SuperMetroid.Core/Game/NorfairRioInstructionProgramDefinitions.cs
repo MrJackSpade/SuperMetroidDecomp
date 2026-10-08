@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled timing, private callbacks, and loop control for Norfair Rio parent and flame
 /// programs. Interleaved spritemap operands select extracted presentation frames.
 /// </summary>
-internal abstract class NorfairRioInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class NorfairRioInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Geruta_Main_Idle</c> at $A2:C0F1.</summary>
     internal const ushort Idle = 0xc0f1;
@@ -123,17 +123,5 @@ internal abstract class NorfairRioInstructionProgramDefinitions : IInstructionPr
             else high = middle - 1;
         }
         throw new InvalidDataException($"Norfair Rio instruction mechanics pointer $A2:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa20000) return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress || bankAddress == unchecked((ushort)(wordAddress + 1))) return true;
-        }
-        return false;
     }
 }

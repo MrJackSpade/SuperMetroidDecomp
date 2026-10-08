@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control for Kraid's initial and post-growth belly-lint poses. Their two
 /// interleaved ordinary-spritemap selections resolve compiled identities to installed artwork.
 /// </summary>
-internal abstract class KraidLintInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class KraidLintInstructionProgramDefinitions
 {
     /// <summary><c>kKraid_Ilist_8AFE</c> at $A7:8AFE.</summary>
     internal const ushort Initial = 0x8afe;
@@ -41,23 +41,5 @@ internal abstract class KraidLintInstructionProgramDefinitions : IInstructionPro
 
         throw new InvalidDataException(
             $"Kraid lint instruction mechanics pointer $A7:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa70000)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 }

@@ -15,7 +15,7 @@ internal static partial class Program
         state.SwoopAngleAccumulator = 0x7800;
         update(state, 0, short.MinValue, 0x500);
         AssertEqual((ushort)0x7800, state.SwoopAngleAccumulator, "native CMP/BMI retains right-facing recovery angle");
-        var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int phase = 0; phase < 256; phase++)
         {
             state.SwoopAngleAccumulator = (ushort)(phase << 8);

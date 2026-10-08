@@ -40,7 +40,7 @@ internal static partial class Program
         AssertEqual(2, fractional.Left, "completed map window remains stable");
         AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectMapWindow(fake, 6), "Ceres has no area-select window record");
 
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyMapWindowLeftVelocities), () => VerifyMapWindowLeftVelocities(bus));
         Suite(nameof(VerifyMapWindowRightVelocities), () => VerifyMapWindowRightVelocities(bus));
         Suite(nameof(VerifyMapWindowTopVelocities), () => VerifyMapWindowTopVelocities(bus));
@@ -97,7 +97,7 @@ internal static partial class Program
         AssertTrue(FileSelectMapWindowCompositor.Composite(area, frame, window).All(pixel => pixel == frameColor),
             "completed expansion disables window and displays entire empty room frame");
 
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var returning = FileSelectMapWindow.CreateReturn(bus, 4, RetailPresentationFixture().Labels);
         AssertEqual(8, returning.Left, "native return rectangle left inset");
         AssertEqual(248, returning.Right, "native return rectangle right inset");
@@ -128,7 +128,7 @@ internal static partial class Program
         AssertEqual(new Rgba32(255, 16, 8), main[0], "subscreen uses saturated five-bit addition");
         AssertEqual(new Rgba32(0, 0, 8), main[1], "keyed subscreen selects black fixed color");
 
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int[] indices = [86, 107, 102, 81, 97, 118];
         int[] activeColors = [0x01db, 0x0bb1, 0x0013, 0x7fe0, 0x6400, 0x6417];
         var maps = RetailPresentationFixture();
@@ -148,11 +148,11 @@ internal static partial class Program
             AssertTrue(frame.All(pixel => pixel.A == 255), "area map backdrop is opaque");
             AssertTrue(frame.Distinct().Count() > 16, "area map renders tile graphics, not a flat background");
             Directory.CreateDirectory("csharp/test-temp/file-select-map");
-            PngWriter.WriteRgba($"csharp/test-temp/file-select-map/area-{area}.png", 256, 224, frame);
+            PngWriterTooling.WriteRgba($"csharp/test-temp/file-select-map/area-{area}.png", 256, 224, frame);
             ushort[] used = [ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue];
             Rgba32[] labelled = graphics.Render(used).ToArray();
             AssertTrue(!labelled.SequenceEqual(graphics.Render(new ushort[6])), "visited-station masks control map labels");
-            PngWriter.WriteRgba($"csharp/test-temp/file-select-map/area-{area}-labels.png", 256, 224, labelled);
+            PngWriterTooling.WriteRgba($"csharp/test-temp/file-select-map/area-{area}-labels.png", 256, 224, labelled);
         }
     }
 }

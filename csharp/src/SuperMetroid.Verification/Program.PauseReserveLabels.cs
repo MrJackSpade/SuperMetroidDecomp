@@ -11,7 +11,7 @@ internal static partial class Program
 {
     private static void VerifyPauseReserveLabels()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (ushort capacity in new ushort[] { 0, 100 })
         foreach (ushort mode in new ushort[] { 0, 1, 2 })
         {
@@ -56,8 +56,8 @@ internal static partial class Program
                 snapshot.ObjectSelection, snapshot.Brightness));
             var actualPixels = pause.Render();
             Directory.CreateDirectory("csharp/test-temp/pause-reserve-372");
-            PngWriter.WriteRgba($"csharp/test-temp/pause-reserve-372/actual-{capacity}-{mode}.png", 256, 224, actualPixels);
-            PngWriter.WriteRgba($"csharp/test-temp/pause-reserve-372/native-{capacity}-{mode}.png", 256, 224, expectedPixels);
+            PngWriterTooling.WriteRgba($"csharp/test-temp/pause-reserve-372/actual-{capacity}-{mode}.png", 256, 224, actualPixels);
+            PngWriterTooling.WriteRgba($"csharp/test-temp/pause-reserve-372/native-{capacity}-{mode}.png", 256, 224, expectedPixels);
             AssertTrue(actualPixels.AsSpan().SequenceEqual(expectedPixels),
                 $"visible reserve labels match native ownership/mode ({capacity}/{mode})");
         }

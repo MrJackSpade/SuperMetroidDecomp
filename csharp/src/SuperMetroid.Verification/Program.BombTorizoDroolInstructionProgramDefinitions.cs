@@ -36,11 +36,11 @@ internal static partial class Program
     {
         ushort[] expected = [0xa46a,0xa46e,0xa472,0xa474,0xa476,0xa478,0xa47a,0xa47e,0xa480,
             0xa482,0xa486,0xa488,0xa48a,0xa48c,0xa48e,0xa490,0xa494,0xa498,0xa49c];
-        AssertEqual(expected.Length, BombTorizoDroolInstructionProgramDefinitions.MechanicsWordCount, "drool native control count");
+        AssertEqual(expected.Length, BombTorizoDroolInstructionProgramDefinitionsTooling.MechanicsWordCount, "drool native control count");
         var bytes = new HashSet<int>();
         for (int i = 0; i < expected.Length; i++)
         {
-            var actual = BombTorizoDroolInstructionProgramDefinitions.MechanicsWord(i);
+            var actual = BombTorizoDroolInstructionProgramDefinitionsTooling.MechanicsWord(i);
             AssertEqual(expected[i], actual.Address, "drool native control order");
             int address = 0x860000 | expected[i];
             ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -50,9 +50,9 @@ internal static partial class Program
         }
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
-            AssertEqual(bytes.Contains(address), BombTorizoDroolInstructionProgramDefinitions.IsCompiledMechanicsByte(0x860000 | address), "drool full byte ownership");
-            AssertEqual(bytes.Contains(address), BombTorizoDroolInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1860000 | address), "drool existing high-bit alias");
-            AssertTrue(!BombTorizoDroolInstructionProgramDefinitions.IsCompiledMechanicsByte(0x870000 | address), "drool other bank rejected");
+            AssertEqual(bytes.Contains(address), BombTorizoDroolInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x860000 | address), "drool full byte ownership");
+            AssertEqual(bytes.Contains(address), BombTorizoDroolInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x1860000 | address), "drool existing high-bit alias");
+            AssertTrue(!BombTorizoDroolInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x870000 | address), "drool other bank rejected");
         }
         var words = expected.ToHashSet();
         for (int address = 0xa468; address <= 0xa4a0; address++)
@@ -61,7 +61,7 @@ internal static partial class Program
         foreach (ushort address in new ushort[] {0,0x7fff,0xffff})
             AssertThrows<InvalidDataException>(() => BombTorizoDroolInstructionProgramDefinitions.ReadMechanicsWord(address), "drool distant invalid words");
         foreach (int index in new[] {int.MinValue,-1,19,int.MaxValue})
-            AssertThrows<IndexOutOfRangeException>(() => BombTorizoDroolInstructionProgramDefinitions.MechanicsWord(index), "drool mechanics ordinal bounds");
+            AssertThrows<IndexOutOfRangeException>(() => BombTorizoDroolInstructionProgramDefinitionsTooling.MechanicsWord(index), "drool mechanics ordinal bounds");
     }
     private static void VerifyBombTorizoDroolPresentationMapping()
     {
@@ -88,7 +88,7 @@ internal static partial class Program
     }
     private static void VerifyBombTorizoDroolInstructionProgramDefinitions() =>
         Suite(nameof(VerifyBombTorizoDroolInstructionProgramDefinitions), () => VerifyBombTorizoDroolInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     private static void VerifyBombTorizoDroolInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -99,11 +99,11 @@ internal static partial class Program
         Suite(nameof(VerifyBombTorizoDroolVisualMapping), () => VerifyBombTorizoDroolVisualMapping(rom));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int index = 0;
-             index < BombTorizoDroolInstructionProgramDefinitions.MechanicsWordCount;
+             index < BombTorizoDroolInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                BombTorizoDroolInstructionProgramDefinitions.MechanicsWord(index);
+                BombTorizoDroolInstructionProgramDefinitionsTooling.MechanicsWord(index);
             ushort native = unchecked((ushort)(
                 rom.ReadByte(EnemyProjectileCodePointers.BankBase | definition.Address) |
                 rom.ReadByte(EnemyProjectileCodePointers.BankBase |
@@ -288,7 +288,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (BombTorizoDroolInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (BombTorizoDroolInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

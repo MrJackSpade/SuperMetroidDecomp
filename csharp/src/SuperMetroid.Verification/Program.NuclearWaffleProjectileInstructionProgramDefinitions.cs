@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyNuclearWaffleProjectileInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyNuclearWaffleProjectileInstructionProgramDefinitions), () => VerifyNuclearWaffleProjectileInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyNuclearWaffleProjectileInstructionProgramDefinitions(
@@ -16,11 +16,11 @@ internal static partial class Program
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int index = 0;
-             index < NuclearWaffleProjectileInstructionProgramDefinitions.MechanicsWordCount;
+             index < NuclearWaffleProjectileInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                NuclearWaffleProjectileInstructionProgramDefinitions.MechanicsWord(index);
+                NuclearWaffleProjectileInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadNuclearWaffleProjectileInstructionWord(rom, definition.Address),
                 $"Nuclear Waffle projectile mechanics word $86:{definition.Address:X4}");
@@ -157,9 +157,9 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (NuclearWaffleProjectileInstructionProgramDefinitions
+            if (NuclearWaffleProjectileInstructionProgramDefinitionsTooling
                     .IsCompiledMechanicsByte(address) ||
-                CommonEnemyProjectileInstructionProgramDefinitions
+                CommonEnemyProjectileInstructionProgramDefinitionsTooling
                     .IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;

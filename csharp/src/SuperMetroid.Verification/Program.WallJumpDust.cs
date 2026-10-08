@@ -5,7 +5,7 @@ internal static partial class Program
 {
     private static void VerifyWallJumpDust()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyWallJumpExpansion), () => VerifyWallJumpExpansion(bus));
         foreach (bool grapple in new[] { false, true })
         foreach (bool facingRight in new[] { false, true })

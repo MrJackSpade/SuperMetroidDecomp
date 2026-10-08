@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyVerticalShutterInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyVerticalShutterInstructionProgramDefinitions), () => VerifyVerticalShutterInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyVerticalShutterInstructionProgramDefinitions(
@@ -103,14 +103,14 @@ internal static partial class Program
     private static void VerifyVerticalShutterMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xe9aa, 0xe9ae, 0xede7, 0xedeb, 0xedef, 0xedf3, 0xedf7, 0xedf9];
-        AssertEqual(addresses.Length, VerticalShutterInstructionProgramDefinitions.MechanicsWordCount,
+        AssertEqual(addresses.Length, VerticalShutterInstructionProgramDefinitionsTooling.MechanicsWordCount,
             "vertical shutter independent native word count");
         var bytes = new HashSet<int>();
         for (int index = 0; index < addresses.Length; index++)
         {
             ushort address = addresses[index];
             ushort native = ReadVerticalShutterInstructionWord(rom, 0xa20000 | address);
-            var word = VerticalShutterInstructionProgramDefinitions.MechanicsWord(index);
+            var word = VerticalShutterInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(address, word.Address, "vertical shutter native word address");
             AssertEqual(native, word.Value, "vertical shutter native enumerated word");
             AssertEqual(native, VerticalShutterInstructionProgramDefinitions.ReadMechanicsWord(address),
@@ -120,11 +120,11 @@ internal static partial class Program
         }
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
-            AssertEqual(bytes.Contains(address), VerticalShutterInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa20000 | address),
+            AssertEqual(bytes.Contains(address), VerticalShutterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa20000 | address),
                 "vertical shutter full byte ownership");
-            AssertEqual(bytes.Contains(address), VerticalShutterInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1a20000 | address),
+            AssertEqual(bytes.Contains(address), VerticalShutterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x1a20000 | address),
                 "vertical shutter high-bit aliases");
-            AssertTrue(!VerticalShutterInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa30000 | address),
+            AssertTrue(!VerticalShutterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa30000 | address),
                 "vertical shutter other-bank rejection");
         }
         var words = addresses.ToHashSet();
@@ -134,17 +134,17 @@ internal static partial class Program
                     AssertThrows<InvalidDataException>(() => VerticalShutterInstructionProgramDefinitions.ReadMechanicsWord((ushort)address),
                         "vertical shutter rejects visual operands, odd addresses and neighboring instructions");
         foreach (int index in new[] { int.MinValue, -1, 8, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => VerticalShutterInstructionProgramDefinitions.MechanicsWord(index),
+            AssertThrows<IndexOutOfRangeException>(() => VerticalShutterInstructionProgramDefinitionsTooling.MechanicsWord(index),
                 "vertical shutter word ordinal bounds");
     }
 
     private static void VerifyVerticalShutterPresentationAddresses()
     {
         ushort[] addresses = [0xe9ac, 0xede9, 0xeded, 0xedf1, 0xedf5];
-        AssertEqual(addresses.Length, VerticalShutterInstructionProgramDefinitions.PresentationWordCount,
+        AssertEqual(addresses.Length, VerticalShutterInstructionProgramDefinitionsTooling.PresentationWordCount,
             "vertical shutter independent presentation count");
         for (int index = 0; index < addresses.Length; index++)
-            AssertEqual(addresses[index], VerticalShutterInstructionProgramDefinitions.PresentationWordAddress(index),
+            AssertEqual(addresses[index], VerticalShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(index),
                 "vertical shutter native presentation position");
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
@@ -155,7 +155,7 @@ internal static partial class Program
                 "Kamer exact presentation domain");
         }
         foreach (int index in new[] { int.MinValue, -1, 5, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => VerticalShutterInstructionProgramDefinitions.PresentationWordAddress(index),
+            AssertThrows<IndexOutOfRangeException>(() => VerticalShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(index),
                 "vertical shutter presentation ordinal bounds");
     }
 
@@ -295,7 +295,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (VerticalShutterInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (VerticalShutterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -306,11 +306,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < VerticalShutterInstructionProgramDefinitions.PresentationWordCount;
+                     index < VerticalShutterInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        VerticalShutterInstructionProgramDefinitions.PresentationWordAddress(index);
+                        VerticalShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

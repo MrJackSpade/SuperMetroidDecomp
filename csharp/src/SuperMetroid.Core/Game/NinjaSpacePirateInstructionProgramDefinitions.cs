@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled engine-control words for every production ninja Space Pirate body program.
 /// Interleaved extended-spritemap pointers remain live cartridge presentation data.
 /// </summary>
-internal abstract class NinjaSpacePirateInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class NinjaSpacePirateInstructionProgramDefinitions
 {
     /// <summary><c>InstList_PirateNinja_ProjectileClawAttack_Left</c> at $B2:F15C.</summary>
     internal const ushort ClawAttackLeft = 0xf15c;
@@ -237,18 +237,5 @@ internal abstract class NinjaSpacePirateInstructionProgramDefinitions : IInstruc
         }
         throw new InvalidDataException(
             $"Ninja Space Pirate instruction mechanics pointer $B2:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xb20000) return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress || bankAddress == unchecked((ushort)(wordAddress + 1)))
-                return true;
-        }
-        return false;
     }
 }

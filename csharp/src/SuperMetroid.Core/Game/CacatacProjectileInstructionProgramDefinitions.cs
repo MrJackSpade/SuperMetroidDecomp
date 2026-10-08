@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled engine-control words for all ten Cacatac spike projectile programs.
 /// Their interleaved spritemap operands remain live cartridge presentation data.
 /// </summary>
-internal abstract class CacatacProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class CacatacProjectileInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProjectile_CacatacSpike_Left_FacingUp</c> at $86:D92E.</summary>
     internal const ushort LeftFacingUp = 0xd92e;
@@ -28,17 +28,8 @@ internal abstract class CacatacProjectileInstructionProgramDefinitions : IInstru
     internal const ushort RightFacingDown = 0xd964;
 
     /// <summary>Ten six-byte direction programs: one-frame drawing followed by sleep.</summary>
-    private const int ProgramCount = 10;
-    public static int MechanicsWordCount => 2 * ProgramCount;
+    internal const int ProgramCount = 10;
     public static int PresentationWordCount => ProgramCount;
-
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        bool sleep = (index & 1) != 0;
-        return new((ushort)(LeftFacingUp + 6 * (index / 2) + (sleep ? 4 : 0)),
-            sleep ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep : (ushort)1);
-    }
 
     public static ushort PresentationWordAddress(int index)
     {
@@ -55,24 +46,5 @@ internal abstract class CacatacProjectileInstructionProgramDefinitions : IInstru
         }
         throw new InvalidDataException(
             $"Cacatac spike instruction mechanics pointer $86:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0x860000)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

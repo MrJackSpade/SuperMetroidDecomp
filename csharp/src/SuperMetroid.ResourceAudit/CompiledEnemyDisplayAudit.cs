@@ -11,7 +11,7 @@ internal static class CompiledEnemyDisplayAudit
     {
         const string path = "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.cs";
         SyntaxTreeGuard(root, path);
-        foreach (byte bank in CommonEnemyEmptyExtendedFrameDefinitions.SupportedBanks)
+        foreach (byte bank in CommonEnemyEmptyExtendedFrameDefinitionsTooling.SupportedBanks)
         {
             ushort pointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
             if (!CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(bank, pointer))

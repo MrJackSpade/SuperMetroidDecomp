@@ -4,11 +4,8 @@ namespace SuperMetroid.Core.Game;
 /// Compiled engine-control words for the Baby Metroid used by Mother Brain's final
 /// cutscene. Interleaved selections resolve compiled identities to installed artwork.
 /// </summary>
-internal abstract class MotherBrainBabyInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, IDeclaredProgramBank
+internal abstract class MotherBrainBabyInstructionProgramDefinitions
 {
-    /// <summary>Native Mother Brain cutscene-baby instruction and OAM bank $A9.</summary>
-    internal const byte Bank = 0xa9;
-    static int IDeclaredProgramBank.Bank => Bank;
 
     /// <summary><c>InstList_BabyMetroid_Initial</c> at $A9:CFA2.</summary>
     internal const ushort Initial = 0xcfa2;
@@ -32,27 +29,7 @@ internal abstract class MotherBrainBabyInstructionProgramDefinitions : IInstruct
     /// <summary>$A9:CFCE: selected fatal-blow hold before Sleep. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort FatalBlowHold = 128;
     /// <summary>Each loop has four duration/spritemap records followed by its native goto callback opcode.</summary>
-    private const int LoopFrames = 4, FrameBytes = 2 * sizeof(ushort), LoopWords = LoopFrames + 1;
-
-    public static int MechanicsWordCount => 2 * LoopWords + 2;
-    public static int PresentationWordCount => 2 * LoopFrames + 1;
-
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        ushort address = index < LoopWords ? (ushort)(Initial + index * FrameBytes) :
-            index < 2 * LoopWords ? (ushort)(DrainingMotherBrain + (index - LoopWords) * FrameBytes) :
-            (ushort)(TakingFatalBlow + (index - 2 * LoopWords) * FrameBytes);
-        return new(address, ReadMechanicsWord(address));
-    }
-
-    public static ushort PresentationWordAddress(int index)
-    {
-        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
-        return index < LoopFrames ? (ushort)(Initial + index * FrameBytes + sizeof(ushort)) :
-            index < 2 * LoopFrames ? (ushort)(DrainingMotherBrain + (index - LoopFrames) * FrameBytes + sizeof(ushort)) :
-            (ushort)(TakingFatalBlow + sizeof(ushort));
-    }
+    internal const int LoopFrames = 4, FrameBytes = 2 * sizeof(ushort);
 
     /// <summary>Dispatches the two frame loops and terminal fatal-blow hold/Sleep from the reviewed holds above.</summary>
     internal static ushort ReadMechanicsWord(ushort address)

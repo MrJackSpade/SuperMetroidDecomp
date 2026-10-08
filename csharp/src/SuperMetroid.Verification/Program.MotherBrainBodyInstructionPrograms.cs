@@ -10,11 +10,11 @@ internal static partial class Program
     /// </summary>
     private static void VerifyMotherBrainBodyInstructionPrograms()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
 
         foreach (MotherBrainBodyInstructionMechanicsWord definition in
-            MotherBrainBodyInstructionProgramDefinitions.AllWords)
+            MotherBrainBodyInstructionProgramDefinitionsTooling.AllWords)
         {
             AssertEqual(
                 ReadRetailWord(rom, 0xa90000 | definition.Address),
@@ -46,7 +46,7 @@ internal static partial class Program
             "Mother Brain dummy visual selector rejects neighboring mechanics data");
 
         Console.WriteLine(
-            $"  Mother Brain: {MotherBrainBodyInstructionProgramDefinitions.AllWords.Count} " +
+            $"  Mother Brain: {MotherBrainBodyInstructionProgramDefinitionsTooling.AllWords.Count} " +
             "body command/duration words and visual selectors match the cartridge.");
 
         static ushort ReadRetailWord(ISnesAddressSpace source, int address) =>

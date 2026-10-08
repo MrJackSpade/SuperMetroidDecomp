@@ -4,12 +4,13 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
     private static void VerifyNormalSuitCatalogBoundary()
     {
-        var cartridge = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var cartridge = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(cartridge.Rom)), "Normal suit sharing oracle revision");

@@ -3,9 +3,9 @@ name: Static PLM program audit
 on:
   workflow_dispatch:
   push:
-    paths: ['csharp/src/SuperMetroid.Core/Rooms/**', 'csharp/src/SuperMetroid.ResourceAudit/**', '.github/workflows/plm-program-audit.yml']
+    paths: ['csharp/src/SuperMetroid.Core/Rooms/**', 'csharp/src/SuperMetroid.Tooling/**', 'csharp/src/SuperMetroid.ResourceAudit/**', '.github/workflows/plm-program-audit.yml']
   pull_request:
-    paths: ['csharp/src/SuperMetroid.Core/Rooms/**', 'csharp/src/SuperMetroid.ResourceAudit/**', '.github/workflows/plm-program-audit.yml']
+    paths: ['csharp/src/SuperMetroid.Core/Rooms/**', 'csharp/src/SuperMetroid.Tooling/**', 'csharp/src/SuperMetroid.ResourceAudit/**', '.github/workflows/plm-program-audit.yml']
 
 permissions:
   contents: read

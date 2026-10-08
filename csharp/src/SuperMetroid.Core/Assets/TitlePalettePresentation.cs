@@ -25,22 +25,6 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
         SkipCopyrightRed = skipCopyrightRed;
     }
 
-    /// <summary>Installed ambient-color identities for the development dependency auditor.</summary>
-    internal IReadOnlyCollection<ushort> ColorPointers { get; } = new AmbientPointerSequence();
-
-    private sealed class AmbientPointerSequence : IReadOnlyCollection<ushort>
-    {
-        public int Count => TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All.Sum(
-            program => program.FrameCount * program.ColorsPerFrame);
-        public IEnumerator<ushort> GetEnumerator()
-        {
-            foreach (var program in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
-            for (int frame = 0; frame < program.FrameCount; frame++)
-            for (int index = 0; index < program.ColorsPerFrame; index++)
-                yield return (ushort)(program.FramePointer(frame) + sizeof(ushort) * (index + 1));
-        }
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
     /// <summary>The two copyright glyph colors restored by the title's fast-skip route.</summary>
     public ushort SkipCopyrightWhite { get; }
     public ushort SkipCopyrightRed { get; }

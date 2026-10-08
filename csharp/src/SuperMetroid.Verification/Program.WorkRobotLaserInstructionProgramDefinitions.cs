@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyWorkRobotLaserInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyWorkRobotLaserInstructionProgramDefinitions), () => VerifyWorkRobotLaserInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyWorkRobotLaserInstructionProgramDefinitions(
@@ -15,11 +15,11 @@ internal static partial class Program
     {
         const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int index = 0;
-             index < WorkRobotLaserInstructionProgramDefinitions.MechanicsWordCount;
+             index < WorkRobotLaserInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                WorkRobotLaserInstructionProgramDefinitions.MechanicsWord(index);
+                WorkRobotLaserInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadWorkRobotLaserInstructionWord(rom, definition.Address),
                 $"Work Robot laser mechanics word $86:{definition.Address:X4}");
@@ -176,8 +176,8 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (WorkRobotLaserInstructionProgramDefinitions.IsCompiledMechanicsByte(address) ||
-                CommonEnemyProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (WorkRobotLaserInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
+                CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

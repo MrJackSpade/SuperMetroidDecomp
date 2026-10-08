@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyCacatacInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyCacatacInstructionProgramDefinitions), () => VerifyCacatacInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyCacatacInstructionProgramDefinitions(
@@ -17,11 +17,11 @@ internal static partial class Program
         const BindingFlags flags =
             BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
         for (int index = 0;
-             index < CacatacInstructionProgramDefinitions.MechanicsWordCount;
+             index < CacatacInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                CacatacInstructionProgramDefinitions.MechanicsWord(index);
+                CacatacInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadCacatacInstructionWord(rom, 0xa20000 | definition.Address),
                 $"Cacatac instruction mechanics word $A2:{definition.Address:X4}");
@@ -52,10 +52,10 @@ internal static partial class Program
             ]));
 
         for (int index = 0;
-             index < CacatacInstructionProgramDefinitions.PresentationWordCount;
+             index < CacatacInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort address = CacatacInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort address = CacatacInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertEqual(ReadCacatacInstructionWord(rom, 0xa20000 | address),
                 EnemySpritemapDefinitions.CacatacFrameAt(address),
                 $"compiled Cacatac visual selector $A2:{address:X4} matches cartridge");
@@ -183,7 +183,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (CacatacInstructionProgramDefinitions.IsCompiledMechanicsByte(address) ||
+            if (CacatacInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
                 IsCompiledPresentationByte(address))
             {
                 ForbiddenReadAttempts++;
@@ -200,11 +200,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < CacatacInstructionProgramDefinitions.PresentationWordCount;
+                     index < CacatacInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        CacatacInstructionProgramDefinitions.PresentationWordAddress(index);
+                        CacatacInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

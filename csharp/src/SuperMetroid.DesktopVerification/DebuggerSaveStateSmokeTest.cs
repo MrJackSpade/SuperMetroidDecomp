@@ -18,7 +18,7 @@ public static class DebuggerSaveStateSmokeTest
     public static DebuggerSaveStateSmokeTestResult Run(string romPath)
     {
         string fullRomPath = Path.GetFullPath(romPath);
-        CartridgeImportAddressSpace bus = CartridgeImportAddressSpace.LoadRetailRom(fullRomPath);
+        CartridgeImportAddressSpace bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
         string temporaryDirectory = Path.Combine(
             Path.GetTempPath(),
             $"SuperMetroid-state-audit-{Guid.NewGuid():N}");
@@ -43,7 +43,7 @@ public static class DebuggerSaveStateSmokeTest
                 new string('C', 64),
                 Guid.Parse("01234567-89ab-cdef-0123-456789abcdef"),
                 new Dictionary<string, string> { ["room-layouts"] = new string('E', 64) });
-            var store = new DebuggerSaveStateStore(
+            var store = DebuggerSaveStateStoreTooling.ForCartridge(
                 fullRomPath,
                 bus.Rom,
                 temporaryDirectory,
@@ -97,7 +97,7 @@ public static class DebuggerSaveStateSmokeTest
                 contentIdentity.ProjectileContentSha256,
                 contentIdentity.CompiledDefinitionsBuildId,
                 contentIdentity.AdditionalContentSha256);
-            DebuggerSaveStateLoadResult changedAudio = new DebuggerSaveStateStore(
+            DebuggerSaveStateLoadResult changedAudio = DebuggerSaveStateStoreTooling.ForCartridge(
                 fullRomPath,
                 bus.Rom,
                 temporaryDirectory,
@@ -141,7 +141,7 @@ public static class DebuggerSaveStateSmokeTest
 
             byte[] wrongRom = bus.Rom.ToArray();
             wrongRom[0] ^= 1;
-            var wrongStore = new DebuggerSaveStateStore(
+            var wrongStore = DebuggerSaveStateStoreTooling.ForCartridge(
                 fullRomPath,
                 wrongRom,
                 temporaryDirectory);

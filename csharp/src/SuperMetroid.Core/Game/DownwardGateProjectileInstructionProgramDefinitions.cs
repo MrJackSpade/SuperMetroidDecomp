@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control for both downward-gate actors. Spritemap operands remain live cartridge
 /// presentation data; movement continues to use the shared translated pre-instruction.
 /// </summary>
-internal abstract class DownwardGateProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class DownwardGateProjectileInstructionProgramDefinitions
 {
     /// <summary>Downward-moving gate instruction list at $86:E53C.</summary>
     internal const ushort Moving = 0xe53c;
@@ -84,24 +84,5 @@ internal abstract class DownwardGateProjectileInstructionProgramDefinitions : II
 
         throw new InvalidDataException(
             $"Downward-gate projectile mechanics pointer $86:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

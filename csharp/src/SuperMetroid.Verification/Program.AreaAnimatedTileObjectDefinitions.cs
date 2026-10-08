@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
@@ -12,7 +13,7 @@ internal static partial class Program
     private static void VerifyAreaAnimatedTileObjectDefinitions()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Animated area oracle revision");
         Suite(nameof(VerifyAnimatedAreaListPointers), () => VerifyAnimatedAreaListPointers(rom));
@@ -85,7 +86,7 @@ internal static partial class Program
             }
 
             SnesAddress source = SnesAddress.FromBusAddress(address);
-            if (source.Bank != (byte)(RoomFxRomData.Banks.RoomDefinitions >> 16))
+            if (source.Bank != (byte)(RoomFxRomDataBanksTooling.RoomDefinitions >> 16))
                 return false;
 
             for (int areaIndex = 0;

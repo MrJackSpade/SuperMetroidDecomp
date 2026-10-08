@@ -3,12 +3,13 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
     private static void VerifyDraygonPrebattleXray()
     {
-        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] nativeOffscreenTm = [0x1f, 0x04, 0x81, 0x11, 0x00];
         AssertSequenceEqual(nativeOffscreenTm, Enumerable.Range(0, nativeOffscreenTm.Length)
             .Select(offset => bus.ReadCartridgeByte(0x88e01a + offset)),
@@ -47,7 +48,7 @@ internal static partial class Program
         const string output = "csharp/test-temp/issue-1260-draygon-xray";
         Directory.CreateDirectory(output);
         File.WriteAllBytes(Path.Combine(output, "frame-000.smframe"), RenderFrameSnapshotCodec.Serialize(new(new(1, 1, runtime.NmiFrameCounter), scene)));
-        PngWriter.WriteRgba(Path.Combine(output, "prebattle.png"), 256, 224, pixels);
+        PngWriterTooling.WriteRgba(Path.Combine(output, "prebattle.png"), 256, 224, pixels);
         AssertTrue(wrapped > 0, "the reported corner visibly exposes repeated body art without native clipping");
         AssertEqual(0, exposed, "pre-battle X-Ray hides the offscreen body exactly like native TM HDMA");
 

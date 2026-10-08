@@ -10,7 +10,7 @@ internal static partial class Program
     /// </summary>
     static void VerifyCeresElevatorArrivalGraphicsIndex()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyCompiledDefinitions), () => VerifyCompiledDefinitions(rom));
         var memory = new TestAddressSpace();
 

@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyCeresRidleyProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyCeresRidleyProjectileInstructionProgramDefinitions), () => VerifyCeresRidleyProjectileInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     private static void VerifyCeresRidleyProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -15,11 +15,11 @@ internal static partial class Program
         const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         const BindingFlags staticFlags = BindingFlags.Static | BindingFlags.NonPublic;
         for (int index = 0;
-             index < CeresRidleyProjectileInstructionProgramDefinitions.MechanicsWordCount;
+             index < CeresRidleyProjectileInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                CeresRidleyProjectileInstructionProgramDefinitions.MechanicsWord(index);
+                CeresRidleyProjectileInstructionProgramDefinitionsTooling.MechanicsWord(index);
             ushort native = unchecked((ushort)(
                 rom.ReadByte(EnemyProjectileCodePointers.BankBase | definition.Address) |
                 rom.ReadByte(EnemyProjectileCodePointers.BankBase |
@@ -264,9 +264,9 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (CeresRidleyProjectileInstructionProgramDefinitions
+            if (CeresRidleyProjectileInstructionProgramDefinitionsTooling
                     .IsCompiledMechanicsByte(address) ||
-                CommonEnemyProjectileInstructionProgramDefinitions
+                CommonEnemyProjectileInstructionProgramDefinitionsTooling
                     .IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;

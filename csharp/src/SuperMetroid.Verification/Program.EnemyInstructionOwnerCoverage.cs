@@ -24,7 +24,7 @@ internal static partial class Program
             return;
         }
 
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         Dictionary<ushort, List<RoomEnemyPopulationRecord>> populations =
             ReadRetailEnemyPopulationRecords(rom);
         ushort[] definitions = ReadNamedRetailEnemyDefinitions();

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Game;
 /// programs at $86:E80F-$E8F7 and $86:EBAE-$EBC5. Their forty-six spritemap operands
 /// select installed presentation artwork.
 /// </summary>
-internal abstract class BotwoonProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class BotwoonProjectileInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProjectile_BotwoonsBody_UpLeft</c> at $86:E80F.</summary>
     internal const ushort BodyUpLeft = 0xe80f;
@@ -15,8 +15,6 @@ internal abstract class BotwoonProjectileInstructionProgramDefinitions : IInstru
     internal const ushort Hidden = 0xe8f3;
     /// <summary><c>InstList_EnemyProjectile_BotwoonsSpit</c> at $86:EBAE.</summary>
     internal const ushort Spit = 0xebae;
-
-    public static int MechanicsWordCount => 73;
     public static int PresentationWordCount => 46;
     internal const int BodyProgramCount = 17;
 
@@ -27,25 +25,6 @@ internal abstract class BotwoonProjectileInstructionProgramDefinitions : IInstru
         return index < 8
             ? (ushort)(BodyUpLeft + 20 * (index < 3 ? index : index + 1))
             : (ushort)(TailUpFacingRight + 6 * (index - 8));
-    }
-
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        int address;
-        if (index < 48)
-        {
-            int command = index % 6;
-            address = BodyProgram(index / 6) + (command < 5 ? 4 * command : 18);
-        }
-        else if (index < 66)
-            address = BodyProgram(8 + (index - 48) / 2) + 4 * ((index - 48) % 2);
-        else
-        {
-            int command = index - 66;
-            address = Spit + (command < 6 ? 4 * command : 22);
-        }
-        return new((ushort)address, ReadMechanicsWord((ushort)address));
     }
 
     public static ushort PresentationWordAddress(int index)
@@ -90,21 +69,7 @@ internal abstract class BotwoonProjectileInstructionProgramDefinitions : IInstru
         return (uint)spit < 20 && spit % 4 == 2;
     }
 
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
-        ushort word = (ushort)(address & ~1);
-        // Body/tail programs start at odd addresses; spit starts even.
-        ushort bodyWord = unchecked((ushort)(((ushort)address - BodyUpLeft & ~1) + BodyUpLeft));
-        if (TryBodyOffset(bodyWord, out int offset))
-            return offset >= 16 || offset % 4 == 0;
-        int sleeping = bodyWord - TailUpFacingRight;
-        if ((uint)sleeping < 54) return sleeping % 6 != 2;
-        int spit = word - Spit;
-        return (uint)spit < 24 && (spit >= 20 || spit % 4 == 0);
-    }
-
-    private static bool TryBodyOffset(ushort address, out int offset)
+    internal static bool TryBodyOffset(ushort address, out int offset)
     {
         int relative = address - BodyUpLeft;
         offset = relative % 20;

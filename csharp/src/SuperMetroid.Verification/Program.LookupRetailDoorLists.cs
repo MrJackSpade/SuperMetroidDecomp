@@ -31,7 +31,7 @@ internal static partial class Program
                 referenced.Add(target);
                 if (target is 0x88fc or 0xa18a) elevatorReferences++;
             }
-            DoorListDefinition actual = DoorDefinitions.GetList(pointer);
+            DoorListDefinition actual = DoorDefinitionsTooling.GetList(pointer);
             AssertEqual(pointer, actual.Pointer, "Materialized door list preserves source identity");
             AssertTrue(actual.DoorPointers.Span.SequenceEqual(original.ToArray()),
                 $"Door list {pointer:X4} count and all original targets match");
@@ -56,7 +56,7 @@ internal static partial class Program
         {
             ushort pointer = (ushort)value;
             if (originalLists.Contains(pointer)) continue;
-            AssertThrows<ArgumentOutOfRangeException>(() => DoorDefinitions.GetList(pointer), "Unknown list rejects materialization");
+            AssertThrows<ArgumentOutOfRangeException>(() => DoorDefinitionsTooling.GetList(pointer), "Unknown list rejects materialization");
             AssertThrows<ArgumentOutOfRangeException>(() => DoorDefinitions.Resolve(pointer, 0), "Unknown list rejects resolution");
         }
         Console.WriteLine("Retail door lists: 262 identities, 606 original references, 14 elevator insertions, all256 BTS values and every unknown list identity pass.");

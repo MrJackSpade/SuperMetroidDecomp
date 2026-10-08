@@ -9,7 +9,7 @@ internal static partial class Program
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
         var blockedRom = new FrontendCartridgeReadGuard(rom);
-        foreach (byte bank in CommonEnemyEmptyExtendedFrameDefinitions.SupportedBanks)
+        foreach (byte bank in CommonEnemyEmptyExtendedFrameDefinitionsTooling.SupportedBanks)
         {
             int emptyOam = (bank << 16) |
                 CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;

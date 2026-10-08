@@ -19,7 +19,7 @@ internal static partial class Program
         AssertInvalidGameConfiguration("[Game]\nResetBossesOnLoad=yes", "must be either true or false");
         AssertInvalidGameConfiguration("[Game]\nResetBossesOnLoad=true\nresetbossesonload=false", "duplicate");
 
-        var bus = CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var snapshot = new SuperMetroidSaveSnapshot
         {
             Area = 0, SaveStation = 1, Health = 77, MaxHealth = 199,

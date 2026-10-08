@@ -13,7 +13,7 @@ internal static partial class Program
     /// </summary>
     private static void VerifyCrocomireBodyCollisionDefinitions()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var denied = new CrocomireTongueNoReadBus();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

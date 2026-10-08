@@ -11,7 +11,7 @@ internal static partial class Program
     private static void VerifyCartridgeAudioQueues()
     {
         Suite(nameof(VerifyDoorSoundDisableGuard), () => VerifyDoorSoundDisableGuard());
-        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyAudioUploadCatalog), () => VerifyAudioUploadCatalog(retail));
         var invalidMusicData = new CartridgeAudioState();

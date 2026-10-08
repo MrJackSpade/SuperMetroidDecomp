@@ -11,3 +11,5 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("SuperMetroid.AssetExtraction")]
 // Development-only static dependency audit; never linked by playable hosts.
 [assembly: InternalsVisibleTo("SuperMetroid.ResourceAudit")]
+// Development-only tool library: what only tools read lives there, outside the shipped assemblies.
+[assembly: InternalsVisibleTo("SuperMetroid.Tooling")]

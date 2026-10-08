@@ -15,13 +15,13 @@ internal static class DeadMonsterRottingDefinitions
     /// <summary>CorpseRottingTileRowOffsets.Skree at $A9:E258; two tiles per row.</summary>
     private const ushort SkreeRows = 0xe258;
     /// <summary>CorpseRottingVRAMTransferDefinitions_Sidehopper_Param1_0 at $A9:E0E0; two42-byte variant lists.</summary>
-    private const ushort SidehopperTransfers = 0xe0e0;
+    internal const ushort SidehopperTransfers = 0xe0e0;
     /// <summary>CorpseRottingVRAMTransferDefinitions_Zoomer_Param1_0 at $A9:E134; three18-byte variant lists.</summary>
-    private const ushort ZoomerTransfers = 0xe134;
+    internal const ushort ZoomerTransfers = 0xe134;
     /// <summary>CorpseRottingVRAMTransferDefinitions_Ripper_Param1_0 at $A9:E16A; two18-byte variant lists.</summary>
-    private const ushort RipperTransfers = 0xe16a;
+    internal const ushort RipperTransfers = 0xe16a;
     /// <summary>CorpseRottingVRAMTransferDefinitions_Skree_Param1_0 at $A9:E18E; three34-byte variant lists.</summary>
-    private const ushort SkreeTransfers = 0xe18e;
+    internal const ushort SkreeTransfers = 0xe18e;
     /// <summary>Dead Torizo's seven asymmetric touch rectangles at $A9:D77C..D7B5.</summary>
     private static readonly DeadCorpseTouchHitbox[] TorizoHitboxRecords =
     [
@@ -137,21 +137,6 @@ internal static class DeadMonsterRottingDefinitions
             for (int index = 0; index < Count; index++) yield return this[index];
         }
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
-
-    internal static IEnumerable<DeadMonsterVramTransferDefinition> AllTransfers
-    {
-        get
-        {
-            for (int index = 0; index < 10; index++)
-            {
-                ushort table = index < 2 ? (ushort)(SidehopperTransfers + index * 42)
-                    : index < 5 ? (ushort)(ZoomerTransfers + (index - 2) * 18)
-                    : index < 7 ? (ushort)(RipperTransfers + (index - 5) * 18)
-                    : (ushort)(SkreeTransfers + (index - 7) * 34);
-                foreach (var row in ForTransferTable(table)) yield return row;
-            }
-        }
     }
 
     /// <summary>$A9:D67C: eight words per sand strip, second strip displaced by$120 staging bytes.</summary>

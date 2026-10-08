@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyKzanInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKzanInstructionProgramDefinitions), () => VerifyKzanInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyKzanInstructionProgramDefinitions(
@@ -15,11 +15,11 @@ internal static partial class Program
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int index = 0;
-             index < KzanInstructionProgramDefinitions.MechanicsWordCount;
+             index < KzanInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                KzanInstructionProgramDefinitions.MechanicsWord(index);
+                KzanInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadKzanInstructionWord(rom, 0xa60000 | definition.Address),
                 $"Kzan instruction mechanics word $A6:{definition.Address:X4}");
@@ -43,7 +43,7 @@ internal static partial class Program
             [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
         process.Invoke(enemies, arguments);
         AssertEqual(ReadKzanInstructionWord(rom, 0xa60000 |
-                KzanInstructionProgramDefinitions.PresentationWord), slot.SpritemapPointer,
+                KzanInstructionProgramDefinitionsTooling.PresentationWord), slot.SpritemapPointer,
             "Kzan selects its exact native frame without cartridge reads");
         process.Invoke(enemies, arguments);
         AssertEqual(unchecked((ushort)(KzanInstructionProgramDefinitions.Idle + 4)),
@@ -54,7 +54,7 @@ internal static partial class Program
 
         AssertThrows<InvalidDataException>(
             () => KzanInstructionProgramDefinitions.ReadMechanicsWord(
-                KzanInstructionProgramDefinitions.PresentationWord),
+                KzanInstructionProgramDefinitionsTooling.PresentationWord),
             "Kzan spritemap pointer is rejected as mechanics");
         AssertThrows<InvalidDataException>(
             () => KzanInstructionProgramDefinitions.ReadMechanicsWord(0x8b2f),
@@ -96,14 +96,14 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (KzanInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (KzanInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
                     $"Production read compiled Kzan mechanics byte ${address:X6}.");
             }
 
-            int presentation = 0xa60000 | KzanInstructionProgramDefinitions.PresentationWord;
+            int presentation = 0xa60000 | KzanInstructionProgramDefinitionsTooling.PresentationWord;
             if (address == presentation || address == presentation + 1)
             {
                 throw new InvalidOperationException("Production read the compiled Kzan visual operand.");

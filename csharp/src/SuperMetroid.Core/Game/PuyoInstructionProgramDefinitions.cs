@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled engine-control words for Puyo's three grounded loops and five airborne pose
 /// programs. Their interleaved spritemap operands select installed presentation frames.
 /// </summary>
-internal abstract class PuyoInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class PuyoInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Puyo_GroundedDropping_Fast</c> at $A2:99AD.</summary>
     internal const ushort GroundedFast = 0x99ad;
@@ -29,27 +29,6 @@ internal abstract class PuyoInstructionProgramDefinitions : IInstructionProgramC
 
     /// <summary><c>InstList_Puyo_HoppingRight_4_HoppingLeft_0</c> at $A2:9A01.</summary>
     internal const ushort RightFrame4LeftFrame0 = 0x9a01;
-
-    public static int MechanicsWordCount => 28;
-    public static int PresentationWordCount => 17;
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        int pointer;
-        if (index < 18)
-        {
-            int local = index % 6;
-            pointer = GroundedFast + index / 6 * 20 + (local < 5 ? local * 4 : 18);
-        }
-        else pointer = RightFrame0LeftFrame4 + (index - 18) / 2 * 6 + (index % 2) * 4;
-        return new((ushort)pointer, ReadMechanicsWord((ushort)pointer));
-    }
-    public static ushort PresentationWordAddress(int index)
-    {
-        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
-        return (ushort)(index < 12 ? GroundedFast + index / 4 * 20 + index % 4 * 4 + 2 :
-            RightFrame0LeftFrame4 + (index - 12) * 6 + 2);
-    }
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - GroundedFast;
@@ -76,13 +55,5 @@ internal abstract class PuyoInstructionProgramDefinitions : IInstructionProgramC
             if (offset % 6 == 4) return CommonEnemyInstructionCodes.Sleep;
         }
         throw new InvalidDataException($"Puyo instruction mechanics pointer $A2:{address:X4} is not compiled.");
-    }
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa20000) return false;
-        int offset = (ushort)address - GroundedFast;
-        if ((uint)offset < 60) return offset % 20 >= 16 || offset % 20 % 4 < 2;
-        offset = (ushort)address - RightFrame0LeftFrame4;
-        return (uint)offset < 30 && offset % 6 is not (2 or 3);
     }
 }

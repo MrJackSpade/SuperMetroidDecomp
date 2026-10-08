@@ -5,7 +5,7 @@ internal static partial class Program
 {
     private static void VerifyPauseMomentumReconciliation()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int counterAddress = SamusMovementRomData.HorizontalMotion.SpeedBoostCounterLowBytes;
         ushort initialCounter = (ushort)(bus.ReadByte(counterAddress) | bus.ReadByte(counterAddress + 1) << 8);
         foreach (bool equipped in new[] { false, true })

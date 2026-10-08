@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control for the Tourian entrance-statue actors at $86:B79F-$B878. The
 /// twenty-eight interleaved spritemap operands select installed presentation data.
 /// </summary>
-internal abstract class TourianStatueProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class TourianStatueProjectileInstructionProgramDefinitions
 {
     /// <summary>Private Tourian projectile deletion program at $86:B79F.</summary>
     internal const ushort Delete = 0xb79f;
@@ -143,18 +143,5 @@ internal abstract class TourianStatueProjectileInstructionProgramDefinitions : I
         }
         throw new InvalidDataException(
             $"Tourian statue projectile mechanics pointer $86:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            var word = MechanicsWord(index);
-            if (bankAddress == word.Address || bankAddress == unchecked((ushort)(word.Address + 1)))
-                return true;
-        }
-        return false;
     }
 }

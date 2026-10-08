@@ -12,7 +12,6 @@ namespace SuperMetroid.Core.Rooms;
 public sealed record CartridgeDoorHeader(
     ushort Pointer,
     ushort DestinationRoomPointer,
-    byte BitFlags,
     byte Orientation,
     byte PlmX,
     byte PlmY,

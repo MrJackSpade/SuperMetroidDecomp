@@ -87,7 +87,7 @@ internal static partial class Program
     private static void VerifyEscapeEtecoonInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyEscapeEtecoonInstructionProgramDefinitions), () => VerifyEscapeEtecoonInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyEscapeEtecoonInstructionProgramDefinitions(
@@ -236,7 +236,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (EscapeEtecoonInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (EscapeEtecoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

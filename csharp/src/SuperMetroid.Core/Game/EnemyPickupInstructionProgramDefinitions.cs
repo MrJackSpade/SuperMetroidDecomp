@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control for the five live enemy-pickup animation programs. Their sixteen
 /// spritemap operands resolve through extracted presentation art.
 /// </summary>
-internal abstract class EnemyPickupInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class EnemyPickupInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProjectile_Pickup_SmallEnergy</c> at $86:ED8D.</summary>
     internal const ushort SmallEnergy = 0xed8d;
@@ -20,8 +20,6 @@ internal abstract class EnemyPickupInstructionProgramDefinitions : IInstructionP
 
     /// <summary><c>InstList_EnemyProjectile_Pickup_PowerBombs</c> at $86:EDEB.</summary>
     internal const ushort PowerBombs = 0xedeb;
-
-    public static int MechanicsWordCount => 30;
     public static int PresentationWordCount => 16;
 
     /// <summary>
@@ -29,7 +27,7 @@ internal abstract class EnemyPickupInstructionProgramDefinitions : IInstructionP
     /// two frames and Power Bombs four, for five ticks each. Every program loops;
     /// the four earlier programs also have an unreachable trailing sleep command.
     /// </summary>
-    private static PickupLoop ProgramAt(int program) => program switch
+    internal static PickupLoop ProgramAt(int program) => program switch
     {
         0 => new(SmallEnergy, 4, 8, true),
         1 => new(BigEnergy, 4, 8, true),
@@ -39,9 +37,8 @@ internal abstract class EnemyPickupInstructionProgramDefinitions : IInstructionP
         _ => throw new ArgumentOutOfRangeException(nameof(program)),
     };
 
-    private readonly record struct PickupLoop(ushort Start, int Frames, ushort Duration, bool HasSleep)
+    internal readonly record struct PickupLoop(ushort Start, int Frames, ushort Duration, bool HasSleep)
     {
-        internal int MechanicsWords => Frames + (HasSleep ? 3 : 2);
         internal InstructionMechanicsWord Word(int index)
         {
             if (index < Frames)
@@ -54,20 +51,6 @@ internal abstract class EnemyPickupInstructionProgramDefinitions : IInstructionP
                 _ => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep,
             });
         }
-    }
-
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount)
-            throw new IndexOutOfRangeException();
-        for (int program = 0; program < 5; program++)
-        {
-            PickupLoop loop = ProgramAt(program);
-            if (index < loop.MechanicsWords)
-                return loop.Word(index);
-            index -= loop.MechanicsWords;
-        }
-        throw new IndexOutOfRangeException();
     }
 
     public static ushort PresentationWordAddress(int index)
@@ -97,15 +80,7 @@ internal abstract class EnemyPickupInstructionProgramDefinitions : IInstructionP
             $"Enemy-pickup mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        return TryRead(bankAddress, out _) || TryRead(unchecked((ushort)(bankAddress - 1)), out _);
-    }
-
-    private static bool TryRead(ushort address, out ushort value)
+    internal static bool TryRead(ushort address, out ushort value)
     {
         for (int program = 0; program < 5; program++)
         {

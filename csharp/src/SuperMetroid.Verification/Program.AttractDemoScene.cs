@@ -75,7 +75,7 @@ internal static partial class Program
 
     private static void VerifyStockAttractScenes()
     {
-        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int[] counts = [6, 6, 6, 5];
         int total = 0;
         for (int set = 0; set < counts.Length; set++)

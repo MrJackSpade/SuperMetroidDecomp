@@ -11,7 +11,7 @@ internal static partial class Program
     private static void VerifyFileMapSnapshots()
     {
         VerifyWindowedSceneContract();
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int samples = 0;
         for (int area = 0; area < 6; area++)
         {

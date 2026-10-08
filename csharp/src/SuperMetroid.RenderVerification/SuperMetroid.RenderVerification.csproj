@@ -5,6 +5,7 @@
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="../SuperMetroid.Tooling/SuperMetroid.Tooling.csproj" />
     <ProjectReference Include="../SuperMetroid.Desktop/SuperMetroid.Desktop.csproj" />
     <ProjectReference Include="../SuperMetroid.AssetExtraction/SuperMetroid.AssetExtraction.csproj" />
     <Content Include="../../test-fixtures/issue-321-tile-byte-selection/frame.smframe" Link="fixtures/tile-byte-selection.smframe" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
@@ -15,12 +16,16 @@
   </ItemGroup>
   <Import Project="../../test-support/RenderFixtures.projitems" />
   <Import Project="../../test-support/WindowsConsole.projitems" />
+  <Import Project="../../test-support/WindowsConsole.Verification.projitems" />
   <ItemGroup>
     <Compile Include="../../test-support/SaveMapPresentationFixture.cs" Link="SaveMapPresentationFixture.cs" />
   </ItemGroup>
   <Import Project="../../test-support/RepositoryInstallation.projitems" />
+  <Import Project="../../test-support/RepositoryInstallation.Verification.projitems" />
+  <Import Project="../../test-support/RoomHeaderImport.projitems" />
   <ItemGroup>
     <Compile Include="../../test-support/PixelComparison.cs" Link="TestSupport/PixelComparison.cs" />
+    <Compile Include="../../test-support/D3D11FrameReadback.cs" Link="TestSupport/D3D11FrameReadback.cs" />
   </ItemGroup>
   <Import Project="../../test-support/VerificationAccess.Core.projitems" />
   <Import Project="../../test-support/VerificationAccess.Desktop.projitems" />

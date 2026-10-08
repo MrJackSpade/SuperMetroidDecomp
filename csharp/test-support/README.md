@@ -10,7 +10,13 @@ They are deliberately not player dependencies and are not separate executables.
   private production state, test drivers and oracle-only ROM constants that tests use and
   production does not. Production carries no test-only members (#1273); these C# 14 extension
   members reach private state through `PrivateState` reflection, by name, in one place.
-- `VerificationImporters.projitems`: cartridge importers that only verification fixtures read.
+- `VerificationImporters.projitems`, `RoomHeaderImport.projitems`: cartridge importers that only verification fixtures read.
+- `RepositoryInstallation.projitems` and `WindowsConsole.projitems` are also linked into developer
+  tools. Their verifier-only parts live in `RepositoryInstallation.Verification.projitems` and
+  `WindowsConsole.Verification.projitems`, which only verification projects import, so a tool
+  compiles nothing it does not use (the reachability gate enforces this).
+- Code that tools need but players never run belongs in `src/SuperMetroid.Tooling`, not here:
+  tests may use it, but it must have a tool consumer.
 
 Each consumer explicitly imports its group. These internal fixture types compile into each
 consumer; no runner reaches into another executable's source tree. The source audit retains

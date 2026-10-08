@@ -49,7 +49,7 @@ internal static partial class Program
 
     private static void VerifyShotBlockPlmPrograms()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyShotBlockStockVisualMapping), () => VerifyShotBlockStockVisualMapping(rom));
         Suite(nameof(VerifyShotBlockProgramControlMapping), () => VerifyShotBlockProgramControlMapping(rom));

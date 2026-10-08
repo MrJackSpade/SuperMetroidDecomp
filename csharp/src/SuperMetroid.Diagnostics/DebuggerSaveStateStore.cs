@@ -16,27 +16,7 @@ internal sealed class DebuggerSaveStateStore
     private readonly SuperMetroidGameOptions? hostOptions;
     private readonly GameContentIdentity? contentIdentity;
 
-    public DebuggerSaveStateStore(
-        string romPath,
-        ReadOnlySpan<byte> cartridgeRom,
-        string? directoryOverride = null,
-        SuperMetroidGameOptions? hostOptions = null,
-        GameContentIdentity? contentIdentity = null)
-        : this(
-            directoryOverride is null
-                ? Path.Combine(
-                    Path.GetDirectoryName(Path.GetFullPath(romPath))
-                        ?? throw new InvalidOperationException("ROM path has no parent directory."),
-                    "debug-states")
-                : Path.GetFullPath(directoryOverride),
-            SHA256.HashData(cartridgeRom),
-            hostOptions,
-            contentIdentity)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(romPath);
-    }
-
-    private DebuggerSaveStateStore(
+    internal DebuggerSaveStateStore(
         string directory,
         byte[] romDigest,
         SuperMetroidGameOptions? hostOptions,

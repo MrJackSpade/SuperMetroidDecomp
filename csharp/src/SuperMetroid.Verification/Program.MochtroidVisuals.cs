@@ -9,10 +9,10 @@ internal static partial class Program
     {
         var selectedFrames = new HashSet<ushort>();
         for (int index = 0;
-             index < MochtroidInstructionProgramDefinitions.PresentationWordCount;
+             index < MochtroidInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort operand = MochtroidInstructionProgramDefinitions
+            ushort operand = MochtroidInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             int selectorAddress = (MochtroidVisualDefinitions.Bank << 16) | operand;
             ushort nativePointer = unchecked((ushort)(

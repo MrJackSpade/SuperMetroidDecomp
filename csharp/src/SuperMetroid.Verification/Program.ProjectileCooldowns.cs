@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyProjectileCooldowns()
     {
-        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var bus = new ProjectileCooldownReadGuard(retail);
         for (int address = 0x90c254; address < 0x90c28f; address++)
             AssertEqual(retail.ReadByte(address), SamusProjectileCooldownDefinitions.ReadByte(address),

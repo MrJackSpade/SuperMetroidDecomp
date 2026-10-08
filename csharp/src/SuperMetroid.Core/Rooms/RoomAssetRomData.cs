@@ -33,8 +33,6 @@ public static class RoomAssetRomData
     /// <summary>Fixed BG-character, block-table, palette, and VRAM allocation geometry.</summary>
     public static class GraphicsLayout
     {
-        /// <summary>Bytes occupied by one SNES four-bit-per-pixel 8x8 character.</summary>
-        public const int BytesPer4BppCharacter = 32;
 
         /// <summary>VRAM byte destination used for area-specific BG characters.</summary>
         public const int AreaCharactersVramByteOffset = 0x0000;
@@ -42,18 +40,8 @@ public static class RoomAssetRomData
         /// <summary>VRAM byte destination used for common-room-element BG characters.</summary>
         public const int CreCharactersVramByteOffset = 0x5000;
 
-        /// <summary>Bytes modeled by the static room renderer's BG character allocation.</summary>
-        public const int BackgroundCharacterVramByteCount = 0x8000;
-
-        /// <summary>Bytes in the decompressed CRE 16x16 block-definition table.</summary>
-        public const int CreBlockDefinitionsByteCount = 0x0800;
-
         /// <summary>Bytes in one 16x16 block definition (four packed tilemap words).</summary>
         public const int BytesPerBlockDefinition = 8;
-
-        /// <summary>Number of CRE block definitions preceding area-specific blocks.</summary>
-        public const int CreBlockDefinitionCount =
-            CreBlockDefinitionsByteCount / BytesPerBlockDefinition;
 
         /// <summary>Palette bytes copied by <c>LoadCRETilesTilesetTilesAndPalette</c>.</summary>
         public const int BackgroundPaletteByteCount = 0x0100;

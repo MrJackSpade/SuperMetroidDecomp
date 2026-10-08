@@ -9,7 +9,7 @@ internal static partial class Program
 {
     private static void VerifyCeresExplosionTimeline(PowerBombFixedColorCatalog? colors = null)
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var guarded = new ForbiddenPowerBombColorBus(bus);
         string artDirectory = Path.Combine(Path.GetTempPath(),
             "supermetroid-ceres-explosion-" + Guid.NewGuid().ToString("N"));

@@ -15,7 +15,7 @@ internal static partial class Program
     /// </summary>
     private static void VerifyExtractedGunshipCompositions(string installationRoot, string romPath, string outputRoot)
     {
-        var imported = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath(romPath));
+        var imported = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath(romPath));
         string directory = Path.Combine(Path.GetFullPath(outputRoot), "enemy-tiles-" + Guid.NewGuid().ToString("N"));
         EnemyTileArtworkFiles.Extract(imported, directory, SupportedCartridge.Sha256);
         EnemyTileArtworkFiles.ValidateStock(directory);

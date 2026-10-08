@@ -7,18 +7,18 @@ internal static partial class Program
     private static void VerifyMochtroidInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMochtroidInstructionProgramDefinitions), () => VerifyMochtroidInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyMochtroidInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         for (int index = 0;
-             index < MochtroidInstructionProgramDefinitions.MechanicsWordCount;
+             index < MochtroidInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                MochtroidInstructionProgramDefinitions.MechanicsWord(index);
+                MochtroidInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
                 ReadMochtroidInstructionWord(rom, definition.Address),
                 $"Mochtroid mechanics word $A3:{definition.Address:X4}");
@@ -62,10 +62,10 @@ internal static partial class Program
         AssertEqual(0, guard.ObservedPresentationWords.Count,
             "Mochtroid execution uses compiled spritemap selectors");
         for (int index = 0;
-             index < MochtroidInstructionProgramDefinitions.PresentationWordCount;
+             index < MochtroidInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
         {
-            ushort operand = MochtroidInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort operand = MochtroidInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertCompiledEnemyVisualSelector(rom, EnemyDefinitionPointers.Mochtroid,
                 0xa3, operand, $"Mochtroid $A3:{operand:X4}");
         }
@@ -73,7 +73,7 @@ internal static partial class Program
             "production execution avoids every compiled Mochtroid mechanics byte");
         AssertThrows<InvalidDataException>(
             () => MochtroidInstructionProgramDefinitions.ReadMechanicsWord(
-                MochtroidInstructionProgramDefinitions.PresentationWordAddress(0)),
+                MochtroidInstructionProgramDefinitionsTooling.PresentationWordAddress(0)),
             "Mochtroid spritemap pointer is rejected as mechanics");
         AssertThrows<InvalidDataException>(
             () => MochtroidInstructionProgramDefinitions.ReadMechanicsWord(
@@ -138,7 +138,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (MochtroidInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (MochtroidInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -148,11 +148,11 @@ internal static partial class Program
             {
                 ushort bankAddress = unchecked((ushort)address);
                 for (int index = 0;
-                     index < MochtroidInstructionProgramDefinitions.PresentationWordCount;
+                     index < MochtroidInstructionProgramDefinitionsTooling.PresentationWordCount;
                      index++)
                 {
                     ushort presentation =
-                        MochtroidInstructionProgramDefinitions.PresentationWordAddress(index);
+                        MochtroidInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
                     if (bankAddress == presentation ||
                         bankAddress == unchecked((ushort)(presentation + 1)))
                     {

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// Compiled control for the tube crack, its ten glass shards, and six released-air bubbles.
 /// Their interleaved spritemap operands select separately installed presentation data.
 /// </summary>
-internal abstract class NoobTubeProjectileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class NoobTubeProjectileInstructionProgramDefinitions
 {
     /// <summary>N00b-tube crack animation at $86:D3D7.</summary>
     internal const ushort Crack = 0xd3d7;
@@ -141,25 +141,6 @@ internal abstract class NoobTubeProjectileInstructionProgramDefinitions : IInstr
 
         throw new InvalidDataException(
             $"N00b-tube projectile mechanics pointer $86:{address:X4} is not compiled.");
-    }
-
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
 }

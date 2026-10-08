@@ -169,7 +169,7 @@ public static partial class GameAssetInstaller
             Directory.Move(previous, installation.ContentDirectory);
     }
 
-    private static FileStream Lock(string root)
+    internal static FileStream Lock(string root)
     {
         Directory.CreateDirectory(root);
         try { return new FileStream(Path.Combine(root, GameInstallationLayout.LockFileName), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None); }

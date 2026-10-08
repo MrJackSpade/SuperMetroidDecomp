@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Collections;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
@@ -29,13 +30,15 @@ internal static class PaletteDefinitionAudit
             if (catalog == typeof(PaletteFxDeleteProgramMechanicsDefinitions)) continue;
             string source = FindSource(root, catalog.Name);
             bool covered = false;
-            foreach (MethodInfo method in catalog.GetMethods(BindingFlags.Public | BindingFlags.Static)
+            foreach (MethodInfo method in ToolingTypes.WithAdapter(catalog)
+                .SelectMany(type => type.GetMethods(BindingFlags.Public | BindingFlags.Static))
                 .Where(IsColorMethod).OrderBy(method => method.Name, StringComparer.Ordinal))
             {
                 string prefix = method.Name[..^"ColorPointer".Length];
                 covered |= CheckColorMethod(catalog, null, method, prefix, catalog, source, exports, report);
             }
-            if (catalog.GetProperty("All", BindingFlags.Public | BindingFlags.Static)?.GetValue(null) is IEnumerable rows)
+            if (ToolingTypes.WithAdapter(catalog).Select(type => type.GetProperty("All", BindingFlags.Public | BindingFlags.Static | BindingFlags.NonPublic))
+                    .SingleOrDefault(property => property is not null)?.GetValue(null) is IEnumerable rows)
             {
                 foreach (object row in rows)
                 {
@@ -83,7 +86,7 @@ internal static class PaletteDefinitionAudit
             if (index + 1 == recorder.Reads.Count || recorder.Reads[index + 1] != recorder.Reads[index] + 1)
                 throw new InvalidDataException("Palette extraction no longer consists of bounded color-word reads.");
         }
-        foreach (ushort pointer in room.ColorPointers.Concat(title.ColorPointers))
+        foreach (ushort pointer in room.ColorPointers.Concat(TitlePalettePresentationTooling.ColorPointers))
             exports.Add(ResourceDomains.PaletteFx, ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, pointer));
     }
 
@@ -124,9 +127,10 @@ internal static class PaletteDefinitionAudit
 
     private static string FindSource(string root, string name)
     {
-        string directory = Path.Combine(root, "csharp/src/SuperMetroid.Core/Game");
-        string path = Path.Combine(directory, name + ".cs");
+        string path = Path.Combine(root, "csharp/src/SuperMetroid.Core/Game", name + ".cs");
         if (File.Exists(path)) return Path.GetRelativePath(root, path).Replace('\\', '/');
+        string moved = Path.Combine(root, "csharp/src/SuperMetroid.Tooling/Core/Game", name + ".cs");
+        if (File.Exists(moved)) return Path.GetRelativePath(root, moved).Replace('\\', '/');
         return "csharp/src/SuperMetroid.Core/Game/" + name;
     }
 

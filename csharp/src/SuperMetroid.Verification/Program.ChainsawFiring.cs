@@ -12,7 +12,7 @@ internal static partial class Program
     // default suite now that the cartridge-backed firing/lifetime slice is implemented.
     private static void VerifyChainsawFiring()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var level = new RoomLevelData(16, 16, new ushort[256], new byte[256],
             new ushort[256], new byte[8]);
         var samus = new SamusState

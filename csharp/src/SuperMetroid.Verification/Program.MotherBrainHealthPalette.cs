@@ -5,7 +5,7 @@ internal static partial class Program
 {
     private static void VerifyMotherBrainHealthPalette(string romPath)
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         var colors = new HashSet<string>();
         foreach (var (health, index) in new (ushort, int)[]
             { (36000, 0), (9000, 0), (8999, 1), (5400, 1), (5399, 2), (1800, 2), (1799, 3), (0, 3) })

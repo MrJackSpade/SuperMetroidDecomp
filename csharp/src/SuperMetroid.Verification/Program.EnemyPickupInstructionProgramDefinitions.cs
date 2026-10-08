@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyEnemyPickupInstructionProgramDefinitions() =>
         Suite(nameof(VerifyEnemyPickupInstructionProgramDefinitions), () => VerifyEnemyPickupInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     private static void VerifyEnemyPickupInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -16,11 +16,11 @@ internal static partial class Program
         const BindingFlags staticFlags = BindingFlags.Static | BindingFlags.NonPublic;
 
         for (int index = 0;
-             index < EnemyPickupInstructionProgramDefinitions.MechanicsWordCount;
+             index < EnemyPickupInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                EnemyPickupInstructionProgramDefinitions.MechanicsWord(index);
+                EnemyPickupInstructionProgramDefinitionsTooling.MechanicsWord(index);
             ushort native = unchecked((ushort)(
                 rom.ReadByte(EnemyProjectileCodePointers.BankBase | definition.Address) |
                 rom.ReadByte(EnemyProjectileCodePointers.BankBase |
@@ -174,7 +174,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (EnemyPickupInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (EnemyPickupInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

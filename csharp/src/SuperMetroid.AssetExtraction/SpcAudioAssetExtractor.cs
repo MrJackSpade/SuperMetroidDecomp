@@ -15,18 +15,6 @@ namespace SuperMetroid.AssetExtraction;
 /// </summary>
 public static class SpcAudioAssetExtractor
 {
-    /// <summary>Extracts all required assets from the repository's private raw directory.</summary>
-    public static AudioAssetManifest Extract(string rawDirectory, string audioDirectory)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(rawDirectory);
-        ArgumentException.ThrowIfNullOrWhiteSpace(audioDirectory);
-        rawDirectory = Path.GetFullPath(rawDirectory);
-        audioDirectory = Path.GetFullPath(audioDirectory);
-        if (!Directory.Exists(rawDirectory))
-            throw new DirectoryNotFoundException($"Raw asset directory '{rawDirectory}' does not exist.");
-
-        return Extract(definition => File.ReadAllBytes(Path.Combine(rawDirectory, definition.Name + ".bin")), audioDirectory);
-    }
 
     /// <summary>Extracts runtime audio directly from a user's cartridge, without raw files or an upstream checkout.</summary>
     public static AudioAssetManifest Extract(CartridgeImportAddressSpace cartridge, string audioDirectory)
@@ -35,7 +23,7 @@ public static class SpcAudioAssetExtractor
         return Extract(definition => SpcUploadStreamReader.Read(cartridge, definition.SnesAddress, includeExecutionAddress: true), audioDirectory);
     }
 
-    private static AudioAssetManifest Extract(Func<AudioUploadAssetDefinition, byte[]> readStream, string audioDirectory)
+    internal static AudioAssetManifest Extract(Func<AudioUploadAssetDefinition, byte[]> readStream, string audioDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(audioDirectory);
         audioDirectory = Path.GetFullPath(audioDirectory);

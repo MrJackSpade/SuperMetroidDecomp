@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyCompiledEnemyDefinitions()
     {
-        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var referencedPointers = new HashSet<ushort>();
         foreach (CartridgeRoomState state in RoomStateDefinitions.All)

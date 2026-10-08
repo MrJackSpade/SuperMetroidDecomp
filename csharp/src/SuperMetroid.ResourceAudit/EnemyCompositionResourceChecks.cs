@@ -1,6 +1,7 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.ResourceAudit;
 

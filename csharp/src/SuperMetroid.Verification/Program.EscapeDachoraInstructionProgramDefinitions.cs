@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyEscapeDachoraInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyEscapeDachoraInstructionProgramDefinitions), () => VerifyEscapeDachoraInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyEscapeDachoraInstructionProgramDefinitions(
@@ -156,7 +156,7 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (EscapeDachoraInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
+            if (EscapeDachoraInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

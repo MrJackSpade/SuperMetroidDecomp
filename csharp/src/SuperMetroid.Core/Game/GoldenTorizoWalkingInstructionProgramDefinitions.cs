@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Game;
 /// fixed cartridge mechanics; the ten interleaved extended-frame selectors
 /// identify separately editable visual compositions.
 /// </summary>
-internal abstract class GoldenTorizoWalkingInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
+internal abstract class GoldenTorizoWalkingInstructionProgramDefinitions
 {
 
     /// <summary><c>InstList_Torizo_FacingLeft_JumpingForwards_0</c> at $AA:BC60.</summary>
@@ -34,9 +34,8 @@ internal abstract class GoldenTorizoWalkingInstructionProgramDefinitions : IInst
 
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
-    static int IDeclaredProgramBank.Bank => Bank;
 
-    private static readonly InstructionProgramLayout Layout = new(Bank,
+    internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xd20d),
         Entry(GoldenTorizoCombatInstructionPointers.WalkingLeftRightLeg),
         Op(TorizoInstructionCodes.Instruction_Torizo_SetSteppedLeftWithLeftFootState),
@@ -82,15 +81,6 @@ internal abstract class GoldenTorizoWalkingInstructionProgramDefinitions : IInst
         Frame(4),
         Op(TorizoInstructionCodes.Instruction_GoldenTorizo_WalkingMovement_IndexInY, 0x0000),
         Op(CommonEnemyInstructionCodes.Goto, TorizoWalkingLeftRightLegMoving));
-
-    public static int MechanicsWordCount => Layout.MechanicsWordCount;
-    public static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        (ushort address, ushort value) = Layout.MechanicsWord(index);
-        return new(address, value);
-    }
     public static int PresentationWordCount => Layout.PresentationSlotCount;
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
-
-    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

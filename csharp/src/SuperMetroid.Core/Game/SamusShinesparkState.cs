@@ -351,8 +351,17 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>Runs one installed special-handler frame from <c>$90:D068-$D2B9</c>.</summary>
+    /// <param name="bus">Address space used by Samus pose metadata and the translated movement/collision helpers.</param>
+    /// <param name="level">Current mutable room collision data used by active spark movement.</param>
+    /// <param name="samus">Live player state; movement, energy, contact damage, pose state, and echo coordinates may change during the call.</param>
+    /// <param name="nmiFrameCounter">Native NMI frame word whose parity selects the vertical block-probe traversal order.</param>
+    /// <param name="projectileCounter">Ordinary projectile count used for crash-echo admission when no live <paramref name="projectiles"/> owner is supplied; excludes bomb slots.</param>
+    /// <param name="plms">Optional current-room PLM owner receiving block reactions during spark movement.</param>
+    /// <param name="playerInvincibilityEnabled">Host cheat that bypasses the low-energy crash condition, but retains collision termination and drains energy no lower than one.</param>
+    /// <param name="projectiles">Optional live ordinary-projectile owner supplying its count and accepting released echoes in fixed slots three/four.</param>
     /// <param name="gameTimeFrames">Native gameplay-clock word used by echo sampling, independent of NMI collision parity.</param>
     /// <param name="deferTimeoutPoseChange">The runtime commits interrupted poses after animation; standalone movement callers may commit immediately.</param>
+    /// <param name="previousCheckpoint">Optional mutable camera-history point whose X/Y trailing distance is capped after the corresponding spark movement axis.</param>
     public ShinesparkMovementResult Step(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -951,24 +960,39 @@ false,             CrashSequenceFinished: true);
 /// <summary>Host names for the installed shinespark movement-handler pointers.</summary>
 public enum ShinesparkPhase
 {
+    /// <summary>No shinespark special movement handler is installed; independent palette timers, boost state, and released echo storage may still remain live.</summary>
     Inactive,
+    /// <summary>Stored shine admitted by native <c>InitializeSamusPose_CrouchingTransition</c> at <c>$91:F7B0</c>, with a 180-update palette timer; this is not an installed special movement handler.</summary>
     Stored,
+    /// <summary>Native <c>SamusMovementHandler_ShinesparkWindup</c> at <c>$90:D068</c>; waits up to 30 movement updates for a direction, defaulting to a vertical launch on countdown expiry.</summary>
     Windup,
+    /// <summary>Native <c>SamusMovementHandler_HorizontalShinespark</c> at <c>$90:D106</c>; moves along the facing direction until collision or the sustaining-energy check starts the crash sequence.</summary>
     Horizontal,
+    /// <summary>Native <c>SamusMovementHandler_VerticalShinespark</c> at <c>$90:D0AB</c>; accelerates upward with split 16.16 motion until collision or insufficient sustaining energy.</summary>
     Vertical,
+    /// <summary>Native <c>SamusMovementHandler_DiagonalShinespark</c> at <c>$90:D0D7</c>; runs horizontal then upward movement, retaining the last axis's collision result rather than combining the two.</summary>
     Diagonal,
+    /// <summary>Native <c>SamusMovementHandler_ShinesparkCrash_EchoesCircleSamus</c> at <c>$90:D346</c>; expands, rotates, then contracts the paired speed echoes around Samus while maintaining the spark palette timer.</summary>
     Crash,
+    /// <summary>Native <c>ShinesparkCrash_EchoesFinishedCirclingSamus</c> at <c>$90:D3F3</c>; despite the host name, this phase waits 30 updates after the orbit contracts rather than continuing circular motion.</summary>
     CrashEchoCircle,
+    /// <summary>Native <c>ShinesparkCrash_Finish</c> at <c>$90:D40D</c>; releases crash echoes into fixed projectile slots three/four as capacity permits, expires spark state, and publishes the standing-pose completion request.</summary>
     CrashFinish,
 }
 
 /// <summary>Debugger snapshot of one windup or active shinespark handler call.</summary>
+/// <param name="WindupTimedOut">True when this call's windup countdown reached zero or wrapped negative and selected the automatic vertical launch.</param>
+/// <param name="CrashSequenceFinished">True when crash cleanup completed, requesting the caller's post-animation standing-pose commit; does not imply both released echoes were allocated.</param>
+/// <param name="PendingLaunchPose">Directional launch pose awaiting a post-animation commit when timeout pose changes were deferred; otherwise null.</param>
 public readonly record struct ShinesparkMovementResult(
     bool WindupTimedOut,
     bool CrashSequenceFinished = false,
     byte? PendingLaunchPose = null);
 
 /// <summary>Immutable debugger view of one departing crash-echo projectile.</summary>
+/// <param name="Active">Speed-echo drawing enable, independent of current projectile-slot ownership; replacing the projectile need not clear these drawing words.</param>
+/// <param name="XPosition">Whole room-pixel echo X coordinate with native sixteen-bit wrapping; slot-three storage also aliases the crash angular-delta word.</param>
+/// <param name="YPosition">Whole room-pixel echo Y coordinate with native sixteen-bit wrapping; slot-three storage also aliases the crash angular-travel word.</param>
 public readonly record struct ShinesparkReleasedEcho(
     bool Active,
     ushort XPosition,

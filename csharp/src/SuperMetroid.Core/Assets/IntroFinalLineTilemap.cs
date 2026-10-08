@@ -42,6 +42,10 @@ public sealed class IntroFinalLineTilemap
         int tileStripRow = 2 * (row & 1) + (row >> 1);
         return unchecked((ushort)(IntroFinalLineTilemapFormat.FirstInteriorWord + tileStripRow * interiorColumns + column - margin));
     }
+    /// <summary>Validates and compiles 128 ordered character references into the four-row BG3 subtitle map corresponding to $8B:A72B-A82A; exact stock words remain formula-derived.</summary>
+    /// <param name="json">Caller-owned stream containing the supported editable tile-reference document.</param>
+    /// <returns>The subtitle staging map, including editable margins, palette, priority, and flip attributes.</returns>
+    /// <exception cref="InvalidDataException">The document schema, cell count, or character/palette selectors are invalid.</exception>
     public static IntroFinalLineTilemap Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -70,6 +74,9 @@ public sealed class IntroFinalLineTilemap
         return new IntroFinalLineTilemap(words);
     }
 
+    /// <summary>Serializes the tile-reference document as UTF-8 JSON and validates it through <see cref="Load"/> before writing any destination bytes.</summary>
+    /// <param name="json">Caller-owned destination stream.</param>
+    /// <param name="document">Complete four-row map to validate and serialize.</param>
     public static void Write(Stream json, IntroFinalLineTilemapDocument document)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -80,19 +87,25 @@ public sealed class IntroFinalLineTilemap
     }
 }
 
+/// <summary>Editable subtitle-staging tile references for BG3 rows 24-27; glyph pixels, translated narration, and reveal timing are separate resources or runtime state.</summary>
 public sealed record IntroFinalLineTilemapDocument
 {
+    /// <summary>Schema revision, which loading requires to equal <see cref="IntroFinalLineTilemapFormat.Version"/>.</summary>
     public required int Version { get; init; }
+    /// <summary>Exactly 128 non-null cells in four rows of 32, including margins; character-sheet columns/rows are 0..31 and BG palette selectors are 0..7.</summary>
     public required RoomBackgroundTilemapCell[] Cells { get; init; }
 }
 
 /// <summary>File identity and dimensions for the cartridge's four-row Japanese subtitle staging map.</summary>
 public static class IntroFinalLineTilemapFormat
 {
+    /// <summary>Supported revision of the ordered editable subtitle-map schema.</summary>
     public const int Version = 1;
+    /// <summary>Destination cells per BG3 row, comprising 24 stock subtitle columns and four stock margin columns on each side.</summary>
     public const int Columns = 32;
     /// <summary>$8B:A72B-A82A: two selected subtitle lines, each composed of an upper and lower glyph half.</summary>
     public const int Rows = 2 * 2;
+    /// <summary>Required tile-reference count, 128, corresponding to the $0100-byte native map copied into BG3 rows 24-27.</summary>
     public const int CellCount = Columns * Rows;
     /// <summary>$8B:8DEA/A68F: 0600 bytes of 2bpp glyph staging form four displayed tile rows, yielding 24 columns.</summary>
     internal const int InteriorColumns = IntroCinematicRomData.Vram.JapaneseBlankCharactersByteCount /
@@ -107,5 +120,6 @@ public static class IntroFinalLineTilemapFormat
         (IntroFontAtlasFormat.BitsPerPixel * IntroFontAtlasFormat.TileSize), SubtitlePalette, true, default).Raw;
     /// <summary>$8B:A733: chosen palette four for the Japanese subtitle glyph staging area; this display policy is retained as selected typesetting, not prose, pixels or timing.</summary>
     private const int SubtitlePalette = 4;
+    /// <summary>Editable JSON filename for the opening cinematic's four-row subtitle staging map, not a prose or animation-sequence file.</summary>
     public const string FileName = "intro-final-text-divider.json";
 }

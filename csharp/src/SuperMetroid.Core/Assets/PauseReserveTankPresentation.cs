@@ -12,11 +12,20 @@ public sealed class PauseReserveTankPresentation
     private readonly ushort paletteBits;
     private PauseReserveTankPresentation(Dictionary<int, (int? X, int? Y)> anchorOverrides, FrameSet frames, int palette)
     { this.anchorOverrides = anchorOverrides; this.frames = frames; paletteBits = SnesObjAttributeWord.Create(0, palette, 0).PaletteBits; }
+
+    /// <summary>Gets one reserve-strip screen anchor, falling back independently to each stock coordinate.</summary>
+    /// <param name="index">Zero-based tank or trailing-cap position from 0 through 5.</param>
+    /// <returns>The configured screen-pixel anchor for that strip position.</returns>
     public MapLabelPoint Anchor(int index)
     {
         var basis = PauseReserveTankDefinitions.StockAnchor(index);
         return anchorOverrides.TryGetValue(index, out var value) ? new(value.X ?? basis.X, value.Y ?? basis.Y) : basis;
     }
+    /// <summary>Draws one full, empty, partially filled, or end-cap reserve visual at a strip position.</summary>
+    /// <param name="oam">The OAM buffer that receives the authored or stock sprite parts.</param>
+    /// <param name="nativeIdentity">The native bank-$82 spritemap identity selecting one of the ten visual roles.</param>
+    /// <param name="index">Zero-based tank or trailing-cap anchor index.</param>
+    /// <exception cref="InvalidDataException">The native visual identity is unknown.</exception>
     public void Draw(OamBuffer oam, ushort nativeIdentity, int index)
     {
         var anchor = Anchor(index);
@@ -39,6 +48,10 @@ public sealed class PauseReserveTankPresentation
             SnesObjAttributeWord.Create(PauseReserveTankDefinitions.StockTile(nativeIdentity), 0, 3).WithPaletteBits(paletteBits),
             (ushort)anchor.X, (ushort)anchor.Y);
     }
+    /// <summary>Loads and validates the reserve-strip palette, six anchors, and ten named sprite frames.</summary>
+    /// <param name="json">The caller-owned stream containing the editable presentation document.</param>
+    /// <returns>The validated reserve-tank presentation.</returns>
+    /// <exception cref="InvalidDataException">The JSON, version, palette, anchors, or frames are invalid.</exception>
     public static PauseReserveTankPresentation Load(Stream json)
     {
         PauseReserveTankDocument document;
@@ -75,6 +88,9 @@ public sealed class PauseReserveTankPresentation
     private sealed record FrameSet(SpriteComposition? Full, SpriteComposition? EndCap, SpriteComposition? Empty,
         SpriteComposition? Fill1, SpriteComposition? Fill2, SpriteComposition? Fill3, SpriteComposition? Fill4,
         SpriteComposition? Fill5, SpriteComposition? Fill6, SpriteComposition? Fill7);
+    /// <summary>Validates and writes an editable reserve-tank presentation document as JSON.</summary>
+    /// <param name="output">The caller-owned destination stream.</param>
+    /// <param name="document">The presentation document to validate and serialize.</param>
     public static void Write(Stream output, PauseReserveTankDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
@@ -82,10 +98,18 @@ public sealed class PauseReserveTankPresentation
     }
 }
 
+/// <summary>Editable JSON schema for the pause screen's reserve-energy strip artwork and placement.</summary>
 public sealed record PauseReserveTankDocument
 {
+    /// <summary>Gets the reserve-tank presentation schema version.</summary>
     public required int Version { get; init; }
+
+    /// <summary>Gets the OBJ palette index, from zero through seven, applied to every reserve-strip part.</summary>
     public required int Palette { get; init; }
+
+    /// <summary>Gets the six screen-pixel anchors for five tank positions and the trailing cap.</summary>
     public required MapLabelPoint[] Anchors { get; init; }
+
+    /// <summary>Gets the ten named full, end-cap, empty, and partial-fill sprite compositions.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
 }

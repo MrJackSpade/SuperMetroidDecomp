@@ -3,17 +3,24 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The mutually exclusive Crateria lightning palette program.</summary>
 public enum CrateriaLightningPaletteOwner
 {
+    /// <summary>$8D:F765, Crateria 1 lightning: program $8D:EB3B flashes BG palette 5 colors 4..11 at the Landing Site before power bombs are acquired.</summary>
     SurfaceLightning,
+    /// <summary>$8D:F769, unused dark-lightning counterpart: program $8D:EC6E darkens seven colors starting at CGRAM color 65.</summary>
     UnusedDarkLightning,
 }
 
 /// <summary>One immutable word-sized palette-program mechanic.</summary>
+/// <param name="Pointer">Bank-$8D byte address of the control word or duration, including unaligned addresses after byte-sized timer operands.</param>
+/// <param name="Value">Compiled sixteen-bit instruction, operand, or duration; never an editable BGR555 color payload.</param>
 public readonly record struct PaletteFxMechanicsWord(ushort Pointer, ushort Value);
 
 /// <summary>One immutable byte-sized palette-program mechanic.</summary>
 public readonly record struct PaletteFxMechanicsByte();
 
 /// <summary>One timed lightning color record whose BGR555 payload remains live.</summary>
+/// <param name="Pointer">Bank-$8D byte address of this record's duration word.</param>
+/// <param name="Duration">Authored palette-FX instruction timer: neutral records use 240 updates, flash records one or two.</param>
+/// <param name="ColorCount">Consecutive live CGRAM color words following the duration: eight for surface lightning or seven for dark lightning.</param>
 public readonly record struct CrateriaLightningPaletteFrame(
     ushort Pointer,
     ushort Duration,
@@ -46,8 +53,16 @@ public static class CrateriaLightningPaletteFxProgramMechanicsDefinitions
     /// <summary>$8D:EC59/$ED84 restart the neutral record when Samus is above Y=$0380.</summary>
     public const ushort VerticalSwitchSamusY = 0x0380;
 
+    /// <summary>Resolves a compiled control or duration word from either lightning program, excluding their editable color payloads.</summary>
+    /// <param name="pointer">Bank-$8D byte address; lookup requires an exact word-start identity, not general word alignment.</param>
+    /// <param name="value">Compiled word on success, or zero when the address is not owned by either program's word mechanics.</param>
+    /// <returns>Whether the address identifies a known instruction, operand, or duration word.</returns>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value) =>
         Surface.TryReadWord(pointer, out value) || Dark.TryReadWord(pointer, out value);
+    /// <summary>Resolves the byte-sized loop-timer operands of either lightning program: two repetitions for the first flash group and one for the final group.</summary>
+    /// <param name="pointer">Exact bank-$8D byte address immediately after a set-timer instruction.</param>
+    /// <param name="value">Timer value, two or one, on success; otherwise zero.</param>
+    /// <returns>Whether the address identifies one of the four compiled timer operands across both programs.</returns>
     public static bool TryReadMechanicsByte(ushort pointer, out byte value) =>
         Surface.TryReadByte(pointer, out value) || Dark.TryReadByte(pointer, out value);
 
@@ -77,6 +92,7 @@ public sealed class CrateriaLightningPaletteFxProgramDefinition
         MechanicsBytes = new CalculatedList<PaletteFxMechanicsByte>(2, TimerByte);
     }
 
+    /// <summary>Program identity selecting either the live $F765 surface lightning or retained unused $F769 dark-lightning mechanics and color resource.</summary>
     public CrateriaLightningPaletteOwner Owner { get; }
     private bool IsSurface => Owner == CrateriaLightningPaletteOwner.SurfaceLightning;
     /// <summary>$8D:EB3B/$EC6E setup starts: pre-instruction and CGRAM destination.</summary>
@@ -85,9 +101,13 @@ public sealed class CrateriaLightningPaletteFxProgramDefinition
     public ushort ColorByteIndex => IsSurface ? (ushort)0x00a8 : (ushort)0x0082;
     /// <summary>$8D:EB43/$EC76 first neutral frame follows the eight-byte setup.</summary>
     public ushort FirstFramePointer => (ushort)(ProgramStart + 8);
+    /// <summary>Live BGR555 words per timed record: eight targeting CGRAM colors 84..91 for surface lightning, or seven targeting colors 65..71 for dark lightning.</summary>
     public int ColorsPerFrame => IsSurface ? 8 : 7;
+    /// <summary>Thirteen surface or fourteen dark timed records in program address order, not expanded loop-execution order; dark lightning retains an additional 240-update neutral record.</summary>
     public IReadOnlyList<CrateriaLightningPaletteFrame> Frames { get; }
+    /// <summary>Calculated setup/loop/branch words followed by each record's duration and terminal wait command; addresses may be unaligned and color words are excluded.</summary>
     public IReadOnlyList<PaletteFxMechanicsWord> MechanicsWords { get; }
+    /// <summary>Two opaque entries marking this program's byte-sized timer operands in first/final group order; their addresses and values are resolved through <see cref="CrateriaLightningPaletteFxProgramMechanicsDefinitions.TryReadMechanicsByte"/>.</summary>
     public IReadOnlyList<PaletteFxMechanicsByte> MechanicsBytes { get; }
 
     private int NeutralCount => IsSurface ? 1 : 2;

@@ -24,10 +24,15 @@ public sealed partial class RoomEnemySystem
     {
         var sequence = new MotherBrainRainbowBeamAttackSequence(MotherBrainCorpseArtwork);
         SynchronizeLiveMotherBrainRainbowActor(state, sequence);
+        // Word $0FF2 keeps the fake-death ascent dust's last value; the death explosions
+        // start from it. Word $0FF0 then holds a bank-$A9 sub-function pointer, always
+        // negative, so its first DEC takes the same immediate branch as the sequence's zero.
+        sequence.InheritDeathAndEscapeExplosionIndex(state.BodySubFunctionTimer);
         sequence.StartAttackCycle();
         state.RainbowBeamSequence = sequence;
         state.RainbowPaletteCursor = 0;
         state.RainbowAppliedHeadInstructionList = 0;
+        state.RainbowAppliedSmallPurpleBreathWrites = 0;
         ApplyLiveMotherBrainRainbowState(
             state,
             sequence,
@@ -124,7 +129,7 @@ public sealed partial class RoomEnemySystem
             (step is { HeadInstructionListRequested: true } ||
              sequence.HeadInstructionList != state.RainbowAppliedHeadInstructionList))
         {
-            SetMotherBrainInstructionList(head, sequence.HeadInstructionList);
+            SetMotherBrainBrainInstructionList(state, sequence.HeadInstructionList);
             state.RainbowAppliedHeadInstructionList = sequence.HeadInstructionList;
         }
 
@@ -161,6 +166,7 @@ public sealed partial class RoomEnemySystem
             state.BrainMainShakeTimer = 0x0032;
         }
         state.Form = sequence.Body.Form;
+        state.BodySubFunctionTimer = sequence.DeathAndEscapeExplosionIndex;
         state.Body.Properties = sequence.BodyProperties;
         state.Body.ExtraProperties = sequence.BodyProperties2;
         head.Health = sequence.BrainHealth;
@@ -171,8 +177,11 @@ public sealed partial class RoomEnemySystem
         // is allowed to collapse it to zero.
         if (!sequence.HitboxesEnabled)
             state.HitboxesEnabled = 0;
-        state.SmallPurpleBreathGenerationEnabled =
-            sequence.SmallPurpleBreathGenerationEnabled;
+        if (sequence.SmallPurpleBreathGenerationWriteCount != state.RainbowAppliedSmallPurpleBreathWrites)
+        {
+            state.SmallPurpleBreathGenerationEnabled = sequence.SmallPurpleBreathGenerationEnabled;
+            state.RainbowAppliedSmallPurpleBreathWrites = sequence.SmallPurpleBreathGenerationWriteCount;
+        }
         state.DroolGenerationEnabled = sequence.DroolGenerationEnabled;
 
         // These words are the renderer-facing output of the bank-$88 HDMA object. The beam

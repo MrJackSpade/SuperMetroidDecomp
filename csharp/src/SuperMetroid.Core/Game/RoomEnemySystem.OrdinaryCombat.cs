@@ -1010,8 +1010,15 @@ public sealed partial class RoomEnemySystem
 
                 if (isMotherBrainBody)
                 {
-                    // Body callback `$A9:B503` is exactly CreateDudShot. The common radius
-                    // collision prelude still owns Super-Missile quake before that callback.
+                    // Every body rectangle's shot callback is `$A9:B503`, exactly CreateDudShot;
+                    // only the dummy root's head-callback list could select anything else.
+                    if (hitboxShotAi != EnemyAiCodePointers.BankA9.MotherBrainBodyShot)
+                    {
+                        throw new InvalidDataException(
+                            $"Mother Brain's body selected shot AI $A9:{hitboxShotAi:X4} from " +
+                            $"frame $A9:{enemy.SpritemapPointer:X4}; only $A9:B503 is ported.");
+                    }
+                    // The common collision prelude still owns Super-Missile quake first.
                     projectiles.ApplyEnemyCollisionPrelude(
                         projectile.SlotIndex,
                         enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
@@ -1023,17 +1030,7 @@ public sealed partial class RoomEnemySystem
 
                 if (isMotherBrainHead)
                 {
-                    if (!ResolveMotherBrainHeadShot(
-                        bus,
-                        enemy,
-                        projectile,
-                        projectiles,
-                        sharedProjectiles,
-                        projectileType,
-                        projectileDamage))
-                    {
-                        continue;
-                    }
+                    ResolveMotherBrainHeadShot(enemy, projectile, projectiles, projectileType, projectileDamage);
                     hitCount++;
                     break;
                 }
@@ -3139,6 +3136,33 @@ public sealed partial class RoomEnemySystem
             return false;
         }
 
+        if (enemy.EnemyDefinitionPointer is MotherBrainBodyDefinition or MotherBrainHeadDefinition &&
+            enemy.Definition.Bank == MotherBrainCollisionDefinitions.Bank)
+        {
+            // Body and head walk the same bank-$A9 roots; the head's dummy list keeps $A320.
+            foreach (MotherBrainCollisionComponent component in
+                     MotherBrainCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
+            {
+                ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
+                ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));
+                foreach (MotherBrainCollisionHitbox hitbox in
+                         MotherBrainCollisionDefinitions.HitboxesAt(component.HitboxPointer))
+                {
+                    ushort left = unchecked((ushort)(componentX + hitbox.Left));
+                    ushort top = unchecked((ushort)(componentY + hitbox.Top));
+                    ushort right = unchecked((ushort)(componentX + hitbox.Right));
+                    ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
+                    if (!OverlapsExtendedHitbox(targetLeft, targetRight,
+                            targetTop, targetBottom, left, top, right, bottom,
+                            selectShotCallback))
+                        continue;
+                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                    return true;
+                }
+            }
+            return false;
+        }
+
         throw new InvalidDataException(
             $"Enemy ${enemy.EnemyDefinitionPointer:X4} extended collision frame " +
             $"${enemy.Definition.Bank:X2}:{enemy.SpritemapPointer:X4} has no compiled geometry.");
@@ -3206,7 +3230,9 @@ public sealed partial class RoomEnemySystem
             KraidArmDefinition or
             KraidFootDefinition or
             NorfairRidleyDefinition or
-            DraygonBodyDefinition);
+            DraygonBodyDefinition or
+            MotherBrainBodyDefinition or
+            MotherBrainHeadDefinition);
 
     /// <summary>
     /// Dispatches the common and Pirate-specific shot callbacks in hitbox records. Only the

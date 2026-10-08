@@ -62,6 +62,9 @@ public sealed class RoomLayer3FxState
     // $88:D856 have the same shape, so this latch serves every liquid; the serialized
     // name predates water's use of it.
     private bool lavaAcidBg3PreInstructionInstalled;
+    // A liquid's scroll HDMA objects own every per-frame liquid update. A direct
+    // HDMA-object deletion ($A9:8C0C) ends them until the next room load.
+    private bool liquidHdmaObjectsDeleted;
 
     /// <summary>HDMA-object variable two of the lava/acid BG3 object: the ambient sound timer.</summary>
     private ushort lavaSoundTimer;
@@ -233,7 +236,7 @@ public sealed class RoomLayer3FxState
     public void AdvanceHdmaSharedState(Bank80SystemState system, bool timeIsFrozen)
     {
         ArgumentNullException.ThrowIfNull(system);
-        if (!MovesLiquidInHdmaPass)
+        if (!MovesLiquidInHdmaPass || liquidHdmaObjectsDeleted)
             return;
         bool lavaOrAcid = Type is RoomFxType.Lava or RoomFxType.Acid;
         EarthquakeRequest = null;
@@ -315,6 +318,9 @@ public sealed class RoomLayer3FxState
         // pre-instruction. In particular, lava/acid need this transfer before their BG3
         // tilemap can name anything other than stale standard-HUD characters.
         animatedTiles.Step(bus, vram, artwork: animatedTileArtwork);
+
+        if (liquidHdmaObjectsDeleted && MovesLiquidInHdmaPass)
+            return;
 
         if (Type is RoomFxType.Lava or RoomFxType.Acid)
         {
@@ -790,12 +796,20 @@ public sealed class RoomLayer3FxState
         lavaAcidBg2WavePhase = 0;
         liquidRisePhase = LiquidRisePhase.Dormant;
         lavaAcidBg3PreInstructionInstalled = false;
+        liquidHdmaObjectsDeleted = false;
         lavaSoundTimer = 0;
         soundRequests.Clear();
         EarthquakeRequest = null;
         earthquakeSoundTimer = 0;
         earthquakeSoundSequenceIndex = 0;
     }
+
+    /// <summary>
+    /// Deletes the liquid's scroll HDMA objects, as zeroing their channel words does: no
+    /// later pass moves the liquid, queues its ambient sound or (for lava/acid) swaps the
+    /// RNG bytes. Effects without HDMA-owned liquid motion are unaffected.
+    /// </summary>
+    public void DeleteLiquidHdmaObjects() => liquidHdmaObjectsDeleted = true;
 
     private static short SignedHighByte(ushort value) => unchecked((sbyte)(value >> 8));
 

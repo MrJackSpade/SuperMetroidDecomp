@@ -101,7 +101,9 @@ public sealed partial class RoomEnemySystem
         state.CorpseRotting.Initialize(_bus!, MotherBrainCorpseArtwork);
 
         head.Health = 0x0bb8;
-        head.CurrentInstruction = MotherBrainInitialHeadInstruction;
+        // `$A9:8714` gives the head enemy the dummy list for life: its $A320 frame is the
+        // head's collision hitbox. The visible brain runs a separate list (`$A9:8734`).
+        head.CurrentInstruction = MotherBrainBodyInstructionProgramDefinitions.InitialDummy;
         head.InstructionTimer = 1;
         head.VramTilesIndex = 0;
         head.Properties = head.Properties.With(
@@ -110,6 +112,7 @@ public sealed partial class RoomEnemySystem
         state.Head = head;
         state.NeckPaletteIndex = EnemyPaletteBits.Palette1;
         state.BrainPaletteIndex = EnemyPaletteBits.Palette1;
+        SetMotherBrainBrainInstructionList(state, MotherBrainInitialHeadInstruction);
 
         // SetupMotherBrainHeadNormalPalette installs a ten-frame timer. Palette table
         // interpolation belongs to the later damage/phase slice, but the state producer is
@@ -121,7 +124,6 @@ public sealed partial class RoomEnemySystem
     private void RunMotherBrainBodyMain(
         RoomEnemySlot body,
         SamusState? samus,
-        byte nmiFrameCounter8,
         SamusBombProjectileSystem? sharedProjectiles)
     {
         MotherBrainEnemyState state = RequireCompleteMotherBrainState(body);
@@ -130,7 +132,7 @@ public sealed partial class RoomEnemySystem
         // dispatches the body function. Keeping that order is visible on the exact frame
         // the fake-death flash begins and later when the main tube stops the loop.
         RunMotherBrainRoomPalette(state);
-        RunMotherBrainBodyFunction(state, samus, nmiFrameCounter8, sharedProjectiles);
+        RunMotherBrainBodyFunction(state, samus, sharedProjectiles);
         // Every body function returns through the common contact tail. The first-phase
         // function also has its own authored contact call; retain both native sites.
         if (samus is not null)
@@ -140,7 +142,6 @@ public sealed partial class RoomEnemySystem
     private void RunMotherBrainBodyFunction(
         MotherBrainEnemyState state,
         SamusState? samus,
-        byte nmiFrameCounter8,
         SamusBombProjectileSystem? sharedProjectiles)
     {
         switch (state.Function)
@@ -259,7 +260,6 @@ public sealed partial class RoomEnemySystem
                 RunMotherBrainPhaseTwoAscent(
                     state,
                     samus,
-                    nmiFrameCounter8,
                     sharedProjectiles);
                 return;
             default:
@@ -357,7 +357,16 @@ public sealed partial class RoomEnemySystem
     {
         MotherBrainEnemyState? state = _motherBrain;
         RoomEnemySlot? head = state?.Head;
-        if (state?.DrawBrain != true || head is null || head.SpritemapPointer == 0)
+        if (state?.DrawBrain != true || head is null)
+            return;
+        // `$A9:9357-$936B` samples (never advances) the RNG before reading the brain frame,
+        // so the small breath can spawn even on a draw that then shows no brain.
+        if (state.SmallPurpleBreathGenerationEnabled && !state.SmallPurpleBreathActive &&
+            (RequireRandomNumber() & 0x8000) == 0)
+            SpawnMotherBrainPurpleBreathSmall(state);
+        // `$A9:936F` advances the brain list here, after every enemy's AI, and returns out
+        // of the whole draw when the list is not live.
+        if (AdvanceMotherBrainBrainInstructions(state) is not ushort brainSpritemap)
             return;
 
         (short brainShakeX, short brainShakeY) = GetMotherBrainBrainShake(state, head);
@@ -367,7 +376,7 @@ public sealed partial class RoomEnemySystem
                 MotherBrainDrawData.BrainLeftCullMargin - cameraX)) >= 0)
         DrawMotherBrainWorldSpritemap(
             oam,
-            head.SpritemapPointer,
+            brainSpritemap,
             unchecked((ushort)(head.XPosition + brainShakeX)),
             unchecked((ushort)(head.YPosition + brainShakeY)),
             // The custom draw hook bypasses ordinary enemy palette selection. Retail
@@ -494,6 +503,59 @@ public sealed partial class RoomEnemySystem
         state.NeckSegment2 = geometry.Segment2;
         state.NeckSegment3 = geometry.Segment3;
         state.NeckSegment4 = geometry.Segment4;
+    }
+
+    /// <summary>Ports <c>SetMotherBrainHeadInstList</c> ($A9:C447) for the brain's own list.</summary>
+    private static void SetMotherBrainBrainInstructionList(MotherBrainEnemyState state, ushort pointer)
+    {
+        state.BrainInstructionPointer = pointer;
+        state.BrainInstructionTimer = 1;
+    }
+
+    /// <summary>
+    /// Ports <c>GetMotherBrainHeadSpritemapPointerInY</c> ($A9:92AF): returns the brain frame
+    /// to draw, or null when the list is not live. With time frozen it only reads the current
+    /// frame. Otherwise a frame holds while its duration minus the timer is not negative
+    /// (CMP/BPL), the timer counting up; past it, commands run until the next frame, which
+    /// resets the timer to one.
+    /// </summary>
+    private ushort? AdvanceMotherBrainBrainInstructions(MotherBrainEnemyState state)
+    {
+        RoomEnemySlot head = state.Head ?? throw new InvalidOperationException(
+            "Mother Brain's brain list ran without its head enemy.");
+        ushort pointer = state.BrainInstructionPointer;
+        if ((pointer & 0x8000) == 0)
+            return null;
+        if (_enemyFrameTimeIsFrozen)
+            return ReadEnemyVisualSelector(head, unchecked((ushort)(pointer + 2)));
+
+        ushort word = ReadEnemyInstructionMechanicsWord(head, pointer);
+        if ((word & 0x8000) == 0)
+        {
+            if (unchecked((short)(word - state.BrainInstructionTimer)) >= 0)
+            {
+                state.BrainInstructionTimer = unchecked((ushort)(state.BrainInstructionTimer + 1));
+                return ReadEnemyVisualSelector(head, unchecked((ushort)(pointer + 2)));
+            }
+            pointer = unchecked((ushort)(pointer + 4));
+        }
+        while (true)
+        {
+            word = ReadEnemyInstructionMechanicsWord(head, pointer);
+            if ((word & 0x8000) == 0)
+            {
+                state.BrainInstructionTimer = 1;
+                state.BrainInstructionPointer = pointer;
+                return ReadEnemyVisualSelector(head, unchecked((ushort)(pointer + 2)));
+            }
+            ushort cursor = pointer;
+            if (!TryProcessMotherBrainInstruction(head, _samusForEnemyDrops, word, ref cursor))
+            {
+                throw new InvalidDataException(
+                    $"Mother Brain brain-list opcode $A9:{word:X4} at $A9:{pointer:X4} is not translated.");
+            }
+            pointer = cursor;
+        }
     }
 
     /// <summary>Handles Mother Brain's private instruction opcodes used by phase-one art.</summary>

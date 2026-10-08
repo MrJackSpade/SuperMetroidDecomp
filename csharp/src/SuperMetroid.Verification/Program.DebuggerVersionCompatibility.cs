@@ -41,11 +41,17 @@ internal static partial class Program
 
         var fields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SamusState)])!;
+        // #1269's pending previous-fraction writes postdate every published Samus layout.
+        string[] previousFractionWrites = ["_previousXSubpositionWriteMask", "_previousXSubpositionWriteValue",
+            "_previousYSubpositionWriteMask", "_previousYSubpositionWriteValue"];
+        FieldInfo[] beforeFractionWrites = fields.Where(field => !previousFractionWrites.Contains(field.Name)).ToArray();
+        AssertTrue(LegacyLayout(typeof(SamusState), fields, beforeFractionWrites).SequenceEqual(beforeFractionWrites),
+            "layout before previous-fraction writes omits only those fields");
         // Every published layout predates the frame-local previous-X write and the station-lock beta.
-        FieldInfo[] published = fields.Where(field => field.Name is not "_previousXPositionWrite"
+        FieldInfo[] published = beforeFractionWrites.Where(field => field.Name is not "_previousXPositionWrite"
             and not "<RefillStationLocked>k__BackingField").ToArray();
         AssertTrue(LegacyLayout(typeof(SamusState), fields, published).SequenceEqual(published), "layout before the previous-X write and station-lock beta omits only those fields");
-        FieldInfo[] beforeStationLock = fields.Where(field => field.Name != "<RefillStationLocked>k__BackingField").ToArray();
+        FieldInfo[] beforeStationLock = beforeFractionWrites.Where(field => field.Name != "<RefillStationLocked>k__BackingField").ToArray();
         AssertTrue(LegacyLayout(typeof(SamusState), fields, beforeStationLock).SequenceEqual(beforeStationLock), "layout before the station-lock beta omits only that field");
         FieldInfo[] legacy = published.Where(field => field.Name is not
             "<PreviousHealthForHurtCheck>k__BackingField" and not
@@ -189,13 +195,17 @@ internal static partial class Program
                     field.Name != "<MovementHandlerReplaced>k__BackingField")).SequenceEqual(draygonGrabFields.Where(field =>
                     field.Name != "<MovementHandlerReplaced>k__BackingField")),
             "0.2.0 Draygon-grab layout omits only explicit movement-handler ownership");
-        var layer3FxFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
+        var currentLayer3FxFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(RoomLayer3FxState)])!;
-        AssertTrue(LegacyLayout(typeof(RoomLayer3FxState), layer3FxFields, layer3FxFields.Where(field =>
+        // The liquid HDMA deletion flag (#1269) postdates every published room-FX layout.
+        FieldInfo[] layer3FxFields = currentLayer3FxFields.Where(field => field.Name != "liquidHdmaObjectsDeleted").ToArray();
+        AssertTrue(LegacyLayout(typeof(RoomLayer3FxState), currentLayer3FxFields, layer3FxFields).SequenceEqual(layer3FxFields),
+            "pre-HDMA-deletion room-FX layout omits only the liquid deletion flag");
+        AssertTrue(LegacyLayout(typeof(RoomLayer3FxState), currentLayer3FxFields, layer3FxFields.Where(field =>
                     field.Name is not ("lavaAcidBg3PreInstructionInstalled" or "lavaSoundTimer"))).SequenceEqual(layer3FxFields.Where(field =>
                     field.Name is not ("lavaAcidBg3PreInstructionInstalled" or "lavaSoundTimer"))),
             "0.2.0 room-FX layout omits only the BG3 pre-instruction latch and lava sound timer");
-        AssertTrue(LegacyLayout(typeof(RoomLayer3FxState), layer3FxFields, layer3FxFields.Where(field =>
+        AssertTrue(LegacyLayout(typeof(RoomLayer3FxState), currentLayer3FxFields, layer3FxFields.Where(field =>
                     field.Name != "lavaSoundTimer")).SequenceEqual(layer3FxFields.Where(field =>
                     field.Name != "lavaSoundTimer")),
             "Pre-lava-sound room-FX layout omits only the lava sound timer");
@@ -287,20 +297,55 @@ internal static partial class Program
         AssertTrue(LegacyLayout(gameType, currentGameFields, oldGameFields).SequenceEqual(oldGameFields),
             "pre-pause-cadence frontend preserves every saved field in order");
 
-        var enemyFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
+        var currentEnemyFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(RoomEnemySystem)])!;
+        // #1269 added these after every published enemy layout, newest first; each earlier
+        // layout omits that field and every newer one.
+        string[] newerEnemyFieldNames =
+            ["_enemyFrameTimeIsFrozen", "<MotherBrainDeletedHdmaObjects>k__BackingField",
+             "_deferredRinkaSpawnSlots", "_deferLoaderTimeCameraReads"];
+        for (int newer = 1; newer <= newerEnemyFieldNames.Length; newer++)
+        {
+            string[] omitted = newerEnemyFieldNames[..newer];
+            if (newer == 3)
+                continue; // The Rinka deferral's list and flag arrived together.
+            FieldInfo[] layout = currentEnemyFields.Where(field => !omitted.Contains(field.Name)).ToArray();
+            AssertTrue(LegacyLayout(typeof(RoomEnemySystem), currentEnemyFields, layout).SequenceEqual(layout),
+                $"enemy owner before {omitted[^1]} omits only it and newer fields");
+        }
+        var motherBrainFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
+            BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(MotherBrainEnemyState)])!;
+        FieldInfo[] preBreathLatchFields = motherBrainFields.Where(field =>
+            field.Name != "<RainbowAppliedSmallPurpleBreathWrites>k__BackingField").ToArray();
+        AssertTrue(LegacyLayout(typeof(MotherBrainEnemyState), motherBrainFields, preBreathLatchFields).SequenceEqual(preBreathLatchFields),
+            "pre-breath-latch Mother Brain layout omits only the write latch");
+        var sequenceFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
+            BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(MotherBrainRainbowBeamAttackSequence)])!;
+        FieldInfo[] preWriteCountFields = sequenceFields.Where(field =>
+            field.Name != "<SmallPurpleBreathGenerationWriteCount>k__BackingField").ToArray();
+        AssertTrue(LegacyLayout(typeof(MotherBrainRainbowBeamAttackSequence), sequenceFields, preWriteCountFields).SequenceEqual(preWriteCountFields),
+            "pre-write-count rainbow sequence layout omits only the write count");
+        FieldInfo[] preSmallBreathFields = preBreathLatchFields.Where(field =>
+            field.Name != "<SmallPurpleBreathActive>k__BackingField").ToArray();
+        AssertTrue(LegacyLayout(typeof(MotherBrainEnemyState), motherBrainFields, preSmallBreathFields).SequenceEqual(preSmallBreathFields),
+            "pre-small-breath Mother Brain layout omits only the active flag");
+        FieldInfo[] preBrainListFields = preSmallBreathFields.Where(field => field.Name is not
+            "<BrainInstructionPointer>k__BackingField" and not "<BrainInstructionTimer>k__BackingField").ToArray();
+        AssertTrue(LegacyLayout(typeof(MotherBrainEnemyState), motherBrainFields, preBrainListFields).SequenceEqual(preBrainListFields),
+            "pre-brain-list Mother Brain layout omits only the brain list words");
+        FieldInfo[] enemyFields = currentEnemyFields.Where(field => !newerEnemyFieldNames.Contains(field.Name)).ToArray();
         FieldInfo[] preCameraEnemyFields = enemyFields.Where(field => field.Name != "<CameraDistanceIndex>k__BackingField").ToArray();
-        AssertTrue(LegacyLayout(typeof(RoomEnemySystem), enemyFields, preCameraEnemyFields).SequenceEqual(preCameraEnemyFields),
+        AssertTrue(LegacyLayout(typeof(RoomEnemySystem), currentEnemyFields, preCameraEnemyFields).SequenceEqual(preCameraEnemyFields),
             "pre-shared-camera-distance enemy owner preserves every other saved field in order");
         FieldInfo[] preCounterEnemyFields = preCameraEnemyFields.Where(field => field.Name != "<GradualColorChange>k__BackingField").ToArray();
-        AssertTrue(LegacyLayout(typeof(RoomEnemySystem), enemyFields, preCounterEnemyFields).SequenceEqual(preCounterEnemyFields),
+        AssertTrue(LegacyLayout(typeof(RoomEnemySystem), currentEnemyFields, preCounterEnemyFields).SequenceEqual(preCounterEnemyFields),
             "pre-shared-palette-counter enemy owner preserves every other saved field in order");
         foreach (bool beforeStatueFields in new[] { false, true })
         {
             FieldInfo[] oldEnemyFields = preCounterEnemyFields.Where(field => field.Name != "_samusProjectilesForEnemyFrame" &&
                 (!beforeStatueFields || field.Name is not "<TourianEntranceStatueVerticalOffset>k__BackingField" and not
                     "<TourianStatueWaterY>k__BackingField")).ToArray();
-            AssertTrue(LegacyLayout(typeof(RoomEnemySystem), enemyFields, oldEnemyFields).SequenceEqual(oldEnemyFields),
+            AssertTrue(LegacyLayout(typeof(RoomEnemySystem), currentEnemyFields, oldEnemyFields).SequenceEqual(oldEnemyFields),
                 "legacy enemy owner composes projectile-context and statue migrations without reordering fields");
         }
 

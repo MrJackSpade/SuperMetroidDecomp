@@ -26,22 +26,21 @@ public sealed partial class RoomEnemySystem
     private void RunMotherBrainPhaseTwoAscent(
         MotherBrainEnemyState state,
         SamusState? samus,
-        byte nmiFrameCounter8,
         SamusBombProjectileSystem? sharedProjectiles = null)
     {
         switch (state.Function)
         {
             case MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Brain:
-                SetupMotherBrainPhaseTwoBrain(state, samus, nmiFrameCounter8);
+                SetupMotherBrainPhaseTwoBrain(state, samus);
                 return;
             case MotherBrainBodyFunction.FakeDeathAscentPauseForSuspense:
-                PauseBeforeMotherBrainRises(state, samus, nmiFrameCounter8);
+                PauseBeforeMotherBrainRises(state, samus);
                 return;
             case MotherBrainBodyFunction.FakeDeathAscentPrepareForRising:
-                PrepareMotherBrainForRising(state, samus, nmiFrameCounter8);
+                PrepareMotherBrainForRising(state, samus);
                 return;
             case MotherBrainBodyFunction.FakeDeathAscentLoadLegTiles:
-                LoadMotherBrainLegTiles(state, samus, nmiFrameCounter8);
+                LoadMotherBrainLegTiles(state, samus);
                 return;
             case MotherBrainBodyFunction.FakeDeathAscentContinuePausing:
                 ContinueMotherBrainAscentPause(state);
@@ -50,7 +49,7 @@ public sealed partial class RoomEnemySystem
                 StartMotherBrainAscent(state);
                 return;
             case MotherBrainBodyFunction.FakeDeathAscentRaiseMotherBrain:
-                RaiseMotherBrain(state, nmiFrameCounter8);
+                RaiseMotherBrain(state);
                 return;
             case MotherBrainBodyFunction.FakeDeathAscentWaitUntilUncrouched:
                 WaitForMotherBrainToFinishUncrouching(state);
@@ -59,10 +58,10 @@ public sealed partial class RoomEnemySystem
                 TransitionMotherBrainFromGray(state);
                 return;
             case MotherBrainBodyFunction.SecondPhaseStretchingShakeHead:
-                ShakeMotherBrainHeadMenacingly(state, samus, nmiFrameCounter8);
+                ShakeMotherBrainHeadMenacingly(state, samus);
                 return;
             case MotherBrainBodyFunction.SecondPhaseStretchingBringHeadUp:
-                BringMotherBrainHeadBackUp(state, samus, nmiFrameCounter8);
+                BringMotherBrainHeadBackUp(state, samus);
                 return;
             case MotherBrainBodyFunction.SecondPhaseStretchingFinish:
                 FinishMotherBrainStretching(state);
@@ -185,8 +184,7 @@ public sealed partial class RoomEnemySystem
 
     private void SetupMotherBrainPhaseTwoBrain(
         MotherBrainEnemyState state,
-        SamusState? samus,
-        byte nmiFrameCounter8)
+        SamusState? samus)
     {
         // `$34` is the room's verified Mother Brain phase-two color-math configuration.
         state.LayerBlendingDefaultConfig = LayerBlendingConfiguration.MotherBrainPhaseTwo;
@@ -206,26 +204,24 @@ public sealed partial class RoomEnemySystem
 
         // `$8D49` falls directly into `$8D79`; the freshly written timer is observed as
         // $007F before another enemy slot can run.
-        PauseBeforeMotherBrainRises(state, samus, nmiFrameCounter8);
+        PauseBeforeMotherBrainRises(state, samus);
     }
 
     private void PauseBeforeMotherBrainRises(
         MotherBrainEnemyState state,
-        SamusState? samus,
-        byte nmiFrameCounter8)
+        SamusState? samus)
     {
         if (!DecrementMotherBrainTimerPastZero(state))
             return;
 
         state.Function = MotherBrainBodyFunction.FakeDeathAscentPrepareForRising;
         state.FunctionTimer = 0x0020;
-        PrepareMotherBrainForRising(state, samus, nmiFrameCounter8);
+        PrepareMotherBrainForRising(state, samus);
     }
 
     private void PrepareMotherBrainForRising(
         MotherBrainEnemyState state,
-        SamusState? samus,
-        byte nmiFrameCounter8)
+        SamusState? samus)
     {
         if (!DecrementMotherBrainTimerPastZero(state))
             return;
@@ -235,18 +231,17 @@ public sealed partial class RoomEnemySystem
         // typed lifetime rather than pretending it is a body-visibility flag.
         state.RisingHdmaActive = true;
         state.Head!.Properties = state.Head.Properties.With(EnemyProperties.Invisible);
-        SetMotherBrainInstructionList(state.Head, MotherBrainInitialHeadInstruction);
+        SetMotherBrainBrainInstructionList(state, MotherBrainInitialHeadInstruction);
         state.Function = MotherBrainBodyFunction.FakeDeathAscentLoadLegTiles;
         state.FunctionTimer = 0x0100;
 
         // The first $0200-byte transfer is queued on the same frame as HDMA creation.
-        LoadMotherBrainLegTiles(state, samus, nmiFrameCounter8);
+        LoadMotherBrainLegTiles(state, samus);
     }
 
     private void LoadMotherBrainLegTiles(
         MotherBrainEnemyState state,
-        SamusState? samus,
-        byte nmiFrameCounter8)
+        SamusState? samus)
     {
         if (!ProcessMotherBrainSpriteTileTransfer(state))
         {
@@ -314,9 +309,11 @@ public sealed partial class RoomEnemySystem
         state.Function = MotherBrainBodyFunction.FakeDeathAscentRaiseMotherBrain;
     }
 
-    private void RaiseMotherBrain(MotherBrainEnemyState state, byte nmiFrameCounter8)
+    private void RaiseMotherBrain(MotherBrainEnemyState state)
     {
-        if ((nmiFrameCounter8 & 3) != 0)
+        // `$A9:8E4D` gates on NMI_FrameCounter ($05B6), not the separate 8-bit $05B5; the
+        // two advance together but are not aligned, so their low two bits differ.
+        if ((_enemyFrameNmiFrameCounter & 3) != 0)
             return;
 
         SpawnMotherBrainAscentDust(state);
@@ -388,23 +385,21 @@ public sealed partial class RoomEnemySystem
 
     private static void ShakeMotherBrainHeadMenacingly(
         MotherBrainEnemyState state,
-        SamusState? samus,
-        byte nmiFrameCounter8)
+        SamusState? samus)
     {
         if (!DecrementMotherBrainTimerPastZero(state))
             return;
 
-        SetMotherBrainInstructionList(state.Head!, MotherBrainStretchingHeadInstruction);
+        SetMotherBrainBrainInstructionList(state, MotherBrainStretchingHeadInstruction);
         state.Function = MotherBrainBodyFunction.SecondPhaseStretchingBringHeadUp;
         state.NeckAngleDelta = 0x0040;
         state.FunctionTimer = 0x0100;
-        BringMotherBrainHeadBackUp(state, samus, nmiFrameCounter8);
+        BringMotherBrainHeadBackUp(state, samus);
     }
 
     private static void BringMotherBrainHeadBackUp(
         MotherBrainEnemyState state,
-        SamusState? samus,
-        byte nmiFrameCounter8)
+        SamusState? samus)
     {
         if (!DecrementMotherBrainTimerPastZero(state))
             return;
@@ -529,8 +524,8 @@ public sealed partial class RoomEnemySystem
             // commits immediately and skips the proximity/fallback thresholds entirely.
             if (randomLow >= 0x80)
             {
-                SetMotherBrainInstructionList(
-                    state.Head!,
+                SetMotherBrainBrainInstructionList(
+                    state,
                     MotherBrainFourOnionRingsInstruction);
                 return;
             }
@@ -568,13 +563,13 @@ public sealed partial class RoomEnemySystem
         switch (choice)
         {
             case 0:
-                SetMotherBrainInstructionList(
-                    state.Head,
+                SetMotherBrainBrainInstructionList(
+                    state,
                     MotherBrainNeutralPhaseTwoHeadInstruction);
                 return;
             case 1:
-                SetMotherBrainInstructionList(
-                    state.Head,
+                SetMotherBrainBrainInstructionList(
+                    state,
                     MotherBrainFourOnionRingsInstruction);
                 return;
             case 2:
@@ -662,7 +657,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports the unstored firing tail at <c>$A9:B7CB</c>.</summary>
     private static void FireMotherBrainBomb(MotherBrainEnemyState state)
     {
-        SetMotherBrainInstructionList(state.Head!, MotherBrainBombPhaseTwoHeadInstruction);
+        SetMotherBrainBrainInstructionList(state, MotherBrainBombPhaseTwoHeadInstruction);
         state.Function = MotherBrainBodyFunction.SecondPhaseBombFired;
         state.FunctionTimer = 0x002c;
     }
@@ -786,7 +781,7 @@ public sealed partial class RoomEnemySystem
         state.NeckAngleDelta = (state.NeckAngleDelta & 0x8000) == 0
             ? (ushort)0x0100
             : (ushort)0xff00;
-        SetMotherBrainInstructionList(state.Head!, MotherBrainLaserHeadInstruction);
+        SetMotherBrainBrainInstructionList(state, MotherBrainLaserHeadInstruction);
         state.Function = MotherBrainBodyFunction.SecondPhaseLaserFinishAttack;
         state.FunctionTimer = 0x0010;
     }

@@ -161,6 +161,16 @@ internal static class EnemyProjectileDefinitionCatalog
             EnemyProjectileInstructionMechanicsDefinitions.MotherBrainPurpleBreathInitial,
             0x0000, 0x3000, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion => new(
+            OldTourianEscapeShaftWallExplosionDefinitions.PreInstruction,
+            OldTourianEscapeShaftWallExplosionDefinitions.InitialInstructionList,
+            0x0000, 0x3000, 0x0000,
+            CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall => new(
+            0xCAA3,
+            EnemyProjectileInstructionMechanicsDefinitions.MotherBrainPurpleBreathSmallInitial,
+            0x0000, 0x3000, 0x0000,
+            CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.MotherBrainDrool => new(
 0xC84D,
             EnemyProjectileInstructionMechanicsDefinitions.MotherBrainDroolInitial,

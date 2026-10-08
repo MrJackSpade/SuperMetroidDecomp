@@ -170,9 +170,13 @@ public sealed partial class BabyMetroidCutsceneState
     /// <summary>
     /// Ports <c>$A9:C710</c>. The population record supplies <c>$2800</c>; initialization
     /// ORs <c>$3000</c>, overwrites the population coordinates, and waits at X/Y
-    /// <c>$140/$60</c> before beginning the dash.
+    /// <c>$140/$60</c> before beginning the dash. Neither <c>$A0:9275</c> nor this
+    /// initializer writes the fractions, so the Baby keeps those of its slot's previous
+    /// occupant and moves from them.
     /// </summary>
     public void Initialize(
+        ushort inheritedXSubposition,
+        ushort inheritedYSubposition,
         ushort populationProperties =
             (ushort)(EnemyProperties.ProcessInstructions |
                 EnemyProperties.ProcessOffScreen))
@@ -202,8 +206,8 @@ public sealed partial class BabyMetroidCutsceneState
         SamusRainbowPhase = BabyMetroidSamusRainbowPhase.Inactive;
         XPosition = 0x0140;
         YPosition = 0x0060;
-        XSubposition = 0;
-        YSubposition = 0;
+        XSubposition = inheritedXSubposition;
+        YSubposition = inheritedYSubposition;
         XVelocity = 0;
         YVelocity = 0;
         Speed = 0;
@@ -216,11 +220,14 @@ public sealed partial class BabyMetroidCutsceneState
     /// Executes one complete main-AI call: function first, then the unconditional enemy
     /// velocity mover at <c>$A9:C782</c>. Flash/palette presentation is intentionally kept
     /// as inspectable state because it does not alter this entrance's coordinates.
+    /// Every Baby routine reads the physical head enemy <c>Enemy[1]</c>'s coordinates, which
+    /// the head AI has already moved this frame; <paramref name="head"/> carries them.
     /// </summary>
     public BabyMetroidCutsceneStepResult Step(
         ISnesAddressSpace bus,
         SamusState samus,
         MotherBrainRainbowBeamAttackSequence motherBrain,
+        MotherBrainHeadPosition head,
         ushort layer1X = 0,
         ushort layer1Y = 0,
         ushort enemyFrameCounter = 0,
@@ -279,8 +286,8 @@ public sealed partial class BabyMetroidCutsceneState
             case BabyMetroidCutscenePhase.GetRightUpInMotherBrainsFace:
                 UpdateSpeedAndAngle(bus, angleDelta: 0xfa00, targetAngle: 0x8200, targetSpeed: 0x0e00);
                 brainCollision = CollidesWithRectangle(
-                    motherBrain.BrainXPosition,
-                    motherBrain.BrainYPosition,
+                    head.X,
+                    head.Y,
                     rectangleXRadius: 4,
                     rectangleYRadius: 4);
 
@@ -301,16 +308,16 @@ public sealed partial class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.LatchOntoMotherBrain:
             {
-                ushort targetY = unchecked((ushort)(motherBrain.BrainYPosition - 0x0018));
+                ushort targetY = unchecked((ushort)(head.Y - 0x0018));
                 GraduallyAccelerateTowardsPoint(
-                    motherBrain.BrainXPosition,
+                    head.X,
                     targetY,
                     accelerationDivisor: 0x10,
                     wrongWayOffScreenXSpeed: 0x0400,
                     layer1X,
                     layer1Y);
                 brainCollision = CollidesWithRectangle(
-                    motherBrain.BrainXPosition,
+                    head.X,
                     targetY,
                     rectangleXRadius: 8,
                     rectangleYRadius: 8);
@@ -328,8 +335,8 @@ public sealed partial class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.ActivateRainbowBeamAndMotherBrainBody:
             {
-                ushort targetX = motherBrain.BrainXPosition;
-                ushort targetY = unchecked((ushort)(motherBrain.BrainYPosition - 0x0018));
+                ushort targetX = head.X;
+                ushort targetY = unchecked((ushort)(head.Y - 0x0018));
                 bool reachedTarget = AccelerateTowardsPoint(targetX, targetY, acceleration: 0x0200);
                 if (reachedTarget)
                 {
@@ -352,9 +359,9 @@ public sealed partial class BabyMetroidCutsceneState
             {
                 int shakingIndex = (enemyFrameCounter & 6) >> 1;
                 XPosition = unchecked((ushort)(
-                    motherBrain.BrainXPosition + ShakingXOffsets[shakingIndex]));
+                    head.X + ShakingXOffsets[shakingIndex]));
                 YPosition = unchecked((ushort)(
-                    motherBrain.BrainYPosition + ShakingYOffsets[shakingIndex] - 0x0018));
+                    head.Y + ShakingYOffsets[shakingIndex] - 0x0018));
                 if (motherBrain.Phase2CorpseState != 0)
                 {
                     Phase = BabyMetroidCutscenePhase.StopDraining;
@@ -366,8 +373,8 @@ public sealed partial class BabyMetroidCutsceneState
             case BabyMetroidCutscenePhase.StopDraining:
                 // Shaking ceases immediately: every wait call pins to the unoffset brain
                 // coordinate before decrementing `$40`. BMI expires only after 65 calls.
-                XPosition = motherBrain.BrainXPosition;
-                YPosition = unchecked((ushort)(motherBrain.BrainYPosition - 0x0018));
+                XPosition = head.X;
+                YPosition = unchecked((ushort)(head.Y - 0x0018));
                 FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
                 if ((FunctionTimer & 0x8000) != 0)
                 {
@@ -392,16 +399,16 @@ public sealed partial class BabyMetroidCutsceneState
                     // enemy's current room coordinate and passes animation parameter nine
                     // to the ordinary highest-free-slot allocator.
                     releaseDustClouds.Add(new BabyMetroidReleaseDustRequest(
-                        unchecked((ushort)(motherBrain.BrainXPosition - 0x0010)),
-                        unchecked((ushort)(motherBrain.BrainYPosition - 0x0008)),
+                        unchecked((ushort)(head.X - 0x0010)),
+                        unchecked((ushort)(head.Y - 0x0008)),
                         ProjectileParameter: 0x0009));
                     releaseDustClouds.Add(new BabyMetroidReleaseDustRequest(
-                        motherBrain.BrainXPosition,
-                        unchecked((ushort)(motherBrain.BrainYPosition - 0x0010)),
+                        head.X,
+                        unchecked((ushort)(head.Y - 0x0010)),
                         ProjectileParameter: 0x0009));
                     releaseDustClouds.Add(new BabyMetroidReleaseDustRequest(
-                        unchecked((ushort)(motherBrain.BrainXPosition + 0x0010)),
-                        unchecked((ushort)(motherBrain.BrainYPosition - 0x0008)),
+                        unchecked((ushort)(head.X + 0x0010)),
+                        unchecked((ushort)(head.Y - 0x0008)),
                         ProjectileParameter: 0x0009));
                     Phase = BabyMetroidCutscenePhase.MoveToTheCeiling;
                 }
@@ -409,7 +416,7 @@ public sealed partial class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.MoveToTheCeiling:
             {
-                ushort targetX = motherBrain.BrainXPosition;
+                ushort targetX = head.X;
                 const ushort targetY = 0;
                 GraduallyAccelerateTowardsPoint(
                     targetX,
@@ -576,13 +583,14 @@ public sealed partial class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.StareDownMotherBrain:
                 // Literal target from `$CB2D`: four pixels left of Samus and Y `$60`.
-                // The helper's Y index zero means divisor `$10`; its wrong-way X extra is
-                // zero here, unlike the earlier off-screen-safe entrance helpers.
+                // The helper's Y index zero means divisor `$10`. This leg and the next two
+                // enter at `$A9:F466`, which stores a `$10` wrong-way off-screen X extra,
+                // not the `$400` of the entrance helpers.
                 GraduallyAccelerateTowardsPoint(
                     unchecked((ushort)(samus.XPosition - 4)),
                     0x0060,
                     accelerationDivisor: 0x0010,
-                    wrongWayOffScreenXSpeed: 0,
+                    wrongWayOffScreenXSpeed: 0x0010,
                     layer1X,
                     layer1Y);
                 if (CollidesWithRectangle(
@@ -599,7 +607,7 @@ public sealed partial class BabyMetroidCutsceneState
                     0x0110,
                     0x0040,
                     accelerationDivisor: 0x0010,
-                    wrongWayOffScreenXSpeed: 0,
+                    wrongWayOffScreenXSpeed: 0x0010,
                     layer1X,
                     layer1Y);
                 if (CollidesWithRectangle(0x0110, 0x0040, 4, 4))
@@ -614,7 +622,7 @@ public sealed partial class BabyMetroidCutsceneState
                     0x0131,
                     0x00a0,
                     accelerationDivisor: 0x0010,
-                    wrongWayOffScreenXSpeed: 0,
+                    wrongWayOffScreenXSpeed: 0x0010,
                     layer1X,
                     layer1Y);
                 if (CollidesWithRectangle(0x0131, 0x00a0, 4, 4))
@@ -644,8 +652,8 @@ public sealed partial class BabyMetroidCutsceneState
                 // centre. Index `$C` maps to divisor four and therefore accelerates much
                 // more aggressively than the staging leg.
                 GraduallyAccelerateTowardsPoint(
-                    motherBrain.BrainXPosition,
-                    unchecked((ushort)(motherBrain.BrainYPosition - 0x0020)),
+                    head.X,
+                    unchecked((ushort)(head.Y - 0x0020)),
                     accelerationDivisor: 0x0004,
                     wrongWayOffScreenXSpeed: 0x0400,
                     layer1X,
@@ -670,10 +678,13 @@ public sealed partial class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.TakeFinalBlow:
             {
-                // `$A9:CE4C` uses the same four offsets, doubled, around a saved origin.
+                // `ShakeBabyMetroidCutscene` ($A9:CEDB) first adds `$FFFF` to the Y velocity,
+                // which the common mover then applies, and places the Baby at the saved origin
+                // plus the undoubled shaking offsets.
+                YVelocity = unchecked((ushort)(YVelocity + 0xffff));
                 int shakingIndex = (enemyFrameCounter & 6) >> 1;
-                XPosition = unchecked((ushort)(FatalBlowOriginX + 2 * ShakingXOffsets[shakingIndex]));
-                YPosition = unchecked((ushort)(FatalBlowOriginY + 2 * ShakingYOffsets[shakingIndex]));
+                XPosition = unchecked((ushort)(FatalBlowOriginX + ShakingXOffsets[shakingIndex]));
+                YPosition = unchecked((ushort)(FatalBlowOriginY + ShakingYOffsets[shakingIndex]));
                 FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
                 if ((FunctionTimer & 0x8000) != 0)
                 {
@@ -862,3 +873,9 @@ public sealed partial class BabyMetroidCutsceneState
     /// this flash timer and saturating health subtraction.
     /// </summary>
 }
+
+/// <summary>
+/// Mother Brain's head enemy coordinates (<c>Enemy[1]</c> X/Y at <c>$0FBA/$0FBE</c>) as the
+/// Baby's routines read them.
+/// </summary>
+public readonly record struct MotherBrainHeadPosition(ushort X, ushort Y);

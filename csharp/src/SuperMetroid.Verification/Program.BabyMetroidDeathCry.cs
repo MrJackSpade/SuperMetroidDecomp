@@ -24,12 +24,12 @@ internal static partial class Program
         var samus = new SamusState();
         var apply = typeof(RoomEnemySystem).GetMethod("ApplyBabyMetroidFrameEffects", flags)!
             .CreateDelegate<Action<MotherBrainEnemyState, BabyMetroidCutsceneStepResult>>(enemies);
-        apply(state, baby.Step(bus, samus, sequence));
+        apply(state, baby.Step(bus, samus, sequence, HeadOf(sequence)));
         AssertEqual(0, enemies.SoundRequests.Count, "The live final charge does not emit a death cry early");
         for (int index = 0; index < 256; index++)
             AssertEqual((ushort)(index + 1), cgram.Colors[index], "Live final charge preserves room colors");
         baby.ApplyMotherBrainOnionRingHit(80);
-        var fatal = baby.Step(bus, samus, sequence);
+        var fatal = baby.Step(bus, samus, sequence, HeadOf(sequence));
         AssertEqual(BabyMetroidCutscenePhase.TakeFinalBlow, fatal.PhaseAfter, "Fatal hit enters native shake phase");
         apply(state, fatal);
         for (int index = 0; index < 256; index++)
@@ -43,13 +43,13 @@ internal static partial class Program
         for (int frame = 0; frame < 3; frame++)
         {
             typeof(RoomEnemySystem).GetMethod("BeginEnemySoundRequestFrame", flags)!.Invoke(enemies, null);
-            apply(state, baby.Step(bus, samus, sequence));
+            apply(state, baby.Step(bus, samus, sequence, HeadOf(sequence)));
             AssertEqual(0, enemies.SoundRequests.Count, "Fatal shake does not replay the death cry");
         }
         typeof(BabyMetroidCutsceneState).GetProperty(nameof(baby.Phase))!.SetValue(baby, BabyMetroidCutscenePhase.FinalCutscene);
         for (int frame = 0; frame < 7; frame++)
         {
-            var recovery = baby.Step(bus, samus, sequence);
+            var recovery = baby.Step(bus, samus, sequence, HeadOf(sequence));
             AssertEqual((ushort)frame, recovery.BackgroundPaletteTransfer!.Value.PaletteIndex, "Recovery publishes each native light row");
             apply(state, recovery);
             for (int index = 0; index < 256; index++)

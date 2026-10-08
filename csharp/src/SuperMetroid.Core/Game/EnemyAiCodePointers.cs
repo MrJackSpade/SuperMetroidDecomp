@@ -944,6 +944,8 @@ internal static class EnemyAiCodePointers
         public const ushort MotherBrainBodyShot = 0xb503;
         /// <summary>Mother Brain head shot callback at $A9:B507.</summary>
         public const ushort MotherBrainHeadShot = 0xb507;
+        /// <summary>Mother Brain body touch callback at $A9:B5C5, a bare RTL.</summary>
+        public const ushort MotherBrainBodyTouch = 0xb5c5;
         /// <summary>Mother Brain head touch callback at $A9:B5C6.</summary>
         public const ushort MotherBrainHeadTouch = 0xb5c6;
         /// <summary>Dead Torizo touch/shot callback at $A9:D433.</summary>

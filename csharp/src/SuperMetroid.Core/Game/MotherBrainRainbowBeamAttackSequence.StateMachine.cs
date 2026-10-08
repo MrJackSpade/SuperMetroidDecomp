@@ -86,8 +86,9 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.RetractNeck:
-                bodyWalkRequested = RequestWalkBackwardReallySlow(targetX: 0x0028);
-                if (HasReachedBackwardTarget(targetX: 0x0028))
+                MotherBrainWalkResult retract = RequestWalkBackwardReallySlow(targetX: 0x0028);
+                bodyWalkRequested = retract.Requested;
+                if (retract.ReachedTarget)
                 {
                     RetractHead();
                     Phase = MotherBrainRainbowBeamAttackPhase.WaitForCharge;
@@ -252,7 +253,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                         // finish-off function. It starts one complete really-slow forward
                         // body animation when Mother Brain is standing and left of `$80`.
                         bodyWalkRequested = RequestWalkForwardReallySlow(
-                            unchecked((ushort)(Body.XPosition + 0x0010)));
+                            unchecked((ushort)(Body.XPosition + 0x0010))).Requested;
                         BabyMetroidTileTransferIndex = 0;
                         BabyMetroidSpawned = false;
                         Phase = MotherBrainRainbowBeamAttackPhase.FinishSamusOff;
@@ -440,8 +441,9 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 // `$BF41` does not reload Y before the shared walk helper. The surrounding
                 // sequence's final painful-animation selector is `$000A`, so the observable
                 // retail list is the really-slow backward program at `$993A`.
-                bodyWalkRequested = RequestWalkBackwardReallySlow(targetX: 0x0028);
-                if (HasReachedBackwardTarget(targetX: 0x0028))
+                MotherBrainWalkResult moveToBack = RequestWalkBackwardReallySlow(targetX: 0x0028);
+                bodyWalkRequested = moveToBack.Requested;
+                if (moveToBack.ReachedTarget)
                 {
                     Phase = MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidGoIntoLowPowerMode;
                     UpperNeckMovementIndex = 0;
@@ -491,7 +493,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                     {
                         BrainHealth = 0x8ca0;
                         Phase2CorpseState = 1;
-                        SmallPurpleBreathGenerationEnabled = false;
+                        WriteSmallPurpleBreathGeneration(false);
                         Body.Form = 2;
                         Phase = MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfInanimateGrey;
                     }
@@ -512,7 +514,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
                 if ((FunctionTimer & 0x8000) != 0)
                 {
-                    SmallPurpleBreathGenerationEnabled = true;
+                    WriteSmallPurpleBreathGeneration(true);
                     DroolGenerationEnabled = true;
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfTransitionFromGrey;
                     FunctionTimer = 0x00e0;
@@ -576,7 +578,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
                 if ((FunctionTimer & 0x8000) != 0)
                 {
-                    bodyWalkRequested = RequestWalkForward(0x0050, 0x0004);
+                    bodyWalkRequested = RequestWalkForward(0x0050, 0x0004).Requested;
                     bool reachedWalkTarget = unchecked((short)(0x0050 - Body.XPosition)) < 0 ||
                         NativeAtLeast(Body.XPosition, 0x0080);
                     if (reachedWalkTarget)
@@ -603,7 +605,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 if (MakeBodyStandUp(out bodyPostureRequested))
                 {
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase2MurderBabyMetroidAttack;
-                    bodyWalkRequested = RequestWalkForward(0x0050, 0x000a);
+                    bodyWalkRequested = RequestWalkForward(0x0050, 0x000a).Requested;
                     goto case MotherBrainRainbowBeamAttackPhase.Phase2MurderBabyMetroidAttack;
                 }
                 break;
@@ -633,7 +635,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 // This native function has no state transition. It requests stand-up and a
                 // fast backward walk toward `$40` every call until the Baby overwrites it.
                 MakeBodyStandUp(out bodyPostureRequested);
-                bodyWalkRequested |= RequestWalkBackward(0x0040, 0x0004);
+                bodyWalkRequested |= RequestWalkBackward(0x0040, 0x0004).Requested;
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.ExecuteFinalBabyMetroidAttack:
@@ -655,7 +657,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 FunctionTimer = 0x0020;
                 bodyWalkRequested = RequestWalkBackward(
                     unchecked((ushort)(Body.XPosition - 0x000e)),
-                    animationDelay: 0x0002);
+                    animationDelay: 0x0002).Requested;
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.Phase3RecoverFromCutsceneSetupForFighting:
@@ -723,8 +725,9 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 BodyProperties = BodyProperties.With(EnemyProperties.IgnoreSamusCollision);
                 BrainProperties = BrainProperties.With(EnemyProperties.IgnoreSamusCollision);
                 HitboxesEnabled = false;
-                bodyWalkRequested = RequestWalkBackward(0x0028, animationDelay: 0x0006);
-                if (HasReachedBackwardTarget(0x0028))
+                MotherBrainWalkResult dyingRetreat = RequestWalkBackward(0x0028, animationDelay: 0x0006);
+                bodyWalkRequested = dyingRetreat.Requested;
+                if (dyingRetreat.ReachedTarget)
                 {
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceIdleWhilstExploding;
                     FunctionTimer = 0x0080;
@@ -746,9 +749,9 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 // independent `$80` arena clamp reports carry and advances the death script.
                 GenerateDeathExplosions(
                     mixed: false, nextRandomNumber, deathExplosions);
-                bodyWalkRequested = RequestWalkForward(0x0060, animationDelay: 0x0002);
-                if (unchecked((short)(0x0060 - Body.XPosition)) < 0 ||
-                    NativeAtLeast(Body.XPosition, 0x0080))
+                MotherBrainWalkResult dyingAdvance = RequestWalkForward(0x0060, animationDelay: 0x0002);
+                bodyWalkRequested = dyingAdvance.Requested;
+                if (dyingAdvance.ReachedTarget)
                 {
                     SetHeadInstructionList(HeadDyingDroolInstructionList);
                     LowerNeckMovementIndex = 6;
@@ -771,11 +774,14 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                     LowerNeckMovementIndex = 0;
                     UpperNeckMovementIndex = 0;
                     DroolGenerationEnabled = false;
-                    SmallPurpleBreathGenerationEnabled = false;
+                    WriteSmallPurpleBreathGeneration(false);
                     BrainPaletteHandlingEnabled = false;
                     HealthBasedPaletteHandlingEnabled = false;
                     BrainPaletteIndex = EnemyPaletteBits.Palette7;
                     paletteRequested = true;
+                    // `$AF91/$AF94` clear words $0FF0 and $0FF2 before the fade-out explosions.
+                    DeathExplosionIntervalTimer = 0;
+                    DeathAndEscapeExplosionIndex = 0;
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSetupBodyFadeOut;
                     goto case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSetupBodyFadeOut;
                 }
@@ -1042,7 +1048,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 zebesTimebombEventRequested = true;
                 Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceBlowUpEscapeDoor;
                 DeathExplosionIntervalTimer = 0;
-                EscapeDoorIndex = 0;
+                DeathAndEscapeExplosionIndex = 0;
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceBlowUpEscapeDoor:

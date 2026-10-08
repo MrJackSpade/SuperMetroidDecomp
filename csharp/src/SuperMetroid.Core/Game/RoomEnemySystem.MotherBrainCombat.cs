@@ -125,12 +125,10 @@ public sealed partial class RoomEnemySystem
     /// impact, while every accepted missile increments the room PLM argument before common
     /// vulnerability damage is applied without the ordinary enemy-deletion tail.
     /// </summary>
-    private bool ResolveMotherBrainHeadShot(
-        Hardware.ISnesAddressSpace bus,
+    private void ResolveMotherBrainHeadShot(
         RoomEnemySlot head,
         SamusProjectileSlot projectile,
         SamusProjectileSystem projectiles,
-        SamusBombProjectileSystem sharedProjectiles,
         SamusProjectileTypeWord projectileType,
         ushort projectileDamage)
     {
@@ -144,26 +142,30 @@ public sealed partial class RoomEnemySystem
         SamusProjectileFamily family = projectileType.Family;
         if (state.Form != 0)
         {
-            return ResolveMotherBrainLaterFormHeadShot(
-                bus,
+            ResolveMotherBrainLaterFormHeadShot(
                 state,
                 head,
                 projectile,
                 projectiles,
-                sharedProjectiles,
                 family,
                 projectileType,
                 projectileDamage);
+            return;
         }
 
+        // The bank-$A0 walker has marked every overlapping family before this callback;
+        // the next projectile pass consumes the marker, removing a Super Missile's pair too.
+        projectiles.ApplyEnemyCollisionPrelude(
+            projectile.SlotIndex,
+            head.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
+                (projectileType.BeamCombinationIndex & (int)SamusBeamFlags.Plasma) == 0);
+        // `$A9:B519` lets only missiles and Super Missiles reach the glass.
         if (family is not (SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile))
-            return true;
-
-        if (!projectiles.TryStartEnemyImpact(bus, sharedProjectiles, projectile.SlotIndex))
-            return false;
+            return;
 
         (_incrementMotherBrainGlassRoomArgument ?? throw new InvalidOperationException(
             "Mother Brain head damage has no loaded glass-PLM argument writer."))();
+        QueueEnemySound(SoundEffectLibrary2Sounds.MotherBrainGlassHit, maximumQueued: 6);
 
         // `$B52D-$B539` deliberately alternates odd/even flash parity when a second hit
         // arrives during the existing flash. The common no-death damage helper then owns
@@ -178,14 +180,14 @@ public sealed partial class RoomEnemySystem
             head.FrozenTimer = 400;
             head.AiHandlerBits = unchecked((ushort)(head.AiHandlerBits | 0x0004));
             head.InvincibilityTimer = 10;
-            return true;
+            return;
         }
 
         int damage = (projectileDamage >> 1) * (vulnerability & 0x7f);
         if (damage == 0)
         {
             CreateEnemyProjectileDudShot(projectile);
-            return true;
+            return;
         }
 
         ushort hurtTime = head.HurtAiTime == 0 ? (ushort)4 : head.HurtAiTime;
@@ -194,7 +196,6 @@ public sealed partial class RoomEnemySystem
         head.Health = damage >= head.Health
             ? (ushort)0
             : unchecked((ushort)(head.Health - damage));
-        return true;
     }
 
     /// <summary>
@@ -203,65 +204,52 @@ public sealed partial class RoomEnemySystem
     /// projectile into a dud. Forms two and later apply ordinary vulnerability damage while
     /// deliberately leaving the multipart boss records alive at zero health for body AI.
     /// </summary>
-    private bool ResolveMotherBrainLaterFormHeadShot(
-        Hardware.ISnesAddressSpace bus,
+    private void ResolveMotherBrainLaterFormHeadShot(
         MotherBrainEnemyState state,
         RoomEnemySlot head,
         SamusProjectileSlot projectile,
         SamusProjectileSystem projectiles,
-        SamusBombProjectileSystem sharedProjectiles,
         SamusProjectileFamily family,
         SamusProjectileTypeWord projectileType,
         ushort projectileDamage)
     {
-        // DetermineMotherBrainShotReactionType maps beams to two, missiles/supers to one,
-        // and every other projectile family to zero. Form four's beam branch is the Hyper
-        // Beam recoil routine at `$A9:B5A9`; by then the long rainbow/Baby/phase-three state
-        // machine owns the same native walk counter and neck-function words. Route the hit
-        // through that owner instead of maintaining a second, subtly divergent recoil copy.
-        ushort reactionType = family switch
-        {
-            SamusProjectileFamily.Beam => 2,
-            SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile => 1,
-            _ => 0,
-        };
-        if (state.Form == 4 && reactionType == 2)
-        {
-            MotherBrainRainbowBeamAttackSequence sequence = state.RainbowBeamSequence ??
-                throw new InvalidOperationException(
-                    "Mother Brain received a form-four beam without its phase-three state owner.");
-            sequence.ApplyPhase2Or3ShotReaction(MotherBrainProjectileType.Beam);
+        // The bank-$A0 walker marked the projectile before dispatching this callback.
+        projectiles.ApplyEnemyCollisionPrelude(
+            projectile.SlotIndex,
+            head.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
+                (projectileType.BeamCombinationIndex & (int)SamusBeamFlags.Plasma) == 0);
 
-            // These are not host-only mirrors. `$B5BA/$B5BD` clears the body function timer
-            // on recoil underflow and `$B5C0` always publishes the post-subtraction walk
-            // counter immediately, before common projectile damage runs. The sequence keeps
-            // the authoritative phase-three copies; expose the same writes on the encounter
-            // state so debugger watches retain their native WRAM meaning between enemy turns.
+        // `$B58E` indexes its reaction table with the type word's high byte masked to three
+        // bits, so missile explosions (`$08`) alias beams exactly as natively.
+        var reactionProjectile = (MotherBrainProjectileType)((projectileType.Raw >> 8) & 7);
+        if (state.RainbowBeamSequence is { } sequence)
+        {
+            // Once attached, the rainbow/Baby/phase-three state machine owns walk counter
+            // `$7E:780E` and republishes it every body turn, so every reaction must reach it;
+            // a write to the encounter projection alone is overwritten on the next turn.
+            // `$B5BA/$B5BD` clears the body function timer on recoil underflow and `$B5C0`
+            // publishes the counter immediately, before common projectile damage runs.
+            sequence.ApplyPhase2Or3ShotReaction(reactionProjectile);
             state.FunctionTimer = sequence.FunctionTimer;
             state.WalkCounter = sequence.Phase3WalkCounter;
         }
-        else if (reactionType == 1)
-        {
-            state.WalkCounter = 0;
-        }
         else
         {
-            // `$B57C-$B589` subtracts $0100 and clamps a negative signed result to zero.
-            // This is an animation-distance accumulator, not health or a frame countdown.
-            state.WalkCounter = state.WalkCounter < 0x0100
-                ? (ushort)0
-                : unchecked((ushort)(state.WalkCounter - 0x0100));
+            MotherBrainShotReactionResult reaction =
+                MotherBrainShotReaction.Resolve(state.Form, reactionProjectile, state.WalkCounter);
+            if (reaction.HyperBeamRecoil)
+            {
+                throw new InvalidOperationException(
+                    "Mother Brain received a form-four beam without its phase-three state owner.");
+            }
+            state.WalkCounter = reaction.WalkCounter;
         }
 
         if (state.Form == 1)
         {
             CreateEnemyProjectileDudShot(projectile);
-            return true;
+            return;
         }
-
-        if (!projectiles.TryStartEnemyImpact(bus, sharedProjectiles, projectile.SlotIndex,
-                blocksPlasmaBeam: head.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam)))
-            return false;
 
         // The native callback tail-calls common no-death shot damage. In particular,
         // charged beams use the separate charged vulnerability byte after the ordinary
@@ -272,14 +260,14 @@ public sealed partial class RoomEnemySystem
             head.FrozenTimer = 400;
             head.AiHandlerBits = unchecked((ushort)(head.AiHandlerBits | 0x0004));
             head.InvincibilityTimer = 10;
-            return true;
+            return;
         }
 
         int damage = (projectileDamage >> 1) * vulnerability.Multiplier;
         if (damage == 0)
         {
             CreateEnemyProjectileDudShot(projectile);
-            return true;
+            return;
         }
 
         ushort hurtTime = head.HurtAiTime == 0 ? (ushort)4 : head.HurtAiTime;
@@ -292,7 +280,6 @@ public sealed partial class RoomEnemySystem
         head.Health = damage >= head.Health
             ? (ushort)0
             : unchecked((ushort)(head.Health - damage));
-        return true;
     }
 
     /// <summary>

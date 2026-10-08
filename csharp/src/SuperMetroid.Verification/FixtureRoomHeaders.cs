@@ -4,6 +4,12 @@
 /// </summary>
 internal static class FixtureRoomHeaders
 {
+    /// <summary>RoomHeader_CrateriaMainstreet at $8F:92FD.</summary>
+    public const ushort CrateriaMainstreet = 0x92fd;
+
+    /// <summary>RoomHeader_Climb at $8F:96BA, Crateria's old Tourian escape shaft.</summary>
+    public const ushort Climb = 0x96ba;
+
     /// <summary>RoomHeader_RisingTide at $8F:AFA3, Norfair's rising-lava corridor.</summary>
     public const ushort RisingTide = 0xafa3;
 
@@ -21,6 +27,12 @@ internal static class FixtureRoomHeaders
 
     /// <summary>RoomHeader_RedFish at $8F:D104, Maridia's sloped Red Fish room.</summary>
     public const ushort RedFish = 0xd104;
+
+    /// <summary>RoomHeader_MotherBrain at $8F:DD58, Mother Brain's room.</summary>
+    public const ushort MotherBrain = 0xdd58;
+
+    /// <summary>RoomHeader_RinkaShaft at $8F:DDF3, the shaft whose lower-left door enters Mother Brain's room.</summary>
+    public const ushort RinkaShaft = 0xddf3;
 
     /// <summary>RoomHeader_BigBoy at $8F:DCB1, where the Shitroid drains the Sidehopper.</summary>
     public const ushort BigBoy = 0xdcb1;

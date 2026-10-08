@@ -211,6 +211,13 @@ public sealed partial class RoomEnemySystem
     public bool CeresEscapeStartedThisFrame { get; private set; }
 
     /// <summary>Language flag sampled by $A6:C0D9 when the warning-text phase begins.</summary>
+    // A door load initializes enemies while the door IRQ scrolls; init AIs that read
+    // layer 1 then wait for the loader's camera (CompleteLoaderTimeCameraReads).
+    // TimeIsFrozenFlag as the enemy frame saw it; the draw hooks that follow read it.
+    private bool _enemyFrameTimeIsFrozen;
+
+    private bool _deferLoaderTimeCameraReads;
+
     public bool JapaneseText { get; set; }
 
     /// <summary>
@@ -247,7 +254,8 @@ public sealed partial class RoomEnemySystem
         Func<int, RoomScrollState>? readRoomScrollState = null,
         Action<LayerBlendingConfiguration>? setMotherBrainLayerBlendingDefaultConfig = null,
         Action<ushort, ushort>? setMotherBrainBg2Scroll = null,
-        GunshipLoadScenario gunshipLoadScenario = GunshipLoadScenario.Ordinary)
+        GunshipLoadScenario gunshipLoadScenario = GunshipLoadScenario.Ordinary,
+        bool deferLoaderTimeCameraReads = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
@@ -256,6 +264,7 @@ public sealed partial class RoomEnemySystem
 
         _bus = bus;
         _gunshipLoadScenario = gunshipLoadScenario;
+        _deferLoaderTimeCameraReads = deferLoaderTimeCameraReads;
         _samusAtEnemyInitialization = samus;
         _samusProjectilesForEnemyFrame = null;
         _nextRandom = nextRandom;
@@ -593,6 +602,7 @@ public sealed partial class RoomEnemySystem
         using var terrainScope = new EnemyTerrainScope(this, collisionPlms);
         EnsureLoaded();
         _samusForEnemyDrops = samus;
+        _enemyFrameTimeIsFrozen = timeIsFrozen;
         _samusProjectilesForEnemyFrame = samusProjectiles;
         _audioPowerBomb = sharedProjectiles?.PowerBombExplosion;
         // Standalone audits do not own the runtime NMI clock. In that case the enemy-frame
@@ -1736,7 +1746,7 @@ public sealed partial class RoomEnemySystem
                 RunDraygonPartMain(slot, samus);
                 return;
             case EnemyAiCodePointers.MainAI_HurtAI_MotherBrainBody when slot.EnemyDefinitionPointer == MotherBrainBodyDefinition:
-                RunMotherBrainBodyMain(slot, samus, nmiFrameCounter8, sharedProjectiles);
+                RunMotherBrainBodyMain(slot, samus, sharedProjectiles);
                 return;
             case EnemyAiCodePointers.MainAI_HurtAI_MotherBrainHead when slot.EnemyDefinitionPointer == MotherBrainHeadDefinition:
                 RunMotherBrainHeadMain(slot, samus);
@@ -2643,7 +2653,7 @@ public sealed partial class RoomEnemySystem
         Justification = "The instance interpreter selector is a reflection seam for existing focused fixtures.")]
     private ushort ReadEnemyVisualSelector(RoomEnemySlot slot, ushort operandAddress)
     {
-        if (slot.EnemyDefinitionPointer == MotherBrainBodyDefinition &&
+        if (slot.EnemyDefinitionPointer is MotherBrainBodyDefinition or MotherBrainHeadDefinition &&
             operandAddress == MotherBrainBodyInstructionProgramDefinitions.InitialDummyVisualOperand)
             return MotherBrainBodyInstructionProgramDefinitions.ReadInitialDummyVisualSelector(
                 operandAddress);
@@ -4030,6 +4040,12 @@ public sealed partial class RoomEnemySystem
 
         if (slot.EnemyDefinitionPointer == MotherBrainFallingTubeDefinition)
             return MotherBrainFallingTubeInstructionDefinitions.ReadMechanicsWord(address);
+
+        if (slot.EnemyDefinitionPointer == MotherBrainHeadDefinition &&
+            MotherBrainBodyInstructionProgramDefinitions.IsInitialDummyWord(address))
+        {
+            return MotherBrainBodyInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
 
         if (slot.EnemyDefinitionPointer == MotherBrainHeadDefinition &&
             MotherBrainHeadInstructionProgramDefinitions.ContainsWord(address))

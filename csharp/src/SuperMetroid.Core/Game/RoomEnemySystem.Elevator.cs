@@ -170,6 +170,7 @@ public sealed partial class RoomEnemySystem
         LastElevatorSoundEffectLibrary1 = null;
         LastElevatorSoundEffectLibrary3 = null;
         ElevatorClearedProjectileData = false;
+        MotherBrainDeletedHdmaObjects = false;
     }
 
     private ElevatorEnemyState RequireElevatorState(RoomEnemySlot slot) =>

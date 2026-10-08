@@ -21,6 +21,7 @@ internal static class DebuggerRetiredFieldDefinitions
     private static readonly ConditionalWeakTable<object, Dictionary<string, object?>> LegacyValues = new();
 
     private const string CartridgePaletteTransition = "SuperMetroid.Core.Frontend.CartridgePaletteTransition";
+    private const string StationPlmState = "SuperMetroid.Core.Rooms.RoomPlmSystem+StationPlmState";
 
     /// <summary>(Declaring type full name, field name) of every retired field, with its migration.</summary>
     private static readonly Dictionary<(string Type, string Field), RetiredFieldMigration> Retired = new()
@@ -69,6 +70,37 @@ internal static class DebuggerRetiredFieldDefinitions
                 throw new InvalidDataException("Legacy Kraid background fade step is not a word.");
             if (step != 0)
                 Console.Error.WriteLine("WARNING: Legacy Kraid background fade was captured mid-transition; it restarts from the shared PaletteChangeNumerator.");
+        },
+        // The escape-door dust index was always native word $0FF2, now one
+        // DeathAndEscapeExplosionIndex. Fields restore in declaration order, so Phase and the
+        // renamed death index are already set: from the door-exploding phase on, the escape
+        // cursor was the live value.
+        [(typeof(MotherBrainRainbowBeamAttackSequence).FullName!, "<EscapeDoorIndex>k__BackingField")] = (instance, _, value) =>
+        {
+            if (value is not ushort escapeDoorIndex)
+                throw new InvalidDataException("Legacy Mother Brain escape-door index is not a word.");
+            var sequence = (MotherBrainRainbowBeamAttackSequence)instance;
+            if (sequence.Phase is MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceDoorExplodingStartTimer or
+                MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceBlowUpEscapeDoor or
+                MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceKeepEarthquakeGoing)
+            {
+                typeof(MotherBrainRainbowBeamAttackSequence)
+                    .GetField("<DeathAndEscapeExplosionIndex>k__BackingField",
+                        System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                    .SetValue(sequence, escapeDoorIndex);
+            }
+        },
+        // A save station now queues its sound and draws its first frame in the PLM pass the
+        // confirmation returns into ($84:AFF4-$AFFA). The old one-frame deferral flag is
+        // set only in a capture taken on that confirmation frame, which has no current form.
+        [(StationPlmState, "<SaveStartSoundPending>k__BackingField")] = (_, _, value) =>
+        {
+            if (value is not bool pending)
+                throw new InvalidDataException("Legacy save-station sound flag is not a Boolean.");
+            if (pending)
+                throw new InvalidDataException(
+                    "Legacy snapshot was captured on a save station's confirmation frame, before " +
+                    "its deferred first animation pass; that state has no current representation.");
         },
         // Draygon's turret and goop speeds are the A values each spawn passes to $86:8027,
         // now named constants. The old shared copy has no current meaning.

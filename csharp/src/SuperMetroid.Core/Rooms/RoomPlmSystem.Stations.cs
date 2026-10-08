@@ -47,15 +47,24 @@ public sealed partial class RoomPlmSystem
 
     /// <summary>
     /// Resumes the sleeping save-station PLM after bank $85 returns its YES/NO result.
-    /// The accepted route executes `$84:8CF1` and enters `$AFF2`; the declined route jumps
-    /// to `$B008`, which still installs the once-per-room-entry lockout.
+    /// The accepted route executes `$84:8CF1` and continues through `$AFF2-$AFFA` within
+    /// the same PLM pass: it centres Samus, queues the saving sound and draws the first
+    /// animation frame. The declined route jumps to `$B008`, which still installs the
+    /// once-per-room-entry lockout. Returns the first frame's tilemap updates.
     /// </summary>
-    public bool ResolveSaveStationConfirmation(
+    public SaveStationConfirmationResult ResolveSaveStationConfirmation(
         ISnesAddressSpace bus,
         StationActivationEvent activation,
-        bool accepted)
+        bool accepted,
+        RoomLevelData level,
+        BackgroundTilemapStreamer streamer,
+        ushort layer1XPosition,
+        ushort layer1YPosition,
+        ushort bg1XOffset)
     {
         ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(level);
+        ArgumentNullException.ThrowIfNull(streamer);
         StationPlmState station = FindSaveStation(activation);
         if (station.SavePhase != SaveStationPhase.AwaitingConfirmation)
         {
@@ -68,7 +77,7 @@ public sealed partial class RoomPlmSystem
         {
             station.SavePhase = SaveStationPhase.Idle;
             _saveStationLockedOut = true;
-            return false;
+            return new SaveStationConfirmationResult(false, []);
         }
 
         SamusState samus = _collectibleSamus?.Invoke()
@@ -79,11 +88,14 @@ public sealed partial class RoomPlmSystem
 
         station.SavePhase = SaveStationPhase.Animating;
         station.AnimationFrame = 0;
-        station.AnimationTimer = 1;
         station.SaveAnimationLoopsRemaining =
             SaveStationAnimationDefinitions.SaveAnimationLoops;
-        station.SaveStartSoundPending = true;
-        return true;
+        // `$84:AFF4` queues library-one sound $2E right after centring Samus.
+        _soundRequests.Add(CreateSoundRequest(SoundEffectLibrary1Sounds.Saving, MaximumQueued: 6));
+        _tilemapUpdates.Clear();
+        DrawSaveStationFrame(bus, level, streamer, activation.BlockIndex, station,
+            layer1XPosition, layer1YPosition, bg1XOffset);
+        return new SaveStationConfirmationResult(true, _tilemapUpdates.ToArray());
     }
 
     /// <summary>Completes `$84:B030` after message $18 has closed.</summary>
@@ -582,55 +594,63 @@ public sealed partial class RoomPlmSystem
                 $"Save station has unknown phase {station.SavePhase}.");
         }
 
-        if (station.SaveStartSoundPending)
-        {
-            // `$84:AFF4` queues sound $2E in library one immediately after centering Samus.
-            _soundRequests.Add(CreateSoundRequest(SoundEffectLibrary1Sounds.Saving, MaximumQueued: 6));
-            station.SaveStartSoundPending = false;
-        }
-
         station.AnimationTimer--;
         if (station.AnimationTimer != 0)
             return true;
 
+        // `$84:B002` runs when the second frame's four frames expire. After the last of
+        // the 21 loops it falls through to `$84:B006`, the saved-game message, instead of
+        // returning to the first frame. (The loop is counted at the second draw here.)
+        if (station.AnimationFrame == 0 && station.SaveAnimationLoopsRemaining == 0)
+        {
+            station.SavePhase = SaveStationPhase.AwaitingCompletionMessageClose;
+            _stationActivationEvents.Add(new StationActivationEvent(
+                StationKind.Save,
+                GameplayMessageIds.SaveCompleted,
+                station.AreaIndex,
+                slot.RoomArgument,
+                slot.BlockIndex));
+            return true;
+        }
+        DrawSaveStationFrame(bus, level, streamer, slot.BlockIndex, station,
+            layer1XPosition, layer1YPosition, bg1XOffset);
+        return true;
+    }
+
+    /// <summary>Draws the next of the two four-frame electricity frames (`$84:AFFA`/`$AFFE`).</summary>
+    private void DrawSaveStationFrame(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        BackgroundTilemapStreamer streamer,
+        int blockIndex,
+        StationPlmState station,
+        ushort layer1XPosition,
+        ushort layer1YPosition,
+        ushort bg1XOffset)
+    {
         ushort list = station.AnimationFrame == 0
             ? RoomPlmInstructionLists.SaveStationAnimationFirstFrame
             : RoomPlmInstructionLists.SaveStationAnimationSecondFrame;
         StationAnimationProgramDefinitions.Frame frame =
             StationAnimationProgramDefinitions.Resolve(list, 0);
-        ushort timer = frame.Duration;
-        ushort draw = frame.DrawPointer;
-        if (timer != 4)
+        if (frame.Duration != 4)
         {
             throw new InvalidDataException(
-                $"Save-station animation list $84:{list:X4} has timer {timer}, expected 4.");
+                $"Save-station animation list $84:{list:X4} has timer {frame.Duration}, expected 4.");
         }
         DrawPlmInstruction(
             bus,
             level,
             streamer,
-            slot.BlockIndex,
-            draw,
+            blockIndex,
+            frame.DrawPointer,
             layer1XPosition,
             layer1YPosition,
             bg1XOffset);
-        station.AnimationTimer = timer;
+        station.AnimationTimer = frame.Duration;
         station.AnimationFrame ^= 1;
         if (station.AnimationFrame == 0)
-        {
             station.SaveAnimationLoopsRemaining--;
-            if (station.SaveAnimationLoopsRemaining == 0)
-            {
-                station.SavePhase = SaveStationPhase.AwaitingCompletionMessageClose;
-                _stationActivationEvents.Add(new StationActivationEvent(
-                    StationKind.Save,
-                    GameplayMessageIds.SaveCompleted,
-                    station.AreaIndex,
-                    slot.RoomArgument,
-                    slot.BlockIndex));
-            }
-        }
-        return true;
     }
 
     private void PublishStationActivation(
@@ -725,7 +745,6 @@ public sealed partial class RoomPlmSystem
         public StationAccessBehavior? AccessBehavior { get; set; }
         public SaveStationPhase SavePhase { get; set; }
         public ushort SaveAnimationLoopsRemaining { get; set; }
-        public bool SaveStartSoundPending { get; set; }
     }
 
     private enum StationOperationPhase : byte
@@ -783,3 +802,8 @@ public enum SaveStationPhase : byte
     /// <summary>Animation has published save-completed message $18 and waits for its close callback to unlock input and install the room-entry lockout.</summary>
     AwaitingCompletionMessageClose,
 }
+
+/// <summary>A save station's confirmation outcome and its same-pass first-frame draw.</summary>
+public readonly record struct SaveStationConfirmationResult(
+    bool Saving,
+    IReadOnlyList<PlmTilemapUpdate> TilemapUpdates);

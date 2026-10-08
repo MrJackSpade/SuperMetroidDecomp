@@ -29,8 +29,9 @@ internal static partial class Program
         SeedChargedPlasma();
         AssertEqual(1, Hit(), "Charged Plasma produces one accepted head impact");
         AssertEqual((ushort)17550, head.Health, "Native charged vulnerability applies exactly one 450-damage hit");
-        AssertEqual(SamusProjectileFamily.BeamExplosion, shot.PackedType.Family,
-            "Mother Brain plasma-blocking property converts the shot into its impact");
+        // The bank-$A0 walker only marks the shot; the next projectile pass removes it (#1269).
+        AssertTrue(shot.PackedDirection.HasLowByteLifecycleState,
+            "Mother Brain plasma-blocking property marks the shot for removal");
         AssertEqual((ushort)0xf00, state.WalkCounter, "Accepted beam preserves native recoil bookkeeping");
         AssertEqual(EnemyShotTiming.PlasmaInvincibilityFrames, head.InvincibilityTimer,
             "The no-death damage tail grants Plasma's hit immunity");
@@ -54,11 +55,14 @@ internal static partial class Program
         state.RainbowBeamSequence.Body.Form = 4;
         SeedChargedPlasma();
         shot.Type = 0x9018; shot.Damage = 1000; shot.PreInstruction = SamusProjectilePreInstruction.HyperBeam;
+        // The first case's Plasma hit left the head invincible; $A0:A17C skips it until the
+        // timer expires, so this case starts once that immunity has run out.
+        head.InvincibilityTimer = 0;
         AssertEqual(1, Hit(), "Hyper Beam still accepts its later-form damage callback");
         AssertEqual((ushort)16550, head.Health, "Hyper Beam retains its native charged damage selection");
         AssertEqual(MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil, state.RainbowBeamSequence.Phase3NeckPhase,
             "Hyper Beam retains its phase-three recoil transition");
-        AssertEqual(SamusProjectileFamily.BeamExplosion, shot.PackedType.Family, "Hyper Beam also obeys the head collision property");
+        AssertTrue(shot.PackedDirection.HasLowByteLifecycleState, "Hyper Beam also obeys the head collision property");
         Console.WriteLine("Mother Brain Plasma: one charged impact/damage event, no later-frame repeats, recoil and first-form restriction passed.");
         return 0;
 

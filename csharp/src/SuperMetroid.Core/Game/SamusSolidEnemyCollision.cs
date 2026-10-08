@@ -39,8 +39,10 @@ public static class SamusSolidEnemyCollision
 
         // `$A0:A90A-$A0:A9B7` constructs only a whole-pixel target for the broad overlap
         // test. Fractional motion is rounded one extra pixel outward whenever its resulting
-        // subposition is nonzero. Although this can look like an off-by-one in C#, it is the
-        // exact SEC/SBC or CLC/ADC plus DEC/INC sequence in the ROM.
+        // subposition is nonzero, and two pixels whenever the subposition carries or
+        // borrows. Although this can look like an off-by-one in C#, it is the exact SEC/SBC
+        // or CLC/ADC plus DEC/INC sequence in the ROM, whose BEQ reads the flags of the last
+        // instruction that ran.
         (ushort targetX, ushort targetY) = BuildRoundedTarget(
             state, direction, distance, distanceSubposition);
 
@@ -153,11 +155,18 @@ public static class SamusSolidEnemyCollision
         // because C# discards it when a result is narrowed back to ushort.
         bool borrowed = subposition < distanceSubposition;
         ushort fraction = unchecked((ushort)(subposition - distanceSubposition));
+        // `$A0:A931/$A980`: after a borrow the DEC sets Z from the whole target, so the BEQ
+        // tests that word rather than the fraction and a second DEC follows unless it is 0.
         if (borrowed)
+        {
             whole--;
-
-        if (fraction != 0)
+            if (whole != 0)
+                whole--;
+        }
+        else if (fraction != 0)
+        {
             whole--;
+        }
 
         return whole;
     }
@@ -174,11 +183,18 @@ public static class SamusSolidEnemyCollision
         // nonzero-fraction INC performs its outward pixel rounding.
         uint fractionSum = (uint)subposition + distanceSubposition;
         ushort fraction = unchecked((ushort)fractionSum);
+        // `$A0:A959/$A9A7`: after a carry the INC sets Z from the whole target, so the BEQ
+        // tests that word rather than the fraction and a second INC follows unless it is 0.
         if (fractionSum > ushort.MaxValue)
+        {
             whole++;
-
-        if (fraction != 0)
+            if (whole != 0)
+                whole++;
+        }
+        else if (fraction != 0)
+        {
             whole++;
+        }
 
         return whole;
     }

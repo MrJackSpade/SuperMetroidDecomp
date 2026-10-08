@@ -162,24 +162,26 @@ public sealed class MotherBrainRainbowBeamSamusMovement
             velocity,
             out ushort newSubposition);
         samus.Kinematics.YSubposition = newSubposition;
+        // `$A9:BC06` stores the same fraction byte into SamusPreviousYSubPosition+1, and every
+        // exit stores the new Y into SamusPreviousYPosition: the camera sees no movement.
+        samus.WritePreviousYSubposition(0xff00, newSubposition);
 
         // BMI/BPL are signed tests of the subtraction result, not unsigned C# comparisons.
         // This distinction is observable if a malformed/debug position wraps around zero.
-        if (unchecked((short)(candidate - 0x0030)) < 0)
+        ushort? boundary = unchecked((short)(candidate - 0x0030)) < 0 ? (ushort)0x0030
+            : unchecked((short)(candidate - 0x00c0)) >= 0 ? (ushort)0x00c0
+            : null;
+        if (boundary is ushort clamped)
         {
-            samus.YPosition = 0x0030;
+            samus.YPosition = clamped;
             samus.Kinematics.YSubposition = 0;
-            return true;
-        }
-
-        if (unchecked((short)(candidate - 0x00c0)) >= 0)
-        {
-            samus.YPosition = 0x00c0;
-            samus.Kinematics.YSubposition = 0;
+            samus.WritePreviousYPosition(clamped);
+            samus.WritePreviousYSubposition(0xffff, 0);
             return true;
         }
 
         samus.YPosition = candidate;
+        samus.WritePreviousYPosition(candidate);
         return false;
     }
 
@@ -191,15 +193,20 @@ public sealed class MotherBrainRainbowBeamSamusMovement
             velocity,
             out ushort newSubposition);
         samus.Kinematics.XSubposition = newSubposition;
+        // `$A9:BC48/$BC61/$BC6B/$BC71` mirror every store into the previous-X words.
+        samus.WritePreviousXSubposition(0xff00, newSubposition);
 
         if (unchecked((short)(candidate - 0x00eb)) >= 0)
         {
             samus.XPosition = 0x00eb;
             samus.Kinematics.XSubposition = 0;
+            samus.WritePreviousXPosition(0x00eb);
+            samus.WritePreviousXSubposition(0xffff, 0);
             return true;
         }
 
         samus.XPosition = candidate;
+        samus.WritePreviousXPosition(candidate);
         return false;
     }
 

@@ -130,6 +130,9 @@ public sealed partial class SuperMetroidRuntime
                 Camera.SetLayerOneXFromEnemyAi(shitroidCameraX);
                 BackgroundScroll.Layer1XPosition = shitroidCameraX;
             }
+            // `$A9:8C0C` deletes HDMA objects 0-3; the next frame's HDMA pass runs none of them.
+            if (Enemies.MotherBrainDeletedHdmaObjects)
+                RoomLayer3Fx.DeleteLiquidHdmaObjects();
             if (Enemies.ElevatorClearedProjectileData)
             {
                 // `$90:ADB7` clears all ten projectile slots and their counters. Ordinary

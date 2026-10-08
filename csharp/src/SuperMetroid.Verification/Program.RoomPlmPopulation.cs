@@ -1395,8 +1395,18 @@ internal static partial class Program
 
         StationActivationEvent saveRequest = plms.StationActivationEvents.Single();
         samus.XPosition = 0x0127;
-        AssertTrue(plms.ResolveSaveStationConfirmation(bus, saveRequest, accepted: true),
-            "accepted save resumes the sleeping cartridge PLM");
+        ushort[] levelBeforeSave = Enumerable.Range(0, level.WidthInBlocks * level.HeightInBlocks)
+            .Select(block => level.GetCollisionBlock(block % level.WidthInBlocks, block / level.WidthInBlocks).LevelWord)
+            .ToArray();
+        SaveStationConfirmationResult confirmation =
+            plms.ResolveSaveStationConfirmation(bus, saveRequest, accepted: true, level, streamer, 0, 0, 0);
+        AssertTrue(confirmation.Saving, "accepted save resumes the sleeping cartridge PLM");
+        // #1269: $84:AFF4-$AFFA run in the PLM pass the message returned into.
+        AssertTrue(plms.SoundRequests.Contains(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x2e), 6)),
+            "the confirming pass queues cartridge library-one sound $2E");
+        AssertTrue(Enumerable.Range(0, levelBeforeSave.Length).Any(block => levelBeforeSave[block] !=
+                level.GetCollisionBlock(block % level.WidthInBlocks, block / level.WidthInBlocks).LevelWord),
+            "the confirming pass draws the first electricity frame");
         AssertEqual(0x0120, samus.XPosition,
             "save animation centers Samus on the station's 16-pixel boundary");
         AssertTrue(SamusState.IsForwardFacingPose(samus.Pose),
@@ -1414,11 +1424,6 @@ internal static partial class Program
         for (int frame = 0; frame < maximumSaveAnimationFrames && !completionPublished; frame++)
         {
             plms.Step(bus, level, streamer, 0, 0, 0);
-            if (frame == 0)
-            {
-                AssertTrue(plms.SoundRequests.Contains(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x2e), 6)),
-                    "save animation queues cartridge library-one sound $2E");
-            }
             if (plms.StationActivationEvents.Count != 0)
             {
                 completion = plms.StationActivationEvents.Single();
@@ -1427,7 +1432,9 @@ internal static partial class Program
             }
         }
         AssertTrue(completionPublished, "save animation reaches completion message");
-        AssertEqual(SaveStationAnimationDefinitions.SaveAnimationLoops * 8 - 4,
+        // The 21st loop's second frame holds its four frames; $84:B002 then falls through
+        // to the message 168 frames after the confirming pass, as in the 100% movie.
+        AssertEqual(SaveStationAnimationDefinitions.SaveAnimationLoops * 8 - 1,
             completionFrame,
             "save animation publishes completion after all 21 alternating native loops");
         AssertEqual(GameplayMessageIds.SaveCompleted, completion.MessageBoxIndex,
@@ -1645,6 +1652,9 @@ internal static partial class Program
         AssertEqual(0x5200, message.Tilemap[128],
             "save cursor redraws the native selected-NO row");
         // Later reads come every second frame: the read's frame holds the next first wait.
+        // A toggle's redraw wait precedes that cycle once (#1269), so the first read after
+        // it comes three frames later.
+        message.Step((ushort)SuperMetroid.Core.Input.SnesButton.Left);
         message.Step((ushort)SuperMetroid.Core.Input.SnesButton.Left);
         message.Step((ushort)SuperMetroid.Core.Input.SnesButton.Left);
         AssertTrue(!message.ConfirmationSelectionYes,

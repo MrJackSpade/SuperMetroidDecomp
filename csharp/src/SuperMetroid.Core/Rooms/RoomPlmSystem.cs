@@ -313,6 +313,7 @@ public sealed partial class RoomPlmSystem
         ResetBombTorizoHandState();
         ResetNoobTubeState();
         ResetEyeDoorState();
+        ResetOldTourianEscapeShaftWallState();
         ResetDraygonCannonState();
     }
 
@@ -1236,6 +1237,7 @@ public sealed partial class RoomPlmSystem
             RunShaktoolRoomPreInstruction(slot, scrolls, powerBombExplosionStatus);
             RunSamusEaterPreInstruction(slot);
             RunSpeedBoosterEscapePreInstruction(slot);
+            RunOldTourianEscapeShaftWallPreInstruction(slot);
             RunWreckedShipAtticPreInstruction(slot);
             RunBombTorizoHandPreInstruction(slot);
             RunChozoStatuePreInstruction(level, slot);
@@ -1464,6 +1466,12 @@ public sealed partial class RoomPlmSystem
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                     continue;
 
+                case CrateriaMainstreetEscapePassagePlmDefinitions.MoveRightFourBlocks:
+                    // Eight bytes of native block index are four whole level words.
+                    slot.BlockIndex = checked(slot.BlockIndex + 4);
+                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
+                    continue;
+
                 case RoomPlmInstructionCodes.MoveRightOneBlock:
                     // The cartridge increments its byte offset twice; our index
                     // already addresses whole level words. Drawing stays list-owned.
@@ -1599,6 +1607,18 @@ public sealed partial class RoomPlmSystem
         if (RoomPlmBombedRevealDrawDefinitions.TryGet(drawPointer, out var bombedReveal))
         {
             DrawCompiledBlockInstruction(level, streamer, bombedReveal, originX, originY,
+                layer1XPosition, layer1YPosition, bg1XOffset, useShotBlockVisuals: false);
+            return;
+        }
+        if (CrateriaMainstreetEscapePassagePlmDefinitions.TryGetDraw(drawPointer, out var clearedPassage))
+        {
+            DrawCompiledBlockInstruction(level, streamer, clearedPassage, originX, originY,
+                layer1XPosition, layer1YPosition, bg1XOffset, useShotBlockVisuals: false);
+            return;
+        }
+        if (OldTourianEscapeShaftWallPlmDefinitions.TryGetDraw(drawPointer, out var openWall))
+        {
+            DrawCompiledBlockInstruction(level, streamer, openWall, originX, originY,
                 layer1XPosition, layer1YPosition, bg1XOffset, useShotBlockVisuals: false);
             return;
         }

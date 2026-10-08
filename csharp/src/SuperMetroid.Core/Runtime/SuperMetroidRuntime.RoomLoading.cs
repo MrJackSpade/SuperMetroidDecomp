@@ -573,6 +573,9 @@ public sealed partial class SuperMetroidRuntime
                     $"The door scroll finished before the loader initialized elevator slot {placement.EnemySlot}.");
             }
         }
+        Enemies.CompleteLoaderTimeCameraReads(loaderProgress.HasInitializedEnemySlot, Camera.XPosition, Camera.YPosition);
+        if (completed && Enemies.HasDeferredLoaderTimeCameraReads)
+            throw new InvalidDataException("The door scroll finished before the loader initialized every special Rinka.");
         Samus.Kinematics.SetXFixed(state.SamusXFixed);
         Samus.Kinematics.SetYFixed(state.SamusYFixed);
         Camera.PublishDoorSamusPosition((state.Direction & 2) == 0 ? Samus.XPosition : null,
@@ -937,6 +940,7 @@ public sealed partial class SuperMetroidRuntime
                     request,
                     LevelData.WidthInBlocks,
                     System),
+            spawnOldTourianEscapeShaftWallExplosion: Enemies.SpawnOldTourianEscapeShaftWallExplosion,
             disableDraygonCannon: Enemies.DisableDraygonCannon);
 
         // `$82:E8DD/$82:EB93` runs the bank-$8F door program only after destination PLMs
@@ -950,6 +954,13 @@ public sealed partial class SuperMetroidRuntime
         if (room.State.SetupCallback == RoomSetupCallback.TurnWallIntoShotBlocksDuringEscape)
             Plms.SetupCrittersEscapeBlock(LevelData,
                 LevelData.GetBlockIndex(EscapeAnimalPlmRomData.WallX, EscapeAnimalPlmRomData.WallY));
+        // `$8F:91A9` spawns the fake-wall PLM; SpawnHardcodedPLM silently drops it when all
+        // forty native slots are occupied.
+        if (room.State.SetupCallback == RoomSetupCallback.AutoDestroyWallDuringEscape)
+            Plms.TrySpawnOldTourianEscapeShaftWall(LevelData);
+        // `$8F:9194` also spawns this PLM before writing the quake SetupEscapeRoomEffects owns.
+        if (room.State.SetupCallback == RoomSetupCallback.ClearBlocksAfterSavingAnimalsAndShakeScreen)
+            Plms.TrySpawnCrateriaMainstreetEscapePassage(LevelData);
 
         if (runDoorClosingPlm)
         {
@@ -1012,7 +1023,8 @@ public sealed partial class SuperMetroidRuntime
                 (horizontal, vertical) =>
                     BackgroundScroll.SetBg2ScrollRegisters(horizontal, vertical),
             isRoomPlmPresent: Plms.HasActiveHeader,
-            gunshipLoadScenario: gunshipLoadScenario);
+            gunshipLoadScenario: gunshipLoadScenario,
+            deferLoaderTimeCameraReads: viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor);
         // The shared Ridley initializer calls $90:A7E2 only for a live boss.
         // Ceres also disables the HUD map, but has no matching exploration list.
         if (Enemies.Ridley is not null)

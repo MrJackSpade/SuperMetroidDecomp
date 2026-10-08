@@ -65,6 +65,8 @@ public enum RoomEnemyProjectileKind : ushort
     MotherBrainGlassSparkle = 0xcf0a,
     /// <summary><c>$86:CB4B EnemyProjectile_MotherBrainOnionRings</c>: Mother Brain's ring-shaped attack.</summary>
     MotherBrainOnionRing = 0xcb4b,
+    /// <summary>$86:B4B1: the explosion of the Climb's escape-shaft fake wall.</summary>
+    OldTourianEscapeShaftFakeWallExplosion = 0xb4b1,
     /// <summary><c>$86:CB59 EnemyProjectile_MotherBrainBomb</c>: Mother Brain's bomb attack.</summary>
     MotherBrainBomb = 0xcb59,
     /// <summary><c>$86:CB67 EnemyProjectile_MotherBrainRedBeam_Charging</c>: the charging phase of Mother Brain's hand beam.</summary>
@@ -75,6 +77,8 @@ public enum RoomEnemyProjectileKind : ushort
     MotherBrainRainbowBeamCharging = 0xcb83,
     /// <summary><c>$86:CB2F EnemyProjectile_MotherBrainPurpleBreath_Big</c>: Mother Brain's large purple breath projectile.</summary>
     MotherBrainPurpleBreathBig = 0xcb2f,
+    /// <summary>$86:CB3D: Mother Brain's small purple breath projectile.</summary>
+    MotherBrainPurpleBreathSmall = 0xcb3d,
     /// <summary><c>$86:CB91 EnemyProjectile_MotherBrainDrool</c>: drool emitted during Mother Brain's encounter.</summary>
     MotherBrainDrool = 0xcb91,
     /// <summary><c>$86:CB9F EnemyProjectile_MotherBrainDyingDrool</c>: drool emitted during Mother Brain's death.</summary>
@@ -905,6 +909,7 @@ public sealed partial class RoomEnemySystem
             case EnemyProjectileCodePointers.RTS_86EC94:
             case EnemyProjectileCodePointers.RTS_86D0EB:
             case EnemyProjectileCodePointers.RTS_86CFF7:
+            case EnemyProjectileCodePointers.RTS_86B4B0:
             case EnemyProjectileCodePointers.RTS_868D54:
             case EnemyProjectileCodePointers.RTS_86950C:
             case EnemyProjectileCodePointers.RTS_869A44:
@@ -1702,6 +1707,13 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 3));
                     break;
                 }
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6
+                    when OldTourianEscapeShaftWallExplosionDefinitions.Owns(projectile.Kind):
+                    QueueEnemySound(
+                        OldTourianEscapeShaftWallExplosionDefinitions.ExplosionSound,
+                        OldTourianEscapeShaftWallExplosionDefinitions.ExplosionSoundMaximum);
+                    cursor = unchecked((ushort)(cursor + 3));
+                    break;
                 case EnemyProjectileCodePointers.UNUSED_Instruction_EnemyProjectile_QueueMusicTrackInY:
                 case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib1_Max6_868309:
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6:
@@ -1752,6 +1764,13 @@ public sealed partial class RoomEnemySystem
                     break;
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction:
                     projectile.PreInstruction = EnemyProjectileCodePointers.RTS_868170;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_MotherBrainPurpleBreath_Inactive
+                    when projectile.Kind == RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall:
+                    (_motherBrain ?? throw new InvalidOperationException(
+                        "Mother Brain's small purple breath ran without its encounter state."))
+                        .SmallPurpleBreathActive = false;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case DownwardGateEnemyProjectileRomData.SetYVelocityInstruction:
@@ -2127,6 +2146,9 @@ public sealed partial class RoomEnemySystem
 
         if (projectile.Kind == RoomEnemyProjectileKind.PrePhantoonRoom)
             return PrePhantoonRoomProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
+
+        if (OldTourianEscapeShaftWallExplosionDefinitions.Owns(projectile.Kind))
+            return OldTourianEscapeShaftWallExplosionDefinitions.ReadMechanicsWord(address);
 
         if (KraidRockProjectileInstructionProgramDefinitions.Owns(projectile.Kind, address))
         {

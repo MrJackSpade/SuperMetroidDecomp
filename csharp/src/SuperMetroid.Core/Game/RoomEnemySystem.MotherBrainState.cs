@@ -208,6 +208,21 @@ public sealed class MotherBrainEnemyState
     /// <summary>Countdown used by the normal head-palette setup routine, initially ten.</summary>
     public ushort BrainPaletteTimer { get; internal set; }
 
+    /// <summary>
+    /// <c>MotherBrainBody.brainInstListPointer</c> ($7E:8002): the brain's own bank-$A9
+    /// instruction list, separate from the head enemy's dummy list. Bit 15 set means live;
+    /// otherwise the brain is not drawn. Only <c>$A9:C447</c> and the draw-time processor
+    /// (<c>$A9:92AF</c>) write it.
+    /// </summary>
+    public ushort BrainInstructionPointer { get; internal set; }
+
+    /// <summary>
+    /// <c>MotherBrainBody.brainInstructionTimer</c> ($7E:8000). It counts draws up from one
+    /// and the list advances once it exceeds the entry's duration, so each frame shows for
+    /// its duration plus one draw.
+    /// </summary>
+    public ushort BrainInstructionTimer { get; internal set; }
+
     /// <summary>Earthquake timer copied into the head-shake word after the glass event.</summary>
     public ushort BrainMainShakeTimer { get; internal set; }
 
@@ -304,6 +319,13 @@ public sealed class MotherBrainEnemyState
     public bool DroolGenerationEnabled { get; internal set; }
     /// <summary>Allows the head's small purple breath/dust producer, enabled after stretching and disabled for the drained corpse interval.</summary>
     public bool SmallPurpleBreathGenerationEnabled { get; internal set; }
+
+    /// <summary>
+    /// <c>MotherBrainBody.smallPurpleBreathActiveFlag</c> ($7E:786A): set by the small breath's
+    /// initializer ($86:CA9B) and cleared by its last instruction ($86:CAEE), so at most one
+    /// small breath is alive.
+    /// </summary>
+    public bool SmallPurpleBreathActive { get; internal set; }
 
     /// <summary>
     /// Attached-mouth offset selector used by drool opcode <c>$A9:9B3C</c>. Native
@@ -422,6 +444,13 @@ public sealed class MotherBrainEnemyState
     /// runs only when body AI explicitly requests a different head program.
     /// </summary>
     internal ushort RainbowAppliedHeadInstructionList { get; set; }
+
+    /// <summary>
+    /// Last <see cref="MotherBrainRainbowBeamAttackSequence.SmallPurpleBreathGenerationWriteCount"/>
+    /// published to <see cref="SmallPurpleBreathGenerationEnabled"/>, so a brain-list clear
+    /// survives until the body next writes the flag.
+    /// </summary>
+    internal uint RainbowAppliedSmallPurpleBreathWrites { get; set; }
 
     /// <summary>
     /// Last drop request emitted when an exploding Samus bomb destroys Mother Brain's bomb.

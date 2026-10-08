@@ -110,12 +110,16 @@ public sealed partial class RoomEnemySystem
     private ushort _rinkaTerminationFlag;
     private ushort _rinkaCameraX;
     private ushort _rinkaCameraY;
+    // Special Rinkas whose spawn choice awaits the door loader's camera; see
+    // CompleteLoaderTimeCameraReads. Ascending slot order, as Initialise_Enemies runs them.
+    private readonly List<int> _deferredRinkaSpawnSlots = new();
 
     /// <summary>Clears the two shared words and all per-slot/extra-RAM spawn ownership.</summary>
     private void ResetRinkaRoomState(ushort cameraX, ushort cameraY)
     {
         Array.Clear(_rinkaStates);
         Array.Clear(_rinkaOccupiedSpawnResources);
+        _deferredRinkaSpawnSlots.Clear();
         _rinkaActiveCount = 0;
         _rinkaTerminationFlag = 0;
         _rinkaCameraX = cameraX;
@@ -150,7 +154,13 @@ public sealed partial class RoomEnemySystem
         slot.Properties = slot.Properties.Without(resetMask);
         if (IsSpecialRinka(slot))
         {
-            ReserveSpecialRinkaSpawn(slot, state);
+            // $A2:B69B tests its spawn points against layer 1. A door's loader runs this
+            // while the door IRQ is still scrolling, so that choice waits for the camera
+            // of the update in which the loader reaches this slot.
+            if (_deferLoaderTimeCameraReads)
+                _deferredRinkaSpawnSlots.Add(slot.SlotIndex);
+            else
+                ReserveSpecialRinkaSpawn(slot, state);
             slot.Properties = slot.Properties.With(
                 EnemyProperties.ProcessInstructions |
                 EnemyProperties.ProcessOffScreen |
@@ -206,12 +216,39 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>True while a door load still owes a special Rinka its spawn choice.</summary>
+    internal bool HasDeferredLoaderTimeCameraReads => _deferredRinkaSpawnSlots.Count != 0;
+
+    /// <summary>
+    /// Runs the camera-dependent part of each deferred initialization whose slot the door
+    /// loader has reached, against that update's layer-1 position.
+    /// </summary>
+    internal void CompleteLoaderTimeCameraReads(
+        Func<int, bool> loaderInitializedSlot,
+        ushort cameraX,
+        ushort cameraY)
+    {
+        ArgumentNullException.ThrowIfNull(loaderInitializedSlot);
+        while (_deferredRinkaSpawnSlots.Count != 0 && loaderInitializedSlot(_deferredRinkaSpawnSlots[0]))
+        {
+            int slotIndex = _deferredRinkaSpawnSlots[0];
+            _deferredRinkaSpawnSlots.RemoveAt(0);
+            RinkaEnemyState state = _rinkaStates[slotIndex] ?? throw new InvalidOperationException(
+                $"Deferred Rinka spawn slot {slotIndex} no longer holds a Rinka.");
+            SetRinkaCamera(cameraX, cameraY);
+            ReserveSpecialRinkaSpawn(_slots[slotIndex], state);
+        }
+    }
+
     /// <summary>Ports <c>Rinka_Main</c> and all four indirect functions.</summary>
     private void RunRinkaMain(
         RoomEnemySlot slot,
         RinkaEnemyState state,
         SamusState? samus)
     {
+        if (_deferredRinkaSpawnSlots.Count != 0)
+            throw new InvalidOperationException(
+                "A Rinka ran before the door loader chose every special Rinka's spawn point.");
         if (IsSpecialRinka(slot) && _rinkaTerminationFlag != 0)
         {
             DecrementVisibleSpecialRinkaCount(slot);

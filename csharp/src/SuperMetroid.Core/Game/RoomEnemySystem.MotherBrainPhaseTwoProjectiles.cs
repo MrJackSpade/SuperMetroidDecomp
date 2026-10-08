@@ -87,6 +87,24 @@ public sealed partial class RoomEnemySystem
         breath.YPosition = unchecked((ushort)(head.YPosition + 0x0010));
     }
 
+    /// <summary>Ports the small-breath spawn at <c>$A9:9368</c> and initializer <c>$86:CA83</c>.</summary>
+    private void SpawnMotherBrainPurpleBreathSmall(MotherBrainEnemyState state)
+    {
+        RoomEnemyProjectileSlot? breath = AllocateEnemyProjectile();
+        if (breath is null)
+            return;
+
+        InitializeEnemyProjectileFromDefinition(
+            breath,
+            RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall,
+            graphicsIndex: 0);
+        RoomEnemySlot head = state.Head ?? throw new InvalidDataException(
+            "Mother Brain purple breath requires the linked head record.");
+        breath.XPosition = unchecked((ushort)(head.XPosition + 6));
+        breath.YPosition = unchecked((ushort)(head.YPosition + 0x0010));
+        state.SmallPurpleBreathActive = true;
+    }
+
     /// <summary>Exact six-position mouth attachment table at <c>$86:C86E-C885</c>.</summary>
     private void RunMotherBrainAttachedDroolPreInstruction(
         RoomEnemyProjectileSlot drool)
@@ -173,6 +191,11 @@ public sealed partial class RoomEnemySystem
             {
                 state.PendingBabyCryCount = unchecked((ushort)(state.PendingBabyCryCount + 1));
                 _ = baby.ApplyMotherBrainOnionRingHit();
+                // `$86:C399-$C3A5` writes the Baby slot's Enemy.health from this projectile
+                // pass; it must not wait for the Baby's next AI turn to publish it.
+                RoomEnemySlot babySlot = state.BabyMetroidSlot ?? throw new InvalidDataException(
+                    "A Mother Brain onion ring hit the Baby without its physical slot.");
+                babySlot.Health = baby.Health;
                 ushort ringX = ring.XPosition;
                 ushort ringY = ring.YPosition;
                 ExplodeMotherBrainOnionRing(ring, state, ringX, ringY);

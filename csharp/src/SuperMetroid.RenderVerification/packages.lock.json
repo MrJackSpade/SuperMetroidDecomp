@@ -79,6 +79,14 @@
           "SuperMetroid.Core": "[1.0.0, )",
           "Vortice.Direct3D11": "[3.8.3, 3.8.3]"
         }
+      },
+      "supermetroid.tooling": {
+        "type": "Project",
+        "dependencies": {
+          "SuperMetroid.AssetExtraction": "[1.0.0, )",
+          "SuperMetroid.Core": "[1.0.0, )",
+          "SuperMetroid.Diagnostics": "[1.0.0, )"
+        }
       }
     }
   }

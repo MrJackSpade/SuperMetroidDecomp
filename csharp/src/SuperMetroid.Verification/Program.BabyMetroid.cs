@@ -77,7 +77,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
     motherBrain.StartAttackCycle(); // Establishes the pre-existing enabled neck flag.
 
     var baby = new BabyMetroidCutsceneState();
-    baby.Initialize();
+    baby.Initialize(inheritedXSubposition: 0, inheritedYSubposition: 0);
     AssertEqual(0x3800, baby.Properties, "Baby population/init property OR");
     AssertEqual(0x0e00, baby.Palette, "Baby cutscene palette");
     AssertEqual(0x00a0, baby.GraphicsOffset, "Baby transferred-tile offset");
@@ -97,14 +97,14 @@ static void VerifyBabyMetroidCutsceneEntrance()
     // `$F8` reaches zero without expiring. This is 248 visibly stationary calls, not an
     // approximate four-second host delay.
     for (int call = 1; call <= 248; call++)
-        baby.Step(bus, samus, motherBrain);
+        baby.Step(bus, samus, motherBrain, HeadOf(motherBrain));
     AssertEqual(BabyMetroidCutscenePhase.DashOntoScreen, baby.Phase,
         "Baby dash delay retains function at timer zero");
     AssertEqual(0, baby.FunctionTimer, "Baby dash delay exact zero boundary");
     AssertEqual(0x0140, baby.XPosition, "Baby remains still through call 248");
     AssertEqual(0x0060, baby.YPosition, "Baby Y remains still through call 248");
 
-    baby.Step(bus, samus, motherBrain);
+    baby.Step(bus, samus, motherBrain, HeadOf(motherBrain));
     AssertEqual(BabyMetroidCutscenePhase.CurveTowardMotherBrainHead, baby.Phase,
         "Baby call 249 falls through into curve function");
     AssertEqual(0xd680, baby.Angle, "Baby first curve angle");
@@ -124,7 +124,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
            calls < 700)
     {
         byte samusPoseBeforeStep = samus.Pose;
-        latch = baby.Step(bus, samus, motherBrain);
+        latch = baby.Step(bus, samus, motherBrain, HeadOf(motherBrain));
         calls++;
         sawBodyStumbleRequest |= latch.BodyStumbleRequested;
         sawMotherBrainInterrupt |= motherBrain.Phase ==
@@ -153,7 +153,9 @@ static void VerifyBabyMetroidCutsceneEntrance()
         }
     }
 
-    AssertEqual(425, calls, "Baby entrance reaches exact head pin on call 425");
+    // GradduallyAccelerateTowardsPoint ($A9:F46B) runs as its ADC/SBC carry chain (#1269);
+    // the earlier signed-integer approximation reached the pin three calls later.
+    AssertEqual(422, calls, "Baby entrance reaches exact head pin on call 422");
     AssertEqual(BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse, baby.Phase,
         "Baby enters corpse-state wait after pin");
     AssertTrue(sawBodyStumbleRequest, "Baby requests Mother Brain fast backward stumble");
@@ -162,7 +164,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(BabyMetroidCutsceneState.DrainingMotherBrainInstructionList,
         baby.InstructionList,
         "Baby pin installs draining animation");
-    AssertEqual(ExpectedBabyPoint(0x0040, 0x1400, 0x0048, 0xd200),
+    AssertEqual(ExpectedBabyPoint(0x0040, 0xc500, 0x0048, 0xf000),
         BabyPoint(),
         "Baby pin changes whole coordinates but retains native subpositions");
     AssertEqual(MotherBrainRainbowBeamAttackSequence.BodyWalkingBackwardReallyFastInstructionList,

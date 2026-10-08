@@ -820,6 +820,117 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--ending-setup-nmi-waits"])
+{
+    VerifyEndingSetupNmiWaits();
+    return 0;
+}
+if (args is ["--zebes-escape-fade"])
+{
+    VerifyZebesEscapeFade();
+    return 0;
+}
+if (args is ["--crateria-mainstreet-escape-passage"])
+{
+    VerifyCrateriaMainstreetEscapePassage();
+    return 0;
+}
+if (args is ["--old-tourian-escape-shaft-wall"])
+{
+    VerifyOldTourianEscapeShaftWall();
+    return 0;
+}
+if (args is ["--mother-brain-inherited-explosion-index"])
+{
+    VerifyMotherBrainInheritedExplosionIndex();
+    return 0;
+}
+if (args is ["--mother-brain-body-hitboxes"])
+{
+    VerifyMotherBrainBodyHitboxes();
+    return 0;
+}
+if (args is ["--mother-brain-missile-walk-reset"])
+{
+    VerifyMotherBrainMissileWalkReset();
+    return 0;
+}
+if (args is ["--baby-metroid-fatal-blow-shake"])
+{
+    VerifyBabyMetroidFatalBlowShake();
+    return 0;
+}
+if (args is ["--baby-metroid-wrong-way-speed"])
+{
+    VerifyBabyMetroidWrongWaySpeed();
+    return 0;
+}
+if (args is ["--mother-brain-ring-baby-health"])
+{
+    VerifyMotherBrainRingBabyHealth();
+    return 0;
+}
+if (args is ["--mother-brain-walk-backwards-pose"])
+{
+    VerifyMotherBrainWalkBackwardsPose();
+    return 0;
+}
+if (args is ["--baby-metroid-head-target"])
+{
+    VerifyBabyMetroidHeadTarget();
+    return 0;
+}
+if (args is ["--baby-metroid-inherited-fractions"])
+{
+    VerifyBabyMetroidInheritedFractions();
+    return 0;
+}
+if (args is ["--rainbow-release-knockback"])
+{
+    VerifyRainbowReleaseKnockback();
+    return 0;
+}
+if (args is ["--mother-brain-small-purple-breath"])
+{
+    VerifyMotherBrainSmallPurpleBreath();
+    return 0;
+}
+if (args is ["--mother-brain-head-hitbox"])
+{
+    VerifyMotherBrainHeadHitbox();
+    return 0;
+}
+if (args is ["--mother-brain-raise-counter"])
+{
+    VerifyMotherBrainRaiseCounter();
+    return 0;
+}
+if (args is ["--mother-brain-tube-hdma-deletion"])
+{
+    VerifyMotherBrainTubeHdmaDeletion();
+    return 0;
+}
+if (args is ["--mother-brain-tube-timing"])
+{
+    VerifyMotherBrainTubeTiming();
+    return 0;
+}
+if (args is ["--samus-solid-enemy-collision"])
+{
+    VerifySamusSolidEnemyCollision();
+    Console.WriteLine("Samus solid-enemy collision: native target rounding, eligibility and edge clipping passed.");
+    return 0;
+}
+if (args is ["--mother-brain-glass-super-missile"])
+{
+    VerifyMotherBrainGlassSuperMissile();
+    return 0;
+}
+if (args is ["--mother-brain-rinka-door-spawn"])
+{
+    VerifyMotherBrainRinkaDoorSpawn();
+    return 0;
+}
 if (args is ["--shitroid-drain-carry"])
 {
     VerifyShitroidDrainCarry();
@@ -7703,6 +7814,27 @@ Suite(nameof(VerifyTourianStatueDescentRounding), () => VerifyTourianStatueDesce
 Suite(nameof(VerifyMetroidDeathDrops), () => VerifyMetroidDeathDrops());
 Suite(nameof(VerifyShitroidGradualAcceleration), () => VerifyShitroidGradualAcceleration());
 Suite(nameof(VerifyShitroidDrainCarry), () => VerifyShitroidDrainCarry());
+Suite(nameof(VerifyMotherBrainRinkaDoorSpawn), () => VerifyMotherBrainRinkaDoorSpawn());
+Suite(nameof(VerifyMotherBrainGlassSuperMissile), () => VerifyMotherBrainGlassSuperMissile());
+Suite(nameof(VerifyMotherBrainTubeTiming), () => VerifyMotherBrainTubeTiming());
+Suite(nameof(VerifyMotherBrainTubeHdmaDeletion), () => VerifyMotherBrainTubeHdmaDeletion());
+Suite(nameof(VerifyMotherBrainRaiseCounter), () => VerifyMotherBrainRaiseCounter());
+Suite(nameof(VerifyMotherBrainHeadHitbox), () => VerifyMotherBrainHeadHitbox());
+Suite(nameof(VerifyMotherBrainSmallPurpleBreath), () => VerifyMotherBrainSmallPurpleBreath());
+Suite(nameof(VerifyRainbowReleaseKnockback), () => VerifyRainbowReleaseKnockback());
+Suite(nameof(VerifyBabyMetroidInheritedFractions), () => VerifyBabyMetroidInheritedFractions());
+Suite(nameof(VerifyBabyMetroidHeadTarget), () => VerifyBabyMetroidHeadTarget());
+Suite(nameof(VerifyMotherBrainWalkBackwardsPose), () => VerifyMotherBrainWalkBackwardsPose());
+Suite(nameof(VerifyMotherBrainRingBabyHealth), () => VerifyMotherBrainRingBabyHealth());
+Suite(nameof(VerifyBabyMetroidWrongWaySpeed), () => VerifyBabyMetroidWrongWaySpeed());
+Suite(nameof(VerifyBabyMetroidFatalBlowShake), () => VerifyBabyMetroidFatalBlowShake());
+Suite(nameof(VerifyMotherBrainMissileWalkReset), () => VerifyMotherBrainMissileWalkReset());
+Suite(nameof(VerifyMotherBrainBodyHitboxes), () => VerifyMotherBrainBodyHitboxes());
+Suite(nameof(VerifyMotherBrainInheritedExplosionIndex), () => VerifyMotherBrainInheritedExplosionIndex());
+Suite(nameof(VerifyOldTourianEscapeShaftWall), () => VerifyOldTourianEscapeShaftWall());
+Suite(nameof(VerifyCrateriaMainstreetEscapePassage), () => VerifyCrateriaMainstreetEscapePassage());
+Suite(nameof(VerifyZebesEscapeFade), () => VerifyZebesEscapeFade());
+Suite(nameof(VerifyEndingSetupNmiWaits), () => VerifyEndingSetupNmiWaits());
 Suite(nameof(VerifyRoomFxRomData), () => VerifyRoomFxRomData());
 Suite(nameof(VerifyPowerBombFixedColors), () => VerifyPowerBombFixedColors());
 Suite(nameof(VerifySamusVisorColors), () => VerifySamusVisorColors());

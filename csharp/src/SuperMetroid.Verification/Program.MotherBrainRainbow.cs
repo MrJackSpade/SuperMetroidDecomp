@@ -117,6 +117,25 @@ static void VerifyMotherBrainRainbowBeamSamusMovement()
     AssertEqual(0x0030, samus.YPosition, "rainbow hardcoded ceiling Y $30");
     AssertEqual(0, samus.Kinematics.YSubposition, "rainbow ceiling clears Y subposition");
 
+    // #1269: $A9:BBFD/$BC3F mirror every Samus store into the previous-position words, so the
+    // camera sees no movement. In the 100% movie Samus falls from Y $C3.FFFF into the $C0
+    // floor clamp; native's previous Y fraction is zeroed with her own.
+    samus.XPosition = 100;
+    samus.Kinematics.XSubposition = 0x1234;
+    samus.YPosition = 0x00c3;
+    samus.Kinematics.YSubposition = 0xffff;
+    var frameStart = new SamusCameraPoint(samus.XPosition, samus.Kinematics.XSubposition,
+        samus.YPosition, samus.Kinematics.YSubposition);
+    // The earlier clamps above queued their own writes; each frame's scroll applies them.
+    samus.ApplyPreviousPositionWrites(frameStart);
+    movement.BeginFallingAfterRainbowBeam();
+    movement.StepFallingAfterRainbowBeam(samus);
+    AssertEqual(0x00c0, samus.YPosition, "the fall reaches the floor clamp");
+    SamusCameraPoint checkpoint = samus.ApplyPreviousPositionWrites(frameStart);
+    AssertEqual(new SamusCameraPoint(samus.XPosition, samus.Kinematics.XSubposition,
+            samus.YPosition, samus.Kinematics.YSubposition), checkpoint,
+        "the forced move leaves the camera checkpoint at Samus's new position");
+
     Console.WriteLine("  Mother Brain: rainbow-beam forced 8.8 movement and arena clamps agree.");
 }
 

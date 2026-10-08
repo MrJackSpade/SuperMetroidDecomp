@@ -344,6 +344,29 @@ internal static class DebuggerStateFieldMigrations
         // Older builds never requested the dead-room column reset; nothing is pending.
         new(typeof(KraidEnemyState).FullName!, ["<Layer1XBlockResetRequested>k__BackingField"], null),
         new(typeof(RoomEnemySystem).FullName!, ["<CameraDistanceIndex>k__BackingField"], null, SeedLegacyCameraDistanceIndex),
+        // Recorded by each enemy frame for its draw hooks; clear between frames.
+        new(typeof(RoomEnemySystem).FullName!, ["_enemyFrameTimeIsFrozen"], null),
+        // A one-frame request between Mother Brain's tube landing and the runtime; a capture is
+        // taken between frames, where it is always clear.
+        new(typeof(RoomEnemySystem).FullName!, ["<MotherBrainDeletedHdmaObjects>k__BackingField"], null),
+        // Door loads now defer camera-dependent init reads to the loader's update. A legacy
+        // capture is never mid-door-load with such a read pending; it restores none.
+        new(typeof(RoomEnemySystem).FullName!, ["_deferredRinkaSpawnSlots", "_deferLoaderTimeCameraReads"], null,
+            enemies => Set(enemies, "_deferredRinkaSpawnSlots", new List<int>())),
+        // Older builds mirrored the sequence's flag every call, so the two already agree.
+        new(typeof(MotherBrainEnemyState).FullName!, ["<RainbowAppliedSmallPurpleBreathWrites>k__BackingField"], null),
+        // Older builds never spawned the small breath, so no capture has one alive.
+        new(typeof(MotherBrainEnemyState).FullName!, ["<SmallPurpleBreathActive>k__BackingField"], null),
+        // The brain list moved off the head enemy.
+        new(typeof(MotherBrainEnemyState).FullName!, ["<BrainInstructionPointer>k__BackingField", "<BrainInstructionTimer>k__BackingField"],
+            null, state => MoveLegacyMotherBrainBrainList((MotherBrainEnemyState)state)),
+        // Restores as zero, matching the zero latch on the Mother Brain state.
+        new(typeof(MotherBrainRainbowBeamAttackSequence).FullName!, ["<SmallPurpleBreathGenerationWriteCount>k__BackingField"], null),
+        // Pending previous-fraction writes live within one frame; a capture has none.
+        new(typeof(SamusState).FullName!, ["_previousXSubpositionWriteMask", "_previousXSubpositionWriteValue",
+            "_previousYSubpositionWriteMask", "_previousYSubpositionWriteValue"], null),
+        // Older builds never deleted the liquid HDMA objects; a capture keeps them live.
+        new(typeof(RoomLayer3FxState).FullName!, ["liquidHdmaObjectsDeleted"], null),
         new(typeof(RoomEnemySystem).FullName!, ["<GradualColorChange>k__BackingField"], null,
             enemies => Set(enemies, "<GradualColorChange>k__BackingField", new GradualColorChangeCounter())),
         // The retired private transition number supplies this counter; see DebuggerRetiredFieldDefinitions.
@@ -458,6 +481,26 @@ internal static class DebuggerStateFieldMigrations
         }
         Set(player, "soundCommandReads", reads);
         Set(player, "previousSoundCommandReads", previous);
+    }
+
+    /// <summary>
+    /// Older builds ran the brain's list on the head enemy itself. Its cursor becomes the
+    /// brain list (restarting the timer) and the head returns to its dummy hitbox list.
+    /// </summary>
+    private static void MoveLegacyMotherBrainBrainList(MotherBrainEnemyState state)
+    {
+        RoomEnemySlot head = state.Head ?? throw new InvalidDataException(
+            "Legacy Mother Brain state has no head enemy to carry its brain list.");
+        Console.Error.WriteLine("WARNING: Legacy Mother Brain state ran the brain list on the head enemy; the brain restarts its current frame and the head takes its dummy hitbox list.");
+        typeof(MotherBrainEnemyState).GetProperty(nameof(MotherBrainEnemyState.BrainInstructionPointer))!
+            .SetValue(state, head.CurrentInstruction);
+        typeof(MotherBrainEnemyState).GetProperty(nameof(MotherBrainEnemyState.BrainInstructionTimer))!
+            .SetValue(state, (ushort)1);
+        ushort initialDummy = (ushort)typeof(MotherBrainEnemyState).Assembly
+            .GetType("SuperMetroid.Core.Game.MotherBrainBodyInstructionProgramDefinitions", throwOnError: true)!
+            .GetField("InitialDummy", BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!;
+        typeof(RoomEnemySlot).GetProperty(nameof(RoomEnemySlot.CurrentInstruction))!.SetValue(head, initialDummy);
+        typeof(RoomEnemySlot).GetProperty(nameof(RoomEnemySlot.InstructionTimer))!.SetValue(head, (ushort)1);
     }
 
     /// <summary>

@@ -6,6 +6,12 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Verified bank-$8B/$8C data used by the ending, credits, and result screen.</summary>
 public static class EndingCreditsRomData
 {
+    /// <summary>
+    /// $8B:D484-$D48C: <c>CinematicFunction_Ending_Setup</c> loads X=8 and calls WaitForNMI
+    /// until DEX/BPL falls through, nine NMI waits before its PPU and scene setup.
+    /// </summary>
+    public const int SetupNmiWaits = 9;
+
     /// <summary>Native palette images and compressed artwork sources used to import ending and credits presentation assets.</summary>
     public static class Assets
     {

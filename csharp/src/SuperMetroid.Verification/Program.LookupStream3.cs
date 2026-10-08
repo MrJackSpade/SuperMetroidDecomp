@@ -1320,7 +1320,7 @@ internal static partial class Program
                 {
                     short x = (short)Read(0xa9b099 + 16 * group + 4 * item);
                     short y = (short)Read(0xa9b09b + 16 * group + 4 * item);
-                    AssertEqual((ushort)group, scatter.DeathExplosionIndex, "stream 3 death scatter reverse group order");
+                    AssertEqual((ushort)group, scatter.DeathAndEscapeExplosionIndex, "stream 3 death scatter reverse group order");
                     AssertEqual((x, y), (requests[item].XOffset, requests[item].YOffset), "stream 3 selected death scatter anchors");
                     AssertEqual((ushort)(320 + x), unchecked((ushort)(scatter.Body.XPosition + requests[item].XOffset)), "stream 3 death scatter body-relative X");
                     AssertEqual((ushort)(192 + y), unchecked((ushort)(scatter.Body.YPosition + requests[item].YOffset)), "stream 3 death scatter body-relative Y");

@@ -428,6 +428,13 @@ internal static class MotherBrainBodyInstructionProgramDefinitions
         Layout.TryReadMechanicsWord(address, out word);
 
     /// <summary>
+    /// Whether an address lies in the dummy list at $A9:9C13-$9C18 that both the body and
+    /// the head enemy install; the head keeps it for life, its $A320 frame being its hitbox.
+    /// </summary>
+    internal static bool IsInitialDummyWord(ushort address) =>
+        address is >= InitialDummy and < InitialDummy + 6;
+
+    /// <summary>
     /// Reads one compiled mechanics word and rejects presentation or foreign addresses.
     /// </summary>
     internal static ushort ReadMechanicsWord(ushort address) =>

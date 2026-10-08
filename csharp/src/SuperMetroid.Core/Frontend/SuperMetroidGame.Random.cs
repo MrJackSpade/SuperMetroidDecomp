@@ -29,6 +29,7 @@ public sealed partial class SuperMetroidGame
         SuperMetroidGameState.FileSelectMenus => fileSelect?.ResumesAfterNmiWait == true,
         SuperMetroidGameState.SetUpNewGame or SuperMetroidGameState.LoadingGameData => ResumesGameLoadingWait,
         SuperMetroidGameState.CeresGoesBoom => ceresDestruction?.ResumesAfterNmiWait == true,
+        SuperMetroidGameState.EndingAndCredits => endingCredits?.ResumesAfterNmiWait == true,
         _ => false,
     };
 
@@ -60,6 +61,9 @@ public sealed partial class SuperMetroidGame
             case SuperMetroidGameState.LoadingGameData:
             // $82:8B0E shares the intro's state-$1E/$22/$25 handler and its prologue call.
             case SuperMetroidGameState.CeresGoesBoom:
+            // State $27 is dispatched by MainGameLoop after its RNG call, except while the
+            // ending setup resumes inside its own NMI waits.
+            case SuperMetroidGameState.EndingAndCredits:
                 if (!NextUpdateResumesNmiWait)
                     FrontendRandomOwner.NextRandom();
                 break;

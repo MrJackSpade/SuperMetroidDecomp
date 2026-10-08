@@ -203,6 +203,19 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     public bool SmallPurpleBreathGenerationEnabled { get; private set; } = true;
 
     /// <summary>
+    /// Count of body-AI writes to <see cref="SmallPurpleBreathGenerationEnabled"/>. The live
+    /// flag has a second native writer, the brain-list opcode $A9:9F8E, so the live state
+    /// publishes this flag only when the body actually wrote it.
+    /// </summary>
+    public uint SmallPurpleBreathGenerationWriteCount { get; private set; }
+
+    private void WriteSmallPurpleBreathGeneration(bool enabled)
+    {
+        SmallPurpleBreathGenerationEnabled = enabled;
+        SmallPurpleBreathGenerationWriteCount++;
+    }
+
+    /// <summary>
     /// Native Mother Brain health-based body-palette flag. Revival writes one only after
     /// the walk to X `$50` has really completed; it is not synonymous with the separate
     /// brain-slot palette handler above.
@@ -307,18 +320,26 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     /// <summary>Shared Mother Brain hitbox-enable word cleared at both death boundaries.</summary>
     public bool HitboxesEnabled { get; private set; } = true;
 
-    /// <summary>Death-explosion interval timer at the body extra word used by `$A9:B03E`.</summary>
+    /// <summary>
+    /// Native word <c>$0FF0</c>: the explosion interval timer of <c>$A9:B03E</c> and
+    /// <c>$A9:B346</c>, aliased with the body sub-function pointer.
+    /// </summary>
     public ushort DeathExplosionIntervalTimer { get; private set; }
 
-    /// <summary>Backward-cycling seven-record death-explosion index used by `$A9:B046`.</summary>
-    public ushort DeathExplosionIndex { get; private set; }
+    /// <summary>
+    /// Native word <c>$0FF2</c>, one word under three names: the ascent dust's body
+    /// sub-function timer, the seven-record death-explosion index (<c>$A9:B046</c>) and the
+    /// four-record escape-door dust index (<c>$A9:B355</c>). Each effect inherits the value
+    /// the previous one left unless native code explicitly clears it.
+    /// </summary>
+    public ushort DeathAndEscapeExplosionIndex { get; private set; }
 
     /// <summary>
-    /// Backward-cycling four-record escape-door dust index at <c>$A9:B355</c>.
-    /// This is a different native word from <see cref="DeathExplosionIndex"/> even though
-    /// both effects reuse <see cref="DeathExplosionIntervalTimer"/>.
+    /// Inherits word <c>$0FF2</c> from the room's encounter state when the live sequence
+    /// attaches; the fake-death ascent dust last wrote it.
     /// </summary>
-    public ushort EscapeDoorIndex { get; private set; }
+    internal void InheritDeathAndEscapeExplosionIndex(ushort bodySubFunctionTimer) =>
+        DeathAndEscapeExplosionIndex = bodySubFunctionTimer;
 
     /// <summary>Palette selector forced to `$0E00` when the dying brain effects shut down.</summary>
     public ushort BrainPaletteIndex { get; private set; }
@@ -526,52 +547,16 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         // `$B58E` masks the projectile type to three bits before indexing an eight-byte
         // table. Validate the host enum so a caller cannot accidentally smuggle a larger
         // value past that native domain.
-        if ((uint)projectileType > 7)
-            throw new ArgumentOutOfRangeException(nameof(projectileType));
-
-        // The table returns two for beams, one for missiles/supers, and zero for every
-        // remaining projectile class. Form four gives only reaction type two the special
-        // Hyper Beam path; ordinary phase-two beams continue through the generic branch.
-        ushort reactionType = projectileType switch
+        MotherBrainShotReactionResult reaction =
+            MotherBrainShotReaction.Resolve(Body.Form, projectileType, Phase3WalkCounter);
+        Phase3WalkCounter = reaction.WalkCounter;
+        if (reaction.HyperBeamRecoil)
         {
-            MotherBrainProjectileType.Beam => 2,
-            MotherBrainProjectileType.Missile or MotherBrainProjectileType.SuperMissile => 1,
-            _ => 0,
-        };
-        if (Body.Form == 4 && reactionType == 2)
-        {
-            ushort candidate = unchecked((ushort)(Phase3WalkCounter - 0x010a));
-            if ((candidate & 0x8000) == 0)
-            {
-                // BPL at `$B5B1` keeps the nonnegative remainder and does not recoil. This
-                // is why sustained Hyper Beam fire first consumes accumulated walk credit.
-                Phase3WalkCounter = candidate;
-                return;
-            }
-
-            // On underflow the native accumulator is replaced by zero before the common
-            // store: do not retain the wrapped subtraction. The neck function itself runs
-            // on Mother Brain's next ordinary phase-three main call.
+            // The neck function itself runs on Mother Brain's next ordinary phase-three
+            // main call.
             Phase3NeckPhase = MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil;
             FunctionTimer = 0;
-            Phase3WalkCounter = 0;
-            return;
         }
-
-        // DEC turns reaction one into zero, sending either missile kind directly to the
-        // zero label. Reaction zero wraps to `$FFFF`; reaction two outside form four leaves
-        // one. Both nonzero cases subtract `$0100` and clamp signed underflow to zero.
-        reactionType = unchecked((ushort)(reactionType - 1));
-        if (reactionType == 0)
-        {
-            Phase3WalkCounter = 0;
-            return;
-        }
-
-        ushort genericCandidate = unchecked((ushort)(Phase3WalkCounter - 0x0100));
-        Phase3WalkCounter = (genericCandidate & 0x8000) == 0
-            ? genericCandidate
-            : (ushort)0;
     }
 
     /// <summary>
@@ -581,9 +566,6 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     public bool RequestBabyStumbleBackward()
     {
         ushort targetX = unchecked((ushort)(Body.XPosition - 1));
-        if (HasReachedBackwardTarget(targetX) || Body.Pose != 0)
-            return false;
-        Body.SetInstructionList(BodyWalkingBackwardReallyFastInstructionList);
-        return true;
+        return MakeBodyWalkBackwards(targetX, BodyWalkingBackwardReallyFastInstructionList).Requested;
     }
 }

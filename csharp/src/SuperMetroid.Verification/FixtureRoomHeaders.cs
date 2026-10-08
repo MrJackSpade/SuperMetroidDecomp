@@ -4,6 +4,9 @@
 /// </summary>
 internal static class FixtureRoomHeaders
 {
+    /// <summary>RoomHeader_CrateriaMainstreet at $8F:92FD.</summary>
+    public const ushort CrateriaMainstreet = 0x92fd;
+
     /// <summary>RoomHeader_Climb at $8F:96BA, Crateria's old Tourian escape shaft.</summary>
     public const ushort Climb = 0x96ba;
 

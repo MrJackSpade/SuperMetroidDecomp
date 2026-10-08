@@ -145,6 +145,12 @@ internal static class RoomPlmHeaders
     /// </summary>
     public const ushort OldTourianEscapeShaftFakeWall = 0xb964;
 
+    /// <summary>
+    /// Crateria mainstreet escape-passage clearer at $84:BB30, spawned by room setup $8F:9194;
+    /// its setup deletes it unless the critters escaped.
+    /// </summary>
+    public const ushort CrateriaMainstreetEscapePassage = 0xbb30;
+
     /// <summary>Resident Wrecked Ship attic no-op observer at $84:BB05.</summary>
     public const ushort WreckedShipAttic = 0xbb05;
 

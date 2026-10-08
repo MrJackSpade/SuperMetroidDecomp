@@ -330,6 +330,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--crateria-mainstreet-escape-passage"])
+{
+    VerifyCrateriaMainstreetEscapePassage();
+    return 0;
+}
 if (args is ["--old-tourian-escape-shaft-wall"])
 {
     VerifyOldTourianEscapeShaftWall();
@@ -7423,6 +7428,7 @@ VerifyMotherBrainMissileWalkReset();
 VerifyMotherBrainBodyHitboxes();
 VerifyMotherBrainInheritedExplosionIndex();
 VerifyOldTourianEscapeShaftWall();
+VerifyCrateriaMainstreetEscapePassage();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

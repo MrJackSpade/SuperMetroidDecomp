@@ -16,6 +16,41 @@ public sealed partial class RoomPlmSystem
                 EscapeAnimalPlmRomData.ExtensionCollision);
     }
 
+    /// <summary>
+    /// Runs room setup $8F:9194's Spawn_Hardcoded_PLM of $84:BB30 at block ($3D,$0B). Setup
+    /// $84:BB09 clears the PLM ID unless event $0F (critters escaped) is set, so the passage
+    /// stays shut when the animals were left behind.
+    /// </summary>
+    /// <returns>False when no PLM remains: the event is unset or every slot is occupied.</returns>
+    public bool TrySpawnCrateriaMainstreetEscapePassage(RoomLevelData level)
+    {
+        ArgumentNullException.ThrowIfNull(level);
+        Func<EventNumber, bool> hasEvent = _hasEvent ?? throw new InvalidOperationException(
+            "Crateria mainstreet escape passage requires the room event owner.");
+        if (_slots.All(slot => slot.Active))
+            return false;
+        if (!hasEvent(EventNumber.CrittersEscaped))
+            return false;
+        for (int index = _slots.Length - 1; index >= 0; index--)
+        {
+            PlmSlot slot = _slots[index];
+            if (slot.Active)
+                continue;
+            ClearSlot(slot);
+            slot.Active = true;
+            slot.BlockIndex = level.GetBlockIndex(
+                CrateriaMainstreetEscapePassagePlmDefinitions.BlockX,
+                CrateriaMainstreetEscapePassagePlmDefinitions.BlockY);
+            slot.RestoreLevelWord = 0;
+            slot.HeaderPointer = RoomPlmHeaders.CrateriaMainstreetEscapePassage;
+            slot.LoopTimer = 0;
+            slot.InstructionPointer = CrateriaMainstreetEscapePassagePlmDefinitions.InstructionList;
+            slot.InstructionTimer = 1;
+            return true;
+        }
+        return false;
+    }
+
     /// <summary>Runs $84:B978 and schedules its ROM animation/event list in native slot order.</summary>
     private bool TrySpawnCrittersEscapeReaction(RoomLevelData level, int blockIndex,
         SamusProjectileTypeWord projectileType)

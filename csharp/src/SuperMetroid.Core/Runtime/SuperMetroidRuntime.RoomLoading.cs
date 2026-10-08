@@ -1036,6 +1036,9 @@ public sealed partial class SuperMetroidRuntime
         // forty native slots are occupied.
         if (room.State.SetupCallback == RoomSetupCallback.AutoDestroyWallDuringEscape)
             Plms.TrySpawnOldTourianEscapeShaftWall(LevelData);
+        // `$8F:9194` also spawns this PLM before writing the quake SetupEscapeRoomEffects owns.
+        if (room.State.SetupCallback == RoomSetupCallback.ClearBlocksAfterSavingAnimalsAndShakeScreen)
+            Plms.TrySpawnCrateriaMainstreetEscapePassage(LevelData);
 
         if (runDoorClosingPlm)
         {

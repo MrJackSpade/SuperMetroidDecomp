@@ -38,6 +38,12 @@ public sealed class GameplayMessageBoxState
     // Lag frames left in the current Preparing/Restoring stretch, or until the save
     // selector's next ReadControllerInput.
     private int _lagFramesRemaining;
+
+    /// <summary>
+    /// Toggle_Save_Confirmation_Selection's own <c>Wait_for_Lag_Frame</c> ($85:8532) is due:
+    /// one frame, without the audio handlers, before the redrawn row uploads and $37 queues.
+    /// </summary>
+    private bool _selectionRedrawWaitPending;
     [NonSerialized] private MessageBoxFrameAudio _lastFrameAudio;
 
     /// <summary>The bank-$85 audio and HDMA-object calls made by the frame <see cref="Step"/> just ran.</summary>
@@ -178,6 +184,7 @@ public sealed class GameplayMessageBoxState
         _gunshipCompletion = false;
         CompletedConfirmationResult = null;
         ConfirmationSelectionYes = true;
+        _selectionRedrawWaitPending = false;
         DrawSaveConfirmationSelection();
         _controller.Latch(controllerRead);
         // The routine's first lag wait belongs to the dispatch that opened the box.
@@ -279,6 +286,16 @@ public sealed class GameplayMessageBoxState
             case GameplayMessageBoxPhase.AwaitingInput:
                 if (IsSaveConfirmation)
                 {
+                    if (_selectionRedrawWaitPending)
+                    {
+                        // The toggle's wait precedes the loop's two waits, so a cursor move
+                        // delays the next ReadControllerInput by one frame. The selection
+                        // sound ($85:84EC) is queued after this wait.
+                        _selectionRedrawWaitPending = false;
+                        _lastFrameAudio = default;
+                        ConfirmationSelectionChangedThisFrame = true;
+                        return;
+                    }
                     // $85:84BA waits two lag frames, then calls ReadControllerInput. The
                     // read's frame also holds the next iteration's first wait.
                     if (_lagFramesRemaining > 0)
@@ -308,7 +325,7 @@ public sealed class GameplayMessageBoxState
                     {
                         ConfirmationSelectionYes = !ConfirmationSelectionYes;
                         DrawSaveConfirmationSelection();
-                        ConfirmationSelectionChangedThisFrame = true;
+                        _selectionRedrawWaitPending = true;
                     }
                     return;
                 }

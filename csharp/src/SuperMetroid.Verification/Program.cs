@@ -330,6 +330,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--save-confirmation-cadence"])
+{
+    VerifySaveConfirmationCadence();
+    return 0;
+}
 if (args is ["--jump-no-x-movement"])
 {
     VerifyJumpNoXMovement();
@@ -7267,6 +7272,7 @@ VerifySpringBallFallingFallback();
 VerifyFirefleaDoubleDeath();
 VerifyShutterScrewContact();
 VerifyJumpNoXMovement();
+VerifySaveConfirmationCadence();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

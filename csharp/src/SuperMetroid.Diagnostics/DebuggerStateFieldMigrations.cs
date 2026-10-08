@@ -122,6 +122,15 @@ internal static class DebuggerStateFieldMigrations
                 and not "<GrantAllEquipmentEnabled>k__BackingField"
                 and not "<UnlockTourianEnabled>k__BackingField").ToArray();
         }
+        if (type == typeof(SuperMetroid.Core.Game.GameplayMessageBoxState) &&
+            current.Any(field => field.Name == "_selectionRedrawWaitPending"))
+        {
+            // Older builds folded the cursor redraw's wait into the read cadence. A capture
+            // taken between a cursor move and its redraw wait resumes without that frame.
+            Console.Error.WriteLine("WARNING: Older message box lacks the cursor-redraw wait; a capture taken right after a save-cursor move resumes one frame early.");
+            return SelectSerializedFields(type, current.Where(field =>
+                field.Name != "_selectionRedrawWaitPending").ToArray(), count);
+        }
         if (type == typeof(SuperMetroid.Core.Frontend.SuperMetroidGame) &&
             current.Any(field => field.Name == "bootMainLoopCarry"))
         {

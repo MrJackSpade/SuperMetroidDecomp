@@ -26,9 +26,13 @@ public sealed class TitleGraphicsPresentation
         this.sprites = sprites;
     }
 
+    /// <summary>Gets the encoded eight-bit Mode 7 character lane for the title artwork.</summary>
     public ReadOnlySpan<byte> Mode7Characters => mode7Characters;
+    /// <summary>Gets the 64-by-64 byte-indexed Mode 7 title map.</summary>
     public ReadOnlySpan<byte> Mode7Map => mode7Map;
+    /// <summary>Gets the encoded four-bit title OBJ character graphics.</summary>
     public ReadOnlySpan<byte> ObjectCharacters => objectCharacters;
+    /// <summary>Gets the encoded eight-bit Mode 7 baby Metroid character page.</summary>
     public ReadOnlySpan<byte> BabyCharacters => babyCharacters;
 
     /// <summary>Draws one ROM-selected title frame from installed composition data.</summary>
@@ -39,6 +43,12 @@ public sealed class TitleGraphicsPresentation
         composition.DrawOnScreen(oam, x, y, paletteBits);
     }
 
+    /// <summary>Loads and validates the editable title graphics and map assets.</summary>
+    /// <param name="mode7TilesPng">Indexed 256-color PNG containing the title Mode 7 characters.</param>
+    /// <param name="mode7MapJson">JSON document containing the Mode 7 map and OBJ compositions.</param>
+    /// <param name="objectTilesPng">Indexed 16-color PNG containing title OBJ characters.</param>
+    /// <param name="babyTilesPng">Indexed 256-color PNG containing baby Metroid Mode 7 characters.</param>
+    /// <returns>The compiled title graphics presentation.</returns>
     public static TitleGraphicsPresentation Load(
         Stream mode7TilesPng,
         Stream mode7MapJson,
@@ -94,6 +104,9 @@ public sealed class TitleGraphicsPresentation
             sprites);
     }
 
+    /// <summary>Validates and writes an editable title Mode 7 map document as UTF-8 JSON.</summary>
+    /// <param name="json">The destination stream.</param>
+    /// <param name="document">The map and sprite-composition document to serialize.</param>
     public static void WriteMap(Stream json, TitleMode7MapDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
@@ -161,39 +174,65 @@ public sealed class TitleGraphicsPresentation
     }
 }
 
+/// <summary>Serializable title Mode 7 map and native-selected sprite compositions.</summary>
 public sealed record TitleMode7MapDocument
 {
+    /// <summary>Gets the title-graphics document schema version.</summary>
     public required int Version { get; init; }
+    /// <summary>Gets the Mode 7 map width in cells.</summary>
     public required int Width { get; init; }
+    /// <summary>Gets the Mode 7 map height in cells.</summary>
     public required int Height { get; init; }
+    /// <summary>Gets the row-major eight-bit Mode 7 character indexes.</summary>
     public required int[] Tiles { get; init; }
+    /// <summary>Gets every native-selected title OBJ frame.</summary>
     public required TitleSpriteFrame[] Sprites { get; init; }
 }
 
 /// <summary>One ROM-selected title OBJ frame; all parts inherit the active title palette.</summary>
 public sealed record TitleSpriteFrame
 {
+    /// <summary>Gets the bank-$8C spritemap pointer used to select this frame.</summary>
     public required int Pointer { get; init; }
+    /// <summary>Gets the ordered OBJ parts composing the frame.</summary>
     public required SpriteVisualPart[] Parts { get; init; }
 }
 
+/// <summary>Schema, dimensions, filenames, and validation limits for editable title graphics.</summary>
 public static class TitleGraphicsFormat
 {
+    /// <summary>Current title-graphics document schema version.</summary>
     public const int Version = 2;
+    /// <summary>Number of cartridge-selected title sprite frames.</summary>
     public const int SpriteFrameCount = 31;
+    /// <summary>Maximum OBJ parts accepted in one title sprite frame.</summary>
     public const int MaximumSpriteParts = 128;
+    /// <summary>Width of the title OBJ character sheet in eight-pixel tiles.</summary>
     public const int ObjectTileColumns = 32;
+    /// <summary>Height of the title OBJ character sheet in eight-pixel tiles.</summary>
     public const int ObjectTileRows = 16;
+    /// <summary>Installed filename of the title Mode 7 character PNG.</summary>
     public const string Mode7TilesFile = "title-mode7-tiles.png";
+    /// <summary>Installed filename of the title Mode 7 map JSON document.</summary>
     public const string Mode7MapFile = "title-mode7-map.json";
+    /// <summary>Installed filename of the title OBJ character PNG.</summary>
     public const string ObjectTilesFile = "title-object-tiles.png";
+    /// <summary>Installed filename of the baby Metroid Mode 7 character PNG.</summary>
     public const string BabyTilesFile = "title-baby-tiles.png";
+    /// <summary>Width in pixels of the title Mode 7 character image.</summary>
     public const int Mode7Width = 128;
+    /// <summary>Height in pixels of the title Mode 7 character image.</summary>
     public const int Mode7Height = 128;
+    /// <summary>Width in cells of the title Mode 7 map.</summary>
     public const int MapWidth = 64;
+    /// <summary>Height in cells of the title Mode 7 map.</summary>
     public const int MapHeight = 64;
+    /// <summary>Width in pixels of the title OBJ character image.</summary>
     public const int ObjectWidth = 256;
+    /// <summary>Height in pixels of the title OBJ character image.</summary>
     public const int ObjectHeight = 128;
+    /// <summary>Width in pixels of the baby Metroid Mode 7 character image.</summary>
     public const int BabyWidth = 32;
+    /// <summary>Height in pixels of the baby Metroid Mode 7 character image.</summary>
     public const int BabyHeight = 32;
 }

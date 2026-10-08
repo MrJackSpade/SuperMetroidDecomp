@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public enum MotherBrainAttackPhase : ushort
 {
+    /// <summary>Index 0 selects the next head/body attack using Samus movement and sampled RNG, then seeds the 64-update cooldown.</summary>
     ChooseAttack = 0,
+    /// <summary>Index 1 decrements the unsigned attack cooldown until zero while the chosen head bytecode runs independently.</summary>
     Cooldown = 1,
+    /// <summary>Index 2 resets the attack sub-dispatcher and returns the body to ordinary phase-two thinking.</summary>
     EndAttack = 2,
 }
 
@@ -19,20 +22,30 @@ public enum MotherBrainAttackPhase : ushort
 /// </summary>
 public enum MotherBrainHandBeamPhase : ushort
 {
+    /// <summary>Index 0 requests the slow backward gait toward X $28, then sets the charging neck targets.</summary>
     BackUp = 0,
+    /// <summary>Index 1 waits for every active Mother Brain bomb to leave the shared projectile pool before installing the hand-beam body list.</summary>
     WaitForBombs = 1,
+    /// <summary>Index 2 is an inert body-AI wait; body bytecode owns charging, recursive projectile emission, the 240-update hold, and phase advance.</summary>
     Firing = 2,
+    /// <summary>Index 3 restores the neutral head list and neck targets, resets this dispatcher, and returns to thinking.</summary>
     Finish = 3,
 }
 
 /// <summary>Values written by Mother Brain's body instruction opcodes at $A9:9700-$972F.</summary>
 public enum MotherBrainBodyPose : ushort
 {
+    /// <summary>Native pose 0, written by $A9:9700; standing allows posture changes and ordinary attack/walking decisions.</summary>
     Standing = 0,
+    /// <summary>Native pose 1, written by $A9:9708 while authored walking bytecode owns the body's displacement.</summary>
     Walking = 1,
+    /// <summary>Native pose 2, written by $A9:9718 during crouch/uncrouch transitions; posture helpers wait for bytecode to publish an endpoint.</summary>
     CrouchingTransition = 2,
+    /// <summary>Native pose 3, written by $A9:9710 at the crouched endpoint; the standing helper selects the matching uncrouch list.</summary>
     Crouched = 3,
+    /// <summary>Native pose 4, written by $A9:9720 for the ordinary red hand-beam body animation.</summary>
     DeathBeam = 4,
+    /// <summary>Native pose 6, written by $A9:9728 at the leaning-down endpoint; standing requires its distinct recovery list.</summary>
     LeaningDown = 6,
 }
 
@@ -43,31 +56,52 @@ public enum MotherBrainBodyPose : ushort
 /// </summary>
 public enum MotherBrainTubeCollapseFunction : ushort
 {
+    /// <summary><c>$A9:8949 Function_MotherBrainBody_SpawnTubesFallingWhenLessThan4Proj</c>: admits collapse when four projectile slots are free, then requests physical bottom-left tube enemy 0.</summary>
     WaitForFourFreeProjectileSlots = 0x8949,
+    /// <summary><c>$A9:896E Function_MotherBrainBody_ClearBottomLeftTube</c>: requests the bank-$84 removal at block (5,9) and seeds the 32-count top-right delay.</summary>
     ClearBottomLeftTube = 0x896e,
+    /// <summary><c>$A9:8983 Function_MotherBrainBody_SpawnTopRightTubeFallingProjectile</c>: after timer underflow requests the ceiling projectile at pixel (152,47).</summary>
     SpawnTopRightTube = 0x8983,
+    /// <summary><c>$A9:89A0 Function_MotherBrainBody_ClearCeilingBlockColumn9</c>: clears ceiling block (9,2) and seeds the next 32-count tube delay.</summary>
     ClearCeilingColumn9 = 0x89a0,
+    /// <summary><c>$A9:89B5 Function_MotherBrainBody_SpawnTopLeftTubeFallingProjectile</c>: after timer underflow requests the ceiling projectile at pixel (104,47).</summary>
     SpawnTopLeftTube = 0x89b5,
+    /// <summary><c>$A9:89D2 Function_MotherBrainBody_ClearCeilingBlockColumn6</c>: clears ceiling block (6,2), selects the next physical tube, and seeds its shared timer.</summary>
     ClearCeilingColumn6 = 0x89d2,
+    /// <summary><c>$A9:89E7 Function_MotherBrainBody_SpawnTubesFalling1</c>: requests physical bottom-right tube enemy 1, independently of the ceiling-projectile pool.</summary>
     SpawnBottomRightTube = 0x89e7,
+    /// <summary><c>$A9:89FA Function_MotherBrainBody_ClearBottomRightTube</c>: requests bottom-right removal at block (10,9) and selects physical tube enemy 2.</summary>
     ClearBottomRightTube = 0x89fa,
+    /// <summary><c>$A9:8A0F Function_MotherBrainBody_SpawnTubesFalling2</c>: requests physical bottom-middle-left tube enemy 2.</summary>
     SpawnBottomMiddleLeftTube = 0x8a0f,
+    /// <summary><c>$A9:8A22 Function_MotherBrainBody_ClearBottomMiddleLeftTube</c>: removes the side tube at block (6,10) and starts the 32-count upper-middle-left delay.</summary>
     ClearBottomMiddleLeftTube = 0x8a22,
+    /// <summary><c>$A9:8A37 Function_MotherBrainBody_SpawnTopMiddleLeftTubeFallingProj</c>: after timer underflow requests the ceiling projectile at pixel (120,59).</summary>
     SpawnTopMiddleLeftTube = 0x8a37,
+    /// <summary><c>$A9:8A54 Function_MotherBrainBody_ClearCeilingTubeColumn7</c>: clears ceiling tube (7,2) and seeds the 32-count upper-middle-right delay.</summary>
     ClearCeilingColumn7 = 0x8a54,
+    /// <summary><c>$A9:8A69 Function_MotherBrainBody_SpawnTopMiddleRightTubeFallingProj</c>: after timer underflow requests the ceiling projectile at pixel (136,59).</summary>
     SpawnTopMiddleRightTube = 0x8a69,
+    /// <summary><c>$A9:8A86 Function_MotherBrainBody_ClearCeilingTubeColumn8</c>: clears ceiling tube (8,2) and selects physical tube enemy 3.</summary>
     ClearCeilingColumn8 = 0x8a86,
+    /// <summary><c>$A9:8A9B Function_MotherBrainBody_SpawnTubesFalling3</c>: requests physical bottom-middle-right tube enemy 3.</summary>
     SpawnBottomMiddleRightTube = 0x8a9b,
+    /// <summary><c>$A9:8AAE Function_MotherBrainBody_ClearBottomMiddleRightTube</c>: removes the side tube at block (9,10) and seeds the two-count main-tube delay.</summary>
     ClearBottomMiddleRightTube = 0x8aae,
+    /// <summary><c>$A9:8AC3 Function_MotherBrainBody_SpawnTubesFalling4</c>: after timer underflow requests the main falling-tube enemy whose descent carries the head into ascent setup.</summary>
     SpawnMainTube = 0x8ac3,
+    /// <summary><c>$A9:8AD6 Function_MotherBrainBody_ClearBottomMiddleTubes</c>: removes the remaining tubes at block (7,7) and installs its own RTS as the terminal subfunction.</summary>
     ClearBottomMiddleTubes = 0x8ad6,
+    /// <summary><c>$A9:8AE4 Function_MotherBrainBody_ClearBottomMiddleTubes.return</c>: inert tube-subfunction endpoint while physical falling actors continue independently.</summary>
     Finished = 0x8ae4,
 }
 
 /// <summary>Native function pointers used by Mother Brain's separate brain record.</summary>
 public enum MotherBrainBrainFunction : ushort
 {
+    /// <summary><c>$A9:87A2 Function_MotherBrain_SetupBrainAndNeckToBeDrawn</c>: advances neck geometry unless time is frozen, attaches the head to joint 4, and installs the combined draw hook.</summary>
     SetupBrainAndNeckToBeDrawn = 0x87a2,
+    /// <summary><c>$A9:87D0 Function_MotherBrain_SetupBrainToBeDrawn</c>: installs the head-only custom draw hook without articulated neck drawing.</summary>
     SetupBrainToBeDrawn = 0x87d0,
 }
 
@@ -99,7 +133,9 @@ public sealed class MotherBrainEnemyState
     /// <summary>Native shared hitbox-enable word, initialized to two.</summary>
     public ushort HitboxesEnabled { get; internal set; }
 
+    /// <summary>The body record's bank-$A9 function pointer, selecting first-phase, resurrection, combat, or cutscene control for its next AI turn.</summary>
     public MotherBrainBodyFunction Function { get; internal set; }
+    /// <summary>The brain record's independent bank-$A9 function pointer selecting its custom head-only or head-and-neck draw setup.</summary>
     public MotherBrainBrainFunction BrainFunction { get; internal set; }
 
     /// <summary>
@@ -120,6 +156,7 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>Eight-frame cadence and wrapping coordinate cursor for fake-death dust.</summary>
     public ushort FakeDeathExplosionTimer { get; internal set; }
+    /// <summary>Wrapping index 0 through 7 into authored fake-death explosion positions; decremented modulo eight whenever the explosion timer underflows.</summary>
     public ushort FakeDeathExplosionIndex { get; internal set; }
 
     /// <summary>
@@ -127,10 +164,12 @@ public sealed class MotherBrainEnemyState
     /// instruction timers, because handler $D192 compares elapsed frames with each duration.
     /// </summary>
     public ushort RoomPaletteInstructionPointer { get; internal set; }
+    /// <summary>Elapsed-update count for the active room-palette timed entry, advanced upward by $A9:D192 and reset when its pointer changes.</summary>
     public ushort RoomPaletteInstructionTimer { get; internal set; }
 
     /// <summary>Head-record sub-dispatch and its independent underflow timer.</summary>
     public MotherBrainTubeCollapseFunction TubeCollapseFunction { get; internal set; }
+    /// <summary>Independent wrapping word countdown used by selected tube spawn stages; expiration occurs after decrement sets the sign bit.</summary>
     public ushort TubeCollapseTimer { get; internal set; }
 
     /// <summary>Exact delayed music writes made during the most recent enemy frame.</summary>
@@ -190,24 +229,37 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>Native fake-ascent neck lengths installed by <c>$A9:903F</c>.</summary>
     public ushort NeckSegment0Distance { get; internal set; }
+    /// <summary>Lower-neck joint 1's pixel distance from the shared body anchor, initialized to ten by $A9:903F.</summary>
     public ushort NeckSegment1Distance { get; internal set; }
+    /// <summary>Lower-neck joint 2's pixel distance from the shared body anchor, initialized to twenty; joint 2 also anchors the upper half.</summary>
     public ushort NeckSegment2Distance { get; internal set; }
+    /// <summary>Upper-neck joint 3's pixel distance from joint 2, initialized to ten by $A9:903F.</summary>
     public ushort NeckSegment3Distance { get; internal set; }
+    /// <summary>Upper-neck joint 4's pixel distance from joint 2, initialized to twenty; its resulting position anchors the brain.</summary>
     public ushort NeckSegment4Distance { get; internal set; }
 
     /// <summary>Five current world-space neck joints; segment four anchors the brain.</summary>
     public MotherBrainNeckPoint NeckSegment0 { get; internal set; }
+    /// <summary>Joint 1's wrapping world-pixel position, calculated with the lower angle and its distance; used by neck drawing and collision.</summary>
     public MotherBrainNeckPoint NeckSegment1 { get; internal set; }
+    /// <summary>Joint 2's wrapping world-pixel position, shared by lower-neck drawing/collision and upper-neck geometry as its anchor.</summary>
     public MotherBrainNeckPoint NeckSegment2 { get; internal set; }
+    /// <summary>Joint 3's wrapping world-pixel position relative to joint 2, calculated with the upper angle and used by neck drawing/collision.</summary>
     public MotherBrainNeckPoint NeckSegment3 { get; internal set; }
+    /// <summary>Joint 4's wrapping world-pixel position relative to joint 2; the articulated head follows its X and its Y minus twenty-one pixels.</summary>
     public MotherBrainNeckPoint NeckSegment4 { get; internal set; }
 
     /// <summary>8.8-style angle words and dispatch indices used by both neck halves.</summary>
     public ushort LowerNeckAngle { get; internal set; }
+    /// <summary>Upper-neck angle in native 8.8 angle units; its high byte selects the 256-entry trigonometric cycle for joints 3 and 4.</summary>
     public ushort UpperNeckAngle { get; internal set; }
+    /// <summary>Wrapping 8.8 angle step added or subtracted by both neck motion dispatchers each enabled update.</summary>
     public ushort NeckAngleDelta { get; internal set; }
+    /// <summary>Whether articulated neck angle dispatch is enabled; positions and custom drawing remain separate from this motion flag.</summary>
     public bool NeckMovementEnabled { get; internal set; }
+    /// <summary>Lower-neck table byte offset: 0 inert, 2/4 alternating down/up, 6 one-way lowering, or 8 one-way raising; endpoints update this offset.</summary>
     public ushort LowerNeckMovementIndex { get; internal set; }
+    /// <summary>Upper-neck table byte offset 0, 2, 4, 6, or 8; processed after the lower half so raising targets observe its newly updated angle.</summary>
     public ushort UpperNeckMovementIndex { get; internal set; }
 
     /// <summary>
@@ -224,7 +276,9 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>Direct BG2 scroll-register mirrors owned by the phase-two body art.</summary>
     public ushort Bg2XScroll { get; internal set; }
+    /// <summary>Native BG2 vertical scroll mirror updated oppositely to physical body Y movement, keeping the large background-rendered body attached.</summary>
     public ushort Bg2YScroll { get; internal set; }
+    /// <summary>Whether body AI has published encounter-owned BG2 scroll values for the runtime to apply instead of ordinary room scrolling.</summary>
     public bool HasBg2ScrollOverride { get; internal set; }
     /// <summary>ADF41C's main-screen BG2 flicker, separate from the OAM invisibility bit.</summary>
     public bool DeathBg2Hidden { get; internal set; }
@@ -235,6 +289,7 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>Visible prefix of the enemy BG2 staging tilemap requested at ascent completion.</summary>
     public ushort EnemyBg2TilemapSize { get; internal set; }
+    /// <summary>Witness that body setup, ascent completion, or death has requested its staging BG2 tilemap update; size names the requested prefix.</summary>
     public bool EnemyBg2TilemapTransferRequested { get; internal set; }
 
     /// <summary>Four-frame cadence cursor for the eight ascent dust positions.</summary>
@@ -243,8 +298,11 @@ public sealed class MotherBrainEnemyState
     /// <summary>Zero-based palette pointer-table index used while leaving fake-death grey.</summary>
     public ushort GrayTransitionCounter { get; internal set; }
 
+    /// <summary>Enables the head's ordinary palette processing; resurrection and draining transitions suspend it while their own palettes own the colors.</summary>
     public bool BrainPaletteHandlingEnabled { get; internal set; }
+    /// <summary>Allows head bytecode's mouth-drool generation, enabled during live combat and cleared by low-power/death transitions.</summary>
     public bool DroolGenerationEnabled { get; internal set; }
+    /// <summary>Allows the head's small purple breath/dust producer, enabled after stretching and disabled for the drained corpse interval.</summary>
     public bool SmallPurpleBreathGenerationEnabled { get; internal set; }
 
     /// <summary>
@@ -292,11 +350,17 @@ public sealed class MotherBrainEnemyState
     /// then receives its own randomized secondary velocity.
     /// </summary>
     public ushort HandBeamNextXPosition { get; internal set; }
+    /// <summary>Fractional low word of the shared 16.16 next-hand-beam X cursor, carried into whole-pixel X when each child advances it.</summary>
     public ushort HandBeamNextXSubposition { get; internal set; }
+    /// <summary>Whole-pixel high word of the shared next-hand-beam Y cursor; charging starts it at body Y minus $30, and children advance it before scatter.</summary>
     public ushort HandBeamNextYPosition { get; internal set; }
+    /// <summary>Fractional low word of the shared 16.16 next-hand-beam Y cursor, initially zero and preserved across child emissions.</summary>
     public ushort HandBeamNextYSubposition { get; internal set; }
+    /// <summary>Signed native 8.8 aimed X velocity encoded in a word; advances the shared cursor before each child receives its independent randomized scatter velocity.</summary>
     public ushort HandBeamNextXVelocity { get; internal set; }
+    /// <summary>Signed native 8.8 aimed Y velocity encoded in a word, paired with the X component to advance the shared emission cursor.</summary>
     public ushort HandBeamNextYVelocity { get; internal set; }
+    /// <summary>Byte-angle aim retained in a native word, calculated from hand to Samus at charging setup and used as the children's randomized scatter-angle base.</summary>
     public ushort HandBeamNextAngle { get; internal set; }
 
     /// <summary>
@@ -314,6 +378,7 @@ public sealed class MotherBrainEnemyState
     /// effect owned by Mother Brain's body.
     /// </summary>
     public RoomEnemySlot? BabyMetroidSlot { get; internal set; }
+    /// <summary>Extended cutscene AI state attached to the dynamically allocated baby slot; its independent turn owns latch, draining, healing, and death handshakes.</summary>
     public BabyMetroidCutsceneState? BabyMetroid { get; internal set; }
 
     /// <summary>Debugger witness from the Baby's most recent physical enemy turn.</summary>
@@ -340,9 +405,13 @@ public sealed class MotherBrainEnemyState
     public bool RainbowBeamHdmaActive { get; internal set; }
     /// <summary>Native window/color state, advanced by emulation rather than host painting.</summary>
     public MotherBrainRainbowBeamHdmaState RainbowBeamHdma { get; } = new();
+    /// <summary>Current native angular aim published from the beam's forced-movement owner and consumed by the bank-$88 HDMA presentation.</summary>
     public SnesAngle RainbowBeamAngle { get; internal set; }
+    /// <summary>Native 8.8 angular-width word published by body AI as the rainbow beam widens or narrows; independent of pixel width at a given scanline.</summary>
     public ushort RainbowBeamAngularWidth { get; internal set; }
+    /// <summary>Whether this body-function call requested a rainbow palette step; cleared at the beginning of every enemy frame.</summary>
     public bool RainbowBeamPaletteRequested { get; internal set; }
+    /// <summary>The current frame's optional beam-impact dust/explosion request, published by continuing beam effects and cleared before the next frame.</summary>
     public MotherBrainRainbowExplosionRequest? LastRainbowBeamExplosion { get; internal set; }
 
     /// <summary>
@@ -403,9 +472,14 @@ public sealed class MotherBrainEnemyState
 /// One typed <c>QueueMusic_Delayed*</c> call. The command retains its complete cartridge
 /// word, including unknown commands, without conflating data uploads with track indices.
 /// </summary>
+/// <param name="Command">The full native music queue word, identifying stop, data load, or track selection.</param>
+/// <param name="Delay">The authored music-queue delay before the command is eligible for consumption.</param>
 public readonly record struct MotherBrainMusicRequest(MusicCommand Command, MusicCommandDelay Delay);
 
 /// <summary>One literal <c>SpawnHardcodedPLM</c> call issued by Mother Brain's bank-$A9 AI.</summary>
+/// <param name="BlockX">Foreground block-column coordinate, measured in sixteen-pixel room blocks.</param>
+/// <param name="BlockY">Foreground block-row coordinate, measured in sixteen-pixel room blocks.</param>
+/// <param name="Header">Low-word PLM definition-header pointer in fixed bank $84, consumed by the room PLM allocator.</param>
 public readonly record struct MotherBrainPlmRequest(byte BlockX, byte BlockY, ushort Header);
 
 /// <summary>One <c>$86:C5BB</c> enemy-drop request produced by a destroyed Mother Brain bomb.</summary>

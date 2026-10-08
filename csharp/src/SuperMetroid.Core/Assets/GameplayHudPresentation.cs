@@ -57,6 +57,7 @@ public sealed class GameplayHudPresentation
         ContentIdentity = Convert.ToHexString(SHA256.HashData(source));
     }
 
+    /// <summary>Gets the SHA-256 identity of the source presentation document.</summary>
     public string ContentIdentity { get; }
     /// <summary>Native-order BG3 top-row bytes supplied at the existing queued DMA boundary.</summary>
     public ReadOnlyMemory<byte> TopRowTransfer
@@ -75,17 +76,29 @@ public sealed class GameplayHudPresentation
             return transfer;
         }
     }
+    /// <summary>Gets the tilemap word used to clear mutable HUD cells.</summary>
     public ushort Blank { get; }
+    /// <summary>Gets the tilemap word for a filled energy tank.</summary>
     public ushort FilledEnergyTank { get; }
+    /// <summary>Gets the tilemap word for an empty energy tank.</summary>
     public ushort EmptyEnergyTank { get; }
+    /// <summary>Gets the BG palette index applied to the selected item icon.</summary>
     public int SelectedPalette { get; }
+    /// <summary>Gets the BG palette index applied to deselected item icons.</summary>
     public int DeselectedPalette { get; }
+    /// <summary>Gets the tile coordinate of the two health digits.</summary>
     public MapLabelPoint HealthAnchor { get; }
+    /// <summary>Gets the tile coordinate of the three missile-ammo digits.</summary>
     public MapLabelPoint MissileAmmoAnchor { get; }
+    /// <summary>Gets the tile coordinate of the two Super Missile ammo digits.</summary>
     public MapLabelPoint SuperMissileAmmoAnchor { get; }
+    /// <summary>Gets the tile coordinate of the two Power Bomb ammo digits.</summary>
     public MapLabelPoint PowerBombAmmoAnchor { get; }
+    /// <summary>Gets the upper-left tile coordinate of the five-by-three minimap.</summary>
     public MapLabelPoint MinimapAnchor { get; }
 
+    /// <summary>Writes the complete editable HUD template into a mutable tilemap.</summary>
+    /// <param name="tiles">The 32-by-3 HUD tilemap to populate.</param>
     public void ApplyTemplate(Span<ushort> tiles)
     {
         ValidateTilemap(tiles);
@@ -94,6 +107,9 @@ public sealed class GameplayHudPresentation
                 ? edited : GameplayHudDefinitions.TemplateWord(index);
     }
 
+    /// <summary>Draws an item icon when its anchor cell is currently blank.</summary>
+    /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
+    /// <param name="itemIndex">The zero-based item icon index.</param>
     public void TryApplyIcon(Span<ushort> tiles, int itemIndex)
     {
         ValidateTilemap(tiles);
@@ -106,6 +122,10 @@ public sealed class GameplayHudPresentation
             tiles[Index(icon.Anchor.X + x, icon.Anchor.Y + y)] = icon.Cell(y * icon.Width + x);
     }
 
+    /// <summary>Draws energy tanks and the two-digit current-energy remainder.</summary>
+    /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
+    /// <param name="health">Current energy, including full tank hundreds.</param>
+    /// <param name="maxHealth">Maximum energy used to determine the visible tank count.</param>
     public void ApplyEnergy(Span<ushort> tiles, ushort health, ushort maxHealth)
     {
         ValidateTilemap(tiles);
@@ -116,6 +136,10 @@ public sealed class GameplayHudPresentation
         DrawDigits(tiles, healthDigits, health % 100, HealthAnchor, 2);
     }
 
+    /// <summary>Draws the ammunition count for a projectile item.</summary>
+    /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
+    /// <param name="itemIndex">Zero for missiles, one for Super Missiles, or two for Power Bombs.</param>
+    /// <param name="value">The ammunition count to display.</param>
     public void ApplyAmmo(Span<ushort> tiles, int itemIndex, ushort value)
     {
         ValidateTilemap(tiles);
@@ -129,6 +153,9 @@ public sealed class GameplayHudPresentation
         DrawDigits(tiles, ammoDigits, value, anchor, digits);
     }
 
+    /// <summary>Draws the AUTO reserve indicator for the requested reserve-energy state.</summary>
+    /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
+    /// <param name="containsEnergy">Whether the reserve tank currently contains energy.</param>
     public void ApplyAutoReserve(Span<ushort> tiles, bool containsEnergy)
     {
         ValidateTilemap(tiles);
@@ -137,6 +164,8 @@ public sealed class GameplayHudPresentation
                 ? edited : GameplayHudDefinitions.AutoReserveWord(index, containsEnergy);
     }
 
+    /// <summary>Replaces every AUTO reserve-indicator cell with the configured blank tile.</summary>
+    /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
     public void ClearAutoReserve(Span<ushort> tiles)
     {
         ValidateTilemap(tiles);
@@ -144,6 +173,10 @@ public sealed class GameplayHudPresentation
             tiles[AutoReserveCell(cell)] = Blank;
     }
 
+    /// <summary>Applies a palette to every nonblank cell of the selected item icon.</summary>
+    /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
+    /// <param name="selectedItem">The native one-based selected-item number.</param>
+    /// <param name="palette">The BG palette index to apply.</param>
     public void ToggleItemHighlight(Span<ushort> tiles, ushort selectedItem, int palette)
     {
         ValidateTilemap(tiles);
@@ -160,12 +193,19 @@ public sealed class GameplayHudPresentation
         }
     }
 
+    /// <summary>Returns the linear HUD tilemap index for a minimap output coordinate.</summary>
+    /// <param name="outputX">The zero-based minimap column.</param>
+    /// <param name="outputY">The zero-based minimap row.</param>
+    /// <returns>The corresponding cell index in the 32-by-3 HUD tilemap.</returns>
     public int MinimapCellIndex(int outputX, int outputY)
     {
         if ((uint)outputX >= 5 || (uint)outputY >= 3) throw new ArgumentOutOfRangeException(nameof(outputX));
         return Index(MinimapAnchor.X + outputX, MinimapAnchor.Y + outputY);
     }
 
+    /// <summary>Loads and validates a gameplay-HUD presentation document.</summary>
+    /// <param name="json">The UTF-8 JSON document stream.</param>
+    /// <returns>The compiled gameplay-HUD presentation.</returns>
     public static GameplayHudPresentation Load(Stream json)
     {
         byte[] source;
@@ -192,6 +232,9 @@ public sealed class GameplayHudPresentation
         return new(document, source);
     }
 
+    /// <summary>Validates and writes a gameplay-HUD presentation document as UTF-8 JSON.</summary>
+    /// <param name="output">The destination stream.</param>
+    /// <param name="document">The editable presentation document to serialize.</param>
     public static void Write(Stream output, GameplayHudPresentationDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
@@ -351,57 +394,94 @@ public sealed class GameplayHudPresentation
     }
 }
 
+/// <summary>Serializable versioned document describing the editable gameplay HUD.</summary>
 public sealed record GameplayHudPresentationDocument
 {
+    /// <summary>Gets the gameplay-HUD document schema version.</summary>
     public required int Version { get; init; }
+    /// <summary>Gets the immutable 32-cell top row transferred at the HUD DMA boundary.</summary>
     public required GameplayHudCell[] TopRow { get; init; }
+    /// <summary>Gets the complete 32-by-3 mutable HUD tilemap template.</summary>
     public required GameplayHudCell[] Template { get; init; }
+    /// <summary>Gets the cell used to clear dynamic HUD regions.</summary>
     public required GameplayHudCell Blank { get; init; }
+    /// <summary>Gets the palette index used for a selected item.</summary>
     public required int SelectedPalette { get; init; }
+    /// <summary>Gets the palette index used for a deselected item.</summary>
     public required int DeselectedPalette { get; init; }
+    /// <summary>Gets the upper-left coordinate of the minimap output region.</summary>
     public required MapLabelPoint MinimapAnchor { get; init; }
+    /// <summary>Gets the energy-tank visuals and anchors.</summary>
     public required GameplayHudEnergyTankDocument EnergyTanks { get; init; }
+    /// <summary>Gets the health and ammunition digit visuals and anchors.</summary>
     public required GameplayHudDigitDocument Digits { get; init; }
+    /// <summary>Gets the AUTO reserve-indicator visuals and anchors.</summary>
     public required GameplayHudAutoReserveDocument AutoReserve { get; init; }
+    /// <summary>Gets item-icon documents keyed by their canonical names.</summary>
     public required Dictionary<string, GameplayHudIconDocument> Icons { get; init; }
 }
 
+/// <summary>Serializable energy-tank cell definitions and HUD anchors.</summary>
 public sealed record GameplayHudEnergyTankDocument
 {
+    /// <summary>Gets the ordered energy-tank cell coordinates.</summary>
     public required MapLabelPoint[] Anchors { get; init; }
+    /// <summary>Gets the cell drawn for a filled energy tank.</summary>
     public required GameplayHudCell Filled { get; init; }
+    /// <summary>Gets the cell drawn for an empty energy tank.</summary>
     public required GameplayHudCell Empty { get; init; }
 }
 
+/// <summary>Serializable numeric glyphs and their gameplay-HUD anchors.</summary>
 public sealed record GameplayHudDigitDocument
 {
+    /// <summary>Gets the ten health-digit cells in numeral order.</summary>
     public required GameplayHudCell[] Health { get; init; }
+    /// <summary>Gets the ten ammunition-digit cells in numeral order.</summary>
     public required GameplayHudCell[] Ammo { get; init; }
+    /// <summary>Gets the anchor of the health digits.</summary>
     public required MapLabelPoint HealthAnchor { get; init; }
+    /// <summary>Gets the anchor of the missile digits.</summary>
     public required MapLabelPoint MissileAnchor { get; init; }
+    /// <summary>Gets the anchor of the Super Missile digits.</summary>
     public required MapLabelPoint SuperMissileAnchor { get; init; }
+    /// <summary>Gets the anchor of the Power Bomb digits.</summary>
     public required MapLabelPoint PowerBombAnchor { get; init; }
 }
 
+/// <summary>Serializable AUTO reserve-indicator cells and their HUD anchors.</summary>
 public sealed record GameplayHudAutoReserveDocument
 {
+    /// <summary>Gets the ordered AUTO indicator cell coordinates.</summary>
     public required MapLabelPoint[] Anchors { get; init; }
+    /// <summary>Gets the six cells drawn when reserve energy is available.</summary>
     public required GameplayHudCell[] ContainsEnergy { get; init; }
+    /// <summary>Gets the six cells drawn when the reserve is empty.</summary>
     public required GameplayHudCell[] Empty { get; init; }
 }
 
+/// <summary>Serializable item-icon anchor and tile cells.</summary>
 public sealed record GameplayHudIconDocument
 {
+    /// <summary>Gets the upper-left coordinate of the icon.</summary>
     public required MapLabelPoint Anchor { get; init; }
+    /// <summary>Gets the icon cells in row-major order.</summary>
     public required GameplayHudCell[] Cells { get; init; }
 }
 
+/// <summary>Serializable components of one SNES BG tilemap word.</summary>
 public sealed record GameplayHudCell
 {
+    /// <summary>Gets the zero-based character column in the 32-by-32 character page.</summary>
     public required int TileColumn { get; init; }
+    /// <summary>Gets the zero-based character row in the 32-by-32 character page.</summary>
     public required int TileRow { get; init; }
+    /// <summary>Gets the three-bit BG palette index.</summary>
     public required int Palette { get; init; }
+    /// <summary>Gets whether the BG tile uses high priority.</summary>
     public required bool Priority { get; init; }
+    /// <summary>Gets whether the character is flipped horizontally.</summary>
     public required bool FlipX { get; init; }
+    /// <summary>Gets whether the character is flipped vertically.</summary>
     public required bool FlipY { get; init; }
 }

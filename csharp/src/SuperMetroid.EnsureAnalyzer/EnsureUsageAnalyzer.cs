@@ -10,6 +10,7 @@ namespace SuperMetroid.EnsureAnalyzer;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
 {
+    /// <summary>Diagnostic identifier for reusable argument validation that should use the shared Ensure API.</summary>
     public const string GuardId = "SME6201";
 
     private static readonly DiagnosticDescriptor GuardRule = new(
@@ -21,8 +22,11 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
         isEnabledByDefault: true,
         description: "Keep generic argument validation in the shared Ensure API.");
 
+    /// <summary>Gets the diagnostic reported for argument guards that can use the shared Ensure API.</summary>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [GuardRule];
 
+    /// <summary>Registers argument-guard analysis when the compilation provides the shared Ensure API.</summary>
+    /// <param name="context">The context used to configure analysis and register syntax callbacks.</param>
     public override void Initialize(AnalysisContext context)
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);

@@ -307,26 +307,38 @@ public sealed partial class RoomPlmSystem
 /// <summary>The three projectile-gated door families in header order.</summary>
 public enum ColoredDoorColor : byte
 {
+    /// <summary>Yellow cap, which accepts Power Bomb hits.</summary>
     Yellow,
+    /// <summary>Green cap, which accepts Super Missile hits.</summary>
     Green,
+    /// <summary>Red cap, which accepts Missile or Super Missile hits; a Super Missile immediately satisfies its hit threshold.</summary>
     Red,
 }
 
 /// <summary>Door-cap orientation shared by colored and blue BTS tables.</summary>
 public enum ColoredDoorOrientation : byte
 {
+    /// <summary>Left-facing cap; orientation index 0 corresponds to blue-door BTS $40.</summary>
     Left,
+    /// <summary>Right-facing cap; orientation index 1 corresponds to blue-door BTS $41.</summary>
     Right,
+    /// <summary>Upward-facing cap; orientation index 2 corresponds to blue-door BTS $42.</summary>
     Up,
+    /// <summary>Downward-facing cap; orientation index 3 corresponds to blue-door BTS $43.</summary>
     Down,
 }
 
 /// <summary>Debugger-visible phase of one resident colored-door actor.</summary>
 public enum ColoredDoorPhase : byte
 {
+    /// <summary>Resident cap has drawn its closed color and waits for projectile triggers while its instruction list sleeps.</summary>
     Waiting,
+    /// <summary>A nonfatal accepted hit runs the shared blue/colored flash list before returning the resident actor to its sleeping wait.</summary>
     Flashing,
+    /// <summary>The accepted-hit threshold has been reached; the shared interpreter runs the opening list after recording the door's persistent opened bit.</summary>
     Opening,
+    /// <summary>Room setup found the persistent opened bit and will replace the colored cap with the closed blue-door draw and BTS, then release the slot.</summary>
     ConvertToBlue,
+    /// <summary>Room-entry closing draws run through the shared interpreter before handing the same resident slot back to its initial waiting list.</summary>
     Closing,
 }

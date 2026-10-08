@@ -13,8 +13,16 @@ public sealed class GameplayWindowRegisterCache
     /// <summary>Owned values uploaded by the last accepted NMI, unaffected by later writes.</summary>
     public GameplayWindowRegisterSnapshot Displayed { get; private set; }
 
+    /// <summary>Reads one raw byte from the modeled WRAM window/screen-register cache.</summary>
+    /// <param name="address">Native WRAM offset from <c>$69</c> through <c>$74</c>.</param>
+    /// <returns>The current main-loop-owned byte; this need not equal the last NMI-latched value.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="address"/> lies outside the modeled cache.</exception>
     public byte ReadByte(ushort address) => _bytes[Index(address)];
 
+    /// <summary>Writes one raw byte to the main-loop-owned WRAM cache without changing <see cref="Displayed"/>.</summary>
+    /// <param name="address">Native WRAM offset from <c>$69</c> through <c>$74</c>.</param>
+    /// <param name="value">Unmasked byte to preserve until an accepted NMI uploads it.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="address"/> lies outside the modeled cache.</exception>
     public void WriteByte(ushort address, byte value) => _bytes[Index(address)] = value;
 
     /// <summary>

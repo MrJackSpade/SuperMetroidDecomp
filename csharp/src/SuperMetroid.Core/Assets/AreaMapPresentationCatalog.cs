@@ -71,62 +71,122 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
         SamusHyperBeamColors = samusHyperBeamColors;
     }
 
+    /// <summary>Uppercase SHA-256 identity of length-framed stock map rules, station masks, and selected presentation resources in fixed order; override edits affect identity without changing stock provenance.</summary>
     public string ContentIdentity { get; }
+    /// <summary>Selected map-screen character atlas; pause-menu artwork is supplied separately by <see cref="PauseTiles"/>.</summary>
     public MapTileAtlas Tiles { get; }
+    /// <summary>Standard gameplay HUD character transfers, including the four BG3 quarters restored after Kraid.</summary>
     public HudTileAtlas HudTiles { get; }
+    /// <summary>Selected highlight color frames used by map presentation; animation progression remains engine-owned.</summary>
     public MapPaletteCycle HighlightCycle { get; }
+    /// <summary>Complete static palettes for pause, file-select, and each world-map area, separate from the highlight cycle.</summary>
     public MapStaticPalettes Palettes { get; }
+    /// <summary>World-map area-name drawing anchors, independent of area selection and map exploration.</summary>
     public WorldMapLabelLayout Labels { get; }
+    /// <summary>Map-station label drawing positions; moving these does not change compiled discovery cells or station reveal masks.</summary>
     public MapStationLayout Stations { get; }
+    /// <summary>Boss, elevator, and gunship drawing anchors, independent of progression and destination rules.</summary>
     public MapLandmarkLayout Landmarks { get; }
+    /// <summary>File-select save-marker visual coordinate overrides, independent of native load targets and scrolling.</summary>
     public MapSaveMarkerLayout SaveMarkers { get; }
+    /// <summary>Map-arrow artwork and presentation frames for scrolling indicators.</summary>
     public MapArrowPresentation Arrows { get; }
+    /// <summary>Named compiled map-screen tilemap layers, separate from the character atlas and per-area map cells.</summary>
     public MapScreenPresentation Screens { get; }
+    /// <summary>Selected foreground and background PNG artwork for the world-map screen.</summary>
     public WorldMapArtwork WorldArtwork { get; }
+    /// <summary>Selected map sprite shapes and indexed PNG artwork used to draw map icons.</summary>
     public MapSpriteCatalog Sprites { get; }
+    /// <summary>Selected pause-menu character atlas, separate from map-screen characters in <see cref="Tiles"/>.</summary>
     public MapTileAtlas PauseTiles { get; }
+    /// <summary>Pause-screen backdrop tilemap presentation, independent of equipment and map state.</summary>
     public PauseBackdropPresentation PauseBackdrops { get; }
+    /// <summary>Samus suit wireframe artwork for the pause equipment screen.</summary>
     public PauseWireframePresentation PauseWireframes { get; }
+    /// <summary>Pause selection-indicator artwork and presentation parameters; inventory and selection logic remain engine-owned.</summary>
     public PauseSelectorPresentation PauseSelectors { get; }
+    /// <summary>Reserve-strip artwork and drawing origins, independent of reserve energy and fill selection.</summary>
     public PauseReserveTankPresentation PauseReserveTanks { get; }
+    /// <summary>Reserve labels, digits, and arrow appearances, separate from the tank strip and compiled reserve-mode behavior.</summary>
     public PauseReserveUiPresentation PauseReserveUi { get; }
+    /// <summary>Equipment-page base tilemap artwork, before live inventory and reserve patches are applied.</summary>
     public PauseEquipmentBasePresentation PauseEquipmentBase { get; }
+    /// <summary>Equipment-page label artwork and placement, separate from the base tilemap and live inventory decisions.</summary>
     public PauseEquipmentLabelPresentation PauseEquipmentLabels { get; }
+    /// <summary>Escape countdown visual layout and digit presentation, separate from the character bytes in <see cref="EscapeTimerTiles"/>.</summary>
     public EscapeTimerPresentation EscapeTimer { get; }
+    /// <summary>Selected character bytes for the two escape-timer VRAM transfers.</summary>
     public EscapeTimerTileAtlas EscapeTimerTiles { get; }
+    /// <summary>Gameplay HUD tilemap and display presentation, separate from the standard HUD character atlas.</summary>
     public GameplayHudPresentation GameplayHud { get; }
+    /// <summary>Selected game-over screen presentation resources.</summary>
     public GameOverPresentation GameOver { get; }
+    /// <summary>Selected options-menu artwork and display presentation; option values remain runtime state.</summary>
     public GameOptionsPresentation GameOptions { get; }
+    /// <summary>Selected file-select screen presentation, separate from per-area maps and save-marker coordinates.</summary>
     public FileSelectPresentation FileSelect { get; }
+    /// <summary>Gameplay-message title text and tile presentation, separate from message panels and short notices.</summary>
     public GameplayMessageTitlePresentation GameplayMessageTitles { get; }
+    /// <summary>Gameplay-message panel artwork and layout, separate from title content and short notice presentation.</summary>
     public GameplayMessagePanelPresentation GameplayMessagePanels { get; }
+    /// <summary>Short gameplay-notice presentation, separate from full message titles and panels.</summary>
     public GameplayMessageNoticePresentation GameplayMessageNotices { get; }
+    /// <summary>Selected escape-sequence typewriter text and visual presentation.</summary>
     public EscapeTypewriterPresentation EscapeTypewriter { get; }
+    /// <summary>Opening narration text and presentation, separate from its selected font characters.</summary>
     public IntroNarrationPresentation IntroNarration { get; }
+    /// <summary>Selected opening-narration character artwork used with <see cref="IntroNarration"/>.</summary>
     public IntroFontAtlas IntroFont { get; }
+    /// <summary>Ending text and display presentation, separate from staff-credit content.</summary>
     public EndingTextPresentation EndingText { get; }
+    /// <summary>Selected character artwork for ending text and its font transfers.</summary>
     public EndingFontAtlas EndingFont { get; }
+    /// <summary>Selected staff-credit text and presentation, separate from the other ending text.</summary>
     public CreditsPresentation StaffCredits { get; }
+    /// <summary>Title Mode 7 characters and tilemap, OBJ characters, and Baby character artwork selected from their extracted files.</summary>
     public TitleGraphicsPresentation TitleGraphics { get; }
+    /// <summary>Title-screen palette colors, separate from the title gradient and graphics transfers.</summary>
     public TitlePalettePresentation TitlePalette { get; }
+    /// <summary>Title-screen gradient presentation, separate from its static palette and character artwork.</summary>
     public TitleGradientPresentation TitleGradient { get; }
+    /// <summary>Room and cinematic palette-animation colors; instruction timing, CGRAM destinations, and side effects remain compiled.</summary>
     public RoomPaletteFxPresentation RoomPaletteFx { get; }
+    /// <summary>Mother Brain health-selected palette artwork, separate from rainbow and room-color families.</summary>
     public MotherBrainHealthPalettePresentation MotherBrainHealthPalette { get; }
+    /// <summary>Mother Brain rainbow, drain, revival, normal-restoration, and fake-death colors; older overrides inherit newly introduced rows from stock.</summary>
     public MotherBrainRainbowPalettePresentation MotherBrainRainbowPalette { get; }
+    /// <summary>Mother Brain arena color presentation, separate from boss health and rainbow palettes; older overrides inherit new color families from verified stock.</summary>
     public MotherBrainRoomColorPresentation MotherBrainRoomColors { get; private set; } = null!;
+    /// <summary>Selected animated room-FX character artwork, separate from layer-3 tilemaps and palette blending.</summary>
     public RoomFxAnimatedTileAtlas RoomFxAnimatedTiles { get; }
+    /// <summary>Selected layer-3 room-FX tilemaps, separate from animated characters and palette-blend colors.</summary>
     public RoomFxLayer3TilemapCatalog RoomFxLayer3Tilemaps { get; }
+    /// <summary>Selected room-FX palette-blend presentation, separate from layer-3 tilemap geometry and animated character bytes.</summary>
     public RoomFxPaletteBlendCatalog RoomFxPaletteBlends { get; }
+    /// <summary>Fixed RGB5 colors for Power Bomb, Crystal Flash, and Ceres explosion effects, separate from Samus palette colors.</summary>
     public PowerBombFixedColorCatalog PowerBombFixedColors { get; }
+    /// <summary>Visor colors shared by X-ray and room palette cycling, separate from complete suit palettes.</summary>
     public SamusVisorColorCatalog SamusVisorColors { get; }
+    /// <summary>Samus hurt-flash and cinematic-restoration color artwork.</summary>
     public SamusHurtColorCatalog SamusHurtColors { get; }
+    /// <summary>Base Power, Varia, and Gravity Suit colors, separate from transient full-body and charge cycles.</summary>
     public SamusSuitColorCatalog SamusSuitColors { get; }
+    /// <summary>Samus full-body palette-cycle inputs, separate from static suit, visor, and charged-beam colors.</summary>
     public SamusFullBodyCycleColorCatalog SamusFullBodyCycleColors { get; }
+    /// <summary>Crystal Flash body and bubble colors; native timing, frame selection, and completion remain engine-owned.</summary>
     public CrystalFlashColorCatalog CrystalFlashColors { get; }
+    /// <summary>Charged-beam and pseudo-Screw-Attack palette inputs, separate from base suit colors.</summary>
     public SamusChargeColorCatalog SamusChargeColors { get; }
+    /// <summary>Ceres Ridley colors, shared Norfair Ridley health colors, and private Baby drawing colors; Mode 7 zoom shades are supplied separately.</summary>
     public CeresRidleyColorCatalog CeresRidleyColors { get; }
+    /// <summary>Ceres Ridley Mode 7 zoom shades, separate from ordinary Ridley colors and compiled movement and rotation.</summary>
     public CeresRidleyMode7ColorCatalog CeresRidleyMode7Colors { get; }
+    /// <summary>Samus Hyper Beam palette-cycle colors, separate from charged-beam presentation and other suit cycles.</summary>
     public SamusHyperBeamColorCatalog SamusHyperBeamColors { get; }
+    /// <summary>Resolves installed HUD, Kraid HUD-restoration, or escape-timer character bytes for a VRAM transfer.</summary>
+    /// <param name="asset">The transfer identity; this provider supports only the HUD and escape-timer identities in its catalog.</param>
+    /// <returns>Read-only planar character bytes for the requested transfer.</returns>
+    /// <exception cref="InvalidDataException">The requested identity is not supported by this provider.</exception>
     public ReadOnlyMemory<byte> Resolve(VramAssetId asset) => asset switch
     {
         VramAssetId.StandardHudTiles => HudTiles.Transfer,
@@ -137,6 +197,10 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
         VramAssetId.EscapeTimerFirstTiles or VramAssetId.EscapeTimerSecondTiles => EscapeTimerTiles.Resolve(asset),
         _ => throw new InvalidDataException($"Map catalog cannot resolve VRAM asset {asset}."),
     };
+    /// <summary>Returns an area's selected map presentation with verified stock exploration and station-reveal rules.</summary>
+    /// <param name="area">One of the seven retail area identities, including Ceres.</param>
+    /// <returns>The immutable view compiled when this catalog was loaded.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The value is not a retail area identity.</exception>
     public IAreaMapView Get(AreaId area) => areas[AreaIds.ToIndex(area)];
 
     /// <summary>Reads all areas atomically into a new catalog; an invalid override is never replaced with stock.</summary>
@@ -407,19 +471,29 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
 /// <summary>Stock content provenance, separate from a catalog's selected replacement identity.</summary>
 public sealed record AreaMapCatalogManifest
 {
+    /// <summary>Catalog schema version that must equal <see cref="AreaMapCatalogFormat.Version"/> when stock content is loaded.</summary>
     public required int Version { get; init; }
+    /// <summary>SHA-256 digest of the cartridge used to extract the stock content, independent of selected user overrides.</summary>
     public required string SourceCartridgeSha256 { get; init; }
+    /// <summary>Extracted filename-to-SHA-256 mapping; every listed stock file must be read and verified during catalog loading.</summary>
     public required Dictionary<string, string> Sha256 { get; init; }
 }
 
+/// <summary>On-disk names and manifest bounds for seven area maps and their shared presentation resources.</summary>
 public static class AreaMapCatalogFormat
 {
+    /// <summary>Supported extracted map-catalog schema version; other manifest versions are rejected.</summary>
     public const int Version = 78;
     /// <summary>Manifest-bound non-area artwork files, including Ceres Mode-7 colors.</summary>
     public const int SharedResourceCount = 61;
     /// <summary>Bundled authored reveal mask: logical row-major cell indexes, not SRAM offsets or editable engine code.</summary>
     public const string StationRevealFile = "station-reveal.json";
+    /// <summary>Stock manifest filename containing extraction provenance and the SHA-256 digest of every catalog resource.</summary>
     public const string ManifestFile = "manifest.json";
+    /// <summary>Builds the extracted JSON filename from a validated retail area identity using its lowercase enum name.</summary>
+    /// <param name="area">One of the seven retail area identities.</param>
+    /// <returns>The area's lowercase name followed by <c>.json</c>, without a directory.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The value is not a retail area identity.</exception>
     public static string FileName(AreaId area)
     {
         _ = AreaIds.ToIndex(area);

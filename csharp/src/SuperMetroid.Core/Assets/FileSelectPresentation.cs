@@ -47,8 +47,11 @@ public sealed class FileSelectPresentation
                 return values;
         return null;
     }
+    /// <summary>Uppercase SHA-256 digest of the loaded JSON bytes, identifying the selected presentation including its encoding.</summary>
     public string ContentIdentity { get; }
+    /// <summary>Menu updates per missile-cursor animation frame, in the range 1-65535.</summary>
     public int CursorFrameDuration => document.CursorFrameDuration;
+    /// <summary>Menu updates per selected-slot helmet animation frame, in the range 1-65535.</summary>
     public int HelmetFrameDuration => document.HelmetFrameDuration;
 
     internal void LoadBackground(SnesVram vram) =>
@@ -142,6 +145,10 @@ public sealed class FileSelectPresentation
             PaletteBits(document.ObjectPalette));
     }
 
+    /// <summary>Reads and validates a complete file-select JSON document, compiling its tilemaps, patches, glyphs, and sprite compositions.</summary>
+    /// <param name="source">Readable JSON stream, consumed from its current position to the end and left open.</param>
+    /// <returns>A presentation owning the parsed layout and compiled artwork, independent of the source stream.</returns>
+    /// <exception cref="InvalidDataException">The JSON, schema version, required names, artwork, anchors, durations, or patch placements are invalid.</exception>
     public static FileSelectPresentation Load(Stream source)
     {
         byte[] bytes;
@@ -244,6 +251,10 @@ public sealed class FileSelectPresentation
             Convert.ToHexString(SHA256.HashData(bytes)));
     }
 
+    /// <summary>Serializes an authored document and validates the serialized presentation before writing any bytes to the output.</summary>
+    /// <param name="output">Writable stream receiving UTF-8 JSON at its current position; left open.</param>
+    /// <param name="document">Authored layout and artwork to validate and serialize; its collections are not modified.</param>
+    /// <exception cref="InvalidDataException">The serialized document fails file-select presentation validation.</exception>
     public static void Write(Stream output, FileSelectPresentationDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
@@ -354,44 +365,74 @@ public sealed class FileSelectPresentation
         SnesObjAttributeWord.Create(0, index, 0).PaletteBits;
 }
 
+/// <summary>Authored JSON layout and artwork for file-select menus, with tile-space background fields and pixel-space sprite anchors.</summary>
+/// <remarks>Init-only properties hold caller-owned mutable arrays and dictionaries. A loaded presentation parses its own document and compiles artwork from the supplied JSON stream.</remarks>
 public sealed record FileSelectPresentationDocument
 {
+    /// <summary>Schema version; must equal <see cref="FileSelectPresentationDefinitions.Version"/>.</summary>
     public required int Version { get; init; }
+    /// <summary>Exactly the named menu pages, each containing 1024 row-major cells for a 32-by-32 tilemap.</summary>
     public required Dictionary<string, MapPresentationCell[]> Pages { get; init; }
+    /// <summary>Exactly the energy, empty-slot, and time-colon patches, placed relative to dynamic slot-field anchors.</summary>
     public required Dictionary<string, FileSelectPatchDocument> Patches { get; init; }
+    /// <summary>Ten tile cells in digit-value order 0-9, including each glyph's palette and tile attributes.</summary>
     public required MapPresentationCell[] Digits { get; init; }
+    /// <summary>Three tile cells in save-slot order A-C, used when copy or clear text identifies a slot.</summary>
     public required MapPresentationCell[] SlotLetters { get; init; }
+    /// <summary>Three dynamic save-field layouts in slot order for the main file-select page.</summary>
     public required FileSelectSlotFieldDocument[] MainSlots { get; init; }
+    /// <summary>Three dynamic save-field layouts in slot order for copy and clear pages.</summary>
     public required FileSelectSlotFieldDocument[] DataSlots { get; init; }
+    /// <summary>Exactly the named border compositions, four cursor frames, and eight helmet frames, using sprite-part offsets relative to their drawing anchors.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Sprites { get; init; }
+    /// <summary>Main, copy, and clear border origins in screen pixels, with X=0-511 and Y=0-255.</summary>
     public required Dictionary<string, MapLabelPoint> BorderAnchors { get; init; }
+    /// <summary>Six missile-cursor origins in main-menu selection order, in screen pixels with X=0-511 and Y=0-255.</summary>
     public required MapLabelPoint[] MainCursorAnchors { get; init; }
+    /// <summary>Four missile-cursor origins in data-management selection order, in screen pixels with X=0-511 and Y=0-255.</summary>
     public required MapLabelPoint[] DataCursorAnchors { get; init; }
+    /// <summary>Two missile-cursor origins in confirmation-option order, in screen pixels with X=0-511 and Y=0-255.</summary>
     public required MapLabelPoint[] ConfirmationCursorAnchors { get; init; }
+    /// <summary>Three helmet origins in save-slot order, in screen pixels with X=0-511 and Y=0-255.</summary>
     public required MapLabelPoint[] HelmetAnchors { get; init; }
+    /// <summary>Exactly the four named copy/clear slot-letter anchors, in tile coordinates inside the 32-by-32 page.</summary>
     public required Dictionary<string, MapLabelPoint> DynamicAnchors { get; init; }
+    /// <summary>OBJ palette selector 0-7 applied to border, cursor, and helmet compositions.</summary>
     public required int ObjectPalette { get; init; }
+    /// <summary>Menu-update duration 1-65535 for each of the four looping missile-cursor frames.</summary>
     public required int CursorFrameDuration { get; init; }
+    /// <summary>Menu-update duration 1-65535 for each selected-slot helmet frame; the engine stops the animation on its last frame.</summary>
     public required int HelmetFrameDuration { get; init; }
 }
 
+/// <summary>Authored sparse tilemap patch whose cells are positioned relative to a slot-field anchor.</summary>
 public sealed record FileSelectPatchDocument
 {
+    /// <summary>Nonempty caller-owned cell array; coordinates must be unique and the placed patch must fit its page.</summary>
     public required FileSelectPatchCellDocument[] Cells { get; init; }
 }
 
+/// <summary>One authored glyph or artwork cell in a sparse file-select tilemap patch.</summary>
 public sealed record FileSelectPatchCellDocument
 {
+    /// <summary>Nonnegative horizontal tile offset from the patch's placement anchor.</summary>
     public required int X { get; init; }
+    /// <summary>Nonnegative vertical tile offset from the patch's placement anchor.</summary>
     public required int Y { get; init; }
+    /// <summary>Character-sheet coordinates and palette, priority, and flip attributes compiled into the destination tilemap word.</summary>
     public required MapPresentationCell Cell { get; init; }
 }
 
+/// <summary>Dynamic display-field anchors for one save slot; all coordinates are tiles inside a 32-by-32 page.</summary>
 public sealed record FileSelectSlotFieldDocument
 {
+    /// <summary>Origin of the ENERGY label patch; the engine also derives energy-tank placement from this anchor.</summary>
     public required MapLabelPoint EnergyAnchor { get; init; }
+    /// <summary>Origin of the two decimal health digits, written at horizontal offsets zero and one.</summary>
     public required MapLabelPoint HealthAnchor { get; init; }
+    /// <summary>Origin of the empty-slot NO DATA patch, used when the slot contains no valid save.</summary>
     public required MapLabelPoint NoDataAnchor { get; init; }
+    /// <summary>Origin of the five-tile HH:MM field: hour digits at offsets 0-1, colon at 2, and minute digits at 3-4.</summary>
     public required MapLabelPoint TimeValueAnchor { get; init; }
 }
 
@@ -463,49 +504,84 @@ public static class FileSelectPresentationDefinitions
         return new(index, 0, word);
     }
 
+    /// <summary>Supported file-select presentation JSON schema version.</summary>
     public const int Version = 1;
+    /// <summary>Extracted JSON filename for menu pages, fields, sprite compositions, and layout.</summary>
     public const string FileName = "file-select.json";
+    /// <summary>Width of each menu tilemap page in tile cells.</summary>
     public const int Width = 32;
+    /// <summary>Height of each menu tilemap page in tile cells.</summary>
     public const int Height = 32;
+    /// <summary>Number of row-major tile cells required in each menu page.</summary>
     public const int CellCount = Width * Height;
+    /// <summary>Width in characters of the sheet addressed by authored background tile cells.</summary>
     public const int CharacterColumns = 32;
+    /// <summary>Height in characters of the sheet addressed by authored background tile cells.</summary>
     public const int CharacterRows = 32;
     /// <summary>Ten consecutive digit cells beginning at FileSelectLayout.DigitTileBase.</summary>
     public const int DigitCount = 10;
     /// <summary>Three consecutive save-slot letters beginning at FileSelectLayout.SamusLetterTileBase.</summary>
     public const int SlotLetterCount = 3;
 
+    /// <summary>Schema identity of the common BG2 background tilemap, separate from foreground menu pages.</summary>
     public const string BackgroundPage = "Background";
+    /// <summary>Schema identity of the main foreground page used when at least one save slot contains data.</summary>
     public const string MainWithDataPage = "Main.WithData";
+    /// <summary>Schema identity of the main foreground page used when every save slot is empty.</summary>
     public const string MainEmptyPage = "Main.Empty";
+    /// <summary>Schema identity of the copy page for choosing the source save slot.</summary>
     public const string CopySourcePage = "Copy.Source";
+    /// <summary>Schema identity of the copy page for choosing a destination, with a dynamic source-slot letter.</summary>
     public const string CopyDestinationPage = "Copy.Destination";
+    /// <summary>Schema identity of the copy confirmation page, displaying both selected slot letters.</summary>
     public const string CopyConfirmPage = "Copy.Confirm";
+    /// <summary>Schema identity of the completed-copy page, retaining source and destination slot-letter fields.</summary>
     public const string CopyCompletedPage = "Copy.Completed";
+    /// <summary>Schema identity of the clear page for choosing the save slot to erase.</summary>
     public const string ClearSelectionPage = "Clear.Selection";
+    /// <summary>Schema identity of the clear confirmation page with its selected slot-letter field.</summary>
     public const string ClearConfirmPage = "Clear.Confirm";
+    /// <summary>Schema identity of the completed-clear page with its selected slot-letter field.</summary>
     public const string ClearCompletedPage = "Clear.Completed";
 
+    /// <summary>Schema identity of the ENERGY label patch; stock glyphs are calculated from the native label at $81:B496.</summary>
     public const string EnergyPatch = "Energy";
+    /// <summary>Schema identity of the padded empty-slot NO DATA patch corresponding to $81:B4AC-B4C0.</summary>
     public const string NoDataPatch = "NoData";
+    /// <summary>Schema identity of the time-field colon patch corresponding to the native glyph at $81:B4A8.</summary>
     public const string TimeColonPatch = "TimeColon";
+    /// <summary>Layout identity of the main-menu border anchor and corresponding border sprite composition.</summary>
     public const string MainBorder = "Main";
+    /// <summary>Layout identity of the copy-menu border anchor and corresponding border sprite composition.</summary>
     public const string CopyBorder = "Copy";
+    /// <summary>Layout identity of the clear-menu border anchor and corresponding border sprite composition.</summary>
     public const string ClearBorder = "Clear";
+    /// <summary>Tile-anchor identity for the source-slot letter on the copy destination-selection page.</summary>
     public const string CopyDestinationSourceAnchor = "Copy.Destination.Source";
+    /// <summary>Tile-anchor identity for the source-slot letter on copy confirmation and completed-copy pages.</summary>
     public const string CopyConfirmSourceAnchor = "Copy.Confirm.Source";
+    /// <summary>Tile-anchor identity for the destination-slot letter on copy confirmation and completed-copy pages.</summary>
     public const string CopyConfirmDestinationAnchor = "Copy.Confirm.Destination";
+    /// <summary>Tile-anchor identity for the erased-slot letter on clear confirmation and completed-clear pages.</summary>
     public const string ClearConfirmSourceAnchor = "Clear.Confirm.Source";
 
     /// <summary>Exact required schema identities, enumerated in the original definition order.
     /// Each case names a distinct menu page or asset role; these are not numerical samples.
     /// The enumerators evaluate cases directly and retain no generated name arrays.</summary>
     public static IEnumerable<string> PageNames => Names(10, PageName);
+    /// <summary>Enumerates the three exact required patch identities in energy, empty-slot, and time-colon order.</summary>
     public static IEnumerable<string> PatchNames => Names(3, PatchName);
+    /// <summary>Enumerates the three exact required border layout identities in main, copy, and clear order.</summary>
     public static IEnumerable<string> BorderNames => Names(3, BorderName);
+    /// <summary>Enumerates the four exact required tile-anchor identities for dynamic copy and clear slot letters.</summary>
     public static IEnumerable<string> DynamicAnchorNames => Names(4, DynamicAnchorName);
+    /// <summary>Enumerates fifteen required sprite identities: three borders, four cursor frames, then eight helmet frames.</summary>
     public static IEnumerable<string> SpriteNames => Names(15, SpriteName);
 
+    /// <summary>Returns a required page identity in the fixed schema enumeration order.</summary>
+    /// <param name="index">Zero-based page index 0-9.</param>
+    /// <returns>The corresponding background, main, copy, or clear page key.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside 0-9.</exception>
     public static string PageName(int index) => index switch
     {
         0 => BackgroundPage,
@@ -520,6 +596,10 @@ public static class FileSelectPresentationDefinitions
         9 => ClearCompletedPage,
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
+    /// <summary>Returns the patch identity at a fixed schema index.</summary>
+    /// <param name="index">Zero-based index 0-2, selecting energy, empty-slot, or time-colon artwork.</param>
+    /// <returns>The required patch dictionary key.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside 0-2.</exception>
     public static string PatchName(int index) => index switch
     {
         0 => EnergyPatch,
@@ -527,6 +607,10 @@ public static class FileSelectPresentationDefinitions
         2 => TimeColonPatch,
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
+    /// <summary>Returns the border layout identity at a fixed schema index.</summary>
+    /// <param name="index">Zero-based index 0-2, selecting main, copy, or clear.</param>
+    /// <returns>The required border-anchor key, without the sprite's <c>Border.</c> prefix.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside 0-2.</exception>
     public static string BorderName(int index) => index switch
     {
         0 => MainBorder,
@@ -534,6 +618,10 @@ public static class FileSelectPresentationDefinitions
         2 => ClearBorder,
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
+    /// <summary>Returns a required copy or clear slot-letter tile-anchor identity in fixed schema order.</summary>
+    /// <param name="index">Zero-based dynamic-anchor index 0-3.</param>
+    /// <returns>The required dynamic-anchor dictionary key.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside 0-3.</exception>
     public static string DynamicAnchorName(int index) => index switch
     {
         0 => CopyDestinationSourceAnchor,
@@ -542,6 +630,10 @@ public static class FileSelectPresentationDefinitions
         3 => ClearConfirmSourceAnchor,
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
+    /// <summary>Returns a required sprite composition identity in border, cursor, then helmet order.</summary>
+    /// <param name="index">Zero-based index: 0-2 for borders, 3-6 for cursor frames, or 7-14 for helmet frames.</param>
+    /// <returns>The prefixed sprite dictionary key.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside 0-14.</exception>
     public static string SpriteName(int index) => index switch
     {
         >= 0 and < 3 => BorderFrameName(BorderName(index)),
@@ -553,9 +645,20 @@ public static class FileSelectPresentationDefinitions
     {
         for (int index = 0; index < count; index++) yield return name(index);
     }
+    /// <summary>Prefixes a border layout name to form its sprite composition key, without validating the name.</summary>
+    /// <param name="name">Border layout name, normally main, copy, or clear as defined by the schema.</param>
+    /// <returns>The supplied name prefixed with <c>Border.</c>.</returns>
     public static string BorderFrameName(string name) => $"Border.{name}";
+    /// <summary>Forms the sprite composition key for one of the four looping missile-cursor frames.</summary>
+    /// <param name="frame">Zero-based animation frame 0-3.</param>
+    /// <returns><c>Cursor.</c> followed by the frame number.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The frame is outside 0-3.</exception>
     public static string CursorFrameName(int frame) => (uint)frame < 4
         ? $"Cursor.{frame}" : throw new ArgumentOutOfRangeException(nameof(frame));
+    /// <summary>Forms the sprite composition key for one of the eight selected-slot helmet frames.</summary>
+    /// <param name="frame">Zero-based animation frame 0-7.</param>
+    /// <returns><c>Helmet.</c> followed by the frame number.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The frame is outside 0-7.</exception>
     public static string HelmetFrameName(int frame) => (uint)frame < 8
         ? $"Helmet.{frame}" : throw new ArgumentOutOfRangeException(nameof(frame));
 }

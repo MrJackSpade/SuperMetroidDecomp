@@ -1,6 +1,7 @@
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>A signed native 8.8 velocity word, retained losslessly in cartridge form.</summary>
+/// <param name="RawValue">The unchanged two's-complement word containing eight whole and eight fractional bits.</param>
 public readonly record struct SnesSignedEightEight(ushort RawValue)
 {
     /// <summary>Creates a value from a signed raw 8.8 word without changing its bits.</summary>
@@ -17,6 +18,7 @@ public readonly record struct SnesSignedSixteenSixteen
 {
     private SnesSignedSixteenSixteen(int rawValue) => RawValue = rawValue;
 
+    /// <summary>Gets the signed native word containing sixteen whole and sixteen fractional bits.</summary>
     public int RawValue { get; }
 
     /// <summary>Preserves an existing signed 32-bit native fixed-point value.</summary>
@@ -38,4 +40,6 @@ public readonly record struct SnesSignedSixteenSixteen
 }
 
 /// <summary>The two WRAM words produced after applying a fixed-point displacement.</summary>
+/// <param name="Whole">The unsigned whole-position word, wrapping at the native sixteen-bit boundary.</param>
+/// <param name="Fraction">The unsigned fractional-position word representing fractions of one pixel.</param>
 public readonly record struct SnesFixedPosition(ushort Whole, ushort Fraction);

@@ -62,7 +62,10 @@ public readonly record struct SnesAddress
             : new SnesAddress(Bank, (ushort)(Offset + 1));
     }
 
+    /// <summary>Returns the packed 24-bit CPU-bus value at an explicit bus boundary.</summary>
+    /// <param name="address">The native bank-and-offset address to convert.</param>
     public static explicit operator int(SnesAddress address) => address.Value;
 
+    /// <summary>Formats the address as a hexadecimal native bank and offset, such as <c>$80:8000</c>.</summary>
     public override string ToString() => $"${Bank:X2}:${Offset:X4}";
 }

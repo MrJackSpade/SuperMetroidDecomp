@@ -12,7 +12,9 @@ namespace SuperMetroid.Core.Hardware;
 /// </remarks>
 public sealed class SnesCgram
 {
+    /// <summary>The number of native palette words held by CGRAM.</summary>
     public const int ColorCount = SnesPpuLayout.CgramColorCount;
+    /// <summary>The size in bytes of CGRAM's complete two-byte color image.</summary>
     public const int ByteCount = SnesPpuLayout.CgramByteCount;
 
     private readonly ushort[] _colors = new ushort[ColorCount];

@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Rooms;
 /// must therefore use the context-specific views below instead of treating unrelated
 /// meanings that happen to share a numeric value as one domain.
 /// </summary>
+/// <param name="Value">The unchanged block-type-specific BTS byte from the room's behavior data.</param>
 public readonly record struct RoomBlockBehavior(byte Value)
 {
     /// <summary>Signed block displacement used by horizontal and vertical extensions.</summary>
@@ -130,6 +131,7 @@ public readonly record struct RoomBlockBehavior(byte Value)
         return false;
     }
 
+    /// <summary>Formats the native BTS byte as a two-digit hexadecimal value.</summary>
     public override string ToString() => $"${Value:X2}";
 }
 
@@ -186,11 +188,18 @@ public static class RoomBlockBehaviorValues
 /// </summary>
 public enum StationAccessBehavior : byte
 {
+    /// <summary>BTS $47: the map-station access block on the station's right side.</summary>
     MapRight = 0x47,
+    /// <summary>BTS $48: the map-station access block on the station's left side.</summary>
     MapLeft = 0x48,
+    /// <summary>BTS $49: the energy-recharge access block on the station's right side.</summary>
     EnergyRight = 0x49,
+    /// <summary>BTS $4A: the energy-recharge access block on the station's left side.</summary>
     EnergyLeft = 0x4a,
+    /// <summary>BTS $4B: the missile-recharge access block on the station's right side.</summary>
     MissileRight = 0x4b,
+    /// <summary>BTS $4C: the missile-recharge access block on the station's left side.</summary>
     MissileLeft = 0x4c,
+    /// <summary>BTS $4D: the floor access block that activates the save station.</summary>
     SaveFloor = 0x4d,
 }

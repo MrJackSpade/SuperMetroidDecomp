@@ -26,6 +26,16 @@ public static class SmCompression
         return output;
     }
 
+    /// <summary>Attempts to decode the first terminated command stream, permitting trailing source bytes.</summary>
+    /// <param name="source">Encoded commands, operands, and the terminating <c>$FF</c> byte.</param>
+    /// <param name="output">The decompressed bytes on success, or an empty array on failure; partial output is discarded.</param>
+    /// <param name="consumed">Number of source bytes read, including the terminator on success and bytes read before failure otherwise.</param>
+    /// <param name="maximumOutputBytes">Maximum permitted decompressed length in bytes; exceeding this cap fails the decode.</param>
+    /// <returns>True when a terminator is reached with valid operands, backreferences, and an output length within the cap; otherwise false.</returns>
+    /// <remarks>
+    /// Backreferences may overlap their destination and expand one byte at a time. Truncated
+    /// input, missing terminators, invalid copy offsets, and zero relative distances return false.
+    /// </remarks>
     public static bool TryDecompress(
         ReadOnlySpan<byte> source,
         out byte[] output,

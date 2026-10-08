@@ -56,11 +56,17 @@ public sealed class GameOptionsPresentation
         ContentIdentity = contentIdentity;
     }
 
+    /// <summary>Uppercase SHA-256 digest of the loaded JSON bytes, identifying selected artwork and layout including their encoding.</summary>
     public string ContentIdentity { get; }
+    /// <summary>Cursor origin used during phases without a cursor table, in screen pixels with X=0-511 and Y=0-255; the actor remains in OAM.</summary>
     public MapLabelPoint HiddenCursor { get; }
+    /// <summary>BG palette index 0-7 applied to the currently chosen language and special-toggle text regions.</summary>
     public int SelectedPalette { get; }
+    /// <summary>BG palette index 0-7 applied to the other language and toggle choices; differs from <see cref="SelectedPalette"/>.</summary>
     public int UnselectedPalette { get; }
+    /// <summary>OBJ palette index 0-7 used for both the missile cursor and menu-heading sprite compositions.</summary>
     public int CursorPalette { get; }
+    /// <summary>Menu updates per frame of the four-frame looping missile cursor, in the range 1-65535.</summary>
     public int CursorFrameDuration { get; }
 
     internal byte[] CreatePage(string name) =>
@@ -155,6 +161,10 @@ public sealed class GameOptionsPresentation
             oam, checked((ushort)point.X), checked((ushort)point.Y), PaletteBits(CursorPalette));
     }
 
+    /// <summary>Reads a complete options-menu JSON document and compiles validated pages, controller labels, highlights, and sprite layouts.</summary>
+    /// <param name="source">Readable stream consumed from its current position to the end and left open.</param>
+    /// <returns>A presentation owning independently parsed layout and compiled artwork; stock-matching values are reconstructed from definitions.</returns>
+    /// <exception cref="InvalidDataException">The JSON, version, required identities, cells, anchors, palette selectors, or cursor duration are invalid.</exception>
     public static GameOptionsPresentation Load(Stream source)
     {
         byte[] bytes;
@@ -273,6 +283,10 @@ public sealed class GameOptionsPresentation
             Convert.ToHexString(SHA256.HashData(bytes)));
     }
 
+    /// <summary>Serializes an authored document, validating it with the loader before writing any output bytes.</summary>
+    /// <param name="output">Writable stream receiving UTF-8 JSON at its current position; left open.</param>
+    /// <param name="document">Authored artwork and layout, whose collections are not modified by serialization or validation.</param>
+    /// <exception cref="InvalidDataException">The serialized document fails options-menu presentation validation.</exception>
     public static void Write(Stream output, GameOptionsPresentationDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
@@ -358,56 +372,96 @@ public sealed class GameOptionsPresentation
         SnesObjAttributeWord.Create(0, index, 0).PaletteBits;
 }
 
+/// <summary>Authored options-menu JSON: background tilemaps, controller glyphs, palette-only highlight regions, and pixel-space sprite layouts.</summary>
+/// <remarks>Init-only properties retain caller-owned mutable arrays and dictionaries. The stream loader parses its own document before compiling the runtime presentation.</remarks>
 public sealed record GameOptionsPresentationDocument
 {
+    /// <summary>Schema version that must equal <see cref="GameOptionsPresentationDefinitions.Version"/>.</summary>
     public required int Version { get; init; }
+    /// <summary>Exactly six named pages, each containing 1024 row-major cells for a 32-by-32 tilemap.</summary>
     public required Dictionary<string, MapPresentationCell[]> Pages { get; init; }
+    /// <summary>Seven named assignable-button glyph patches, each containing six row-major cells forming a 3-by-2 tile rectangle.</summary>
     public required Dictionary<string, MapPresentationCell[]> ControllerLabels { get; init; }
+    /// <summary>Seven controller-action glyph origins in action order, in tile units; each 3-by-2 label must fit the page.</summary>
     public required MapLabelPoint[] ControllerLabelAnchors { get; init; }
+    /// <summary>Four nonempty, mutually disjoint primary-page cell regions whose palettes reflect the selected language.</summary>
     public required GameOptionsLanguageRegionDocument[] LanguageRegions { get; init; }
+    /// <summary>Exactly the icon-cancel and moonwalk choice regions; these select visual palettes without changing option behavior.</summary>
     public required Dictionary<string, GameOptionsToggleVisualDocument> SpecialToggles { get; init; }
+    /// <summary>Exactly three menu-heading compositions and four missile-cursor frames, using sprite-part offsets from drawing anchors.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Sprites { get; init; }
+    /// <summary>Heading origins for primary, controller, and special menus in screen pixels, X=0-255 and Y=0-255; drawing subtracts vertical scroll from Y.</summary>
     public required Dictionary<string, MapLabelPoint> HeadingAnchors { get; init; }
+    /// <summary>Cursor origins in selection-row order for each menu: five primary, nine controller, and three special points, in screen pixels X=0-255 and Y=0-255.</summary>
     public required Dictionary<string, MapLabelPoint[]> CursorAnchors { get; init; }
+    /// <summary>Cursor origin for phases without a selection table, in screen pixels X=0-511 and Y=0-255, allowing offscreen placement.</summary>
     public required MapLabelPoint HiddenCursor { get; init; }
+    /// <summary>BG palette index 0-7 for chosen language and toggle regions; must differ from the unselected index.</summary>
     public required int SelectedPalette { get; init; }
+    /// <summary>BG palette index 0-7 for language and toggle regions that are not chosen.</summary>
     public required int UnselectedPalette { get; init; }
+    /// <summary>OBJ palette index 0-7 shared by missile-cursor and heading compositions.</summary>
     public required int CursorPalette { get; init; }
+    /// <summary>Duration 1-65535 in menu updates for each looping cursor frame.</summary>
     public required int CursorFrameDuration { get; init; }
 }
 
+/// <summary>One primary-page language text region, recolored by replacing only its BG palette bits.</summary>
 public sealed record GameOptionsLanguageRegionDocument
 {
+    /// <summary>Nonempty caller-owned array of row-major tile cell indexes 0-1023, unique across all four language regions.</summary>
     public required int[] Cells { get; init; }
+    /// <summary>Whether this region receives the selected palette when Japanese is chosen; false instead highlights it when English is chosen.</summary>
     public required bool HighlightWhenJapanese { get; init; }
 }
 
+/// <summary>Enabled and disabled label regions for one special setting, recolored independently of the setting's mechanics.</summary>
 public sealed record GameOptionsToggleVisualDocument
 {
+    /// <summary>Nonempty caller-owned array of row-major tile indexes 0-1023 for the enabled label; selected when the setting is enabled.</summary>
     public required int[] EnabledCells { get; init; }
+    /// <summary>Nonempty caller-owned array of row-major tile indexes 0-1023 for the disabled label; selected when the setting is disabled and disjoint from enabled cells.</summary>
     public required int[] DisabledCells { get; init; }
 }
 
 /// <summary>Schema names and geometry for <c>options-menu.json</c>.</summary>
 public static class GameOptionsPresentationDefinitions
 {
+    /// <summary>Supported options-menu presentation JSON schema version.</summary>
     public const int Version = 1;
+    /// <summary>Extracted JSON filename for options artwork, highlight regions, sprite compositions, and anchors.</summary>
     public const string FileName = "options-menu.json";
+    /// <summary>Common BG2 background page identity, separate from foreground option pages.</summary>
     public const string BackgroundPage = "Background";
+    /// <summary>Primary foreground tilemap identity containing start, language, controller, and special-settings choices.</summary>
     public const string PrimaryPage = "Primary";
+    /// <summary>English controller-settings foreground page identity.</summary>
     public const string ControllerEnglishPage = "Controller.English";
+    /// <summary>Japanese controller-settings foreground page identity.</summary>
     public const string ControllerJapanesePage = "Controller.Japanese";
+    /// <summary>English special-settings foreground page identity.</summary>
     public const string SpecialEnglishPage = "Special.English";
+    /// <summary>Japanese special-settings foreground page identity.</summary>
     public const string SpecialJapanesePage = "Special.Japanese";
+    /// <summary>Primary menu layout identity for heading and cursor anchors, shared across language choices.</summary>
     public const string PrimaryMenu = "Primary";
+    /// <summary>Controller menu layout identity for heading and cursor anchors, independent of translated foreground pages.</summary>
     public const string ControllerMenu = "Controller";
+    /// <summary>Special menu layout identity for heading and cursor anchors, independent of translated foreground pages.</summary>
     public const string SpecialMenu = "Special";
+    /// <summary>Special-toggle visual identity for the icon-cancel enabled and disabled labels.</summary>
     public const string IconCancelToggle = "IconCancel";
+    /// <summary>Special-toggle visual identity for the moonwalk enabled and disabled labels.</summary>
     public const string MoonwalkToggle = "Moonwalk";
+    /// <summary>Number of row-major tile cells in each 32-by-32 options page.</summary>
     public const int PageCellCount = GameOptionsRomData.MenuTilemapWidth * GameOptionsRomData.MenuTilemapHeight;
+    /// <summary>Height in characters of the atlas addressed by authored background cells.</summary>
     public const int CharacterRows = 32;
+    /// <summary>Width in tile cells of a controller-button label patch: three.</summary>
     public const int ControllerLabelWidth = GameOptionsRomData.ControllerLabels.WidthInTiles;
+    /// <summary>Height in tile cells of a controller-button label patch: two.</summary>
     public const int ControllerLabelHeight = GameOptionsRomData.ControllerLabels.HeightInTiles;
+    /// <summary>Six row-major tile cells required for each controller-button glyph patch.</summary>
     public const int ControllerLabelCellCount = ControllerLabelWidth * ControllerLabelHeight;
 
     private static readonly string[] pageNames =
@@ -423,17 +477,30 @@ public static class GameOptionsPresentationDefinitions
         ["Heading.Primary", "Heading.Controller", "Heading.Special",
             "Cursor.0", "Cursor.1", "Cursor.2", "Cursor.3"];
 
+    /// <summary>Read-only view of the six required page identities: background, primary, then English and Japanese controller and special pages.</summary>
     public static ReadOnlySpan<string> PageNames => pageNames;
+    /// <summary>Read-only view of the three required heading/cursor layout identities in primary, controller, and special order.</summary>
     public static ReadOnlySpan<string> MenuPageNames => menuPageNames;
+    /// <summary>Read-only view of assignable-button glyph identities in native selector order: X, A, B, Select, Y, L, R.</summary>
     public static ReadOnlySpan<string> ControllerLabelNames => controllerLabelNames;
+    /// <summary>Read-only view of the required special-setting visual identities: icon cancel and moonwalk.</summary>
     public static ReadOnlySpan<string> SpecialToggleNames => specialToggleNames;
+    /// <summary>Read-only view of seven required sprite identities: three menu headings followed by four cursor frames.</summary>
     public static ReadOnlySpan<string> SpriteNames => spriteNames;
 
+    /// <summary>Returns the glyph identity for a native assignable-button selector.</summary>
+    /// <param name="index">Zero-based index 0-6 in X, A, B, Select, Y, L, R order.</param>
+    /// <returns>The controller-label dictionary key.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside 0-6.</exception>
     public static string ControllerLabelName(int index) =>
         (uint)index < controllerLabelNames.Length
             ? controllerLabelNames[index]
             : throw new ArgumentOutOfRangeException(nameof(index));
 
+    /// <summary>Returns the sprite composition identity for a looping missile-cursor frame.</summary>
+    /// <param name="index">Zero-based animation frame 0-3.</param>
+    /// <returns><c>Cursor.</c> followed by the frame number.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The frame is outside 0-3.</exception>
     public static string CursorFrameName(int index) => index switch
     {
         0 => "Cursor.0",
@@ -443,6 +510,10 @@ public static class GameOptionsPresentationDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 
+    /// <summary>Maps a language-independent menu layout identity to its heading sprite composition.</summary>
+    /// <param name="page">The primary, controller, or special menu identity; translated page names are not accepted.</param>
+    /// <returns>The menu identity prefixed with <c>Heading.</c>.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The value is not one of the three menu identities.</exception>
     public static string HeadingFrameName(string page) => page switch
     {
         PrimaryMenu => "Heading.Primary",
@@ -565,6 +636,10 @@ public static class GameOptionsPresentationDefinitions
         for (int word = 0; word < GameOptionsRomData.SpecialToggles.PaletteRegionByteCount / sizeof(ushort); word++)
             yield return (row == 0 ? first : second) / sizeof(ushort) + word;
     }
+    /// <summary>Returns the number of selection-row anchors required by a menu layout.</summary>
+    /// <param name="page">The language-independent primary, controller, or special menu identity.</param>
+    /// <returns>Five for primary, nine for controller including Exit and Reset, or three for special including Exit.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The value is not one of the three menu identities.</exception>
     public static int CursorCount(string page) => page switch
     {
         PrimaryMenu => GameOptionsRomData.Rows.PrimaryCount,

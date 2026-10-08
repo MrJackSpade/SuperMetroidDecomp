@@ -7,7 +7,10 @@ namespace SuperMetroid.Core.Rooms;
 [Flags]
 public enum LevelBlockFlipFlags : ushort
 {
+    /// <summary>No visual reflection bits are set in the level word.</summary>
     None = 0,
+    /// <summary>Level-word bit ten ($0400), reflecting the block's graphics horizontally.</summary>
     Horizontal = 0x0400,
+    /// <summary>Level-word bit eleven ($0800), reflecting the block's graphics vertically.</summary>
     Vertical = 0x0800,
 }

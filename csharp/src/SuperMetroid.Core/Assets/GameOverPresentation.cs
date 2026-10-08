@@ -44,16 +44,28 @@ public sealed class GameOverPresentation
         ContentIdentity = contentIdentity;
     }
 
+    /// <summary>Uppercase SHA-256 digest of the loaded JSON bytes, identifying the selected presentation including its encoding.</summary>
     public string ContentIdentity { get; }
+    /// <summary>Shared drawing origin of the Baby and egg compositions in screen pixels, with both coordinates in 0-255.</summary>
     public MapLabelPoint BabyAnchor { get; }
+    /// <summary>Missile-cursor horizontal screen coordinate in pixels, shared by both answers and bounded to 0-255.</summary>
     public int CursorX { get; }
+    /// <summary>Missile-cursor vertical screen coordinate in pixels for the Yes answer, bounded to 0-255.</summary>
     public int YesCursorY { get; }
+    /// <summary>Missile-cursor vertical screen coordinate in pixels for the No answer, bounded to 0-255.</summary>
     public int NoCursorY { get; }
+    /// <summary>OBJ palette selector 0-7 used when drawing the Baby composition; palette animation writes to its fixed native CGRAM destination.</summary>
     public int BabyPaletteIndex { get; }
+    /// <summary>OBJ palette selector 0-7 used when drawing the egg at the shared Baby anchor.</summary>
     public int EggPaletteIndex { get; }
+    /// <summary>OBJ palette selector 0-7 used by all four missile-cursor frames.</summary>
     public int CursorPaletteIndex { get; }
+    /// <summary>Menu updates per frame of the looping missile cursor, in the range 1-65535.</summary>
     public int CursorFrameDuration { get; }
 
+    /// <summary>Copies the complete game-over tilemap into VRAM, calculating stock text words when the loaded page has no edits.</summary>
+    /// <param name="vram">Mutable destination video memory.</param>
+    /// <param name="destinationWord">Starting VRAM word address, converted to a byte offset for the 2048-byte transfer.</param>
     public void LoadTilemapTo(SnesVram vram, int destinationWord)
     {
         if (tilemap is not null)
@@ -68,16 +80,27 @@ public sealed class GameOverPresentation
         vram.LoadBytes(destinationWord * sizeof(ushort), transfer);
     }
 
+    /// <summary>Appends the chosen Baby sprite composition at the installed anchor using its OBJ palette selector.</summary>
+    /// <param name="oam">Current frame's mutable object buffer; this call does not finalize it.</param>
+    /// <param name="frame">Closed, middle, or open Baby frame selected by the compiled animation sequence.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The frame is not a supported Baby frame.</exception>
     public void DrawBaby(OamBuffer oam, GameOverBabyFrame frame) =>
         sprites[GameOverPresentationDefinitions.BabyFrameName(frame)].DrawOnScreen(
             oam, checked((ushort)BabyAnchor.X), checked((ushort)BabyAnchor.Y),
             PaletteBits(BabyPaletteIndex));
 
+    /// <summary>Appends the egg composition at the shared Baby anchor using the installed egg palette selector.</summary>
+    /// <param name="oam">Current frame's mutable object buffer; this call does not finalize it.</param>
     public void DrawEgg(OamBuffer oam) =>
         sprites[GameOverPresentationDefinitions.EggFrame].DrawOnScreen(
             oam, checked((ushort)BabyAnchor.X), checked((ushort)BabyAnchor.Y),
             PaletteBits(EggPaletteIndex));
 
+    /// <summary>Appends one missile-cursor frame at the installed Yes or No answer position.</summary>
+    /// <param name="oam">Current frame's mutable object buffer; this call does not finalize it.</param>
+    /// <param name="frame">Zero-based looping animation frame 0-3.</param>
+    /// <param name="selectNo">True draws at the No position; false draws at the Yes position.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The frame is outside 0-3.</exception>
     public void DrawCursor(OamBuffer oam, int frame, bool selectNo)
     {
         if ((uint)frame >= GameOverPresentationDefinitions.CursorFrameCount)
@@ -88,6 +111,10 @@ public sealed class GameOverPresentation
             PaletteBits(CursorPaletteIndex));
     }
 
+    /// <summary>Writes one selected sixteen-color Baby animation palette to the fixed native CGRAM range $C0-$CF.</summary>
+    /// <param name="cgram">Mutable destination color memory.</param>
+    /// <param name="palette">Idle or one of the three crying palettes selected by the compiled Baby sequence.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The palette identity is unsupported.</exception>
     public void ApplyBabyPalette(SnesCgram cgram, GameOverBabyPalette palette)
     {
         _ = GameOverPresentationDefinitions.BabyPaletteName(palette);
@@ -96,6 +123,10 @@ public sealed class GameOverPresentation
                 babyPalettes.Read(palette, index));
     }
 
+    /// <summary>Reads and validates game-over JSON, compiling its tilemap, sprite compositions, palette artwork, and screen layout.</summary>
+    /// <param name="source">Readable stream consumed from its current position to the end and left open.</param>
+    /// <returns>A presentation owning parsed and compiled content independently of the source stream.</returns>
+    /// <exception cref="InvalidDataException">The JSON, version, required artwork, colors, coordinates, palette selectors, or cursor duration are invalid.</exception>
     public static GameOverPresentation Load(Stream source)
     {
         byte[] bytes;
@@ -183,6 +214,10 @@ public sealed class GameOverPresentation
             Convert.ToHexString(SHA256.HashData(bytes)));
     }
 
+    /// <summary>Serializes an authored document and validates it with the loader before writing any output bytes.</summary>
+    /// <param name="output">Writable stream receiving UTF-8 JSON at its current position; left open.</param>
+    /// <param name="document">Caller-owned artwork and layout; its collections are not modified.</param>
+    /// <exception cref="InvalidDataException">The serialized document fails game-over presentation validation.</exception>
     public static void Write(Stream output, GameOverPresentationDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
@@ -214,30 +249,50 @@ public sealed class GameOverPresentation
     }
 }
 
+/// <summary>Authored game-over JSON with background cells, actor compositions, Baby palette phases, and screen layout.</summary>
+/// <remarks>Init-only properties retain caller-owned mutable arrays and dictionaries; the stream loader parses its own independent document.</remarks>
 public sealed record GameOverPresentationDocument
 {
+    /// <summary>Schema version that must equal <see cref="GameOverPresentationDefinitions.Version"/>.</summary>
     public required int Version { get; init; }
+    /// <summary>1024 row-major cells composing the complete 32-by-32 game-over background tilemap.</summary>
     public required MapPresentationCell[] Tilemap { get; init; }
+    /// <summary>Exactly eight named sprite compositions: three Baby frames, the egg, and four missile-cursor frames.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Sprites { get; init; }
+    /// <summary>Four named palette phases, each holding sixteen packed SNES BGR555 words in the range $0000-$7FFF.</summary>
     public required Dictionary<string, ushort[]> BabyPalettes { get; init; }
+    /// <summary>Shared Baby and egg drawing origin in screen pixels, X=0-255 and Y=0-255.</summary>
     public required MapLabelPoint BabyAnchor { get; init; }
+    /// <summary>Common horizontal missile-cursor position in screen pixels, 0-255.</summary>
     public required int CursorX { get; init; }
+    /// <summary>Vertical missile-cursor position for the Yes answer in screen pixels, 0-255.</summary>
     public required int YesCursorY { get; init; }
+    /// <summary>Vertical missile-cursor position for the No answer in screen pixels, 0-255.</summary>
     public required int NoCursorY { get; init; }
+    /// <summary>OBJ palette selector 0-7 for Baby sprites; does not change the fixed destination of Baby palette animation writes.</summary>
     public required int BabyPalette { get; init; }
+    /// <summary>OBJ palette selector 0-7 for the egg composition.</summary>
     public required int EggPalette { get; init; }
+    /// <summary>OBJ palette selector 0-7 for missile-cursor compositions.</summary>
     public required int CursorPalette { get; init; }
+    /// <summary>Duration 1-65535 in menu updates for each looping missile-cursor frame.</summary>
     public required int CursorFrameDuration { get; init; }
 }
 
 /// <summary>Schema names and geometry for <c>game-over.json</c>.</summary>
 public static class GameOverPresentationDefinitions
 {
+    /// <summary>Supported game-over presentation JSON schema version.</summary>
     public const int Version = 1;
+    /// <summary>Extracted JSON filename for game-over artwork, palette phases, and layout.</summary>
     public const string FileName = "game-over.json";
+    /// <summary>1024 row-major background tile cells in the complete 32-by-32 game-over page.</summary>
     public const int TilemapCellCount = GameOverRomData.TilemapWidth * GameOverRomData.TilemapHeight;
+    /// <summary>2048 bytes required to transfer the page's sixteen-bit tilemap words.</summary>
     public const int TilemapByteCount = TilemapCellCount * sizeof(ushort);
+    /// <summary>Four frames in the looping missile-cursor animation.</summary>
     public const int CursorFrameCount = 4;
+    /// <summary>Schema sprite identity of the egg composition, drawn at the Baby anchor.</summary>
     public const string EggFrame = "Egg";
 
     private static readonly string[] spriteNames =
@@ -249,7 +304,9 @@ public static class GameOverPresentationDefinitions
     private static readonly string[] paletteNames =
         ["Baby.Idle", "Baby.ClosedCry", "Baby.MiddleCry", "Baby.OpenCry"];
 
+    /// <summary>Read-only view of eight required composition identities: three Baby frames, egg, then four cursor frames.</summary>
     public static ReadOnlySpan<string> SpriteNames => spriteNames;
+    /// <summary>Read-only view of four required Baby palette identities in idle, closed-cry, middle-cry, and open-cry order.</summary>
     public static ReadOnlySpan<string> BabyPaletteNames => paletteNames;
 
     /// <summary>$81:9304 Tilemap_GameOver_findTheMetroidLarva, the native one-row objective.</summary>
@@ -333,6 +390,10 @@ public static class GameOverPresentationDefinitions
         'Y' => (ushort)(row == 0 ? 0x41 : 0x17),
         _ => throw new ArgumentOutOfRangeException(nameof(letter)),
     };
+    /// <summary>Maps a compiled Baby animation frame to its authored sprite composition identity.</summary>
+    /// <param name="frame">Closed, middle, or open mouth frame.</param>
+    /// <returns>The corresponding <c>Baby.</c> sprite dictionary key.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The frame is unsupported.</exception>
     public static string BabyFrameName(GameOverBabyFrame frame) => frame switch
     {
         GameOverBabyFrame.Closed => "Baby.Closed",
@@ -341,6 +402,10 @@ public static class GameOverPresentationDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame)),
     };
 
+    /// <summary>Returns the authored composition identity for a missile-cursor frame.</summary>
+    /// <param name="frame">Zero-based animation frame 0-3.</param>
+    /// <returns><c>Cursor.</c> followed by the frame number.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The frame is outside 0-3.</exception>
     public static string CursorFrameName(int frame) => frame switch
     {
         0 => "Cursor.0",
@@ -350,6 +415,10 @@ public static class GameOverPresentationDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame)),
     };
 
+    /// <summary>Maps a compiled Baby palette phase to its authored color-array identity.</summary>
+    /// <param name="palette">Idle, closed-cry, middle-cry, or open-cry palette phase.</param>
+    /// <returns>The corresponding <c>Baby.</c> palette dictionary key.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The palette identity is unsupported.</exception>
     public static string BabyPaletteName(GameOverBabyPalette palette) => palette switch
     {
         GameOverBabyPalette.Idle => "Baby.Idle",

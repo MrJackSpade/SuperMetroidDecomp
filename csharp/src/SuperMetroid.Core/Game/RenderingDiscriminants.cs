@@ -6,8 +6,13 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public enum SamusSpecialPaletteType : ushort
 {
+    /// <summary>No special palette handler owns Samus's suit colors.</summary>
     None = 0,
+
+    /// <summary>Crystal Flash owns the special-palette timer and suit-color sequence.</summary>
     CrystalFlash = 7,
+
+    /// <summary>X-ray mode owns the special-palette timer and animated visor colors.</summary>
     Xray = 8,
 }
 
@@ -18,30 +23,63 @@ public enum SamusSpecialPaletteType : ushort
 /// </summary>
 public enum LayerBlendingConfiguration : ushort
 {
+    /// <summary>Bank-$88 dispatcher offset <c>$02</c>, used by ordinary gameplay without a special room effect.</summary>
     NormalGameplay = 0x0002,
+
+    /// <summary>Dispatcher offset <c>$04</c>, which omits Phantoon's body before its fade-in.</summary>
     PhantoonHidden = 0x0004,
+
+    /// <summary>Dispatcher offset <c>$0A</c>, which composites the drifting-spore BG3 atmosphere.</summary>
     Spores = 0x000a,
+
+    /// <summary>Dispatcher offset <c>$0C</c>, which applies the Fireflea room's darkness and light effects.</summary>
     Fireflea = 0x000c,
+
+    /// <summary>Dispatcher offset <c>$0E</c>, which adds the full-screen rain BG3 plane.</summary>
     Rain = 0x000e,
+
+    /// <summary>Dispatcher offset <c>$14</c>, which subtracts the water BG3 plane from the gameplay scene.</summary>
     WaterSubtractive = 0x0014,
+
+    /// <summary>Dispatcher offset <c>$16</c>, the subtractive water variant whose window setup supports a waterfall.</summary>
     WaterfallSubtractive = 0x0016,
+
+    /// <summary>Dispatcher offset <c>$18</c>, which adds a liquid or fog BG3 plane to the gameplay scene.</summary>
     LiquidOrFogAdditive = 0x0018,
+
+    /// <summary>Dispatcher offset <c>$1A</c>, which presents Phantoon through the configured translucent composition.</summary>
     PhantoonSemiTransparent = 0x001a,
+
+    /// <summary>Dispatcher offset <c>$1E</c>, which adds the lava or acid BG3 plane and fixed-color effect.</summary>
     LavaAcidAdditive = 0x001e,
+
+    /// <summary>Dispatcher offset <c>$28</c>, one of two native backdrop modes that advances the visor palette animation.</summary>
     VisorBackdrop28 = 0x0028,
+
+    /// <summary>Dispatcher offset <c>$2A</c>, the second native backdrop mode that advances the visor palette animation.</summary>
     VisorBackdrop2A = 0x002a,
+
+    /// <summary>Dispatcher offset <c>$30</c>, which adds the full-screen fog BG3 plane.</summary>
     FogAdditive = 0x0030,
+
+    /// <summary>Dispatcher offset <c>$34</c>, installed during Mother Brain's second-phase room transformation.</summary>
     MotherBrainPhaseTwo = 0x0034,
 }
 
 /// <summary>Conventionally named values in the native room scroll-zone byte grid.</summary>
 public enum RoomScrollState : byte
 {
+    /// <summary>An impassable camera boundary; camera motion may not enter this screen cell.</summary>
     RedBoundary = 0,
+
+    /// <summary>A traversable screen cell using the cartridge's blue vertical-alignment behavior.</summary>
     Blue = 1,
+
+    /// <summary>A traversable screen cell using the alternate green boundary behavior installed by room scripts.</summary>
     Green = 2,
 }
 
+/// <summary>Semantic queries for native rendering dispatcher values.</summary>
 public static class RenderingDiscriminantExtensions
 {
     /// <summary>

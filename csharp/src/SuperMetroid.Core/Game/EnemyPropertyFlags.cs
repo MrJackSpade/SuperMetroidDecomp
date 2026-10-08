@@ -8,11 +8,22 @@ namespace SuperMetroid.Core.Game;
 [Flags]
 public enum EnemyProperties : ushort
 {
+    /// <summary>Suppresses ordinary enemy drawing while leaving the slot's AI and collision state resident.</summary>
     Invisible = 0x0100,
+
+    /// <summary>Marks the physical slot as deleted so the room-enemy passes no longer process it.</summary>
     Deleted = 0x0200,
+
+    /// <summary>Excludes the enemy from the ordinary touch-collision pass against Samus.</summary>
     IgnoreSamusCollision = 0x0400,
+
+    /// <summary>Allows enemy AI and instructions to run when the actor lies outside the active screen bounds.</summary>
     ProcessOffScreen = 0x0800,
+
+    /// <summary>Prevents Plasma Beam projectiles from passing through the enemy after a hit.</summary>
     BlocksPlasmaBeam = 0x1000,
+
+    /// <summary>Enables execution of the enemy's timed instruction-list stream.</summary>
     ProcessInstructions = 0x2000,
 
     /// <summary>
@@ -37,6 +48,7 @@ public enum EnemyProperties : ushort
 [Flags]
 public enum EnemyExtraProperties : ushort
 {
+    /// <summary>No translated extra-property behavior is enabled.</summary>
     None = 0,
 
     /// <summary>
@@ -85,15 +97,20 @@ public static class EnemyPropertyFlagExtensions
         return flags;
     }
 
+    /// <summary>Tests whether a raw enemy-property word contains at least one requested named flag.</summary>
     public static bool HasAny(this ushort word, EnemyProperties flags) =>
         (word.ReadFlagsChecked() & flags) != 0;
 
+    /// <summary>Sets named enemy-property bits while preserving all other native word data.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="flags"/> contains low-byte or undefined bits.</exception>
     public static ushort With(this ushort word, EnemyProperties flags)
     {
         ValidateKnown(flags);
         return unchecked((ushort)(word | (ushort)flags));
     }
 
+    /// <summary>Clears named enemy-property bits while preserving all other native word data.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="flags"/> contains low-byte or undefined bits.</exception>
     public static ushort Without(this ushort word, EnemyProperties flags)
     {
         ValidateKnown(flags);
@@ -107,18 +124,24 @@ public static class EnemyPropertyFlagExtensions
         EnemyProperties set) =>
         word.Without(clear).With(set);
 
+    /// <summary>Tests whether a raw extra-property word contains at least one requested translated flag.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="flags"/> contains an untranslated bit.</exception>
     public static bool HasAny(this ushort word, EnemyExtraProperties flags)
     {
         ValidateKnown(flags);
         return ((EnemyExtraProperties)word & flags) != 0;
     }
 
+    /// <summary>Sets translated extra-property bits while preserving every other native bit.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="flags"/> contains an untranslated bit.</exception>
     public static ushort With(this ushort word, EnemyExtraProperties flags)
     {
         ValidateKnown(flags);
         return unchecked((ushort)(word | (ushort)flags));
     }
 
+    /// <summary>Clears translated extra-property bits while preserving every other native bit.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="flags"/> contains an untranslated bit.</exception>
     public static ushort Without(this ushort word, EnemyExtraProperties flags)
     {
         ValidateKnown(flags);

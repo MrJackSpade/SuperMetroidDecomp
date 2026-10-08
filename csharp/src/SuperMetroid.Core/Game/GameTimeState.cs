@@ -8,9 +8,16 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class GameTimeState
 {
+    /// <summary>The sub-second counter, advanced once per accepted gameplay update and normally ranging from 0 through 59.</summary>
     public ushort Frames { get; private set; }
+
+    /// <summary>The seconds component, normally ranging from 0 through 59.</summary>
     public ushort Seconds { get; private set; }
+
+    /// <summary>The minutes component, normally ranging from 0 through 59.</summary>
     public ushort Minutes { get; private set; }
+
+    /// <summary>The hours component, which gameplay saturates at 99.</summary>
     public ushort Hours { get; private set; }
 
     /// <summary>Executes <c>$82:DB69</c>'s four-word clock tail once.</summary>

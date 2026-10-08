@@ -759,58 +759,100 @@ public sealed partial class RoomPlmSystem
 /// <summary>Twenty-one entries shared by all three retail permanent-item header tables.</summary>
 public enum InWorldCollectibleKind : byte
 {
+    /// <summary>Header-table entry zero: adds 100 maximum health and refills health to the new maximum.</summary>
     EnergyTank,
+    /// <summary>Header-table entry one: adds five missiles to both capacity and current ammunition.</summary>
     MissileTank,
+    /// <summary>Header-table entry two: adds five Super Missiles to both capacity and current ammunition.</summary>
     SuperMissileTank,
+    /// <summary>Header-table entry three: adds five Power Bombs to both capacity and current ammunition.</summary>
     PowerBombTank,
+    /// <summary>Header-table entry four: collects and equips the Bombs equipment bit.</summary>
     Bombs,
+    /// <summary>Header-table entry five: collects and equips the Charge beam bit.</summary>
     ChargeBeam,
+    /// <summary>Header-table entry six: collects and equips the Ice beam bit.</summary>
     IceBeam,
+    /// <summary>Header-table entry seven: collects and equips the Hi-Jump Boots equipment bit.</summary>
     HiJumpBoots,
+    /// <summary>Header-table entry eight: collects and equips Speed Booster; its Chozo presentation also resumes lava motion after the pickup message.</summary>
     SpeedBooster,
+    /// <summary>Header-table entry nine: collects and equips the Wave beam bit.</summary>
     WaveBeam,
+    /// <summary>Header-table entry ten: collects and equips Spazer while unequipping Plasma.</summary>
     SpazerBeam,
+    /// <summary>Header-table entry eleven: collects and equips the Spring Ball equipment bit.</summary>
     SpringBall,
+    /// <summary>Header-table entry twelve: collects and equips Varia Suit and clears the projectile flare counter before its message.</summary>
     VariaSuit,
+    /// <summary>Header-table entry thirteen: collects and equips Gravity Suit and clears the projectile flare counter before its message.</summary>
     GravitySuit,
+    /// <summary>Header-table entry fourteen: collects and equips the X-Ray Scope equipment bit.</summary>
     XrayScope,
+    /// <summary>Header-table entry fifteen: collects and equips Plasma while unequipping Spazer.</summary>
     PlasmaBeam,
+    /// <summary>Header-table entry sixteen: collects and equips the Grapple Beam equipment bit.</summary>
     GrappleBeam,
+    /// <summary>Header-table entry seventeen: collects and equips the Space Jump equipment bit.</summary>
     SpaceJump,
+    /// <summary>Header-table entry eighteen: collects and equips the Screw Attack equipment bit.</summary>
     ScrewAttack,
+    /// <summary>Header-table entry nineteen: collects and equips the Morph Ball equipment bit.</summary>
     MorphBall,
+    /// <summary>Header-table entry twenty: adds 100 reserve-energy capacity and selects automatic reserve mode if no mode was set.</summary>
     ReserveTank,
 }
 
 /// <summary>The three parallel item presentations encoded by bank-$84 header ranges.</summary>
 public enum CollectiblePresentation : byte
 {
+    /// <summary>The item begins visible and can be acquired by Samus contact.</summary>
     Exposed,
+    /// <summary>The item begins inside a projectile-triggered Chozo orb; breaking the shell does not persist between room visits.</summary>
     ChozoOrb,
+    /// <summary>The item begins in a concealed shot block that temporarily reveals the item and later restores its saved block.</summary>
     ShotBlock,
 }
 
 /// <summary>Debugger-visible phase of one translated permanent-item PLM.</summary>
 public enum CollectiblePhase : byte
 {
+    /// <summary>A previously collected exposed or orb item awaits its empty draw and immediate slot deletion.</summary>
     CollectedEmpty,
+    /// <summary>The exposed item alternates its two visible frames and accepts a touch trigger for acquisition.</summary>
     Visible,
+    /// <summary>The intact Chozo orb cycles its four shell frames while waiting for a projectile trigger.</summary>
     ChozoOrb,
+    /// <summary>The triggered Chozo orb runs its timed empty/burst draws before revealing the item.</summary>
     ChozoOrbBurst,
+    /// <summary>An uncollected item is concealed in its saved shot block and waits for a projectile trigger.</summary>
     ShotBlock,
+    /// <summary>The shot block runs three reveal frames before showing either the item or its already-collected empty space.</summary>
     ShotBlockReveal,
+    /// <summary>The revealed item accepts touch acquisition during twenty-two pairs of four-frame animation draws.</summary>
     ShotBlockVisible,
+    /// <summary>An uncollected revealed item runs the reverse reveal sequence and restores its concealed shot block.</summary>
     ShotBlockReconceal,
+    /// <summary>A previously collected item's restored shot block waits for another projectile trigger.</summary>
     CollectedShotBlock,
+    /// <summary>The collected shot block remains empty for twenty-two eight-frame intervals before respawning.</summary>
     CollectedShotBlockEmpty,
+    /// <summary>The collected shot block runs three four-frame respawn draws before restoring its saved level word.</summary>
     CollectedShotBlockRespawn,
+    /// <summary>Inventory and persistence have been granted; the physical slot and drawn tile remain while the synchronous pickup message runs.</summary>
     AwaitingMessage,
+    /// <summary>The pickup message has returned and the suspended item list is ready for its empty draw or shot-block continuation.</summary>
     ResumeAfterMessage,
     /// <summary>The empty draw has run; the instruction list deletes the PLM next pass.</summary>
     EmptyAwaitingDelete,
 }
 
 /// <summary>Stable debugger view of one occupied permanent-item PLM slot.</summary>
+/// <param name="Header">The slot's native bank-$84 PLM header offset, retaining its kind and presentation identity.</param>
+/// <param name="BlockIndex">The item owner's foreground block index in room level data.</param>
+/// <param name="RoomArgument">The native room-population argument; nonnegative signed values select persistent collected-item bits.</param>
+/// <param name="Kind">The permanent item kind decoded from the header's position in its presentation table.</param>
+/// <param name="GraphicsSlot">The rotating dynamic-art allocation from zero through three, or -1 for an item using static art.</param>
 public readonly record struct CollectiblePlmSnapshot(
     ushort Header,
     int BlockIndex,
@@ -819,6 +861,8 @@ public readonly record struct CollectiblePlmSnapshot(
     int GraphicsSlot);
 
 /// <summary>One cartridge-defined permanent pickup completed by the current PLM pass.</summary>
+/// <param name="Kind">The item whose inventory effect and collected-item persistence have been applied.</param>
+/// <param name="MessageBoxIndex">The native gameplay-message identity requested for the synchronous pickup notification.</param>
 public readonly record struct CollectiblePickupEvent(
     InWorldCollectibleKind Kind,
     GameplayMessageId MessageBoxIndex);

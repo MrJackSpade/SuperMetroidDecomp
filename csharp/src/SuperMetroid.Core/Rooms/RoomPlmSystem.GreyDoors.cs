@@ -252,22 +252,34 @@ public sealed partial class RoomPlmSystem
 /// <summary>The seven entries in <c>$84:BE4B</c>'s grey-door condition table.</summary>
 public enum GreyDoorCondition : byte
 {
+    /// <summary>Condition-table index 0: the current area's major-boss bit must be set.</summary>
     AreaBossDefeated,
+    /// <summary>Condition-table index 1: the current area's miniboss bit must be set.</summary>
     AreaMiniBossDefeated,
+    /// <summary>Condition-table index 2: the current area's Torizo boss bit must be set.</summary>
     AreaTorizoDefeated,
+    /// <summary>Condition-table index 3: room enemy deaths must reach the configured quota; satisfying it also sets the Zebes-awake event.</summary>
     EnemyDeathQuota,
+    /// <summary>Condition-table index 4: this door remains locked regardless of shots or progression.</summary>
     Never,
+    /// <summary>Condition-table index 5: the live Tourian statue owner must report its sequence finished.</summary>
     TourianStatueFinished,
+    /// <summary>Condition-table index 6: the persistent critters-escaped event must be set.</summary>
     CrittersEscaped,
 }
 
 /// <summary>Debugger-visible phase of one resident grey-door PLM.</summary>
 public enum GreyDoorPhase : byte
 {
+    /// <summary>The closed grey cap polls its condition and consumes rejected hits; the hit present on the unlock pass is also cleared.</summary>
     Locked,
+    /// <summary>The condition has unlocked the door and its flash list repeats until a later projectile trigger starts opening.</summary>
     Flashing,
+    /// <summary>A post-unlock hit has recorded the persistent door bit and handed opening sound, timed draws, and deletion to the shared interpreter.</summary>
     Opening,
+    /// <summary>Room setup found the door already opened and will install the closed blue cap and BTS, then release the resident slot.</summary>
     ConvertToBlue,
+    /// <summary>The room-entry closing list runs in the shared interpreter before returning this resident actor to its locked initial list.</summary>
     Closing,
 }
 

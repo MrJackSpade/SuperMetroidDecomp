@@ -19,7 +19,8 @@ public static class RoomStateSelectionDefinitions
     }
 
     /// <summary>Returns the default first, then every alternative in native order.
-    /// The caller-owned view is constructed on demand from the same branches;</n    /// it is never cached as a second program table.</summary>
+    /// The caller-owned view is constructed on demand from the same branches;
+    /// it is never cached as a second program table.</summary>
     public static IReadOnlyList<ushort> GetStatePointers(ushort roomPointer)
     {
         _ = RoomHeaderDefinitions.Get(roomPointer);

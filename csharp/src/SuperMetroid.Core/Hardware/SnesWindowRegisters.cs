@@ -19,6 +19,15 @@ public readonly record struct SnesWindowRegisters(
     byte FirstLeft, byte FirstRight, byte SecondLeft, byte SecondRight,
     byte BackgroundLogic, byte ObjectColorLogic)
 {
+    /// <summary>
+    /// Evaluates the target's selected and combined windows at one screen pixel.
+    /// Window endpoints are inclusive; inverted windows and two-window logic are
+    /// applied before any main/subscreen layer admission or color-math policy.
+    /// </summary>
+    /// <param name="target">The background, OBJ, or color-window register field to evaluate.</param>
+    /// <param name="x">The eight-bit horizontal screen coordinate, from 0 through 255.</param>
+    /// <returns>Whether the pixel belongs to the resulting window; false when both windows are disabled.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The target is not a defined PPU window target.</exception>
     public bool Contains(SnesWindowTarget target, byte x)
     {
         int index = (int)target;

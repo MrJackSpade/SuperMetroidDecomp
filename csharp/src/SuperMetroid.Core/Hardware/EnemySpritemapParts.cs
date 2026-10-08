@@ -6,8 +6,15 @@ namespace SuperMetroid.Core.Hardware;
 public abstract class EnemySpritemapParts : IReadOnlyList<EnemySpritemapPart>
 {
     private protected EnemySpritemapParts() { }
+
+    /// <summary>The number of hardware OBJ parts in the immutable spritemap composition.</summary>
     public abstract int Count { get; }
+
+    /// <summary>Returns the part at its native draw-order index.</summary>
+    /// <param name="index">Zero-based index less than <see cref="Count"/>.</param>
     public abstract EnemySpritemapPart this[int index] { get; }
+
+    /// <summary>Enumerates parts in the same order that the enemy draw routine emits them to OAM.</summary>
     public IEnumerator<EnemySpritemapPart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];

@@ -35,9 +35,16 @@ public sealed class BackgroundScrollState
     // These four offsets are separate native variables despite the confusing adjacency
     // of BG1 X offset and Layer2ScrollY in WRAM. Keeping descriptive names prevents a C#
     // reader from needing to remember that $091F is addressed as Layer2ScrollY+1.
+    /// <summary>Wrapped horizontal delta added to <see cref="Layer1XPosition"/> to form BG1HOFS.</summary>
     public ushort Bg1XOffset { get; set; }
+
+    /// <summary>Wrapped vertical delta added to <see cref="Layer1YPosition"/> to form BG1VOFS.</summary>
     public ushort Bg1YOffset { get; set; }
+
+    /// <summary>Wrapped horizontal delta added to <see cref="Layer2XPosition"/> to form BG2HOFS.</summary>
     public ushort Bg2XOffset { get; set; }
+
+    /// <summary>Wrapped vertical delta added to <see cref="Layer2YPosition"/> to form BG2VOFS.</summary>
     public ushort Bg2YOffset { get; set; }
 
     /// <summary>Modeled BG1HOFS mirror in direct-page word <c>$00B1</c>.</summary>
@@ -53,21 +60,43 @@ public sealed class BackgroundScrollState
     public ushort Bg2VerticalScroll { get; private set; }
 
     // "Block" means one 16x16 level block here, not one 256x256 room-scroll cell.
+    /// <summary>BG1HOFS converted from pixels to the 16-pixel circular-VRAM block coordinate.</summary>
     public ushort Bg1XBlock { get; private set; }
+
+    /// <summary>BG1VOFS converted from pixels to the 16-pixel circular-VRAM block coordinate.</summary>
     public ushort Bg1YBlock { get; private set; }
+
+    /// <summary>BG2HOFS converted from pixels to the 16-pixel circular-VRAM block coordinate.</summary>
     public ushort Bg2XBlock { get; private set; }
+
+    /// <summary>BG2VOFS converted from pixels to the 16-pixel circular-VRAM block coordinate.</summary>
     public ushort Bg2YBlock { get; private set; }
+
+    /// <summary>Layer-one world X converted to a 16-pixel source-data block coordinate.</summary>
     public ushort Layer1XBlock { get; private set; }
+
+    /// <summary>Layer-one world Y converted to a 16-pixel source-data block coordinate.</summary>
     public ushort Layer1YBlock { get; private set; }
+
+    /// <summary>Layer-two world X converted to a 16-pixel source-data block coordinate.</summary>
     public ushort Layer2XBlock { get; private set; }
+
+    /// <summary>Layer-two world Y converted to a 16-pixel source-data block coordinate.</summary>
     public ushort Layer2YBlock { get; private set; }
 
+    /// <summary>Prior layer-one source X block used to detect a newly exposed tilemap column.</summary>
     public ushort PreviousLayer1XBlock { get; private set; }
 
     /// <summary>Stores $FFFF to <c>PreviousLayer1XBlock</c>, as Kraid's dead-room tail does.</summary>
     internal void ResetPreviousLayer1XBlock() => PreviousLayer1XBlock = 0xffff;
+
+    /// <summary>Prior layer-one source Y block used to detect a newly exposed tilemap row.</summary>
     public ushort PreviousLayer1YBlock { get; private set; }
+
+    /// <summary>Prior layer-two source X block used to detect a newly exposed background column.</summary>
     public ushort PreviousLayer2XBlock { get; private set; }
+
+    /// <summary>Prior layer-two source Y block used to detect a newly exposed background row.</summary>
     public ushort PreviousLayer2YBlock { get; private set; }
 
     /// <summary>
@@ -498,14 +527,20 @@ public sealed class BackgroundScrollState
 /// <summary>Which native tilemap producer must satisfy a streaming request.</summary>
 public enum BackgroundLayer
 {
+    /// <summary>The room's collision-backed level tilemap rendered on BG1.</summary>
     Level,
+
+    /// <summary>The independently streamed room-background tilemap rendered on BG2.</summary>
     Background,
 }
 
 /// <summary>Whether the native updater requested a 16-block column or row.</summary>
 public enum BackgroundUpdateAxis
 {
+    /// <summary>Transfers one vertical strip when horizontal scrolling crosses a 16-pixel boundary.</summary>
     Column,
+
+    /// <summary>Transfers one horizontal strip when vertical scrolling crosses a 16-pixel boundary.</summary>
     Row,
 }
 

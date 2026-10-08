@@ -15,14 +15,24 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SuperMetroidSaveRam
 {
+    /// <summary>The retail format's fixed number of checksum-protected save slots.</summary>
     public const int SlotCount = SaveRamLayout.SlotCount;
+
+    /// <summary>The byte length of one native slot payload, including reserved layout space.</summary>
     public const int SlotByteCount = SaveRamLayout.SlotByteCount;
+
+    /// <summary>The global SRAM offset of the selected-slot word used by the file-select menu.</summary>
     public const int SelectedSlotOffset = SaveRamLayout.SelectedSlotOffset;
 
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
     private readonly ISnesAddressSpace bus;
     private readonly ISnesMutableMemory mutableMemory;
 
+    /// <summary>Creates an SRAM codec over a mutable SNES address space.</summary>
+    /// <param name="bus">Address space that supplies cartridge SRAM reads and writes.</param>
+    /// <param name="mapPresentation">Optional area-map metadata used to translate explored-map bits.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="bus"/> does not expose mutable memory.</exception>
     public SuperMetroidSaveRam(ISnesAddressSpace bus, AreaMapPresentationCatalog? mapPresentation)
     {
         this.mapPresentation = mapPresentation;
@@ -491,8 +501,14 @@ public sealed record SuperMetroidSaveSlot(
 
     /// <summary>Saved nonzero WRAM word <c>$09EA</c>.</summary>
     public bool IconCancelEnabled { get; init; }
+
+    /// <summary>The persistent excess-missile accumulator mirrored from WRAM <c>$09D8</c>.</summary>
     public ushort ReserveMissiles { get; init; }
+
+    /// <summary>Whether the alternate Japanese text setting stored at WRAM <c>$09E2</c> is enabled.</summary>
     public bool JapaneseText { get; init; }
+
+    /// <summary>The cumulative item-PLM setup count from WRAM <c>$7E:D91A</c>, not a completion percentage.</summary>
     public ushort LoadedItemCount { get; init; }
 
     /// <summary>Restores the subset already represented by the translated Samus owner.</summary>
@@ -540,55 +556,141 @@ public sealed record SuperMetroidSaveSlot(
 /// <summary>Domain snapshot supplied to the native SRAM encoder.</summary>
 public sealed record SuperMetroidSaveSnapshot
 {
+    /// <summary>The seven configurable actions as a validated permutation of SNES button masks.</summary>
     public ControllerBindings ControllerBindings { get; init; } = ControllerBindings.Default;
+
+    /// <summary>Whether the options menu's moonwalk behavior is enabled.</summary>
     public bool MoonwalkEnabled { get; init; }
     /// <summary>Checksummed cartridge word at WRAM <c>$09E6</c>.</summary>
     public ushort DebugFlag { get; init; } = 1;
     /// <summary>Checksummed new-file marker at WRAM <c>$09E8</c>.</summary>
     public ushort NewFileMarker { get; init; } = 1;
+
+    /// <summary>Whether door transitions automatically clear the selected HUD item.</summary>
     public bool IconCancelEnabled { get; init; }
+
+    /// <summary>The persistent excess-missile accumulator written to WRAM <c>$09D8</c>.</summary>
     public ushort ReserveMissiles { get; init; }
+
+    /// <summary>Whether the alternate Japanese text setting written to WRAM <c>$09E2</c> is enabled.</summary>
     public bool JapaneseText { get; init; }
+
+    /// <summary>The cumulative item-PLM setup count persisted at WRAM <c>$7E:D91A</c>.</summary>
     public ushort LoadedItemCount { get; init; }
+
+    /// <summary>Bit mask of collected items currently enabled on Samus.</summary>
     public ushort EquippedItems { get; init; }
+
+    /// <summary>Bit mask of item upgrades Samus has collected, including unequipped upgrades.</summary>
     public ushort CollectedItems { get; init; }
+
+    /// <summary>Bit mask of collected beam upgrades currently enabled on Samus.</summary>
     public ushort EquippedBeams { get; init; }
+
+    /// <summary>Bit mask of all beam upgrades Samus has collected.</summary>
     public ushort CollectedBeams { get; init; }
+
+    /// <summary>The native reserve-tank mode word; zero is unset, one is auto, and two is manual.</summary>
     public ushort ReserveMode { get; init; }
+
+    /// <summary>Samus's current energy in energy-point units.</summary>
     public ushort Health { get; init; } = 99;
+
+    /// <summary>Samus's energy capacity in energy-point units.</summary>
     public ushort MaxHealth { get; init; } = 99;
+
+    /// <summary>The current ordinary missile count.</summary>
     public ushort Missiles { get; init; }
+
+    /// <summary>The acquired ordinary missile capacity.</summary>
     public ushort MaxMissiles { get; init; }
+
+    /// <summary>The current super missile count.</summary>
     public ushort SuperMissiles { get; init; }
+
+    /// <summary>The acquired super missile capacity.</summary>
     public ushort MaxSuperMissiles { get; init; }
+
+    /// <summary>The current power bomb count.</summary>
     public ushort PowerBombs { get; init; }
+
+    /// <summary>The acquired power bomb capacity.</summary>
     public ushort MaxPowerBombs { get; init; }
+
+    /// <summary>The native HUD selection index: beam, missile, super missile, power bomb, grapple, or X-ray.</summary>
     public ushort HudItem { get; init; }
+
+    /// <summary>The acquired reserve-tank capacity in energy-point units.</summary>
     public ushort MaxReserveEnergy { get; init; }
+
+    /// <summary>The energy-point total currently stored in reserve tanks.</summary>
     public ushort ReserveEnergy { get; init; }
+
+    /// <summary>The sub-second gameplay counter, normally in the inclusive range 0 through 59.</summary>
     public ushort GameTimeFrames { get; init; }
+
+    /// <summary>The gameplay clock's seconds component, normally in the inclusive range 0 through 59.</summary>
     public ushort GameTimeSeconds { get; init; }
+
+    /// <summary>The gameplay clock's minutes component, normally in the inclusive range 0 through 59.</summary>
     public ushort GameTimeMinutes { get; init; }
+
+    /// <summary>The gameplay clock's hours component, saturated by gameplay at 99.</summary>
     public ushort GameTimeHours { get; init; }
     /// <summary>Saved dispatcher word at WRAM <c>$7E:D914</c>.</summary>
     public ushort LoadingGameState { get; init; } = SaveLoadingGameStates.MainGame;
+
+    /// <summary>The zero-based load-station index within <see cref="Area"/>.</summary>
     public ushort SaveStation { get; init; }
+
+    /// <summary>The retail area index that owns <see cref="SaveStation"/>.</summary>
     public ushort Area { get; init; }
+
+    /// <summary>Eight persistent event bytes copied without reinterpretation from bank-$80 state.</summary>
     public byte[] EventBytes { get; init; } = new byte[Bank80SystemState.EventByteCount];
+
+    /// <summary>One boss-state byte per native area slot, copied without reinterpretation.</summary>
     public byte[] BossBytes { get; init; } = new byte[Bank80SystemState.AreaCount];
+
+    /// <summary>The 64-byte room-indexed bitset for opened Chozo item orbs.</summary>
     public byte[] RoomChozoBytes { get; init; } =
         new byte[Bank80SystemState.RoomChozoBitByteCount];
+
+    /// <summary>The 64-byte room-indexed bitset for collected item PLMs.</summary>
     public byte[] CollectedItemBytes { get; init; } =
         new byte[Bank80SystemState.ItemBitByteCount];
+
+    /// <summary>The 64-byte room-indexed bitset for doors permanently opened by the player.</summary>
     public byte[] OpenedDoorBytes { get; init; } =
         new byte[Bank80SystemState.DoorBitByteCount];
+
+    /// <summary>The 16-byte per-area bitset for visited save stations and elevators.</summary>
     public byte[] UsedSaveStationBytes { get; init; } =
         new byte[Bank80SystemState.UsedSaveStationByteCount];
+
+    /// <summary>The 12-byte per-area bitset for activated map stations.</summary>
     public byte[] MapStationBytes { get; init; } =
         new byte[Bank80SystemState.MapStationByteCount];
+
+    /// <summary>
+    /// Unpacked explored-map bytes in area-major order; SRAM encoding interleaves the six
+    /// persisted Zebes areas and omits the Ceres prologue.
+    /// </summary>
     public byte[] ExploredMapBytes { get; init; } = new byte[
         Bank80SystemState.ExploredMapAreaCount * Bank80SystemState.ExploredMapBytesPerArea];
 
+    /// <summary>Captures the translated gameplay owners into a detached SRAM-encoding snapshot.</summary>
+    /// <param name="samus">Source of player inventory, ammunition, energy, and reserve state.</param>
+    /// <param name="system">Source of persistent events, bosses, room bits, maps, and load state.</param>
+    /// <param name="area">Retail area index to resume in.</param>
+    /// <param name="saveStation">Zero-based load-station index within <paramref name="area"/>.</param>
+    /// <param name="gameTime">Optional gameplay clock; omitted values encode as zero.</param>
+    /// <param name="controllerBindings">Optional seven-action permutation; omitted values use retail defaults.</param>
+    /// <param name="moonwalkEnabled">Whether to persist the moonwalk option.</param>
+    /// <param name="iconCancelEnabled">Whether to persist automatic HUD-item cancellation at doors.</param>
+    /// <param name="japaneseText">Whether to persist the alternate Japanese text setting.</param>
+    /// <returns>A detached copy safe to pass to <see cref="SuperMetroidSaveRam.SaveSlot"/>.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="samus"/> or <paramref name="system"/> is <see langword="null"/>.</exception>
     public static SuperMetroidSaveSnapshot Capture(
         SamusState samus,
         Bank80SystemState system,

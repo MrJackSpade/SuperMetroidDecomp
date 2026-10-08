@@ -741,14 +741,29 @@ public sealed partial class RoomPlmSystem
     }
 }
 
+/// <summary>The resident station family that owns access animation, resource changes, and frontend activation events.</summary>
 public enum StationKind : byte
 {
+    /// <summary>Acquires the current area's map and keeps Samus input locked until map-screen unpause releases it.</summary>
     Map,
+    /// <summary>Refills Samus health to its current maximum after the access arm's extension hold.</summary>
     Energy,
+    /// <summary>Refills ordinary Missiles to their current maximum after the access arm's extension hold.</summary>
     Missile,
+    /// <summary>Uses the floor trigger to request confirmation, then runs the save-pod animation and completion-message handshake.</summary>
     Save,
 }
 
+/// <summary>
+/// A station action/message request published by a PLM handler pass for the gameplay
+/// frontend to consume. Save events retain the station identity needed to return
+/// confirmation or message-close results to the same resident room owner.
+/// </summary>
+/// <param name="Kind">The station family whose activation produced this event.</param>
+/// <param name="MessageBoxIndex">The native gameplay message identity: map/refill completion, save confirmation, or save completion.</param>
+/// <param name="AreaIndex">The room's area, used for map acquisition and save-station identity.</param>
+/// <param name="StationIndex">The station PLM's native room argument, used with the area to identify a resident save station.</param>
+/// <param name="BlockIndex">The parent station's linear foreground-block index, rather than a side-access trigger's index.</param>
 public readonly record struct StationActivationEvent(
     StationKind Kind,
     GameplayMessageId MessageBoxIndex,
@@ -756,10 +771,15 @@ public readonly record struct StationActivationEvent(
     ushort StationIndex,
     int BlockIndex);
 
+/// <summary>The save-pod coroutine's handshake between resident PLM animation and frontend messages.</summary>
 public enum SaveStationPhase : byte
 {
+    /// <summary>The initial pod draw sleeps until an eligible floor collision; a room-entry lockout can still prevent another request.</summary>
     Idle,
+    /// <summary>A floor trigger has published the YES/NO request and waits for the frontend's confirmation result.</summary>
     AwaitingConfirmation,
+    /// <summary>Accepted confirmation has centered and locked Samus; alternating four-tick pod frames run for the authored loop count.</summary>
     Animating,
+    /// <summary>Animation has published save-completed message $18 and waits for its close callback to unlock input and install the room-entry lockout.</summary>
     AwaitingCompletionMessageClose,
 }

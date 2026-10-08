@@ -21,33 +21,61 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
 {
     // These are literal bank-$A9 instruction-list addresses installed by the AI. Keeping
     // the pointers visible lets the debugger prove which native animation is active.
+    /// <summary>$A9:9C87, neutral phase-two head instruction list.</summary>
     public const ushort HeadNeutralPhase2InstructionList = 0x9c87;
+    /// <summary>$A9:9F6C, rainbow-beam charging head instruction list.</summary>
     public const ushort HeadChargingRainbowInstructionList = 0x9f6c;
+    /// <summary>$A9:9C77, active rainbow-beam firing head instruction list.</summary>
     public const ushort HeadFiringRainbowInstructionList = 0x9c77;
+    /// <summary>$A9:9ECC, phase-two bomb attack head instruction list.</summary>
     public const ushort HeadAttackingBombPhase2InstructionList = 0x9ecc;
+    /// <summary>$A9:9D7F, phase-two two-onion-ring head instruction list.</summary>
     public const ushort HeadAttackingTwoOnionRingsPhase2InstructionList = 0x9d7f;
+    /// <summary>$A9:9B7F, phase-two neck-stretch head instruction list.</summary>
     public const ushort HeadStretchingPhase2InstructionList = 0x9b7f;
+    /// <summary>$A9:9BB3, phase-three neck-stretch head instruction list.</summary>
     public const ushort HeadStretchingPhase3InstructionList = 0x9bb3;
+    /// <summary>$A9:9BE7, Hyper Beam recoil head instruction list.</summary>
     public const ushort HeadHyperBeamRecoilInstructionList = 0x9be7;
+    /// <summary>$A9:9C29, decapitated head instruction list.</summary>
     public const ushort HeadDecapitatedInstructionList = 0x9c29;
+    /// <summary>$A9:9D25, inert Mother Brain corpse head instruction list.</summary>
     public const ushort HeadCorpseInstructionList = 0x9d25;
+    /// <summary>$A9:9DB1, head instruction list attacking the Baby Metroid.</summary>
     public const ushort HeadAttackingBabyMetroidInstructionList = 0x9db1;
+    /// <summary>$A9:9DBB, phase-three four-onion-ring head instruction list.</summary>
     public const ushort HeadAttackingFourOnionRingsPhase3InstructionList = 0x9dbb;
+    /// <summary>$A9:9F00, phase-three bomb attack head instruction list.</summary>
     public const ushort HeadAttackingBombPhase3InstructionList = 0x9f00;
+    /// <summary>$A9:9818, really-slow forward body walk instruction list.</summary>
     public const ushort BodyWalkingForwardReallySlowInstructionList = 0x9818;
+    /// <summary>$A9:9730, really-fast forward body walk instruction list.</summary>
     public const ushort BodyWalkingForwardReallyFastInstructionList = 0x9730;
+    /// <summary>$A9:976A, fast forward body walk instruction list.</summary>
     public const ushort BodyWalkingForwardFastInstructionList = 0x976a;
+    /// <summary>$A9:97A4, medium forward body walk instruction list.</summary>
     public const ushort BodyWalkingForwardMediumInstructionList = 0x97a4;
+    /// <summary>$A9:97DE, slow forward body walk instruction list.</summary>
     public const ushort BodyWalkingForwardSlowInstructionList = 0x97de;
+    /// <summary>$A9:993A, really-slow backward body walk instruction list.</summary>
     public const ushort BodyWalkingBackwardReallySlowInstructionList = 0x993a;
+    /// <summary>$A9:988C, really-fast backward body walk instruction list.</summary>
     public const ushort BodyWalkingBackwardReallyFastInstructionList = 0x988c;
+    /// <summary>$A9:98C6, fast backward body walk instruction list.</summary>
     public const ushort BodyWalkingBackwardFastInstructionList = 0x98c6;
+    /// <summary>$A9:9900, medium backward body walk instruction list.</summary>
     public const ushort BodyWalkingBackwardMediumInstructionList = 0x9900;
+    /// <summary>$A9:9852, slow backward body walk instruction list.</summary>
     public const ushort BodyWalkingBackwardSlowInstructionList = 0x9852;
+    /// <summary>$A9:99C6, fast stand-up-after-crouching body instruction list.</summary>
     public const ushort BodyStandingUpAfterCrouchingFastInstructionList = 0x99c6;
+    /// <summary>$A9:99E2, stand-up-after-leaning body instruction list.</summary>
     public const ushort BodyStandingUpAfterLeaningDownInstructionList = 0x99e2;
+    /// <summary>$A9:99F2, leaning-down body instruction list.</summary>
     public const ushort BodyLeaningDownInstructionList = 0x99f2;
+    /// <summary>$A9:9A26, fast crouching body instruction list.</summary>
     public const ushort BodyCrouchingFastInstructionList = 0x9a26;
+    /// <summary>$A9:9C39, dying-drool head instruction list.</summary>
     public const ushort HeadDyingDroolInstructionList = 0x9c39;
 
     // `$A9:BCA6/$BCB6` are indexed after incrementing the explosion index. Keeping all eight

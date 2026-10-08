@@ -44,6 +44,7 @@ public sealed class CeresRidleyColorCatalog
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         WriteIndented = true,
     };
+    /// <summary>Returns one BGR555 retreat BG color, index 0..14, preserving supplied edits over the composition of body-fade row one, eye-fade row fourteen, and the neutral tail colors.</summary>
     public ushort ResolveRetreatBg(int color)
     {
         if ((uint)color >= CeresRidleyPaletteRomData.RetreatBgColorCount)
@@ -52,6 +53,7 @@ public sealed class CeresRidleyColorCatalog
     }
     private ushort CalculateRetreatBg(int color) => color < 11 ? bodyFade.Resolve(1, color)
         : color < 14 ? eyeFade.Resolve(14, color - 11) : CeresRidleyMode7PaintDefinitions.RetreatNeutral;
+    /// <summary>Returns one BGR555 retreat shared color, index 0..7; unedited values reuse startup colors 1..8, matching native $A6:AA01 and $A6:E171.</summary>
     public ushort ResolveRetreatShared(int color)
     {
         if ((uint)color >= CeresRidleyPaletteRomData.RetreatSharedColorCount)
@@ -59,6 +61,7 @@ public sealed class CeresRidleyColorCatalog
         return retreatShared.TryGetValue(color, out ushort edited) ? edited : start.Resolve(color + 1);
     }
 
+    /// <summary>Copies the 32 startup colors from native $A6:E16F into CGRAM entries 160..191, initializing the door/container and Baby OBJ palettes.</summary>
     public void ApplyStart(SnesCgram cgram)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -66,6 +69,7 @@ public sealed class CeresRidleyColorCatalog
             cgram.SetColor(CeresRidleyPaletteRomData.StartCgramIndex + color, start.Resolve(color));
     }
 
+    /// <summary>Copies one eye-fade row, index 0..15, to CGRAM entries 252..254; native $A6:E2AA's three-color rows fade from full eye paint to black.</summary>
     public void ApplyEyeFade(SnesCgram cgram, int row)
     {
         eyeFade.ValidateRow(row);
@@ -74,6 +78,7 @@ public sealed class CeresRidleyColorCatalog
             cgram.SetColor(CeresRidleyPaletteRomData.EyeFadeCgramIndex + color, eyeFade.Resolve(row, color));
     }
 
+    /// <summary>Copies one eleven-color body-fade row, index 0..15, to both BG CGRAM entries 145..155 and OBJ entries 241..251; native $A6:E30A progresses from black to full body paint.</summary>
     public void ApplyBodyFade(SnesCgram cgram, int row)
     {
         bodyFade.ValidateRow(row);
@@ -83,6 +88,7 @@ public sealed class CeresRidleyColorCatalog
         for (int color = 0; color < CeresRidleyPaletteRomData.BodyFadeColorCount; color++)
             cgram.SetColor(CeresRidleyPaletteRomData.BodyFadeObjCgramIndex + color, bodyFade.Resolve(row, color));
     }
+    /// <summary>Copies one fourteen-color health row, index 0..2, from the shared $A6:E46A palette family to CGRAM entries 241..254; encounter AI separately selects by Ceres shot count or Norfair health.</summary>
     public void ApplyHealth(SnesCgram cgram, int row)
     {
         _ = health.Resolve(row, 0);
@@ -91,6 +97,7 @@ public sealed class CeresRidleyColorCatalog
             cgram.SetColor(CeresRidleyPaletteRomData.HealthCgramIndex + color, health.Resolve(row, color));
     }
 
+    /// <summary>Copies one self-destruct EMERGENCY-text phase, index 0..15, to CGRAM entries 97..99, preserving the reflected three-color cycle at native $A6:C1DF.</summary>
     public void ApplyAlarm(SnesCgram cgram, int row)
     {
         _ = CeresRidleyAlarmColorDefinitions.SourceRow(row);
@@ -99,6 +106,7 @@ public sealed class CeresRidleyColorCatalog
             cgram.SetColor(CeresRidleyPaletteRomData.AlarmCgramIndex + color, alarm.Resolve(row, color));
     }
 
+    /// <summary>Installs the retreat's fifteen BG colors at CGRAM 81..95 and eight shared colors at both BG 33..40 and OBJ 241..248, matching $A6:A9E3/$AA01.</summary>
     public void ApplyRetreat(SnesCgram cgram)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -112,6 +120,7 @@ public sealed class CeresRidleyColorCatalog
         }
     }
 
+    /// <summary>Copies one private Baby/container draw shade, index 0..3, from native $A6:E1F1 to OBJ palette-three entries 177..191; row selection and pose timing remain owned by the Baby draw callback.</summary>
     public void ApplyBaby(SnesCgram cgram, int row)
     {
         _ = baby.Resolve(row, 0);
@@ -120,6 +129,10 @@ public sealed class CeresRidleyColorCatalog
             cgram.SetColor(CeresRidleyPaletteRomData.BabyCgramIndex + color, baby.Resolve(row, color));
     }
 
+    /// <summary>Compiles RGB5 JSON into a validated immutable color catalog, rejecting unknown/duplicate properties, unsupported versions, wrong row dimensions, and channels outside 0..31.</summary>
+    /// <param name="json">JSON input read from its current position; the caller retains ownership of the stream.</param>
+    /// <param name="stockForLegacyOverride">Optional stock catalog required for versions one and two: supplies missing alarm colors and, for version one, missing Baby colors.</param>
+    /// <returns>A catalog retaining independent supplied color edits while calculating unchanged shared paint and fade relationships.</returns>
     public static CeresRidleyColorCatalog Load(Stream json,
         CeresRidleyColorCatalog? stockForLegacyOverride = null)
     {
@@ -162,6 +175,7 @@ public sealed class CeresRidleyColorCatalog
                     CeresRidleyPaletteRomData.BabyColorCount, "Baby"), compiledBody));
     }
 
+    /// <summary>Serializes a complete current-version color document as indented camel-case UTF-8 JSON, then reloads it to enforce the same schema, dimension, and RGB5 validation as asset loading.</summary>
     public static byte[] Write(CeresRidleyColorDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
@@ -201,23 +215,38 @@ public sealed class CeresRidleyColorCatalog
             name => new InvalidDataException($"Duplicate Ceres Ridley color property {name}."));
 }
 
+/// <summary>Editable JSON payload of native Ridley/Baby palette rows; colors use independent integer RGB5 channels, and row indices describe paint phases rather than animation durations.</summary>
 public sealed record CeresRidleyColorDocument
 {
+    /// <summary>Schema selector: three requires all palette families; versions one and two are accepted by <see cref="CeresRidleyColorCatalog.Load"/> only with a stock fallback.</summary>
     public required int Version { get; init; }
+    /// <summary>32 startup colors corresponding to $A6:E16F, including both transparent entries of the door/container and Baby OBJ palettes.</summary>
     public required PaletteRgb5[] Start { get; init; }
+    /// <summary>Sixteen rows of three eye colors corresponding to $A6:E2AA, ordered from full brightness toward black.</summary>
     public required PaletteRgb5[][] EyeFade { get; init; }
+    /// <summary>Sixteen rows of eleven body colors corresponding to $A6:E30A, ordered from black toward full brightness and used in both BG and OBJ domains.</summary>
     public required PaletteRgb5[][] BodyFade { get; init; }
+    /// <summary>Three rows of fourteen health colors corresponding to $A6:E46A, shared by Ceres shot-count and Norfair HP palette selection.</summary>
     public required PaletteRgb5[][] Health { get; init; }
+    /// <summary>Sixteen three-color self-destruct text phases corresponding to $A6:C1DF; required by version three, while older documents inherit the stock alarm.</summary>
     public PaletteRgb5[][]? Alarm { get; init; }
+    /// <summary>Fifteen retreat BG colors corresponding to $A6:A9E3, excluding palette entry zero and copied to CGRAM entries 81..95.</summary>
     public required PaletteRgb5[] RetreatBg { get; init; }
+    /// <summary>Eight retreat colors corresponding to $A6:AA01, copied identically into BG and OBJ palettes; edits remain independent of matching startup colors.</summary>
     public required PaletteRgb5[] RetreatShared { get; init; }
+    /// <summary>Four rows of fifteen private Baby/container draw colors corresponding to $A6:E1F1; required from version two onward, excluding OBJ palette three's transparent entry.</summary>
     public PaletteRgb5[][]? Baby { get; init; }
 }
 
+/// <summary>Filename and schema-version identities for the installed Ridley/Baby RGB5 palette asset and its supported legacy override migrations.</summary>
 public static class CeresRidleyColorFormat
 {
+    /// <summary>Resource-root JSON filename consumed by the presentation catalog's migrating-resource loader.</summary>
     public const string FileName = "ceres-ridley-colors.json";
+    /// <summary>Current schema version three, requiring the complete startup, fade, health, retreat, Baby, and alarm palette families.</summary>
     public const int Version = 3;
+    /// <summary>Legacy schema version one, lacking Baby and alarm rows; loading requires a stock catalog to provide both families.</summary>
     public const int PreBabyVersion = 1;
+    /// <summary>Legacy schema version two, containing Baby rows but lacking alarm rows; loading requires a stock catalog for the alarm family.</summary>
     public const int PreAlarmVersion = 2;
 }

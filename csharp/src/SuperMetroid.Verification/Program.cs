@@ -330,6 +330,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--mother-brain-small-purple-breath"])
+{
+    VerifyMotherBrainSmallPurpleBreath();
+    return 0;
+}
 if (args is ["--mother-brain-head-hitbox"])
 {
     VerifyMotherBrainHeadHitbox();
@@ -7351,6 +7356,7 @@ VerifyMotherBrainTubeTiming();
 VerifyMotherBrainTubeHdmaDeletion();
 VerifyMotherBrainRaiseCounter();
 VerifyMotherBrainHeadHitbox();
+VerifyMotherBrainSmallPurpleBreath();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

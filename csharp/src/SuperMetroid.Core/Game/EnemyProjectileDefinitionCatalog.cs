@@ -165,6 +165,11 @@ internal static class EnemyProjectileDefinitionCatalog
             EnemyProjectileInstructionMechanicsDefinitions.MotherBrainPurpleBreathInitial,
             0x0000, 0x3000, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
+        RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall => new(
+            0xCA83, 0xCAA3,
+            EnemyProjectileInstructionMechanicsDefinitions.MotherBrainPurpleBreathSmallInitial,
+            0x0000, 0x3000, 0x0000,
+            CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.MotherBrainDrool => new(
             0xC843, 0xC84D,
             EnemyProjectileInstructionMechanicsDefinitions.MotherBrainDroolInitial,

@@ -359,6 +359,11 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot? head = state?.Head;
         if (state?.DrawBrain != true || head is null)
             return;
+        // `$A9:9357-$936B` samples (never advances) the RNG before reading the brain frame,
+        // so the small breath can spawn even on a draw that then shows no brain.
+        if (state.SmallPurpleBreathGenerationEnabled && !state.SmallPurpleBreathActive &&
+            (RequireRandomNumber() & 0x8000) == 0)
+            SpawnMotherBrainPurpleBreathSmall(state);
         // `$A9:936F` advances the brain list here, after every enemy's AI, and returns out
         // of the whole draw when the list is not live.
         if (AdvanceMotherBrainBrainInstructions(state) is not ushort brainSpritemap)

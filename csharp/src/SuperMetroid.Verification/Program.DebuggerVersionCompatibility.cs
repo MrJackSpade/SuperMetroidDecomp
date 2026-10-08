@@ -324,7 +324,12 @@ internal static partial class Program
         }
         var motherBrainFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(MotherBrainEnemyState)])!;
-        FieldInfo[] preBrainListFields = motherBrainFields.Where(field => field.Name is not
+        FieldInfo[] preSmallBreathFields = motherBrainFields.Where(field =>
+            field.Name != "<SmallPurpleBreathActive>k__BackingField").ToArray();
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(MotherBrainEnemyState), motherBrainFields,
+                preSmallBreathFields.Length).SequenceEqual(preSmallBreathFields),
+            "pre-small-breath Mother Brain layout omits only the active flag");
+        FieldInfo[] preBrainListFields = preSmallBreathFields.Where(field => field.Name is not
             "<BrainInstructionPointer>k__BackingField" and not "<BrainInstructionTimer>k__BackingField").ToArray();
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(MotherBrainEnemyState), motherBrainFields,
                 preBrainListFields.Length).SequenceEqual(preBrainListFields),

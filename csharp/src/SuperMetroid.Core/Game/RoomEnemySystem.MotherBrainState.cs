@@ -263,6 +263,13 @@ public sealed class MotherBrainEnemyState
     public bool SmallPurpleBreathGenerationEnabled { get; internal set; }
 
     /// <summary>
+    /// <c>MotherBrainBody.smallPurpleBreathActiveFlag</c> ($7E:786A): set by the small breath's
+    /// initializer ($86:CA9B) and cleared by its last instruction ($86:CAEE), so at most one
+    /// small breath is alive.
+    /// </summary>
+    public bool SmallPurpleBreathActive { get; internal set; }
+
+    /// <summary>
     /// Attached-mouth offset selector used by drool opcode <c>$A9:9B3C</c>. Native
     /// increments before spawning and wraps at six, so a zero-initialized encounter emits
     /// parameter one first.

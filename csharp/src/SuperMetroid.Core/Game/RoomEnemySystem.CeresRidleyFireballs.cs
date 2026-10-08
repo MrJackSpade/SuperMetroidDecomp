@@ -44,6 +44,7 @@ public enum RoomEnemyProjectileKind : ushort
     MotherBrainHandBeamFired = 0xcb75,
     MotherBrainRainbowBeamCharging = 0xcb83,
     MotherBrainPurpleBreathBig = 0xcb2f,
+    MotherBrainPurpleBreathSmall = 0xcb3d,
     MotherBrainDrool = 0xcb91,
     MotherBrainDyingDrool = 0xcb9f,
     MotherBrainRainbowBeamExplosion = 0xcbad,
@@ -1655,6 +1656,13 @@ public sealed partial class RoomEnemySystem
                     break;
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction:
                     projectile.PreInstruction = EnemyProjectileCodePointers.RTS_868170;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_MotherBrainPurpleBreath_Inactive
+                    when projectile.Kind == RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall:
+                    (_motherBrain ?? throw new InvalidOperationException(
+                        "Mother Brain's small purple breath ran without its encounter state."))
+                        .SmallPurpleBreathActive = false;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case DownwardGateEnemyProjectileRomData.SetYVelocityInstruction:

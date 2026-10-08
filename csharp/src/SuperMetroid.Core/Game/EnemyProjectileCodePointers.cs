@@ -381,6 +381,12 @@ internal static class EnemyProjectileCodePointers
     /// <summary><c>Instruction_EnemyProjectile_ClearPreInstruction</c> at $86:816A. Clear pre-instruction to $8170 RTS.</summary>
     public const ushort Instruction_EnemyProjectile_ClearPreInstruction = 0x816a;
 
+    /// <summary>
+    /// <c>Instruction_EnemyProjectile_MotherBrainPurpleBreath_Inactive</c> at $86:CAEE: clears
+    /// <c>MotherBrainBody.smallPurpleBreathActiveFlag</c> before the small breath deletes itself.
+    /// </summary>
+    public const ushort Instruction_EnemyProjectile_MotherBrainPurpleBreath_Inactive = 0xcaee;
+
     /// <summary><c>Instruction_EnemyProjectile_CallExternalFunctionInY</c> at $86:8171. Call the following 24-bit external function.</summary>
     public const ushort Instruction_EnemyProjectile_CallExternalFunctionInY = 0x8171;
 

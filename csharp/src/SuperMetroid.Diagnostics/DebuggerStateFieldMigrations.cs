@@ -68,6 +68,13 @@ internal static class DebuggerStateFieldMigrations
             return SelectSerializedFields(type, current.Where(field => field.Name != "_enemyFrameTimeIsFrozen").ToArray(), count);
         }
         if (type == typeof(MotherBrainEnemyState) &&
+            current.Any(field => field.Name == "<SmallPurpleBreathActive>k__BackingField"))
+        {
+            // Older builds never spawned the small breath, so no capture has one alive.
+            return SelectSerializedFields(type, current.Where(field =>
+                field.Name != "<SmallPurpleBreathActive>k__BackingField").ToArray(), count);
+        }
+        if (type == typeof(MotherBrainEnemyState) &&
             current.Any(field => field.Name == "<BrainInstructionPointer>k__BackingField"))
         {
             // The brain list moved off the head enemy; InitializeMissingFields moves it back.

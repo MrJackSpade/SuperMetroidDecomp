@@ -45,6 +45,9 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
     /// <summary><c>$86:CAA4</c>, finite large purple-breath animation program.</summary>
     internal const ushort MotherBrainPurpleBreathInitial = 0xcaa4;
 
+    /// <summary><c>$86:CAC8</c>, finite small purple-breath program ending in $86:CAEE.</summary>
+    internal const ushort MotherBrainPurpleBreathSmallInitial = 0xcac8;
+
     /// <summary><c>$86:C829</c>, finite Mother Brain rainbow-beam charge program.</summary>
     internal const ushort MotherBrainRainbowBeamChargingInitial = 0xc829;
 
@@ -212,6 +215,10 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
     private const ushort UnresolvedPurpleBreathStartFrames = 8;
     /// <summary>$86:CAA6-CAC2: purple-breath increment per pair; this chosen timing input remains required.</summary>
     private const ushort UnresolvedPurpleBreathStepFrames = 1;
+    /// <summary>$86:CACA-CACE: the small breath's first two poses hold eight frames each.</summary>
+    private const ushort SmallPurpleBreathOpeningFrames = 8;
+    /// <summary>$86:CAD2-CAE6: its later pairs hold ten, eleven and twelve frames.</summary>
+    private const ushort SmallPurpleBreathLaterStartFrames = 10;
     /// <summary>$86:CA22-CA2E: first four fragment poses; this chosen timing input remains required.</summary>
     private const ushort UnresolvedDoorEarlyFrames = 1;
     /// <summary>$86:CA32: first later fragment pair; this chosen timing input remains required.</summary>
@@ -267,7 +274,7 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
         RainbowBurstPhase phase = frame < 2 ? RainbowBurstPhase.Compact : RainbowBurstPhase.Expanded;
         return phase == RainbowBurstPhase.Compact ? UnresolvedCompactRainbowBurstFrames : UnresolvedExpandedRainbowBurstFrames;
     }
-    private const int TimedProgramCount = 36;
+    private const int TimedProgramCount = 37;
     private static EnemyProjectileTimedProgramDefinition TimedProgram(int index) => index switch
     {
         0 => new(MotherBrainBombInitial, 9, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY, MotherBrainBombInitial),
@@ -306,6 +313,10 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
         33 => new(MiscDustSaveStationLaser, 8, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
         34 => new(MiscDustExpandingGate, 8, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
         35 => new(MiscDustContractingGate, 8, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
+        // The breath-inactive opcode takes no operand; the word after it is the Delete opcode.
+        36 => new(MotherBrainPurpleBreathSmallInitial, 8, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction,
+            EnemyProjectileCodePointers.Instruction_EnemyProjectile_MotherBrainPurpleBreath_Inactive,
+            EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 
@@ -313,6 +324,9 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
     {
         MotherBrainBombInitial => (ushort)(UnresolvedBombPeakFrames - Math.Min(frame, 9 - frame) * UnresolvedBombHoldStepFrames),
         MotherBrainPurpleBreathInitial => (ushort)(UnresolvedPurpleBreathStartFrames + frame / 2 * UnresolvedPurpleBreathStepFrames),
+        MotherBrainPurpleBreathSmallInitial => frame < 2
+            ? SmallPurpleBreathOpeningFrames
+            : (ushort)(SmallPurpleBreathLaterStartFrames + (frame - 2) / 2),
         MotherBrainEscapeDoorFragmentInitial => (ushort)(frame < 4 ? UnresolvedDoorEarlyFrames : UnresolvedDoorLaterStartFrames + (frame - 4) / 2 * UnresolvedDoorLaterStepFrames),
         MiscDustElbowChargeParticle => (ushort)Math.Max(UnresolvedElbowParticleMinimumFrames, UnresolvedElbowParticleStartFrames - frame * UnresolvedElbowParticleStepFrames),
         // The final pose changes to small-explosion ignition; its selected hold remains required.
@@ -355,6 +369,7 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
         RoomEnemyProjectileKind.MotherBrainOnionRing or
         RoomEnemyProjectileKind.MotherBrainBomb or
         RoomEnemyProjectileKind.MotherBrainPurpleBreathBig or
+        RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall or
         RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging or
         RoomEnemyProjectileKind.MotherBrainDrool or
         RoomEnemyProjectileKind.MotherBrainDyingDrool or

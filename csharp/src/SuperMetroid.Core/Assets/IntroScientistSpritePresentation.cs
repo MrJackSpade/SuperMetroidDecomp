@@ -14,6 +14,13 @@ public sealed class IntroScientistSpritePresentation : IIntroCinematicSpritePres
     private IntroScientistSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 
+    /// <summary>Draws one installed baby-Metroid composition used by the two scientist scenes.</summary>
+    /// <param name="pointer">Native bank-$8C spritemap identity for one of the ten frames.</param>
+    /// <param name="oam">The OAM buffer receiving the ordered sprite parts.</param>
+    /// <param name="x">Actor anchor X coordinate in the selected coordinate space.</param>
+    /// <param name="y">Actor anchor Y coordinate in the selected coordinate space.</param>
+    /// <param name="paletteBits">OBJ palette attribute bits applied to inherited-palette parts.</param>
+    /// <param name="originIsOnScreen">Whether the anchor is already in screen space rather than the off-screen cinematic space.</param>
     public void Draw(ushort pointer, OamBuffer oam, ushort x, ushort y,
         ushort paletteBits, bool originIsOnScreen)
     {
@@ -26,6 +33,10 @@ public sealed class IntroScientistSpritePresentation : IIntroCinematicSpritePres
             frame.DrawOffScreen(oam, x, y, paletteBits);
     }
 
+    /// <summary>Loads and validates all ten baby-Metroid visual frames for the scientist scenes.</summary>
+    /// <param name="json">The caller-owned stream containing the editable sprite document.</param>
+    /// <returns>The compiled presentation keyed by native bank-$8C spritemap identities.</returns>
+    /// <exception cref="InvalidDataException">The JSON, version, frame set, or sprite parts are invalid.</exception>
     public static IntroScientistSpritePresentation Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -61,6 +72,9 @@ public sealed class IntroScientistSpritePresentation : IIntroCinematicSpritePres
         return new IntroScientistSpritePresentation(frames);
     }
 
+    /// <summary>Validates and writes an editable scientist-scene baby sprite document as JSON.</summary>
+    /// <param name="json">The caller-owned destination stream.</param>
+    /// <param name="document">The ten-frame sprite document to validate and serialize.</param>
     public static void Write(Stream json, IntroScientistSpriteDocument document)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -71,15 +85,22 @@ public sealed class IntroScientistSpritePresentation : IIntroCinematicSpritePres
     }
 }
 
+/// <summary>Editable JSON schema for the scientist scenes' baby-Metroid compositions.</summary>
 public sealed record IntroScientistSpriteDocument
 {
+    /// <summary>Gets the scientist-scene sprite schema version.</summary>
     public required int Version { get; init; }
+
+    /// <summary>Gets all ten required named baby-Metroid visual compositions.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
 }
 
 /// <summary>Installed file identity for ten scientist-scene baby sprite frames.</summary>
 public static class IntroScientistSpriteFormat
 {
+    /// <summary>The supported scientist-scene sprite JSON schema version.</summary>
     public const int Version = 1;
+
+    /// <summary>The embedded editable scientist-scene sprite asset file name.</summary>
     public const string FileName = "intro-scientist-baby-sprites.json";
 }

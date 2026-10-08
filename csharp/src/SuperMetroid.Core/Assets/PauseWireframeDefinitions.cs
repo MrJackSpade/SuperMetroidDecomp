@@ -3,13 +3,28 @@ using SuperMetroid.Core.Frontend;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Four mutually exclusive visuals selected by the compiled Varia/Hi-Jump rule.</summary>
-public enum PauseWireframeKind { PowerSuit, PowerSuitHiJump, VariaSuit, VariaSuitHiJump }
+public enum PauseWireframeKind
+{
+    /// <summary>Power Suit artwork with regular boots.</summary>
+    PowerSuit,
+    /// <summary>Power Suit artwork with Hi-Jump boots.</summary>
+    PowerSuitHiJump,
+    /// <summary>Varia Suit artwork with regular boots.</summary>
+    VariaSuit,
+    /// <summary>Varia Suit artwork with Hi-Jump boots.</summary>
+    VariaSuitHiJump
+}
 
 /// <summary>Native pause wireframe patch geometry, independent of inventory selection.</summary>
 public static class PauseWireframeDefinitions
 {
+    /// <summary>The supported editable pause-wireframe JSON schema version.</summary>
     public const int Version = 1;
+
+    /// <summary>The embedded editable pause-wireframe asset file name.</summary>
     public const string FileName = "pause-wireframes.json";
+
+    /// <summary>The four complete Power/Varia and regular/Hi-Jump artwork variants.</summary>
     public const int Count = 4;
     /// <summary>$82:B25F Samus_Wireframe_Tilemaps pointer order: Power, Power/Hi-Jump, Varia, Varia/Hi-Jump.</summary>
     public const int Pointers = PauseMenuRomData.EquipmentTilemapPatchPointerTable;

@@ -12,6 +12,14 @@ public sealed class RoomVisualLayout
     private readonly ushort[] foreground;
     private readonly ushort[] background;
 
+    /// <summary>Copies and validates both initial visual planes for one room-level source, rejecting mismatched dimensions and any collision/type bits in the artwork words.</summary>
+    /// <param name="sourceAddress">Room state's full 24-bit level-data source identity, used for artwork lookup rather than runtime cartridge access.</param>
+    /// <param name="widthInBlocks">Positive row stride in native 16-pixel blocks.</param>
+    /// <param name="heightInBlocks">Positive number of block rows; each plane must contain width times height words.</param>
+    /// <param name="foregroundVisualWords">Row-major BG1 words: block selector bits 0..9 and parent horizontal/vertical flip bits 10..11 only.</param>
+    /// <param name="backgroundVisualWords">Row-major BG2 words with the same permitted bit fields; collision/type and BTS data are not supplied here.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The source is outside 24 bits or a dimension is nonpositive.</exception>
+    /// <exception cref="InvalidDataException">A plane has the wrong word count or includes bits 12..15.</exception>
     public RoomVisualLayout(int sourceAddress, int widthInBlocks, int heightInBlocks,
         ReadOnlySpan<ushort> foregroundVisualWords,
         ReadOnlySpan<ushort> backgroundVisualWords)
@@ -35,10 +43,15 @@ public sealed class RoomVisualLayout
         background = backgroundVisualWords.ToArray();
     }
 
+    /// <summary>Full 24-bit room-level source identity shared by room states using the same initial artwork allocation.</summary>
     public int SourceAddress { get; }
+    /// <summary>Row stride of each visual plane, measured in native 16-pixel blocks rather than 8-pixel SNES characters.</summary>
     public int WidthInBlocks { get; }
+    /// <summary>Number of 16-pixel block rows represented by each visual plane; does not resize the compiled collision allocation.</summary>
     public int HeightInBlocks { get; }
+    /// <summary>Copied initial BG1 block selectors and parent flips in row-major order, with collision/type bits excluded; runtime streaming combines them with the unmodified native type bits.</summary>
     public ReadOnlyMemory<ushort> ForegroundVisualWords => foreground;
+    /// <summary>Copied initial BG2 block selectors and parent flips in row-major order, independent of native type bits, BTS, and subsequent scripted room changes.</summary>
     public ReadOnlyMemory<ushort> BackgroundVisualWords => background;
 
     private static bool HasCollisionBits(ReadOnlySpan<ushort> words)
@@ -54,6 +67,9 @@ public sealed class RoomVisualLayoutCatalog
 {
     private readonly Dictionary<int, RoomVisualLayout> layouts;
 
+    /// <summary>Copies a source-keyed installation and requires every supported room-level source to have a matching non-null layout.</summary>
+    /// <param name="layouts">Initial visual layouts keyed by their own full 24-bit <see cref="RoomVisualLayout.SourceAddress"/>.</param>
+    /// <exception cref="InvalidDataException">A value is null, its source differs from its key, or a required source is absent.</exception>
     public RoomVisualLayoutCatalog(IReadOnlyDictionary<int, RoomVisualLayout> layouts)
         : this(layouts, requireCompleteInstallation: true)
     {
@@ -88,6 +104,10 @@ public sealed class RoomVisualLayoutCatalog
         }
     });
 
+    /// <summary>Resolves installed initial artwork by the room state's level-data source, without selecting room state or reading cartridge bytes.</summary>
+    /// <param name="sourceAddress">Full 24-bit source identity used as the installation key.</param>
+    /// <returns>The matching validated visual layout.</returns>
+    /// <exception cref="InvalidDataException">The requested source is not installed.</exception>
     public RoomVisualLayout Get(int sourceAddress) =>
         layouts.TryGetValue(sourceAddress, out RoomVisualLayout? layout)
             ? layout

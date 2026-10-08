@@ -18,6 +18,13 @@ public sealed class CeresFlightSpritePresentation : IIntroCinematicSpritePresent
     private CeresFlightSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 
+    /// <summary>Appends an installed Ceres flight composition to OAM in authored part order, choosing the caller's native origin-clipping path without advancing actor motion or animation.</summary>
+    /// <param name="pointer">Bank-$8C spritemap identity for one of the six installed star, station, asteroid, or vortex drawings.</param>
+    /// <param name="oam">Destination OAM buffer for the ordered sprite parts.</param>
+    /// <param name="x">Composition origin's screen X coordinate in native wrapped pixels.</param>
+    /// <param name="y">Composition origin's screen Y coordinate in native wrapped pixels.</param>
+    /// <param name="paletteBits">Encoded OBJ palette bits applied only to parts authored to inherit the drawing owner's palette.</param>
+    /// <param name="originIsOnScreen">True for ordinary on-screen origin clipping; false for the native off-screen path with opposite Y-wrap clipping for negative origins.</param>
     public void Draw(ushort pointer, OamBuffer oam, ushort x, ushort y,
         ushort paletteBits, bool originIsOnScreen)
     {
@@ -30,6 +37,9 @@ public sealed class CeresFlightSpritePresentation : IIntroCinematicSpritePresent
             frame.DrawOffScreen(oam, x, y, paletteBits);
     }
 
+    /// <summary>Loads exactly the six named visual compositions, rejecting duplicate properties, unsupported versions, missing frames, and invalid OAM parts; compiles selected artwork without importing actor timing or motion.</summary>
+    /// <param name="json">Caller-owned UTF-8 JSON stream containing the versioned Ceres flight sprite document.</param>
+    /// <returns>The immutable bank-$8C-keyed presentation shared by approach and destruction scenes.</returns>
     public static CeresFlightSpritePresentation Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -69,6 +79,9 @@ public sealed class CeresFlightSpritePresentation : IIntroCinematicSpritePresent
         return new CeresFlightSpritePresentation(frames);
     }
 
+    /// <summary>Serializes a sprite document using the presentation JSON options and validates it through <see cref="Load"/> before writing any bytes to the destination.</summary>
+    /// <param name="json">Caller-owned destination stream for the validated UTF-8 JSON.</param>
+    /// <param name="document">Document containing all six required named visual frames.</param>
     public static void Write(Stream json, CeresFlightSpriteDocument document)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -79,19 +92,27 @@ public sealed class CeresFlightSpritePresentation : IIntroCinematicSpritePresent
     }
 }
 
+/// <summary>Editable JSON schema for Ceres approach/destruction OAM compositions; scene scripts retain actor placement, motion, and frame-selection timing.</summary>
 public sealed record CeresFlightSpriteDocument
 {
+    /// <summary>Schema revision, which must equal <see cref="CeresFlightSpriteFormat.Version"/>.</summary>
     public required int Version { get; init; }
+    /// <summary>Exactly six ordered-part compositions named <c>stars</c>, <c>large-asteroid</c>, <c>station-under-attack</c>, <c>small-asteroid</c>, <c>vortex-even</c>, and <c>vortex-odd</c>, each bounded by the 128-part OAM limit.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
 }
 
 /// <summary>One bank-$8C visual spritemap and its expected retail OAM entry count.</summary>
+/// <param name="Name">Stable asset name identifying the visual composition.</param>
+/// <param name="Pointer">Native 16-bit spritemap pointer in bank $8C, used as the runtime frame identity.</param>
+/// <param name="StockPartCount">Retail composition's OAM part count for source comparison, not a required count for independently edited artwork.</param>
 public readonly record struct CeresFlightSpriteFrameDefinition(
     string Name, ushort Pointer, int StockPartCount);
 
 /// <summary>Installed visual-composition file for the approach-to-Ceres actor set.</summary>
 public static class CeresFlightSpriteFormat
 {
+    /// <summary>Supported revision of the six-composition Ceres flight sprite JSON schema.</summary>
     public const int Version = 1;
+    /// <summary>Asset filename for the editable OAM compositions shared by the approach and destruction scenes.</summary>
     public const string FileName = "ceres-flight-sprites.json";
 }

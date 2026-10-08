@@ -8,9 +8,16 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public enum SparkEnemyFunction : ushort
 {
+    /// <summary><c>$A8:E694</c>: returns immediately, leaving the continuously active instruction list in control.</summary>
     AlwaysActive = 0xe694,
+
+    /// <summary><c>$A8:E695</c>: counts down the intangible interval before installing the flicker-on list.</summary>
     IntermittentInactive = 0xe695,
+
+    /// <summary><c>$A8:E6B7</c>: counts down the tangible interval before installing the flicker-out list and eight-update extension.</summary>
     IntermittentActive = 0xe6b7,
+
+    /// <summary><c>$A8:E6DC</c>: periodically spawns a falling Spark projectile and reloads the countdown.</summary>
     EmitFallingSparks = 0xe6dc,
 }
 
@@ -25,18 +32,21 @@ public sealed class SparkEnemyState
 
     internal SparkEnemyState(RoomEnemySlot slot) => _slot = slot;
 
+    /// <summary>Gets or sets variable B, the literal bank-$A8 indirect main-function address.</summary>
     public SparkEnemyFunction Function
     {
         get => (SparkEnemyFunction)_slot.VariableB;
         internal set => _slot.VariableB = (ushort)value;
     }
 
+    /// <summary>Gets or sets variable E, the population-supplied base delay or negative random-delay request.</summary>
     public ushort BaseFunctionTime
     {
         get => _slot.VariableE;
         internal set => _slot.VariableE = value;
     }
 
+    /// <summary>Gets or sets variable F, the live wrapping countdown decremented with native <c>DEC; BEQ</c> semantics.</summary>
     public ushort FunctionTimer
     {
         get => _slot.VariableF;

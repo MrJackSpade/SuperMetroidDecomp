@@ -35,10 +35,16 @@ public static class PhantoonTimerDefinitions
     /// <summary>$A7:CD41/CD53/CD63: exposure and hidden-wait tiers, plus the long closed-eye phase, double the preceding tier. These selected phase timings do not exempt separately timed swoop, fade, placement or projectile behavior.</summary>
     private const int TierDoubling = 2;
 
+    /// <summary>Gets the eight-entry RNG-bucket schedule for Phantoon's open-eye damage opportunity.</summary>
     public static Schedule VulnerableWindow => new(TimerKind.Vulnerable);
+
+    /// <summary>Gets the eight-entry RNG/frame-bucket schedule for the closed-eye moving phase.</summary>
     public static Schedule EyeClosed => new(TimerKind.EyeClosed);
+
+    /// <summary>Gets the eight-entry RNG-bucket schedule for the hidden delay after the flame rain.</summary>
     public static Schedule RainHiding => new(TimerKind.RainHiding);
 
+    /// <summary>Allocation-free calculated view of one native eight-bucket Phantoon phase-timer table.</summary>
     public readonly struct Schedule : IReadOnlyList<ushort>
     {
         private readonly TimerKind kind;
@@ -50,7 +56,12 @@ public static class PhantoonTimerDefinitions
             TimerKind.RainHiding => RainHidingChoices,
             _ => throw new InvalidOperationException(),
         };
+        /// <summary>Gets the eight random-selection buckets in the schedule.</summary>
         public int Count => Choices.Length;
+
+        /// <summary>Calculates the selected phase duration in gameplay updates.</summary>
+        /// <param name="index">Bucket index from zero through seven, normally selected by masked RNG or frame bits.</param>
+        /// <returns>The exact short, medium, or long duration for this schedule.</returns>
         public ushort this[int index]
         {
             get
@@ -67,6 +78,8 @@ public static class PhantoonTimerDefinitions
                 });
             }
         }
+        /// <summary>Enumerates all eight calculated durations in native bucket order.</summary>
+        /// <returns>An enumerator over the phase durations.</returns>
         public IEnumerator<ushort> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];

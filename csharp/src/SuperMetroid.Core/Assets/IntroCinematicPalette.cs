@@ -36,6 +36,8 @@ public sealed class IntroCinematicPalette
         }
     }
 
+    /// <summary>Replaces all 256 CGRAM colors with the installed opening palette, corresponding to native $8C:E3E9-E5E8; does not advance or reset cinematic fade timers.</summary>
+    /// <param name="cgram">Destination CGRAM image, receiving the complete $0200-byte BGR555 transfer.</param>
     public void LoadTo(SnesCgram cgram)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -103,6 +105,10 @@ public sealed class IntroCinematicPalette
             return (ushort)result;
         }
     }
+    /// <summary>Validates 256 ordered RGB5 colors and compiles their little-endian BGR555 image, calculating stock/shared shade relationships only when supplied colors match them.</summary>
+    /// <param name="json">Caller-owned stream containing the supported editable opening-palette document.</param>
+    /// <returns>The installed palette used for opening setup and subsequent cinematic fade targets, without changing fade scheduling.</returns>
+    /// <exception cref="InvalidDataException">The schema version, complete color count, or RGB components are invalid.</exception>
     public static IntroCinematicPalette Load(Stream json)
     {
         IntroCinematicPaletteDocument document = JsonAssetDocument.Read<IntroCinematicPaletteDocument>(
@@ -125,6 +131,9 @@ public sealed class IntroCinematicPalette
         return new IntroCinematicPalette(native);
     }
 
+    /// <summary>Serializes the complete opening palette as UTF-8 JSON and validates it through <see cref="Load"/> before writing any destination bytes.</summary>
+    /// <param name="json">Caller-owned destination stream.</param>
+    /// <param name="document">Complete ordered RGB5 palette to validate and serialize.</param>
     public static void Write(Stream json, IntroCinematicPaletteDocument document)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -135,15 +144,19 @@ public sealed class IntroCinematicPalette
     }
 }
 
+/// <summary>Editable full-CGRAM color schema for opening narration, portrait, object, and cross-fade inks; scene phases and fade timing are not document content.</summary>
 public sealed record IntroCinematicPaletteDocument
 {
+    /// <summary>Schema revision required to equal <see cref="IntroCinematicPaletteFormat.Version"/>.</summary>
     public required int Version { get; init; }
+    /// <summary>Exactly 256 non-null RGB5 colors in CGRAM index order, including every sixteen-color row's slot zero; each red, green, and blue channel is 0..31.</summary>
     public required PaletteRgb5[] Colors { get; init; }
 }
 
 /// <summary>Resource identity and schema for the opening narration palette.</summary>
 public static class IntroCinematicPaletteFormat
 {
+    /// <summary>Supported revision of the complete 256-color RGB5 opening-palette schema.</summary>
     public const int Version = 1;
     /// <summary>Native CGRAM palette-row width in RGB5 words.</summary>
     internal const int ColorsPerRow = 16;
@@ -159,5 +172,6 @@ public static class IntroCinematicPaletteFormat
     internal const int SharedCrossFadeSourceRow = 2;
     /// <summary>$8C:E5BB-E5C2: reviewed blue endpoints31/4 derive their equal three-interval decrement.</summary>
     internal const int CrossFadeBlueStep = IntroCinematicPaintDefinitions.CrossfadeBlueStep;
+    /// <summary>Editable JSON filename for the opening narration's complete native-precision CGRAM palette.</summary>
     public const string FileName = "intro-narration-palette.json";
 }

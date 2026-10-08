@@ -27,6 +27,10 @@ public sealed class CeresRidleyMode7ColorCatalog
         return rows.Resolve(zoomHighByte, color);
     }
 
+    /// <summary>Reproduces $A6:B0EF's fifteen-color zoom shade write to CGRAM 81..95, preserving BG palette 5 color zero and leaving zoom/rotation mechanics unchanged.</summary>
+    /// <param name="cgram">Destination palette memory.</param>
+    /// <param name="zoomHighByte">High byte of the current native zoom word, 0..8; not a frame timer or byte offset into the stored rows.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The zoom row is outside 0..8.</exception>
     public void Apply(SnesCgram cgram, int zoomHighByte)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -34,6 +38,10 @@ public sealed class CeresRidleyMode7ColorCatalog
         for (int color = 0; color < CeresRidleyPaletteRomData.Mode7ZoomColorCount; color++)
             cgram.SetColor(CeresRidleyPaletteRomData.Mode7ZoomCgramIndex + color, rows.Resolve(zoomHighByte, color));
     }
+    /// <summary>Loads all nine zoom shades, each containing fifteen RGB5 colors, rejecting duplicate/unknown JSON properties, unsupported versions, and channel values outside 0..31.</summary>
+    /// <param name="json">Caller-owned stream containing the editable Ceres getaway color document.</param>
+    /// <returns>Installed zoom-dependent inks; the native sixteen-word row stride and unused padding are not editable content.</returns>
+    /// <exception cref="InvalidDataException">The document schema, row dimensions, or RGB5 colors are invalid.</exception>
     public static CeresRidleyMode7ColorCatalog Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -72,6 +80,9 @@ public sealed class CeresRidleyMode7ColorCatalog
         return new(rows);
     }
 
+    /// <summary>Serializes all zoom shades as UTF-8 JSON and validates them through <see cref="Load"/> before returning the payload.</summary>
+    /// <param name="document">Complete nine-row color document to validate and serialize.</param>
+    /// <returns>Validated JSON bytes, without writing an external resource.</returns>
     public static byte[] Write(CeresRidleyMode7ColorDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
@@ -84,15 +95,20 @@ public sealed class CeresRidleyMode7ColorCatalog
             name => new InvalidDataException($"Duplicate Ceres Ridley Mode-7 property {name}."));
 }
 
+/// <summary>Editable Ceres Ridley getaway zoom shades corresponding to $A6:B107 onward, excluding each native row's unused sixteenth word.</summary>
 public sealed record CeresRidleyMode7ColorDocument
 {
+    /// <summary>Schema revision required to equal <see cref="CeresRidleyMode7ColorFormat.Version"/>.</summary>
     public required int Version { get; init; }
     /// <summary>Nine zoom-high-byte rows, zero through eight, each with fifteen RGB5 colors.</summary>
     public required PaletteRgb5[][] ZoomRows { get; init; }
 }
 
+/// <summary>Editable color-resource filename and JSON revision, separate from native zoom-state and palette-destination definitions.</summary>
 public static class CeresRidleyMode7ColorFormat
 {
+    /// <summary>JSON filename loaded by the presentation catalog for the nine Mode-7 getaway shades.</summary>
     public const string FileName = "ceres-ridley-mode7-colors.json";
+    /// <summary>Supported revision of the nine-by-fifteen RGB5 zoom-shade schema.</summary>
     public const int Version = 1;
 }

@@ -123,48 +123,56 @@ public sealed partial class SuperMetroidRuntime
         set => Plms.TourianAccessVisuals = value;
     }
 
+    /// <summary>Host-installed bomb-revealed Speed Booster block appearance forwarded to the PLM system; nonserialized and rebound after restoration, while type-B collision and reveal timing remain compiled.</summary>
     public RoomPlmSpeedBoosterVisualCatalog? RoomPlmSpeedBoosterVisuals
     {
         get => Plms.SpeedBoosterVisuals;
         set => Plms.SpeedBoosterVisuals = value;
     }
 
+    /// <summary>Host-installed Maridia elevatube block appearance forwarded to the PLM system; rebound after restoration independently of physical blocks, hold duration, sound, and deletion mechanics.</summary>
     public RoomPlmMaridiaElevatubeVisualCatalog? RoomPlmMaridiaElevatubeVisuals
     {
         get => Plms.MaridiaElevatubeVisuals;
         set => Plms.MaridiaElevatubeVisuals = value;
     }
 
+    /// <summary>Nonserialized Spore Spawn ceiling artwork for three crumble frames and final clear, forwarded to the PLM system and rebound after restoration; physical words and 2-by-2 draw geometry remain compiled.</summary>
     public RoomPlmSporeSpawnCeilingVisualCatalog? RoomPlmSporeSpawnCeilingVisuals
     {
         get => Plms.SporeSpawnCeilingVisuals;
         set => Plms.SporeSpawnCeilingVisuals = value;
     }
 
+    /// <summary>Nonserialized artwork for four floor and four ceiling Samus Eater plant poses, rebound through the PLM system after restoration without replacing their collision nibbles or three-run geometry.</summary>
     public RoomPlmSamusEaterVisualCatalog? RoomPlmSamusEaterVisuals
     {
         get => Plms.SamusEaterVisuals;
         set => Plms.SamusEaterVisuals = value;
     }
 
+    /// <summary>Nonserialized nine-block defeated-Botwoon wall-clear appearance forwarded to the PLM system and rebound after restoration; crumble frames use the shared shot-block catalog and mechanics remain compiled.</summary>
     public RoomPlmBotwoonWallVisualCatalog? RoomPlmBotwoonWallVisuals
     {
         get => Plms.BotwoonWallVisuals;
         set => Plms.BotwoonWallVisuals = value;
     }
 
+    /// <summary>Host-installed Kraid ceiling and floor-spike appearances forwarded to the PLM system; rebound after restoration independently of native block words, animation timing, and movement callbacks.</summary>
     public RoomPlmKraidVisualCatalog? RoomPlmKraidVisuals
     {
         get => Plms.KraidVisuals;
         set => Plms.KraidVisuals = value;
     }
 
+    /// <summary>Nonserialized Crocomire bridge and invisible-wall appearances forwarded to the PLM system and rebound after restoration; physical level words, scripted timing, and draw geometry remain compiled.</summary>
     public RoomPlmCrocomireVisualCatalog? RoomPlmCrocomireVisuals
     {
         get => Plms.CrocomireVisuals;
         set => Plms.CrocomireVisuals = value;
     }
 
+    /// <summary>Nonserialized Mother Brain fake-death wall, background, door, and tube appearances forwarded to the PLM system and rebound after restoration; collision words, draw geometry, and PLM timing remain unchanged.</summary>
     public RoomPlmMotherBrainFakeDeathVisualCatalog? RoomPlmMotherBrainFakeDeathVisuals
     {
         get => Plms.MotherBrainFakeDeathVisuals;

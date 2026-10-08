@@ -71,6 +71,9 @@ public sealed class CeresFlightPalette
         return (ushort)result;
     }
 
+    /// <summary>Loads the supported palette schema with exactly 256 non-null RGB5 colors, rejecting malformed or duplicate JSON properties and channels outside 0..31; supplied edits remain independent of calculated stock repeats and ramps.</summary>
+    /// <param name="json">Caller-owned UTF-8 JSON stream containing the complete Ceres approach palette in CGRAM order.</param>
+    /// <returns>The immutable selected palette corresponding to native <c>Palettes_SpaceGunshipCeres</c> at <c>$8C:E5E9</c>.</returns>
     public static CeresFlightPalette Load(Stream json)
     {
         CeresFlightPaletteDocument document = JsonAssetDocument.Read<CeresFlightPaletteDocument>(
@@ -92,6 +95,9 @@ public sealed class CeresFlightPalette
         return new CeresFlightPalette(native);
     }
 
+    /// <summary>Serializes a palette document with the presentation JSON options and validates it through <see cref="Load"/> before writing any bytes to the destination.</summary>
+    /// <param name="json">Caller-owned destination stream for the validated UTF-8 JSON.</param>
+    /// <param name="document">Document containing the supported version and all 256 RGB5 colors.</param>
     public static void Write(Stream json, CeresFlightPaletteDocument document)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -101,6 +107,8 @@ public sealed class CeresFlightPalette
         json.Write(bytes);
     }
 
+    /// <summary>Replaces all 256 current CGRAM entries with the selected approach palette, including backdrop and OBJ colors; cinematic timing, brightness, and fades remain the caller's responsibility.</summary>
+    /// <param name="cgram">Destination color memory to overwrite in color-entry order.</param>
     public void LoadTo(SnesCgram cgram)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -108,15 +116,20 @@ public sealed class CeresFlightPalette
     }
 }
 
+/// <summary>Editable JSON schema for the complete Ceres approach palette, also reused by the destruction scene; PNG transport palettes do not supply these rendered colors.</summary>
 public sealed record CeresFlightPaletteDocument
 {
+    /// <summary>Schema revision, which must equal <see cref="CeresFlightPaletteFormat.Version"/>.</summary>
     public required int Version { get; init; }
+    /// <summary>Exactly 256 non-null colors with channels in 0..31, ordered by CGRAM index and matching native source words at <c>$8C:E5E9 + 2 * index</c>.</summary>
     public required PaletteRgb5[] Colors { get; init; }
 }
 
 /// <summary>Resource identity and schema for the native Ceres approach palette.</summary>
 public static class CeresFlightPaletteFormat
 {
+    /// <summary>Supported revision of the full 256-color RGB5 palette JSON schema.</summary>
     public const int Version = 1;
+    /// <summary>Asset filename for the independently editable Ceres approach color image.</summary>
     public const string FileName = "ceres-flight-palette.json";
 }

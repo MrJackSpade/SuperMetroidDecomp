@@ -14,6 +14,13 @@ public sealed class IntroDiscoveryActorSpritePresentation : IIntroCinematicSprit
     private IntroDiscoveryActorSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 
+    /// <summary>Draws one installed egg, remnant, confused-baby, or hatched-baby composition.</summary>
+    /// <param name="pointer">Native bank-$8C spritemap identity for one of the twenty actor frames.</param>
+    /// <param name="oam">The OAM buffer receiving the ordered sprite parts.</param>
+    /// <param name="x">Actor anchor X coordinate in the selected coordinate space.</param>
+    /// <param name="y">Actor anchor Y coordinate in the selected coordinate space.</param>
+    /// <param name="paletteBits">OBJ palette attribute bits applied to inherited-palette parts.</param>
+    /// <param name="originIsOnScreen">Whether the anchor is already in screen space rather than the off-screen cinematic space.</param>
     public void Draw(ushort pointer, OamBuffer oam, ushort x, ushort y,
         ushort paletteBits, bool originIsOnScreen)
     {
@@ -25,6 +32,10 @@ public sealed class IntroDiscoveryActorSpritePresentation : IIntroCinematicSprit
             frame.DrawOffScreen(oam, x, y, paletteBits);
     }
 
+    /// <summary>Loads and validates all sixteen egg/remnant and four baby visual frames.</summary>
+    /// <param name="json">The caller-owned stream containing the editable sprite document.</param>
+    /// <returns>The compiled presentation keyed by native bank-$8C spritemap identities.</returns>
+    /// <exception cref="InvalidDataException">The JSON, version, frame set, or sprite parts are invalid.</exception>
     public static IntroDiscoveryActorSpritePresentation Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -64,6 +75,9 @@ public sealed class IntroDiscoveryActorSpritePresentation : IIntroCinematicSprit
         return new IntroDiscoveryActorSpritePresentation(frames);
     }
 
+    /// <summary>Validates and writes an editable SR388 discovery-actor sprite document as JSON.</summary>
+    /// <param name="json">The caller-owned destination stream.</param>
+    /// <param name="document">The twenty-frame sprite document to validate and serialize.</param>
     public static void Write(Stream json, IntroDiscoveryActorSpriteDocument document)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -74,15 +88,22 @@ public sealed class IntroDiscoveryActorSpritePresentation : IIntroCinematicSprit
     }
 }
 
+/// <summary>Editable JSON schema for the SR388 egg, remnants, and baby Metroid compositions.</summary>
 public sealed record IntroDiscoveryActorSpriteDocument
 {
+    /// <summary>Gets the discovery-actor sprite schema version.</summary>
     public required int Version { get; init; }
+
+    /// <summary>Gets all twenty required named visual compositions in the compiled actor set.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
 }
 
 /// <summary>Installed file identity for the twenty SR388 egg and baby actor frames.</summary>
 public static class IntroDiscoveryActorSpriteFormat
 {
+    /// <summary>The supported discovery-actor sprite JSON schema version.</summary>
     public const int Version = 1;
+
+    /// <summary>The embedded editable discovery-actor sprite asset file name.</summary>
     public const string FileName = "intro-discovery-actor-sprites.json";
 }

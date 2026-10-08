@@ -14,8 +14,14 @@ public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTran
     private readonly byte[]? thirdPoint;
     private readonly byte[]? fourthPoint;
     private readonly byte[]? verticalSegments;
+
+    /// <summary>Gets the optional installed Grapple endpoint and beam sprite compositions.</summary>
     public GrappleSpriteCatalog? Sprites { get; }
+
+    /// <summary>Gets the optional installed standing and running Grapple flare offsets.</summary>
     public ChargeFlarePlacementCatalog? FlarePlacement { get; }
+
+    /// <summary>Gets the optional installed angle-to-displayed-frame mapping for Samus's swing pose.</summary>
     public GrappleSwingFrameCatalog? SwingFrames { get; }
     private GrappleTileAtlas(byte[] tiles, GrappleSpriteCatalog? sprites, ChargeFlarePlacementCatalog? flarePlacement, GrappleSwingFrameCatalog? swingFrames)
     {
@@ -34,11 +40,20 @@ public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTran
         if (!tiles.AsSpan(384, 128).SequenceEqual(GrappleBeamTilePatterns.VerticalSegments(tiles.AsSpan(128, 128))))
             verticalSegments = tiles.AsSpan(384, 128).ToArray();
     }
+    /// <summary>Compiles the 128-by-8 indexed Grapple PNG into sixteen row-major SNES 4-bpp characters.</summary>
+    /// <param name="png">The caller-owned indexed PNG stream; pixel indices must fit the 4-bpp domain.</param>
+    /// <param name="sprites">Optional installed Grapple sprite compositions.</param>
+    /// <param name="flarePlacement">Optional installed Grapple flare placement catalog.</param>
+    /// <param name="swingFrames">Optional installed swing-frame selection catalog.</param>
+    /// <returns>The immutable tile atlas and its associated optional visual assets.</returns>
     public static GrappleTileAtlas Load(Stream png, GrappleSpriteCatalog? sprites = null, ChargeFlarePlacementCatalog? flarePlacement = null, GrappleSwingFrameCatalog? swingFrames = null)
     {
         var image = IndexedPng.Read(png, GrappleTileDefinitions.Width, GrappleTileDefinitions.Height);
         return new(SnesPlanarTileEncoder.Encode(image.Pixels, image.Width, image.Height, 4), sprites, flarePlacement, swingFrames);
     }
+    /// <summary>Resolves one endpoint character or four-character rope-orientation transfer.</summary>
+    /// <param name="asset">One of the seven Grapple-owned VRAM asset identities.</param>
+    /// <returns>The current 32-byte endpoint or 128-byte segment transfer.</returns>
     public ReadOnlyMemory<byte> Resolve(VramAssetId asset)
     {
         var transfer = GrappleTileDefinitions.TransferFor(asset);
@@ -68,11 +83,17 @@ public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTran
         data = default;
         return false;
     }
+    /// <summary>Queues the selected endpoint-animation character for VRAM word <c>$6200</c>.</summary>
+    /// <param name="queue">The deferred VRAM write queue.</param>
+    /// <param name="frame">Endpoint animation ordinal from zero through three.</param>
     public void QueuePoint(VramWriteQueue queue, ushort frame)
     {
         var asset = GrappleTileDefinitions.PointAssetFor(frame);
         queue.EnqueueAsset(asset, checked((ushort)Resolve(asset).Length), GrappleTileDefinitions.PointDestination);
     }
+    /// <summary>Queues the four horizontal, diagonal, or vertical rope characters selected by the native angle fold.</summary>
+    /// <param name="queue">The deferred VRAM write queue.</param>
+    /// <param name="angle">Unsigned native Grapple angle whose 64 sectors select the rope orientation.</param>
     public void QueueSegments(VramWriteQueue queue, ushort angle)
     {
         var asset = GrappleTileDefinitions.SegmentAssetFor(angle);

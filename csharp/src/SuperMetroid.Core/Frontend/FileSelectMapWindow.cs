@@ -12,6 +12,12 @@ public sealed class FileSelectMapWindow
     private readonly uint[] edges = new uint[4];
     private ushort timer;
 
+    /// <summary>Creates the area-to-room expanding window at the installed label anchor, with collapsed edges and native area-specific 16.16 velocities/timer; editable anchors do not change compiled motion.</summary>
+    /// <param name="bus">Non-null runtime address-space dependency; this setup uses compiled motion rather than reading cartridge tables.</param>
+    /// <param name="area">Game-area identity 0..5 for the six Zebes areas, not the file-select display-order ordinal.</param>
+    /// <param name="labels">Required installed world-map label anchors; a missing catalog is rejected even though the parameter defaults to null.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The area has no supported transition.</exception>
+    /// <exception cref="InvalidOperationException">World-map labels are not installed.</exception>
     public FileSelectMapWindow(ISnesAddressSpace bus, int area, SuperMetroid.Core.Assets.WorldMapLabelLayout? labels = null)
         : this(bus, area, FileSelectMapWindowMotions.Get(area), labels) { }
 
@@ -37,11 +43,17 @@ public sealed class FileSelectMapWindow
         velocities[3] = motion.Bottom;
     }
 
+    /// <summary>Raw whole-pixel word of the left 16.16 edge; its low byte is the inclusive horizontal window endpoint, and expansion clamps the whole word at one.</summary>
     public ushort Left => (ushort)(edges[0] >> 16);
+    /// <summary>Raw whole-pixel word of the right 16.16 edge; its low byte is the inclusive horizontal endpoint, and expansion clamps the whole word at 255.</summary>
     public ushort Right => (ushort)(edges[1] >> 16);
+    /// <summary>Raw whole-pixel word of the top 16.16 edge, used as the initial HDMA scanline count; expansion clamps the whole word at one.</summary>
     public ushort Top => (ushort)(edges[2] >> 16);
+    /// <summary>Raw whole-pixel word of the bottom 16.16 edge, defining the window's scanline extent from top rather than an inclusive Y endpoint; expansion clamps the whole word at 224.</summary>
     public ushort Bottom => (ushort)(edges[3] >> 16);
+    /// <summary>Whether the transition timer has reached signed underflow after the final edge movement; initially false and latched true until this window is discarded.</summary>
     public bool IsComplete { get; private set; }
+    /// <summary>Whether this is $81:AFF6's shortened room-to-area contraction: subtract velocities without whole-word clamps, and reveal the area scene when complete.</summary>
     public bool IsReturning { get; private set; }
 
     /// <summary>$81:AFF6 begins a shortened, unclamped contraction from the inset room frame.</summary>

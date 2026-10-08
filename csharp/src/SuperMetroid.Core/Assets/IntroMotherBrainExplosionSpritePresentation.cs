@@ -14,6 +14,12 @@ public sealed class IntroMotherBrainExplosionSpritePresentation
     private IntroMotherBrainExplosionSpritePresentation(
         Dictionary<ushort, SpriteComposition> frames) => this.frames = frames;
 
+    /// <summary>Draws one installed small- or large-explosion composition at its script-owned screen anchor.</summary>
+    /// <param name="pointer">Native bank-$8C spritemap identity for one of the twelve frames.</param>
+    /// <param name="oam">The OAM buffer receiving the ordered sprite parts.</param>
+    /// <param name="x">Explosion anchor X coordinate in screen pixels.</param>
+    /// <param name="y">Explosion anchor Y coordinate in screen pixels.</param>
+    /// <param name="paletteBits">OBJ palette attribute bits applied to inherited-palette parts.</param>
     public void Draw(ushort pointer, OamBuffer oam, ushort x, ushort y, ushort paletteBits)
     {
         if (!frames.TryGetValue(pointer, out SpriteComposition? frame))
@@ -22,6 +28,10 @@ public sealed class IntroMotherBrainExplosionSpritePresentation
         frame.DrawOnScreen(oam, x, y, paletteBits);
     }
 
+    /// <summary>Loads and validates all six small and six large fourth-hit explosion frames.</summary>
+    /// <param name="json">The caller-owned stream containing the editable sprite document.</param>
+    /// <returns>The compiled presentation keyed by native bank-$8C spritemap identities.</returns>
+    /// <exception cref="InvalidDataException">The JSON, version, frame set, or sprite parts are invalid.</exception>
     public static IntroMotherBrainExplosionSpritePresentation Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -58,6 +68,9 @@ public sealed class IntroMotherBrainExplosionSpritePresentation
         return new IntroMotherBrainExplosionSpritePresentation(frames);
     }
 
+    /// <summary>Validates and writes an editable Mother Brain explosion sprite document as JSON.</summary>
+    /// <param name="json">The caller-owned destination stream.</param>
+    /// <param name="document">The twelve-frame sprite document to validate and serialize.</param>
     public static void Write(Stream json, IntroMotherBrainExplosionSpriteDocument document)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -68,15 +81,22 @@ public sealed class IntroMotherBrainExplosionSpritePresentation
     }
 }
 
+/// <summary>Editable JSON schema for the opening flashback's fourth-hit explosion compositions.</summary>
 public sealed record IntroMotherBrainExplosionSpriteDocument
 {
+    /// <summary>Gets the explosion-sprite schema version.</summary>
     public required int Version { get; init; }
+
+    /// <summary>Gets the twelve named <c>small-explosion-0..5</c> and <c>big-explosion-0..5</c> compositions.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
 }
 
 /// <summary>Installed file identity for twelve fourth-hit explosion frames.</summary>
 public static class IntroMotherBrainExplosionSpriteFormat
 {
+    /// <summary>The supported explosion-sprite JSON schema version.</summary>
     public const int Version = 1;
+
+    /// <summary>The embedded editable explosion-sprite asset file name.</summary>
     public const string FileName = "intro-mother-brain-explosion-sprites.json";
 }

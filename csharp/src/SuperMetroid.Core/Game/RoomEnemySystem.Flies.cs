@@ -3,9 +3,13 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The bank-$A2 function pointer stored in a Mellow-family enemy's variable F.</summary>
 public enum FlyEnemyFunction : ushort
 {
+    /// <summary>Native <c>Function_Flies_IdleMovement_ClockwiseCircle</c> at <c>$A2:B14E</c>; circles with increasing table offsets, switching direction on wrap or attacking when cooldown is zero and Samus is within 112 horizontal pixels.</summary>
     ClockwiseCircle = 0xb14e,
+    /// <summary>Native <c>Function_Flies_IdleMovement_AntiClockwiseCircle</c> at <c>$A2:B17C</c>; circles with decreasing table offsets and the same proximity/cooldown admission as the clockwise state.</summary>
     AntiClockwiseCircle = 0xb17c,
+    /// <summary>Native <c>Function_Flies_AttackSamus</c> at <c>$A2:B1AA</c>; advances the sampled attack velocity until crossing the saved Samus Y, then reverses vertical velocity and retreats.</summary>
     AttackSamus = 0xb1aa,
+    /// <summary>Native <c>Function_Flies_Retreat</c> at <c>$A2:B1D2</c>; continues with reversed Y velocity until the accumulated attack duration counts down through signed underflow, then starts a 24-update idle cooldown.</summary>
     Retreat = 0xb1d2,
 }
 
@@ -19,24 +23,28 @@ public sealed class FlyEnemyState
 
     internal FlyEnemyState(RoomEnemySlot slot) => _slot = slot;
 
+    /// <summary>Native <c>Flies.retreatTimer</c> in variable A at <c>$0FA8,x</c>; counts up per attack update, down through signed underflow during retreat, and then down from 24 to gate another idle attack.</summary>
     public ushort RetreatTimer
     {
         get => _slot.VariableA;
         internal set => _slot.VariableA = value;
     }
 
+    /// <summary>Raw signed 8.8 horizontal attack/retreat velocity in variable B at <c>$0FAA,x</c>, in room pixels per actor update; sampled from Samus's attack-start angle and retained during retreat.</summary>
     public ushort XVelocity
     {
         get => _slot.VariableB;
         internal set => _slot.VariableB = value;
     }
 
+    /// <summary>Raw signed 8.8 vertical attack/retreat velocity in variable C at <c>$0FAC,x</c>, in room pixels per actor update; its sign reverses when the saved target Y is crossed.</summary>
     public ushort YVelocity
     {
         get => _slot.VariableC;
         internal set => _slot.VariableC = value;
     }
 
+    /// <summary>Samus's whole room-pixel Y coordinate captured when the attack begins, in variable D at <c>$0FAE,x</c>; determines the turnaround rather than tracking Samus's later movement.</summary>
     public ushort TargetYPosition
     {
         get => _slot.VariableD;
@@ -53,6 +61,7 @@ public sealed class FlyEnemyState
         internal set => _slot.VariableE = value;
     }
 
+    /// <summary>Current indirect bank-$A2 AI address, native <c>Flies.function</c> in variable F at <c>$0FB2,x</c>; reads and writes the owning enemy slot directly.</summary>
     public FlyEnemyFunction Function
     {
         get => (FlyEnemyFunction)_slot.VariableF;

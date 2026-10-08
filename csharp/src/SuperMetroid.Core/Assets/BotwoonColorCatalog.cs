@@ -30,6 +30,11 @@ public sealed class BotwoonColorCatalog
         WriteIndented = true,
     };
 
+    /// <summary>Gets one compiled BGR555 word from an independently editable health-band palette.</summary>
+    /// <param name="band">Health-band index from zero through seven.</param>
+    /// <param name="color">Color index from zero through fifteen within the complete palette.</param>
+    /// <returns>The selected packed SNES color word.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Either index is outside its authored range.</exception>
     public ushort HealthColor(int band, int color)
     {
         if ((uint)band >= BotwoonHealthPaletteDefinitions.PaletteCount ||
@@ -39,6 +44,10 @@ public sealed class BotwoonColorCatalog
         return health.Resolve(band, color);
     }
 
+    /// <summary>Loads and validates all eight complete Botwoon health palettes from editable RGB5 JSON.</summary>
+    /// <param name="json">The caller-owned stream containing the color document.</param>
+    /// <returns>The compiled immutable palette catalog.</returns>
+    /// <exception cref="InvalidDataException">The JSON, version, palette dimensions, or RGB5 channels are invalid.</exception>
     public static BotwoonColorCatalog Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -63,6 +72,9 @@ public sealed class BotwoonColorCatalog
             Compile(frame, index)).ToArray());
     }
 
+    /// <summary>Serializes a Botwoon color document and validates the resulting JSON through <see cref="Load"/>.</summary>
+    /// <param name="document">The eight complete RGB5 health palettes to serialize.</param>
+    /// <returns>Validated UTF-8 JSON bytes.</returns>
     public static byte[] Write(BotwoonColorDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
@@ -94,14 +106,22 @@ public sealed class BotwoonColorCatalog
             name => new InvalidDataException($"Duplicate Botwoon color property {name}."));
 }
 
+/// <summary>Editable JSON schema for Botwoon's eight health-dependent sprite-palette images.</summary>
 public sealed record BotwoonColorDocument
 {
+    /// <summary>Gets the Botwoon color schema version.</summary>
     public required int Version { get; init; }
+
+    /// <summary>Gets eight ordered rows of sixteen RGB5 colors corresponding to native <c>$B3:971B-$981A</c>.</summary>
     public required PaletteRgb5[][] Health { get; init; }
 }
 
+/// <summary>Names and versions the editable Botwoon health-color asset.</summary>
 public static class BotwoonColorFormat
 {
+    /// <summary>The embedded Botwoon color asset file name.</summary>
     public const string FileName = "botwoon-colors.json";
+
+    /// <summary>The supported Botwoon color JSON schema version.</summary>
     public const int Version = 1;
 }

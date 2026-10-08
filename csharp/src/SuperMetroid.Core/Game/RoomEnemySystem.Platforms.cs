@@ -9,7 +9,9 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public enum PlatformHorizontalMovement : ushort
 {
+    /// <summary>Dispatcher index zero selects negative/left horizontal motion; a wall collision switches to index one and installs right-facing artwork.</summary>
     Left = 0,
+    /// <summary>Dispatcher index one selects positive/right horizontal motion; a wall collision switches to index zero and installs left-facing artwork.</summary>
     Right = 1,
 }
 
@@ -19,7 +21,9 @@ public enum PlatformHorizontalMovement : ushort
 /// </summary>
 public enum PlatformVerticalMovement : ushort
 {
+    /// <summary>Dispatcher index zero, selected without an accepted rider overlap; accelerates upward until the target-height or collision condition leaves the platform vertically still.</summary>
     Rising = 0,
+    /// <summary>Dispatcher index one, selected by the asymmetric Samus-above-platform overlap test; accelerates downward and publishes accepted whole-pixel X/Y movement as Samus's extra displacement.</summary>
     Sinking = 1,
 }
 
@@ -109,6 +113,7 @@ public sealed class PlatformEnemyState
         internal set => _slot.VariableF = value;
     }
 
+    /// <summary>Current rider-selected vertical dispatcher index, native <c>Platform.YMovementFunctionIndex</c> at <c>$7E:7800,x</c>; recomputed each actor update before horizontal then vertical motion.</summary>
     public PlatformVerticalMovement YMovement
     {
         get => (PlatformVerticalMovement)_yMovementFunctions[_slot.SlotIndex];
@@ -122,6 +127,7 @@ public sealed class PlatformEnemyState
         internal set => _previousPositions[_slot.SlotIndex] = value;
     }
 
+    /// <summary>Current horizontal dispatcher index, native <c>Platform.XMovementFunctionIndex</c> at <c>$7E:7804,x</c>; initialized from population parameter 1 and changed by wall collisions or animation commands.</summary>
     public PlatformHorizontalMovement XMovement
     {
         get => (PlatformHorizontalMovement)_xMovementFunctions[_slot.SlotIndex];
@@ -167,8 +173,10 @@ public sealed class PlatformEnemyState
             value ? ushort.MaxValue : (ushort)0;
     }
 
+    /// <summary>Signed 16.16 room-pixel displacement per horizontal actor update, combining the rightward whole and fractional velocity words without changing backing state.</summary>
     public int RightDisplacement => (RightVelocity << 16) | RightSubvelocity;
 
+    /// <summary>Signed 16.16 room-pixel displacement per horizontal actor update, combining the leftward whole and fractional velocity words and preserving their two's-complement representation.</summary>
     public int LeftDisplacement => (LeftVelocity << 16) | LeftSubvelocity;
 }
 

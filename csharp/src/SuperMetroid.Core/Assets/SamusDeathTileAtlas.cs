@@ -43,6 +43,9 @@ public sealed class SamusDeathTileAtlas : IInstalledArtworkTransferSource
         return bytes;
     }
 
+    /// <summary>Loads the 64-by-160 indexed PNG and encodes its palette indices as 4-bpp OBJ characters in death-transfer queue order, retaining independently edited source bytes.</summary>
+    /// <param name="png">Caller-owned artwork stream; pixel indices are pens 0..15, not final CGRAM colors.</param>
+    /// <returns>Installed artwork for the five fixed $0400-byte transfers, without changing their destinations, animation timing, or palettes.</returns>
     public static SamusDeathTileAtlas Load(Stream png)
     {
         IndexedPngImage image = IndexedPng.Read(png,
@@ -105,11 +108,18 @@ public static class SamusDeathTileAtlasFormat
         throw new InvalidOperationException("Death artwork relation leaves the native page domain.");
     }
 
+    /// <summary>Indexed PNG filename for the five death-explosion OBJ character segments.</summary>
     public const string ArtworkFileName = "samus-death-explosion.png";
+    /// <summary>Companion JSON manifest filename describing the extracted death-explosion artwork resource.</summary>
     public const string ManifestFileName = "samus-death-explosion-manifest.json";
+    /// <summary>Four SNES planar bits per pixel, allowing sixteen palette-index pens and encoding each 8-by-8 character in 32 bytes.</summary>
     public const int BitsPerPixel = 4;
+    /// <summary>PNG width in pixels: eight 8-pixel characters per row, independently of their final OBJ placement.</summary>
     public const int Width = 64;
+    /// <summary>Five $0400-byte segments stacked in queue order: native sources $9B:8400, $8800, $8C00, $9000, then $8000.</summary>
     public const int SegmentCount = 5;
+    /// <summary>Total encoded character bytes, $1400, covering 160 tiles across all five uploads.</summary>
     public const int TotalByteCount = SegmentCount * SamusSpecialSequenceRomData.Death.TileSegmentByteCount;
+    /// <summary>PNG height in pixels, 160: five segments of four eight-pixel tile rows each.</summary>
     public const int Height = TotalByteCount / 32 / (Width / 8) * 8;
 }

@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One $A6 Mode 7 low-byte tilemap DMA descriptor and its authored source bytes.</summary>
+/// <param name="DestinationWord">VRAM word address of the first map cell; each tile replaces its low byte while preserving the high-byte Mode 7 character data.</param>
+/// <param name="TileNumbers">Ordered eight-bit character selectors for consecutive map cells, not character pixel bytes.</param>
 public readonly record struct CeresMode7Transfer(
 ushort DestinationWord, CeresMode7TransferDefinitions.TileSequence TileNumbers);
 
@@ -59,9 +61,17 @@ public static class CeresMode7TransferDefinitions
         WingFrame0 or WingFrame1 => new(pointer, WingRegions.Length),
         _ => throw new InvalidDataException($"Unknown Ceres Mode7 transfer list $A6:{pointer:X4}."),
     };
+    /// <summary>Allocation-free calculated view of one native Ceres transfer list, preserving descriptor order and the 128-cell map-row stride.</summary>
+    /// <param name="pointer">Supported bank-$A6 list identity, normally selected through <see cref="Get"/>.</param>
+    /// <param name="count">Descriptor count matching that identity: one for the elevator, two for the capsule, or six for Ridley's wing.</param>
     public readonly struct TransferSequence(ushort pointer, int count) : IReadOnlyList<CeresMode7Transfer>
     {
+        /// <summary>Number of transfer descriptors in this view, not total tile bytes or elapsed animation updates.</summary>
         public int Count => count;
+        /// <summary>Calculates one descriptor's VRAM word destination and ordered tile selectors without reading its native ROM list.</summary>
+        /// <param name="index">Zero-based descriptor ordinal in 0..<c>Count - 1</c>; capsule and wing ordinals also select their respective drawn rows.</param>
+        /// <returns>A contiguous low-byte map transfer with its native placement and authored width.</returns>
+        /// <exception cref="IndexOutOfRangeException">The descriptor ordinal is outside this view.</exception>
         public CeresMode7Transfer this[int index]
         {
             get
@@ -82,16 +92,29 @@ public static class CeresMode7TransferDefinitions
                     new(pointer, index, region.Width));
             }
         }
+        /// <summary>Enumerates calculated descriptors in native transfer order without executing DMA or advancing animation.</summary>
+        /// <returns>An enumerator yielding the same descriptors as indexed access.</returns>
         public IEnumerator<CeresMode7Transfer> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
+    /// <summary>Allocation-free view of the authored character selectors in one contiguous Ceres Mode 7 map-row transfer.</summary>
+    /// <param name="pointer">Supported bank-$A6 elevator, capsule, or wing list identity defining the displayed frame.</param>
+    /// <param name="row">Descriptor-row ordinal: zero for the elevator, 0..1 for the capsule, or 0..5 for the wing; not the absolute map Y coordinate.</param>
+    /// <param name="count">Authored row width: four elevator cells, two capsule cells, or the selected wing region's width.</param>
     public readonly struct TileSequence(ushort pointer, int row, int count) : IReadOnlyList<byte>
     {
+        /// <summary>Number of eight-bit tile selectors written to consecutive low-byte map cells by this row transfer.</summary>
         public int Count => count;
+        /// <summary>Calculates the selected frame's character number at a transfer-relative column, retaining transparent wing cells as tile $FF.</summary>
+        /// <param name="index">Zero-based column within this row transfer, not the absolute map column.</param>
+        /// <returns>The eight-bit Mode 7 character selector.</returns>
+        /// <exception cref="IndexOutOfRangeException">The column is outside this view.</exception>
         public byte this[int index] => (uint)index < Count ? TileAt(pointer, row, index) : throw new IndexOutOfRangeException();
+        /// <summary>Enumerates character selectors from left to right in their native row-transfer order.</summary>
+        /// <returns>An enumerator yielding the same tile bytes as indexed access.</returns>
         public IEnumerator<byte> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];

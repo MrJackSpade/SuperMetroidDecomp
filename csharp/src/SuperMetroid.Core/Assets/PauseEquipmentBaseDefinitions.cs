@@ -5,8 +5,13 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Equipment-page base artwork and the compiled footprints owned by live menu state.</summary>
 public static class PauseEquipmentBaseDefinitions
 {
+    /// <summary>The supported editable equipment-page base schema version.</summary>
     public const int Version = 1;
+
+    /// <summary>The embedded equipment-page base tilemap asset file name.</summary>
     public const string FileName = "pause-equipment-base.json";
+
+    /// <summary>The 32-column, 32-row tilemap geometry and its calculated 1024-cell extent.</summary>
     public const int Columns = 32, Rows = 32, Cells = Columns * Rows;
     /// <summary>$B6:E800, native 32x32 equipment-page template.</summary>
     public const int Source = PauseMenuRomData.EquipmentTilemap;
@@ -34,6 +39,9 @@ public static class PauseEquipmentBaseDefinitions
         if ((uint)cell >= Cells) return false;
         return cell / Columns is 10 or 11 && cell % Columns is >= 4 and < 11;
     }
+    /// <summary>Returns whether runtime inventory, reserve, or wireframe state owns a tilemap cell.</summary>
+    /// <param name="cell">Zero-based cell index in the 32-by-32 equipment tilemap.</param>
+    /// <returns><see langword="true"/> when the static base must leave the cell for live menu composition.</returns>
     public static bool IsLiveOwnedCell(int cell)
     {
         if (IsEquipmentLabelCell(cell)) return true;
@@ -43,9 +51,15 @@ public static class PauseEquipmentBaseDefinitions
             wireframeRelative % (PauseWireframeDefinitions.DestinationStride / sizeof(ushort)) < PauseWireframeDefinitions.Columns;
     }
 
+    /// <summary>Returns whether reserve or wireframe composition owns a cell outside the equipment-label footprints.</summary>
+    /// <param name="cell">Zero-based cell index in the equipment tilemap.</param>
+    /// <returns><see langword="true"/> for a live-owned cell that is not an equipment label.</returns>
     public static bool IsNonInventoryLiveOwnedCell(int cell) =>
         IsLiveOwnedCell(cell) && !IsEquipmentLabelCell(cell);
 
+    /// <summary>Returns whether a cell belongs to the vertical or horizontal reserve-mode arrow footprint.</summary>
+    /// <param name="cell">Zero-based cell index in the equipment tilemap.</param>
+    /// <returns><see langword="true"/> when the reserve UI supplies the arrow cell.</returns>
     public static bool IsArrowCell(int cell)
     {
         int vertical = cell - PauseReserveUiDefinitions.VerticalStartCell;

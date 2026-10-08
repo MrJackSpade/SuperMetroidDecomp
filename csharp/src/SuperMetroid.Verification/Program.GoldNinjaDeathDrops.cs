@@ -14,7 +14,7 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.MetalPirates);
+        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.MetalPirates);
         var samus = runtime.Samus!;
         RoomEnemySlot pirate = runtime.Enemies.Slots.First(slot =>
             slot.EnemyDefinitionPointer == RoomEnemySystem.GoldNinjaSpacePirateDefinition);

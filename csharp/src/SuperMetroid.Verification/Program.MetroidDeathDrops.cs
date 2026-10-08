@@ -23,7 +23,7 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.TourianMetroids1);
+        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.TourianMetroids1);
         var samus = runtime.Samus!;
         samus.InputLocked = true;
         RoomEnemySlot metroid = runtime.Enemies.Slots.First(slot =>

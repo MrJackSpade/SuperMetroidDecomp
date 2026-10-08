@@ -15,7 +15,7 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LowerNorfairPillar);
+        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.LowerNorfairPillar);
 
         RoomEnemyProjectileSlot[] bodies = runtime.Enemies.EnemyProjectiles
             .Where(projectile => projectile.Kind == RoomEnemyProjectileKind.NuclearWaffleBody)

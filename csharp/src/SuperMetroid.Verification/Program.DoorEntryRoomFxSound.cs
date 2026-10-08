@@ -19,7 +19,7 @@ internal static partial class Program
         // Rising Tide's lava rises only under the FX record of a door that requests it.
         CartridgeDoorHeader entry = RetailDoorHeaderCatalog.EnumeratePointers()
             .Select(pointer => CartridgeDoorHeaderImporter.Load(bus, pointer))
-            .Where(door => door.DestinationRoomPointer == RoomHeaderPointers.RisingTide)
+            .Where(door => door.DestinationRoomPointer == FixtureRoomHeaders.RisingTide)
             .First(door =>
             {
                 var candidate = LoadRisingTide(door);

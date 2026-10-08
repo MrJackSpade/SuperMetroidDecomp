@@ -21,7 +21,7 @@ internal static partial class Program
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.ThreeMusketeers);
+            runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.ThreeMusketeers);
             var samus = runtime.Samus!;
             RoomEnemySlot shutter = runtime.Enemies.Slots[10];
             VerticalShutterEnemyState state = runtime.Enemies.VerticalShutterStates[10]!;

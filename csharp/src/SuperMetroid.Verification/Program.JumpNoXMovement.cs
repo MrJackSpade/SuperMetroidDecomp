@@ -15,7 +15,7 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.RedFish);
+        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.RedFish);
         var samus = runtime.Samus!;
         // Native state after update 366219's ceiling hit.
         samus.Pose = SamusPoseIds.NormalJumpAimDownLeftPose;

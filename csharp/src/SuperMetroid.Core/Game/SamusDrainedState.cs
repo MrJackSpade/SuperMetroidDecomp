@@ -438,25 +438,39 @@ public sealed class SamusDrainedState
 /// <summary>Named host equivalents for the otherwise opaque drain pose/handler state.</summary>
 public enum DrainedSamusPhase
 {
+    /// <summary>No drained movement/pose lock is owned by this state, either before setup, after release art completes, or after another owner replaces the movement handler.</summary>
     Inactive,
+    /// <summary>Samus command five or $18 has installed left-facing knockback pose $54 and locked input via the shared $90:F394 rainbow-beam setup.</summary>
     RainbowBeamLocked,
+    /// <summary>Controller zero at $91:E4F8 has selected drained crouching pose $E8/$E9 at animation index two with zero base/Y speed; animation command $F7 has not yet installed falling movement.</summary>
     WaitingForFallingCommand,
+    /// <summary>Animation command $F7 at $90:8360 has installed $90:94CB, which advances shared gravity/Y movement and block collision until a solid collision restores normal movement.</summary>
     Falling,
+    /// <summary>The falling handler encountered a solid collision, cleared Y speed, and selected animation index seven with an eight-update timer without changing pose or Y direction.</summary>
     OnFloor,
+    /// <summary>Controller one at $91:E571 has selected facing-dependent standing drained pose $EA/$EB at animation index zero with a sixteen-update timer.</summary>
     Standing,
+    /// <summary>Controller four at $91:E60C has selected facing-dependent crouching drained pose $E8/$E9 at animation index eight with a sixteen-update timer.</summary>
     Crouching,
+    /// <summary>Controller two at $91:E59B has started drained release art, refreshed collision radii, and cleared base/Y speed; the drain lock remains until the release animation's $FD command completes.</summary>
     Releasing,
 }
 
 /// <summary>Named equivalents of the three timer/hack pointer values relevant to draining.</summary>
 public enum DrainedGetUpHandler
 {
+    /// <summary>The drained Up-input callback is no longer installed, either after a successful stand request or because another timer/hack owner replaced it.</summary>
     Inactive,
+    /// <summary>$90:E09B accepts a fresh Up press only in left crouching pose $E9 at animation index eight or later, starts index thirteen with timer one, then disables itself.</summary>
     AbleToStand,
+    /// <summary>$90:E0C5 accepts a fresh Up press at animation indices eight through eleven, starts failed-stand index eighteen with timer one, and stays installed for later attempts.</summary>
     UnableToStand,
 }
 
 /// <summary>One-frame debugger witness from the translated `$90:94CB` handler.</summary>
+/// <param name="Landed">Whether this update's downward displacement encountered a solid collision; ceiling collisions may end the falling handler without setting this witness.</param>
+/// <param name="ImpactYSpeed">Whole-pixel half of the native 16.16 Y-speed magnitude after shared speed calculations but before the drained collision handler clears it; retained for landing effects.</param>
+/// <param name="ImpactYSubspeed">Fractional half of the same Y-speed magnitude in 1/65536-pixel-per-update units, retained alongside ImpactYSpeed even when live speed is cleared.</param>
 public readonly record struct DrainedSamusMovementResult(
     bool Landed,
     ushort ImpactYSpeed,

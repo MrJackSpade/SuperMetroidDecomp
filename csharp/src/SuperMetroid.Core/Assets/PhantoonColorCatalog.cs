@@ -80,6 +80,9 @@ public sealed class PhantoonColorCatalog
         if ((uint)color >= PhantoonColorRomData.PowerOnCount) throw new ArgumentOutOfRangeException(nameof(color));
         return powerEdits.TryGetValue(color, out ushort edit) ? edit : WreckedShipPowerPaintDefinitions.Color(color);
     }
+    /// <summary>Loads and validates Phantoon's health, fade-out, and ship-power RGB5 sources.</summary>
+    /// <param name="json">Caller-owned stream containing the color document.</param>
+    /// <returns>The compiled color catalog.</returns>
     public static PhantoonColorCatalog Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -108,6 +111,9 @@ public sealed class PhantoonColorCatalog
             Compile(document.PowerOn, PhantoonColorRomData.PowerOnCount, "power-on"));
     }
 
+    /// <summary>Validates and serializes a Phantoon color document as UTF-8 JSON.</summary>
+    /// <param name="document">Document containing every required color source.</param>
+    /// <returns>A new caller-owned JSON byte array.</returns>
     public static byte[] Write(PhantoonColorDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
@@ -143,16 +149,27 @@ public sealed class PhantoonColorCatalog
             name => new InvalidDataException($"Duplicate Phantoon color property {name}."));
 }
 
+/// <summary>JSON schema for Phantoon and Wrecked Ship power-transition colors.</summary>
 public sealed record PhantoonColorDocument
 {
+    /// <summary>Gets the schema version required by <see cref="PhantoonColorFormat.Version"/>.</summary>
     public required int Version { get; init; }
+
+    /// <summary>Gets eight health-band rows of sixteen editable RGB5 colors.</summary>
     public required PaletteRgb5[][] HealthBands { get; init; }
+
+    /// <summary>Gets the sixteen-color target used while Phantoon fades out.</summary>
     public required PaletteRgb5[] FadeOut { get; init; }
+
+    /// <summary>Gets the 112 colors forming seven powered Wrecked Ship palette rows.</summary>
     public required PaletteRgb5[] PowerOn { get; init; }
 }
 
+/// <summary>Defines the installed Phantoon color resource contract.</summary>
 public static class PhantoonColorFormat
 {
+    /// <summary>Canonical Phantoon color asset file name.</summary>
     public const string FileName = "phantoon-colors.json";
+    /// <summary>Supported Phantoon color schema version.</summary>
     public const int Version = 1;
 }

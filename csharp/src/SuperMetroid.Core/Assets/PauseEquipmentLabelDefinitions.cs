@@ -5,12 +5,19 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Semantic identities and native extraction sources for pause equipment labels.</summary>
 public static class PauseEquipmentLabelDefinitions
 {
+    /// <summary>Supported installed label schema version, requiring fourteen ordinary inventory labels, the Hyper label, and a nine-cell blank strip.</summary>
     public const int Version = 1;
+    /// <summary>Installed JSON filename for editable equipment-page label artwork, destinations, and the unequipped-label palette selector.</summary>
     public const string FileName = "pause-equipment-labels.json";
+    /// <summary>Equipment-page tilemap width in eight-pixel BG tile cells; each row contains 32 little-endian sixteen-bit tile words.</summary>
     public const int TilemapColumns = 32;
+    /// <summary>Equipment-page tilemap height in eight-pixel BG tile rows; complete label application requires all 32 rows.</summary>
     public const int TilemapRows = 32;
+    /// <summary>Five tile words in an ordinary beam label and in the displayed Hyper patch, including the leading inventory marker cell.</summary>
     public const int BeamWords = 5;
+    /// <summary>Nine tile words in suit, miscellaneous equipment, boot, blank, and stored Hyper strips; also the native button-handler overrun width for Plasma.</summary>
     public const int EquipmentWords = 9;
+    /// <summary>Stock BG palette selector three for collected but unequipped labels, replacing only tile-word palette bits and leaving the artwork, flips, and priority intact.</summary>
     public const int DisabledPalette = 3;
 
     /// <summary><c>kEquipmentScreenTilemap_Blank</c> at $82:C01A.</summary>
@@ -19,8 +26,11 @@ public static class PauseEquipmentLabelDefinitions
     /// <summary><c>kHyperBeamWeaponsTilemaps</c> at $82:C0A8.</summary>
     public const int HyperPointerTable = 0x82c0a8;
 
+    /// <summary>Case-sensitive installed label identity for Hyper Beam; separate from ordinary beam controls and placed at the Wave slot by the native Hyper pointer table.</summary>
     public const string HyperKey = "Beam.Hyper";
+    /// <summary>Case-sensitive Plasma label identity; its ordinary five-word strip may extend into the following native Varia source words during a nine-word button patch.</summary>
     public const string PlasmaKey = "Beam.Plasma";
+    /// <summary>Case-sensitive Varia Suit label identity; its first four words also supply the deliberate continuation after Plasma's ordinary five-word source.</summary>
     public const string VariaKey = "Equipment.Varia";
     /// <summary>Hyper mode's pointer table places its only nonblank patch in the Wave slot.</summary>
     public const int HyperBeamItem = 2;
@@ -50,6 +60,9 @@ public static class PauseEquipmentLabelDefinitions
             .Where(anchor => anchor.Category != PauseEquipmentCategories.Reserves)
             .Select(anchor => (anchor.Category, anchor.Item, anchor.Name)).ToArray());
 
+    /// <summary>Returns the ordinary category strip width in sixteen-bit tile words, not bytes; Hyper's stored width and Plasma's button-patch overrun are separate contracts.</summary>
+    /// <param name="category">Native equipment category: one denotes beams; every other integer returns the equipment width without category validation.</param>
+    /// <returns>Five for the beam category, otherwise nine.</returns>
     public static int WordCount(int category) => category == 1 ? BeamWords : EquipmentWords;
     /// <summary>$82:BF32-C018: all collected labels use BG palette two and the marker character $FF.</summary>
     private const int LabelPalette = 2, Marker = 0xff;

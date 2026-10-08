@@ -83,6 +83,12 @@ public sealed class DachoraColorCatalog
         WriteIndented = true,
     };
 
+    /// <summary>Resolves one selected Dachora color, using the normal palette as a calculated animated basis while preserving every supplied speed/shine deviation.</summary>
+    /// <param name="phase">Exclusive default, speed-boost, or stored-shine palette phase selected by enemy behavior.</param>
+    /// <param name="frame">Zero for the default phase, or zero-based animated frame 0 through 3 for speed and shine.</param>
+    /// <param name="color">Palette color index 0 through 15, including the transparent slot at zero.</param>
+    /// <returns>SNES RGB555 word with red in bits 0..4, green in bits 5..9, and blue in bits 10..14; the caller chooses the actor's OBJ palette destination.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The phase/frame combination is unsupported or the color index is outside the palette.</exception>
     public ushort Resolve(DachoraPalettePhase phase, int frame, int color)
     {
         bool animated = phase is DachoraPalettePhase.Speed or DachoraPalettePhase.Shine;
@@ -100,6 +106,11 @@ public sealed class DachoraColorCatalog
         };
     }
 
+    /// <summary>Loads the supported camel-case JSON schema, rejecting duplicate or unknown properties, incorrect palette/frame counts, null colors, and RGB5 channels outside 0..31.</summary>
+    /// <param name="json">Readable JSON stream, left open after loading.</param>
+    /// <returns>Validated default, speed, and shine colors without cartridge reads or ownership of native animation timers.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
+    /// <exception cref="InvalidDataException">The JSON, schema version, palette dimensions, or color values are invalid.</exception>
     public static DachoraColorCatalog Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -122,6 +133,10 @@ public sealed class DachoraColorCatalog
             CompileFrames(document.Shine, "shine"));
     }
 
+    /// <summary>Serializes the editable palettes as indented camel-case UTF-8 JSON and validates the result through <see cref="Load"/> before returning it.</summary>
+    /// <param name="document">Supported-version default palette and four-frame speed/shine sequences.</param>
+    /// <returns>Validated JSON bytes ready to store as the Dachora color resource.</returns>
+    /// <exception cref="InvalidDataException">The serialized document fails catalog validation.</exception>
     public static byte[] Write(DachoraColorDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
@@ -161,16 +176,24 @@ public sealed class DachoraColorCatalog
             name => new InvalidDataException($"Duplicate Dachora color property {name}."));
 }
 
+/// <summary>Editable RGB5 palette payload for ordinary Dachora enemy $E5FF; frame timing, speed thresholds, and shine-state transitions are not schema fields.</summary>
 public sealed record DachoraColorDocument
 {
+    /// <summary>Schema revision required to equal <see cref="DachoraColorFormat.Version"/> during loading.</summary>
     public required int Version { get; init; }
+    /// <summary>Sixteen default RGB5 colors, including transparent slot zero, corresponding to <c>Palette_Dachora</c> at $A7:F225.</summary>
     public required PaletteRgb5[] Normal { get; init; }
+    /// <summary>Four ordered speed-boost frames of sixteen RGB5 colors each, corresponding to $A7:F245-$F2C4; native enemy behavior selects their cadence.</summary>
     public required PaletteRgb5[][] Speed { get; init; }
+    /// <summary>Four ordered stored-shine frames of sixteen RGB5 colors each, corresponding to $A7:F2C5-$F344; the separate native shine loop selects the frame.</summary>
     public required PaletteRgb5[][] Shine { get; init; }
 }
 
+/// <summary>Installed resource identity and supported schema version for Dachora's default and animated RGB5 palettes.</summary>
 public static class DachoraColorFormat
 {
+    /// <summary>Installed palette resource, <c>dachora-colors.json</c>.</summary>
     public const string FileName = "dachora-colors.json";
+    /// <summary>Supported Dachora color JSON schema revision one.</summary>
     public const int Version = 1;
 }

@@ -7,18 +7,26 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public enum ElevatorActorStatus : ushort
 {
+    /// <summary>Status zero dispatches native <c>ElevatorAI_0_LeavingRoom</c> at <c>$A3:9548</c> when pseudo-door contact is present; waits for the required newly pressed direction.</summary>
     Inactive = 0,
+    /// <summary>Status one dispatches native <c>ElevatorAI_1_LeavingRoom</c> at <c>$A3:9579</c>; moves the departing platform and pins Samus to it at one-and-one-half pixels per actor update.</summary>
     Departing = 1,
+    /// <summary>Status two enters <c>$A3:95B9</c> after a door load; the arriving actor starts at population parameter 2's Y coordinate, then advances to the return state.</summary>
     BeginArrivalReturn = 2,
+    /// <summary>Status three dispatches native <c>ElevatorAI_3_EnteringRoom</c> at <c>$A3:95BC</c>; moves toward the destination actor's saved resting Y, then clears travel globals and unlocks Samus input.</summary>
     ReturningToRest = 3,
 }
 
 /// <summary>Cross-system effects published by elevator AI during the current enemy frame.</summary>
 public enum ElevatorFrameEvent
 {
+    /// <summary>No elevator lifecycle change has been published during the current enemy update; this is the reset value at its beginning.</summary>
     None,
+    /// <summary>The direction edge was accepted, departure sounds and projectile reset were issued, and Samus was pinned; runtime discards pending pose requests and restores the suit palette on this event.</summary>
     DepartureStarted,
+    /// <summary>The arriving actor changed global status from two to three and began its first return movement; completion in the same update may replace this event.</summary>
     ArrivalReturnStarted,
+    /// <summary>The arriving platform reached its saved resting Y, cleared elevator flags/status, queued its stopping sound, and released Samus's input lock.</summary>
     ArrivalCompleted,
 }
 
@@ -85,6 +93,7 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     public bool ElevatorDoorTransitionActive { get; set; }
 
+    /// <summary>Most recent lifecycle event published by elevator AI during this enemy update; reset to <see cref="ElevatorFrameEvent.None"/> before actors run, not retained across updates.</summary>
     public ElevatorFrameEvent LastElevatorEvent { get; private set; }
 
     // Slot of an arriving elevator whose initializer placed Samus during this room load.
@@ -102,7 +111,9 @@ public sealed partial class RoomEnemySystem
         _arrivalPlacementSlot = null;
         return slot;
     }
+    /// <summary>Library-one sound selector queued by elevator AI this update: <c>$32</c> on departure, otherwise null; a debugger witness, not an additional playback request.</summary>
     public ushort? LastElevatorSoundEffectLibrary1 { get; private set; }
+    /// <summary>Latest library-three sound selector queued by elevator AI this update: <c>$0B</c> on departure or <c>$25</c> when arrival completes, otherwise null; reset before each enemy update.</summary>
     public ushort? LastElevatorSoundEffectLibrary3 { get; private set; }
 
     /// <summary>

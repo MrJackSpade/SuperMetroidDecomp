@@ -6,17 +6,30 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Stable identities for the spritemaps referenced by native timed projectile records.</summary>
 public static class ProjectileSpriteDefinitions
 {
+    /// <summary>Supported projectile-composition JSON schema revision, one, requiring every native timed-record sprite identity.</summary>
     public const int Version = 1;
+    /// <summary>Installed JSON resource filename for editable projectile OAM compositions, separate from their timing, damage, and collision mechanics.</summary>
     public const string FileName = "projectile-compositions.json";
+    /// <summary>Maximum OAM parts allowed in one authored composition, 128, matching the hardware OBJ entry capacity rather than an animation-frame count.</summary>
     public const int MaximumParts = 128;
+    /// <summary>Sixteen columns and thirty-two rows in the logical OBJ character grid; row times sixteen plus column forms the nine-bit tile index, with large-part neighbors wrapping natively.</summary>
     public const int TileColumns = 16, TileRows = 32;
     /// <summary>The417 timed-projectile identities in their original sorted order; selected OAM groups derive from two-byte headers and five-byte parts.</summary>
     public static PointerSequence NativePointers => default;
+    /// <summary>Allocation-free immutable view of the 417 bank-$93 spritemap offsets selected by native timed projectile records, calculated from composition-group layouts.</summary>
     public readonly struct PointerSequence : IReadOnlyList<ushort>
     {
+        /// <summary>Number of required sprite identities, 417, including the zero-part Nothing composition rather than only visible frames.</summary>
         public int Count => 417;
+        /// <summary>Required identity count, equivalent to <see cref="Count"/>, for callers using array-style traversal.</summary>
         public int Length => Count;
+        /// <summary>Returns one sprite identity in the original sorted native-pointer order, not an instruction-list pointer or animation-stage number.</summary>
+        /// <param name="index">Zero-based identity index 0..416.</param>
+        /// <returns>Bank-relative spritemap offset in bank $93.</returns>
+        /// <exception cref="IndexOutOfRangeException">The index is outside 0..416.</exception>
         public ushort this[int index] => PointerAt(index);
+        /// <summary>Enumerates the complete required identity set in ascending native-pointer order without retaining a backing pointer array.</summary>
+        /// <returns>An enumerator yielding all 417 bank-relative spritemap offsets.</returns>
         public IEnumerator<ushort> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -1519,5 +1532,8 @@ public static class ProjectileSpriteDefinitions
         }
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
+    /// <summary>Formats a bank-relative sprite identity as the case-sensitive projectile-composition JSON frame key, such as sprite_A117 for the Nothing composition.</summary>
+    /// <param name="pointer">Sixteen-bit spritemap identity; formatting does not validate membership in <see cref="NativePointers"/>.</param>
+    /// <returns>The sprite_ prefix followed by exactly four uppercase hexadecimal digits.</returns>
     public static string Name(ushort pointer) => $"sprite_{pointer:X4}";
 }

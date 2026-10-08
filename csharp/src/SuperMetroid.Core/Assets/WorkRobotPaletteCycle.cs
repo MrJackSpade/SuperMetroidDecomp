@@ -58,6 +58,10 @@ public sealed class WorkRobotPaletteCycle
         WriteIndented = true,
     };
 
+    /// <summary>Resolves one packed RGB555 color from an authored Work Robot cycle frame.</summary>
+    /// <param name="frame">Zero-based native palette record from 0 through 5.</param>
+    /// <param name="color">Zero-based color within the four-color record.</param>
+    /// <returns>The selected packed SNES RGB555 word.</returns>
     public ushort Resolve(int frame, int color)
     {
         if ((uint)frame >= WorkRobotPaletteTimingDefinitions.RecordCount)
@@ -67,6 +71,10 @@ public sealed class WorkRobotPaletteCycle
         return frames is null ? StockColor(frame, color) : frames[frame][color];
     }
 
+    /// <summary>Copies one four-color frame into CGRAM without advancing the native timer.</summary>
+    /// <param name="cgram">Destination color memory.</param>
+    /// <param name="frame">Zero-based cycle record from 0 through 5.</param>
+    /// <param name="destination">First CGRAM color index receiving the record.</param>
     public void ApplyFrame(SnesCgram cgram, int frame, int destination)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -77,6 +85,9 @@ public sealed class WorkRobotPaletteCycle
             cgram.SetColor(destination + color, Resolve(frame, color));
     }
 
+    /// <summary>Loads and validates the six four-color Work Robot frames from JSON.</summary>
+    /// <param name="json">Caller-owned stream containing the palette-cycle document.</param>
+    /// <returns>The compiled palette cycle.</returns>
     public static WorkRobotPaletteCycle Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -118,6 +129,9 @@ public sealed class WorkRobotPaletteCycle
         return new WorkRobotPaletteCycle(compiled);
     }
 
+    /// <summary>Validates and serializes a Work Robot palette-cycle document as UTF-8 JSON.</summary>
+    /// <param name="document">Document containing all six ordered frames.</param>
+    /// <returns>A new caller-owned JSON byte array.</returns>
     public static byte[] Write(WorkRobotPaletteCycleDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
@@ -130,14 +144,21 @@ public sealed class WorkRobotPaletteCycle
             name => new InvalidDataException($"Duplicate Work Robot palette property {name}."));
 }
 
+/// <summary>JSON schema for the six ordered Work Robot RGB5 palette records.</summary>
 public sealed record WorkRobotPaletteCycleDocument
 {
+    /// <summary>Gets the schema version required by <see cref="WorkRobotPaletteCycleFormat.Version"/>.</summary>
     public required int Version { get; init; }
+
+    /// <summary>Gets six frames of four editable RGB5 colors each.</summary>
     public required PaletteRgb5[][] Frames { get; init; }
 }
 
+/// <summary>Defines the installed Work Robot palette-cycle resource contract.</summary>
 public static class WorkRobotPaletteCycleFormat
 {
+    /// <summary>Canonical Work Robot palette-cycle asset file name.</summary>
     public const string FileName = "work-robot-palette-cycle.json";
+    /// <summary>Supported Work Robot palette-cycle schema version.</summary>
     public const int Version = 1;
 }

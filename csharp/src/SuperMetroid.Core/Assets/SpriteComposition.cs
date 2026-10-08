@@ -30,6 +30,11 @@ public sealed class SpriteComposition
             content.Append("inherit-palette", part.InheritPalette ? 1 : 0);
         }
     }
+    /// <summary>Appends all parts using the ordinary on-screen origin clipping path.</summary>
+    /// <param name="oam">Object-attribute buffer that receives the ordered parts.</param>
+    /// <param name="x">Horizontal composition origin in screen-space pixels.</param>
+    /// <param name="y">Vertical composition origin in screen-space pixels.</param>
+    /// <param name="paletteBits">OBJ palette bits applied only to parts configured to inherit them.</param>
     public void DrawOnScreen(OamBuffer oam, ushort x, ushort y, ushort paletteBits)
     {
         _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
@@ -55,13 +60,22 @@ internal readonly record struct CompiledSpritePart(SnesSpritemapXWord X, byte Y,
 /// <summary>One ordered region in an indexed tile sheet. Null palette inherits its drawing owner's current palette.</summary>
 public sealed record SpriteVisualPart
 {
+    /// <summary>Gets the signed horizontal pixel offset from the composition origin.</summary>
     public required int OffsetX { get; init; }
+    /// <summary>Gets the signed vertical pixel offset from the composition origin.</summary>
     public required int OffsetY { get; init; }
+    /// <summary>Gets the zero-based tile column in the presentation's indexed artwork atlas.</summary>
     public required int TileColumn { get; init; }
+    /// <summary>Gets the zero-based tile row in the presentation's indexed artwork atlas.</summary>
     public required int TileRow { get; init; }
+    /// <summary>Gets the square OBJ size in pixels, either 8 or 16.</summary>
     public required int Size { get; init; }
+    /// <summary>Gets the SNES OBJ priority tier from 0 through 3.</summary>
     public required int Priority { get; init; }
+    /// <summary>Gets the OBJ palette selector, or <see langword="null"/> to inherit the drawing owner's palette.</summary>
     public required int? Palette { get; init; }
+    /// <summary>Gets whether the selected artwork region is reflected horizontally.</summary>
     public required bool FlipX { get; init; }
+    /// <summary>Gets whether the selected artwork region is reflected vertically.</summary>
     public required bool FlipY { get; init; }
 }

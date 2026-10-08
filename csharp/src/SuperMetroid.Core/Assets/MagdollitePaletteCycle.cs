@@ -48,6 +48,11 @@ public sealed class MagdollitePaletteCycle
         WriteIndented = true,
     };
 
+    /// <summary>Returns one selected glow color, using the first row's native left rotation unless the requested later-row cell was independently edited.</summary>
+    /// <param name="frame">Zero-based palette-cycle row 0..3, not an elapsed-update count.</param>
+    /// <param name="color">Zero-based glow color 0..3, corresponding to OBJ palette colors nine through twelve.</param>
+    /// <returns>Packed SNES BGR555 color from the selected row.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The row or color index is outside 0..3.</exception>
     public ushort Resolve(int frame, int color)
     {
         if ((uint)frame >= MagdollitePaletteRomData.FrameCount)
@@ -58,6 +63,12 @@ public sealed class MagdollitePaletteCycle
             ? edited : colors[(color + frame) % colors.Length];
     }
 
+    /// <summary>Writes the selected four-color row without advancing cycle timing or altering the other colors in Magdollite's OBJ palette.</summary>
+    /// <param name="cgram">CGRAM receiving the selected packed colors.</param>
+    /// <param name="frame">Palette-cycle row 0..3 chosen by the enemy's graphics-drawn hook.</param>
+    /// <param name="destination">First CGRAM color-word index 0..252; the native hook supplies its selected OBJ palette base plus nine.</param>
+    /// <exception cref="ArgumentNullException">The CGRAM target is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The row index or four-color destination range is invalid.</exception>
     public void ApplyFrame(SnesCgram cgram, int frame, int destination)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -68,6 +79,11 @@ public sealed class MagdollitePaletteCycle
             cgram.SetColor(destination + color, Resolve(frame, color));
     }
 
+    /// <summary>Validates and compiles the four RGB5 glow rows, preserving independent edits rather than requiring all later rows to rotate the first.</summary>
+    /// <param name="json">UTF-8 JSON source consumed from its current position and left open.</param>
+    /// <returns>Compiled palette-cycle colors detached from the mutable document arrays.</returns>
+    /// <exception cref="ArgumentNullException">The source stream is null.</exception>
+    /// <exception cref="InvalidDataException">The JSON contains duplicate or unknown properties, an unsupported version, dimensions other than four rows of four colors, null colors, or channels outside 0..31.</exception>
     public static MagdollitePaletteCycle Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -109,6 +125,10 @@ public sealed class MagdollitePaletteCycle
         return new MagdollitePaletteCycle(compiled);
     }
 
+    /// <summary>Serializes the editable glow cycle to indented camel-case UTF-8 JSON and validates the resulting bytes through <see cref="Load"/>.</summary>
+    /// <param name="document">Four complete RGB5 glow rows to serialize; their arrays are not retained.</param>
+    /// <returns>Validated JSON bytes for <see cref="MagdollitePaletteCycleFormat.FileName"/>.</returns>
+    /// <exception cref="InvalidDataException">The serialized document fails schema, row-dimension, or RGB5-channel validation.</exception>
     public static byte[] Write(MagdollitePaletteCycleDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
@@ -121,14 +141,20 @@ public sealed class MagdollitePaletteCycle
             name => new InvalidDataException($"Duplicate Magdollite palette property {name}."));
 }
 
+/// <summary>Editable four-row Magdollite glow schema, containing only animated OBJ colors rather than the complete sixteen-color native palette rows.</summary>
 public sealed record MagdollitePaletteCycleDocument
 {
+    /// <summary>Schema revision; loading requires version one from <see cref="MagdollitePaletteCycleFormat.Version"/>.</summary>
     public required int Version { get; init; }
+    /// <summary>Four ordered rows of four nonnull RGB5 colors, each channel 0..31, corresponding to colors 9..12 of the native rows beginning at $A8:AC1C; stock rows rotate the $AC2E-$AC34 glow colors left.</summary>
     public required PaletteRgb5[][] Frames { get; init; }
 }
 
+/// <summary>Installed-resource identity and schema revision for Magdollite's four-color glow artwork.</summary>
 public static class MagdollitePaletteCycleFormat
 {
+    /// <summary>JSON resource filename containing the four editable glow-cycle rows.</summary>
     public const string FileName = "magdollite-palette-cycle.json";
+    /// <summary>Supported schema revision, one, fixing four rows of four RGB5 colors without encoding animation cadence.</summary>
     public const int Version = 1;
 }

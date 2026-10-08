@@ -51,15 +51,19 @@ public sealed class SamusXrayState
     /// </summary>
     public XraySuspendedSubsystems SuspendedSubsystems { get; private set; }
 
+    /// <summary>Whether X-ray's independent enemy-projectile disable remains set; gates projectile updates and drawing even if Reserve recovery has cleared shared time freeze.</summary>
     public bool AreEnemyProjectilesSuspended =>
         (SuspendedSubsystems & XraySuspendedSubsystems.EnemyProjectiles) != 0;
 
+    /// <summary>Whether X-ray's independent PLM disable remains set, suppressing room-object instruction processing separately from shared time freeze.</summary>
     public bool ArePlmsSuspended =>
         (SuspendedSubsystems & XraySuspendedSubsystems.Plms) != 0;
 
+    /// <summary>Whether X-ray's independent animated-tile disable remains set, preventing animated-tile object advancement even after shared time resumes.</summary>
     public bool AreAnimatedTilesSuspended =>
         (SuspendedSubsystems & XraySuspendedSubsystems.AnimatedTiles) != 0;
 
+    /// <summary>Whether X-ray's independent palette-FX disable remains set; this suspends room palette effects, not Samus's separate visor palette handler.</summary>
     public bool ArePaletteFxSuspended =>
         (SuspendedSubsystems & XraySuspendedSubsystems.PaletteFx) != 0;
 
@@ -753,18 +757,26 @@ public sealed class SamusXrayState
 /// <summary>Exact `$0A7A` values used by the six-entry bank-$88 X-ray dispatcher.</summary>
 public enum XrayBeamPhase : ushort
 {
+    /// <summary>State zero, native <c>HandleXrayScope_State0_NoBeam</c> at <c>$88:8732</c>; after setup, held dash starts widening and released dash starts restoration.</summary>
     NoBeam = 0,
+    /// <summary>State one, native <c>HandleXrayScope_State1_BeamIsWidening</c> at <c>$88:8754</c>; accelerates the 16.16 angular half-width until it clamps to ten of the 256 angle units per turn.</summary>
     Widening = 1,
+    /// <summary>State two, native <c>HandleXrayScope_State2_FullBeam</c> at <c>$88:87AB</c>; held dash permits aiming, with Up taking priority over Down, and releasing dash starts restoration.</summary>
     Full = 2,
+    /// <summary>State three, native <c>HandleXrayScope_State3_DeactivateBeam_RestoreBG2_FirstHalf</c> at <c>$88:8934</c>; waits for VRAM queue room to restore the first saved BG2 half.</summary>
     RestoreFirstHalf = 3,
+    /// <summary>State four, native <c>HandleXrayScope_State4_DeactivateBeam_RestoreBG2_SecondHalf</c> at <c>$88:89BA</c>; waits for VRAM queue room to restore the second saved BG2 half before cleanup.</summary>
     RestoreSecondHalf = 4,
+    /// <summary>State five, native <c>HandleXrayScope_State5_DeactivateBeam_Finish</c> at <c>$88:8A08</c>; restores controls and subsystem enables only while shared time is frozen, otherwise the stranded object remains active.</summary>
     Finish = 5,
 }
 
 /// <summary>One dedicated-input-handler call, suitable for debugger watches and assertions.</summary>
 public readonly record struct XrayPoseInputResult();
 
-/// <summary>One bank-$88 beam-state call exposing the words consumed by the window renderer.</summary>
+/// <summary>Immutable lifecycle witness for one bank-$88 beam-state call; angle and width remain on the owning X-ray state for the window renderer.</summary>
+/// <param name="PhaseAtStart">Beam phase before this call's setup-stage or dispatcher work; it is not necessarily the resulting phase.</param>
+/// <param name="Completed">True when this call removed the active X-ray object; merely reaching the finish phase does not imply completion.</param>
 public readonly record struct XrayBeamStepResult(
     XrayBeamPhase PhaseAtStart,
     bool Completed);

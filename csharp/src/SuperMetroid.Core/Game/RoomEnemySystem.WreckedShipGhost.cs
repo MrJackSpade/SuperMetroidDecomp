@@ -6,11 +6,17 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public enum WreckedShipGhostAiFunction : ushort
 {
+    /// <summary>$A8:9B42 raises the palette toward white while advancing the flicker table.</summary>
     BrighteningAndFlickering = 0x9b42,
+    /// <summary>$A8:9BAD fades from white to the installed ghost palette while flickering.</summary>
     FadingToGhostPalette = 0x9bad,
+    /// <summary>$A8:9C69 waits for the post-visible fade to reach white before hiding.</summary>
     WaitingForWhiteFade = 0x9c69,
+    /// <summary>$A8:9C8A oscillates vertically during the vulnerable visible interval.</summary>
     BobbingWhileVisible = 0x9c8a,
+    /// <summary>$A8:9D13 counts down the invisible delay before Samus tracking begins.</summary>
     InitialInvisibleDelay = 0x9d13,
+    /// <summary>$A8:9D36 observes Samus movement to select one of nine relative spawn positions.</summary>
     TrackingSamusForSpawn = 0x9d36,
 }
 
@@ -68,7 +74,9 @@ public sealed class WreckedShipGhostEnemyState
 
     /// <summary>Extended words $06-$08: previous Samus X and its asymmetric ±1 bounds.</summary>
     public ushort PreviousSamusX { get; internal set; }
+    /// <summary>Gets the inclusive lower horizontal bound used by the nearly-still test.</summary>
     public ushort SamusXLowerBound { get; internal set; }
+    /// <summary>Gets the exclusive upper horizontal bound used by the nearly-still test.</summary>
     public ushort SamusXUpperBound { get; internal set; }
 
     /// <summary>
@@ -78,7 +86,9 @@ public sealed class WreckedShipGhostEnemyState
 
     /// <summary>Extended words $0A-$0C: previous Samus Y and its asymmetric ±1 bounds.</summary>
     public ushort PreviousSamusY { get; internal set; }
+    /// <summary>Gets the inclusive lower vertical bound used by the nearly-still test.</summary>
     public ushort SamusYLowerBound { get; internal set; }
+    /// <summary>Gets the exclusive upper vertical bound used by the nearly-still test.</summary>
     public ushort SamusYUpperBound { get; internal set; }
 
     /// <summary>Extended word $0D: 64-frame timer while Samus remains nearly still.</summary>

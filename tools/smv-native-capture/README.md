@@ -30,6 +30,9 @@ Observed instruction boundaries, cross-checked against the pinned disassembly:
 - `$82:8948`: main-loop entry before HDMA and RNG.
 - `$82:897A`: completed outer update before its NMI wait.
 - `$80:8338`: explicit NMI wait entry, useful for coroutine classification.
+- `$85:8080`: `MessageBox_Routine` entry, the first frame of the box's own polling.
+- `$85:80BA`: `MessageBox_Routine`'s common return. The dispatch may run on past it
+  (a save station writes SRAM), so frames after it are the dispatch's, not the box's.
 
 `input-events.csv` preserves their order and source movie frame. Each compressed
 checkpoint record contains little-endian source-frame and boundary-PC words

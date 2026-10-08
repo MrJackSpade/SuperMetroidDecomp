@@ -76,8 +76,8 @@ def normalize_upload_intervals(updates, initial_input, prelude=0):
         if record < prelude:
             continue
         if update["timingClass"] in ("apu-upload-continuation", "apu-upload-tail-continuation"):
-            if update["messageBoxStartFrame"] is not None:
-                raise ValueError("A message box cannot open inside an excluded upload wait")
+            if update["messageBoxStartFrame"] is not None or update["messageBoxEndFrame"] is not None:
+                raise ValueError("A message box cannot open or close inside an excluded upload wait")
             # This contract is deliberately limited to the native door music wait.
             # No new CPU gameplay dispatch or moving door IRQ runs in this interval; an
             # upload tail only finishes the dispatch its main-loop update already owns.
@@ -161,9 +161,14 @@ def run():
     # MessageBox_Routine entry. Its frame, relative to the dispatch's input read, is how
     # many lag frames the dispatch spent before the box's own controller polling began.
     message_box = 0x858080
-    known = {read_enter, read_complete, main_begin, main_end, wait, message_box}
+    # MessageBox_Routine's common return. The box's own controller reads start new
+    # updates, so it can close in a later update than it opened; the dispatch may then
+    # run on (a save writes SRAM), and those frames are the dispatch's, not the box's.
+    message_box_return = 0x8580BA
+    known = {read_enter, read_complete, main_begin, main_end, wait, message_box, message_box_return}
     updates = []
     current = None
+    box_open = False
     previous_input = inputs[0]
     previous_frame = 0
     with events_path.open(newline="", encoding="utf-8") as source:
@@ -178,7 +183,8 @@ def run():
                     if "input" not in current:
                         raise ValueError("Controller read did not complete")
                     updates.append(current)
-                current = {"sourceFrame": frame, "mainLoopDispatches": 0, "messageBoxStartFrame": None}
+                current = {"sourceFrame": frame, "mainLoopDispatches": 0,
+                           "messageBoxStartFrame": None, "messageBoxEndFrame": None}
             elif pc == read_complete:
                 if current is None or "input" in current or current["sourceFrame"] != frame:
                     raise ValueError("Ambiguous native controller-read boundary")
@@ -194,11 +200,21 @@ def run():
             elif pc == message_box:
                 if current is None or "input" not in current or not current["mainLoopDispatches"]:
                     raise ValueError(f"Message box at SMV frame {frame} precedes its dispatch")
-                if current["messageBoxStartFrame"] is not None:
+                if current["messageBoxStartFrame"] is not None or box_open:
                     raise ValueError(f"Two message boxes in the dispatch at SMV frame {current['sourceFrame']}")
                 current["messageBoxStartFrame"] = frame
+                box_open = True
+            elif pc == message_box_return:
+                if current is None or not box_open:
+                    raise ValueError(f"Message box return at SMV frame {frame} has no open box")
+                if current["messageBoxEndFrame"] is not None:
+                    raise ValueError(f"Two message box returns in the update at SMV frame {current['sourceFrame']}")
+                current["messageBoxEndFrame"] = frame
+                box_open = False
     if current is None or "input" not in current:
         raise ValueError("No completed terminal input step")
+    if box_open:
+        raise ValueError("The movie ends inside a message box")
     updates.append(current)
     if updates[-1]["sourceFrame"] != frames:
         raise ValueError("Native trace does not cover the original movie's final input")
@@ -272,13 +288,13 @@ def run():
     prelude = boot_prelude_length(updates) if from_reset else 0
     updates, excluded = normalize_upload_intervals(updates, inputs[0], prelude)
     manifest = {
-        "format": "super-metroid-gameplay-updates-v5",
+        "format": "super-metroid-gameplay-updates-v6",
         "startsFromReset": from_reset,
         "initialRecord": prelude,
         "bootPreludeInputsExcluded": prelude,
         "movieSha256": hashlib.sha256(movie).hexdigest().upper(),
         "romSha256": rom_hash,
-        "nativeCapture": "Snes9x 1.60 913b75d07c6e8d54e966e2c4a79d7c55428007df; instrumented J/U input boundaries and MessageBox_Routine entry",
+        "nativeCapture": "Snes9x 1.60 913b75d07c6e8d54e966e2c4a79d7c55428007df; instrumented J/U input boundaries and MessageBox_Routine entry and return",
         "eventsSha256": digest(events_path), "checkpointsSha256": digest(boundaries_path),
         "sourceFrameCount": frames, "initialInput": inputs[0],
         "updateCount": len(updates),

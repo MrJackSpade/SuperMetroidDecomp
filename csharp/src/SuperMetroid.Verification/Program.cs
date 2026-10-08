@@ -820,6 +820,16 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--shitroid-drain-carry"])
+{
+    VerifyShitroidDrainCarry();
+    return 0;
+}
+if (args is ["--shitroid-gradual-acceleration"])
+{
+    VerifyShitroidGradualAcceleration();
+    return 0;
+}
 if (args is ["--metroid-death-drops"])
 {
     VerifyMetroidDeathDrops();
@@ -7691,6 +7701,8 @@ Suite(nameof(VerifyTourianStatueXrayFreeze), () => VerifyTourianStatueXrayFreeze
 Suite(nameof(VerifyDoorAnimatedTiles), () => VerifyDoorAnimatedTiles());
 Suite(nameof(VerifyTourianStatueDescentRounding), () => VerifyTourianStatueDescentRounding());
 Suite(nameof(VerifyMetroidDeathDrops), () => VerifyMetroidDeathDrops());
+Suite(nameof(VerifyShitroidGradualAcceleration), () => VerifyShitroidGradualAcceleration());
+Suite(nameof(VerifyShitroidDrainCarry), () => VerifyShitroidDrainCarry());
 Suite(nameof(VerifyRoomFxRomData), () => VerifyRoomFxRomData());
 Suite(nameof(VerifyPowerBombFixedColors), () => VerifyPowerBombFixedColors());
 Suite(nameof(VerifySamusVisorColors), () => VerifySamusVisorColors());

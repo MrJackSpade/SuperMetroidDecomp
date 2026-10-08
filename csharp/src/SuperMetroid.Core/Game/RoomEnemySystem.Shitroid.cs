@@ -604,11 +604,16 @@ public sealed partial class RoomEnemySystem
         sharedProjectiles?.SetSharedCooldown(8);
         sharedProjectiles?.SetSharedBombCounter(5);
         samus.XSpeedDivisor = 2;
-        if (unchecked((short)(samus.Kinematics.YSpeed - 4)) >= 0)
+        // CMP #4 ($A9:F238) leaves carry = (Y speed >= 4, unsigned) through the clamp and
+        // the shake-table loads; $A9:F24D adds Samus's X with no CLC, so that carry is one
+        // extra pixel. BMI reads only the sign of the difference.
+        ushort ySpeed = samus.Kinematics.YSpeed;
+        int xCarry = ySpeed >= 4 ? 1 : 0;
+        if ((unchecked((ushort)(ySpeed - 4)) & 0x8000) == 0)
             samus.Kinematics.YSpeed = 2;
 
         int shakeIndex = (slot.FrameCounter & 6) >> 1;
-        slot.XPosition = unchecked((ushort)(samus.XPosition + ShitroidShakeX[shakeIndex]));
+        slot.XPosition = unchecked((ushort)(samus.XPosition + ShitroidShakeX[shakeIndex] + xCarry));
         slot.YPosition = unchecked((ushort)(samus.YPosition + ShitroidShakeY[shakeIndex] - 20));
 
         // `$A9:C560-$C57C` subtracts four without Varia and two with it. The native
@@ -670,54 +675,13 @@ public sealed partial class RoomEnemySystem
     {
         if ((uint)divisorTableIndex >= 16)
             throw new ArgumentOutOfRangeException(nameof(divisorTableIndex));
-        int divisor = 16 - divisorTableIndex;
-
-        int deltaX = unchecked((short)(slot.XPosition - targetX));
-        if (deltaX != 0)
-        {
-            int step = Math.Max(1, Math.Abs(deltaX) / divisor);
-            int velocity = unchecked((short)state.XVelocity);
-            if (deltaX > 0)
-            {
-                if (velocity >= 0)
-                {
-                    if (ShitroidIsOffScreen(slot))
-                        velocity -= offscreenReversalKick;
-                    velocity -= 8 + step;
-                }
-                velocity -= step;
-            }
-            else
-            {
-                if (velocity < 0)
-                {
-                    if (ShitroidIsOffScreen(slot))
-                        velocity += offscreenReversalKick;
-                    velocity += 8 + step;
-                }
-                velocity += step;
-            }
-            state.XVelocity = unchecked((ushort)Math.Clamp(velocity, -2048, 2048));
-        }
-
-        int deltaY = unchecked((short)(slot.YPosition - targetY));
-        if (deltaY == 0)
-            return;
-        int verticalStep = Math.Max(1, Math.Abs(deltaY) / divisor);
-        int verticalVelocity = unchecked((short)state.YVelocity);
-        if (deltaY > 0)
-        {
-            if (verticalVelocity >= 0)
-                verticalVelocity -= 8 + verticalStep;
-            verticalVelocity -= verticalStep;
-        }
-        else
-        {
-            if (verticalVelocity < 0)
-                verticalVelocity += 8 + verticalStep;
-            verticalVelocity += verticalStep;
-        }
-        state.YVelocity = unchecked((ushort)Math.Clamp(verticalVelocity, -1280, 1280));
+        // GradualAccelerationDivisorTable ($A9:F56A) holds $10 down to $01.
+        byte divisor = (byte)(16 - divisorTableIndex);
+        state.XVelocity = BabyMetroidGradualAcceleration.AccelerateHorizontally(
+            slot.XPosition, targetX, state.XVelocity, divisor, offscreenReversalKick,
+            () => ShitroidIsOffScreen(slot));
+        state.YVelocity = BabyMetroidGradualAcceleration.AccelerateVertically(
+            slot.YPosition, targetY, state.YVelocity, divisor);
     }
 
     private bool ShitroidIsOffScreen(RoomEnemySlot slot)

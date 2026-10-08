@@ -22,6 +22,9 @@ internal static class FixtureRoomHeaders
     /// <summary>RoomHeader_RedFish at $8F:D104, Maridia's sloped Red Fish room.</summary>
     public const ushort RedFish = 0xd104;
 
+    /// <summary>RoomHeader_BigBoy at $8F:DCB1, where the Shitroid drains the Sidehopper.</summary>
+    public const ushort BigBoy = 0xdcb1;
+
     /// <summary>RoomHeader_Metroids1 at $8F:DAE1, Tourian's first Metroid room.</summary>
     public const ushort TourianMetroids1 = 0xdae1;
 }

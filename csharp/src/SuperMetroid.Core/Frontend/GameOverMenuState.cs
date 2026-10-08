@@ -27,6 +27,12 @@ public sealed class GameOverMenuState
     private ushort babySpritemap = GameOverRomData.BabyAnimation.InitialSpritemap;
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
 
+    /// <summary>Creates the game-over scene with installed artwork and its BG1 tilemap, leaving music, animation, and fade initialization for the first update.</summary>
+    /// <param name="bus">Address-space context passed to the menu PPU and later presentation rebinding.</param>
+    /// <param name="audio">Shared cartridge-style music and sound queue used by menu updates.</param>
+    /// <param name="mapPresentation">Required installed presentation bundle, despite the compatibility default of null.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> or <paramref name="audio"/> is null.</exception>
+    /// <exception cref="InvalidOperationException">No installed presentation bundle is supplied.</exception>
     public GameOverMenuState(
         ISnesAddressSpace bus,
         CartridgeAudioState audio,
@@ -46,10 +52,13 @@ public sealed class GameOverMenuState
     /// <summary>Zero selects Yes; one selects No, matching <c>file_select_map_area_index</c>.</summary>
     public int SelectedItem { get; private set; }
 
+    /// <summary>Current host stage of initialization, music waiting, interaction, or fading; these enum ordinals are not native menu-index words.</summary>
     public GameOverMenuPhase Phase { get; private set; }
 
+    /// <summary>Sticky request raised when the accepted Yes answer has faded fully to black; the outer dispatcher opens file-select map view rather than reloading the save inside this scene.</summary>
     public bool ContinueRequested { get; private set; }
 
+    /// <summary>Sticky request raised when the accepted No answer has faded fully to black; the outer dispatcher enters its soft-reset path toward the title.</summary>
     public bool TitleRequested { get; private set; }
 
     /// <summary>
@@ -76,6 +85,9 @@ public sealed class GameOverMenuState
         }
     }
 
+    /// <summary>Advances one menu update, latching input edges, animating the cursor and Baby, and progressing the music wait and one-level-per-update brightness fades.</summary>
+    /// <param name="controllerInput">Current held-button word in native <see cref="SnesButton"/> bit layout; only newly pressed buttons affect the interactive menu.</param>
+    /// <remarks>Select, Up, or Down toggles the answer and takes priority over A confirmation in the same update. Accepting either answer holds the current Baby frame for 180 updates while fading out.</remarks>
     public void Step(ushort controllerInput)
     {
         controller.Latch(controllerInput);
@@ -152,6 +164,8 @@ public sealed class GameOverMenuState
         }
     }
 
+    /// <summary>Composites the current BG1, Baby, egg, and selection cursor into a brightness-filtered 256x224 frame without advancing menu timing.</summary>
+    /// <returns>The scene-owned row-major RGBA buffer, valid only until this scene renders again; copy it before retaining a frame across later renders.</returns>
     public Rgba32[] Render()
     {
         // `TM=$11` enables BG1 and OBJ only. Game-over does not retain the menu starfield.
@@ -250,12 +264,19 @@ public sealed class GameOverMenuState
     }
 }
 
+/// <summary>Host stages of the retail game-over prompt; they combine native dispatcher boundaries and do not reproduce native menu-index numeric values.</summary>
 public enum GameOverMenuPhase
 {
+    /// <summary>Native menu-index-one setup: queues music stop and data load, starts the Baby animation, selects Yes, and begins with zero brightness.</summary>
     Initialize,
+    /// <summary>Native menu-index-two music gate: continues Baby animation while waiting for the shared music queue to empty, then queues the game-over track.</summary>
     WaitForInitialMusic,
+    /// <summary>Native menu-index-three fade-in: advances the Baby and raises brightness by one per update until full intensity fifteen enables interaction.</summary>
     FadeIn,
+    /// <summary>Native menu-index-four interaction: advances the Baby, toggles Yes/No on navigation edges, and accepts the selected answer on an A edge.</summary>
     Main,
+    /// <summary>Native menu indexes five/six: fades the accepted Yes answer to black and publishes <see cref="GameOverMenuState.ContinueRequested"/> for the outer map-view transition.</summary>
     FadeOutToContinue,
+    /// <summary>Native menu-index-seven path: fades the accepted No answer to black and publishes <see cref="GameOverMenuState.TitleRequested"/> for the outer soft reset.</summary>
     FadeOutToTitle,
 }

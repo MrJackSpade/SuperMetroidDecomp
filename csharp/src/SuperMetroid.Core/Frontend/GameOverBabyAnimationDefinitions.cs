@@ -3,30 +3,48 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Semantic Baby Metroid frames used by the game-over animation.</summary>
 public enum GameOverBabyFrame
 {
+    /// <summary>Closed pose in the triangular animation wave; native menu-spritemap ID $65 resolves to $82:CFF6.</summary>
     Closed,
+    /// <summary>Intermediate pose used on both sides of the animation wave; native menu-spritemap ID $66 resolves to $82:CFFD.</summary>
     Middle,
+    /// <summary>Open pose at the animation wave's peak; native menu-spritemap ID $67 resolves to $82:D004.</summary>
     Open,
 }
 
 /// <summary>Semantic Baby Metroid palette phases used by the game-over animation.</summary>
 public enum GameOverBabyPalette
 {
+    /// <summary>Neutral colors shared by all idle poses, corresponding to <c>GameOver_BabyMetroid_Palettes_0</c> at $82:BD97.</summary>
     Idle,
+    /// <summary>Cry colors paired with the closed pose, corresponding to the sixteen-color block at $82:BDB7.</summary>
     ClosedCry,
+    /// <summary>Cry colors paired with the intermediate pose, corresponding to the sixteen-color block at $82:BDD7.</summary>
     MiddleCry,
+    /// <summary>Cry colors paired with the open pose, corresponding to the sixteen-color block at $82:BDF7.</summary>
     OpenCry,
 }
 
 /// <summary>Named sound handoffs embedded between native game-over animation records.</summary>
 public enum GameOverBabySound
 {
+    /// <summary>No sound command follows this frame record; unlike the cry values, this has no native opcode.</summary>
     None,
+    /// <summary>First group's library-three cry $23, queued by <c>Instruction_Queue_BabyMetroid_Cry1_SoundEffect</c> at $82:BC0C after the group's first cry frame.</summary>
     Cry23,
+    /// <summary>Second group's library-three cry $26, queued by <c>Instruction_Queue_BabyMetroid_Cry2_SoundEffect</c> at $82:BC15 after the group's first cry frame.</summary>
     Cry26,
+    /// <summary>Third group's library-three cry $27, queued by <c>Instruction_Queue_BabyMetroid_Cry3_SoundEffect</c> at $82:BC1E after the group's first cry frame.</summary>
     Cry27,
 }
 
 /// <summary>One compiled native animation record, independent of cartridge memory.</summary>
+/// <param name="Pointer">Bank-$82 byte pointer identifying the start of this native frame record.</param>
+/// <param name="Duration">Menu-update countdown assigned when this frame record is installed.</param>
+/// <param name="Frame">Semantic pose selecting editable Baby OAM artwork.</param>
+/// <param name="Palette">Semantic phase selecting an editable sixteen-color Baby palette.</param>
+/// <param name="SoundAfter">Cry command queued when this record's countdown expires, or None when no command follows.</param>
+/// <param name="NextPointer">Next valid frame-record pointer, skipping any intervening cry opcode and wrapping the final record to <see cref="GameOverBabyAnimationDefinitions.FirstPointer"/>.</param>
+/// <param name="RestartAfter">Whether the native $FFFF restart marker follows this final record.</param>
 public readonly record struct GameOverBabyInstruction(
     ushort Pointer,
     ushort Duration,
@@ -67,6 +85,7 @@ public static class GameOverBabyAnimationDefinitions
     /// <summary>Second cry group: four idle cycles, eight cry steps and one sound word.</summary>
     private const int SecondGroupBytes = (4 * 4 + 8) * 6 + 2;
 
+    /// <summary>Lazily enumerates all sixty frame records once in native execution order, including sound handoffs but not callback words or the final restart marker.</summary>
     public static IEnumerable<GameOverBabyInstruction> All
     {
         get
@@ -82,6 +101,10 @@ public static class GameOverBabyAnimationDefinitions
         }
     }
 
+    /// <summary>Decodes one supported native frame-record identity into its compiled timing, artwork phase, sound handoff, and next-record pointer without cartridge reads.</summary>
+    /// <param name="pointer">Bank-$82 byte pointer to a frame-record start in the $BC27-$BD94 stream.</param>
+    /// <returns>The frame's complete compiled instruction, including an explicit wrap to the first record after the final frame.</returns>
+    /// <exception cref="InvalidDataException">The pointer is outside the stream, addresses a cry opcode or record field, or otherwise is not a valid frame-record start.</exception>
     public static GameOverBabyInstruction Get(ushort pointer)
     {
         int offset = pointer - FirstPointer;

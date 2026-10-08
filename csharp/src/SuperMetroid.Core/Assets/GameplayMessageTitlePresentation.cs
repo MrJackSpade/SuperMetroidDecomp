@@ -23,11 +23,19 @@ public sealed class GameplayMessageTitlePresentation
     }
 
     private ushort[] Border { get; }
+    /// <summary>Uppercase SHA-256 of the exact source JSON bytes read during loading, including formatting and property order rather than only compiled title content.</summary>
     public string ContentIdentity { get; }
 
+    /// <summary>Reports whether this catalog owns the message's one-row title; large item panels and separate notices are not owned here.</summary>
+    /// <param name="messageId">Message identity to query without constructing a tilemap.</param>
+    /// <returns>True for the fifteen supported one-row item and status titles.</returns>
     public bool Contains(GameplayMessageId messageId) => titles.ContainsKey(messageId);
 
     /// <summary>Builds the complete three-row message tilemap without cartridge reads.</summary>
+    /// <param name="messageId">Supported one-row message whose installed title and palette are selected.</param>
+    /// <returns>A new caller-owned 96-word BG3 tilemap in 32-column row-major order, with the same supplied border above and below its title row.</returns>
+    /// <remarks>The title is centered within columns 6..24, rounding its starting column down when padding is uneven. Six left and seven right outer cells remain transparent.</remarks>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="messageId"/> is not owned by this title catalog.</exception>
     public ushort[] Build(GameplayMessageId messageId)
     {
         if (!titles.TryGetValue(messageId, out CompiledTitle? title))
@@ -54,6 +62,10 @@ public sealed class GameplayMessageTitlePresentation
         return result;
     }
 
+    /// <summary>Validates the complete one-row message set and retains independent border words and title data for later tilemap construction.</summary>
+    /// <param name="json">UTF-8 JSON read from its current position to the end and left open; its exact bytes determine <see cref="ContentIdentity"/>.</param>
+    /// <returns>An immutable presentation that does not retain the document's mutable title dictionary or border-cell array.</returns>
+    /// <exception cref="InvalidDataException">JSON is invalid or ambiguous, its version, message set or border width is wrong, or a title is empty, too wide, uses unsupported glyphs or has an invalid palette.</exception>
     public static GameplayMessageTitlePresentation Load(Stream json)
     {
         byte[] source;
@@ -113,6 +125,10 @@ public sealed class GameplayMessageTitlePresentation
             Convert.ToHexString(SHA256.HashData(source)));
     }
 
+    /// <summary>Serializes and validates every installed title and the shared border before writing any UTF-8 JSON bytes.</summary>
+    /// <param name="output">Destination stream written at its current position and left open; existing trailing bytes are not truncated.</param>
+    /// <param name="document">Authored title dictionary and border array read for serialization, not retained by the writer.</param>
+    /// <exception cref="InvalidDataException">The serialized document fails <see cref="Load"/>'s schema or title validation.</exception>
     public static void Write(Stream output, GameplayMessageTitleDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
@@ -156,20 +172,29 @@ public sealed class GameplayMessageTitlePresentation
     private sealed record CompiledTitle(string Text, int Palette);
 }
 
+/// <summary>Editable schema for the fifteen one-row gameplay messages and their shared border; collections remain caller-mutable until compilation.</summary>
 public sealed record GameplayMessageTitleDocument
 {
+    /// <summary>Schema revision; loading requires <see cref="GameplayMessageTitleDefinitions.Version"/>.</summary>
     public required int Version { get; init; }
+    /// <summary>Thirty-two native BG3 words copied unchanged to both outer rows; the stock row is Small_MessageBox_TopBottomBorder_Tilemap at $85:8040.</summary>
     public required GameplayMessageTitleCell[] Border { get; init; }
+    /// <summary>Exactly the fifteen case-sensitive message-name keys listed by <see cref="GameplayMessageTitleDefinitions.MessageIds"/>, each with a nonnull title definition.</summary>
     public required Dictionary<string, GameplayMessageTitle> Titles { get; init; }
 }
 
+/// <summary>One selected title string and BG palette; its placement is centered by the builder rather than supplied as gameplay state.</summary>
 public sealed record GameplayMessageTitle
 {
+    /// <summary>Nonempty text of at most nineteen characters, using uppercase A..Z, space, hyphen, period or question mark; no arbitrary Unicode glyph substitution is performed.</summary>
     public required string Text { get; init; }
+    /// <summary>BG palette selector 0..7 applied to title glyphs and the space-filled interior, with BG priority set and no reflection flags.</summary>
     public required int Palette { get; init; }
 }
 
+/// <summary>One lossless native BG tilemap word used by authored message borders and templates, not an atlas coordinate or controller instruction.</summary>
 public sealed record GameplayMessageTitleCell
 {
+    /// <summary>Complete 16-bit word: character index in bits 0..9, palette in 10..12, priority in 13 and horizontal/vertical reflections in 14/15.</summary>
     public required ushort Raw { get; init; }
 }

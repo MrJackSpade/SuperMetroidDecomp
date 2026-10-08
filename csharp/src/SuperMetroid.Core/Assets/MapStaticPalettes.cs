@@ -11,11 +11,22 @@ public sealed class MapStaticPalettes
     private readonly Dictionary<AreaId, ushort[]> world;
     private MapStaticPalettes(ushort[] pause, ushort[] fileSelect, Dictionary<AreaId, ushort[]> world)
     { this.pause = pause; this.fileSelect = fileSelect; this.world = world; }
+
+    /// <summary>Gets the complete 256-color pause-screen palette as packed SNES RGB555 words.</summary>
     public ReadOnlySpan<ushort> Pause => pause;
+
+    /// <summary>Gets the complete 256-color file-select palette as packed SNES RGB555 words.</summary>
     public ReadOnlySpan<ushort> FileSelect => fileSelect;
+
+    /// <summary>Gets the complete 256-color world-map palette for one of the six Zebes areas.</summary>
+    /// <param name="selectedArea">Zebes area whose selected-map palette is requested.</param>
+    /// <returns>The area's packed SNES RGB555 palette.</returns>
     public ReadOnlySpan<ushort> World(AreaId selectedArea) => world.TryGetValue(selectedArea, out var colors)
         ? colors : throw new ArgumentOutOfRangeException(nameof(selectedArea), "World map palettes cover the six Zebes areas.");
 
+    /// <summary>Loads and validates the pause, file-select, and six world-map palettes from JSON.</summary>
+    /// <param name="json">Stream containing the map-palette document.</param>
+    /// <returns>The compiled static palettes.</returns>
     public static MapStaticPalettes Load(Stream json)
     {
         MapStaticPalettesDocument document = JsonAssetDocument.Read<MapStaticPalettesDocument>(
@@ -48,6 +59,9 @@ public sealed class MapStaticPalettes
         return result;
     }
 
+    /// <summary>Validates and writes a map-palette document as JSON.</summary>
+    /// <param name="json">Destination stream.</param>
+    /// <param name="document">Document to validate and serialize.</param>
     public static void Write(Stream json, MapStaticPalettesDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
@@ -56,15 +70,28 @@ public sealed class MapStaticPalettes
     }
 }
 
+/// <summary>JSON schema for complete pause, file-select, and area-map palettes.</summary>
 public sealed record MapStaticPalettesDocument
 {
+    /// <summary>Gets the schema version, which must equal <see cref="MapStaticPalettesFormat.Version"/>.</summary>
     public required int Version { get; init; }
+
+    /// <summary>Gets the 256 editable RGB5 colors used by the pause screen.</summary>
     public required PaletteRgb5[] Pause { get; init; }
+
+    /// <summary>Gets the 256 editable RGB5 colors used by file select.</summary>
     public required PaletteRgb5[] FileSelect { get; init; }
+
+    /// <summary>Gets the six 256-color Zebes world-map palettes keyed by area name.</summary>
     public required Dictionary<string, PaletteRgb5[]> World { get; init; }
 }
+
+/// <summary>Defines the static map-palette document contract.</summary>
 public static class MapStaticPalettesFormat
 {
+    /// <summary>Current static map-palette schema version.</summary>
     public const int Version = 1;
+
+    /// <summary>Canonical static map-palette asset file name.</summary>
     public const string FileName = "map-palettes.json";
 }

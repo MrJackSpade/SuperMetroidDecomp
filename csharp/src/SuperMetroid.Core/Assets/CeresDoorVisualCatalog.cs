@@ -53,6 +53,10 @@ public sealed class CeresDoorVisualCatalog
                 platformEdits.Add(frame * CeresDoorVisualRomData.Mode7FrameByteCount + index, mode7DoorFrames[frame][index]);
     }
 
+    /// <summary>Loads the indexed 4bpp door sheet and version-1 visual JSON, validating native transfer lengths, RGB5 channels, and eight-bit Mode 7 character selectors without importing door timing or variant logic.</summary>
+    /// <param name="tilePng">Caller-owned <c>ceres-door-tiles.png</c> stream compiling to $0400 bytes.</param>
+    /// <param name="paletteJson">Caller-owned <c>ceres-door-colors.json</c> stream containing setup colors, animation rows, and Mode 7 strip cells.</param>
+    /// <returns>The compiled visual snapshot; streams are consumed from their current positions and left open.</returns>
     public static CeresDoorVisualCatalog Load(Stream tilePng, Stream paletteJson)
     {
         ArgumentNullException.ThrowIfNull(tilePng);
@@ -84,6 +88,7 @@ public sealed class CeresDoorVisualCatalog
             mode7DoorFrames);
     }
 
+    /// <summary>Serializes visual JSON as indented camel-case UTF-8, validating version, palette dimensions, RGB5 bounds, and Mode 7 frame bytes before returning it; PNG admission is a separate boundary.</summary>
     public static byte[] Write(CeresDoorVisualDocument document)
     {
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(document, Options);
@@ -100,9 +105,13 @@ public sealed class CeresDoorVisualCatalog
         return json;
     }
 
+    /// <summary>Loads $0400 selected 4bpp bytes, or 32 characters, at VRAM byte $E000, replacing variant two's native $B0:C400 DMA source.</summary>
     public void LoadTiles(SnesVram vram) =>
         tiles.LoadTo(vram, CeresDoorVisualRomData.TileVramDestination);
 
+    /// <summary>Installs fifteen normal nontransparent inks corresponding to $A6:F4EE in current CGRAM, exposing the native completed setup-fade target directly.</summary>
+    /// <param name="cgram">Current palette receiving the setup image.</param>
+    /// <param name="destination">First CGRAM color index, not a byte offset; the actor uses 161 for the inactive variant-three target or 241 for the active door palette.</param>
     public void LoadNormalColors(SnesCgram cgram, int destination)
     {
         Ensure.NotNull(cgram);
@@ -112,6 +121,9 @@ public sealed class CeresDoorVisualCatalog
             cgram.SetColor(destination + color, normal.ColorAt(color));
     }
 
+    /// <summary>Installs fifteen escape-state nontransparent inks corresponding to $A6:F50E in current CGRAM; escape-state selection remains actor-owned.</summary>
+    /// <param name="cgram">Current palette receiving the setup image.</param>
+    /// <param name="destination">First CGRAM color index, not a byte offset; the active door uses 241, leaving its transparent slot unchanged.</param>
     public void LoadEscapeColors(SnesCgram cgram, int destination)
     {
         Ensure.NotNull(cgram);
@@ -123,6 +135,7 @@ public sealed class CeresDoorVisualCatalog
 
     private ushort EscapeColor(int color) => escape.ColorAt(color);
 
+    /// <summary>Installs six selected inks at CGRAM 41–46 from animation row 0–7 corresponding to $A6:F871; the actor derives the row from its frame bits 3–5.</summary>
     public void LoadAnimationColors(SnesCgram cgram, int row)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -140,6 +153,7 @@ public sealed class CeresDoorVisualCatalog
         return platformEdits.TryGetValue(frame * CeresDoorVisualRomData.Mode7FrameByteCount + index, out byte edit) ? edit : stock;
     }
 
+    /// <summary>Writes selected light/dark platform frame 0 or 1 as four eight-bit Mode 7 map-lane cells at VRAM word $060E, preserving the native $A6:F918/$F91C strip width.</summary>
     public void LoadMode7DoorFrame(SnesVram vram, int frame)
     {
         ArgumentNullException.ThrowIfNull(vram);
@@ -195,18 +209,26 @@ public sealed class CeresDoorVisualCatalog
     };
 }
 
+/// <summary>Editable door palette and Mode 7 platform-strip schema, separate from the indexed 4bpp character PNG and engine-owned door/escape timing.</summary>
 public sealed record CeresDoorVisualDocument
 {
+    /// <summary>Visual schema revision; loading and serialization currently require version 1.</summary>
     public required int Version { get; init; }
+    /// <summary>Fifteen ordered nontransparent RGB5 inks corresponding to $A6:F4EE; every red, green, and blue channel must be 0–31.</summary>
     public required PaletteRgb5[] Normal { get; init; }
+    /// <summary>Fifteen ordered nontransparent escape RGB5 inks corresponding to $A6:F50E, independent of the normal setup image.</summary>
     public required PaletteRgb5[] Escape { get; init; }
+    /// <summary>Eight rows of six RGB5 inks corresponding to the $A6:F871 animation table, installed at CGRAM 41–46 in actor-selected frame order.</summary>
     public required PaletteRgb5[][] Animation { get; init; }
+    /// <summary>Two ordered four-cell strips corresponding to $A6:F918/$F91C, each containing byte-valued Mode 7 character indices rather than ordinary BG palette/flip words.</summary>
     public required int[][] Mode7DoorFrames { get; init; }
 }
 
 /// <summary>Stable host filenames for Ceres-door graphics and palettes.</summary>
 public static class CeresDoorVisualFormat
 {
+    /// <summary>Installed indexed PNG filename for the 32 4bpp door characters used by variant two's OBJ tile upload.</summary>
     public const string TilesFileName = "ceres-door-tiles.png";
+    /// <summary>Installed editable JSON filename for normal/escape setup colors, animation inks, and the two Mode 7 platform strips.</summary>
     public const string ColorsFileName = "ceres-door-colors.json";
 }

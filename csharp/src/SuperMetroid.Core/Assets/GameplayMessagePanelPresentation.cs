@@ -23,11 +23,19 @@ public sealed class GameplayMessagePanelPresentation
         ContentIdentity = contentIdentity;
     }
 
+    /// <summary>Uppercase SHA-256 of the exact source JSON bytes read during loading, including whitespace and property order rather than only compiled tile content.</summary>
     public string ContentIdentity { get; }
 
+    /// <summary>Reports whether this catalog owns the message's large item-instruction panel; unrelated title and notice IDs return false.</summary>
+    /// <param name="messageId">Message identity to query without building a tilemap.</param>
+    /// <returns>True for the seven supported large item-instruction messages.</returns>
     public bool Contains(GameplayMessageId messageId) => panels.ContainsKey(messageId);
 
     /// <summary>Builds the complete six-row panel without cartridge reads.</summary>
+    /// <param name="messageId">Supported large item-instruction message whose title and four-row template are selected.</param>
+    /// <returns>A new caller-owned 192-word BG3 tilemap in 32-column row-major order; the message-box state subsequently patches its compiled controller-button slot.</returns>
+    /// <remarks>The same border row is copied above and below the four content rows. The title replaces columns 3..28 of the first content row without changing the template's other rows.</remarks>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="messageId"/> is not owned by this panel catalog.</exception>
     public ushort[] Build(GameplayMessageId messageId)
     {
         if (!panels.TryGetValue(messageId, out CompiledPanel? panel))
@@ -51,6 +59,10 @@ public sealed class GameplayMessagePanelPresentation
         return result;
     }
 
+    /// <summary>Validates all seven large-panel definitions and retains independently owned border/template words and title data for later tilemap construction.</summary>
+    /// <param name="json">UTF-8 JSON read from its current position to the end and left open; the exact consumed bytes determine <see cref="ContentIdentity"/>.</param>
+    /// <returns>An immutable panel presentation that does not retain the document's mutable dictionary or tile-cell arrays.</returns>
+    /// <exception cref="InvalidDataException">JSON is invalid or ambiguous, its version, message set or dimensions are wrong, or a title, palette, column or outer title-row word violates the schema.</exception>
     public static GameplayMessagePanelPresentation Load(Stream json)
     {
         byte[] source;
@@ -131,6 +143,10 @@ public sealed class GameplayMessagePanelPresentation
             Convert.ToHexString(SHA256.HashData(source)));
     }
 
+    /// <summary>Serializes and validates the complete panel document before writing any UTF-8 JSON bytes.</summary>
+    /// <param name="output">Destination stream written at its current position and left open; existing trailing bytes are not truncated.</param>
+    /// <param name="document">Authored titles and tile arrays read for serialization, not retained by the writer.</param>
+    /// <exception cref="InvalidDataException">The serialized document fails <see cref="Load"/>'s schema, title or layout validation.</exception>
     public static void Write(Stream output, GameplayMessagePanelDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(
@@ -146,17 +162,26 @@ public sealed class GameplayMessagePanelPresentation
         ushort[] Template);
 }
 
+/// <summary>Editable large item-instruction panel schema; border arrays, panel dictionary and nested templates remain caller-mutable until compilation.</summary>
 public sealed record GameplayMessagePanelDocument
 {
+    /// <summary>Schema revision; loading requires <see cref="GameplayMessagePanelDefinitions.Version"/>.</summary>
     public required int Version { get; init; }
+    /// <summary>Thirty-two native BG3 tile words copied unchanged to both outer rows; the stock row is Large_MessageBox_TopBottomBorder_Tilemap at $85:8000.</summary>
     public required GameplayMessageTitleCell[] Border { get; init; }
+    /// <summary>Exactly MissileTank, SuperMissileTank, PowerBombTank, GrappleBeam, XrayScope, SpeedBooster and Bombs, using their case-sensitive message names as keys.</summary>
     public required Dictionary<string, GameplayMessagePanel> Panels { get; init; }
 }
 
+/// <summary>One large-panel title and four-row native BG3 tile template; button substitution and message timing are supplied by compiled gameplay behavior.</summary>
 public sealed record GameplayMessagePanel
 {
+    /// <summary>Nonempty title of at most 26 characters, using uppercase A..Z, space, hyphen, period or question mark; inserted into the first content row.</summary>
     public required string Title { get; init; }
+    /// <summary>BG palette selector 0..7 used for compiled title glyphs and their space-filled interior; template rows retain their own packed attributes.</summary>
     public required int Palette { get; init; }
+    /// <summary>Absolute zero-based tile column where the title starts, at least 3; the complete title must end before column 29.</summary>
     public required int Column { get; init; }
+    /// <summary>Exactly 128 native BG3 words in four 32-column rows. First-row columns 0..2 and 29..31 must be transparent word $000E; columns 3..28 are replaced by the title at build time.</summary>
     public required GameplayMessageTitleCell[] Template { get; init; }
 }

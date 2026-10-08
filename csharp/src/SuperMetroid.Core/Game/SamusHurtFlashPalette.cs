@@ -21,6 +21,12 @@ public static class SamusHurtFlashPalette
     /// Advances one native hurt-flash call, optionally replacing all sixteen colors of
     /// OBJ palette four and publishing the exact recovery sound side effects.
     /// </summary>
+    /// <param name="bus">Address space used to resolve Samus's movement type for counter-forty spin-audio recovery.</param>
+    /// <param name="cgram">Live palette memory; only Samus's sixteen OBJ-palette-four colors may be replaced.</param>
+    /// <param name="samus">Owner of the hurt counter, equipment palettes, movement/grapple state, sound queue, and deferred charging-audio latch.</param>
+    /// <param name="controllerInput">Current held SNES buttons; X permits the deferred charging-beam sound request.</param>
+    /// <param name="presentationColors">Installed hurt/intro colors, required only when the selected flash call loads one of those palettes.</param>
+    /// <returns>An empty step marker; counter, palette, and audio outcomes are applied directly to the supplied state.</returns>
     public static SamusHurtFlashPaletteStepResult Update(
         ISnesAddressSpace bus,
         SnesCgram cgram,
@@ -108,6 +114,9 @@ public static class SamusHurtFlashPalette
     /// <c>$90:F576-$90:F58E</c>. The only translated producer writes positive one, but the
     /// property retains the native word so later power-bomb and door handlers can share it.
     /// </summary>
+    /// <param name="samus">Owner of the resume-charging flag, which is cleared whenever nonzero regardless of the held buttons.</param>
+    /// <param name="controllerInput">Current held SNES buttons; X must still be held to queue library-one sound $41.</param>
+    /// <returns>Whether the nonzero latch caused a resume-charging sound request; this is not confirmation of playback.</returns>
     public static bool ConsumeResumeChargingBeamSound(SamusState samus, ushort controllerInput)
     {
         ArgumentNullException.ThrowIfNull(samus);
@@ -172,11 +181,17 @@ public static class SamusHurtFlashPalette
 /// <summary>Counter-forty audio recovery selected by native movement/grapple state.</summary>
 public enum SamusHurtFlashRecoveryAction : byte
 {
+    /// <summary>No recovery sound or deferred charging request was selected for the current movement/grapple state.</summary>
     None,
+    /// <summary>$91:D94C's Samus command $1C selects the translated ordinary spin/wall-jump sound, library one $31, with queue threshold nine.</summary>
     SpinJumpSound,
+    /// <summary>The spin-recovery command selects library-one Space Jump sound $3E from Samus's pose or wall-jump animation frame.</summary>
     SpaceJumpSound,
+    /// <summary>The spin-recovery command selects library-one Screw Attack sound $33 from Samus's pose or wall-jump animation frame.</summary>
     ScrewAttackSound,
+    /// <summary>$91:D944 queues library-one sound $06 with threshold nine while Grapple is firing, connected, wall-grabbing, or releasing a wall grab.</summary>
     GrappleSound,
+    /// <summary>$91:D938 sets the resume-charging latch when the flare count is at least $10 and X is held; the post-draw consumer may later queue sound $41.</summary>
     ResumeChargingBeamRequested,
 }
 

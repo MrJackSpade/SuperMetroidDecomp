@@ -1,0 +1,3 @@
+# Accepted reachability findings: one findings.tsv row per line as category, kind, symbol and
+# file, tab-separated. The gate fails on any other finding and on entries that no longer match.
+# Keep this list empty: delete dead code, or move code only tools reach into SuperMetroid.Tooling.

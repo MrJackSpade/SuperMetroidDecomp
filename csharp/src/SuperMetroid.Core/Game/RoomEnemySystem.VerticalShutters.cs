@@ -86,7 +86,7 @@ public sealed partial class RoomEnemySystem
                     state.FunctionTimer = state.HorizontalProximityOrWaitTime;
                     ActivateVerticalShutter(slot, state, cameraX, cameraY);
                 }
-                return;
+                break;
 
             case VerticalShutterFunction.WaitForHorizontalProximity:
                 if (samus is null)
@@ -98,39 +98,48 @@ public sealed partial class RoomEnemySystem
                 {
                     ActivateVerticalShutter(slot, state, cameraX, cameraY);
                 }
-                return;
+                break;
 
             case VerticalShutterFunction.Activate:
                 ActivateVerticalShutter(slot, state, cameraX, cameraY);
-                return;
+                break;
 
             case VerticalShutterFunction.InitialNoOp:
             case VerticalShutterFunction.PermanentNoOp:
-                return;
+                break;
 
             case VerticalShutterFunction.MovingUp:
                 if (samus is null)
                     throw new InvalidOperationException("Moving vertical shutter requires Samus state.");
                 MoveVerticalShutterUp(slot, state, samus);
-                return;
+                break;
 
             case VerticalShutterFunction.MovingDown:
                 if (samus is null)
                     throw new InvalidOperationException("Moving vertical shutter requires Samus state.");
                 MoveVerticalShutterDown(slot, state, samus);
-                return;
+                break;
 
             case VerticalShutterFunction.StoppedAfterMovingUp:
                 RunVerticalShutterStoppedAfterUp(slot, state, cameraX, cameraY);
-                return;
+                break;
 
             case VerticalShutterFunction.StoppedAfterMovingDown:
                 RunVerticalShutterStoppedAfterDown(slot, state, cameraX, cameraY);
-                return;
+                break;
 
             default:
                 throw new InvalidDataException(
                     $"Vertical shutter function $A2:{(ushort)state.Function:X4} is not translated.");
+        }
+
+        // $A2:EED7-$A2:EF04: an idle shutter reacts when Samus's four solid-enemy collision
+        // words AND to this enemy's index and she has contact damage (e.g. screw attack).
+        if (state.Function is not (VerticalShutterFunction.MovingUp or VerticalShutterFunction.MovingDown) &&
+            SamusContactsIdleShutter(slot, samus ?? throw new InvalidOperationException(
+                "Vertical-shutter AI requires Samus state for its contact reaction.")))
+        {
+            ReactVerticalShutter(slot, cameraX, cameraY);
         }
     }
 

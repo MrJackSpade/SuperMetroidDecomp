@@ -330,6 +330,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--shutter-screw-contact"])
+{
+    VerifyShutterScrewContact();
+    return 0;
+}
 if (args is ["--fireflea-double-death"])
 {
     VerifyFirefleaDoubleDeath();
@@ -7255,6 +7260,7 @@ VerifyGoldNinjaDeathDrops();
 VerifyDoorEntryEnemySound();
 VerifySpringBallFallingFallback();
 VerifyFirefleaDoubleDeath();
+VerifyShutterScrewContact();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

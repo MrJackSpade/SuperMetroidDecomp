@@ -62,7 +62,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>HorizontalShutter_Main</c> at $A2:F1DE.</summary>
-    private static void RunHorizontalShutterMain(
+    private void RunHorizontalShutterMain(
         RoomEnemySlot slot,
         HorizontalShutterEnemyState state,
         SamusState? samus,
@@ -123,6 +123,14 @@ public sealed partial class RoomEnemySystem
             default:
                 throw new InvalidDataException(
                     $"Horizontal shutter function $A2:{(ushort)state.Function:X4} is not translated.");
+        }
+
+        // $A2:F1E4-$A2:F211: an idle shutter reacts when Samus's four solid-enemy collision
+        // words AND to this enemy's index and she has contact damage (e.g. screw attack).
+        if (state.Function is not (HorizontalShutterFunction.MovingLeft or HorizontalShutterFunction.MovingRight) &&
+            SamusContactsIdleShutter(slot, samus))
+        {
+            ReactHorizontalShutter(slot);
         }
 
         // The native main routine snapshots these after the dispatcher, including on no-op

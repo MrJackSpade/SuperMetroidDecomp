@@ -135,6 +135,9 @@ public static class RoomHeaderPointers
     /// <summary>RoomHeader_EastTunnel at $8F:CF80; Maridia room $03 with the frozen-enemy gate setup.</summary>
     public const ushort EastTunnel = 0xcf80;
 
+    /// <summary>RoomHeader_ThreeMusketeers at $8F:B656, Lower Norfair's shootable-shutter corridor.</summary>
+    public const ushort ThreeMusketeers = 0xb656;
+
     /// <summary>RoomHeader_LNFireflea at $8F:B6EE, Lower Norfair's Fireflea room.</summary>
     public const ushort LowerNorfairFireflea = 0xb6ee;
 

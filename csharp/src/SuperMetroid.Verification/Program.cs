@@ -330,6 +330,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--puromi-arc-position"])
+{
+    VerifyPuromiArcPosition();
+    return 0;
+}
 if (args is ["--wall-probe-bomb-block"])
 {
     VerifyWallProbeBombBlock();
@@ -7207,6 +7212,7 @@ VerifyRefillStationLock();
 VerifyMagdolliteApexThreshold();
 VerifyGoldenTorizoAttackChoice();
 VerifyWallProbeBombBlock();
+VerifyPuromiArcPosition();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

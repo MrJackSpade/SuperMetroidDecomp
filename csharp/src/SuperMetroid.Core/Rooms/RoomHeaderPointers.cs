@@ -138,6 +138,9 @@ public static class RoomHeaderPointers
     /// <summary>RoomHeader_MainHall at $8F:B236, Lower Norfair's elevator destination.</summary>
     public const ushort LowerNorfairMainHall = 0xb236;
 
+    /// <summary>RoomHeader_Pillar at $8F:B457, Lower Norfair's Puromi (fire arc) room.</summary>
+    public const ushort LowerNorfairPillar = 0xb457;
+
     /// <summary>Ceres elevator shaft at $8F:DF45.</summary>
     public const ushort CeresElevatorShaft = 0xdf45;
 

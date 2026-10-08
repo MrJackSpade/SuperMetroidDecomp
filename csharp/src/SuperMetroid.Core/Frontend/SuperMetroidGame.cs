@@ -543,13 +543,7 @@ public sealed partial class SuperMetroidGame
                 }
                 else if (runtime.Enemies.LastGunshipEvent == GunshipFrameEvent.EscapeTakeoffCompleted)
                 {
-                    // Gunship function $A2:AD0E writes game state $26 only after the top
-                    // hull has crossed Y=$0100. State eight has already completed on this
-                    // publication frame; the following call owns the gameplay fade.
-                    endingFadeBrightness = 15;
-                    endingFadeCounter = 0;
-                    runtime.GameplayTimeFrozen = true;
-                    GameState = SuperMetroidGameState.SamusEscapesFromZebes;
+                    BeginZebesEscapeFade();
                 }
                 else if (mapStationMessageOwnedFrame && !runtime.MessageBox.IsActive)
                 {
@@ -1068,9 +1062,11 @@ public sealed partial class SuperMetroidGame
                 runtime!.StepFrame(controllerInput, advanceGameTime: false,
                     queueEchoSound: () => gameplayAudio.QueueEcho(runtime), checkLowHealth: () => gameplayAudio.CheckLowHealth(runtime));
                 PublishGameplay(runtime);
+                // HandleFadingOut ($80:8924) reloads the counter from ScreenFadeDelay, which
+                // $A2:AD26 zeroed, so the brightness falls one step on every call.
                 if (endingFadeCounter-- <= 0)
                 {
-                    endingFadeCounter = 1;
+                    endingFadeCounter = 0;
                     endingFadeBrightness = (byte)Math.Max(0, endingFadeBrightness - 1);
                 }
                 ApplyDisplayBrightness(endingFadeBrightness);
@@ -1429,6 +1425,19 @@ public sealed partial class SuperMetroidGame
     /// Ports the state-publication half of <c>HandleSamusOutOfHealthAndGameTile</c>. Runtime
     /// state eight has already completed its room-main and clock work when this is called.
     /// </summary>
+    /// <summary>
+    /// Gunship function $A2:AD0E writes game state $26 only after the top hull has crossed
+    /// Y=$0100, zeroing ScreenFadeDelay/Counter. It does not freeze time: state $26 keeps
+    /// running full gameplay, so Samus and the RNG advance behind the fade. State eight has
+    /// already completed on this publication frame; the following call owns the fade.
+    /// </summary>
+    private void BeginZebesEscapeFade()
+    {
+        endingFadeBrightness = 15;
+        endingFadeCounter = 0;
+        GameState = SuperMetroidGameState.SamusEscapesFromZebes;
+    }
+
     private bool RouteOutOfHealth()
     {
         if (runtime?.Samus is not SamusState samus || unchecked((short)samus.Health) > 0)

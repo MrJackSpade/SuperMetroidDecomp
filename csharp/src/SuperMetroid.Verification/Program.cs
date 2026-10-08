@@ -330,6 +330,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--zebes-escape-fade"])
+{
+    VerifyZebesEscapeFade();
+    return 0;
+}
 if (args is ["--crateria-mainstreet-escape-passage"])
 {
     VerifyCrateriaMainstreetEscapePassage();
@@ -7429,6 +7434,7 @@ VerifyMotherBrainBodyHitboxes();
 VerifyMotherBrainInheritedExplosionIndex();
 VerifyOldTourianEscapeShaftWall();
 VerifyCrateriaMainstreetEscapePassage();
+VerifyZebesEscapeFade();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

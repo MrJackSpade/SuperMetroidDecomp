@@ -10,6 +10,12 @@ public sealed class ProjectileSpriteCatalog
     private readonly Dictionary<ushort, SpriteComposition> frames;
     private ProjectileSpriteCatalog(Dictionary<ushort, SpriteComposition> frames) => this.frames = frames;
 
+    /// <summary>Emits one installed projectile composition in authored OAM order using native projectile coordinate wrapping, without advancing animation or collision state.</summary>
+    /// <param name="id">Bank-$93 spritemap offset selected by a timed projectile record, not an instruction-list pointer or projectile family.</param>
+    /// <param name="oam">Destination OAM buffer; the native wrapping insertion cursor advances for every part.</param>
+    /// <param name="x">Screen-space horizontal origin in pixels, including unsigned representations of negative coordinates; individual parts retain nine-bit hardware X.</param>
+    /// <param name="y">Screen-space vertical origin in pixels; native projectile insertion wraps the resulting Y to eight bits without vertical-origin clipping.</param>
+    /// <exception cref="InvalidDataException">The requested sprite identity is not installed.</exception>
     public void Draw(ushort id, OamBuffer oam, ushort x, ushort y)
     {
         if (!frames.TryGetValue(id, out var parts)) throw new InvalidDataException($"Missing projectile sprite {id:X4}.");
@@ -20,6 +26,11 @@ public sealed class ProjectileSpriteCatalog
         }
     }
 
+    /// <summary>Validates and compiles the complete required projectile spritemap set into independently owned visual compositions, including the empty Nothing frame.</summary>
+    /// <param name="json">Readable JSON stream at its current position; it remains open and caller-owned.</param>
+    /// <returns>Installed artwork keyed by the 417 native timed-record spritemap identities. Matching stock geometry may use immutable calculated parts; authored changes retain their compiled parts.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
+    /// <exception cref="InvalidDataException">JSON is malformed or ambiguous, its schema or required identity set is invalid, or a part exceeds the supported OAM fields or count.</exception>
     public static ProjectileSpriteCatalog Load(Stream json)
         => LoadFrames(json, default, useProjectilePointers: true);
 
@@ -110,8 +121,12 @@ public sealed class ProjectileSpriteCatalog
             name => new InvalidDataException($"Duplicate projectile composition property {name}."));
 }
 
+/// <summary>Mutable JSON authoring data for projectile OAM appearance, separate from timed instruction records, damage, hitboxes, and motion.</summary>
 public sealed record ProjectileSpriteDocument
 {
+    /// <summary>Gets the schema revision, which must equal <see cref="ProjectileSpriteDefinitions.Version"/> when loaded.</summary>
     public required int Version { get; init; }
+    /// <summary>Gets caller-owned ordered parts keyed by <see cref="ProjectileSpriteDefinitions.Name"/> for every required native identity; zero-part compositions remain valid.</summary>
+    /// <remarks>Each composition permits at most 128 parts with explicit palette selectors 0..7, pixel offsets, 8- or 16-pixel sizes, and tile coordinates in a 16-column by 32-row OBJ grid. Large parts may cross tile-grid boundaries using hardware wrapping. Loading compiles and copies values rather than retaining these mutable arrays.</remarks>
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
 }

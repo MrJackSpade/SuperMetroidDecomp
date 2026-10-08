@@ -10,8 +10,11 @@ public sealed class RoomEnemyPopulationDefinition
         this.records = records;
         DeathQuota = deathQuota;
     }
+    /// <summary>Native 16-bit list pointer within bank $A1; identifies the population without granting cartridge-read access.</summary>
     public ushort Pointer { get; }
+    /// <summary>Read-only ordered placements compiled from native 16-byte records, excluding the $FFFF terminator; order controls initialization and slot allocation.</summary>
     public ReadOnlyMemory<RoomEnemyPopulationRecord> Records => records;
+    /// <summary>Literal byte following the $FFFF terminator, used as the room kill-count requirement for nonempty populations; an empty load does not publish this byte.</summary>
     public byte DeathQuota { get; }
 }
 
@@ -32,7 +35,9 @@ public static partial class RoomEnemyPopulationDefinitions
         ..BuildSegment3(),
     ];
 
+    /// <summary>Number of distinct bank-$A1 population pointers selected by the compiled retail room states, including empty lists.</summary>
     public const int ListCount = 302;
+    /// <summary>Total placement records across the distinct compiled lists, excluding terminators and without counting repeated references from room states.</summary>
     public const int RecordCount = 1658;
 
     static RoomEnemyPopulationDefinitions()
@@ -45,6 +50,9 @@ public static partial class RoomEnemyPopulationDefinitions
     }
 
     /// <summary>Gets a retail population by its native bank-$A1 identity.</summary>
+    /// <param name="pointer">The 16-bit population-list address within bank $A1, not an enemy-definition pointer or a host index.</param>
+    /// <returns>The shared compiled definition, preserving native record order and its trailing quota byte.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The pointer is not one of the compiled retail population identities.</exception>
     public static RoomEnemyPopulationDefinition Get(ushort pointer)
     {
         int low = 0;

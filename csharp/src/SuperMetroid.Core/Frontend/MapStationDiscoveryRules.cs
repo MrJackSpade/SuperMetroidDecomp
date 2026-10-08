@@ -3,9 +3,21 @@ using SuperMetroid.Core.Game;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Mutually exclusive station marker families in the normal file-select map.</summary>
-public enum MapStationKind { Missile, Energy, Map }
+public enum MapStationKind
+{
+    /// <summary>Missile-refill markers selected through the area-pointer table at $82:C7DB.</summary>
+    Missile,
+    /// <summary>Energy-refill markers selected through the area-pointer table at $82:C7EB.</summary>
+    Energy,
+    /// <summary>Map-download station markers selected through the area-pointer table at $82:C7FB.</summary>
+    Map
+}
 
 /// <summary>Stable marker identity and original exploration cell, independent of authored drawing coordinates.</summary>
+/// <param name="Id">Stable area/family/ordinal key used to resolve the editable marker drawing position.</param>
+/// <param name="Area">Area whose saved exploration bits govern this marker's visibility.</param>
+/// <param name="CellX">Original horizontal exploration-cell index, obtained from the native map-pixel X divided by eight.</param>
+/// <param name="CellY">Original vertical exploration-cell index, obtained from the native map-pixel Y divided by eight.</param>
 public readonly record struct MapStationDiscoveryRule(string Id, AreaId Area, int CellX, int CellY);
 
 /// <summary>Application-owned discovery cells from the retail $82:C7DB/C7EB/C7FB station lists.</summary>
@@ -38,7 +50,13 @@ public static class MapStationDiscoveryRules
         new("Maridia.Map.0", AreaId.Maridia, 17, 18),
     ];
 
+    /// <summary>Every compiled station marker in missile, energy, then map order; used to require the complete marker set in editable layouts.</summary>
     public static IEnumerable<MapStationDiscoveryRule> All => missile.Concat(energy).Concat(map);
+    /// <summary>Selects an area's marker family without testing exploration or consulting editable drawing positions.</summary>
+    /// <param name="area">Validated retail area identity whose saved map owns the discovery cells.</param>
+    /// <param name="kind">The mutually exclusive missile, energy, or map station family.</param>
+    /// <returns>Matching rules in native list order, or an empty sequence if that area has no markers of the selected family.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The area or station kind is not a supported identity.</exception>
     public static IEnumerable<MapStationDiscoveryRule> Get(AreaId area, MapStationKind kind)
     {
         _ = AreaIds.ToIndex(area);

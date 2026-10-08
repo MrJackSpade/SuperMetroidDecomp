@@ -10,6 +10,12 @@ public sealed class FileSelectStationMarker
     private int timer;
     private ushort loops;
 
+    /// <summary>Binds a saved station's drawing anchor and starts a fresh $82:B9FC indicator animation; this object neither chooses the gameplay load target nor initializes map scrolling.</summary>
+    /// <param name="bus">Required address-space context retained by the API contract; marker positions are resolved from the installed layout rather than read from cartridge memory.</param>
+    /// <param name="area">One of the six Zebes map areas; Ceres is unsupported.</param>
+    /// <param name="stationIndex">Native load-station slot 0..15, not an ordinal among usable stations; the slot must have a supported marker anchor.</param>
+    /// <param name="layout">Required installed save-marker layout; its independently edited X/Y coordinates affect drawing only, despite the optional parameter syntax.</param>
+    /// <remarks>The frame and timer begin at zero. The first <see cref="Step"/> advances to frame one; subsequent frame holds use the native 8/4/8/4 menu-update sequence.</remarks>
     public FileSelectStationMarker(ISnesAddressSpace bus, AreaId area, int stationIndex,
         SuperMetroid.Core.Assets.MapSaveMarkerLayout? layout = null)
         => BindPosition(bus, area, stationIndex, layout);
@@ -30,9 +36,13 @@ public sealed class FileSelectStationMarker
         MapY = (ushort)point.Y;
     }
 
+    /// <summary>Station's area-map X drawing anchor in whole pixels before horizontal scroll subtraction, independent of its compiled load coordinates.</summary>
     public ushort MapX { get; private set; }
+    /// <summary>Station's area-map Y drawing anchor in whole pixels before vertical scroll subtraction, independent of its compiled load coordinates.</summary>
     public ushort MapY { get; private set; }
+    /// <summary>Current native $82:C569 spritemap-table identity, following $82:BA2D's $5F/$60/$61/$60 pulse; querying does not advance the timer.</summary>
     public ushort SpritemapId => PauseMapIndicatorAnimation.SpritemapId(frame);
+    /// <summary>Whether $82:B73C-$B747's backing spritemap $12 is drawn before the marker: visible on even four-frame animation loops, including the initial loop, and hidden on odd loops.</summary>
     public bool ShowBacking => (loops & 1) == 0;
 
     /// <summary>One menu tick, before drawing; the initial zero timer advances immediately to frame one.</summary>

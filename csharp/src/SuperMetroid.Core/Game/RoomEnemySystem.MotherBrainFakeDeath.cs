@@ -298,6 +298,8 @@ public sealed partial class RoomEnemySystem
         state.LastSoundEffect = 0x24;
     }
 
+    // Every spawn after the first ($A9:8983-$8ACB) begins with DEC timer : BPL return, so
+    // each waits out the $20 (or $02) its preceding clear step set.
     private void RunMotherBrainTubeCollapse(MotherBrainEnemyState state)
     {
         switch (state.TubeCollapseFunction)
@@ -337,6 +339,8 @@ public sealed partial class RoomEnemySystem
                     MotherBrainTubeCollapseFunction.SpawnBottomRightTube, 32);
                 return;
             case MotherBrainTubeCollapseFunction.SpawnBottomRightTube:
+                if (!DecrementMotherBrainTubeTimerPastZero(state))
+                    return;
                 SpawnMotherBrainFallingTube(MotherBrainFallingTubePopulationDefinitions.BottomRight);
                 state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearBottomRightTube;
                 return;
@@ -346,6 +350,8 @@ public sealed partial class RoomEnemySystem
                     MotherBrainTubeCollapseFunction.SpawnBottomMiddleLeftTube, 32);
                 return;
             case MotherBrainTubeCollapseFunction.SpawnBottomMiddleLeftTube:
+                if (!DecrementMotherBrainTubeTimerPastZero(state))
+                    return;
                 SpawnMotherBrainFallingTube(MotherBrainFallingTubePopulationDefinitions.BottomMiddleLeft);
                 state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearBottomMiddleLeftTube;
                 return;
@@ -377,6 +383,8 @@ public sealed partial class RoomEnemySystem
                     MotherBrainTubeCollapseFunction.SpawnBottomMiddleRightTube, 32);
                 return;
             case MotherBrainTubeCollapseFunction.SpawnBottomMiddleRightTube:
+                if (!DecrementMotherBrainTubeTimerPastZero(state))
+                    return;
                 SpawnMotherBrainFallingTube(MotherBrainFallingTubePopulationDefinitions.BottomMiddleRight);
                 state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearBottomMiddleRightTube;
                 return;

@@ -330,6 +330,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--mother-brain-tube-timing"])
+{
+    VerifyMotherBrainTubeTiming();
+    return 0;
+}
 if (args is ["--samus-solid-enemy-collision"])
 {
     VerifySamusSolidEnemyCollision();
@@ -7327,6 +7332,7 @@ VerifyShitroidGradualAcceleration();
 VerifyShitroidDrainCarry();
 VerifyMotherBrainRinkaDoorSpawn();
 VerifyMotherBrainGlassSuperMissile();
+VerifyMotherBrainTubeTiming();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

@@ -24,7 +24,7 @@ internal static partial class Program
             [
                 new SolidEnemyCollisionBody(Index: 0, XPosition: (ushort)(100 + (left ? -1 : 1) * (10 + gap)),
                     YPosition: 100, XRadius: 5, YRadius: 8, FreezeTimer: (ushort)(frozen ? 1 : 0),
-                    Properties: (ushort)(frozen ? EnemyProperties.None : EnemyProperties.SolidToSamus)),
+                    Properties: (ushort)(frozen ? default(EnemyProperties) : EnemyProperties.SolidToSamus)),
             ];
             uint initialX = unchecked((uint)samus.Kinematics.XFixed);
             var result = SamusAerialMovement.StepNormalJump(bus, level, samus, (ushort)SnesButton.A, 0);

@@ -18,7 +18,7 @@ internal static partial class Program
             samus.Kinematics.InteractiveEnemies =
             [new SolidEnemyCollisionBody(Index: 0, XPosition: 100, YPosition: (ushort)(100 - 19 - 8 - gap),
                 XRadius: 8, YRadius: 8, FreezeTimer: (ushort)(frozen ? 1 : 0),
-                Properties: (ushort)(frozen ? EnemyProperties.None : EnemyProperties.SolidToSamus))];
+                Properties: (ushort)(frozen ? default(EnemyProperties) : EnemyProperties.SolidToSamus))];
             uint initialY = samus.Kinematics.YFixed;
             samus.Shinespark.Step(bus, level, samus, 0);
             if (gap == 4)

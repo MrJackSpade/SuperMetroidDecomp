@@ -109,6 +109,7 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
         if (conversion.IsUserDefined)
             targets.Add(conversion.MethodSymbol);
         AddRecordValueReads(model, expression, info, targets);
+        AddEnumNameReads(model, expression, info, targets);
         switch (expression)
         {
             case InitializerExpressionSyntax initializer when initializer.IsKind(SyntaxKind.CollectionInitializerExpression):
@@ -190,6 +191,57 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
                 // Value equality is structural: a nested record member compares its own members.
                 AddRecordMembers(member is IPropertySymbol property ? property.Type : ((IFieldSymbol)member).Type, targets, depth + 1);
             }
+    }
+
+    /// <summary>
+    /// Enum reflection reads members by value without naming them: enumerating values or names,
+    /// validating with IsDefined, parsing, and formatting a value by name (ToString, interpolation,
+    /// string concatenation, string-enum JSON). Each reaches every member of the enum involved, since
+    /// a member's presence changes the result for a value that only arrives through a cast.
+    /// </summary>
+    private static void AddEnumNameReads(SemanticModel model, ExpressionSyntax expression, SymbolInfo info, List<ISymbol?> targets)
+    {
+        if (info.Symbol is IMethodSymbol { ContainingType.SpecialType: SpecialType.System_Enum } method &&
+            EnumNameMethods.Contains(method.Name))
+        {
+            foreach (var argument in method.TypeArguments)
+                AddEnumMembers(argument, targets);
+            if (expression is InvocationExpressionSyntax invocation)
+            {
+                if (invocation.Expression is MemberAccessExpressionSyntax access)
+                    AddEnumMembers(model.GetTypeInfo(access.Expression).Type, targets);
+                foreach (var argument in invocation.ArgumentList.Arguments)
+                    AddEnumMembers(argument.Expression is TypeOfExpressionSyntax typeOf
+                        ? model.GetTypeInfo(typeOf.Type).Type
+                        : model.GetTypeInfo(argument.Expression).Type, targets);
+            }
+        }
+        if (expression.Parent is InterpolationSyntax)
+            AddEnumMembers(model.GetTypeInfo(expression).Type, targets);
+        if (expression is BinaryExpressionSyntax { RawKind: (int)SyntaxKind.AddExpression } concatenation &&
+            model.GetTypeInfo(concatenation).Type?.SpecialType == SpecialType.System_String)
+        {
+            AddEnumMembers(model.GetTypeInfo(concatenation.Left).Type, targets);
+            AddEnumMembers(model.GetTypeInfo(concatenation.Right).Type, targets);
+        }
+        if (expression is GenericNameSyntax && info.Symbol is INamedTypeSymbol { Name: "JsonStringEnumConverter", IsGenericType: true } converter)
+            foreach (var argument in converter.TypeArguments)
+                AddEnumMembers(argument, targets);
+    }
+
+    /// <summary>System.Enum methods whose result depends on which members are declared.</summary>
+    private static readonly HashSet<string> EnumNameMethods =
+    [
+        "GetValues", "GetNames", "GetValuesAsUnderlyingType", "IsDefined", "Parse", "TryParse", "GetName",
+        "Format", nameof(ToString),
+    ];
+
+    private static void AddEnumMembers(ITypeSymbol? type, List<ISymbol?> targets)
+    {
+        if (type is INamedTypeSymbol { TypeKind: TypeKind.Enum } enumType)
+            targets.AddRange(enumType.GetMembers().OfType<IFieldSymbol>());
+        else if (type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T } nullable)
+            AddEnumMembers(nullable.TypeArguments[0], targets);
     }
 
     private static void AddDeconstruction(DeconstructionInfo info, List<ISymbol?> targets)

@@ -498,7 +498,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
             foreach (ushort initial in new ushort[] { 0, 1, 2, 10, ushort.MaxValue })
             {
                 ripper.Properties = (ushort)(EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen |
-                    (intangible ? EnemyProperties.IgnoreSamusCollision : EnemyProperties.None));
+                    (intangible ? EnemyProperties.IgnoreSamusCollision : default(EnemyProperties)));
                 ripper.InvincibilityTimer = initial;
                 ripper.FlashTimer = 16;
                 ripper.FrozenTimer = 400;

@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.Game;
 [Flags]
 public enum WallSpacePirateParameterFlags : ushort
 {
-    None = 0,
     StartsOnRightWall = 0x0001,
     SlowJumpAndLaser = 0x8000,
 }

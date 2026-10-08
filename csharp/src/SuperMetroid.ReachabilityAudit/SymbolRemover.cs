@@ -1,5 +1,6 @@
 using System.Text;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace SuperMetroid.ReachabilityAudit;
@@ -55,7 +56,17 @@ internal static class SymbolRemover
                 var outermost = removals.Distinct().Where(n => !removals.Any(other => other != n && other.Span.Contains(n.Span) && other.Contains(n))).ToList();
                 if (outermost.Count == 0)
                     continue;
-                var edited = root.RemoveNodes(outermost, SyntaxRemoveOptions.KeepNoTrivia | SyntaxRemoveOptions.KeepDirectives)!;
+                // Removing an enum member must not renumber the members after it: each surviving
+                // implicitly valued member that follows a removed one gets its value written out.
+                var renumbered = ImplicitlyValuedSurvivors(model, outermost);
+                var marked = root.ReplaceNodes(outermost.Concat(renumbered.Keys), (original, rewritten) =>
+                    renumbered.TryGetValue(original, out var value)
+                        ? ((EnumMemberDeclarationSyntax)rewritten).WithIdentifier(((EnumMemberDeclarationSyntax)rewritten).Identifier.WithTrailingTrivia())
+                            .WithEqualsValue(SyntaxFactory.EqualsValueClause(
+                                SyntaxFactory.Token(SyntaxKind.EqualsToken).WithLeadingTrivia(SyntaxFactory.Space).WithTrailingTrivia(SyntaxFactory.Space),
+                                SyntaxFactory.ParseExpression(value)).WithTrailingTrivia(((EnumMemberDeclarationSyntax)rewritten).Identifier.TrailingTrivia))
+                        : rewritten.WithAdditionalAnnotations(Removal));
+                var edited = marked.RemoveNodes(marked.GetAnnotatedNodes(Removal), SyntaxRemoveOptions.KeepNoTrivia | SyntaxRemoveOptions.KeepDirectives)!;
                 removedNodes += outermost.Count;
                 if (edited is CompilationUnitSyntax unit && !unit.DescendantNodes().OfType<MemberDeclarationSyntax>()
                         .Any(m => m is not BaseNamespaceDeclarationSyntax))
@@ -193,6 +204,30 @@ internal static class SymbolRemover
             lines.RemoveRange(start, end - start + 1);
         }
         return string.Join(newline, lines);
+    }
+
+    private static readonly SyntaxAnnotation Removal = new("reachability-removal");
+
+    /// <summary>Surviving enum members without an initializer that follow a removed member, with their constant value.</summary>
+    private static Dictionary<SyntaxNode, string> ImplicitlyValuedSurvivors(SemanticModel model, List<SyntaxNode> removed)
+    {
+        var survivors = new Dictionary<SyntaxNode, string>();
+        foreach (var declaration in removed.OfType<EnumMemberDeclarationSyntax>().Select(m => (EnumDeclarationSyntax)m.Parent!).Distinct())
+        {
+            bool afterRemoved = false;
+            foreach (var member in declaration.Members)
+            {
+                if (removed.Contains(member))
+                {
+                    afterRemoved = true;
+                    continue;
+                }
+                if (afterRemoved && member.EqualsValue is null &&
+                    model.GetDeclaredSymbol(member) is IFieldSymbol { HasConstantValue: true } field)
+                    survivors[member] = Convert.ToString(field.ConstantValue, System.Globalization.CultureInfo.InvariantCulture)!;
+            }
+        }
+        return survivors;
     }
 
     private static SyntaxNode RemovalNode(SyntaxNode node, SemanticModel model, SymbolIdentity identity, HashSet<string> targets)

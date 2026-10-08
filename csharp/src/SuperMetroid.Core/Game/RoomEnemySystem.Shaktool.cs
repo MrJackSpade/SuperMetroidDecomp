@@ -61,7 +61,6 @@ public sealed class ShaktoolSegmentState
 [Flags]
 internal enum ShaktoolMotionFlags : ushort
 {
-    None = 0,
     ReversedOnce = 0x2000,
     Straightening = 0x4000,
     Clockwise = 0x8000,

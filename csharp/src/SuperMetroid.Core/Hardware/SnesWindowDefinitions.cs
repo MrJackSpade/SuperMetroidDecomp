@@ -4,7 +4,6 @@ namespace SuperMetroid.Core.Hardware;
 [Flags]
 public enum SnesWindowSelection : byte
 {
-    None = 0,
     /// <summary>Nibble bit 0 inverts the first window's inclusive interval.</summary>
     InvertFirst = 1,
     /// <summary>Nibble bit 1 enables the first window.</summary>

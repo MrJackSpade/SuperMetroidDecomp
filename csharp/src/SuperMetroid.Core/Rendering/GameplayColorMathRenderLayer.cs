@@ -10,7 +10,6 @@ public enum SnesColorMathControl : byte
     Bg1 = 1,
     Bg2 = 2,
     Bg3 = 4,
-    Bg4 = 8,
     Obj = 16,
     Backdrop = 32,
     Half = 64,

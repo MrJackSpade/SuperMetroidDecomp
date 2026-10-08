@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Game;
 [Flags]
 public enum NinjaSpacePirateParameterFlags : ushort
 {
-    None = 0,
     StartsAtLeftPostFacingRight = 0x0001,
 }
 

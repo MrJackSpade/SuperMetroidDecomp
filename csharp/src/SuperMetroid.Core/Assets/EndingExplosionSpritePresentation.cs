@@ -87,9 +87,7 @@ public static class EndingExplosionSpriteDefinitions
     /// <summary>Mutually exclusive poses in the published explosion frame order.</summary>
     internal enum Pose
     {
-        DamageFirst, DamageSecond, DamageThird, DamageFourth,
-        FlashFirst, FlashSecond, FlashThird, FlashFourth, LavaFirst, LavaSecond,
-        Glow, SupernovaFirst, SupernovaSecond, Stars, Silhouette, Afterglow,
+        DamageFirst, Glow = 10, SupernovaFirst = 11, SupernovaSecond = 12, Stars = 13, Silhouette = 14, Afterglow = 15,
     }
     /// <summary>$8C:A396, ExplodingPlanetZebesFrame1; ten four-part records
     /// contain four damage poses, four flash poses and two lava poses.</summary>

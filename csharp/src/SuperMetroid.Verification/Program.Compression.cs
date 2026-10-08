@@ -4,11 +4,14 @@ internal static partial class Program
 {
     private static void VerifySmCompressionFormat()
     {
-        foreach (SmCompressionCommand command in Enum.GetValues<SmCompressionCommand>())
+        // All eight three-bit command codes; command seven (relative inverted copy) is decoded
+        // from its bits and has no named member.
+        for (int code = 0; code < 8; code++)
         {
+            var command = (SmCompressionCommand)(code << 5);
             // $E0-$FE are the expanded-header marker range and $FF terminates the stream,
             // so command seven has no short form at all.
-            if (command != SmCompressionCommand.RelativeCopyInverted)
+            if (code != 7)
             {
                 byte shortHeader = unchecked((byte)(
                     (byte)command | (SmCompressionFormat.MaximumShortLength - 1)));

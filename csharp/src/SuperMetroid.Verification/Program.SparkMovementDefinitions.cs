@@ -87,7 +87,7 @@ internal static partial class Program
             programSlot.InstructionTimer = 1;
             programSlot.Properties = entry == SparkInstructionProgramDefinitions.FlickerOn
                 ? (ushort)EnemyProperties.IgnoreSamusCollision
-                : (ushort)EnemyProperties.None;
+                : (ushort)0;
             object?[] arguments =
                 [programSlot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
 

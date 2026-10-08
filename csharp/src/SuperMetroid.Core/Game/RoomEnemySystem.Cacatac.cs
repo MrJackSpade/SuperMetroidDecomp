@@ -23,7 +23,6 @@ public enum CacatacDirection : ushort
 {
     Left = 0,
     Right = 1,
-    InitiallyStopped = 2,
 }
 
 /// <summary>

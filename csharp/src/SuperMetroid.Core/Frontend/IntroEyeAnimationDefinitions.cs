@@ -27,7 +27,7 @@ internal static class IntroEyeAnimationDefinitions
     /// <summary>Native BG record position bytes17,13: portrait eye tile column/row.</summary>
     private const ushort PackedPosition = 17 | (13 << 8);
 
-    private enum EyeFrame { Open, HalfOpen, Closed, Deadpan }
+    private enum EyeFrame { HalfOpen = 1, Closed = 2, Deadpan = 3 }
 
     private static ushort ProgramWord(int index)
     {

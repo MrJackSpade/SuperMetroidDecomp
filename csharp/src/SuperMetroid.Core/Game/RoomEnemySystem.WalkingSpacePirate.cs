@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Game;
 [Flags]
 public enum WalkingSpacePirateParameterFlags : ushort
 {
-    None = 0,
     StartsFacingRight = 0x0001,
     SlowLaserAndProjectileFlinch = 0x8000,
 }

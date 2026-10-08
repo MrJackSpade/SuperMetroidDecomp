@@ -101,11 +101,6 @@ public enum MotherBrainProjectileType
     Beam = 0,
     Missile = 1,
     SuperMissile = 2,
-    PowerBomb = 3,
-    UnusedFour = 4,
-    Bomb = 5,
-    UnusedSix = 6,
-    BeamExplosion = 7,
 }
 
 /// <summary>

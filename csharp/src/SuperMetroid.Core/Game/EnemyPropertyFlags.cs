@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Game;
 [Flags]
 public enum EnemyProperties : ushort
 {
-    None = 0,
     Invisible = 0x0100,
     Deleted = 0x0200,
     IgnoreSamusCollision = 0x0400,

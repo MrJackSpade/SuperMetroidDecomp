@@ -20,10 +20,6 @@ static void VerifyGenericGamepadInput()
         (uint)0xff,
         (uint)JoystickPositionQueryFlags.ReturnAll,
         "WinMM all-fields request retains every actual query flag");
-    AssertTrue(
-        (JoystickCapabilityFlags.HasPointOfView &
-            JoystickCapabilityFlags.PointOfViewSupportsContinuousAngles) == 0,
-        "mutually independent WinMM capability flags remain independent");
 
     AssertEqual(
         SnesButton.None,

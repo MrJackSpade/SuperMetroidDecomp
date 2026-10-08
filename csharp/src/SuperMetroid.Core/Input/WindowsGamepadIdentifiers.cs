@@ -51,12 +51,5 @@ public enum JoystickPositionQueryFlags : uint
 [Flags]
 public enum JoystickCapabilityFlags : uint
 {
-    None = 0,
-    HasZ = 0x00000001,
-    HasR = 0x00000002,
-    HasU = 0x00000004,
-    HasV = 0x00000008,
     HasPointOfView = 0x00000010,
-    PointOfViewSupportsFourDirections = 0x00000020,
-    PointOfViewSupportsContinuousAngles = 0x00000040,
 }

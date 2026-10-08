@@ -35,7 +35,6 @@ public enum PuyoHopType : ushort
 {
     NormalSmall = 0,
     NormalBig = 1,
-    NormalLong = 2,
     Giant = 3,
     Dropping = 4,
     DroppedSmall = 5,

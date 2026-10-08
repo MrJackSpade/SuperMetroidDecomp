@@ -14,6 +14,5 @@ public enum SnesMainScreenLayers : byte
     Bg1 = 0x01,
     Bg2 = 0x02,
     Bg3 = 0x04,
-    Bg4 = 0x08,
     Obj = 0x10,
 }

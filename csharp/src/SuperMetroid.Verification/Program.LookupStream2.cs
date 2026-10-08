@@ -1876,7 +1876,7 @@ internal static partial class Program
             AssertEqual(original < 0 ? (ushort)0 : (ushort)original, state.PhaseTimer, "Ghost actual next interval");
             AssertEqual(original < 0 ? (ushort)0 : (ushort)(offset + 2), state.FlickerTableOffset, "Ghost actual next offset including odd folding");
             bool remainsInvisible = original < 0 || (offset & 2) != 0;
-            AssertEqual((ushort)(EnemyProperties.ProcessOffScreen | (remainsInvisible ? EnemyProperties.Invisible : EnemyProperties.None)), slot.Properties, "Ghost actual visibility preserves unrelated flags");
+            AssertEqual((ushort)(EnemyProperties.ProcessOffScreen | (remainsInvisible ? EnemyProperties.Invisible : default(EnemyProperties))), slot.Properties, "Ghost actual visibility preserves unrelated flags");
         }
         state.PhaseTimer = 2;
         state.FlickerTableOffset = 2;
@@ -1887,7 +1887,7 @@ internal static partial class Program
         AssertEqual((ushort)EnemyProperties.Invisible, slot.Properties, "Ghost no early visibility change");
         state.PhaseTimer = 0;
         flicker(slot, state);
-        AssertEqual((ushort)EnemyProperties.None, slot.Properties, "Ghost terminal next call clears invisibility");
+        AssertEqual((ushort)0, slot.Properties, "Ghost terminal next call clears invisibility");
         state.PhaseTimer = 1;
         state.FlickerTableOffset = 34;
         AssertThrows<InvalidDataException>(() => flicker(slot, state), "Ghost malformed offset remains rejected");

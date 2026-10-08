@@ -862,7 +862,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
         "same-call smoky idle decrements freshly loaded `$80`");
     AssertEqual(0x0010, death.DeathExplosionIntervalTimer,
         "zero death-explosion timer emits immediately and reloads smoky interval `$10`");
-    AssertEqual(6, death.DeathExplosionIndex,
+    AssertEqual(6, death.DeathAndEscapeExplosionIndex,
         "zero death-explosion index wraps backward to record six");
     AssertEqual(2, firstSmokyBatch.DeathExplosions.Count,
         "smoky generator emits two simultaneous projectiles");
@@ -1291,7 +1291,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
         "timer expiry publishes event `$0E`");
     AssertEqual(0, death.DeathExplosionIntervalTimer,
         "timer expiry clears reused explosion interval");
-    AssertEqual(0, death.EscapeDoorIndex,
+    AssertEqual(0, death.DeathAndEscapeExplosionIndex,
         "timer expiry clears door explosion index");
 
     MotherBrainRainbowBeamAttackStepResult blownDoor = death.Step(bus, phase3Samus, 0, 0);

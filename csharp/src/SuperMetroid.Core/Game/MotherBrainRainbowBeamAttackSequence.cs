@@ -312,18 +312,26 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     /// <summary>Shared Mother Brain hitbox-enable word cleared at both death boundaries.</summary>
     public bool HitboxesEnabled { get; private set; } = true;
 
-    /// <summary>Death-explosion interval timer at the body extra word used by `$A9:B03E`.</summary>
+    /// <summary>
+    /// Native word <c>$0FF0</c>: the explosion interval timer of <c>$A9:B03E</c> and
+    /// <c>$A9:B346</c>, aliased with the body sub-function pointer.
+    /// </summary>
     public ushort DeathExplosionIntervalTimer { get; private set; }
 
-    /// <summary>Backward-cycling seven-record death-explosion index used by `$A9:B046`.</summary>
-    public ushort DeathExplosionIndex { get; private set; }
+    /// <summary>
+    /// Native word <c>$0FF2</c>, one word under three names: the ascent dust's body
+    /// sub-function timer, the seven-record death-explosion index (<c>$A9:B046</c>) and the
+    /// four-record escape-door dust index (<c>$A9:B355</c>). Each effect inherits the value
+    /// the previous one left unless native code explicitly clears it.
+    /// </summary>
+    public ushort DeathAndEscapeExplosionIndex { get; private set; }
 
     /// <summary>
-    /// Backward-cycling four-record escape-door dust index at <c>$A9:B355</c>.
-    /// This is a different native word from <see cref="DeathExplosionIndex"/> even though
-    /// both effects reuse <see cref="DeathExplosionIntervalTimer"/>.
+    /// Inherits word <c>$0FF2</c> from the room's encounter state when the live sequence
+    /// attaches; the fake-death ascent dust last wrote it.
     /// </summary>
-    public ushort EscapeDoorIndex { get; private set; }
+    internal void InheritDeathAndEscapeExplosionIndex(ushort bodySubFunctionTimer) =>
+        DeathAndEscapeExplosionIndex = bodySubFunctionTimer;
 
     /// <summary>Palette selector forced to `$0E00` when the dying brain effects shut down.</summary>
     public ushort BrainPaletteIndex { get; private set; }

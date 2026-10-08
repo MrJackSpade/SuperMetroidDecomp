@@ -435,12 +435,12 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
             return;
 
         DeathExplosionIntervalTimer = mixed ? (ushort)0x0008 : (ushort)0x0010;
-        DeathExplosionIndex = unchecked((ushort)(DeathExplosionIndex - 1));
-        if ((DeathExplosionIndex & 0x8000) != 0)
-            DeathExplosionIndex = MotherBrainDeathExplosionDefinitions.GroupCount - 1;
+        DeathAndEscapeExplosionIndex = unchecked((ushort)(DeathAndEscapeExplosionIndex - 1));
+        if ((DeathAndEscapeExplosionIndex & 0x8000) != 0)
+            DeathAndEscapeExplosionIndex = MotherBrainDeathExplosionDefinitions.GroupCount - 1;
 
         int simultaneousCount = mixed ? MotherBrainDeathExplosionDefinitions.AnchorsPerGroup : 2;
-        int pairIndex = DeathExplosionIndex * MotherBrainDeathExplosionDefinitions.AnchorsPerGroup;
+        int pairIndex = DeathAndEscapeExplosionIndex * MotherBrainDeathExplosionDefinitions.AnchorsPerGroup;
         for (int explosionIndex = 0; explosionIndex < simultaneousCount; explosionIndex++)
         {
             // The global RNG is called once per projectile, not once per visual batch. A
@@ -458,7 +458,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 : (ushort)1;
             (short xOffset, short yOffset) = MotherBrainDeathExplosionDefinitions.Anchor(pairIndex + explosionIndex);
             requests.Add(new MotherBrainDeathExplosionRequest(
-                PatternIndex: DeathExplosionIndex,
+                PatternIndex: DeathAndEscapeExplosionIndex,
                 XOffset: xOffset,
                 YOffset: yOffset,
                 XPosition: unchecked((ushort)(Body.XPosition + xOffset)),
@@ -478,21 +478,21 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
             return null;
 
         DeathExplosionIntervalTimer = 0x0004;
-        EscapeDoorIndex = unchecked((ushort)(EscapeDoorIndex - 1));
-        if ((EscapeDoorIndex & 0x8000) != 0)
-            EscapeDoorIndex = 3;
+        DeathAndEscapeExplosionIndex = unchecked((ushort)(DeathAndEscapeExplosionIndex - 1));
+        if ((DeathAndEscapeExplosionIndex & 0x8000) != 0)
+            DeathAndEscapeExplosionIndex = 3;
 
         // The table is stored as interleaved X/Y words and indexed by `index * 4` bytes.
         // Spell out the semantic pairs so neither host endianness nor array stride can alter
         // the native 3,2,1,0 repeating order.
-        (ushort x, ushort y) = EscapeDoorIndex switch
+        (ushort x, ushort y) = DeathAndEscapeExplosionIndex switch
         {
             0 => ((ushort)0x0008, (ushort)0x006c),
             1 => ((ushort)0x0018, (ushort)0x0080),
             2 => ((ushort)0x0009, (ushort)0x0090),
             3 => ((ushort)0x0018, (ushort)0x0074),
             _ => throw new InvalidOperationException(
-                $"Escape-door explosion index ${EscapeDoorIndex:X4} escaped its native 0..3 range."),
+                $"Escape-door explosion index ${DeathAndEscapeExplosionIndex:X4} escaped its native 0..3 range."),
         };
 
         if (nextRandomNumber is null)
@@ -507,7 +507,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         ushort random = nextRandomNumber();
         ushort projectileParameter = random < 0x4000 ? (ushort)0x000c : (ushort)0x0003;
         return new MotherBrainEscapeDoorExplosionRequest(
-            PatternIndex: EscapeDoorIndex,
+            PatternIndex: DeathAndEscapeExplosionIndex,
             XPosition: x,
             YPosition: y,
             ProjectileParameter: projectileParameter,

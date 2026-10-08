@@ -75,6 +75,25 @@ internal static class DebuggerRetiredFieldDefinitions
         // A save station now queues its sound and draws its first frame in the PLM pass the
         // confirmation returns into ($84:AFF4-$AFFA). The old one-frame deferral flag is
         // set only in a capture taken on that confirmation frame, which has no current form.
+        // The escape-door dust index was always native word $0FF2, now one
+        // DeathAndEscapeExplosionIndex. Fields restore in declaration order, so Phase and the
+        // renamed death index are already set: from the door-exploding phase on, the escape
+        // cursor was the live value.
+        [(typeof(MotherBrainRainbowBeamAttackSequence), "<EscapeDoorIndex>k__BackingField")] = (instance, _, value) =>
+        {
+            if (value is not ushort escapeDoorIndex)
+                throw new InvalidDataException("Legacy Mother Brain escape-door index is not a word.");
+            var sequence = (MotherBrainRainbowBeamAttackSequence)instance;
+            if (sequence.Phase is MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceDoorExplodingStartTimer or
+                MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceBlowUpEscapeDoor or
+                MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceKeepEarthquakeGoing)
+            {
+                typeof(MotherBrainRainbowBeamAttackSequence)
+                    .GetField("<DeathAndEscapeExplosionIndex>k__BackingField",
+                        System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                    .SetValue(sequence, escapeDoorIndex);
+            }
+        },
         [(StationPlmStateType, "<SaveStartSoundPending>k__BackingField")] = (_, _, value) =>
         {
             if (value is not bool pending)

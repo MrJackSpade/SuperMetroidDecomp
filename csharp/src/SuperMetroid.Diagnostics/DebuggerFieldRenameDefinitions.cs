@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Frontend;
 
 namespace SuperMetroid.Desktop;
@@ -14,6 +15,9 @@ internal static class DebuggerFieldRenameDefinitions
         // The post-Ceres countdown became the NMI-wait count of every $82:8000 load.
         // Its legacy -1 "not started" value reads as no pending wait.
         [(typeof(SuperMetroidGame), "postCeresLoadFramesRemaining")] = "gameLoadingWaitsRemaining",
+        // Native word $0FF2 serves the death explosions and the escape-door dust alike.
+        [(typeof(MotherBrainRainbowBeamAttackSequence), "<DeathExplosionIndex>k__BackingField")] =
+            "<DeathAndEscapeExplosionIndex>k__BackingField",
     };
 
     /// <summary>Returns the current name of a renamed serialized field.</summary>

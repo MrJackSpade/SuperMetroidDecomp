@@ -789,6 +789,9 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                     HealthBasedPaletteHandlingEnabled = false;
                     BrainPaletteIndex = EnemyPaletteBits.Palette7;
                     paletteRequested = true;
+                    // `$AF91/$AF94` clear words $0FF0 and $0FF2 before the fade-out explosions.
+                    DeathExplosionIntervalTimer = 0;
+                    DeathAndEscapeExplosionIndex = 0;
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSetupBodyFadeOut;
                     goto case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSetupBodyFadeOut;
                 }
@@ -1057,7 +1060,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 zebesTimebombEventRequested = true;
                 Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceBlowUpEscapeDoor;
                 DeathExplosionIntervalTimer = 0;
-                EscapeDoorIndex = 0;
+                DeathAndEscapeExplosionIndex = 0;
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceBlowUpEscapeDoor:

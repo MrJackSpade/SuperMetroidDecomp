@@ -330,6 +330,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--fireflea-double-death"])
+{
+    VerifyFirefleaDoubleDeath();
+    return 0;
+}
 if (args is ["--spring-ball-falling-fallback"])
 {
     VerifySpringBallFallingFallback();
@@ -7249,6 +7254,7 @@ VerifyDoorEntryRoomFxSound();
 VerifyGoldNinjaDeathDrops();
 VerifyDoorEntryEnemySound();
 VerifySpringBallFallingFallback();
+VerifyFirefleaDoubleDeath();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

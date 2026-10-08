@@ -407,7 +407,7 @@ public sealed partial class RoomEnemySystem
         if (projectile.ItemDropChancesPointerOverride != 0)
             return projectile.ItemDropChancesPointerOverride;
         if (projectile.EnemyHeaderPointer == 0)
-            return 0;
+            return SnesWorkRam.ReadWord(EnemyWorkMemory, EnemyLifecycleDefinitions.ClearedHeaderDropChancesAddress);
         return ResolveRoomEnemyDefinition(_bus!, projectile.EnemyHeaderPointer).ItemDropChancesPointer;
     }
 

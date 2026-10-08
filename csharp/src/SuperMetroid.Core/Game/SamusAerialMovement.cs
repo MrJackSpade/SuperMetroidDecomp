@@ -653,8 +653,9 @@ public static class SamusAerialMovement
             // $90:901E/$90:9185 clear both the DP displacement and persistent base speed.
             speed.BaseSpeed = 0;
             speed.BaseSubspeed = 0;
-            // This branch bypasses $90:E4E6; retain the previous total-speed pair.
-            return SamusBlockCollision.MoveHorizontal(bus, level, samus.Kinematics, 0, plms: plms);
+            // $90:902B then branches past MoveSamus_Horizontally (and $90:E4E6, so the
+            // previous total-speed pair is retained): no slope alignment runs either.
+            return BlockMoveResult.NotMoved;
         }
 
         var requested = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, calculation.Speed);

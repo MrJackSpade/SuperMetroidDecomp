@@ -302,13 +302,16 @@ public static class SamusMorphBallMovement
             collisionDirection = calculated.CollisionDirection;
         }
 
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
-            bus,
-            level,
-            samus.Kinematics,
-            requestedHorizontal,
-            plms: plms,
-            collisionMovementDirection: collisionDirection);
+        // $90:902B skips MoveSamus_Horizontally entirely, including its slope alignment.
+        BlockMoveResult horizontal = collisionDirection is null
+            ? BlockMoveResult.NotMoved
+            : SamusBlockCollision.MoveHorizontal(
+                bus,
+                level,
+                samus.Kinematics,
+                requestedHorizontal,
+                plms: plms,
+                collisionMovementDirection: collisionDirection);
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 

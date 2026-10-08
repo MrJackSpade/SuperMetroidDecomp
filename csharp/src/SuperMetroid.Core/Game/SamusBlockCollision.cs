@@ -1162,4 +1162,11 @@ public readonly record struct BlockMoveResult(
     /// </summary>
     public bool IsUnobstructedDownwardMovement =>
         !Collided && AcceptedDisplacement >= 0;
+
+    /// <summary>
+    /// The result when bank $90 skips <c>MoveSamus_Horizontally</c> entirely, as
+    /// <c>Samus_Jumping_Movement</c> does with no direction held ($90:902B). No probe,
+    /// block scan, or post-move slope alignment runs.
+    /// </summary>
+    public static BlockMoveResult NotMoved => new(0, false, null, false, null, null);
 }

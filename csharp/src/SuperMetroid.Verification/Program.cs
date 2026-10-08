@@ -330,6 +330,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--jump-no-x-movement"])
+{
+    VerifyJumpNoXMovement();
+    return 0;
+}
 if (args is ["--shutter-screw-contact"])
 {
     VerifyShutterScrewContact();
@@ -7261,6 +7266,7 @@ VerifyDoorEntryEnemySound();
 VerifySpringBallFallingFallback();
 VerifyFirefleaDoubleDeath();
 VerifyShutterScrewContact();
+VerifyJumpNoXMovement();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

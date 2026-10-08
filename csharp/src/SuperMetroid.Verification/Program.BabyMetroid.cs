@@ -91,14 +91,14 @@ static void VerifyBabyMetroidCutsceneEntrance()
     // `$F8` reaches zero without expiring. This is 248 visibly stationary calls, not an
     // approximate four-second host delay.
     for (int call = 1; call <= 248; call++)
-        baby.Step(bus, samus, motherBrain);
+        baby.Step(bus, samus, motherBrain, HeadOf(motherBrain));
     AssertEqual(BabyMetroidCutscenePhase.DashOntoScreen, baby.Phase,
         "Baby dash delay retains function at timer zero");
     AssertEqual(0, baby.FunctionTimer, "Baby dash delay exact zero boundary");
     AssertEqual(0x0140, baby.XPosition, "Baby remains still through call 248");
     AssertEqual(0x0060, baby.YPosition, "Baby Y remains still through call 248");
 
-    BabyMetroidCutsceneStepResult firstCurve = baby.Step(bus, samus, motherBrain);
+    BabyMetroidCutsceneStepResult firstCurve = baby.Step(bus, samus, motherBrain, HeadOf(motherBrain));
     AssertEqual(BabyMetroidCutscenePhase.CurveTowardMotherBrainHead, baby.Phase,
         "Baby call 249 falls through into curve function");
     AssertEqual(0xd680, baby.Angle, "Baby first curve angle");
@@ -117,7 +117,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
     while (baby.Phase != BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse &&
            calls < 700)
     {
-        latch = baby.Step(bus, samus, motherBrain);
+        latch = baby.Step(bus, samus, motherBrain, HeadOf(motherBrain));
         calls++;
         sawBodyStumbleRequest |= latch.BodyStumbleRequested;
         sawMotherBrainInterrupt |= latch.MotherBrainInterrupted;
@@ -224,6 +224,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
             bus,
             samus,
             motherBrain,
+            HeadOf(motherBrain),
             enemyFrameCounter: unchecked((ushort)drainFrame));
         motherBrain.StepBrainShakeForDraw();
         drainFrame++;
@@ -325,6 +326,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
             routeReadGuard,
             samus,
             motherBrain,
+            HeadOf(motherBrain),
             enemyFrameCounter: unchecked((ushort)drainFrame),
             // `$FA0` proves the inclusive random-cry threshold without influencing motion.
             randomNumber: 0x0fa0);
@@ -399,7 +401,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
     BabyMetroidOnionRingHitResult ordinaryFatal = baby.ApplyMotherBrainOnionRingHit(3200);
     AssertTrue(ordinaryFatal.Applied && ordinaryFatal.HealthAfter == 0,
         "ordinary murder volley can saturate Baby health to zero");
-    baby.Step(bus, samus, motherBrain);
+    baby.Step(bus, samus, motherBrain, HeadOf(motherBrain));
     AssertEqual(BabyMetroidCutscenePhase.ReleaseSamus, baby.Phase,
         "zero-health idle call installs release function");
     AssertEqual(0x0140, baby.Health,
@@ -410,7 +412,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
     int finalRouteCalls = 0;
     while (baby.Phase != BabyMetroidCutscenePhase.FinalCharge)
     {
-        baby.Step(bus, samus, motherBrain, enemyFrameCounter: unchecked((ushort)finalRouteCalls));
+        baby.Step(bus, samus, motherBrain, HeadOf(motherBrain), enemyFrameCounter: unchecked((ushort)finalRouteCalls));
         finalRouteCalls++;
         AssertTrue(finalRouteCalls < 1000,
             $"Baby reaches final charge; current phase={baby.Phase}");
@@ -423,7 +425,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
 
     while (baby.Phase != BabyMetroidCutscenePhase.DeathSequence)
     {
-        baby.Step(bus, samus, motherBrain, enemyFrameCounter: unchecked((ushort)finalRouteCalls));
+        baby.Step(bus, samus, motherBrain, HeadOf(motherBrain), enemyFrameCounter: unchecked((ushort)finalRouteCalls));
         finalRouteCalls++;
         AssertTrue(finalRouteCalls < 1200,
             $"fatal shake/theme delays reach death sequence; current phase={baby.Phase}");
@@ -445,6 +447,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
             bus,
             samus,
             motherBrain,
+            HeadOf(motherBrain),
             enemyFrameCounter: unchecked((ushort)deathCalls));
         deathCalls++;
         if (babyDeath.DeathExplosion is { } deathExplosion)
@@ -482,7 +485,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
     BabyMetroidCutsceneStepResult fourthTransfer = default;
     while (baby.Phase == BabyMetroidCutscenePhase.UnloadTiles)
     {
-        fourthTransfer = baby.Step(bus, samus, motherBrain);
+        fourthTransfer = baby.Step(bus, samus, motherBrain, HeadOf(motherBrain));
         unloadCalls++;
         if (fourthTransfer.AttackTileTransfer is { } transfer)
             attackTransfers.Add(transfer);
@@ -512,7 +515,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
     BabyMetroidCutsceneStepResult firstRoomPalette = default;
     while (baby.Phase == BabyMetroidCutscenePhase.LetSamusRainbowSomeMore)
     {
-        firstRoomPalette = baby.Step(bus, samus, motherBrain);
+        firstRoomPalette = baby.Step(bus, samus, motherBrain, HeadOf(motherBrain));
         rainbowDelayCalls++;
         if (firstRoomPalette.BackgroundPaletteTransfer is { } palette)
             roomPalettes.Add(palette);
@@ -527,7 +530,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
     int finalPaletteCalls = 1;
     while (!baby.IsDeleted)
     {
-        BabyMetroidCutsceneStepResult finalPalette = baby.Step(bus, samus, motherBrain);
+        BabyMetroidCutsceneStepResult finalPalette = baby.Step(bus, samus, motherBrain, HeadOf(motherBrain));
         finalPaletteCalls++;
         if (finalPalette.BackgroundPaletteTransfer is { } palette)
             roomPalettes.Add(palette);

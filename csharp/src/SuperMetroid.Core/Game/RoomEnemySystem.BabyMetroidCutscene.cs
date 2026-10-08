@@ -123,6 +123,7 @@ public sealed partial class RoomEnemySystem
             _bus!,
             target,
             sequence,
+            new MotherBrainHeadPosition(state.Head!.XPosition, state.Head.YPosition),
             layer1X: cameraX,
             layer1Y: cameraY,
             enemyFrameCounter: slot.FrameCounter,

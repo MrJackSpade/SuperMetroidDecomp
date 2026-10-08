@@ -27,7 +27,7 @@ internal static partial class Program
         {
             begin();
             beginMotherBrain();
-            var step = baby.Step(bus, samus, sequence);
+            var step = baby.Step(bus, samus, sequence, HeadOf(sequence));
             apply(state, step);
             collect();
             ushort[] expected = frame switch { 0 => [0], 72 => [0xff48, 5], _ => [] };

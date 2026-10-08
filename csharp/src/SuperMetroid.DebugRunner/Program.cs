@@ -6555,6 +6555,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 bus,
                 runtime.Samus,
                 rainbowAttack,
+                new MotherBrainHeadPosition(rainbowAttack.BrainXPosition, rainbowAttack.BrainYPosition),
                 layer1X: 0,
                 layer1Y: 0,
                 enemyFrameCounter: unchecked((ushort)frameIndex),

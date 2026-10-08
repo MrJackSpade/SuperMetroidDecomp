@@ -2187,7 +2187,11 @@ public sealed partial class SuperMetroidRuntime
                 // with `$90:94CB`; the other phases stay motionless while enemy AI controls
                 // pose/timing. This branch is reached only when no independently retained
                 // Crystal Flash pointer still owns the physical movement-handler word.
-                else if (Samus.Drained.Phase != DrainedSamusPhase.Inactive)
+                // The rainbow-beam lock is beta `$E8D9` itself: once command one restores
+                // `$E725` during enemy AI, this same frame's beta dispatches the knockback
+                // pose's type-$0A mover below, as `$90:A5FC` does natively.
+                else if (Samus.Drained.Phase != DrainedSamusPhase.Inactive &&
+                    !(Samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked && !Samus.InputLocked))
                 {
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;

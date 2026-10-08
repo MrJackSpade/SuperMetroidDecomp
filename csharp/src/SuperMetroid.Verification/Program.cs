@@ -330,6 +330,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--rainbow-release-knockback"])
+{
+    VerifyRainbowReleaseKnockback();
+    return 0;
+}
 if (args is ["--mother-brain-small-purple-breath"])
 {
     VerifyMotherBrainSmallPurpleBreath();
@@ -7357,6 +7362,7 @@ VerifyMotherBrainTubeHdmaDeletion();
 VerifyMotherBrainRaiseCounter();
 VerifyMotherBrainHeadHitbox();
 VerifyMotherBrainSmallPurpleBreath();
+VerifyRainbowReleaseKnockback();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

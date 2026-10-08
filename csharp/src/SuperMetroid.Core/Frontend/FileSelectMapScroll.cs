@@ -4,20 +4,52 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>$82:925D's mutually exclusive map-scrolling dispatcher indices.</summary>
-public enum MapScrollDirection { None, Left, Right, Up, Down }
+public enum MapScrollDirection
+{
+    /// <summary>No eight-tick scroll step is active.</summary>
+    None,
+    /// <summary>Scroll the map viewport toward smaller horizontal offsets.</summary>
+    Left,
+    /// <summary>Scroll the map viewport toward larger horizontal offsets.</summary>
+    Right,
+    /// <summary>Scroll the map viewport toward smaller vertical offsets.</summary>
+    Up,
+    /// <summary>Scroll the map viewport toward larger vertical offsets.</summary>
+    Down
+}
 
 /// <summary>Initial room-select positioning and $81:AECA/$82:925D scroll ownership.</summary>
 public sealed class FileSelectMapScroll
 {
     private int tick;
+
+    /// <summary>Gets the current wrapped horizontal map offset in pixels.</summary>
     public ushort Horizontal { get; private set; }
+
+    /// <summary>Gets the current wrapped vertical map offset in pixels.</summary>
     public ushort Vertical { get; private set; }
+
+    /// <summary>Gets the leftmost revealed-map coordinate used by the native arrow boundary.</summary>
     public ushort MinimumX { get; }
+
+    /// <summary>Gets the rightmost revealed-map coordinate used by the native arrow boundary.</summary>
     public ushort MaximumX { get; }
+
+    /// <summary>Gets the adjusted upper revealed-map coordinate used by the native arrow boundary.</summary>
     public ushort MinimumY { get; }
+
+    /// <summary>Gets the lower revealed-map coordinate used by the native arrow boundary.</summary>
     public ushort MaximumY { get; }
+
+    /// <summary>Gets the direction of the accepted eight-tick scroll step, or <see cref="MapScrollDirection.None"/>.</summary>
     public MapScrollDirection Direction { get; private set; }
 
+    /// <summary>Calculates the initial viewport and scrolling bounds from the visible map plane.</summary>
+    /// <param name="bus">Installed address space required by the file-select host contract.</param>
+    /// <param name="map">Area map whose station or explored cells define the visible bounds.</param>
+    /// <param name="system">Persistent area-map and explored-cell state.</param>
+    /// <param name="playerMapX">Player marker's horizontal map coordinate in pixels.</param>
+    /// <param name="playerMapY">Player marker's vertical map coordinate in pixels.</param>
     public FileSelectMapScroll(ISnesAddressSpace bus, IAreaMapView map,
         Bank80SystemState system, ushort playerMapX, ushort playerMapY)
     {
@@ -62,6 +94,9 @@ public sealed class FileSelectMapScroll
         MinimumY = Wrap(nativeMinimumY + 24);
     }
 
+    /// <summary>Determines whether another eight-pixel step fits within the native boundary for a direction.</summary>
+    /// <param name="direction">Direction to test.</param>
+    /// <returns><see langword="true"/> when the corresponding scroll arrow may accept a step.</returns>
     public bool CanScroll(MapScrollDirection direction) => direction switch
     {
         MapScrollDirection.Left => Signed(MinimumX - 24 - Horizontal) < 0,

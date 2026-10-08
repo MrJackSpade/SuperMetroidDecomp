@@ -9,14 +9,30 @@ public sealed class FileSelectMapEntry
 {
     private readonly CartridgePaletteTransition palette;
     private int revealSteps;
+
+    /// <summary>Gets the live 256-color memory used by the entry palette fade.</summary>
     public SnesCgram Cgram { get; } = new();
+
+    /// <summary>Gets the current native entry-coroutine stage.</summary>
     public FileSelectMapEntryPhase Phase { get; private set; } = FileSelectMapEntryPhase.PaletteFade;
+
+    /// <summary>Gets whether the reveal has finished and ordinary area-map input may begin.</summary>
     public bool IsComplete => Phase == FileSelectMapEntryPhase.Complete;
+
+    /// <summary>Gets the inclusive left edge of the expanding reveal window in pixels.</summary>
     public int Left => FileSelectMapRomData.EntryWindowLeft - revealSteps * FileSelectMapRomData.EntryWindowSpeed;
+
+    /// <summary>Gets the inclusive right edge of the expanding reveal window in pixels.</summary>
     public int Right => FileSelectMapRomData.EntryWindowRight + revealSteps * FileSelectMapRomData.EntryWindowSpeed;
+
+    /// <summary>Gets the upper edge of the expanding reveal window in pixels.</summary>
     public int Top => FileSelectMapRomData.EntryWindowTop - revealSteps * FileSelectMapRomData.EntryWindowSpeed;
+
+    /// <summary>Gets the lower edge of the expanding reveal window in pixels.</summary>
     public int Bottom => FrontendFrame.Height - Top;
 
+    /// <summary>Creates the entry sequence from the installed file-select palette.</summary>
+    /// <param name="mapPalettes">Static frontend palettes supplying the fade destination.</param>
     public FileSelectMapEntry(MapStaticPalettes mapPalettes)
     {
         ArgumentNullException.ThrowIfNull(mapPalettes);
@@ -41,6 +57,7 @@ public sealed class FileSelectMapEntry
             palette.SetTargetColor(color, color is 14 or 30 ? (ushort)0 : content.FileSelect[color]);
     }
 
+    /// <summary>Advances the palette fade, setup coroutine, or centered reveal by one frontend update.</summary>
     public void Step()
     {
         switch (Phase)
@@ -94,4 +111,18 @@ public sealed class FileSelectMapEntry
 }
 
 /// <summary>Entry coroutine stages before normal area-map input becomes active.</summary>
-public enum FileSelectMapEntryPhase { PaletteFade, LoadForeground, LoadBackground, SetupWindow, Revealing, Complete }
+public enum FileSelectMapEntryPhase
+{
+    /// <summary>Fades the first two palettes to their installed file-select colors.</summary>
+    PaletteFade,
+    /// <summary>Represents the native foreground-tilemap loading stage.</summary>
+    LoadForeground,
+    /// <summary>Represents the native background-tilemap loading stage.</summary>
+    LoadBackground,
+    /// <summary>Configures the centered initial reveal window.</summary>
+    SetupWindow,
+    /// <summary>Expands the reveal window by eight pixels per update.</summary>
+    Revealing,
+    /// <summary>Displays the complete area scene and permits normal map input.</summary>
+    Complete
+}

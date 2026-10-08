@@ -9,6 +9,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Bank-$A0 enemy definition $ED7F for the dead-sidehopper family, initialized by $A9:D7B6 as an initially alive victim or an already dead Tourian corpse.</summary>
     public const ushort DeadSidehopperDefinition = 0xed7f;
 
     private const int DeadMonsterWorkBufferAddress = 0x7e2000;
@@ -559,14 +560,23 @@ public sealed partial class RoomEnemySystem
 /// <summary>Native bank-$A9 dead-sidehopper function pointers.</summary>
 public enum DeadSidehopperAiFunction : ushort
 {
+    /// <summary>$A9:D8E2, Function_CorpseSidehopper_Alive_WaitingForActivation: activates the living victim when the signed camera-X comparison is below room pixel 513, falling through into movement.</summary>
     AliveWaitForCamera = 0xd8e2,
+    /// <summary>$A9:D8F1, Function_CorpseSidehopper_Hopping: applies signed 8.8 hop velocity and gravity; landing advances the four-phase launch sequence and starts the hopping animation.</summary>
     ActivatedMovement = 0xd8f1,
+    /// <summary>$A9:D90F, the hopping routine's RTS: holds main AI idle while the landing animation runs until instruction $A9:ECD0 selects its successor.</summary>
     NoOperation = 0xd90f,
+    /// <summary>$A9:D910, Function_CorpseSidehopper_StartIdling: selects the post-landing idle state and initializes the native function timer to $0040.</summary>
     BeginPostLandingDelay = 0xd910,
+    /// <summary>$A9:D91D, Function_CorpseSidehopper_Idling: decrements the timer through zero into signed-negative expiry, then resumes hopping or begins the drained palette transformation.</summary>
     PostLandingDelay = 0xd91d,
+    /// <summary>$A9:DA08, Function_CorpseSidehopper_BeingDrained: advances the fifteen-color drained palette every eight AI calls, then installs solid corpse graphics and a 12-pixel Y radius.</summary>
     TransformPalette = 0xda08,
+    /// <summary>$A9:DA64, Function_CorpseSidehopper_Dead_WaitForSamusCollision: waits for Samus's solid-enemy collision to select the pre-rot delay; also the native return state after rotting completes.</summary>
     WaitForSamusCollision = 0xda64,
+    /// <summary>$A9:DA8F, Function_CorpseSidehopper_PreRotDelay: increments the retained contact-delay counter to sixteen before starting rotting and rejecting normal interaction.</summary>
     PreRotDelay = 0xda8f,
+    /// <summary>$A9:DABA, Function_CorpseSidehopper_Rotting: runs the shared staggered pixel-row scheduler and submits the configured VRAM transfers, including on the completion call.</summary>
     Rotting = 0xdaba,
 }
 
@@ -603,20 +613,34 @@ public sealed class DeadSidehopperEnemyState
         WrapOffset = wrapOffset;
     }
 
+    /// <summary>The physical enemy slot owning this corpse's positions, native AI words, collision properties, and instruction list.</summary>
     public RoomEnemySlot Slot { get; }
+    /// <summary>Native population variant 0 for the initially living Shitroid victim or 2 for the already dead Tourian corpse, selecting initial graphics and row-copy column layouts.</summary>
     public ushort GraphicsVariant { get; }
+    /// <summary>Bank-$A9 rotting configuration identity: $DD68 for variant 0 or $DD78 for variant 2, describing table, callbacks, height, and uploads.</summary>
     public ushort ConfigurationPointer { get; }
+    /// <summary>Bank-$7E offset of the mutable four-byte (signed pixel Y, delay) row entries: $9000 for variant 0 or $90A0 for variant 2.</summary>
     public ushort TablePointer { get; }
+    /// <summary>Bank-$A9 VRAM-transfer definition identity: $E0E0 for variant 0 or $E10A for variant 2, submitting modified corpse tile data after each rotting call.</summary>
     public ushort VramTablePointer { get; }
+    /// <summary>Native non-destructive pixel-row copy callback identity, $A9:E4F5 for variant 0 or $A9:E5F6 for variant 2; the host translates its work directly.</summary>
     public ushort CopyFunction { get; }
+    /// <summary>Native destructive pixel-row move callback identity, $A9:E468 for variant 0 or $A9:E564 for variant 2, copying the row downward and clearing its source.</summary>
     public ushort MoveFunction { get; }
+    /// <summary>Bank-$A9 tile-data row-offset table $E240, shared by both variants; despite the host name, it addresses 8-pixel tile rows rather than a rotation angle.</summary>
     public ushort RotationTablePointer { get; }
+    /// <summary>Native completed-row callback $A9:DC08, the normal corpse dust-spawn and periodic library-two sound hook.</summary>
     public ushort FinishFunction { get; }
+    /// <summary>Forty staggered rotting entries, matching the native corpse sprite height of $0028 pixels.</summary>
     public ushort EntryCount { get; }
+    /// <summary>Native sprite-height-minus-one value, 39: a moved pixel row completes when its next Y reaches this boundary; also identifies the final entry.</summary>
     public ushort YLimit { get; }
+    /// <summary>Native sprite-height-minus-two value, 38: this entry and the final entry use destructive moves even during the last three delay ticks.</summary>
     public ushort LateMoveEntryIndex { get; }
+    /// <summary>Native inter-tile byte adjustment $0094 added to the pixel-row source offset for rows 6 and 7, wrapping their two-pixel downward destination into the next tile row.</summary>
     public ushort WrapOffset { get; }
 
+    /// <summary>Native variable A ($0FA8 plus the slot byte index), holding the current bank-$A9 dead-sidehopper AI function pointer.</summary>
     public DeadSidehopperAiFunction Function
     {
         get => (DeadSidehopperAiFunction)Slot.VariableA;
@@ -645,15 +669,19 @@ public sealed class DeadSidehopperEnemyState
         internal set => Slot.VariableB = value;
     }
 
-    /// <summary>Native AI variable F used by the 64-frame post-landing pause.</summary>
+    /// <summary>Native AI variable F initialized to $0040 for the post-landing pause; expiry requires decrementing through zero to $FFFF, giving 65 delay-state calls.</summary>
     public ushort StateTimer
     {
         get => Slot.VariableF;
         internal set => Slot.VariableF = value;
     }
 
+    /// <summary>Host diagnostic count of shared rotting-processor calls for this slot since initialization, including the call that completes the final entry.</summary>
     public uint ProcessCallCount { get; internal set; }
+    /// <summary>Host diagnostic count of entry-completion callbacks, including the final row entry before the scheduler returns completion.</summary>
     public uint FinishedEntryCount { get; internal set; }
+    /// <summary>Host diagnostic count of dust effects requested by completed corpse entries; increments once per completion hook invocation.</summary>
     public uint DustSpawnCount { get; internal set; }
+    /// <summary>Most recently completed zero-based rotting entry index, or $FFFF before any entry has completed; retained as host diagnostic state.</summary>
     public ushort LastFinishedEntryIndex { get; internal set; } = ushort.MaxValue;
 }

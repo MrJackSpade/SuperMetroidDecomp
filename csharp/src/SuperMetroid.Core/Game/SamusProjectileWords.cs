@@ -8,12 +8,19 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public enum SamusProjectileFamily : ushort
 {
+    /// <summary>Beam family, including charged and uncharged beam payload bits.</summary>
     Beam = 0x0000,
+    /// <summary>Ordinary missile family.</summary>
     Missile = 0x0100,
+    /// <summary>Super Missile family.</summary>
     SuperMissile = 0x0200,
+    /// <summary>Power Bomb family.</summary>
     PowerBomb = 0x0300,
+    /// <summary>Ordinary bomb family.</summary>
     Bomb = 0x0500,
+    /// <summary>Beam-impact explosion family.</summary>
     BeamExplosion = 0x0700,
+    /// <summary>Missile-impact explosion family.</summary>
     MissileExplosion = 0x0800,
 }
 
@@ -24,15 +31,25 @@ public enum SamusProjectileFamily : ushort
 /// </summary>
 public enum SamusProjectileDirection : byte
 {
+    /// <summary>Vertical upward direction retaining right-facing muzzle placement.</summary>
     UpFacingRight = 0,
+    /// <summary>Diagonal up-right direction.</summary>
     UpRight = 1,
+    /// <summary>Horizontal right direction.</summary>
     Right = 2,
+    /// <summary>Diagonal down-right direction.</summary>
     DownRight = 3,
+    /// <summary>Vertical downward direction retaining right-facing muzzle placement.</summary>
     DownFacingRight = 4,
+    /// <summary>Vertical downward direction retaining left-facing muzzle placement.</summary>
     DownFacingLeft = 5,
+    /// <summary>Diagonal down-left direction.</summary>
     DownLeft = 6,
+    /// <summary>Horizontal left direction.</summary>
     Left = 7,
+    /// <summary>Diagonal up-left direction.</summary>
     UpLeft = 8,
+    /// <summary>Vertical upward direction retaining left-facing muzzle placement.</summary>
     UpFacingLeft = 9,
 }
 
@@ -56,8 +73,10 @@ public readonly record struct SamusBeamLoadoutWord(ushort Raw)
         SamusBeamFlags.Plasma |
         SamusBeamFlags.Charge));
 
+    /// <summary>Tests whether any requested verified beam-equipment bits are set.</summary>
     public bool HasAny(SamusBeamFlags flags) => (KnownFlags & flags) != 0;
 
+    /// <summary>Converts a raw equipped-beam word to its lossless semantic view.</summary>
     public static implicit operator SamusBeamLoadoutWord(ushort raw) => new(raw);
 }
 
@@ -70,11 +89,16 @@ public readonly record struct SamusProjectileTypeWord(ushort Raw)
     private const ushort LiveMarker = 0x8000;
     private const ushort ResidentPlmPayloadMask = 0x1fff;
 
+    /// <summary>Gets the low-nibble beam-combination table index.</summary>
     public int BeamCombinationIndex => Raw & BeamCombinationMask;
+    /// <summary>Gets the raw projectile-family nibble in its native bit position.</summary>
     public ushort FamilyValue => (ushort)(Raw & FamilyMask);
+    /// <summary>Gets the named projectile family represented by the family nibble.</summary>
     public SamusProjectileFamily Family => (SamusProjectileFamily)FamilyValue;
+    /// <summary>Gets whether the native charged-beam marker is set.</summary>
     public bool IsChargedBeam => (Raw & ChargedBeamMarker) != 0;
 
+    /// <summary>Tests whether the family nibble exactly matches the requested family.</summary>
     public bool IsFamily(SamusProjectileFamily family) => FamilyValue == (ushort)family;
 
     /// <summary>
@@ -108,6 +132,7 @@ public readonly record struct SamusProjectileTypeWord(ushort Raw)
         ? (ushort)((equippedBeams & 0x100f) | LiveMarker | ChargedBeamMarker)
         : (ushort)(equippedBeams | LiveMarker);
 
+    /// <summary>Converts a raw projectile type word to its lossless semantic view.</summary>
     public static implicit operator SamusProjectileTypeWord(ushort raw) => new(raw);
 }
 
@@ -123,7 +148,9 @@ public readonly record struct SamusProjectileDirectionWord(ushort Raw)
     /// </summary>
     private const ushort CollisionLifecycleState = 0x0010;
 
+    /// <summary>Gets the low-nibble native direction-table index.</summary>
     public byte DirectionIndex => (byte)(Raw & DirectionMask);
+    /// <summary>Gets the named direction represented by the low nibble.</summary>
     public SamusProjectileDirection Direction => (SamusProjectileDirection)DirectionIndex;
 
     /// <summary>

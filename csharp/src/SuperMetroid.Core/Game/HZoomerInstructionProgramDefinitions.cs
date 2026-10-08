@@ -14,8 +14,6 @@ internal abstract class HZoomerInstructionProgramDefinitions : IInstructionProgr
     internal const ushort UpsideDown = 0xe003;
     /// <summary><c>InstList_HZoomer_UpsideUp_0</c> at $A3:E01F.</summary>
     internal const ushort UpsideUp = 0xe01f;
-    /// <summary><c>Instruction_HZoomer_FunctionInY</c> immediately before the programs.</summary>
-    internal const ushort AdjacentFunctionCode = 0xdfc2;
 
     public static int MechanicsWordCount => 36;
     public static int PresentationWordCount => 20;

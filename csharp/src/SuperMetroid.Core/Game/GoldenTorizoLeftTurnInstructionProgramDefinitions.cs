@@ -13,13 +13,6 @@ internal abstract class GoldenTorizoLeftTurnInstructionProgramDefinitions : IIns
     internal const ushort Dodge = 0xd1f1;
     /// <summary><c>InstList_GoldenTorizo_TurningLeft</c> at $AA:D203.</summary>
     internal const ushort Turn = 0xd203;
-    /// <summary>First byte after the left-turn lists, $AA:D20D.</summary>
-    internal const ushort End = GoldenTorizoCombatInstructionPointers.WalkingLeftRightLeg;
-    /// <summary>
-    /// <c>ExtendedSpritemaps_Torizo_FacingScreen_Turning_Dodging</c> at
-    /// $AA:A4F0, also used by both turning-right lists.
-    /// </summary>
-    internal const ushort FacingScreenFrame = 0xa4f0;
 
     /// <summary><c>Function_Torizo_SimpleMovement</c> at $AA:C6BF.</summary>
     private const ushort SimpleMovement = 0xc6bf;

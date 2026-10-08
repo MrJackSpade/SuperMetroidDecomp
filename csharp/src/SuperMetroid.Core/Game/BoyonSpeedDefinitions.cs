@@ -30,9 +30,6 @@ public static class BoyonSpeedDefinitions
     public static ushort InitialHeight(int index) => (uint)index < 9
         ? (ushort)(0x3000 + index * 0x1000)
         : throw new ArgumentOutOfRangeException(nameof(index));
-
-    /// <summary>$A2:8701, BoyonData.speedTable: 23 triangular-number bytes.</summary>
-    public const int ReferenceAddress = 0xa28701;
     /// <summary>$A2:875E/$880F/$885B clamp indices at or above 23 to $FF before multiplication.</summary>
     public const int StoredSampleCount = 23;
 

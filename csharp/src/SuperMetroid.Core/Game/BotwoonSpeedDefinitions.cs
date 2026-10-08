@@ -6,10 +6,6 @@ public readonly record struct BotwoonSpeedDefinition(ushort MovementSpeed, ushor
 /// <summary>Immutable NTSC mechanics; the PAL cartridge has different movement records.</summary>
 public static class BotwoonSpeedDefinitions
 {
-    /// <summary>$B3:94BB, BotwoonSpeedTable: three speed/body-travel-time pairs.</summary>
-    public const int MovementReferenceAddress = 0xb394bb;
-    /// <summary>$B3:9E77, BotwoonSpitSpeeds: three health-phase projectile speeds.</summary>
-    public const int SpitReferenceAddress = 0xb39e77;
 
     /// <summary>Native phase 0 is at least half health, 1 at least quarter, and 2 below quarter.</summary>
     /// <remarks>

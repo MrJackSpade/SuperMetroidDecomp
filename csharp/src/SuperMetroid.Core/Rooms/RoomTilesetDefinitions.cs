@@ -5,8 +5,6 @@ public static class RoomTilesetDefinitions
 {
     /// <summary>$8F:E7A7..E7DF: graphics themes $00..$1C precede unrelated data.</summary>
     public const int Count = 0x1d;
-    /// <summary>$8F:E6A2, Tileset_Table_0_UpperCrateria: first consecutive nine-byte resource definition.</summary>
-    private const ushort FirstDefinition = 0xe6a2;
 
     private enum Theme : byte
     {

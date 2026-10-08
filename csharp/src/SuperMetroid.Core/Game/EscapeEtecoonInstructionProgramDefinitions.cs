@@ -20,8 +20,6 @@ internal abstract class EscapeEtecoonInstructionProgramDefinitions : IInstructio
     internal const ushort Stationary = 0xe5c6;
     /// <summary><c>InstList_EtecoonEscape_ExpressGratitudeThenEscape_0</c> at $B3:E5DA.</summary>
     internal const ushort ExpressGratitudeThenEscape = 0xe5da;
-    /// <summary><c>Instruction_EtecoonEscape_XPositionPlusY</c>, adjacent code at $B3:E610.</summary>
-    internal const ushort FirstAdjacentCodeRoutine = 0xe610;
 
     public static int MechanicsWordCount => 63;
     public static int PresentationWordCount => 30;

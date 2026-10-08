@@ -5,7 +5,6 @@ internal static class MochtroidVisualDefinitions
 {
     /// <summary>$A3: Mochtroid instruction and spritemap bank.</summary>
     internal const byte Bank = 0xa3;
-    internal const int FrameCount = 6;
     /// <summary>$A3:A747: first spritemap operand in the free-flight loop at A745.</summary>
     private const ushort FlightOperand = 0xa747;
     /// <summary>$A3:A75B: first spritemap operand in the attached loop at A759.</summary>

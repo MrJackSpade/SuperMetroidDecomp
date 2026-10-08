@@ -37,11 +37,6 @@ internal static class RidleyExplosionDefinitions
 {
     /// <summary><c>EnemyHeaders_RidleyExplosion</c> at <c>$A0:E1BF</c>.</summary>
     public const ushort EnemyDefinition = 0xe1bf;
-
-    /// <summary>$A6:C6FE RidleyExplosionInitialization_0, first of seven tail-fragment initializers.</summary>
-    private const ushort TailInitializerStart = 0xc6fe;
-    /// <summary>$A6:C7DA RidleyExplosionInitialization_E, first of five body-fragment initializers.</summary>
-    private const ushort BodyInitializerStart = 0xc7da;
     /// <summary>$A6:CA95 InstList_RidleyTailTip_PointingDown, first of sixteen orientation programs.</summary>
     private const ushort TailTipProgramStart = 0xca95;
     /// <summary>

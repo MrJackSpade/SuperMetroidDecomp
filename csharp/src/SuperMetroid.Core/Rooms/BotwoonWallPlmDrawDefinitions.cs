@@ -5,8 +5,6 @@ internal static class BotwoonWallPlmDrawDefinitions
 {
     /// <summary><c>$84:930F</c>: clear nine consecutive wall blocks.</summary>
     internal const ushort ClearPointer = 0x930f;
-    /// <summary><c>$84:9325</c>: first byte of the following unused draw list.</summary>
-    internal const ushort EndExclusive = 0x9325;
 
     internal const int BlockCount = 9;
 

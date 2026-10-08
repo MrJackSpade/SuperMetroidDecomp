@@ -28,8 +28,6 @@ internal abstract class EscapeDachoraInstructionProgramDefinitions : IInstructio
     internal const ushort RunningForEscapeAccelerating = 0xea38;
     /// <summary><c>InstList_DachoraEscape_RunningForEscape_2</c> at $B3:EA80.</summary>
     internal const ushort RunningForEscapeMaximumSpeed = 0xea80;
-    /// <summary><c>InstList_DachoraEscape_GotoY_IfAcidLessThanCE</c>, adjacent code at $B3:EAA8.</summary>
-    internal const ushort FirstAdjacentCodeRoutine = 0xeaa8;
 
     /// <summary>$B3:E968..E98B and corresponding directional runs have six duration/visual/move triples.</summary>
     private const int RunFrames = 6;

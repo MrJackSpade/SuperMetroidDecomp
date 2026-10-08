@@ -11,8 +11,6 @@ internal readonly record struct CeresEscapeVramTransferDefinition(
 /// </summary>
 internal static class CeresEscapeVramTransferDefinitions
 {
-    /// <summary>$A6:0000, the fixed bank for Ceres escape transfer descriptors.</summary>
-    internal const int Bank = 0xa60000;
 
     /// <summary>Escape timer sprite transfers beginning at $A6:C4CB.</summary>
     internal const ushort TimerSprites = 0xc4cb;

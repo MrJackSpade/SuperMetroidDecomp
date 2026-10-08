@@ -6,7 +6,6 @@ public static class CreditsPresentationDefinitions
     public const int Version = 1;
     public const string FileName = "ending-credits.json";
     public const int TilemapWidth = 32;
-    public const int TilemapHeight = 32;
     public const int InitialBlankRows = 8;
     public const int SectionBlankRows = 16;
     public const int InterLineBlankRows = 1;

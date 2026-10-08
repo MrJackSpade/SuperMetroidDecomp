@@ -7,8 +7,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class MotherBrainFallingTubePopulationDefinitions
 {
-    /// <summary>Bank $A9 containing the native tube-collapse placement records.</summary>
-    internal const int NativeBank = 0xa90000;
 
     /// <summary>Bottom-left tube spawn at $A9:8AE5.</summary>
     internal const ushort BottomLeft = 0x8ae5;
@@ -45,18 +43,6 @@ internal static class MotherBrainFallingTubePopulationDefinitions
     private const int MainBottom = 48;
     /// <summary>$A9:8B33: main-tube delay decremented at $8BCB before falling; remains required.</summary>
     private const ushort MainFallDelay = 32;
-    private static readonly RecordPointers Records = new();
-    private sealed class RecordPointers : IReadOnlyList<ushort>
-    {
-        public int Count => RecordCount;
-        public ushort this[int index] => (uint)index < RecordCount
-            ? (ushort)(BottomLeft + index * RecordBytes) : throw new IndexOutOfRangeException();
-        public IEnumerator<ushort> GetEnumerator()
-        {
-            for (int index = 0; index < Count; index++) yield return this[index];
-        }
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
 
     /// <summary>
     /// Resolves the selected piece. Native parameter1 is a word offset consumed at

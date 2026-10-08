@@ -9,19 +9,12 @@ internal readonly record struct SpeedBoosterEscapeStageDefinition(
 /// <summary>Compiled stage definitions for bank-$84's Speed Booster escape controller.</summary>
 internal static class SpeedBoosterEscapeStageDefinitions
 {
-    /// <summary>
-    /// Native table $84:B876-$B889: three six-byte physical records followed by $8000.
-    /// </summary>
-    internal const int TableAddress = 0x84b876;
 
     /// <summary>Native byte width of each live target-X, maximum-FX-Y, velocity record.</summary>
     internal const ushort RecordByteCount = 6;
 
     /// <summary>Native byte offset of the terminal $8000 target-X sentinel.</summary>
     internal const ushort TerminatorOffset = 18;
-
-    /// <summary>Native terminal target-X word that marks event $15.</summary>
-    internal const ushort Terminator = 0x8000;
 
     /// <summary>$84:B876: eastern checkpoint action, reached first while escaping left.</summary>
     private const ushort EasternCheckpoint = 0;

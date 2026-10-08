@@ -7,8 +7,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal abstract class BombTorizoStatueInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
-    /// <summary><c>InitAI_EnemyProj_BombTorizoChozoBreaking</c> at $86:A764.</summary>
-    internal const ushort InitializationAi = 0xa764;
     /// <summary>First program, <c>InstList_EnemyProjectile_BombTorizoChozoBreaking_Index0</c>, at $86:A4C3.</summary>
     internal const ushort FirstProgram = 0xa4c3;
     /// <summary>Byte distance between consecutive fragment programs.</summary>

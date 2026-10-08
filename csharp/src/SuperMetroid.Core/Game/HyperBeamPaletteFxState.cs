@@ -18,12 +18,6 @@ public sealed class HyperBeamPaletteFxState
     private const int DestinationColorIndex =
         SamusPaletteRomData.HyperBeamFx.DestinationByteIndex / sizeof(ushort);
 
-    /// <summary>Number of timed color records in the Hyper Beam loop.</summary>
-    public const int FrameCount = HyperBeamPaletteFxProgramDefinitions.FrameCount;
-
-    /// <summary>Number of colors copied by each Hyper Beam record.</summary>
-    public const int ColorsPerFrame = HyperBeamPaletteFxProgramDefinitions.ColorsPerFrame;
-
     private ushort _instructionPointer;
 
     /// <summary>True after controller function three has spawned object <c>$E1F0</c>.</summary>

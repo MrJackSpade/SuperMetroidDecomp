@@ -35,20 +35,8 @@ internal abstract class ShaktoolInstructionProgramDefinitions : IInstructionProg
     internal const ushort HeadHeadBob = 0xda90;
     /// <summary><c>InstList_Shaktool_Head_AimingLeft</c> at $AA:DAA4.</summary>
     internal const ushort HeadAimingLeft = 0xdaa4;
-    /// <summary><c>InstList_Shaktool_Head_AimingUpLeft</c> at $AA:DAAC.</summary>
-    internal const ushort HeadAimingUpLeft = 0xdaac;
-    /// <summary><c>InstList_Shaktool_Head_AimingUp</c> at $AA:DAB4.</summary>
-    internal const ushort HeadAimingUp = 0xdab4;
-    /// <summary><c>InstList_Shaktool_Head_AimingUpRight</c> at $AA:DABC.</summary>
-    internal const ushort HeadAimingUpRight = 0xdabc;
-    /// <summary><c>InstList_Shaktool_Head_AimingRight</c> at $AA:DAC4.</summary>
-    internal const ushort HeadAimingRight = 0xdac4;
-    /// <summary><c>InstList_Shaktool_Head_AimingDownRight</c> at $AA:DACC.</summary>
-    internal const ushort HeadAimingDownRight = 0xdacc;
     /// <summary><c>InstList_Shaktool_Head_AimingDown</c> at $AA:DAD4.</summary>
     internal const ushort HeadAimingDown = 0xdad4;
-    /// <summary><c>InstList_Shaktool_Head_AimingDownLeft</c> at $AA:DADC.</summary>
-    internal const ushort HeadAimingDownLeft = 0xdadc;
 
     /// <summary><c>RTS_AADAE4</c>, the first adjacent code routine at $AA:DAE4.</summary>
     internal const ushort FirstAdjacentCodeRoutine = 0xdae4;

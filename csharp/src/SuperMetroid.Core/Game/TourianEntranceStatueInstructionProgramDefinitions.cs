@@ -12,8 +12,6 @@ internal abstract class TourianEntranceStatueInstructionProgramDefinitions : IIn
     internal const ushort Phantoon = 0xd7af;
     /// <summary><c>InstList_TourianStatue_BaseDecoration_0</c> at $AA:D7B9.</summary>
     internal const ushort BaseDecoration = 0xd7b9;
-    /// <summary>First unused visible-loop list immediately after the live programs.</summary>
-    internal const ushort AdjacentUnusedProgram = 0xd7bb;
 
     public static int MechanicsWordCount => 3;
 

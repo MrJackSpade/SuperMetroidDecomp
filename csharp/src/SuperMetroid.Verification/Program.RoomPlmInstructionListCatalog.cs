@@ -11,8 +11,7 @@ internal static partial class Program
     /// </summary>
     static void VerifyRoomPlmInstructionListCatalog()
     {
-        FieldInfo[] fields = typeof(RoomPlmInstructionLists)
-            .GetFields(BindingFlags.Public | BindingFlags.Static)
+        FieldInfo[] fields = CatalogFields.Of(typeof(RoomPlmInstructionLists), BindingFlags.Public | BindingFlags.Static)
             .Where(field => field.IsLiteral && field.FieldType == typeof(ushort))
             .ToArray();
         ushort[] pointers = fields

@@ -12,7 +12,6 @@ internal abstract class GoldenTorizoLeftOrbInstructionProgramDefinitions : IInst
 {
     internal const ushort Start = 0xcaff;
     internal const ushort LeftFootForward = 0xcb41;
-    internal const ushort End = 0xcb83;
 
     /// <summary><c>InstList_GoldenTorizo_SpewChozoOrbs_FaceLeft_RightFootFwd_1</c> at $AA:CB1F.</summary>
     private const ushort TorizoSpewChozoOrbsFaceLeftRightFootFwd1 = 0xcb1f;

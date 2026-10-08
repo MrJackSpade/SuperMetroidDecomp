@@ -9,9 +9,6 @@ public static class EscapeTimerPresentationDefinitions
     public const string FileName = "escape-timer.json";
     public const int MaximumParts = 128;
 
-    /// <summary>Bank-$80 table at <c>$80:9FD4</c> containing one spritemap pointer per decimal digit.</summary>
-    public const int DigitPointerTable = 0x809fd4;
-
     /// <summary>$80:9FE8: first decimal digit's two-object, twelve-byte spritemap.</summary>
     private const ushort FirstDigitSpritemap = 0x9fe8;
     /// <summary>Resolves the $80:9FD4 decimal digit selection from consecutive two-object records.</summary>

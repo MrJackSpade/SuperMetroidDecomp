@@ -6,12 +6,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Bank $81 SRAM packing calculated from immutable stock map occupancy.</summary>
 internal static class ExploredMapPackingDefinitions
 {
-    /// <summary>$81:8131, six live area byte counts followed by unused Ceres.</summary>
-    public const int NativeByteCountTable = 0x818131;
-    /// <summary>$81:8138, native packed SRAM destination offsets.</summary>
-    public const int NativeDestinationOffsetTable = 0x818138;
-    /// <summary>$81:82D6, pointers to native sparse byte-index lists.</summary>
-    public const int NativeSourcePointerTable = 0x8182d6;
     /// <summary>$81:8146, SRAMMapData_crateria, native sparse map-byte order.</summary>
     private const ushort CrateriaSource = 0x8146;
     /// <summary>$81:8196, SRAMMapData_brinstar, native sparse map-byte order.</summary>

@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Fixed actor metadata and physical spawn schedule for the Ceres destruction blasts.</summary>
 internal static class CeresExplosionDefinitions
 {
-    /// <summary>Bank containing the native definitions and placement tables.</summary>
-    public const int NativeBank = 0x8b0000;
 
     /// <summary>Number of actors spawned by instruction <c>$8B:C404</c>.</summary>
     public const int InitialExplosionCount = 5;
@@ -26,15 +24,6 @@ internal static class CeresExplosionDefinitions
 
     /// <summary><c>$8B:C4A8</c>, frames between repeating second-wave explosions.</summary>
     public const ushort RepeatingPeriodFrames = 0x000c;
-
-    /// <summary><c>$8B:C404</c>, instruction-list callback that creates the first wave.</summary>
-    public const ushort SpawnInitialWaveInstruction = 0xc404;
-
-    /// <summary><c>$8B:C489</c>, pre-instruction that periodically creates the second wave.</summary>
-    public const ushort SpawnRepeatingWavePreInstruction = 0xc489;
-
-    /// <summary><c>$8B:C50C</c>, instruction-list callback that creates the final wave.</summary>
-    public const ushort SpawnFinalWaveInstruction = 0xc50c;
 
     /// <summary>First host frame on which the initial wait has expired.</summary>
     public const int InitialSpawnFrame = InitialWaitFrames + 1;

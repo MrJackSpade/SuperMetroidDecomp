@@ -19,8 +19,6 @@ public sealed class GameOverMenuState
     private readonly MenuPpuState ppu;
     private readonly OamBuffer oam = new();
     private readonly ControllerInputState controller = new();
-    private readonly ushort[] tilemap =
-        new ushort[GameOverRomData.TilemapWidth * GameOverRomData.TilemapHeight];
     private int brightness;
     private int missileTimer = 1;
     private int missileFrame;

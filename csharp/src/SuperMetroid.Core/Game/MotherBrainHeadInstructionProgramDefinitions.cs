@@ -25,32 +25,17 @@ public static class MotherBrainHeadInstructionProgramDefinitions
     /// <summary>$A9:9CB9, phase-three neutral head list.</summary>
     public const ushort NeutralStart = 0x9cb9;
 
-    /// <summary>$A9:9CE1, final current pointer in the dedicated neutral interpreter.</summary>
-    public const ushort NeutralActiveEnd = 0x9ce1;
-
     /// <summary>$A9:9D0B, last unused phase-three neutral list word.</summary>
     public const ushort NeutralRegionEnd = 0x9d0b;
 
     /// <summary>$A9:9D25, corpse and phase-two/three onion-ring attack lists.</summary>
     public const ushort CorpseAndRingsStart = 0x9d25;
 
-    /// <summary>$A9:9DB1, Baby-targeted four-ring head list.</summary>
-    public const ushort BabyAttackStart = 0x9db1;
-
-    /// <summary>$A9:9DF5, final current pointer in the dedicated Baby interpreter.</summary>
-    public const ushort BabyAttackActiveEnd = 0x9df5;
-
     /// <summary>$A9:9DF5, last four-ring branch operand before native code.</summary>
     public const ushort CorpseAndRingsEnd = 0x9df5;
 
     /// <summary>$A9:9ECC, phase-two/three bomb and laser head lists.</summary>
     public const ushort BombAndLaserStart = 0x9ecc;
-
-    /// <summary>$A9:9F00, phase-three bomb head list.</summary>
-    public const ushort BombStart = 0x9f00;
-
-    /// <summary>$A9:9F32, final current pointer in the dedicated bomb interpreter.</summary>
-    public const ushort BombActiveEnd = 0x9f32;
 
     /// <summary>$A9:9F44, last laser-list branch operand before native code.</summary>
     public const ushort BombAndLaserEnd = 0x9f44;

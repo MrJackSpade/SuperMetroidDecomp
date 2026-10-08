@@ -7,17 +7,11 @@ internal static class IntroDiscoveryActorSpriteDefinitions
 {
     /// <summary>$8C:8D6F, first egg composition.</summary>
     internal const ushort EggStart = 0x8d6f;
-    /// <summary>$8C:8F7E, exclusive end of the sixteen consecutive egg compositions.</summary>
-    internal const ushort EggEnd = 0x8f7e;
     /// <summary>$8C:8FCB, first confused-baby composition.</summary>
     internal const ushort BabyStart = 0x8fcb;
-    /// <summary>$8C:8FE0, exclusive end of the three small confused-baby compositions.</summary>
-    internal const ushort BabySmallEnd = 0x8fe0;
     /// <summary>$8C:909D, Ceres large asteroids reused by the second confused-baby list.
     /// The published asset key remains hatched-baby.</summary>
     internal const ushort BabyLarge = 0x909d;
-    /// <summary>$8C:90FE, exclusive end of the reused nineteen-part asteroid composition.</summary>
-    internal const ushort BabyEnd = 0x90fe;
 
     /// <summary>Six-part intact record, eight nine-part cracking records, then seven three-part remnants.</summary>
     internal static ushort EggFramePointer(int frame)

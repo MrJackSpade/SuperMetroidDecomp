@@ -170,12 +170,6 @@ public static class RoomBlockBehaviorValues
     /// <summary>Right-facing blue-door shootable-cap dispatcher.</summary>
     public static readonly RoomBlockBehavior BlueDoorFacingRight = new(0x41);
 
-    /// <summary>Up-facing blue-door shootable-cap dispatcher.</summary>
-    public static readonly RoomBlockBehavior BlueDoorFacingUp = new(0x42);
-
-    /// <summary>Down-facing blue-door shootable-cap dispatcher.</summary>
-    public static readonly RoomBlockBehavior BlueDoorFacingDown = new(0x43);
-
     /// <summary>Resident colored-door or special PLM projectile-notification seam.</summary>
     public static readonly RoomBlockBehavior ResidentPlmProjectileTrigger = new(0x44);
 

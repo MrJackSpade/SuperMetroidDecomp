@@ -7,8 +7,6 @@ namespace SuperMetroid.Core.Hardware;
 /// </summary>
 public static class SnesObjPalettes
 {
-    public static readonly SnesObjAttributeWord Index0 =
-        SnesObjAttributeWord.Create(tileNumber: 0, paletteIndex: 0, priority: 0);
     public static readonly SnesObjAttributeWord Index1 =
         SnesObjAttributeWord.Create(tileNumber: 0, paletteIndex: 1, priority: 0);
     public static readonly SnesObjAttributeWord Index2 =

@@ -7,7 +7,6 @@ namespace SuperMetroid.AssetExtraction;
 public static class RoomPlmBotwoonWallVisualFiles
 {
     public const string VisualFileName = "botwoon-wall.json";
-    public const string ManifestFileName = RoomPlmDoorVisualFileCodec.ManifestFileName;
 
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256) =>

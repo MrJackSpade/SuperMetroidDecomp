@@ -44,8 +44,7 @@ internal static partial class Program
             $"instruction lists are named{(bus is null ? "" : " and ROM-readable")}.");
     }
 
-    private static FieldInfo[] GetEnemyProjectilePointerConstants(Type catalog) => catalog
-        .GetFields(BindingFlags.Public | BindingFlags.Static)
+    private static FieldInfo[] GetEnemyProjectilePointerConstants(Type catalog) => CatalogFields.Of(catalog, BindingFlags.Public | BindingFlags.Static)
         .Where(field => field.IsLiteral && field.FieldType == typeof(ushort))
         .ToArray();
 }

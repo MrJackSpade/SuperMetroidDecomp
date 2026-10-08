@@ -15,11 +15,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions
 {
-    /// <summary>Powered Wrecked Ship palette-FX definition at $8D:F76D.</summary>
-    public const ushort PoweredDefinition = 0xf76d;
-
-    /// <summary>Alternate caller of the powered-light program at $8D:F771.</summary>
-    public const ushort PoweredDefinitionAlternate = 0xf771;
 
     /// <summary><c>InstList_PaletteFXObject_WreckedShip1_0</c> at $8D:EAE2.</summary>
     public const ushort ProgramStart = 0xeae2;

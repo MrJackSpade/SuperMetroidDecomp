@@ -8,9 +8,6 @@ public static class MotherBrainLegTileTransferDefinitions
     /// <summary>$A9:8F8F, first seven-byte record in the twelve-page list.</summary>
     public const ushort NativeListPointer = 0x8f8f;
 
-    /// <summary>The full $A9:8F8F address used only by cartridge parity checks.</summary>
-    public const int NativeListAddress = 0xa98f8f;
-
     /// <summary>Seven bytes per native size/source/destination record.</summary>
     public const ushort RecordByteCount = 7;
 

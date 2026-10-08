@@ -12,10 +12,6 @@ internal static class IntroEggEffectInstructionDefinitions
 {
     /// <summary>$8B:CD39, first shell-fragment single-frame loop.</summary>
     internal const ushort StartPointer = CinematicCodePointers.Lists.MetroidEggParticle1;
-    /// <summary>$8B:CD69, moving slime-drop frame loop.</summary>
-    internal const ushort SlimeMovePointer = CinematicCodePointers.Lists.MetroidEggSlimeDrops;
-    /// <summary>$8B:CD71, first slime impact frame.</summary>
-    internal const ushort SlimeImpactPointer = CinematicCodePointers.Lists.MetroidEggParticleHitGround;
     /// <summary>$8B:CD83, exclusive end after the slime impact delete opcode.</summary>
     internal const ushort EndPointer = 0xcd83;
     /// <summary>$8B:CE53, shared cinematic sprite delete list used by shell fragments.</summary>

@@ -835,8 +835,6 @@ public static class SamusPoseIds
     public const byte UnusedPoseDb = (byte)SamusPoseId.UnusedPoseDb;
     public const byte UnusedPoseDc = (byte)SamusPoseId.UnusedPoseDc;
     public const byte UnusedPoseDd = (byte)SamusPoseId.UnusedPoseDd;
-    public const byte UnusedPoseDe = (byte)SamusPoseId.UnusedPoseDe;
-    public const byte UnusedPoseDf = (byte)SamusPoseId.UnusedPoseDf;
     public const byte DrainedCrouchingRightPose = (byte)SamusPoseId.DrainedCrouchingRightPose;
     public const byte DrainedCrouchingLeftPose = (byte)SamusPoseId.DrainedCrouchingLeftPose;
     public const byte DrainedStandingRightPose = (byte)SamusPoseId.DrainedStandingRightPose;

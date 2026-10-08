@@ -27,7 +27,6 @@ public sealed record RoomHeaderDefinition(
 /// including record interiors and the developer area-seven room, is rejected.</remarks>
 public static class RoomHeaderDefinitions
 {
-    public const int RetailRoomCount = 262;
 
     /// <summary>Enumerates every retail header in ascending native identity order.</summary>
     public static IEnumerable<RoomHeaderDefinition> All

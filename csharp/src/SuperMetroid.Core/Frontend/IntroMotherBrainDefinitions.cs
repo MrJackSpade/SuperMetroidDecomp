@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Fixed actor and explosion-layout definitions for the intro Mother Brain scene.</summary>
 internal static class IntroMotherBrainDefinitions
 {
-    /// <summary>Bank containing the native cinematic-object definitions and placement tables.</summary>
-    public const int NativeBank = 0x8b0000;
 
     /// <summary><c>$8B:CE55</c>, intro Mother Brain initialization, pre-instruction, and initial list.</summary>
     public static IntroMotherBrainActorDefinition MotherBrain =>
@@ -26,24 +24,6 @@ internal static class IntroMotherBrainDefinitions
 
     /// <summary>Number of records in the <c>$8B:B9FD-$BA0E</c> small-explosion tables.</summary>
     public const int SmallExplosionCount = 3;
-
-    /// <summary><c>$8B:B9B6</c>, five signed large-explosion X offsets.</summary>
-    public const int BigXOffsetReferenceAddress = 0x8bb9b6;
-
-    /// <summary><c>$8B:B9C0</c>, five signed large-explosion Y offsets.</summary>
-    public const int BigYOffsetReferenceAddress = 0x8bb9c0;
-
-    /// <summary><c>$8B:B9CA</c>, five large-explosion initial instruction timers.</summary>
-    public const int BigTimerReferenceAddress = 0x8bb9ca;
-
-    /// <summary><c>$8B:B9FD</c>, three signed small-explosion X offsets.</summary>
-    public const int SmallXOffsetReferenceAddress = 0x8bb9fd;
-
-    /// <summary><c>$8B:BA03</c>, three signed small-explosion Y offsets.</summary>
-    public const int SmallYOffsetReferenceAddress = 0x8bba03;
-
-    /// <summary><c>$8B:BA09</c>, three small-explosion initial instruction timers.</summary>
-    public const int SmallTimerReferenceAddress = 0x8bba09;
 
     /// <summary>Returns one complete <c>$8B:B98D</c> large-explosion placement record.</summary>
     public static IntroMotherBrainExplosionPlacement BigExplosion(int index) => index switch

@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Bank-$8B reward gesture constructors and their jump handoffs.</summary>
 internal static class EndingRewardActorDefinitions
 {
-    /// <summary>Bank containing the native six-byte cinematic-object definitions.</summary>
-    public const int NativeDefinitionBank = 0x8b0000;
 
     /// <summary>$8B:EF33/EF39 are the suitless upper/lower hair-release actors spawned by E342.</summary>
     public const ushort SuitlessUpper = 0xef33, SuitlessLower = 0xef39;

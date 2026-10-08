@@ -7,7 +7,6 @@ namespace SuperMetroid.AssetExtraction;
 public static class RoomPlmEscapeGateVisualFiles
 {
     public const string VisualFileName = "escape-gate.json";
-    public const string ManifestFileName = RoomPlmDoorVisualFileCodec.ManifestFileName;
 
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256) =>

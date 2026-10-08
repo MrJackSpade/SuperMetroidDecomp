@@ -3,13 +3,6 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Cartridge definitions for the final assembling Super Metroid icon.</summary>
 internal static class EndingLogoDefinitions
 {
-    /// <summary>Bank containing the native six-byte cinematic-object definitions.</summary>
-    public const int NativeDefinitionBank = 0x8b0000;
-
-    /// <summary>$8B:E554..E569 spawns the upper/lower S and upper/lower circle in this order.</summary>
-    public const int ActorCount = 4;
-    /// <summary>$8B:EF81, first of four consecutive six-byte logo definitions.</summary>
-    private const ushort FirstActor = 0xef81;
 
     /// <summary>$8B:EF81: upper S, initialized by F18F, moved by F1E7, displaying list EE5D.</summary>
     private static EndingLogoActorDefinition UpperS => new(0xf1e7, 0xee5d);

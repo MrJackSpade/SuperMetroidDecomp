@@ -27,10 +27,6 @@ public static class SnesPpuLayout
     /// <summary>Physical scanlines reserved for the gameplay BG3 HUD.</summary>
     public const int GameplayHudHeightPixels = 32;
 
-    /// <summary>Room scanlines below the HUD.</summary>
-    public const int GameplayViewportHeightPixels =
-        ScreenHeightPixels - GameplayHudHeightPixels;
-
     /// <summary>Pixels on either axis of one SNES background character.</summary>
     public const int BackgroundTileSizePixels = 8;
 
@@ -40,9 +36,6 @@ public static class SnesPpuLayout
     /// <summary>Words in one 32-by-32 BGSC tilemap page.</summary>
     public const int TilemapPageWordCount =
         TilemapPageWidthInTiles * TilemapPageWidthInTiles;
-
-    /// <summary>Bytes in one two-byte-per-entry BGSC tilemap page.</summary>
-    public const int TilemapPageByteCount = TilemapPageWordCount * 2;
 
     /// <summary>Physical 15-bit VMADD capacity.</summary>
     public const int VramWordCount = 0x8000;

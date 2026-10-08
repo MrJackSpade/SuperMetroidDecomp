@@ -9,8 +9,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal abstract class TorizoSonicBoomInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
 {
-    /// <summary><c>InitAI_EnemyProjectile_TorizoSonicBoom</c> at $86:AE15.</summary>
-    internal const ushort InitializationAi = 0xae15;
     /// <summary><c>InstList_EnemyProjectile_TorizoSonicBoom_FiredLeft</c> at $86:ADBF.</summary>
     internal const ushort FiredLeft = 0xadbf;
     /// <summary><c>InstList_EnemyProjectile_TorizoSonicBoom_MovingLeft</c> at $86:ADCA.</summary>

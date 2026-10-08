@@ -9,8 +9,6 @@ internal static class MotherBrainBodyVisualDefinitions
 {
     /// <summary>Mother Brain extended-frame bank $A9.</summary>
     internal const byte Bank = 0xa9;
-    /// <summary>$A9:A320, the initial dummy root containing only ordinary OAM.</summary>
-    internal const ushort InitialDummyFrame = 0xa320;
     /// <summary>Largest native root: ten components, including two BG2 streams.</summary>
     internal const int MaximumNativeComponents = 10;
     internal const int FrameCount = 17;

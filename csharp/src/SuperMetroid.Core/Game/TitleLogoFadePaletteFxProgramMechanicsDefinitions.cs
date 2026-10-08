@@ -16,8 +16,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class TitleLogoFadePaletteFxProgramMechanicsDefinitions
 {
-    /// <summary>The palette-FX definition at <c>$8D:E194</c>.</summary>
-    public const ushort DefinitionPointer = 0xe194;
 
     /// <summary>The instruction-list entry at <c>$8D:C696</c>.</summary>
     public const ushort ProgramStart = 0xc696;
@@ -42,9 +40,6 @@ public static class TitleLogoFadePaletteFxProgramMechanicsDefinitions
 
     /// <summary>Each record lasts three frames.</summary>
     public const ushort FrameDuration = 3;
-
-    /// <summary>The complete title-logo fade lasts 24 frames.</summary>
-    public const int CycleFrames = FrameCount * FrameDuration;
 
     /// <summary>Returns one timed-record pointer.</summary>
     public static ushort FramePointer(int frame)

@@ -7,7 +7,6 @@ namespace SuperMetroid.AssetExtraction;
 public static class RoomPlmDraygonCannonVisualFiles
 {
     public const string VisualFileName = "draygon-cannons.json";
-    public const string ManifestFileName = RoomPlmDoorVisualFileCodec.ManifestFileName;
 
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256) =>

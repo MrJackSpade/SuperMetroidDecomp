@@ -69,7 +69,7 @@ internal static partial class Program
             .Select(field => (ushort)field.GetRawConstantValue()!)
             .ToArray();
         ushort[] bank8BLists = GetUshortConstants(typeof(CinematicCodePointers.Lists))
-            .Where(field => field.Name != nameof(CinematicCodePointers.Lists.MetroidEggParticleStride))
+            .Where(field => field.Name != nameof(CinematicCodePointersListsConstants.MetroidEggParticleStride))
             .Select(field => (ushort)field.GetRawConstantValue()!)
             .ToArray();
         ushort[] bank8CLists = GetUshortConstants(typeof(CinematicCodePointers.BackgroundLists))

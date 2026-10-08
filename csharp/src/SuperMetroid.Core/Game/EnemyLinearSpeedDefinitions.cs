@@ -12,8 +12,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class EnemyLinearSpeedDefinitions
 {
-    /// <summary>$A0:8187, CommonEnemySpeeds_LinearlyIncreasing; duplicated in the common enemy-bank prefix.</summary>
-    public const int ReferenceAddress = 0xa08187;
 
     /// <summary>NTSC authored records zero through $40, inclusive; PAL uses different values/count.</summary>
     public const int RecordCount = 65;

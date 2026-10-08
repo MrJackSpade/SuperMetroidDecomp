@@ -3,24 +3,10 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Physical launch and hand-anchor definitions; flare artwork placement is separate.</summary>
 internal static class GrappleFiringDefinitions
 {
-    /// <summary>$9B:C0DB GrappleBeamFireVelocityTable.X, ten signed 8.8 velocity words.</summary>
-    internal const int XVelocityReferenceAddress = 0x9bc0db;
-    /// <summary>$9B:C0EF GrappleBeamFireVelocityTable.Y, ten signed 8.8 velocity words.</summary>
-    internal const int YVelocityReferenceAddress = 0x9bc0ef;
-    /// <summary>$9B:C104 GrappleBeamFireAngles, ten full-turn unsigned angle words.</summary>
-    internal const int AngleReferenceAddress = 0x9bc104;
     /// <summary>$9B:C0DF cardinal component: twelve times the byte-sine maximum 255.</summary>
     private const short CardinalVelocity = 12 * 255;
     /// <summary>$9B:C0DD diagonal component: twelve times the byte-sine octant sample 181.</summary>
     private const short DiagonalVelocity = 12 * 181;
-    /// <summary>$9B:C122, GrappleBeamFireOffsets_NotRunning_OriginX: physical hand X offsets.</summary>
-    internal const int OriginXReferenceAddress = 0x9bc122;
-    /// <summary>$9B:C172, GrappleBeamFireOffsets_Running_OriginX: identical X-offset alias.</summary>
-    internal const int RunningOriginXReferenceAddress = 0x9bc172;
-    /// <summary>$9B:C136, GrappleBeamFireOffsets_NotRunning_OriginY: physical hand Y offsets.</summary>
-    internal const int OriginYReferenceAddress = 0x9bc136;
-    /// <summary>$9B:C186, GrappleBeamFireOffsets_Running_OriginY: running physical hand Y offsets.</summary>
-    internal const int RunningOriginYReferenceAddress = 0x9bc186;
     /// <summary>Returns exact launch components and angle for firing direction 0..9.</summary>
     /// <remarks>
     /// Independently reviewed for #1165 against every NTSC J/U v1.0 original word,

@@ -11,14 +11,6 @@ internal static class BlueDoorPlmProgramDefinitions
     internal const ushort FirstAddress = 0xc489;
     /// <summary>Last byte of the closed facing-down list at $84:C54C.</summary>
     internal const ushort LastAddress = 0xc54c;
-    /// <summary>Facing-left closing list at $84:C49E.</summary>
-    internal const ushort ClosingLeft = 0xc49e;
-    /// <summary>Facing-right closing list at $84:C4CF.</summary>
-    internal const ushort ClosingRight = 0xc4cf;
-    /// <summary>Facing-up closing list at $84:C500.</summary>
-    internal const ushort ClosingUp = 0xc500;
-    /// <summary>Facing-down closing list at $84:C531.</summary>
-    internal const ushort ClosingDown = 0xc531;
     /// <summary>Facing-left closed-cap conversion list at $84:C4B1.</summary>
     internal const ushort ClosedLeft = 0xc4b1;
     /// <summary>Facing-right closed-cap conversion list at $84:C4E2.</summary>

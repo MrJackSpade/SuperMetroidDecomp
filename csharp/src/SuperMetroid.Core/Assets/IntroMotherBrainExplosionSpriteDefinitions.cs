@@ -9,8 +9,6 @@ internal static class IntroMotherBrainExplosionSpriteDefinitions
     internal const ushort SmallStart = 0x97f7;
     /// <summary>$8C:985D, first large-explosion frame; the last frame ends at $8C:98D2.</summary>
     internal const ushort BigStart = 0x985d;
-    /// <summary>$8C:98D2, exclusive end of the twelve consecutive composition records.</summary>
-    internal const ushort End = 0x98d2;
 
     /// <summary>Six consecutive native records per effect. Small starts with two
     /// one-part records; big starts with one. Remaining records contain four parts.

@@ -10,9 +10,6 @@ internal static class NinjaSpacePiratePaletteDefinitions
     /// </summary>
     public const ushort SharedGoldPirateDefinition = 0xf413;
 
-    /// <summary>Native source of the shared gold-Pirate color words at $B2:8727.</summary>
-    public const int SharedGoldPirateSource = 0xb28727;
-
     /// <summary>Native target OBJ palette seven, CGRAM color $F0.</summary>
     public const int TargetColor = 240;
 }

@@ -9,16 +9,10 @@ internal abstract class TorizoExplosionInstructionProgramDefinitions : IInstruct
 {
     /// <summary><c>InstList_EnemyProjectile_BombTorizoLowHealthExplosion_0</c> at $86:A3CB.</summary>
     internal const ushort LowHealthInitial = 0xa3cb;
-    /// <summary><c>InstList_EnemyProjectile_BombTorizoLowHealthExplosion_1</c> at $86:A3D5.</summary>
-    internal const ushort LowHealthLoop = 0xa3d5;
     /// <summary><c>InstList_EnemyProjectile_TorizoDeathExplosion_0</c> at $86:A3FA.</summary>
     internal const ushort DeathInitial = 0xa3fa;
-    /// <summary><c>InstList_EnemyProjectile_TorizoDeathExplosion_1</c> at $86:A408.</summary>
-    internal const ushort DeathExplosionLoop = 0xa408;
     /// <summary><c>InstList_EnemyProjectile_TorizoDeathExplosion_2</c> at $86:A431.</summary>
     internal const ushort DeathSmokeSetup = 0xa431;
-    /// <summary><c>InstList_EnemyProjectile_TorizoDeathExplosion_3</c> at $86:A435.</summary>
-    internal const ushort DeathSmokeLoop = 0xa435;
 
     // Reviewed under #1165: holds are authored explosion cadence, and the random spread radii and
     // repetition counts are authored scatter choices for the effect; program geometry calculates.

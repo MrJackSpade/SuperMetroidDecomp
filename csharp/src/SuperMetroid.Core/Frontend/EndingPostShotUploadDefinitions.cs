@@ -11,11 +11,6 @@ internal readonly record struct EndingPostShotUploadDefinition(
 /// </summary>
 internal static class EndingPostShotUploadDefinitions
 {
-    /// <summary>First eight-byte transfer record at <c>$8B:E45A</c>.</summary>
-    public const int TableAddress = 0x8be45a;
-
-    /// <summary>Native record size: length, long source with padding, destination word.</summary>
-    public const int RecordBytes = 8;
 
     /// <summary>Func142 uploads the subtitle, four logo-tile chunks, then the logo map.</summary>
     public const int Count = 6;

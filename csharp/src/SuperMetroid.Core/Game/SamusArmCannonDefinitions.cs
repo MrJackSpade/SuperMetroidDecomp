@@ -3,11 +3,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Fixed cartridge policy controlling the arm-cannon cover for each HUD item.</summary>
 internal static class SamusArmCannonDefinitions
 {
-    /// <summary>
-    /// <c>$90:C7D9</c>, six bytes indexed by the selected HUD item. The native symbol is
-    /// <c>ArmCannonOpenFlags</c>; one requests an open cover and zero a closed cover.
-    /// </summary>
-    public const int OpenFlagTable = 0x90c7d9;
 
     /// <summary>Number of HUD selections accepted by the native arm-cannon dispatcher.</summary>
     public const int HudItemCount = 6;

@@ -19,9 +19,6 @@ internal abstract class MotherBrainBabyInstructionProgramDefinitions : IInstruct
     /// <summary><c>InstList_BabyMetroid_TakingFatalBlow</c> at $A9:CFCE.</summary>
     internal const ushort TakingFatalBlow = 0xcfce;
 
-    /// <summary>ProcessMotherBrainInvincibilityPalette at $A9:CFD4, adjacent executable code outside the Baby list.</summary>
-    internal const ushort FirstAdjacentMovementCode = 0xcfd4;
-
     /// <summary>$A9:CFA2/CFA6/CFAA/CFAE: selected normal pose hold. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort InitialPoseHold = 16;
     /// <summary>$A9:CFB8: selected first draining pose hold. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>

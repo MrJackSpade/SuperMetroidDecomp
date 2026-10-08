@@ -16,8 +16,6 @@ internal abstract class ViolaInstructionProgramDefinitions : IInstructionProgram
     internal const ushort UpsideUp = 0xb5db;
     /// <summary><c>InstList_Viola_Normal</c> at $A3:B5EF.</summary>
     internal const ushort NormalLoop = 0xb5ef;
-    /// <summary>The retail-unused X-flipped Viola program at $A3:B62B.</summary>
-    internal const ushort UnusedXFlipped = 0xb62b;
 
     public static int MechanicsWordCount => 30;
     public static int PresentationWordCount => 14;

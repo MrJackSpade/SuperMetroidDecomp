@@ -16,17 +16,6 @@ internal abstract class CeresSteamInstructionProgramDefinitions : IInstructionPr
     /// </summary>
     internal const ushort Up = 0xf04d;
     /// <summary>
-    /// <c>InstList_CeresSteam_Up_1</c> at $A6:F059 hides steam for $40 ticks,
-    /// then makes it tangible and visible before the active frames resume.
-    /// </summary>
-    internal const ushort UpHiddenHold = 0xf059;
-    /// <summary>
-    /// <c>InstList_CeresSteam_Up_2</c> at $A6:F061 runs seven three-tick
-    /// frames and returns to the hidden hold at $F059. The interpreter thus
-    /// traverses only the three local states $F04D, $F059, and $F061.
-    /// </summary>
-    internal const ushort UpActive = 0xf061;
-    /// <summary>
     /// <c>InstList_CeresSteam_Left_0</c> at $A6:F081, selected by both left
     /// variants 1 and 4. All 17 mechanics addresses are the upward program's
     /// addresses plus $34. The pinned ROM preserves 14 operand values exactly
@@ -34,16 +23,6 @@ internal abstract class CeresSteamInstructionProgramDefinitions : IInstructionPr
     /// mismatches. It therefore has the same bounded activation state graph.
     /// </summary>
     internal const ushort Left = 0xf081;
-    /// <summary>
-    /// <c>InstList_CeresSteam_Left_1</c> at $A6:F08D; the relocated $40-tick
-    /// hidden hold returns to the seven-frame active state.
-    /// </summary>
-    internal const ushort LeftHiddenHold = 0xf08d;
-    /// <summary>
-    /// <c>InstList_CeresSteam_Left_2</c> at $A6:F095; seven three-tick frames
-    /// loop to the local hidden hold at $F08D.
-    /// </summary>
-    internal const ushort LeftActive = 0xf095;
     /// <summary>
     /// <c>InstList_CeresSteam_Down_0</c> at $A6:F0B5, selected by variant 2.
     /// All 17 mechanics addresses are the upward program's addresses plus
@@ -53,16 +32,6 @@ internal abstract class CeresSteamInstructionProgramDefinitions : IInstructionPr
     /// </summary>
     internal const ushort Down = 0xf0b5;
     /// <summary>
-    /// <c>InstList_CeresSteam_Down_1</c> at $A6:F0C1; its $40-tick hidden
-    /// hold returns to the local active state.
-    /// </summary>
-    internal const ushort DownHiddenHold = 0xf0c1;
-    /// <summary>
-    /// <c>InstList_CeresSteam_Down_2</c> at $A6:F0C9; seven three-tick
-    /// frames loop to the hidden hold at $F0C1.
-    /// </summary>
-    internal const ushort DownActive = 0xf0c9;
-    /// <summary>
     /// <c>InstList_CeresSteam_Right_0</c> at $A6:F0E9, selected by variants
     /// 3 and 5. All 17 mechanics addresses are the upward program's addresses
     /// plus $9C. Direct pinned-ROM comparison preserves 14 values and moves
@@ -70,16 +39,6 @@ internal abstract class CeresSteamInstructionProgramDefinitions : IInstructionPr
     /// bounded activation graph is the same as the other directions.
     /// </summary>
     internal const ushort Right = 0xf0e9;
-    /// <summary>
-    /// <c>InstList_CeresSteam_Right_1</c> at $A6:F0F5; its $40-tick hidden
-    /// hold returns to the local active state.
-    /// </summary>
-    internal const ushort RightHiddenHold = 0xf0f5;
-    /// <summary>
-    /// <c>InstList_CeresSteam_Right_2</c> at $A6:F0FD; seven three-tick
-    /// frames loop to the hidden hold at $F0F5.
-    /// </summary>
-    internal const ushort RightActive = 0xf0fd;
 
     /// <summary>
     /// Addresses of live extended-spritemap operands, separate from compiled

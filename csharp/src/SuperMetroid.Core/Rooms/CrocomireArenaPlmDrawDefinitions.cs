@@ -19,8 +19,6 @@ internal static class CrocomireArenaPlmDrawDefinitions
     internal const ushort ClearInvisibleWall = 0x9b7f;
     /// <summary><c>$84:9BBB</c>: three columns of solid wall blocks.</summary>
     internal const ushort CreateInvisibleWall = 0x9bbb;
-    /// <summary><c>$84:9BF7</c>: first byte of the following eye-door draw region.</summary>
-    internal const ushort EndExclusive = 0x9bf7;
 
     internal readonly record struct Draw(ushort Pointer, bool Wall, bool Solid, int WordsPerRun)
     {

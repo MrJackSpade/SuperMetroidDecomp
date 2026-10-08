@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Audio;
 /// <summary>Immutable lookup tables embedded in Super Metroid's uploaded music driver.</summary>
 internal static class SpcMusicTables
 {
-    /// <summary>$CF:87A8 uploaded driver kEffectByteLength, opcode E0 through FE.</summary>
-    internal const int EffectLengthReferenceAddress = 0xcf87a8;
     /// <summary>Number of contiguous native effect opcodes from SetInstrument through SetFastForward.</summary>
     internal const int EffectCount = (int)SpcMusicEffect.SetFastForward - (int)SpcMusicEffect.SetInstrument + 1;
 
@@ -59,9 +57,6 @@ internal static class SpcMusicTables
         return index == PanSampleCount ? (byte)sbyte.MaxValue : panVolume[index];
     }
 
-    /// <summary>$CF:8A6E uploaded driver kBaseNoteFreqs, thirteen little-endian pitch words.</summary>
-    internal const int BaseNoteReferenceAddress = 0xcf8a6e;
-
     /// <summary>Returns the one-octave pitch basis for semitone 0..12, including the next C.</summary>
     /// <remarks>
     /// Independently verified for #1165 against all original NTSC words and the native
@@ -82,10 +77,6 @@ internal static class SpcMusicTables
         for (int note = semitone; note < 9; note++) frequency /= semitoneRatio;
         return (ushort)frequency;
     }
-    /// <summary>$CF:80F4 uploaded driver kNoteVol, sixteen unsigned volume fractions.</summary>
-    internal const int NoteVolumeReferenceAddress = 0xcf80f4;
-    /// <summary>$CF:80EC uploaded driver kNoteGateOffPct, eight unsigned gate fractions.</summary>
-    internal const int NoteGateReferenceAddress = 0xcf80ec;
 
     /// <summary>Returns the exact volume byte for note-command low nibble 0..15.</summary>
     /// <remarks>

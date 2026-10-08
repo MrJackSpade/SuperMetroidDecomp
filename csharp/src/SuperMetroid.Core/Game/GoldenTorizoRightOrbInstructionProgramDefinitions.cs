@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.Game;
 internal abstract class GoldenTorizoRightOrbInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
 {
     internal const ushort Start = 0xcc99;
-    internal const ushort End = 0xccdb;
 
     /// <summary><c>InstList_GoldenTorizo_SpewChozoOrb_FacingLeft_RightFootFwd_1</c> at $AA:CCB9.</summary>
     private const ushort TorizoSpewChozoOrbFacingLeftRightFootFwd1 = 0xccb9;

@@ -9,8 +9,6 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 public static class RoomStateDefinitions
 {
-    /// <summary>Number of distinct room states selected by the 262 retail rooms.</summary>
-    public const int RetailStateCount = 323;
 
     /// <summary>Enumerates every selected state in ascending native identity order.</summary>
     public static IEnumerable<CartridgeRoomState> All

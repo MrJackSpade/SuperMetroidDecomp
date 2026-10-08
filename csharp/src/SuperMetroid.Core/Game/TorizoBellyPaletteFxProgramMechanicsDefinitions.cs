@@ -66,9 +66,6 @@ public static class TorizoBellyPaletteFxProgramMechanicsDefinitions
     /// <summary>The byte index of the first Torizo belly color in CGRAM.</summary>
     public const ushort ColorByteIndex = 0x0132;
 
-    /// <summary>Frames from the first record through the next first record.</summary>
-    public const int CycleFrames = 52;
-
     /// <summary>The Bomb and Golden Torizo programs in palette-definition order.</summary>
     public static IReadOnlyList<TorizoBellyPaletteFxProgramDefinition> All =>
         Definitions;

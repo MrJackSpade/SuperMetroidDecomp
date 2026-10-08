@@ -62,9 +62,6 @@ public static class GameOverBabyAnimationDefinitions
     /// <summary>End marker immediately after the final record at <c>$82:BD95</c>.</summary>
     public const ushort EndMarkerPointer = 0xbd95;
 
-    /// <summary>Sixty six-byte frame records plus three two-byte callbacks.</summary>
-    public const int InstructionCount = (2 + 4 + 3) * 4 + 3 * 8;
-
     /// <summary>First cry group: two idle cycles, eight cry steps and one sound word.</summary>
     private const int FirstGroupBytes = (2 * 4 + 8) * 6 + 2;
     /// <summary>Second cry group: four idle cycles, eight cry steps and one sound word.</summary>

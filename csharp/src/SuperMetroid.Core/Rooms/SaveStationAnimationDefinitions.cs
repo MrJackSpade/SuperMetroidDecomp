@@ -9,7 +9,4 @@ internal static class SaveStationAnimationDefinitions
     /// alternating electricity loops before displaying the saved-game message.
     /// </summary>
     public const ushort SaveAnimationLoops = 0x15;
-
-    /// <summary>Native address of the compiled loop-count operand for parity verification.</summary>
-    public const int NativeSaveAnimationLoopsAddress = 0x84aff9;
 }

@@ -11,9 +11,6 @@ internal static class DeadTourianCorpseVisualDefinitions
 {
     /// <summary>The native corpse instruction and OAM bank, $A9.</summary>
     internal const byte Bank = 0xa9;
-    internal const int CorpseFrameCount = 8;
-    internal const int SidehopperFrameCount = 5;
-    internal const int FrameCount = CorpseFrameCount + SidehopperFrameCount;
 
     private static readonly (ushort Operand, ushort Frame, string Name)[] Entries =
     [

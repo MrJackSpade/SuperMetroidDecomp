@@ -23,23 +23,6 @@ public enum PaletteFxHeatSuit
 /// </remarks>
 public static class PaletteFxHeatInstructionListDefinitions
 {
-    /// <summary>
-    /// <c>PreInstruction_PaletteFXObject_SamusInHeat.InstListPointers.gravity</c> at
-    /// <c>$8D:E3E0</c>.
-    /// </summary>
-    internal const ushort GravitySourceTable = 0xe3e0;
-
-    /// <summary>
-    /// <c>PreInstruction_PaletteFXObject_SamusInHeat.InstListPointers.varia</c> at
-    /// <c>$8D:E400</c>.
-    /// </summary>
-    internal const ushort VariaSourceTable = 0xe400;
-
-    /// <summary>
-    /// <c>PreInstruction_PaletteFXObject_SamusInHeat.InstListPointers.power</c> at
-    /// <c>$8D:E420</c>.
-    /// </summary>
-    internal const ushort PowerSourceTable = 0xe420;
 
     /// <summary>The sixteen phases published by Norfair palette program $8D:F08E.</summary>
     public const int PhaseCount = 16;

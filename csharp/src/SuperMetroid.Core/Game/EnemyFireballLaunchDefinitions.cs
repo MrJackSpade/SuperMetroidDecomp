@@ -3,10 +3,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Fixed NTSC launch velocities for Alcoon and Fune/Namihe projectiles.</summary>
 public static class EnemyFireballLaunchDefinitions
 {
-    /// <summary>$86:9EF9, Alcoon fireball Y velocities selected by byte offsets 0, 2 and 4.</summary>
-    public const int AlcoonReferenceAddress = 0x869ef9;
-    /// <summary>$86:DEB6, NamiFuneFireball_XVelocityTable: eight signed left/right pairs.</summary>
-    public const int NamiFuneReferenceAddress = 0x86deb6;
 
     /// <summary>Maps the three even native selectors to upward, level and downward
     /// one-pixel/frame launches, preserving the signed8.8 word representation.</summary>

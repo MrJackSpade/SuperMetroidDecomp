@@ -3,59 +3,8 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Named 16-bit room-header pointers within cartridge bank $8F.</summary>
 public static class RoomHeaderPointers
 {
-    /// <summary>RoomHeader_KronicBoost at $8F:AE74; Norfair room $22 with the reported blue gate.</summary>
-    public const ushort KronicBoost = 0xae74;
-    /// <summary>RoomHeader_FrogSpeedway at $8F:B106; Norfair room $30, eight screens wide.</summary>
-    public const ushort FrogSpeedway = 0xb106;
-    /// <summary>RoomHeader_Crocomire at $8F:A98D; includes the west Power Bomb route door.</summary>
-    public const ushort Crocomire = 0xa98d;
-    /// <summary>RoomHeader_Kraid at $8F:A59F; its live state relocates BG3 HUD characters to VRAM word $2000.</summary>
-    public const ushort Kraid = 0xa59f;
-    /// <summary>RoomHeader_GoldenTorizo at $8F:B283; lower-right Samus position triggers statue awakening.</summary>
-    public const ushort GoldenTorizo = 0xb283;
-    /// <summary>RoomHeader_RedTower at $8F:A253, Brinstar room $20.</summary>
-    public const ushort RedTower = 0xa253;
-
-    /// <summary>RoomHeader_Botwoon at $8F:D95E; both room states share the grey-door population.</summary>
-    public const ushort Botwoon = 0xd95e;
-
-    /// <summary>RoomHeader_BotwoonHallway at $8F:D617; contains the Mochtroid pipe-clip setup.</summary>
-    public const ushort BotwoonHallway = 0xd617;
-
-    /// <summary>RoomHeader_Draygon at $8F:DA60; the four-record Maridia boss encounter.</summary>
-    public const ushort Draygon = 0xda60;
-
-    /// <summary>RoomHeader_Phantoon at $8F:CD13; the Wrecked Ship boss encounter.</summary>
-    public const ushort Phantoon = 0xcd13;
-
-    /// <summary>RoomHeader_Hellway at $8F:A2F7, Brinstar room $23.</summary>
-    public const ushort Hellway = 0xa2f7;
-
-    /// <summary>RoomHeader_Caterpillar at $8F:A322, Brinstar room $24.</summary>
-    public const ushort Caterpillar = 0xa322;
-
-    /// <summary>Bank-$8F:9CB3, Brinstar room $08; includes the Dachora Speed Booster floor and shaft.</summary>
-    public const ushort BrinstarRoom08 = 0x9cb3;
     /// <summary>Landing Site at $8F:91F8.</summary>
     public const ushort LandingSite = 0x91f8;
-
-    /// <summary>Crab Maze at $8F:957D; its ordinary Scisers cycle all four surface poses.</summary>
-    public const ushort CrabMaze = 0x957d;
-
-    /// <summary>Gauntlet east at $8F:92B3; contains the Crateria Yapping Maws.</summary>
-    public const ushort GauntletEast = 0x92b3;
-
-    /// <summary>Pre-moat room at $8F:948C; contains the Crateria KiHunter pair.</summary>
-    public const ushort PreMoat = 0x948c;
-
-    /// <summary>Dead-Torizo corpse room at $8F:DC65 in Tourian.</summary>
-    public const ushort DeadTorizoCorpse = 0xdc65;
-
-    /// <summary>Mother Brain's chamber at $8F:DD58; its live state loads population $A1:E321.</summary>
-    public const ushort MotherBrainChamber = 0xdd58;
-
-    /// <summary>Tourian room $01 at $8F:DAE1; its initial state has four ordinary Metroids.</summary>
-    public const ushort TourianMetroidRoom = 0xdae1;
 
     /// <summary>Parlor and Alcatraz at $8F:92FD.</summary>
     public const ushort ParlorAndAlcatraz = 0x92fd;
@@ -63,41 +12,17 @@ public static class RoomHeaderPointers
     /// <summary>Crateria save station at $8F:93D5.</summary>
     public const ushort CrateriaSaveStation = 0x93d5;
 
-    /// <summary>West Ocean at $8F:93FE (area $00, room $05), using the ocean sky main routine.</summary>
-    public const ushort WestOcean = 0x93fe;
-
-    /// <summary>Retail Norfair room $1E at $8F:ADAD; its lower floor includes half-height square slopes.</summary>
-    public const ushort NorfairRoom1E = 0xadad;
-
     /// <summary>Climb at $8F:96BA.</summary>
     public const ushort Climb = 0x96ba;
 
     /// <summary>Pit Room at $8F:975C.</summary>
     public const ushort PitRoom = 0x975c;
 
-    /// <summary>Blue Brinstar elevator room at $8F:97B5.</summary>
-    public const ushort BlueBrinstarElevatorRoom = 0x97b5;
-
     /// <summary>Bomb Torizo Room at $8F:9804.</summary>
     public const ushort BombTorizoRoom = 0x9804;
 
-    /// <summary>Green Brinstar elevator room at $8F:9938 (area $00, room $19).</summary>
-    public const ushort GreenBrinstarElevatorRoom = 0x9938;
-
-    /// <summary>Green Brinstar main shaft at $8F:9AD9 (area $01, room $00).</summary>
-    public const ushort GreenBrinstarMainShaft = 0x9ad9;
-
     /// <summary>Flyway at $8F:9879.</summary>
     public const ushort Flyway = 0x9879;
-
-    /// <summary>Crateria room $1A at $8F:9969; its Kago population uses the shared three-frame cycle.</summary>
-    public const ushort CrateriaKagoRoom = 0x9969;
-
-    /// <summary>Crateria room $1E at $8F:9A44; contains the Blue Brinstar face block.</summary>
-    public const ushort CrateriaFaceBlockRoom = 0x9a44;
-
-    /// <summary>Crateria room $1F at $8F:9A90; contains the Morph Ball surveillance eye.</summary>
-    public const ushort CrateriaMorphBallEyeRoom = 0x9a90;
 
     /// <summary><c>RoomHeader_XrayScope</c>: Brinstar room $22 at $8F:A2CE, with two bomb-activated shutters.</summary>
     public const ushort BrinstarShutterRoom = 0xa2ce;
@@ -108,38 +33,11 @@ public static class RoomHeaderPointers
     /// <summary>Morph Ball Room at $8F:9E9F.</summary>
     public const ushort MorphBallRoom = 0x9e9f;
 
-    /// <summary>RoomHeader_GreenHillZone at $8F:9E52; contains the blue-left gate used by Grapple and Speed Booster gate glitches.</summary>
-    public const ushort GreenHillZone = 0x9e52;
-
     /// <summary>Construction Zone at $8F:9F11.</summary>
     public const ushort ConstructionZone = 0x9f11;
 
-    /// <summary>First Missile Room at $8F:A107.</summary>
-    public const ushort FirstMissileRoom = 0xa107;
-
-    /// <summary>Warehouse Kihunter room at $8F:A4DA (area $01, room $2C).</summary>
-    public const ushort WarehouseKihunter = 0xa4da;
-
-    /// <summary>Warehouse Save room at $8F:A70B (area $01, room $36).</summary>
-    public const ushort WarehouseSave = 0xa70b;
-
     /// <summary>Blue Brinstar Energy Tank Room at $8F:9F64.</summary>
     public const ushort BlueBrinstarEnergyTankRoom = 0x9f64;
-
-    /// <summary>Blue Brinstar boulder room at $8F:A1AD (area $01, room $1C).</summary>
-    public const ushort BlueBrinstarBoulders = 0xa1ad;
-
-    /// <summary>Blue Brinstar double-missile room at $8F:A1D8 (area $01, room $1D).</summary>
-    public const ushort BlueBrinstarDoubleMissile = 0xa1d8;
-
-    /// <summary>RoomHeader_PinkBrinstarHopper at $8F:A130; the high-speed right-facing gate-glitch room.</summary>
-    public const ushort PinkBrinstarHopper = 0xa130;
-
-    /// <summary>RoomHeader_EastTunnel at $8F:CF80; Maridia room $03 with the frozen-enemy gate setup.</summary>
-    public const ushort EastTunnel = 0xcf80;
-
-    /// <summary>RoomHeader_MainHall at $8F:B236, Lower Norfair's elevator destination.</summary>
-    public const ushort LowerNorfairMainHall = 0xb236;
 
     /// <summary>Ceres elevator shaft at $8F:DF45.</summary>
     public const ushort CeresElevatorShaft = 0xdf45;

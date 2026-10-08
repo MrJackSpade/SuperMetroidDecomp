@@ -288,11 +288,6 @@ internal abstract class CrocomireInstructionProgramDefinitions : IInstructionPro
     /// </summary>
     internal const ushort SkeletonFlowingDownRiver = 0xe1d2;
 
-    /// <summary>First deliberately excluded unreferenced body program at $A4:BBAE.</summary>
-    internal const ushort FirstExcludedUnreferencedProgram = 0xbbae;
-    /// <summary>First independently owned Crocomire-tongue program at $A4:BE56.</summary>
-    internal const ushort FirstTongueProgram = 0xbe56;
-
     /// <summary><c>Instruction_Crocomire_FightAI</c> at $A4:86A6.</summary>
     private const ushort FightAI = 0x86a6;
     /// <summary><c>Instruction_Crocomire_MaybeStartProjectileAttack</c> at $A4:8752.</summary>

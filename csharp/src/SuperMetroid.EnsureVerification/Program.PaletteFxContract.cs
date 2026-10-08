@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using SuperMetroid.Core.Assets;
@@ -9,6 +9,9 @@ namespace SuperMetroid.EnsureVerification;
 
 internal static partial class Program
 {
+    /// <summary><c>PalFxDef_CutsceneGunshipEngine</c> at <c>$8D:E1A8</c>.</summary>
+    private const ushort GunshipEngineDefinitionPointer = 0xe1a8;
+
     /// <summary>
     /// Confirms #1152's required color dependency using compiler-only fixtures.
     /// These are finite API-contract checks, not a gameplay or palette-program sweep.
@@ -42,7 +45,7 @@ internal static partial class Program
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var cgram = new SnesCgram();
         var fx = new RoomPaletteFxSystem();
-        fx.SpawnDefinition(bus, CeresCinematicLightPaletteFxProgramMechanicsDefinitions.GunshipEngineDefinitionPointer, 0);
+        fx.SpawnDefinition(bus, GunshipEngineDefinitionPointer, 0);
         try
         {
             fx.Step(bus, cgram, null!, 0, 0, false, false);

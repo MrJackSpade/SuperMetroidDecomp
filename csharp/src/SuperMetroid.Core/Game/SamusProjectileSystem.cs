@@ -31,8 +31,6 @@ public sealed partial class SamusProjectileSystem
     /// Because every parallel array is word-indexed, that is eighteen independent slots.
     /// </summary>
     public const int TrailSlotCount = 18;
-
-    private const int PoseDirectionOffset = 3;
     // `$93:83FF` is only the pointer-table entry that names the beam-explosion DATA
     // record (`$8679`). KillProjectileInner does not install that address. Its assembly
     // reads the instruction-list pointer stored two bytes into the data record, at

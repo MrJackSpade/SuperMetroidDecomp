@@ -30,7 +30,6 @@ internal static class SpcDriverData
         internal const int SecondarySoundStateRegion = 0x0440;
         internal const int SecondarySoundStateRegionLength = 0x007f;
         internal const int DefaultMusicPointer = 0x581e;
-        internal const int MusicTrackPointerTable = 0x5820; // magic-number-audit: allow(AudioId) - resident SPC music pointer table address
         internal const int InstrumentTable = 0x6c00;
         internal const int InstrumentRecordSize = 6;
         internal const int InstrumentTableByteLength = 0x0100;

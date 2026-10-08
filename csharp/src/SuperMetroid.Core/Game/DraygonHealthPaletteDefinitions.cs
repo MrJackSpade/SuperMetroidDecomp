@@ -6,11 +6,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class DraygonHealthPaletteDefinitions
 {
-    /// <summary>
-    /// <c>DraygonHealthBasedPaletteThresholds</c> at $A5:96EF. Eight reachable words are
-    /// followed by an unreachable $FFFF terminator at $A5:96FF.
-    /// </summary>
-    public const int NativeThresholdAddress = 0xa596ef;
 
     /// <summary>Draygon body's authored enemy-header health at $A0:DE43.</summary>
     public const ushort MaximumAuthoredHealth = 6000;

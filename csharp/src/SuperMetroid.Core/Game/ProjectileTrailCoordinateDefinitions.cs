@@ -28,42 +28,24 @@ internal static class ProjectileTrailCoordinateDefinitions
     private const int UnchargedBeamTrails_Default_0 = 0x9ba56f;
     /// <summary>$9BA58F: UnchargedBeamTrails_Wave_WaveIce_0, left X/Y and right X/Y placement frames.</summary>
     private const int UnchargedBeamTrails_Wave_WaveIce_0 = 0x9ba58f;
-    /// <summary>$9BA5CF: UnchargedBeamTrails_Wave_WaveIce_1, left X/Y and right X/Y placement frames.</summary>
-    private const int UnchargedBeamTrails_Wave_WaveIce_1 = 0x9ba5cf;
-    /// <summary>$9BA60F: UnchargedBeamTrails_Wave_WaveIce_2, left X/Y and right X/Y placement frames.</summary>
-    private const int UnchargedBeamTrails_Wave_WaveIce_2 = 0x9ba60f;
-    /// <summary>$9BA64F: UnchargedBeamTrails_Wave_WaveIce_3, left X/Y and right X/Y placement frames.</summary>
-    private const int UnchargedBeamTrails_Wave_WaveIce_3 = 0x9ba64f;
     /// <summary>$9BA68F: UnchargedBeamTrails_IceSpazer_0, left X/Y and right X/Y placement frames.</summary>
     private const int UnchargedBeamTrails_IceSpazer_0 = 0x9ba68f;
-    /// <summary>$9BA69B: UnchargedBeamTrails_IceSpazer_1, left X/Y and right X/Y placement frames.</summary>
-    private const int UnchargedBeamTrails_IceSpazer_1 = 0x9ba69b;
     /// <summary>$9BA6A7: UnchargedBeamTrails_IceSpazer_2, left X/Y and right X/Y placement frames.</summary>
     private const int UnchargedBeamTrails_IceSpazer_2 = 0x9ba6a7;
-    /// <summary>$9BA6B3: UnchargedBeamTrails_IceSpazer_3, left X/Y and right X/Y placement frames.</summary>
-    private const int UnchargedBeamTrails_IceSpazer_3 = 0x9ba6b3;
     /// <summary>$9BA6BF: UnchargedBeamTrails_IceSpazer_4, left X/Y and right X/Y placement frames.</summary>
     private const int UnchargedBeamTrails_IceSpazer_4 = 0x9ba6bf;
     /// <summary>$9BA6CB: UnchargedBeamTrails_IceSpazer_5, left X/Y and right X/Y placement frames.</summary>
     private const int UnchargedBeamTrails_IceSpazer_5 = 0x9ba6cb;
-    /// <summary>$9BA6D7: UnchargedBeamTrails_IceSpazer_6, left X/Y and right X/Y placement frames.</summary>
-    private const int UnchargedBeamTrails_IceSpazer_6 = 0x9ba6d7;
     /// <summary>$9BA6E3: UnchargedBeamTrails_IceSpazer_7, left X/Y and right X/Y placement frames.</summary>
     private const int UnchargedBeamTrails_IceSpazer_7 = 0x9ba6e3;
     /// <summary>$9BA6EF: UnchargedBeamTrails_WaveIceSpazer_0, left X/Y and right X/Y placement frames.</summary>
     private const int UnchargedBeamTrails_WaveIceSpazer_0 = 0x9ba6ef;
     /// <summary>$9BA717: UnchargedBeamTrails_WaveIceSpazer_1, left X/Y and right X/Y placement frames.</summary>
     private const int UnchargedBeamTrails_WaveIceSpazer_1 = 0x9ba717;
-    /// <summary>$9BA73F: UnchargedBeamTrails_WaveIceSpazer_2, left X/Y and right X/Y placement frames.</summary>
-    private const int UnchargedBeamTrails_WaveIceSpazer_2 = 0x9ba73f;
     /// <summary>$9BA767: UnchargedBeamTrails_WaveIceSpazer_3, left X/Y and right X/Y placement frames.</summary>
     private const int UnchargedBeamTrails_WaveIceSpazer_3 = 0x9ba767;
-    /// <summary>$9BA78F: UnchargedBeamTrails_WaveIceSpazer_4, left X/Y and right X/Y placement frames.</summary>
-    private const int UnchargedBeamTrails_WaveIceSpazer_4 = 0x9ba78f;
     /// <summary>$9BA7B7: UnchargedBeamTrails_WaveIceSpazer_5, left X/Y and right X/Y placement frames.</summary>
     private const int UnchargedBeamTrails_WaveIceSpazer_5 = 0x9ba7b7;
-    /// <summary>$9BA7DF: UnchargedBeamTrails_WaveIceSpazer_6, left X/Y and right X/Y placement frames.</summary>
-    private const int UnchargedBeamTrails_WaveIceSpazer_6 = 0x9ba7df;
     /// <summary>$9BA807: UnchargedBeamTrails_WaveIceSpazer_7, left X/Y and right X/Y placement frames.</summary>
     private const int UnchargedBeamTrails_WaveIceSpazer_7 = 0x9ba807;
     /// <summary>$9BA82F: UnchargedBeamTrails_IcePlasma_0, left X/Y and right X/Y placement frames.</summary>
@@ -114,8 +96,6 @@ internal static class ProjectileTrailCoordinateDefinitions
     private const int ChargedBeamTrails_Default_0 = 0x9baa07;
     /// <summary>$9BAA27: ChargedBeamTrails_Wave_WaveIce_0, left X/Y and right X/Y placement frames.</summary>
     private const int ChargedBeamTrails_Wave_WaveIce_0 = 0x9baa27;
-    /// <summary>$9BAA67: ChargedBeamTrails_Wave_WaveIce_1, left X/Y and right X/Y placement frames.</summary>
-    private const int ChargedBeamTrails_Wave_WaveIce_1 = 0x9baa67;
     /// <summary>$9BAAA7: ChargedBeamTrails_Wave_WaveIce_2, left X/Y and right X/Y placement frames.</summary>
     private const int ChargedBeamTrails_Wave_WaveIce_2 = 0x9baaa7;
     /// <summary>$9BAAE7: ChargedBeamTrails_Wave_WaveIce_3, left X/Y and right X/Y placement frames.</summary>
@@ -198,8 +178,6 @@ internal static class ProjectileTrailCoordinateDefinitions
     private const int UNSUED_SpazerSBATrail_Spazer_IceSpazer_9BB37B = 0x9bb37b;
     /// <summary>$9BB38F: UNSUED_SpazerSBATrail_Spazer_IceSpazer_0_9BB38F, left X/Y and right X/Y placement frames.</summary>
     private const int UNSUED_SpazerSBATrail_Spazer_IceSpazer_0_9BB38F = 0x9bb38f;
-    /// <summary>$9BB39B: UNSUED_SpazerSBATrail_Spazer_IceSpazer_1_9BB39B, left X/Y and right X/Y placement frames.</summary>
-    private const int UNSUED_SpazerSBATrail_Spazer_IceSpazer_1_9BB39B = 0x9bb39b;
     /// <summary>$9B:B3A7, first adjacent-code byte reachable by a restored low-six-bit projectile type paired with a cataloged animation frame.</summary>
     private const int ReachableAdjacentCodeStart = 0x9bb3a7;
     /// <summary>$9B:B3C2, final adjacent-code byte reachable by the bounded projectile-type/frame cross-product.</summary>

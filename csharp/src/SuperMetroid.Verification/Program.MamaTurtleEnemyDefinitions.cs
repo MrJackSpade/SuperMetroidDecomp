@@ -90,9 +90,9 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (address is >= MamaTurtleEnemyDefinitionCatalog.SourceAddress and
-                < MamaTurtleEnemyDefinitionCatalog.SourceAddress +
-                    MamaTurtleEnemyDefinitionCatalog.SourceByteLength)
+            if (address is >= MamaTurtleEnemyDefinitionCatalogConstants.SourceAddress and
+                < MamaTurtleEnemyDefinitionCatalogConstants.SourceAddress +
+                    MamaTurtleEnemyDefinitionCatalogConstants.SourceByteLength)
             {
                 throw new InvalidOperationException(
                     $"Mama Turtle family still reads compiled header byte ${address:X6}.");

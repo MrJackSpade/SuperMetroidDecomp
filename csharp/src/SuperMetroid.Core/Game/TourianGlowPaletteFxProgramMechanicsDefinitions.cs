@@ -16,11 +16,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class TourianGlowPaletteFxProgramMechanicsDefinitions
 {
-    /// <summary>The live Tourian 2 definition.</summary>
-    public const ushort LiveDefinitionPointer = 0xf7a1;
-
-    /// <summary>The unused Tourian 4 clone definition.</summary>
-    public const ushort CloneDefinitionPointer = 0xf7a5;
 
     /// <summary>Clone entry at <c>$8D:F62A</c>.</summary>
     public const ushort CloneProgramStart = 0xf62a;
@@ -45,9 +40,6 @@ public static class TourianGlowPaletteFxProgramMechanicsDefinitions
 
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public const int FrameByteCount = 22;
-
-    /// <summary>Frames from the first record through the next first record.</summary>
-    public const int CycleFrames = 110;
 
     /// <summary>The first destination byte in CGRAM.</summary>
     public const ushort ColorByteIndex = 0x00e8;

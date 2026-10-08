@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Named bank-$86 identities and tables used only by eye-door effects.</summary>
 public static class EyeDoorEnemyProjectileRomData
 {
-    /// <summary>SNES address-space base for bank-$86 enemy-projectile data.</summary>
-    public const int BankBase = 0x860000;
 
     public const ushort ProjectileDefinition = 0xb743;
     public const ushort SweatDefinition = 0xb751;

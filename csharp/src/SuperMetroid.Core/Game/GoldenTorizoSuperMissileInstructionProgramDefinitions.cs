@@ -9,8 +9,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal abstract class GoldenTorizoSuperMissileInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
 {
-    /// <summary><c>InitAI_EnemyProjectile_GoldenTorizoSuperMissile</c> at $86:B1CE.</summary>
-    internal const ushort InitializationAi = 0xb1ce;
     /// <summary><c>InstList_EnemyProj_GoldenTorizoSuperMissile_Rightwards_0</c> at $86:B293.</summary>
     internal const ushort RightInitial = 0xb293;
     /// <summary><c>InstList_EnemyProj_GoldenTorizoSuperMissile_Rightwards_1</c> at $86:B29D.</summary>

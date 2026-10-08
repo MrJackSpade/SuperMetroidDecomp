@@ -84,8 +84,7 @@ internal static partial class Program
             AssertTrue(pointer >= 0x8000, $"{catalog.Name} pointer ${pointer:X4} is mapped");
     }
 
-    private static FieldInfo[] GetUshortConstants(Type catalog) => catalog
-        .GetFields(BindingFlags.Public | BindingFlags.Static)
+    private static FieldInfo[] GetUshortConstants(Type catalog) => CatalogFields.Of(catalog, BindingFlags.Public | BindingFlags.Static)
         .Where(field => field.IsLiteral && field.FieldType == typeof(ushort))
         .ToArray();
 }

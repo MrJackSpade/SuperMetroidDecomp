@@ -48,24 +48,10 @@ internal static class PauseMenuLayout
         if ((uint)row >= 2) throw new ArgumentOutOfRangeException(nameof(row));
         return ((25 + row) * 32 + column, label == PauseButtonLabel.Exit ? 4 : 5);
     }
-    /// <summary>Three-bit BG palette index applied to unavailable equipment labels.</summary>
-    public const int DisabledEquipmentPaletteIndex = 3;
     /// <summary>OBSEL value installed by the pause-screen PPU setup.</summary>
     public const byte ObjectSelection = 0x01;
     /// <summary>$82:B9C8 selects OBJ palette 7 for the Samus position indicator, independently overridable by authored sprite parts.</summary>
     public const ushort MapMarkerPaletteBits = 0x0e00;
-    /// <summary>
-    /// Byte offset of the reserve-supply hundreds digit in the mutable equipment tilemap,
-    /// matching <c>EquipmentScreenBG1Tilemap+$310</c> at $82:8FCE.
-    /// </summary>
-    public const int ReserveSupplyDigitsByteOffset = 0x0310;
-    /// <summary>Number of decimal digits written by $82:8F70.</summary>
-    public const int ReserveSupplyDigitCount = 3;
-    /// <summary>
-    /// Tilemap word for decimal zero used by $82:8F70; decimal digit values are added to
-    /// this word without altering its palette or priority fields.
-    /// </summary>
-    public const ushort ReserveSupplyDigitZeroTile = 0x0804;
 }
 
 /// <summary>Shared four-phase pulse for pause and file-select map markers at $82:B9FC.</summary>

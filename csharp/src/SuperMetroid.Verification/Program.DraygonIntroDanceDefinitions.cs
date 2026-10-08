@@ -18,7 +18,7 @@ internal static partial class Program
 
     private static void VerifyDraygonIntroLatencyDefinitions(SuperMetroidAddressSpace rom)
     {
-        const int source = DraygonIntroDanceDefinitions.NativeMovementLatencyAddress;
+        const int source = DraygonIntroDanceDefinitionsConstants.NativeMovementLatencyAddress;
         for (int slotIndex = 28; slotIndex <= 31; slotIndex++)
         {
             int address = source + (slotIndex - 28) * 2;
@@ -40,7 +40,7 @@ internal static partial class Program
     private static void VerifyDraygonIntroMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyDraygonIntroDeleteSelection), () => VerifyDraygonIntroDeleteSelection(rom));
-        const int source = DraygonIntroDanceDefinitions.NativeMovementStreamAddress;
+        const int source = DraygonIntroDanceDefinitionsConstants.NativeMovementStreamAddress;
         for (ushort offset = 0;
              offset <= DraygonIntroDanceDefinitions.LastMovementStreamOffset;
              offset += DraygonIntroDanceDefinitions.StreamIndexAdvance)

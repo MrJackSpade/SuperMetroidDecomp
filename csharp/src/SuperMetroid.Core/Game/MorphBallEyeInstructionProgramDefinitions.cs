@@ -28,8 +28,6 @@ internal abstract class MorphBallEyeInstructionProgramDefinitions : IInstruction
     internal const ushort MountFacingLeft = 0x9044;
     /// <summary><c>InstList_Eye_Mount_FacingUp</c> at $A8:904A.</summary>
     internal const ushort MountFacingUp = 0x904a;
-    /// <summary><c>EyeConstants</c>, adjacent non-instruction data at $A8:9050.</summary>
-    internal const ushort AdjacentProximityDefinitions = 0x9050;
 
     internal const int ActiveFrameCount = 16;
 

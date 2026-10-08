@@ -13,9 +13,6 @@ internal abstract class GoldenTorizoInitialInstructionProgramDefinitions : IInst
     /// <summary>The initial extended-spritemap operand at $AA:C9DE.</summary>
     internal const ushort InitialFrameOperand = 0xc9de;
 
-    /// <summary>The first bank-$AA sleep instruction at $AA:C9E0.</summary>
-    internal const ushort Sleep = 0xc9e0;
-
     /// <summary>Golden Torizo's Samus-position wake function at $AA:D5C2.</summary>
     internal const ushort WakeWhenSamusApproaches = 0xd5c2;
 

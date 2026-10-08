@@ -21,8 +21,6 @@ public sealed record CartridgeDoorHeader(
     ushort SamusDistance,
     ushort SetupCodePointer)
 {
-    /// <summary>Encoded size of one retail bank-$83 door header.</summary>
-    public const int SizeInBytes = DoorHeaderRomData.RecordByteCount;
 
     /// <summary>
     /// True only for the verified setup routine that writes BGMODE=7, A=D=$0100,

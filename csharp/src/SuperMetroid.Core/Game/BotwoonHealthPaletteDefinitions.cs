@@ -16,9 +16,6 @@ internal static class BotwoonHealthPaletteDefinitions
     /// <summary>Retail Botwoon writes sprite palette seven, CGRAM colors $F0-$FF.</summary>
     public const int DestinationColor = 240;
 
-    /// <summary><c>BotwoonHealthThresholdsForPaletteChange</c> at $B3:981B.</summary>
-    public const int NativeThresholdAddress = 0xb3981b;
-
     /// <summary>Terminal native byte offset after all eight threshold words are consumed.</summary>
     public const ushort CompletePhaseByteOffset = 16;
 

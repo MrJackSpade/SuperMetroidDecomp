@@ -13,19 +13,6 @@ internal readonly record struct ShaktoolSegmentDefinition(
 /// <summary>Compiled mechanics and callback metadata for Shaktool's linked body records.</summary>
 internal static class ShaktoolSegmentDefinitions
 {
-    /// <summary>$AA:DE95 ShaktoolPieceData_properties, seven property words.</summary>
-    internal const int NativePropertiesAddress = 0xaade95;
-    /// <summary>$AA:DEA3 ShaktoolPieceData_RAMOffset, seven owner-relative enemy offsets.</summary>
-    internal const int NativeOwnerOffsetAddress = 0xaadea3;
-    /// <summary>$AA:DEBF ShaktoolPieceData_initialInstListPointer, seven initial lists.</summary>
-    internal const int NativeInstructionAddress = 0xaadebf;
-    /// <summary>$AA:DECD ShaktoolPieceData_layerControl, seven drawing layers.</summary>
-    internal const int NativeLayerAddress = 0xaadecd;
-    /// <summary>$AA:DEDB ShaktoolPieceData_functionPointer, seven callbacks also used by reset.</summary>
-    internal const int NativeCallbackAddress = 0xaadedb;
-
-    /// <summary>$AA:DEB1 ShaktoolPieceData_initialNeighborAngle, seven initial joint angles.</summary>
-    internal const int NativeInitialAngleAddress = 0xaadeb1;
 
     // Integrated symmetric joint increments 1,2,3,4,3,2. The first arm uses
     // triangular numbers; the other arm subtracts the remaining triangle from 16.

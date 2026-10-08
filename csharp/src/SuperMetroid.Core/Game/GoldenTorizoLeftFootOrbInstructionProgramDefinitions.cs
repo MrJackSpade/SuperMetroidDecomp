@@ -11,8 +11,6 @@ internal abstract class GoldenTorizoLeftFootOrbInstructionProgramDefinitions : I
 {
     /// <summary><c>InstList_GoldenTorizo_SpewChozoOrb_FacingLeft_LeftFootFwd_0</c> at $AA:CC57.</summary>
     internal const ushort Start = 0xcc57;
-    /// <summary>First byte after the left-foot-forward orb list, $AA:CC99.</summary>
-    internal const ushort End = GoldenTorizoRightOrbInstructionProgramDefinitions.Start;
     /// <summary><c>InstList_GoldenTorizo_SpewChozoOrb_FacingLeft_LeftFootFwd_1</c> at $AA:CC77.</summary>
     private const ushort ShotLoop = 0xcc77;
     /// <summary><c>Function_GoldenTorizo_Movement_Attacking</c> at $AA:D5ED.</summary>

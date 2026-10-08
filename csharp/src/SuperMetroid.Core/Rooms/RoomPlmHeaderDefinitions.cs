@@ -13,7 +13,6 @@ public readonly record struct RoomPlmHeaderDefinition(
 /// </summary>
 internal static partial class RoomPlmHeaderDefinitions
 {
-    internal const int RetailHeaderCount = 70;
 
     internal static IEnumerable<RoomPlmHeaderDefinition> All => Enumerate();
 

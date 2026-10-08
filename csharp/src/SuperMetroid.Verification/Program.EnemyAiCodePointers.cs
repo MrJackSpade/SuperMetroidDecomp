@@ -10,8 +10,7 @@ internal static partial class Program
     /// </summary>
     static void VerifyEnemyAiCodePointerCatalog()
     {
-        FieldInfo[] longEntryPoints = typeof(EnemyAiCodePointers)
-            .GetFields(BindingFlags.Public | BindingFlags.Static)
+        FieldInfo[] longEntryPoints = CatalogFields.Of(typeof(EnemyAiCodePointers), BindingFlags.Public | BindingFlags.Static)
             .Where(field => field.IsLiteral && field.FieldType == typeof(int))
             .ToArray();
         AssertTrue(longEntryPoints.Length != 0,
@@ -38,8 +37,7 @@ internal static partial class Program
             AssertTrue(bankCatalog.Name.StartsWith("Bank", StringComparison.Ordinal),
                 $"enemy interaction catalog {bankCatalog.Name} identifies its native bank");
 
-            FieldInfo[] fields = bankCatalog
-                .GetFields(BindingFlags.Public | BindingFlags.Static)
+            FieldInfo[] fields = CatalogFields.Of(bankCatalog, BindingFlags.Public | BindingFlags.Static)
                 .Where(field => field.IsLiteral && field.FieldType == typeof(ushort))
                 .ToArray();
             AssertTrue(fields.Length != 0,
@@ -59,8 +57,7 @@ internal static partial class Program
         // partials. Any newly translated raw bank-local AI value fails until it is added to one
         // of the named bank containers above. Small AI-handler property masks are intentionally
         // excluded: they are data flags, not executable callbacks.
-        FieldInfo[] translatedCallbacks = typeof(RoomEnemySystem)
-            .GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
+        FieldInfo[] translatedCallbacks = CatalogFields.Of(typeof(RoomEnemySystem), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
             .Where(field =>
                 field.IsLiteral &&
                 field.FieldType == typeof(ushort) &&

@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Game;
 internal abstract class TorizoJumpBackInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
 {
     internal const ushort Start = 0xc110;
-    internal const ushort End = 0xc188;
 
     /// <summary><c>InstList_Torizo_FacingRight_Walking_LeftLegMoving</c> at $AA:BDE2.</summary>
     private const ushort FacingRightWalkingLeftLegMoving = 0xbde2;

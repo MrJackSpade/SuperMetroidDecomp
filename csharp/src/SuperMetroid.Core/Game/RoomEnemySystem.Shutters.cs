@@ -185,7 +185,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort HorizontalShutterTouchAi = EnemyAiCodePointers.BankA2.HorizontalShutterTouch;
     internal const ushort HorizontalShutterShotAi = EnemyAiCodePointers.BankA2.HorizontalShutterShot;
     internal const ushort HorizontalShutterPowerBombAi = EnemyAiCodePointers.BankA2.HorizontalShutterPowerBomb;
-    internal const ushort GrowingShutterNoOpAi = EnemyAiCodePointers.BankA0.NoOp;
 
     private const ushort ShutterActivationSound = 0x000e;
     private const ushort PermanentStopRestTime = 0x0ff0;

@@ -36,12 +36,6 @@ public static class SamusGrappleRomData
     /// <summary>Native banks used by grapple's same-bank pointers.</summary>
     public static class Banks
     {
-        /// <summary>Bank containing flare animation delays.</summary>
-        public const int Movement = 0x900000;
-        /// <summary>Bank containing flare spritemap offsets.</summary>
-        public const int Projectile = 0x930000;
-        /// <summary>Bank containing Grapple graphics and most Grapple tables.</summary>
-        public const int Grapple = 0x9b0000;
         /// <summary>Bank containing Grapple character graphics.</summary>
         public const int CharacterData = 0x9a0000;
     }
@@ -61,47 +55,25 @@ public static class SamusGrappleRomData
         public const short MaximumAngularVelocity = 0x0480;
         /// <summary>Angular impulse applied by Jump during a swing.</summary>
         public const short JumpImpulseMagnitude = 0x0300;
-        /// <summary><c>$A0:B3C3</c>, signed sine values indexed by <c>SnesAngle</c>.</summary>
-        public const int SignedSineTable = 0xa0b3c3;
     }
 
     /// <summary>Direction-indexed firing velocity, origin, and flare tables.</summary>
     public static class Firing
     {
-        /// <summary>$9B:B8B8, CancelGrappleBeamIfInIncompatiblePose.poses: byte cancellation flags indexed by movement type.</summary>
-        public const int BannedMovementTypes = 0x9bb8b8;
         /// <summary>$9B:C51E initializes GrappleBeam_PoseChangeAutoFireTimer to ten; $C490 decrements before checking the pose.</summary>
         public const ushort PoseChangeAutoFireFrames = 10;
         /// <summary>$9B:C51E uses a six-pixel graphics Y offset for moving Draygon-held poses.</summary>
         public const sbyte DraygonMovingGraphicsYOffset = 6;
-        /// <summary>Initial X velocities for ten shot directions.</summary>
-        public const int XVelocities = 0x9bc0db;
-        /// <summary>Initial Y velocities for ten shot directions.</summary>
-        public const int YVelocities = 0x9bc0ef;
-        /// <summary>Initial angles for ten shot directions.</summary>
-        public const int Angles = 0x9bc104;
-        /// <summary>Non-running grapple-point X origins.</summary>
-        public const int DefaultOriginX = 0x9bc122;
-        /// <summary>Non-running grapple-point Y origins.</summary>
-        public const int DefaultOriginY = 0x9bc136;
         /// <summary>Non-running flare X origins.</summary>
         public const int DefaultFlareX = 0x9bc14a;
         /// <summary>Non-running flare Y origins.</summary>
         public const int DefaultFlareY = 0x9bc15e;
-        /// <summary>Running grapple-point X origins.</summary>
-        public const int RunningOriginX = 0x9bc172;
-        /// <summary>Running grapple-point Y origins.</summary>
-        public const int RunningOriginY = 0x9bc186;
         /// <summary>Running flare X origins.</summary>
         public const int RunningFlareX = 0x9bc19a;
         /// <summary>Running flare Y origins.</summary>
         public const int RunningFlareY = 0x9bc1ae;
         /// <summary>Main flare animation delays in bank $90.</summary>
         public const int MainFlareAnimationDelays = 0x90c487;
-        /// <summary>Right-facing flare spritemap offsets in bank $93.</summary>
-        public const int RightFlareSpritemapOffsets = 0x93a225;
-        /// <summary>Left-facing flare spritemap offsets in bank $93.</summary>
-        public const int LeftFlareSpritemapOffsets = 0x93a22b;
         /// <summary>Number of direction records represented by every firing table.</summary>
         public const int DirectionCount = 10;
     }
@@ -111,22 +83,10 @@ public static class SamusGrappleRomData
     {
         /// <summary>Animation frame selected by each high byte of swing angle.</summary>
         public const int SwingFrameByAngle = 0x9bc1c2;
-        /// <summary>Left-facing body offsets indexed by swing frame.</summary>
-        public const int LeftPoseOffsetsByFrame = 0x9bc2c2;
-        /// <summary>Right-facing body offsets indexed by swing frame.</summary>
-        public const int RightPoseOffsetsByFrame = 0x9bc302;
-        /// <summary>$9B:C342/C344: inclusive begin and exclusive end of the Grapple endpoint's strided character range.</summary>
-        public const int PointTilePointers = 0x9bc342;
-        /// <summary>Pointers to folded-angle rope-segment character data.</summary>
-        public const int SegmentTilePointers = 0x9bc346;
         /// <summary>Bytes uploaded for the single Grapple point character.</summary>
         public const ushort PointTileByteCount = 0x20;
         /// <summary>Encoded VRAM destination for the Grapple point character.</summary>
         public const ushort PointTileVramDestination = 0x6200;
-        /// <summary>Bytes uploaded for four Grapple segment characters.</summary>
-        public const ushort SegmentTileByteCount = 0x80;
-        /// <summary>Encoded VRAM destination for Grapple segment characters.</summary>
-        public const ushort SegmentTileVramDestination = 0x6210;
         /// <summary>$94:B036, DrawGrappleBeam: distance between consecutive rope objects in pixels.</summary>
         public const int SegmentSpacing = 8;
         /// <summary>$94:AFD9-AFE4: convert a signed 8.8 sample into an eight-pixel 16.16 displacement.</summary>
@@ -158,10 +118,6 @@ public static class SamusGrappleRomData
         public const int MovingVerticallyTable = 0x9bc3ee;
         /// <summary>Connection records used while crouching.</summary>
         public const int CrouchingTable = 0x9bc416;
-        /// <summary>Special-angle records used for fixed, swing, and wall-grab reactions.</summary>
-        public const int SpecialAngleTable = 0x9bc43e;
-        /// <summary>Bytes in one special-angle record.</summary>
-        public const int SpecialAngleRecordByteCount = 10;
         /// <summary>Bank-$9B locked-in-place connection handler.</summary>
         public const ushort LockedInPlaceHandler = 0xc77e;
         /// <summary>Bank-$9B ordinary swinging connection handler.</summary>
@@ -188,9 +144,5 @@ public static class SamusGrappleRomData
         public const ushort CrouchingDownLeftHandler = 0xba20;
         /// <summary>Bank-$9B crouching up-left connection handler.</summary>
         public const ushort CrouchingUpLeftHandler = 0xba29;
-        /// <summary>Number of shot directions represented by each four-byte connection table.</summary>
-        public const int DirectionCount = Firing.DirectionCount;
-        /// <summary>Number of fixed-angle special connection records.</summary>
-        public const int SpecialAngleRecordCount = 8;
     }
 }

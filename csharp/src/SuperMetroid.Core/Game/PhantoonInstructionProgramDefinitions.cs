@@ -47,8 +47,6 @@ internal abstract class PhantoonInstructionProgramDefinitions : IInstructionProg
     public const ushort MouthFollowUp = 0xcceb;
     /// <summary><c>InstList_Phantoon_Mouth_Initial</c> at $A7:CCF7.</summary>
     public const ushort InitialMouth = 0xccf7;
-    /// <summary>First casual-flame timer word following the instruction block at $A7:CCFD.</summary>
-    internal const ushort AdjacentCasualFlameTimers = 0xccfd;
 
     /// <summary>Eye-transition dwell at A7:CC53/CC57/CC85/CC95. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort EyeTransitionFrames = 10;

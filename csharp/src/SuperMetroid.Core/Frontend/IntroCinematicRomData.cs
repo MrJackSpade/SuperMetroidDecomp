@@ -10,7 +10,6 @@ public static class IntroCinematicRomData
 {
     public static class Banks
     {
-        public const int CinematicCode = 0x8b0000;
         public const byte Spritemaps = 0x8c;
     }
 
@@ -24,8 +23,6 @@ public static class IntroCinematicRomData
         public const int BackgroundPageTilemaps = 0x96ff14;
         public const int ObjectCharacters = 0x95e4c2;
         public const int FirstNarrationTilemap = 0x978d12;
-        public const int JapaneseFontTwo = 0x95d713;
-        public const int MotherBrainLevelData = 0x8cbec3;
         public const int IntroObjectCharacters = 0x9ad200;
         public const int FinalTextLine = 0x8ba72b;
     }
@@ -39,7 +36,6 @@ public static class IntroCinematicRomData
         public const int BackgroundPageTilemapBytes = 0x2000;
         public const int ObjectCharacterBytes = 0x2400;
         public const int NarrationTilemapBytes = 0x0800;
-        public const int JapaneseFontTwoBytes = 0x1200;
         public const int BackgroundCharacterDestinationByte = 0x0000;
         public const int FontOneDestinationByte = 0x8000;
         public const int SamusHeadTilemapDestinationByte = 0x9000;
@@ -59,7 +55,6 @@ public static class IntroCinematicRomData
         public const ushort SceneBg1TilemapWord = 0x5000;
         public const ushort SceneBg2TilemapWord = 0x5400;
         public const ushort ScientistTilemapWord = 0x5800;
-        public const ushort ScientistAlternateTilemapWord = 0x5c00;
         public const ushort FontCharacterBaseWord = 0x4000;
         public const int NarrationRowCount = 28;
         public const int TextTilemapWordCount = 0x0400;
@@ -77,7 +72,6 @@ public static class IntroCinematicRomData
         public const int GameplayBlankWordCount = 640;
         public const int JapaneseBlankSourceOffset = 0x0290;
         public const int JapaneseBlankCharacterByteCount = 0x10;
-        public const int JapaneseBlankTopStart = 0;
         public const int JapaneseBlankBottomDelta = 896;
         public const int FinalLineDestinationStart = 768;
         public const int FinalLineWordCount = 128;
@@ -163,8 +157,6 @@ public static class IntroCinematicRomData
     /// <summary>Demo records and fixed Mother Brain room payload.</summary>
     public static class Flashback
     {
-        public const int MotherBrainLevelByteCount = 448;
-        public const ushort DemoInputObject = 0x8784;
         public const ushort ExpectedEndInstruction = 0x8739;
     }
 
@@ -210,8 +202,6 @@ public static class IntroCinematicRomData
         public const int RecordDurationToPositionByteCount = 2;
         public const int RecordDurationToDataPointerByteCount = 4;
         public const int BackgroundRecordByteCount = 6;
-        public const int NextRecordPositionXByteOffset = 8;
-        public const int NextRecordPositionYByteOffset = 9;
     }
 }
 

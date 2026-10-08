@@ -14,9 +14,6 @@ internal abstract class DeadTorizoInstructionProgramDefinitions : IInstructionPr
     /// <summary>The terminal common sleep word at $A9:D6E0.</summary>
     internal const ushort SleepOpcode = 0xd6e0;
 
-    /// <summary><c>Spritemaps_CorpseTorizo</c> begins after the program at $A9:D6E2.</summary>
-    internal const ushort FirstAdjacentPresentationData = 0xd6e2;
-
     /// <summary>The <c>Spritemaps_CorpseTorizo</c> visual operand at $A9:D6DE.</summary>
     internal const ushort PresentationWord = 0xd6de;
     static ushort ISinglePresentationOperand.PresentationWord => PresentationWord;

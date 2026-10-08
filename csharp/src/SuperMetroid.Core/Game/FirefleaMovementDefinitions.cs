@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Exact bounded Fireflea movement-radius rule.</summary>
 internal static class FirefleaMovementDefinitions
 {
-    /// <summary>$A3:8D1D FirefleaMovementRadii: eight unsigned word radii in pixels.</summary>
-    internal const int RadiusReferenceAddress = 0xa38d1d;
 
     /// <summary>Returns 8*(index+1) for the parameter-two high-byte selector 0..7.</summary>
     /// <remarks>

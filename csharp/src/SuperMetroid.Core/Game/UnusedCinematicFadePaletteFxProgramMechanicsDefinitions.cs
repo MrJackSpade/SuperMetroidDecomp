@@ -21,8 +21,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class UnusedCinematicFadePaletteFxProgramMechanicsDefinitions
 {
-    /// <summary>The unused palette-FX definition at <c>$8D:E1EC</c>.</summary>
-    public const ushort DefinitionPointer = 0xe1ec;
 
     /// <summary>The instruction-list entry at <c>$8D:D9D0</c>.</summary>
     public const ushort ProgramStart = 0xd9d0;
@@ -47,9 +45,6 @@ public static class UnusedCinematicFadePaletteFxProgramMechanicsDefinitions
 
     /// <summary>Each record lasts two frames.</summary>
     public const ushort FrameDuration = 2;
-
-    /// <summary>The complete unused fade lasts 22 frames.</summary>
-    public const int CycleFrames = FrameCount * FrameDuration;
 
     /// <summary>Returns one timed-record pointer.</summary>
     public static ushort FramePointer(int frame)

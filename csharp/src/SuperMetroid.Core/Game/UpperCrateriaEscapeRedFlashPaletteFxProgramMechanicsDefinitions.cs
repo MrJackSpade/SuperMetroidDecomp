@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions
 {
-    /// <summary><c>PalFxDef_Crateria2</c> at <c>$8D:FFE5</c>.</summary>
-    public const ushort DefinitionPointer = 0xffe5;
     /// <summary><c>PalFxInstList_Crateria2</c> at <c>$8D:FCFD</c>.</summary>
     public const ushort ProgramStart = 0xfcfd;
     /// <summary>The first CGRAM destination byte for upper Crateria's red flash.</summary>
@@ -24,8 +22,6 @@ public static class UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefiniti
     public const int ColorsPerFrame = 7;
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public const int FrameByteCount = 18;
-    /// <summary>The complete loop lasts 63 frames.</summary>
-    public const int CycleFrames = 63;
 
     /// <summary>Returns one timed-record pointer.</summary>
     public static ushort FramePointer(int frame)

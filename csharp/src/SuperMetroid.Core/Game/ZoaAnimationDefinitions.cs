@@ -15,11 +15,6 @@ public enum ZoaAnimationSelector : ushort
 /// <summary>Compiled fixed animation-program selectors for Zoa.</summary>
 internal static class ZoaAnimationDefinitions
 {
-    /// <summary>
-    /// Left-shooting, left-rising, right-shooting, and right-rising instruction lists at
-    /// <c>$A3:B40D-$A3:B414</c>, indexed by <see cref="ZoaAnimationSelector"/>.
-    /// </summary>
-    internal const int ReferenceAddress = 0xa3b40d;
 
     /// <summary>Selects the native animation program by facing and movement flags.
     /// Only the four documented combinations are valid; unsupported bits are rejected.</summary>

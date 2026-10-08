@@ -5,15 +5,9 @@ namespace SuperMetroid.Core.Runtime;
 /// <summary>Cartridge addresses and fixed destinations consumed by shared room loading.</summary>
 internal static class RoomLoadingRomData
 {
-    /// <summary>Common gameplay OBJ palette at $9A:FC00.</summary>
-    public const int CommonGameplaySpritePalette = GameplayBasePaletteFormat.CommonSpriteSourceAddress;
 
     /// <summary>CGRAM color index receiving the common gameplay OBJ palette.</summary>
     public const int CommonGameplaySpritePaletteCgramIndex = 128;
-
-    /// <summary>Initial enemy-projectile OBJ palette at $9A:81A0.</summary>
-    public const int InitialEnemyProjectilePalette = GameplayBasePaletteFormat.InitialSourceAddress +
-        GameplayBasePaletteFormat.EnemyProjectileInitialColor * sizeof(ushort);
 
     /// <summary>CGRAM color index receiving the initial enemy-projectile palette.</summary>
     public const int InitialEnemyProjectilePaletteCgramIndex =

@@ -6,11 +6,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class MamaTurtleShellContourDefinitions
 {
-    /// <summary>First signed contour word at <c>$A2:8E80</c>.</summary>
-    internal const int SourceAddress = 0xa28e80;
-
-    /// <summary>Number of signed words in the two 24-pixel contour halves.</summary>
-    internal const int EntryCount = 48;
 
     /// <summary>Maximum horizontal distance represented by either contour half.</summary>
     internal const int HalfWidth = 24;

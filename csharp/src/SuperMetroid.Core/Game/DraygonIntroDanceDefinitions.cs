@@ -3,15 +3,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Compiled timing and traced movement for Draygon's opening Evir dance.</summary>
 internal static class DraygonIntroDanceDefinitions
 {
-    /// <summary>Native start of <c>DraygonFightIntroDanceData</c> at <c>$A5:CE07</c>.</summary>
-    public const int NativeMovementStreamAddress = 0xa5ce07;
-
-    /// <summary>
-    /// The four reachable words of <c>MovementLatencyForEachEvirSpriteObject</c> at
-    /// <c>$A5:A19F-$A5:A1A6</c>, ordered by sprite slots 28 through 31.
-    /// </summary>
-    /// <remarks>The native loop at $A5:A13E indexes with 2*(slot-28).</remarks>
-    public const int NativeMovementLatencyAddress = 0xa5a19f;
 
     /// <summary>Native byte-index advance after each dance update at <c>$A5:A188</c>.</summary>
     public const ushort StreamIndexAdvance = 4;

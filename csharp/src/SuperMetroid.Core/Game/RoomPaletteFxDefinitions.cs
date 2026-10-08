@@ -14,22 +14,6 @@ internal readonly record struct RoomPaletteFxDefinition(
 /// </summary>
 internal static class RoomPaletteFxDefinitions
 {
-    /// <summary>$8D:E194, first definition in the contiguous cinematic/Samus group.</summary>
-    internal const ushort CinematicDefinitionsBegin = 0xe194;
-    /// <summary>$8D:E200, final definition in the contiguous cinematic/Samus group.</summary>
-    internal const ushort CinematicDefinitionsEnd = 0xe200;
-    /// <summary>$8D:F745, first definition in the contiguous room-effect group.</summary>
-    internal const ushort RoomDefinitionsBegin = 0xf745;
-    /// <summary>$8D:F7A5, final definition in the contiguous room-effect group.</summary>
-    internal const ushort RoomDefinitionsEnd = 0xf7a5;
-    /// <summary>$8D:F761, Norfair Samus-in-heat palette-FX owner selected by area lists.</summary>
-    internal const ushort SamusInHeat = 0xf761;
-    /// <summary>$8D:FFC9, first definition in the contiguous Tourian escape group.</summary>
-    internal const ushort TourianDefinitionsBegin = 0xffc9;
-    /// <summary>$8D:FFED, final definition in the contiguous Tourian escape group.</summary>
-    internal const ushort TourianDefinitionsEnd = 0xffed;
-
-    internal const int DefinitionByteCount = 4;
     internal const int AreaCount = 8;
     internal const int DefinitionsPerArea = 8;
 

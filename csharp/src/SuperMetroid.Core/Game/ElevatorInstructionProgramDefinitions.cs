@@ -9,9 +9,6 @@ internal abstract class ElevatorInstructionProgramDefinitions : IInstructionProg
     /// <summary><c>InstList_Elevator</c> at $A3:94D6.</summary>
     internal const ushort Loop = 0x94d6;
 
-    /// <summary>The controller-input table immediately after the program, at $A3:94E2.</summary>
-    internal const ushort FirstAdjacentMechanicsData = 0x94e2;
-
     public static int MechanicsWordCount => 4;
     public static int PresentationWordCount => 2;
     public static InstructionMechanicsWord MechanicsWord(int index)

@@ -17,7 +17,6 @@ internal static class MotherBrainRoomPaletteProgramDefinitions
 
     /// <summary>$A9:D046-$D07C: fourteen two-tick frames, each with a palette operand.</summary>
     internal const int PresentationWordCount = 14;
-    internal const int MechanicsWordCount = PresentationWordCount + 2;
 
     /// <summary>$A9:D046-D07C, reviewed two-tick visual cadence for the fourteen-image flash performance; only the private palette timer consumes it.</summary>
     private const ushort FlashImageTicks = 2;

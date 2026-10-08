@@ -95,8 +95,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort BombTorizoShotAi = EnemyAiCodePointers.BankAA.BombTorizoShot;
     internal const ushort TorizoStandUpSitDownShotAi = EnemyAiCodePointers.BankAA.TorizoStandUpSitDownShot;
     internal const ushort GoldenTorizoShotAi = EnemyAiCodePointers.BankAA.GoldenTorizoShot;
-
-    private const ushort BombTorizoInitialInstruction = 0xb879;
     private const ushort BombTorizoLowHealthInterruptInstruction = 0xb0e5;
     private const ushort BombTorizoLowHealthRecoveryInstruction = 0xb155;
     private const ushort BombTorizoDeathInstruction = 0xb1c8;

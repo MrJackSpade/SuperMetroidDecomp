@@ -57,9 +57,9 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (address is >= BabyMetroidRouteDefinitions.SourceAddress and
-                < BabyMetroidRouteDefinitions.SourceAddress +
-                    BabyMetroidRouteDefinitions.SourceByteLength)
+            if (address is >= BabyMetroidRouteDefinitionsConstants.SourceAddress and
+                < BabyMetroidRouteDefinitionsConstants.SourceAddress +
+                    BabyMetroidRouteDefinitionsConstants.SourceByteLength)
             {
                 throw new InvalidOperationException(
                     $"Baby route still reads compiled ROM byte ${address:X6}.");

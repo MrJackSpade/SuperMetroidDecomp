@@ -9,11 +9,6 @@ internal abstract class NuclearWaffleProjectileInstructionProgramDefinitions : I
     /// <summary><c>InstList_EnemyProjectile_PuromiBody</c> at $86:BB5E.</summary>
     internal const ushort Initial = 0xbb5e;
 
-    /// <summary>
-    /// <c>Instruction_EnemyProjectile_GotoY</c> closing the body loop at $86:BB8E.
-    /// </summary>
-    internal const ushort LoopCommand = 0xbb8e;
-
     private const int FrameCount = 12;
     public static int MechanicsWordCount => FrameCount + 2;
     public static int PresentationWordCount => FrameCount;

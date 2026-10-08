@@ -4,10 +4,6 @@ namespace SuperMetroid.Core.Game;
 
 public sealed partial class RoomEnemySystem
 {
-    private const ushort KiHunterAcidInitialLeftPreInstruction =
-        EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KiHunterAcid_Left;
-    private const ushort KiHunterAcidInitialRightPreInstruction =
-        EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KiHunterAcid_Right;
     // Definition records contain $CFF7. The disassembly labels the first C instruction at
     // $CFF8 because $CFF7 is the native callable entry byte; preserve the stored pointer.
     private const ushort KiHunterAcidMovingPreInstruction =

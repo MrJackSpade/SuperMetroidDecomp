@@ -20,17 +20,12 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
 {
-    /// <summary>The wide-background definition at <c>$8D:E1E8</c>.</summary>
-    public const ushort WideExplosionBackgroundDefinitionPointer = 0xe1e8;
 
     /// <summary>The wide-background entry at <c>$8D:D362</c>.</summary>
     public const ushort WideExplosionBackgroundProgramStart = 0xd362;
 
     /// <summary>The wide-background entry writes CGRAM from byte index <c>$0022</c>.</summary>
     public const ushort WideExplosionBackgroundColorByteIndex = 0x0022;
-
-    /// <summary>The space-whiteout definition at <c>$8D:E1D0</c>.</summary>
-    public const ushort SpaceWhiteoutDefinitionPointer = 0xe1d0;
 
     /// <summary>The space-whiteout entry at <c>$8D:D36A</c>.</summary>
     public const ushort SpaceWhiteoutProgramStart = 0xd36a;
@@ -55,9 +50,6 @@ public static class ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
 
     /// <summary>Each record lasts fourteen frames.</summary>
     public const ushort FrameDuration = 14;
-
-    /// <summary>The complete one-shot whiteout lasts 210 frames.</summary>
-    public const int CycleFrames = 210;
 
     /// <summary>All native definitions whose mechanics are owned by this catalog.</summary>
     [AccessedByReflection]

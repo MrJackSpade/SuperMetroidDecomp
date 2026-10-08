@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Assets;
+﻿using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
@@ -326,13 +326,26 @@ internal static class DachoraColorRomDataAccess
 /// <summary>Verification access to <see cref="DachoraInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class DachoraInstructionProgramDefinitionsAccess
 {
+    /// <summary>The fifteen production entry programs, in native order.</summary>
+    private static readonly ushort[] ProgramEntries =
+    [
+        DachoraInstructionProgramDefinitions.RunningLeft, DachoraInstructionProgramDefinitions.RunningLeftFast,
+        DachoraInstructionProgramDefinitions.RunningLeftVeryFast, DachoraInstructionProgramDefinitions.IdleLeft,
+        DachoraInstructionProgramDefinitions.BlinkLeft, DachoraInstructionProgramDefinitions.EchoLeft,
+        DachoraInstructionProgramDefinitions.FallingLeft, DachoraInstructionProgramDefinitions.RunningRight,
+        DachoraInstructionProgramDefinitions.RunningRightFast, DachoraInstructionProgramDefinitions.RunningRightVeryFast,
+        DachoraInstructionProgramDefinitions.IdleRight, DachoraInstructionProgramDefinitions.BlinkRight,
+        DachoraInstructionProgramDefinitions.ChargeRight, DachoraInstructionProgramDefinitions.EchoRight,
+        DachoraInstructionProgramDefinitions.FallingRight,
+    ];
+
     extension(DachoraInstructionProgramDefinitions)
     {
-        internal static int ProgramCount => PrivateState.StaticField<ushort[]>(typeof(DachoraInstructionProgramDefinitions), "ProgramEntries").Length;
+        internal static int ProgramCount => ProgramEntries.Length;
 
         internal static DachoraInstructionProgram Program(int index)
         {
-            ushort entry = PrivateState.StaticField<ushort[]>(typeof(DachoraInstructionProgramDefinitions), "ProgramEntries")[index];
+            ushort entry = ProgramEntries[index];
             (int frames, ushort terminator) = PrivateState.StaticField<InstructionProgramLayout>(typeof(DachoraInstructionProgramDefinitions), "Layout").FramesFrom(entry);
             return new(entry, frames, terminator == CommonEnemyInstructionCodes.Goto);
         }
@@ -718,6 +731,9 @@ internal static class InstructionProgramLayoutAccess
 /// <summary>Verification access to <see cref="KraidArmCollisionDefinitions"/> members production does not use.</summary>
 internal static class KraidArmCollisionDefinitionsAccess
 {
+    /// <summary>A single-component frame: a two-byte count and one eight-byte hitbox.</summary>
+    private const int SingleComponentFrameBytes = 2 + 8;
+
     extension(KraidArmCollisionDefinitions)
     {
         /// <summary>Calculates the ordered physical frame roots from native component-record sizes.</summary>
@@ -728,7 +744,7 @@ internal static class KraidArmCollisionDefinitionsAccess
         {
             if ((uint)index >= KraidArmCollisionDefinitions.FrameCount) throw new IndexOutOfRangeException();
             return (ushort)(index < 20 ? PrivateState.StaticField<ushort>(typeof(KraidArmCollisionDefinitions), "FirstGeneralFrame") + PrivateState.StaticField<int>(typeof(KraidArmCollisionDefinitions), "GeneralFrameBytes") * index
-                : PrivateState.StaticField<ushort>(typeof(KraidArmCollisionDefinitions), "FirstSingleComponentFrame") + PrivateState.StaticField<int>(typeof(KraidArmCollisionDefinitions), "SingleComponentFrameBytes") * (index - 20));
+                : PrivateState.StaticField<ushort>(typeof(KraidArmCollisionDefinitions), "FirstSingleComponentFrame") + SingleComponentFrameBytes * (index - 20));
         }
     }
 }
@@ -805,6 +821,78 @@ internal static class LayerBlendingConfigurationsAccess
 /// <summary>Verification access to <see cref="MamaTurtleEnemyDefinitionCatalog"/> members production does not use.</summary>
 internal static class MamaTurtleEnemyDefinitionCatalogAccess
 {
+    /// <summary>Compiled Mama Turtle enemy definition.</summary>
+    private static readonly RoomEnemyDefinition Mama = new(
+        TileDataSize: 0x0c00,
+        PalettePointer: 0x8b60,
+        Health: 0x4e20,
+        Damage: 0x00c8,
+        XRadius: 0x0014,
+        YRadius: 0x0010,
+        Bank: 0xa2,
+        HurtAiTime: 0x00,
+        HurtSoundEffect: 0x0000,
+        BossId: 0x0000,
+        InitializationAiPointer: 0x8d6c,
+        PartCount: 0x0005,
+        Unused16: 0x0000,
+        MainAiPointer: 0x8dd2,
+        GrappleAiPointer: 0x800f,
+        HurtAiPointer: 0x804c,
+        FrozenAiPointer: 0x8041,
+        TimeFrozenAiPointer: 0x0000,
+        DeathAnimation: 0x0004,
+        Unused24: 0x0000,
+        Unused26: 0x0000,
+        PowerBombReactionPointer: 0x0000,
+        VariantIndex: 0x0000,
+        Unused2C: 0x0000,
+        Unused2E: 0x0000,
+        TouchAiPointer: 0x9281,
+        ShotAiPointer: 0x802d,
+        InitialSpritemapPointer: 0x0000,
+        TileDataAddress: 0xacd400,
+        Layer: 0x05,
+        ItemDropChancesPointer: 0xf3bc,
+        VulnerabilityPointer: 0xeec6,
+        NamePointer: 0xdf11);
+
+    /// <summary>Compiled baby turtle enemy definition.</summary>
+    private static readonly RoomEnemyDefinition Baby = new(
+        TileDataSize: 0x0c00,
+        PalettePointer: 0x8b60,
+        Health: 0x4e20,
+        Damage: 0x0000,
+        XRadius: 0x0008,
+        YRadius: 0x0005,
+        Bank: 0xa2,
+        HurtAiTime: 0x00,
+        HurtSoundEffect: 0x0000,
+        BossId: 0x0000,
+        InitializationAiPointer: 0x8d9d,
+        PartCount: 0x0001,
+        Unused16: 0x0000,
+        MainAiPointer: 0x912e,
+        GrappleAiPointer: 0x800f,
+        HurtAiPointer: 0x804c,
+        FrozenAiPointer: 0x8041,
+        TimeFrozenAiPointer: 0x0000,
+        DeathAnimation: 0x0000,
+        Unused24: 0x0000,
+        Unused26: 0x0000,
+        PowerBombReactionPointer: 0x0000,
+        VariantIndex: 0x0000,
+        Unused2C: 0x0000,
+        Unused2E: 0x0000,
+        TouchAiPointer: 0x929f,
+        ShotAiPointer: 0x930f,
+        InitialSpritemapPointer: 0x0000,
+        TileDataAddress: 0xacd400,
+        Layer: 0x05,
+        ItemDropChancesPointer: 0xf3bc,
+        VulnerabilityPointer: 0xeec6,
+        NamePointer: 0x0000);
+
     extension(MamaTurtleEnemyDefinitionCatalog)
     {
         /// <summary>Resolves a compiled family header by its native bank-$A0 pointer.</summary>
@@ -813,10 +901,10 @@ internal static class MamaTurtleEnemyDefinitionCatalogAccess
             switch (pointer)
             {
                 case MamaTurtleEnemyDefinitionCatalog.MamaPointer:
-                    definition = PrivateState.StaticField<RoomEnemyDefinition>(typeof(MamaTurtleEnemyDefinitionCatalog), "Mama");
+                    definition = Mama;
                     return true;
                 case MamaTurtleEnemyDefinitionCatalog.BabyPointer:
-                    definition = PrivateState.StaticField<RoomEnemyDefinition>(typeof(MamaTurtleEnemyDefinitionCatalog), "Baby");
+                    definition = Baby;
                     return true;
                 default:
                     definition = default;
@@ -905,10 +993,14 @@ internal static class MotherBrainCorpseRottingStateAccess
 /// <summary>Verification access to <see cref="MotherBrainFallingTubePopulationDefinitions"/> members production does not use.</summary>
 internal static class MotherBrainFallingTubePopulationDefinitionsAccess
 {
+    /// <summary>The five eight-word population records following <c>BottomLeft</c>.</summary>
+    private static readonly ushort[] RecordPointers =
+        [.. Enumerable.Range(0, 5).Select(index => (ushort)(MotherBrainFallingTubePopulationDefinitions.BottomLeft + index * 8 * sizeof(ushort)))];
+
     extension(MotherBrainFallingTubePopulationDefinitions)
     {
         /// <summary>Ordered native population identities, calculated from the eight-word record format.</summary>
-        internal static IReadOnlyList<ushort> Pointers => PrivateState.StaticField<IReadOnlyList<ushort>>(typeof(MotherBrainFallingTubePopulationDefinitions), "Records");
+        internal static IReadOnlyList<ushort> Pointers => RecordPointers;
     }
 }
 
@@ -944,9 +1036,9 @@ internal static class MotherBrainHeadInstructionProgramDefinitionsAccess
     {
         /// <summary>The precise pointer windows executed by the dedicated head interpreter.</summary>
         internal static bool IsActivePointer(ushort pointer) =>
-            pointer is >= MotherBrainHeadInstructionProgramDefinitions.NeutralStart and <= MotherBrainHeadInstructionProgramDefinitions.NeutralActiveEnd or
-                >= MotherBrainHeadInstructionProgramDefinitions.BabyAttackStart and <= MotherBrainHeadInstructionProgramDefinitions.BabyAttackActiveEnd or
-                >= MotherBrainHeadInstructionProgramDefinitions.BombStart and <= MotherBrainHeadInstructionProgramDefinitions.BombActiveEnd;
+            pointer is >= MotherBrainHeadInstructionProgramDefinitions.NeutralStart and <= MotherBrainHeadInstructionProgramDefinitionsConstants.NeutralActiveEnd or
+                >= MotherBrainHeadInstructionProgramDefinitionsConstants.BabyAttackStart and <= MotherBrainHeadInstructionProgramDefinitionsConstants.BabyAttackActiveEnd or
+                >= MotherBrainHeadInstructionProgramDefinitionsConstants.BombStart and <= MotherBrainHeadInstructionProgramDefinitionsConstants.BombActiveEnd;
     }
 }
 
@@ -1695,6 +1787,9 @@ internal static class SamusAnimationDelayProgramsAccess
 /// <summary>Verification access to <see cref="SamusBeamLoadoutWord"/> members production does not use.</summary>
 internal static class SamusBeamLoadoutWordAccess
 {
+    /// <summary>Low four bits of the beam word select the combination.</summary>
+    private const ushort CombinationMask = 0x000f;
+
     extension(SamusBeamLoadoutWord self)
     {
         /// <summary>
@@ -1703,9 +1798,9 @@ internal static class SamusBeamLoadoutWordAccess
         /// </summary>
         internal ushort WithCombinationIndex(int combinationIndex)
         {
-            if ((uint)combinationIndex > PrivateState.StaticField<ushort>(typeof(SamusBeamLoadoutWord), "CombinationMask"))
+            if ((uint)combinationIndex > CombinationMask)
                 throw new ArgumentOutOfRangeException(nameof(combinationIndex));
-            return (ushort)((self.Raw & ~PrivateState.StaticField<ushort>(typeof(SamusBeamLoadoutWord), "CombinationMask")) | combinationIndex);
+            return (ushort)((self.Raw & ~CombinationMask) | combinationIndex);
         }
     }
 }
@@ -2189,11 +2284,28 @@ internal static class SpacePirateCollisionDefinitionsAccess
 /// <summary>Verification access to <see cref="SporeSpawnCollisionDefinitions"/> members production does not use.</summary>
 internal static class SporeSpawnCollisionDefinitionsAccess
 {
+    /// <summary>The twelve native hitbox list identities.</summary>
+    private static readonly ushort[] ListPointers =
+    [
+        SporeSpawnCollisionDefinitions.ClosedHead,
+        SporeSpawnCollisionDefinitions.OpenHead,
+        SporeSpawnCollisionDefinitions.ExtendedHead,
+        SporeSpawnCollisionDefinitions.MovingHead0,
+        SporeSpawnCollisionDefinitions.MovingHead1,
+        SporeSpawnCollisionDefinitions.MovingHead2,
+        SporeSpawnCollisionDefinitions.MovingHead3,
+        SporeSpawnCollisionDefinitions.TrailingShotPoint,
+        SporeSpawnCollisionDefinitions.MirroredTrailingShotPoint,
+        SporeSpawnCollisionDefinitions.TrailingDudPoint,
+        SporeSpawnCollisionDefinitions.MovingHead4,
+        SporeSpawnCollisionDefinitions.MovingHead5,
+    ];
+
     extension(SporeSpawnCollisionDefinitions)
     {
         internal static int FrameCount => 12;
 
-        internal static int ListCount => PrivateState.StaticField<ushort[]>(typeof(SporeSpawnCollisionDefinitions), "ListPointers").Length;
+        internal static int ListCount => ListPointers.Length;
     }
 }
 
@@ -2278,6 +2390,12 @@ internal static class TitleScreenAmbientPaletteFxProgramDefinitionAccess
 /// <summary>Verification access to <see cref="TorizoCollisionDefinitions"/> members production does not use.</summary>
 internal static class TorizoCollisionDefinitionsAccess
 {
+    /// <summary>The native Torizo hitbox list identities.</summary>
+    private static readonly ushort[] ListPointers =
+    [
+        0x87c7, 0x87e8, 0x87f6, 0x8804, 0x8812, 0x8820, 0x882e, 0x883c, 0x884a, 0x8858, 0x885a, 0x886a, 0x887a, 0x888a, 0x889a, 0x88aa, 0x88ba, 0x88bc, 0x88cc, 0x88dc, 0x88ec, 0x88fc, 0x890c, 0x891c, 0x892a, 0x8946, 0x8954, 0x8962, 0x8970, 0x897e, 0x898c, 0x899a, 0x89a8, 0x89b6, 0x89b8, 0x89c8, 0x89d8, 0x89e8, 0x89f8, 0x8a08, 0x8a18, 0x8a1a, 0x8a2a, 0x8a3a, 0x8a4a, 0x8a5a, 0x8a6a, 0x8a7a, 0x8a88,
+    ];
+
     extension(TorizoCollisionDefinitions)
     {
         internal static int FrameCount => 2 + PrivateState.StaticProperty<int>(typeof(TorizoCollisionDefinitions), "MirroredCount") * 2 + PrivateState.StaticField<GoldenTorizoCollisionComponent[][]>(typeof(TorizoCollisionDefinitions), "JumpBackFrames").Length;
@@ -2315,7 +2433,7 @@ internal static class TorizoCollisionDefinitionsAccess
             }
         }
 
-        internal static IEnumerable<ushort> HitboxPointers => PrivateState.StaticField<ushort[]>(typeof(TorizoCollisionDefinitions), "ListPointers");
+        internal static IEnumerable<ushort> HitboxPointers => ListPointers;
 
         internal static bool HasFrame(ushort frame) => TorizoCollisionDefinitions.TryGetComponents(frame, out _);
 

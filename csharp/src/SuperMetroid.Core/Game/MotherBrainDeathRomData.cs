@@ -3,18 +3,12 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Cartridge data used by the live $A9:AEE1-$B33C death/escape handoff.</summary>
 public static class MotherBrainDeathRomData
 {
-    /// <summary>$AD:E9E8 pointer table, fourteen-color body fades followed by a null word.</summary>
-    public const int BodyFadeTable = 0xade9e8;
     /// <summary>$AD:EA0A, first of sixteen contiguous 28-color body/leg fade images.</summary>
     public const int FirstBodyFadeSource = 0xadea0a;
     public const int BodyFadeFrameCount = 16;
-    /// <summary>$AD:F107 pointer table, fifteen-color decapitated-head fades followed by null.</summary>
-    public const int CorpseFadeTable = 0xadf107;
     /// <summary>$AD:F119, first of eight contiguous fifteen-color corpse-head images.</summary>
     public const int FirstCorpseFadeSource = 0xadf119;
     public const int CorpseFadeFrameCount = 8;
-    /// <summary>Bank $AD contains both pointed-to death palette sequences.</summary>
-    public const int PaletteBank = 0xad0000;
     /// <summary>$A9:AF77 copies the live brain colors beginning at CGRAM entry 145.</summary>
     public const int BrainColors = 145;
     /// <summary>$A9:AF7D copies those fifteen colors to sprite palette seven, skipping color zero.</summary>

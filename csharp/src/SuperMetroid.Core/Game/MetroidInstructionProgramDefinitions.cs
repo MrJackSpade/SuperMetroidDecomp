@@ -10,12 +10,6 @@ internal abstract class MetroidInstructionProgramDefinitions : IInstructionProgr
     internal const ushort ChasingSamus = 0xe9cf;
     /// <summary><c>InstList_Metroid_DrainingSamus</c> at $A3:EA25.</summary>
     internal const ushort DrainingSamus = 0xea25;
-    /// <summary><c>Instruction_Metroid_PlayRandomMetroidSFX</c> entry at $A3:EA1F.</summary>
-    internal const ushort ChasingSoundCallback = 0xea1f;
-    /// <summary><c>Instruction_Metroid_PlayDrainingSamusSFX</c> entry at $A3:EA39.</summary>
-    internal const ushort DrainingSoundCallback = 0xea39;
-    /// <summary><c>BombedOffVelocities</c>, adjacent non-instruction data at $A3:EA3F.</summary>
-    internal const ushort AdjacentBombedOffVelocities = 0xea3f;
 
     /// <summary>$A3:E9CF..E9DF/EA25..EA35: one pulse comprises four16-tick beats; exact chosen beat is retained as reviewed drawn-pulse/synchronized-cry choreography.</summary>
     private const ushort PulseBeatTicks = 16;

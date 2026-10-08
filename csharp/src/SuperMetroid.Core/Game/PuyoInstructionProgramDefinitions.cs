@@ -30,12 +30,6 @@ internal abstract class PuyoInstructionProgramDefinitions : IInstructionProgramC
     /// <summary><c>InstList_Puyo_HoppingRight_4_HoppingLeft_0</c> at $A2:9A01.</summary>
     internal const ushort RightFrame4LeftFrame0 = 0x9a01;
 
-    /// <summary>The final airborne-pose sleep opcode at $A2:9A05.</summary>
-    internal const ushort LastSleepOpcode = 0x9a05;
-
-    /// <summary>The first word of <c>PuyoHopTable</c>, immediately after the programs at $A2:9A07.</summary>
-    internal const ushort FirstAdjacentDefinition = 0x9a07;
-
     public static int MechanicsWordCount => 28;
     public static int PresentationWordCount => 17;
     public static InstructionMechanicsWord MechanicsWord(int index)

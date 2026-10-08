@@ -11,7 +11,6 @@ internal static class EvirVisualDefinitions
 {
     /// <summary>Evir's native instruction and spritemap bank, $A8.</summary>
     internal const byte Bank = 0xa8;
-    internal const int FrameCount = 24;
 
     internal static EnemySpritemapDefinition[] Frames() =>
     [

@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Fixed cinematic-object definitions for egg shell fragments and slime drops.</summary>
 internal static class IntroEggEffectDefinitions
 {
-    /// <summary>Bank containing the seven native cinematic-object definitions.</summary>
-    public const int NativeDefinitionBank = 0x8b0000;
 
     /// <summary>Number of shell-fragment definitions at <c>$8B:CECD-$8B:CEEF</c>.</summary>
     public const int ParticleCount = 6;

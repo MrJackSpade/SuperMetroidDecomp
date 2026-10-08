@@ -10,8 +10,6 @@ public sealed partial class RoomEnemySystem
 {
     private const ushort PhantoonInvulnerableBodyInstruction =
         PhantoonInstructionProgramDefinitions.InvulnerableBody;
-    private const ushort PhantoonEyeHitboxBodyInstruction =
-        PhantoonInstructionProgramDefinitions.EyeHitboxBody;
     private const ushort PhantoonFullHitboxBodyInstruction =
         PhantoonInstructionProgramDefinitions.FullHitboxBody;
     private const ushort PhantoonEyeCloseInstruction = PhantoonInstructionProgramDefinitions.EyeClose;

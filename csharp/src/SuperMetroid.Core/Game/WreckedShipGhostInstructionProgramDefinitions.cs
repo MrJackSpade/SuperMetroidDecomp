@@ -12,9 +12,6 @@ internal abstract class WreckedShipGhostInstructionProgramDefinitions : IInstruc
     /// <summary>The terminal <c>Instruction_Common_GotoY</c> word at $A8:9A98.</summary>
     internal const ushort LoopOpcode = 0x9a98;
 
-    /// <summary>The first non-program word after <c>InstList_Coven</c>, at $A8:9A9C.</summary>
-    internal const ushort FirstAdjacentConstant = 0x9a9c;
-
     public static int MechanicsWordCount => 5;
     public static int PresentationWordCount => 3;
 

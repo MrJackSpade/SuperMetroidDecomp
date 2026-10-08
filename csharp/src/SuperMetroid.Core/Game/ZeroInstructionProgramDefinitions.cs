@@ -14,8 +14,6 @@ internal abstract class ZeroInstructionProgramDefinitions : IInstructionProgramC
     internal const ushort UpsideDown = 0x98ab;
     /// <summary><c>UNUSED_InstList_Zero_UpsideUp_FacingRight_A3990B</c> at $A3:990B.</summary>
     internal const ushort UpsideUp = 0x990b;
-    /// <summary>The retail-unused alternate upside-right program at $A3:982B.</summary>
-    internal const ushort UnusedAlternateUpsideRight = 0x982b;
 
     public static int MechanicsWordCount => 40;
     public static int PresentationWordCount => 24;

@@ -21,7 +21,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class MotherBrainBodyAnimationState
 {
-    private const int InstructionBank = 0xa90000;
 
     /// <summary>Mother Brain body enemy-slot X position.</summary>
     public ushort XPosition { get; set; }

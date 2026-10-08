@@ -11,8 +11,6 @@ internal static class PauseReserveTransferRomData
     public const int TransferItem = 1;
     /// <summary>$82:AEA9 stores reserve mode two when leaving AUTO.</summary>
     public const ushort ManualMode = 2;
-    /// <summary>$82:BF04, ReserveTank_TransferEnergyPerFrame, consumed as a ROM word.</summary>
-    public const int TransferAmount = 0x82bf04;
     /// <summary>$82:AF62-$AF75 rounds the initial countdown up to eight and tests its low three bits.</summary>
     public const ushort SoundCadenceMask = 7;
     /// <summary>$82:AF7A, manual reserve refill uses library-three sound $2D.</summary>

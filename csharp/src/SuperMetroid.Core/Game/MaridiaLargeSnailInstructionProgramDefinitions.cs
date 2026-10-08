@@ -33,9 +33,6 @@ internal abstract class MaridiaLargeSnailInstructionProgramDefinitions : IInstru
     /// <summary><c>InstList_Oum_FacingRight_RollingBackwards</c> at $A2:CB43.</summary>
     internal const ushort FacingRightRollingBackwards = 0xcb43;
 
-    /// <summary>The selector table immediately following Oum's programs, at $A2:CB77.</summary>
-    internal const ushort FirstAdjacentMechanicsData = 0xcb77;
-
     /// <summary>Native program bank $A2.</summary>
     internal const byte Bank = 0xa2;
     static int IDeclaredProgramBank.Bank => Bank;

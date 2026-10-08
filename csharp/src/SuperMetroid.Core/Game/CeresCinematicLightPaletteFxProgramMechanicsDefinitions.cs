@@ -26,8 +26,6 @@ public readonly record struct CeresCinematicLightPaletteFxProgramDefinition();
 /// </remarks>
 public static class CeresCinematicLightPaletteFxProgramMechanicsDefinitions
 {
-    /// <summary><c>PalFxDef_CutsceneGunshipEngine</c> at <c>$8D:E1A8</c>.</summary>
-    public const ushort GunshipEngineDefinitionPointer = 0xe1a8;
     /// <summary><c>PalFxInstList_CutsceneGunshipEngine</c> at <c>$8D:C87A</c>.</summary>
     /// <remarks>
     /// The $8D:E1A8 definition selects a bounded two-record control loop.
@@ -53,18 +51,10 @@ public static class CeresCinematicLightPaletteFxProgramMechanicsDefinitions
     public const int GunshipEngineFrameByteCount = 6;
     /// <summary>Each gunship-engine record lasts one frame.</summary>
     public const ushort GunshipEngineFrameDuration = 1;
-    /// <summary>The complete gunship-engine loop lasts two frames.</summary>
-    public const int GunshipEngineCycleFrames = 2;
-
-    /// <summary><c>PalFxDef_CutsceneCeresNavigationLightsSprite</c> at <c>$8D:E1AC</c>.</summary>
-    public const ushort SpriteNavigationLightsDefinitionPointer = 0xe1ac;
     /// <summary><c>PalFxInstList_CutsceneCeresNavigationLightsSprite</c> at <c>$8D:C88E</c>.</summary>
     public const ushort SpriteNavigationLightsProgramStart = 0xc88e;
     /// <summary>The sprite-Ceres navigation lights write CGRAM word index <c>$01DA</c>.</summary>
     public const ushort SpriteNavigationLightsColorIndex = 0x01da;
-
-    /// <summary><c>PalFxDef_CutsceneCeresNavigationLightsBg</c> at <c>$8D:E1B8</c>.</summary>
-    public const ushort BackgroundNavigationLightsDefinitionPointer = 0xe1b8;
     /// <summary><c>PalFxInstList_CutsceneCeresNavigationLightsBg</c> at <c>$8D:C906</c>.</summary>
     public const ushort BackgroundNavigationLightsProgramStart = 0xc906;
     /// <summary>The background-Ceres navigation lights write CGRAM word index <c>$00DA</c>.</summary>
@@ -92,8 +82,6 @@ public static class CeresCinematicLightPaletteFxProgramMechanicsDefinitions
     public const int NavigationLightsFrameByteCount = 8;
     /// <summary>Each Ceres navigation-light record lasts four frames.</summary>
     public const ushort NavigationLightsFrameDuration = 4;
-    /// <summary>The complete Ceres navigation-light loop lasts 56 frames.</summary>
-    public const int NavigationLightsCycleFrames = 56;
 
     /// <summary>All native definitions whose mechanics are owned by this catalog.</summary>
     [AccessedByReflection]

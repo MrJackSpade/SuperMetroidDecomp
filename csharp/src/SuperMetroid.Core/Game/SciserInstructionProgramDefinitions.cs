@@ -14,8 +14,6 @@ internal abstract class SciserInstructionProgramDefinitions : IInstructionProgra
     internal const ushort UpsideDown = 0x96ab;
     /// <summary><c>InstList_Sciser_UpsideUp_0</c> at $A3:96C3.</summary>
     internal const ushort UpsideUp = 0x96c3;
-    /// <summary>The final elevator return opcode immediately before Sciser's palette.</summary>
-    internal const ushort AdjacentPreviousCode = 0x95eb;
 
     private const int SurfaceCount = 4;
     private const int ProgramBytes = 24;

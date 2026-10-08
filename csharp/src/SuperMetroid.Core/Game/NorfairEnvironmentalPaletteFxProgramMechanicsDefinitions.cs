@@ -32,9 +32,6 @@ public static class NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions
     /// <summary>Each phase writes five live BGR555 colors.</summary>
     public const int ColorsPerFrame = 5;
 
-    /// <summary>The shared complete-cycle duration.</summary>
-    public const int CycleFrames = 116;
-
     /// <summary>$8D:F785: first of four adjacent native environmental definitions, each init/list pair occupying four bytes.</summary>
     private const ushort FirstDefinition = 0xf785;
     /// <summary>$8D:F08E: foreground palette-three loop also publishes the current heat phase.</summary>

@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Cartridge identities and operands for the four-boss statue sequence.</summary>
 public static class TourianStatueRomData
 {
-    /// <summary>Bank $86 owns the statue unlock projectiles and their instruction operands.</summary>
-    public const int ProjectileBank = 0x860000;
     /// <summary>$87:833E serializes the four lock-release animations with bit 15.</summary>
     public const ushort Busy = 0x8000;
     /// <summary>$88:DBD7 latches bit 4 once all four grey-statue events exist.</summary>
@@ -19,10 +17,6 @@ public static class TourianStatueRomData
     public const ushort MoveAccessDown = 0xab00;
     /// <summary>$87:839C eight grey target palette colors used by $87:837F.</summary>
     public const int GreyColors = 0x87839c;
-    /// <summary>$86:BA6A eye glow projectile definition.</summary>
-    public const ushort EyeGlow = 0xba6a;
-    /// <summary>$86:BA94 ascending soul projectile definition.</summary>
-    public const ushort Soul = 0xba94;
     /// <summary>$86:BA78 falling unlocking particle definition.</summary>
     public const ushort Particle = 0xba78;
     /// <summary>$86:BA86 particle tail definition.</summary>
@@ -47,10 +41,6 @@ public static class TourianStatueRomData
     public const ushort AddY = 0xb841;
     /// <summary>$86:B79F delete projectile instruction list.</summary>
     public const ushort DeleteProjectile = 0xb79f;
-    /// <summary>$A0:B3C3, kSinCosTable8bit_Sext: signed words with magnitude 256, beginning at the negative-cosine quadrant, used by $86:B8B5 particle launch.</summary>
-    public const int SignedSine = 0xa0b3c3;
-    /// <summary>$86:AF84 statue descent dust definition.</summary>
-    public const ushort DescentDust = 0xaf84;
     /// <summary>$86:AF36 restores a dust actor to its initial position.</summary>
     public const ushort ResetDustPosition = 0xaf36;
     /// <summary>$88:DC23/DC69 earthquake type 13 with timer bits $20.</summary>

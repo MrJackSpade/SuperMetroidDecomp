@@ -10,19 +10,19 @@ namespace SuperMetroid.Core.Rooms;
 internal static class RetailDoorHeaderCatalog
 {
     /// <summary>First Crateria door header, <c>Door_LandingSite_LandingCutscene</c>.</summary>
-    private const ushort PreFxBlockStart = DoorHeaderRomData.PreFxBlockStart;
+    private const ushort PreFxBlockStart = 0x88fe;
 
     /// <summary>Last Lower Norfair door header, <c>Door_LNSave_0</c>.</summary>
-    private const ushort PreFxBlockEnd = DoorHeaderRomData.PreFxBlockEnd;
+    private const ushort PreFxBlockEnd = 0x9ab6;
 
     /// <summary>First Wrecked Ship door header, <c>Door_BowlingAlley_0</c>.</summary>
-    private const ushort PostFxBlockStart = DoorHeaderRomData.PostFxBlockStart;
+    private const ushort PostFxBlockStart = 0xa18c;
 
     /// <summary>Last Ceres door header, <c>Door_CeresRidley</c>.</summary>
-    private const ushort PostFxBlockEnd = DoorHeaderRomData.PostFxBlockEnd;
+    private const ushort PostFxBlockEnd = 0xabb8;
 
     /// <summary>Total number of retail headers encoded across both blocks.</summary>
-    public const int HeaderCount = DoorDefinitions.HeaderCount;
+    public const int HeaderCount = 597;
 
     /// <summary>Enumerates every retail door-header pointer in physical cartridge order.</summary>
     public static IEnumerable<ushort> EnumeratePointers()

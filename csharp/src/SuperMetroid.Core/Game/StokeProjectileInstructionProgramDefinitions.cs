@@ -9,11 +9,6 @@ internal abstract class StokeProjectileInstructionProgramDefinitions : IInstruct
     /// <summary><c>UNUSED_InstList_EnemyProjectile_StokeProjectile_86DB0B</c> at $86:DB0C.</summary>
     internal const ushort Initial = 0xdb0c;
 
-    /// <summary>
-    /// <c>Instruction_EnemyProjectile_GotoY</c> closing the projectile loop at $86:DB14.
-    /// </summary>
-    internal const ushort LoopCommand = 0xdb14;
-
     // The shared 16-tick pose cadence is authored animation timing (reviewed under #1165); the interpreter only loads it into the instruction timer.
     public static int MechanicsWordCount => 4;
     public static int PresentationWordCount => 2;

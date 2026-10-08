@@ -7,8 +7,6 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 internal static class IntroBabyDiscoveryCollisionDefinitions
 {
-    /// <summary>$8C:C083, first byte copied by the discovery room setup.</summary>
-    internal const int SourceAddress = 0x8cc083;
     /// <summary>Thirty-two physical foreground words per source row.</summary>
     internal const int Columns = 32;
     /// <summary>Twelve ROM-authored rows; the room itself is sixteen rows tall.</summary>
@@ -19,8 +17,6 @@ internal static class IntroBabyDiscoveryCollisionDefinitions
     internal const ushort PenultimateRowWord = 0x1000;
     /// <summary>The final source row contains word $8000 in every column.</summary>
     internal const ushort FinalRowWord = 0x8000;
-    /// <summary>The native setup copies exactly $300 bytes.</summary>
-    internal const int SourceByteCount = Columns * SourceRows * sizeof(ushort);
 
     /// <summary>Native room height, including four zero-initialized rows beyond the imported region.</summary>
     internal const int RoomRows = 16;

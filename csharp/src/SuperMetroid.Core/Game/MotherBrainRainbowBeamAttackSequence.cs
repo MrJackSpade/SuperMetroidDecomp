@@ -34,7 +34,6 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     public const ushort HeadAttackingBabyMetroidInstructionList = 0x9db1;
     public const ushort HeadAttackingFourOnionRingsPhase3InstructionList = 0x9dbb;
     public const ushort HeadAttackingBombPhase3InstructionList = 0x9f00;
-    public const ushort HeadNeutralPhase3InstructionList = 0x9cb9;
     public const ushort BodyWalkingForwardReallySlowInstructionList = 0x9818;
     public const ushort BodyWalkingForwardReallyFastInstructionList = 0x9730;
     public const ushort BodyWalkingForwardFastInstructionList = 0x976a;

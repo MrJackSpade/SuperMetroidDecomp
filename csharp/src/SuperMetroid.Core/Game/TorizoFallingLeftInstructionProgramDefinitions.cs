@@ -14,8 +14,6 @@ internal abstract class TorizoFallingLeftInstructionProgramDefinitions : IInstru
     internal const ushort FallingLoop = 0xbc80;
     /// <summary><c>InstList_Torizo_FacingLeft_Falling_2</c> at $AA:BC88.</summary>
     internal const ushort Landing = 0xbc88;
-    /// <summary>First byte after the falling-left list, $AA:BC96.</summary>
-    internal const ushort End = 0xbc96;
     /// <summary><c>ExtendedSpritemaps_Torizo_Jumping_Falling_FacingLeft_1</c> at $AA:B014.</summary>
     internal const ushort FallingFrame = 0xb014;
     /// <summary><c>Function_Torizo_Movement_Jumping_Falling</c> at $AA:C82C.</summary>

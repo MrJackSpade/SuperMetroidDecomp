@@ -250,8 +250,8 @@ internal static partial class Program
         public byte ReadByte(int address)
         {
             if (address is >= SamusComboRomData.Costs and < SamusComboRomData.Costs + 24 ||
-                address is >= SamusComboRomData.OriginAngles and < SamusComboRomData.OriginAngles + 8 ||
-                address is >= SamusComboRomData.PositiveSine and < SamusComboRomData.PositiveSine + 512)
+                address is >= SamusComboRomDataConstants.OriginAngles and < SamusComboRomDataConstants.OriginAngles + 8 ||
+                address is >= SamusComboRomDataConstants.PositiveSine and < SamusComboRomDataConstants.PositiveSine + 512)
                 throw new InvalidOperationException(
                     $"Special beam mechanics still read compiled ROM byte ${address:X6}.");
             return source.ReadByte(address);

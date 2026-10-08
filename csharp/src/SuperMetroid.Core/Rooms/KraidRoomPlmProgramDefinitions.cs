@@ -9,20 +9,6 @@ internal static class KraidRoomPlmProgramDefinitions
     /// <summary><c>$84:AB6D</c>: ceiling crumble into background one.</summary>
     internal const ushort CrumbleCeilingBackground1 =
         RoomPlmInstructionLists.CrumbleKraidCeilingIntoBackground1;
-    /// <summary><c>$84:AB79</c>: ceiling background-one final block.</summary>
-    internal const ushort CeilingBackground1 = 0xab79;
-    /// <summary><c>$84:AB7F</c>: ceiling crumble into background two.</summary>
-    internal const ushort CrumbleCeilingBackground2 =
-        RoomPlmInstructionLists.CrumbleKraidCeilingIntoBackground2;
-    /// <summary><c>$84:AB8B</c>: ceiling background-two final block.</summary>
-    internal const ushort CeilingBackground2 =
-        RoomPlmInstructionLists.CrumbleKraidPlatformVariant1;
-    /// <summary><c>$84:AB91</c>: ceiling crumble into background three.</summary>
-    internal const ushort CrumbleCeilingBackground3 =
-        RoomPlmInstructionLists.CrumbleKraidCeilingIntoBackground3;
-    /// <summary><c>$84:AB9D</c>: ceiling background-three final block.</summary>
-    internal const ushort CeilingBackground3 =
-        RoomPlmInstructionLists.CrumbleKraidPlatformVariant2;
     /// <summary><c>$84:ABA3</c>: clear the defeated ceiling.</summary>
     internal const ushort ClearCeiling = RoomPlmInstructionLists.ClearKraidCeiling;
     /// <summary><c>$84:ABA9</c>: eleven two-block spike crumble passes.</summary>
@@ -33,8 +19,6 @@ internal static class KraidRoomPlmProgramDefinitions
     internal const ushort MoveRightCallback = RoomPlmInstructionCodes.MoveRightOneBlock;
     /// <summary><c>$84:ABDD</c>: clear defeated spikes.</summary>
     internal const ushort ClearSpikes = RoomPlmInstructionLists.ClearKraidSpikes;
-    /// <summary><c>$84:ABE3</c>: first byte of following Mother Brain PLM program.</summary>
-    internal const ushort EndExclusive = 0xabe3;
     /// <summary><c>$84:ABAB</c>: number of two-block spike crumble passes.</summary>
     internal const byte SpikePassCount = 11;
     /// <summary>Native duration of each Kraid crumble appearance.</summary>

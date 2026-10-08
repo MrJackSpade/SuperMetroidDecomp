@@ -26,9 +26,6 @@ internal abstract class DeadSidehopperInstructionProgramDefinitions : IInstructi
     /// <summary>The terminal common sleep word of the hopping program at $A9:ECCE.</summary>
     internal const ushort HoppingSleepOpcode = 0xecce;
 
-    /// <summary>The first following program, <c>InstList_CorpseZoomer_Param1_0</c>, at $A9:ECF5.</summary>
-    internal const ushort FirstAdjacentProgram = 0xecf5;
-
     /// <summary><c>Instruction_SidehopperCorpse_EndHop</c> at $A9:ECD0.</summary>
     private const ushort SidehopperCorpseEndHop = 0xecd0;
 

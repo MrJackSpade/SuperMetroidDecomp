@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class CeresElevatorArrivalDefinitions
 {
-    /// <summary>Bank containing the two definitions and their instruction programs.</summary>
-    internal const int BankBase = 0x860000;
 
     /// <summary>$86:A387, moving pad spawned first into enemy-projectile slot $22.</summary>
     internal static readonly CeresElevatorProjectileDefinition MovingPad = new(
@@ -39,12 +37,6 @@ internal static class CeresElevatorArrivalDefinitions
 
     /// <summary>$86:A28B, common enemy-projectile delete instruction.</summary>
     internal const ushort DeleteInstructionPointer = 0xa28b;
-
-    /// <summary>$86:8154, Instruction_Delete opcode stored at $86:A28B.</summary>
-    internal const ushort DeleteOpcode = 0x8154;
-
-    /// <summary>$86:81AB, Instruction_Goto opcode used by both looping programs.</summary>
-    internal const ushort GotoOpcode = 0x81ab;
 
     /// <summary>$8000 is the inactive/no-spritemap sentinel used before the first frame.</summary>
     internal const ushort NoSpritemap = 0x8000;

@@ -9,30 +9,6 @@ internal abstract class DeadTourianCorpseInstructionProgramDefinitions : IInstru
     /// <summary><c>InstList_CorpseZoomer_Param1_0</c> at $A9:ECF5.</summary>
     internal const ushort Zoomer0 = 0xecf5;
 
-    /// <summary><c>InstList_CorpseZoomer_Param1_2</c> at $A9:ECFB.</summary>
-    internal const ushort Zoomer2 = 0xecfb;
-
-    /// <summary><c>InstList_CorpseZoomer_Param1_4</c> at $A9:ED01.</summary>
-    internal const ushort Zoomer4 = 0xed01;
-
-    /// <summary><c>InstList_CorpseRipper_Param1_0</c> at $A9:ED07.</summary>
-    internal const ushort Ripper0 = 0xed07;
-
-    /// <summary><c>InstList_CorpseRipper_Param1_2</c> at $A9:ED0D.</summary>
-    internal const ushort Ripper2 = 0xed0d;
-
-    /// <summary><c>InstList_CorpseSkree_Param1_0</c> at $A9:ED13.</summary>
-    internal const ushort Skree0 = 0xed13;
-
-    /// <summary><c>InstList_CorpseSkree_Param1_2</c> at $A9:ED19.</summary>
-    internal const ushort Skree2 = 0xed19;
-
-    /// <summary><c>InstList_CorpseSkree_Param1_4</c> at $A9:ED1F.</summary>
-    internal const ushort Skree4 = 0xed1f;
-
-    /// <summary>The first dead-monster spritemap after the programs, at $A9:ED25.</summary>
-    internal const ushort FirstAdjacentPresentationData = 0xed25;
-
     internal static int ProgramCount => 8;
     public static int MechanicsWordCount => 16;
     internal static ushort Program(int index) => (uint)index < ProgramCount

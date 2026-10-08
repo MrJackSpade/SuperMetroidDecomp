@@ -39,12 +39,6 @@ public static class PlanetZebesTextPaletteFxProgramMechanicsDefinitions
 
     /// <summary>$8D:C912/C968: the authored three-frame hold.</summary>
     public const ushort FrameDuration = 3;
-
-    /// <summary>Each complete one-shot fade lasts 24 frames.</summary>
-    public const int CycleFrames = FrameCount * FrameDuration;
-
-    /// <summary>$8D:E1B0: native fade-in definition, immediately followed by the four-byte fade-out definition.</summary>
-    internal const ushort FadeInDefinition = 0xE1B0;
     /// <summary>$8D:C90E: native fade-in setup; fade-out follows its terminal delete.</summary>
     internal const ushort FadeInProgram = 0xC90E;
     /// <summary>$8D:C910/C966: CGRAM palette 8 for the cinematic text.</summary>

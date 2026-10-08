@@ -64,11 +64,6 @@ public static class SmCompressionFormat
     public const byte LongLengthHighMask = 0x03;
     public const int LongCommandShift = 3;
     public const byte InvertedCopyBit = 0x20;
-    public const int MaximumShortLength = 32;
-    public const int MaximumLongLength = 1024;
-    // Command seven has no short form: $E0-$FE introduce expanded headers and $FF is the
-    // terminator. It also loses the final expanded range because $FF cannot be a header.
-    public const int MaximumInvertedRelativeLongLength = 768;
     public const int DefaultMaximumOutputBytes = 4 * 1024 * 1024;
 
     public static bool IsLongHeader(byte value) =>

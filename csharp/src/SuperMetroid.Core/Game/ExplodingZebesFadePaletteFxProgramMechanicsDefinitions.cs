@@ -18,8 +18,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class ExplodingZebesFadePaletteFxProgramMechanicsDefinitions
 {
-    /// <summary>The palette-FX definition at <c>$8D:E1C4</c>.</summary>
-    public const ushort DefinitionPointer = 0xe1c4;
 
     /// <summary>The instruction-list entry at <c>$8D:CAAA</c>.</summary>
     public const ushort ProgramStart = 0xcaaa;
@@ -44,9 +42,6 @@ public static class ExplodingZebesFadePaletteFxProgramMechanicsDefinitions
 
     /// <summary>Each record lasts eight frames.</summary>
     public const ushort FrameDuration = 8;
-
-    /// <summary>The complete one-shot fade lasts 56 frames.</summary>
-    public const int CycleFrames = 56;
 
     /// <summary>Returns one timed-record pointer.</summary>
     public static ushort FramePointer(int frame)

@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>NTSC Zoa horizontal velocities, retaining the native byte-offset selector.</summary>
 public static class ZoaSpeedDefinitions
 {
-    /// <summary>$A3:B415, ZoaXSpeedTable: five whole/fraction records, including the trailing zero record.</summary>
-    internal const int ReferenceAddress = 0xa3b415;
 
     /// <summary>$A3:B429 selects byte offset 4: first shooting stage, half a pixel per frame.</summary>
     private const int FirstShootingRecord = 1;

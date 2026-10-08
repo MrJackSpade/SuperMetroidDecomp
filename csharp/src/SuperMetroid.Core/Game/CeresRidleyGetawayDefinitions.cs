@@ -6,45 +6,6 @@ public readonly record struct CeresRidleyGetawayFrame(ushort Zoom, ushort XVeloc
 /// <summary>Immutable NTSC Ceres getaway zoom and translation curves.</summary>
 public static class CeresRidleyGetawayDefinitions
 {
-    /// <summary>$A6:AE4D, CeresRidleyGetawayZoomLevelTable: 112 frames followed by $FFFF.</summary>
-    /// <remarks>
-    /// #625 / #652 exact NTSC J/U v1.0 reconstruction for frame f=0..111:
-    /// hold $0800 for f&lt;32; use $0800-(f-31)*$0010 for 32..47; use
-    /// $0700-(f-47)*$0020 for 48..95, except f=70 is $0430 and f=86 is
-    /// $0230; use max($0020, $0100-(f-95)*$0010) for 96..111.
-    /// Frame 112 is the $FFFF terminator and consumes no velocity record.
-    /// All 113 words match the pinned ROM and bank-A6
-    /// disassembly. The caller uses even byte offsets 0..224; odd and later
-    /// offsets are outside the curve. VerifyCompiledCeresRidleyGetaway checks
-    /// every word, and the real Ceres encounter consumes every frame.
-    /// </remarks>
-    public const int ZoomReferenceAddress = 0xa6ae4d;
-    /// <summary>$A6:AF2F, CeresRidleyGetawayYVelocityTable: signed vertical increments.</summary>
-    /// <remarks>
-    /// #625 / #653 exact signed NTSC J/U v1.0 reconstruction for frame f=0..111:
-    /// -6 at 0..11, -4 at 12..21, -2 at 22..28, -1 at 29..44, zero at
-    /// 45..79, +1 at 80..87, +2 at 88..95, +3 at 96, 2*(f-95) at 97..103,
-    /// then +20,+24,+44,+48,+128 at 104..108 and +256 at 109..111.
-    /// All 112 words at $A6:AF2F-$B00E match the pinned ROM and bank-A6
-    /// disassembly. The caller adds each signed word with 16-bit wrapping,
-    /// indexed by even byte offsets 0..222. The zoom terminator at byte offset
-    /// 224 prevents any Y read on that frame. VerifyCompiledCeresRidleyGetaway
-    /// checks every word; the real Ceres encounter consumes the full schedule.
-    /// </remarks>
-    public const int YReferenceAddress = 0xa6af2f;
-    /// <summary>$A6:B00F, CeresRidleyGetawayXVelocityTable: signed values subtracted from horizontal offset.</summary>
-    /// <remarks>
-    /// #625 / #654 exact signed NTSC J/U v1.0 reconstruction for frame f=0..111:
-    /// -1 at 0..79, zero at 80..87, +1 at 88..95,
-    /// 2+(f-96)/2 using integer division at 96..103,
-    /// 8+4*(f-104) at 104..107, and +32 at 108..111.
-    /// All 112 words at $A6:B00F-$B0EE match the pinned ROM and bank-A6
-    /// disassembly. The caller subtracts each signed word with 16-bit wrapping,
-    /// indexed by even byte offsets 0..222. The zoom terminator at byte offset
-    /// 224 prevents any X read on that frame. VerifyCompiledCeresRidleyGetaway
-    /// checks every word; the real Ceres encounter consumes the full schedule.
-    /// </remarks>
-    public const int XReferenceAddress = 0xa6b00f;
     /// <summary>Native zoom terminator; no translation records are consumed on this frame.</summary>
     public const ushort Finished = 0xffff;
 

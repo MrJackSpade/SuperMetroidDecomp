@@ -15,26 +15,6 @@ internal abstract class ZebetiteInstructionProgramDefinitions : IInstructionProg
 {
     /// <summary><c>InstList_Big_HealthGreaterThanEqualTo800</c> at $A6:FDCC.</summary>
     internal const ushort BigHealthAtLeast800 = 0xfdcc;
-    /// <summary><c>InstList_Big_HealthLessThan800</c> at $A6:FDD2.</summary>
-    internal const ushort BigHealthBelow800 = 0xfdd2;
-    /// <summary><c>InstList_Big_HealthLessThan600</c> at $A6:FDD8.</summary>
-    internal const ushort BigHealthBelow600 = 0xfdd8;
-    /// <summary><c>InstList_Big_HealthLessThan400</c> at $A6:FDDE.</summary>
-    internal const ushort BigHealthBelow400 = 0xfdde;
-    /// <summary><c>InstList_Big_HealthLessThan200</c> at $A6:FDE4.</summary>
-    internal const ushort BigHealthBelow200 = 0xfde4;
-    /// <summary><c>InstList_Small_HealthGreaterThanEqualTo800</c> at $A6:FDEA.</summary>
-    internal const ushort SmallHealthAtLeast800 = 0xfdea;
-    /// <summary><c>InstList_Small_HealthLessThan800</c> at $A6:FDF0.</summary>
-    internal const ushort SmallHealthBelow800 = 0xfdf0;
-    /// <summary><c>InstList_Small_HealthLessThan600</c> at $A6:FDF6.</summary>
-    internal const ushort SmallHealthBelow600 = 0xfdf6;
-    /// <summary><c>InstList_Small_HealthLessThan400</c> at $A6:FDFC.</summary>
-    internal const ushort SmallHealthBelow400 = 0xfdfc;
-    /// <summary><c>InstList_Small_HealthLessThan200</c> at $A6:FE02.</summary>
-    internal const ushort SmallHealthBelow200 = 0xfe02;
-    /// <summary><c>Spritemap_Zebetite_Big_HealthGreaterThanEqualTo800</c> at $A6:FE08.</summary>
-    internal const ushort FirstSpritemap = 0xfe08;
 
     internal static int ProgramCount => 10;
     public static int MechanicsWordCount => ProgramCount * 2;

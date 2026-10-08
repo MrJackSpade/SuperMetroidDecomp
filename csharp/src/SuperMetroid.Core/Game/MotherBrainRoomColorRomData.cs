@@ -63,7 +63,7 @@ public static class MotherBrainRoomColorRomData
     /// <summary>$A9:94BA-C0, Palette_MotherBrain_Attacks yellow-to-red ramp, four slots.</summary>
     public const int AttackFlameFirst = 3, AttackFlameCount = 4;
     /// <summary>$A9:94C2-C6 repeats three body tissue shades from $A9:9486-948A.</summary>
-    public const int AttackTissueFirst = 7, AttackTissueCount = 3, AttackBodyTissueFirst = 9;
+    public const int AttackTissueFirst = 7, AttackBodyTissueFirst = 9;
     /// <summary>$A9:94C8-94CC and94D0 form four neutral shades; the white94CE slot interrupts their storage.</summary>
     public const int AttackGrayFirst = 10, AttackGrayLast = 14;
     /// <summary>$A9:94CE repeats the body palette's white nontransparent slot13.</summary>
@@ -92,8 +92,6 @@ public static class MotherBrainRoomColorRomData
     public const int RoomRepeatedDarkGrayColor = 21;
     /// <summary>$A9:D0AE, final-room warm accent.</summary>
     public const int RoomGlowColor = 22;
-    /// <summary>$A9:D0B0, final-room white neutral.</summary>
-    public const int RoomWhiteColor = 23;
     /// <summary>$A9:9510/9530 terminate the room-entry palettes with the body palette's black slot14.</summary>
     public const int RoomEntryBlackColor = 14;
     /// <summary>$A9:951A-9528, Palette_MotherBrain_GlassShards eight-color RGB5 shade ramp.</summary>

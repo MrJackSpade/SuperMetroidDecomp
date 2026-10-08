@@ -14,7 +14,6 @@ public enum SoundEffectLibrary : byte
 /// <summary>Checked conversions for raw instruction data and zero-based queue storage.</summary>
 public static class SoundEffectLibraries
 {
-    public const int Count = 3;
 
     /// <summary>Returns the zero-based host queue for a validated library selector.</summary>
     public static int ToQueueIndex(SoundEffectLibrary library) => library switch

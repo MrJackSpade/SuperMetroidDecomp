@@ -8,8 +8,6 @@ internal abstract class KraidNailInstructionProgramDefinitions : IInstructionPro
 {
     /// <summary><c>InstList_KraidNail</c> at $A7:8B0A.</summary>
     internal const ushort Loop = 0x8b0a;
-    /// <summary>First adjacent unused extended-spritemap record at $A7:8B2E.</summary>
-    internal const ushort AdjacentPresentationData = 0x8b2e;
 
     public static int PresentationWordCount => 8;
     public static int MechanicsWordCount => PresentationWordCount + 2;

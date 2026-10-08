@@ -4,7 +4,7 @@ namespace SuperMetroid.ResourceAudit;
 internal static class RoomArtworkClosedContractDefinitions
 {
     private static readonly ReviewedSource TilesetSources = new(
-        "csharp/src/SuperMetroid.Core/Rooms/RoomTilesetDefinitions.cs", "27370C7F21BAA928E3A7491BE09D0182A94FAA9C902F2308EDE0730112EF33C9");
+        "csharp/src/SuperMetroid.Core/Rooms/RoomTilesetDefinitions.cs", "8E4E51FF9113967EAE509E86D0AD47B7F9C29C55325D927CDFE68DD0DDD30F43");
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.RoomCharacterAtlasCatalog", "room-complete-tileset-character-sources", ["Get"],
@@ -16,6 +16,6 @@ internal static class RoomArtworkClosedContractDefinitions
         new("SuperMetroid.Core.Assets.RoomSkyTilemapCatalog", "room-complete-seven-page-sky-transfer-store", ["TryResolve"],
             [new("csharp/src/SuperMetroid.Core/Assets/RoomSkyTilemapCatalog.cs", "76A235967E736A9B6FDC9CA2E67B26FEC0DBE71074D63F83A901608AC7E48ABA"),
              new("csharp/src/SuperMetroid.Core/Assets/RoomBackgroundTilemapAtlas.cs", "9FA2182B31CC5B874EC8DD279E72208D7EAA60147C92BF6099B21DCF99863A07"),
-             new("csharp/src/SuperMetroid.Core/Game/RoomFxRomData.cs", "EEAAAAE46BA3D0FC53EDD5A4F9E429D21FE361CA22B375636936519EA4E98A21")]),
+             new("csharp/src/SuperMetroid.Core/Game/RoomFxRomData.cs", "3357C4AF41CEE8B1D02DA07845455D962C70DEEC9DF22B82978F76669C0101CD")]),
     ];
 }

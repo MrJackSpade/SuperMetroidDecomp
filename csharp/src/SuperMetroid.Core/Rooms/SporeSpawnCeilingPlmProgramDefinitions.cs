@@ -11,8 +11,6 @@ internal static class SporeSpawnCeilingPlmProgramDefinitions
     internal const ushort Crumble = RoomPlmInstructionLists.CrumbleSporeSpawnCeiling;
     /// <summary><c>$84:AB21</c>: four-frame clear followed by deletion.</summary>
     internal const ushort Clear = RoomPlmInstructionLists.ClearSporeSpawnCeiling;
-    /// <summary><c>$84:AB27</c>: first byte of adjacent Botwoon setup code, not Spore Spawn data.</summary>
-    internal const ushort EndExclusive = 0xab27;
     /// <summary><c>$84:AB14</c>: library-two block-crumble sound <c>$0A</c>.</summary>
     internal const byte CrumbleSoundId = 0x0a;
     /// <summary>Native duration of each ceiling appearance.</summary>

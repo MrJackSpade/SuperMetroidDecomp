@@ -20,8 +20,6 @@ internal abstract class TourianStatueProjectileInstructionProgramDefinitions : I
     internal const ushort Soul = 0xb84e;
     /// <summary>Initial base-decoration program at $86:B85A.</summary>
     internal const ushort BaseDecoration = 0xb85a;
-    /// <summary>Looping base-decoration program at $86:B862.</summary>
-    internal const ushort BaseDecorationLoop = 0xb862;
     /// <summary>Looping Ridley-statue program at $86:B86A.</summary>
     internal const ushort Ridley = 0xb86a;
     /// <summary>Looping Phantoon-statue program at $86:B872.</summary>

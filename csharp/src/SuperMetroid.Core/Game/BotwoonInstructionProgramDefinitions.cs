@@ -31,33 +31,6 @@ internal abstract class BotwoonInstructionProgramDefinitions : IInstructionProgr
 
     /// <summary><c>InstList_Botwoon_Spit_AimingUpLeft</c> at $B3:939F.</summary>
     internal const ushort SpittingUpLeft = 0x939f;
-    /// <summary><c>InstList_Botwoon_Spit_AimingLeft</c> at $B3:93AF.</summary>
-    internal const ushort SpittingLeft = 0x93af;
-    /// <summary><c>InstList_Botwoon_Spit_AimingDownLeft</c> at $B3:93BF.</summary>
-    internal const ushort SpittingDownLeft = 0x93bf;
-    /// <summary><c>InstList_Botwoon_Spit_AimingDown_FacingRight</c> at $B3:93DF.</summary>
-    internal const ushort SpittingDown = 0x93df;
-    /// <summary><c>InstList_Botwoon_Spit_AimingDownRight</c> at $B3:93EF.</summary>
-    internal const ushort SpittingDownRight = 0x93ef;
-    /// <summary><c>InstList_Botwoon_Spit_AimingRight</c> at $B3:93FF.</summary>
-    internal const ushort SpittingRight = 0x93ff;
-    /// <summary><c>InstList_Botwoon_Spit_AimingUpRight</c> at $B3:940F.</summary>
-    internal const ushort SpittingUpRight = 0x940f;
-    /// <summary><c>InstList_Botwoon_Spit_AimingUp_FacingRight</c> at $B3:941F.</summary>
-    internal const ushort SpittingUp = 0x941f;
-
-    /// <summary>
-    /// <c>UNSUED_InstList_Botwoon_MouthClosed_AimDown_FaceLeft_B39359</c> at $B3:9359.
-    /// </summary>
-    internal const ushort UnusedMovingHorizontal = 0x9359;
-    /// <summary>
-    /// <c>UNUSED_InstList_Botwoon_Spit_AimingDown_FacingLeft_B393CF</c> at $B3:93CF.
-    /// </summary>
-    internal const ushort UnusedSpittingHorizontal = 0x93cf;
-    /// <summary>
-    /// <c>UNUSED_InstList_Botwoon_Hidden_AimingUp_FacingLeft_B3942F</c> at $B3:942F.
-    /// </summary>
-    internal const ushort FirstAdjacentProgram = 0x942f;
 
     public static int MechanicsWordCount => 74;
     public static int PresentationWordCount => 25;

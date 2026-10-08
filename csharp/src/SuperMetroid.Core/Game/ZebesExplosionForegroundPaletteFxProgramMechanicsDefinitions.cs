@@ -20,8 +20,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions
 {
-    /// <summary>The palette-FX definition at <c>$8D:E1C8</c>.</summary>
-    public const ushort DefinitionPointer = 0xe1c8;
 
     /// <summary>The instruction-list entry at <c>$8D:CB3C</c>.</summary>
     public const ushort ProgramStart = 0xcb3c;

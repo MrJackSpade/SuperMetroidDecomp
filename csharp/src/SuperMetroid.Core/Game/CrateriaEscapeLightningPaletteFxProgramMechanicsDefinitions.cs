@@ -42,8 +42,6 @@ public static class CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions
     public const ushort CreBlockPixelProgramStart = 0xff27;
     /// <summary>Both loops contain eleven timed records.</summary>
     public const int FrameCount = 11;
-    /// <summary>Both complete loops last 98 frames.</summary>
-    public const int CycleFrames = 98;
 
     /// <summary>$8D:FFE9 yellow-lightning program targets eleven colors from CGRAM byte $A2.</summary>
     private static readonly CrateriaEscapeLightningPaletteFxProgramDefinition YellowLightning = new(

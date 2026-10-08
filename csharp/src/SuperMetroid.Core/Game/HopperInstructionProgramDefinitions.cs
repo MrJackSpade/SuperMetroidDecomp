@@ -9,42 +9,15 @@ internal abstract class HopperInstructionProgramDefinitions : IInstructionProgra
 {
     /// <summary><c>InstList_Sidehopper_Hopping_UpsideUp</c> at $A3:AA76.</summary>
     internal const ushort SidehopperJumpingFloor = 0xaa76;
-    /// <summary><c>InstList_Sidehopper_Landed_UpsideUp</c> at $A3:AA82.</summary>
-    internal const ushort SidehopperLandedFloor = 0xaa82;
-    /// <summary><c>InstList_Sidehopper_Hopping_UpsideDown</c> at $A3:AA9C.</summary>
-    internal const ushort SidehopperJumpingCeiling = 0xaa9c;
-    /// <summary><c>InstList_Sidehopper_Landed_UpsideDown</c> at $A3:AAA8.</summary>
-    internal const ushort SidehopperLandedCeiling = 0xaaa8;
 
     /// <summary><c>InstList_Dessgeega_Hopping_UpsideUp</c> at $A3:AFA5.</summary>
     internal const ushort DessgeegaJumpingFloor = 0xafa5;
-    /// <summary><c>InstList_Dessgeega_Landed_UpsideUp</c> at $A3:AFAD.</summary>
-    internal const ushort DessgeegaLandedFloor = 0xafad;
-    /// <summary><c>InstList_Dessgeega_Hopping_UpsideDown</c> at $A3:AFC3.</summary>
-    internal const ushort DessgeegaJumpingCeiling = 0xafc3;
-    /// <summary><c>InstList_Dessgeega_Landed_UpsideDown</c> at $A3:AFCB.</summary>
-    internal const ushort DessgeegaLandedCeiling = 0xafcb;
 
     /// <summary><c>InstList_SidehopperLarge_Hopping_UpsideUp</c> at $A3:B0C5.</summary>
     internal const ushort LargeSidehopperJumpingFloor = 0xb0c5;
-    /// <summary><c>InstList_SidehopperLarge_Landed_UpsideUp</c> at $A3:B0D1.</summary>
-    internal const ushort LargeSidehopperLandedFloor = 0xb0d1;
-    /// <summary><c>InstList_SidehopperLarge_Hopping_UpsideDown</c> at $A3:B0EB.</summary>
-    internal const ushort LargeSidehopperJumpingCeiling = 0xb0eb;
-    /// <summary><c>InstList_SidehopperLarge_Landed_UpsideDown</c> at $A3:B0F7.</summary>
-    internal const ushort LargeSidehopperLandedCeiling = 0xb0f7;
 
     /// <summary><c>InstList_DessgeegaLarge_Hopping_UpsideUp</c> at $A3:B237.</summary>
     internal const ushort LargeDessgeegaJumpingFloor = 0xb237;
-    /// <summary><c>InstList_DessgeegaLarge_Landed_UpsideUp</c> at $A3:B23F.</summary>
-    internal const ushort LargeDessgeegaLandedFloor = 0xb23f;
-    /// <summary><c>InstList_DessgeegaLarge_Hopping_UpsideDown</c> at $A3:B255.</summary>
-    internal const ushort LargeDessgeegaJumpingCeiling = 0xb255;
-    /// <summary><c>InstList_DessgeegaLarge_Landed_UpsideDown</c> at $A3:B25D.</summary>
-    internal const ushort LargeDessgeegaLandedCeiling = 0xb25d;
-
-    /// <summary>The final hopper physics-table word immediately before the first program.</summary>
-    internal const ushort LastAdjacentPhysicsWord = 0xaa74;
 
     /// <summary>$A3:AA7A/AAA0/B0C9/B0EF: Sidehopper airborne sound in library 2.</summary>
     private const ushort JumpSound = 0x005d;

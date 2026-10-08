@@ -11,21 +11,9 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 internal static class AreaAnimatedTileObjectDefinitions
 {
-    /// <summary>
-    /// Native <c>kArea_AnimtilesObjectListPtrs</c> at <c>$83:AC56</c>; eight words point
-    /// to the eight native area lists below.
-    /// </summary>
-    public const int NativeListPointerTable = 0x83ac56;
 
     /// <summary>Eight object-header words are addressable by one FX bitset.</summary>
     public const int ObjectsPerArea = 8;
-
-    /// <summary>
-    /// The cartridge stores an eighth non-retail list after the seven typed areas.
-    /// Production <see cref="Read(AreaId, int)"/> deliberately accepts only typed retail
-    /// areas, while verification retains this row so every native table word is audited.
-    /// </summary>
-    public const int NativeAreaCount = 8;
 
     /// <summary>Direct area/bit behavior selection, shared by retail and native audit views.</summary>
     /// <remarks>All eight original lists at $83:AC76..AD65 share spike objects for

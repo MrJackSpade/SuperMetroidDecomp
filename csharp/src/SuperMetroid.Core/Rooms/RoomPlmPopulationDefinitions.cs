@@ -10,8 +10,6 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 internal static partial class RoomPlmPopulationDefinitions
 {
-    internal const int RetailPopulationCount = 284;
-    internal const int RetailRecordCount = 941;
 
     internal static void Place(ushort pointer, Action<ushort, byte, byte, ushort> place)
     {

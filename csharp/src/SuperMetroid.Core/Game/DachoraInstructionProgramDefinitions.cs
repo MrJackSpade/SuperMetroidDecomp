@@ -38,8 +38,6 @@ internal abstract class DachoraInstructionProgramDefinitions : IInstructionProgr
     internal const ushort EchoRight = 0xf4b9;
     /// <summary><c>InstList_Dachora_Falling_FacingRight</c> at $A7:F4C1.</summary>
     internal const ushort FallingRight = 0xf4c1;
-    /// <summary>The retail-unused left-facing charge program at $A7:F3F1.</summary>
-    internal const ushort UnusedChargeLeft = 0xf3f1;
 
     /// <summary>Native program bank $A7.</summary>
     internal const byte Bank = 0xa7;
@@ -159,13 +157,6 @@ internal abstract class DachoraInstructionProgramDefinitions : IInstructionProgr
         Entry(FallingRight),
         Frame(5),
         Op(CommonEnemyInstructionCodes.Goto, FallingRight));
-
-    /// <summary>The fifteen production entry programs, in native order.</summary>
-    private static readonly ushort[] ProgramEntries =
-    [
-        RunningLeft, RunningLeftFast, RunningLeftVeryFast, IdleLeft, BlinkLeft, EchoLeft, FallingLeft,
-        RunningRight, RunningRightFast, RunningRightVeryFast, IdleRight, BlinkRight, ChargeRight, EchoRight, FallingRight,
-    ];
     public static int MechanicsWordCount => Layout.MechanicsWordCount;
     public static int PresentationWordCount => Layout.PresentationSlotCount;
 

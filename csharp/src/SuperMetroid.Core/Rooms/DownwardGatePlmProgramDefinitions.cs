@@ -22,8 +22,6 @@ internal static class DownwardGatePlmProgramDefinitions
     private const ushort ClosingSoundAddress = 0xbc29;
     /// <summary>$84:BC4C: packed movement sound after the opening wake command.</summary>
     private const ushort OpeningSoundAddress = 0xbc4c;
-    /// <summary>$84:BC61: adjacent upward-gate program, outside this decoder.</summary>
-    private const ushort ResidentEnd = 0xbc61;
     /// <summary>$84:BCDF: adjacent upward-trigger program, outside this decoder.</summary>
     private const ushort TriggerEnd = 0xbcdf;
 

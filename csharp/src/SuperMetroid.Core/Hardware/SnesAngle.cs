@@ -11,9 +11,6 @@ public readonly record struct SnesAngle : IComparable<SnesAngle>
     /// <summary>Number of high-byte sine-table units in one complete turn.</summary>
     public const int TableUnitsPerTurn = 0x100;
 
-    /// <summary>Number of native 8.8 units in one complete turn before word wrapping.</summary>
-    public const int RawUnitsPerTurn = 0x1_0000;
-
     private SnesAngle(ushort rawValue) => RawValue = rawValue;
 
     /// <summary>The complete wrapping 8.8-turn word used by native state.</summary>

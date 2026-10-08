@@ -9,10 +9,6 @@ public static class EndingCreditsRomData
     public static class Assets
     {
         public const int EscapePalette = 0x8cede9;
-        /// <summary>$95:A82F, decompressed to $7F:0000 for the flyaway's high-byte Mode-7 character lane.</summary>
-        public const int FlyawayCharacters = 0x95a82f;
-        /// <summary>$96:FE69, decompressed to $7F:4000 for the flyaway's low-byte Mode-7 map lane.</summary>
-        public const int FlyawayMap = 0x96fe69;
         /// <summary>$8B:DE43, final gunship palette restored by Func124 before operation text.</summary>
         public const int FinalGunshipPalette = 0x8bde43;
         /// <summary>$8C:E7E9, kPalettes_Intro4, restored by the end-credits instruction $8B:F6FE.</summary>
@@ -54,7 +50,6 @@ public static class EndingCreditsRomData
             _ => throw new ArgumentOutOfRangeException(nameof(id)),
         };
         public const int EndingFontCharacters = 0x97e7de;
-        public const int CreditsTilemap = 0x97eeff;
         public const int WaitingForCreditsCharacters = 0x979803;
         public const int SuitlessSamusCharacters = 0x97b957;
         public const int ShootingScreenCharacters = 0x97d7fc;
@@ -62,19 +57,12 @@ public static class EndingCreditsRomData
         public const int PostCreditsMode7Characters = 0x97f987;
         public const int PostCreditsTileFragmentA = 0x99da9f;
         public const int PostCreditsTileFragmentB = 0x99dab1;
-        public const int SignedSineTable = 0xa0b443;
     }
 
     public static class Instructions
     {
-        public static readonly SnesAddress Bank = new(0x8c, 0);
-        public const ushort CreditsInitial = 0xd91b;
-        public const ushort ResultPanel = 0xdc9b;
-        /// <summary>$8C:DEDB, the 1994 Nintendo copyright panel copied by $8B:E293.</summary>
-        public const ushort CopyrightPanel = 0xdedb;
         public const ushort ItemPercentageText = 0xdfdb;
         public const ushort SeeYouNextMissionText = 0xe0af;
-        public const ushort JapaneseItemPercentageSubtitle = 0xdf5b;
     }
 
     public static class Rendering
@@ -102,7 +90,6 @@ public static class EndingCreditsRomData
         public const int TilemapWidth = 32;
         public const int TilemapHeight = 32;
         public const int TilemapWords = TilemapWidth * TilemapHeight;
-        public const int CreditsSourceBytes = 0x2000;
         public const ushort CreditsTilemapWord = 0x4800;
         public const ushort CreditsCharacterWord = 0x4000;
         /// <summary>$8B:E190 selects BG1 for the result text, using the credits font/map bases.</summary>
@@ -137,9 +124,7 @@ public static class EndingCreditsRomData
         public const int Fragment74Destination = 0xe800;
         public const int Fragment78Destination = 0xf000;
         public const int Fragment7CDestination = 0xf800;
-        public const int PaletteSecondHalfOffset = 0x0100;
         public const int PaletteHalfBytes = 128;
-        public const int PostCreditsPaletteSourceOffset = 8;
         public const int PostCreditsPaletteBytes = 252;
         public const int PostCreditsPaletteDestination = 4;
         public const ushort WhiteColor = 0x7fff;
@@ -244,7 +229,6 @@ public static class EndingCreditsRomData
         public const int ResultPanelDestination = 288;
         public const int ResultPanelWords = 288;
         public const int CopyrightPanelDestination = 384;
-        public const int CopyrightPanelWords = 64;
         public const int JapaneseSubtitleDestination = 736;
         public const int JapaneseSubtitleWords = 64;
         public const int PercentageHundredsTopIndex = 462;
@@ -254,7 +238,6 @@ public static class EndingCreditsRomData
         public const ushort PercentBottomTile = 0x387a;
         public const ushort CollectibleItemMask = 0xf32f;
         public const ushort CollectibleBeamMask = 0x100f;
-        public const ushort PackedPositionXMask = 0x00ff;
         public const ushort HoursTensX = 0x009c;
         public const ushort HoursUnitsX = 0x00a4;
         public const ushort MinutesTensX = 0x00b4;

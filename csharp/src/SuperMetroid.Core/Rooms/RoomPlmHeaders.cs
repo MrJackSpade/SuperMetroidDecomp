@@ -62,15 +62,8 @@ internal static class RoomPlmHeaders
 
     /// <summary>Main map-station room actor at $84:B6D3.</summary>
     public const ushort MapStation = 0xb6d3;
-    public const ushort MapStationRightAccess = 0xb6d7;
-    public const ushort MapStationLeftAccess = 0xb6db;
     public const ushort EnergyStation = 0xb6df;
-    public const ushort EnergyStationRightAccess = 0xb6e3;
-    public const ushort EnergyStationLeftAccess = 0xb6e7;
     public const ushort MissileStation = 0xb6eb;
-    public const ushort MissileStationRightAccess = 0xb6ef;
-    public const ushort MissileStationLeftAccess = 0xb6f3;
-    public const ushort ScrollTriggerCollision = 0xb6ff;
 
     /// <summary>Ordinary elevator-platform room actor at $84:B70B.</summary>
     public const ushort ElevatorPlatform = 0xb70b;
@@ -94,8 +87,6 @@ internal static class RoomPlmHeaders
     public const ushort ClearBabyMetroidInvisibleWall = 0xb763;
     /// <summary>Create the Baby Metroid encounter's invisible wall at $84:B767.</summary>
     public const ushort CreateBabyMetroidInvisibleWall = 0xb767;
-    /// <summary>Collision-side save-station trigger at $84:B76B.</summary>
-    public const ushort SaveStationTrigger = 0xb76b;
     /// <summary>Main save-station room actor at $84:B76F.</summary>
     public const ushort SaveStation = 0xb76f;
     /// <summary>Draw Phantoon's closed arena door at $84:B781.</summary>
@@ -291,31 +282,12 @@ internal static class RoomPlmHeaders
     /// <summary>Draygon-room left-facing shielded cannon at <c>$84:DF71</c>.</summary>
     public const ushort DraygonCannonFacingLeft = 0xdf71;
 
-    /// <summary>Collision-side permanent-item detector at $84:EED3.</summary>
-    public const ushort ItemCollisionDetection = 0xeed3;
-
     // Exposed permanent-item headers. The order matches InWorldCollectibleKind exactly.
     public const ushort ExposedEnergyTank = 0xeed7;
     public const ushort ExposedMissileTank = 0xeedb;
     public const ushort ExposedSuperMissileTank = 0xeedf;
     public const ushort ExposedPowerBombTank = 0xeee3;
-    public const ushort ExposedBombs = 0xeee7;
-    public const ushort ExposedChargeBeam = 0xeeeb;
-    public const ushort ExposedIceBeam = 0xeeef;
-    public const ushort ExposedHiJumpBoots = 0xeef3;
-    public const ushort ExposedSpeedBooster = 0xeef7;
-    public const ushort ExposedWaveBeam = 0xeefb;
-    public const ushort ExposedSpazerBeam = 0xeeff;
-    public const ushort ExposedSpringBall = 0xef03;
-    public const ushort ExposedVariaSuit = 0xef07;
-    public const ushort ExposedGravitySuit = 0xef0b;
-    public const ushort ExposedXrayScope = 0xef0f;
-    public const ushort ExposedPlasmaBeam = 0xef13;
-    public const ushort ExposedGrappleBeam = 0xef17;
-    public const ushort ExposedSpaceJump = 0xef1b;
-    public const ushort ExposedScrewAttack = 0xef1f;
     public const ushort ExposedMorphBall = 0xef23;
-    public const ushort ExposedReserveTank = 0xef27;
 
     // Chozo-orb permanent-item headers. The order matches InWorldCollectibleKind exactly.
     public const ushort ChozoEnergyTank = 0xef2b;
@@ -337,7 +309,6 @@ internal static class RoomPlmHeaders
     public const ushort ChozoGrappleBeam = 0xef6b;
     public const ushort ChozoSpaceJump = 0xef6f;
     public const ushort ChozoScrewAttack = 0xef73;
-    public const ushort ChozoMorphBall = 0xef77;
     public const ushort ChozoReserveTank = 0xef7b;
 
     // Concealed shot-block permanent-item headers. The order matches
@@ -345,22 +316,4 @@ internal static class RoomPlmHeaders
     public const ushort ShotBlockEnergyTank = 0xef7f;
     public const ushort ShotBlockMissileTank = 0xef83;
     public const ushort ShotBlockSuperMissileTank = 0xef87;
-    public const ushort ShotBlockPowerBombTank = 0xef8b;
-    public const ushort ShotBlockBombs = 0xef8f;
-    public const ushort ShotBlockChargeBeam = 0xef93;
-    public const ushort ShotBlockIceBeam = 0xef97;
-    public const ushort ShotBlockHiJumpBoots = 0xef9b;
-    public const ushort ShotBlockSpeedBooster = 0xef9f;
-    public const ushort ShotBlockWaveBeam = 0xefa3;
-    public const ushort ShotBlockSpazerBeam = 0xefa7;
-    public const ushort ShotBlockSpringBall = 0xefab;
-    public const ushort ShotBlockVariaSuit = 0xefaf;
-    public const ushort ShotBlockGravitySuit = 0xefb3;
-    public const ushort ShotBlockXrayScope = 0xefb7;
-    public const ushort ShotBlockPlasmaBeam = 0xefbb;
-    public const ushort ShotBlockGrappleBeam = 0xefbf;
-    public const ushort ShotBlockSpaceJump = 0xefc3;
-    public const ushort ShotBlockScrewAttack = 0xefc7;
-    public const ushort ShotBlockMorphBall = 0xefcb;
-    public const ushort ShotBlockReserveTank = 0xefcf;
 }

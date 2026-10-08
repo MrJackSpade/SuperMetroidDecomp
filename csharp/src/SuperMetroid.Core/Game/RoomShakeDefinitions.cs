@@ -7,12 +7,6 @@ internal readonly record struct RoomShakeDefinition(
 /// <summary>Exact bounded geometry and recipient policy for the 36 rendered earthquake types.</summary>
 internal static class RoomShakeDefinitions
 {
-    /// <summary>$A0:872D BGShakeDisplacements.BG1X/BG1Y, at eight-byte record stride.</summary>
-    internal const int Bg1ReferenceAddress = 0xa0872d;
-    /// <summary>$A0:8731 BGShakeDisplacements.BG2X/BG2Y, at eight-byte record stride.</summary>
-    internal const int Bg2ReferenceAddress = 0xa08731;
-    /// <summary>$86:846B Get_Values_for_Screen_Shaking.horizontalX/Y, at four-byte stride.</summary>
-    internal const int ProjectileReferenceAddress = 0x86846b;
 
     /// <summary>Returns the physical displacement record for earthquake type 0..35.</summary>
     /// <remarks>

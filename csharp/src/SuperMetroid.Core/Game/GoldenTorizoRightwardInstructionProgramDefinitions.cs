@@ -10,8 +10,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal abstract class GoldenTorizoRightwardInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
 {
-    internal const ushort Start = GoldenTorizoCombatInstructionPointers.DodgeTurningRight;
-    internal const ushort End = 0xd369;
 
     /// <summary><c>InstList_Torizo_FacingRight_JumpingForwards_0</c> at $AA:C0DA.</summary>
     private const ushort TorizoFacingRightJumpingForwards0 = 0xc0da;

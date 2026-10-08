@@ -9,36 +9,8 @@ internal abstract class BotwoonProjectileInstructionProgramDefinitions : IInstru
 {
     /// <summary><c>InstList_EnemyProjectile_BotwoonsBody_UpLeft</c> at $86:E80F.</summary>
     internal const ushort BodyUpLeft = 0xe80f;
-    /// <summary><c>InstList_EnemyProjectile_BotwoonsBody_Left</c> at $86:E823.</summary>
-    internal const ushort BodyLeft = 0xe823;
-    /// <summary><c>InstList_EnemyProjectile_BotwoonsBody_DownLeft</c> at $86:E837.</summary>
-    internal const ushort BodyDownLeft = 0xe837;
-    /// <summary><c>InstList_EnemyProjectile_BotwoonsBody_Down_FacingRight</c> at $86:E85F.</summary>
-    internal const ushort BodyDownFacingRight = 0xe85f;
-    /// <summary><c>InstList_EnemyProjectile_BotwoonsBody_DownRight</c> at $86:E873.</summary>
-    internal const ushort BodyDownRight = 0xe873;
-    /// <summary><c>InstList_EnemyProjectile_BotwoonsBody_Right</c> at $86:E887.</summary>
-    internal const ushort BodyRight = 0xe887;
-    /// <summary><c>InstList_EnemyProjectile_BotwoonsBody_UpRight</c> at $86:E89B.</summary>
-    internal const ushort BodyUpRight = 0xe89b;
-    /// <summary><c>InstList_EnemyProjectile_BotwoonsBody_Up_FacingRight</c> at $86:E8AF.</summary>
-    internal const ushort BodyUpFacingRight = 0xe8af;
     /// <summary><c>InstList_EnemyProjectile_BotwoonsTail_Up_FacingRight</c> at $86:E8C3.</summary>
     internal const ushort TailUpFacingRight = 0xe8c3;
-    /// <summary><c>InstList_EnemyProjectile_BotwoonsTail_UpLeft</c> at $86:E8C9.</summary>
-    internal const ushort TailUpLeft = 0xe8c9;
-    /// <summary><c>InstList_EnemyProjectile_BotwoonsTail_Left</c> at $86:E8CF.</summary>
-    internal const ushort TailLeft = 0xe8cf;
-    /// <summary><c>InstList_EnemyProjectile_BotwoonsTail_DownLeft</c> at $86:E8D5.</summary>
-    internal const ushort TailDownLeft = 0xe8d5;
-    /// <summary><c>InstList_EnemyProjectile_BotwoonsTail_Down</c> at $86:E8DB.</summary>
-    internal const ushort TailDown = 0xe8db;
-    /// <summary><c>InstList_EnemyProjectile_BotwoonsTail_DownRight</c> at $86:E8E1.</summary>
-    internal const ushort TailDownRight = 0xe8e1;
-    /// <summary><c>InstList_EnemyProjectile_BotwoonsTail_Right</c> at $86:E8E7.</summary>
-    internal const ushort TailRight = 0xe8e7;
-    /// <summary><c>InstList_EnemyProjectile_BotwoonsTail_UpRight</c> at $86:E8ED.</summary>
-    internal const ushort TailUpRight = 0xe8ed;
     /// <summary><c>InstList_EnemyProjectile_BotwoonsBodyTail_Hidden</c> at $86:E8F3.</summary>
     internal const ushort Hidden = 0xe8f3;
     /// <summary><c>InstList_EnemyProjectile_BotwoonsSpit</c> at $86:EBAE.</summary>

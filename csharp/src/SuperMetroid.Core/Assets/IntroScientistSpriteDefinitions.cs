@@ -7,8 +7,6 @@ internal static class IntroScientistSpriteDefinitions
 {
     /// <summary>$8C:8CCF, first subtitle-arrow composition in the shared scientist catalog.</summary>
     internal const ushort Start = 0x8ccf;
-    /// <summary>$8C:8D6F, exclusive end of ten consecutive compositions.</summary>
-    internal const ushort End = 0x8d6f;
 
     /// <summary>Native record order: three two-part arrows, three six-part delivered
     /// poses, three one-part examined poses, then the one-part caret. Record size is

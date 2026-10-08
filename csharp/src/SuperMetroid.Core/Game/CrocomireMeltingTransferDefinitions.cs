@@ -39,12 +39,6 @@ internal static class CrocomireMeltingTransferDefinitions
     /// <summary>Second header's native offset from $A4:9BC5.</summary>
     internal const ushort SecondHeaderOffset = 0x0054;
 
-    /// <summary>Native bank-$A4 base for independent ROM-oracle comparison.</summary>
-    internal const int NativeSourceAddress = 0xa49bc5;
-
-    /// <summary>Exclusive end of the two native records.</summary>
-    internal const int NativeByteCount = 0x00b4;
-
     internal static CrocomireMeltingPassSequence Passes => new();
 
     /// <summary>Six chunks in the first pass and seven in the second. Each header

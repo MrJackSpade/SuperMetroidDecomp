@@ -14,14 +14,9 @@ public static class CeresDestructionRomData
 
     public static class Assets
     {
-        public const int Palette = 0x8ce5e9;
-        public const int Mode7Characters = 0x95a82f;
         public const int CeresTilemaps = 0x96fe69;
-        public const int CeresObjectCharacters = 0x96d10a;
         public const int ZebesTilemap = 0x978adb;
         public const int ZebesCharacters = 0x96ec76;
-        public const int SignedSineTable = 0xa0b443;
-        public const int SharedObjectCharacters = 0x9ad200;
     }
 
     public static class Music

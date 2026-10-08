@@ -8,10 +8,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class CrocomireBg2ScrollDefinitions
 {
-    /// <summary>First pointer of the 17-word map at $A4:8B79.</summary>
-    internal const int NativeMapTable = 0xa48b79;
-    /// <summary>Fourth-component Y offset within each mapped bank-$A4 spritemap.</summary>
-    internal const ushort FourthComponentYOffset = 0x001c;
     /// <summary>Native $A4:8B5B vertical-scroll origin.</summary>
     internal const ushort VerticalOrigin = 0x0043;
 

@@ -27,8 +27,6 @@ public static class SamusProjectileRomData
         public const int Projectile = 0x930000;
         /// <summary>Eight-bit form of <see cref="Projectile"/> for <c>SnesAddress</c>.</summary>
         public const byte ProjectileNumber = 0x93;
-        /// <summary>Bank containing terrain collision geometry.</summary>
-        public const int Collision = 0x940000;
         /// <summary>Bank containing projectile character graphics.</summary>
         public const int CharacterData = 0x9a0000;
         /// <summary>Bank containing Samus palettes and beam-trail offsets.</summary>
@@ -73,10 +71,6 @@ public static class SamusProjectileRomData
         public const int ChargedRowOffset = 0x10;
         /// <summary>Held-Shot repeat delays indexed by beam combination.</summary>
         public const int AutoFireCooldowns = 0x90c283;
-        /// <summary>Uncharged firing sound IDs indexed by beam combination.</summary>
-        public const int UnchargedSounds = 0x90c28f;
-        /// <summary>Charged firing sound IDs indexed by beam combination.</summary>
-        public const int ChargedSounds = 0x90c2a7;
         /// <summary>Speed word for horizontal and vertical power-beam travel.</summary>
         public const int HorizontalVerticalSpeeds = 0x90c2d1;
         /// <summary>Speed word for diagonal power-beam travel.</summary>
@@ -116,13 +110,6 @@ public static class SamusProjectileRomData
         /// <summary>Number of beam combinations present in each complete pointer table.</summary>
         public const int CombinationCount =
             (ChargedDataPointers - UnchargedDataPointers) / sizeof(ushort);
-
-        /// <summary>Damage word followed by one instruction pointer per direction.</summary>
-        public const int DataRecordByteCount =
-            sizeof(ushort) + Origins.DirectionCount * sizeof(ushort);
-
-        /// <summary>Duration, spritemap, radii, and animation word in one instruction record.</summary>
-        public const int InstructionRecordByteCount = 8;
     }
 
     /// <summary>Projectile-driven Samus and beam palette pointer tables.</summary>
@@ -130,10 +117,6 @@ public static class SamusProjectileRomData
     {
         /// <summary>$90:ACCD writes the sixteen beam colors beginning at CGRAM index $E0.</summary>
         public const int BeamDestinationIndex = 0xe0;
-        /// <summary>Suit-indexed pointers to ordinary Samus palettes.</summary>
-        /// <remarks>Alias of <see cref="SamusPaletteRomData.Common.NormalSuitPointers"/>;
-        /// the three-word proof is issue #859 / #625.</remarks>
-        public const int NormalSuitPointers = 0x91d727;
         /// <summary>Suit-indexed pointers to charged-beam palette instruction lists.</summary>
         public const int BeamChargePointers = 0x91d7d5;
         /// <summary>Suit-indexed pointers to pseudo-Screw palette instruction lists.</summary>
@@ -142,8 +125,6 @@ public static class SamusProjectileRomData
         public const int HyperBeamShotPointers = 0x91d829;
         /// <summary>First CGRAM color occupied by Samus's OBJ palette.</summary>
         public const int SamusCgramIndex = 192;
-        /// <summary>Number of colors copied by one projectile-driven palette update.</summary>
-        public const int ColorCount = 16;
     }
 
     /// <summary>Missile, Super Missile, bomb, and linked-projectile definitions.</summary>
@@ -171,8 +152,6 @@ public static class SamusProjectileRomData
         public const ushort SuperMissileEarthquakeType = 20;
         /// <summary>$93:812B, KillProjectileInner: thirty room-shaking calls after Super Missile impact.</summary>
         public const ushort SuperMissileEarthquakeDuration = 30;
-        /// <summary>Bytes in one direction's acceleration/subacceleration record.</summary>
-        public const int AccelerationRecordByteCount = 4;
     }
 
     /// <summary>Beam-trail instructions and direction/frame offset families.</summary>
@@ -194,9 +173,6 @@ public static class SamusProjectileRomData
         public const ushort MoveRightDown = 0xb587;
         /// <summary>Left-stream instruction that moves its sprite one pixel up.</summary>
         public const ushort MoveLeftUp = 0xb5b3;
-        /// <summary>Number of trail pointer entries before the paired right table.</summary>
-        public const int InstructionPointerCount =
-            (RightInstructionPointers - LeftInstructionPointers) / sizeof(ushort);
     }
 
     /// <summary>Shared bank-$93 projectile instruction opcodes.</summary>

@@ -9,8 +9,6 @@ public static class AttractDemoRomData
     public const int EnemyTransferFrames = 7;
     /// <summary>$80:8261 enables three sets before the completed-game SRAM marker.</summary>
     public const int DefaultSetCount = 3;
-    /// <summary>$70:1FE0, completion marker checked by VerifySRAM to unlock set four.</summary>
-    public const int CompletionMarkerAddress = (SuperMetroid.Core.Game.SaveRamLayout.SramBank << 16) | SuperMetroid.Core.Game.SaveRamLayout.CompletionMarkerOffset;
     /// <summary>Literal state writes in the demo setup routines.</summary>
     public static class SetupValues
     {
@@ -56,18 +54,6 @@ public static class AttractDemoRomData
         /// <summary>$82:8932, DemoRoom_SetBrinstarBossBits: Brinstar boss byte becomes one.</summary>
         public const ushort DefeatedKraid = 0x8932;
     }
-    /// <summary>$82:876C, DemoRoomData_pointers: four room-list pointers terminated by $FFFF.</summary>
-    public const int RoomSetPointers = 0x82876c;
-    /// <summary>$91:8885, DemoData_Pointers: four equipment/input-object list pointers.</summary>
-    public const int EquipmentSetPointers = 0x918885;
-    /// <summary>$91:89FD, DemoSamusSetup_Pointers: four Samus-initializer list pointers.</summary>
-    public const int SamusSetupSetPointers = 0x9189fd;
     /// <summary>Number of physical entries in each retail demo-set pointer table.</summary>
     public const int SetCount = 4;
-    /// <summary>LoadDemoRoomData's bank and eighteen-byte record stride.</summary>
-    public const int RoomBank = 0x820000, RoomRecordBytes = 18;
-    /// <summary>LoadDemoData's bank and sixteen-byte equipment record stride.</summary>
-    public const int EquipmentBank = 0x910000, EquipmentRecordBytes = 16;
-    /// <summary>CheckForNextDemo's room-list termination word.</summary>
-    public const ushort EndOfSet = 0xffff;
 }

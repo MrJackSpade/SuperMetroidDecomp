@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal abstract class GoldenTorizoEggInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
-    /// <summary><c>InitAI_EnemyProjectile_GoldenTorizoEgg</c> at $86:B001.</summary>
-    internal const ushort InitializationAi = 0xb001;
     /// <summary><c>InstList_EnemyProjectile_GoldenTorizoEgg_BouncingLeft</c> at $86:B104.</summary>
     internal const ushort BouncingLeft = 0xb104;
     /// <summary><c>InstList_EnemyProjectile_GoldenTorizoEgg_BouncingRight</c> at $86:B11C.</summary>
@@ -18,12 +16,8 @@ internal abstract class GoldenTorizoEggInstructionProgramDefinitions : IInstruct
     internal const ushort Hatch = 0xb134;
     /// <summary><c>InstList_EnemyProjectile_GoldenTorizoEgg_Hatched_Left_0</c> at $86:B14B.</summary>
     internal const ushort HatchedLeft = 0xb14b;
-    /// <summary><c>InstList_EnemyProjectile_GoldenTorizoEgg_Hatched_Left_1</c> at $86:B152.</summary>
-    internal const ushort HatchedLeftLoop = 0xb152;
     /// <summary><c>InstList_EnemyProjectile_GoldenTorizoEgg_Hatched_Right_0</c> at $86:B166.</summary>
     internal const ushort HatchedRight = 0xb166;
-    /// <summary><c>InstList_EnemyProjectile_GoldenTorizoEgg_Hatched_Right_1</c> at $86:B16D.</summary>
-    internal const ushort HatchedRightLoop = 0xb16d;
     /// <summary><c>InstList_EnemyProjectile_GoldenTorizoEgg_Break_FacingLeft</c> at $86:B190.</summary>
     internal const ushort BreakLeft = 0xb190;
     /// <summary><c>InstList_EnemyProjectile_GoldenTorizoEgg_Break_FacingRight</c> at $86:B1A8.</summary>

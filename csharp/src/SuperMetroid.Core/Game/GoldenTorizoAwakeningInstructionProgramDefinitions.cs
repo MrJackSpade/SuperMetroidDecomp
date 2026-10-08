@@ -12,9 +12,6 @@ internal abstract class GoldenTorizoAwakeningInstructionProgramDefinitions : IIn
     /// <summary>First instruction after the Samus-position sleep at $AA:C9E2.</summary>
     internal const ushort Start = 0xc9e2;
 
-    /// <summary>First word after the awakening handoff at $AA:CACE.</summary>
-    internal const ushort End = 0xcace;
-
     /// <summary>$AA:C6BF, Function_Torizo_SimpleMovement, active during the initial fall.</summary>
     private const ushort FallingFunction = 0xc6bf;
     /// <summary>$AA:C6AB, RTS_AAC6AB, disables movement during the seated upload sequence.</summary>

@@ -134,7 +134,7 @@ internal static partial class Program
 
         AddSpcUploadRecord(upload, SpcDriverData.Ram.DefaultMusicPointer,
             [unchecked((byte)topLevel), (byte)(topLevel >> 8)]);
-        AddSpcUploadRecord(upload, SpcDriverData.Ram.MusicTrackPointerTable,
+        AddSpcUploadRecord(upload, SpcDriverDataRamConstants.MusicTrackPointerTable,
             [unchecked((byte)topLevel), (byte)(topLevel >> 8)]);
         AddSpcUploadRecord(upload, topLevel,
             [unchecked((byte)patternTable), (byte)(patternTable >> 8)]);

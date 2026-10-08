@@ -6,12 +6,8 @@ public readonly record struct PuyoHopDefinition(ushort Height, ushort XSpeed, us
 /// <summary>Seven immutable NTSC Puyo hop definitions, independent of animation artwork.</summary>
 public static class PuyoHopDefinitions
 {
-    /// <summary>$A2:9A07, PuyoHopTable: height, X speed, Y index delta and airborne callback.</summary>
-    public const int ReferenceAddress = 0xa29a07;
     /// <summary>Native table stride for the serialized byte-index selector.</summary>
     public const int RecordSize = 8;
-    /// <summary>Native authored record count, including unused long hop.</summary>
-    public const int Count = 7;
 
     /// <summary>Preserves native byte-index state while returning named fields.</summary>
     public static PuyoHopDefinition FromByteIndex(ushort index) => index switch

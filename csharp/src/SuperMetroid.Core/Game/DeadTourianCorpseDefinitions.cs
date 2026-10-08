@@ -17,10 +17,6 @@ internal static class DeadTourianCorpseDefinitions
     private const ushort FirstWideMove = 0xe66a;
     /// <summary>$A9:E926 begins three94-byte paired Skree move/copy routines; copy begins53 bytes later.</summary>
     private const ushort FirstSkreeMove = 0xe926;
-    /// <summary>$A9:DF4F begins five29-byte Zoomer/Ripper graphics initialization routines.</summary>
-    private const ushort FirstWideGraphicsInitialization = 0xdf4f;
-    /// <summary>$A9:DFE0 begins three57-byte Skree graphics initialization routines.</summary>
-    private const ushort FirstSkreeGraphicsInitialization = 0xdfe0;
     /// <summary>$A9:E24C/E252/E258 are the Zoomer/Ripper/Skree row-offset lists, six bytes apart because the preceding Zoomer/Ripper lists each contain three offsets.</summary>
     private const ushort FirstRotation = 0xe24c;
     /// <summary>$A9:DC08, CorpseRotEntryFinishedHook_Normal: shared completion callback.</summary>

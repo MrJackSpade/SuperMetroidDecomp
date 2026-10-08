@@ -10,26 +10,8 @@ internal abstract class MotherBrainTurretInstructionProgramDefinitions : IInstru
     /// <summary>Left-facing turret pose at $86:C101.</summary>
     internal const ushort TurretLeft = 0xc101;
 
-    /// <summary>Down-left-facing turret pose at $86:C107.</summary>
-    internal const ushort TurretDownLeft = 0xc107;
-
     /// <summary>Down-facing turret pose at $86:C10D.</summary>
     internal const ushort TurretDown = 0xc10d;
-
-    /// <summary>Down-right-facing turret pose at $86:C113.</summary>
-    internal const ushort TurretDownRight = 0xc113;
-
-    /// <summary>Right-facing turret pose at $86:C119.</summary>
-    internal const ushort TurretRight = 0xc119;
-
-    /// <summary>Up-right-facing turret pose at $86:C11F.</summary>
-    internal const ushort TurretUpRight = 0xc11f;
-
-    /// <summary>Up-facing turret pose at $86:C125.</summary>
-    internal const ushort TurretUp = 0xc125;
-
-    /// <summary>Up-left-facing turret pose at $86:C12B.</summary>
-    internal const ushort TurretUpLeft = 0xc12b;
 
     /// <summary>Direction-indexed turret-bullet selector at $86:C131.</summary>
     internal const ushort BulletSelector = 0xc131;

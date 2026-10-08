@@ -23,9 +23,6 @@ public sealed class MotherBrainCorpseRottingState
     /// <summary>Native 48-entry rot table at <c>$7E:9700-$97BF</c>.</summary>
     public const int RotTableAddress = 0x7e9700;
 
-    /// <summary>Six tile rows times <c>$E0</c> bytes per row.</summary>
-    public const int GraphicsBufferSize = 0x0540;
-
     /// <summary>One rot entry per visible pixel row.</summary>
     public const int EntryCount = 0x0030;
 

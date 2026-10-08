@@ -28,20 +28,8 @@ internal abstract class BeetomInstructionProgramDefinitions : IInstructionProgra
     /// <summary>The repeating left-crawl frame list at $A8:B698.</summary>
     internal const ushort CrawlingLeftLoop = 0xb698;
 
-    /// <summary>The terminal left-hop sleep instruction at $A8:B6BE.</summary>
-    internal const ushort HopLeftSleep = 0xb6be;
-
     /// <summary>The repeating left-drain frame list at $A8:B6DE.</summary>
     internal const ushort DrainingLeftLoop = 0xb6de;
-
-    /// <summary>The repeating right-crawl frame list at $A8:B6F4.</summary>
-    internal const ushort CrawlingRightLoop = 0xb6f4;
-
-    /// <summary>The terminal right-hop sleep instruction at $A8:B71A.</summary>
-    internal const ushort HopRightSleep = 0xb71a;
-
-    /// <summary>The repeating right-drain frame list at $A8:B73A.</summary>
-    internal const ushort DrainingRightLoop = 0xb73a;
 
     private const int FacingStride = CrawlingRight - CrawlingLeft;
     public static int MechanicsWordCount => 48;

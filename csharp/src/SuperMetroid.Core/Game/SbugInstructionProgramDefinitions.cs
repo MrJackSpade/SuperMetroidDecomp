@@ -10,27 +10,6 @@ internal abstract class SbugInstructionProgramDefinitions : IInstructionProgramC
     /// <summary><c>$A3:A071</c>, right-facing animation loop.</summary>
     internal const ushort Right = 0xa071;
 
-    /// <summary><c>$A3:A085</c>, up-right-facing animation loop.</summary>
-    internal const ushort UpRight = 0xa085;
-
-    /// <summary><c>$A3:A099</c>, up-facing animation loop.</summary>
-    internal const ushort Up = 0xa099;
-
-    /// <summary><c>$A3:A0AD</c>, up-left-facing animation loop.</summary>
-    internal const ushort UpLeft = 0xa0ad;
-
-    /// <summary><c>$A3:A0C1</c>, left-facing animation loop.</summary>
-    internal const ushort Left = 0xa0c1;
-
-    /// <summary><c>$A3:A0D5</c>, down-left-facing animation loop.</summary>
-    internal const ushort DownLeft = 0xa0d5;
-
-    /// <summary><c>$A3:A0E9</c>, down-facing animation loop.</summary>
-    internal const ushort Down = 0xa0e9;
-
-    /// <summary><c>$A3:A0FD</c>, down-right-facing animation loop.</summary>
-    internal const ushort DownRight = 0xa0fd;
-
     public static int MechanicsWordCount => 48;
     public static int PresentationWordCount => 32;
 

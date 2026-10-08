@@ -10,8 +10,6 @@ namespace SuperMetroid.Core.Rooms;
 /// word. Only the 262 retail room identities are accepted.</remarks>
 public static class RoomStateSelectionDefinitions
 {
-    public const int RetailRoomCount = RoomHeaderDefinitions.RetailRoomCount;
-    public const int ConditionalProgramCount = 54;
 
     /// <summary>Selects a state with native first-match precedence.</summary>
     public static ushort Select(ushort roomPointer, RoomStateSelectionContext selection)

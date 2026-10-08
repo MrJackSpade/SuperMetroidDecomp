@@ -17,14 +17,14 @@ internal static class DeadTorizoStationaryCompositionDefinitions
     /// <summary>$B7:A800 source sheet is sixteen tiles wide; OAM tile $100 begins that sheet.</summary>
     internal const int SourceColumns = 16, SourceTileBase = 0x100;
     /// <summary>$A9:D6E4: the small rear-ankle fragment uses tile $197 at (-24,20).</summary>
-    private const int AnkleTile = 0x197, AnkleX = -24, AnkleY = 20;
+    private const int AnkleTile = 0x197;
     /// <summary>$A9:D6E9-D6F7: head/shoulder row uses tiles $109/$10B/$10D from (-8,-52).</summary>
-    private const int HeadTile = 0x109, HeadX = -8, HeadY = -52, HeadParts = 3;
+    private const int HeadTile = 0x109, HeadParts = 3;
     /// <summary>$A9:D6F8-D75B: five rows of four large body parts start at tile $128, origin(-16,-36).</summary>
-    private const int BodyTile = 0x128, BodyX = -16, BodyY = -36, BodyColumns = 4, BodyRows = 5;
+    private const int BodyTile = 0x128, BodyColumns = 4, BodyRows = 5;
     /// <summary>$A9:D75C-D760: the large rear-foot part uses tile $1A6 at(-32,28).</summary>
-    private const int FootTile = 0x1a6, FootX = -32, FootY = 28;
-    private const int LargeExtent = 2, TilePixels = 8;
+    private const int FootTile = 0x1a6;
+    private const int LargeExtent = 2;
 
     internal static DeadTorizoStockPart Part(int index)
     {

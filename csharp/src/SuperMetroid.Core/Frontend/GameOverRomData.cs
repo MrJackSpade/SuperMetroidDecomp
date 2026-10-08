@@ -64,15 +64,7 @@ public static class GameOverRomData
     /// </remarks>
     public static class BabyAnimation
     {
-        public const ushort FirstInstruction = 0xbc27;
-        public const ushort InitialFrameDuration = 10;
         public const ushort AcceptedAnswerHoldDuration = 180;
-        public const int DurationOffset = 0;
-        public const int SpritemapOffset = 2;
-        public const int PalettePointerOffset = 4;
-        public const int NextInstructionOffset = 6;
-        public const int FrameByteCount = 6;
-        public const int SoundInstructionByteCount = 8;
         public const ushort End = 0xffff;
         public const ushort CryOpcode23 = 0xbc0c;
         public const ushort CryOpcode26 = 0xbc15;

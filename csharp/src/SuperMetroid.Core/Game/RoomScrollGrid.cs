@@ -15,7 +15,6 @@ public sealed class RoomScrollGrid
 {
     public const int StorageByteCount = 0x32;
     public const int WorkRamAddress = 0x7ecd20;
-    public const int LandingSiteRomAddress = 0x8f9283;
 
     private readonly byte[] _cells = new byte[StorageByteCount];
     private readonly ISnesAddressSpace _bus;

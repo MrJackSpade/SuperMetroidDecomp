@@ -3,12 +3,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Native 8-by-8 quadrant geometry for the five square-slope shapes.</summary>
 public static class SquareSlopeDefinitions
 {
-    /// <summary>$94:8E54 SquareSlopeDefinitions_Bank94: Samus solidity bytes.</summary>
-    public const int SamusReferenceAddress = 0x948e54;
-    /// <summary>$A0:C435 SquareSlopeDefinitions_BankA0: solidity and quadrant identity.</summary>
-    public const int EnemyReferenceAddress = 0xa0c435;
-    /// <summary>$86:8729 SquareSlopeDefinitions_Bank86: identical enemy-projectile copy.</summary>
-    public const int ProjectileReferenceAddress = 0x868729;
 
     /// <summary>
     /// Reads the Samus solidity byte at native flattened index 0..19 (4*shape+quadrant).

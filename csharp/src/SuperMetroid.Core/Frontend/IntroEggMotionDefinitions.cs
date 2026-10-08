@@ -3,11 +3,6 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Fixed egg-shell and slime trajectories, independent of cinematic artwork.</summary>
 internal static class IntroEggMotionDefinitions
 {
-    /// <summary>
-    /// <c>$8B:A97C</c>, the six interleaved shell-fragment X/Y origins before the
-    /// cartridge adds its fixed $10/$3B placement biases.
-    /// </summary>
-    public const int InitialPositionReferenceAddress = 0x8ba97c;
 
     /// <summary>Returns one shell fragment's final world-space spawn position.</summary>
     /// <remarks>

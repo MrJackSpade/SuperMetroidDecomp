@@ -20,8 +20,6 @@ internal abstract class EvirInstructionProgramDefinitions : IInstructionProgramC
     internal const ushort ProjectileRegenerating = 0x8775;
     /// <summary><c>InstList_Evir_Projectile_Regenerating_1</c> at $A8:877D.</summary>
     internal const ushort ProjectileRegenerationLoop = 0x877d;
-    /// <summary>First native Evir instruction callback at $A8:878F.</summary>
-    internal const ushort AdjacentCallbackCode = 0x878f;
 
     internal const int BodyFrameCount = 6;
     internal const int ArmsFrameCount = 17;

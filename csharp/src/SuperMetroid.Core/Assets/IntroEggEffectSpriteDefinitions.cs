@@ -7,8 +7,6 @@ internal static class IntroEggEffectSpriteDefinitions
 {
     /// <summary>$8C:8F7E, first shell-fragment one-part composition.</summary>
     internal const ushort Start = 0x8f7e;
-    /// <summary>$8C:8FCB, exclusive end after eleven consecutive seven-byte records.</summary>
-    internal const ushort End = 0x8fcb;
     internal const int StockPartCount = 1;
 
     /// <summary>Eleven native one-part records, each two count bytes plus five part bytes.</summary>

@@ -6,7 +6,6 @@ public static class AudioRomData
     public static class Assets
     {
         public const int InitialAudioBank = 0xcf8000;
-        public const int MusicPointerTable = 0x8fe7e1;
     }
 
     public static class Queues
@@ -50,9 +49,7 @@ public static class AudioRomData
     {
         public const byte MusicPort = 0;
         public const byte FirstSoundPort = 1;
-        public const byte LibraryOnePort = FirstSoundPort;
         public const byte LibraryTwoPort = 2;
-        public const byte LibraryThreePort = 3;
         public const int PortCount = 4;
 
         /// <summary>SPC driver command that freezes music sequencing without discarding it.</summary>

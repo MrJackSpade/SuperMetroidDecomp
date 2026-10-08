@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Bank-$86 projectile half of Cacatac's five-spike attack.</summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort CacatacSpikePreInstruction =
-        EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_CacatacSpike;
 
     /// <summary>
     /// Ports <c>SpawnEnemyProjectileY_ParameterA_XGraphics</c> and initializer $86:D992.

@@ -11,8 +11,7 @@ internal static partial class Program
     /// </summary>
     static void VerifyRoomPlmHeaderCatalog()
     {
-        ushort[] cataloguedHeaders = typeof(RoomPlmHeaders)
-            .GetFields(BindingFlags.Public | BindingFlags.Static)
+        ushort[] cataloguedHeaders = CatalogFields.Of(typeof(RoomPlmHeaders), BindingFlags.Public | BindingFlags.Static)
             .Where(field => field.IsLiteral && field.FieldType == typeof(ushort))
             .Select(field => (ushort)field.GetRawConstantValue()!)
             .ToArray();

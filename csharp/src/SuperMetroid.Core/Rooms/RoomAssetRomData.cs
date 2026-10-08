@@ -22,23 +22,6 @@ public static class RoomAssetRomData
     /// <summary>Native nine-byte graphics-set records and their shared CRE inputs.</summary>
     public static class Tilesets
     {
-        /// <summary><c>$8F:E7A7 tileset_table</c>, a table of bank-$8F word pointers.</summary>
-        public const int PointerTableAddress = 0x8fe7a7;
-
-        /// <summary>Bank containing both <see cref="PointerTableAddress"/> and its records.</summary>
-        public const int DefinitionBank = 0x8f0000;
-
-        /// <summary>Bytes in one tileset record: three consecutive 24-bit addresses.</summary>
-        public const int DefinitionByteCount = 9;
-
-        /// <summary>Offset of the compressed 16x16 block-definition address.</summary>
-        public const int BlockDefinitionsAddressOffset = 0;
-
-        /// <summary>Offset of the compressed 4bpp character address.</summary>
-        public const int CharacterAddressOffset = 3;
-
-        /// <summary>Offset of the compressed palette address.</summary>
-        public const int PaletteAddressOffset = 6;
 
         /// <summary><c>$B9:8000 Tiles_CRE</c>, the common-room-element character stream.</summary>
         public const int CreCharactersAddress = 0xb98000;
@@ -87,16 +70,10 @@ public static class RoomAssetRomData
 
             /// <summary>48 complete 4-bpp characters uploaded by the native library-background command.</summary>
             public const ushort TransferByteCount = 0x0600;
-
-            /// <summary>Native destination VRAM word for the ghost character upload.</summary>
-            public const ushort VramDestinationWord = 0x6d00;
         }
 
         /// <summary>Lowest full 24-bit SNES ROM address for command-source classification.</summary>
         public const int RomSourceAddressFloor = 0x800000;
-
-        /// <summary>Bank containing room-authored library-background command lists.</summary>
-        public const int CommandBank = 0x8f0000;
 
         /// <summary>Bank containing the shared decompression and tilemap staging buffers.</summary>
         public const int WorkRamBank = 0x7e0000;

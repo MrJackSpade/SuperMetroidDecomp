@@ -36,9 +36,6 @@ public static class OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public const int FrameByteCount = 10;
 
-    /// <summary>Both complete loops last 64 frames.</summary>
-    public const int CycleFrames = 64;
-
     /// <summary>One authored flicker pass: neutral hold and optional tint phase held for an extra native tick.</summary>
     private readonly record struct FlickerPass(ushort NeutralHold, int? ExtendedTintPhase);
     /// <summary>$8D:FBC5-FC59/FC63-FCF7: exact neutral holds16/2/32 and extra-tick phases3/none/1 are authored animation choreography. Identical colors receive different holds; regenerating these choices would invent a different rhythm.</summary>

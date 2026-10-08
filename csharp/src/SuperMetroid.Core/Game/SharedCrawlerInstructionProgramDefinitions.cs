@@ -15,8 +15,6 @@ internal abstract class SharedCrawlerInstructionProgramDefinitions : IInstructio
     internal const ushort UpsideDown = 0xe294;
     /// <summary><c>InstList_Zeela_Zoomer_UpsideUp_0</c> at $A3:E2B0.</summary>
     internal const ushort UpsideUp = 0xe2b0;
-    /// <summary>The first word of the adjacent initial-list pointer table at $A3:E2CC.</summary>
-    internal const ushort AdjacentInitialSelectorTable = 0xe2cc;
 
     // Authored animation cadence (reviewed under #1165): five poses are held for three ticks each.
     // The repeated program layout derives from those still-independent choices.

@@ -80,8 +80,6 @@ public static class SamusSpecialSequenceRomData
     /// <summary>Varia/Gravity pickup HDMA curve and native 8.8 geometry.</summary>
     public static class SuitPickup
     {
-        /// <summary><c>$88:E3C9</c>, 128-byte symmetric light-beam curve.</summary>
-        public const int BeamCurve = 0x88e3c9;
         /// <summary>Collapsed beam with both window endpoints at X=120.</summary>
         public const ushort NarrowBeamEndpoints = 0x7878;
         /// <summary>Inverted endpoints representing an empty window.</summary>

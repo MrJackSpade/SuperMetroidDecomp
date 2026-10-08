@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions
 {
-    /// <summary><c>PalFxDef_Crateria8</c> at <c>$8D:FFD9</c>.</summary>
-    public const ushort DefinitionPointer = 0xffd9;
 
     /// <summary><c>PalFxInstList_Crateria8</c> at <c>$8D:FA69</c>.</summary>
     public const ushort ProgramStart = 0xfa69;
@@ -31,9 +29,6 @@ public static class OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions
 
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public const int FrameByteCount = 24;
-
-    /// <summary>The complete loop lasts 42 frames.</summary>
-    public const int CycleFrames = 42;
 
     /// <summary>Returns one timed-record pointer.</summary>
     public static ushort FramePointer(int frame)

@@ -7,11 +7,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class CrystalFlashPaletteTimingDefinitions
 {
-    /// <summary>
-    /// Timer words in the ten four-byte pointer/timer records at $91:DC00-$91:DC27.
-    /// The first timer is at $91:DC02 and subsequent timers have a four-byte stride.
-    /// </summary>
-    public const int NativeFirstTimerAddress = 0x91dc02;
 
     /// <summary>Number of authored Crystal Flash body-palette timing records.</summary>
     public const ushort RecordCount = 10;

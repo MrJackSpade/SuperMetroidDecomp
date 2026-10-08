@@ -17,11 +17,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class NintendoLogoFadePaletteFxProgramMechanicsDefinitions
 {
-    /// <summary>The unused boot-logo palette-FX definition at <c>$8D:E198</c>.</summary>
-    public const ushort BootLogoDefinitionPointer = 0xe198;
-
-    /// <summary>The copyright palette-FX definition at <c>$8D:E19C</c>.</summary>
-    public const ushort CopyrightDefinitionPointer = 0xe19c;
 
     /// <summary>The unused boot-logo entry at <c>$8D:C7AC</c>.</summary>
     public const ushort BootLogoEntry = 0xc7ac;
@@ -55,9 +50,6 @@ public static class NintendoLogoFadePaletteFxProgramMechanicsDefinitions
 
     /// <summary>Each record lasts three frames.</summary>
     public const ushort FrameDuration = 3;
-
-    /// <summary>Either entry runs the shared fade for 24 frames.</summary>
-    public const int CycleFrames = FrameCount * FrameDuration;
 
     private static readonly DefinitionList ReadOnlyDefinitions = new();
 

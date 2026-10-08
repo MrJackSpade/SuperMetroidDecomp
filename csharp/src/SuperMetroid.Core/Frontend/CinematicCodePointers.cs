@@ -31,15 +31,6 @@ internal static class CinematicCodePointers
     /// <summary><c>CinematicBGObject_Instruction_Goto</c> at $8B:971E.</summary>
     public const ushort CinematicBackgroundObject_Instruction_Goto = 0x971e;
 
-    /// <summary><c>IndirectInstructionFunction_DoNothing</c> at $8B:8849.</summary>
-    public const ushort IndirectInstruction_DoNothing = 0x8849;
-
-    /// <summary><c>IndirectInstructionFunction_DrawTextCharacter</c> at $8B:884D.</summary>
-    public const ushort IndirectInstruction_DrawTextCharacter = 0x884d;
-
-    /// <summary><c>IndirectInstructionFunction_DrawToCinematicBGTilemap</c> at $8B:88B7.</summary>
-    public const ushort IndirectInstruction_DrawToBackgroundTilemap = 0x88b7;
-
     /// <summary><c>IndirectInstructionFunction_DrawToBG2Tilemap</c> at $8B:88FD.</summary>
     public const ushort IndirectInstruction_DrawToPortraitTilemap = 0x88fd;
 
@@ -127,15 +118,6 @@ internal static class CinematicCodePointers
 
     /// <summary><c>CinematicSpriteObject_Instruction_Delete</c> at $8B:9438.</summary>
     public const ushort CinematicSpriteObject_Instruction_Delete = 0x9438;
-
-    // Credits and ending callbacks are also bank-$8B code words embedded in bank-$8C lists.
-    public const ushort CreditsObject_Instruction_Delete = 0x99fe;
-    public const ushort CreditsObject_Instruction_DecrementTimerAndGoto = 0x9a0d;
-    public const ushort CreditsObject_Instruction_SetTimer = 0x9a17;
-    public const ushort CreditsObject_Instruction_EndCredits = 0xf6fe;
-    public const ushort Ending_Instruction_DrawItemPercentage = 0xe627;
-    public const ushort Ending_Instruction_DrawItemPercentageSubtitle = 0xe769;
-    public const ushort Ending_Instruction_ClearItemPercentageSubtitle = 0xe780;
     public const ushort Ending_Instruction_FadeExplosionPalette = 0xf284;
     public const ushort Ending_Instruction_SpawnExplosionSilhouette = 0xf295;
     public const ushort Ending_Instruction_StartZebesExplosion = 0xf2b7;
@@ -164,11 +146,7 @@ internal static class CinematicCodePointers
         public const ushort IntroTextCaret = 0xcbfb;
         public const ushort IntroTextCaretBlink = 0xcc03;
         public const ushort CeresUnderAttack = 0xcc47;
-        public const ushort CeresSmallAsteroids = 0xcc4f;
-        public const ushort CeresPurpleSpaceVortex = 0xcc57;
         public const ushort MetroidEggParticle1 = 0xcd39;
-        public const ushort MetroidEggParticleStride = 8;
-        public const ushort MetroidEggSlimeDrops = 0xcd69;
         /// <summary><c>InstList_MetroidEggParticle_HitGround</c> at $8B:CD71, the slime impact sequence.</summary>
         /// <remarks>
         /// Issues #625 and #984: after a slime drop reaches Y=$00A8,
@@ -182,12 +160,9 @@ internal static class CinematicCodePointers
         /// inferred from the adjacent $8B:CD83 list.
         /// </remarks>
         public const ushort MetroidEggParticleHitGround = 0xcd71;
-        public const ushort CeresStars = 0xcda3;
         public const ushort IntroMotherBrainExplosionBig = 0xcdab;
         public const ushort IntroMotherBrainExplosionSmall = 0xcdcb;
         public const ushort IntroRinka = 0xcdeb;
-        public const ushort IntroRinkaSpawner = 0xce0d;
-        public const ushort CeresExplosionLargeAsteroids = 0xce4b;
         public const ushort Delete = 0xce53;
     }
 

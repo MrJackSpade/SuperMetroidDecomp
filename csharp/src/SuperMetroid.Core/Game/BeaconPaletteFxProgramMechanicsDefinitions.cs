@@ -17,8 +17,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class BeaconPaletteFxProgramMechanicsDefinitions
 {
-    /// <summary>The room palette-FX definition at <c>$8D:F781</c>.</summary>
-    public const ushort DefinitionPointer = 0xf781;
 
     /// <summary>Color-index setup at <c>$8D:EFF7</c>.</summary>
     public const ushort ProgramStart = 0xeff7;
@@ -52,9 +50,6 @@ public static class BeaconPaletteFxProgramMechanicsDefinitions
 
     /// <summary>Frames before the mid-cycle sound command.</summary>
     public const int PreSoundFrameCount = 6;
-
-    /// <summary>Frames from the first record through the next first record.</summary>
-    public const int CycleFrames = 100;
 
     /// <summary>Three colors precede each record's inline CGRAM-index skip.</summary>
     private const int ColorsBeforeIndexSkip = 3;

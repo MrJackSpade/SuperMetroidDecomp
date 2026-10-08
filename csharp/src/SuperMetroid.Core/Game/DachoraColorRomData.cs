@@ -17,10 +17,6 @@ public static class DachoraColorRomData
     public const int SpeedSource = 0xa7f245;
     /// <summary>Four consecutive stored-shine images at $A7:F2C5..F344.</summary>
     public const int ShineSource = 0xa7f2c5;
-    /// <summary>Four native speed-image pointers at $A7:F787.</summary>
-    public const int SpeedPointerTable = 0xa7f787;
-    /// <summary>Four native shine-image pointers at $A7:F92D.</summary>
-    public const int ShinePointerTable = 0xa7f92d;
     public const int ColorsPerFrame = 16;
     public const int AnimatedFrameCount = 4;
     public const int FrameByteCount = ColorsPerFrame * sizeof(ushort);

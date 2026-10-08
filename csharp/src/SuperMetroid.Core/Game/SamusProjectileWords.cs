@@ -39,7 +39,6 @@ public enum SamusProjectileDirection : byte
 /// <summary>A lossless view over Samus's native equipped-beam word.</summary>
 public readonly record struct SamusBeamLoadoutWord(ushort Raw)
 {
-    private const ushort CombinationMask = 0x000f;
     private const ushort NativeConfigurationMask = 0x0fff;
 
     /// <summary>
@@ -67,7 +66,6 @@ public readonly record struct SamusProjectileTypeWord(ushort Raw)
 {
     private const ushort BeamCombinationMask = 0x000f;
     private const ushort ChargedBeamMarker = 0x0010;
-    private const ushort SpazerSbaMarker = 0x0020;
     private const ushort FamilyMask = 0x0f00;
     private const ushort LiveMarker = 0x8000;
     private const ushort ResidentPlmPayloadMask = 0x1fff;

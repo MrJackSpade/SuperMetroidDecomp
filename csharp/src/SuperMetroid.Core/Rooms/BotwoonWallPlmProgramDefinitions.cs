@@ -8,12 +8,8 @@ internal static class BotwoonWallPlmProgramDefinitions
 {
     /// <summary><c>$84:AB31</c>: nine-row wall crumble program.</summary>
     internal const ushort Crumble = RoomPlmInstructionLists.CrumbleBotwoonWall;
-    /// <summary><c>$84:AB51</c>: first byte of the following scroll callback.</summary>
-    internal const ushort CrumbleEndExclusive = RoomPlmInstructionCodes.SetBotwoonScrollsBlue;
     /// <summary><c>$84:AB67</c>: nine-block wall clear program.</summary>
     internal const ushort Clear = RoomPlmInstructionLists.ClearBotwoonWall;
-    /// <summary><c>$84:AB6D</c>: first byte of the following Kraid program.</summary>
-    internal const ushort ClearEndExclusive = 0xab6d;
     /// <summary><c>$84:AB33</c>: number of descending crumble rows.</summary>
     internal const byte CrumbleRows = 9;
     /// <summary><c>$84:AB38</c>: library-two crumble sound effect.</summary>

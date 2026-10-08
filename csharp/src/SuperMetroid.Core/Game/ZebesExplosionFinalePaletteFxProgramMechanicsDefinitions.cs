@@ -21,8 +21,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions
 {
-    /// <summary>The palette-FX definition at <c>$8D:E1CC</c>.</summary>
-    public const ushort DefinitionPointer = 0xe1cc;
 
     /// <summary>The instruction-list entry at <c>$8D:CD62</c>.</summary>
     public const ushort ProgramStart = 0xcd62;
@@ -53,9 +51,6 @@ public static class ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions
 
     /// <summary>Each rotation/restore record lasts nine frames.</summary>
     public const ushort SlowPhaseFrameDuration = 9;
-
-    /// <summary>The complete one-shot finale lasts 300 frames.</summary>
-    public const int CycleFrames = 300;
 
     /// <summary>Returns one timed-record pointer.</summary>
     public static ushort FramePointer(int frame)

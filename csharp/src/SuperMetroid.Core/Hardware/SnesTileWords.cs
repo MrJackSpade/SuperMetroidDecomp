@@ -109,7 +109,6 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
     public bool FlipVertically => (FlipFlags & SnesTileFlipFlags.Vertical) != 0;
 
     private const ushort PaletteFieldMask = ThreeBitMask << PaletteShift;
-    private const ushort PriorityFieldMask = TwoBitMask << PriorityShift;
 
     /// <summary>Encodes every field in one standard two-byte low-OAM attribute record.</summary>
     public static SnesObjAttributeWord Create(

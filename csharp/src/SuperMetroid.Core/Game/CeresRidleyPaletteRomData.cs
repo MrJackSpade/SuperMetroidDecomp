@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Authored bank-$A6 Ceres Ridley palette sources and native CGRAM destinations.</summary>
 public static class CeresRidleyPaletteRomData
 {
-    /// <summary>Bank $A6, which owns Ceres Ridley's wrapped Mode-7 palette source.</summary>
-    public const int Bank = 0xa60000;
     /// <summary>Door and Baby-container target colors loaded during Ceres Ridley initialization at $A6:E16F.</summary>
     public const int StartColors = 0xa6e16f;
     public const int StartColorCount = 32;

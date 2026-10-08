@@ -26,20 +26,6 @@ internal readonly record struct MotherBrainContactHitbox(
 /// </summary>
 internal static class MotherBrainContactHitboxDefinitions
 {
-    /// <summary>First byte of the contiguous count-prefixed lists at <c>$A9:B427</c>.</summary>
-    internal const int SourceAddress = 0xa9b427;
-
-    /// <summary>Complete byte length through the neck list's final bottom extent.</summary>
-    internal const int SourceByteLength = 46;
-
-    /// <summary><c>$A9:B427</c>, two rectangles attached to the standing body.</summary>
-    internal const int BodySourceAddress = 0xa9b427;
-
-    /// <summary><c>$A9:B439</c>, two rectangles attached to the independently moving brain.</summary>
-    internal const int BrainSourceAddress = 0xa9b439;
-
-    /// <summary><c>$A9:B44B</c>, one rectangle reused by neck joints one through three.</summary>
-    internal const int NeckSourceAddress = 0xa9b44b;
 
     /// <summary>Returns the native ordered collision rectangles for one physical component.</summary>
     internal static MotherBrainContactHitboxes Get(MotherBrainContactPart part) =>

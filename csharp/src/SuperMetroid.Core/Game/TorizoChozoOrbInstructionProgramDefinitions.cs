@@ -8,8 +8,6 @@ internal abstract class TorizoChozoOrbInstructionProgramDefinitions : IInstructi
 {
     /// <summary><c>InstList_EnemyProjectile_TorizoChozoOrbs_Left</c> at $86:AB15.</summary>
     internal const ushort MovingLeft = 0xab15;
-    /// <summary><c>InstList_EnemyProjectile_TorizoChozoOrbs_Right</c> at $86:AB1D.</summary>
-    internal const ushort MovingRight = 0xab1d;
     /// <summary><c>InstList_EnemyProjectile_TorizoChozoOrbs_BreakOnWall</c> at $86:AB25.</summary>
     internal const ushort WallImpact = 0xab25;
     /// <summary><c>InstList_EnemyProjectile_TorizoChozoOrbs_BreakOnFloor</c> at $86:AB41.</summary>

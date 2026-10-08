@@ -3,10 +3,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Compiled NTSC patrol and underground-wait rules for Owtch.</summary>
 internal static class OwtchMovementDefinitions
 {
-    /// <summary>$A2:A3DD OwtchConstants_XDistanceRanges, eight unsigned patrol half-widths.</summary>
-    internal const int DistanceReferenceAddress = 0xa2a3dd;
-    /// <summary>$A2:A3ED OwtchConstants_undergroundTimers, six unsigned burial durations.</summary>
-    internal const int TimerReferenceAddress = 0xa2a3ed;
 
     /// <summary>Returns 16*(index+1) for patrol selector 0..7.</summary>
     /// <remarks>

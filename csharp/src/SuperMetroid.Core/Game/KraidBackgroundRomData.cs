@@ -30,15 +30,6 @@ public static class KraidBackgroundRomData
     /// <summary>First word of the lower half in Kraid's combined working tilemap.</summary>
     public const int WorkingLowerHalfWord = 0x0400;
 
-    /// <summary>
-    /// First untouched word left by <c>$A7:AB19-$AB2C</c> after the lower stream is
-    /// decompressed directly into the working tilemap.
-    /// </summary>
-    public const int PreservedLowerTailFirstWord = 0x0700;
-
-    /// <summary>Number of lower-stream words retained at working words $700-$7FF.</summary>
-    public const int PreservedLowerTailWordCount = 0x0100;
-
     /// <summary>Number of lower-source words copied by <c>$A7:AAC6</c>.</summary>
     public const int LowerSourceCopyWords = 0x0300;
 

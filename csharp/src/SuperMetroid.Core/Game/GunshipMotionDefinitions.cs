@@ -6,12 +6,6 @@ internal readonly record struct GunshipIdleBobDefinition(byte Timer, sbyte YDelt
 /// <summary>Exact bounded motion policies for the Landing Site gunship.</summary>
 internal static class GunshipMotionDefinitions
 {
-    /// <summary>$A2:A622 ShipBrakesMovementData: seventeen signed word Y deltas.</summary>
-    internal const int BrakeReferenceAddress = 0xa2a622;
-    /// <summary>$A2:A7CF ProcessShipHover.timer: four unsigned bytes at stride two.</summary>
-    internal const int HoverTimerReferenceAddress = 0xa2a7cf;
-    /// <summary>$A2:A7D0 ProcessShipHover.YVelocity: four signed bytes at stride two.</summary>
-    internal const int HoverDeltaReferenceAddress = 0xa2a7d0;
 
     /// <summary>Returns +1 for frames 0..5, zero for 6..10, and -1 for 11..16.</summary>
     /// <remarks>

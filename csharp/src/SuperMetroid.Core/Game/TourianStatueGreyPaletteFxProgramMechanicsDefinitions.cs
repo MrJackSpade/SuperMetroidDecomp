@@ -140,9 +140,6 @@ public static class TourianStatueGreyPaletteFxProgramMechanicsDefinitions
         return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) +
             color * sizeof(ushort)));
     }
-
-    /// <summary>Handler frames from initial setup through the terminal delete.</summary>
-    public const int FramesThroughDeletion = 1 + FrameCount * 8 + 1;
 }
 
 /// <summary>One boss-specific entry into the shared Tourian statue grey-out program.</summary>

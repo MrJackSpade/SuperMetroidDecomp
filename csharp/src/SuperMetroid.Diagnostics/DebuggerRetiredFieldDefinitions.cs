@@ -11,7 +11,9 @@ internal static class DebuggerRetiredFieldDefinitions
     /// <summary>(Declaring type full name, field name) of every retired field.</summary>
     private static readonly HashSet<(string Type, string Field)> Retired =
     [
+        ("SuperMetroid.Core.Frontend.FileSelectMapAnimations+Arrow", "Program"),
         ("SuperMetroid.Core.Frontend.FileSelectMapScroll", "customButtons"),
+        ("SuperMetroid.Core.Frontend.GameOverMenuState", "tilemap"),
         ("SuperMetroid.Core.Game.AerialMovementResult", "<Horizontal>k__BackingField"),
         ("SuperMetroid.Core.Game.BabyMetroidCutscenePoint", "<XPosition>k__BackingField"),
         ("SuperMetroid.Core.Game.BabyMetroidCutscenePoint", "<XSubposition>k__BackingField"),

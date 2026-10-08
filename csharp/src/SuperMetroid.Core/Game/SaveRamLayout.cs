@@ -14,11 +14,8 @@ public static class SaveRamLayout
     public const int PrimaryChecksumOffset = 0x0000;
     public const int PrimaryComplementOffset = 0x0008;
     public const int SelectedSlotOffset = 0x1fec;
-    public const int SelectedSlotComplementOffset = SelectedSlotOffset + WordByteCount;
     public const int BackupChecksumOffset = 0x1ff0;
     public const int BackupComplementOffset = 0x1ff8;
-
-    public const int WordByteCount = 2;
     public const byte SramBank = 0x70;
     public const ushort SramOffsetMask = 0x1fff;
 
@@ -27,7 +24,6 @@ public static class SaveRamLayout
     public const int EquippedBeamsOffset = 0x0004;
     public const int CollectedBeamsOffset = 0x0006;
     public const int ButtonConfigOffset = 0x0008;
-    public const int ButtonConfigWordCount = 11;
     public const int ShootButtonOffset = ButtonConfigOffset + 8;
     public const int JumpButtonOffset = ButtonConfigOffset + 10;
     public const int DashButtonOffset = ButtonConfigOffset + 12;
@@ -92,11 +88,6 @@ public static class SaveRamLayout
     public const int CollectedItemBitsWramAddress = WramMirrorAddress + CollectedItemBitsOffset;
     /// <summary>First opened-door byte at $7E:D8B0.</summary>
     public const int OpenedDoorBitsWramAddress = WramMirrorAddress + OpenedDoorBitsOffset;
-    /// <summary>Unassigned eight-byte SRAM-mirror allocation at $7E:D8F0-$7E:D8F7.</summary>
-    public const int ProgressionPaddingWramAddress = OpenedDoorBitsWramAddress +
-        Bank80SystemState.DoorBitByteCount;
-    /// <summary>Size of the unassigned $7E:D8F0-$7E:D8F7 allocation.</summary>
-    public const int ProgressionPaddingByteCount = 8;
     /// <summary>First used save-station/elevator byte at $7E:D8F8.</summary>
     public const int UsedSaveStationsWramAddress = WramMirrorAddress + UsedSaveStationsOffset;
     /// <summary>First acquired-map-station byte at $7E:D908.</summary>

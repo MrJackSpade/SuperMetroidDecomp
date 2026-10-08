@@ -7,10 +7,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class FirefleaFxDefinitions
 {
-    /// <summary>$88:B058 Fireflea_Flashing_Shades, twelve packed unsigned words.</summary>
-    internal const int FlashReferenceAddress = 0x88b058;
-    /// <summary>$88:B070 Fireflea_Darkness_Shades, six words plus one opcode alias.</summary>
-    internal const int DarknessReferenceAddress = 0x88b070;
     /// <summary>$88:B07C PHP / REP opcode bytes read at darkness offset twelve.</summary>
     private const ushort AdjacentOpcodeShade = 0xc208;
     /// <summary>$88:B07F/$88:B0D5: six effect passes per flashing shade.</summary>

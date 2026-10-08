@@ -7,8 +7,6 @@ internal static class IntroRinkaSpriteDefinitions
 {
     /// <summary>$8C:8C8D, first intro Rinka composition.</summary>
     internal const ushort First = 0x8c8d;
-    /// <summary>$8C:8CCF, exclusive end after three consecutive 22-byte records.</summary>
-    internal const ushort End = 0x8ccf;
 
     /// <summary>Three native four-part records: two count bytes plus four five-byte parts.</summary>
     internal static ushort FramePointer(int frame)

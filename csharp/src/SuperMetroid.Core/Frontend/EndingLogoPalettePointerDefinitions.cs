@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Native ending-logo palette source traversal; RGB5 colors remain editable artwork.</summary>
 internal static class EndingLogoPalettePointerDefinitions
 {
-    /// <summary>$8B:E5E7, sixteen pairs of reverse-copy bank-$8C palette pointers.</summary>
-    public const int NativeTableAddress = 0x8be5e7;
     /// <summary>$8B:E5E7 selects the last color of BG palette10 at$8C:F3E7.</summary>
     private const int FirstBackgroundEnd = 0xf3e7;
     /// <summary>$8B:E5E9 selects the last color of sprite palette1 at$8C:F007.</summary>

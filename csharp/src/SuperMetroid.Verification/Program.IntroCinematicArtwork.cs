@@ -1045,7 +1045,7 @@ internal static partial class Program
                 CeresFlightRomData.Assets.ObjectCharacters or
                 CeresDestructionRomData.Assets.ZebesTilemap or
                 CeresDestructionRomData.Assets.ZebesCharacters or
-                CeresDestructionRomData.Assets.SharedObjectCharacters)
+                CeresDestructionRomDataAssetsConstants.SharedObjectCharacters)
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
@@ -1084,7 +1084,7 @@ internal static partial class Program
             int eyeScriptStart = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
                 IntroEyeAnimationDefinitions.StartPointer);
             int caretScriptStart = (int)new SnesAddress(
-                IntroCinematicRomData.Banks.CinematicCode >> 16,
+                IntroCinematicRomDataBanksConstants.CinematicCode >> 16,
                 IntroCaretInstructionDefinitions.StartPointer);
             if (address >= caretScriptStart &&
                 address < caretScriptStart + IntroCaretInstructionDefinitions.EndPointer -

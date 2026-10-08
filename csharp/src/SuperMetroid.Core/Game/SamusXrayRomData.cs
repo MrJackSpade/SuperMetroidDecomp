@@ -12,23 +12,11 @@ public static class SamusXrayRomData
     /// <summary>Palette words copied into Samus's visor colors while X-ray is active.</summary>
     public static class Palette
     {
-        /// <summary><c>$9B:A3C0</c>, X-ray visor palette words.</summary>
-        /// <remarks>Alias of <see cref="SamusPaletteRomData.Visor.Colors"/>;
-        /// the six-word proof is issue #865 / #625.</remarks>
-        public const int VisorWords = SamusPaletteRomData.Visor.Colors;
-        /// <summary><c>$91:D727</c>, suit-indexed normal Samus palette pointers.</summary>
-        /// <remarks>Alias of <see cref="SamusPaletteRomData.Common.NormalSuitPointers"/>;
-        /// the three-word proof is issue #859 / #625.</remarks>
-        public const int NormalSuitPointers = SamusPaletteRomData.Common.NormalSuitPointers;
-        /// <summary>Bank expanded around a normal-suit palette pointer.</summary>
-        public const int PaletteBank = SamusPaletteRomData.Banks.Palette;
         /// <summary>First CGRAM color occupied by Samus's OBJ palette.</summary>
         public const int SamusCgramIndex = SamusPaletteRomData.Common.SamusObjPaletteStart;
         /// <summary>CGRAM color within Samus's palette occupied by the visor.</summary>
         public const int VisorCgramIndex =
             SamusCgramIndex + SamusPaletteRomData.Common.VisorColorOffset;
-        /// <summary>Number of colors copied when restoring the normal suit palette.</summary>
-        public const int SuitColorCount = SamusPaletteRomData.Common.ColorsPerObjPalette;
         /// <summary>Final visor word offset retained while the beam widens.</summary>
         public const ushort WideningFinalWordOffset = 4;
         /// <summary>First visor word offset in the full-beam cycle.</summary>
@@ -63,19 +51,8 @@ public static class SamusXrayRomData
     /// <summary>Fixed-point and ROM-table definitions for the X-ray color-math window.</summary>
     public static class Window
     {
-        /// <summary><c>$91:C9D4</c>, 129 absolute tangent words in unsigned 8.8 format.</summary>
-        /// <remarks>
-        /// Physical alias of <see cref="AbsoluteTangentDefinitions.Sample"/>.
-        /// The exact bounded stock algorithm and all 129-word parity proof are
-        /// documented there. Investigation: #625 / #906.
-        /// </remarks>
-        public const int AbsoluteTangentTable = 0x91c9d4;
-        /// <summary>Number of words in the inclusive quarter-turn tangent table.</summary>
-        public const int AbsoluteTangentWordCount = 129;
         /// <summary>One whole unit in the native signed 8.8 direction representation.</summary>
         public const int UnitVector = 0x0100;
-        /// <summary>One-half unit used by the upper/lower edge accumulator.</summary>
-        public const int HalfUnit = 0x0080;
         /// <summary>Per-frame 16.16 angular-width growth applied while widening.</summary>
         public const uint WideningStep = 0x00000800u;
     }

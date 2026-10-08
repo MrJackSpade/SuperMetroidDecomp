@@ -13,9 +13,6 @@ public static class SamusRenderingRomData
         /// <summary>Bank containing drawing offsets and arm-cannon metadata.</summary>
         public const int Movement = 0x900000;
 
-        /// <summary>Eight-bit bank number paired with native arm-cannon offsets.</summary>
-        public const byte MovementNumber = 0x90;
-
         /// <summary>Bank containing spritemaps and Samus DMA definitions.</summary>
         public const int GraphicsDefinitions = 0x920000;
 
@@ -26,11 +23,6 @@ public static class SamusRenderingRomData
     /// <summary>Body spritemap selection, position offsets, and ordinary suit palettes.</summary>
     public static class Body
     {
-        /// <summary><c>$92:9263</c>, base top-spritemap index for each pose.</summary>
-        public const int TopSpritemapBaseIndices = 0x929263;
-
-        /// <summary><c>$92:945D</c>, base bottom-spritemap index for each pose.</summary>
-        public const int BottomSpritemapBaseIndices = 0x92945d;
 
         /// <summary><c>$9B:9400</c>, ordinary Power Suit palette.</summary>
         /// <remarks>
@@ -71,12 +63,6 @@ public static class SamusRenderingRomData
         /// </remarks>
         public const int GravitySuitPalette = 0x9b9800;
 
-        /// <summary>Number of colors copied into Samus's OBJ palette.</summary>
-        public const int SuitPaletteColorCount = 16;
-
-        /// <summary>First CGRAM color occupied by Samus's OBJ palette.</summary>
-        public const int SuitPaletteCgramIndex = 192;
-
         /// <summary><c>$90:8D28</c>, packed landing-frame vertical offsets.</summary>
         public const int LandingVerticalOffsets = 0x908d28;
         /// <summary>Sixteen landing bytes plus the adjacent byte read by the final unaligned word.</summary>
@@ -104,17 +90,6 @@ public static class SamusRenderingRomData
 
         /// <summary><c>$92:D938</c>, bottom-definition-list pointer for each graphics set.</summary>
         public const int BottomDefinitionListPointers = 0x92d938;
-
-        /// <summary>Number of top-half graphics sets before the bottom pointer table.</summary>
-        public const int TopDefinitionSetCount =
-            (BottomDefinitionListPointers - TopDefinitionListPointers) / sizeof(ushort);
-
-        /// <summary>Number of bottom-half graphics sets before the animation pointer table.</summary>
-        public const int BottomDefinitionSetCount =
-            (AnimationDefinitionListPointers - BottomDefinitionListPointers) / sizeof(ushort);
-
-        /// <summary>Bytes in one pose/frame selector: top set/position and bottom set/position.</summary>
-        public const int AnimationRecordByteCount = 4;
 
         /// <summary>Bytes in one source-address/two-size DMA definition.</summary>
         public const int DefinitionByteCount = 7;

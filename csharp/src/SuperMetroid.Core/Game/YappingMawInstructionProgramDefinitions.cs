@@ -8,20 +8,8 @@ internal abstract class YappingMawInstructionProgramDefinitions : IInstructionPr
 {
     /// <summary><c>InstList_YappingMaw_Attacking_FacingUp</c> at $A8:9F6F.</summary>
     internal const ushort AttackingFacingUp = 0x9f6f;
-    /// <summary><c>InstList_YappingMaw_Attacking_FacingUpRight</c> at $A8:9F85.</summary>
-    internal const ushort AttackingFacingUpRight = 0x9f85;
-    /// <summary><c>InstList_YappingMaw_Attacking_FacingRight</c> at $A8:9F9B.</summary>
-    internal const ushort AttackingFacingRight = 0x9f9b;
-    /// <summary><c>InstList_YappingMaw_Attacking_FacingDownRight</c> at $A8:9FB1.</summary>
-    internal const ushort AttackingFacingDownRight = 0x9fb1;
     /// <summary><c>InstList_YappingMaw_Attacking_FacingDown</c> at $A8:9FC7.</summary>
     internal const ushort AttackingFacingDown = 0x9fc7;
-    /// <summary><c>InstList_YappingMaw_Attacking_FacingDownLeft</c> at $A8:9FDD.</summary>
-    internal const ushort AttackingFacingDownLeft = 0x9fdd;
-    /// <summary><c>InstList_YappingMaw_Attacking_FacingLeft</c> at $A8:9FF3.</summary>
-    internal const ushort AttackingFacingLeft = 0x9ff3;
-    /// <summary><c>InstList_YappingMaw_Attacking_FacingUpLeft</c> at $A8:A009.</summary>
-    internal const ushort AttackingFacingUpLeft = 0xa009;
 
     /// <summary><c>InstList_YappingMaw_Cooldown_FacingUpRight</c> at $A8:A01F.</summary>
     internal const ushort CooldownFacingUpRight = 0xa01f;
@@ -35,9 +23,6 @@ internal abstract class YappingMawInstructionProgramDefinitions : IInstructionPr
     internal const ushort CooldownFacingDown = 0xa061;
     /// <summary><c>InstList_YappingMaw_Cooldown_FacingDownLeft</c> at $A8:A079.</summary>
     internal const ushort CooldownFacingDownLeft = 0xa079;
-
-    /// <summary><c>InstListPointers_YappingMaw</c>, adjacent selector data at $A8:A097.</summary>
-    internal const ushort AdjacentAttackSelectorTable = 0xa097;
 
     public static int MechanicsWordCount => 96;
     public static int PresentationWordCount => 52;

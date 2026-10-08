@@ -15,14 +15,6 @@ internal readonly record struct DeadTorizoVramTransferDefinition(
 /// </summary>
 internal static class DeadTorizoVramTransferDefinitions
 {
-    /// <summary><c>DeadTorizo_VRAMWriteTable_Even</c> at $A9:D549.</summary>
-    internal const ushort EvenTable = 0xd549;
-    /// <summary><c>DeadTorizo_VRAMWriteTable_Odd</c> at $A9:D583.</summary>
-    internal const ushort OddTable = 0xd583;
-    /// <summary>Four 16-bit descriptor words per native record.</summary>
-    internal const int RecordByteCount = 8;
-    /// <summary>The native interpreter's finite corrupt-table guard.</summary>
-    internal const int MaximumNativeRecords = 64;
 
     /// <summary>Twelve ten-tile body rows start at $7E:2000 and VRAM word$7060.</summary>
     private const ushort BodySource = 0x2000;

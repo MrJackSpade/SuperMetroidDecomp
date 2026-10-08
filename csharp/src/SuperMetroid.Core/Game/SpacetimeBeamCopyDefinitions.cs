@@ -13,8 +13,6 @@ internal static class SpacetimeBeamCopyDefinitions
 {
     /// <summary>$00:9131 mirrors $80:9131, the first byte read by the recorded $90:AD16 overrun.</summary>
     internal const int FirstSourceAddress = 0x009131;
-    /// <summary>$00:FFFF ends the immutable source before the long word carries into low WRAM.</summary>
-    internal const int LastSourceAddress = 0x00ffff;
 
     internal static byte ReadCartridgeByte(int address)
     {

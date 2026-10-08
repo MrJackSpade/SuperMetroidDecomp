@@ -11,7 +11,6 @@ internal static class WorkRobotVisualDefinitions
 {
     /// <summary>Work Robot instruction and spritemap bank, $A8.</summary>
     internal const byte Bank = 0xa8;
-    internal const int FrameCount = 27;
 
     /// <summary>$A8:D1F1: first powered Work Robot spritemap. Every powered header through $D783 declares twelve five-byte OAM parts.</summary>
     private const ushort FirstPoweredFrame = 0xd1f1;

@@ -11,7 +11,6 @@ internal abstract class GoldenTorizoRightSonicInstructionProgramDefinitions : II
 {
     internal const ushort Start = 0xccdb;
     internal const ushort RightFootForward = 0xcd45;
-    internal const ushort End = 0xcdaf;
 
     /// <summary><c>InstList_GoldenTorizo_SonicBooms_FacingRight_LeftFootFwd_1</c> at $AA:CCE3.</summary>
     private const ushort TorizoSonicBoomsFacingRightLeftFootFwd1 = 0xcce3;

@@ -11,8 +11,6 @@ internal static class CommonEnemyEmptyExtendedFrameDefinitions
     internal const ushort Frame = 0x804f;
     /// <summary>Bank-local empty ordinary spritemap at $804D.</summary>
     internal const ushort EmptySpritemap = 0x804d;
-    /// <summary>Bank-local one-point hitbox list at $8059.</summary>
-    internal const ushort PointHitboxList = 0x8059;
 
     /// <summary>Enemy banks carrying the common $804D/$804F/$8059 frame records.</summary>
     internal static IEnumerable<byte> SupportedBanks

@@ -2365,7 +2365,7 @@ internal static partial class Program
         var paletteFx = new RoomPaletteFxSystem();
         var cgram = new SnesCgram();
         const ushort definition =
-            RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.DefinitionPointer;
+            RedBrinstarGlowPaletteFxProgramMechanicsDefinitionsConstants.DefinitionPointer;
         paletteFx.SpawnDefinition(guarded, definition, equippedItems: 0);
         const int cycleFrames =
             RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.FrameCount * 10;

@@ -32,8 +32,6 @@ public readonly record struct RoomIdentity
 /// </summary>
 public static class RoomIdentities
 {
-    /// <summary>Crateria's Landing Site, room pair <c>$00/$00</c>.</summary>
-    public static readonly RoomIdentity LandingSite = new(AreaId.Crateria, 0x00);
 
     /// <summary>Crateria's first Space Pirate shaft, room pair <c>$00/$1C</c>.</summary>
     public static readonly RoomIdentity CrateriaSpacePirateShaft =
@@ -45,19 +43,6 @@ public static class RoomIdentities
     /// </summary>
     public static readonly RoomIdentity BrinstarDirectLandingDust =
         new(AreaId.Brinstar, 0x08);
-
-    /// <summary>Blue Brinstar's Morph Ball room, room pair <c>$01/$0E</c>.</summary>
-    public static readonly RoomIdentity MorphBallRoom = new(AreaId.Brinstar, 0x0e);
-
-    /// <summary>Blue Brinstar's Construction Zone, room pair <c>$01/$0F</c>.</summary>
-    public static readonly RoomIdentity ConstructionZone = new(AreaId.Brinstar, 0x0f);
-
-    /// <summary>Blue Brinstar's double-missile room, room pair <c>$01/$1D</c>.</summary>
-    public static readonly RoomIdentity BlueBrinstarDoubleMissile =
-        new(AreaId.Brinstar, 0x1d);
-
-    /// <summary>Ceres's initial elevator room, room pair <c>$06/$00</c>.</summary>
-    public static readonly RoomIdentity CeresElevatorRoom = new(AreaId.Ceres, 0x00);
 
     /// <summary>
     /// Reproduces the shared room-index test at <c>$91:F0D1</c> without allowing an equal

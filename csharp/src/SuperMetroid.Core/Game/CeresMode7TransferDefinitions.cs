@@ -42,12 +42,6 @@ public static class CeresMode7TransferDefinitions
 
     /// <summary>Mode7 maps have128 tiles per row. Transfer destinations name low bytes of VRAM words.</summary>
     private const int MapColumns = 128;
-    /// <summary>$A6:F918: paired four-byte platform frames following both ten-byte DMA lists.</summary>
-    private const int PlatformPayload = 0xa6f918;
-    /// <summary>$A6:AD1B: three baby frames, each two rows of two atlas tiles.</summary>
-    private const int BabyPayload = 0xa6ad1b;
-    /// <summary>$A6:ADB7: wing rows store frame0 then frame1, with identical extent per row.</summary>
-    private const int WingPayload = 0xa6adb7;
     /// <summary>$A6:F904/F90E: platform map position (14,12), an authored layout placement.</summary>
     private const int PlatformColumn = 14, PlatformRow = 12;
     /// <summary>$A6:ACE2/ACF5/AD08: baby map position (4,10), an authored layout placement.</summary>

@@ -29,7 +29,7 @@ public sealed class FileSelectMapAnimations
                 "Map arrows require installed animation definitions.");
             var direction = (MapScrollDirection)(index + 1);
             MapArrowVisual visual = installed.Get(direction);
-            replacement = new Arrow(visual.X, visual.Y, 0, MapArrowDefinitions.SpriteBase(direction));
+            replacement = new Arrow(visual.X, visual.Y, MapArrowDefinitions.SpriteBase(direction));
             phaseCount = visual.PhaseCount;
             if (previous is not null)
             {
@@ -89,9 +89,9 @@ public sealed class FileSelectMapAnimations
         }
     }
 
-    private sealed class Arrow(ushort x, ushort y, ushort program, ushort spriteBase)
+    private sealed class Arrow(ushort x, ushort y, ushort spriteBase)
     {
-        public readonly ushort X = x, Y = y, Program = program, Base = spriteBase;
+        public readonly ushort X = x, Y = y, Base = spriteBase;
         public int Timer, Frame;
         public ushort Spritemap;
         public bool Visible;

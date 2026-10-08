@@ -13,20 +13,6 @@ internal readonly record struct DownwardGateShotBlockDefinition(
 /// </summary>
 internal static class DownwardGateShotBlockDefinitions
 {
-    /// <summary>
-    /// Native table $84:C70A-$C719, which selects the eight gate-trigger instruction lists.
-    /// </summary>
-    internal const int InstructionListTableAddress = 0x84c70a;
-
-    /// <summary>
-    /// Native table $84:C71A-$C729, which installs the left-side trigger block when nonzero.
-    /// </summary>
-    internal const int LeftBlockWordTableAddress = 0x84c71a;
-
-    /// <summary>
-    /// Native table $84:C72A-$C739, which installs the right-side trigger block when nonzero.
-    /// </summary>
-    internal const int RightBlockWordTableAddress = 0x84c72a;
 
     private const ushort LastRoomArgument = 14;
 

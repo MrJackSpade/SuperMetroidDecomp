@@ -8,8 +8,6 @@ internal abstract class FirefleaInstructionProgramDefinitions : IInstructionProg
 {
     /// <summary><c>InstList_Fireflea</c> at $A3:8C2F.</summary>
     internal const ushort Loop = 0x8c2f;
-    /// <summary>The adjacent unused Fireflea data block at $A3:8D03.</summary>
-    internal const ushort AdjacentUnusedData = 0x8d03;
     internal const int FrameCount = 52;
 
     public static int MechanicsWordCount => FrameCount + 2;

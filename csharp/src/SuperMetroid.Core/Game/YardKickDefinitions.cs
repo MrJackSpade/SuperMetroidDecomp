@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Native Yard vertical launch words indexed by the player's whole horizontal displacement.</summary>
 public static class YardKickDefinitions
 {
-    /// <summary>$A3:D517, KickYardIntoAir.YSubVelocity/YVelocity: sixteen fractional/whole pairs.</summary>
-    public const int ReferenceAddress = 0xa3d517;
 
     /// <summary>Caps only the vertical-table selector at fifteen; caller retains its original horizontal speed.</summary>
     public static (ushort Fraction, ushort Whole) ForHorizontalSpeed(ushort wholeSpeed)

@@ -165,13 +165,16 @@ internal static class DoorScrollProgramsAccess
 /// <summary>Verification access to <see cref="DownwardGatePlmProgramDefinitions"/> members production does not use.</summary>
 internal static class DownwardGatePlmProgramDefinitionsAccess
 {
+    /// <summary>$84:BC61: adjacent upward-gate program, outside the downward-gate decoder.</summary>
+    private const ushort ResidentEnd = 0xbc61;
+
     extension(DownwardGatePlmProgramDefinitions)
     {
         internal static IEnumerable<(ushort Address, ushort Value)> MechanicsWords
         {
             get
             {
-                for (int address = PrivateState.StaticField<ushort>(typeof(DownwardGatePlmProgramDefinitions), "OpenStart"); address < PrivateState.StaticField<ushort>(typeof(DownwardGatePlmProgramDefinitions), "ResidentEnd"); address++)
+                for (int address = PrivateState.StaticField<ushort>(typeof(DownwardGatePlmProgramDefinitions), "OpenStart"); address < ResidentEnd; address++)
                     if (DownwardGatePlmProgramDefinitions.TryReadMechanicsWord((ushort)address, out ushort value)) yield return ((ushort)address, value);
                 for (int address = RoomPlmInstructionLists.DownwardGateShotBlockBlueLeft; address < PrivateState.StaticField<ushort>(typeof(DownwardGatePlmProgramDefinitions), "TriggerEnd"); address += 2)
                     if (DownwardGatePlmProgramDefinitions.TryReadMechanicsWord((ushort)address, out ushort value)) yield return ((ushort)address, value);

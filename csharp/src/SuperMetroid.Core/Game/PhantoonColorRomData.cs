@@ -19,5 +19,4 @@ public static class PhantoonColorRomData
     /// </summary>
     public const int PowerOnSource = 0xa7ca61;
     public const int PowerOnCount = 112;
-    public const int PowerOnDestination = 0;
 }

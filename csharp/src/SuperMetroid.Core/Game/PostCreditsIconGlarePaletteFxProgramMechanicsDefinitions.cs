@@ -19,8 +19,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions
 {
-    /// <summary>The palette-FX definition at <c>$8D:E200</c>.</summary>
-    public const ushort DefinitionPointer = 0xe200;
 
     /// <summary>The instruction-list entry at <c>$8D:DF94</c>.</summary>
     public const ushort ProgramStart = 0xdf94;
@@ -45,9 +43,6 @@ public static class PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions
 
     /// <summary>Each record lasts one frame.</summary>
     public const ushort FrameDuration = 1;
-
-    /// <summary>The complete icon glare lasts fourteen frames.</summary>
-    public const int CycleFrames = FrameCount * FrameDuration;
 
     /// <summary>Frames0..13 occupy36-byte records atDF98: duration,16 colors, wait.</summary>
     public static ushort FramePointer(int frame)

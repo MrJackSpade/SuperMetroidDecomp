@@ -19,10 +19,6 @@ internal static class EyeDoorPlmDrawDefinitions
     internal const ushort MirroredOpeningClear = 0x9bf7;
     /// <summary>Right-facing eye animation begins at $84:9C5B.</summary>
     private const ushort RightEyeFirst = 0x9c5b;
-    /// <summary>Right-facing middle component begins at $84:9C83.</summary>
-    private const ushort RightMiddleFirst = 0x9c83;
-    /// <summary>Right-facing bottom component begins at $84:9C95.</summary>
-    private const ushort RightBottomFirst = 0x9c95;
 
     internal enum Component { Eye, Middle, Bottom, Clear }
 

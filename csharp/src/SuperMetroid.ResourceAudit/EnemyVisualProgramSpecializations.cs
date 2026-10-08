@@ -17,15 +17,15 @@ internal static class EnemyVisualProgramSpecializations
     {
         [nameof(CommonEnemyProjectileInstructionProgramDefinitions)] = "7876561037204067C252810C120DB60BFDEC95EC64B418EBCC8BAD68B5F7E930",
         [nameof(GoldenTorizoEyeBeamAttackInstructionProgramDefinitions)] = "4DCD82EAE1D6A1D3BC8FAE9F8A4E7E8DB7544B27DAE930FEC37005AD90344ADE",
-        [nameof(GoldenTorizoJumpLandingInstructionProgramDefinitions)] = "CEA0B0EF8E10D836874A7425B625D309614BEA96FDA722BC536D0C4D1868546C",
+        [nameof(GoldenTorizoJumpLandingInstructionProgramDefinitions)] = "F8EF0540D791B3715DE310B0F68F6DBE7E4FE32FB6F2D0CAA899008613455AA5",
         [nameof(GoldenTorizoStunnedInstructionProgramDefinitions)] = "3DA0A675BA4413792DFA683B0D8D0F51D6B54C8E4BE00909E91443D2A74C39E9",
-        [nameof(TourianEntranceStatueInstructionProgramDefinitions)] = "E2FD883D4E035551B9DF569166E452972D7A2595976B0EA037864CB25D6EB255",
+        [nameof(TourianEntranceStatueInstructionProgramDefinitions)] = "95C8B79AAC02871F10F74E62B5F6E5EA55C33FD8C0D2440FF761759053F9D39C",
     };
 
     private static readonly Dictionary<string, string> CustomLayouts = new()
     {
         [nameof(MotherBrainBodyInstructionProgramDefinitions)] = "6EE26AC824E03B3697720FA6B9A18294EC171E834B5CACC01ACBEE8B1A87757E",
-        [nameof(MotherBrainHeadInstructionProgramDefinitions)] = "FFDAD575FE16AB0393882EB34407A090DD989F93AC209A12A7D61A581EA348D2",
+        [nameof(MotherBrainHeadInstructionProgramDefinitions)] = "27E177BB75857BDACFAEA5677E00FE40CE86677D70E2E22AEBD65DDB3D715EF5",
         [nameof(MotherBrainHandBeamBodyInstructionDefinitions)] = "1BDCF55B7F53E321BC293DAAA6DD82712484A305B44D0E533C18612E8B7F3D71",
         [nameof(MotherBrainFallingTubeInstructionDefinitions)] = "FCA4060649CFE4B7A5177FB4F311CBE357F56F44987AA88C33779E621A1362E8",
     };

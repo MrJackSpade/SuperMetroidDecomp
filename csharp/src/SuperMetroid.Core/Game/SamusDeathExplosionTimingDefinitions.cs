@@ -20,17 +20,9 @@ namespace SuperMetroid.Core.Game;
 /// these nine even-byte durations and does not exempt adjacent control data.</remarks>
 internal static class SamusDeathExplosionTimingDefinitions
 {
-    /// <summary>
-    /// First timer byte in the nine two-byte timer/palette-index records at
-    /// <c>$9B:B823-$9B:B834</c>.
-    /// </summary>
-    public const int NativeFirstTimerAddress = 0x9bb823;
 
     /// <summary>Number of authored suit-explosion timing records.</summary>
     public const ushort RecordCount = 9;
-
-    /// <summary>Bytes occupied by each interleaved timer/palette-index record.</summary>
-    public const ushort RecordByteCount = 2;
 
     private static ReadOnlySpan<byte> Durations =>
         [0x15, 0x06, 0x03, 0x04, 0x05, 0x05, 0x06, 0x06, 0x50];

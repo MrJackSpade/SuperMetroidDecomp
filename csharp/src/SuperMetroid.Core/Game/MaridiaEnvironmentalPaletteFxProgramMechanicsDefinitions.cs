@@ -27,8 +27,6 @@ public enum MaridiaEnvironmentalPaletteOwner
 /// </remarks>
 public static class MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions
 {
-    /// <summary>$8D:F795: native Maridia1 sand-pit palette-FX definition; subsequent selected definitions occupy four bytes each.</summary>
-    internal const ushort SandPitDefinition = 0xF795;
     /// <summary>$8D:F4E9: native Maridia1 color-index setup, followed contiguously by sand-fall and waterfall programs.</summary>
     internal const ushort SandPitProgram = 0xF4E9;
     /// <summary>$8D:F4EF/F547: four-color sand rotation group.</summary>

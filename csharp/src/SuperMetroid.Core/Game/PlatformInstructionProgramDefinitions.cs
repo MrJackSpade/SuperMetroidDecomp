@@ -29,8 +29,6 @@ internal abstract class PlatformInstructionProgramDefinitions : IInstructionProg
     /// is opposite its published rightward horizontal movement.
     /// </summary>
     internal const ushort TripperStillMovingRight = 0x9c55;
-    /// <summary>The first callback implementation immediately after the programs.</summary>
-    internal const ushort FirstAdjacentCallback = 0x9c6b;
 
     /// <summary>Program choice at $A3:9E47-9EBA, called by the zero/nonzero
     /// direction branches at $A3:9ECB and $A3:9EF1. Initialization uses the still cases.</summary>

@@ -349,10 +349,10 @@ internal static partial class Program
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address) =>
-            address is >= MotherBrainTileTransferDefinitions.BabyTileList and
-                < MotherBrainTileTransferDefinitions.BabyTileList +
+            address is >= MotherBrainTileTransferDefinitionsConstants.BabyTileList and
+                < MotherBrainTileTransferDefinitionsConstants.BabyTileList +
                     MotherBrainTileTransferDefinitions.BabyTileCount *
-                    MotherBrainTileTransferDefinitions.RecordSize
+                    MotherBrainTileTransferDefinitionsConstants.RecordSize
                 ? throw new InvalidOperationException(
                     $"Mother Brain read compiled Baby metadata from ROM at ${address:X6}.")
                 : source.ReadByte(address);

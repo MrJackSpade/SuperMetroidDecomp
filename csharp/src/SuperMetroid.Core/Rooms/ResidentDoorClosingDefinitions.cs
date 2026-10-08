@@ -10,8 +10,6 @@ namespace SuperMetroid.Core.Rooms;
 /// </remarks>
 public static class ResidentDoorClosingDefinitions
 {
-    /// <summary>Number of retail resident door/gate headers with a secondary closing list.</summary>
-    public const int Count = 20;
 
     /// <summary>$84:BA4C, Bomb Torizo's Bomb-gated right-facing closing program.</summary>
     internal const ushort BombTorizoGreyDoor = 0xba4c;

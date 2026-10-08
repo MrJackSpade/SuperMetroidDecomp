@@ -48,8 +48,6 @@ internal abstract class EtecoonInstructionProgramDefinitions : IInstructionProgr
     internal const ushort Flexing = 0xe8d6;
     /// <summary><c>InstList_Etecoon_Flexing_1</c> at $A7:E8DA.</summary>
     internal const ushort FlexingLoop = 0xe8da;
-    /// <summary>The first Etecoon movement constant after the programs, at $A7:E900.</summary>
-    internal const ushort FirstAdjacentMechanicsData = 0xe900;
 
     /// <summary>Native program bank $A7.</summary>
     internal const byte Bank = 0xa7;

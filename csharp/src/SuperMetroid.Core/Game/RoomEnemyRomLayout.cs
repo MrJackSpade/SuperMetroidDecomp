@@ -5,8 +5,6 @@ internal static class RoomEnemyRomLayout
 {
     /// <summary>Bank containing 64-byte enemy definition records.</summary>
     public const int DefinitionBank = 0xa00000;
-    /// <summary>Bank containing room enemy population records.</summary>
-    public const int PopulationBank = 0xa10000;
     /// <summary>Bank containing enemy graphics-set records.</summary>
     public const int TilesetBank = 0xb40000;
     /// <summary>First VRAM byte occupied by dynamically staged ordinary enemy tiles.</summary>

@@ -137,6 +137,4 @@ internal static class FileSelectTilemapFormat
     public const ushort End = 0xffff;
     /// <summary>Moves the output cursor to the same column on the following row.</summary>
     public const ushort NextRow = 0xfffe;
-    /// <summary>Bytes per 32-word BG tilemap row.</summary>
-    public const int RowByteCount = 64;
 }

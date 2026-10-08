@@ -10,8 +10,6 @@ internal abstract class MochtroidInstructionProgramDefinitions : IInstructionPro
     internal const ushort FreeFlight = 0xa745;
     /// <summary><c>InstList_Mochtroid_TouchingSamus</c> at $A3:A759.</summary>
     internal const ushort Attached = 0xa759;
-    /// <summary>The shake-velocity table immediately after the programs, at $A3:A76D.</summary>
-    internal const ushort FirstAdjacentMechanicsData = 0xa76d;
 
     /// <summary>$A3:A745-A751: chosen fourteen-tick flight pulse tempo, repeated across
     /// the four-pose visual loop. The loop has no callbacks; physical steering is A7AA-A88E.

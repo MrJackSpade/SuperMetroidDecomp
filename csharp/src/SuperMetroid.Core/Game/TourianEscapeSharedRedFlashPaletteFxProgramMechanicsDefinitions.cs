@@ -42,9 +42,6 @@ public static class TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefiniti
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public const int FrameByteCount = 20;
 
-    /// <summary>The complete shared loop lasts 28 frames.</summary>
-    public const int CycleFrames = 28;
-
     /// <summary>CGRAM byte $A8: general-level red-flash destination.</summary>
     private const ushort GeneralColorByte = 0x00a8;
     /// <summary>CGRAM byte $E8: Arkanoid-block and red-orb flash destination.</summary>

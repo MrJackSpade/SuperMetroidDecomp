@@ -27,8 +27,6 @@ internal static class KraidRoomPlmDrawDefinitions
     internal const ushort ClearCeiling = 0x939d;
     /// <summary><c>$84:93BF</c>: already-defeated spikes clear, twenty-two blocks.</summary>
     internal const ushort ClearSpikes = 0x93bf;
-    /// <summary><c>$84:93EF</c>: start of the following Phantoon draw region.</summary>
-    internal const ushort EndExclusive = 0x93ef;
 
     internal const int DrawCount = 10;
 

@@ -46,7 +46,6 @@ public sealed partial class RoomEnemySystem
         EnemyAiCodePointers.BankA8.BlueBrinstarFaceBlockShot;
 
     private const ushort BlueBrinstarFaceBlockMorphBallItemMask = 0x0004;
-    private const int BlueBrinstarFaceBlockPaletteTable = 0xa8e7cc;
     private const ushort BlueBrinstarFaceBlockPalettePeriod = 16;
     private const int BlueBrinstarFaceBlockPaletteFrameCount = 8;
     private const int BlueBrinstarFaceBlockAnimatedColorCount = 4;

@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class SuitPickupBeamCurveDefinitions
 {
-    /// <summary>Native source address of the 128-byte contour at <c>$88:E3C9</c>.</summary>
-    public const int NativeCurveAddress = 0x88e3c9;
 
     /// <summary>Number of authored offsets before the native vertical mirror.</summary>
     public const int OffsetCount = 128;

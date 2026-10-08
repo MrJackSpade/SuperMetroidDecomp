@@ -18,10 +18,6 @@ internal static class IntroMotherBrainExplosionInstructionDefinitions
     internal const ushort EndPointer = 0xcdeb;
     /// <summary>$8B:CE53, shared sprite-object delete list.</summary>
     internal const ushort DeletePointer = CinematicCodePointers.Lists.Delete;
-    /// <summary>One native six-frame large loop occupies 52 frames including blank hold.</summary>
-    internal const int BigLoopFrames = 52;
-    /// <summary>One native six-frame small loop occupies 34 frames including blank hold.</summary>
-    internal const int SmallLoopFrames = 34;
 
     private static ushort ProgramWord(int index)
     {

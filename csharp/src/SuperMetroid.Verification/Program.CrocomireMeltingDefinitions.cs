@@ -379,9 +379,9 @@ internal static partial class Program
             if (address is
                 >= 0xa49697 and < 0xa496c8 or
                 >= 0xa49bbd and < 0xa49bc5 or
-                >= CrocomireMeltingTransferDefinitions.NativeSourceAddress and
-                    < CrocomireMeltingTransferDefinitions.NativeSourceAddress +
-                        CrocomireMeltingTransferDefinitions.NativeByteCount)
+                >= CrocomireMeltingTransferDefinitionsConstants.NativeSourceAddress and
+                    < CrocomireMeltingTransferDefinitionsConstants.NativeSourceAddress +
+                        CrocomireMeltingTransferDefinitionsConstants.NativeByteCount)
                 throw new InvalidOperationException(
                     $"Crocomire melting attempted migrated definition read ${address:X6}.");
             if (blockGraphics)

@@ -9,9 +9,6 @@ public static class MotherBrainFakeDeathPaletteRomData
     /// <summary>Eight grey-fade pointers followed by zero at $AD:ED8A.</summary>
     public const int ToGreyPointerTable = 0xaded8a;
 
-    /// <summary>The resurrection uses the same $AD:ED9C pointer table as the later revival fade.</summary>
-    public const int FromGreyPointerTable = MotherBrainDrainedPaletteRomData.FromGreyTable;
-
     /// <summary>The fake-death fade handlers copy three nontransparent brain sprite colors.</summary>
     public const int ColorCount = 3;
 

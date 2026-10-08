@@ -3,10 +3,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Shared NTSC crawling magnitudes, in 8.8 pixels per frame.</summary>
 public static class CrawlerSpeedDefinitions
 {
-    /// <summary>$A3:E5F0, CrawlersSpeedTable: 32 population-selected magnitudes.</summary>
-    public const int ReferenceAddress = 0xa3e5f0;
-    /// <summary>$A3:CCA2, YardCrawlingSpeeds: identical NTSC copy used by Yard.</summary>
-    public const int YardReferenceAddress = 0xa3cca2;
     /// <summary>$A3:E67A parameter sentinel: preserve existing velocity before applying property signs.</summary>
     public const ushort PreserveVelocity = 0xff;
     /// <summary>Number of authored speed records; trailing zero is an intentional stationary entry.</summary>

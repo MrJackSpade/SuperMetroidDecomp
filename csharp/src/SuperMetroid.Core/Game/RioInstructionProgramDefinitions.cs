@@ -21,9 +21,6 @@ internal abstract class RioInstructionProgramDefinitions : IInstructionProgramCa
     /// <summary><c>InstList_Rio_SwoopCooldown</c> at $A2:BBA3.</summary>
     internal const ushort SwoopCooldown = 0xbba3;
 
-    /// <summary>The first mechanics constant after Rio's programs, at $A2:BBBB.</summary>
-    internal const ushort FirstAdjacentMechanicsData = 0xbbbb;
-
     /// <summary>$A2:BB4B-BB79: two initial and ten post-swoop idle poses, each four ticks.</summary>
     private const int IdleFrameCount = 12;
     /// <summary>$A2:BB7F-BB8F and BBA3-BBB3: five poses before each animation-finished callback.</summary>

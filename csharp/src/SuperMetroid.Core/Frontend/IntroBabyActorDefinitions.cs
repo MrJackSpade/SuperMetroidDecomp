@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Fixed cinematic-object definitions for the SR388 egg and baby-Metroid scenes.</summary>
 internal static class IntroBabyActorDefinitions
 {
-    /// <summary>Bank containing the native actor definitions and initializer routines.</summary>
-    public const int NativeBank = 0x8b0000;
 
     /// <summary><c>$8B:BA5E</c>, initial confused-baby pre-instruction.</summary>
     public const ushort ConfusedBabyInitialPreInstruction = 0xba5e;

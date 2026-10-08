@@ -56,9 +56,6 @@ public static class BrinstarBlueSporePaletteFxProgramMechanicsDefinitions
     /// <summary>The byte index of the first blue-spore color in CGRAM.</summary>
     public const ushort ColorByteIndex = 0x00e2;
 
-    /// <summary>Frames from the first record through the next first record.</summary>
-    public const int CycleFrames = 140;
-
     /// <summary>The standard-room and Spore Spawn variants in definition order.</summary>
     public static IReadOnlyList<BrinstarBlueSporePaletteFxProgramDefinition> All { get; } = new ProgramOwners();
 

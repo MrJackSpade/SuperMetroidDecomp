@@ -87,9 +87,6 @@ public static class SamusLoadingSuitPaletteFxProgramMechanicsDefinitions
     /// <summary>The terminal record lasts one frame.</summary>
     public const ushort FinalFrameDuration = 1;
 
-    /// <summary>Every suit-loading program lasts 265 frames.</summary>
-    public const int CycleFrames = 265;
-
     /// <summary>Chosen replay chronology of the loading flash, retained under #1165's nonsense exception.</summary>
     /// <remarks>Native $8D:DB66 and the following timer operands repeat each
     /// six-frame palette pair 36, 3, 3, then 2 times. The first two pairs even

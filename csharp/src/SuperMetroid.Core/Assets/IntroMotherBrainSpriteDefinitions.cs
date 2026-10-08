@@ -7,10 +7,6 @@ internal static class IntroMotherBrainSpriteDefinitions
 {
     /// <summary>$8C:8C00, first nine-part Mother Brain frame.</summary>
     internal const ushort FrameZero = 0x8c00;
-    /// <summary>$8C:8C2F, second nine-part Mother Brain frame.</summary>
-    internal const ushort FrameOne = FrameZero + 2 + 5 * StockPartCount;
-    /// <summary>$8C:8C5E, third nine-part Mother Brain frame.</summary>
-    internal const ushort FrameTwo = FrameOne + 2 + 5 * StockPartCount;
     /// <summary>Every retail frame has nine OAM parts; $8C:8C8D is unrelated.</summary>
     internal const int StockPartCount = 9;
 

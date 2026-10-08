@@ -24,6 +24,6 @@ internal static class EnemyDisplayArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/BabyMetroidSpriteParts.cs", "4D1E9A44D8DA9FDA65806635F113BCE341F5CB06FAA95DBC4A19F624F8E362CC"),
              new("csharp/src/SuperMetroid.Core/Assets/BabyMetroidCompositionDefinitions.cs", "9286127000F8BC17979896282DCA39CF8A7C4BB935060F001F5D0FA498C134B3"),
              new("csharp/src/SuperMetroid.Core/Hardware/EnemySpritemapParts.cs", "A4314E73E8BB50CE1CE52EA245F79EAF39C90489C7677FEE5A774B8204193502"),
-             new("csharp/src/SuperMetroid.Core/Game/CommonEnemyEmptyExtendedFrameDefinitions.cs", "FDA923F284D3E91EA136F923E9C66D4B1C264306F149450AFAABA76E5DA3ACC0")]),
+             new("csharp/src/SuperMetroid.Core/Game/CommonEnemyEmptyExtendedFrameDefinitions.cs", "BDF79EE3AEE62243F847B6FCD8A5320736274EC881A37721621F633345001B80")]),
     ];
 }

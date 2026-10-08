@@ -11,6 +11,4 @@ public static class MapStaticPalettesRomData
     public const int CopyRecordBytes = 4;
     /// <summary>A bank cannot hold more complete four-byte records than this.</summary>
     public const int MaximumCopyRecords = 16384;
-    /// <summary>$81:A546 starts executable foreground-load code after all world-map palette copy records.</summary>
-    public const int WorldPaletteDataEnd = 0x81a546;
 }

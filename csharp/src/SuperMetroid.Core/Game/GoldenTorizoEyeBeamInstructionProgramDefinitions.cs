@@ -7,8 +7,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal abstract class GoldenTorizoEyeBeamInstructionProgramDefinitions : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
-    /// <summary><c>InitAI_EnemyProjectile_GoldenTorizoEyeBeam</c> at $86:B328.</summary>
-    internal const ushort InitializationAi = 0xb328;
     /// <summary><c>InstList_EnemyProjectile_GoldenTorizoEyeBeam_HitWall</c> at $86:B3CD.</summary>
     internal const ushort WallImpact = 0xb3cd;
     /// <summary><c>InstList_EnemyProjectile_GoldenTorizoEyeBeam_HitFloor_0</c> at $86:B3E5.</summary>

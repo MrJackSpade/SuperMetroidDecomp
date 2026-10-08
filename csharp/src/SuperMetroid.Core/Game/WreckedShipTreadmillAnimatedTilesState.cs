@@ -22,7 +22,6 @@ public enum WreckedShipTreadmillDirection
 /// </summary>
 public sealed class WreckedShipTreadmillAnimatedTilesState
 {
-    private const int AnimatedTileBank = 0x870000;
 
     private ushort _objectPointer;
     private ushort _instructionPointer;

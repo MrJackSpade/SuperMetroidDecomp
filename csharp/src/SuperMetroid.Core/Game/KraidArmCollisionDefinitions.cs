@@ -46,9 +46,7 @@ internal static class KraidArmCollisionDefinitions
     private const ushort FirstSingleComponentFrame = 0x92a1;
     /// <summary>$A7:92AB, ExtendedSpritemap_KraidArm_Dying_PreparingToLungeForward_1.</summary>
     private const ushort SecondSingleComponentFrame = 0x92ab;
-    internal const int FrameCount = 22;
     private const int GeneralFrameBytes = 2 + 5 * 8;
-    private const int SingleComponentFrameBytes = 2 + 8;
     private static readonly KraidArmCollisionGeometry[] Geometry =
     [
         new(-13, -11, -3, -5),

@@ -7,14 +7,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class HyperBeamPaletteFxProgramDefinitions
 {
-    /// <summary>Native address of the destination-selection command at <c>$8D:D900</c>.</summary>
-    public const int NativeEntryControlAddress = 0x8dd900;
-
-    /// <summary>Native address of the first frame timer at <c>$8D:D904</c>.</summary>
-    public const int NativeFirstFrameTimerAddress = 0x8dd904;
-
-    /// <summary>Native address of the terminal loop command at <c>$8D:D9CC</c>.</summary>
-    public const int NativeLoopControlAddress = 0x8dd9cc;
 
     /// <summary>Bank-local instruction pointer installed by the object definition.</summary>
     public const ushort InitialInstructionPointer = 0xd900;
@@ -27,9 +19,6 @@ internal static class HyperBeamPaletteFxProgramDefinitions
 
     /// <summary>Number of authored timed color records.</summary>
     public const int FrameCount = 10;
-
-    /// <summary>Number of BGR555 colors in each presentation payload.</summary>
-    public const int ColorsPerFrame = 8;
 
     /// <summary>Bytes occupied by one timer, eight colors, and the done command.</summary>
     public const ushort FrameByteCount = 20;

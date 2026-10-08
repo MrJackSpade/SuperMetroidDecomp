@@ -97,13 +97,6 @@ internal static class SporeSpawnCollisionDefinitions
     private static readonly SporeSpawnCollisionHitbox[] ShotPointList = [InnerPoint(Shot)];
     private static readonly SporeSpawnCollisionHitbox[] DudPointList = [InnerPoint(Dud)];
 
-    /// <summary>The twelve native hitbox list identities.</summary>
-    private static readonly ushort[] ListPointers =
-    [
-        ClosedHead, OpenHead, ExtendedHead, MovingHead0, MovingHead1, MovingHead2, MovingHead3,
-        TrailingShotPoint, MirroredTrailingShotPoint, TrailingDudPoint, MovingHead4, MovingHead5,
-    ];
-
     private static bool IsOpeningFrame(ushort pointer) =>
         pointer >= FirstOpeningFrame && pointer <= FirstOpeningFrame + 6 * 18 &&
         (pointer - FirstOpeningFrame) % 18 == 0;

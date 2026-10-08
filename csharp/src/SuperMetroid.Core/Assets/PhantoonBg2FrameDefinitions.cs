@@ -19,12 +19,6 @@ internal static class PhantoonBg2FrameDefinitions
     internal const int MaximumComponents = 2;
     /// <summary>Phantoon's extended frames and BG2 streams reside in bank $A7.</summary>
     internal const byte Bank = 0xa7;
-    /// <summary>$A0:96CA identifies an extended BG2 command stream by this first word.</summary>
-    internal const ushort StreamMarker = EnemyBg2FrameLayout.StreamMarker;
-    internal const ushort VramBase = EnemyBg2FrameLayout.VramBase;
-    internal const ushort WorkingRamBase = EnemyBg2FrameLayout.WorkingRamBase;
-    internal const int TilemapWidth = EnemyBg2FrameLayout.TilemapWidth;
-    internal const int TilemapHeight = EnemyBg2FrameLayout.TilemapHeight;
     /// <summary>Body with its complete five-rectangle hitbox, $A7:DEE7.</summary>
     internal const ushort BodyFullHitbox = 0xdee7;
     /// <summary>Body with only the vulnerable eye hitbox, $A7:DEF1.</summary>

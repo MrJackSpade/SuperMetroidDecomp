@@ -34,23 +34,4 @@ public static class SamusBombSpreadRomData
     /// remains held.
     /// </summary>
     public const ushort DownChargeTimeoutMask = 0x00c0;
-
-    /// <summary>Five 16-bit fuse words beginning at $90:D8CF.</summary>
-    public const int FuseTimers = 0x90d8cf;
-
-    /// <summary>Five native direction/magnitude X-velocity words beginning at $90:D8D9.</summary>
-    public const int XVelocities = 0x90d8d9;
-
-    /// <summary>Five whole-pixel initial Y-speed words beginning at $90:D8E3.</summary>
-    public const int YSpeeds = 0x90d8e3;
-
-    /// <summary>Five fractional initial Y-speed words beginning at $90:D8ED.</summary>
-    public const int YSubspeeds = 0x90d8ed;
-
-    /// <summary>Bank-$94 non-square slope-height table at $94:8B2B.</summary>
-    /// <remarks>Physical alias of <see cref="SlopeHeightDefinitions.Read"/>. Proof: #625 / #914.</remarks>
-    public const int NonSquareSlopeHeights = 0x948b2b;
-
-    /// <summary>Low-five-bit height payload stored by each bank-$94 slope-table byte.</summary>
-    public const byte NonSquareSlopeHeightMask = 0x1f;
 }

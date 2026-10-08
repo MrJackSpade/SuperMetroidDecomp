@@ -70,10 +70,6 @@ internal static class CeresDestructionActorDefinitions
             _ => throw new InvalidOperationException("Validated Ceres actor index became invalid."),
         };
     }
-
-    /// <summary>$8B:CE7F, CinematicSpriteObjectDefs_CeresUnderAttackLargeAsteroids,
-    /// sharing BF22/BF35 with CF39 but selecting CC3F instead of CE4B.</summary>
-    private const ushort DestructionLargeAsteroidDefinition = 0xce7f;
     /// <summary>$8B:BFD9, RTS_8BBFD9 installed by the vortex parameter-zero initializer at BFAB.</summary>
     private const ushort StationaryVortexCallback = 0xbfd9;
 
@@ -110,11 +106,6 @@ internal static class CeresDestructionActorDefinitions
     private static CeresDestructionActorDefinition ZebesTitle =>
         new(0x93d9, CeresDestructionSpriteInstructionDefinitions.TitleStart,
             128, 186, 0, 0, false, 0, 0, false);
-
-    /// <summary>$8B:CEF7, first six-byte definition, CinematicSpriteObjectDefinitions_ZebesStars2.</summary>
-    private const ushort FirstZebesStarDefinition = 0xcef7;
-    /// <summary>$8B:C942, first twenty-byte initializer, InitFunction_CinematicSpriteObject_ZebesStars2.</summary>
-    private const ushort FirstZebesStarInitializer = 0xc942;
     /// <summary>$8B:C8F9, PreInstruction_CinematicSpriteObject_ZebesStars_2_3_4 waits for scene sliding.</summary>
     private const ushort StarWaitCallback = 0xc8f9;
     /// <summary>$8B:C8AA, PreInstruction_CinematicSpriteObject_ZebesStars5 waits for completion-owner sliding.</summary>

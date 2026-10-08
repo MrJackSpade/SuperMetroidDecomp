@@ -46,15 +46,6 @@ public static class SamusMovementRomData
         /// input lookup failure. This is metadata, not an installed Samus pose ID.
         /// </summary>
         public const byte RetainCurrentPoseFallback = 0xff;
-
-        /// <summary><c>$91:B010</c>, one bank-$91 animation-delay-list pointer per pose.</summary>
-        public const int AnimationDelayListPointers = 0x91b010;
-
-        /// <summary><c>$91:B5D1</c>, pointer to the shared ordinary-running delay list.</summary>
-        public const int DefaultRunningAnimationDelayListPointer = 0x91b5d1;
-
-        /// <summary><c>$91:9EE2</c>, one bank-$91 input-transition-list pointer per pose.</summary>
-        public const int TransitionListPointers = 0x919ee2;
     }
 
     /// <summary>Horizontal acceleration, Speed Booster, and animation cadence tables.</summary>
@@ -72,12 +63,6 @@ public static class SamusMovementRomData
         /// <summary>Bank-$90 base selected below lava/acid without Gravity Suit.</summary>
         public const ushort LavaAcidSpeedTable = 0xa1dd;
 
-        /// <summary><c>$91:B61F</c>, initial/next low byte for each Speed Booster stage.</summary>
-        public const int SpeedBoostCounterLowBytes = 0x91b61f;
-
-        /// <summary><c>$91:B5DE</c>, animation-delay-list pointer for each boost stage.</summary>
-        public const int SpeedBoostAnimationDelayListPointers = 0x91b5de;
-
         /// <summary>High-nibble stage mask used by setup <c>$84:CDEA</c>.</summary>
         public const ushort SpeedBoostStageMask = 0x0f00;
 
@@ -88,53 +73,6 @@ public static class SamusMovementRomData
     /// <summary>Vertical launch velocities and gravity constants in bank $90.</summary>
     public static class VerticalMotion
     {
-        /// <summary>Normal-jump speed selected by the current liquid medium.</summary>
-        public const int NormalJumpSpeeds = 0x909eb9;
-
-        /// <summary>Normal-jump subspeed selected by the current liquid medium.</summary>
-        public const int NormalJumpSubspeeds = 0x909ebf;
-
-        /// <summary>Hi-Jump speed selected by the current liquid medium.</summary>
-        public const int HiJumpSpeeds = 0x909ec5;
-
-        /// <summary>Hi-Jump subspeed selected by the current liquid medium.</summary>
-        public const int HiJumpSubspeeds = 0x909ecb;
-
-        /// <summary>Wall-jump speed selected by the current liquid medium.</summary>
-        public const int WallJumpSpeeds = 0x909ed1;
-
-        /// <summary>Wall-jump subspeed selected by the current liquid medium.</summary>
-        public const int WallJumpSubspeeds = 0x909ed7;
-
-        /// <summary>Hi-Jump wall-jump speed selected by the current liquid medium.</summary>
-        public const int HiWallJumpSpeeds = 0x909edd;
-
-        /// <summary>Hi-Jump wall-jump subspeed selected by the current liquid medium.</summary>
-        public const int HiWallJumpSubspeeds = 0x909ee3;
-
-        /// <summary>Knockback launch speed selected by the current liquid medium.</summary>
-        public const int KnockbackSpeeds = 0x909ee9;
-
-        /// <summary>Knockback launch subspeed selected by the current liquid medium.</summary>
-        public const int KnockbackSubspeeds = 0x909eef;
-
-        /// <summary>Bomb-jump launch speed selected by the current liquid medium.</summary>
-        public const int BombJumpSpeeds = 0x909ef5;
-
-        /// <summary>Bomb-jump launch subspeed selected by the current liquid medium.</summary>
-        public const int BombJumpSubspeeds = 0x909efb;
-
-        /// <summary>Dry-air, water, and lava/acid fractional gravity words.</summary>
-        public const int GravitySubaccelerations = 0x909ea1;
-
-        /// <summary>Dry-air, water, and lava/acid whole gravity words.</summary>
-        public const int GravityAccelerations = 0x909ea7;
-
-        /// <summary>$90:9EB5 YSpeedWhenBouncingInMorphBall; reference address for the shared ball rebound.</summary>
-        public const int BallBounceSpeed = 0x909eb5;
-
-        /// <summary>$90:9EB7 YSubSpeedWhenBouncingInMorphBall; reference address for the shared ball rebound fraction.</summary>
-        public const int BallBounceSubspeed = 0x909eb7;
 
         /// <summary>Standalone horizontal speed record used by diagonal bomb jumps.</summary>
         public const int DiagonalBombJumpHorizontalSpeed = 0x909f25;

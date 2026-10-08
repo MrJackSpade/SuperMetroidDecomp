@@ -17,8 +17,6 @@ internal abstract class KraidArmInstructionProgramDefinitions : IInstructionProg
     internal const ushort RisingOrSinking = 0x8aa4;
     /// <summary><c>InstList_KraidArm_Dying_PreparingToLungeForward</c> at $A7:8AF0.</summary>
     internal const ushort DyingOrPreparingToLunge = 0x8af0;
-    /// <summary>First adjacent Kraid-lint instruction program at $A7:8AFE.</summary>
-    internal const ushort AdjacentLintProgram = 0x8afe;
 
     public static int MechanicsWordCount => 2 * 21 + 20 + 4;
     public static int PresentationWordCount => 3 * 18 + 3;

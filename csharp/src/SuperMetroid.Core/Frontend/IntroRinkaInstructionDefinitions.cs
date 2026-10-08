@@ -11,8 +11,6 @@ internal static class IntroRinkaInstructionDefinitions
 {
     /// <summary>$8B:CDEB, first Rinka frame in the actor instruction program.</summary>
     internal const ushort StartPointer = CinematicCodePointers.Lists.IntroRinka;
-    /// <summary>$8B:CE0D, first wait in the invisible spawn program.</summary>
-    internal const ushort SpawnerPointer = CinematicCodePointers.Lists.IntroRinkaSpawner;
     /// <summary>$8B:CE1B, exclusive end after the spawner's delete opcode.</summary>
     internal const ushort EndPointer = 0xce1b;
 

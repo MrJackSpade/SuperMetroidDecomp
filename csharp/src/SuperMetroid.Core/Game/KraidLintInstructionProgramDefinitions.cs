@@ -12,9 +12,6 @@ internal abstract class KraidLintInstructionProgramDefinitions : IInstructionPro
     /// <summary><c>kKraid_Ilist_8B04</c> at $A7:8B04.</summary>
     internal const ushort PostGrowth = 0x8b04;
 
-    /// <summary>The first adjacent Kraid fingernail program at $A7:8B0A.</summary>
-    internal const ushort FirstAdjacentFootProgram = 0x8b0a;
-
     public static int MechanicsWordCount => 4;
     public static int PresentationWordCount => 2;
 

@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Game;
 internal abstract class GoldenTorizoJumpLandingInstructionProgramDefinitions : IInstructionProgramCatalog, ICompiledMechanicsByteProbe
 {
     internal const ushort Start = 0xcdaf;
-    internal const ushort End = 0xcdd7;
 
     public static int MechanicsWordCount => 4 * 5;
 

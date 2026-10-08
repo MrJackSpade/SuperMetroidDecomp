@@ -7,11 +7,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class WorkRobotPaletteTimingDefinitions
 {
-    /// <summary>First timer word, at $A8:CCC9, in the six ten-byte palette records.</summary>
-    public const int NativeFirstTimerAddress = 0xa8ccc9;
-
-    /// <summary>The negative wrap marker at $A8:CCFD following the six records.</summary>
-    public const int NativeTerminatorAddress = 0xa8ccfd;
 
     /// <summary>Number of authored palette records before the terminator.</summary>
     public const ushort RecordCount = 6;

@@ -18,14 +18,6 @@ public sealed class DoorListDefinition
 /// <summary>Compiled physical doors and per-room door-list connections for the retail game.</summary>
 public static class DoorDefinitions
 {
-    /// <summary>Number of physical door records across the two native bank-$83 blocks.</summary>
-    public const int HeaderCount = 597;
-
-    /// <summary>Number of non-debug retail room door lists.</summary>
-    public const int DoorListCount = 262;
-
-    /// <summary>Number of door references addressable by retail room BTS indexes.</summary>
-    public const int RoomDoorReferenceCount = 606;
 
     /// <summary>Selects the connection configuration for a physical or shared elevator door.</summary>
     /// <remarks>The597 physical records occupy twelve-byte strides in bank83,

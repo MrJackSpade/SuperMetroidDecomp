@@ -16,8 +16,6 @@ internal readonly record struct DoorClosingPlmDefinition(
 /// </remarks>
 public static class DoorClosingPlmRomData
 {
-    /// <summary>$8F:E68A-$8F:E6A1, the twelve direction-selected fallback headers.</summary>
-    internal const int HeaderTableAddress = 0x8fe68a;
 
     /// <summary>Number of entries in the retail door-closing header table.</summary>
     public const int DirectionCount = 12;

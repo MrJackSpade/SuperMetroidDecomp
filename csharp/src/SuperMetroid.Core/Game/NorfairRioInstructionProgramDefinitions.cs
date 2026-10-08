@@ -20,8 +20,6 @@ internal abstract class NorfairRioInstructionProgramDefinitions : IInstructionPr
     internal const ushort FlamesAscending = 0xc18f;
     /// <summary><c>InstList_Geruta_Flames_Descending</c> at $A2:C1A3.</summary>
     internal const ushort FlamesDescending = 0xc1a3;
-    /// <summary><c>GerutaConstants</c>, adjacent non-instruction data at $A2:C1B7.</summary>
-    internal const ushort AdjacentMovementDefinitions = 0xc1b7;
 
     // Pose holds are authored animation cadence (reviewed under #1165); program geometry and the
     // callback dispatch below are calculated.

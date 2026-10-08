@@ -6,14 +6,9 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class EnemyDropChanceDefinitions
 {
-    /// <summary>Bank-$B4 address used by native enemy drop probability pointers.</summary>
-    internal const int NativeBank = 0xb40000;
 
     /// <summary>Pointer of the first six-byte item-drop probability record.</summary>
     internal const ushort FirstPointer = 0xf1f4;
-
-    /// <summary>Pointer of the final six-byte item-drop probability record.</summary>
-    internal const ushort LastPointer = 0xf4b2;
 
     /// <summary>Number of probability bytes in one native item-drop record.</summary>
     internal const int RecordSize = 6;

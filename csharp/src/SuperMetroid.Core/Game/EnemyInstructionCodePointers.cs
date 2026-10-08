@@ -3,38 +3,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Named 16-bit cartridge code pointers dispatched by the generic enemy runtime.</summary>
 internal static class EnemyInstructionCodePointers
 {
-    /// <summary><c>InitAI_EnemyProjectile_CeresElevatorPad</c> at $86:A2EE.</summary>
-    public const ushort InitAI_EnemyProjectile_CeresElevatorPad = 0xa2ee;
-
-    /// <summary><c>Door_RinkaShaft_2</c> at $83:AAC8.</summary>
-    public const ushort Door_RinkaShaft_2 = 0xaac8;
-
-    /// <summary><c>Function_Ship_LandingOnZebes_Descending</c> at $A2:A80C.</summary>
-    public const ushort Function_Ship_LandingOnZebes_Descending = 0xa80c;
-
-    /// <summary><c>Function_Ship_LandingOnZebes_WaitForShipEntranceToOpen</c> at $A2:A942.</summary>
-    public const ushort Function_Ship_LandingOnZebes_WaitForShipEntranceToOpen = 0xa942;
-
-    /// <summary><c>Function_Ship_LandingOnZebes_EjectSamus</c> at $A2:A950.</summary>
-    public const ushort Function_Ship_LandingOnZebes_EjectSamus = 0xa950;
-
-    /// <summary><c>Function_Ship_SamusEntered_HandleSaveConfirmation</c> at $A2:AB1F.</summary>
-    public const ushort Function_Ship_SamusEntered_HandleSaveConfirmation = 0xab1f;
-
-    /// <summary><c>Function_Ship_SamusExiting_WaitForEntrancePadToOpen</c> at $A2:AB60.</summary>
-    public const ushort Function_Ship_SamusExiting_WaitForEntrancePadToOpen = 0xab60;
-
-    /// <summary><c>Function_Ship_SamusExiting_RaiseSamus</c> at $A2:AB6E.</summary>
-    public const ushort Function_Ship_SamusExiting_RaiseSamus = 0xab6e;
-
-    /// <summary><c>Function_Ship_Liftoff_FireUpEngines_SpawnDustClouds</c> at $A2:AC1B.</summary>
-    public const ushort Function_Ship_Liftoff_FireUpEngines_SpawnDustClouds = 0xac1b;
-
-    /// <summary><c>Function_Ship_Liftoff_SteadyRise</c> at $A2:ACD7.</summary>
-    public const ushort Function_Ship_Liftoff_SteadyRise = 0xacd7;
-
-    /// <summary><c>Function_Ship_Liftoff_Accelerating</c> at $A2:AD2D.</summary>
-    public const ushort Function_Ship_Liftoff_Accelerating = 0xad2d;
 
     /// <summary><c>RTL_A288C5</c> at $A2:88C5.</summary>
     public const ushort RTL_A288C5 = 0x88c5;

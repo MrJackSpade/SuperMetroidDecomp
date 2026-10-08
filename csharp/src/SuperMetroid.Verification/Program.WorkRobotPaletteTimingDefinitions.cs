@@ -153,8 +153,8 @@ internal static partial class Program
                     WorkRobotPaletteTimingDefinitions.RecordByteCount &&
                 relative % WorkRobotPaletteTimingDefinitions.RecordByteCount < 2;
             bool terminatorByte = address is
-                WorkRobotPaletteTimingDefinitions.NativeTerminatorAddress or
-                WorkRobotPaletteTimingDefinitions.NativeTerminatorAddress + 1;
+                WorkRobotPaletteTimingDefinitionsConstants.NativeTerminatorAddress or
+                WorkRobotPaletteTimingDefinitionsConstants.NativeTerminatorAddress + 1;
             int colorRelative = address -
                 EnemyRomTablePointers.WorkRobot.PaletteAnimationRecords;
             bool colorByte = colorRelative >= 0 &&

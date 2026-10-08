@@ -107,10 +107,7 @@ public sealed partial class RoomEnemySystem
     internal const ushort GoldNinjaSpacePirateDefinition = 0xf593;
     internal const ushort MagentaNinjaSpacePirateDefinition = 0xf5d3;
     internal const ushort SilverNinjaSpacePirateDefinition = 0xf613;
-
-    private const ushort NinjaPiratePaletteNormal = 0x0200;
     private const ushort NinjaPirateInitialDiveSpeed = 0x0600;
-    private const ushort NinjaPirateSoundClawKickOrDive = 0x0066;
     private const int NinjaPirateActivationDistance = 128;
     private const int NinjaPirateFlinchDistance = 32;
     private const int NinjaPirateMidpointTriggerDistance = 32;

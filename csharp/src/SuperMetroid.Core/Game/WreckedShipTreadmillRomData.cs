@@ -6,15 +6,6 @@ internal static class WreckedShipTreadmillRomData
     /// <summary>First 32-byte graphics frame at $87:8E64.</summary>
     public const int Frame0Source = 0x878e64;
 
-    /// <summary>Second 32-byte graphics frame at $87:8E84.</summary>
-    public const int Frame1Source = Frame0Source + TransferByteCount;
-
-    /// <summary>Third 32-byte graphics frame at $87:8EA4.</summary>
-    public const int Frame2Source = Frame0Source + 2 * TransferByteCount;
-
-    /// <summary>Fourth 32-byte graphics frame at $87:8EC4.</summary>
-    public const int Frame3Source = Frame0Source + 3 * TransferByteCount;
-
     /// <summary>Size word in animated-tile objects $87:8275/$827B.</summary>
     public const ushort TransferByteCount = 0x0020;
 

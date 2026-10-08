@@ -26,15 +26,6 @@ internal static class BabyMetroidRouteDefinitions
     /// <summary>Number of authored route records from <c>$A9:CA24</c> through <c>$A9:CA63</c>.</summary>
     internal const int RecordCount = 8;
 
-    /// <summary>First SNES address occupied by the route records.</summary>
-    internal const int SourceAddress = 0xa9ca24;
-
-    /// <summary>
-    /// Complete source length, including the terminal <c>$CA66</c> word at
-    /// <c>$A9:CA64-$CA65</c> observed through the final record's overlapping +8 read.
-    /// </summary>
-    internal const int SourceByteLength = 66;
-
     /// <summary><c>$A9:F45F</c>, gradual acceleration with wrong-way extra <c>$0008</c>.</summary>
     internal const ushort GradualAccelerationExtraEightFunction = 0xf45f;
 

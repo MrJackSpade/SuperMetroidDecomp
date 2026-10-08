@@ -25,9 +25,6 @@ internal abstract class ShitroidInstructionProgramDefinitions : IInstructionProg
     /// <summary>The final unconditional remorse-loop callback word at $A9:F98E.</summary>
     internal const ushort RemorseLoopOpcode = 0xf98e;
 
-    /// <summary>The first callback implementation after the programs, at $A9:F990.</summary>
-    internal const ushort FirstAdjacentCallbackCode = 0xf990;
-
     /// <summary>$A9:F906 holds pose2 for128 ticks before returning through pose1 to the normal loop.
     /// Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort FinishDrainHold = 128;

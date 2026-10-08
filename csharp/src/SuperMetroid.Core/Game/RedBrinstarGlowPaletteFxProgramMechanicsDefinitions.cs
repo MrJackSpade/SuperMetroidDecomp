@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class RedBrinstarGlowPaletteFxProgramMechanicsDefinitions
 {
-    /// <summary>Red Brinstar background-glow palette-FX definition at $8D:F77D.</summary>
-    public const ushort DefinitionPointer = 0xf77d;
 
     /// <summary><c>InstList_PaletteFXObject_Brinstar2_0</c> at $8D:EED7.</summary>
     /// <remarks>
@@ -39,9 +37,6 @@ public static class RedBrinstarGlowPaletteFxProgramMechanicsDefinitions
 
     /// <summary>The byte index of the first Red Brinstar glow color in CGRAM.</summary>
     public const ushort ColorByteIndex = 0x00c8;
-
-    /// <summary>Frames from the first record through the next first record.</summary>
-    public const int CycleFrames = 140;
 
     /// <summary>Reads one fixed mechanics word while excluding BGR555 presentation words.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)

@@ -3,11 +3,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Immutable authored Bull movement parameters; live timers remain enemy state.</summary>
 public static class BullMovementDefinitions
 {
-    /// <summary>$A8:D885, BullConstants_MaxSpeeds, eight 8.8 maximum-speed words.</summary>
-    public const int MaximumSpeedReferenceAddress = 0xa8d885;
-
-    /// <summary>$A8:D895, BullAccelerationIntervalTable, thirteen acceleration/deceleration pairs.</summary>
-    public const int IntervalReferenceAddress = 0xa8d895;
 
     /// <summary>Number of authored maximum-speed selectors.</summary>
     public const int MaximumSpeedCount = 8;

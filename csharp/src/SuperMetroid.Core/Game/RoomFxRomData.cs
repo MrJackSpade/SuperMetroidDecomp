@@ -16,8 +16,6 @@ public static class RoomFxRomData
     {
         public const int RoomDefinitions = 0x830000;
         public const int AnimatedTiles = 0x870000;
-        public const int EffectCode = 0x880000;
-        public const int PaletteBlendData = 0x890000;
         public const int Tilemaps = 0x8a0000;
         public const int PaletteFx = 0x8d0000;
     }
@@ -47,8 +45,6 @@ public static class RoomFxRomData
     public static class Tables
     {
         public const int Layer3TilemapPointers = 0x83abf0;
-        public const int TypeFunctionPointers = 0x83ac18;
-        public const int AreaPaletteFxObjectListPointers = 0x83ac46;
         public const int PaletteBlendColors = 0x89aa02;
     }
 
@@ -101,7 +97,6 @@ public static class RoomFxRomData
         public const int ClearWordCount = 0x0780;
 
         public const ushort TilemapDestinationWord = 0x5be0;
-        public const ushort TilemapByteCount = 0x0840;
         public const int EmptyPaletteColorIndex = 27;
         public const int PaletteBlendDestinationIndex = 25;
         public const int PaletteBlendColorCount = 3;
@@ -119,14 +114,8 @@ public static class RoomFxRomData
         /// <summary>First lava instruction-list entry at $87:8293.</summary>
         public const ushort LavaFirstInstruction = 0x8293;
 
-        /// <summary>First lava character frame at $87:A564.</summary>
-        public const ushort LavaFirstFrame = 0xa564;
-
         /// <summary>First acid instruction-list entry at $87:82B1.</summary>
         public const ushort AcidFirstInstruction = 0x82b1;
-
-        /// <summary>First acid character frame at $87:A6A4.</summary>
-        public const ushort AcidFirstFrame = 0xa6a4;
 
         /// <summary>Rain transfer destination from object $87:82E7.</summary>
         public const ushort RainDestinationWord = 0x4280;
@@ -136,9 +125,6 @@ public static class RoomFxRomData
 
         /// <summary>First rain instruction-list entry at $87:82CF.</summary>
         public const ushort RainFirstInstruction = 0x82cf;
-
-        /// <summary>First rain character frame at $87:A874.</summary>
-        public const ushort RainFirstFrame = 0xa874;
     }
 
     /// <summary>Landing Site rain tile animation and fixed-point velocities.</summary>
@@ -263,9 +249,6 @@ public static class RoomFxRomData
         /// <summary>Liquid-options bit six selects the ±32-pixel tide.</summary>
         public const ushort LargeTideOption = 0x0040;
 
-        /// <summary>Sign-extended 8-bit sine words beginning at $A0:B443.</summary>
-        public const int SignedSineTableAddress = 0xa0b443;
-
         /// <summary>Small-tide sine scale before the native byte-shifted fixed add.</summary>
         public const int SmallTideScale = 8;
 
@@ -344,14 +327,8 @@ public static class RoomFxRomData
     /// <summary>Bank-$A0 room-shake displacement data and type boundaries.</summary>
     public static class Earthquake
     {
-        /// <summary>$86:846B, kScreenShakeOffsets: signed XY offsets added to enemy projectile draw origins.</summary>
-        public const int ProjectileDisplacementTableAddress = 0x86846b;
-        /// <summary>$86:8427 indexes one pair of signed words for each earthquake type.</summary>
-        public const int ProjectileBytesPerType = 4;
         public const ushort FirstEnemyShakingType = 0x0012;
         public const ushort FirstNonRenderedType = 0x0024;
-        public const int BgDisplacementTableAddress = 0xa0872d;
-        public const int BytesPerType = 8;
         public const ushort AlternatingDirectionTimerMask = 2;
         public const ushort EnemyShakeDuration = 2;
 

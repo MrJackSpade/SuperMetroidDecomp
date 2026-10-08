@@ -18,20 +18,11 @@ internal abstract class PowampInstructionProgramDefinitions : IInstructionProgra
     /// <summary><c>InstList_Powamp_Balloon_Inflate_1</c> at $A8:C187.</summary>
     internal const ushort BalloonInflate1 = 0xc187;
 
-    /// <summary><c>InstList_Powamp_Balloon_Inflate_2</c> at $A8:C18B.</summary>
-    internal const ushort BalloonInflate2 = 0xc18b;
-
     /// <summary><c>InstList_Powamp_Balloon_StartSinking</c> at $A8:C191.</summary>
     internal const ushort BalloonStartSinking = 0xc191;
 
     /// <summary><c>InstList_Powamp_Balloon_Deflated</c> at $A8:C199.</summary>
     internal const ushort BalloonDeflated = 0xc199;
-
-    /// <summary>The terminal common sleep word at $A8:C19D.</summary>
-    internal const ushort BalloonDeflatedSleep = 0xc19d;
-
-    /// <summary>The first non-program word after Powamp's instruction streams, at $A8:C19F.</summary>
-    internal const ushort FirstAdjacentConstant = 0xc19f;
 
     /// <summary>$A8:C163/C167/C16B: selected five-tick cheek exposure in the fast loop; retained drawn-performance choice.</summary>
     private const ushort FastBodyHold = 5;

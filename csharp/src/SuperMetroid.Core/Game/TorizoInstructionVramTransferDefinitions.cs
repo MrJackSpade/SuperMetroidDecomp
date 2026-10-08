@@ -11,7 +11,6 @@ internal readonly record struct TorizoInstructionVramTransferDefinition(
 /// </summary>
 internal static class TorizoInstructionVramTransferDefinitions
 {
-    internal const byte Bank = 0xaa;
 
     private static readonly TorizoInstructionVramTransferDefinition[] Entries =
     [

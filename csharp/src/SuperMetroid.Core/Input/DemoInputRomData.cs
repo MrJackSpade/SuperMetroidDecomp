@@ -3,7 +3,6 @@ namespace SuperMetroid.Core.Input;
 /// <summary>Verified bank-$91 demo-controller object and bytecode definitions.</summary>
 public static class DemoInputRomData
 {
-    public const int BankBase = 0x910000;
 
     public static class Routines
     {
@@ -34,6 +33,5 @@ public static class DemoInputRomData
         public const ushort DecrementTimerAndGoto = 0x844f;
         public const ushort SetTimer = 0x8459;
         public const int InputRecordBytes = 6;
-        public const int WordBytes = sizeof(ushort);
     }
 }

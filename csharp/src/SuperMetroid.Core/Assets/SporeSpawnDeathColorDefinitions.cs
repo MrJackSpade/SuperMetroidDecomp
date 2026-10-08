@@ -5,10 +5,6 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Spore Spawn death fades and their explicitly unresolved original room-color inputs.</summary>
 internal static class SporeSpawnDeathColorDefinitions
 {
-    /// <summary>$C2:B264, Palettes_6_GreenBlueBrinstar; selected by both Spore Spawn room states at $8F:9DD9/$9DF3.</summary>
-    internal const int OriginalRoomPaletteSource = 0xc2b264;
-    /// <summary>BG palette7 occupies decoded bytes$E0..FF in Palettes_6_GreenBlueBrinstar.</summary>
-    internal const int BackgroundPaletteByteOffset = 7 * 16 * sizeof(ushort);
 
     /// <summary>
     /// Required RoomStaticPalette.nativeBytes inputs: palette7 columns1..11,14,15.
@@ -20,9 +16,6 @@ internal static class SporeSpawnDeathColorDefinitions
         0x5d22, 0x4463, 0x1840, 0x24c0, 0x1ca0, 0x1480, 0x1040,
         0x16df, 0x15d7, 0x14ee, 0x1486, 0x16df, 0x0800,
     ];
-
-    /// <summary>BG palette4 occupies decoded bytes$80..9F in Palettes_6_GreenBlueBrinstar.</summary>
-    internal const int LevelPaletteByteOffset = 4 * 16 * sizeof(ushort);
 
     /// <summary>
     /// Required RoomStaticPalette.nativeBytes inputs at palette4 columns1..6,8..10,12..14.

@@ -9,14 +9,6 @@ internal static class EnemyRomTablePointers
     /// <summary>Ceres Ridley, destruction, and door animation data.</summary>
     public static class Ceres
     {
-        /// <summary>Two Ceres door VRAM-transfer list pointers at $A6:F900 (4 bytes).</summary>
-        public const int DoorTransferPointers = 0xa6f900;
-        /// <summary>Ridley tail-tip spritemap pointers at $A6:DCBA.</summary>
-        public const int TailTipSpritemapPointers = 0xa6dcba;
-        /// <summary>Ridley wing spritemap pointers at $A6:DB02.</summary>
-        public const int WingSpritemapPointers = 0xa6db02;
-        /// <summary>Ridley rotation divisors at $A6:D712.</summary>
-        public const int RidleyRotationDivisorBytes = 0xa6d712;
         /// <summary>Sixteen three-color Ceres Ridley eye-fade palette rows at $A6:E2AA.</summary>
         public const int RidleyEyeFadePaletteRows = 0xa6e2aa;
     }
@@ -24,48 +16,14 @@ internal static class EnemyRomTablePointers
     /// <summary>Kraid palettes, hitboxes, growth, and projectile motion data.</summary>
     public static class Kraid
     {
-        /// <summary>Eight ordered Kraid room-population records at $A1:9EB5.</summary>
-        public const int PopulationRecords = 0xa19eb5;
-
-        /// <summary>Fake Kraid's ordinary enemy-population record at $A1:A0EA.</summary>
-        public const int FakeKraidPopulationRecord = 0xa1a0ea;
-
-        /// <summary>$A7:BE3E, Function_KraidNail_Initialize.upwardsVelocityPointers; selected when the sibling's Y velocity is negative.</summary>
-        public const int NailUpwardVelocityPointers = 0xa7be3e;
-
-        /// <summary>$A7:BE46, Function_KraidNail_Initialize.downwardsVelocityPointers; selected when the sibling's Y velocity is nonnegative.</summary>
-        public const int NailDownwardVelocityPointers = 0xa7be46;
-
-        /// <summary>Initial nail spritemap pointer word at $A7:8B0C.</summary>
-        public const int InitialNailSpritemapWord = 0xa78b0c;
-        /// <summary>Kraid roar/growth initial timer words at $A7:96D2.</summary>
-        public const int InitialTimerWords = 0xa796d2;
-        /// <summary>Kraid death initial timer word at $A7:9764.</summary>
-        public const int DeathInitialTimerWord = 0xa79764;
-        /// <summary>Kraid combat timer word at $A7:974A.</summary>
-        public const int CombatTimerWord = 0xa7974a;
         /// <summary>Kraid room-background target palette at $A7:86C7 (32 bytes).</summary>
         public const int RoomBackgroundPaletteWords = 0xa786c7;
-        /// <summary>Kraid ceiling-rock X-position words at $A7:ACB3.</summary>
-        public const int CeilingRockXWords = 0xa7acb3;
-        /// <summary>Kraid hitbox left-coordinate records at $A7:B163.</summary>
-        public const int HitboxLeftWords = 0xa7b163;
-        /// <summary>Kraid hitbox top-coordinate records at $A7:B165.</summary>
-        public const int HitboxTopWords = 0xa7b165;
         /// <summary>Kraid health palette source at $A7:B3D3.</summary>
         public const int HealthPaletteWords = 0xa7b3d3;
         /// <summary>Kraid secondary palette source at $A7:B513.</summary>
         public const int SecondaryPaletteWords = 0xa7b513;
         /// <summary>Kraid death arm palette at $A7:B4F3 (32 bytes).</summary>
         public const int DeathArmPaletteWords = 0xa7b4f3;
-        /// <summary>Kraid spat-rock X velocity words at $A7:BC65.</summary>
-        public const int RockXVelocityWords = 0xa7bc65;
-        /// <summary>Kraid second-phase movement record table at $A7:BA7D.</summary>
-        public const int SecondPhaseMovementRecords = 0xa7ba7d;
-        /// <summary>Kraid fingernail position-offset words at $A7:BF1D.</summary>
-        public const int NailPositionOffsetWords = 0xa7bf1d;
-        /// <summary>Kraid death explosion Y/function records at $A7:C5E7.</summary>
-        public const int DeathExplosionRecords = 0xa7c5e7;
     }
 
     /// <summary>Norfair Ridley movement and health-scaling tables.</summary>
@@ -75,43 +33,11 @@ internal static class EnemyRomTablePointers
         public const int InitialPaletteWords = 0xa6e1cf;
         /// <summary>Area-two reveal-palette source-pointer words at $A6:A4EB.</summary>
         public const int RevealPaletteSourcePointers = 0xa6a4eb;
-        /// <summary>Descending pogo target-X words at $A6:B60D.</summary>
-        public const int DescendingPogoTargetXWords = 0xa6b60d;
-        /// <summary>Ascending pogo target-X words at $A6:B63B.</summary>
-        public const int AscendingPogoTargetXWords = 0xa6b63b;
-        /// <summary>Ground-attack target-X words at $A6:B6C8.</summary>
-        public const int GroundAttackTargetXWords = 0xa6b6c8;
-        /// <summary>Pogo upward acceleration words at $A6:B94D.</summary>
-        public const int PogoUpwardAccelerationWords = 0xa6b94d;
-        /// <summary>Pogo downward acceleration words at $A6:B959.</summary>
-        public const int PogoDownwardAccelerationWords = 0xa6b959;
-        /// <summary>Pogo horizontal-path pointer words at $A6:B965.</summary>
-        public const int PogoHorizontalPathPointers = 0xa6b965;
-        /// <summary>Pogo vertical-path pointer words at $A6:B96D.</summary>
-        public const int PogoVerticalPathPointers = 0xa6b96d;
-        /// <summary>Claw X-offset words selected by facing at $A6:B9D5.</summary>
-        public const int ClawXOffsetWords = 0xa6b9d5;
-        /// <summary>Claw Y-offset words selected by foot separation at $A6:B9DB.</summary>
-        public const int ClawYOffsetWords = 0xa6b9db;
-        /// <summary>Health-stage movement-divisor indexes at $A6:BB4E.</summary>
-        public const int HealthMovementDivisorIndexWords = 0xa6bb4e;
-        /// <summary>Carry-anchor X-position words selected by facing at $A6:BBEB.</summary>
-        public const int CarryAnchorXWords = 0xa6bbeb;
-        /// <summary>Carry-release X-position words selected by facing at $A6:BC62.</summary>
-        public const int CarryReleaseXWords = 0xa6bc62;
-        /// <summary>Tail rotation divisor bytes at $A6:D61F.</summary>
-        public const int TailRotationDivisorBytes = 0xa6d61f;
-        /// <summary>Four hover/pogo health-stage acceleration-divisor indexes at $A6:B439.</summary>
-        public const int HoverMovementDivisorIndexWords = 0xa6b439;
-        /// <summary>Three fourteen-color health-palette records at $A6:E46A (84 bytes).</summary>
-        public const int HealthPaletteWords = 0xa6e46a;
     }
 
     /// <summary>Tourian entrance statue palettes and instruction tables.</summary>
     public static class TourianStatue
     {
-        /// <summary>Statue instruction-list table at $AA:D810.</summary>
-        public const int InstructionListWords = 0xaad810;
         /// <summary>Sixteen statue palette words at $AA:D765 (32 bytes).</summary>
         public const int StatuePaletteWords = 0xaad765;
         /// <summary>Sixteen base-decoration palette words at $AA:D785 (32 bytes).</summary>
@@ -121,8 +47,6 @@ internal static class EnemyRomTablePointers
     /// <summary>Wrecked Ship work-robot instruction-list selection data.</summary>
     public static class WorkRobot
     {
-        /// <summary>Parameterized instruction-list pointer words at $A8:CC30.</summary>
-        public const int InitialInstructionListWords = 0xa8cc30;
         /// <summary>Six four-color/timer palette records at $A8:CCC1 (60 bytes).</summary>
         public const int PaletteAnimationRecords = 0xa8ccc1;
     }

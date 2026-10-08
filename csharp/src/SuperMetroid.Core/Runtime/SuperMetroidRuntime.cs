@@ -4540,14 +4540,23 @@ public sealed partial class SuperMetroidRuntime
                     "Save-station message $17 closed without publishing a selection.");
             }
             _pendingSaveStation = null;
-            bool saving = Plms.ResolveSaveStationConfirmation(
+            RoomLevelData level = LevelData ?? throw new InvalidOperationException(
+                "A save-station message returned without active room level data.");
+            if (BackgroundStreamer is null || Camera is null)
+                throw new InvalidOperationException("A save-station message returned without an active room.");
+            SaveStationConfirmationResult confirmation = Plms.ResolveSaveStationConfirmation(
                 _addressSpace,
                 saveStation,
-                accepted.Value);
-            if (saving)
+                accepted.Value,
+                level,
+                BackgroundStreamer,
+                Camera.XPosition,
+                Camera.YPosition,
+                BackgroundScroll.Bg1XOffset);
+            foreach (PlmTilemapUpdate update in confirmation.TilemapUpdates)
+                update.ExecuteTo(Vram);
+            if (confirmation.Saving)
             {
-                RoomLevelData level = LevelData ?? throw new InvalidOperationException(
-                    "Accepted save station has no active room level data.");
                 Enemies.SpawnSaveStationElectricity(
                     saveStation.BlockIndex,
                     level.WidthInBlocks);

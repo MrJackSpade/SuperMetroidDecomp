@@ -21,6 +21,8 @@ internal static class DebuggerRetiredFieldDefinitions
     // Declared before the inventory, whose initializer reads it.
     private static readonly Type CartridgePaletteTransitionType =
         typeof(SuperMetroidRuntime).Assembly.GetType("SuperMetroid.Core.Frontend.CartridgePaletteTransition", throwOnError: true)!;
+    private static readonly Type StationPlmStateType =
+        typeof(SuperMetroidRuntime).Assembly.GetType("SuperMetroid.Core.Rooms.RoomPlmSystem+StationPlmState", throwOnError: true)!;
 
     // An explicit inventory, not permission to discard arbitrary unknown fields.
     private static readonly Dictionary<(Type DeclaringType, string Name), RetiredFieldMigration> Retired = new()
@@ -69,6 +71,18 @@ internal static class DebuggerRetiredFieldDefinitions
                 throw new InvalidDataException("Legacy Kraid background fade step is not a word.");
             if (step != 0)
                 Console.Error.WriteLine("WARNING: Legacy Kraid background fade was captured mid-transition; it restarts from the shared PaletteChangeNumerator.");
+        },
+        // A save station now queues its sound and draws its first frame in the PLM pass the
+        // confirmation returns into ($84:AFF4-$AFFA). The old one-frame deferral flag is
+        // set only in a capture taken on that confirmation frame, which has no current form.
+        [(StationPlmStateType, "<SaveStartSoundPending>k__BackingField")] = (_, _, value) =>
+        {
+            if (value is not bool pending)
+                throw new InvalidDataException("Legacy save-station sound flag is not a Boolean.");
+            if (pending)
+                throw new InvalidDataException(
+                    "Legacy snapshot was captured on a save station's confirmation frame, before " +
+                    "its deferred first animation pass; that state has no current representation.");
         },
         // Draygon's turret and goop speeds are the A values each spawn passes to $86:8027,
         // now named constants. The old shared copy has no current meaning.

@@ -31,6 +31,10 @@ public sealed class MotherBrainRoomColorPresentation
     }
 
     /// <summary>Applies a color row selected by the compiled $A9:D046 timing program.</summary>
+    /// <param name="cgram">Destination color memory; twelve colors at indices 52..63 and 83..94 are replaced, with the second slice mirrored to 115..126.</param>
+    /// <param name="timedEntryPointer">Bank-$A9 timed-entry address $D046 + row * 4 for row 0..13, pointing at the duration word, not its palette operand.</param>
+    /// <exception cref="InvalidDataException"><paramref name="timedEntryPointer"/> is not one of the fourteen compiled entry addresses.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
     public void ApplyFlash(SnesCgram cgram, ushort timedEntryPointer)
     {
         int offset = timedEntryPointer - MotherBrainRoomPaletteProgramDefinitions.FlashStart;
@@ -49,9 +53,13 @@ public sealed class MotherBrainRoomColorPresentation
     }
 
     /// <summary>Applies the final grey room colors when the flash program is stopped.</summary>
+    /// <param name="cgram">Destination color memory; the same 52..63, 83..94 and mirrored 115..126 slices as <see cref="ApplyFlash"/> are replaced.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
     public void ApplyFinal(SnesCgram cgram) => ApplyRoom(cgram, finalRoom);
 
     /// <summary>Installs the two nontransparent OBJ palettes before phase two starts.</summary>
+    /// <param name="cgram">Destination color memory; attack colors 161..175 and rear-leg colors 177..191 are replaced while palette color zero is preserved.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
     public void ApplyPhaseTwoInitial(SnesCgram cgram)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -65,6 +73,8 @@ public sealed class MotherBrainRoomColorPresentation
     }
 
     /// <summary>Installs room-entry glass-shard and tube-projectile sprite colors.</summary>
+    /// <param name="cgram">Destination color memory; glass colors 177..191 and tube-projectile colors 241..255 are replaced without their transparent color-zero entries.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
     public void ApplyRoomEntry(SnesCgram cgram)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -79,6 +89,8 @@ public sealed class MotherBrainRoomColorPresentation
 
     /// <summary>$AD:F209, FadeOutBackgroundForBabyMetroidDeathSequence: immediately blacks
     /// out colors 1..E of BG palettes 3 and 5, the same slices later restored by $AD:F24B.</summary>
+    /// <param name="cgram">Destination color memory; all entries outside indices 49..62 and 81..94 remain unchanged.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
     public static void ApplyBabyMetroidDeathBlackout(SnesCgram cgram)
     {
         Ensure.NotNull(cgram);
@@ -90,6 +102,10 @@ public sealed class MotherBrainRoomColorPresentation
     }
 
     /// <summary>Applies one room-light image after the Baby Metroid cutscene.</summary>
+    /// <param name="cgram">Destination color memory receiving fourteen-color slices at indices 49..62 and 81..94.</param>
+    /// <param name="frame">Recovery image 0..6 in playback order, corresponding to native source $AD:F3D3 - frame * $38; this call does not advance the cutscene's timer.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
+    /// <exception cref="InvalidDataException"><paramref name="frame"/> is outside the seven authored images.</exception>
     public void ApplyRecoveryLights(SnesCgram cgram, int frame)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -118,6 +134,12 @@ public sealed class MotherBrainRoomColorPresentation
         }
     }
 
+    /// <summary>Validates and compiles fake-death flash, room-entry, phase-two and recovery color artwork without retaining the document's mutable RGB5 arrays.</summary>
+    /// <param name="json">UTF-8 JSON read from its current position to the end and left open.</param>
+    /// <param name="currentStock">Explicit compatibility source required for version 1 or 2 documents: version 1 inherits its room-entry and recovery colors; version 2 inherits only recovery colors.</param>
+    /// <returns>Selected native color words, with calculated representations used only where their complete output matches the supplied artwork.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
+    /// <exception cref="InvalidDataException">JSON is invalid or ambiguous, the version is unsupported without stock fallback, array sizes are wrong, or a required color is null or outside RGB5 range.</exception>
     public static MotherBrainRoomColorPresentation Load(Stream json,
         MotherBrainRoomColorPresentation? currentStock = null)
     {
@@ -390,6 +412,10 @@ public sealed class MotherBrainRoomColorPresentation
         return compiled;
     }
 
+    /// <summary>Serializes and validates a complete current-version room-color document before writing its UTF-8 JSON bytes; older versions have no stock fallback here.</summary>
+    /// <param name="json">Destination stream written at its current position and left open; existing trailing bytes are not truncated.</param>
+    /// <param name="document">Authored RGB5 arrays read for serialization, not retained by the writer.</param>
+    /// <exception cref="InvalidDataException">The serialized document fails <see cref="Load"/>'s current-version schema or color validation.</exception>
     public static void Write(Stream json, MotherBrainRoomColorDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
@@ -398,22 +424,36 @@ public sealed class MotherBrainRoomColorPresentation
     }
 }
 
+/// <summary>Editable Mother Brain room-color schema; every supplied entry is a nonnull RGB5 color with channels 0..31, and nested arrays remain caller-mutable until compilation.</summary>
 public sealed record MotherBrainRoomColorDocument
 {
+    /// <summary>Current revision 3, or revision 1/2 only when loading with explicit current-stock compatibility data.</summary>
     public required int Version { get; init; }
+    /// <summary>Fourteen rows for native timed entries $A9:D046..D07A. Each row has 24 colors: twelve for CGRAM 52..63, then twelve for 83..94 mirrored to 115..126; timing is owned by the compiled program.</summary>
     public required PaletteRgb5[][] Flash { get; init; }
+    /// <summary>Twenty-four final-room colors corresponding to $A9:D082: the same two twelve-color source slices and destinations as <see cref="Flash"/>.</summary>
     public required PaletteRgb5[] FinalRoom { get; init; }
+    /// <summary>Fifteen nontransparent attack colors sourced natively from $A9:94B4 and installed at CGRAM 161..175 before phase two.</summary>
     public required PaletteRgb5[] PhaseTwoAttack { get; init; }
+    /// <summary>Fifteen nontransparent rear-leg colors sourced natively from $A9:9494 and installed at CGRAM 177..191 before phase two, replacing the room-entry glass palette.</summary>
     public required PaletteRgb5[] PhaseTwoRearLeg { get; init; }
+    /// <summary>Fifteen glass-shard colors from $A9:9514 for CGRAM 177..191; required in versions 2/3, but inherited from current stock when loading version 1.</summary>
     public PaletteRgb5[]? InitialGlassShard { get; init; }
+    /// <summary>Fifteen tube-projectile colors from $A9:94F4 for CGRAM 241..255; required in versions 2/3, but inherited from current stock when loading version 1.</summary>
     public PaletteRgb5[]? InitialTubeProjectile { get; init; }
+    /// <summary>Seven ordered 28-color images: fourteen for CGRAM 49..62 followed by fourteen for 81..94. Required in version 3; versions 1/2 inherit current-stock recovery artwork.</summary>
     public PaletteRgb5[][]? RecoveryLights { get; init; }
 }
 
+/// <summary>Installation filename and compatible schema revisions for Mother Brain's room and cutscene color artwork.</summary>
 public static class MotherBrainRoomColorFormat
 {
+    /// <summary>Installed JSON filename selecting room-entry, fake-death, phase-two and post-Baby recovery colors.</summary>
     public const string FileName = "mother-brain-room-colors.json";
+    /// <summary>Revision 3, requiring room-entry palettes and seven recovery-light images in addition to flash and phase-two colors.</summary>
     public const int Version = 3;
+    /// <summary>Revision 1, lacking room-entry and recovery-light artwork; loading requires an explicit current-stock fallback for those fields.</summary>
     public const int PreRoomEntryVersion = 1;
+    /// <summary>Revision 2, including room-entry palettes but lacking recovery-light artwork; loading requires an explicit current-stock fallback for recovery images.</summary>
     public const int PreRecoveryLightsVersion = 2;
 }

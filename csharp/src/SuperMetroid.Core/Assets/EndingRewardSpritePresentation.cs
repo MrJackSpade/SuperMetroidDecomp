@@ -14,6 +14,13 @@ public sealed class EndingRewardSpritePresentation : IIntroCinematicSpritePresen
     /// <summary>Canonical identity of the selected decoded visual frames, not JSON formatting.</summary>
     public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(EndingRewardSpritePresentation), frames);
 
+    /// <summary>Draws an installed post-credits Samus composition by its bank-$8C identity.</summary>
+    /// <param name="pointer">Bank-relative native OAM record pointer.</param>
+    /// <param name="oam">Destination OAM buffer.</param>
+    /// <param name="x">Horizontal origin in screen or offscreen coordinate space.</param>
+    /// <param name="y">Vertical origin in screen or offscreen coordinate space.</param>
+    /// <param name="paletteBits">Packed OBJ palette bits inherited by applicable parts.</param>
+    /// <param name="originIsOnScreen">Whether the origin uses on-screen wrapping rules.</param>
     public void Draw(ushort pointer, OamBuffer oam, ushort x, ushort y,
         ushort paletteBits, bool originIsOnScreen)
     {
@@ -26,6 +33,7 @@ public sealed class EndingRewardSpritePresentation : IIntroCinematicSpritePresen
             frame.DrawOffScreen(oam, x, y, paletteBits);
     }
 
+    /// <summary>Loads and validates all 37 named post-credits Samus visual frames.</summary>
     public static EndingRewardSpritePresentation Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -70,6 +78,7 @@ public sealed class EndingRewardSpritePresentation : IIntroCinematicSpritePresen
         return new EndingRewardSpritePresentation(frames);
     }
 
+    /// <summary>Validates and writes an ending-reward sprite document as JSON.</summary>
     public static void Write(Stream json, EndingRewardSpriteDocument document)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -80,9 +89,12 @@ public sealed class EndingRewardSpritePresentation : IIntroCinematicSpritePresen
     }
 }
 
+/// <summary>Defines the complete named post-credits Samus sprite set.</summary>
 public sealed record EndingRewardSpriteDocument
 {
+    /// <summary>Gets the document schema revision.</summary>
     public required int Version { get; init; }
+    /// <summary>Gets the exact 37-frame dictionary of ordered sprite parts.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
 }
 
@@ -95,6 +107,7 @@ public static class EndingRewardSpriteDefinitions
     /// <summary>$8C:99D6, LargeSamusFromEndingStanding, first of37 consecutive reward OAM records.</summary>
     private const ushort FirstRecord = 0x99d6;
     private const int FrameCount = 37;
+    /// <summary>Gets the 37 published asset roles in installation order.</summary>
     public static IReadOnlyList<EndingRewardSpriteFrameDefinition> Frames { get; } = new FrameView();
 
     internal static ushort FramePointer(EndingRewardSpriteFrame frame)
@@ -222,12 +235,19 @@ public static class EndingRewardSpriteDefinitions
 
 }
 
+/// <summary>Identifies one published reward frame and its native OAM record.</summary>
+/// <param name="Name">Stable JSON frame name.</param>
+/// <param name="Pointer">Bank-$8C native OAM record pointer.</param>
+/// <param name="StockPartCount">Number of OBJ parts in the stock composition.</param>
 public readonly record struct EndingRewardSpriteFrameDefinition(
     string Name, ushort Pointer, int StockPartCount);
 
+/// <summary>Defines the ending-reward sprite document identity.</summary>
 public static class EndingRewardSpriteFormat
 {
+    /// <summary>Supported ending-reward sprite schema revision.</summary>
     public const int Version = 1;
+    /// <summary>JSON filename containing the 37 reward compositions.</summary>
     public const string FileName = "ending-reward-sprites.json";
 }
 

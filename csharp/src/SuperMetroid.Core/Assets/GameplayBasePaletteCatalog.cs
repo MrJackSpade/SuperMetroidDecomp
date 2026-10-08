@@ -22,6 +22,7 @@ public sealed class GameplayBasePaletteCatalog
         content.AppendWords("common sprites", commonSprites);
     });
 
+    /// <summary>Loads the complete selected 256-color starting image into CGRAM.</summary>
     public void LoadInitial(SnesCgram cgram)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -29,6 +30,7 @@ public sealed class GameplayBasePaletteCatalog
             cgram.SetColor(color, initial[color]);
     }
 
+    /// <summary>Loads the selected 16-color common-sprite palette at a CGRAM color index.</summary>
     public void LoadCommonSprites(SnesCgram cgram, int destination)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -36,6 +38,7 @@ public sealed class GameplayBasePaletteCatalog
             cgram.SetColor(destination + color, commonSprites[color]);
     }
 
+    /// <summary>Copies the 16 enemy-projectile colors from the initial image to a CGRAM color index.</summary>
     public void LoadEnemyProjectileSprites(SnesCgram cgram, int destination)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -44,6 +47,7 @@ public sealed class GameplayBasePaletteCatalog
                 initial[GameplayBasePaletteFormat.EnemyProjectileInitialColor + color]);
     }
 
+    /// <summary>Loads and validates the full initial and common-sprite RGB5 palettes.</summary>
     public static GameplayBasePaletteCatalog Load(Stream json)
     {
         GameplayBasePaletteDocument document = JsonAssetDocument.Read<GameplayBasePaletteDocument>(
@@ -56,6 +60,7 @@ public sealed class GameplayBasePaletteCatalog
                 "commonSprites"));
     }
 
+    /// <summary>Validates and serializes a gameplay base-palette document as JSON.</summary>
     public static byte[] Write(GameplayBasePaletteDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
@@ -81,14 +86,23 @@ public sealed class GameplayBasePaletteCatalog
     }
 }
 
+/// <summary>Defines the editable gameplay starting and common-sprite RGB5 colors.</summary>
+/// <param name="Version">Document schema revision.</param>
+/// <param name="Initial">Complete 256-color initial CGRAM image.</param>
+/// <param name="CommonSprites">Sixteen shared gameplay OBJ colors.</param>
 public sealed record GameplayBasePaletteDocument(int Version, PaletteRgb5[] Initial,
     PaletteRgb5[] CommonSprites);
 
+/// <summary>Defines gameplay base-palette files, native sources, and fixed dimensions.</summary>
 public static class GameplayBasePaletteFormat
 {
+    /// <summary>Supported gameplay base-palette schema revision.</summary>
     public const int Version = 1;
+    /// <summary>JSON filename containing the initial and common-sprite colors.</summary>
     public const string ArtworkFileName = "gameplay-base-palettes.json";
+    /// <summary>Manifest filename selecting the installed gameplay base-palette asset.</summary>
     public const string ManifestFileName = "gameplay-base-palettes-manifest.json";
+    /// <summary>Number of colors in a complete SNES OBJ palette row.</summary>
     public const int SpriteColorCount = 16;
     /// <summary>Complete starting CGRAM image at $9A:8000.</summary>
     public const int InitialSourceAddress = 0x9a8000;
@@ -96,6 +110,7 @@ public static class GameplayBasePaletteFormat
     public const int CommonSpriteSourceAddress = 0x9afc00;
     /// <summary>Enemy-projectile OBJ colors begin at initial CGRAM index 208 ($9A:81A0).</summary>
     public const int EnemyProjectileInitialColor = 208;
+    /// <summary>Gets the shared camel-case, case-insensitive, strict JSON serialization options.</summary>
     public static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

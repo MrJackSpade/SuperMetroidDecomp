@@ -67,6 +67,7 @@ public sealed class CrocomireColorCatalog
         WriteIndented = true,
     };
 
+    /// <summary>Installs the native initialization transfers in order: seventeen wall words at CGRAM 160–176, then seventeen projectile words at 208–224, retaining each source overlap word.</summary>
     public void ApplyInitial(SnesCgram cgram)
     {
         Apply(cgram, Band.InitialWall, CrocomirePaletteRomData.InitialWallDestination);
@@ -74,15 +75,21 @@ public sealed class CrocomireColorCatalog
             CrocomirePaletteRomData.InitialProjectileDestination);
     }
 
+    /// <summary>Restores the eight selected body/head BG inks from the $A4:B89D role at CGRAM 112–119; the actor separately decides whether a hurt update should show white instead.</summary>
     public void ApplyFightBody(SnesCgram cgram) =>
         Apply(cgram, Band.FightBody, CrocomirePaletteRomData.FightBodyDestination);
 
+    /// <summary>Installs the sixteen skeleton-arm OBJ inks corresponding to $A4:B8FD at CGRAM 144–159 when the wall-break sequence begins.</summary>
     public void ApplySkeletonArm(SnesCgram cgram) =>
         Apply(cgram, Band.SkeletonArm, CrocomirePaletteRomData.SkeletonArmDestination);
 
+    /// <summary>Installs the sixteen wall-spike OBJ inks corresponding to $A4:B91D at CGRAM 176–191 when the rumble script reaches its terminator.</summary>
     public void ApplyWallSpikes(SnesCgram cgram) =>
         Apply(cgram, Band.WallSpikes, CrocomirePaletteRomData.WallSpikesDestination);
 
+    /// <summary>Loads version-1 <c>crocomire-colors.json</c>, validating the five native transfer lengths and RGB5 channel bounds while keeping hurt-flash and death transitions in actor code.</summary>
+    /// <param name="json">Caller-owned JSON stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>
+    /// <returns>Selected compiled inks, preserving independent supplied edits even where stock source transfers overlap.</returns>
     public static CrocomireColorCatalog Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -112,6 +119,7 @@ public sealed class CrocomireColorCatalog
                 "wall spikes"));
     }
 
+    /// <summary>Serializes the five editable color bands as indented camel-case UTF-8 JSON, validating version, transfer lengths, and RGB5 channels before returning the bytes.</summary>
     public static byte[] Write(CrocomireColorDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
@@ -153,18 +161,28 @@ public sealed class CrocomireColorCatalog
             name => new InvalidDataException($"Duplicate Crocomire color property {name}."));
 }
 
+/// <summary>Editable RGB5 payloads for Crocomire's five palette transfers; each channel must be 0–31, and the native seventeen-word initialization overlaps remain explicit inputs.</summary>
 public sealed record CrocomireColorDocument
 {
+    /// <summary>Color schema revision; loading currently requires version 1.</summary>
     public required int Version { get; init; }
+    /// <summary>Eight body/head BG inks corresponding to $A4:B89D, restored at CGRAM 112–119 on nonwhite hurt-flash updates.</summary>
     public required PaletteRgb5[] FightBody { get; init; }
+    /// <summary>Seventeen ordered wall initialization words corresponding to $A4:B8BD; word 16 overlaps the stock projectile source's first word but remains independently editable here.</summary>
     public required PaletteRgb5[] InitialWall { get; init; }
+    /// <summary>Seventeen ordered projectile initialization words corresponding to $A4:B8DD; word 16 overlaps the stock skeleton-arm source's first word but remains independently editable here.</summary>
     public required PaletteRgb5[] InitialProjectile { get; init; }
+    /// <summary>Sixteen skeleton-arm OBJ inks corresponding to $A4:B8FD, installed in OBJ palette 1 during wall break.</summary>
     public required PaletteRgb5[] SkeletonArm { get; init; }
+    /// <summary>Sixteen wall-spike OBJ inks corresponding to $A4:B91D, installed in OBJ palette 3 at the rumble terminator.</summary>
     public required PaletteRgb5[] WallSpikes { get; init; }
 }
 
+/// <summary>Installed filename and supported schema revision for Crocomire's bounded editable palette-transfer payloads.</summary>
 public static class CrocomireColorFormat
 {
+    /// <summary>Installed editable JSON filename for fight-body, initial-wall/projectile, skeleton-arm, and wall-spike colors.</summary>
     public const string FileName = "crocomire-colors.json";
+    /// <summary>Supported color schema revision, requiring transfer lengths of 8, 17, 17, 16, and 16 RGB5 words.</summary>
     public const int Version = 1;
 }

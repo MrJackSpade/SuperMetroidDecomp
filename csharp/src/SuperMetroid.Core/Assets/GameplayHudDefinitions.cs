@@ -3,14 +3,21 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Stable resource names, extraction sources and native gameplay-HUD layout identities.</summary>
 public static class GameplayHudDefinitions
 {
+    /// <summary>Revision 2 of the editable HUD schema, including the separately supplied static top row and named dynamic visual owners.</summary>
     public const int Version = 2;
+    /// <summary>Installed JSON filename for gameplay HUD tile words, digit/icon artwork and tile-cell anchors.</summary>
     public const string FileName = "gameplay-hud.json";
+    /// <summary>Width of each BG3 HUD tilemap row in eight-pixel tile cells.</summary>
     public const int Width = 32;
+    /// <summary>Number of mutable HUD tilemap rows below the separately transferred static top row.</summary>
     public const int Height = 3;
+    /// <summary>Ninety-six native tilemap words in the three mutable rows; the separate static top row is excluded.</summary>
     public const int CellCount = Width * Height;
     /// <summary>Immutable top row copied directly to BG3 from $80:988B.</summary>
     public const int TopRowAddress = 0x80988b;
+    /// <summary>Thirty-two tile cells in the static minimap-border row at $80:988B..98CA.</summary>
     public const int TopRowCellCount = Width;
+    /// <summary>Sixty-four little-endian bytes transferred for the thirty-two words of the static top row.</summary>
     public const int TopRowByteCount = TopRowCellCount * sizeof(ushort);
 
     /// <summary>The three mutable HUD rows copied from <c>$80:98CB</c>.</summary>
@@ -37,26 +44,41 @@ public static class GameplayHudDefinitions
     /// <summary>The empty energy-tank word written by <c>$80:9BCF</c>.</summary>
     public const ushort EmptyEnergyTankWord = 0x3430;
 
+    /// <summary>BG palette selector 4 used by $80:9BD3..9C20 to highlight the newly selected HUD item; this is an unpacked selector, not attribute bits.</summary>
     public const int SelectedPalette = 4;
+    /// <summary>BG palette selector 5 restored to the previous HUD item by $80:9BD3..9C20; tile number, priority and flips are preserved.</summary>
     public const int DeselectedPalette = 5;
 
+    /// <summary>Required case-sensitive icon keys in zero-based native layout order: Missile, SuperMissile, PowerBomb, Grapple and XRay. The array reference is fixed but its entries are not protected from caller mutation.</summary>
     public static readonly string[] IconNames = ["Missile", "SuperMissile", "PowerBomb", "Grapple", "XRay"];
 
+    /// <summary>Fourteen energy-tank cells addressed by $80:9CCE, arranged in two seven-cell rows; this excludes the numeric health counter.</summary>
     public const int EnergyTankCount = 14;
+    /// <summary>Five selectable item pictograms in the native icon-offset table; the no-item selection is not an icon.</summary>
     public const int ItemCount = 5;
+    /// <summary>Six tilemap words in the two-column, three-row AUTO label/arrow composition.</summary>
     public const int AutoReserveCellCount = 6;
 
     /// <summary><c>HandleHUDTilemap_PausedAndRunning.etankIconOffsets</c> at $80:9CCE: two seven-cell rows, bottom first.</summary>
+    /// <param name="tank">Zero-based tank cell 0..13, counting across the lower row before the upper row.</param>
+    /// <returns>Byte offset from the start of the mutable HUD tilemap, not a tile index or VRAM address.</returns>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="tank"/> is outside the fourteen tank cells.</exception>
     public static ushort EnergyTankByteOffset(int tank) => (uint)tank < EnergyTankCount
         ? (ushort)(2 * (1 + tank % 7 + (tank < 7 ? Width : 0)))
         : throw new IndexOutOfRangeException();
 
     /// <summary><c>ToggleHUDItemHighlight.HUDItemOffsets</c> at $80:9D6E: three-cell missiles, then two-cell icons, each with a blank gap.</summary>
+    /// <param name="item">Zero-based icon index 0..4 in <see cref="IconNames"/> order, rather than the live selection's one-based item code.</param>
+    /// <returns>Byte offset of the icon's upper-left word in the mutable HUD tilemap.</returns>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="item"/> is outside the five item icons.</exception>
     public static ushort ItemByteOffset(int item) => (uint)item < ItemCount
         ? (ushort)(2 * (10 + item * 3 + (item > 0 ? 1 : 0)))
         : throw new IndexOutOfRangeException();
 
     /// <summary>Native AUTO stores at $80:9B64..9B87 occupy columns eight/nine across all three mutable HUD rows.</summary>
+    /// <param name="cell">Zero-based composition cell 0..5, ordered left-to-right and top-to-bottom.</param>
+    /// <returns>Word index in the 32-by-3 mutable HUD tilemap, not a byte offset.</returns>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="cell"/> is outside the six AUTO cells.</exception>
     public static int AutoReserveCellIndex(int cell) => (uint)cell < AutoReserveCellCount
         ? 8 + cell % 2 + cell / 2 * Width
         : throw new IndexOutOfRangeException();
@@ -179,6 +201,10 @@ public static class GameplayHudDefinitions
         int style = (BlankWord & ~0x1fff) | DeselectedPalette << 10;
         return (ushort)(style | glyph | (column == width - 1 ? 1 << 14 : 0));
     }
+    /// <summary>Resolves a zero-based HUD item layout index to its installed icon key.</summary>
+    /// <param name="itemIndex">Icon index 0..4 for Missile, Super Missile, Power Bomb, Grapple or X-Ray respectively.</param>
+    /// <returns>The corresponding entry in <see cref="IconNames"/>.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="itemIndex"/> is outside the icon-name array.</exception>
     public static string IconName(int itemIndex) => (uint)itemIndex < IconNames.Length
         ? IconNames[itemIndex]
         : throw new ArgumentOutOfRangeException(nameof(itemIndex));

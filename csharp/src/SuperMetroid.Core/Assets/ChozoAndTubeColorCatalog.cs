@@ -52,6 +52,7 @@ public sealed class ChozoAndTubeColorCatalog
         WriteIndented = true,
     };
 
+    /// <summary>Gets packed RGB5 tube-crack ink 0–31 corresponding to $AA:E2DD; the stock second sixteen-color half repeats the first, while supplied edits remain independent.</summary>
     public ushort ResolveTubeCracks(int color)
     {
         if ((uint)color >= ChozoAndTubeColorRomData.ColorCount)
@@ -82,15 +83,21 @@ public sealed class ChozoAndTubeColorCatalog
     private ushort[] Statue(ChozoStatuePalette palette) =>
         Enumerable.Range(0, ChozoAndTubeColorRomData.ColorCount).Select(color => ResolveStatue(palette, color)).ToArray();
 
+    /// <summary>Installs the tube-crack image at CGRAM 144–175, matching palette-only initializer $AA:E716; tube destruction and the initializer actor's removal remain runtime behavior.</summary>
     public void ApplyTubeCracks(SnesCgram cgram)
     {
         ArgumentNullException.ThrowIfNull(cgram);
         for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)
             cgram.SetColor(ChozoAndTubeColorRomData.Destination + color, ResolveTubeCracks(color));
     }
+    /// <summary>Installs the 32 selected Wrecked Ship Chozo inks at CGRAM 144–175, replacing the $AA:E31D image copied by initializer $AA:E75C.</summary>
     public void ApplyWreckedShip(SnesCgram cgram) => Apply(cgram, ChozoStatuePalette.WreckedShip);
+    /// <summary>Installs the 32 selected Lower Norfair Chozo inks at CGRAM 144–175, replacing the $AA:E35D image copied by initializer $AA:E784.</summary>
     public void ApplyLowerNorfair(SnesCgram cgram) => Apply(cgram, ChozoStatuePalette.LowerNorfair);
 
+    /// <summary>Loads version-1 <c>chozo-and-tube-colors.json</c>, requiring three independent 32-color images and RGB5 channels from 0 through 31.</summary>
+    /// <param name="json">Caller-owned stream consumed from its current position and left open; unknown and duplicate JSON properties are rejected.</param>
+    /// <returns>Compiled selected tube and statue inks; statue variant selection, hand PLMs, and tube behavior remain engine-owned.</returns>
     public static ChozoAndTubeColorCatalog Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -114,6 +121,7 @@ public sealed class ChozoAndTubeColorCatalog
             Compile(document.LowerNorfair, "Lower Norfair"));
     }
 
+    /// <summary>Serializes the three color images as indented camel-case UTF-8 JSON, validating version, 32-color dimensions, and RGB5 channel bounds before returning the bytes.</summary>
     public static byte[] Write(ChozoAndTubeColorDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
@@ -151,16 +159,24 @@ public sealed class ChozoAndTubeColorCatalog
             name => new InvalidDataException($"Duplicate Chozo/tube color property {name}."));
 }
 
+/// <summary>Editable tube-crack and Chozo-statue RGB5 images, each retaining two ordered sixteen-color OBJ palettes including their transparent-slot words.</summary>
 public sealed record ChozoAndTubeColorDocument
 {
+    /// <summary>Color schema revision; loading currently requires version 1.</summary>
     public required int Version { get; init; }
+    /// <summary>32 ordered tube-crack inks corresponding to $AA:E2DD–$E31C, filling OBJ palettes 1 and 2; stock halves repeat but edits need not.</summary>
     public required PaletteRgb5[] TubeCracks { get; init; }
+    /// <summary>32 ordered Wrecked Ship Chozo inks corresponding to $AA:E31D–$E35C, filling OBJ palettes 1 and 2.</summary>
     public required PaletteRgb5[] WreckedShip { get; init; }
+    /// <summary>32 ordered Lower Norfair Chozo inks corresponding to $AA:E35D–$E39C, filling OBJ palettes 1 and 2 independently of the Wrecked Ship image.</summary>
     public required PaletteRgb5[] LowerNorfair { get; init; }
 }
 
+/// <summary>Installed filename and supported schema revision for the three bounded editable tube/statue color images.</summary>
 public static class ChozoAndTubeColorFormat
 {
+    /// <summary>Installed editable JSON filename for the tube-crack, Wrecked Ship Chozo, and Lower Norfair Chozo palette images.</summary>
     public const string FileName = "chozo-and-tube-colors.json";
+    /// <summary>Supported color schema revision, requiring 32 RGB5 colors for each independent image.</summary>
     public const int Version = 1;
 }

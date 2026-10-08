@@ -113,24 +113,43 @@ public sealed class RoomFxAnimatedTileAtlas : IInstalledArtworkTransferSource
 /// <summary>One ordered strip of native 2-bpp room-FX, treadmill, and statue characters.</summary>
 public static class RoomFxAnimatedTileAtlasFormat
 {
+    /// <summary>Installed indexed PNG filename for the append-only strip of room-FX and related animated characters.</summary>
     public const string FileName = "room-fx-animated-tiles.png";
+    /// <summary>Two native planar bitplanes per pixel, producing sixteen bytes for each 8-by-8 character.</summary>
     public const int BitsPerPixel = 2;
+    /// <summary>Four palette-index values representable by the two-bit artwork; visible palette colors remain separately owned.</summary>
     public const int ColorCount = 4;
+    /// <summary>89 characters in the original simple room-FX prefix, before treadmill, statue, spore, and spike extensions.</summary>
     public const int LegacyTileCount = 89;
+    /// <summary>Four native Wrecked Ship treadmill images beginning at $87:8E64, each containing two 2bpp characters; direction reverses their runtime order.</summary>
     public const int TreadmillFrameCount = 4;
+    /// <summary>Character count of the historical prefix after its eight treadmill characters, before the shared Tourian-statue strip.</summary>
     public const int PreStatueTileCount = LegacyTileCount + TreadmillFrameCount * 2;
+    /// <summary>Character count in the contiguous Tourian-statue source strip beginning at $87:9364; runtime frame operands select overlapping windows within it.</summary>
     public const int StatueTileCount = TourianStatueAnimatedTileArtworkDefinitions.TransferByteCount / 16;
+    /// <summary>Character count of the historical prefix including the statue strip but preceding the spore animation extension.</summary>
     public const int PreSporesTileCount = PreStatueTileCount + StatueTileCount;
+    /// <summary>Nine 2bpp characters across the native spore animation images beginning at $87:A7E4.</summary>
     public const int SporesTileCount = 9;
+    /// <summary>Character count of the historical prefix including spores but preceding horizontal-spike artwork.</summary>
     public const int PreSpikesTileCount = PreSporesTileCount + SporesTileCount;
+    /// <summary>24 characters in the three distinct horizontal-spike images beginning at $87:9D84; the fourth animation step reuses the second image rather than adding tiles.</summary>
     public const int SpikeTileCount = 24;
+    /// <summary>Total 8-by-8 characters in the current ordered strip, including all historical prefixes and the spike extension.</summary>
     public const int TileCount = PreSpikesTileCount + SpikeTileCount;
+    /// <summary>Legacy PNG width in pixels for the original 89-character prefix, admitted only with a seekable stream and current-stock tail fallback.</summary>
     public const int LegacyWidth = LegacyTileCount * 8;
+    /// <summary>Legacy PNG width in pixels for the simple-FX/treadmill prefix, whose missing statue and later characters are inherited from current stock.</summary>
     public const int PreStatueWidth = PreStatueTileCount * 8;
+    /// <summary>Legacy PNG width in pixels for the prefix through statue characters, whose missing spore and spike tail is inherited from current stock.</summary>
     public const int PreSporesWidth = PreSporesTileCount * 8;
+    /// <summary>Legacy PNG width in pixels for the prefix through spore characters, whose missing spike tail is inherited from current stock.</summary>
     public const int PreSpikesWidth = PreSpikesTileCount * 8;
+    /// <summary>Required current PNG width in pixels, with every character placed horizontally in stable transfer-segment order.</summary>
     public const int Width = TileCount * 8;
+    /// <summary>Required PNG height in pixels: one 8-pixel character row.</summary>
     public const int Height = 8;
+    /// <summary>Total compiled planar transfer bytes, sixteen per character, including the shared statue strip rather than duplicating its overlapping frames.</summary>
     public const int TotalByteCount = TileCount * 16;
 
     /// <summary>
@@ -189,4 +208,7 @@ public static class RoomFxAnimatedTileAtlasFormat
 }
 
 /// <summary>One compiled source segment in the installed room-FX artwork strip.</summary>
+/// <param name="SourceAddress">Full native SNES artwork identity, used to resolve installed frame transfers without cartridge reads.</param>
+/// <param name="ByteCount">Number of ordered 2bpp planar bytes contributed to the PNG strip, not a pixel count.</param>
+/// <param name="IsFrame">True for a complete directly resolvable native DMA frame; false for the shared statue strip whose overlapping transfer windows are resolved separately.</param>
 public readonly record struct RoomFxAtlasSegment(int SourceAddress, int ByteCount, bool IsFrame);

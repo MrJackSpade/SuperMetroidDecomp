@@ -3,10 +3,15 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable reserve-label, digit and arrow presentation sources and dimensions.</summary>
 public static class PauseReserveUiDefinitions
 {
+    /// <summary>Supported reserve UI document schema revision.</summary>
     public const int Version = 1;
+    /// <summary>JSON filename containing reserve labels, digits, arrow locations, and colors.</summary>
     public const string FileName = "pause-reserve-ui.json";
+    /// <summary>Equipment-page tilemap dimensions in cells.</summary>
     public const int TilemapColumns = 32, TilemapRows = 32;
+    /// <summary>Fixed label lengths, digit glyph count, and arrow pulse-frame count.</summary>
     public const int LabelWords = 7, ModeWords = 4, DigitCount = 10, ArrowFrames = 32;
+    /// <summary>Number of decimal places in the reserve-supply display.</summary>
     public const int SupplyDigitPlaces = 3;
     /// <summary>$82:AB47 preserves priority, palette and flip fields while replacing MANUAL/AUTO characters.</summary>
     public const ushort TileAttributeMask = 0xfc00;
@@ -35,8 +40,11 @@ public static class PauseReserveUiDefinitions
     public const ushort SolidColor6 = 0x0156;
     /// <summary>$82:ADDD/$ADEF solid-arrow color eleven.</summary>
     public const ushort SolidColor11 = 0x039e;
+    /// <summary>BG palette selectors used by enabled and disabled reserve arrows.</summary>
     public const int EnabledPalette = 6, DisabledPalette = 7;
+    /// <summary>First vertical arrow cell, number of vertical arrows, and row stride in cells.</summary>
     public const int VerticalStartCell = 0x102 / 2, VerticalCount = 8, RowStrideCells = 0x40 / 2;
+    /// <summary>First horizontal arrow cell and number of adjacent horizontal arrows.</summary>
     public const int HorizontalStartCell = 0x302 / 2, HorizontalCount = 2;
     /// <summary>$82:BF06-BF0A selects MODE at interface tiles $119-11B with palette one and priority.</summary>
     private const int ModeGlyph = 0x119, ModePrefixWords = 3;

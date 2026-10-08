@@ -10,6 +10,7 @@ public sealed class MapSpriteCatalog
     private readonly FrameSet frames;
     private readonly MapObjectTileArtwork characters;
     private MapSpriteCatalog(FrameSet frames, MapObjectTileArtwork characters) { this.frames = frames; this.characters = characters; }
+    /// <summary>Draws a named map marker, elevator, label, or indicator at a screen-pixel anchor.</summary>
     public void Draw(ushort id, OamBuffer oam, ushort x, ushort y, ushort paletteBits)
     {
         var label = GetWorldLabel(id);
@@ -23,6 +24,7 @@ public sealed class MapSpriteCatalog
             oam.AddOnScreenSpritePart(part.X, part.Y, part.Attributes.WithPaletteBits(paletteBits), x, y);
         }
     }
+    /// <summary>Loads the compiled shared 4-bpp map-object characters at a byte-addressed VRAM destination.</summary>
     public void LoadArtworkTo(SnesVram vram, int destinationByte) => characters.LoadTo(vram, destinationByte);
     /// <summary>Selects an installed composition by its named native drawing role.</summary>
     private SpriteComposition? GetFrame(ushort id) => id switch
@@ -89,6 +91,7 @@ public sealed class MapSpriteCatalog
         WorldMapLabelComposition WorldMaridia,
         WorldMapLabelComposition WorldTourian);
 
+    /// <summary>Loads all 26 named sprite compositions and their indexed character atlas.</summary>
     public static MapSpriteCatalog Load(Stream json, Stream png)
     {
         MapSpriteDocument document;
@@ -140,20 +143,30 @@ public sealed class MapSpriteCatalog
         return new(frames, new MapObjectTileArtwork(image));
     }
 }
+/// <summary>Defines every named map-screen sprite composition.</summary>
 public sealed record MapSpriteDocument
 {
+    /// <summary>Gets the document schema revision.</summary>
     public required int Version { get; init; }
+    /// <summary>Gets the exact 26-frame dictionary of ordered OBJ parts.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
 }
+/// <summary>Defines the map sprite document, atlas geometry, and native transfer sizes.</summary>
 public static class MapSpriteFormat
 {
+    /// <summary>Supported map sprite schema revision.</summary>
     public const int Version = 1;
+    /// <summary>Installed JSON composition and indexed PNG artwork filenames.</summary>
     public const string JsonFile = "map-sprites.json", PngFile = "map-objects.png";
+    /// <summary>Atlas dimensions in eight-pixel character columns and rows.</summary>
     public const int TileColumns = 16, TileRows = 16;
+    /// <summary>Atlas dimensions in pixels.</summary>
     public const int Width = TileColumns * 8, Height = TileRows * 8;
+    /// <summary>Largest supported number of ordered OBJ parts in one composition.</summary>
     public const int MaximumParts = 128;
     /// <summary>$B6:C000 shared menu object characters, transferred to the active menu's OBJ base.</summary>
     public const int SourceAddress = 0xb6c000;
+    /// <summary>Compiled byte count of the 128-by-128-pixel 4-bpp atlas.</summary>
     public const int ByteCount = Width * Height / 2;
     /// <summary>File-select OBSEL=$03 places shared menu OBJ characters at VRAM byte $C000.</summary>
     public const int FileSelectDestination = 0xc000;

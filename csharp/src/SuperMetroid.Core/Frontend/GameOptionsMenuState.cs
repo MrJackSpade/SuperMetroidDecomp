@@ -33,6 +33,14 @@ public sealed class GameOptionsMenuState
     private int missileTimer = 1;
     private int missileFrame;
 
+    /// <summary>Creates the complete primary, controller, and special options-menu state.</summary>
+    /// <param name="bus">Address space used by the menu PPU resource loader.</param>
+    /// <param name="audio">Optional cartridge audio queues for cursor and confirmation sounds.</param>
+    /// <param name="controllerBindings">Initial retail controller-button permutation.</param>
+    /// <param name="iconCancelEnabled">Initial state of the automatic item-cancel option.</param>
+    /// <param name="moonwalkEnabled">Initial state of the moonwalk option.</param>
+    /// <param name="japaneseText">Whether the Japanese-language page variants are initially selected.</param>
+    /// <param name="mapPresentation">Required installed menu presentation assets.</param>
     public GameOptionsMenuState(
         ISnesAddressSpace bus,
         CartridgeAudioState? audio = null,
@@ -98,6 +106,7 @@ public sealed class GameOptionsMenuState
     /// <summary>Current menu row within the active page.</summary>
     public int SelectedItem { get; private set; }
 
+    /// <summary>Gets whether the Japanese-language options pages are selected.</summary>
     public bool JapaneseText { get; private set; }
 
     /// <summary>The seven live controller words committed when the controller page exits.</summary>
@@ -109,12 +118,16 @@ public sealed class GameOptionsMenuState
     /// <summary>WRAM <c>$09E4</c>, toggled by special-settings row one.</summary>
     public bool MoonwalkEnabled { get; private set; }
 
+    /// <summary>Gets the current options-menu coroutine phase.</summary>
     public GameOptionsPhase Phase { get; private set; }
 
+    /// <summary>Gets whether the completed start-game fade requested the opening sequence.</summary>
     public bool IntroRequested { get; private set; }
 
+    /// <summary>Gets whether the completed cancel fade requested the file-select menu.</summary>
     public bool FileSelectRequested { get; private set; }
 
+    /// <summary>Advances one options-menu update using the raw held controller word.</summary>
     public void Step(ushort controllerInput)
     {
         controller.Latch(controllerInput);
@@ -203,6 +216,7 @@ public sealed class GameOptionsMenuState
         }
     }
 
+    /// <summary>Renders the current options page, cursor, and brightness into a reusable RGBA frame.</summary>
     public Rgba32[] Render()
     {
         Rgba32[] background = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, FrontendFrame.Width * FrontendFrame.Height, frameBuffer ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height]);
@@ -528,19 +542,31 @@ public sealed class GameOptionsMenuState
     }
 }
 
+/// <summary>Identifies the current stage of the game-options menu state machine.</summary>
 public enum GameOptionsPhase
 {
+    /// <summary>Increase screen brightness to the menu maximum.</summary>
     FadeIn,
+    /// <summary>Handle the primary options-page selection.</summary>
     Main,
+    /// <summary>Fade the current page to black before changing pages.</summary>
     DissolveOut,
+    /// <summary>Fade the newly loaded page in from black.</summary>
     DissolveIn,
+    /// <summary>Handle controller-binding rows and commands.</summary>
     ControllerSettings,
+    /// <summary>Handle icon-cancel and moonwalk settings.</summary>
     SpecialSettings,
+    /// <summary>Scroll the controller page toward its lower rows.</summary>
     ScrollControllerDown,
+    /// <summary>Scroll the controller page toward its upper rows.</summary>
     ScrollControllerUp,
+    /// <summary>Fade to forced blank before starting the opening sequence.</summary>
     FadeOutToIntro,
+    /// <summary>Fade to forced blank before returning to file select.</summary>
     FadeOutToFileSelect,
     // Appended to keep legacy debugger snapshot ordinals stable.
+    /// <summary>Publish the opening-sequence request after the preceding fade completes.</summary>
     StartGame,
 }
 

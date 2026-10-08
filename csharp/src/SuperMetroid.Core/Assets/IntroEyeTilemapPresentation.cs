@@ -18,6 +18,7 @@ public sealed class IntroEyeTilemapPresentation
             content.AppendWords("frame", frame.Words);
     });
 
+    /// <summary>Gets the six packed BG tilemap words for one blink frame.</summary>
     public ReadOnlySpan<ushort> FrameWords(int index)
     {
         if ((uint)index >= frames.Length)
@@ -52,6 +53,7 @@ public sealed class IntroEyeTilemapPresentation
             }
         }
     }
+    /// <summary>Loads and validates the four ordered Samus portrait eye rectangles.</summary>
     public static IntroEyeTilemapPresentation Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -89,6 +91,7 @@ public sealed class IntroEyeTilemapPresentation
         return new IntroEyeTilemapPresentation(frames);
     }
 
+    /// <summary>Validates and writes an opening-eye tilemap document as JSON.</summary>
     public static void Write(Stream json, IntroEyeTilemapDocument document)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -99,25 +102,36 @@ public sealed class IntroEyeTilemapPresentation
     }
 }
 
+/// <summary>Defines the complete ordered set of opening portrait eye frames.</summary>
 public sealed record IntroEyeTilemapDocument
 {
+    /// <summary>Gets the document schema revision.</summary>
     public required int Version { get; init; }
+    /// <summary>Gets exactly four frames in blink-selector order.</summary>
     public required IntroEyeTilemapFrame[] Frames { get; init; }
 }
 
+/// <summary>Defines one stable 3-by-2 portrait eye tilemap rectangle.</summary>
 public sealed record IntroEyeTilemapFrame
 {
+    /// <summary>Gets the stable <c>eye-frame-N</c> identity for this array position.</summary>
     public required string Id { get; init; }
+    /// <summary>Gets six row-major packed-tile components.</summary>
     public required RoomBackgroundTilemapCell[] Cells { get; init; }
 }
 
 /// <summary>Stable identities and calculated atlas layout for the four portrait eye drawings. The three selected patch anchors and display design identify authored portrait content; changing them invents different drawings. Timing and pixels are outside this retained scope.</summary>
 public static class IntroEyeTilemapFormat
 {
+    /// <summary>Supported eye-frame document schema revision.</summary>
     public const int Version = 1;
+    /// <summary>Number of ordered eye drawings in the blink selector.</summary>
     public const int FrameCount = 4;
+    /// <summary>Number of BG cells across each eye rectangle.</summary>
     public const int Columns = 3;
+    /// <summary>Number of BG cells down each eye rectangle.</summary>
     public const int Rows = 2;
+    /// <summary>Number of row-major tilemap cells in each frame.</summary>
     public const int CellsPerFrame = Columns * Rows;
     /// <summary>$8C:D785/D795/D7A5/D7B5: second tile row begins16 characters after the first; each selected patch uses the native 16-column artwork atlas.</summary>
     internal const int NativeRowStride = 16;
@@ -141,8 +155,10 @@ public static class IntroEyeTilemapFormat
         };
         return SnesBgTilemapWord.Create(tile, PortraitPalette, false, default).Raw;
     }
+    /// <summary>JSON filename containing the four editable eye rectangles.</summary>
     public const string FileName = "intro-samus-eye-frames.json";
 
+    /// <summary>Builds the stable frame identity for a zero-based selector index.</summary>
     public static string FrameId(int index)
     {
         if ((uint)index >= FrameCount)

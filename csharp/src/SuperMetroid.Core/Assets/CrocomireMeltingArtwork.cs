@@ -155,33 +155,52 @@ public sealed class CrocomireMeltingArtwork
 /// <summary>Stable filenames and exact four-bit PNG transfer geometry for both melts.</summary>
 public static class CrocomireMeltingArtworkFormat
 {
+    /// <summary>Installed indexed PNG filename for the first dissolve image, assembled from the native bank-$A4 copies beginning at $A07D.</summary>
     public const string FirstFileName = "crocomire-melt-first.png";
+    /// <summary>Installed indexed PNG filename for the second, eroded dissolve image, assembled from the native bank-$A4 copies beginning at $AC7D.</summary>
     public const string SecondFileName = "crocomire-melt-second.png";
+    /// <summary>Installed editable JSON filename for the first image's 256 BG2 references, corresponding to $A4:9C79.</summary>
     public const string FirstTilemapFileName = "crocomire-melt-first-tiles.json";
+    /// <summary>Installed editable JSON filename for the second image's 256 BG2 references, corresponding to $A4:9E7B.</summary>
     public const string SecondTilemapFileName = "crocomire-melt-second-tiles.json";
+    /// <summary>$0E20 compiled 4bpp bytes, or 113 characters, for the first scratch image; bytes beyond the native overlapping-copy extent must remain zero.</summary>
     public const int FirstByteCount = 0x0e20;
+    /// <summary>$1020 compiled 4bpp bytes, or 129 characters, for the second scratch image; bytes beyond the native overlapping-copy extent must remain zero.</summary>
     public const int SecondByteCount = 0x1020;
+    /// <summary>Supported visual tile-layout schema revision, checked before compiling packed SNES BG words.</summary>
     public const int TilemapVersion = 1;
+    /// <summary>Required JSON width declaration of 16; cells retain native linear order rather than being rearranged into 16-column runtime BG rows.</summary>
     public const int TilemapWidth = 16;
+    /// <summary>Required JSON height declaration of 16, combining with the width to bound the native 256-word illustration payload.</summary>
     public const int TilemapHeight = 16;
+    /// <summary>256 ordered BG2 references, representing eight 32-cell native rows despite the editable document's 16-by-16 dimension declaration.</summary>
     public const int TilemapCellCount = TilemapWidth * TilemapHeight;
 }
 
 /// <summary>One ordered 16x16 visual tile layout; mechanics are not configurable.</summary>
 public sealed record CrocomireMeltingTilemapDocument
 {
+    /// <summary>Visual tile-layout revision; loading currently requires version 1.</summary>
     public required int Version { get; init; }
+    /// <summary>Required schema width declaration of 16; this does not replace the consuming BG tilemap's 32-cell row stride.</summary>
     public required int Width { get; init; }
+    /// <summary>Required schema height declaration of 16, establishing a 256-cell payload with the width.</summary>
     public required int Height { get; init; }
+    /// <summary>Exactly 256 cells in native linear source order, including blank margins; runtime placement consumes them as eight 32-cell BG2 rows.</summary>
     public required CrocomireMeltingTilemapCell[] Cells { get; init; }
 }
 
 /// <summary>One BG2 tile reference, palette and visual flip/priority selection.</summary>
 public sealed record CrocomireMeltingTilemapCell
 {
+    /// <summary>BG character selector from 0 through 1023, encoded in the low ten bits; blank glyphs and repeated references remain independent presentation choices.</summary>
     public required int TileIndex { get; init; }
+    /// <summary>SNES BG palette index from 0 through 7, encoded in bits 10–12; stock illustrated fragments use palette 7.</summary>
     public required int Palette { get; init; }
+    /// <summary>Whether to set packed BG priority bit $2000; this changes visual layering, not dissolve timing or collision.</summary>
     public required bool Priority { get; init; }
+    /// <summary>Whether to mirror the referenced character horizontally, setting packed BG word bit $4000.</summary>
     public required bool FlipX { get; init; }
+    /// <summary>Whether to mirror the referenced character vertically, setting packed BG word bit $8000.</summary>
     public required bool FlipY { get; init; }
 }

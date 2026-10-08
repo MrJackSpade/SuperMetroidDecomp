@@ -9,8 +9,11 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public enum CacatacEnemyFunction : ushort
 {
+    /// <summary>$A2:9FBA, <c>Function_Cacatac_MovingLeft</c>: advances the split 16.16 left velocity, turns right below the minimum X bound, then evaluates the random attack gate.</summary>
     MovingLeft = 0x9fba,
+    /// <summary>$A2:9FEC, <c>Function_Cacatac_MovingRight</c>: advances the split 16.16 right velocity, turns left at or beyond the maximum X bound, then evaluates the random attack gate.</summary>
     MovingRight = 0x9fec,
+    /// <summary>$A2:A01B, <c>RTS_A2A01B</c>: performs no patrol update while attack animation commands own the actor; also the initial target for population direction selector two.</summary>
     Stopped = 0xa01b,
 }
 
@@ -21,7 +24,9 @@ public enum CacatacEnemyFunction : ushort
 /// </summary>
 public enum CacatacDirection : ushort
 {
+    /// <summary>Population and native direction word zero: leftward patrol, restored by animation instruction $A2:A095 after an attack.</summary>
     Left = 0,
+    /// <summary>Population and native direction word one: rightward patrol; the restore instruction also treats the separate initial-stop selector two as rightward.</summary>
     Right = 1,
 }
 
@@ -31,15 +36,25 @@ public enum CacatacDirection : ushort
 /// </summary>
 public enum CacatacSpikeDirection : ushort
 {
+    /// <summary>Selector $00: moves left two pixels per projectile update with the upward-facing horizontal spike program at $86:D92E.</summary>
     LeftFacingUp = 0x00,
+    /// <summary>Selector $02: moves straight up two pixels per projectile update with the upward spike program at $86:D93A.</summary>
     Up = 0x02,
+    /// <summary>Selector $04: moves right two pixels per projectile update with the upward-facing horizontal spike program at $86:D946.</summary>
     RightFacingUp = 0x04,
+    /// <summary>Selector $06: moves left two pixels per projectile update with the downward-facing horizontal spike program at $86:D94C.</summary>
     LeftFacingDown = 0x06,
+    /// <summary>Selector $08: moves straight down two pixels per projectile update with the downward spike program at $86:D958.</summary>
     Down = 0x08,
+    /// <summary>Selector $0A: moves right two pixels per projectile update with the downward-facing horizontal spike program at $86:D964, natively named <c>InstList_EnemyProjectile_CacatacSpike_Down_FacingRight</c>.</summary>
     RightFacingDown = 0x0a,
+    /// <summary>Selector $0C: moves up and left by 1.5 pixels on each axis per projectile update, using the diagonal spike program at $86:D934.</summary>
     UpLeft = 0x0c,
+    /// <summary>Selector $0E: moves up and right by 1.5 pixels on each axis per projectile update, using the diagonal spike program at $86:D940.</summary>
     UpRight = 0x0e,
+    /// <summary>Selector $10: moves down and left by 1.5 pixels on each axis per projectile update, using the diagonal spike program at $86:D952.</summary>
     DownLeft = 0x10,
+    /// <summary>Selector $12: moves down and right by 1.5 pixels on each axis per projectile update, using the diagonal spike program at $86:D95E.</summary>
     DownRight = 0x12,
 }
 

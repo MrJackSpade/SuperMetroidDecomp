@@ -14,7 +14,7 @@ internal static class EnemyArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Game/RoomEnemyGraphicsSetDefinitions.Segment0.cs", "F89CA79521EC322761F483B562D940CDA3419A15F2494C65809DD25007770E0F"),
              new("csharp/src/SuperMetroid.Core/Game/RoomEnemyGraphicsSetDefinitions.Segment1.cs", "E055B7F6F3000F15895AD916733BBEEF347D0C9E42D9EC7B17514EA7FD132C7C"),
              new("csharp/src/SuperMetroid.Core/Game/RoomEnemyDefinitionCatalog.cs", "D35143910B969E2AB079907C0E89130EA1323AA3B91404C475635AA756532D14"),
-             new("csharp/src/SuperMetroid.Core/Game/RoomEnemyData.cs", "9DB6BE2C152B6875DB3E324588D479EAEBC5797D111B2625FDB822CB4DE05E5F"),
+             new("csharp/src/SuperMetroid.Core/Game/RoomEnemyData.cs", "6842D6F8CBDD07804178B073CA935A647B43DEC4BA4F52431365352F657FC69E"),
              new("csharp/src/SuperMetroid.Core/Assets/RoomCharacterAtlas.cs", "0C2CD85F446A356CF2A0E226E7F9D45C64F23C118A58097058E2B33152F97512"),
              new("csharp/src/SuperMetroid.Core/Assets/EnemyPaletteSheet.cs", "A315AC77B3BC2E0E17D83FFFB7ED84F8F9353A129BC06714BF4E8BB8998B9CB5"),
              new("csharp/src/SuperMetroid.Core/Assets/CeresEscapeTileArtwork.cs", "EEDA9FFC087B4CFDB12BF640D8AEE275DCD02E18309A69B6ADB67693B96EEADE"),

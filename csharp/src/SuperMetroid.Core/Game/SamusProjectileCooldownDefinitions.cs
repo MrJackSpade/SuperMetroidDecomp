@@ -3,6 +3,9 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Native NTSC firing delays, independent of projectile presentation assets.</summary>
 internal static class SamusProjectileCooldownDefinitions
 {
+    /// <summary>Cooldown $0CCC that Handle_Samus_Cooldown ($90:AC32) holds while time is frozen.</summary>
+    internal const ushort FrozenTime = 0x20;
+
     /// <summary>
     /// Bank-$90 address reached when the bounded SpaceTime Beam setup fires its corrupt
     /// beam word. Native indexes three bytes beyond the ordinary cooldown table and

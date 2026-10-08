@@ -64,14 +64,13 @@ public sealed partial class RoomEnemySystem
         BeginDraygonDeath(state, samus);
     }
 
+    /// <remarks>
+    /// `DraygonReaction_Common`'s dead branch ($A5:9618) has no "already dying" test. Every
+    /// touch, shot or power-bomb reaction on a zero-health body runs it again: the dying
+    /// arm and eye lists restart, the drift function is reinstalled and Samus is released.
+    /// </remarks>
     private void BeginDraygonDeath(DraygonEnemyState state, SamusState? samus)
     {
-        if (state.Function is
-            DraygonAiFunction.Dying or DraygonAiFunction.DyingSink or DraygonAiFunction.DyingFinish)
-        {
-            return;
-        }
-
         RoomEnemySlot body = state.Body;
         samus?.Grapple.Phase = GrapplePhase.Dropped;
         InstallDraygonInstruction(

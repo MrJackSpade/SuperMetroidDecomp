@@ -169,7 +169,7 @@ public sealed partial class RoomEnemySystem
             ? -unsignedDisplacement
             : unsignedDisplacement;
         AddZoaDisplacement(slot, xDisplacement, yDisplacement: 0);
-        if (ZoaCenterIsOnScreen(slot, cameraX, cameraY))
+        if (EnemyCenterIsOnScreen(slot, cameraX, cameraY))
         {
             SetZoaInstructionList(slot, state);
             return;
@@ -177,11 +177,11 @@ public sealed partial class RoomEnemySystem
 
         // Once its center leaves the inclusive 256x256 camera square, Zoa teleports to the
         // saved population coordinate and becomes invisible until the next proximity wake.
+        // `$A3:B51E-$B527` stores only the whole words: the subpixel fractions left by the
+        // rise and the shot carry into the next flight.
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
         slot.XPosition = state.SpawnXPosition;
         slot.YPosition = state.SpawnYPosition;
-        slot.XSubposition = 0;
-        slot.YSubposition = 0;
         state.InstructionListTableIndex = ZoaAnimationSelector.None;
         SetZoaInstructionList(slot, state);
         state.Function = ZoaEnemyFunction.WaitForSamus;
@@ -207,15 +207,6 @@ public sealed partial class RoomEnemySystem
             slot.YSubposition = unchecked((ushort)y);
         }
     }
-
-    private static bool ZoaCenterIsOnScreen(
-        RoomEnemySlot slot,
-        ushort cameraX,
-        ushort cameraY) =>
-        !IsNegative16(slot.XPosition - cameraX) &&
-        !IsNegative16(cameraX + 0x0100 - slot.XPosition) &&
-        !IsNegative16(slot.YPosition - cameraY) &&
-        !IsNegative16(cameraY + 0x0100 - slot.YPosition);
 
     private static void SetZoaInstructionList(RoomEnemySlot slot, ZoaEnemyState state)
     {

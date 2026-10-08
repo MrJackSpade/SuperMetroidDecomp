@@ -105,67 +105,67 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>MainAI_DraygonBody</c> at <c>$A5:86FC</c>.</summary>
-    private void RunDraygonBodyMain(RoomEnemySlot body, SamusState? samus, byte nmiFrameCounter8)
+    private void RunDraygonBodyMain(RoomEnemySlot body, SamusState? samus, byte frameCounterLow)
     {
         DraygonEnemyState state = RequireCompleteDraygonState(body);
         switch (state.Function)
         {
             case DraygonAiFunction.IntroInitialDelay:
-                RunDraygonIntroInitialDelay(state, samus, nmiFrameCounter8);
+                RunDraygonIntroInitialDelay(state, samus, frameCounterLow);
                 break;
             case DraygonAiFunction.IntroDance:
-                RunDraygonIntroDance(state, samus, nmiFrameCounter8);
+                RunDraygonIntroDance(state, samus, frameCounterLow);
                 break;
             case DraygonAiFunction.SwoopRightSetup:
-                SetupDraygonRightSwoop(state, samus, nmiFrameCounter8);
+                SetupDraygonRightSwoop(state, samus, frameCounterLow);
                 break;
             case DraygonAiFunction.SwoopRightDescending:
-                DescendDraygonRightSwoop(state, samus, nmiFrameCounter8);
+                DescendDraygonRightSwoop(state, samus, frameCounterLow);
                 break;
             case DraygonAiFunction.SwoopRightApex:
-                CrossDraygonRightSwoopApex(state, samus, nmiFrameCounter8);
+                CrossDraygonRightSwoopApex(state, samus, frameCounterLow);
                 break;
             case DraygonAiFunction.SwoopRightAscending:
-                AscendDraygonRightSwoop(state, samus, nmiFrameCounter8);
+                AscendDraygonRightSwoop(state, samus, frameCounterLow);
                 break;
             case DraygonAiFunction.SwoopLeftSetup:
-                SetupDraygonLeftSwoop(state, samus, nmiFrameCounter8);
+                SetupDraygonLeftSwoop(state, samus, frameCounterLow);
                 break;
             case DraygonAiFunction.SwoopLeftDescending:
-                DescendDraygonLeftSwoop(state, samus, nmiFrameCounter8);
+                DescendDraygonLeftSwoop(state, samus, frameCounterLow);
                 break;
             case DraygonAiFunction.SwoopLeftApex:
-                CrossDraygonLeftSwoopApex(state, samus, nmiFrameCounter8);
+                CrossDraygonLeftSwoopApex(state, samus, frameCounterLow);
                 break;
             case DraygonAiFunction.SwoopLeftAscending:
-                AscendDraygonLeftSwoop(state, samus, nmiFrameCounter8);
+                AscendDraygonLeftSwoop(state, samus, frameCounterLow);
                 break;
             case DraygonAiFunction.GoopRightSetup:
-                SetupDraygonGoopPass(state, movingRight: true, samus, nmiFrameCounter8);
+                SetupDraygonGoopPass(state, movingRight: true, samus, frameCounterLow);
                 break;
             case DraygonAiFunction.GoopRight:
-                ApproachSamusForDraygonGoop(state, movingRight: true, samus, nmiFrameCounter8);
+                ApproachSamusForDraygonGoop(state, movingRight: true, samus, frameCounterLow);
                 break;
             case DraygonAiFunction.GoopRightTail:
-                FireDraygonGoop(state, movingRight: true, samus, nmiFrameCounter8);
+                FireDraygonGoop(state, movingRight: true, samus, frameCounterLow);
                 break;
             case DraygonAiFunction.GoopRightRecovery:
                 ExitDraygonGoopPass(state, movingRight: true);
                 break;
             case DraygonAiFunction.GoopLeftSetup:
-                SetupDraygonGoopPass(state, movingRight: false, samus, nmiFrameCounter8);
+                SetupDraygonGoopPass(state, movingRight: false, samus, frameCounterLow);
                 break;
             case DraygonAiFunction.GoopLeft:
-                ApproachSamusForDraygonGoop(state, movingRight: false, samus, nmiFrameCounter8);
+                ApproachSamusForDraygonGoop(state, movingRight: false, samus, frameCounterLow);
                 break;
             case DraygonAiFunction.GoopLeftTail:
-                FireDraygonGoop(state, movingRight: false, samus, nmiFrameCounter8);
+                FireDraygonGoop(state, movingRight: false, samus, frameCounterLow);
                 break;
             case DraygonAiFunction.GoopLeftRecovery:
                 ExitDraygonGoopPass(state, movingRight: false, samus);
                 break;
             case DraygonAiFunction.TryGrabSamus:
-                ChaseAndTryToGrabSamus(state, samus, nmiFrameCounter8);
+                ChaseAndTryToGrabSamus(state, samus, frameCounterLow);
                 break;
             case DraygonAiFunction.GrabbedSamus:
                 RepelDraygonWithGrapple(state, samus);
@@ -189,16 +189,16 @@ public sealed partial class RoomEnemySystem
                 ReleaseSamusFromDraygon(state, samus);
                 break;
             case DraygonAiFunction.FlyStraightUp:
-                FlyDraygonStraightUp(state, samus, nmiFrameCounter8);
+                FlyDraygonStraightUp(state, samus, frameCounterLow);
                 break;
             case DraygonAiFunction.Dying:
                 DriftDyingDraygonToBurialPoint(state);
                 break;
             case DraygonAiFunction.DyingSink:
-                WaitForDraygonBurialEvirs(state, nmiFrameCounter8);
+                WaitForDraygonBurialEvirs(state, frameCounterLow);
                 break;
             case DraygonAiFunction.DyingFinish:
-                SinkDraygonBelowTheRoom(state, nmiFrameCounter8);
+                SinkDraygonBelowTheRoom(state, frameCounterLow);
                 break;
             default:
                 throw new InvalidDataException(
@@ -240,9 +240,9 @@ public sealed partial class RoomEnemySystem
     private void RunDraygonIntroInitialDelay(
         DraygonEnemyState state,
         SamusState? samus,
-        byte nmiFrameCounter8)
+        byte frameCounterLow)
     {
-        ObserveDraygonTurretCadence(state, samus, nmiFrameCounter8);
+        ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         if (state.FunctionTimer < 0x0100)
         {
             if (state.FunctionTimer == 0)
@@ -294,9 +294,9 @@ public sealed partial class RoomEnemySystem
     private void RunDraygonIntroDance(
         DraygonEnemyState state,
         SamusState? samus,
-        byte nmiFrameCounter8)
+        byte frameCounterLow)
     {
-        ObserveDraygonTurretCadence(state, samus, nmiFrameCounter8);
+        ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         if (state.FunctionTimer >= DraygonIntroDanceDefinitions.DurationFrames)
         {
             state.Function = DraygonAiFunction.SwoopRightSetup;
@@ -339,9 +339,9 @@ public sealed partial class RoomEnemySystem
     private void SetupDraygonRightSwoop(
         DraygonEnemyState state,
         SamusState? samus,
-        byte nmiFrameCounter8)
+        byte frameCounterLow)
     {
-        ObserveDraygonTurretCadence(state, samus, nmiFrameCounter8);
+        ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         if (samus is null)
             throw new InvalidOperationException("Draygon cannot aim a swoop without Samus.");
 
@@ -394,9 +394,9 @@ public sealed partial class RoomEnemySystem
     private void DescendDraygonRightSwoop(
         DraygonEnemyState state,
         SamusState? samus,
-        byte nmiFrameCounter8)
+        byte frameCounterLow)
     {
-        ObserveDraygonTurretCadence(state, samus, nmiFrameCounter8);
+        ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         SpawnPeriodicDraygonBreathBubble(state);
         RoomEnemySlot body = state.Body;
         int pathIndex = body.VariableB / 4;
@@ -419,9 +419,9 @@ public sealed partial class RoomEnemySystem
     private void CrossDraygonRightSwoopApex(
         DraygonEnemyState state,
         SamusState? samus,
-        byte nmiFrameCounter8)
+        byte frameCounterLow)
     {
-        ObserveDraygonTurretCadence(state, samus, nmiFrameCounter8);
+        ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         RoomEnemySlot body = state.Body;
         int frameCount = body.VariableC / 4;
         if (frameCount == 0)
@@ -437,9 +437,9 @@ public sealed partial class RoomEnemySystem
     private void AscendDraygonRightSwoop(
         DraygonEnemyState state,
         SamusState? samus,
-        byte nmiFrameCounter8)
+        byte frameCounterLow)
     {
-        ObserveDraygonTurretCadence(state, samus, nmiFrameCounter8);
+        ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         RoomEnemySlot body = state.Body;
         int pathIndex = body.VariableB / 4;
         if ((uint)pathIndex >= state.SwoopYPositions.Length)
@@ -465,9 +465,9 @@ public sealed partial class RoomEnemySystem
     private void SetupDraygonLeftSwoop(
         DraygonEnemyState state,
         SamusState? samus,
-        byte nmiFrameCounter8)
+        byte frameCounterLow)
     {
-        ObserveDraygonTurretCadence(state, samus, nmiFrameCounter8);
+        ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         if (samus is null)
             throw new InvalidOperationException("Draygon cannot aim a swoop without Samus.");
         int frameCount = state.Body.VariableC / 4;
@@ -489,9 +489,9 @@ public sealed partial class RoomEnemySystem
     private void DescendDraygonLeftSwoop(
         DraygonEnemyState state,
         SamusState? samus,
-        byte nmiFrameCounter8)
+        byte frameCounterLow)
     {
-        ObserveDraygonTurretCadence(state, samus, nmiFrameCounter8);
+        ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         SpawnPeriodicDraygonBreathBubble(state);
         RoomEnemySlot body = state.Body;
         int pathIndex = body.VariableB / 4;
@@ -514,9 +514,9 @@ public sealed partial class RoomEnemySystem
     private void CrossDraygonLeftSwoopApex(
         DraygonEnemyState state,
         SamusState? samus,
-        byte nmiFrameCounter8)
+        byte frameCounterLow)
     {
-        ObserveDraygonTurretCadence(state, samus, nmiFrameCounter8);
+        ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         RoomEnemySlot body = state.Body;
         int frameCount = body.VariableC / 4;
         if (frameCount == 0)
@@ -539,9 +539,9 @@ public sealed partial class RoomEnemySystem
     private void AscendDraygonLeftSwoop(
         DraygonEnemyState state,
         SamusState? samus,
-        byte nmiFrameCounter8)
+        byte frameCounterLow)
     {
-        ObserveDraygonTurretCadence(state, samus, nmiFrameCounter8);
+        ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         SpawnPeriodicDraygonBreathBubble(state);
         RoomEnemySlot body = state.Body;
         int pathIndex = body.VariableB / 4;
@@ -594,12 +594,12 @@ public sealed partial class RoomEnemySystem
         DraygonEnemyState state,
         bool movingRight,
         SamusState? samus,
-        byte nmiFrameCounter8)
+        byte frameCounterLow)
     {
         // Only the rightward setup calls HandleFiringWallTurret; the leftward entry at
         // $8C8E omits it. That asymmetry changes the random seed and is therefore material.
         if (movingRight)
-            ObserveDraygonTurretCadence(state, samus, nmiFrameCounter8);
+            ObserveDraygonTurretCadence(state, samus, frameCounterLow);
 
         RoomEnemySlot body = state.Body;
         body.XPosition = movingRight ? (ushort)0xffb0 : state.RightSideResetXPosition;
@@ -626,9 +626,9 @@ public sealed partial class RoomEnemySystem
         DraygonEnemyState state,
         bool movingRight,
         SamusState? samus,
-        byte nmiFrameCounter8)
+        byte frameCounterLow)
     {
-        ObserveDraygonTurretCadence(state, samus, nmiFrameCounter8);
+        ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         SpawnPeriodicDraygonBreathBubble(state);
         if (samus is null)
             throw new InvalidOperationException("Draygon cannot position a goop pass without Samus.");
@@ -649,11 +649,11 @@ public sealed partial class RoomEnemySystem
         DraygonEnemyState state,
         bool movingRight,
         SamusState? samus,
-        byte nmiFrameCounter8)
+        byte frameCounterLow)
     {
         // The right-facing function calls the turret handler; the left-facing copy does not.
         if (movingRight)
-            ObserveDraygonTurretCadence(state, samus, nmiFrameCounter8);
+            ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         if (samus?.XSpeedDivisor != 0)
         {
             state.Function = DraygonAiFunction.TryGrabSamus;
@@ -768,14 +768,13 @@ public sealed partial class RoomEnemySystem
     private void ObserveDraygonTurretCadence(
         DraygonEnemyState state,
         SamusState? samus,
-        byte nmiFrameCounter8)
+        byte frameCounterLow)
     {
-        if ((nmiFrameCounter8 & 0x3f) != 0)
+        if ((frameCounterLow & 0x3f) != 0)
             return;
 
-        // $A5:87AA advances the room RNG even when the chosen turret is disabled. Projectile
-        // production is intentionally left for the bank-$86 Draygon projectile slice, but
-        // preserving this draw now keeps every later attack decision on the cartridge seed.
+        // $A5:87AA tests NMI_FrameCounter ($05B6), then advances the room RNG even when the
+        // chosen turret is disabled; the spawn itself is SpawnDraygonWallTurret.
         ushort random = _nextRandom!();
         state.TurretCadenceChecks++;
         if (samus is not null)

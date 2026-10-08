@@ -24,7 +24,7 @@ internal static partial class Program
             if (id == GameplayMessageId.None) continue;
             var state = CreateGameplayMessageFixture();
             AssertTrue(GameplayMessageBoxRenderer.Capture(state) is null, "inactive message has no overlay");
-            state.Begin(bus, id);
+            state.Begin(bus, id, 0);
             int previousRadius = -1;
             bool previousYes = true;
             bool toggledSave = false, releasedSave = false;
@@ -63,7 +63,7 @@ internal static partial class Program
             }
             AssertTrue(!state.IsActive, $"message {id} completes reveal/close fixture");
             // Reuse the same live owner after closing, replacing its tilemap and radius.
-            state.Begin(bus, GameplayMessageIds.SaveCompleted);
+            state.Begin(bus, GameplayMessageIds.SaveCompleted, 0);
             AssertTrue(held is not null && heldPixels!.AsSpan().SequenceEqual(RenderForComparison(held)),
                 "retained message survives closing and reuse of the source owner");
         }

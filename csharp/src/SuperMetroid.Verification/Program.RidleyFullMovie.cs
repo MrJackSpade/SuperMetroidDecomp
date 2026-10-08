@@ -335,16 +335,16 @@ internal static partial class Program
                 "source6289 airborne morph accepted");
             AssertEqual((ushort)411, samus.YPosition, "native morph center alignment");
             AssertEqual((ushort)0x97ff, samus.Kinematics.YSubposition, "morph preserves current fraction");
-            AssertEqual(previous with { YPosition = 411 }, samus.ApplyPoseCollisionCameraCheckpoint(previous),
+            AssertEqual(previous with { YPosition = 411 }, samus.ApplyPreviousPositionWrites(previous),
                 "command seven replaces previous whole Y and retains previous fraction");
-            AssertEqual(previous, samus.ApplyPoseCollisionCameraCheckpoint(previous), "checkpoint consumed once");
+            AssertEqual(previous, samus.ApplyPreviousPositionWrites(previous), "checkpoint consumed once");
 
             samus.Pose = left ? SamusPoseIds.MorphBallFallingLeftPose : SamusPoseIds.MorphBallFallingRightPose;
             samus.RefreshCollisionRadii(bus);
             AssertTrue(samus.TryApplyMorphTransition(bus, level,
                 left ? SamusPoseIds.UnmorphingTransitionLeftPose : SamusPoseIds.UnmorphingTransitionRightPose, 0),
                 "unmorph command seven accepted");
-            AssertEqual(previous with { YPosition = samus.YPosition }, samus.ApplyPoseCollisionCameraCheckpoint(previous),
+            AssertEqual(previous with { YPosition = samus.YPosition }, samus.ApplyPreviousPositionWrites(previous),
                 "zero alignment entry still replaces previous whole Y");
         }
         Console.WriteLine("Morph camera checkpoint: both facings, alignment, fractions, one-time consumption and unmorph pass.");
@@ -857,7 +857,10 @@ internal static partial class Program
         AssertTrue(Convert.ToHexString(SHA256.HashData(movie)) == "7E12861DC56C5ABED12C2BFA2B00D24BFA418F49F2CE4C027D930CE9A3663F66", "original Ridley movie hash");
         using var manifest = JsonDocument.Parse(File.ReadAllText(Path.Combine(directory, "updates.json")));
         var root = manifest.RootElement;
-        AssertEqual("super-metroid-gameplay-updates-v3", root.GetProperty("format").GetString()!, "converted replay format");
+        // v5 only adds message-box start evidence, which this Ridley replay does not consume.
+        AssertTrue(root.GetProperty("format").GetString() is
+            "super-metroid-gameplay-updates-v4" or "super-metroid-gameplay-updates-v5", "converted replay format");
+        AssertEqual(0, root.GetProperty("initialRecord").GetInt32(), "snapshot movie has no folded boot prelude");
         AssertEqual(Convert.ToHexString(SHA256.HashData(movie)), root.GetProperty("movieSha256").GetString()!, "converted movie identity");
         AssertEqual(10890, root.GetProperty("sourceFrameCount").GetInt32(), "complete original movie coverage");
         var updates = root.GetProperty("updates").EnumerateArray().ToArray();
@@ -1852,7 +1855,8 @@ internal static partial class Program
             // explicitly instead of replaying hardware upload time as gameplay.
             if (frame < length)
             {
-                if (updates[frame].GetProperty("timingClass").GetString() == "apu-upload-continuation")
+                if (updates[frame].GetProperty("timingClass").GetString() is
+                    "apu-upload-continuation" or "apu-upload-tail-continuation")
                     throw new InvalidDataException($"SMV source frame {updates[frame].GetProperty("sourceFrame").GetInt32()} is an APU upload continuation; hardware-wait input normalization is not implemented.");
                 previousBodyRecord = BodyRecord();
                 var output = game.Step((ushort)updates[frame].GetProperty("input").GetInt32());

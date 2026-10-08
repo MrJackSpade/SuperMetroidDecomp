@@ -63,6 +63,9 @@ public sealed class BackgroundScrollState
     public ushort Layer2YBlock { get; private set; }
 
     public ushort PreviousLayer1XBlock { get; private set; }
+
+    /// <summary>Stores $FFFF to <c>PreviousLayer1XBlock</c>, as Kraid's dead-room tail does.</summary>
+    internal void ResetPreviousLayer1XBlock() => PreviousLayer1XBlock = 0xffff;
     public ushort PreviousLayer1YBlock { get; private set; }
     public ushort PreviousLayer2XBlock { get; private set; }
     public ushort PreviousLayer2YBlock { get; private set; }

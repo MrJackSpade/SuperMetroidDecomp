@@ -408,12 +408,15 @@ internal static class DebuggerObjectGraphSerializer
                     discardedIdentity = true;
                     continue;
                 }
+                // A generalized field keeps its value under its current name.
+                if (DebuggerFieldRenameDefinitions.TryGetCurrentName(declaringType, fieldName, out string currentName))
+                    fieldName = currentName;
                 if (!remaining.Remove((declaringType, fieldName), out FieldInfo? field))
                 {
-                    // A field removed because nothing read it: drain its saved value.
-                    if (DebuggerRetiredFieldDefinitions.Contains(declaringType, fieldName))
+                    // A field a later build retired: drain its saved value into its migration.
+                    if (DebuggerRetiredFieldDefinitions.TryGetMigration(declaringType, fieldName, out RetiredFieldMigration migrate))
                     {
-                        Read();
+                        migrate(instance, fieldName, Read());
                         continue;
                     }
                     throw new InvalidDataException(

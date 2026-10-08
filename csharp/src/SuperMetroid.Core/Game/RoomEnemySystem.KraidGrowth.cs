@@ -93,7 +93,8 @@ public sealed partial class RoomEnemySystem
                 body.VariableA = (ushort)KraidAiFunction.GrowFadeInRoomBackground;
                 body.VariableE = 0;
                 body.VariableF = 0;
-                state.RoomBackgroundFadeStep = 0;
+                // $A7:ADB0 DrawKraidsRoomBackground zeroes the shared numerator.
+                GradualColorChange.Numerator = 0;
                 // `$A7:AD9A` queues this character upload on the same frame that it
                 // initializes palette-six fading. Without it, BG1's authored repeating
                 // room-background blocks decode an uninitialized character as transparent,
@@ -113,7 +114,7 @@ public sealed partial class RoomEnemySystem
         KraidEnemyState state,
         bool fadeToBlack)
     {
-        ushort step = state.RoomBackgroundFadeStep;
+        ushort step = GradualColorChange.Numerator;
         if (step <= 13)
         {
             for (int color = 0; color < 16; color++)
@@ -124,10 +125,10 @@ public sealed partial class RoomEnemySystem
                     : ReadKraidColor(KraidPaletteSource.RoomBackdrop, color);
                 _cgram.SetColor(96 + color, TransitionKraidColor(step, current, target));
             }
-            state.RoomBackgroundFadeStep = unchecked((ushort)(step + 1));
+            GradualColorChange.Numerator = unchecked((ushort)(step + 1));
             return false;
         }
-        state.RoomBackgroundFadeStep = 0;
+        GradualColorChange.Numerator = 0;
         return true;
     }
 

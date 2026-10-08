@@ -74,7 +74,6 @@ static void VerifySamusAerialMovement()
     AssertEqual(19, samus.Kinematics.YRadius, "next alpha publishes neutral jump radius");
     AerialMovementResult transitionFrame = SamusAerialMovement.StepNormalJump(
         bus, level, samus, (ushort)SnesButton.A, nmiFrameCounter: 0);
-    AssertTrue(transitionFrame.Vertical is null, "neutral-jump transition skips vertical movement");
     AssertEqual(77, samus.YPosition, "neutral-jump transition preserves Y");
     samus.AnimateNoFx(bus);
     AssertEqual(0xfd, samus.LastAnimationDelayCommand!.Value, "neutral-jump transition reaches FD");
@@ -84,7 +83,6 @@ static void VerifySamusAerialMovement()
     // The first real airborne frame moves by OLD 4.E000, then stores 4.C400 after gravity.
     AerialMovementResult firstRise = SamusAerialMovement.StepNormalJump(
         bus, level, samus, (ushort)SnesButton.A, nmiFrameCounter: 1);
-    AssertTrue(firstRise.Vertical is { Collided: false }, "first rise remains in air");
     AssertEqual(72, samus.YPosition, "first rise old-speed whole displacement");
     AssertEqual(0x2000, samus.Kinematics.YSubposition, "first rise old-speed fraction");
     AssertEqual(0x0004, samus.Kinematics.YSpeed, "first rise stored whole speed");
@@ -273,7 +271,7 @@ static void VerifySamusAerialMovement()
     AssertEqual(19, fallLeft.Kinematics.YRadius, "next alpha publishes falling radius");
     AerialMovementResult firstFall = SamusAerialMovement.StepFalling(
         bus, level, fallLeft, controllerInput: 0, nmiFrameCounter: 0);
-    AssertEqual(0, firstFall.Vertical!.Value.AcceptedDisplacement, "walk-off starts with stationary fall frame");
+    AssertEqual(77, fallLeft.YPosition, "walk-off starts with stationary fall frame");
     AssertEqual(0x1c00, fallLeft.Kinematics.YSubspeed, "first fall frame primes gravity");
     AerialMovementResult fallResult = default;
     StepUntil(
@@ -747,6 +745,7 @@ static void VerifySamusSpaceJumpAndScrewAttack()
     var screwBombPlms = new RoomPlmSystem();
     SamusState screwBombSamus = CreateFallingSpin(
         SamusPoseIds.ScrewAttackRightPose, 0x0008, speed: 3, subspeed: 0);
+    ushort screwBombY = screwBombSamus.YPosition;
     AerialMovementResult screwBombFrame = SamusAerialMovement.StepSpinJump(
         bus,
         screwBombLevel,
@@ -755,7 +754,7 @@ static void VerifySamusSpaceJumpAndScrewAttack()
         nmiFrameCounter: 0,
         controllerNewInput: 0,
         plms: screwBombPlms);
-    AssertTrue(screwBombFrame.Vertical is { Collided: false },
+    AssertTrue(screwBombSamus.YPosition != screwBombY,
         "Screw collision-bomb setup returns carry clear and preserves vertical travel");
     AssertTrue(screwBombPlms.PopulationSlots.Any(slot => slot.BlockIndex == screwBombIndex),
         "Screw vertical collision reacts at the exact BTS-4 block");
@@ -1083,6 +1082,25 @@ static void VerifySamusLiquidPhysics()
         AssertTrue(released.Grapple.ReleasedMovementActive,
             $"grapple release medium {medium} handler survives before apex/collision");
     }
+
+    // #1269: a release that starts downward (zero angular velocity at the swing's bottom)
+    // makes $90:E61B publish "falling" (2) without any collision. $90:94BF reads that
+    // nonzero word and restores the normal handler after this single pass.
+    var fallingRelease = new SamusState
+    {
+        Pose = SamusPoseIds.NormalJumpForwardRightPose,
+        XPosition = 128,
+        YPosition = 128,
+        Kinematics = { XRadius = 5, YRadius = 12, YDirection = 2 },
+    };
+    fallingRelease.Grapple.ReleasedMovementActive = true;
+    SamusAerialMovement.ConfigureEnvironmentGravity(bus, fallingRelease);
+    var fallingResult = SamusAerialMovement.StepReleasedFromGrapple(
+        bus, CreateEmptyRoom(16, 16), fallingRelease, controllerInput: 0, nmiFrameCounter: 0);
+    AssertEqual(SamusVerticalCollisionResults.Falling, fallingRelease.SolidVerticalCollisionResult,
+        "downward release publishes the falling result");
+    AssertTrue(!fallingRelease.Grapple.ReleasedMovementActive,
+        "a falling release restores the normal handler after one pass");
 
     // Give the spin routine authentic metadata plus zero horizontal records in all three
     // tables. Water's remembered medium lowers only the inclusive minimum from $0280 to $0080.

@@ -98,7 +98,8 @@ public sealed partial class RoomEnemySystem
         projectile.XSubposition = 0;
         projectile.YSubposition = 0;
         projectile.XVelocity = 0;
-        projectile.YVelocity = unchecked((ushort)((_nextRandom!() & 0x003f) + 64));
+        // $86:92A5 reads RandomNumberSeed; it does not advance it.
+        projectile.YVelocity = unchecked((ushort)((RequireRandomNumber() & 0x003f) + 64));
         projectile.GraphicsIndex = 0x0400;
     }
 

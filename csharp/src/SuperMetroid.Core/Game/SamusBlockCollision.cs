@@ -27,27 +27,7 @@ public static partial class SamusBlockCollision
         RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(state);
-        SamusKinematicsState probe = state.SamusOwner is null
-            ? new SamusKinematicsState { ProbeContactDamageIndex = state.CollisionContactDamageIndex }
-            : new SamusKinematicsState(state.SamusOwner);
-        probe.CollisionPose = state.CollisionPose;
-        probe.XPosition = state.XPosition;
-        probe.XSubposition = state.XSubposition;
-        probe.YPosition = state.YPosition;
-        probe.YSubposition = state.YSubposition;
-        probe.XRadius = state.XRadius;
-        probe.YRadius = state.YRadius;
-        probe.YSpeed = state.YSpeed;
-        probe.YSubspeed = state.YSubspeed;
-        probe.YDirection = state.YDirection;
-        probe.SandCollisionArea = state.SandCollisionArea;
-        probe.YAcceleration = state.YAcceleration;
-        probe.YSubacceleration = state.YSubacceleration;
-        probe.HorizontalSlopeCollisionEnable = state.HorizontalSlopeCollisionEnable;
-        probe.PositionAdjustedBySlope = state.PositionAdjustedBySlope;
-        // The enemy entries are immutable value snapshots. Sharing their ordered list is
-        // safe, and lets the observational wall probe see exactly the same native actors.
-        probe.InteractiveEnemies = state.InteractiveEnemies;
+        SamusKinematicsState probe = state.CreateCollisionProbe();
 
         // Reusing the translated horizontal dispatcher also preserves square-slope and
         // unsupported-block behavior. Any post-scan slope alignment touches only `probe`,
@@ -88,10 +68,11 @@ public static partial class SamusBlockCollision
     /// Ports <c>BlockColl_Handle_Horiz</c> at <c>$94:9543</c>, the position addition in
     /// <c>Samus_MoveRight_NoSolidColl</c>, and the subsequent non-square slope alignment.
     /// </summary>
-    /// <param name="zeroDisplacementDirection">
-    /// Preserves the native left/right movement entrypoint when the signed displacement
-    /// is zero. Supplying it retains solid-enemy probe side effects without inventing
-    /// motion; null retains an ordinary no-movement call with no enemy probe.
+    /// <param name="collisionMovementDirection">
+    /// Native $0B02 stored by the displacement calculator. When supplied, this is a bank-$90
+    /// <c>MoveSamus_Right/Left</c> call: the solid-enemy probe always runs in this direction,
+    /// even for a zero displacement, while the sign selects the entry (zero enters right).
+    /// Null keeps a sign-derived probe that is skipped for a zero displacement.
     /// </param>
     public static BlockMoveResult MoveHorizontal(
         ISnesAddressSpace bus,
@@ -103,15 +84,15 @@ public static partial class SamusBlockCollision
         bool publishDoorSideEffects = true,
         bool alignToSlopeAfterMovement = true,
         SamusCollisionDirection? blockReactionDirection = null,
-        SamusCollisionDirection? zeroDisplacementDirection = null)
+        SamusCollisionDirection? collisionMovementDirection = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
         ArgumentNullException.ThrowIfNull(state);
 
-        if (zeroDisplacementDirection is { } zeroDirection &&
-            zeroDirection is not (SamusCollisionDirection.Left or SamusCollisionDirection.Right))
-            throw new ArgumentOutOfRangeException(nameof(zeroDisplacementDirection));
+        if (collisionMovementDirection is { } storedDirection &&
+            storedDirection is not (SamusCollisionDirection.Left or SamusCollisionDirection.Right))
+            throw new ArgumentOutOfRangeException(nameof(collisionMovementDirection));
 
         int acceptedDisplacement = displacement;
         bool collided = false;
@@ -119,7 +100,7 @@ public static partial class SamusBlockCollision
         RoomCollisionBlock? collisionBlock = null;
         RoomCollisionBlock? brokenBombBlock = null;
 
-        if ((acceptedDisplacement != 0 || zeroDisplacementDirection.HasValue) && state.InteractiveEnemies.Count != 0)
+        if ((acceptedDisplacement != 0 || collisionMovementDirection.HasValue) && state.InteractiveEnemies.Count != 0)
         {
             // `$90:9350/$93B1` presents bank $A0 with an unsigned magnitude even though the
             // managed block mover receives signed 16.16 displacement. Preserve both halves:
@@ -127,14 +108,12 @@ public static partial class SamusBlockCollision
             uint magnitude = acceptedDisplacement < 0
                 ? unchecked((uint)(-acceptedDisplacement))
                 : unchecked((uint)acceptedDisplacement);
-            // Signed zero loses the native left/right entrypoint. Callers that actually
-            // dispatch a zero-distance move supply it explicitly: the enemy probe can
-            // still clear fractional Y on tangency even though X remains unchanged.
-            SamusCollisionDirection direction = acceptedDisplacement == 0
-                ? zeroDisplacementDirection!.Value
-                : acceptedDisplacement < 0
-                ? SamusCollisionDirection.Left
-                : SamusCollisionDirection.Right;
+            // `LDA $12 : BMI` selects the entry: zero is not negative and enters right.
+            // The probe itself reads the calculator's stored direction, so a zero move
+            // still detects tangency (and clears fractional Y) in the facing direction.
+            bool entersLeft = acceptedDisplacement < 0;
+            SamusCollisionDirection direction = collisionMovementDirection ??
+                (entersLeft ? SamusCollisionDirection.Left : SamusCollisionDirection.Right);
             SolidEnemyCollisionResult probe = SamusSolidEnemyCollision.Probe(
                 state,
                 state.InteractiveEnemies,
@@ -148,7 +127,7 @@ public static partial class SamusBlockCollision
                 // On enemy collision the bank-$90 wrapper skips bank-$94 block detection and
                 // invokes the corresponding no-collision position adder with `$12.0000`.
                 int clippedMagnitude = probe.Distance << 16;
-                acceptedDisplacement = direction == SamusCollisionDirection.Left
+                acceptedDisplacement = entersLeft
                     ? -clippedMagnitude
                     : clippedMagnitude;
                 collided = true;
@@ -542,13 +521,19 @@ public static partial class SamusBlockCollision
                             break;
                         }
 
+                        // $94:86FE selects its floor or ceiling test from bit 0 of
+                        // CollisionMovementDirection, not the distance's sign. The changed-
+                        // pose probe's direction $F therefore tests both ways as a floor.
                         (acceptedDisplacement, collided) = ClipVerticalToNonSquareSlope(
                             bus,
                             state,
                             block,
                             blockX,
                             acceptedDisplacement,
-                            targetCenter);
+                            targetCenter,
+                            reactsDownward: blockReactionDirection is { } reactionDirection
+                                ? ((ushort)reactionDirection & 1) != 0
+                                : acceptedDisplacement >= 0);
                         if (collided)
                             collisionBlock = block;
                         break;
@@ -801,12 +786,12 @@ public static partial class SamusBlockCollision
     }
 
     /// <summary>
-    /// Setup $84:CE83 checks boost stage independently of pose or movement handler.
-    /// Existing explicit admissions cover Screw Attack/Shinespark and ownerless probes;
-    /// reading the live owner here also admits grounded/falling/transition Speedball.
+    /// Setup $84:CE83 reads the live boost stage and pose for every scan that reaches it,
+    /// independently of the movement handler; this includes the observational wall-jump
+    /// probe. Explicit admissions remain for ownerless probes.
     /// </summary>
     private static bool CanBreakCollisionBombBlock(SamusKinematicsState state, bool explicitAdmission) =>
-        explicitAdmission || state.SamusOwner?.HorizontalSpeed.IsActivelySpeedBoosting == true;
+        explicitAdmission || state.SamusOwner?.BreaksCollisionBombBlocks == true;
 
     private static (int Displacement, bool Collided) ClipVerticalToNonSquareSlope(
         ISnesAddressSpace bus,
@@ -814,9 +799,10 @@ public static partial class SamusBlockCollision
         RoomCollisionBlock block,
         int blockX,
         int displacement,
-        ushort targetCenter)
+        ushort targetCenter,
+        bool reactsDownward)
     {
-        bool movingDown = displacement >= 0;
+        bool movingDown = reactsDownward;
 
         // Non-square slopes react vertically only under Samus's center column. The broader
         // X-radius scan still visits neighboring blocks, but $94:86FE rejects them here.
@@ -1161,4 +1147,11 @@ public readonly record struct BlockMoveResult(
     /// </summary>
     public bool IsUnobstructedDownwardMovement =>
         !Collided && AcceptedDisplacement >= 0;
+
+    /// <summary>
+    /// The result when bank $90 skips <c>MoveSamus_Horizontally</c> entirely, as
+    /// <c>Samus_Jumping_Movement</c> does with no direction held ($90:902B). No probe,
+    /// block scan, or post-move slope alignment runs.
+    /// </summary>
+    public static BlockMoveResult NotMoved => new(0, false);
 }

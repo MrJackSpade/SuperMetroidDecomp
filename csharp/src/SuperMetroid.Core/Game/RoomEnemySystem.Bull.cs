@@ -285,11 +285,16 @@ public sealed partial class RoomEnemySystem
     {
         state.AngleToSamus = CalculateBullAngleToSamus(slot, samus);
 
-        // Sign_Extend_A uses only bit seven of the wrapped difference, then NegateA makes
-        // it positive. This is the shortest circular byte-angle distance, not a 16-bit
-        // absolute difference.
-        int difference = unchecked((sbyte)(byte)(state.AngleToSamus - state.Angle));
-        if (Math.Abs(difference) < 0x30)
+        // $A8:D9BC subtracts the two byte angles as 16-bit words. Sign_Extend_A ($A0:AFEA)
+        // only ORs $FF00 when bit seven is set and never clears a borrowed high byte, so a
+        // negative difference with bit seven clear (e.g. $FF10) stays large. NegateA then
+        // takes the absolute value and CMP/BMI tests it against $30.
+        ushort difference = unchecked((ushort)(state.AngleToSamus - state.Angle));
+        if ((difference & 0x0080) != 0)
+            difference |= 0xff00;
+        if ((difference & 0x8000) != 0)
+            difference = unchecked((ushort)-difference);
+        if (unchecked((short)(difference - 0x30)) < 0)
             return;
 
         state.Function = BullEnemyFunction.Decelerating;

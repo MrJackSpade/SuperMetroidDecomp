@@ -35,7 +35,6 @@ internal static partial class Program
             // The touching solid-enemy path's only trace is its STZ of Samus's Y subposition.
             AssertTrue((samus.Kinematics.YSubposition == 0) == (gap == 0),
                 "zero-distance jump reports actual touching enemy, not fabricated movement");
-            AssertTrue(result.Vertical is null, "zero-distance contact does not invent vertical movement");
         }
 
         var crouched = new SamusState { Pose = SamusPoseIds.CrouchingLeftPose, XPosition = 100, YPosition = 100 };

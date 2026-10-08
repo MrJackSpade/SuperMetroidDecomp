@@ -42,8 +42,20 @@ public sealed partial class RoomEnemySystem
     private Action? _setAreaMiniBossDefeated;
     private Action<ushort>? _setRandomNumber;
     private ushort _randomEnemyCounter;
+
+    /// <summary>
+    /// The 16-bit NMI_FrameCounter ($05B6) for the current enemy pass. It is independent of
+    /// the 8-bit $05B5 counter; standalone audits seed both from the same enemy clock.
+    /// </summary>
+    private ushort _enemyFrameNmiFrameCounter;
     private SnesVram? _vram;
     private SnesCgram? _cgram;
+
+    /// <summary>
+    /// The shared <c>PaletteChangeNumerator</c>. Enemies and the runtime's door and death
+    /// fades advance this one counter, as the cartridge's fades all advance one WRAM word.
+    /// </summary>
+    public GradualColorChangeCounter GradualColorChange { get; private set; } = new();
     // Live dependency supplied by EnemyMain, shared by ordinary and custom touch callbacks.
     private SamusProjectileSystem? _samusProjectilesForEnemyFrame;
     private RidleyEnemyState? _ridleyState;
@@ -269,6 +281,7 @@ public sealed partial class RoomEnemySystem
         LastMorphBallEyeSoundEffect = null;
         LastYappingMawSoundEffect = null;
         PaletteChangeNumber = 0;
+        CameraDistanceIndex = CameraDistanceMode.NormalTracking;
         _metroidDropRequests.Clear();
         LastHopperSoundEffect = null;
         LastYardSoundEffect = null;
@@ -495,6 +508,25 @@ public sealed partial class RoomEnemySystem
     /// Rebuilds native active/interactive lists, executes selected enemy AI, advances
     /// instruction lists, and records the layer queues consumed by the later draw phase.
     /// </summary>
+    /// <summary>
+    /// Runs the bank-$88 morph-ball eye beam HDMA object, then
+    /// <c>Determine_Which_Enemies_to_Process</c> ($A0:8EB6).
+    /// </summary>
+    /// <remarks>
+    /// Game state eight calls $A0:8EB6 first ($82:8B47), before Samus's handlers. The grapple
+    /// endpoint scan therefore sees this frame's interactive list, including an actor that
+    /// `$86:EF10` respawned at the end of the previous frame. The HDMA objects run earlier
+    /// still, in the main-loop prologue: that order is observable on spawn (one-frame pending
+    /// initialization) and shutdown (the full beam sees the body's cleared activation word on
+    /// the following frame).
+    /// </remarks>
+    public void PrepareEnemyProcessingList(ushort cameraX, ushort cameraY)
+    {
+        EnsureLoaded();
+        StepMorphBallEyeBeam();
+        DetermineWhichEnemiesToProcess(cameraX, cameraY);
+    }
+
     public void StepFrame(
         ushort cameraX,
         ushort cameraY,
@@ -509,7 +541,9 @@ public sealed partial class RoomEnemySystem
         SamusBombProjectileSystem? sharedProjectiles = null,
         VramWriteQueue? vramWriteQueue = null,
         bool resolveSamusContactBeforeAi = false,
-        RoomPlmSystem? collisionPlms = null)
+        RoomPlmSystem? collisionPlms = null,
+        ushort? nmiFrameCounter = null,
+        bool processingListPrepared = false)
     {
         using var terrainScope = new EnemyTerrainScope(this, collisionPlms);
         EnsureLoaded();
@@ -520,6 +554,7 @@ public sealed partial class RoomEnemySystem
         // counter begins at zero and advances at the same end-of-frame point, which gives
         // Mama Turtle's even-frame shell jitter the same initial phase as retail room load.
         byte enemyNmiFrameCounter8 = nmiFrameCounter8 ?? unchecked((byte)_randomEnemyCounter);
+        _enemyFrameNmiFrameCounter = nmiFrameCounter ?? _randomEnemyCounter;
         LastGunshipEvent = GunshipFrameEvent.None;
         BeginEnemySoundRequestFrame();
         LastBoyonSoundEffect = null;
@@ -591,11 +626,8 @@ public sealed partial class RoomEnemySystem
         BeginShutterFrame(cameraX, cameraY);
         BeginElevatorFrame();
         SetRinkaCamera(cameraX, cameraY);
-        // Bank-$88 HDMA objects run before the bank-$A0 enemy dispatcher. This ordering is
-        // observable both on spawn (one-frame pending initialization) and shutdown (the
-        // full beam sees the body's cleared activation word on the following frame).
-        StepMorphBallEyeBeam();
-        DetermineWhichEnemiesToProcess(cameraX, cameraY);
+        if (!processingListPrepared)
+            PrepareEnemyProcessingList(cameraX, cameraY);
         foreach (List<ushort> queue in _drawQueues)
             queue.Clear();
 
@@ -709,8 +741,10 @@ public sealed partial class RoomEnemySystem
                     // clears bit two; falling through here prematurely clears flash.
                     ranActorAi = true;
                 }
-                if (!ranActorAi &&
-                    (slot.FrozenTimer != 0 || (slot.AiHandlerBits & 0x0004) != 0))
+                // $A0:9044 selects the handler from the lowest set AI bit alone. A frozen
+                // clock without bit four (a Geruta flame sharing its parent's freeze)
+                // still runs main AI.
+                if (!ranActorAi && (slot.AiHandlerBits & 0x0004) != 0)
                 {
                     if (slot.EnemyDefinitionPointer == RinkaDefinition &&
                         RunRinkaFrozenTail(slot))
@@ -1635,7 +1669,9 @@ public sealed partial class RoomEnemySystem
             case EnemyAiCodePointers.RTL_A3804C:
                 return;
             case EnemyAiCodePointers.MainAI_DraygonBody when slot.EnemyDefinitionPointer == DraygonBodyDefinition:
-                RunDraygonBodyMain(slot, samus, nmiFrameCounter8);
+                // Bank $A5 times turrets and smoke from NMI_FrameCounter ($05B6), never
+                // the separate 8-bit counter at $05B5; only its low bits are tested.
+                RunDraygonBodyMain(slot, samus, unchecked((byte)_enemyFrameNmiFrameCounter));
                 return;
             case EnemyAiCodePointers.MainAI_DraygonEye when slot.EnemyDefinitionPointer == DraygonEyeDefinition:
                 RunDraygonPartMain(slot, samus);
@@ -1672,7 +1708,7 @@ public sealed partial class RoomEnemySystem
                 RunCrocomireMain(slot, samus, controllerInput, level, cameraX);
                 return;
             case EnemyAiCodePointers.MainAI_SporeSpawn when slot.EnemyDefinitionPointer == SporeSpawnDefinition:
-                RunSporeSpawnMain(slot, RequireSporeSpawnState(slot), nmiFrameCounter8);
+                RunSporeSpawnMain(slot, RequireSporeSpawnState(slot));
                 return;
             case EnemyAiCodePointers.MainAI_CrocomireTongue when slot.EnemyDefinitionPointer == CrocomireTongueDefinition:
                 // $A4:F6BB is a literal RTL. The tongue's bank-$A4 instruction list and
@@ -2037,7 +2073,7 @@ public sealed partial class RoomEnemySystem
                     level);
                 return;
             case EnemyAiCodePointers.MainAI_Kraid when slot.EnemyDefinitionPointer == KraidDefinition:
-                RunKraidBodyMain(slot, samus, cameraX, cameraY, vramWriteQueue);
+                RunKraidBodyMain(slot, samus, cameraX, cameraY, vramWriteQueue, samusProjectiles, sharedProjectiles);
                 return;
             case EnemyAiCodePointers.MainAI_KraidArm when slot.EnemyDefinitionPointer == KraidArmDefinition:
                 RunKraidArmMain(slot, cameraY);
@@ -2150,6 +2186,7 @@ public sealed partial class RoomEnemySystem
                 return;
             case GunshipCodePointers.HandleSaveConfirmation:
                 GunshipSavePromptPending = true;
+                LastGunshipEvent = GunshipFrameEvent.SavePromptRequested;
                 return;
             case GunshipCodePointers.WaitForExitPadToOpen:
                 if (TickGunshipFunctionTimer(top))
@@ -2196,6 +2233,7 @@ public sealed partial class RoomEnemySystem
         // Function three carries all four actors as a rigid body. Above Y=$0300 it moves
         // $4.8000 pixels per call; below that threshold it slows to $2.8000 and clamps the
         // top hull to $045F before beginning the cartridge's seventeen-entry bounce table.
+        // The clamp ($A2:A8B2) writes only whole positions; subpixels keep this call's sum.
         uint delta = top.YPosition < 0x0300 ? 0x0004_8000u : 0x0002_8000u;
         AddGunshipYFixed(samus, top, delta);
         if (top.YPosition < 0x045f)
@@ -2204,11 +2242,8 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot bottom = _slots[top.SlotIndex + 1];
         RoomEnemySlot pad = _slots[top.SlotIndex + 2];
         top.YPosition = 0x045f;
-        top.YSubposition = 0;
         bottom.YPosition = 0x0487;
-        bottom.YSubposition = 0;
         pad.YPosition = 0x045e;
-        pad.YSubposition = 0;
         top.VariableF = GunshipCodePointers.ApplyLandingBrakes;
         top.VariableE = 0;
     }
@@ -2236,10 +2271,12 @@ public sealed partial class RoomEnemySystem
         top.VariableD = 1;
         top.VariableC = 0;
         samus.XPosition = unchecked((ushort)(top.XPosition + 1));
+        samus.WritePreviousXPosition(samus.XPosition);
         pad.InstructionTimer = 1;
         pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadOpening;
         top.VariableA = 144;
         LastGunshipEvent = GunshipFrameEvent.LandingPadOpened;
+        QueueEnemySound(SoundEffectLibrary3Sounds.GunshipEntrancePad, maximumQueued: 6);
     }
 
     private void RaisePostCeresSamus(RoomEnemySlot top, SamusState? samus)
@@ -2316,8 +2353,13 @@ public sealed partial class RoomEnemySystem
         {
             RoomEnemySlot pad = _slots[top.SlotIndex + 2];
             top.VariableF = GunshipCodePointers.WaitForEntranceToOpen;
+            // $A2:AA17-AA1D stores the ship's X in both Samus X words, so the camera sees
+            // no horizontal motion from this alignment.
             if (samus.XPosition != 0x0480)
+            {
                 samus.XPosition = top.XPosition;
+                samus.WritePreviousXPosition(samus.XPosition);
+            }
             samus.ApplyForwardFacingPoseSetup(_bus!);
             samus.InputLocked = true;
             samus.PrimeGraphics(_bus!);
@@ -2383,9 +2425,8 @@ public sealed partial class RoomEnemySystem
             (short)(samus.PowerBombs - samus.MaxPowerBombs) < 0)
             return;
 
+        // The prompt itself opens when $AB1F executes on the following frame.
         top.VariableF = GunshipCodePointers.HandleSaveConfirmation;
-        GunshipSavePromptPending = true;
-        LastGunshipEvent = GunshipFrameEvent.SavePromptRequested;
     }
 
     private void RaiseSamusOutOfGunship(RoomEnemySlot top, SamusState? samus)
@@ -3552,7 +3593,7 @@ public sealed partial class RoomEnemySystem
                             word,
                             ref cursor,
                             controllerInput,
-                            nmiFrameCounter8,
+                            unchecked((byte)_enemyFrameNmiFrameCounter),
                             out bool pauseBombTorizoInterpreter))
                     {
                         if (pauseBombTorizoInterpreter)
@@ -3989,6 +4030,28 @@ public sealed partial class RoomEnemySystem
         !IsNegative16(slot.XRadius + cameraX + 256 - slot.XPosition) &&
         !IsNegative16(slot.YPosition + 8 - cameraY) &&
         !IsNegative16(cameraY + 248 - slot.YPosition);
+
+    /// <summary>
+    /// <c>CheckIfEnemyCenterIsOnScreen</c> ($A0:AD70): the center lies within $100 pixels
+    /// right of and below the camera on both axes.
+    /// </summary>
+    private static bool EnemyCenterIsOnScreen(RoomEnemySlot slot, ushort cameraX, ushort cameraY) =>
+        !IsNegative16(slot.XPosition - cameraX) &&
+        !IsNegative16(cameraX + 0x0100 - slot.XPosition) &&
+        !IsNegative16(slot.YPosition - cameraY) &&
+        !IsNegative16(cameraY + 0x0100 - slot.YPosition);
+
+    /// <summary>
+    /// <c>CheckIfEnemyIsHorizontallyOffScreen</c> ($A0:C18E): a negative X, a right edge
+    /// left of the camera, or a position at least $100 right of the camera is off-screen.
+    /// </summary>
+    private static bool EnemyIsHorizontallyOffScreen(RoomEnemySlot slot, ushort cameraX)
+    {
+        if (IsNegative16(slot.XPosition))
+            return true;
+        ushort fromCamera = unchecked((ushort)(slot.XPosition + slot.XRadius - cameraX));
+        return IsNegative16(fromCamera) || !IsNegative16(fromCamera - 0x100 - slot.XRadius);
+    }
 
     private static bool EnemyWithNormalSpritesIsOffScreen(
         RoomEnemySlot slot,

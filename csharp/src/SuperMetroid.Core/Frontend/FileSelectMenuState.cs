@@ -38,7 +38,9 @@ public sealed partial class FileSelectMenuState
     private int missileAnimationFrame;
     private int helmetAnimationTimer;
     private int helmetAnimationFrame;
+    /// <summary>$51 INIDISP byte: forced-blank bit plus brightness nibble.</summary>
     private int brightness;
+    private readonly ScreenFade screenFade = new();
     private string currentPresentationPage = FileSelectPresentationDefinitions.MainEmptyPage;
 
     /// <summary>Performs menu indices zero through two, including every native ROM transfer.</summary>
@@ -62,10 +64,10 @@ public sealed partial class FileSelectMenuState
         BuildSaveTilemap();
         ppu.Vram.ExecuteWordTransfer(bg1Tilemap, MenuPpuState.Bg1TilemapWord, 1);
 
-        // Menu index two turns the screen on and index three fades to brightness fifteen.
-        // Begin at zero so the first frames remain observable instead of appearing instantly.
-        Phase = FileSelectPhase.FadeIn;
-        brightness = 0;
+        // Host-side loading above is atomic, but the native dispatches are not: indices
+        // zero and two each wait for an NMI inside their dispatch before returning.
+        Phase = FileSelectPhase.EnterBlankScreen;
+        brightness = ScreenFade.ForcedBlank;
     }
 
     /// <summary>Native main-menu selection: slots A-C, Copy, Clear, or Exit.</summary>
@@ -90,6 +92,15 @@ public sealed partial class FileSelectMenuState
     /// <summary>True only on the frame in which Copy or Clear mutated cartridge SRAM.</summary>
     public bool SaveRamChangedThisFrame { get; private set; }
 
+    /// <summary>Current INIDISP brightness nibble.</summary>
+    public byte Brightness => ScreenFade.Displayed(brightness);
+
+    /// <summary>
+    /// True when the next update resumes a native dispatch after its internal NMI wait
+    /// rather than entering a new main-loop dispatch, so the main loop's RNG call is absent.
+    /// </summary>
+    internal bool ResumesAfterNmiWait => Phase is
+        FileSelectPhase.EnterBlankScreenAfterNmi or FileSelectPhase.InitializeMainAfterNmi;
     /// <summary>Advances one native menu frame from a raw SNES controller word.</summary>
     public void Step(ushort controllerInput)
     {
@@ -97,12 +108,43 @@ public sealed partial class FileSelectMenuState
         controller.Latch(controllerInput);
         SnesButton pressed = controller.NewlyPressedButtons;
 
-        StepMissileAnimation();
+        if (!IsEntryPhase)
+            StepMissileAnimation();
         switch (Phase)
         {
+            case FileSelectPhase.EnterBlankScreen:
+                // $81:944E: finish any fade-out, then SetForceBlankAndWaitForNMI.
+                screenFade.FadeOut(ref brightness);
+                if ((brightness & ScreenFade.FullyLit) != 0)
+                    break;
+                brightness = ScreenFade.ForcedBlank;
+                Phase = FileSelectPhase.EnterBlankScreenAfterNmi;
+                break;
+
+            case FileSelectPhase.EnterBlankScreenAfterNmi:
+                Phase = FileSelectPhase.LoadBackground;
+                break;
+
+            case FileSelectPhase.LoadBackground:
+                // $81:9E93 queues the Zebes/stars BG2 tilemap.
+                Phase = FileSelectPhase.InitializeMain;
+                break;
+
+            case FileSelectPhase.InitializeMain:
+                // $81:9ED6 sets both fade words to one, then ClearForceBlankAndWaitForNMI.
+                screenFade.SetTiming(1, 1);
+                brightness &= ~ScreenFade.ForcedBlank;
+                Phase = FileSelectPhase.InitializeMainAfterNmi;
+                break;
+
+            case FileSelectPhase.InitializeMainAfterNmi:
+                Phase = FileSelectPhase.FadeIn;
+                break;
+
             case FileSelectPhase.FadeIn:
-                brightness = Math.Min(15, brightness + 1);
-                if (brightness == 15)
+                // $81:A058 index three.
+                screenFade.FadeIn(ref brightness);
+                if (brightness == ScreenFade.FullyLit)
                     Phase = FileSelectPhase.Main;
                 break;
 
@@ -127,27 +169,23 @@ public sealed partial class FileSelectMenuState
                 break;
 
             case FileSelectPhase.TurnSelectedHelmet:
-                if (--helmetAnimationTimer <= 0)
-                {
-                    helmetAnimationTimer = mapPresentation?.FileSelect.HelmetFrameDuration ?? FileSelectHelmetAnimation.FrameDuration;
-                    helmetAnimationFrame++;
-                    if (helmetAnimationFrame >= FileSelectHelmetAnimation.FrameCount - 1)
-                        Phase = FileSelectPhase.FadeOutToOptions;
-                }
-                // The native routine also permits Start/A to end the turn early.
-                if ((pressed & (SnesButton.Start | SnesButton.A)) != 0)
+                StepSelectedHelmet();
+                // $81:9D91: Start/A ends the turn early; otherwise it ends once the
+                // final frame has also used up its own timer, which then reads zero.
+                if ((pressed & (SnesButton.Start | SnesButton.A)) != 0 ||
+                    (helmetAnimationFrame == FileSelectHelmetAnimation.FrameCount - 1 && helmetAnimationTimer == 0))
                     Phase = FileSelectPhase.FadeOutToOptions;
                 break;
 
             case FileSelectPhase.FadeOutToOptions:
-                brightness = Math.Max(0, brightness - 1);
-                if (brightness == 0)
+                screenFade.FadeOut(ref brightness);
+                if (ScreenFade.IsForcedBlank(brightness))
                     NewGameRequested = true;
                 break;
 
             case FileSelectPhase.FadeOutToTitle:
-                brightness = Math.Max(0, brightness - 1);
-                if (brightness == 0)
+                screenFade.FadeOut(ref brightness);
+                if (ScreenFade.IsForcedBlank(brightness))
                     TitleRequested = true;
                 break;
         }
@@ -176,7 +214,7 @@ public sealed partial class FileSelectMenuState
     public LayeredRenderSnapshot CaptureRenderSnapshot()
     {
         PrepareRenderOam();
-        return MenuRenderSnapshotCapture.Capture(ppu, oam, 0, checked((byte)brightness));
+        return MenuRenderSnapshotCapture.Capture(ppu, oam, 0, Brightness);
     }
 
     private void PrepareRenderOam()
@@ -351,6 +389,24 @@ public sealed partial class FileSelectMenuState
             "File-select sprites require installed menu presentation assets.");
     }
 
+    /// <summary>
+    /// $81:9DE4 timer step for the selected helmet: each frame lasts the reload duration,
+    /// and advancing past the last frame stops the timer at zero on that frame instead.
+    /// </summary>
+    private void StepSelectedHelmet()
+    {
+        if (helmetAnimationTimer == 0 || --helmetAnimationTimer != 0)
+            return;
+        helmetAnimationTimer = mapPresentation?.FileSelect.HelmetFrameDuration ?? FileSelectHelmetAnimation.FrameDuration;
+        int next = helmetAnimationFrame + 1;
+        if (next >= FileSelectHelmetAnimation.FrameCount)
+        {
+            helmetAnimationTimer = 0;
+            next = FileSelectHelmetAnimation.FrameCount - 1;
+        }
+        helmetAnimationFrame = next;
+    }
+
     private void StepMissileAnimation()
     {
         if (--missileAnimationTimer != 0)
@@ -361,17 +417,18 @@ public sealed partial class FileSelectMenuState
 
     private void ApplyBrightness(Span<Rgba32> pixels)
     {
+        int displayed = Brightness;
         for (int pixel = 0; pixel < pixels.Length; pixel++)
         {
             Rgba32 color = pixels[pixel];
-            pixels[pixel] = brightness switch
+            pixels[pixel] = displayed switch
             {
                 >= 15 => color,
                 <= 0 => new Rgba32(0, 0, 0, color.A),
                 _ => new Rgba32(
-                    (byte)(color.R * brightness / 15),
-                    (byte)(color.G * brightness / 15),
-                    (byte)(color.B * brightness / 15),
+                    (byte)(color.R * displayed / 15),
+                    (byte)(color.G * displayed / 15),
+                    (byte)(color.B * displayed / 15),
                     color.A),
             };
         }
@@ -396,4 +453,10 @@ public enum FileSelectPhase
     TurnSelectedHelmet,
     FadeOutToOptions,
     FadeOutToTitle,
+    // Appended to keep legacy debugger snapshot ordinals stable.
+    EnterBlankScreen,
+    EnterBlankScreenAfterNmi,
+    LoadBackground,
+    InitializeMain,
+    InitializeMainAfterNmi,
 }

@@ -49,6 +49,8 @@ public static class AudioRomData
     {
         public const byte MusicPort = 0;
         public const byte FirstSoundPort = 1;
+        /// <summary>APU I/O port of sound library one.</summary>
+        public const byte LibraryOnePort = FirstSoundPort;
         public const byte LibraryTwoPort = 2;
         public const int PortCount = 4;
 

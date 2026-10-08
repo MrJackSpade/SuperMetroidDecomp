@@ -54,7 +54,9 @@ public sealed partial class RoomEnemySystem
         // manual 16.16 movement below; omitting it shifts the floor-contact frame.
         if (unchecked((short)projectile.YVelocity) >= 0)
         {
-            if (MoveFallingSparkThroughVerticalCollisionHelper(projectile, level))
+            // The spark's whole velocity word passes through the shared signed-8.8
+            // Move_EnemyProjectile_Vertically ($86:897B), including its slope reactions.
+            if (MoveProjectileAxis(projectile, level, horizontal: false))
             {
                 BeginFallingSparkFloorImpact(projectile);
                 return;
@@ -77,69 +79,6 @@ public sealed partial class RoomEnemySystem
 
         if ((nmiFrameCounter8 & 3) == 0)
             SpawnFallingSparkTrail(projectile);
-    }
-
-    /// <summary>
-    /// Exact Spark use of common <c>Move_EnemyProjectile_Vertically</c>. Here YVelocity is
-    /// only the signed whole half of a separate 16.16 accumulator, yet the common routine
-    /// interprets it as signed 8.8; that odd double movement is observable and intentional.
-    /// </summary>
-    private static bool MoveFallingSparkThroughVerticalCollisionHelper(
-        RoomEnemyProjectileSlot projectile,
-        RoomLevelData level)
-    {
-        short helperVelocity = unchecked((short)projectile.YVelocity);
-        int fixedPosition = (projectile.YPosition << 16) | projectile.YSubposition;
-        fixedPosition = unchecked(fixedPosition + (helperVelocity << 8));
-        ushort candidatePosition = unchecked((ushort)(fixedPosition >> 16));
-        ushort candidateSubposition = unchecked((ushort)fixedPosition);
-
-        ushort collisionEdge = unchecked((ushort)(candidatePosition +
-            (helperVelocity < 0 ? -projectile.YRadius : projectile.YRadius - 1)));
-        int firstHorizontalBlock = (projectile.XPosition - projectile.XRadius) >> 4;
-        int lastHorizontalBlock =
-            (projectile.XPosition + projectile.XRadius - 1) >> 4;
-        bool collided = false;
-        for (int blockX = firstHorizontalBlock; blockX <= lastHorizontalBlock; blockX++)
-        {
-            if (ProjectileProbeHitsRoom(
-                    level,
-                    unchecked((ushort)(blockX << 4)),
-                    collisionEdge))
-            {
-                collided = true;
-                break;
-            }
-        }
-
-        if (!collided)
-        {
-            projectile.YPosition = candidatePosition;
-            projectile.YSubposition = candidateSubposition;
-            return false;
-        }
-
-        // The common helper clears subposition and clamps only when the candidate boundary
-        // lies beyond the current origin in the movement direction. Retaining those CMP
-        // guards prevents collision with a linked/irregular block from pulling the actor
-        // backward across a tile boundary.
-        projectile.YSubposition = 0;
-        ushort clampedPosition;
-        if (helperVelocity >= 0)
-        {
-            clampedPosition = unchecked((ushort)(
-                (collisionEdge & 0xfff0) - projectile.YRadius));
-            if (clampedPosition >= projectile.YPosition)
-                projectile.YPosition = clampedPosition;
-        }
-        else
-        {
-            clampedPosition = unchecked((ushort)(
-                (collisionEdge | 0x000f) + projectile.YRadius + 1));
-            if (clampedPosition <= projectile.YPosition)
-                projectile.YPosition = clampedPosition;
-        }
-        return true;
     }
 
     private static void AddFallingSparkVerticalVelocity(

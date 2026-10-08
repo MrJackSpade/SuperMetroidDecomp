@@ -52,8 +52,20 @@ internal static partial class Program
             "debugger preserves remaining refire window");
         var fields = typeof(SamusGrappleState).GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
             .OrderBy(field => field.MetadataToken).ToArray();
-        var legacy = DebuggerStateFieldMigrations.WithoutIntroductions(typeof(SamusGrappleState), fields, "<PoseChangeAutoFireTimer>k__BackingField");
-        AssertTrue(legacy.SequenceEqual(fields.Where(field => field.Name != "<PoseChangeAutoFireTimer>k__BackingField")),
+        string[] quarters = ["<XQuarterSubVelocity>k__BackingField", "<XQuarterVelocity>k__BackingField",
+            "<YQuarterSubVelocity>k__BackingField", "<YQuarterVelocity>k__BackingField"];
+        var preQuarter = DebuggerStateFieldMigrations.WithoutIntroductions(typeof(SamusGrappleState), fields, quarters);
+        AssertTrue(preQuarter.SequenceEqual(fields.Where(field => !quarters.Contains(field.Name))),
+            "pre-quarter-velocity grapple layout omits only the four quarter words");
+        var preSlowScroll = DebuggerStateFieldMigrations.WithoutIntroductions(typeof(SamusGrappleState), fields,
+            [.. quarters, "<SlowScrolling>k__BackingField"]);
+        AssertTrue(preSlowScroll.SequenceEqual(fields.Where(field =>
+                !quarters.Contains(field.Name) && field.Name != "<SlowScrolling>k__BackingField")),
+            "pre-slow-scroll grapple layout omits only the slow-scrolling flag and quarter words");
+        var legacy = DebuggerStateFieldMigrations.WithoutIntroductions(typeof(SamusGrappleState), fields,
+            [.. quarters, "<SlowScrolling>k__BackingField", "<PoseChangeAutoFireTimer>k__BackingField"]);
+        AssertTrue(legacy.SequenceEqual(fields.Where(field => !quarters.Contains(field.Name) &&
+                field.Name is not ("<PoseChangeAutoFireTimer>k__BackingField" or "<SlowScrolling>k__BackingField"))),
             "legacy grapple migration retains old field identities");
         Console.WriteLine("Grapple pose refire: mirrored frame-1..9 restarts, frame-10 cancellation, endpoint trajectory and timer serialization pass.");
     }

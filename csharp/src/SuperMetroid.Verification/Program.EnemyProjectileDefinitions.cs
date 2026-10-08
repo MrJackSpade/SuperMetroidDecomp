@@ -15,7 +15,7 @@ internal static partial class Program
             .Where(kind => kind != RoomEnemyProjectileKind.None)
             .Distinct()
             .ToArray();
-        AssertEqual(120, kinds.Length, "compiled enemy-projectile definition count");
+        AssertEqual(121, kinds.Length, "compiled enemy-projectile definition count");
 
         var forbidden = new HashSet<int>();
         foreach (RoomEnemyProjectileKind kind in kinds)

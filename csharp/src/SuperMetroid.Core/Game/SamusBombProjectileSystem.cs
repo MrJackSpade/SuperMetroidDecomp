@@ -78,7 +78,11 @@ public sealed class SamusBombProjectileSystem
     /// Advances bank-$88 blast HDMA independently of Samus's alpha/input handler.
     /// Scripted carries suppress alpha but do not stop the outer HDMA object pass.
     /// </summary>
-    public void AdvancePowerBombHdma(ISnesAddressSpace bus, SamusState samus, ushort controllerInput)
+    public void AdvancePowerBombHdma(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        ushort controllerInput,
+        ushort gameState = (ushort)Frontend.SuperMetroidGameState.MainGameplay)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
@@ -105,6 +109,10 @@ public sealed class SamusBombProjectileSystem
             if (!crystalFlashStarted)
                 PowerBombExplosion.ReleaseFlag();
         }
+        // $88:8B78 runs Samus command $1E at the end of every cleanup, including the
+        // Crystal Flash window's own.
+        if (powerBombCleanup)
+            ResumeSoundsAfterPowerBombExplosion(bus, samus, gameState);
 
         SoundSuppressedBeforeProjectileHandling = PowerBombExplosion.IsActive;
     }
@@ -137,7 +145,7 @@ public sealed class SamusBombProjectileSystem
         // Command-zero alpha calls HandleProjectile directly, skipping the HUD
         // dispatcher that owns cooldown and new bomb placement.
         if (!samus.StationaryScriptControlLocked && !SamusState.IsForwardFacingPose(samus.Pose))
-            StepCooldown();
+            StepCooldown(samus.Xray.TimeIsFrozen);
 
         int? placedSlot = null;
         bool bombSpreadStarted = false;
@@ -310,8 +318,40 @@ public sealed class SamusBombProjectileSystem
         LastFrameResult = default;
     }
 
-    private void StepCooldown()
+    /// <summary>
+    /// Samus command $1E ($90:F4A2). In main gameplay a spinning Samus re-queues her spin
+    /// sound through command $1C; otherwise a flare of at least $10 resumes the charge loop.
+    /// </summary>
+    private static void ResumeSoundsAfterPowerBombExplosion(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        ushort gameState)
     {
+        if (gameState != (ushort)Frontend.SuperMetroidGameState.MainGameplay)
+            return;
+        if (samus.ReadMovementType(bus) is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
+        {
+            if (SamusSpinSoundCommand.Select(bus, samus) is { } spinSound)
+                samus.LiquidPhysics.QueueMovementSound(spinSound, maximumQueued: 9);
+            return;
+        }
+        if (samus.ProjectileFlareCounter >= ChargeSoundFlareThreshold)
+            samus.LiquidPhysics.QueueMovementSound(SoundEffectLibrary1Sounds.ResumeChargingBeam, maximumQueued: 9);
+    }
+
+    /// <summary>$90:F4C2: the flare count from which a charging beam's loop is audible.</summary>
+    private const ushort ChargeSoundFlareThreshold = 0x10;
+
+    private void StepCooldown(bool timeIsFrozen)
+    {
+        // $90:AC32: while time is frozen the cooldown is held at $20 instead of counting
+        // down, so the first shot after X-ray waits out the full delay.
+        if (timeIsFrozen)
+        {
+            CooldownTimer = SamusProjectileCooldownDefinitions.FrozenTime;
+            return;
+        }
+
         if (CooldownTimer == 0)
             return;
 

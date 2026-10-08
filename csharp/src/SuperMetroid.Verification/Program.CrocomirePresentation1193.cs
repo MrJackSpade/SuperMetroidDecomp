@@ -233,8 +233,13 @@ internal static partial class Program
         }
         var fields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [typeof(SuperMetroidRuntime)])!;
-        AssertTrue(LegacyLayout(typeof(SuperMetroidRuntime), fields, fields.Where(field => field.Name != "_roomSpikes"))
-            .SequenceEqual(fields.Where(field => field.Name != "_roomSpikes")),
+        // Runtime fields published after the spike owner are absent from that layout too.
+        string[] laterRuntimeFields = ["<RoomMainScratch>k__BackingField", "_pendingLoaderSamusPlacement", "_suspendedFrameTail"];
+        FieldInfo[] preSpikeFields = fields
+            .Where(field => !laterRuntimeFields.Contains(field.Name))
+            .ToArray();
+        AssertTrue(LegacyLayout(typeof(SuperMetroidRuntime), fields, preSpikeFields.Where(field => field.Name != "_roomSpikes"))
+            .SequenceEqual(preSpikeFields.Where(field => field.Name != "_roomSpikes")),
             "Legacy runtime layout omits only the new spike owner");
         typeof(SuperMetroidRuntime).GetField("_roomSpikes", BindingFlags.Instance | BindingFlags.NonPublic)!
             .SetValue(runtime, null);

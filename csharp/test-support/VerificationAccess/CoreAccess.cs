@@ -18,6 +18,24 @@ internal static partial class CoreAccess
         internal SuperMetroidRuntime? RuntimeForVerification => PrivateState.Field<SuperMetroidRuntime?>(game, "runtime");
         internal int AttractDemoHoldFramesRemaining => PrivateState.Field<int>(game, "demoHoldFramesRemaining");
         internal bool GameplayMovementEnabled => game.RuntimeForVerification?.GroundedSamusMovementEnabled ?? false;
+        internal CartridgeAudioState AudioForVerification => PrivateState.Field<CartridgeAudioState>(game, "audio");
+        internal ushort MenuNmiFrameCounterForVerification => PrivateState.Field<ushort>(game, "menuNmiFrameCounter");
+        internal CeresDestructionCinematicState? CeresDestructionForVerification =>
+            PrivateState.Field<CeresDestructionCinematicState?>(game, "ceresDestruction");
+
+        /// <summary>
+        /// Applies the controller read of a native NMI accepted during the door music-wait APU
+        /// upload, which the lag-free port does not spend as an update. Only that proven wait
+        /// is accepted; replays of any other hardware stall must establish their own contract.
+        /// </summary>
+        internal void AcceptDoorMusicWaitControllerRead(ushort controllerInput)
+        {
+            SuperMetroidRuntime? runtime = game.RuntimeForVerification;
+            if (game.GameState != SuperMetroidGameState.LoadingNextRoomB || runtime is null)
+                throw new InvalidOperationException(
+                    $"A door music-wait controller read arrived in game state {game.GameState}.");
+            runtime.Controller1.Latch(runtime.ControllerBindings.Normalize(controllerInput));
+        }
         internal byte GameplaySamusPose => game.RuntimeForVerification?.Samus?.Pose ?? 0;
         internal ushort GameplaySamusX => game.RuntimeForVerification?.Samus?.XPosition ?? 0;
         internal ushort GameplaySamusY => game.RuntimeForVerification?.Samus?.YPosition ?? 0;
@@ -44,6 +62,8 @@ internal static partial class CoreAccess
     {
         internal ushort LastIndicatorOriginX => PrivateState.Field<ushort>(pause, "lastIndicatorOriginX");
         internal ushort LastIndicatorOriginY => PrivateState.Field<ushort>(pause, "lastIndicatorOriginY");
+        /// <summary>True while an L/R page switch is fading out, loading or fading in.</summary>
+        internal bool PageTransitionActive => PrivateState.Field<PauseMenuTransition>(pause, "transition") != PauseMenuTransition.None;
         internal ushort MapHorizontalScroll => PrivateState.Field<ushort>(pause, "mapHorizontalScroll");
         internal ushort MapVerticalScroll => PrivateState.Field<ushort>(pause, "mapVerticalScroll");
 
@@ -168,6 +188,12 @@ internal static partial class CoreAccess
     {
         internal ushort PadYPosition => PrivateState.Property<ushort>(PrivateState.Field<object>(arrival, "pad"), "YPosition");
         internal ushort PlatformYPosition => PrivateState.Property<ushort>(PrivateState.Field<object>(arrival, "platform"), "YPosition");
+        /// <summary>True while the moving pad occupies native enemy-projectile slot $22.</summary>
+        internal bool PadActive => PrivateState.Property<bool>(PrivateState.Field<object>(arrival, "pad"), "Active");
+        /// <summary>True while the level-data concealer occupies native enemy-projectile slot $20.</summary>
+        internal bool PlatformActive => PrivateState.Property<bool>(PrivateState.Field<object>(arrival, "platform"), "Active");
+        /// <summary>Shared X word of both projectiles, copied from Samus by $86:A313.</summary>
+        internal ushort XPosition => PrivateState.Property<ushort>(PrivateState.Field<object>(arrival, "pad"), "XPosition");
     }
 
     extension(SuperMetroidRuntime runtime)
@@ -240,3 +266,26 @@ internal readonly record struct StationPlmSnapshot(
     bool Triggered,
     SaveStationPhase SavePhase,
     bool SaveStationLockedOut);
+
+/// <summary>Verification access to <see cref="CartridgeAudioState"/> queues, which production reads only to dispatch.</summary>
+internal static class CartridgeAudioStateQueueAccess
+{
+    extension(CartridgeAudioState self)
+    {
+        /// <summary>Music queue read/write indices, current timer and slot delays ($063B/$0639/$063F/$0629).</summary>
+        internal string MusicQueueForVerification() =>
+            $"{PrivateState.Field<byte>(self, "_musicReadPosition"):X}/{PrivateState.Field<byte>(self, "_musicWritePosition"):X} " +
+            $"t={PrivateState.Field<ushort>(self, "_musicTimer"):X} d=" +
+            string.Join(",", PrivateState.Field<Array>(self, "_musicDelays").Cast<object>()
+                .Select(delay => PrivateState.Property<object>(delay, "Frames")).Select(frames => $"{frames:X}"));
+
+        /// <summary>One entry of an SFX library's queue ($0643+).</summary>
+        internal byte SoundQueueEntryForVerification(int queue, int index) =>
+            PrivateState.Field<byte[,]>(self, "_soundQueues")[queue, index];
+
+        /// <summary>Queue start/next indices and dispatcher state of one SFX library ($0643+/$0646+/$0649+).</summary>
+        internal (byte Start, byte Next, byte State) SoundQueueForVerification(int queue) =>
+            (PrivateState.Field<byte[]>(self, "_soundReadPositions")[queue], PrivateState.Field<byte[]>(self, "_soundWritePositions")[queue],
+             PrivateState.Field<byte[]>(self, "_soundStates")[queue]);
+    }
+}

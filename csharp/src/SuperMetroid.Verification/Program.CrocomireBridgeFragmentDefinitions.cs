@@ -29,7 +29,8 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             enemies,
             new CrocomireBridgeFragmentReadGuard(rom));
-        typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
+        // $86:92A5 reads the seed without advancing it; generating one would fail here.
+        typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(
             enemies,
             (Func<ushort>)(() => 0x1234));
         typeof(RoomEnemySystem).GetField("_crocomireDeath", flags)!.SetValue(enemies, death);

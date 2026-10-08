@@ -1,3 +1,5 @@
+using System.Reflection;
+using System.Text;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
@@ -13,9 +15,56 @@ internal static partial class Program
     static void VerifyCeresEscapeHandoff()
     {
         Suite(nameof(VerifyCeresRidleyEjectionHandler), () => VerifyCeresRidleyEjectionHandler());
+        Suite(nameof(VerifyLegacyCeresRidleyEjectionSnapshots), () => VerifyLegacyCeresRidleyEjectionSnapshots());
         Suite(nameof(VerifyCeresElevatorShaftRoomMain), () => VerifyCeresElevatorShaftRoomMain());
         Suite(nameof(VerifyCeresDepartureDispatcherTiming), () => VerifyCeresDepartureDispatcherTiming());
         Console.WriteLine("  Ceres escape handoff: ejection, shaft rotation, trigger, hold, and blackout agree.");
+    }
+
+    /// <summary>
+    /// Snapshots from before the getaway moved to room main carry a retired pending flag.
+    /// An idle request restores; one captured mid-deferral has no current equivalent.
+    /// </summary>
+    private static void VerifyLegacyCeresRidleyEjectionSnapshots()
+    {
+        var idle = new SamusCeresRidleyEjectionState();
+        var restored = RestoreLegacyEjection(idle, pending: false);
+        AssertTrue(!restored.IsActive && !restored.InitializationPending,
+            "idle legacy ejection snapshot restores without the retired pending flag");
+        AssertThrows<InvalidDataException>(() => RestoreLegacyEjection(idle, pending: true),
+            "legacy snapshot captured mid-deferral fails loudly");
+
+        static SamusCeresRidleyEjectionState RestoreLegacyEjection(SamusCeresRidleyEjectionState state, bool pending)
+        {
+            // The prior field envelope: every current field plus `<IsPending>k__BackingField`,
+            // with primitive values written by the production codec.
+            const byte newObjectMarker = 2, fieldPayloadKind = 5;
+            Type type = typeof(SamusCeresRidleyEjectionState);
+            var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .Where(field => !field.IsDefined(typeof(NonSerializedAttribute))).ToArray();
+            using var data = new MemoryStream();
+            using (var writer = new BinaryWriter(data, Encoding.UTF8, leaveOpen: true))
+            {
+                writer.Write(newObjectMarker);
+                writer.Write(1);
+                writer.Write(SuperMetroid.Desktop.DebuggerStateTypeIdentity.GetSerializedName(type));
+                writer.Write(fieldPayloadKind);
+                writer.Write(fields.Length + 1);
+                writer.Write(SuperMetroid.Desktop.DebuggerStateTypeIdentity.GetSerializedName(type));
+                writer.Write("<IsPending>k__BackingField");
+                writer.Flush();
+                SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(data, pending);
+                foreach (FieldInfo field in fields)
+                {
+                    writer.Write(SuperMetroid.Desktop.DebuggerStateTypeIdentity.GetSerializedName(field.DeclaringType!));
+                    writer.Write(field.Name);
+                    writer.Flush();
+                    SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(data, field.GetValue(state)!);
+                }
+            }
+            data.Position = 0;
+            return SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SamusCeresRidleyEjectionState>(data);
+        }
     }
 
     private static void VerifyCeresRidleyEjectionHandler()
@@ -56,20 +105,16 @@ internal static partial class Program
         samus.InitializeAnimation(bus);
         RoomLevelData emptyRoom = CreateEmptyRoom(32, 32);
 
-        samus.CeresRidleyEjection.Request();
         samus.PoseHistory.PreviousPose = SamusPoseIds.FacingRightNormalPose;
         samus.PoseHistory.PreviousDirectionAndMovement = 8;
         samus.PoseHistory.LastDifferentPose = SamusPoseIds.SpinJumpLeftPose;
         samus.PoseHistory.LastDifferentDirectionAndMovement = 0x0304;
-        AssertTrue(samus.CeresRidleyEjection.IsPending, "Ridley ejection request is pending");
-        AssertTrue(!samus.CeresRidleyEjection.IsActive, "request does not execute gamma early");
-        AssertTrue(!samus.InputLocked, "request frame retains ordinary Samus input handler");
-
-        samus.CeresRidleyEjection.BeginFrame(samus);
+        samus.CeresRidleyEjection.Request(samus);
         AssertEqual(SamusPoseIds.SpinJumpLeftPose, samus.PoseHistory.LastDifferentPose,
-            "promoting ejection request does not publish pose history early");
-        AssertTrue(samus.CeresRidleyEjection.IsActive, "next frame promotes Ridley ejection");
-        AssertTrue(!samus.InputLocked, "promoted ejection replaces movement but not pose input");
+            "installing the ejection handler does not publish pose history early");
+        AssertEqual(SamusPoseIds.FacingRightNormalPose, samus.Pose, "request does not execute gamma early");
+        AssertTrue(samus.CeresRidleyEjection.IsActive, "room-main request installs Ridley ejection");
+        AssertTrue(!samus.InputLocked, "installed ejection replaces movement but not pose input");
 
         bool initializationWasPending = samus.CeresRidleyEjection.InitializationPending;
         uint xBeforeInitialization = samus.Kinematics.XFixed;
@@ -103,6 +148,8 @@ internal static partial class Program
                 0x0a * SpeedTableEntry.ByteCount),
             1, 0, 1, 0, 0, 0);
         samus.Kinematics.XPosition = samus.Kinematics.XRadius;
+        // Leftover extra-run speed from before the shove (retail 100% movie: `.4000`).
+        samus.HorizontalSpeed.ExtraRunSubspeed = 0x4000;
         samus.CeresRidleyEjection.Step(
             bus,
             emptyRoom,
@@ -112,16 +159,18 @@ internal static partial class Program
         AssertEqual(0, samus.CeresRidleyEjection.PushDirection, "room-wall contact terminates Ceres ejection");
         AssertTrue(!samus.CeresRidleyEjection.IsActive, "wall contact restores normal movement");
         AssertTrue(!samus.InputLocked, "wall contact leaves ordinary pose input available");
-        AssertEqual(SamusPoseIds.FallingRightPose, samus.Pose,
-            "neutral wall handoff consumes ordinary knockback-finished pose");
-        AssertEqual(0, samus.KnockbackDirection,
-            "shared knockback finish clears direction");
-        AssertTrue(!samus.KnockbackActive,
-            "shared knockback finish leaves no special movement owner");
-        AssertEqual(2, samus.Kinematics.YDirection,
-            "shared knockback finish publishes downward falling direction");
-        AssertEqual(102, samus.Kinematics.YPosition,
-            "falling radius keeps the scripted body's feet aligned");
+        // The push never sets knockback direction `$0A52`, so `$90:DDE9` has no knockback
+        // to finish: the hurt pose remains for the ordinary movement handler (retail 100%
+        // movie: `$53` on the wall frame, then landing `$A4`).
+        AssertEqual(SamusPoseIds.KnockbackRightPose, samus.Pose,
+            "wall handoff keeps the hurt pose for ordinary movement");
+        AssertEqual(0, samus.KnockbackDirection, "Ceres push never publishes knockback direction");
+        AssertEqual(0, samus.Kinematics.YSpeed, "$90:DF85 clears Y speed");
+        AssertEqual(0, samus.HorizontalSpeed.ExtraRunSubspeed,
+            "Kill_SamusXSpeed_IfCollisionDetected clears extra-run speed at the wall");
+        AssertEqual(0, samus.Kinematics.YDirection, "$90:DF88 clears Y direction");
+        AssertEqual(100, samus.Kinematics.YPosition,
+            "bottom alignment against the previous hurt pose leaves Y unchanged");
     }
 
     private static void VerifyCeresElevatorShaftRoomMain()
@@ -133,23 +182,24 @@ internal static partial class Program
         // lifecycle consumes application-owned records, not synthetic ROM artwork.
 
         var state = new CeresElevatorShaftRoomMainState();
-        state.Reset(active: true);
+        var scratch = new RoomMainScratchState();
+        state.Reset(active: true, scratch);
         SamusState outsideTrigger = CreateSamus(
             SamusPoseIds.FacingRightNormalPose,
             xPosition: 32,
             yPosition: 100);
 
-        StepFrames(60, _ => state.Step(bus, outsideTrigger, 0x8000, allowDeparture: true));
+        StepFrames(60, _ => state.Step(bus, outsideTrigger, 0x8000, allowDeparture: true, scratch));
         AssertEqual(0, state.RotationTimer, "shaft door delay retains zero for one room-main call");
         AssertEqual(
             CeresElevatorShaftRoomMainState.InitialRotationIndex,
-            state.RotationIndex,
+            scratch.Var1,
             "shaft index waits through first 60 calls");
 
         CeresElevatorShaftRoomMainResult firstMatrix =
-            state.Step(bus, outsideTrigger, 0x8000, allowDeparture: true);
+            state.Step(bus, outsideTrigger, 0x8000, allowDeparture: true, scratch);
         AssertTrue(firstMatrix.MatrixChanged, "61st shaft call underflows and consumes first matrix record");
-        AssertEqual(35, state.RotationIndex, "shaft index advances after record 34");
+        AssertEqual(35, scratch.Var1, "shaft index advances after record 34");
         AssertEqual(0x0100, state.Transform.MatrixA, "shaft cosine comes from record 34");
         AssertEqual(0, state.Transform.MatrixB, "shaft sine comes from record 34");
         AssertEqual(
@@ -160,32 +210,33 @@ internal static partial class Program
         // Consume records 35..67. The final forward phase is encoded as $8044 rather
         // than 68; one more call proves the wrapped multiplication selects record 68.
         for (int i = 0; i < 33; i++)
-            StepFrames(state.RotationTimer + 1, _ => state.Step(bus, outsideTrigger, 0x8000, allowDeparture: true));
-        AssertEqual(0x8044, state.RotationIndex, "shaft forward sweep enters encoded reverse phase");
-        StepFrames(state.RotationTimer + 1, _ => state.Step(bus, outsideTrigger, 0x8000, allowDeparture: true));
-        AssertEqual(0x8043, state.RotationIndex, "shaft encoded reverse phase decrements");
+            StepFrames(state.RotationTimer + 1, _ => state.Step(bus, outsideTrigger, 0x8000, allowDeparture: true, scratch));
+        AssertEqual(0x8044, scratch.Var1, "shaft forward sweep enters encoded reverse phase");
+        StepFrames(state.RotationTimer + 1, _ => state.Step(bus, outsideTrigger, 0x8000, allowDeparture: true, scratch));
+        AssertEqual(0x8043, scratch.Var1, "shaft encoded reverse phase decrements");
         AssertEqual(0x00fe, state.Transform.MatrixA, "encoded phase maps to record 68");
         AssertEqual(34, state.Transform.MatrixB, "reverse endpoint sine");
         Suite(nameof(VerifyCeresShaftCompiledRotation), () => VerifyCeresShaftCompiledRotation());
 
         // State $20/$21 still run room main but fail its explicit game-state-eight gate.
         var trigger = new CeresElevatorShaftRoomMainState();
-        trigger.Reset(active: true);
+        var triggerScratch = new RoomMainScratchState();
+        trigger.Reset(active: true, triggerScratch);
         SamusState samus = CreateSamus(
             SamusPoseIds.FacingRightNormalPose,
             xPosition: 113,
             yPosition: 75);
-        trigger.Step(bus, samus, 0x8000, allowDeparture: false);
+        trigger.Step(bus, samus, 0x8000, allowDeparture: false, triggerScratch);
         AssertTrue(!trigger.DepartureRequested, "non-gameplay dispatcher cannot trigger departure");
 
         CeresElevatorShaftRoomMainResult requested =
-            trigger.Step(bus, samus, 0x8000, allowDeparture: true);
+            trigger.Step(bus, samus, 0x8000, allowDeparture: true, triggerScratch);
         AssertTrue(requested.DepartureRequestedThisFrame, "inclusive lower Y/exclusive lower X trigger admits Samus");
         AssertTrue(samus.InputLocked, "departure trigger installs SamusCode_00 lock");
         AssertEqual(SamusPoseIds.FacingRightNormalPose, samus.Pose, "departure keeps right-facing standing pose");
 
         CeresElevatorShaftRoomMainResult repeated =
-            trigger.Step(bus, samus, 0x8000, allowDeparture: true);
+            trigger.Step(bus, samus, 0x8000, allowDeparture: true, triggerScratch);
         AssertTrue(!repeated.DepartureRequestedThisFrame, "departure request is a one-frame publication");
     }
 

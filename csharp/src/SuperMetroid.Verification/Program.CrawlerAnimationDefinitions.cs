@@ -56,6 +56,12 @@ internal static partial class Program
                 enemies, new CrawlerAnimationReadGuard(rom));
             RoomEnemySlot slot = enemies.Slots[0];
             slot.CurrentInstruction = orientation;
+            if (family == CrawlerAnimationFamily.Viola)
+            {
+                // InitAI_Viola ($A3:B678) selects with the property bits, not the parameter.
+                slot.CurrentInstruction = (ushort)(orientation ^ 1);
+                slot.Properties = orientation;
+            }
             slot.Parameter1 = 0;
             if (family == CrawlerAnimationFamily.HZoomer)
             {

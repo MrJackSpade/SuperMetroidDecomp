@@ -1174,8 +1174,11 @@ static void VerifyCeresRidleyRoomEntry()
          address < 0xa6c4cb;
          address++)
         bus.WriteByte(address, 0);
+    bool ceresBossDefeated = false;
     enemies.Load(bus, populationPointer, tilesetPointer, vram, cgram, () => 0x1234,
-        readRandomNumber: () => 0x1234);
+        readRandomNumber: () => 0x1234,
+        isAreaBossDefeated: () => ceresBossDefeated,
+        setAreaBossDefeated: () => ceresBossDefeated = true);
 
     RoomEnemySlot ridley = enemies.Slots[0];
     RidleyEnemyState state = enemies.CeresRidley
@@ -1253,13 +1256,14 @@ static void VerifyCeresRidleyRoomEntry()
         "Ceres Ridley eye fade enables composite animation");
     AssertEqual(0, state.TailFunctionIndex,
         "Ceres Ridley resting tail has not started its liftoff motion");
-    // The native Ridley movie shows the resting tail with zero link offsets: every link is
-    // composed at the base point until a tail controller first runs.
+    // Native evidence (100% movie, source frame 3645): once the eye fade enables
+    // composite animation, all seven inactive segments share the tail-root position
+    // and stay there through the body fade until liftoff.
     AssertEqual(1, state.TailSegments
             .Select(segment => (segment.XPosition, segment.YPosition))
             .Distinct()
             .Count(),
-        "Ceres Ridley resting tail is composed at its base before liftoff");
+        "Ceres Ridley resting tail segments share the tail root before liftoff");
 
     for (int frame = 0; frame < 32; frame++)
         enemies.StepFrame(cameraX: 0, cameraY: 0, timeIsFrozen: false);
@@ -1408,9 +1412,16 @@ static void VerifyCeresRidleyRoomEntry()
 
     int retreatFrames = 0;
     bool observedFakeRetreat = false;
+    ushort? retreatBackgroundColor = null;
     while (enemies.CeresStatus != 1 && retreatFrames < 1024)
     {
         enemies.StepFrame(0, 0, timeIsFrozen: false, samus);
+        // $A6:A9E3 writes BG palette five as the retreat delay expires; the next frame's
+        // first getaway step replaces it with the Mode-7 zoom palette from $51.
+        if (state.Function == RidleyAiFunction.CeresPublishEscapeHandoff)
+            retreatBackgroundColor ??= cgram.Colors[0x51];
+        // Room main follows enemy AI, so the handoff frame also takes getaway step zero.
+        enemies.RunCeresRidleyGetawayRoomMain(samus, 0);
         observedFakeRetreat |= state.Function is
             RidleyAiFunction.CeresFakeRetreatMoveToPosition or
             RidleyAiFunction.CeresFakeRetreatRising or
@@ -1432,7 +1443,7 @@ static void VerifyCeresRidleyRoomEntry()
         .ToArray();
     AssertEqual(2, mode7Walls.Length,
         "Ceres Ridley spawns both native Mode-7 wall actors");
-    AssertEqual(0x6100, cgram.Colors[0x51],
+    AssertEqual((ushort?)0x6100, retreatBackgroundColor,
         "Ceres Ridley retreat copies BG palette-five colors");
     AssertEqual(0x6200, cgram.Colors[0x21],
         "Ceres Ridley retreat copies BG palette-two colors");
@@ -1450,15 +1461,19 @@ static void VerifyCeresRidleyRoomEntry()
         timerPng.Position = 0;
         enemies.EscapeTimerArtwork = EscapeTimerTileAtlas.Load(timerPng);
     }
-    enemies.StepFrame(0, 0, timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
     AssertTrue(enemies.SoundRequests.Contains(
             new EnemySoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x4e), MaximumQueued: 6)),
-        "first Mode-7 getaway entry publishes QueueSfx2_Max6($4E)");
+        "handoff frame's first Mode-7 getaway entry publishes QueueSfx2_Max6($4E)");
+    void GetawayFrame()
+    {
+        enemies.StepFrame(0, 0, timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
+        enemies.RunCeresRidleyGetawayRoomMain(samus, 0);
+    }
     ushort expectedX = 0xff80, expectedY = 0x20;
     for (ushort curveOffset = 0; curveOffset < 224; curveOffset += 2)
     {
         if (curveOffset != 0)
-            enemies.StepFrame(0, 0, timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
+            GetawayFrame();
         var curve = CeresRidleyGetawayDefinitions.FromByteIndex(curveOffset);
         expectedX = unchecked((ushort)(expectedX - curve.XVelocity));
         expectedY = unchecked((ushort)(expectedY + curve.YVelocity));
@@ -1467,7 +1482,7 @@ static void VerifyCeresRidleyRoomEntry()
         AssertEqual(expectedY, state.Mode7VerticalOffset, "Ceres real getaway vertical integration");
         AssertTrue(!state.Mode7Finished, "Ceres getaway retains all 112 authored motion frames");
     }
-    enemies.StepFrame(0, 0, timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
+    GetawayFrame();
     AssertTrue(state.Mode7Finished, "Ceres Ridley consumes the Mode-7 terminator");
     AssertEqual((ushort)RidleyAiFunction.CeresActivateSelfDestruct, (ushort)state.Function,
         "Ceres Ridley Mode-7 terminator installs shared self-destruct dispatcher");
@@ -1560,6 +1575,8 @@ static void VerifyCeresRidleyRoomEntry()
     }
     AssertTrue(enemies.CeresEscapeStartedThisFrame,
         "Ceres escape starts only after the complete English warning is typed");
+    AssertTrue(ceresBossDefeated,
+        "$A6:C131 sets the area-boss bit within the escape-start enemy pass");
     AssertTrue(typewriterFrames > 128,
         "Ceres English warning remains visible long enough to type all three lines");
     AssertEqual(0x3594, vram.ReadWord(0x5105),

@@ -201,12 +201,17 @@ public sealed partial class SamusState
             RefreshCollisionRadii(bus);
 
             // Prospective command seven reads five from $91:ED36, installs the target's
-            // radius 16, then moves center Y down five. Old radius 21 and new radius 16
-            // therefore share exactly the same bottom collision boundary.
-            Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + 5));
+            // radius 16, then probes those five pixels down through $94:96AB. On level
+            // ground the bottom boundary is unchanged; descending a slope, the probe meets
+            // the surface first and the shorter clipped distance is what moves center Y.
+            BlockMoveResult alignment = ProbeChangedPoseVertical(
+                bus, level, SamusPostureDefinitions.CrouchEntryDownwardPixels << 16,
+                (nmiFrameCounter & 1) == 0, plms, includeSolidEnemies: false);
+            Kinematics.YPosition = unchecked((ushort)(
+                Kinematics.YPosition + (alignment.AcceptedDisplacement >> 16)));
             // Command seven publishes the aligned whole Y before scrolling; the
             // posture change itself must not become camera movement.
-            RecordPoseCollisionCameraY(Kinematics.YPosition);
+            WritePreviousYPosition(Kinematics.YPosition);
             InitializeAnimation(bus, initialFrame: 0);
             return true;
         }
@@ -317,7 +322,7 @@ public sealed partial class SamusState
                 Kinematics.YPosition + (alignment.AcceptedDisplacement >> 16)));
             // Command seven ($91:ED0E) replaces the previous whole-Y checkpoint
             // after alignment, so the camera does not count pose displacement as motion.
-            RecordPoseCollisionCameraY(Kinematics.YPosition);
+            WritePreviousYPosition(Kinematics.YPosition);
 
             // `$91:F7D6-$F7E4` deliberately recognizes a spin-jump source and forces mode
             // two so the compact body retains decelerating aerial momentum after morphing.
@@ -355,7 +360,7 @@ public sealed partial class SamusState
 
         Pose = targetPose;
         Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
-        RecordPoseCollisionCameraY(Kinematics.YPosition);
+        WritePreviousYPosition(Kinematics.YPosition);
         // Unmorph uses the same prospective command seven as morph. Its zero
         // alignment-table entry does not bypass the subsequent bounce cancellation.
         // The prospective collision probes used the target radius, but the live
@@ -627,6 +632,26 @@ public sealed partial class SamusState
         ApplyMorphBallPoseChange(bus, targetPose);
         MorphBallBounceState = 0;
         SamusAerialMovement.InitializeJump(bus, this);
+    }
+
+    /// <summary>
+    /// Applies `$91:E8F2` after a bomb-jump frame moved down without a floor. Only the pose
+    /// changes: the airborne ball's initializer leaves vertical speed for the next
+    /// handler frame, whose underflow test turns the jump downward. Movement types whose
+    /// `$90:E65A` entry is "no change" keep their pose.
+    /// </summary>
+    public void ApplyBombJumpFallingPose(ISnesAddressSpace bus)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        bool left = IsFacingLeft(bus);
+        if (IsGroundedSpringBallPose(Pose))
+            ApplyMorphBallPoseChange(bus, left ? SamusPoseIds.SpringBallFallingLeftPose : SamusPoseIds.SpringBallFallingRightPose);
+        else if (IsGroundedMorphBallPose(Pose))
+            ApplyMorphBallPoseChange(bus, left ? SamusPoseIds.MorphBallFallingLeftPose : SamusPoseIds.MorphBallFallingRightPose);
+        else if (ReadMovementType(bus) is SamusMovementType.Standing or SamusMovementType.Running or
+                 SamusMovementType.Crouching or SamusMovementType.Moonwalking or SamusMovementType.RanIntoWall)
+            throw new InvalidOperationException(
+                $"Bomb-jump falling result for humanoid pose ${Pose:X2} ($91:E8F2 airborne) is not translated.");
     }
 
     /// <summary>

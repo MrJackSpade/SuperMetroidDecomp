@@ -18,7 +18,7 @@ internal static partial class Program
         {
             var installed = new GameplayMessageBoxState();
             installed.BindPresentation(null, null, stock);
-            installed.Begin(new ForbiddenGameplayMessageBus(), id);
+            installed.Begin(new ForbiddenGameplayMessageBus(), id, 0);
             comparedWords += installed.Tilemap.Length;
 
             if (!GameplayMessageNoticeDefinitions.IsSaveConfirmation(id))
@@ -44,7 +44,7 @@ internal static partial class Program
         var active = new GameplayMessageBoxState();
         active.BindPresentation(null, null, stock);
         active.Begin(new ForbiddenGameplayMessageBus(),
-            GameplayMessageId.MapDataAccessCompleted);
+            GameplayMessageId.MapDataAccessCompleted, 0);
         active.Step(0);
         GameplayMessageBoxPhase phase = active.Phase;
         int radius = active.RadiusPixels;
@@ -94,7 +94,7 @@ internal static partial class Program
         var state = new GameplayMessageBoxState();
         state.BindPresentation(edited.GameplayMessageTitles, edited.GameplayMessagePanels,
             edited.GameplayMessageNotices);
-        state.Begin(new ForbiddenGameplayMessageBus(), GameplayMessageId.SaveConfirmation);
+        state.Begin(new ForbiddenGameplayMessageBus(), GameplayMessageId.SaveConfirmation, 0);
         AssertTrue(!stockCatalog.GameplayMessageNotices.Build(GameplayMessageId.SaveConfirmation)
                 .AsSpan().SequenceEqual(state.Tilemap),
             "catalog override changes installed save-confirmation text");

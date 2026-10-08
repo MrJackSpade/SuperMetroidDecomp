@@ -40,7 +40,7 @@ internal static class RetailDoorCaptureTests
             while (transition.IsActive && frames < 320)
             {
                 if (transition.Phase == DoorTransitionPhase.WaitForDoorOpeningScroll) scrollFrames++;
-                transition.Step(runtime, audio, 0);
+                transition.Step(runtime, audio, 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
                 var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
                 var packet = new RenderFrameSnapshot(new(++frames, 1, (ushort)frames), GameplayDisplayCapture.TryCaptureFrame(runtime)!);
                 packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(packet));

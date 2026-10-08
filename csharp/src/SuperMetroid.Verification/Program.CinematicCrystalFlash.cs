@@ -159,13 +159,10 @@ internal static partial class Program
         foreach (int movementCalls in new[] { 0, 5, 12 })
         {
             (_, _, SamusState ceresSamus) = CreateCinematicFlashRuntime(movementCalls);
-            ceresSamus.CeresRidleyEjection.Request();
-            AssertTrue(ceresSamus.CeresRidleyEjection.IsPending,
-                "Ceres request remains delayed until the next frame boundary");
             AssertTrue(ceresSamus.CrystalFlash.Phase != CrystalFlashPhase.Inactive,
-                "request frame still owns Flash movement");
+                "Flash owns movement before the room-main request");
 
-            ceresSamus.CeresRidleyEjection.BeginFrame(ceresSamus);
+            ceresSamus.CeresRidleyEjection.Request(ceresSamus);
             AssertEqual(CrystalFlashPhase.Inactive, ceresSamus.CrystalFlash.Phase,
                 $"Ceres ejection replaces Flash movement after {movementCalls} calls");
             AssertEqual(SamusSpecialPaletteType.CrystalFlash,
@@ -178,8 +175,7 @@ internal static partial class Program
         (_, _, SamusState noFlash) = CreateCinematicFlashRuntime(
             movementCalls: 0,
             admitFlash: false);
-        noFlash.CeresRidleyEjection.Request();
-        noFlash.CeresRidleyEjection.BeginFrame(noFlash);
+        noFlash.CeresRidleyEjection.Request(noFlash);
         AssertEqual(SamusSpecialPaletteType.None, noFlash.CrystalFlash.SpecialPaletteKind,
             "adjacent no-Flash Ceres route invents no retained palette");
         AssertTrue(!noFlash.CrystalFlashPoseInputLocked,

@@ -76,7 +76,14 @@ internal static partial class Program
                 : (ushort)0;
             body.YPosition = 0x0300;
             rise(body, bodyState, null);
-            if (phaseIndex < 8)
+            if (phase.DistanceThreshold >= MagdollitePhaseDefinitions.MaximumRise && phaseIndex < 8)
+            {
+                // Reaching the maximum rise compares against the slot-one overread $20AF
+                // instead (see --magdollite-apex-threshold), which holds this phase.
+                AssertEqual((ushort)(phaseIndex * 2), bodyState.BodyPhaseOffset,
+                    $"Magdollite production apex phase {phaseIndex}");
+            }
+            else if (phaseIndex < 8)
             {
                 MagdollitePhaseDefinition next = MagdollitePhaseDefinitions.Phase(phaseIndex + 1);
                 AssertEqual((ushort)((phaseIndex + 1) * 2), bodyState.BodyPhaseOffset,

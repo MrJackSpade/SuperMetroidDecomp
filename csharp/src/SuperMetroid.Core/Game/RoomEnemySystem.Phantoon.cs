@@ -116,8 +116,9 @@ public sealed partial class RoomEnemySystem
     {
         PhantoonEnemyState state = RequireCompletePhantoonState(body);
         state.LastMaterializationSound = null;
+        PhantoonAiFunction dispatched = (PhantoonAiFunction)body.VariableF;
 
-        switch ((PhantoonAiFunction)body.VariableF)
+        switch (dispatched)
         {
             case PhantoonAiFunction.SpawnStartingFlames:
                 RunPhantoonStartingFlameSpawner(body, state);
@@ -226,6 +227,10 @@ public sealed partial class RoomEnemySystem
         // The source contains a documented X-register bug that makes only the slot-zero
         // invocation run this synchronization block. Our main dispatcher likewise calls it
         // only for the body, then copies the updated point into the three drawing records.
+        // $A7:CEB2 tests the X the function returned with: $DAD7 leaves it at the VRAM
+        // write-stack index, so that frame skips the part sync and BG2 scroll entirely.
+        if (dispatched == PhantoonAiFunction.AlmostDead)
+            return;
         state.Eye!.XPosition = state.Tentacles!.XPosition = state.Mouth!.XPosition = body.XPosition;
         state.Eye.YPosition = state.Tentacles.YPosition = state.Mouth.YPosition = body.YPosition;
         if (state.Eye.Parameter1 == 0)
@@ -319,7 +324,7 @@ public sealed partial class RoomEnemySystem
 
         RoomEnemySlot eye = state.Eye!;
         eye.Parameter1 = 0;
-        eye.VariableA = PhantoonTimerDefinitions.EyeClosed[(nmiFrameCounter8 >> 1) & 3];
+        eye.VariableA = PhantoonTimerDefinitions.EyeClosed[(_enemyFrameNmiFrameCounter >> 1) & 3];
         body.VariableF = (ushort)PhantoonAiFunction.MoveInFigureEightThenOpenEye;
         body.VariableB = 0;
         body.VariableD = 0;
@@ -526,7 +531,7 @@ public sealed partial class RoomEnemySystem
         ushort denominator,
         byte nmiFrameCounter8)
     {
-        if ((nmiFrameCounter8 & 1) != 0 || state.Eye!.VariableF != 0)
+        if ((_enemyFrameNmiFrameCounter & 1) != 0 || state.Eye!.VariableF != 0)
             return;
 
         RoomEnemySlot eye = state.Eye;

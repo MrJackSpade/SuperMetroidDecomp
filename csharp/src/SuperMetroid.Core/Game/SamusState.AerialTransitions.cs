@@ -24,14 +24,31 @@ public sealed partial class SamusState
     }
 
     /// <summary>
-    /// Applies Samus_HandleTransitionsA_2 ($91:ECD0) when an aerial turn's input
-    /// lookup selects the same-pose definition fallback. This stops reverse acceleration
-    /// without restarting the unfinished turn animation or erasing velocity words.
+    /// Installs the lookup-failure pose of an aimed crouching turn when every input is
+    /// released ($91:81DB -> $91:82D9). Definition byte two is `$28` for all six records,
+    /// so the turn is abandoned for left-facing crouch art regardless of its direction.
+    /// Because the pose changes, $91:EBEE skips command two; only $91:F404 runs.
     /// </summary>
-    public void ApplyAerialTurnInputFallback(ISnesAddressSpace bus)
+    public void ApplyAimedCrouchingTurnInputFallback(ISnesAddressSpace bus, byte targetPose)
     {
-        if (!IsAerialTurnPose(Pose))
-            throw new InvalidOperationException("Aerial turn fallback requires an aerial turn pose.");
+        if (!IsAimedCrouchingTurnPose(Pose))
+            throw new InvalidOperationException($"Aimed crouching turn fallback requires a type-$17 crouching turn, not ${Pose:X2}.");
+        if (!IsRightFacingCrouchingPose(targetPose) && !IsLeftFacingCrouchingPose(targetPose))
+            throw new InvalidDataException($"Aimed crouching turn ${Pose:X2} names non-crouching fallback ${targetPose:X2}.");
+        ApplySimpleGroundedPoseChange(bus, Pose, targetPose, "Aimed crouching turn release");
+    }
+
+    /// <summary>
+    /// Applies prospective pose change command two ($91:ECD0) when a turn's input lookup
+    /// fails and the pose definition retains the current pose. Movement types $0E, $17 and
+    /// $18 all select command two in $91:8332. This stops reverse acceleration without
+    /// restarting the unfinished turn animation or erasing velocity words.
+    /// </summary>
+    public void ApplyTurnInputFallback(ISnesAddressSpace bus, SamusMovementType movementType)
+    {
+        if (movementType is not (SamusMovementType.TurningOnGround or
+            SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling))
+            throw new InvalidOperationException($"Turn fallback requires a turning movement type, not ${(byte)movementType:X2}.");
         HorizontalSpeed.AccelerationMode = SamusHorizontalAccelerationModes.Accelerating;
         HorizontalSpeed.CancelRunningMomentum(ReadPoseXDirection(bus));
     }
@@ -83,8 +100,17 @@ public sealed partial class SamusState
             nmiFrameCounter,
             plms,
             out int centerAdjustment);
-        if (collision != LargerPoseCollisionOutcome.Allowed)
+        if (collision == LargerPoseCollisionOutcome.RetainSource)
             return false;
+        if (collision == LargerPoseCollisionOutcome.CrouchFallback)
+        {
+            // $91:FFA7 installs ordinary crouch when the expanded body is blocked above and
+            // below. F433 still runs and sees the spin/wall-jump previous movement type.
+            ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+            if (EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
+                HorizontalSpeed.RequestNormalSuitPaletteRestore();
+            return true;
+        }
 
         Pose = targetPose;
         // F404/F543 keep the source collision radius for the rest of this update.
@@ -533,12 +559,13 @@ public sealed partial class SamusState
         RefreshCollisionRadii(bus);
         Shinespark.BeginWindup(this);
 
-        // `$91:F56B-$F575` checks the PREVIOUS movement type and adjusts both current and
-        // previous Y words by one. The host camera captures its previous point outside this
-        // object, so only the live word is written here; the same-frame camera delta remains
-        // one pixel and the following frame starts from the corrected coordinate.
+        // `$91:F580-$F595` checks the PREVIOUS movement type, lifts Samus one pixel and
+        // stores the result in both Y words, so this frame's vertical scroll sees no motion.
         if (previousMovementType == SamusMovementType.NormalJumping)
+        {
             Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition - 1));
+            WritePreviousYPosition(Kinematics.YPosition);
+        }
 
         InitializeAnimation(bus, initialFrame: 0);
         return true;

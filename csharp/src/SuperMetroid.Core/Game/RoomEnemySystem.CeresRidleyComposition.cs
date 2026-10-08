@@ -508,24 +508,31 @@ public sealed partial class RoomEnemySystem
     private ushort AdvanceCeresBabyDrawInstruction(RidleyEnemyState state)
     {
         ushort cursor = state.BabyInstruction;
+        ushort current = CeresBabyInstructionProgramDefinitions.ReadMechanicsWord(cursor);
+        if ((current & 0x8000) == 0)
+        {
+            // $A6:DBE7 compares the current frame's duration with the elapsed timer. Any
+            // other value ticks the timer ($A6:DC0A) and keeps the current map.
+            if (current != state.BabyInstructionTimer)
+            {
+                state.BabyInstructionTimer = unchecked((ushort)(state.BabyInstructionTimer + 1));
+                state.BabyCurrentSpritemap =
+                    CeresBabyInstructionProgramDefinitions.ReadSpritemapOperand(
+                        unchecked((ushort)(cursor + 2)));
+                return state.BabyCurrentSpritemap;
+            }
+            cursor = unchecked((ushort)(cursor + 4));
+        }
+
+        // $A6:DBEF: run ASM instructions until the next frame, which `.specialInstruction`
+        // installs with an elapsed timer of one and returns without comparing its duration.
         for (int commandCount = 0; commandCount < 64; commandCount++)
         {
             ushort word = CeresBabyInstructionProgramDefinitions.ReadMechanicsWord(cursor);
             if ((word & 0x8000) == 0)
             {
-                // $A6:DBE7 compares the frame duration with the private elapsed timer. A
-                // match advances four bytes and immediately selects the next frame; all
-                // other calls increment the timer and retain the current map.
-                if (word == state.BabyInstructionTimer)
-                {
-                    cursor = unchecked((ushort)(cursor + 4));
-                    state.BabyInstruction = cursor;
-                    state.BabyInstructionTimer = 1;
-                    continue;
-                }
-
                 state.BabyInstruction = cursor;
-                state.BabyInstructionTimer = unchecked((ushort)(state.BabyInstructionTimer + 1));
+                state.BabyInstructionTimer = 1;
                 state.BabyCurrentSpritemap =
                     CeresBabyInstructionProgramDefinitions.ReadSpritemapOperand(
                         unchecked((ushort)(cursor + 2)));
@@ -536,19 +543,16 @@ public sealed partial class RoomEnemySystem
             switch (word)
             {
                 case CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_PlayCrySFXOrGotoX:
-                    // BabyMetroid_Instr_2 calls QueueSfx3_Max6($24) on every execution,
-                    // including the random branch that immediately jumps to another list.
-                    // Publish before reproducing that branch so its control flow cannot
-                    // accidentally suppress the chirp.
+                    // $A6:BFC9: while the baby is falling ($880C nonzero) it always cries and
+                    // continues. Otherwise it samples the live RNG word's low bit without
+                    // calling GenerateRandomNumber; a set bit jumps silently ($A6:BFD5).
+                    if (state.BabyVerticalVelocity == 0 && (_readRandomNumber!() & 1) != 0)
+                    {
+                        cursor = CeresBabyInstructionProgramDefinitions.ReadMechanicsWord(argument);
+                        break;
+                    }
                     QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x0024), maximumQueued: 6);
-                    // The native “moving” word is the same $8808 velocity accumulator
-                    // advanced by TickCeresBaby. While stationary, the cartridge RNG may
-                    // branch to the expressive palette-animation list with 50% probability.
-                    cursor = state.BabyVerticalVelocity != 0
-                        ? unchecked((ushort)(argument + 2))
-                        : (_nextRandom!() & 1) != 0
-                            ? CeresBabyInstructionProgramDefinitions.ReadMechanicsWord(argument)
-                            : unchecked((ushort)(argument + 2));
+                    cursor = unchecked((ushort)(argument + 2));
                     break;
 
                 case CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_UpdateColors:

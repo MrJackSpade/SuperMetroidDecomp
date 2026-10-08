@@ -117,15 +117,29 @@ public sealed partial class RoomEnemySystem
             (state.UpVelocity, state.UpSubvelocity) = ReadLinearEnemySpeed(
                 unchecked((ushort)(speedOffset + 4)));
 
-            // $A8:8811 accidentally indexes Enemy.init1 with Y (the speed-table byte offset)
-            // rather than X. Both retail layouts make that aliased byte zero, so the first
-            // bobbing half-cycle turns immediately; later cycles use the body's high byte.
-            state.MovementTimer = 0;
+            // $A8:8811 indexes Enemy.init1+1 ($0FB7) with Y, the speed-table byte offset,
+            // rather than X. The byte read is absolute enemy RAM chosen by the speed index
+            // alone: in the 100% movie's Botwoon-hallway Evirs (speed 12) it is the high
+            // byte of slot 2's palette word, so the first half-cycle is not always zero.
+            state.MovementTimer = (ushort)(ReadAliasedEnemyRamByte(
+                EvirInitDefinitions.AliasedTimerAddress + speedOffset) >> 1);
         }
 
         state.MovementDirection = 0;
         state.InstalledInstructionList = 0;
         state.Function = EvirAiFunction.HandleBodyOrArms;
+    }
+
+    /// <summary>Reads one byte of the 32-slot enemy RAM block at absolute WRAM <paramref name="address"/>.</summary>
+    private byte ReadAliasedEnemyRamByte(int address)
+    {
+        int relative = address - EnemyRamDefinitions.FirstSlotAddress;
+        int slotIndex = relative / EnemyRamDefinitions.SlotStride;
+        if (relative < 0 || slotIndex >= MaximumEnemyCount)
+            throw new InvalidOperationException($"WRAM ${address:X4} lies outside enemy RAM.");
+        int byteOffset = relative % EnemyRamDefinitions.SlotStride;
+        ushort word = _slots[slotIndex].ReadNativeWord(byteOffset & ~1);
+        return (byteOffset & 1) == 0 ? (byte)word : (byte)(word >> 8);
     }
 
     /// <summary>Ports <c>InitAI_EvirProjectile</c> at $A8:88B0.</summary>
@@ -411,15 +425,26 @@ public sealed partial class RoomEnemySystem
     private void QueueEvirSpitSound() => LastEvirSoundEffect = EvirSpitSound;
 
     /// <summary>Instruction $A8:879B.</summary>
-    private static void SetInitialEvirRegenerationOffset(RoomEnemySlot slot, EvirEnemyState state) =>
-        state.RegenerationXOffset = state.FacingDirection != 0
+    private void SetInitialEvirRegenerationOffset(RoomEnemySlot slot, EvirEnemyState state) =>
+        state.RegenerationXOffset = EvirBodyFacesRight(slot)
             ? unchecked((ushort)-8)
             : (ushort)8;
 
     /// <summary>Instruction $A8:87B6.</summary>
-    private static void AdvanceEvirRegenerationOffset(RoomEnemySlot slot, EvirEnemyState state) =>
+    private void AdvanceEvirRegenerationOffset(RoomEnemySlot slot, EvirEnemyState state) =>
         state.RegenerationXOffset = unchecked((ushort)(
-            state.RegenerationXOffset + (state.FacingDirection != 0 ? 1 : -1)));
+            state.RegenerationXOffset + (EvirBodyFacesRight(slot) ? 1 : -1)));
+
+    /// <summary>
+    /// Both regeneration instructions test <c>Evir.instList-$80,X</c>: the installed list
+    /// of the body two slots before the projectile, not any facing word of its own.
+    /// </summary>
+    private bool EvirBodyFacesRight(RoomEnemySlot projectile)
+    {
+        EvirEnemyState body = _evirStates[projectile.SlotIndex - 2] ?? throw new InvalidDataException(
+            $"Evir projectile slot {projectile.SlotIndex} has no body two slots before it.");
+        return body.InstalledInstructionList == EvirInstructionProgramDefinitions.BodyFacingRight;
+    }
 
     /// <summary>Instruction $A8:87CB.</summary>
     private static void FinishEvirRegeneration(EvirEnemyState state)

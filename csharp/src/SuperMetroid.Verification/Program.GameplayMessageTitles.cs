@@ -18,7 +18,7 @@ internal static partial class Program
         {
             var installed = new GameplayMessageBoxState();
             installed.BindPresentation(stock);
-            installed.Begin(new ForbiddenGameplayMessageBus(), id);
+            installed.Begin(new ForbiddenGameplayMessageBus(), id, 0);
             // The title's content row is the cartridge's one-row tilemap named by the
             // message definition table; read it directly as the independent reference.
             int definition = GameplayMessageRomData.Assets.DefinitionTable +
@@ -42,7 +42,7 @@ internal static partial class Program
 
         var active = new GameplayMessageBoxState();
         active.BindPresentation(stock);
-        active.Begin(new ForbiddenGameplayMessageBus(), GameplayMessageId.EnergyTank);
+        active.Begin(new ForbiddenGameplayMessageBus(), GameplayMessageId.EnergyTank, 0);
         active.Step(0);
         GameplayMessageBoxPhase phase = active.Phase;
         int radius = active.RadiusPixels;

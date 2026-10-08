@@ -50,7 +50,8 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        state.CameraDistanceIndex = KraidCameraDefinitions.CameraDistanceIndex;
+        // $A7:A9E4-A9E7.
+        CameraDistanceIndex = CameraDistanceMode.BossTracking;
         ApplyKraidScrolls(grown: false);
         state.MinimumYPositionForEjection = 324;
         state.InitialHealth = body.Health;
@@ -133,14 +134,14 @@ public sealed partial class RoomEnemySystem
         state.Parts[foot.SlotIndex].NextFunction = 0;
     }
 
+    /// <summary>
+    /// Ports <c>InitAI_KraidNail_Common</c> ($A7:BCF2). Unlike the other parts it has no
+    /// dead-room branch: in a defeated Kraid's room the fingernails initialize and run,
+    /// deleting themselves only once slot zero's health reads below one ($A7:BD34).
+    /// </summary>
     private void InitializeKraidNail(RoomEnemySlot nail, int expectedSlot)
     {
         KraidEnemyState state = RequireKraidState(nail);
-        if (RequireAreaBossDefeated())
-        {
-            MarkKraidPartDead(nail);
-            return;
-        }
         EnsureKraidSlot(nail, expectedSlot, "fingernail");
         nail.PaletteIndex = _slots[0].PaletteIndex;
         nail.VariableB = 40;
@@ -175,14 +176,30 @@ public sealed partial class RoomEnemySystem
                 EnemyProperties.Deleted |
                 EnemyProperties.Invisible);
 
+    /// <summary>
+    /// Ports <c>MainAI_Kraid</c> ($A7:AC21): mouth-projectile collision, palette handling,
+    /// body-projectile collision and body-vs-Samus collision precede the function. A
+    /// killing mouth hit therefore reaches palette handling, which zeroes the hurt frame,
+    /// before the death initializer runs in this same frame.
+    /// </summary>
     private void RunKraidBodyMain(
         RoomEnemySlot body,
         SamusState? samus,
         ushort cameraX,
         ushort cameraY,
-        VramWriteQueue? vramWriteQueue)
+        VramWriteQueue? vramWriteQueue,
+        SamusProjectileSystem? samusProjectiles,
+        SamusBombProjectileSystem? sharedProjectiles)
     {
         KraidEnemyState state = RequireKraidState(body);
+        KraidShotSlots? shots = samusProjectiles is not null && sharedProjectiles is not null
+            ? new KraidShotSlots(samusProjectiles, sharedProjectiles)
+            : null;
+        if (shots is { } mouthShots)
+            ResolveKraidMouthProjectileHits(body, state, mouthShots);
+        RunKraidPaletteHandling(body, state);
+        if (shots is { } bodyShots)
+            ResolveKraidBodyProjectileHits(body, state, bodyShots);
         if (samus is not null)
             ResolveKraidBodyContact(body, state, samus);
         // `$A7:AC21` makes BG2 follow Kraid rather than the room. X radius is the native
@@ -190,7 +207,6 @@ public sealed partial class RoomEnemySystem
         state.Bg2HorizontalScroll = unchecked((ushort)(
             cameraX - body.XPosition + body.XRadius));
         state.Bg2VerticalScroll = unchecked((ushort)(cameraY - body.YPosition + 152));
-        RunKraidPaletteHandling(body, state);
         KraidAiFunction function = (KraidAiFunction)body.VariableA;
         if (function is >= KraidAiFunction.RestrictSamusToFirstScreen and
             <= KraidAiFunction.RaiseBody)
@@ -198,7 +214,7 @@ public sealed partial class RoomEnemySystem
             RunKraidRiseFunction(body, state, samus);
             return;
         }
-        RunKraidCombatFunction(body, state, vramWriteQueue);
+        RunKraidCombatFunction(body, state, vramWriteQueue, cameraX);
     }
 
     private void RunKraidPaletteHandling(RoomEnemySlot body, KraidEnemyState state)

@@ -45,6 +45,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports <c>RinkasDeathAnimation(0)</c> at $A0:A410.</summary>
     private void RunRinkaDeathAnimation(RoomEnemySlot slot)
     {
+        _enemyDeathRespawnScratch = RespawnScratchWord(slot);
         bool respawns = slot.Properties.HasAny(EnemyProperties.RespawnIfKilled);
         RoomEnemySpawnSnapshot survivingSpawnSnapshot = slot.Spawn;
 
@@ -101,16 +102,12 @@ public sealed partial class RoomEnemySystem
         RoomEnemyDefinition definition = ResolveRoomEnemyDefinition(
             _bus!,
             spawn.Population.DefinitionPointer);
+        // Unlike Initialise_Enemies ($A0:8B93) and Spawn_Enemy ($A0:93D9), Respawn_Enemy
+        // ($86:F264) never writes the spritemap: the actor keeps EnemyDeath's cleared word,
+        // or what its init AI wrote, until its first instruction. A zero spritemap is also
+        // $A0:A08C's contact gate, so the respawned actor cannot touch Samus before then.
         InitializeSlotFromDefinition(slot, spawn.Population, definition);
         RunInitializationAi(slot);
-
-        // InitializeEnemies and RespawnEnemy both enter the family initializer, then leave
-        // instruction-driven actors on the canonical empty map until their first timed frame.
-        slot.SpritemapPointer = slot.Properties.HasAny(EnemyProperties.ProcessInstructions)
-            ? slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap)
-                ? (ushort)0x804f
-                : (ushort)0x804d
-            : (ushort)0;
     }
 
     /// <summary>Runs $86:E4FE's strict 256x256 camera cull for dust/explosion actors.</summary>
@@ -119,10 +116,12 @@ public sealed partial class RoomEnemySystem
         ushort cameraX,
         ushort cameraY)
     {
+        // $86:E6E0 compares the position against camera + $100 and culls on BPL, so
+        // a projectile exactly $100 past the camera is already off-screen.
         if (unchecked((short)(projectile.XPosition - cameraX)) < 0 ||
-            unchecked((short)(cameraX + 256 - projectile.XPosition)) < 0 ||
+            unchecked((short)(projectile.XPosition - (cameraX + 256))) >= 0 ||
             unchecked((short)(projectile.YPosition - cameraY)) < 0 ||
-            unchecked((short)(cameraY + 256 - projectile.YPosition)) < 0)
+            unchecked((short)(projectile.YPosition - (cameraY + 256))) >= 0)
         {
             projectile.Clear();
         }

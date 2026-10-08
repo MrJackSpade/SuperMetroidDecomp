@@ -46,6 +46,37 @@ public sealed class SamusKinematicsState
     }
 
     /// <summary>
+    /// A copy of this body's collision geometry for a bank-$94 probe that must not move
+    /// Samus. The probe keeps the Samus owner, because native block reactions reached by
+    /// such probes (spike damage, speed-block setup) act on the real Samus.
+    /// </summary>
+    internal SamusKinematicsState CreateCollisionProbe()
+    {
+        SamusKinematicsState probe = SamusOwner is null
+            ? new SamusKinematicsState { ProbeContactDamageIndex = CollisionContactDamageIndex }
+            : new SamusKinematicsState(SamusOwner);
+        probe.CollisionPose = CollisionPose;
+        probe.XPosition = XPosition;
+        probe.XSubposition = XSubposition;
+        probe.YPosition = YPosition;
+        probe.YSubposition = YSubposition;
+        probe.XRadius = XRadius;
+        probe.YRadius = YRadius;
+        probe.YSpeed = YSpeed;
+        probe.YSubspeed = YSubspeed;
+        probe.YDirection = YDirection;
+        probe.SandCollisionArea = SandCollisionArea;
+        probe.YAcceleration = YAcceleration;
+        probe.YSubacceleration = YSubacceleration;
+        probe.HorizontalSlopeCollisionEnable = HorizontalSlopeCollisionEnable;
+        probe.PositionAdjustedBySlope = PositionAdjustedBySlope;
+        // Probes still call the native solid-enemy detector before blocks. The
+        // per-frame actor snapshots are immutable, so the probe shares them.
+        probe.InteractiveEnemies = InteractiveEnemies;
+        return probe;
+    }
+
+    /// <summary>
     /// Current pose byte sampled by bank-$94 collision. Door collision is mostly geometric,
     /// but the elevator pseudo-door handlers admit only poses below $09 before publishing
     /// <c>elevator_flags</c>. Keeping that byte beside the geometry lets every shared block
@@ -66,6 +97,12 @@ public sealed class SamusKinematicsState
     /// </remarks>
     public IReadOnlyList<SolidEnemyCollisionBody> InteractiveEnemies { get; set; } =
         Array.Empty<SolidEnemyCollisionBody>();
+
+    /// <summary>
+    /// Native left/right/up/down collision-index words. <c>$FFFF</c> means that direction did
+    /// not encounter a solid enemy.
+    /// </summary>
+    public IReadOnlyList<ushort> SolidEnemyCollisionIndexes => _solidEnemyCollisionIndexes;
 
     /// <summary>Whole-pixel world X at WRAM <c>$0AF6</c>.</summary>
     public ushort XPosition { get; set; }

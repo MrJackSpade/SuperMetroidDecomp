@@ -43,8 +43,9 @@ public sealed partial class RoomEnemySystem
             return;
 
         InitializeEnemyProjectileFromDefinition(rock, kind, graphicsIndex: 0x0600);
+        // $86:9D17 tests bit zero: clear complements the offset to the left.
         int randomOffset = random & 0x003f;
-        if ((random & 2) == 0)
+        if ((random & 1) == 0)
             randomOffset = unchecked((short)~randomOffset);
         rock.XPosition = unchecked((ushort)(body.XPosition + randomOffset));
         rock.YPosition = 432;

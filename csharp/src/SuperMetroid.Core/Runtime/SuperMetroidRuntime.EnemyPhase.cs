@@ -5,15 +5,11 @@ namespace SuperMetroid.Core.Runtime;
 
 public sealed partial class SuperMetroidRuntime
 {
-    // Only the remaining dedicated Ceres/Kraid adapters publish here. Ordinary
-    // shots, Phantoon beams and bombs dispatch per enemy before AI, never again here.
+    // Only the remaining dedicated Ceres adapter publishes here. Ordinary shots, Phantoon
+    // beams and bombs dispatch per enemy before AI, and Kraid's passes run inside its AI.
     private void ResolveUpdatedBeamHits()
     {
         Enemies.ResolveCeresRidleyProjectileHits(
-            _addressSpace,
-            Projectiles,
-            BombProjectiles);
-        Enemies.ResolveKraidProjectileHits(
             _addressSpace,
             Projectiles,
             BombProjectiles);
@@ -66,7 +62,11 @@ public sealed partial class SuperMetroidRuntime
 
     // GameState_8 runs this after Samus alpha/projectile update and before beta
     // movement. Keep actor side effects together at that shared frame boundary.
-    private void RunEnemyMainPhase()
+    /// <param name="processingListPrepared">
+    /// True in game state eight, whose frame start already ran $A0:8EB6. Door-transition
+    /// enemy passes build the list immediately before EnemyMain instead.
+    /// </param>
+    private void RunEnemyMainPhase(bool processingListPrepared)
     {
         if (Camera is not null && Enemies.IsLoaded)
         {
@@ -84,7 +84,9 @@ public sealed partial class SuperMetroidRuntime
                 BombProjectiles,
                 VramWrites,
                 resolveSamusContactBeforeAi: true,
-                collisionPlms: Plms);
+                collisionPlms: Plms,
+                nmiFrameCounter: NmiFrameCounter,
+                processingListPrepared: processingListPrepared);
             if (Enemies.LastElevatorEvent == ElevatorFrameEvent.DepartureStarted)
             {
                 // MakeSamusFaceForward clears all pending pose requests after alpha
@@ -116,13 +118,9 @@ public sealed partial class SuperMetroidRuntime
             }
             if (Enemies.CeresEscapeStartedThisFrame)
             {
-                // $A6:C117 publishes these global side effects on the same EnemyMain call
-                // that changes ceres_status from one to two. Keep the actor as producer,
-                // but apply timer and boss state in their existing runtime-owned systems.
+                // $A6:C117 starts the escape timer on the same EnemyMain call that changes
+                // ceres_status from one to two; the actor sets the boss bit itself.
                 EscapeTimer.RequestCeresStart();
-                if (ActiveRoom is null)
-                    throw new InvalidOperationException("Ceres escape started without an active room.");
-                System.SetBossBits(ActiveRoom.AreaIndex, BossBits.AreaBoss);
             }
             if (Enemies.RequestedShitroidCameraX is ushort shitroidCameraX)
             {

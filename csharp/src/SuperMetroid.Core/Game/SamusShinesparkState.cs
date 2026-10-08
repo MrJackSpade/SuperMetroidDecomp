@@ -363,7 +363,8 @@ public sealed class SamusShinesparkState
         bool playerInvincibilityEnabled = false,
         SamusProjectileSystem? projectiles = null,
         ushort gameTimeFrames = 0,
-        bool deferTimeoutPoseChange = false)
+        bool deferTimeoutPoseChange = false,
+        SamusCameraPoint? previousCheckpoint = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -420,10 +421,20 @@ false);
 
         BlockMoveResult? horizontal = null;
         BlockMoveResult? vertical = null;
+        // Each axis ends by capping how far the camera's previous-position word trails
+        // Samus. Only a camera reads that word; fixtures without one pass no checkpoint.
         if (Phase is ShinesparkPhase.Horizontal or ShinesparkPhase.Diagonal)
+        {
             horizontal = MoveX(bus, level, samus, plms);
+            if (previousCheckpoint is { } checkpoint)
+                CapPreviousX(samus, checkpoint);
+        }
         if (Phase is ShinesparkPhase.Vertical or ShinesparkPhase.Diagonal)
+        {
             vertical = MoveY(bus, level, samus, nmiFrameCounter, plms);
+            if (previousCheckpoint is { } checkpoint)
+                CapPreviousY(samus, checkpoint);
+        }
 
         // Native X and Y movement share one collision flag. Diagonal movement runs Y
         // last, so a clear vertical probe replaces an earlier wall hit and allows the
@@ -768,6 +779,36 @@ false,             CrashSequenceFinished: true);
         return EnemyTrigonometryTables.MultiplySignedSine(radius, angle.TableIndex);
     }
 
+    /// <summary>
+    /// Ports <c>$90:D1D6-$D1FB</c>: after horizontal spark movement, a previous X more than
+    /// 15 pixels behind Samus is pulled to 15 behind, in either direction.
+    /// </summary>
+    private static void CapPreviousX(SamusState samus, SamusCameraPoint checkpoint)
+    {
+        short delta = unchecked((short)(samus.XPosition - samus.PeekPreviousPositionWords(checkpoint).X));
+        if (delta >= 0)
+        {
+            if (delta >= 0x10)
+                samus.WritePreviousXPosition(unchecked((ushort)(samus.XPosition - 0x0f)));
+        }
+        else if (delta < unchecked((short)0xfff1))
+        {
+            samus.WritePreviousXPosition(unchecked((ushort)(samus.XPosition + 0x0f)));
+        }
+    }
+
+    /// <summary>
+    /// Ports <c>$90:D2A3-$D2B6</c>: after vertical spark movement, a previous Y more than 14
+    /// pixels below Samus is pulled to 14 below.
+    /// </summary>
+    private static void CapPreviousY(SamusState samus, SamusCameraPoint checkpoint)
+    {
+        ushort delta = unchecked((ushort)(samus.YPosition - samus.PeekPreviousPositionWords(checkpoint).Y));
+        // CMP #$FFF2 / BPL: the sign of delta - $FFF2.
+        if (unchecked((short)(delta - 0xfff2)) < 0)
+            samus.WritePreviousYPosition(unchecked((ushort)(samus.YPosition + 0x0e)));
+    }
+
     private BlockMoveResult MoveX(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -788,20 +829,15 @@ false,             CrashSequenceFinished: true);
             samus.HorizontalSpeed.ExtraRunSubspeed = 0;
         }
 
-        int displacement = samus.IsFacingLeft(bus)
-            ? samus.HorizontalSpeed.CalculateLeftDisplacement(
-                baseSpeed: 0,
-                samus.Kinematics.ExtraXFixed)
-            : samus.HorizontalSpeed.CalculateRightDisplacement(
-                baseSpeed: 0,
-                samus.Kinematics.ExtraXFixed);
+        var displacement = SamusHorizontalDisplacement.Toward(samus.IsFacingLeft(bus), samus, baseSpeed: 0);
         return SamusBlockCollision.MoveHorizontal(
             bus,
             level,
             samus.Kinematics,
-            displacement,
+            displacement.Displacement,
             canBreakBombBlocks: true,
-            plms: plms);
+            plms: plms,
+            collisionMovementDirection: displacement.CollisionDirection);
     }
 
     private BlockMoveResult MoveY(

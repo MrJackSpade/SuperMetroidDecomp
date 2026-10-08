@@ -55,7 +55,7 @@ public sealed partial class SuperMetroidRuntime
                 // the cartridge routine that owns the transition back to normal rendering.
                 ActiveSamusMode7Transform = null;
                 DisplayedSamusMode7Transform = null;
-                CeresElevatorShaft.Reset(active: false);
+                CeresElevatorShaft.Reset(active: false, RoomMainScratch);
                 return;
 
             case DoorCodes.DoorASM_StartWreckedShipTreadmillWestEntrance:

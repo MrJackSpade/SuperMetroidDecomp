@@ -114,6 +114,14 @@ public sealed class Bank80SystemState
         RandomNumber = randomNumberSeed;
     }
 
+    /// <summary>
+    /// Carry flag inside every <c>MainGameLoop</c> iteration ($82:8948). The loop brackets
+    /// each pass with <c>PHP</c>/<c>PLP</c>, so it keeps the carry left by boot's
+    /// <c>DetermineNumberOfDemoSets</c> ($80:8261) when $80:856E jumps to the loop.
+    /// Code that adds or subtracts without first setting carry observes it.
+    /// </summary>
+    public bool MainGameLoopCarry { get; set; }
+
     /// <summary>Restores the raw cartridge word loaded from one checksummed save slot.</summary>
     public void LoadSavedLoadingGameState(ushort value) => SavedLoadingGameState = value;
 
@@ -235,8 +243,15 @@ public sealed class Bank80SystemState
     /// Advances Super Metroid's 16-bit pseudo-random sequence exactly as routine
     /// <c>$80:8111</c> does and returns the new seed.
     /// </summary>
+    /// <summary>
+    /// Diagnostic-only observer of each <see cref="NextRandom"/> call, used by movie-replay
+    /// tracing to attribute RNG consumers. Never part of gameplay state.
+    /// </summary>
+    [field: NonSerialized] internal Action? RandomCallObserver { get; set; }
+
     public ushort NextRandom()
     {
+        RandomCallObserver?.Invoke();
         // The ROM performs two separate 8x8 multiplies through the SNES hardware
         // multiplier ($4202/$4203). This first product is retained as a 16-bit word.
         int lowByteProduct = (RandomNumber & 0xff) * 5;
@@ -479,33 +494,6 @@ public sealed class Bank80SystemState
     {
         (int byteIndex, byte bitMask) = ResolveCollectedItemBit(bitIndex);
         return (_collectedItemBits[byteIndex] & bitMask) != 0;
-    }
-
-    /// <summary>
-    /// Tests whether the Chozo orb at a room argument has already been opened, matching
-    /// PLM instruction <c>$84:8848</c>. Negative PLM arguments are handled by the PLM
-    /// owner before reaching this native 512-bit allocation.
-    /// </summary>
-    public bool HasRoomChozoBit(int bitIndex)
-    {
-        (int byteIndex, byte bitMask) = ResolvePersistentRoomBit(
-            bitIndex,
-            RoomChozoBitByteCount,
-            "Chozo-room bit index must fit the native 64-byte table.");
-        return (_roomChozoBits[byteIndex] & bitMask) != 0;
-    }
-
-    /// <summary>
-    /// Persists a destroyed Chozo orb, matching PLM instruction <c>$84:8865</c>.
-    /// This does not set the corresponding picked-up-item bit.
-    /// </summary>
-    public void SetRoomChozoBit(int bitIndex)
-    {
-        (int byteIndex, byte bitMask) = ResolvePersistentRoomBit(
-            bitIndex,
-            RoomChozoBitByteCount,
-            "Chozo-room bit index must fit the native 64-byte table.");
-        _roomChozoBits[byteIndex] |= bitMask;
     }
 
     /// <summary>Returns one raw Chozo-state byte for cartridge-compatible SRAM encoding.</summary>

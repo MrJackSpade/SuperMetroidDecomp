@@ -87,6 +87,17 @@ public sealed class ScrollBoundaryCamera
     }
 
     /// <summary>
+    /// Keeps the layer-one fraction words ($090F/$0913) of the camera this one replaces.
+    /// Room and game loads write only the integer positions (e.g. <c>$80:C470</c>), so the
+    /// previous room's fractions remain in RAM.
+    /// </summary>
+    public void RetainSubpositions(ScrollBoundaryCamera previous)
+    {
+        XSubposition = previous.XSubposition;
+        YSubposition = previous.YSubposition;
+    }
+
+    /// <summary>
     /// Publishes the raw modular layer-one words owned by the door-opening IRQ.
     /// </summary>
     /// <remarks>
@@ -177,6 +188,41 @@ public sealed class ScrollBoundaryCamera
             AddToX(CameraXSpeed, CameraXSubspeed);
             HandleScrollingRight();
         }
+    }
+
+    /// <summary>
+    /// The fast-swing branch of <c>Main_Scrolling_Routine</c> ($90:94F7-$9555): layer 1
+    /// steps three pixels toward a dead zone around Samus, then both autoscrollers run.
+    /// The camera speed words are not recalculated. A negative Samus X skips both axes.
+    /// </summary>
+    public void TrackGrappleSlowScrolling(ushort samusX, ushort samusY, bool timeIsFrozen = false)
+    {
+        if (unchecked((short)samusX) >= 0)
+        {
+            XPosition = StepTowardDeadZone(XPosition, samusX,
+                GrappleSlowScrollDefinitions.LeftEdgeX, GrappleSlowScrollDefinitions.RightEdgeX);
+            if (unchecked((short)samusY) >= 0)
+            {
+                YPosition = StepTowardDeadZone(YPosition, samusY,
+                    GrappleSlowScrollDefinitions.TopEdgeY, GrappleSlowScrollDefinitions.BottomEdgeY);
+            }
+        }
+        HandleHorizontalAutoscrolling(timeIsFrozen);
+        HandleVerticalAutoscrolling(timeIsFrozen);
+    }
+
+    // The subtraction is unsigned: Samus left of or above the camera borrows and scrolls
+    // back, as do screen offsets below the near edge; offsets at the far edge advance.
+    private static ushort StepTowardDeadZone(ushort camera, ushort samus, ushort nearEdge, ushort farEdge)
+    {
+        if (samus < camera)
+            return unchecked((ushort)(camera - GrappleSlowScrollDefinitions.Step));
+        ushort onScreen = unchecked((ushort)(samus - camera));
+        if (onScreen >= farEdge)
+            return unchecked((ushort)(camera + GrappleSlowScrollDefinitions.Step));
+        if (onScreen < nearEdge)
+            return unchecked((ushort)(camera - GrappleSlowScrollDefinitions.Step));
+        return camera;
     }
 
     /// <summary>

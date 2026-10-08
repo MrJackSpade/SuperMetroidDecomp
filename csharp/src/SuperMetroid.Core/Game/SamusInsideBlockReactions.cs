@@ -6,17 +6,14 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Body-overlap scroll, conveyor and sand reactions from bank-$94 BlockInsideDetection.</summary>
 public static class SamusInsideBlockReactions
 {
-    /// <summary>Samples bottom, center, and top in native order, visiting each block row only once.</summary>
+    /// <summary>Samples bottom, center, and top in native order ($94:9B60).</summary>
     public static void PrepareFrame(ISnesAddressSpace bus, RoomLevelData level, SamusState samus,
         AreaId area, bool areaBossDefeated = false, RoomPlmSystem? plms = null)
     {
         var body = samus.Kinematics;
         body.SandCollisionArea = area;
-        ushort bottom = unchecked((ushort)(body.YPosition + body.YRadius - 1));
-        ushort top = unchecked((ushort)(body.YPosition - body.YRadius));
-        Visit(bottom, true, false);
-        if ((bottom >> 4) != (body.YPosition >> 4)) Visit(body.YPosition, false, true);
-        if ((top >> 4) != (bottom >> 4) && (top >> 4) != (body.YPosition >> 4)) Visit(top, false, false);
+        SamusInsideBlockSamplePoints.Visit(body.YPosition, body.YRadius, (y, point) =>
+            Visit(y, point == SamusInsideBlockPoint.Bottom, point == SamusInsideBlockPoint.Center));
 
         void Visit(ushort y, bool bottomPoint, bool centerPoint)
         {

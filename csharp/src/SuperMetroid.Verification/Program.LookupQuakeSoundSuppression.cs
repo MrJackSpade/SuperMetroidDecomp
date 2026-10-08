@@ -28,12 +28,12 @@ internal static partial class Program
         {
             state.Load(bus, vram, cgram, fxPointer: 0, doorPointer: 0, randomNumber: 0,
                 roomHeaderPointer: room);
-            state.PublishStatueEarthquakeSound(0);
+            state.PublishStatueEarthquakeSound(0, mainGameLoopCarry: true);
             AssertEqual(nativeRooms.Contains(room) ? 0 : 1, state.SoundRequests.Count,
                 "Actual room initialization and quake emission honor native suppression");
             state.Load(bus, vram, cgram, fxPointer: 0, doorPointer: 0, randomNumber: 0,
                 roomHeaderPointer: 0);
-            state.PublishStatueEarthquakeSound(0);
+            state.PublishStatueEarthquakeSound(0, mainGameLoopCarry: true);
             AssertEqual(1, state.SoundRequests.Count, "Unsuppressed room resets previous sentinel");
         }
     }

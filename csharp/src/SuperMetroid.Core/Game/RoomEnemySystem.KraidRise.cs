@@ -97,10 +97,18 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>
+    /// Ports <c>RestrictSamusXPositionToFirstScreen</c> ($A7:C9EE). It writes the integer X
+    /// and previous X words only, so the camera's $90:95A0 compare sees Samus's subsequent
+    /// movement away from $100 as a scroll.
+    /// </summary>
     private static void RestrictSamusToKraidFirstScreen(SamusState? samus)
     {
         if (samus is not null && unchecked((short)(samus.XPosition - 256)) >= 0)
+        {
             samus.XPosition = 256;
+            samus.WritePreviousXPosition(256);
+        }
     }
 
     private static void TickKraidFunctionTimer(

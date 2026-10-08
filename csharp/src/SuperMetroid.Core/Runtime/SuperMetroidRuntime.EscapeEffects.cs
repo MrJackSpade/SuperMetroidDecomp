@@ -4,11 +4,13 @@ namespace SuperMetroid.Core.Runtime;
 
 public sealed partial class SuperMetroidRuntime
 {
-    private ushort _escapeDiagonalFrames;
-
     private void SetupEscapeRoomEffects(RoomSetupCallback setup)
     {
-        _escapeDiagonalFrames = 0;
+        // $8F:C93C/$C964 clear the diagonal countdown (RoomMainASMVar1) for the two rooms
+        // whose mains switch quake types; the other setups leave the shared word alone.
+        if (setup is RoomSetupCallback.SetLightHorizontalRoomShaking or
+            RoomSetupCallback.SetupEscapeRoom4PlmAndMediumHorizontalShaking)
+            RoomMainScratch.Var1 = 0;
         ushort? type = setup switch
         {
             RoomSetupCallback.SetZebesTimebombEventAndLightHorizontalShaking or
@@ -41,14 +43,14 @@ public sealed partial class SuperMetroidRuntime
             return;
         if (light || medium)
         {
-            if (_escapeDiagonalFrames != 0)
+            if (RoomMainScratch.Var1 != 0)
             {
-                if (--_escapeDiagonalFrames == 0)
+                if (--RoomMainScratch.Var1 == 0)
                     Enemies.EarthquakeType = light ? ZebesEscapeRomData.LightHorizontal : ZebesEscapeRomData.MediumHorizontal;
             }
             else if (System.NextRandom() < (light ? ZebesEscapeRomData.LightChance : ZebesEscapeRomData.MediumChance))
             {
-                _escapeDiagonalFrames = ZebesEscapeRomData.DiagonalFrames;
+                RoomMainScratch.Var1 = ZebesEscapeRomData.DiagonalFrames;
                 Enemies.EarthquakeType = light ? ZebesEscapeRomData.MediumDiagonal : ZebesEscapeRomData.StrongDiagonal;
             }
         }

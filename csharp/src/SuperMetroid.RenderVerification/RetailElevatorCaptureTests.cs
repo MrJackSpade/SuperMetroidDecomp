@@ -35,7 +35,7 @@ internal static class RetailElevatorCaptureTests
                 arrival.PlatformYPosition != capturedArrival.PlatformYPosition || arrival.IsComplete != capturedArrival.IsComplete)
                 throw new InvalidOperationException("Elevator publication changed arrival state.");
             fade |= expected.GameState == SuperMetroidGameState.MainGameplayFadeIn;
-            arriving |= expected.GameState == SuperMetroidGameState.MadeItToCeresElevator;
+            arriving |= expected.GameState == SuperMetroidGameState.MainGameplay && !arrival.IsComplete;
             landed |= arrival.IsComplete;
             padPositions.Add(arrival.PadYPosition);
             var packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(actual.Snapshot!));

@@ -48,8 +48,6 @@ internal static class DebuggerStateFieldMigrations
         // (a74aa6d1), treadmill owner (e361a6b1), Ceres haze ownership (4f3e4bec).
         new(typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime).FullName!, ["_tourianStatues"],
             "Older debugger state predates the statue sequence; it initializes on room entry."),
-        new(typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime).FullName!, ["_escapeDiagonalFrames"],
-            "Legacy runtime lacks escape-quake state; the escape quake restores inactive."),
         new(typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime).FullName!, ["<PreventEscapeTimeout>k__BackingField"],
             "Legacy runtime lacks the escape-timeout option; restoring it disabled."),
         // Constructors are bypassed by graph restoration. No animation existed in this
@@ -329,6 +327,80 @@ internal static class DebuggerStateFieldMigrations
             "Older debugger state has no statue displacement/water surface; initializing to zero."),
         new(typeof(RoomEnemySystem).FullName!, ["<EnemyDoorTransitionActive>k__BackingField"],
             "Legacy enemy state lacks the enemy door-transition latch; restoring no transition in progress."),
+
+        // v0.4.0 hotfix (#1269) additions. Fields restored as their zero/false/null value need
+        // no initializer: that value reproduces the earlier build's behavior.
+        new("SuperMetroid.Core.Frontend.CeresDestructionCinematicState", ["initialNmiWaits"], null,
+            // Older captures set the scene up at construction; restored as already past $8B:C11B.
+            scene => Set(scene, "initialNmiWaits", SuperMetroid.Core.Frontend.CeresDestructionRomData.InitialNmiWaits + 1)),
+        // Older boxes had no pre-open or post-close lag frames; none is pending.
+        new(typeof(GameplayMessageBoxState).FullName!, ["_lagFramesRemaining"], null),
+        new(typeof(GameplayMessageBoxState).FullName!, ["_selectionRedrawWaitPending"],
+            "Older message box lacks the cursor-redraw wait; a capture taken right after a save-cursor move resumes one frame early."),
+        // The SPC driver's $01-$03/$09-$0B sound-port pipeline, seeded from the last echoes.
+        new(typeof(SuperMetroid.Core.Audio.ManagedSpcPlayer).FullName!, ["soundCommandReads", "previousSoundCommandReads"],
+            "Legacy SPC state predates the sound-port read pipeline; seeding it from the last echoed commands.",
+            player => SeedLegacySoundPortPipeline((SuperMetroid.Core.Audio.ManagedSpcPlayer)player)),
+        // Older builds never requested the dead-room column reset; nothing is pending.
+        new(typeof(KraidEnemyState).FullName!, ["<Layer1XBlockResetRequested>k__BackingField"], null),
+        new(typeof(RoomEnemySystem).FullName!, ["<CameraDistanceIndex>k__BackingField"], null, SeedLegacyCameraDistanceIndex),
+        new(typeof(RoomEnemySystem).FullName!, ["<GradualColorChange>k__BackingField"], null,
+            enemies => Set(enemies, "<GradualColorChange>k__BackingField", new GradualColorChangeCounter())),
+        // The retired private transition number supplies this counter; see DebuggerRetiredFieldDefinitions.
+        new("SuperMetroid.Core.Frontend.CartridgePaletteTransition", ["numerator"], null),
+        // Older builds ran the pre-instruction from the first handler call; a saved
+        // transformation resumes with its pre-instruction already installed.
+        new(typeof(SamusSuitPickupState).FullName!, ["_preInstructionInstallCallsRemaining"], null),
+        // Older builds finished a message box's gameplay frame before the box.
+        new(typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime).FullName!, ["_suspendedFrameTail"], null),
+        // Older builds applied the loader's elevator placement only when the door finished.
+        new(typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime).FullName!, ["_pendingLoaderSamusPlacement"], null),
+        // The shared RoomMainASMVar1 replaced the debris and escape timers, which the reader
+        // drains as retired fields; it is seeded from the active room main's copy.
+        new(typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime).FullName!, ["<RoomMainScratch>k__BackingField"], null,
+            runtime => SeedLegacyRoomMainScratch((SuperMetroid.Core.Runtime.SuperMetroidRuntime)runtime)),
+        new(typeof(SuperMetroid.Core.Frontend.SuperMetroidGame).FullName!, ["bootMainLoopCarry"],
+            "Older frontend lacks the boot main-loop carry; resuming with carry clear, as that build behaved."),
+        new(typeof(Bank80SystemState).FullName!, ["<MainGameLoopCarry>k__BackingField"],
+            "Older bank-$80 state lacks the main-loop carry; resuming with carry clear, as that build behaved."),
+        // Older builds hard-coded the fade reload. Outside a pause fade the native delay word is
+        // zero; a capture inside one restores the immediate-step cadence.
+        new(typeof(SuperMetroid.Core.Frontend.SuperMetroidGame).FullName!, ["pauseFadeDelay"], null),
+        // Door-loader progress and the door music-upload NMI source are host policy; older
+        // captures restore the lag-free policy.
+        new(typeof(SuperMetroid.Core.Frontend.SuperMetroidGame).FullName!, ["<DoorLoaderProgress>k__BackingField"], null,
+            game => Set(game, "<DoorLoaderProgress>k__BackingField", SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance)),
+        new(typeof(SuperMetroid.Core.Frontend.SuperMetroidGame).FullName!, ["<DoorMusicUploadNmis>k__BackingField"], null,
+            game => Set(game, "<DoorMusicUploadNmis>k__BackingField", SuperMetroid.Core.Frontend.LagFreeDoorMusicUploadNmis.Instance)),
+        // Older builds left state $09 within its first dispatch, so no capture can be inside the
+        // downward-elevator delay.
+        new(typeof(SuperMetroid.Core.Frontend.SuperMetroidGame).FullName!, ["waitingForDownwardsElevator", "downwardsElevatorDelayTimer"], null),
+        new(typeof(SuperMetroid.Core.Frontend.SuperMetroidGame).FullName!, ["menuNmiFrameCounter", "menuNmiFrameCounter8", "gameLoadingCompletion"],
+            "Legacy frontend predates native loading-dispatch and menu NMI-counter ownership; restoring zero menu NMI counts and gameplay fade-in after any pending load."),
+        // Older builds folded command six into the plain input lock.
+        new(typeof(SamusState).FullName!, ["<RefillStationLocked>k__BackingField"],
+            "Older Samus state lacks the station-lock beta; a capture taken at a station animates Samus until release."),
+        // A pending previous-X write exists only within one frame's enemy-to-scroll span.
+        new(typeof(SamusState).FullName!, ["_previousXPositionWrite"], null),
+        new(typeof(RoomLayer3FxState).FullName!, ["lavaSoundTimer"],
+            "Legacy room FX predates lava's ambient sound timer; it restarts a full period.",
+            fx => Set(fx, "lavaSoundTimer", RoomFxRomData.LavaAcid.AmbientSoundPeriod)),
+        // The quarter words are rebuilt from zero by the next firing; a capture taken
+        // mid-extension resumes with the clean quarter of its velocity.
+        new(typeof(SamusGrappleState).FullName!, ["<XQuarterSubVelocity>k__BackingField", "<XQuarterVelocity>k__BackingField",
+            "<YQuarterSubVelocity>k__BackingField", "<YQuarterVelocity>k__BackingField"], null),
+        // False is the slow-scroll state of every non-swinging grapple; a swing sets it again.
+        new(typeof(SamusGrappleState).FullName!, ["<SlowScrolling>k__BackingField"], null),
+        // Older builds applied the release pose immediately; nothing is pending.
+        new(typeof(GrappleMovementResult).FullName!, ["<PendingReleasePose>k__BackingField"], null),
+        new(typeof(FileSelectMenuState).FullName!, ["screenFade"],
+            "Older file-select state lacks native fade timing words; resuming with index two's delay of one.",
+            fileSelect =>
+            {
+                var fade = new ScreenFade();
+                fade.SetTiming(1, 1);
+                Set(fileSelect, "screenFade", fade);
+            }),
     ];
 
     private static readonly Dictionary<string, DebuggerFieldIntroduction[]> introductionsByType =
@@ -364,6 +436,69 @@ internal static class DebuggerStateFieldMigrations
     {
         foreach (DebuggerFieldIntroduction introduction in omitted)
             introduction.Initialize?.Invoke(instance);
+    }
+
+    /// <summary>
+    /// Builds the SPC sound-port pipeline for a capture that predates it. Its driver consumed
+    /// each CPU write into a $FF sentinel and echoed it at once, so the last echo is the value
+    /// both pipeline words held; a still-unconsumed write remains a pending latch value.
+    /// </summary>
+    private static void SeedLegacySoundPortPipeline(SuperMetroid.Core.Audio.ManagedSpcPlayer player)
+    {
+        var inputPorts = (byte[])Get(player, "inputPorts")!;
+        var reads = new byte[SuperMetroid.Core.Audio.AudioRomData.Queues.SoundLibraryCount];
+        var previous = new byte[reads.Length];
+        for (int library = 0; library < reads.Length; library++)
+        {
+            int port = library + SuperMetroid.Core.Audio.AudioRomData.Apu.FirstSoundPort;
+            byte echoed = player.ReadPort(port);
+            reads[library] = previous[library] = echoed;
+            if (inputPorts[port] == byte.MaxValue)
+                inputPorts[port] = echoed;
+        }
+        Set(player, "soundCommandReads", reads);
+        Set(player, "previousSoundCommandReads", previous);
+    }
+
+    /// <summary>
+    /// Builds the shared RoomMainASMVar1 for a capture that predates it, from the private copy
+    /// of whichever room main owned the active room. Earlier rooms' values were not retained.
+    /// </summary>
+    private static void SeedLegacyRoomMainScratch(SuperMetroid.Core.Runtime.SuperMetroidRuntime runtime)
+    {
+        var main = runtime.ActiveRoom?.State.MainCallback;
+        (object Owner, string Field)? source =
+            runtime.CeresElevatorShaft.IsActive ? (runtime.CeresElevatorShaft, "<RotationIndex>k__BackingField") :
+            runtime.MaridiaElevatube.IsActive ? (runtime.MaridiaElevatube, "<PositionSubposition>k__BackingField") :
+            main == RoomMainCallback.SpawnCeresPreElevatorHallFallingDebris
+                ? (runtime, "_ceresFallingDebrisTimer") :
+            main is RoomMainCallback.ShakeScreenLightHorizontalAndMediumDiagonal or
+                RoomMainCallback.ShakeScreenMediumHorizontalAndStrongDiagonal
+                ? (runtime, "_escapeDiagonalFrames") : null;
+        ushort var1 = 0;
+        if (source is { } owner && !DebuggerRetiredFieldDefinitions.TryGetLegacyWord(owner.Owner, owner.Field, out var1))
+            throw new InvalidDataException(
+                $"Legacy runtime's active room main lacks its {owner.Field} room-main word.");
+        Console.Error.WriteLine(source is null
+            ? "WARNING: Legacy runtime predates the shared room-main word; no active room main owned it, so it restores as zero."
+            : "WARNING: Legacy runtime predates the shared room-main word; restoring it from the active room main.");
+        Set(runtime, "<RoomMainScratch>k__BackingField", new SuperMetroid.Core.Runtime.RoomMainScratchState { Var1 = var1 });
+    }
+
+    /// <summary>
+    /// Seeds the shared camera distance word from legacy Kraid's private copy. A legacy
+    /// Crocomire has no copy; its camera target restores as normal tracking.
+    /// </summary>
+    private static void SeedLegacyCameraDistanceIndex(object value)
+    {
+        var enemies = (RoomEnemySystem)value;
+        ushort index = 0;
+        if (enemies.Kraid is { } legacyKraid &&
+            !DebuggerRetiredFieldDefinitions.TryGetLegacyWord(legacyKraid, "<CameraDistanceIndex>k__BackingField", out index))
+            throw new InvalidDataException("Legacy Kraid state lacks its camera distance index.");
+        if (enemies.Crocomire is not null)
+            Console.Error.WriteLine("WARNING: Legacy enemy state predates the shared camera distance index; Crocomire's camera target restores as normal tracking.");
+        Set(enemies, "<CameraDistanceIndex>k__BackingField", (CameraDistanceMode)index);
     }
 
     private static object? Get(object instance, string field) =>

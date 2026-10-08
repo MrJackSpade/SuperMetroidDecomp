@@ -11,7 +11,8 @@ internal static partial class Program
         // Numeric coefficients/phases were proven by the #1165 research; this check covers
         // actual per-frame publication only.
         var state = new CeresElevatorShaftRoomMainState();
-        state.Reset(active: true);
+        var scratch = new RoomMainScratchState();
+        state.Reset(active: true, scratch);
         var empty = new TestAddressSpace();
         ushort phaseWord = 34, timer = 60;
         int updates = 0;
@@ -24,7 +25,7 @@ internal static partial class Program
             int offset = (ushort)(phaseWord * 6);
             if (changed)
                 timer = Word(offset);
-            var actual = state.Step(empty, null, 0x8000, allowDeparture: false);
+            var actual = state.Step(empty, null, 0x8000, allowDeparture: false, scratch);
             AssertEqual(changed, actual.MatrixChanged, "shaft matrix publication frame");
             AssertEqual(timer, state.RotationTimer, "shaft native timer every frame");
             if (changed)
@@ -37,7 +38,7 @@ internal static partial class Program
                     : phaseWord == 67 ? (ushort)0x8044 : (ushort)(phaseWord + 1);
                 updates++;
             }
-            AssertEqual(phaseWord, state.RotationIndex, "shaft forward/reverse native phase");
+            AssertEqual(phaseWord, scratch.Var1, "shaft forward/reverse native phase");
         }
     }
 }

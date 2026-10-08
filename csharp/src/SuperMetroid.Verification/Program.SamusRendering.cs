@@ -178,6 +178,10 @@ static void VerifySamusRenderingSlice()
     samus.PoseHistory.PreviousDirectionAndMovement = 0x0308;
     samus.PoseHistory.LastDifferentPose = SamusPoseIds.WallJumpLeftPose;
     samus.PoseHistory.LastDifferentDirectionAndMovement = 0x1404;
+    // A $18 live radius takes MakeSamusFaceForward's no-lift branch, so the drawing
+    // checks below keep Samus at the seeded Y.
+    samus.Kinematics.YRadius = 0x18;
+    ushort radiusBeforeForwardSetup = samus.Kinematics.YRadius;
     samus.ApplyForwardFacingPoseSetup(bus);
     AssertEqual(SamusPoseIds.SpinJumpRightPose, samus.PoseHistory.LastDifferentPose,
         "forward setup shifts previous pose, not stale older walljump history");
@@ -192,7 +196,9 @@ static void VerifySamusRenderingSlice()
     AssertTrue(!samus.PoseHistory.AllowsWallJumpProbe,
         "repeated forward setup cannot retain an obsolete spin walljump gate");
     AssertEqual(SamusPoseIds.ForwardFacingPowerSuitPose, samus.Pose, "no suit selects power forward pose");
-    AssertEqual(24, samus.Kinematics.YRadius, "power forward setup reads radius 24");
+    // MakeSamusFaceForward ($91:E3F6) only compares the live radius with $18; the next
+    // frame's SetSamusRadius installs the pose's own radius.
+    AssertEqual(radiusBeforeForwardSetup, samus.Kinematics.YRadius, "forward setup leaves the live radius");
     AssertEqual(8, samus.AnimationFrameTimer, "power forward setup reads delay eight");
     AssertEqual(0, samus.HorizontalSpeed.BaseSpeed, "forward setup clears base X speed");
     AssertEqual(0, samus.Kinematics.YSpeed, "forward setup clears Y speed");

@@ -16,6 +16,17 @@ internal static partial class Program
         return state;
     }
 
+    /// <summary>
+    /// Steps a requested L/R pause-page switch to completion. Native page switches take
+    /// a fade-out, a separate load dispatch and a delay-one fade-in (46 updates).
+    /// </summary>
+    private static void CompletePausePageTransition(PauseMenuState pause)
+    {
+        for (int update = 0; update < 64 && pause.PageTransitionActive; update++)
+            pause.Step(0, 0);
+        AssertTrue(!pause.PageTransitionActive, "pause page switch completes");
+    }
+
     private static PauseMenuState CreateRetailPauseFixture(ISnesAddressSpace bus,
         SamusState samus, Bank80SystemState system, AreaId areaIndex,
         byte roomMapX, byte roomMapY, CartridgeAudioState? audio = null,

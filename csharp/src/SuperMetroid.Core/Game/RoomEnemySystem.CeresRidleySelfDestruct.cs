@@ -110,6 +110,9 @@ public sealed partial class RoomEnemySystem
                 state.FunctionTimer = 0;
                 state.Function = RidleyAiFunction.CeresSelfDestructPaletteOnly;
                 CeresStatus = 2;
+                // $A6:C131 sets the area-boss bit inside Ridley's AI, so later slots (the
+                // room's exit door at $A6:F562) observe it in this same EnemyMain pass.
+                RequireSetAreaBossDefeated();
                 CeresEscapeStartedThisFrame = true;
                 return;
 

@@ -269,7 +269,6 @@ static void VerifySamusAimedAerialMovement()
     AerialMovementResult transitionFrame = SamusAerialMovement.StepNormalJump(
         bus, level, samus, (ushort)SnesButton.A, nmiFrameCounter: 0);
     AssertEqual(launchY, samus.YPosition, "aimed transition frame does not move vertically");
-    AssertTrue(transitionFrame.Vertical is null, "aimed transition omits normal vertical pass");
 
     samus.AnimateNoFx(bus);
     AssertEqual(0xfd, samus.LastAnimationDelayCommand!.Value, "aimed transition reaches FD");

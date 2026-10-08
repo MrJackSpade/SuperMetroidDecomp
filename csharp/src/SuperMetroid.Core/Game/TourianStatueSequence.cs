@@ -21,7 +21,12 @@ public sealed class TourianStatueSequence
     private int delay = -2;
     private int descent;
     public bool Enabled { get; private set; }
-    public short VerticalOffset => unchecked((short)-(descent >> 16));
+    /// <summary>
+    /// The whole word of native HDMAObject_Var1:Var0, which descends by $FFFF:C000 per
+    /// frame. As a signed 16.16 value its whole word floors toward negative infinity, so
+    /// the first quarter-pixel step already reads -1.
+    /// </summary>
+    public short VerticalOffset => unchecked((short)((-descent) >> 16));
     /// <summary>BG2 offset accepted with the same NMI as the displayed OBJ buffer.</summary>
     public short DisplayedVerticalOffset { get; private set; }
     internal void LatchDisplay() => DisplayedVerticalOffset = VerticalOffset;
@@ -181,7 +186,8 @@ public sealed class TourianStatueSequence
         }
         runtime.Enemies.EarthquakeType = TourianStatueRomData.DescentEarthquakeType;
         runtime.Enemies.EarthquakeTimer |= TourianStatueRomData.DescentEarthquakeTimer;
-        runtime.RoomLayer3Fx.PublishStatueEarthquakeSound(runtime.System.RandomNumber);
+        runtime.RoomLayer3Fx.PublishStatueEarthquakeSound(
+            runtime.System.RandomNumber, runtime.System.MainGameLoopCarry);
         if (delay >= 0)
         {
             if (--delay < 0) runtime.Enemies.SpawnTourianDescentDust();
@@ -190,7 +196,9 @@ public sealed class TourianStatueSequence
         if (runtime.TimeIsFrozen) return;
         descent += TourianStatueRomData.DescentStep;
         runtime.Enemies.TourianEntranceStatueVerticalOffset = VerticalOffset;
-        if (descent == TourianStatueRomData.DescentDistance << 16)
+        // $88:DC90 compares the whole word against $FF10, which it first reaches
+        // three quarter-steps before a full 240 pixels.
+        if (VerticalOffset == -TourianStatueRomData.DescentDistance)
         {
             runtime.Plms.TrySpawnTourianAccess(runtime.LevelData!, clear: false);
             runtime.System.SetEvent(EventNumber.TourianUnlocked);

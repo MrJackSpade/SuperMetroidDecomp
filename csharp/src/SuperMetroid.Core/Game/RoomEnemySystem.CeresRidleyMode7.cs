@@ -30,6 +30,23 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>
+    /// Room main <c>MainASM_HandleCeresRidleyGetawayCutscene</c> ($8F:E571) and
+    /// <c>HandleCeresRidleyGetawayCutsceneIfActive</c> ($A6:AAAF). It runs after the
+    /// frame's enemy AI and Samus processing, so the getaway's first step shares the frame
+    /// in which Ridley's escape handoff publishes Ceres status one.
+    /// </summary>
+    public void RunCeresRidleyGetawayRoomMain(SamusState? samus, ushort nmiFrameCounter)
+    {
+        if ((CeresStatus & 1) == 0)
+            return;
+        RidleyEnemyState state = _ridleyState ?? throw new InvalidOperationException(
+            "Ceres status one requires the Ceres Ridley getaway state.");
+        if (state.Mode7Finished)
+            return;
+        TickCeresRidleyMode7Getaway(state, samus, nmiFrameCounter);
+    }
+
+    /// <summary>
     /// Ports room-main function $A6:AABD through its $FFFF table terminator. This routine
     /// owns presentation only: ordinary Ridley has already been hidden, while Samus remains
     /// in room-world coordinates exactly as she does during the boss-room getaway.
@@ -49,11 +66,9 @@ public sealed partial class RoomEnemySystem
             QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x004e), maximumQueued: 6);
 
         // At byte index $D0, `$90:E119` replaces Samus's movement/hack handlers so the
-        // rotating boss image cannot overlap her. Room main executes after Samus movement
-        // natively; Request retains that one-frame boundary even though this actor currently
-        // advances during the runtime's earlier EnemyMain phase.
+        // rotating boss image cannot overlap her from the following frame onward.
         if (tableByteIndex == 0x00d0 && samus is not null)
-            samus.CeresRidleyEjection.Request();
+            samus.CeresRidleyEjection.Request(samus);
 
         var frame = CeresRidleyGetawayDefinitions.FromByteIndex(tableByteIndex);
         ushort zoom = frame.Zoom;

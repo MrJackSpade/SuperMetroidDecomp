@@ -583,6 +583,7 @@ static void VerifySamusExtraDisplacement()
     transition.Kinematics.ExtraYDisplacement = 0;
     transition.Kinematics.ExtraYSubdisplacement = 0x4000; // +0.4000
     uint transitionXBefore = transition.Kinematics.XFixed;
+    uint transitionYBefore = transition.Kinematics.YFixed;
     AerialMovementResult transitionResult = SamusAerialMovement.StepNormalJump(
         bus,
         level,
@@ -591,7 +592,7 @@ static void VerifySamusExtraDisplacement()
         nmiFrameCounter: 0);
     AssertEqual(unchecked((int)0xffff8000), unchecked((int)(transition.Kinematics.XFixed - transitionXBefore)),
         "jump transition applies signed external X with zero base speed");
-    AssertEqual(0x00014000, transitionResult.Vertical!.Value.AcceptedDisplacement,
+    AssertEqual(0x00014000, unchecked((int)(transition.Kinematics.YFixed - transitionYBefore)),
         "jump transition applies extra-only Y with positive bias");
 
     var rising = new SamusState
@@ -607,13 +608,14 @@ static void VerifySamusExtraDisplacement()
     rising.Kinematics.YSubspeed = 0;
     rising.Kinematics.ExtraYDisplacement = 1;
     rising.Kinematics.ExtraYSubdisplacement = 0x8000;
+    uint risingYBefore = rising.Kinematics.YFixed;
     AerialMovementResult reversed = SamusAerialMovement.StepNormalJump(
         bus,
         level,
         rising,
         (ushort)SnesButton.A,
         nmiFrameCounter: 0);
-    AssertEqual(0x00008000, reversed.Vertical!.Value.AcceptedDisplacement,
+    AssertEqual(0x00008000, unchecked((int)(rising.Kinematics.YFixed - risingYBefore)),
         "gravity path adds external Y directly and may reverse actual direction");
     AssertEqual(1, rising.Kinematics.YDirection,
         "external reversal does not rewrite native velocity-direction word");

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Frontend;
@@ -23,7 +24,9 @@ public sealed class FileSelectMapEntry
             Cgram.SetColor(color, mapPalettes.FileSelect[color]);
         ushort[] target = Cgram.Colors.ToArray();
         target[14] = target[30] = 0;
-        palette = new CartridgePaletteTransition(target, FileSelectMapRomData.EntryPaletteDenominator);
+        // File select runs outside gameplay; no other fade advances the counter meanwhile.
+        palette = new CartridgePaletteTransition(
+            target, FileSelectMapRomData.EntryPaletteDenominator, new GradualColorChangeCounter());
         // The gradual first-two-palettes routine starts at transition number one,
         // unlike the global door/death fade. Consume only the shared helper's no-op.
         palette.Step(Cgram);

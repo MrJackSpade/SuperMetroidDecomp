@@ -407,7 +407,11 @@ public sealed partial class RoomEnemySystem
             upwardDistance - MagdollitePhaseDefinitions.MaximumRise);
         bool rosePastSamus = samus is not null && IsNegative16(unchecked((ushort)(
             body.YPosition - phase.OverlayYOffset - samus.YPosition)));
-        ushort threshold = phase.DistanceThreshold;
+        // The maximum-rise branch skips the growth-index load, so its threshold is the
+        // overread at the main loop's enemy index; the Samus test loads the phase's own.
+        ushort threshold = roseMaximum
+            ? MagdollitePhaseDefinitions.ApexThreshold(body.SlotIndex)
+            : phase.DistanceThreshold;
 
         if (roseMaximum || rosePastSamus)
         {

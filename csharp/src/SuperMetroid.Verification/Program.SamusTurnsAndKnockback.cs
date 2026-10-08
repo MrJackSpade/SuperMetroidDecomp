@@ -203,7 +203,7 @@ static void VerifySamusAerialTurnsAndWallJump()
         endpoint.InitializeAnimation(bus);
         endpoint.HorizontalSpeed.AccelerationMode = 1;
         ushort timerBeforeRelease = endpoint.AnimationFrameTimer;
-        endpoint.ApplyAerialTurnInputFallback(bus);
+        endpoint.ApplyTurnInputFallback(bus, endpoint.ReadMovementType(bus));
         AssertEqual(0, endpoint.HorizontalSpeed.AccelerationMode, "released turn invokes momentum command two");
         AssertEqual(source, endpoint.Pose, "released turn retains unfinished pose");
         AssertEqual(timerBeforeRelease, endpoint.AnimationFrameTimer, "released turn does not restart animation");
@@ -277,7 +277,6 @@ static void VerifySamusAerialTurnsAndWallJump()
         0,
         (ushort)SnesButton.A);
     AssertTrue(triggerFrame.WallJumpTriggered, "eligible fresh jump press triggers wall jump");
-    AssertTrue(triggerFrame.Vertical is null, "wall trigger carry skips vertical movement");
     AssertEqual(beforeTriggerY, eligible.YPosition, "wall trigger frame preserves Y");
     AssertEqual(7, triggerFrame.WallDistance, "wall trigger reports clipped seven-pixel distance");
     AssertEqual(5, eligible.SolidVerticalCollisionResult,
@@ -390,7 +389,6 @@ static void VerifySamusAerialTurnsAndWallJump()
         eligible,
         (ushort)(SnesButton.Right | SnesButton.A),
         1);
-    AssertTrue(wallFrame.Vertical is { Collided: false }, "wall launch remains airborne");
     AssertEqual((wallStartY - 5), eligible.YPosition, "wall launch moves by old 4.A000 speed");
     AssertEqual(4, eligible.HorizontalSpeed.ContactDamageIndex,
         "charged wall-jump frames three through 22 publish damage index four");
@@ -697,13 +695,14 @@ static void VerifySamusKnockbackAndDamageBoost()
     AssertEqual(0, finalHurtFrameBoost.Kinematics.YSpeed,
         "direct damage-boost initializer does not invent vertical velocity");
 
+    uint boostYBefore = samus.Kinematics.YFixed;
     AerialMovementResult boostFrame = SamusAerialMovement.StepDamageBoost(
         bus,
         empty,
         samus,
         (ushort)SnesButton.A,
         nmiFrameCounter: 1);
-    AssertEqual(unchecked((int)0xfffb1c00), boostFrame.Vertical!.Value.AcceptedDisplacement,
+    AssertEqual(unchecked((int)0xfffb1c00), unchecked((int)(samus.Kinematics.YFixed - boostYBefore)),
         "damage boost reuses ordinary old-speed jumping movement");
     AssertEqual(4, samus.Kinematics.YSpeed, "damage boost gravity next whole speed");
     AssertEqual(0xc800, samus.Kinematics.YSubspeed, "damage boost gravity next subspeed");

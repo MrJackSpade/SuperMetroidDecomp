@@ -13,7 +13,8 @@ public sealed partial class RoomEnemySystem
     private void RunKraidDeathFunction(
         RoomEnemySlot body,
         KraidEnemyState state,
-        VramWriteQueue? vramWriteQueue)
+        VramWriteQueue? vramWriteQueue,
+        ushort cameraX)
     {
         switch ((KraidAiFunction)body.VariableA)
         {
@@ -101,7 +102,6 @@ public sealed partial class RoomEnemySystem
                     transferIndex: 3,
                     KraidAiFunction.DeathFadeInBackground,
                     vramWriteQueue);
-                state.RoomBackgroundFadeStep = 0;
                 return;
             case KraidAiFunction.DeathFadeInBackground:
                 if (!AdvanceKraidRoomBackgroundFade(state, fadeToBlack: false))
@@ -120,9 +120,25 @@ public sealed partial class RoomEnemySystem
                 state.DeathSequenceComplete = true;
                 return;
             case KraidAiFunction.DeathFinishedWasAlive:
+                MarkKraidDeadUnlessDeadAtLeftEdge(body, cameraX);
+                return;
             case KraidAiFunction.DeathFinishedWasDead:
+                MarkKraidDeadUnlessDeadAtLeftEdge(body, cameraX);
+                // $A7:C85E forces BG1 column streaming to treat every column as new.
+                state.Layer1XBlockResetRequested = true;
                 return;
         }
+    }
+
+    /// <summary>
+    /// Ports the shared body of <c>$A7:C843</c>/<c>$A7:C851</c>: a living Kraid, or a dead
+    /// one whose camera has left the room's left edge, gets <c>SetEnemyPropertiesToDead</c>.
+    /// </summary>
+    private void MarkKraidDeadUnlessDeadAtLeftEdge(RoomEnemySlot body, ushort cameraX)
+    {
+        if (RequireAreaBossDefeated() && cameraX == 0)
+            return;
+        MarkKraidPartDead(body);
     }
 
     private void InitializeKraidDeath(RoomEnemySlot body, KraidEnemyState state)
@@ -138,12 +154,13 @@ public sealed partial class RoomEnemySystem
         body.VariableA = (ushort)KraidAiFunction.DeathFadeOut;
         body.VariableB = KraidHeadInstructionDefinitions.DeathContinuation;
         body.VariableC = KraidHeadInstructionDefinitions.DeathEntryTimer;
-        state.RoomBackgroundFadeStep = 0;
-        foreach (int slot in new[] { 2, 3, 4, 6, 7 })
-        {
-            _slots[slot].Properties = _slots[slot].Properties.With(
-                EnemyProperties.Deleted | EnemyProperties.Invisible);
-        }
+        // $A7:C3A8-$C3E8 clear the fingernails' respawn bit, then run EnemyDeath for the
+        // nails, then the three lints. A still holds each slot's native index, which
+        // EnemyDeath treats as explosion type zero; every part leaves a death explosion.
+        foreach (int slot in new[] { 6, 7 })
+            _slots[slot].Properties = _slots[slot].Properties.Without(EnemyProperties.RespawnIfKilled);
+        foreach (int slot in new[] { 6, 7, 2, 3, 4 })
+            StartGenericEnemyDeath(_slots[slot], deathAnimation: _slots[slot].NativeIndex);
         // The live sequence crumbles successive blocks while Kraid fades/sinks.
         // It must not substitute the instantaneous already-defeated-room clear.
         _kraidPlmRequests.Add(KraidPlmDefinitions.LiveDeathSpikes);
@@ -175,6 +192,8 @@ public sealed partial class RoomEnemySystem
         for (int slot = 2; slot <= 5; slot++)
             _slots[slot].Properties = otherProperties;
         body.VariableA = (ushort)KraidAiFunction.DeathClearTopTilemap;
+        // $A7:C594 returns the camera to distance index zero before the death drop.
+        CameraDistanceIndex = CameraDistanceMode.NormalTracking;
 
         // $A0:B8EE fills the same sixteen-projectile pool used by ordinary deaths. Each
         // pickup gets a random position in Kraid's 256x64 floor strip and independently
@@ -187,7 +206,8 @@ public sealed partial class RoomEnemySystem
             yBase: 352,
             yMask: 0x3f00);
         state.DeathDropRequestCount = 16;
-        state.RoomBackgroundFadeStep = 0;
+        // $A7:C59B continues into DrawKraidsRoomBackground, which zeroes the shared numerator.
+        GradualColorChange.Numerator = 0;
     }
 
     private void ProcessKraidSinkTable(RoomEnemySlot body, KraidEnemyState state)

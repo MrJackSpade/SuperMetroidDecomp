@@ -87,6 +87,12 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     public ushort PaletteChangeNumber { get; set; }
 
+    /// <summary>
+    /// <c>CameraDistanceIndex</c> ($0941), shared by every boss that retargets the camera.
+    /// <c>Initialise_Special_Effects_for_New_Room</c> ($88:8347) clears it on each room load.
+    /// </summary>
+    public CameraDistanceMode CameraDistanceIndex { get; internal set; }
+
     /// <summary>Ports <c>Zebetites_Init</c> at <c>$A6:FB72</c>.</summary>
     private void InitializeZebetite(RoomEnemySlot slot)
     {

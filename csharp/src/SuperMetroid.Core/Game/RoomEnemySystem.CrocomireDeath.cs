@@ -37,10 +37,7 @@ public sealed partial class RoomEnemySystem
                 RunCrocomireSinkingComposite(state, samus, tickAcidSound: true);
                 return;
             case CrocomireDeathPhases.InstallFirstMeltImage:
-                InitializeCrocomireMeltingTilemap(
-                    state,
-                    CrocomireMeltingArtworkAddresses.FirstTilemap,
-                    CrocomireInstructionProgramDefinitions.MeltingOneTopRow);
+                LoadFirstCrocomireMeltingTilemap(state);
                 return;
             case CrocomireDeathPhases.CopyFirstMeltGraphics:
                 InitializeCrocomireMeltingGraphics(state);
@@ -83,10 +80,7 @@ public sealed partial class RoomEnemySystem
                 RunCrocomireSinkingComposite(state, samus, tickAcidSound: false);
                 return;
             case CrocomireDeathPhases.InstallSecondMeltImage:
-                InitializeCrocomireMeltingTilemap(
-                    state,
-                    CrocomireMeltingArtworkAddresses.SecondTilemap,
-                    CrocomireInstructionProgramDefinitions.MeltingTwoTopRow);
+                LoadSecondCrocomireMeltingTilemap(state);
                 return;
             case CrocomireDeathPhases.CopySecondMeltGraphics:
                 InitializeCrocomireMeltingGraphics(state);
@@ -343,6 +337,7 @@ public sealed partial class RoomEnemySystem
         if (state.Tongue is { } tongue)
             tongue.Properties = tongue.Properties.With(EnemyProperties.Deleted);
         PublishCrocomirePlm(0x4e, 0x03, RoomPlmHeaders.ClearCrocomireInvisibleWall);
+        CameraDistanceIndex = CameraDistanceMode.NormalTracking; // $A4:90D8
         RequireCrocomireDeath().TargetHeightOrSkeletonTileIndex = 0;
     }
 
@@ -373,6 +368,7 @@ public sealed partial class RoomEnemySystem
         RequireSetRoomScrollState(3, RoomScrollState.RedBoundary);
         RequireSetRoomScrollState(4, RoomScrollState.Blue);
         PublishCrocomirePlm(0x30, 0x03, RoomPlmHeaders.CreateCrocomireInvisibleWall);
+        CameraDistanceIndex = CameraDistanceMode.RightEdge; // $A4:97F3-97F6
         RoomEnemySlot body = state.Body;
         body.Properties = body.Properties.Replace(
             EnemyProperties.SolidToSamus | EnemyProperties.IgnoreSamusCollision,
@@ -574,6 +570,7 @@ public sealed partial class RoomEnemySystem
         LastCrocomireMusicRequest = new CrocomireMusicRequest(
             MusicCommand.SelectTrack(6),
             MusicCommandDelay.EightFrames);
+        CameraDistanceIndex = CameraDistanceMode.NormalTracking; // $A4:9B8D
         RequireSetAreaMiniBossDefeated();
         RequireCrocomireDeath().BossBitSet = true;
         SpawnCrocomireDust(state, -16);

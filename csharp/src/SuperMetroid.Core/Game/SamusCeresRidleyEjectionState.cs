@@ -9,17 +9,11 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 /// <remarks>
 /// The native request is made from room-main code, after Samus has already moved for that
-/// frame. <see cref="Request"/> therefore publishes a pending handler and
-/// <see cref="BeginFrame"/> promotes it on the following gameplay frame. This explicit
-/// seam is important in the current runtime because Ridley's translated visual owner runs
-/// during EnemyMain; immediately changing pose or input there would be one frame early.
+/// frame, so the installed handler first runs on the following gameplay frame.
 /// </remarks>
 public sealed class SamusCeresRidleyEjectionState
 {
     private const ushort TerminalDownwardSpeed = 5;
-
-    /// <summary>True between `$A6:AAF8`'s request and the following handler frame.</summary>
-    public bool IsPending { get; private set; }
 
     /// <summary>True while `$90:E12E/$E1C8` owns Samus movement.</summary>
     public bool IsActive { get; private set; }
@@ -32,23 +26,13 @@ public sealed class SamusCeresRidleyEjectionState
     /// </summary>
     public ushort PushDirection { get; private set; }
 
-    /// <summary>Publishes `$90:E119` without executing its next-frame gamma handler early.</summary>
-    public void Request()
-    {
-        if (!IsActive)
-            IsPending = true;
-    }
-
     /// <summary>
-    /// Promotes a room-main request at the beginning of the following gameplay call.
+    /// <c>SetSamusToBePushedOutOfCeresRidleysWay</c> ($90:E119): installs the handlers
+    /// that the following gameplay frame executes.
     /// </summary>
-    public void BeginFrame(SamusState samus)
+    public void Request(SamusState samus)
     {
         ArgumentNullException.ThrowIfNull(samus);
-        if (!IsPending)
-            return;
-
-        IsPending = false;
         IsActive = true;
         InitializationPending = true;
 
@@ -108,7 +92,6 @@ public sealed class SamusCeresRidleyEjectionState
                 : (ushort)2;
             samus.Kinematics.YSpeed = TerminalDownwardSpeed;
             samus.Kinematics.YSubspeed = 0;
-            samus.KnockbackXDirection = PushDirection == 1 ? (ushort)0 : (ushort)1;
 
             // `$90:E12E` initializes only handler state on this call. `$90:E1C8` does not
             // perform the first collision/movement pass until the following frame.
@@ -124,33 +107,32 @@ public sealed class SamusCeresRidleyEjectionState
         uint baseSpeed = horizontalSpeed.CalculateBaseSpeed(
             bus,
             samus.ReadMovementType(bus));
-        int requestedX = PushDirection == 1
-            ? horizontalSpeed.CalculateLeftDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed)
-            : horizontalSpeed.CalculateRightDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed);
+        var requestedX = SamusHorizontalDisplacement.Toward(PushDirection == 1, samus, baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
             bus,
             level,
             samus.Kinematics,
-            requestedX);
+            requestedX.Displacement,
+            collisionMovementDirection: requestedX.CollisionDirection);
 
         if (horizontal.Collided)
         {
-            // `$90:E1FD/$E21C` restore the ordinary handler, then Samus_ClearMoveVars sees
-            // the still-set collision flag and clears every movement word. The subsequent
-            // `$90:DDE9` hit-interruption pass observes a completed type-$0A reaction and
-            // routes through `$90:DE20-$DE73` / `$91:F31D`: `$53/$54` becomes ordinary
-            // falling `$29/$2A`, with its shorter radius aligned to the same feet. Calling
-            // that shared owner here is the host equivalent of the native same-frame tail;
-            // selecting standing directly would skip real fall/ground collision behavior.
+            // MoveSamus_Left/Right end in Kill_SamusXSpeed_IfCollisionDetected ($90:E5CE),
+            // which cancels speed boosting and clears the extra-run words as well.
+            samus.HorizontalSpeed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
+            // `$90:E1FD/$E21C` restore the ordinary handlers, then
+            // HandleKnockbackVerticalCollision ($90:DF6E) sees the still-set collision flag,
+            // clears the movement words and aligns the feet to the previous pose. The push
+            // never sets knockback direction `$0A52`, so `$90:DDE9` does not convert the
+            // hurt pose; `$53/$54` remains for the ordinary movement handler.
             IsActive = false;
             PushDirection = 0;
-            samus.HorizontalSpeed.BaseSpeed = 0;
-            samus.HorizontalSpeed.BaseSubspeed = 0;
-            samus.HorizontalSpeed.AccelerationMode = 0;
             samus.Kinematics.YSpeed = 0;
             samus.Kinematics.YSubspeed = 0;
             samus.Kinematics.YDirection = 0;
-            SamusKnockbackMovement.FinishHumanoidToFalling(bus, samus);
+            samus.AlignBottomAfterPoseChange(
+                SamusState.ReadPoseYRadius(bus, (byte)samus.PoseHistory.PreviousPose),
+                SamusState.ReadPoseYRadius(bus, samus.Pose));
             return new CeresRidleyEjectionResult();
         }
 

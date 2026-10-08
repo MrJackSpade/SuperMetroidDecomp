@@ -1151,12 +1151,13 @@ static void VerifySamusGroundedReversal()
             airborneCrouchedTurn.Kinematics.YRadius = 16;
             airborneCrouchedTurn.Kinematics.YDirection = 1;
             airborneCrouchedTurn.Kinematics.YSpeed = 1;
+            uint airborneYBefore = airborneCrouchedTurn.Kinematics.YFixed;
             AerialMovementResult airborneResult = SamusAerialMovement.StepTurningInAir(
                 bus,
                 aimedLevel,
                 airborneCrouchedTurn,
                 nmiFrameCounter: 0);
-            AssertTrue(airborneResult.Vertical is not null,
+            AssertTrue(airborneCrouchedTurn.Kinematics.YFixed != airborneYBefore,
                 "airborne crouched type-$17 turn executes simple Y movement");
         }
 
@@ -1580,6 +1581,33 @@ static void VerifySamusRanIntoWall()
         "blocked prospective run selects $89");
     AssertTrue(blockedProbe is { Collided: true }, "blocked arm-pump probe reports wall");
     AssertEqual(91, blocked.XPosition, "blocked arm-pump probe retains last-safe X");
+
+    // $91:EB05-$EB3C probes solid enemies one pixel ahead before the block move. An enemy
+    // whose leading edge touches Samus selects the wall pose and Samus does not move
+    // (retail 100% movie: running left into the gunship).
+    var enemyAhead = new SamusState
+    {
+        Pose = SamusPoseIds.FacingRightNormalPose,
+        XPosition = 80,
+        YPosition = 27,
+    };
+    enemyAhead.Kinematics.XRadius = 5;
+    enemyAhead.Kinematics.YRadius = 5;
+    enemyAhead.Kinematics.InteractiveEnemies =
+    [
+        new SolidEnemyCollisionBody(Index: 0x40, XPosition: 89, YPosition: 27, XRadius: 4, YRadius: 8,
+            FreezeTimer: 0, Properties: (ushort)EnemyProperties.SolidToSamus),
+    ];
+    byte? enemyResult = enemyAhead.CheckProspectiveRunningPoseForWall(
+        bus,
+        openFloor,
+        SamusPoseIds.MovingRightNormalPose,
+        currentXSpeedKilledByBlock: false,
+        out BlockMoveResult? enemyProbe);
+    AssertEqual((byte?)SamusPoseIds.RanIntoWallRightPose, enemyResult,
+        "solid enemy ahead selects $89");
+    AssertTrue(enemyProbe is null, "solid enemy ahead skips the one-pixel block move");
+    AssertEqual(80, enemyAhead.XPosition, "solid enemy ahead leaves Samus in place");
 
     // A killed type-one move uses the CURRENT shot direction and performs no second probe.
     var killed = new SamusState { Pose = SamusPoseIds.MovingRightNormalPose };

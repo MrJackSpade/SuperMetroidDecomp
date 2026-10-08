@@ -86,6 +86,22 @@ public sealed partial class RoomEnemySystem
     public bool ElevatorDoorTransitionActive { get; set; }
 
     public ElevatorFrameEvent LastElevatorEvent { get; private set; }
+
+    // Slot of an arriving elevator whose initializer placed Samus during this room load.
+    // The door loader consumes it within the same update, so it is never captured.
+    [NonSerialized]
+    private int? _arrivalPlacementSlot;
+
+    /// <summary>
+    /// Returns and clears the slot of the arriving elevator whose <c>Elevator_Init</c>
+    /// ($A3:9526) placed Samus during the room load just performed.
+    /// </summary>
+    public int? ConsumeElevatorArrivalPlacementSlot()
+    {
+        int? slot = _arrivalPlacementSlot;
+        _arrivalPlacementSlot = null;
+        return slot;
+    }
     public ushort? LastElevatorSoundEffectLibrary1 { get; private set; }
     public ushort? LastElevatorSoundEffectLibrary3 { get; private set; }
 
@@ -132,6 +148,7 @@ public sealed partial class RoomEnemySystem
         // intentionally survive destruction of the source room and initialization of the
         // destination room. Elevator_Init itself clears stale values unless status is two.
         Array.Clear(_elevatorStates);
+        _arrivalPlacementSlot = null;
         ElevatorDoorTransitionActive = false;
         BeginElevatorFrame();
     }
@@ -175,6 +192,7 @@ public sealed partial class RoomEnemySystem
                 throw new InvalidOperationException("Arriving elevator initialization requires Samus state.");
             slot.YPosition = slot.Parameter2;
             PinSamusToElevator(slot, samus);
+            _arrivalPlacementSlot = slot.SlotIndex;
         }
     }
 
@@ -247,17 +265,7 @@ public sealed partial class RoomEnemySystem
         // them as two requests matters because each library owns an independent SPC port.
         QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, ElevatorDepartureSoundLibrary3), maximumQueued: 6);
         QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, ElevatorDepartureSoundLibrary1), maximumQueued: 6);
-        samus.ApplyForwardFacingPoseSetup(_bus!);
-        // Command seven replaces both physical movement/input pointers. An uncrashed
-        // spark keeps its boost counter as the out-of-bounds elevator Blue Suit, while an
-        // admitted Flash keeps only its independent palette timer. Neither movement owner
-        // may resume after elevator travel; the command restores ordinary pose input.
-        samus.Shinespark.RelinquishMovementHandler();
-        samus.ShinesparkPoseInputLocked = false;
-        samus.CrystalFlash.RelinquishMovementHandler();
-        samus.CrystalFlashPoseInputLocked = false;
-        samus.InputLocked = true;
-        samus.PrimeGraphics(_bus!);
+        samus.SetupForElevator(_bus!);
         samusProjectiles?.Reset();
         ElevatorClearedProjectileData = true;
         PinSamusToElevator(slot, samus);

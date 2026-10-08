@@ -303,7 +303,7 @@ internal static partial class Program
         if (unchecked((short)expectedBase) < 0)
         {
             actual.PrimeViewport(cameraX: 0, cameraY: 0);
-            actual.Step(bus, vram, cameraX: 0, cameraY: 0, timeIsFrozen: false);
+            actual.Step(bus, vram, cameraX: 0, cameraY: 0, timeIsFrozen: false, mainGameLoopCarry: true);
             RoomLayer3FxRenderSnapshot hiddenSnapshot = actual.CaptureForDisplay()
                 ?? throw new InvalidDataException(
                     $"Room {room.Identity} negative liquid record $83:{expectedRecord:X4} " +
@@ -328,7 +328,7 @@ internal static partial class Program
             ? unchecked((ushort)(expectedBase - RetailRoomFxDefinitions.AuditSurfaceScreenY))
             : (ushort)0;
         actual.PrimeViewport(cameraX: 0, cameraY);
-        actual.Step(bus, vram, cameraX: 0, cameraY, timeIsFrozen: false);
+        actual.Step(bus, vram, cameraX: 0, cameraY, timeIsFrozen: false, mainGameLoopCarry: true);
 
         if (expectedType is RoomFxType.Lava or RoomFxType.Acid)
         {
@@ -406,7 +406,7 @@ internal static partial class Program
         ushort cameraY = unchecked((ushort)(
             fx.BaseYPosition - RetailRoomFxDefinitions.AuditSurfaceScreenY));
         fx.PrimeViewport(cameraX: 0, cameraY);
-        fx.Step(bus, vram, cameraX: 0, cameraY, timeIsFrozen: false);
+        fx.Step(bus, vram, cameraX: 0, cameraY, timeIsFrozen: false, mainGameLoopCarry: true);
 
         RoomLayer3FxRenderSnapshot firstSnapshot = fx.CaptureForDisplay()
             ?? throw new InvalidDataException("Business Center lava published no render snapshot.");
@@ -430,7 +430,7 @@ internal static partial class Program
              frame < RetailRoomFxDefinitions.LavaSurfaceFrameDuration;
              frame++)
         {
-            fx.Step(bus, vram, cameraX: 0, cameraY, timeIsFrozen: false);
+            fx.Step(bus, vram, cameraX: 0, cameraY, timeIsFrozen: false, mainGameLoopCarry: true);
         }
         Rgba32[] second = RenderRoomFx(
             vram,
@@ -603,7 +603,7 @@ internal static partial class Program
         int movingFrames = 0;
         for (; movingFrames < RetailRoomFxDefinitions.MaximumRiseAuditFrames; movingFrames++)
         {
-            fx.Step(bus, vram, cameraX: 0, cameraY, timeIsFrozen: false);
+            fx.Step(bus, vram, cameraX: 0, cameraY, timeIsFrozen: false, mainGameLoopCarry: true);
             if (fx.PackedYVelocity == 0)
                 break;
         }
@@ -657,7 +657,9 @@ internal static partial class Program
             if (frame >= 1 && frame <= RetailRoomFxDefinitions.Room28TargetFrame && --referenceSoundTimer < 0)
             {
                 int[] nativeBaseTimers = [1, 3, 2, 1, 1, 2, 2, 1]; // $88:B256 interleaved timer words.
-                referenceSoundTimer = nativeBaseTimers[referenceSoundIndex++ % 8] + (sampledRandom & 3);
+                // ADC at $88:B245 also adds the preserved main-loop carry.
+                referenceSoundTimer = nativeBaseTimers[referenceSoundIndex++ % 8] + (sampledRandom & 3) +
+                    (runtime.System.MainGameLoopCarry ? 1 : 0);
                 expectedRequests = 1;
                 referenceSoundCount++;
             }
@@ -784,7 +786,7 @@ internal static partial class Program
                 vram,
                 cameraX: 0,
                 cameraY: 0,
-                timeIsFrozen: false);
+                timeIsFrozen: false, mainGameLoopCarry: true);
             int offset = unchecked((short)(fx.CurrentYPosition - fx.BaseYPosition));
             maximumAbsoluteOffset = Math.Max(maximumAbsoluteOffset, Math.Abs(offset));
         }
@@ -817,7 +819,7 @@ internal static partial class Program
         var fx = CreateRetailFxState(bus);
         fx.Load(bus, vram, cgram, visibleRoom.State.FxPointer, doorPointer: 0, randomNumber: 0);
         fx.PrimeViewport(cameraX: 0, cameraY: 0);
-        fx.Step(bus, vram, cameraX: 0, cameraY: 0, timeIsFrozen: false);
+        fx.Step(bus, vram, cameraX: 0, cameraY: 0, timeIsFrozen: false, mainGameLoopCarry: true);
         AssertEqual(RoomFxType.Lava, fx.Type, "transition source owns visible lava");
 
         // Loading a no-FX room must clear the owner even though the old tilemap and
@@ -830,7 +832,7 @@ internal static partial class Program
         // but the stale visible liquid plane must remain suppressed.
         fx.Load(bus, vram, cgram, hiddenRoom.State.FxPointer, doorPointer: 0, randomNumber: 0);
         fx.PrimeViewport(cameraX: 0, cameraY: 0);
-        fx.Step(bus, vram, cameraX: 0, cameraY: 0, timeIsFrozen: false);
+        fx.Step(bus, vram, cameraX: 0, cameraY: 0, timeIsFrozen: false, mainGameLoopCarry: true);
         var frame = new Rgba32[
             SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
         SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(

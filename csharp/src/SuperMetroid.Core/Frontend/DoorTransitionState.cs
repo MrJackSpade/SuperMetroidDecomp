@@ -49,7 +49,8 @@ public sealed class DoorTransitionState
         sourceSamusYFixed = runtime.Samus.Kinematics.YFixed;
         paletteTransition = new CartridgePaletteTransition(
             BuildSourceFadeTarget(runtime),
-            denominator: 12);
+            denominator: 12,
+            runtime.Enemies.GradualColorChange);
         fadedSourcePalette = null;
         Phase = DoorTransitionPhase.WaitForSoundQueues;
     }
@@ -59,11 +60,13 @@ public sealed class DoorTransitionState
         SuperMetroidRuntime runtime,
         CartridgeAudioState audio,
         ushort controllerInput,
+        IDoorLoaderProgressSource loaderProgress,
         Func<ushort>? queueEchoSound = null,
         Action? publishSoundWaitAudio = null)
     {
         ArgumentNullException.ThrowIfNull(runtime);
         ArgumentNullException.ThrowIfNull(audio);
+        ArgumentNullException.ThrowIfNull(loaderProgress);
         if (!IsActive)
             throw new InvalidOperationException("Door transition has not begun.");
 
@@ -94,7 +97,7 @@ public sealed class DoorTransitionState
                 }
                 else
                 {
-                    runtime.DrawDoorTransitionActors();
+                    runtime.DrawDoorTransitionActors(runEnemyProjectiles: false);
                 }
                 break;
 
@@ -174,8 +177,9 @@ public sealed class DoorTransitionState
                     door ?? throw new InvalidOperationException("Door header was not captured."),
                     sourceSamusXFixed,
                     sourceSamusYFixed,
+                    loaderProgress,
                     completedLoadingIrqSteps: 1);
-                runtime.StepDoorOpeningScroll();
+                runtime.StepDoorOpeningScroll(loaderProgress);
                 if (runtime.IconCancelEnabled && runtime.Samus is { } samus)
                 {
                     // ResetProjectileData checks `$09EA` after clearing all projectile
@@ -185,7 +189,8 @@ public sealed class DoorTransitionState
                 }
                 paletteTransition = new CartridgePaletteTransition(
                     destinationTarget,
-                    denominator: 12);
+                    denominator: 12,
+                    runtime.Enemies.GradualColorChange);
                 Phase = DoorTransitionPhase.WaitForDoorOpeningScroll;
                 break;
 
@@ -195,7 +200,7 @@ public sealed class DoorTransitionState
                 // empty build prevents the faded source enemies from becoming black ghosts
                 // over the incrementally moving destination doorway.
                 runtime.RunBlankGameplayFrame(controllerInput);
-                if (runtime.StepDoorOpeningScroll())
+                if (runtime.StepDoorOpeningScroll(loaderProgress))
                 {
                     // The cartridge calls PLM_Handler at $82:E53C on the final IRQ
                     // scrolling update, before the NMI that precedes destination fade-in.
@@ -220,6 +225,8 @@ public sealed class DoorTransitionState
                 // Native gives it one explicit call before polling the global music queue.
                 runtime.RunBlankGameplayFrame(controllerInput);
                 runtime.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
+                // $82:E659 runs the animated-tile objects once in the destination room.
+                runtime.RunAnimatedTilesObjectHandler();
                 Phase = DoorTransitionPhase.WaitForMusicQueue;
                 break;
 
@@ -257,9 +264,10 @@ public sealed class DoorTransitionState
             case DoorTransitionPhase.FadeInDestinationPalette:
                 runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
                 runtime.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
-                // E737 runs enemy/draw owners on every fade step, without Samus's
-                // movement/animation handler or the ordinary camera streamer.
-                runtime.DrawDoorTransitionActors();
+                // E737 runs the animated-tile objects, then enemy/draw owners, on every
+                // fade step, without Samus's movement/animation handler or the camera streamer.
+                runtime.RunAnimatedTilesObjectHandler();
+                runtime.DrawDoorTransitionActors(runEnemyProjectiles: true);
                 Phase = DoorTransitionPhase.FadeInDestinationPalette;
                 // Enemy instruction lists run after the initial destination palette copy.
                 // Their target writes belong to this same fade, not a private dead buffer.

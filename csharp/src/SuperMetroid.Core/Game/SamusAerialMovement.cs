@@ -123,15 +123,14 @@ public static class SamusAerialMovement
             SamusPoseIds.NormalJumpTransitionAimDiagonalDownLeftPose)
         {
             samus.HorizontalSpeed.AccelerationMode = 0;
-            int requested = CalculateDirectedDisplacement(bus, samus, baseSpeed: 0);
+            var requested = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, baseSpeed: 0);
             BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
                 bus,
                 level,
                 samus.Kinematics,
-                requested,
+                requested.Displacement,
                 plms: plms,
-                zeroDisplacementDirection: samus.ReadFacingDirection(bus) == SamusFacingDirection.Left
-                    ? SamusCollisionDirection.Left : SamusCollisionDirection.Right);
+                collisionMovementDirection: requested.CollisionDirection);
             if (horizontal.Collided)
                 samus.HorizontalSpeed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
@@ -152,7 +151,6 @@ public static class SamusAerialMovement
                     plms: plms);
             }
             return new AerialMovementResult(
-                vertical,
                 Landed: externalY >= 0 && vertical is { Collided: true },
                 HitCeiling: externalY < 0 && vertical is { Collided: true });
         }
@@ -214,14 +212,9 @@ public static class SamusAerialMovement
         else if (!fullySubmergedWithoutGravity && samus.ProjectileFlareCounter >= 0x003c)
             samus.HorizontalSpeed.ContactDamageIndex = 4;
 
-        // Setup_Collision_RespawningBombBlock at `$84:CE83` admits either boost stage four
-        // (`$0B3E & $0F00 == $0400`) or literal Screw Attack pose `$81/$82`. This gate is
-        // independent of contact-damage publication above: liquid suppresses Samus damage,
-        // but the bank-$84 setup itself still reads pose/boost and can break the terrain.
-        bool canBreakCollisionBombBlocks =
-            (samus.HorizontalSpeed.SpeedBoostCounter & 0x0f00) == 0x0400 ||
-            SamusState.IsScrewAttackPose(samus.Pose);
-
+        // Bomb-block breaking is independent of contact-damage publication above: liquid
+        // suppresses Samus damage, but $84:CE83 still reads pose/boost through the shared
+        // collision gate (SamusState.BreaksCollisionBombBlocks) and can break the terrain.
         samus.HorizontalSpeed.HandleExtraRunSpeed(
             movementType: SamusMovementType.SpinJumping,
             controllerInput,
@@ -256,14 +249,14 @@ public static class SamusAerialMovement
             speed.AccelerationMode = 2;
         }
 
-        int requested = CalculateDirectedDisplacement(bus, samus, calculation.Speed);
+        var requested = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, calculation.Speed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
             bus,
             level,
             samus.Kinematics,
-            requested,
-            canBreakBombBlocks: canBreakCollisionBombBlocks,
-            plms: plms);
+            requested.Displacement,
+            plms: plms,
+            collisionMovementDirection: requested.CollisionDirection);
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
@@ -280,7 +273,6 @@ public static class SamusAerialMovement
             // do not execute on the trigger frame. Runtime pose handling consumes command
             // five after movement and installs `$83/$84` with the ROM launch speed.
             return new AerialMovementResult(
-                Vertical: null,
                 Landed: false,
                 HitCeiling: false,
                 WallJumpTriggered: true,
@@ -294,7 +286,6 @@ public static class SamusAerialMovement
             samus,
             horizontal,
             nmiFrameCounter,
-            canBreakBombBlocks: canBreakCollisionBombBlocks,
             plms: plms);
         return verticalResult with
         {
@@ -418,13 +409,14 @@ public static class SamusAerialMovement
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) != SamusLiquidPhysicsState.Air);
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
         uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType);
-        int requested = CalculateDirectedDisplacement(bus, samus, baseSpeed);
+        var requested = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
             bus,
             level,
             samus.Kinematics,
-            requested,
-            plms: plms);
+            requested.Displacement,
+            plms: plms,
+            collisionMovementDirection: requested.CollisionDirection);
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
@@ -440,10 +432,14 @@ public static class SamusAerialMovement
         // CheckAndMoveY selects the no-speed probe for direction zero even in
         // airborne turn art. Moonfall therefore pauses gravity during its turn;
         // this is the same branch used by grounded aimed crouching turns.
-        AerialMovementResult result = samus.Kinematics.YDirection == 0
-            ? new AerialMovementResult(                SamusGroundedMovement.RunNoSpeedCalculationGroundingProbe(bus, level, samus, nmiFrameCounter, plms),
-                false, false)
-            : FinishVerticalMovement(bus, level, samus, horizontal, nmiFrameCounter,
+        AerialMovementResult result;
+        if (samus.Kinematics.YDirection == 0)
+        {
+            SamusGroundedMovement.RunNoSpeedCalculationGroundingProbe(bus, level, samus, nmiFrameCounter, plms);
+            result = new AerialMovementResult(false, false);
+        }
+        else
+            result = FinishVerticalMovement(bus, level, samus, horizontal, nmiFrameCounter,
                 plms: plms, deferCeilingResponse: true);
         // Turning clears the collision-to-pose request after movement. A floor
         // collision clamps position but does not reset accumulated falling speed
@@ -518,8 +514,8 @@ public static class SamusAerialMovement
     /// This is a movement-handler pointer, not movement type two. It begins on the same
     /// frame that `$9B:C7B8` derives launch velocity, survives the beam's following-frame
     /// cleanup, uses the three standalone ROM acceleration records at `$90:9F31-$9F54`,
-    /// and restores the normal handler only after upward-speed underflow or vertical
-    /// collision. Keeping that lifetime explicit prevents a grapple launch from silently
+    /// and restores the normal handler after upward-speed underflow, any downward pass, or
+    /// a ceiling hit. Keeping that lifetime explicit prevents a grapple launch from silently
     /// acquiring ordinary jump input/caps one frame too early.
     /// </remarks>
     public static AerialMovementResult StepReleasedFromGrapple(
@@ -577,8 +573,9 @@ public static class SamusAerialMovement
         }
         else
         {
-            int requested = CalculateDirectedDisplacement(bus, samus, baseSpeed);
-            horizontal = SamusBlockCollision.MoveHorizontal(bus, level, state, requested, plms: plms);
+            var requested = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, baseSpeed);
+            horizontal = SamusBlockCollision.MoveHorizontal(bus, level, state, requested.Displacement, plms: plms,
+                collisionMovementDirection: requested.CollisionDirection);
             if (horizontal.Collided)
                 speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
         }
@@ -590,7 +587,9 @@ public static class SamusAerialMovement
             horizontal,
             nmiFrameCounter,
             plms: plms);
-        if (result.Vertical is { Collided: true })
+        // `$90:94BF` reads the whole word: any downward pass, or a ceiling hit, ends the
+        // special handler. Only a free upward pass keeps it for another frame.
+        if (samus.SolidVerticalCollisionResult != SamusVerticalCollisionResults.None)
             restoreNormalHandler = true;
 
         samus.Grapple.ReleasedMovementActive = !restoreNormalHandler;
@@ -623,17 +622,19 @@ public static class SamusAerialMovement
             // $90:901E/$90:9185 clear both the DP displacement and persistent base speed.
             speed.BaseSpeed = 0;
             speed.BaseSubspeed = 0;
-            // This branch bypasses $90:E4E6; retain the previous total-speed pair.
-            return SamusBlockCollision.MoveHorizontal(bus, level, samus.Kinematics, 0, plms: plms);
+            // $90:902B then branches past MoveSamus_Horizontally (and $90:E4E6, so the
+            // previous total-speed pair is retained): no slope alignment runs either.
+            return BlockMoveResult.NotMoved;
         }
 
-        int requested = CalculateDirectedDisplacement(bus, samus, calculation.Speed);
+        var requested = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, calculation.Speed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
             bus,
             level,
             samus.Kinematics,
-            requested,
-            plms: plms);
+            requested.Displacement,
+            plms: plms,
+            collisionMovementDirection: requested.CollisionDirection);
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
         return horizontal;
@@ -661,7 +662,7 @@ public static class SamusAerialMovement
             deferCeilingResponse);
         bool landed = downwardDisplacement && vertical.Collided;
 
-        return new AerialMovementResult(vertical, landed, hitCeiling);
+        return new AerialMovementResult(landed, hitCeiling);
     }
 
     /// <summary>
@@ -725,6 +726,22 @@ public static class SamusAerialMovement
             scanLeftToRight: (nmiFrameCounter & 1) == 0,
             canBreakBombBlocks: canBreakBombBlocks,
             plms: plms);
+
+        // `$90:E61B` (down) and `$90:E606` (up) publish this word after every move. A
+        // downward pass is never zero: 1 on a landing, otherwise 2 unless a wall jump's 5 is retained.
+        if (downwardDisplacement)
+        {
+            if (vertical.Collided)
+                samus.SolidVerticalCollisionResult = SamusVerticalCollisionResults.Landed;
+            else if ((samus.SolidVerticalCollisionResult & 0xff) != SamusVerticalCollisionResults.WallJump)
+                samus.SolidVerticalCollisionResult = SamusVerticalCollisionResults.Falling;
+        }
+        else
+        {
+            samus.SolidVerticalCollisionResult = vertical.Collided
+                ? SamusVerticalCollisionResults.HitCeiling
+                : SamusVerticalCollisionResults.None;
+        }
 
         hitCeiling = displacement < 0 && vertical.Collided;
         if (hitCeiling && !deferCeilingResponse)
@@ -817,7 +834,7 @@ public static class SamusAerialMovement
             // `$90:9E7F`. This is not merely an internal boolean. `$0DC6` is shared WRAM
             // state, so retain the publication even though the host result below also tells
             // the runtime to install the wall-jump pose explicitly.
-            samus.SolidVerticalCollisionResult = 5;
+            samus.SolidVerticalCollisionResult = SamusVerticalCollisionResults.WallJump;
 
             if (probe.EnemyCollision is { EnemyIndex: ushort enemyIndex })
             {
@@ -872,24 +889,6 @@ public static class SamusAerialMovement
         return true;
     }
 
-    private static int CalculateDirectedDisplacement(
-        ISnesAddressSpace bus,
-        SamusState samus,
-        uint baseSpeed)
-    {
-        SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        byte direction = samus.ReadPoseXDirection(bus);
-
-        // $90:8EA9 reverses the pose's direction only in mode one. Modes zero and two use
-        // the pose direction normally; this is why mode two is safe for aerial carry.
-        bool movesLeft = speed.AccelerationMode == 1
-            ? direction == 8
-            : direction == 4;
-        return movesLeft
-            ? speed.CalculateLeftDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed)
-            : speed.CalculateRightDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed);
-    }
-
     private static void ClearBaseHorizontalMotion(SamusHorizontalSpeedState speed)
     {
         speed.BaseSpeed = 0;
@@ -918,7 +917,6 @@ public static class SamusAerialMovement
 
 /// <summary>Both collision scans and collision state produced by one aerial frame.</summary>
 public readonly record struct AerialMovementResult(
-    BlockMoveResult? Vertical,
     bool Landed,
     bool HitCeiling,
     bool WallJumpTriggered = false,

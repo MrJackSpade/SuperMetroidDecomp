@@ -115,10 +115,12 @@ internal static partial class Program
         bool observedPadOpen = false;
         bool observedPadClose = false;
         bool observedEngineSound = false;
+        bool observedLandingClamp = false;
         while (enemies.LastGunshipEvent != GunshipFrameEvent.LandingCompleted && frames < 800)
         {
             ushort previousTopY = top.YPosition;
             ushort previousTopSubY = top.YSubposition;
+            ushort previousFunction = top.VariableF;
             ushort cameraY = samus.YPosition > 120
                 ? unchecked((ushort)(samus.YPosition - 120))
                 : (ushort)0;
@@ -145,9 +147,29 @@ internal static partial class Program
                 }
             }
 
+            if (previousFunction == 0xa80c && top.VariableF != 0xa80c)
+            {
+                // $A2:A8B2 clamps whole Y positions only; each hull keeps this call's subpixel sum.
+                ushort carriedSubY = unchecked((ushort)(previousTopSubY + 0x8000));
+                AssertEqual((ushort)0x045f, top.YPosition, "landing clamp top Y");
+                AssertEqual(carriedSubY, top.YSubposition, "landing clamp keeps top subpixel");
+                AssertEqual(carriedSubY, bottom.YSubposition, "landing clamp keeps bottom subpixel");
+                AssertEqual(carriedSubY, pad.YSubposition, "landing clamp keeps pad subpixel");
+                observedLandingClamp = true;
+            }
+
             observedPadOpen |= enemies.LastGunshipEvent == GunshipFrameEvent.LandingPadOpened;
             if (enemies.LastGunshipEvent == GunshipFrameEvent.LandingPadOpened)
             {
+                // $A2:A91E-$A925 place Samus beside the hatch in both X words, so the
+                // following MainScrollingRoutine measures no horizontal movement.
+                var checkpoint = new SamusCameraPoint(0x0480, 0x1234, samus.YPosition, 0);
+                AssertEqual(checkpoint with { XPosition = samus.XPosition },
+                    samus.ApplyPreviousPositionWrites(checkpoint),
+                    "landing writes SamusPreviousXPosition with Samus X");
+                AssertTrue(enemies.SoundRequests.Contains(new EnemySoundRequest(
+                        SoundEffectLibrary3Sounds.GunshipEntrancePad, MaximumQueued: 6)),
+                    "landing queues QueueSound_Lib3_Max6($14)");
                 // EnemyMain installs $A5BE, then this same slot's ordinary instruction
                 // phase consumes its first four-byte timed frame before StepFrame returns.
                 AssertEqual(
@@ -168,6 +190,7 @@ internal static partial class Program
         }
 
         AssertTrue(observedSlowDescent, "gunship crosses native slow-descent threshold");
+        AssertTrue(observedLandingClamp, "gunship reaches the native landing clamp");
         AssertTrue(observedPadOpen, "gunship publishes pad-open boundary");
         AssertTrue(observedPadClose, "gunship publishes pad-close boundary");
         AssertTrue(observedEngineSound,

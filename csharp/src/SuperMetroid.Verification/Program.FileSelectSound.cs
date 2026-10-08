@@ -13,16 +13,24 @@ internal static partial class Program
         var menu = new FileSelectMenuState(bus, audio, RetailPresentationFixture());
         var renderer = new CartridgeAudioRenderer(ExtractedAudioAssetCatalog.Load(Path.GetFullPath("standalone-assets/audio")));
         int writes = 0, nonzero = 0;
+        bool accepted = false;
         for (int frame = 0; frame < 180; frame++)
         {
-            menu.Step(frame == 30 ? (ushort)SnesButton.A : (ushort)0);
+            // Accept on the first update the native main menu reads input.
+            bool accept = !accepted && menu.Phase == FileSelectPhase.Main;
+            menu.Step(accept ? (ushort)SnesButton.A : (ushort)0);
             var commands = audio.AdvanceFrame(bus, renderer.ReadAcknowledgements());
             writes += commands.Count(command => command.Kind == CartridgeAudioCommandKind.WritePort && command.Port == 1 && command.Value == SoundEffectLibrary1Sounds.FileSelectSwoosh.Value);
             var pcm = renderer.RenderFrame(commands);
-            if (frame < 30) AssertTrue(pcm.All(value => value == 0), "isolated selection must be silent before accept");
+            if (!accepted && !accept) AssertTrue(pcm.All(value => value == 0), "isolated selection must be silent before accept");
             else nonzero += pcm.Count(value => value != 0);
+            accepted |= accept;
         }
-        AssertEqual(1, writes, "one file selection sends exactly one cartridge swoosh request");
+        AssertTrue(accepted, "isolated file select reaches its main menu");
+        // The SPC driver echoes a request one sound service after reading it ($1EE7/$1621), so
+        // $82:8A55 rewrites the unacknowledged request once; the driver's change detection
+        // starts the swoosh only for the first.
+        AssertEqual(2, writes, "one file selection writes its swoosh request until the driver echoes it");
         AssertTrue(nonzero > 0, "file selection generates audible PCM");
         Console.WriteLine($"File selection: {writes} sound writes, {nonzero} nonzero PCM samples.");
         foreach (bool existingSave in new[] { false, true })
@@ -36,7 +44,6 @@ internal static partial class Program
         if (existingSave)
             new SuperMetroidSaveRam(bus, RetailPresentationFixture()).SaveSlot(0, new SuperMetroidSaveSnapshot());
         var game = CreateRetailGameFixture(bus);
-        game.BindMapPresentation(RetailPresentationFixture());
         var assets = ExtractedAudioAssetCatalog.Load(Path.GetFullPath("standalone-assets/audio"));
         var actual = new CartridgeAudioRenderer(assets);
         var withoutSwoosh = new CartridgeAudioRenderer(assets);
@@ -52,7 +59,7 @@ internal static partial class Program
             bool IsSwoosh(CartridgeAudioCommand command) => command.Kind == CartridgeAudioCommandKind.WritePort &&
                 command.Port == 1 && command.Value == SoundEffectLibrary1Sounds.FileSelectSwoosh.Value;
             writes += frame.AudioCommands.Count(IsSwoosh);
-            if (frame.AudioCommands.Any(IsSwoosh))
+            if (frame.AudioCommands.Any(IsSwoosh) && firstSoundTick < 0)
             {
                 firstSoundTick = tick;
                 AssertEqual(SuperMetroidGameState.FileSelectMenus, frame.GameState, "swoosh is requested on the file screen, not after loading");
@@ -67,7 +74,8 @@ internal static partial class Program
                     if (firstDifferenceTick < 0) firstDifferenceTick = tick;
                 }
         }
-        AssertEqual(1, writes, "full captured frontend emits one file acceptance sound");
+        // One request, rewritten once by $82:8A55 while the driver's echo is a service behind.
+        AssertEqual(2, writes, "full captured frontend emits one file acceptance sound");
         AssertTrue(differentSamples > 0, "selection changes PCM even with frontend music and bank uploads");
         // Report onset rather than impose a guessed one-frame bound: the native SPC
         // instruction stream may deliberately delay its first non-silent sample.

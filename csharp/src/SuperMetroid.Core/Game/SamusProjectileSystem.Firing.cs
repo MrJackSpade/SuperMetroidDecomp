@@ -247,8 +247,10 @@ public sealed partial class SamusProjectileSystem
             return (null, 0);
         }
 
+        // The fire routines overwrite only the words they initialize. Words such as the
+        // subpixels keep the slot's previous occupant until velocity setup, so the left
+        // muzzle check's -1 speed ($90:BDA7) can carry back into the same whole pixel.
         SamusProjectileSlot slot = _slots[slotIndex];
-        slot.ClearFields();
 
         byte direction = samus.PoseTransitionShotDirection != 0
             ? unchecked((byte)samus.PoseTransitionShotDirection)
@@ -257,7 +259,6 @@ public sealed partial class SamusProjectileSystem
         if (!new SamusProjectileDirectionWord(direction).IsValidInitialDirection)
         {
             ProjectileCounter = unchecked((ushort)(ProjectileCounter - 1));
-            slot.ClearFields();
             return (null, 0);
         }
 
@@ -356,15 +357,15 @@ public sealed partial class SamusProjectileSystem
             return (null, 0);
         }
 
+        // As for ordinary beams, the slot keeps its previous occupant's uninitialized words.
         SamusProjectileSlot slot = _slots[slotIndex];
-        slot.ClearFields();
-        slot.Direction = samus.ReadShotDirection(bus);
-        if (!slot.PackedDirection.IsValidInitialDirection)
+        byte direction = samus.ReadShotDirection(bus);
+        if (!new SamusProjectileDirectionWord(direction).IsValidInitialDirection)
         {
             ProjectileCounter = unchecked((ushort)(ProjectileCounter - 1));
-            slot.ClearFields();
             return (null, 0);
         }
+        slot.Direction = direction;
 
         InitializePosition(bus, samus, slot);
         ProjectileInvincibilityTimer = 10;
@@ -455,11 +456,12 @@ public sealed partial class SamusProjectileSystem
         if (slotIndex < 0)
             return (null, 0);
 
+        // As for beams, the slot keeps its previous occupant's uninitialized words.
         SamusProjectileSlot slot = _slots[slotIndex];
-        slot.ClearFields();
-        slot.Direction = samus.ReadShotDirection(bus);
-        if (!slot.PackedDirection.IsValidInitialDirection)
+        byte direction = samus.ReadShotDirection(bus);
+        if (!new SamusProjectileDirectionWord(direction).IsValidInitialDirection)
             return (null, 0);
+        slot.Direction = direction;
 
         InitializePosition(bus, samus, slot);
         ProjectileCounter = unchecked((ushort)(ProjectileCounter + 1));

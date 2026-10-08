@@ -771,7 +771,7 @@ public sealed partial class SamusProjectileSystem
         }
         ComboState = 0;
         foreach (SamusProjectileSlot slot in _slots)
-            slot.Reset();
+            slot.ClearForProjectileDataReset();
         foreach (SamusProjectileTrailSlot trail in _trailSlots)
             trail.ClearFields();
         ProjectileCounter = 0;

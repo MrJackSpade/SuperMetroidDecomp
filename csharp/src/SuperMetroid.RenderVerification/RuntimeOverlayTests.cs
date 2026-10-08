@@ -28,7 +28,7 @@ internal static class RuntimeOverlayTests
         runtime.BombProjectiles.PowerBombExplosion.Arm();
         runtime.BombProjectiles.PowerBombExplosion.Spawn(128, 120);
         for (int tick = 0; tick < 50; tick++) runtime.BombProjectiles.PowerBombExplosion.StepFrame(bus);
-        runtime.MessageBox.Begin(bus, GameplayMessageIds.MapDataAccessCompleted);
+        runtime.MessageBox.Begin(bus, GameplayMessageIds.MapDataAccessCompleted, 0);
         for (int tick = 0; tick < 13; tick++) runtime.MessageBox.Step(0);
         runtime.SuitPickup.Begin(bus, runtime.Samus!, 0, 0, SamusSuitPickupKind.Varia);
         runtime.SuitPickup.Step(bus, runtime.Samus!, runtime.Cgram);

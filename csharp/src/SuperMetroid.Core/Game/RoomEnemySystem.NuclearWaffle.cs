@@ -283,7 +283,7 @@ public sealed partial class RoomEnemySystem
             segment.XPosition = unchecked((ushort)(
                 state.OriginX + ReadEightBitCosineProduct(clampedAngle, state.OrbitRadius)));
             segment.YPosition = unchecked((ushort)(
-                state.OriginY + ReadEightBitSineProduct(clampedAngle, state.OrbitRadius)));
+                state.OriginY + ReadEightBitNegativeSineProduct(clampedAngle, state.OrbitRadius)));
             // `$A6:97C8` tests the flag left by the final link's second clamp call. It is
             // deliberately not an OR across the chain: the head and leading links can sit
             // at the endpoint while the final projectile link is still unfurling.
@@ -317,7 +317,7 @@ public sealed partial class RoomEnemySystem
             segment.XPosition = unchecked((ushort)(
                 state.OriginX + ReadEightBitCosineProduct(clampedAngle, state.OrbitRadius)));
             segment.YPosition = unchecked((ushort)(
-                state.OriginY + ReadEightBitSineProduct(clampedAngle, state.OrbitRadius)));
+                state.OriginY + ReadEightBitNegativeSineProduct(clampedAngle, state.OrbitRadius)));
         }
     }
 
@@ -397,7 +397,7 @@ public sealed partial class RoomEnemySystem
         slot.XPosition = unchecked((ushort)(
             state.OriginX + ReadEightBitCosineProduct(angle, state.OrbitRadius)));
         slot.YPosition = unchecked((ushort)(
-            state.OriginY + ReadEightBitSineProduct(angle, state.OrbitRadius)));
+            state.OriginY + ReadEightBitNegativeSineProduct(angle, state.OrbitRadius)));
     }
 
     private static void AddNuclearWaffleAngularSpeed(NuclearWaffleEnemyState state)

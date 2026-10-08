@@ -128,6 +128,49 @@ public sealed class RoomEnemySlot
         VariableA = VariableB = VariableC = VariableD = VariableE = VariableF = 0;
         SpawnXOffset = SpawnYOffset = 0;
     }
+
+    /// <summary>
+    /// Reads the word at <paramref name="offset"/> of this slot's native 64-byte
+    /// <c>EnemyData</c> record ($0F78 + slot*$40), for cartridge code that indexes enemy
+    /// RAM with an unrelated register. Words whose native encoding the port does not hold
+    /// verbatim are rejected rather than reconstructed.
+    /// </summary>
+    internal ushort ReadNativeWord(int offset) => offset switch
+    {
+        0x00 => EnemyDefinitionPointer,
+        0x02 => XPosition,
+        0x04 => XSubposition,
+        0x06 => YPosition,
+        0x08 => YSubposition,
+        0x0a => XRadius,
+        0x0c => YRadius,
+        0x0e => Properties,
+        0x10 => ExtraProperties,
+        0x12 => AiHandlerBits,
+        0x14 => Health,
+        0x16 => SpritemapPointer,
+        0x18 => Timer,
+        0x1a => CurrentInstruction,
+        0x1c => InstructionTimer,
+        0x1e => PaletteIndex,
+        0x20 => VramTilesIndex,
+        0x22 => Layer,
+        0x24 => FlashTimer,
+        0x26 => FrozenTimer,
+        0x28 => InvincibilityTimer,
+        0x2a => ShakeTimer,
+        0x2c => FrameCounter,
+        0x30 => VariableA,
+        0x32 => VariableB,
+        0x34 => VariableC,
+        0x36 => VariableD,
+        0x38 => VariableE,
+        0x3a => VariableF,
+        0x3c => Parameter1,
+        0x3e => Parameter2,
+        _ => throw new InvalidOperationException(
+            $"Enemy RAM word +${offset:X2} has no verbatim native projection."),
+    };
 }
 
 /// <summary>Cross-system gunship transitions produced during the most recent enemy frame.</summary>

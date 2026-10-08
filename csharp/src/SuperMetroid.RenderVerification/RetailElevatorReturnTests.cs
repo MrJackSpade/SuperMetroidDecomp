@@ -51,7 +51,7 @@ internal static class RetailElevatorReturnTests
         while (transition.IsActive && samples < 512)
         {
             if (transition.Phase == DoorTransitionPhase.WaitForDoorOpeningScroll) scrolling++;
-            transition.Step(runtime, audio, 0);
+            transition.Step(runtime, audio, 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
             Compare(transition.Phase.ToString());
         }
         if (transition.IsActive || scrolling < 12 ||

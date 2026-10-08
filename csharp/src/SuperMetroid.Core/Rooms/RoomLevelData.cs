@@ -200,6 +200,23 @@ public sealed class RoomLevelData
         return blockIndex;
     }
 
+    /// <summary>
+    /// Reads a level word past the authored plane from the native level allocation: the
+    /// rest of the decompressed BTS/BG2 stream, then the <c>$82:EA73</c> $8000 prefill,
+    /// including any PLM writes there. Indices past the allocation are unbounded memory.
+    /// </summary>
+    internal ushort ReadAllocationTailLevelWord(int blockIndex)
+    {
+        if (IsLogicalBlockIndex(blockIndex))
+            throw new ArgumentOutOfRangeException(nameof(blockIndex), "The index is inside the authored room plane.");
+        if ((uint)blockIndex >= (uint)_plmForegroundAllocation.Length)
+        {
+            throw new NotSupportedException(
+                $"Native block {blockIndex} lies past the {_plmForegroundAllocation.Length}-word level allocation.");
+        }
+        return _plmForegroundAllocation[blockIndex];
+    }
+
     /// <summary>Whether a native PLM block index belongs to the authored logical plane.</summary>
     internal bool IsLogicalBlockIndex(int blockIndex) =>
         (uint)blockIndex < (uint)_foregroundEntries.Length;

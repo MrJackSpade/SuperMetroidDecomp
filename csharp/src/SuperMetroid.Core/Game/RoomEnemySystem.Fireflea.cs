@@ -205,10 +205,12 @@ public sealed partial class RoomEnemySystem
             StartGenericEnemyDeath(slot, deathAnimation: slot.Health);
         else
         {
-            // Common attacking contact already ran EnemyDeath. Preserve the existing
-            // native double-kill accounting for that cleared-slot tail.
-            slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
-            EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
+            // Common attacking contact already ran EnemyDeath ($A0:A48F), which returns A = 0
+            // (or $00A3 after installing the respawn placeholder); $A3:8E6F then runs EnemyDeath
+            // again on the cleared slot. Both values select the small explosion. It spawns at
+            // (0,0) with the slot's current header (zero, or the placeholder), clears any
+            // placeholder, and counts a second kill.
+            StartGenericEnemyDeath(slot, deathAnimation: 0);
         }
         AdvanceFirefleaDarknessLevel();
     }

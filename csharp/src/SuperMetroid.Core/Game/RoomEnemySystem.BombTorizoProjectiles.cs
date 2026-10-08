@@ -35,28 +35,35 @@ public sealed partial class RoomEnemySystem
         {
             random = _nextRandom!();
         }
-        projectile.YPosition = kind == RoomEnemyProjectileKind.BombTorizoInitialDrool
-            ? unchecked((ushort)(torizo.YPosition + (random & 3) - 5))
-            : unchecked((ushort)(torizo.YPosition - 5));
-
         if (kind == RoomEnemyProjectileKind.BombTorizoInitialDrool)
         {
-            projectile.YVelocity = unchecked((ushort)((random & 0x001f) + 48));
-            ushort xJitter = unchecked((ushort)(_nextRandom!() & 3));
+            // $86:A66D-$A683 chain the carry: CLC; ADC Y; ADC #$FFFB, then the Y velocity's
+            // ADC #$0030 adds that second addition's carry (set whenever Y + jitter >= 5).
+            int jitteredY = (random & 3) + torizo.YPosition;
+            int yWithOffset = jitteredY + 0xfffb;
+            projectile.YPosition = unchecked((ushort)yWithOffset);
+            projectile.YVelocity = unchecked((ushort)((random & 0x001f) + 0x30 + (yWithOffset >> 16)));
+            // $86:A68D-$A6C3: the X offset's ADC carries out of CLC; ADC X. Every branch
+            // stores a zero X velocity.
+            int jitteredX = (_nextRandom!() & 3) + torizo.XPosition;
+            int carry = jitteredX >> 16;
             projectile.XPosition = (torizo.Parameter1 & 0x4000) != 0
-                ? unchecked((ushort)(torizo.XPosition + xJitter))
+                ? unchecked((ushort)jitteredX)
                 : (torizo.Parameter1 & 0x8000) != 0
-                    ? unchecked((ushort)(torizo.XPosition + xJitter + 8))
-                    : unchecked((ushort)(torizo.XPosition + xJitter - 8));
+                    ? unchecked((ushort)(jitteredX + 8 + carry))
+                    : unchecked((ushort)(jitteredX + 0xfff8 + carry));
+            projectile.XVelocity = 0;
             return;
         }
+        projectile.YPosition = unchecked((ushort)(torizo.YPosition - 5));
 
-        // The recurring low-health drool chooses a random direction from the shared native
-        // sine definition. Preserve the exact signed samples and 8.8 velocity representation.
+        // The recurring low-health drool chooses a random direction ($86:A5F9-$A62C). The
+        // turning branch's word index is random & $1FE; the X velocity is the sign-extended
+        // sine and the Y velocity the negative cosine of that angle.
         int angle;
         if ((torizo.Parameter1 & 0x4000) != 0)
         {
-            angle = random & 0x00ff;
+            angle = (random & 0x01fe) >> 1;
         }
         else
         {
@@ -64,9 +71,9 @@ public sealed partial class RoomEnemySystem
             angle = unchecked((byte)(baseAngle + (random & 0x000f) - 8));
         }
         projectile.XVelocity = unchecked((ushort)
-            EnemyTrigonometryTables.SignedSine(unchecked((byte)(angle + 64))));
-        projectile.YVelocity = unchecked((ushort)
             EnemyTrigonometryTables.SignedSine(unchecked((byte)angle)));
+        projectile.YVelocity = unchecked((ushort)
+            EnemyTrigonometryTables.SignedNegativeCosineWord(angle));
         projectile.XPosition = (torizo.Parameter1 & 0x8000) != 0
             ? unchecked((ushort)(torizo.XPosition + 8))
             : unchecked((ushort)(torizo.XPosition - 8));

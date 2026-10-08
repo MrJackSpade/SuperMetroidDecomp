@@ -29,8 +29,13 @@ internal static class EnemyProjectileCodePointers
     public const ushort PreInstruction_EnemyProjectile_KiHunterAcid_Left = 0xcfd5;
     /// <summary><c>PreInstruction_EnemyProjectile_KiHunterAcid_Right</c> at $86:CFE6.</summary>
     public const ushort PreInstruction_EnemyProjectile_KiHunterAcid_Right = 0xcfe6;
-    /// <summary><c>PreInstruction_EnemyProjectile_KiHunterAcid_Moving</c> at $86:CFF7.</summary>
-    public const ushort PreInstruction_EnemyProjectile_KiHunterAcid_Moving = 0xcff7;
+    /// <summary>
+    /// <c>RTS_86CFF7</c> at $86:CFF7: the acid spit header's idle pre-instruction, a bare
+    /// RTS until the instruction list installs a start-moving callback.
+    /// </summary>
+    public const ushort RTS_86CFF7 = 0xcff7;
+    /// <summary><c>PreInstruction_EnemyProj_KiHunterAcidSpit_Moving</c> at $86:CFF8.</summary>
+    public const ushort PreInstruction_EnemyProjectile_KiHunterAcid_Moving = 0xcff8;
     /// <summary><c>PreInstruction_EnemyProjectile_PolypRock</c> at $86:BC0F.</summary>
     public const ushort PreInstruction_EnemyProjectile_PolypRock = 0xbc0f;
     /// <summary><c>PreInstruction_EnemyProjectile_Pickup</c> at $86:EFE0.</summary>
@@ -478,7 +483,7 @@ internal static class EnemyProjectileCodePointers
     /// <summary><c>Instruction_EnemyProjectile_Spores_SetProperties3000</c> at $86:DC5A. Spore impact: replace packed properties with literal $3000.</summary>
     public const ushort Instruction_EnemyProjectile_Spores_SetProperties3000 = 0xdc5a;
 
-    /// <summary><c>Instruction_EnemyProjectile_Spores_SpawnEnemyDrops</c> at $86:DC61. Spore impact: request enemy definition $DF3F's drop table.</summary>
+    /// <summary><c>Instruction_EnemyProjectile_Spores_SpawnEnemyDrops</c> at $86:DC61. Spore impact: request the stalk header $DF7F's drop table.</summary>
     public const ushort Instruction_EnemyProjectile_Spores_SpawnEnemyDrops = 0xdc61;
 
     /// <summary><c>Instruction_EnemyProjectile_SporeSpawner_SpawnSpore</c> at $86:DC77. Ceiling spawner: allocate one room-graphics spore here.</summary>
@@ -522,6 +527,12 @@ internal static class EnemyProjectileCodePointers
 
     /// <summary><c>$86:D8DF</c>: move a released-air bubble vertically.</summary>
     public const ushort PreInstruction_NoobTubeBubbleFlying = 0xd8df;
+
+    /// <summary>
+    /// <c>InitAI_PreInstruction_EnemyProjectile_PrePhantoonRoom</c> at $86:A3A3: zeroes
+    /// BG2YOffset ($0923) as both the initialization and the per-frame pre-instruction.
+    /// </summary>
+    public const ushort InitAI_PreInstruction_EnemyProjectile_PrePhantoonRoom = 0xa3a3;
 
     /// <summary><c>RTS_868170</c> at $86:8170. The common cleared-pre-instruction RTS.</summary>
     public const ushort RTS_868170 = 0x8170;

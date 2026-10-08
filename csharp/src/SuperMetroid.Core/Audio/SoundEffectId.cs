@@ -58,6 +58,9 @@ public static class SoundEffectLibrary1Sounds
     /// <summary>$91:F624, SamusFunc_F468_SpinJump: library-one $31, initial ordinary spin.</summary>
     public static readonly SoundEffectId SpinJump = new(SoundEffectLibrary.Library1, 0x31); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
 
+    /// <summary>$90:F4C7 / $90:F576: library-one $41 resumes the charging-beam loop.</summary>
+    public static readonly SoundEffectId ResumeChargingBeam = new(SoundEffectLibrary.Library1, 0x41); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
     /// <summary>$90:F576, Samus_ShootCheck: library-one $32 stops a spin when movement leaves spin/wall jump.</summary>
     public static readonly SoundEffectId StopSpinJump = new(SoundEffectLibrary.Library1, 0x32); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
 

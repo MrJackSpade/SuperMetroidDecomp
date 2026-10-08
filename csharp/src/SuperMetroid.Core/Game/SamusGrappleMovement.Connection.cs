@@ -24,17 +24,23 @@ public static partial class SamusGrappleMovement
         // Whole endpoint offsets are the signed upper words of the two 16.16 accumulators.
         // Arithmetic shift is intentional: a left/up beam must retain sign after fractional
         // accumulation, exactly like reading `$0DCE/$0DD2` as signed displacement words.
-        int endpointOffsetX = grapple.EndpointXOffsetFixed >> 16;
-        int endpointOffsetY = grapple.EndpointYOffsetFixed >> 16;
         grapple.RopeStartX = unchecked((ushort)(samus.XPosition + grapple.OriginXOffset));
         grapple.RopeStartY = unchecked((ushort)(samus.YPosition + grapple.OriginYOffset));
+        // $94:A8C6-A8F1 adds the offset to Samus's subpixel-inclusive position, so the
+        // fractional carry reaches the endpoint before the whole origin offset is added.
         grapple.AnchorX = unchecked((ushort)(
-            grapple.RopeStartX + endpointOffsetX));
+            AddFixed(samus.XPosition, samus.Kinematics.XSubposition, grapple.EndpointXOffsetFixed) +
+            grapple.OriginXOffset));
         grapple.AnchorY = unchecked((ushort)(
-            grapple.RopeStartY + endpointOffsetY));
+            AddFixed(samus.YPosition, samus.Kinematics.YSubposition, grapple.EndpointYOffsetFixed) +
+            grapple.OriginYOffset));
         grapple.BeamStartX = unchecked((ushort)(samus.XPosition + grapple.FlareXOffset));
         grapple.BeamStartY = unchecked((ushort)(samus.YPosition + grapple.FlareYOffset));
     }
+
+    /// <summary>Whole word of a 16.16 position plus a signed 16.16 offset.</summary>
+    private static ushort AddFixed(ushort position, ushort subposition, int offsetFixed) =>
+        unchecked((ushort)((((uint)position << 16 | subposition) + (uint)offsetFixed) >> 16));
 
     private static GrappleBlockReaction ReactAtEndpoint(
         RoomLevelData level,

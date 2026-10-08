@@ -2,26 +2,34 @@ namespace SuperMetroid.Core.Audio;
 
 public sealed partial class ManagedSpcPlayer
 {
+    /// <summary>
+    /// One sound-effect service of library <paramref name="libraryIndex"/>: Handle CPU IO
+    /// ($1EE7/$3157/$4706) followed by Write/read CPU IO ($1621).
+    /// </summary>
+    /// <remarks>
+    /// The handler acts on the value latched by the previous service and starts a sound only
+    /// when that value changed. $1621 then echoes the acted-on value and latches the CPU's
+    /// current write, so a request is echoed one service after the service that reads it.
+    /// </remarks>
     private void HandleSoundLibraryCommand(int libraryIndex)
     {
         int port = libraryIndex + AudioRomData.Apu.FirstSoundPort;
-        byte command = inputPorts[port];
-        inputPorts[port] = SpcDriverData.NoPortCommand;
+        byte previous = previousSoundCommandReads[libraryIndex];
+        byte command = soundCommandReads[libraryIndex];
+        previousSoundCommandReads[libraryIndex] = command;
+        ApplySoundLibraryCommand(libraryIndex, changed: command != previous, command);
+        portsToSnes[port] = command;
+        soundCommandReads[libraryIndex] = inputPorts[port];
+    }
+
+    private void ApplySoundLibraryCommand(int libraryIndex, bool changed, byte command)
+    {
         ManagedSpcSoundLibrary library = soundLibraries[libraryIndex];
-
-        // Each SFX port is bidirectional. Echo every actual write, including zero, so the
-        // 65816 request queue can observe both halves of its command/clear handshake.
-        if (command != SpcDriverData.NoPortCommand)
-            portsToSnes[port] = command;
-
-        bool reject = libraryIndex switch
+        bool reject = !changed || command == 0 || libraryIndex switch
         {
-            0 => command == SpcDriverData.NoPortCommand || command == 0 ||
-                (command != 1 && command != 2 && library.Priority != 0),
-            1 => command == SpcDriverData.NoPortCommand || command == 0 ||
-                (command != 0x71 && command != 0x7e && library.Priority != 0), // allow(HardwareValue): retail SFX2 cancellation overrides
-            2 => command == SpcDriverData.NoPortCommand || command == 0 ||
-                (command != 1 && (library.Mode == 2 || command != 2 && library.Priority != 0)),
+            0 => command != 1 && command != 2 && library.Priority != 0,
+            1 => command != 0x71 && command != 0x7e && library.Priority != 0, // allow(HardwareValue): retail SFX2 cancellation overrides
+            2 => command != 1 && (library.Mode == 2 || command != 2 && library.Priority != 0),
             _ => throw new ArgumentOutOfRangeException(nameof(libraryIndex)),
         };
         if (reject)

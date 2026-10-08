@@ -195,8 +195,10 @@ internal static partial class Program
         AssertEqual(BombTorizoDroolInstructionProgramDefinitions.NoDelay,
             initial.InstructionPointer, "initial gut-break drool bypasses delay selector");
         AssertEqual((ushort)0x02fe, initial.YPosition, "initial drool random Y origin");
-        AssertEqual((ushort)79, initial.YVelocity, "initial drool random Y velocity");
+        // $86:A674 ADC #$FFFB carries out for any Y >= 5, and $86:A680 ADC #$0030 adds it.
+        AssertEqual((ushort)(0x1f + 0x30 + 1), initial.YVelocity, "initial drool random Y velocity");
         AssertEqual((ushort)0x0503, initial.XPosition, "initial drool turning X origin");
+        AssertEqual((ushort)0, initial.XVelocity, "initial drool stores a zero X velocity");
         AssertEqual(0, initialRandom.Count, "initial drool consumes exactly two RNG words");
 
         initial.InstructionPointer = BombTorizoDroolInstructionProgramDefinitions.WallImpact;

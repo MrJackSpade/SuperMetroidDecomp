@@ -83,6 +83,19 @@ public sealed class SamusGrappleState
     public ushort PoseChangeAutoFireTimer { get; set; }
     public short ExtensionXVelocity { get; set; }
     public short ExtensionYVelocity { get; set; }
+
+    /// <summary>
+    /// <c>GrappleCollision_XQuarterSubVelocity/XQuarterVelocity</c> ($0D82/$0D84). Each firing
+    /// frame rebuilds them from the extension velocity, but the outer bytes keep last frame's
+    /// values, so they are state rather than a pure function of the velocity.
+    /// </summary>
+    public ushort XQuarterSubVelocity { get; set; }
+    /// <inheritdoc cref="XQuarterSubVelocity"/>
+    public ushort XQuarterVelocity { get; set; }
+    /// <summary><c>GrappleCollision_YQuarterSubVelocity/YQuarterVelocity</c> ($0D86/$0D88).</summary>
+    public ushort YQuarterSubVelocity { get; set; }
+    /// <inheritdoc cref="YQuarterSubVelocity"/>
+    public ushort YQuarterVelocity { get; set; }
     public short OriginXOffset { get; set; }
     public short OriginYOffset { get; set; }
     public short FlareXOffset { get; set; }
@@ -126,6 +139,12 @@ public sealed class SamusGrappleState
     /// requests bank-$9B's exact locked/wallgrab angle lookup; successful swing motion clears it.
     /// </summary>
     public bool SpecialAngleHandling { get; set; }
+
+    /// <summary>
+    /// <c>GrappleBeam_SlowScrollingFlag</c>: set by <c>$9B:BD95</c> while the swing is fast,
+    /// it switches <c>Main_Scrolling_Routine</c> to its slow three-pixel camera branch.
+    /// </summary>
+    public bool SlowScrolling { get; set; }
 
     /// <summary>
     /// Native `$0D30` grace counter. Wall-grab release seeds 30, then `$9B:C832` performs
@@ -187,7 +206,8 @@ public readonly record struct GrappleMovementResult(
     ushort? CameraPreviousX = null,
     ushort? CameraPreviousY = null,
     byte? PendingDropPose = null,
-    GrapplePendingConnection? PendingConnection = null);
+    GrapplePendingConnection? PendingConnection = null,
+    byte? PendingReleasePose = null);
 
 /// <summary>
 /// The prospective pose published by <c>HandleConnectingGrapple</c>. Bank $9B installs

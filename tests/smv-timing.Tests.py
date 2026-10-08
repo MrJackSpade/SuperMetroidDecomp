@@ -45,9 +45,23 @@ def run():
     assert normalized[1]["expectedRecord"] == 4
     assert "inputRecord" not in source[0], "normalization mutated input evidence"
     import copy
-    for mutation in ("button", "scroll", "unfinished", "overlap"):
+    # A button held through the music wait is retained when no edge changes.
+    held = copy.deepcopy(source)
+    for index in range(4): held[index]["input"] = 0x8000
+    held[0]["pressed"] = 0x8000
+    assert len(normalize(held, 0)[0]) == 2, "held music-wait input with unchanged edges was refused"
+    # A press first read during the wait is latched there, so the following update
+    # sees it as held rather than newly pressed, exactly as native did.
+    hidden = copy.deepcopy(source)
+    hidden[1]["input"] = hidden[1]["pressed"] = 0x8000
+    hidden[2]["input"] = hidden[3]["input"] = 0x8000
+    latched, _ = normalize(hidden, 0)
+    assert latched[1]["hardwareWaitLatch"] == 0x8000 and latched[0]["hardwareWaitLatch"] is None
+    for mutation in ("lost-press", "scroll", "unfinished", "overlap"):
         altered = copy.deepcopy(source)
-        if mutation == "button": altered[1]["input"] = 0x8000
+        if mutation == "lost-press":
+            # A retained edge that native did not report cannot be reproduced.
+            altered[3]["input"] = 0x8000
         if mutation == "scroll": altered[1]["timingEvidence"]["doorScrollCounterAfter"] = 65
         if mutation == "unfinished": altered[1]["timingEvidence"]["doorScrollFinished"] = False
         if mutation == "overlap": altered[1]["timingClass"] = "door-scroll-continuation"
@@ -57,13 +71,26 @@ def run():
             pass
         else:
             raise AssertionError(f"Unsafe upload normalization accepted: {mutation}")
+    # Power-on prelude: logo NMIs before the first main loop are not port updates.
+    boot = [dict(interval(0), kind="nmi-continuation", timingClass="other-continuation"),
+            dict(interval(0), kind="nmi-continuation", timingClass="other-continuation", input=0x10)] + copy.deepcopy(source)
+    assert converter["boot_prelude_length"](boot) == 2
+    booted, _ = normalize(boot, 0, 2)
+    assert len(booted) == 2 and booted[0]["inputRecord"] == 2 and booted[0]["excludedNmiBefore"] == 0
+    boot[2]["input"] = 0x10
+    try:
+        normalize(boot, 0, 2)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("Prelude-held input that hides a first new press was accepted")
     try:
         normalize(source[:-1], 0)
     except ValueError:
         pass
     else:
         raise AssertionError("Incomplete terminal upload was accepted")
-    print("PASS: timing classification, upload-boundary mapping, input retention and unsafe-collapse rejection")
+    print("PASS: timing classification, boot prelude, upload-boundary mapping, input retention and unsafe-collapse rejection")
     return 0
 
 

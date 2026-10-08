@@ -587,11 +587,14 @@ if (args is ["--ridley-pause-page-timing"]) { VerifyRidleyPausePageTiming(); ret
 if (args is ["--ridley-palette-selection"]) { VerifyRidleyPaletteSelection(); return 0; }
 if (args is ["--ridley-door-entry"]) { VerifyRidleyDoorEntry(); return 0; }
 if (args is ["--ridley-full-movie"]) { VerifyRidleyFullMovie(Path.GetFullPath("native-captures/issue-1266-ridley")); return 0; }
+if (args is ["--full-playthrough-movie", var fullTraceDirectory]) { VerifyFullPlaythroughMovie(fullTraceDirectory); return 0; }
+if (args is ["--full-playthrough-movie", var tracedDirectory, "--trace-from", var traceFrom]) { VerifyFullPlaythroughMovie(tracedDirectory, int.Parse(traceFrom)); return 0; }
 if (args is ["--ridley-player-opening"]) { VerifyRidleyPlayerOpening(); return 0; }
 if (args is ["--door-autosave"]) { VerifyDoorTransitionAutosave(); return 0; }
 if (args is ["--door-music-timing"]) { VerifyDoorMusicTiming(); return 0; }
 if (args is ["--collectible-message-timing"]) { VerifyCollectibleMessageTiming(); return 0; }
 if (args is ["--permanent-collectibles-fixture"]) { VerifyPermanentCollectibles(); return 0; }
+if (args is ["--room-plm-population"]) { VerifySequentialRoomPlmPopulationLoader(); return 0; }
 if (args is ["--enemy-art-fixtures"]) { VerifyGrappleGreenGateVisibility(); VerifyGrappleEnemyDeath(); VerifyDraygonTilemapProduction(); return 0; }
 if (args is ["--xray-overlay-fixtures"]) { VerifyXrayOverlays(); VerifyXraySetupBuffers(); return 0; }
 if (args is ["--grapple-sound-refire-fixtures"]) { VerifyGrappleSounds(); VerifyGrapplePoseRefire(); return 0; }
@@ -780,6 +783,142 @@ if (args is ["--kraid-growth-command-cursor"])
 if (args is ["--power-bomb-death-drawing"])
 {
     Suite(nameof(VerifyPowerBombDeathDrawing), () => VerifyPowerBombDeathDrawing());
+    return 0;
+}
+if (args is ["--power-bomb-death-radius"])
+{
+    VerifyPowerBombDeathRadius();
+    return 0;
+}
+if (args is ["--respawned-enemy-contact"])
+{
+    VerifyRespawnedEnemyContact();
+    return 0;
+}
+if (args is ["--vertical-offscreen-deletion"])
+{
+    VerifyVerticalOffScreenDeletion();
+    return 0;
+}
+if (args is ["--botwoon-position-history"])
+{
+    VerifyBotwoonPositionHistory();
+    return 0;
+}
+if (args is ["--draygon-turret-cadence"])
+{
+    VerifyDraygonTurretCadence();
+    return 0;
+}
+if (args is ["--wall-jump-spin-exit"])
+{
+    VerifyWallJumpSpinExit();
+    return 0;
+}
+if (args is ["--evir-init-timer"])
+{
+    VerifyEvirInitTimer();
+    return 0;
+}
+if (args is ["--metroid-death-drops"])
+{
+    VerifyMetroidDeathDrops();
+    return 0;
+}
+if (args is ["--tourian-statue-descent-rounding"])
+{
+    VerifyTourianStatueDescentRounding();
+    return 0;
+}
+if (args is ["--door-animated-tiles"])
+{
+    VerifyDoorAnimatedTiles();
+    return 0;
+}
+if (args is ["--tourian-statue-xray-freeze"])
+{
+    VerifyTourianStatueXrayFreeze();
+    return 0;
+}
+if (args is ["--save-confirmation-cadence"])
+{
+    VerifySaveConfirmationCadence();
+    return 0;
+}
+if (args is ["--jump-no-x-movement"])
+{
+    VerifyJumpNoXMovement();
+    return 0;
+}
+if (args is ["--shutter-screw-contact"])
+{
+    VerifyShutterScrewContact();
+    return 0;
+}
+if (args is ["--fireflea-double-death"])
+{
+    VerifyFirefleaDoubleDeath();
+    return 0;
+}
+if (args is ["--spring-ball-falling-fallback"])
+{
+    VerifySpringBallFallingFallback();
+    return 0;
+}
+if (args is ["--door-entry-enemy-sound"])
+{
+    VerifyDoorEntryEnemySound();
+    return 0;
+}
+if (args is ["--gold-ninja-death-drops"])
+{
+    VerifyGoldNinjaDeathDrops();
+    return 0;
+}
+if (args is ["--door-entry-room-fx-sound"])
+{
+    VerifyDoorEntryRoomFxSound();
+    return 0;
+}
+if (args is ["--main-game-loop-carry"])
+{
+    VerifyMainGameLoopCarry();
+    return 0;
+}
+if (args is ["--spring-ball-bounce"])
+{
+    VerifySpringBallBounce();
+    return 0;
+}
+if (args is ["--puromi-arc-position"])
+{
+    VerifyPuromiArcPosition();
+    return 0;
+}
+if (args is ["--wall-probe-bomb-block"])
+{
+    VerifyWallProbeBombBlock();
+    return 0;
+}
+if (args is ["--golden-torizo-attack-choice"])
+{
+    VerifyGoldenTorizoAttackChoice();
+    return 0;
+}
+if (args is ["--magdollite-apex-threshold"])
+{
+    VerifyMagdolliteApexThreshold();
+    return 0;
+}
+if (args is ["--refill-station-lock"])
+{
+    VerifyRefillStationLock();
+    return 0;
+}
+if (args is ["--zoa-speeds"])
+{
+    VerifyCompiledZoaSpeeds(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--single-frame-enemy-visuals"])
@@ -5502,6 +5641,7 @@ if (args is ["--door-alignment"])
 if (args is ["--spark-crash-alignment"])
 {
     Suite(nameof(VerifySparkCrashAlignment), () => VerifySparkCrashAlignment());
+    Suite(nameof(VerifyMakeSamusFaceForward), () => VerifyMakeSamusFaceForward());
     return 0;
 }
 if (args is ["--gate-jump-traces"])
@@ -6590,6 +6730,7 @@ if (args is ["--room-callback-definitions"])
 if (args is ["--room-definition-integration"])
 {
     Suite(nameof(VerifyCompiledRoomDefinitionIntegration), () => VerifyCompiledRoomDefinitionIntegration());
+    Suite(nameof(VerifyPostCeresLandingHandOff), () => VerifyPostCeresLandingHandOff());
     return 0;
 }
 if (args is ["--gameplay-message-titles"])
@@ -7004,6 +7145,11 @@ if (args is ["--ini-edit"]) return 0;
 if (args is ["--ceres-ridley-room-entry"])
 {
     Suite(nameof(VerifyCeresRidleyRoomEntry), () => VerifyCeresRidleyRoomEntry());
+    return 0;
+}
+if (args is ["--ceres-escape-handoff"])
+{
+    VerifyCeresEscapeHandoff();
     return 0;
 }
 if (args is ["--mother-brain"])
@@ -7519,6 +7665,32 @@ Suite(nameof(VerifyMurderBeam), () => VerifyMurderBeam());
 Suite(nameof(VerifyPowerBombRuntimeRendererIntegration), () => VerifyPowerBombRuntimeRendererIntegration());
 Suite(nameof(VerifyPowerBombFuse), () => VerifyPowerBombFuse());
 Suite(nameof(VerifyPowerBombBoundary), () => VerifyPowerBombBoundary());
+Suite(nameof(VerifyPowerBombDeathRadius), () => VerifyPowerBombDeathRadius());
+Suite(nameof(VerifyRespawnedEnemyContact), () => VerifyRespawnedEnemyContact());
+Suite(nameof(VerifyVerticalOffScreenDeletion), () => VerifyVerticalOffScreenDeletion());
+Suite(nameof(VerifyBotwoonPositionHistory), () => VerifyBotwoonPositionHistory());
+Suite(nameof(VerifyDraygonTurretCadence), () => VerifyDraygonTurretCadence());
+Suite(nameof(VerifyWallJumpSpinExit), () => VerifyWallJumpSpinExit());
+Suite(nameof(VerifyEvirInitTimer), () => VerifyEvirInitTimer());
+Suite(nameof(VerifyRefillStationLock), () => VerifyRefillStationLock());
+Suite(nameof(VerifyMagdolliteApexThreshold), () => VerifyMagdolliteApexThreshold());
+Suite(nameof(VerifyGoldenTorizoAttackChoice), () => VerifyGoldenTorizoAttackChoice());
+Suite(nameof(VerifyWallProbeBombBlock), () => VerifyWallProbeBombBlock());
+Suite(nameof(VerifyPuromiArcPosition), () => VerifyPuromiArcPosition());
+Suite(nameof(VerifySpringBallBounce), () => VerifySpringBallBounce());
+Suite(nameof(VerifyMainGameLoopCarry), () => VerifyMainGameLoopCarry());
+Suite(nameof(VerifyDoorEntryRoomFxSound), () => VerifyDoorEntryRoomFxSound());
+Suite(nameof(VerifyGoldNinjaDeathDrops), () => VerifyGoldNinjaDeathDrops());
+Suite(nameof(VerifyDoorEntryEnemySound), () => VerifyDoorEntryEnemySound());
+Suite(nameof(VerifySpringBallFallingFallback), () => VerifySpringBallFallingFallback());
+Suite(nameof(VerifyFirefleaDoubleDeath), () => VerifyFirefleaDoubleDeath());
+Suite(nameof(VerifyShutterScrewContact), () => VerifyShutterScrewContact());
+Suite(nameof(VerifyJumpNoXMovement), () => VerifyJumpNoXMovement());
+Suite(nameof(VerifySaveConfirmationCadence), () => VerifySaveConfirmationCadence());
+Suite(nameof(VerifyTourianStatueXrayFreeze), () => VerifyTourianStatueXrayFreeze());
+Suite(nameof(VerifyDoorAnimatedTiles), () => VerifyDoorAnimatedTiles());
+Suite(nameof(VerifyTourianStatueDescentRounding), () => VerifyTourianStatueDescentRounding());
+Suite(nameof(VerifyMetroidDeathDrops), () => VerifyMetroidDeathDrops());
 Suite(nameof(VerifyRoomFxRomData), () => VerifyRoomFxRomData());
 Suite(nameof(VerifyPowerBombFixedColors), () => VerifyPowerBombFixedColors());
 Suite(nameof(VerifySamusVisorColors), () => VerifySamusVisorColors());

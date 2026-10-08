@@ -180,9 +180,16 @@ public sealed class GameOptionsMenuState
                 break;
 
             case GameOptionsPhase.FadeOutToIntro:
+                // $82:EE92 index $0C: reaching forced blank selects index four, which
+                // dispatches the loading game state on the following update.
                 brightness = Math.Max(0, brightness - 1);
                 if (brightness == 0)
-                    IntroRequested = true;
+                    Phase = GameOptionsPhase.StartGame;
+                break;
+
+            case GameOptionsPhase.StartGame:
+                // $82:EEB4 index four.
+                IntroRequested = true;
                 break;
 
             case GameOptionsPhase.FadeOutToFileSelect:
@@ -533,6 +540,8 @@ public enum GameOptionsPhase
     ScrollControllerUp,
     FadeOutToIntro,
     FadeOutToFileSelect,
+    // Appended to keep legacy debugger snapshot ordinals stable.
+    StartGame,
 }
 
 internal enum GameOptionsPage

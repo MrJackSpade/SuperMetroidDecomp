@@ -5,7 +5,7 @@ pinned J/U main-loop and accepted-NMI controller-read boundaries. WRAM stays pri
 """
 
 
-def classify_timing(kind, upload_active, scroll_before, scroll_after):
+def classify_timing(kind, upload_active, scroll_before, scroll_after, previous_class=None):
     """Describe observed execution; this classification never drops an input."""
     if kind == "main-loop":
         return "main-loop"
@@ -15,26 +15,81 @@ def classify_timing(kind, upload_active, scroll_before, scroll_after):
         return "door-scroll-continuation"
     if upload_active:
         return "apu-upload-continuation"
+    if previous_class in ("apu-upload-continuation", "apu-upload-tail-continuation"):
+        # SendAPUData returned, but the rest of the same outer dispatch's prologue
+        # (HDMA objects, layer blending, RNG) overran into one more accepted NMI. No
+        # main-loop dispatch began in between, so this is still that upload's stall.
+        return "apu-upload-tail-continuation"
     return "other-continuation"
 
 
-def normalize_upload_intervals(updates, initial_input):
-    """Collapse proven post-scroll upload waits, retaining their input audit trail."""
+DOOR_LOADER_FUNCTION = 0xE4A9  # DoorTransitionFunction_LoadSpritesBGPLMsAudio_RunDoorRoomASM
+
+
+def door_loader_enemy_progress(boundary_loading, boundary_enemy_ids):
+    """Per boundary: enemy slots whose Initialise_Enemies init AI has completed in $82:E4A9.
+
+    The loader's CPU work spans several NMIs. Load_Enemies clears every slot before
+    Initialise_Enemies writes each slot's ID ahead of its init AI, so slot k is known
+    complete once slot k+1 has an ID, and every slot once $0E4E holds the count the
+    routine stores on exit (it zeroes $0E4E on entry). None outside the loader or before
+    the clear."""
+    progress = []
+    cleared = False
+    for (state, function, _), (ids, initialised) in zip(boundary_loading, boundary_enemy_ids):
+        if state != 0x0B or function != DOOR_LOADER_FUNCTION:
+            cleared = False
+            progress.append(None)
+            continue
+        if not any(ids):
+            cleared = True
+        if not cleared:
+            progress.append(None)
+            continue
+        written = next((slot for slot, value in enumerate(ids) if value == 0), len(ids))
+        if any(ids[written:]):
+            raise ValueError("Initialise_Enemies left a gap in the enemy slots")
+        progress.append(written if written and initialised == written else max(written - 1, 0))
+    return progress
+
+
+def boot_prelude_length(updates):
+    """Count accepted NMIs before the first main-loop dispatch of a power-on movie.
+
+    Native `Boot` displays the logo with NMI enabled, then `CommonBootSection`
+    ($80:8482) clears all of bank $7E, including the NMI counter and held-input
+    history, before seeding RNG and entering `MainGameLoop`. Nothing read by those
+    prelude NMIs survives into gameplay, so they are not port updates.
+    """
+    for index, update in enumerate(updates):
+        if update["kind"] == "main-loop":
+            return index
+    raise ValueError("Movie never reaches the native main game loop")
+
+
+def normalize_upload_intervals(updates, initial_input, prelude=0):
+    """Collapse the boot prelude and proven post-scroll upload waits, retaining their input audit trail."""
     normalized, excluded = [], []
     for record, original in enumerate(updates):
         update = dict(original)
         evidence = update["timingEvidence"]
-        if update["timingClass"] == "apu-upload-continuation":
+        if record < prelude:
+            continue
+        if update["timingClass"] in ("apu-upload-continuation", "apu-upload-tail-continuation"):
+            if update["messageBoxStartFrame"] is not None:
+                raise ValueError("A message box cannot open inside an excluded upload wait")
             # This contract is deliberately limited to the native door music wait.
-            # No CPU gameplay dispatch or moving door IRQ runs in this interval.
+            # No new CPU gameplay dispatch or moving door IRQ runs in this interval; an
+            # upload tail only finishes the dispatch its main-loop update already owns.
             if (not normalized or normalized[-1]["kind"] != "main-loop" or
                 not normalized[-1]["timingEvidence"]["apuUploadActiveAtNextBoundary"] or
                 evidence["nativeGameState"] != 11 or evidence["nativeDoorFunction"] != 0xe664 or
                 not evidence["doorScrollFinished"] or
                 evidence["doorScrollCounterBefore"] != evidence["doorScrollCounterAfter"]):
                 raise ValueError("Unsupported APU continuation; cannot prove a pure post-scroll hardware wait")
-            if update["input"] != 0 or normalized[-1]["input"] != 0 or update["pressed"]:
-                raise ValueError("Non-neutral input inside APU upload requires a richer input-latch replay")
+            # The music wait runs no gameplay, but each of its NMIs still reads the
+            # controller and replaces the held/new latch. The replay therefore keeps
+            # the last such read (`hardwareWaitLatch`) without dispatching an update.
             excluded.append({"sourceFrame": update["sourceFrame"], "input": update["input"],
                              "pressed": update["pressed"], "record": record})
             continue
@@ -42,13 +97,19 @@ def normalize_upload_intervals(updates, initial_input):
             raise ValueError("APU upload overlaps another owner; automatic normalization is unsupported")
         update["inputRecord"] = record
         update["excludedNmiBefore"] = len(excluded)
+        waited = excluded and excluded[-1]["record"] == record - 1
+        update["hardwareWaitLatch"] = excluded[-1]["input"] if waited else None
         normalized.append(update)
     if not normalized or normalized[-1]["inputRecord"] != len(updates) - 1:
         raise ValueError("Movie ends during hardware upload; completed gameplay boundary is unavailable")
-    previous = initial_input
+    # A power-on port starts with an empty controller latch, as the cleared native
+    # bank $7E did; any held prelude input must therefore not hide a new press.
+    previous = 0 if prelude else initial_input
     for index, update in enumerate(normalized):
+        if update["hardwareWaitLatch"] is not None:
+            previous = update["hardwareWaitLatch"]
         if update["pressed"] != update["input"] & ~previous:
-            raise ValueError("Removing upload waits would change a consumed input edge")
+            raise ValueError(f"Removing hardware waits would change a consumed input edge at SMV frame {update['sourceFrame']}")
         previous = update["input"]
         following = normalized[index + 1] if index + 1 < len(normalized) else None
         update["update"] = index + 1
@@ -97,7 +158,10 @@ def run():
     # Native addresses are capture-format identities, not guessed timing rules.
     read_enter, read_complete = 0x809459, 0x809496
     main_begin, main_end, wait = 0x828948, 0x82897A, 0x808338
-    known = {read_enter, read_complete, main_begin, main_end, wait}
+    # MessageBox_Routine entry. Its frame, relative to the dispatch's input read, is how
+    # many lag frames the dispatch spent before the box's own controller polling began.
+    message_box = 0x858080
+    known = {read_enter, read_complete, main_begin, main_end, wait, message_box}
     updates = []
     current = None
     previous_input = inputs[0]
@@ -114,7 +178,7 @@ def run():
                     if "input" not in current:
                         raise ValueError("Controller read did not complete")
                     updates.append(current)
-                current = {"sourceFrame": frame, "mainLoopDispatches": 0}
+                current = {"sourceFrame": frame, "mainLoopDispatches": 0, "messageBoxStartFrame": None}
             elif pc == read_complete:
                 if current is None or "input" in current or current["sourceFrame"] != frame:
                     raise ValueError("Ambiguous native controller-read boundary")
@@ -127,6 +191,12 @@ def run():
                 if current is None or "input" not in current:
                     raise ValueError("Main dispatch precedes its input event")
                 current["mainLoopDispatches"] += 1
+            elif pc == message_box:
+                if current is None or "input" not in current or not current["mainLoopDispatches"]:
+                    raise ValueError(f"Message box at SMV frame {frame} precedes its dispatch")
+                if current["messageBoxStartFrame"] is not None:
+                    raise ValueError(f"Two message boxes in the dispatch at SMV frame {current['sourceFrame']}")
+                current["messageBoxStartFrame"] = frame
     if current is None or "input" not in current:
         raise ValueError("No completed terminal input step")
     updates.append(current)
@@ -145,8 +215,13 @@ def run():
     # can continue while the CPU uploads data; neither accepted NMI nor an active
     # APU upload alone proves a gameplay update or a disposable video refresh.
     apu_uploading, door_scroll_counter = 0x0617, 0x0925
+    # Enemy.ID of each of the 32 enemy slots ($0F78 + $40 * slot).
+    enemy_id, enemy_slot_size, enemy_slots = 0x0F78, 0x40, 32
+    # Initialise_Enemies zeroes $0E4E on entry and stores the enemy count on exit.
+    initialised_enemy_count = 0x0E4E
     boundary_timing = []
     boundary_loading = []
+    boundary_enemy_ids = []
     with gzip.open(boundaries_path, "rb") as source:
         for index in range(len(updates) + 1):
             record = source.read(131080)
@@ -161,10 +236,15 @@ def run():
                 struct.unpack_from("<H", record, 8 + 0x0998)[0],  # GameState
                 struct.unpack_from("<H", record, 8 + 0x099c)[0],  # DoorTransitionFunction
                 bool(struct.unpack_from("<H", record, 8 + 0x0931)[0] & 0x8000)))
+            boundary_enemy_ids.append((tuple(
+                struct.unpack_from("<H", record, 8 + enemy_id + enemy_slot_size * slot)[0]
+                for slot in range(enemy_slots)),
+                struct.unpack_from("<H", record, 8 + initialised_enemy_count)[0]))
             if frame != expected_frame or pc != (read_enter if index < len(updates) else 0):
                 raise ValueError(f"Checkpoint {index} disagrees with its input boundary")
         if source.read(1):
             raise ValueError("Unexpected trailing native checkpoints")
+    loader_progress = door_loader_enemy_progress(boundary_loading, boundary_enemy_ids)
     for index, update in enumerate(updates):
         upload, scroll = boundary_timing[index]
         next_upload, next_scroll = boundary_timing[index + 1]
@@ -176,18 +256,29 @@ def run():
             "nativeGameState": boundary_loading[index][0],
             "nativeDoorFunction": boundary_loading[index][1],
             "doorScrollFinished": boundary_loading[index][2],
+            "doorLoaderCompletedEnemySlots": loader_progress[index + 1],
         }
-        update["timingClass"] = classify_timing(update["kind"], upload != 0, scroll, next_scroll)
+        update["timingClass"] = classify_timing(
+            update["kind"], upload != 0, scroll, next_scroll,
+            updates[index - 1]["timingClass"] if index else None)
     timing_counts = {name: sum(u["timingClass"] == name for u in updates) for name in (
-        "main-loop", "door-scroll-continuation", "apu-upload-continuation", "other-continuation")}
+        "main-loop", "door-scroll-continuation", "apu-upload-continuation",
+        "apu-upload-tail-continuation", "other-continuation")}
     source_frames = {u["sourceFrame"] for u in updates}
     accepted_input_count = len(updates)
-    updates, excluded = normalize_upload_intervals(updates, inputs[0])
+    # SMV v4/v5 option bit 0: the recording starts at power-on (with SRAM) rather
+    # than from an embedded snapshot, so the native boot prelude precedes gameplay.
+    from_reset = version in (4, 5) and bool(movie[21] & 1)
+    prelude = boot_prelude_length(updates) if from_reset else 0
+    updates, excluded = normalize_upload_intervals(updates, inputs[0], prelude)
     manifest = {
-        "format": "super-metroid-gameplay-updates-v3",
+        "format": "super-metroid-gameplay-updates-v5",
+        "startsFromReset": from_reset,
+        "initialRecord": prelude,
+        "bootPreludeInputsExcluded": prelude,
         "movieSha256": hashlib.sha256(movie).hexdigest().upper(),
         "romSha256": rom_hash,
-        "nativeCapture": "Snes9x 1.60 913b75d07c6e8d54e966e2c4a79d7c55428007df; instrumented J/U input boundaries",
+        "nativeCapture": "Snes9x 1.60 913b75d07c6e8d54e966e2c4a79d7c55428007df; instrumented J/U input boundaries and MessageBox_Routine entry",
         "eventsSha256": digest(events_path), "checkpointsSha256": digest(boundaries_path),
         "sourceFrameCount": frames, "initialInput": inputs[0],
         "updateCount": len(updates),

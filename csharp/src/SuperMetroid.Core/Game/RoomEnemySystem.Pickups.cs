@@ -42,6 +42,14 @@ public sealed partial class RoomEnemySystem
     public ushort? LastEnemyDeathSoundEffectLibrary2 { get; private set; }
 
     /// <summary>
+    /// Scratch word `$12` as last written by <c>EnemyDeath</c> ($A0:A3E6) or
+    /// <c>RinkaDeath</c> ($A0:A437): the dying actor's respawn property bit. The
+    /// power-bomb walker at $A0:A306 keeps its horizontal radius in that same word, so a
+    /// kill inside its loop resizes the explosion for every lower slot that frame.
+    /// </summary>
+    private ushort? _enemyDeathRespawnScratch;
+
+    /// <summary>
     /// Ports <c>EnemyDeathAnimation</c> at $A0:A3AF. The enemy is cleared immediately,
     /// while projectile $F345 retains the header, position, and optional respawn index until
     /// its ROM animation reaches opcode $EEAF and becomes a pickup.
@@ -50,6 +58,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot enemy,
         ushort deathAnimation)
     {
+        _enemyDeathRespawnScratch = RespawnScratchWord(enemy);
         // $A0:A3AF installs the dropped-grapple function before clearing the enemy.
         // Equality is deliberate: this is not a general test for any set grapple bit.
         if (enemy.AiHandlerBits == 1)
@@ -91,6 +100,11 @@ public sealed partial class RoomEnemySystem
         }
         EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
     }
+
+    private static ushort RespawnScratchWord(RoomEnemySlot enemy) =>
+        enemy.Properties.HasAny(EnemyProperties.RespawnIfKilled)
+            ? (ushort)EnemyProperties.RespawnIfKilled
+            : (ushort)0;
 
     private void InstallRespawnPlaceholder(RoomEnemySlot enemy)
     {
@@ -215,10 +229,11 @@ public sealed partial class RoomEnemySystem
     {
         EnemyPickupKind kind = SelectRandomEnemyDrop(pickup);
 
-        // Both $86:EF29 and $86:EEAF accidentally branch on the physical projectile index
-        // after the random routine restores X. Native byte index zero is array slot zero,
-        // making that one slot categorically unable to become a pickup.
-        if (pickup.SlotIndex == 0 || kind is EnemyPickupKind.None or EnemyPickupKind.NoDrop)
+        // $86:EF29 also branches on the X that Random_Drop_Routine restores, but on this
+        // path X still holds the spawn routine's projectile ID ($F337), never zero, so any
+        // slot can become a pickup. Its `...,X` header store therefore lands at $7F:E6FF,
+        // intro/credits tilemap scratch, and the drop roll reads it back from there.
+        if (kind is EnemyPickupKind.None or EnemyPickupKind.NoDrop)
         {
             MakeEnemyPickupDormant(pickup);
             return;
@@ -229,7 +244,8 @@ public sealed partial class RoomEnemySystem
 
     /// <summary>
     /// Converts a completed enemy-death explosion in place. Keeping the actor in its
-    /// existing slot preserves both the slot-zero bug and the retained respawn index.
+    /// existing slot preserves both the slot-zero bug and the retained respawn index:
+    /// $86:EEAF branches on the restored projectile index, so slot zero never converts.
     /// </summary>
     internal void ConvertEnemyDeathExplosionToPickup(RoomEnemyProjectileSlot projectile)
     {
@@ -391,7 +407,7 @@ public sealed partial class RoomEnemySystem
         if (projectile.ItemDropChancesPointerOverride != 0)
             return projectile.ItemDropChancesPointerOverride;
         if (projectile.EnemyHeaderPointer == 0)
-            return 0;
+            return SnesWorkRam.ReadWord(EnemyWorkMemory, EnemyLifecycleDefinitions.ClearedHeaderDropChancesAddress);
         return ResolveRoomEnemyDefinition(_bus!, projectile.EnemyHeaderPointer).ItemDropChancesPointer;
     }
 

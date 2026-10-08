@@ -295,8 +295,12 @@ internal static partial class Program
             "station access command locks Samus during six-plus-$60 insertion");
         AssertTrue(plms.SoundRequests.Contains(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x37), 6)),
             "station access begins with cartridge extension sound $37");
+        // The triggering pass installs the six-frame timer without decrementing it, so the
+        // activation opcode runs on pass 1 + 6 + $60 = 103.
         for (int frame = 1; frame < 102; frame++)
             plms.Step(bus, level, streamer, 0, 0, 0);
+        AssertEqual(25, samus.Health, "energy station has not activated before its 103rd pass");
+        plms.Step(bus, level, streamer, 0, 0, 0);
         AssertEqual(199, samus.Health, "energy station restores health to cartridge maximum");
         AssertEqual(1, plms.StationActivationEvents.Count,
             "energy station publishes one shared message request");
@@ -1347,8 +1351,11 @@ internal static partial class Program
             "map access setup locks Samus before the resident PLM advances");
         AssertTrue(plms.TryNotifyStationTouch(level.GetBlockIndex(13, 6), 0x4b),
             "missile access resolves parent");
+        // Activation runs on the triggering pass plus 6 + $60 later passes.
         for (int frame = 0; frame < 102; frame++)
             plms.Step(bus, level, streamer, 0, 0, 0);
+        AssertTrue(!system.HasAreaMap(2), "map station has not activated before its 103rd pass");
+        plms.Step(bus, level, streamer, 0, 0, 0);
         AssertEqual(0xb859, level.GetCollisionBlock(18, 6).LevelWord,
             "compiled save-pod idle draw installs its physical floor word");
         AssertEqual(0x005b, level.GetCollisionBlock(18, 2).LevelWord,
@@ -1359,13 +1366,14 @@ internal static partial class Program
         AssertEqual(10, samus.Missiles, "missile station restores missiles");
         AssertEqual(2, plms.StationActivationEvents.Count,
             "two station parents publish two explicit activations");
-        AssertTrue(samus.InputLocked,
-            "station access remains locked while bank-$85 owns the completion message");
+        // $84:8CE7 runs Samus command one as soon as the missile message returns; the map
+        // activation never unlocks, but both fixtures share this Samus owner.
+        AssertTrue(!samus.InputLocked,
+            "missile activation releases Samus after its completion message");
 
         // The runtime freezes this PLM while the message is open. Once bank $85 returns,
         // the original instruction lists execute three six-frame phases: post-message
-        // hold, retract, and final hold. Both simultaneously active fixtures must release
-        // their shared Samus owner at the native endpoint instead of looping access sound.
+        // hold, retract, and final hold, without looping the access sound.
         for (int frame = 0; frame < 18; frame++)
             plms.Step(bus, level, streamer, 0, 0, 0);
         AssertEqual(0x8128, level.GetCollisionBlock(7, 6).LevelWord,
@@ -1375,7 +1383,7 @@ internal static partial class Program
         AssertEqual(0xb4c3, level.GetCollisionBlock(13, 6).LevelWord,
             "missile access retracts to its compiled resource word");
         AssertTrue(!samus.InputLocked,
-            "map/resource stations unlock Samus after post-message retraction");
+            "Samus stays released through the post-message retraction");
 
         AssertTrue(plms.TryNotifyStationTouch(level.GetBlockIndex(18, 6), 0x4d),
             "save trigger resolves its same-block parent");
@@ -1616,7 +1624,7 @@ internal static partial class Program
 
         var message = new GameplayMessageBoxState();
         message.BindPresentation(null, notices: presentation);
-        message.Begin(bus, GameplayMessageIds.SaveConfirmation);
+        message.Begin(bus, GameplayMessageIds.SaveConfirmation, 0);
         for (int guard = 0;
              message.Phase != GameplayMessageBoxPhase.AwaitingInput && guard < 32;
              guard++)
@@ -1627,27 +1635,38 @@ internal static partial class Program
             "save message enters shared yes/no selection phase");
         AssertEqual(0x5100, message.Tilemap[128],
             "save message begins with native selected-YES row");
+        // $85:84BA waits two lag frames before its first ReadControllerInput.
+        message.Step(0);
+        message.Step((ushort)SuperMetroid.Core.Input.SnesButton.Left);
+        AssertTrue(message.ConfirmationSelectionYes, "save selector does not read during its lag waits");
         message.Step((ushort)SuperMetroid.Core.Input.SnesButton.Left);
         AssertTrue(!message.ConfirmationSelectionYes,
             "save cursor changes the shared confirmation selection");
         AssertEqual(0x5200, message.Tilemap[128],
             "save cursor redraws the native selected-NO row");
+        // Later reads come every second frame: the read's frame holds the next first wait.
+        message.Step((ushort)SuperMetroid.Core.Input.SnesButton.Left);
         message.Step((ushort)SuperMetroid.Core.Input.SnesButton.Left);
         AssertTrue(!message.ConfirmationSelectionYes,
             "holding a direction does not toggle the newly-pressed save cursor repeatedly");
         message.Step((ushort)SuperMetroid.Core.Input.SnesButton.A);
+        AssertEqual(GameplayMessageBoxPhase.AwaitingInput, message.Phase, "A is read on the next read frame");
+        message.Step((ushort)SuperMetroid.Core.Input.SnesButton.A);
+        AssertEqual(GameplayMessageBoxPhase.Closing, message.Phase, "A confirms on a read frame");
         for (int guard = 0; message.IsActive && guard < 32; guard++)
             message.Step(0);
         AssertEqual(false, message.ConsumeConfirmationResult(),
             "save confirmation publishes selected no result after close");
 
-        message.Begin(bus, GameplayMessageIds.SaveConfirmation);
+        message.Begin(bus, GameplayMessageIds.SaveConfirmation, 0);
         for (int guard = 0;
              message.Phase != GameplayMessageBoxPhase.AwaitingInput && guard < 32;
              guard++)
         {
             message.Step(0);
         }
+        message.Step(0);
+        message.Step(0);
         message.Step((ushort)SuperMetroid.Core.Input.SnesButton.A);
         for (int guard = 0; message.IsActive && guard < 32; guard++)
             message.Step(0);

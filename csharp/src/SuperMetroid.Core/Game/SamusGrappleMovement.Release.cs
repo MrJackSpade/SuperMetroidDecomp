@@ -17,6 +17,10 @@ public static partial class SamusGrappleMovement
         SamusState samus,
         SamusGrappleState grapple)
     {
+        // $9B:BD9B-BDB1: a fast swing selects the slow-scrolling camera branch.
+        ushort angularSpeed = unchecked((ushort)Math.Abs((int)grapple.AngularVelocity));
+        grapple.SlowScrolling = unchecked((short)(angularSpeed -
+            GrappleSlowScrollDefinitions.FastSwingAngularSpeed)) >= 0;
         // $94:AC11 calls the same position helper used by terrain probes. Besides scaling the
         // signed table components, it applies the block-side 7/8 endpoint bias documented in
         // CalculateCollisionPoint; using one helper prevents visible art from disagreeing
@@ -75,22 +79,30 @@ public static partial class SamusGrappleMovement
         samus.HorizontalSpeed.BaseSubspeed = unchecked((ushort)horizontalFixed);
     }
 
-    private static void CompleteQueuedRelease(
+    /// <returns>
+    /// The release pose when <paramref name="deferPoseChange"/> leaves it for the frame's
+    /// pose commit; otherwise null, the pose having been applied here.
+    /// </returns>
+    private static byte? CompleteQueuedRelease(
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        SamusGrappleState grapple)
+        SamusGrappleState grapple,
+        bool deferPoseChange)
     {
         QueueGrappleSound(samus, SamusGrappleRomData.Sounds.Stop);
         SamusBlockCollision.EjectAfterGrapple(bus, level, samus.Kinematics);
         // $9B:CB8B bases facing on the angular-velocity word retained from the swing. A
         // nonnegative value selects left-facing $52; a negative value selects right $51.
-        samus.Pose = grapple.AngularVelocity >= 0
+        // It publishes the pose as a super-special prospective pose (command 7), which
+        // bank $91 commits after this frame's hit interruption and movement.
+        byte releasePose = grapple.AngularVelocity >= 0
             ? SamusPoseIds.NormalJumpForwardLeftPose
             : SamusPoseIds.NormalJumpForwardRightPose;
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus, initialFrame: 0);
+        if (!deferPoseChange)
+            ApplyReleasePose(bus, samus, releasePose);
         grapple.Phase = GrapplePhase.Inactive;
+        grapple.SlowScrolling = false; // $9B:CBBA
         grapple.DirectionInputAcceleration = 0;
         grapple.GravityAcceleration = 0;
         grapple.VelocityCorrection = 0;
@@ -100,6 +112,15 @@ public static partial class SamusGrappleMovement
         grapple.ValidateAnchorBlock = false;
         grapple.ValidateAnchorEnemy = false;
         ClearFlareAnimation(grapple);
+        return deferPoseChange ? releasePose : null;
+    }
+
+    /// <summary>Commits the <c>$9B:CB8B</c> release pose and its radius and animation.</summary>
+    internal static void ApplyReleasePose(ISnesAddressSpace bus, SamusState samus, byte releasePose)
+    {
+        samus.Pose = releasePose;
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus, initialFrame: 0);
     }
 
     private static void ClearConnectedGrapple(SamusGrappleState grapple)
@@ -117,6 +138,8 @@ public static partial class SamusGrappleMovement
         grapple.JumpImpulse = 0;
         grapple.CollisionBounceTimer = 0;
         grapple.SpecialAngleHandling = false;
+        // $9B:C979 (dropped) and $9B:CA24 (wall jumping) clear the slow-scroll flag.
+        grapple.SlowScrolling = false;
         grapple.WallJumpTimer = 0;
         grapple.CancelFromConnectedPose = false;
         grapple.ValidateAnchorBlock = false;

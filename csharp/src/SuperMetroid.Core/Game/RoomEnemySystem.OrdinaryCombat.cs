@@ -290,6 +290,14 @@ public sealed partial class RoomEnemySystem
                 continue;
             }
 
+            // $A0:A10E-A11F: on the ordinary radius path a frozen enemy never runs its touch
+            // AI, except the respawn placeholder. The extended-hitbox path has no such gate.
+            if (!usesExtendedHitboxes && slot.FrozenTimer != 0 &&
+                slot.EnemyDefinitionPointer != EnemyLifecycleDefinitions.RespawnPlaceholder)
+            {
+                continue;
+            }
+
             if (isKraidNail)
             {
                 ResolveNormalEnemyTouch(slot, samus, controllerInput);
@@ -652,10 +660,7 @@ public sealed partial class RoomEnemySystem
                 if (isTorizo && slot.Health == 0)
                     BeginBombTorizoDeath(slot, RequireBombTorizoState(slot));
                 if (isFakeKraid && healthBefore != 0 && slot.Health == 0)
-                {
-                    RequestFakeKraidDeathDrop(slot);
-                    StartGenericEnemyDeath(slot, deathAnimation: 3);
-                }
+                    KillFakeKraid(slot);
             }
             return true;
         }
@@ -1291,8 +1296,6 @@ public sealed partial class RoomEnemySystem
 
                 if (isMetroid)
                 {
-                    if (projectile.PackedDirection.HasLowByteLifecycleState)
-                        continue;
                     if (enemy.FrozenTimer != 0)
                     {
                         if (family != SamusProjectileFamily.Missile &&
@@ -1309,13 +1312,14 @@ public sealed partial class RoomEnemySystem
                             break;
                         }
 
-                        if (!projectiles.TryStartEnemyImpact(
-                                bus,
-                                sharedProjectiles,
-                                projectile.SlotIndex))
-                        {
-                            continue;
-                        }
+                        // Like the ordinary path, the bank-$A0 walker only marks the
+                        // direction word. $A0:A184 does not reject a projectile an earlier
+                        // enemy marked this pass: a Super Missile that just hit a Rinka
+                        // still reaches EnemyShot_Metroid.
+                        projectiles.ApplyEnemyCollisionPrelude(
+                            projectile.SlotIndex,
+                            enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
+                                (projectile.Type & 0x0008) == 0);
 
                         byte frozenVulnerability = ReadProjectileVulnerability(
                             enemy,
@@ -1336,8 +1340,14 @@ public sealed partial class RoomEnemySystem
 
                         if (enemy.Health == 0)
                         {
-                            FinishMetroidDeath(enemy, samus, requestDrops: true);
+                            // $A3:EF31 records the drop origin, EnemyDeath ($A3:EF4B) spawns
+                            // the explosion, and only then $A3:EF74 spawns the five drops.
+                            ushort dropOriginX = enemy.XPosition;
+                            ushort dropOriginY = enemy.YPosition;
+                            MetroidEnemyState dyingMetroid = RequireMetroidState(enemy);
+                            FinishMetroidDeath(enemy, samus);
                             StartGenericEnemyDeath(enemy, deathAnimation: 4);
+                            RequestMetroidDrops(dropOriginX, dropOriginY, dyingMetroid);
                         }
 
                         hitCount++;
@@ -1651,25 +1661,32 @@ public sealed partial class RoomEnemySystem
                             // requesting death animation variant four. Wall AI uses B only as
                             // a debug jump destination, so its fatal clear is observable too.
                             enemy.VariableB = 0;
-                            if (enemy.EnemyDefinitionPointer == GoldNinjaSpacePirateDefinition)
-                            {
-                                SpawnEnemyDropScatterAround(
-                                    GoldNinjaSpacePirateDefinition,
-                                    count: 5,
-                                    enemy.XPosition,
-                                    enemy.YPosition);
-                            }
                         }
+                        // $B2:878F records the Gold Ninja's position as the drop origin before
+                        // EnemyDeath clears the slot; $B2:87B4 then spawns the death explosion
+                        // before MetalNinjaPirateDeathItemDropRoutine ($B2:87B8) spawns the drops.
+                        bool spawnsGoldNinjaDrops = isOrdinarySpacePirate &&
+                            hitboxShotAi != EnemyAiCodePointers.BankB2.CommonShot &&
+                            enemy.EnemyDefinitionPointer == GoldNinjaSpacePirateDefinition;
+                        ushort dropOriginX = enemy.XPosition;
+                        ushort dropOriginY = enemy.YPosition;
                         if (isFakeKraid)
-                            RequestFakeKraidDeathDrop(enemy);
-                        StartGenericEnemyDeath(
-                            enemy,
-                            isFakeKraid
-                                ? (ushort)3
-                                : SelectNormalShotDeathAnimation(
+                            KillFakeKraid(enemy);
+                        else
+                            StartGenericEnemyDeath(
+                                enemy,
+                                SelectNormalShotDeathAnimation(
                                     enemy,
                                     projectileType,
                                     forcePirateBigExplosion: isOrdinarySpacePirate && hitboxShotAi != EnemyAiCodePointers.BankB2.CommonShot));
+                        if (spawnsGoldNinjaDrops)
+                        {
+                            SpawnEnemyDropScatterAround(
+                                GoldNinjaSpacePirateDefinition,
+                                count: 5,
+                                dropOriginX,
+                                dropOriginY);
+                        }
                     }
                 }
 
@@ -1690,7 +1707,7 @@ public sealed partial class RoomEnemySystem
                 }
                 if (isFakeKraid && enemy.EnemyDefinitionPointer != 0 &&
                     enemyHealthBefore != 0 && enemy.Health == 0)
-                    RequestFakeKraidDeathDrop(enemy);
+                    SpawnFakeKraidDeathDrops(enemy.XPosition, enemy.YPosition, enemy.Definition.ItemDropChancesPointer);
                 if (isBabyTurtle)
                     ResolveBabyTurtleShotAfterCommon(RequireBabyTurtleState(enemy));
                 if (isKago)
@@ -2155,8 +2172,7 @@ public sealed partial class RoomEnemySystem
                                 // Fake Kraid saves its coordinates before common no-death AI,
                                 // then requests death variant three and the Mini-Kraid drop.
                                 // The host keeps those coordinates in the typed drop request.
-                                RequestFakeKraidDeathDrop(enemy);
-                                StartGenericEnemyDeath(enemy, deathAnimation: 3);
+                                KillFakeKraid(enemy);
                             }
                             if (enemy.EnemyDefinitionPointer == TripperDefinition &&
                                 selectedShotAi == TripperShotAi &&
@@ -2401,12 +2417,19 @@ public sealed partial class RoomEnemySystem
         int carry = horizontalRadius & 1;
         int verticalRadius = ((horizontalRadius >> 1) + horizontalRadius + carry) >> 1;
         int reactionCount = 0;
+        _enemyDeathRespawnScratch = null;
 
         // The native pass walks all 32 physical slots from $07C0 down to zero, independent
         // of the ordinary active list. That matters while a power bomb reaches off-screen
         // actors and then sets their process-off-screen property below.
         for (int slotIndex = MaximumEnemyCount - 1; slotIndex >= 0; slotIndex--)
         {
+            // A death inside the previous reaction overwrote `$12`, the horizontal radius
+            // this walker never reloads: zero for an ordinary kill and $4000 for a
+            // respawning one. The vertical radius in `$14` survives unchanged.
+            if (_enemyDeathRespawnScratch is { } deathScratch)
+                horizontalRadius = deathScratch;
+            _enemyDeathRespawnScratch = null;
             RoomEnemySlot enemy = _slots[slotIndex];
             if (enemy.EnemyDefinitionPointer is 0 or 0xdaff ||
                 enemy.InvincibilityTimer != 0 ||
@@ -2587,16 +2610,14 @@ public sealed partial class RoomEnemySystem
                         if (isFireflea)
                             AdvanceFirefleaDarknessLevel();
                         if (isMetroid)
-                            FinishMetroidDeath(enemy, samus, requestDrops: false);
+                            FinishMetroidDeath(enemy, samus);
 
                         // Mini Kraid's private power-bomb callback still owns its four
-                        // direct pickup explosions. Preserve the dying actor's position and
-                        // header before EnemyDeathAnimation clears the common enemy slot.
+                        // direct pickup explosions, spawned after its death explosion.
                         if (isFakeKraid)
-                            RequestFakeKraidDeathDrop(enemy);
-                        StartGenericEnemyDeath(
-                            enemy,
-                            deathAnimation: isFakeKraid ? (ushort)3 : (ushort)0);
+                            KillFakeKraid(enemy);
+                        else
+                            StartGenericEnemyDeath(enemy, deathAnimation: 0);
                     }
                 }
             }
@@ -2624,6 +2645,7 @@ public sealed partial class RoomEnemySystem
             reactionCount++;
         }
 
+        _enemyDeathRespawnScratch = null;
         return reactionCount;
     }
 

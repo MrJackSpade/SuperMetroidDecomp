@@ -33,8 +33,11 @@ public sealed class SuperMetroidSaveRam
 
     internal void BindMapPresentation(AreaMapPresentationCatalog? maps) => mapPresentation = maps;
 
-    /// <summary>Returns a decoded slot only when either redundant checksum pair is valid.</summary>
-    public SuperMetroidSaveSlot? ReadSlot(int slot)
+    /// <summary>
+    /// <c>LoadFromSRAM</c>'s corruption test: either redundant checksum pair matches the
+    /// slot's contents. This reads no decoded fields, so it needs no map presentation.
+    /// </summary>
+    public bool IsSlotValid(int slot)
     {
         int slotOffset = GetSlotOffset(slot);
         ushort checksum = CalculateChecksum(slotOffset);
@@ -45,8 +48,15 @@ public sealed class SuperMetroidSaveRam
         bool backupValid =
             ReadSramWord(SaveRamLayout.BackupChecksumOffset + slot * 2) == checksum &&
             ReadSramWord(SaveRamLayout.BackupComplementOffset + slot * 2) == complement;
-        if (!primaryValid && !backupValid)
+        return primaryValid || backupValid;
+    }
+
+    /// <summary>Returns a decoded slot only when either redundant checksum pair is valid.</summary>
+    public SuperMetroidSaveSlot? ReadSlot(int slot)
+    {
+        if (!IsSlotValid(slot))
             return null;
+        int slotOffset = GetSlotOffset(slot);
 
         return new SuperMetroidSaveSlot(
             Slot: slot,
@@ -229,6 +239,29 @@ public sealed class SuperMetroidSaveRam
         WriteSramWord(SaveRamLayout.PrimaryComplementOffset + slot * 2, complement);
         WriteSramWord(SaveRamLayout.BackupChecksumOffset + slot * 2, checksum);
         WriteSramWord(SaveRamLayout.BackupComplementOffset + slot * 2, complement);
+    }
+
+    /// <summary>
+    /// The carry <c>DetermineNumberOfDemoSets</c> ($80:8261) returns at boot, which
+    /// <c>MainGameLoop</c> then preserves (<see cref="Bank80SystemState.MainGameLoopCarry"/>).
+    /// When all three slots fail <c>LoadFromSRAM</c>, its final carry-set return survives the
+    /// corrupt-marker loop. Otherwise the completion-marker words are compared from the last
+    /// down: a full match leaves the final comparison's carry set, and the first mismatch
+    /// leaves the unsigned comparison of that SRAM word against the marker word.
+    /// </summary>
+    public bool DetermineBootMainLoopCarry()
+    {
+        if (!IsSlotValid(0) && !IsSlotValid(1) && !IsSlotValid(2))
+            return true;
+        ReadOnlySpan<byte> marker = SaveRamLayout.CompletionMarker;
+        for (int offset = marker.Length - 2; offset >= 0; offset -= 2)
+        {
+            ushort sram = ReadSramWord(SaveRamLayout.CompletionMarkerOffset + offset);
+            ushort text = (ushort)(marker[offset] | marker[offset + 1] << 8);
+            if (sram != text)
+                return sram >= text;
+        }
+        return true;
     }
 
     /// <summary>True for the native completed-game signature, independent of slot checksums.</summary>

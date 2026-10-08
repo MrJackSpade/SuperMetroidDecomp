@@ -25,9 +25,9 @@ public sealed partial class RoomEnemySystem
     private void ChaseAndTryToGrabSamus(
         DraygonEnemyState state,
         SamusState? samus,
-        byte nmiFrameCounter8)
+        byte frameCounterLow)
     {
-        ObserveDraygonTurretCadence(state, samus, nmiFrameCounter8);
+        ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         if (samus is null)
             throw new InvalidOperationException("Draygon chase AI requires the active Samus actor.");
 
@@ -267,9 +267,9 @@ public sealed partial class RoomEnemySystem
     private void FlyDraygonStraightUp(
         DraygonEnemyState state,
         SamusState? samus,
-        byte nmiFrameCounter8)
+        byte frameCounterLow)
     {
-        ObserveDraygonTurretCadence(state, samus, nmiFrameCounter8);
+        ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         RoomEnemySlot body = state.Body;
         body.YPosition = unchecked((ushort)(body.YPosition - 4));
         if (unchecked((short)body.YPosition) >= 0)

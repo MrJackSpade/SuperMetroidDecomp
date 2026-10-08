@@ -125,7 +125,6 @@ internal static partial class Program
         Suite(nameof(VerifyNuclearWaffleDefinitions), () => VerifyNuclearWaffleDefinitions(rom));
         Suite(nameof(VerifyHibashiDefinitions), () => VerifyHibashiDefinitions(rom));
         Suite(nameof(VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions), () => VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions(rom));
-        Suite(nameof(VerifyMagdollitePhaseDefinitions), () => VerifyMagdollitePhaseDefinitions(rom));
         Suite(nameof(VerifyFuneNamiheDefinitions), () => VerifyFuneNamiheDefinitions(rom));
         Suite(nameof(VerifyFuneNamiheInstructionProgramDefinitions), () => VerifyFuneNamiheInstructionProgramDefinitions(rom));
         Suite(nameof(VerifyMiscDustProjectileDefinitions), () => VerifyMiscDustProjectileDefinitions(rom));

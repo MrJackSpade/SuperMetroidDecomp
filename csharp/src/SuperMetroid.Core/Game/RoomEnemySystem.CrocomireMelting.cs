@@ -1,24 +1,19 @@
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Installed melt artwork, compiled transfer scheduling, per-column erasure and BG2 distortion.</summary>
 public sealed partial class RoomEnemySystem
 {
-    private void InitializeCrocomireMeltingTilemap(
-        CrocomireEnemyState state,
-        int tilemapAddress,
-        ushort bodyInstructionList)
+    /// <summary>
+    /// <c>MainAI_Crocomire_DeathSequence_10_Hop_3_LoadMeltingTilemap</c> ($A4:9341). Only
+    /// this first melt hands the tongue its melting program and moves it onto the body.
+    /// </summary>
+    private void LoadFirstCrocomireMeltingTilemap(CrocomireEnemyState state)
     {
-        CrocomireDeathState death = RequireCrocomireDeath();
-        // Resolve the complete resource before advancing the phase or touching actors,
-        // scratch buffers or VRAM. Recoverable host errors must not partially start a melt.
-        var artwork = TileArtwork?.CrocomireMelting ?? throw new InvalidDataException(
-            "Crocomire melting requires installed tilemap artwork.");
-        ReadOnlySpan<ushort> tilemap = artwork.Tilemap(tilemapAddress);
-        death.PixelsToErasePerColumn = 48;
-        death.TargetHeightOrSkeletonTileIndex = 48;
-        state.DeathSequenceIndex += 2;
-        InstallCrocomireInstructionList(state.Body, bodyInstructionList);
+        ReadOnlySpan<ushort> tilemap = RequireCrocomireMeltingTilemap(
+            CrocomireMeltingArtworkAddresses.FirstTilemap);
+        StartCrocomireMeltingTilemap(state, CrocomireInstructionProgramDefinitions.MeltingOneTopRow);
 
         if (state.Tongue is { } tongue)
         {
@@ -37,8 +32,43 @@ public sealed partial class RoomEnemySystem
             tongue.YPosition = unchecked((ushort)(state.Body.YPosition + 16));
         }
 
-        Span<ushort> working = death.MutableBg2WorkingTilemap;
-        working.Fill(CrocomireBlankBg2Tile);
+        // $A4:938D-93A2 clears the first $400 bytes.
+        WriteCrocomireMeltingTilemap(tilemap, clearedWords: 0x200);
+    }
+
+    /// <summary>
+    /// <c>MainAI_Crocomire_DeathSequence_2C_Hop_6_LoadMeltingTilemap</c> ($A4:93ED). It
+    /// first refills the BG2 Y-scroll HDMA table ($A4:93DF) and leaves the tongue alone.
+    /// </summary>
+    private void LoadSecondCrocomireMeltingTilemap(CrocomireEnemyState state)
+    {
+        ReadOnlySpan<ushort> tilemap = RequireCrocomireMeltingTilemap(
+            CrocomireMeltingArtworkAddresses.SecondTilemap);
+        FillCrocomireBg2ScrollTable(CrocomireBg2VerticalScroll);
+        StartCrocomireMeltingTilemap(state, CrocomireInstructionProgramDefinitions.MeltingTwoTopRow);
+        // $A4:940E-941D clears the first $800 bytes.
+        WriteCrocomireMeltingTilemap(tilemap, clearedWords: 0x400);
+    }
+
+    // Resolve the complete resource before advancing the phase or touching actors,
+    // scratch buffers or VRAM. Recoverable host errors must not partially start a melt.
+    private ReadOnlySpan<ushort> RequireCrocomireMeltingTilemap(int tilemapAddress) =>
+        (TileArtwork?.CrocomireMelting ?? throw new InvalidDataException(
+            "Crocomire melting requires installed tilemap artwork.")).Tilemap(tilemapAddress);
+
+    private void StartCrocomireMeltingTilemap(CrocomireEnemyState state, ushort bodyInstructionList)
+    {
+        CrocomireDeathState death = RequireCrocomireDeath();
+        death.PixelsToErasePerColumn = 48;
+        death.TargetHeightOrSkeletonTileIndex = 48;
+        state.DeathSequenceIndex += 2;
+        InstallCrocomireInstructionList(state.Body, bodyInstructionList);
+    }
+
+    private void WriteCrocomireMeltingTilemap(ReadOnlySpan<ushort> tilemap, int clearedWords)
+    {
+        Span<ushort> working = RequireCrocomireDeath().MutableBg2WorkingTilemap;
+        working[..clearedWords].Fill(CrocomireBlankBg2Tile);
         int copiedWords = tilemap.Length;
         tilemap.CopyTo(working[32..]);
 
@@ -138,6 +168,8 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
+        // $A4:95D5 refreshes the BG2 scroll, which also moves the tongue onto the body.
+        UpdateCrocomireBg2Scroll(state, includeVerticalPosition: true);
         ushort nextAdjustedY = unchecked((ushort)(death.AdjustedDestinationY - 3));
         if (unchecked((short)(death.AdjustedDestinationY - 19)) < 0)
         {

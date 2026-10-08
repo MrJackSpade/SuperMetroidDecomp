@@ -29,69 +29,77 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>
-    /// Resolves the native mouth pass followed by the independent outer mouth/body pass.
-    /// Each pass retains its three scratch words across calls and defers projectile removal
-    /// to the projectile pre-instruction, as at <c>$A7:AFAA-$B267</c>.
+    /// The counter-indexed shot view both passes use. The cartridge starts at the count
+    /// itself, not count - 1, and does not inspect active-slot sentinels; count five
+    /// therefore includes the first physical bomb.
     /// </summary>
-    public int ResolveKraidProjectileHits(
-        ISnesAddressSpace bus,
-        SamusProjectileSystem projectiles,
-        SamusBombProjectileSystem sharedProjectiles)
+    private readonly struct KraidShotSlots
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(projectiles);
-        ArgumentNullException.ThrowIfNull(sharedProjectiles);
-        if (_kraidState is null || _slots[0].EnemyDefinitionPointer != KraidDefinition)
-            return 0;
+        private readonly SamusProjectileSystem _projectiles;
+        private readonly SamusBombProjectileSystem _sharedProjectiles;
 
-        RoomEnemySlot body = _slots[0];
-        KraidEnemyState state = _kraidState;
-        if (body.Properties.HasAny(EnemyProperties.Deleted) ||
-            unchecked((short)(body.VariableA - (ushort)KraidAiFunction.DeathSink)) >= 0)
+        public KraidShotSlots(SamusProjectileSystem projectiles, SamusBombProjectileSystem sharedProjectiles)
         {
-            return 0;
+            _projectiles = projectiles;
+            _sharedProjectiles = sharedProjectiles;
+            LastSlot = projectiles.ProjectileCounter;
+            if (LastSlot > SamusProjectileSystem.SlotCount)
+                throw new InvalidDataException($"Kraid projectile counter {LastSlot} exceeds the bounded native slot domain.");
         }
 
-        int lastSlot = projectiles.ProjectileCounter;
-        if (lastSlot > SamusProjectileSystem.SlotCount)
-            throw new InvalidDataException($"Kraid projectile counter {lastSlot} exceeds the bounded native slot domain.");
+        public int LastSlot { get; }
 
-        // The cartridge starts at the count itself, not count - 1, and does not inspect
-        // active-slot sentinels. Count five therefore includes the first physical bomb.
-        KraidCollisionShot ReadShot(int index)
+        public KraidCollisionShot Read(int index)
         {
             if (index < SamusProjectileSystem.SlotCount)
             {
-                SamusProjectileSlot shot = projectiles.Slots[index];
+                SamusProjectileSlot shot = _projectiles.Slots[index];
                 return new(shot.XPosition, shot.YPosition, shot.XRadius, shot.YRadius, shot.Type, shot.Damage);
             }
-            SamusBombProjectileSlot bomb = sharedProjectiles.Slots[0];
+            SamusBombProjectileSlot bomb = _sharedProjectiles.Slots[0];
             return new(bomb.XPosition, bomb.YPosition, bomb.XRadius, bomb.YRadius, bomb.Type, bomb.Damage);
         }
 
-        void MarkCollision(int index)
+        public void MarkCollision(int index)
         {
             if (index < SamusProjectileSystem.SlotCount)
             {
-                SamusProjectileSlot shot = projectiles.Slots[index];
+                SamusProjectileSlot shot = _projectiles.Slots[index];
                 shot.Direction = shot.PackedDirection.WithCollisionLifecycleState();
             }
             else
             {
-                SamusBombProjectileSlot bomb = sharedProjectiles.Slots[0];
+                SamusBombProjectileSlot bomb = _sharedProjectiles.Slots[0];
                 bomb.Direction = new SamusProjectileDirectionWord(bomb.Direction).WithCollisionLifecycleState();
             }
         }
+    }
 
+    /// <summary>
+    /// Both passes return immediately once Kraid has begun sinking ($A7:AFAD/$B182).
+    /// </summary>
+    private static bool KraidSinkingSkipsProjectileCollision(RoomEnemySlot body) =>
+        unchecked((short)(body.VariableA - (ushort)KraidAiFunction.DeathSink)) >= 0;
+
+    /// <summary>
+    /// Ports <c>KraidsMouth_vs_Projectile_CollisionHandling</c> ($A7:AFAA). Projectile
+    /// removal is deferred to the projectile pre-instruction.
+    /// </summary>
+    private int ResolveKraidMouthProjectileHits(RoomEnemySlot body, KraidEnemyState state, KraidShotSlots shots)
+    {
+        if (KraidSinkingSkipsProjectileCollision(body))
+            return 0;
+
+        int lastSlot = shots.LastSlot;
         int mouthHits = 0;
         ushort innerMouth = lastSlot == 0 ? ushort.MaxValue :
-            KraidHeadInstructionDefinitions.ReadCollisionHitbox(bus, body.VariableB, innerMouth: true);
+            KraidHeadInstructionDefinitions.ReadCollisionHitbox(_bus!, body.VariableB, innerMouth: true);
         if (lastSlot != 0 && innerMouth != ushort.MaxValue)
         {
             KraidCollisionScratch scratch = LoadKraidCollisionScratch(body, innerMouth);
             for (int index = lastSlot; index >= 0; index--)
             {
-                KraidCollisionShot shot = ReadShot(index);
+                KraidCollisionShot shot = shots.Read(index);
                 SamusProjectileTypeWord type = new(shot.Type);
                 if (!scratch.OverlapsMouth(shot) ||
                     (type.Family == SamusProjectileFamily.Beam && !type.IsChargedBeam))
@@ -135,7 +143,7 @@ public sealed partial class RoomEnemySystem
                     scratch.Left = (ushort)RoomSpriteObjectKind.EnemyProjectileDud;
                     QueueEnemySound(SoundEffectLibrary1Sounds.DudShot, maximumQueued: 3);
                 }
-                MarkCollision(index);
+                shots.MarkCollision(index);
                 mouthHits++;
             }
         }
@@ -151,21 +159,34 @@ public sealed partial class RoomEnemySystem
                 BeginKraidDeath(body, state);
         }
 
+        return mouthHits;
+    }
+
+    /// <summary>
+    /// Ports <c>KraidBody_vs_Projectile_CollisionHandling</c> ($A7:B181), the independent
+    /// outer mouth/body pass.
+    /// </summary>
+    private int ResolveKraidBodyProjectileHits(RoomEnemySlot body, KraidEnemyState state, KraidShotSlots shots)
+    {
+        if (KraidSinkingSkipsProjectileCollision(body))
+            return 0;
+
         state.MouthFlags &= 0xfffe;
+        int lastSlot = shots.LastSlot;
         int bodyHits = 0;
         if (lastSlot != 0)
         {
-            ushort outerMouth = KraidHeadInstructionDefinitions.ReadCollisionHitbox(bus, body.VariableB, innerMouth: false);
+            ushort outerMouth = KraidHeadInstructionDefinitions.ReadCollisionHitbox(_bus!, body.VariableB, innerMouth: false);
             KraidCollisionScratch scratch = LoadKraidCollisionScratch(body, outerMouth);
             for (int index = lastSlot; index >= 0; index--)
             {
-                KraidCollisionShot shot = ReadShot(index);
+                KraidCollisionShot shot = shots.Read(index);
                 if (!scratch.OverlapsBody(body, shot))
                     continue;
                 SpawnKraidArmShotExplosion(shot.Type, shot.X, shot.Y);
                 scratch.Bottom = shot.X;
                 scratch.Top = shot.Y;
-                MarkCollision(index);
+                shots.MarkCollision(index);
                 if ((shot.Type & 0x0010) != 0)
                     state.MouthFlags |= 1;
                 bodyHits++;
@@ -178,7 +199,7 @@ public sealed partial class RoomEnemySystem
             if ((state.MouthFlags & 1) != 0)
                 state.MouthFlags |= 0x0302;
         }
-        return mouthHits + bodyHits;
+        return bodyHits;
     }
 
     private KraidCollisionScratch LoadKraidCollisionScratch(RoomEnemySlot body, ushort pointer)

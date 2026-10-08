@@ -49,6 +49,7 @@ internal static partial class Program
         AssertTrue(auxiliaryPointers.SequenceEqual(new ushort[]
             {
                 EnemyLifecycleDefinitions.RespawnPlaceholder,
+                EnemyDefinitionPointers.SporeSpawnStalk,
                 MotherBrainBabyMetroidDefinitions.EnemyDefinition,
                 EnemyDefinitionPointers.MotherBrainFallingTube,
                 TorizoChozoOrbInstructionProgramDefinitions.BombOrbEnemyHeader,

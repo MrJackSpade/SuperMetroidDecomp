@@ -112,6 +112,10 @@ public sealed partial class ManagedSpcPlayer
     private readonly byte[] ram = new byte[SpcDriverData.ApuRamSize];
     private readonly byte[] portsToSnes = new byte[AudioRomData.Apu.PortCount];
     private readonly byte[] inputPorts = new byte[AudioRomData.Apu.PortCount];
+    // SPC $01-$03: each SFX port's value latched by the previous service's $1621 read.
+    private readonly byte[] soundCommandReads = new byte[AudioRomData.Queues.SoundLibraryCount];
+    // SPC $09-$0B: the value acted on at the previous service, for change detection.
+    private readonly byte[] previousSoundCommandReads = new byte[AudioRomData.Queues.SoundLibraryCount];
     private readonly ManagedSpcMusicChannel[] channels = Enumerable
         .Range(0, SpcDriverData.ChannelCount)
         .Select(index => new ManagedSpcMusicChannel { Index = unchecked((byte)index) })
@@ -339,7 +343,12 @@ public sealed partial class ManagedSpcPlayer
         }
 
         portsToSnes[AudioRomData.Apu.MusicPort] = 0;
-        Array.Fill(inputPorts, SpcDriverData.NoPortCommand);
+        inputPorts[AudioRomData.Apu.MusicPort] = SpcDriverData.NoPortCommand;
+        // $1E8B leaves $BB on output port 1 and finishes with $F1 = $31, which resets the
+        // CPU-to-APU input latches. The driver's $01-$0B words are untouched.
+        portsToSnes[AudioRomData.Apu.LibraryOnePort] = SpcDriverData.UploadReadyLibraryOnePort;
+        for (int port = AudioRomData.Apu.FirstSoundPort; port < AudioRomData.Apu.PortCount; port++)
+            inputPorts[port] = 0;
         musicTopLevelPointer = ReadWord(SpcDriverData.Ram.DefaultMusicPointer);
         counter = SpcDriverData.Music.TrackStartupTicks;
         keyOff |= unchecked((byte)~channelOnMask);

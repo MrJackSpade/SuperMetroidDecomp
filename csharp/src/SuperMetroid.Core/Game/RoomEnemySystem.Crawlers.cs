@@ -86,7 +86,10 @@ public sealed partial class RoomEnemySystem
 
         // The population initialization parameter is an orientation index, not an
         // instruction pointer. Masking to two bits before selector lookup is native.
-        var orientation = (CrawlerSurfaceOrientation)(slot.CurrentInstruction & 3);
+        // InitAI_Viola ($A3:B678) alone selects with the property bits instead.
+        var orientation = (CrawlerSurfaceOrientation)((animationFamily == CrawlerAnimationFamily.Viola
+            ? (int)slot.Properties
+            : slot.CurrentInstruction) & 3);
         slot.CurrentInstruction = CrawlerAnimationDefinitions.InitialInstruction(
             animationFamily, orientation);
         slot.SpritemapPointer = 0x804d; // Spritemap_Common_Nothing.

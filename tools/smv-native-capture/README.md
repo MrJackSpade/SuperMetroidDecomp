@@ -60,3 +60,9 @@ it does not change port state. Any gameplay effect of that timing difference sti
 needs to match the compared properties. See `docs/smv-gameplay-parity.md` for the
 current scope and first unresolved mismatch. Run `python tests/smv-timing.Tests.py`
 for classification, completed-boundary mapping, and unsafe-collapse rejection.
+
+Manifest v4 also supports power-on movies: it folds the native boot prelude
+before the first main-loop dispatch (`initialRecord`) and retains the last
+controller read of each door music wait as `hardwareWaitLatch`, so held buttons
+no longer require neutral input. The capture adapter itself is unchanged; Snes9x's
+own `S9xMovieOpen` performs the reset and SRAM restore.

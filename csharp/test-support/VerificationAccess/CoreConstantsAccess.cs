@@ -96,13 +96,10 @@ internal static class AttractDemoRomDataConstants
 /// <summary>Cartridge values of <see cref="AudioRomData.Apu"/> that only verification reads.</summary>
 internal static class AudioRomDataApuConstants
 {
-    public const byte LibraryOnePort = AudioRomData.Apu.FirstSoundPort;
     public const byte LibraryThreePort = 3;
 
     extension(AudioRomData.Apu)
     {
-        /// <inheritdoc cref="AudioRomDataApuConstants.LibraryOnePort"/>
-        internal static byte LibraryOnePort => AudioRomDataApuConstants.LibraryOnePort;
         /// <inheritdoc cref="AudioRomDataApuConstants.LibraryThreePort"/>
         internal static byte LibraryThreePort => AudioRomDataApuConstants.LibraryThreePort;
     }
@@ -3021,6 +3018,8 @@ internal static class RoomHeaderPointersConstants
     public const ushort BlueBrinstarElevatorRoom = 0x97b5;
     /// <summary>RoomHeader_Botwoon at $8F:D95E; both room states share the grey-door population.</summary>
     public const ushort Botwoon = 0xd95e;
+    /// <summary>RoomHeader_Hellway at $8F:A2F7, Brinstar room $23.</summary>
+    public const ushort Hellway = 0xa2f7;
     /// <summary>RoomHeader_BotwoonHallway at $8F:D617; contains the Mochtroid pipe-clip setup.</summary>
     public const ushort BotwoonHallway = 0xd617;
     /// <summary>Bank-$8F:9CB3, Brinstar room $08; includes the Dachora Speed Booster floor and shaft.</summary>
@@ -3082,6 +3081,8 @@ internal static class RoomHeaderPointersConstants
         internal static ushort BlueBrinstarElevatorRoom => RoomHeaderPointersConstants.BlueBrinstarElevatorRoom;
         /// <inheritdoc cref="RoomHeaderPointersConstants.Botwoon"/>
         internal static ushort Botwoon => RoomHeaderPointersConstants.Botwoon;
+        /// <inheritdoc cref="RoomHeaderPointersConstants.Hellway"/>
+        internal static ushort Hellway => RoomHeaderPointersConstants.Hellway;
         /// <inheritdoc cref="RoomHeaderPointersConstants.BotwoonHallway"/>
         internal static ushort BotwoonHallway => RoomHeaderPointersConstants.BotwoonHallway;
         /// <inheritdoc cref="RoomHeaderPointersConstants.BrinstarRoom08"/>

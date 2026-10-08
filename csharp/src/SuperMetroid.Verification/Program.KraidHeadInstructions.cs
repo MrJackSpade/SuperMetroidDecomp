@@ -113,7 +113,7 @@ internal static partial class Program
             "InitializeKraidEyeGlow");
         var death = Method<Action<RoomEnemySlot, KraidEnemyState>>(
             "InitializeKraidDeath");
-        var combat = Method<Action<RoomEnemySlot, KraidEnemyState, VramWriteQueue?>>(
+        var combat = Method<Action<RoomEnemySlot, KraidEnemyState, VramWriteQueue?, ushort>>(
             "RunKraidCombatFunction");
         RoomEnemySlot body = enemies.Slots[0];
         state.InitialHealth = 1000;
@@ -122,7 +122,7 @@ internal static partial class Program
             body.VariableA = (ushort)KraidAiFunction.MainloopThinking;
             state.ThinkingTimer = (ushort)raw;
             body.VariableC = 999;
-            combat(body, state, null);
+            combat(body, state, null, 0);
             AssertEqual(raw == 1
                     ? KraidHeadInstructionDefinitions.RoarEntryTimer
                     : (ushort)999,
@@ -131,7 +131,7 @@ internal static partial class Program
             body.VariableA = (ushort)KraidAiFunction.SecondPhaseThinking;
             state.ThinkingTimer = (ushort)raw;
             body.VariableC = 999;
-            combat(body, state, null);
+            combat(body, state, null, 0);
             AssertEqual(raw == 1
                     ? KraidHeadInstructionDefinitions.RoarEntryTimer
                     : (ushort)999,

@@ -26,12 +26,20 @@ internal static class SaveLoadRandomAudit
             bindPresentation(game);
             bool insertedWait = false;
             long sequence = 0;
+            long dispatches = 0;
+            // Each main-loop dispatch calls GenerateRandomNumber once; an update that only
+            // resumes a menu or loading dispatch after its NMI wait does not.
+            void Step(ushort input)
+            {
+                if (!game.NextUpdateResumesNmiWait) dispatches++;
+                game.StepCaptured(input, ++sequence, 1);
+            }
             for (int tick = 0; tick < 2000 && game.RuntimeForVerification is null; tick++)
             {
                 if (!insertedWait && game.GameState == SuperMetroidGameState.FileSelectMap)
                 {
                     insertedWait = true;
-                    for (int extra = 0; extra < wait; extra++) game.StepCaptured(0, ++sequence, 1);
+                    for (int extra = 0; extra < wait; extra++) Step(0);
                     if (wait == 1)
                     {
                         // A debugger capture in the menu must retain its RNG history,
@@ -43,23 +51,26 @@ internal static class SaveLoadRandomAudit
                         bindPresentation(game);
                     }
                 }
-                game.StepCaptured(tick % 47 == 0 ? (ushort)SnesButton.Start : (ushort)0, ++sequence, 1);
+                Step(tick % 47 == 0 ? (ushort)SnesButton.Start : (ushort)0);
             }
             var runtime = game.RuntimeForVerification;
             if (!insertedWait || runtime?.Samus is null)
                 throw new InvalidDataException("Save-load RNG audit did not reach the loaded runtime through file map.");
-            Console.WriteLine($"SAVE RNG wait={wait} frontendFrames={sequence} rng={runtime.System.RandomNumber} room={runtime.ActiveRoom?.Pointer:X4} energy={runtime.Samus.Health} PB={runtime.Samus.PowerBombs}/{runtime.Samus.MaxPowerBombs}");
+            Console.WriteLine($"SAVE RNG wait={wait} frontendFrames={sequence} dispatches={dispatches} rng={runtime.System.RandomNumber} room={runtime.ActiveRoom?.Pointer:X4} energy={runtime.Samus.Health} PB={runtime.Samus.PowerBombs}/{runtime.Samus.MaxPowerBombs}");
             // The reset vector seeds before the first main-loop/state-zero pass.
             // This empty save room has no random-consuming population initializer.
             var expected = new Bank80SystemState();
-            for (long frame = 0; frame < sequence; frame++) expected.NextRandom();
+            for (long dispatch = 0; dispatch < dispatches; dispatch++) expected.NextRandom();
             if (runtime.System.RandomNumber != expected.RandomNumber)
-                throw new InvalidDataException($"Menu/load RNG: expected {expected.RandomNumber}, got {runtime.System.RandomNumber} after {sequence} frontend frames.");
-            // Original-CPU probe: 426/427/428 accepted calls followed by SRAM load.
+                throw new InvalidDataException($"Menu/load RNG: expected {expected.RandomNumber}, got {runtime.System.RandomNumber} after {dispatches} main-loop dispatches.");
+            // Original-CPU probe: GenerateRandomNumber called 426/427/428 times from the
+            // reset seed. It validates the generator, not the menu's dispatch count.
             ushort[] nativeLoaded = [51088, 59105, 33654];
-            if (sequence != 426 + wait || runtime.System.RandomNumber != nativeLoaded[wait])
-                throw new InvalidDataException("Save-load fixture no longer matches its recorded original-CPU pass counts/RNG words.");
-            game.StepCaptured(0, ++sequence, 1);
+            var probe = new Bank80SystemState();
+            for (int call = 0; call < 426 + wait; call++) probe.NextRandom();
+            if (probe.RandomNumber != nativeLoaded[wait])
+                throw new InvalidDataException("RNG generator no longer matches its recorded original-CPU words.");
+            Step(0);
             expected.NextRandom();
             if (runtime.System.RandomNumber != expected.RandomNumber)
                 throw new InvalidDataException("The first loaded gameplay frame must advance RNG exactly once.");

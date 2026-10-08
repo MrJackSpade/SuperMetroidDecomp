@@ -58,8 +58,13 @@ public sealed class RoomLayer3FxState
     private ushort lavaAcidBg2WaveTimer;
     private int lavaAcidBg2WavePhase;
     // The spawned BG3 HDMA object's first pass installs its pre-instruction;
-    // subsequent passes execute it before the main-loop RNG call.
+    // subsequent passes execute it before the main-loop RNG call. The water lists at
+    // $88:D856 have the same shape, so this latch serves every liquid; the serialized
+    // name predates water's use of it.
     private bool lavaAcidBg3PreInstructionInstalled;
+
+    /// <summary>HDMA-object variable two of the lava/acid BG3 object: the ambient sound timer.</summary>
+    private ushort lavaSoundTimer;
     private LiquidRisePhase liquidRisePhase;
     private readonly List<RoomFxSoundRequest> soundRequests = [];
     [NonSerialized] private SamusPowerBombExplosionState? audioPowerBomb;
@@ -211,30 +216,67 @@ public sealed class RoomLayer3FxState
     }
 
     /// <summary>
-    /// Runs liquid motion and shared-state writes from $88:B3B0 before main-loop RNG generation.
-    /// $88:C3E9 installs the callback on the first HDMA pass; $88:B44A-B44E swaps
-    /// the shared RNG bytes on subsequent unfrozen passes, even off screen.
-    /// Rising/tidal motion also runs during door fades and pause entry. Visual/VRAM
-    /// updates remain in <see cref="Step"/>, which must not advance that motion twice.
+    /// True for the liquids whose BG3 HDMA pre-instruction moves the surface: lava and
+    /// acid ($88:B3B0) and water ($88:C48E). That motion belongs to the HDMA pass.
+    /// </summary>
+    public bool MovesLiquidInHdmaPass =>
+        Type is RoomFxType.Lava or RoomFxType.Acid || RoomFxTypes.UsesWater(Type);
+
+    /// <summary>
+    /// Runs liquid motion and shared-state writes from $88:B3B0 and $88:C48E before
+    /// main-loop RNG generation. $88:C3E9 and $88:D85E install the callback on the
+    /// first HDMA pass; lava/acid's $88:B44A-B44E then swaps the shared RNG bytes on
+    /// subsequent unfrozen passes, even off screen. Rising/tidal motion also runs during
+    /// door fades and pause entry. Visual/VRAM updates remain in <see cref="Step"/>,
+    /// which must not advance that motion twice.
     /// </summary>
     public void AdvanceHdmaSharedState(Bank80SystemState system, bool timeIsFrozen)
     {
         ArgumentNullException.ThrowIfNull(system);
-        if (Type is not (RoomFxType.Lava or RoomFxType.Acid))
+        if (!MovesLiquidInHdmaPass)
             return;
+        bool lavaOrAcid = Type is RoomFxType.Lava or RoomFxType.Acid;
         EarthquakeRequest = null;
         soundRequests.Clear();
         if (!lavaAcidBg3PreInstructionInstalled)
         {
             lavaAcidBg3PreInstructionInstalled = true;
+            // $88:C3E7 sets the sound timer in the same pass that installs the pre-instruction.
+            if (lavaOrAcid)
+                lavaSoundTimer = RoomFxRomData.LavaAcid.AmbientSoundPeriod;
             return;
         }
-        if (!timeIsFrozen)
+        if (timeIsFrozen)
+            return;
+        if (!lavaOrAcid)
         {
-            ushort random = system.RandomNumber;
-            AdvanceLiquidMotion(random);
-            system.SetRandomNumber(unchecked((ushort)((random << 8) | (random >> 8))));
+            // $88:C4A3-C4BB: the rising function and tide; water leaves the RNG alone.
+            AdvanceLiquidMotion(system.RandomNumber, system.MainGameLoopCarry);
+            return;
         }
+        ushort random = system.RandomNumber;
+        AdvanceLiquidMotion(random, system.MainGameLoopCarry);
+        QueueLavaAmbientSound(random);
+        system.SetRandomNumber(unchecked((ushort)((random << 8) | (random >> 8))));
+    }
+
+    /// <summary>
+    /// Ports <c>$88:B421-$B446</c>: while a lava surface's Y is not negative, its timer
+    /// counts down and, on reaching zero, reloads and queues a random ambient sound.
+    /// Acid shares the pre-instruction but not this sound.
+    /// </summary>
+    private void QueueLavaAmbientSound(ushort random)
+    {
+        if (Type != RoomFxType.Lava || unchecked((short)CurrentYPosition) < 0)
+            return;
+        lavaSoundTimer = unchecked((ushort)(lavaSoundTimer - 1));
+        if (lavaSoundTimer != 0)
+            return;
+        lavaSoundTimer = RoomFxRomData.LavaAcid.AmbientSoundPeriod;
+        soundRequests.Add(new RoomFxSoundRequest(
+            RoomFxRomData.LavaAcid.AmbientSound(random),
+            RoomFxRomData.LavaAcid.AmbientSoundMaximumQueued,
+            SoundSuppressed: audioPowerBomb?.IsActive == true));
     }
 
     /// <summary>Runs the active bank-$88 pre-instruction and rain animtile handler.</summary>
@@ -244,6 +286,7 @@ public sealed class RoomLayer3FxState
         ushort cameraX,
         ushort cameraY,
         bool timeIsFrozen,
+        bool mainGameLoopCarry,
         ushort randomNumber = 0,
         ushort firefleaDarknessLevel = 0,
         SamusPowerBombExplosionState? powerBomb = null,
@@ -275,13 +318,13 @@ public sealed class RoomLayer3FxState
 
         if (Type is RoomFxType.Lava or RoomFxType.Acid)
         {
-            StepLavaAcid(bus, cameraX, cameraY, randomNumber, liquidMotionAlreadyAdvanced);
+            StepLavaAcid(bus, cameraX, cameraY, randomNumber, mainGameLoopCarry, liquidMotionAlreadyAdvanced);
             return;
         }
 
         if (RoomFxTypes.UsesWater(Type))
         {
-            StepWater(bus, cameraX, cameraY, randomNumber);
+            StepWater(bus, cameraX, cameraY, randomNumber, mainGameLoopCarry, liquidMotionAlreadyAdvanced);
             return;
         }
 
@@ -446,9 +489,12 @@ public sealed class RoomLayer3FxState
         ISnesAddressSpace bus,
         ushort cameraX,
         ushort cameraY,
-        ushort randomNumber)
+        ushort randomNumber,
+        bool mainGameLoopCarry,
+        bool liquidMotionAlreadyAdvanced)
     {
-        AdvanceLiquidMotion(randomNumber);
+        if (!liquidMotionAlreadyAdvanced)
+            AdvanceLiquidMotion(randomNumber, mainGameLoopCarry);
         waterSurfaceScreenY = unchecked((short)(CurrentYPosition - cameraY));
         HorizontalScroll = unchecked((ushort)(
             cameraX + unchecked((sbyte)(waterHorizontalSubscroll >> 8))));
@@ -481,9 +527,9 @@ public sealed class RoomLayer3FxState
         }
     }
 
-    private void AdvanceLiquidMotion(ushort randomNumber)
+    private void AdvanceLiquidMotion(ushort randomNumber, bool mainGameLoopCarry)
     {
-        StepLiquidRise(randomNumber);
+        StepLiquidRise(randomNumber, mainGameLoopCarry);
         StepLiquidTide();
         CurrentYPosition = ComputeTidalYPosition();
     }
@@ -498,10 +544,11 @@ public sealed class RoomLayer3FxState
         ushort cameraX,
         ushort cameraY,
         ushort randomNumber,
+        bool mainGameLoopCarry,
         bool liquidMotionAlreadyAdvanced)
     {
         if (!liquidMotionAlreadyAdvanced)
-            AdvanceLiquidMotion(randomNumber);
+            AdvanceLiquidMotion(randomNumber, mainGameLoopCarry);
         waterSurfaceScreenY = unchecked((short)(CurrentYPosition - cameraY));
         HorizontalScroll = cameraX;
         // Lava/acid $88:B3B0 uses the same surface-relative BG3VOFS equation as water
@@ -530,7 +577,7 @@ public sealed class RoomLayer3FxState
     /// 16.16 base position toward the target. Door-specific Norfair entries rely on this
     /// sequence to raise lava into the visible viewport.
     /// </summary>
-    private void StepLiquidRise(ushort randomNumber = 0)
+    private void StepLiquidRise(ushort randomNumber, bool mainGameLoopCarry)
     {
         switch (liquidRisePhase)
         {
@@ -546,14 +593,14 @@ public sealed class RoomLayer3FxState
             }
 
             case LiquidRisePhase.Waiting:
-                PublishRisingLiquidFeedback(randomNumber);
+                PublishRisingLiquidFeedback(randomNumber, mainGameLoopCarry);
                 Timer = unchecked((ushort)(Timer - 1));
                 if (Timer == 0)
                     liquidRisePhase = LiquidRisePhase.Moving;
                 return;
 
             case LiquidRisePhase.Moving:
-                PublishRisingLiquidFeedback(randomNumber);
+                PublishRisingLiquidFeedback(randomNumber, mainGameLoopCarry);
                 if (AdvanceBaseYToTarget())
                 {
                     PackedYVelocity = 0;
@@ -572,13 +619,13 @@ public sealed class RoomLayer3FxState
     /// writes used while lava or acid waits and moves. Sound cadence and screen shake are
     /// parallel outputs of the cartridge FX actor; neither is inferred by the renderer.
     /// </summary>
-    private void PublishRisingLiquidFeedback(ushort randomNumber)
+    private void PublishRisingLiquidFeedback(ushort randomNumber, bool mainGameLoopCarry)
     {
         // Water's $88:C44C/$C458 callbacks only wait/move. Lava and acid's
         // parallel callbacks additionally request sound and a global earthquake.
         if (Type is not (RoomFxType.Lava or RoomFxType.Acid))
             return;
-        HandleEarthquakeSoundEffect(randomNumber);
+        HandleEarthquakeSoundEffect(randomNumber, mainGameLoopCarry);
         EarthquakeRequest = new RoomFxEarthquakeRequest(
             RoomFxRomData.Earthquake.RisingLiquidType,
             RoomFxRomData.Earthquake.RisingLiquidTimerBits);
@@ -590,7 +637,14 @@ public sealed class RoomLayer3FxState
     /// word resets selection to zero. Constant sound selection and the index bound
     /// replace those words; the independently retained rhythm supplies only delays.
     /// </summary>
-    private void HandleEarthquakeSoundEffect(ushort randomNumber)
+    /// <param name="mainGameLoopCarry">
+    /// Carry entering the routine. <c>QueueSound_Lib2_Max6</c> restores it with <c>PLP</c>,
+    /// so <c>ADC .baseTimer</c> at $88:B245 adds it. Both callers' HDMA objects are the first
+    /// their FX spawns after the door's <c>Delete_HDMAObjects</c>, so they run in slot zero,
+    /// which inherits <see cref="Bank80SystemState.MainGameLoopCarry"/>; a later slot would
+    /// see the clear carry from <c>CPX #$0C</c>.
+    /// </param>
+    private void HandleEarthquakeSoundEffect(ushort randomNumber, bool mainGameLoopCarry)
     {
         if (unchecked((short)earthquakeSoundTimer) < 0)
             return;
@@ -609,12 +663,13 @@ public sealed class RoomLayer3FxState
             MaximumQueued: 6,
             SoundSuppressed: audioPowerBomb?.IsActive == true));
         earthquakeSoundTimer = unchecked((ushort)(
-            baseTimers[earthquakeSoundSequenceIndex] + (randomNumber & 3)));
+            baseTimers[earthquakeSoundSequenceIndex] + (randomNumber & 3) + (mainGameLoopCarry ? 1 : 0)));
         earthquakeSoundSequenceIndex++;
     }
 
     /// <summary>The statue HDMA pre-instructions call the same $88:B21D earthquake sound owner.</summary>
-    internal void PublishStatueEarthquakeSound(ushort randomNumber) => HandleEarthquakeSoundEffect(randomNumber);
+    internal void PublishStatueEarthquakeSound(ushort randomNumber, bool mainGameLoopCarry) =>
+        HandleEarthquakeSoundEffect(randomNumber, mainGameLoopCarry);
 
     /// <summary>Ports <c>RaiseOrLowerFx</c> at $88:868C for the shared liquid words.</summary>
     private bool AdvanceBaseYToTarget()
@@ -735,6 +790,7 @@ public sealed class RoomLayer3FxState
         lavaAcidBg2WavePhase = 0;
         liquidRisePhase = LiquidRisePhase.Dormant;
         lavaAcidBg3PreInstructionInstalled = false;
+        lavaSoundTimer = 0;
         soundRequests.Clear();
         EarthquakeRequest = null;
         earthquakeSoundTimer = 0;

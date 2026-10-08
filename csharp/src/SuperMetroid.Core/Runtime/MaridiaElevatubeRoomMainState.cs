@@ -6,16 +6,14 @@ namespace SuperMetroid.Core.Runtime;
 
 /// <summary>
 /// Shared translation of Maridia elevatube room main <c>$8F:E2B6</c> and the four door
-/// callbacks that initialize or release it. The state preserves the cartridge's four
-/// scratch words so their signed fixed-point behavior remains debugger-visible.
+/// callbacks that initialize or release it. The state preserves the cartridge's scratch
+/// words so their signed fixed-point behavior remains debugger-visible. The fraction of the
+/// tracked position is the shared <c>RoomMainASMVar1</c>, which the door callbacks leave stale.
 /// </summary>
 public sealed class MaridiaElevatubeRoomMainState
 {
     /// <summary>Whether the selected room state names main routine $8F:E2B6.</summary>
     public bool IsActive { get; private set; }
-
-    /// <summary>Native RoomMainASMVar1: fractional half of the tube's tracked position.</summary>
-    public ushort PositionSubposition { get; private set; }
 
     /// <summary>Native RoomMainASMVar2: whole-pixel half of the tube's tracked position.</summary>
     public ushort Position { get; private set; }
@@ -26,22 +24,18 @@ public sealed class MaridiaElevatubeRoomMainState
     /// <summary>Native RoomMainASMVar4: signed 8.8 acceleration.</summary>
     public ushort Acceleration { get; private set; }
 
-    /// <summary>Clears shared room-main scratch and selects whether $E2B6 owns this room.</summary>
-    public void Reset(bool active)
-    {
-        IsActive = active;
-        PositionSubposition = 0;
-        Position = 0;
-        Velocity = 0;
-        Acceleration = 0;
-    }
+    /// <summary>
+    /// Selects whether $E2B6 owns this room. Room loading leaves the room-main words as they
+    /// were; the door callbacks initialize the ones this routine reads.
+    /// </summary>
+    public void Reset(bool active) => IsActive = active;
 
     /// <summary>Applies door callback $8F:E26C for entry from Oasis to the south.</summary>
     public void SetUpFromSouth(SamusState samus)
     {
         EnsureActive(DoorCodes.DoorASM_SetupElevatubeFromSouth);
         ArgumentNullException.ThrowIfNull(samus);
-        PositionSubposition = 0;
+        // $8F:E272 is STZ $07E3, immediately overwritten; RoomMainASMVar1 stays as it was.
         Position = MaridiaElevatubeRomData.SouthStartingPosition;
         Velocity = MaridiaElevatubeRomData.SouthStartingVelocity;
         Acceleration = MaridiaElevatubeRomData.SouthAcceleration;
@@ -53,7 +47,7 @@ public sealed class MaridiaElevatubeRoomMainState
     {
         EnsureActive(DoorCodes.DoorASM_SetupElevatubeFromNorth);
         ArgumentNullException.ThrowIfNull(samus);
-        PositionSubposition = 0;
+        // $8F:E297 is STZ $07E3, immediately overwritten; RoomMainASMVar1 stays as it was.
         Position = MaridiaElevatubeRomData.NorthStartingPosition;
         Velocity = MaridiaElevatubeRomData.NorthStartingVelocity;
         Acceleration = MaridiaElevatubeRomData.NorthAcceleration;
@@ -81,11 +75,13 @@ public sealed class MaridiaElevatubeRoomMainState
         RoomLevelData level,
         SamusState? samus,
         ushort nmiFrameCounter,
-        RoomPlmSystem plms)
+        RoomPlmSystem plms,
+        RoomMainScratchState scratch)
     {
         if (!IsActive)
             return null;
         ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(scratch);
         ArgumentNullException.ThrowIfNull(level);
         ArgumentNullException.ThrowIfNull(plms);
         SamusState activeSamus = samus ?? throw new InvalidOperationException(
@@ -96,10 +92,10 @@ public sealed class MaridiaElevatubeRoomMainState
             (uint)MaridiaElevatubeRomData.SamusCenterX << 16);
 
         int displacement = unchecked((short)Velocity) << 8;
-        uint trackedPosition = ((uint)Position << 16) | PositionSubposition;
+        uint trackedPosition = ((uint)Position << 16) | scratch.Var1;
         trackedPosition = unchecked(trackedPosition + (uint)displacement);
         Position = unchecked((ushort)(trackedPosition >> 16));
-        PositionSubposition = unchecked((ushort)trackedPosition);
+        scratch.Var1 = unchecked((ushort)trackedPosition);
 
         BlockMoveResult movement = SamusBlockCollision.MoveVertical(
             bus,

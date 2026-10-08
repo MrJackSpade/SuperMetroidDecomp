@@ -74,8 +74,26 @@ internal static class Bank80SystemStateAccess
         internal static uint Multiply16By16(ushort left, ushort right) => (uint)left * right;
     }
 
+    private static (int ByteIndex, byte BitMask) RoomChozoBit(int bitIndex) =>
+        ((int, byte))PrivateState.InvokeStatic(typeof(Bank80SystemState), "ResolvePersistentRoomBit", bitIndex,
+            Bank80SystemState.RoomChozoBitByteCount, "Chozo-room bit index must fit the native 64-byte table.")!;
+
     extension(Bank80SystemState self)
     {
+        /// <summary>Whether the room's Chozo-statue bit is set in the native 64-byte table.</summary>
+        internal bool HasRoomChozoBit(int bitIndex)
+        {
+            (int byteIndex, byte bitMask) = RoomChozoBit(bitIndex);
+            return (PrivateState.Field<byte[]>(self, "_roomChozoBits")[byteIndex] & bitMask) != 0;
+        }
+
+        /// <summary>Sets the room's Chozo-statue bit in the native 64-byte table.</summary>
+        internal void SetRoomChozoBit(int bitIndex)
+        {
+            (int byteIndex, byte bitMask) = RoomChozoBit(bitIndex);
+            PrivateState.Field<byte[]>(self, "_roomChozoBits")[byteIndex] |= bitMask;
+        }
+
         /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
         internal byte GetExploredMapByteRaw(AreaId areaIndex, int byteIndex) =>
             self.GetExploredMapByteRaw(AreaIds.ToIndex(areaIndex), byteIndex);
@@ -1329,6 +1347,39 @@ internal static class RoomEnemySystemAccess
 {
     extension(RoomEnemySystem self)
     {
+        /// <summary>
+        /// Runs the native mouth pass followed by the outer mouth/body pass outside Kraid's AI.
+        /// <c>MainAI_Kraid</c> itself interleaves palette handling between the two passes.
+        /// </summary>
+        internal int ResolveKraidProjectileHits(
+            ISnesAddressSpace bus,
+            SamusProjectileSystem projectiles,
+            SamusBombProjectileSystem sharedProjectiles)
+        {
+            ArgumentNullException.ThrowIfNull(bus);
+            ArgumentNullException.ThrowIfNull(projectiles);
+            ArgumentNullException.ThrowIfNull(sharedProjectiles);
+            var kraid = PrivateState.Field<KraidEnemyState?>(self, "_kraidState");
+            RoomEnemySlot body = self.Slots[0];
+            if (kraid is null || body.EnemyDefinitionPointer != RoomEnemySystem.KraidDefinition ||
+                body.Properties.HasAny(EnemyProperties.Deleted))
+                return 0;
+            object shots = PrivateState.Construct(PrivateState.Nested(typeof(RoomEnemySystem), "KraidShotSlots"),
+                projectiles, sharedProjectiles);
+            return (int)PrivateState.Invoke(self, "ResolveKraidMouthProjectileHits", body, kraid, shots)! +
+                (int)PrivateState.Invoke(self, "ResolveKraidBodyProjectileHits", body, kraid, shots)!;
+        }
+
+        /// <summary>Botwoon's live state while its room is loaded.</summary>
+        internal BotwoonEnemyState? Botwoon => PrivateState.Field<BotwoonEnemyState?>(self, "_botwoonState");
+
+        /// <summary>Per-slot Evir states, indexed by enemy slot.</summary>
+        internal IReadOnlyList<EvirEnemyState?> EvirStates => PrivateState.Field<EvirEnemyState?[]>(self, "_evirStates");
+
+        /// <summary>Special drops a dying Metroid has requested this frame.</summary>
+        internal IReadOnlyList<MetroidDropRequest> MetroidDropRequests =>
+            PrivateState.Field<List<MetroidDropRequest>>(self, "_metroidDropRequests");
+
 
         /// <summary>Companion/corpse state indexed by physical enemy slot.</summary>
         internal IReadOnlyList<DeadSidehopperEnemyState?> DeadSidehoppers =>
@@ -2555,5 +2606,19 @@ internal static class ZebesExplosionLayerFadePaletteFxProgramDefinitionAccess
         internal int CycleFrames =>
             ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.FrameCount *
             self.FrameDuration;
+    }
+}
+
+/// <summary>Verification access to <see cref="MagdollitePhaseDefinitions"/> members production does not use.</summary>
+internal static class MagdollitePhaseDefinitionsAccess
+{
+    extension(MagdollitePhaseDefinitions)
+    {
+        /// <summary>Number of enemy slots covered by <see cref="MagdollitePhaseDefinitions.ApexThreshold"/>.</summary>
+        internal static int ApexThresholdSlotCount =>
+            PrivateState.StaticField<Array>(typeof(MagdollitePhaseDefinitions), "s_apexThresholdsByEnemySlot").Length;
+
+        /// <summary>$A8:AF55, <c>MagdolliteArmHeightThreshold</c>.</summary>
+        internal static ushort ArmHeightThresholdTable => 0xaf55;
     }
 }

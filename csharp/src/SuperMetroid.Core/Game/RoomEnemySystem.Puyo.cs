@@ -240,10 +240,9 @@ public sealed partial class RoomEnemySystem
         state.Direction = direction;
         state.InvertDirection = false;
 
-        // GenerateRandomNumber updates the global seed before the frame counter is added.
         // Types three and above ignore this value but still advance the seed, an observable
         // side effect shared with every other random enemy in the room.
-        ushort randomChoice = unchecked((ushort)((_nextRandom!() + slot.FrameCounter) & 7));
+        ushort randomChoice = NextPuyoRandom0To7(slot);
         int hopType = (ushort)state.HopType;
         if (hopType < 3)
         {
@@ -383,13 +382,19 @@ public sealed partial class RoomEnemySystem
         if (!MoveEnemyVertically(level, slot, displacement))
             return;
 
-        // The collision frame consumes another RNG value and chooses one of two dropped
-        // bounce heights. Its random result does not include Enemy.frameCounter here.
-        state.HopType = (_nextRandom!() & 1) == 0
+        // $A2:9DB6 picks one of the two dropped bounce heights from the same 0..7 value.
+        state.HopType = (NextPuyoRandom0To7(slot) & 1) == 0
             ? PuyoHopType.DroppedSmall
             : PuyoHopType.DroppedBig;
         state.Function = PuyoEnemyFunction.Grounded;
     }
+
+    /// <summary>
+    /// <c>GetRandomNumber0_7</c> ($A2:9B06): generates a random number, then adds the
+    /// enemy's frame counter before keeping the low three bits.
+    /// </summary>
+    private ushort NextPuyoRandom0To7(RoomEnemySlot slot) =>
+        unchecked((ushort)((_nextRandom!() + slot.FrameCounter) & 7));
 
     /// <summary>Ports the post-drop bounce wrapper at $A2:9DCD.</summary>
     private void RunDroppedPuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
@@ -418,10 +423,12 @@ public sealed partial class RoomEnemySystem
         {
             if (!state.Falling)
             {
-                // $A2:9BBF reads stale direct-page byte $01. EnemyMain normally leaves it
-                // zero, but the read is retained as a named quirk instead of pretending the
-                // collision helper returns a direction flag. Zero matches retail room play.
-                state.InvertDirection = false;
+                // $A2:9BBF copies the stale direct-page word at $01 into the invert flag.
+                // During gameplay HandleHUDTilemap_PausedAndRunning ($80:9BFE) leaves
+                // $00 = $9DD3 every frame, so the flag is set. Door transitions can leave
+                // other values before the first HUD pass of a room; those are treated as
+                // nonzero too, by decision, rather than modelling every scratch writer.
+                state.InvertDirection = true;
                 state.InvertedDirection = Opposite(state.Direction);
                 state.HopType = PuyoHopType.Dropping;
                 state.AirborneFunction = PuyoAirborneFunction.Dropping;
@@ -449,15 +456,14 @@ public sealed partial class RoomEnemySystem
             state.YSpeedTableIndex = 0;
         }
 
-        // X speed is stored as 8.8. The NTSC routine negates only the whole word when
-        // moving left and leaves the fractional word positive. That makes $0140 mean
-        // +1.25 px right but -0.75 px left; preserve the shipped asymmetry literally.
+        // X speed is stored as 8.8, but NTSC $A2:9C29-9C32 moves by the whole byte only
+        // and zeroes the subspeed word; only the PAL build uses the fraction. The giant
+        // hop's $0140 therefore moves exactly one pixel per frame either way.
         ushort xSpeed = PuyoHopDefinitions.FromByteIndex(state.HopTableIndex).XSpeed;
-        ushort fraction = unchecked((ushort)((xSpeed & 0x00ff) << 8));
         short whole = unchecked((short)(xSpeed >> 8));
         if (state.Direction == PuyoDirection.Left)
             whole = unchecked((short)-whole);
-        int horizontalDisplacement = (whole << 16) | fraction;
+        int horizontalDisplacement = whole << 16;
 
         if (!MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,

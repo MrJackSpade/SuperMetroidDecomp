@@ -22,7 +22,7 @@ internal static partial class Program
                     Console.WriteLine($"CATALOG-ONLY ${entry.Address:X6} -> ${entry.Pointer:X4}");
             }
         }
-        AssertEqual(5102, keyed.Count, "distinct native sprite-selector addresses");
+        AssertEqual(5103, keyed.Count, "distinct native sprite-selector addresses");
         AssertEqual(keyed.Count, CompiledEnemyVisualSelectorsTooling.Count,
             "generated catalog covers every bank-resolved inventory address");
         int catalogIndex = 0;
@@ -44,7 +44,7 @@ internal static partial class Program
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(5102, CompiledEnemyVisualSelectorsTooling.Count,
+        AssertEqual(5103, CompiledEnemyVisualSelectorsTooling.Count,
             "generated fixed visual-selector count");
         foreach (int index in new[] { int.MinValue, -1, CompiledEnemyVisualSelectorsTooling.Count, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => CompiledEnemyVisualSelectorsTooling.At(index),

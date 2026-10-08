@@ -5,8 +5,24 @@ using SuperMetroid.Desktop;
 
 internal static class LegacyOptionsMigrationVerification
 {
+    /// <summary>Frontend captures predating the door music-upload NMI source restore the lag-free policy.</summary>
+    private static void VerifyDoorMusicUploadNmisMigration()
+    {
+        Type type = typeof(SuperMetroidGame);
+        DebuggerFieldIntroduction[] omitted =
+            DebuggerStateFieldMigrations.ResolveOmissions(type, ["<DoorMusicUploadNmis>k__BackingField"]);
+        if (omitted is not [{ Fields: ["<DoorMusicUploadNmis>k__BackingField"] }])
+            throw new InvalidDataException("Legacy frontend migration omitted fields other than the upload NMI source.");
+        var restored = (SuperMetroidGame)RuntimeHelpers.GetUninitializedObject(type);
+        DebuggerStateFieldMigrations.InitializeOmitted(restored, omitted);
+        if (!ReferenceEquals(restored.DoorMusicUploadNmis, LagFreeDoorMusicUploadNmis.Instance))
+            throw new InvalidDataException("Legacy frontend did not restore the lag-free upload NMI policy.");
+        Console.WriteLine("Legacy frontend: only the upload NMI source omitted; restored with the lag-free policy.");
+    }
+
     public static int Run()
     {
+        VerifyDoorMusicUploadNmisMigration();
         VerifyRegistryMatchesCurrentTypes();
         VerifyOmissionResolution();
         VerifyRuntimeMigration();

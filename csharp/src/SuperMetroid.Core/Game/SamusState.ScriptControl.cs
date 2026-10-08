@@ -19,5 +19,21 @@ public sealed partial class SamusState
     {
         InputLocked = locked;
         StationaryScriptControlLocked = locked;
+        RefillStationLocked = false;
+    }
+
+    /// <summary>
+    /// Command six's handler pair ($90:F1AA): locked alpha $E713 with the bare <c>RTL</c>
+    /// beta $90:E8D6. That beta neither moves nor animates Samus. A map station keeps it
+    /// through the pause menu until command $0C ($90:F29E) restores the normal pair.
+    /// </summary>
+    public bool RefillStationLocked { get; private set; }
+
+    /// <summary>Applies <c>SamusCommand_6_LockSamusIntoRefillStation</c>.</summary>
+    public void LockIntoRefillStation()
+    {
+        InputLocked = true;
+        StationaryScriptControlLocked = false;
+        RefillStationLocked = true;
     }
 }

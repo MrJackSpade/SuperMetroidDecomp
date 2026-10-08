@@ -193,6 +193,9 @@ public static class SamusKnockbackMovement
         // accepting the producer-owned value here prevents this shared initializer from
         // shortening that visibly longer scripted reaction to ordinary gameplay timing.
         samus.KnockbackActive = true;
+        // $91:EE1F/EE40 install the knockback movement handler, which replaces the
+        // released-from-grapple-swing handler if that was still running.
+        samus.Grapple.ReleasedMovementActive = false;
 
         // The remainder of `$91:ED4E` runs for both pointer-table families. A pending bomb
         // jump cannot coexist with hurt movement, and shinespark/Screw contact damage is
@@ -243,15 +246,14 @@ public static class SamusKnockbackMovement
         // The special handler does not replace the pose's speed-table index.
         // Morphed bodies retain their own movement type throughout hurt movement.
         uint baseSpeed = speed.CalculateBaseSpeed(bus, samus.ReadMovementType(bus));
-        int requestedX = samus.KnockbackXDirection == 0
-            ? speed.CalculateLeftDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed)
-            : speed.CalculateRightDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed);
+        var requestedX = SamusHorizontalDisplacement.Toward(samus.KnockbackXDirection == 0, samus, baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
             bus,
             level,
             samus.Kinematics,
-            requestedX,
-            plms: plms);
+            requestedX.Displacement,
+            plms: plms,
+            collisionMovementDirection: requestedX.CollisionDirection);
         // Knockback uses the ordinary left/right wrapper, whose collision branch
         // cancels X momentum before the vertical pass. Retaining the clipped move's
         // base speed incorrectly accelerates the next frame away from the obstacle.
@@ -343,45 +345,6 @@ public static class SamusKnockbackMovement
         samus.Pose = targetPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus, initialFrame: 0);
-    }
-
-    /// <summary>
-    /// Consumes the humanoid arm of `$90:DE20-$DE73` and `$91:F31D`: select the
-    /// facing-preserving falling pose, align its shorter body to the old feet, and restore
-    /// the normal movement handler's state.
-    /// </summary>
-    /// <remarks>
-    /// Ceres Ridley's `$90:E1FD/$E21C` wall-collision handoff reaches this explicit falling
-    /// transition after restoring the normal handler. Keeping that caller here is important:
-    /// Ceres does not invent a standing pose, and the optional `$53/$54` damage-boost input
-    /// table is not the only way a neutral player can regain control after the shove.
-    /// Ordinary timer expiry instead skips installing its proposed pose and is handled by
-    /// <see cref="TryFinishExpiredHitInterruption"/>.
-    /// </remarks>
-    public static KnockbackMovementResult FinishHumanoidToFalling(
-        ISnesAddressSpace bus,
-        SamusState samus)
-    {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
-        if (samus.Pose is not (SamusPoseIds.KnockbackRightPose or SamusPoseIds.KnockbackLeftPose))
-        {
-            throw new InvalidOperationException(
-                $"Humanoid knockback completion requires pose $53/$54, not ${samus.Pose:X2}.");
-        }
-
-        // `$90:DE57` chooses `$29/$2A`. After the ordinary pose-change initializer has
-        // installed radius 19, command one `$91:F31D` aligns the new body bottom to the old
-        // radius-21 hurt body. Thus the center moves down two pixels before velocity clears.
-        ushort previousRadius = samus.Kinematics.YRadius;
-        samus.Pose = SamusState.IsFacingLeft(bus, samus.Pose)
-            ? SamusPoseIds.FallingLeftPose
-            : SamusPoseIds.FallingRightPose;
-        samus.RefreshCollisionRadii(bus);
-        samus.Kinematics.YPosition = unchecked((ushort)(
-            samus.Kinematics.YPosition + previousRadius - samus.Kinematics.YRadius));
-        samus.InitializeAnimation(bus, initialFrame: 0);
-        return FinishKnockback(samus);
     }
 
     /// <summary>

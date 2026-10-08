@@ -85,12 +85,28 @@ public sealed class SamusProjectileSlot
         PreInstruction = SamusProjectilePreInstruction.None;
     }
 
-    /// <summary>Full pool initialization also clears the words retained by individual deletion.</summary>
-    internal void Reset()
+    /// <summary>
+    /// The per-slot words <c>ResetProjectileData</c> ($90:AD22) clears on a door load or
+    /// elevator ride. Unlike deletion it keeps both subpixels, the animation frame and
+    /// $0CA4, which a later shot in the slot inherits.
+    /// </summary>
+    internal void ClearForProjectileDataReset()
     {
-        ClearFields();
         TrailTimer = 0;
-        AuxiliaryPhase = 0;
+        XPosition = 0;
+        YPosition = 0;
+        Direction = 0;
+        XVelocity = 0;
+        YVelocity = 0;
+        XRadius = 0;
+        YRadius = 0;
+        Type = 0;
+        Damage = 0;
+        InstructionPointer = 0;
+        InstructionTimer = 0;
+        Variable = 0;
+        SpritemapPointer = 0;
+        PreInstruction = SamusProjectilePreInstruction.None;
     }
 }
 

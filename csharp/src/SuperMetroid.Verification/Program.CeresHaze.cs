@@ -93,7 +93,7 @@ internal static partial class Program
         for (int frame = 0; transition.IsActive && frame < 600; frame++)
         {
             bool fadingIn = transition.Phase == DoorTransitionPhase.FadeInDestinationPalette;
-            transition.Step(runtime, audio, 0);
+            transition.Step(runtime, audio, 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
             if (runtime.ActiveRoom!.Pointer == RoomHeaderPointers.CeresRidleyRoom)
                 AssertTrue(!runtime.CeresHaze.IsRed, "source room remains blue through actual door fade");
             if (fadingIn)

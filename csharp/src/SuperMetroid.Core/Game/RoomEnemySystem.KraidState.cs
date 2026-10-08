@@ -170,12 +170,15 @@ public sealed class KraidEnemyState
 
     /// <summary>Last eight-frame-delayed music request made by the rise sequence.</summary>
     public MusicCommand? MusicRequest { get; internal set; }
-    public ushort RoomBackgroundFadeStep { get; internal set; }
     public int CeilingRockSpawnCount { get; internal set; }
+
+    /// <summary>
+    /// Set when <c>$A7:C85E</c> stores $FFFF to <c>PreviousLayer1XBlock</c>; the runtime
+    /// applies it before this frame's background column streaming.
+    /// </summary>
+    public bool Layer1XBlockResetRequested { get; internal set; }
     public bool Bg2PriorityBitsSet { get; internal set; }
     public bool CameraReleasedForSecondPhase { get; internal set; }
-    /// <summary>Living-boss camera distance override; absent on an already-defeated room load.</summary>
-    public ushort? CameraDistanceIndex { get; internal set; }
     public ushort DeathSoundTimer { get; internal set; }
     public int SinkTableEventCount { get; internal set; }
     public int DeathDropRequestCount { get; internal set; }
@@ -210,12 +213,17 @@ public sealed partial class RoomEnemySystem
         _kraidPlmRequests.Clear();
     }
 
+    /// <summary>
+    /// Kraid's room state, created by the body's initializer and kept for the room. Parts
+    /// read slot zero's words directly, so they keep running after the dead-room body is
+    /// deleted, as the fingernails do.
+    /// </summary>
     private KraidEnemyState RequireKraidState(RoomEnemySlot slot)
     {
-        if (_kraidState is null || _slots[0].EnemyDefinitionPointer != KraidDefinition)
+        if (_kraidState is null)
         {
             throw new InvalidOperationException(
-                $"Enemy ${slot.EnemyDefinitionPointer:X4} requires an initialized Kraid body in slot zero.");
+                $"Enemy ${slot.EnemyDefinitionPointer:X4} requires Kraid's body to have initialized this room.");
         }
         return _kraidState;
     }

@@ -11,6 +11,9 @@ public sealed partial class SuperMetroidRuntime
     // that ownership explicit instead of reducing the native scroll to a frontend timer.
     private bool _doorScrollingIrqRequestsNmi;
     private DoorOpeningScrollState? _doorOpeningScroll;
+    // An arriving elevator's placement of Samus, made by the one-step room load but due
+    // when the cartridge's door loader reaches that enemy's init AI.
+    private LoaderSamusPlacement? _pendingLoaderSamusPlacement;
     private DoorOpeningPpuScroll? _pendingDoorOpeningPpuScroll;
 
     /// <summary>
@@ -139,7 +142,7 @@ public sealed partial class SuperMetroidRuntime
         // frame two/timer three, a suit-specific bank-$8D palette object, and the 360-call
         // appearance handler before restoring ordinary input.
         Samus.LoadSuitPalette(_addressSpace, Cgram);
-        Samus.ApplyForwardFacingPoseSetup(_addressSpace);
+        Samus.ApplyZebesStartPoseSetup(_addressSpace);
         Samus.SetAnimationFrameFromSpecialHandler(frame: 2, timer: 3);
         Samus.LiquidPhysics.RoomIdentity = room.Identity;
         Samus.PrimeGraphics(_addressSpace);
@@ -284,7 +287,9 @@ public sealed partial class SuperMetroidRuntime
         if (alignment.Completed)
             return true;
 
-        Camera.SetPosition(alignment.CameraX, alignment.CameraY);
+        // $82:E327-$E340 INC/DEC the whole layer-one word only; fractions, the ideal
+        // camera position and Samus's previous position are untouched.
+        Camera.SetDoorTransitionPosition(alignment.CameraX, alignment.CameraY);
 
         // CalculateLayer2PosAndScrollsWhenScrolling updates the PPU mirrors on every
         // convergence step. The gameplay scroll owner performs the same parallax math;
@@ -425,12 +430,15 @@ public sealed partial class SuperMetroidRuntime
         CartridgeDoorHeader door,
         uint sourceSamusXFixed,
         uint sourceSamusYFixed,
+        IDoorLoaderProgressSource loaderProgress,
         int completedLoadingIrqSteps = 0)
     {
         if (Camera is null || Samus is null)
             throw new InvalidOperationException("A loaded destination and Samus are required.");
         if (_doorOpeningScroll is not null)
             throw new InvalidOperationException("A door-opening scroll is already active.");
+        if (Enemies.ConsumeElevatorArrivalPlacementSlot() is int placementSlot)
+            _pendingLoaderSamusPlacement = new LoaderSamusPlacement(placementSlot, Samus.XPosition, Samus.YPosition);
 
         _doorOpeningScroll = DoorOpeningScrollState.Create(
             door,
@@ -509,14 +517,14 @@ public sealed partial class SuperMetroidRuntime
         // Recreate the VRAM producer requests for IRQ progress already published
         // before the atomic destination load. Those steps do not consume more input.
         for (int step = 0; step < completedLoadingIrqSteps; step++)
-            StepDoorOpeningScroll();
+            StepDoorOpeningScroll(loaderProgress);
     }
 
     /// <summary>
     /// Runs one <c>Irq_FollowDoorTransition</c> coordinate update. True means the IRQ set
     /// bit $8000 in <c>door_transition_flag</c> on this call.
     /// </summary>
-    internal bool StepDoorOpeningScroll()
+    internal bool StepDoorOpeningScroll(IDoorLoaderProgressSource loaderProgress)
     {
         DoorOpeningScrollState state = _doorOpeningScroll
             ?? throw new InvalidOperationException("No door-opening scroll is active.");
@@ -551,6 +559,20 @@ public sealed partial class SuperMetroidRuntime
             BackgroundScroll.Layer1XPosition = state.CameraX;
             BackgroundScroll.Layer1YPosition = state.CameraY;
         }
+        // The IRQ runs at the start of the update; the loader's main-thread work follows.
+        if (_pendingLoaderSamusPlacement is { } placement)
+        {
+            if (loaderProgress.HasInitializedEnemySlot(placement.EnemySlot))
+            {
+                state.PlaceSamusOnElevator(placement.XPosition, placement.YPosition);
+                _pendingLoaderSamusPlacement = null;
+            }
+            else if (completed)
+            {
+                throw new InvalidDataException(
+                    $"The door scroll finished before the loader initialized elevator slot {placement.EnemySlot}.");
+            }
+        }
         Samus.Kinematics.SetXFixed(state.SamusXFixed);
         Samus.Kinematics.SetYFixed(state.SamusYFixed);
         Camera.PublishDoorSamusPosition((state.Direction & 2) == 0 ? Samus.XPosition : null,
@@ -575,7 +597,8 @@ public sealed partial class SuperMetroidRuntime
     }
 
     /// <summary>
-    /// Applies <c>$82:E6A2</c>'s doorway alignment after music has drained, then releases
+    /// Applies <c>$82:E6A2</c> after music has drained: the doorway nudges to Samus's live
+    /// position, then an elevator door's Samus command (7 going down, 0 going up). Releases
     /// the temporary IRQ-owned trajectory. This is deliberately later than the scroll.
     /// </summary>
     internal void FinishDoorOpeningScroll()
@@ -584,9 +607,27 @@ public sealed partial class SuperMetroidRuntime
             ?? throw new InvalidOperationException("No door-opening scroll is active.");
         if (state.RemainingFrames != 0 || Samus is null)
             throw new InvalidOperationException("Door-opening scroll has not reached its endpoint.");
+        if (_pendingLoaderSamusPlacement is not null)
+            throw new InvalidOperationException("The door loader's Samus placement is still pending.");
 
-        Samus.Kinematics.SetXFixed(state.FinalSamusXFixed);
-        Samus.Kinematics.SetYFixed(state.FinalSamusYFixed);
+        ushort x = Samus.XPosition;
+        if ((x & 0x00f0) == 0x0010)
+            x = unchecked((ushort)((x | 0x000f) + 8));
+        else if ((x & 0x00f0) == 0x00e0)
+            x = unchecked((ushort)((x & 0xfff0) - 8));
+        ushort y = Samus.YPosition;
+        if ((y & 0x00f0) == 0x0010)
+            y = unchecked((ushort)((y | 0x000f) + 8));
+        Samus.XPosition = x;
+        Samus.YPosition = y;
+
+        if (Enemies.ElevatorFlags != 0)
+        {
+            if ((short)Enemies.ElevatorDirection >= 0)
+                Samus.SetupForElevator(_addressSpace);
+            else
+                Samus.InputLocked = true;
+        }
         _doorOpeningScroll = null;
     }
 
@@ -686,8 +727,9 @@ public sealed partial class SuperMetroidRuntime
         // black silhouette after every ordinary desktop door transition.
         Samus.LoadSuitPalette(_addressSpace, Cgram);
 
+        // The door loader writes no SamusYRadius; the next unlocked alpha's SetSamusRadius
+        // does, so an elevator rider keeps the boarding pose's radius through the door.
         Samus.LiquidPhysics.RoomIdentity = room.Identity;
-        Samus.RefreshCollisionRadii(_addressSpace);
         Samus.PrimeGraphics(_addressSpace);
         GroundedSamusMovementEnabled = true;
         return viewport;
@@ -722,13 +764,13 @@ public sealed partial class SuperMetroidRuntime
         // Gameplay PPU initialization selects BG34NBA=$04 for every ordinary room load.
         // A later library-background command eight may override it to $02 for Kraid.
         GameplayHudCharacterBaseWord = SnesPpuLayout.GameplayHudCharacterBaseWord;
-        _ceresFallingDebrisTimer = 0;
         WreckedShipTreadmill.Reset();
         MaridiaElevatube.Reset(
             active: room.State.MainCallback == RoomMainCallback.MaridiaElevatube);
         CeresElevatorShaft.Reset(
             active: room.State.MainCallback == RoomMainCallback.CeresElevatorShaft &&
-                door.UsesCeresElevatorMode7);
+                door.UsesCeresElevatorMode7,
+            RoomMainScratch);
         // Door setup `$8F:E4E0` writes these exact five registers before the fresh Ceres
         // elevator room becomes visible. Publishing the immutable transform here gives
         // Samus, her projectiles, and parameter-four/five steam a single authoritative
@@ -756,7 +798,11 @@ public sealed partial class SuperMetroidRuntime
                 previousCamera?.XSubposition ?? 0, previousCamera?.YSubposition ?? 0);
         }
         else
+        {
             Camera.SetPosition(cameraX, cameraY);
+            if (previousCamera is not null)
+                Camera.RetainSubpositions(previousCamera);
+        }
         BackgroundScroll.Layer2ScrollX = room.State.Layer2ScrollX;
         BackgroundScroll.Layer2ScrollY = room.State.Layer2ScrollY;
         if (viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport)
@@ -982,6 +1028,9 @@ public sealed partial class SuperMetroidRuntime
         // requests here—the first point matching the cartridge's completed room teardown—
         // so the closed actor survives into the initial viewport.
         ApplyPendingDownwardGateProjectileRequests();
+        // Setup ASM $8F:C8C8 spawns into the pool that Enemies.Load has just cleared.
+        if (room.State.SetupCallback == RoomSetupCallback.SpawnPrePhantoonRoomEnemyProjectile)
+            Enemies.SpawnPrePhantoonRoomProjectile(BackgroundScroll);
         ApplyPendingBotwoonWallPlm();
         ApplyPendingSporeSpawnCeilingPlm();
         ApplyPendingCrocomireArenaPlms();

@@ -361,7 +361,8 @@ public sealed partial class RoomEnemySystem
     {
         slot.XPosition = unchecked((ushort)(slot.XPosition +
             ((state.VariableA & 0x8000) != 0 ? -2 : 2)));
-        if (!EnemyWithNormalSpritesIsOffScreen(slot, cameraX, cameraY))
+        // $B3:8949 tests only the horizontal screen extent.
+        if (!EnemyIsHorizontallyOffScreen(slot, cameraX))
             return;
 
         slot.XPosition = state.SpawnX;
@@ -508,13 +509,17 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>
+    /// <c>ResetEnemyIfOffScreen</c> ($B3:8BA8) tests the bare enemy center with
+    /// <c>CheckIfEnemyCenterIsOnScreen</c>, not the sprite-padded visibility check.
+    /// </summary>
     private static void ResetNorfairPipeBugIfOffScreen(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
         ushort cameraX,
         ushort cameraY)
     {
-        if (!EnemyWithNormalSpritesIsOffScreen(slot, cameraX, cameraY))
+        if (EnemyCenterIsOnScreen(slot, cameraX, cameraY))
             return;
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
         state.Function = PipeBugEnemyFunction.NorfairWaitForFormation;
@@ -673,7 +678,8 @@ public sealed partial class RoomEnemySystem
         ushort cameraX,
         ushort cameraY)
     {
-        if (!EnemyWithNormalSpritesIsOffScreen(slot, cameraX, cameraY))
+        // Every Geega flight function resets through CheckIfEnemyCenterIsOnScreen.
+        if (EnemyCenterIsOnScreen(slot, cameraX, cameraY))
             return false;
         slot.XPosition = state.SpawnX;
         slot.YPosition = state.SpawnY;

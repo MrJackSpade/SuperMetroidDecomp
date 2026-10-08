@@ -54,6 +54,20 @@ public static class GameplayMessageRomData
     {
         /// <summary>$85:8122: Play_Saving_Sound_Effect waits 160 accepted lag frames.</summary>
         public const int GunshipSavingSoundFrames = 160;
+        /// <summary>
+        /// $85:808D-$8096: lag frames before Open_MessageBox. Initialise_PPU_for_MessageBoxes 2,
+        /// Clear_MessageBox_BG3Tilemap 1, Write_Message_Tilemap 1, Setup_PPU_for_Active_MessageBox
+        /// and its HDMA table 2, Play_2_Lag_Frames_of_Music_and_Sound_Effects 2.
+        /// </summary>
+        public const int PreOpenLagFrames = 8;
+        /// <summary>$85:80D9-$80DC: the gunship's second box, without PPU setup or clear.</summary>
+        public const int ReopenLagFrames = 5;
+        /// <summary>$85:81F3: Clear_MessageBox_BG3Tilemap waits one lag frame.</summary>
+        public const int ClearTilemapLagFrames = 1;
+        /// <summary>$85:80AA-$80B4: tilemap clear 1, Restore_PPU 2, music/sound 2.</summary>
+        public const int RestoreLagFrames = 5;
+        /// <summary>$85:84BC: the save selector waits two lag frames per ReadControllerInput.</summary>
+        public const int SaveSelectionReadLagFrames = 2;
         public const int MaximumRadiusPixels = 24;
         public const int RadiusStepPixels = 2;
         public const int ItemMinimumDisplayFrames = 360;

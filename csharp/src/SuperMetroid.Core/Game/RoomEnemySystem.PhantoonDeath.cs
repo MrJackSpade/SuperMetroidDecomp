@@ -118,7 +118,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot eye = state.Eye!;
         if (eye.VariableC != 0xffff)
         {
-            if ((nmiFrameCounter8 & 0x0f) != 0)
+            if ((_enemyFrameNmiFrameCounter & 0x0f) != 0)
                 return;
 
             byte mosaic = unchecked((byte)eye.VariableC);
@@ -170,7 +170,7 @@ public sealed partial class RoomEnemySystem
             body.VariableE = unchecked((ushort)(body.VariableE - 1));
             return;
         }
-        if ((nmiFrameCounter8 & 3) != 0)
+        if ((_enemyFrameNmiFrameCounter & 3) != 0)
             return;
 
         state.Eye!.VariableD = 12;

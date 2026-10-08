@@ -305,7 +305,8 @@ internal static partial class Program
         Until(() => frame.Phase == nameof(TitleSequencePhase.TitleScreen), 150);
         frame = game.Step(0x1000);
         Until(() => frame.GameState == SuperMetroidGameState.FileSelectMenus, 150);
-        for (int i = 0; i < 16; i++) frame = game.Step(0);
+        // Native entry dispatches and fade-in end on the 35th update.
+        Until(() => frame.Phase == nameof(FileSelectPhase.Main), 40);
         frame = game.Step(0x0080);
         Until(() => frame.GameState == SuperMetroidGameState.GameOptionsMenu, 200);
         for (int i = 0; i < 16; i++) frame = game.Step(0);

@@ -12,6 +12,8 @@ namespace SuperMetroid.Core.Game;
 public enum RoomEnemyProjectileKind : ushort
 {
     None = 0,
+    /// <summary>$86:A3B0, the pre-Phantoon room's BG2-offset keeper spawned by setup ASM $8F:C8C8.</summary>
+    PrePhantoonRoom = 0xa3b0,
     YappingMawBody = 0xec95,
     SkreeParticleDownRight = 0x8bc2,
     SkreeParticleUpRight = 0x8bd0,
@@ -234,6 +236,12 @@ public sealed class RoomEnemyProjectileSlot
     /// </summary>
     public ushort ItemDropChancesPointerOverride { get; internal set; }
 
+    /// <summary>
+    /// A bare <c>STZ EnemyProjectile_ID,X</c>: frees the slot but leaves every other word,
+    /// so a routine that keeps running after the store still moves the released slot.
+    /// </summary>
+    internal void ReleaseIdentityOnly() => Kind = RoomEnemyProjectileKind.None;
+
     internal void Clear()
     {
         Kind = RoomEnemyProjectileKind.None;
@@ -264,6 +272,9 @@ public sealed partial class RoomEnemySystem
             .Select(index => new RoomEnemyProjectileSlot(index))
             .ToArray();
     private byte _currentEnemyProjectileFrame8;
+
+    /// <summary>The 16-bit NMI_FrameCounter ($05B6) for the current projectile pass.</summary>
+    private ushort _currentEnemyProjectileFrame16;
 
     /// <summary>All eighteen physical bank-$86 slots, including currently inactive slots.</summary>
     public IReadOnlyList<RoomEnemyProjectileSlot> EnemyProjectiles => _enemyProjectiles;
@@ -442,11 +453,14 @@ public sealed partial class RoomEnemySystem
         ushort cameraX = 0,
         ushort cameraY = 0,
         byte? nmiFrameCounter8 = null,
-        SamusBombProjectileSystem? samusBombs = null)
+        SamusBombProjectileSystem? samusBombs = null,
+        BackgroundScrollState? backgroundScroll = null,
+        ushort? nmiFrameCounter = null)
     {
         ArgumentNullException.ThrowIfNull(level);
         EnsureLoaded();
         _samusForEnemyDrops = samus;
+        _enemyProjectileBackgroundScroll = backgroundScroll;
         LastEnemyPickupSoundEffect = null;
         LastCollectedEnemyPickup = null;
         LastEnemyDeathSoundEffectLibrary2 = null;
@@ -466,6 +480,8 @@ public sealed partial class RoomEnemySystem
         // universal one-frame spawn delay.
         byte projectileFrame = nmiFrameCounter8 ?? _standaloneEnemyProjectileFrameCounter8++;
         _currentEnemyProjectileFrame8 = projectileFrame;
+        // Standalone audits seed both counters from the same projectile clock.
+        _currentEnemyProjectileFrame16 = nmiFrameCounter ?? projectileFrame;
         for (int projectileIndex = _enemyProjectiles.Length - 1;
              projectileIndex >= 0;
              projectileIndex--)
@@ -737,12 +753,16 @@ public sealed partial class RoomEnemySystem
         if (TryStepTourianUnlockEffect(projectile)) return;
         switch (projectile.PreInstruction)
         {
+            case EnemyProjectileCodePointers.InitAI_PreInstruction_EnemyProjectile_PrePhantoonRoom:
+                RequireEnemyProjectileBackgroundScroll().Bg2YOffset = 0;
+                return;
             case 0:
             case EnemyProjectileCodePointers.RTS_868170:
             case EnemyProjectileCodePointers.RTS_86A327:
             case EnemyProjectileCodePointers.RTS_8684FB:
             case EnemyProjectileCodePointers.RTS_86EC94:
             case EnemyProjectileCodePointers.RTS_86D0EB:
+            case EnemyProjectileCodePointers.RTS_86CFF7:
             case EnemyProjectileCodePointers.RTS_868D54:
             case EnemyProjectileCodePointers.RTS_86950C:
             case EnemyProjectileCodePointers.RTS_869A44:
@@ -837,6 +857,8 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case EnemyProjectileCodePointers.PreInstruction_EnemyProj_DraygonsWallTurretProjectile_Fired:
+                // $86:8DFF deletes a power-bombed shot, then still moves the released slot.
+                DeleteEnemyProjectileIfPowerBombed(projectile, samus);
                 RunDraygonProjectileFlight(projectile);
                 return;
 
@@ -1023,7 +1045,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case EnemyProjectileCodePointers.PreInst_EnemyProjectile_PhantoonStartingFlames_Activated:
-                RunPhantoonStartingFlameOrbit(projectile, nmiFrameCounter8);
+                RunPhantoonStartingFlameOrbit(projectile);
                 return;
 
             case EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Casual_Falling:
@@ -1031,7 +1053,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Casual_HitGround:
-                RunPhantoonCasualFlameImpactPause(projectile, nmiFrameCounter8);
+                RunPhantoonCasualFlameImpactPause(projectile, _currentEnemyProjectileFrame16);
                 return;
 
             case EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Casual_Bouncing:
@@ -1340,48 +1362,31 @@ public sealed partial class RoomEnemySystem
             return true;
         }
 
-        return type is
-            RoomCollisionType.Slope or
-            RoomCollisionType.HorizontalExtension or
-            RoomCollisionType.SolidBlock or
-            RoomCollisionType.DoorBlock or
-            RoomCollisionType.SpecialBlock or
-            RoomCollisionType.ShootableBlock or
-            RoomCollisionType.VerticalExtension or
-            RoomCollisionType.GrappleBlock or
-            RoomCollisionType.BombableBlock;
+        return EnemyProjectileBlockIsWall(type);
     }
 
     /// <summary>
-    /// Point-form room collision used by projectile routines that do not carry an axis,
-    /// radius, or movement direction and therefore cannot resolve non-square geometry.
+    /// The unconditional rows of <c>$86:8846</c>/<c>$8866</c>, the enemy-projectile block
+    /// reaction tables. Slopes and extensions are resolved before reaching this test.
+    /// Spike blocks stop projectiles; grapple blocks do not.
     /// </summary>
-    private static bool ProjectileProbeHitsRoom(RoomLevelData level, ushort x, ushort y)
-    {
-        int blockX = x >> 4;
-        int blockY = y >> 4;
-        if ((uint)blockX >= (uint)level.WidthInBlocks ||
-            (uint)blockY >= (uint)level.HeightInBlocks)
-        {
-            return true;
-        }
+    private static bool EnemyProjectileBlockIsWall(RoomCollisionType type) => type is
+        RoomCollisionType.Slope or
+        RoomCollisionType.HorizontalExtension or
+        RoomCollisionType.SolidBlock or
+        RoomCollisionType.DoorBlock or
+        RoomCollisionType.SpikeBlock or
+        RoomCollisionType.SpecialBlock or
+        RoomCollisionType.ShootableBlock or
+        RoomCollisionType.VerticalExtension or
+        RoomCollisionType.BombableBlock;
 
-        int blockIndex = ResolveEnemyCollisionBlockIndex(level, blockX, blockY);
-        if (blockIndex < 0)
-            return true;
-
-        RoomCollisionType type = level.GetCollisionBlockByIndex(blockIndex).CollisionType;
-        return type is
-            RoomCollisionType.Slope or
-            RoomCollisionType.HorizontalExtension or
-            RoomCollisionType.SolidBlock or
-            RoomCollisionType.DoorBlock or
-            RoomCollisionType.SpecialBlock or
-            RoomCollisionType.ShootableBlock or
-            RoomCollisionType.VerticalExtension or
-            RoomCollisionType.GrappleBlock or
-            RoomCollisionType.BombableBlock;
-    }
+    /// <summary>
+    /// <c>CheckForCollisionWithNonAirBlock</c> ($A6:D4F9): any block type other than air,
+    /// read directly without following extensions.
+    /// </summary>
+    private static bool NonAirBlockAt(RoomLevelData level, ushort x, ushort y) =>
+        level.GetCollisionBlock(x >> 4, y >> 4).CollisionType != RoomCollisionType.Air;
 
     private static ushort? ResolveEnemyProjectileSamusCollision(
         RoomEnemyProjectileSlot projectile,
@@ -1977,6 +1982,9 @@ public sealed partial class RoomEnemySystem
         {
             return sharedImpactWord;
         }
+
+        if (projectile.Kind == RoomEnemyProjectileKind.PrePhantoonRoom)
+            return PrePhantoonRoomProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (KraidRockProjectileInstructionProgramDefinitions.Owns(projectile.Kind, address))
         {

@@ -85,32 +85,45 @@ internal static partial class Program
                         $"The port opened a message box in update {update}, but the native capture records " +
                         "no MessageBox_Routine entry in that dispatch.");
                 int frame = boxStartFrame + 1;
+                // MessageBox_Routine returns ($85:80BA) on the box's last frame. Its dispatch
+                // can run on past it (a save writes SRAM into a lag frame); those frames are
+                // the dispatch's hardware lag, not box frames, so the port steps none of them.
+                int boxFrameLimit = step.MessageBoxEndFrame is { } nativeBoxEnd ? nativeBoxEnd + 1 : endSourceFrame;
                 // The box's own HandleSounds calls span frames the capture does not split,
                 // so they read the port's SPC model frame by frame.
                 game.SetAudioAcknowledgements(spcAcknowledgements);
-                for (; frame < endSourceFrame && game.RuntimeForVerification.MessageBox.IsActive; frame++)
+                for (; frame < boxFrameLimit && game.RuntimeForVerification.MessageBox.IsActive; frame++)
                 {
                     output = game.Step(frameInputs[frame]);
                     audio.RenderFrame(output.AudioCommands);
                     spcAcknowledgements = audio.ReadAcknowledgements();
                     game.SetAudioAcknowledgements(spcAcknowledgements);
                 }
+                if (step.MessageBoxEndFrame is { } nativeEnd)
+                {
+                    if (game.RuntimeForVerification.MessageBox.IsActive || frame != nativeEnd + 1)
+                        throw new InvalidDataException(
+                            $"The port's message box closed after SMV frame {frame - 1}, but native dispatch {update} " +
+                            $"(SMV frames {step.SourceFrame}-{endSourceFrame}) returned from it at {nativeEnd}.");
+                }
                 // A confirmation box reads the controller itself ($85:84BA), which the native
                 // capture records as a following NMI-continuation update. The box then
                 // legitimately stays open into that update and continues there.
-                bool continuesIntoOwnControllerRead = game.RuntimeForVerification.MessageBox.IsActive &&
-                    frame == endSourceFrame && update < updates.Count &&
-                    updates[update].Kind == "nmi-continuation";
-                if ((game.RuntimeForVerification.MessageBox.IsActive && !continuesIntoOwnControllerRead) ||
-                    frame != endSourceFrame)
+                else if (!game.RuntimeForVerification.MessageBox.IsActive || frame != endSourceFrame ||
+                    update >= updates.Count || updates[update].Kind != "nmi-continuation")
                     throw new InvalidDataException(
                         $"The port's message box closed after SMV frame {frame - 1}, but native dispatch {update} " +
-                        $"(SMV frames {step.SourceFrame}-{endSourceFrame}) ends at {endSourceFrame - 1}.");
+                        $"(SMV frames {step.SourceFrame}-{endSourceFrame}) keeps it open past {endSourceFrame - 1}.");
             }
             else if (step.MessageBoxStartFrame is { } nativeBoxFrame)
             {
                 throw new InvalidDataException(
                     $"Native dispatch {update} opened a message box at SMV frame {nativeBoxFrame}; the port did not.");
+            }
+            else if (step.MessageBoxEndFrame is { } nativeBoxReturn)
+            {
+                throw new InvalidDataException(
+                    $"Native dispatch {update} returned from a message box at SMV frame {nativeBoxReturn}; the port had none open.");
             }
             soundAcknowledgements.Capture(memory);
 

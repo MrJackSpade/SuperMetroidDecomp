@@ -101,6 +101,12 @@ Manifest v4 adds two conversion rules, both validated by retained input edges:
   `messageBoxStartFrame`. When the dispatch's gameplay overran its own frame before
   the box opened (once in the 100% movie, of 109 boxes), those lag frames read no
   controller and the replay starts the box's polling after them.
+- **Message-box return.** The capture also records `MessageBox_Routine`'s common
+  return (`$85:80BA`); manifest v6 stores it as `messageBoxEndFrame` on the update
+  in which the box closed. The port's box must close on that frame. A dispatch can
+  run on past it: a save station's SRAM write overruns into a lag frame, so the
+  frames between the return and the next controller read are that dispatch's
+  hardware lag, not box frames.
 
 The conversion retains 426,466 updates (399,832 main-loop dispatches, 26,634
 continuations), excluding 149 prelude NMIs, 1,775 music-wait NMIs (four of them

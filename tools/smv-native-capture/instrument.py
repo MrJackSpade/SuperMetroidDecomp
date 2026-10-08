@@ -5,9 +5,16 @@ BOUNDARY_HOOK_V1 = """        if ((Registers.PB == 0x82 && (Registers.PCw == 0x8
             RidleyObserveBoundary(Registers.PBPC);
 """
 MESSAGE_BOX_CONDITION = "(Registers.PB == 0x85 && Registers.PCw == 0x8080)"
-BOUNDARY_HOOK = """        if ((Registers.PB == 0x82 && (Registers.PCw == 0x8948 || Registers.PCw == 0x897a)) ||
+BOUNDARY_HOOK_V2 = """        if ((Registers.PB == 0x82 && (Registers.PCw == 0x8948 || Registers.PCw == 0x897a)) ||
             (Registers.PB == 0x80 && (Registers.PCw == 0x9496 || Registers.PCw == 0x9459 || Registers.PCw == 0x8338)) ||
             """ + MESSAGE_BOX_CONDITION + """)
+            RidleyObserveBoundary(Registers.PBPC);
+"""
+MESSAGE_BOX_RETURN_CONDITION = "(Registers.PB == 0x85 && Registers.PCw == 0x80ba)"
+BOUNDARY_HOOK = """        if ((Registers.PB == 0x82 && (Registers.PCw == 0x8948 || Registers.PCw == 0x897a)) ||
+            (Registers.PB == 0x80 && (Registers.PCw == 0x9496 || Registers.PCw == 0x9459 || Registers.PCw == 0x8338)) ||
+            """ + MESSAGE_BOX_CONDITION + """ ||
+            """ + MESSAGE_BOX_RETURN_CONDITION + """)
             RidleyObserveBoundary(Registers.PBPC);
 """
 
@@ -37,7 +44,15 @@ def run():
         # how many lag frames the dispatch spent before the box's own controller reads.
         if text.count(BOUNDARY_HOOK_V1) != 1:
             raise ValueError("Unexpected instrumented boundary hook")
-        text = text.replace(BOUNDARY_HOOK_V1, BOUNDARY_HOOK)
+        text = text.replace(BOUNDARY_HOOK_V1, BOUNDARY_HOOK_V2)
+        path.write_text(text)
+    if MESSAGE_BOX_RETURN_CONDITION not in text:
+        # Revision three also observes MessageBox_Routine's common return ($85:80BA). A
+        # dispatch can keep running after the box closes (a save writes SRAM), so only this
+        # frame separates the box's own frames from the dispatch's later lag frames.
+        if text.count(BOUNDARY_HOOK_V2) != 1:
+            raise ValueError("Unexpected revision-two boundary hook")
+        text = text.replace(BOUNDARY_HOOK_V2, BOUNDARY_HOOK)
         path.write_text(text)
     if "RidleyObserveInstruction" not in text:
         # Optional execution trace: a single flag test per instruction when inactive.

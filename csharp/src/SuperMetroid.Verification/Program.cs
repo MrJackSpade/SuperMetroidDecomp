@@ -330,6 +330,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--mother-brain-tube-hdma-deletion"])
+{
+    VerifyMotherBrainTubeHdmaDeletion();
+    return 0;
+}
 if (args is ["--mother-brain-tube-timing"])
 {
     VerifyMotherBrainTubeTiming();
@@ -7333,6 +7338,7 @@ VerifyShitroidDrainCarry();
 VerifyMotherBrainRinkaDoorSpawn();
 VerifyMotherBrainGlassSuperMissile();
 VerifyMotherBrainTubeTiming();
+VerifyMotherBrainTubeHdmaDeletion();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

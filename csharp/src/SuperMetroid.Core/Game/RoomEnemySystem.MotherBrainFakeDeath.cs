@@ -12,6 +12,12 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>
+    /// Set on the frame the main tube lands (`$A9:8C0C`), which deletes HDMA objects 0-3.
+    /// The runtime applies it to the HDMA owners; cleared at the start of each enemy frame.
+    /// </summary>
+    public bool MotherBrainDeletedHdmaObjects { get; private set; }
+
     private static readonly (ushort X, ushort Y)[] MotherBrainFakeDeathExplosionPositions =
     [
         (136, 116),
@@ -588,6 +594,9 @@ public sealed partial class RoomEnemySystem
         StopMotherBrainRoomPalette(state);
         EarthquakeType = 0x0019;
         EarthquakeTimer = 0x0020;
+        // `$A9:8C0C/$8C0F` zero the channel words of HDMA objects 0-3, deleting the room's
+        // liquid scroll objects (and any X-ray object) for the rest of the encounter.
+        MotherBrainDeletedHdmaObjects = true;
         state.Head.YPosition = 196;
         state.Body.XPosition = 59;
         state.Body.YPosition = 279;

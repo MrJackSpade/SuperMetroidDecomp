@@ -62,6 +62,14 @@ internal static class DebuggerStateFieldMigrations
             return SelectSerializedFields(type, current.Where(field =>
                 field.Name != "<Layer1XBlockResetRequested>k__BackingField").ToArray(), count);
         }
+        if (type == typeof(RoomEnemySystem) &&
+            current.Any(field => field.Name == "<MotherBrainDeletedHdmaObjects>k__BackingField"))
+        {
+            // A one-frame request between Mother Brain's tube landing and the runtime; a
+            // capture is taken between frames, where it is always clear.
+            return SelectSerializedFields(type, current.Where(field =>
+                field.Name != "<MotherBrainDeletedHdmaObjects>k__BackingField").ToArray(), count);
+        }
         if (type == typeof(RoomEnemySystem) && current.Any(field => field.Name == "_deferredRinkaSpawnSlots"))
         {
             // Door loads now defer camera-dependent init reads to the loader's update. A legacy
@@ -495,6 +503,11 @@ internal static class DebuggerStateFieldMigrations
         {
             Console.Error.WriteLine("WARNING: Legacy Ceres cinematic state lacks engine palette-FX timing; its glow restarts on the next approach frame.");
             return current.Where(field => field.Name != "paletteFx").ToArray();
+        }
+        if (type == typeof(RoomLayer3FxState) && current.Any(field => field.Name == "liquidHdmaObjectsDeleted"))
+        {
+            // Older builds never deleted the liquid HDMA objects; a capture keeps them live.
+            return SelectSerializedFields(type, current.Where(field => field.Name != "liquidHdmaObjectsDeleted").ToArray(), count);
         }
         if (type == typeof(RoomLayer3FxState) && current.Any(field => field.Name == "lavaSoundTimer"))
         {

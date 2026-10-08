@@ -178,18 +178,24 @@ public sealed partial class RoomPlmSystem
         set => tourianAccessVisuals = value;
     }
 
+    /// <summary>Gets or replaces nonserialized Speed Booster block reveal artwork; compiled level words still determine collision and breakability.</summary>
+    /// <remarks>The catalog is shared by reference. Null uses the physical draw word's original visual fields.</remarks>
     public RoomPlmSpeedBoosterVisualCatalog? SpeedBoosterVisuals
     {
         get => speedBoosterVisuals;
         set => speedBoosterVisuals = value;
     }
 
+    /// <summary>Gets or replaces nonserialized Maridia elevatube artwork for the shared $84:9367 draw, selected by PLM ownership rather than borrowing Kraid's appearance.</summary>
+    /// <remarks>The catalog is shared by reference. Null preserves the physical word's original appearance; tube collision and motion remain compiled.</remarks>
     public RoomPlmMaridiaElevatubeVisualCatalog? MaridiaElevatubeVisuals
     {
         get => maridiaElevatubeVisuals;
         set => maridiaElevatubeVisuals = value;
     }
 
+    /// <summary>Gets or replaces nonserialized artwork for the two-by-two Spore Spawn ceiling clear/crumble draws, without changing their physical words or sequence timing.</summary>
+    /// <remarks>The catalog is shared by reference. Null retains each physical draw word's original visual fields.</remarks>
     public RoomPlmSporeSpawnCeilingVisualCatalog? SporeSpawnCeilingVisuals
     {
         get => sporeSpawnCeilingVisuals;
@@ -203,24 +209,32 @@ public sealed partial class RoomPlmSystem
         set => samusEaterVisuals = value;
     }
 
+    /// <summary>Gets or replaces nonserialized appearance for $84:930F's nine-block vertical Botwoon wall clear; its compiled air-block collision remains unchanged.</summary>
+    /// <remarks>The catalog is shared by reference. Null uses the physical clear words' original visual fields.</remarks>
     public RoomPlmBotwoonWallVisualCatalog? BotwoonWallVisuals
     {
         get => botwoonWallVisuals;
         set => botwoonWallVisuals = value;
     }
 
+    /// <summary>Gets or replaces nonserialized Kraid ceiling/spike PLM artwork, distinct from the boss's private BG2 body maps and from elevatube owners of the shared $84:9367 draw.</summary>
+    /// <remarks>The catalog is shared by reference. Null retains physical draw appearance; block collision and mutation timing remain compiled.</remarks>
     public RoomPlmKraidVisualCatalog? KraidVisuals
     {
         get => kraidVisuals;
         set => kraidVisuals = value;
     }
 
+    /// <summary>Gets or replaces nonserialized Crocomire arena bridge-clear/crumble and invisible-wall artwork; compiled draw runs still own block placement and collision.</summary>
+    /// <remarks>The catalog is shared by reference. Null retains each physical draw word's original visual fields.</remarks>
     public RoomPlmCrocomireVisualCatalog? CrocomireVisuals
     {
         get => crocomireVisuals;
         set => crocomireVisuals = value;
     }
 
+    /// <summary>Gets or replaces nonserialized Mother Brain fake-death room wall, door, and background-row artwork, separate from the boss's sprite and palette presentations.</summary>
+    /// <remarks>The catalog is shared by reference. Null retains physical draw appearance; compiled run geometry, collision words, and PLM timing remain unchanged.</remarks>
     public RoomPlmMotherBrainFakeDeathVisualCatalog? MotherBrainFakeDeathVisuals
     {
         get => motherBrainFakeDeathVisuals;

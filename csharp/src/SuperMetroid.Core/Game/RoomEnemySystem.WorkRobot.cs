@@ -19,36 +19,42 @@ public sealed class WorkRobotEnemyState
     /// </summary>
     public bool Powered { get; internal set; }
 
+    /// <summary>Gets or sets variable A, the signed 8.8 horizontal velocity assigned to newly fired robot lasers.</summary>
     public ushort LaserXVelocity
     {
         get => _slot.VariableA;
         internal set => _slot.VariableA = value;
     }
 
+    /// <summary>Gets or sets variable B, the wrapping countdown that gates the next laser attempt.</summary>
     public ushort LaserCooldown
     {
         get => _slot.VariableB;
         internal set => _slot.VariableB = value;
     }
 
+    /// <summary>Gets or sets variable C, the whole-pixel X coordinate saved during a temporary ledge probe.</summary>
     public ushort BackupXPosition
     {
         get => _slot.VariableC;
         internal set => _slot.VariableC = value;
     }
 
+    /// <summary>Gets or sets variable D, the whole-pixel Y coordinate saved during a temporary ledge probe.</summary>
     public ushort BackupYPosition
     {
         get => _slot.VariableD;
         internal set => _slot.VariableD = value;
     }
 
+    /// <summary>Gets or sets variable E, the fractional low word of the robot's signed 16.16 falling velocity.</summary>
     public ushort YSubvelocity
     {
         get => _slot.VariableE;
         internal set => _slot.VariableE = value;
     }
 
+    /// <summary>Gets or sets variable F, the signed whole-pixel word of the robot's 16.16 falling velocity.</summary>
     public ushort YVelocity
     {
         get => _slot.VariableF;

@@ -5,8 +5,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Stable names, extraction sources and stock anchors for the escape timer presentation.</summary>
 public static class EscapeTimerPresentationDefinitions
 {
+    /// <summary>Supported JSON revision for timer compositions, palette, pixel anchors, and digit spacing; countdown behavior is not authored in this schema.</summary>
     public const int Version = 1;
+    /// <summary>Installation-relative JSON layout filename, separate from the timer font's indexed PNG artwork.</summary>
     public const string FileName = "escape-timer.json";
+    /// <summary>Maximum ordered OAM parts permitted in each label or digit composition; this is a per-frame schema limit, not reserved capacity for the whole timer.</summary>
     public const int MaximumParts = 128;
 
     /// <summary>$80:9FE8: first decimal digit's two-object, twelve-byte spritemap.</summary>
@@ -21,11 +24,18 @@ public static class EscapeTimerPresentationDefinitions
     /// <summary>The timer renderer inherits its spritemap pointers from bank $80.</summary>
     public const int SpritemapBank = 0x800000;
 
+    /// <summary>Canonical composition key for the TIME label and both separators, corresponding to the five-part Spritemap_Timer_TIME at $80:A060.</summary>
     public const string LabelFrame = "Label";
+    /// <summary>Returns the canonical composition key for one decimal glyph shared by the minutes, seconds, and centiseconds pairs.</summary>
+    /// <param name="digit">Decoded decimal value 0 through 9, not a packed-BCD byte.</param>
+    /// <returns>The exact JSON frame key Digit.0 through Digit.9.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="digit"/> is outside 0..9.</exception>
     public static string DigitFrame(int digit) => (uint)digit < 10
         ? $"Digit.{digit}"
         : throw new ArgumentOutOfRangeException(nameof(digit));
 
+    /// <summary>Required JSON anchor keys: the label origin and the tens-digit origins of the three time pairs; their coordinates are pixel offsets from the live timer origin.</summary>
+    /// <remarks>The readonly field fixes the shared array reference, not its elements; callers must not modify this schema-name array.</remarks>
     public static readonly string[] AnchorNames = ["Label", "Minutes", "Seconds", "Centiseconds"];
     /// <summary>$80:9FEA..A05F: decimal glyphs are eight-pixel-wide, two-tile-high small OBJs.</summary>
     private const int GlyphWidth = 8;

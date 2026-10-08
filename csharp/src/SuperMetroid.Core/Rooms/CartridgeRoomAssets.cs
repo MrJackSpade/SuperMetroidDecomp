@@ -33,12 +33,19 @@ public sealed class CartridgeRoomAssets
         Tileset = tileset;
     }
 
+    /// <summary>Selected room header and room-state metadata used to choose level source, graphics set, dimensions, scrolls, and door table; loading these assets does not execute its room ASM.</summary>
     public CartridgeRoomHeader Header { get; }
+    /// <summary>Runtime level allocation with compiled BG1/BG2 physical words, BTS, metatiles, and separately installed visual references; retained allocation rows and streaming tails may exceed the visible header dimensions.</summary>
     public RoomLevelData LevelData { get; }
+    /// <summary>Room's screen-indexed scroll-control grid used to initialize the boundary camera, separate from current camera position or editable map-marker artwork.</summary>
     public RoomScrollGrid Scrolls { get; }
+    /// <summary>Installed common-room-element planar BG character bytes, uploaded first at VRAM byte $5000; Ceres's later full-size area upload intentionally overwrites this region.</summary>
     public byte[] CreCharacters { get; }
+    /// <summary>Installed graphics-set planar BG character bytes uploaded after CRE at VRAM byte $0000; the Ceres tileset spans the full $8000-byte BG character allocation.</summary>
     public byte[] RoomCharacters { get; }
+    /// <summary>Installed graphics-set little-endian BGR555 palette bytes; <see cref="LoadGraphics"/> copies the first $0100 bytes into CGRAM colors 0..127, preserving OBJ palettes.</summary>
     public byte[] PaletteBytes { get; }
+    /// <summary>Compiled graphics-set source identities selected by the room-state index and used to resolve installed metatiles, characters, and palette artwork.</summary>
     public TilesetDefinition Tileset { get; }
 
     /// <summary>Reads every compressed input named by the selected room and graphics set.</summary>
@@ -252,6 +259,9 @@ public sealed class CartridgeRoomAssets
 }
 
 /// <summary>One nine-byte bank-$8F tileset definition selected by graphics-set index.</summary>
+/// <param name="BlockDefinitionsAddress">Full 24-bit native source identity for the graphics set's four-word metatile definitions; used as an installed-artwork key.</param>
+/// <param name="CharacterAddress">Full 24-bit native source identity for area-specific planar BG characters, uploaded after the shared CRE character region.</param>
+/// <param name="PaletteAddress">Full 24-bit native source identity for the graphics set's BG palette; its first 128 colors are loaded by room graphics setup.</param>
 public readonly record struct TilesetDefinition(
     int BlockDefinitionsAddress,
     int CharacterAddress,

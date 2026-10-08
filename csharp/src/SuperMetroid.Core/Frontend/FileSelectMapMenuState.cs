@@ -34,6 +34,14 @@ public sealed partial class FileSelectMapMenuState
     private byte brightness = 15;
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
 
+    /// <summary>Initializes existing-save map entry from the saved Zebes area/station, exploration, boss, map-station, and used-station data without loading a gameplay room.</summary>
+    /// <param name="bus">Runtime address space shared by menu systems.</param>
+    /// <param name="audio">Owner receiving menu confirmation, scroll, palette-loop, and transition sound requests.</param>
+    /// <param name="slot">Selected save slot; its area must be one of the six Zebes identities and its station supplies the compiled load/scroll anchor.</param>
+    /// <param name="initialHeldInput">Native controller-button word already held on entry, latched to prevent a held confirmation button becoming a fresh navigation press.</param>
+    /// <param name="mapPresentation">Required installed map artwork/layout catalog, rebound separately after debugger restoration.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The save area is outside Zebes; Ceres bypasses this menu.</exception>
+    /// <exception cref="InvalidOperationException">Map presentation assets are absent.</exception>
     public FileSelectMapMenuState(ISnesAddressSpace bus, CartridgeAudioState audio,
         SuperMetroidSaveSlot slot, ushort initialHeldInput, AreaMapPresentationCatalog? mapPresentation = null)
     {
@@ -66,8 +74,11 @@ public sealed partial class FileSelectMapMenuState
             "File-select map requires installed map palettes."));
     }
 
+    /// <summary>Current public navigation phase, reporting EnteringArea until the separately owned initial reveal/fade completes, then exposing the navigation owner's phase.</summary>
     public FileSelectMapNavigationPhase Phase => entry.IsComplete ? navigation.Phase : FileSelectMapNavigationPhase.EnteringArea;
+    /// <summary>Latched host handoff request after confirmation, two prelude updates, fifteen brightness steps, and thirty-two black updates; the navigation phase alone does not authorize loading gameplay.</summary>
     public bool LoadRequested { get; private set; }
+    /// <summary>Latched host request to replace this menu with game options once its cancel/options fade reaches zero brightness; no options state is created by this owner.</summary>
     public bool OptionsRequested { get; private set; }
 
     /// <summary>Rebinds host presentation after restoration without restarting navigation.</summary>
@@ -95,6 +106,8 @@ public sealed partial class FileSelectMapMenuState
         return new FileSelectMapScroll(bus, catalog.Get(typedArea), roomGraphics.MapSystem, anchor.X, anchor.Y);
     }
 
+    /// <summary>Advances one menu update, retaining input latching during entry and native ordering of icon/palette animation, scrolling, navigation, transition sounds, and delayed load/options handoff.</summary>
+    /// <param name="input">Current held native controller-button word; edge interpretation is owned by navigation, not by rendering.</param>
     public void Step(ushort input)
     {
         if (!entry.IsComplete)
@@ -164,6 +177,8 @@ public sealed partial class FileSelectMapMenuState
     // Final frame for composed phases; a returned frame is valid until this menu renders again.
     [NonSerialized] private Rgba32[]? frameBuffer;
 
+    /// <summary>Draws the current 256-by-224 entry, area, room, or clipped transition scene and applies current master brightness without consuming input or advancing any timers.</summary>
+    /// <returns>An owned RGBA frame valid only until this menu renders again; callers retaining a frame must copy it.</returns>
     public Rgba32[] Render()
     {
         Rgba32[] composed = frameBuffer ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height];

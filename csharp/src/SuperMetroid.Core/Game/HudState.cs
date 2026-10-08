@@ -9,11 +9,17 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class HudState
 {
+    /// <summary>Number of eight-pixel BG3 cells per HUD row, matching the native 32-word tilemap stride.</summary>
     public const int WidthInTiles = 32;
+    /// <summary>Number of mutable HUD rows uploaded each gameplay update, excluding the preceding static row.</summary>
     public const int MutableRowCount = 3;
+    /// <summary>Ninety-six mutable BG3 tile words, stored row-major across the three 32-cell HUD rows.</summary>
     public const int MutableTileCount = WidthInTiles * MutableRowCount;
+    /// <summary>$00C0 bytes in the little-endian mutable HUD upload, two bytes for each of the ninety-six tile words.</summary>
     public const int MutableByteCount = MutableTileCount * 2;
+    /// <summary>$7E:C608, native mutable HUD tilemap buffer written before the $80:9CC3-$9CE9 VRAM queue entry is appended.</summary>
     public const int WorkRamAddress = 0x7ec608;
+    /// <summary>VRAM word $5820, one 32-cell row beyond the BG3 tilemap base $5800; direct VRAM byte access uses twice this address.</summary>
     public const ushort VramDestination = 0x5820;
 
     private readonly ushort[] _tiles = new ushort[MutableTileCount];

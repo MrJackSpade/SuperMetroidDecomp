@@ -3,12 +3,20 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Schema and native identities for the two escape-warning text programs.</summary>
 public static class EscapeTypewriterDefinitions
 {
+    /// <summary>The supported editable escape-typewriter JSON schema version.</summary>
     public const int Version = 1;
+
+    /// <summary>The embedded editable escape-warning program asset file name.</summary>
     public const string FileName = "escape-typewriter.json";
+
+    /// <summary>Native <c>TypewriterText_CeresEscapeTimer</c> program source at <c>$A6:C450</c>.</summary>
     public const int CeresSourceAddress = 0xa6c450;
+
+    /// <summary>Native <c>TypewriterText_ZebesEscapeTimer</c> program source at <c>$A6:C49C</c>.</summary>
     public const int ZebesSourceAddress = 0xa6c49c;
     /// <summary>$A6:C450/$C49C runtime delay reset; unchanged and outside the installed programs table payload. No timing exemption is claimed.</summary>
     public const ushort CharacterDelayFrames = 2;
+    /// <summary>Maximum authored warning length and BG tilemap row width, in character cells.</summary>
     public const int MaximumLineLength = 32;
 
     /// <summary>$A6:C458, TypewriterText_CeresEscapeTimer: chosen English warning wording, retained as lexical content.</summary>
@@ -60,6 +68,9 @@ public static class EscapeTypewriterDefinitions
         return new((ushort)(tilemap + (FirstRow + index * LineRowStep) * MaximumLineLength + FirstColumn), text);
     }
 
+    /// <summary>Gets the full 24-bit native source identity for an escape-warning program.</summary>
+    /// <param name="id">Ceres or Zebes typewriter program identity.</param>
+    /// <returns>The corresponding bank-$A6 source address.</returns>
     public static int SourceAddress(EscapeTypewriterProgramId id) => id switch
     {
         EscapeTypewriterProgramId.Ceres => CeresSourceAddress,

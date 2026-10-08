@@ -21,10 +21,19 @@ public sealed class AreaMapCartridgeData : IAreaMapView
         this.tilemap = tilemap;
     }
 
+    /// <summary>Gets the area whose native tilemap and map-station reveal plane were decoded.</summary>
     public AreaId Area { get; }
+
+    /// <summary>Gets the full 24-bit cartridge source address of the area's packed tilemap.</summary>
     public int TilemapAddress { get; }
+
+    /// <summary>Gets the full 24-bit cartridge source address of the area's map-station reveal mask.</summary>
     public int StationRevealMaskAddress { get; }
+
+    /// <summary>Gets the lossless native packed tilemap bytes in cartridge storage order.</summary>
     public byte[] RawTilemapBytes { get; }
+
+    /// <summary>Gets the lossless native map-station reveal-mask bytes.</summary>
     public byte[] StationRevealMaskBytes { get; }
 
     /// <summary>Reads one decoded cartridge tilemap word in logical 64-by-32 coordinates.</summary>
@@ -47,6 +56,10 @@ public sealed class AreaMapCartridgeData : IAreaMapView
     /// </summary>
     public bool IsDiscoverable(int mapX, int mapY) => AreaMapExplorationRules.IsDiscoverable(GetTile(mapX, mapY));
 
+    /// <summary>Returns whether discovering one map tile also reveals the logical cell immediately above it.</summary>
+    /// <param name="x">Logical map X coordinate from zero through 63.</param>
+    /// <param name="y">Logical map Y coordinate from zero through 31.</param>
+    /// <returns>Whether the tile's native shape has the upward reveal behavior.</returns>
     public bool RevealsCellAbove(int x, int y) =>
         AreaMapExplorationRules.RevealsCellAbove(GetTile(x, y));
 }

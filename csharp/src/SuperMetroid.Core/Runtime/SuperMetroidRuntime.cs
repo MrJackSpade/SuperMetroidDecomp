@@ -3557,6 +3557,16 @@ public sealed partial class SuperMetroidRuntime
                         deceleratingFallbackHasMomentum, Samus.ReadFacingDirection(_addressSpace));
                 }
                 else if (!animationTransitionApplied &&
+                         poseAtFrameStart is SamusPoseIds.SpringBallJumpRightPose or SamusPoseIds.SpringBallJumpLeftPose or
+                             SamusPoseIds.SpringBallFallingRightPose or SamusPoseIds.SpringBallFallingLeftPose &&
+                         ProspectiveSamusFallbackPose == poseAtFrameStart)
+                {
+                    // Spring Ball in air/falling (types $12/$13) select command six in
+                    // $91:8304. After this frame's movement, $91:EC85 clears mode and base
+                    // speed and falls through to $91:EC8E's boost/extra-speed cancel.
+                    Samus.HorizontalSpeed.ClearHorizontalMomentum(Samus.ReadFacingDirection(_addressSpace));
+                }
+                else if (!animationTransitionApplied &&
                          poseAtFrameStart is SamusPoseIds.MorphBallGroundRightPose or SamusPoseIds.MorphBallGroundLeftPose or
                              SamusPoseIds.SpringBallGroundRightPose or SamusPoseIds.SpringBallGroundLeftPose &&
                          ProspectiveSamusFallbackPose == poseAtFrameStart)

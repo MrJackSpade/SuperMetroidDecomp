@@ -330,6 +330,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--spring-ball-falling-fallback"])
+{
+    VerifySpringBallFallingFallback();
+    return 0;
+}
 if (args is ["--door-entry-enemy-sound"])
 {
     VerifyDoorEntryEnemySound();
@@ -7243,6 +7248,7 @@ VerifyMainGameLoopCarry();
 VerifyDoorEntryRoomFxSound();
 VerifyGoldNinjaDeathDrops();
 VerifyDoorEntryEnemySound();
+VerifySpringBallFallingFallback();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

@@ -34,6 +34,8 @@ internal sealed partial class EndingCreditsState
     private EndingShootingStars? shootingStars;
     private EndingBackgroundTextState? postCreditsText;
     private ushort cinematicFrame;
+    /// <summary>NMI waits <c>CinematicFunction_Ending_Setup</c> has made so far.</summary>
+    private int setupNmiWaits;
     private int phaseTimer;
     private int fadeCounter;
     private byte brightness;
@@ -84,6 +86,13 @@ internal sealed partial class EndingCreditsState
     public EndingCreditsPhase Phase { get; private set; }
     public byte Brightness => brightness;
     public ushort CinematicFrame => cinematicFrame;
+
+    /// <summary>
+    /// True when the next call resumes inside the setup's NMI wait loop rather than starting
+    /// a MainGameLoop iteration, so it makes no main-loop RNG call.
+    /// </summary>
+    internal bool ResumesAfterNmiWait =>
+        Phase == EndingCreditsPhase.SetupEscapeFromZebes && setupNmiWaits > 0;
     public ushort CreditsVerticalScroll => credits?.VerticalScroll ?? 0;
     public bool CreditsFinished => credits?.Finished ?? false;
     public EndingReward EndingReward =>
@@ -99,6 +108,13 @@ internal sealed partial class EndingCreditsState
         switch (Phase)
         {
             case EndingCreditsPhase.SetupEscapeFromZebes:
+                // Each wait ends the call inside the setup function, before the dispatcher's
+                // manual-return tail; the call after the last wait runs the scene setup.
+                if (setupNmiWaits < EndingCreditsRomData.SetupNmiWaits)
+                {
+                    setupNmiWaits++;
+                    return;
+                }
                 SetupEscapeSceneA();
                 break;
 

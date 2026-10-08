@@ -330,6 +330,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--ending-setup-nmi-waits"])
+{
+    VerifyEndingSetupNmiWaits();
+    return 0;
+}
 if (args is ["--zebes-escape-fade"])
 {
     VerifyZebesEscapeFade();
@@ -7435,6 +7440,7 @@ VerifyMotherBrainInheritedExplosionIndex();
 VerifyOldTourianEscapeShaftWall();
 VerifyCrateriaMainstreetEscapePassage();
 VerifyZebesEscapeFade();
+VerifyEndingSetupNmiWaits();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

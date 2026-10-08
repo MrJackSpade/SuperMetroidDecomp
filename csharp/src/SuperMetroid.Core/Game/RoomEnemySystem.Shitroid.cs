@@ -609,11 +609,16 @@ public sealed partial class RoomEnemySystem
         sharedProjectiles?.SetSharedCooldown(8);
         sharedProjectiles?.SetSharedBombCounter(5);
         samus.XSpeedDivisor = 2;
-        if (unchecked((short)(samus.Kinematics.YSpeed - 4)) >= 0)
+        // CMP #4 ($A9:F238) leaves carry = (Y speed >= 4, unsigned) through the clamp and
+        // the shake-table loads; $A9:F24D adds Samus's X with no CLC, so that carry is one
+        // extra pixel. BMI reads only the sign of the difference.
+        ushort ySpeed = samus.Kinematics.YSpeed;
+        int xCarry = ySpeed >= 4 ? 1 : 0;
+        if ((unchecked((ushort)(ySpeed - 4)) & 0x8000) == 0)
             samus.Kinematics.YSpeed = 2;
 
         int shakeIndex = (slot.FrameCounter & 6) >> 1;
-        slot.XPosition = unchecked((ushort)(samus.XPosition + ShitroidShakeX[shakeIndex]));
+        slot.XPosition = unchecked((ushort)(samus.XPosition + ShitroidShakeX[shakeIndex] + xCarry));
         slot.YPosition = unchecked((ushort)(samus.YPosition + ShitroidShakeY[shakeIndex] - 20));
 
         // `$A9:C560-$C57C` subtracts four without Varia and two with it. The native

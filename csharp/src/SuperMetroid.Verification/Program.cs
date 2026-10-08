@@ -330,6 +330,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--shitroid-drain-carry"])
+{
+    VerifyShitroidDrainCarry();
+    return 0;
+}
 if (args is ["--shitroid-gradual-acceleration"])
 {
     VerifyShitroidGradualAcceleration();
@@ -7303,6 +7308,7 @@ VerifyDoorAnimatedTiles();
 VerifyTourianStatueDescentRounding();
 VerifyMetroidDeathDrops();
 VerifyShitroidGradualAcceleration();
+VerifyShitroidDrainCarry();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

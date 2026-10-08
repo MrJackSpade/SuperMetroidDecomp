@@ -30,8 +30,17 @@ public sealed class BabyMetroidCutsceneColorCatalog
         WriteIndented = true,
     };
 
+    /// <summary>Resolves one initial Baby Metroid sprite color, corresponding to the fifteen-word image at <c>$A9:94D4</c>; no CGRAM write or cutscene state change occurs.</summary>
+    /// <param name="color">Zero-based image index from zero through 14, corresponding to colors 1..15 of OBJ palette seven; the transparent slot is excluded.</param>
+    /// <returns>A packed SNES RGB5 word: red in bits 0..4, green in bits 5..9, and blue in bits 10..14.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="color"/> is outside the fifteen-color initial image.</exception>
     public ushort InitialColor(int color) => initial.Resolve(color);
 
+    /// <summary>Resolves one displayed death fade-to-black color from native <c>BabyMetroidFadingToBlackPalettes_1</c> through <c>_6</c> at <c>$AD:E90C-$E9B3</c>, without advancing the fade timer.</summary>
+    /// <param name="paletteIndex">One-based displayed image selector from one through six; the unused native image zero is not installed.</param>
+    /// <param name="color">Zero-based image index from zero through 13, corresponding to OBJ palette seven colors 1..14; transparent color zero and black color 15 are excluded.</param>
+    /// <returns>A packed SNES RGB5 word from the selected image, retaining independently supplied artwork edits.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Either selector is outside the installed fade images; the exception names <paramref name="paletteIndex"/> for both invalid cases.</exception>
     public ushort FadeColor(int paletteIndex, int color) =>
         paletteIndex is >= 1 and <= BabyMetroidCutsceneColorRomData.FadeFrameCount &&
         (uint)color < BabyMetroidCutsceneColorRomData.FadeColorCount
@@ -84,6 +93,11 @@ public sealed class BabyMetroidCutsceneColorCatalog
         }
     }
 
+    /// <summary>Compiles initial and fade RGB5 artwork from installed JSON, retaining edits independently of the calculated native color compositions.</summary>
+    /// <param name="json">UTF-8 JSON input read from its current position; the stream remains open.</param>
+    /// <returns>A catalog whose private compiled images are independent of the source document's mutable arrays.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
+    /// <exception cref="InvalidDataException">The JSON is malformed, null, contains duplicate or unknown properties, uses an unsupported version, or lacks fifteen initial colors and six fourteen-color fade rows with RGB channels from zero through 31.</exception>
     public static BabyMetroidCutsceneColorCatalog Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -111,6 +125,10 @@ public sealed class BabyMetroidCutsceneColorCatalog
                 $"fade frame {index + 1}")).ToArray());
     }
 
+    /// <summary>Serializes editable artwork as indented, camel-case UTF-8 JSON, then validates the result using the installed-content loader.</summary>
+    /// <param name="document">Initial and ordered fade images to serialize; the supplied arrays are not modified.</param>
+    /// <returns>A newly allocated JSON byte array for <see cref="BabyMetroidCutsceneColorFormat.FileName"/>.</returns>
+    /// <exception cref="InvalidDataException">The serialized document is null or fails schema, image-dimension, or RGB5 channel validation.</exception>
     public static byte[] Write(BabyMetroidCutsceneColorDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
@@ -141,15 +159,22 @@ public sealed class BabyMetroidCutsceneColorCatalog
             name => new InvalidDataException($"Duplicate cutscene Baby color property {name}."));
 }
 
+/// <summary>Editable JSON artwork for the Mother Brain cutscene Baby's initial image and six displayed death-fade images; array references and RGB5 entries remain caller-owned and mutable.</summary>
 public sealed record BabyMetroidCutsceneColorDocument
 {
+    /// <summary>Schema version required to match <see cref="BabyMetroidCutsceneColorFormat.Version"/> when loading or writing.</summary>
     public required int Version { get; init; }
+    /// <summary>Fifteen RGB5 entries in native initial-image order, mapping to OBJ palette seven colors 1..15 and excluding transparent color zero.</summary>
     public required PaletteRgb5[] Initial { get; init; }
+    /// <summary>Six chronological RGB5 rows of fourteen colors each; row zero corresponds to displayed fade selector one, and each row replaces OBJ palette seven colors 1..14 without changing color 15.</summary>
     public required PaletteRgb5[][] Fade { get; init; }
 }
 
+/// <summary>Installed resource identity and JSON schema version for the Mother Brain cutscene Baby's initial and death-fade artwork, separate from health and pulse palettes.</summary>
 public static class BabyMetroidCutsceneColorFormat
 {
+    /// <summary>Installed artwork filename loaded with enemy tile resources for the Baby's initial colors and six death-fade images.</summary>
     public const string FileName = "baby-metroid-cutscene-colors.json";
+    /// <summary>Supported schema version, requiring a fifteen-color initial image and six fourteen-color fade rows.</summary>
     public const int Version = 1;
 }

@@ -162,6 +162,11 @@ public sealed class KraidColorCatalog
         }
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
+    /// <summary>Validates and compiles all five Kraid RGB5 sources, preserving independent authored edits while leaving health-band selection and fade timing to the boss mechanics.</summary>
+    /// <param name="json">UTF-8 JSON source consumed from its current position and left open; property names are matched case-insensitively.</param>
+    /// <returns>Compiled packed-color catalog detached from the document arrays.</returns>
+    /// <exception cref="ArgumentNullException">The source stream is null.</exception>
+    /// <exception cref="InvalidDataException">The JSON has duplicate or unknown properties, an unsupported version, incorrect source lengths, null colors, or RGB5 channels outside 0..31.</exception>
     public static KraidColorCatalog Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -182,6 +187,10 @@ public sealed class KraidColorCatalog
         return new(document);
     }
 
+    /// <summary>Serializes the five editable sources to indented camel-case UTF-8 JSON and validates the resulting bytes through <see cref="Load"/>.</summary>
+    /// <param name="document">Complete palette sources to serialize; the writer does not retain their arrays.</param>
+    /// <returns>Validated JSON bytes for <see cref="KraidColorFormat.FileName"/>.</returns>
+    /// <exception cref="InvalidDataException">The serialized document fails schema, palette-length, or RGB5-channel validation.</exception>
     public static byte[] Write(KraidColorDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
@@ -220,18 +229,28 @@ public sealed class KraidColorCatalog
     };
 }
 
+/// <summary>Editable RGB5 schema for Kraid's room, initial target, body health, sprite health, and death-arm palette sources.</summary>
 public sealed record KraidColorDocument
 {
+    /// <summary>Schema revision; loading requires version one from <see cref="KraidColorFormat.Version"/>.</summary>
     public required int Version { get; init; }
+    /// <summary>Sixteen nonnull colors corresponding to $A7:86C7, used as the room-backdrop fade target and installed at CGRAM 96..111 when loading the defeated arena.</summary>
     public required PaletteRgb5[] RoomBackdrop { get; init; }
+    /// <summary>Sixteen nonnull colors corresponding to $A7:AAA6's rock sprite palette, staged by initial setup in the host's exposed target-palette band at CGRAM 176..191.</summary>
     public required PaletteRgb5[] InitialTarget { get; init; }
+    /// <summary>144 nonnull colors from $A7:B3D3 in nine consecutive sixteen-color bands: white hurt flash followed by eight health bands, selected into BG palette seven at CGRAM 112..127.</summary>
     public required PaletteRgb5[] Health { get; init; }
+    /// <summary>144 nonnull colors from $A7:B513 in the same flash/health-band order, selected into sprite palette seven at CGRAM 240..255; may be edited independently of Health.</summary>
     public required PaletteRgb5[] Secondary { get; init; }
+    /// <summary>Sixteen nonnull colors corresponding to $A7:B4F3, installed at CGRAM 112..127 for the arm/body death appearance before the death fade.</summary>
     public required PaletteRgb5[] DeathArm { get; init; }
 }
 
+/// <summary>Installed-resource identity and schema revision for Kraid's five editable color sources.</summary>
 public static class KraidColorFormat
 {
+    /// <summary>JSON resource filename containing Kraid's single-band and flash/health-band RGB5 sources.</summary>
     public const string FileName = "kraid-colors.json";
+    /// <summary>Supported schema revision, one, with three sixteen-color sources and two nine-band, 144-color sources.</summary>
     public const int Version = 1;
 }

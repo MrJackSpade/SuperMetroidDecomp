@@ -39,6 +39,9 @@ public sealed class WorldMapLabelLayout
         _ => throw new ArgumentOutOfRangeException(nameof(area)),
     };
 
+    /// <summary>Loads and validates label anchors for exactly the six Zebes world-map areas.</summary>
+    /// <param name="json">Caller-owned stream containing a world-map label document.</param>
+    /// <returns>The compiled cosmetic label layout.</returns>
     public static WorldMapLabelLayout Load(Stream json)
     {
         WorldMapLabelDocument document;
@@ -59,6 +62,9 @@ public sealed class WorldMapLabelLayout
             RequireArea(AreaId.WreckedShip), RequireArea(AreaId.Maridia), RequireArea(AreaId.Tourian));
     }
 
+    /// <summary>Validates and writes a world-map label document as JSON.</summary>
+    /// <param name="json">Destination stream.</param>
+    /// <param name="document">Document to validate and serialize.</param>
     public static void Write(Stream json, WorldMapLabelDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
@@ -67,14 +73,27 @@ public sealed class WorldMapLabelLayout
     }
 }
 
+/// <summary>Defines one world-map label anchor in screen pixels.</summary>
+/// <param name="X">Horizontal screen coordinate from 1 through 255.</param>
+/// <param name="Y">Vertical screen coordinate from 1 through 223.</param>
 public sealed record MapLabelPoint(int X, int Y);
+
+/// <summary>JSON schema for the six named Zebes world-map label anchors.</summary>
 public sealed record WorldMapLabelDocument
 {
+    /// <summary>Gets the schema version required by <see cref="WorldMapLabelFormat.Version"/>.</summary>
     public required int Version { get; init; }
+
+    /// <summary>Gets the label anchors keyed by the six case-sensitive area names.</summary>
     public required Dictionary<string, MapLabelPoint> Areas { get; init; }
 }
+
+/// <summary>Defines the installed world-map label resource contract.</summary>
 public static class WorldMapLabelFormat
 {
+    /// <summary>Supported world-map label schema version.</summary>
     public const int Version = 1;
+
+    /// <summary>Canonical world-map label asset file name.</summary>
     public const string FileName = "world-map-labels.json";
 }

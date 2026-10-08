@@ -13,20 +13,32 @@ public sealed class ScrollBoundaryCamera
 {
     private readonly RoomScrollGrid _scrolls;
 
+    /// <summary>Creates a camera constrained by the supplied mutable room scroll grid.</summary>
+    /// <param name="scrolls">Room-sized grid of native directional scroll states.</param>
     public ScrollBoundaryCamera(RoomScrollGrid scrolls)
     {
         _scrolls = scrolls ?? throw new ArgumentNullException(nameof(scrolls));
     }
 
+    /// <summary>Gets the integer pixel word of the layer-one horizontal position.</summary>
     public ushort XPosition { get; private set; }
+    /// <summary>Gets the fractional word of the layer-one horizontal 16.16 position.</summary>
     public ushort XSubposition { get; private set; }
+    /// <summary>Gets the integer pixel word of the layer-one vertical position.</summary>
     public ushort YPosition { get; private set; }
+    /// <summary>Gets the fractional word of the layer-one vertical 16.16 position.</summary>
     public ushort YSubposition { get; private set; }
+    /// <summary>Gets the horizontal camera target calculated from Samus's position and facing context.</summary>
     public ushort IdealXPosition { get; private set; }
+    /// <summary>Gets the vertical camera target calculated from Samus's position and scroller offsets.</summary>
     public ushort IdealYPosition { get; private set; }
+    /// <summary>Gets the integer word of the most recently calculated horizontal camera speed.</summary>
     public ushort CameraXSpeed { get; private set; }
+    /// <summary>Gets the fractional word of the most recently calculated horizontal 16.16 camera speed.</summary>
     public ushort CameraXSubspeed { get; private set; }
+    /// <summary>Gets the integer word of the most recently calculated vertical camera speed.</summary>
     public ushort CameraYSpeed { get; private set; }
+    /// <summary>Gets the fractional word of the most recently calculated vertical 16.16 camera speed.</summary>
     public ushort CameraYSubspeed { get; private set; }
 
     /// <summary>

@@ -7,7 +7,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Two mutually exclusive cartridge fixed-color sequences.</summary>
 public enum PowerBombFixedColorSequence
 {
+    /// <summary>$88:9079, PowerBomb_PreExplosion_Colors: sixteen fixed-color RGB5 triplets selected by the pre-explosion radius through its white and yellow phases.</summary>
     PreExplosion,
+    /// <summary>$88:8D85, PowerBombExplosion_Colors: thirty-two radius-selected fixed-color RGB5 triplets shared by Power Bomb, Crystal Flash, and the Ceres station explosion.</summary>
     Explosion,
 }
 
@@ -32,6 +34,11 @@ public sealed class PowerBombFixedColorCatalog
         WriteIndented = true,
     };
 
+    /// <summary>Validates the installed fixed-color JSON and compiles independent edits to the two native RGB5 sequences without changing phase or radius mechanics.</summary>
+    /// <param name="json">UTF-8 JSON source consumed from its current position and left open.</param>
+    /// <returns>Compiled component triplets detached from the document arrays, with stock colors resolved from reviewed definitions where available.</returns>
+    /// <exception cref="ArgumentNullException">The source stream is null.</exception>
+    /// <exception cref="InvalidDataException">The JSON contains duplicate or unknown properties, an unsupported version, incorrect sequence lengths, null colors, or channels outside 0..31.</exception>
     public static PowerBombFixedColorCatalog Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -55,6 +62,10 @@ public sealed class PowerBombFixedColorCatalog
                 SamusPaletteRomData.PowerBomb.ExplosionColorCount, PowerBombFixedColorSequence.Explosion, "explosion"));
     }
 
+    /// <summary>Serializes the editable sequences to indented camel-case UTF-8 JSON and validates the resulting bytes through <see cref="Load"/>.</summary>
+    /// <param name="document">The two complete RGB5 color sequences to serialize; the writer does not retain their collections.</param>
+    /// <returns>Validated JSON bytes for <see cref="PowerBombFixedColorFormat.FileName"/>.</returns>
+    /// <exception cref="InvalidDataException">The serialized document fails schema, sequence-length, or RGB5-channel validation.</exception>
     public static byte[] Write(PowerBombFixedColorDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
@@ -102,16 +113,23 @@ public sealed class PowerBombFixedColorCatalog
             name => new InvalidDataException($"Duplicate Power Bomb fixed-color property {name}."));
 }
 
+/// <summary>Editable five-bit fixed-color component sequences for bank-$88 explosion color math; entries are not CGRAM palette words or COLDATA command bytes.</summary>
 public sealed record PowerBombFixedColorDocument
 {
+    /// <summary>Schema revision; loading requires version one from <see cref="PowerBombFixedColorFormat.Version"/>.</summary>
     public required int Version { get; init; }
+    /// <summary>Sixteen nonnull RGB5 triplets corresponding to $88:9079, indexed by the 16-bit pre-explosion radius shifted right eleven bits and masked to 0..15.</summary>
     public required PaletteRgb5[] PreExplosion { get; init; }
+    /// <summary>Thirty-two nonnull RGB5 triplets corresponding to $88:8D85, indexed by the 16-bit explosion radius shifted right eleven bits, not by elapsed gameplay updates.</summary>
     public required PaletteRgb5[] Explosion { get; init; }
 }
 
+/// <summary>Installed-resource identity, schema revision, and native sequence dimensions for explosion fixed-color artwork.</summary>
 public static class PowerBombFixedColorFormat
 {
+    /// <summary>JSON resource filename containing the pre-explosion and explosion RGB5 sequences.</summary>
     public const string FileName = "power-bomb-fixed-colors.json";
+    /// <summary>Supported schema revision, one, fixing the sixteen- and thirty-two-entry sequence dimensions.</summary>
     public const int Version = 1;
 
     /// <summary>Native bank-$88 source address for one authored RGB5 sequence.</summary>
@@ -122,6 +140,10 @@ public static class PowerBombFixedColorFormat
         _ => throw new ArgumentOutOfRangeException(nameof(sequence)),
     };
 
+    /// <summary>Returns the number of radius-addressable RGB5 triplets in the selected native sequence.</summary>
+    /// <param name="sequence">Pre-explosion or explosion artwork domain; this is not an animation phase or composable bit mask.</param>
+    /// <returns>Sixteen for pre-explosion or thirty-two for explosion, defining the exclusive upper index bound.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The sequence value is not defined.</exception>
     public static int Count(PowerBombFixedColorSequence sequence) => sequence switch
     {
         PowerBombFixedColorSequence.PreExplosion => SamusPaletteRomData.PowerBomb.PreExplosionColorCount,

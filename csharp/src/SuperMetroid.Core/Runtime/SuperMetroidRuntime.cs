@@ -1368,6 +1368,17 @@ public sealed partial class SuperMetroidRuntime
         }
     }
 
+    /// <summary>
+    /// The bank-$88 HDMA objects' pre-instructions ($88:84B9), which run before
+    /// <c>GenerateRandomNumber</c>: the room liquid's shared state and the Tourian
+    /// statues' BG2 delay and descent ($88:DBD7-$DCBA), whose rumble reads that RNG.
+    /// </summary>
+    internal void AdvanceHdmaObjectPreInstructions()
+    {
+        RoomLayer3Fx.AdvanceHdmaSharedState(System, TimeIsFrozen);
+        TourianStatues.StepDescent(this);
+    }
+
     public void RunBlankGameplayFrame(ushort controllerInput)
     {
         RunNmi(controllerInput, mainLoopRequestedNmi: true);
@@ -1580,7 +1591,7 @@ public sealed partial class SuperMetroidRuntime
         // HDMA owns shared RNG mutations before the main loop advances it. A
         // message-box NMI wait does not execute that outer-loop HDMA pass.
         if (Camera is not null && !MessageBox.IsActive)
-            RoomLayer3Fx.AdvanceHdmaSharedState(System, TimeIsFrozen);
+            AdvanceHdmaObjectPreInstructions();
 
         // Blast HDMA belongs to the outer frame, not Samus alpha. A statue carry
         // replaces her handlers while the already-spawned blast continues normally.
@@ -1643,7 +1654,6 @@ public sealed partial class SuperMetroidRuntime
                 Enemies.FirefleaDarknessLevel,
                 powerBomb: BombProjectiles.PowerBombExplosion,
                 liquidMotionAlreadyAdvanced: RoomLayer3Fx.MovesLiquidInHdmaPass);
-            TourianStatues.StepDescent(this);
             if (RoomLayer3Fx.EarthquakeRequest is { } roomFxEarthquake)
             {
                 // Lava/acid rise pre-instructions use TSB on the shared timer after writing
@@ -4476,7 +4486,7 @@ public sealed partial class SuperMetroidRuntime
         {
             // Restore_PPU's $88:84B9 runs the HDMA objects, including their RNG mutations.
             if (Camera is not null)
-                RoomLayer3Fx.AdvanceHdmaSharedState(System, TimeIsFrozen);
+                AdvanceHdmaObjectPreInstructions();
             if (Samus is { } hdmaSamus)
                 BombProjectiles.AdvancePowerBombHdma(_addressSpace, hdmaSamus, Controller1.Current, DispatchGameState);
         }

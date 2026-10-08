@@ -70,7 +70,7 @@ public sealed partial class SuperMetroidRuntime
     {
         if (hdmaObjectsEnabled)
         {
-            RoomLayer3Fx.AdvanceHdmaSharedState(System, TimeIsFrozen);
+            AdvanceHdmaObjectPreInstructions();
             if (Samus is not null && RoomLayer3Fx.MovesLiquidInHdmaPass)
                 RoomLayer3Fx.ApplyToSamusLiquidPhysics(Samus.LiquidPhysics);
         }

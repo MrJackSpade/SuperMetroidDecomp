@@ -330,6 +330,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--tourian-statue-descent-rounding"])
+{
+    VerifyTourianStatueDescentRounding();
+    return 0;
+}
 if (args is ["--door-animated-tiles"])
 {
     VerifyDoorAnimatedTiles();
@@ -7285,6 +7290,7 @@ VerifyJumpNoXMovement();
 VerifySaveConfirmationCadence();
 VerifyTourianStatueXrayFreeze();
 VerifyDoorAnimatedTiles();
+VerifyTourianStatueDescentRounding();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

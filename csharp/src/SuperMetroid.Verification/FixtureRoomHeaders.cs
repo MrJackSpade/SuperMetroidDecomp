@@ -4,6 +4,9 @@
 /// </summary>
 internal static class FixtureRoomHeaders
 {
+    /// <summary>RoomHeader_Climb at $8F:96BA, Crateria's old Tourian escape shaft.</summary>
+    public const ushort Climb = 0x96ba;
+
     /// <summary>RoomHeader_RisingTide at $8F:AFA3, Norfair's rising-lava corridor.</summary>
     public const ushort RisingTide = 0xafa3;
 

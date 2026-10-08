@@ -330,6 +330,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--old-tourian-escape-shaft-wall"])
+{
+    VerifyOldTourianEscapeShaftWall();
+    return 0;
+}
 if (args is ["--mother-brain-inherited-explosion-index"])
 {
     VerifyMotherBrainInheritedExplosionIndex();
@@ -7417,6 +7422,7 @@ VerifyBabyMetroidFatalBlowShake();
 VerifyMotherBrainMissileWalkReset();
 VerifyMotherBrainBodyHitboxes();
 VerifyMotherBrainInheritedExplosionIndex();
+VerifyOldTourianEscapeShaftWall();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

@@ -66,6 +66,7 @@ public sealed partial class RoomPlmSystem
         Action<ushort>? setEarthquakeType = null,
         Action<NoobTubeProjectileRequest>? spawnNoobTubeProjectile = null,
         Action<EyeDoorProjectileRequest>? spawnEyeDoorProjectile = null,
+        Action? spawnOldTourianEscapeShaftWallExplosion = null,
         Action<ushort>? disableDraygonCannon = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -101,6 +102,7 @@ public sealed partial class RoomPlmSystem
         _eyeDoorSystem = system;
         _eyeDoorSamus = getSamus;
         _spawnEyeDoorProjectile = spawnEyeDoorProjectile;
+        _spawnOldTourianEscapeShaftWallExplosion = spawnOldTourianEscapeShaftWallExplosion;
         _disableDraygonCannon = disableDraygonCannon;
 
         ushort populationPointer = population.Pointer;

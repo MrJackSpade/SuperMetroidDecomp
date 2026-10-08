@@ -87,6 +87,8 @@ internal static class EnemyProjectilePresentationFrameDefinitions
 
         Add(frames, "ceres_ridley", CeresRidleyProjectileInstructionProgramDefinitions.PresentationWordCount,
             CeresRidleyProjectileInstructionProgramDefinitions.PresentationWordAddress);
+        Add(frames, "old_tourian_escape_wall_explosion", OldTourianEscapeShaftWallExplosionDefinitions.PresentationWordCount,
+            OldTourianEscapeShaftWallExplosionDefinitions.PresentationWordAddress);
         Add(frames, "cacatac_spike", CacatacProjectileInstructionProgramDefinitions.PresentationWordCount,
             CacatacProjectileInstructionProgramDefinitions.PresentationWordAddress);
         Add(frames, "botwoon", BotwoonProjectileInstructionProgramDefinitions.PresentationWordCount,

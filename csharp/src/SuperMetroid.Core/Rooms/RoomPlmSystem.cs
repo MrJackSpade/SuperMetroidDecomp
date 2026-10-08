@@ -307,6 +307,7 @@ public sealed partial class RoomPlmSystem
         ResetBombTorizoHandState();
         ResetNoobTubeState();
         ResetEyeDoorState();
+        ResetOldTourianEscapeShaftWallState();
         ResetDraygonCannonState();
     }
 
@@ -1500,6 +1501,7 @@ public sealed partial class RoomPlmSystem
             RunShaktoolRoomPreInstruction(slot, scrolls, powerBombExplosionStatus);
             RunSamusEaterPreInstruction(slot);
             RunSpeedBoosterEscapePreInstruction(slot);
+            RunOldTourianEscapeShaftWallPreInstruction(slot);
             RunWreckedShipAtticPreInstruction(slot);
             RunBombTorizoHandPreInstruction(slot);
             RunChozoStatuePreInstruction(level, slot);
@@ -1863,6 +1865,12 @@ public sealed partial class RoomPlmSystem
         if (RoomPlmBombedRevealDrawDefinitions.TryGet(drawPointer, out var bombedReveal))
         {
             DrawCompiledBlockInstruction(level, streamer, bombedReveal, originX, originY,
+                layer1XPosition, layer1YPosition, bg1XOffset, useShotBlockVisuals: false);
+            return;
+        }
+        if (OldTourianEscapeShaftWallPlmDefinitions.TryGetDraw(drawPointer, out var openWall))
+        {
+            DrawCompiledBlockInstruction(level, streamer, openWall, originX, originY,
                 layer1XPosition, layer1YPosition, bg1XOffset, useShotBlockVisuals: false);
             return;
         }

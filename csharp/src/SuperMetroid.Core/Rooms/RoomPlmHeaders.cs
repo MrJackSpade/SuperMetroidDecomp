@@ -139,6 +139,12 @@ internal static class RoomPlmHeaders
     /// <summary>Maridia elevatube delay/sound PLM at $84:B8F9.</summary>
     public const ushort MaridiaElevatube = 0xb8f9;
 
+    /// <summary>
+    /// Old Tourian escape shaft fake wall at $84:B964, spawned by room setup $8F:91A9 during
+    /// the escape; explodes once Samus passes below and right of it.
+    /// </summary>
+    public const ushort OldTourianEscapeShaftFakeWall = 0xb964;
+
     /// <summary>Resident Wrecked Ship attic no-op observer at $84:BB05.</summary>
     public const ushort WreckedShipAttic = 0xbb05;
 

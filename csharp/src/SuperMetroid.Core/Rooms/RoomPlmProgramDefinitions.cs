@@ -14,6 +14,7 @@ internal static class RoomPlmProgramDefinitions
         RoomPlmContactCrumbleProgramDefinitions.TryReadDrawPointerWord(address, out value) ||
         RoomPlmGrappleBlockProgramDefinitions.TryReadDrawPointerWord(address, out value) ||
         EscapeAnimalPlmProgramDefinitions.TryReadWord(address, out value) ||
+        OldTourianEscapeShaftWallPlmDefinitions.TryReadMechanicsWord(address, out value) ||
         RoomPlmBombedRevealProgramDefinitions.TryReadWord(address, out value) ||
         SamusEaterPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
         TourianAccessPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||

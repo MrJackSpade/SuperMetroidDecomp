@@ -34,6 +34,11 @@ internal static class EnemyProjectileCodePointers
     /// RTS until the instruction list installs a start-moving callback.
     /// </summary>
     public const ushort RTS_86CFF7 = 0xcff7;
+    /// <summary>
+    /// <c>RTS_86B4B0</c> at $86:B4B0: the old Tourian escape shaft fake-wall explosion's
+    /// pre-instruction, a bare RTS its list clears on the first tick.
+    /// </summary>
+    public const ushort RTS_86B4B0 = 0xb4b0;
     /// <summary><c>PreInstruction_EnemyProj_KiHunterAcidSpit_Moving</c> at $86:CFF8.</summary>
     public const ushort PreInstruction_EnemyProjectile_KiHunterAcid_Moving = 0xcff8;
     /// <summary><c>PreInstruction_EnemyProjectile_PolypRock</c> at $86:BC0F.</summary>

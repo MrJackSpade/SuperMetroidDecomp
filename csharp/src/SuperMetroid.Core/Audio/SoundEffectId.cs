@@ -122,6 +122,9 @@ public static class SoundEffectLibrary2Sounds
     /// <summary>$A8:F6DC, shared KiHunter acid-spit instruction, queues library-two $4C with Max6 once per spit.</summary>
     public static readonly SoundEffectId KiHunterAcidSpit = new(SoundEffectLibrary.Library2, 0x4c); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
 
+    /// <summary>Library-two $24, the small explosion queued (Max6) at $86:B44F by the old Tourian escape shaft fake wall.</summary>
+    public static readonly SoundEffectId SmallExplosion = new(SoundEffectLibrary.Library2, 0x24); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
     /// <summary>$86:B7DB queues library-two $19 (Max6) as the Tourian statue eye releases its particles.</summary>
     public static readonly SoundEffectId TourianStatueRelease = new(SoundEffectLibrary.Library2, 0x19); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
 

@@ -1018,6 +1018,7 @@ public sealed partial class SuperMetroidRuntime
                     request,
                     LevelData.WidthInBlocks,
                     System),
+            spawnOldTourianEscapeShaftWallExplosion: Enemies.SpawnOldTourianEscapeShaftWallExplosion,
             disableDraygonCannon: Enemies.DisableDraygonCannon);
 
         // `$82:E8DD/$82:EB93` runs the bank-$8F door program only after destination PLMs
@@ -1031,6 +1032,10 @@ public sealed partial class SuperMetroidRuntime
         if (room.State.SetupCallback == RoomSetupCallback.TurnWallIntoShotBlocksDuringEscape)
             Plms.SetupCrittersEscapeBlock(LevelData,
                 LevelData.GetBlockIndex(EscapeAnimalPlmRomData.WallX, EscapeAnimalPlmRomData.WallY));
+        // `$8F:91A9` spawns the fake-wall PLM; SpawnHardcodedPLM silently drops it when all
+        // forty native slots are occupied.
+        if (room.State.SetupCallback == RoomSetupCallback.AutoDestroyWallDuringEscape)
+            Plms.TrySpawnOldTourianEscapeShaftWall(LevelData);
 
         if (runDoorClosingPlm)
         {

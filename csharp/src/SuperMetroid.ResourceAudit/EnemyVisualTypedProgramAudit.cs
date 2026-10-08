@@ -31,8 +31,7 @@ internal static class EnemyVisualTypedProgramAudit
                 ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, instruction.SpritemapPointer), ceresSource, exports);
             ceresFrames++;
         }
-        rows.Add(new(nameof(CeresElevatorArrivalDefinitions), ResourceBanks.EnemyProjectilePrograms,
-            "typed-projectile-records", ceresFrames, records));
+        rows.Add(new(ceresFrames));
 
         // Import and installation admission both derive the exact head-map key set
         // from these typed frame records. Guard the reviewed producer/loader source;
@@ -42,11 +41,9 @@ internal static class EnemyVisualTypedProgramAudit
             "684564292FA2DEAE104D897E1B7210F65CC55B6799F1970C5A654E2E41968E9B");
         var heads = KraidHeadInstructionDefinitions.All.ToArray();
         foreach (var frame in heads.Where(frame => frame.Kind == KraidHeadInstructionKind.Frame))
-            report.Consumers.Add(new("kraid-head-bg2", nameof(KraidHeadInstructionDefinitions),
+            report.Consumers.Add(new(nameof(KraidHeadInstructionDefinitions),
                 "csharp/src/SuperMetroid.Core/Game/KraidHeadInstructionDefinitions.cs",
-                ResourceIndex.Address(KraidBackgroundRomData.NativeBank >> 16, frame.Tilemap),
                 "typed frame exported and required by installation admission"));
-        rows.Add(new(nameof(KraidHeadInstructionDefinitions), KraidBackgroundRomData.NativeBank >> 16,
-            "typed-bg2-records", heads.Count(frame => frame.Kind == KraidHeadInstructionKind.Frame), heads.Length));
+        rows.Add(new(heads.Count(frame => frame.Kind == KraidHeadInstructionKind.Frame)));
     }
 }

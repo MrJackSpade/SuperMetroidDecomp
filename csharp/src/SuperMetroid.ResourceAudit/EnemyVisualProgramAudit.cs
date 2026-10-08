@@ -13,7 +13,7 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal static class EnemyVisualProgramAudit
 {
-    internal sealed record ProgramRow(string Owner, int? Bank, string Shape, int Operands, int MechanicsWords);
+    internal sealed record ProgramRow(int Operands);
 
     internal static int Run(string root, string output)
     {
@@ -94,7 +94,7 @@ internal static class EnemyVisualProgramAudit
             else
                 foreach (ushort operand in addresses.Order())
                     Require(type, (byte)bank.Value, operand, source, exports, report);
-            rows.Add(new(owner, bank, shape, addresses.Count, words.Count));
+            rows.Add(new(addresses.Count));
         }
         EnemyVisualTypedProgramAudit.Inspect(root, compilation, exports, report, rows);
         report.Sort();
@@ -228,8 +228,7 @@ internal static class EnemyVisualProgramAudit
             report.Findings.Add(new(AuditReport.Missing, ResourceDomains.CompiledSelector, owner, key, source,
                 "Instruction visual operand has no compiled selector or specialized resolver."));
         }
-        report.Consumers.Add(new(ResourceDomains.CompiledSelector, owner, source, key,
-            pointer is ushort target ? ResourceIndex.Address(bank == ResourceBanks.EnemyProjectilePrograms
+        report.Consumers.Add(new(owner, source,             pointer is ushort target ? ResourceIndex.Address(bank == ResourceBanks.EnemyProjectilePrograms
                 ? ResourceBanks.ProjectileOamAndPaletteFx : bank, target) : "installed operand binding or missing selector"));
     }
 }

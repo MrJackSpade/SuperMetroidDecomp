@@ -10,7 +10,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.ResourceAudit;
 
 internal sealed record VramDmaFinding(string Code, string Owner, string Source, string Detail);
-internal sealed record VramDmaSite(string Owner, string Source, string Api, string Arguments, string MethodHash);
+internal sealed record VramDmaSite();
 internal sealed record VramDmaTransfer(string Owner, int SourceAddress, int ByteCount,
     VramAssetId Asset = VramAssetId.None);
 internal sealed class VramDmaReport
@@ -91,8 +91,7 @@ internal static class VramDmaAudit
                 var method = methodSyntax is null ? null : semantic.GetDeclaredSymbol(methodSyntax) as IMethodSymbol;
                 string owner = method is null ? "<non-method queue producer>" : method.ContainingType.ToDisplayString() + "." + method.Name;
                 string hash = methodSyntax is null ? "" : Hash(methodSyntax);
-                report.Sites.Add(new(owner, Location(syntax), call.TargetMethod.Name,
-                    string.Join(", ", syntax.ArgumentList.Arguments), hash));
+                report.Sites.Add(new());
                 bool typed = call.TargetMethod.Name == nameof(VramWriteQueue.EnqueueAsset);
                 int? count = Constant(call, "sizeInBytes");
                 int? source = Constant(call, typed ? "asset" : "sourceAddress");

@@ -251,8 +251,6 @@ public sealed record GameInstallation(string Root)
     /// <summary>Editable X-ray metatile choices; reveal commands and collision rules remain compiled.</summary>
     public XrayRevealVisualCatalog LoadXrayRevealVisuals() =>
         XrayRevealVisualFiles.Load(XrayRevealVisualDirectory, XrayRevealVisualOverrideDirectory);
-    /// <summary>Read-only logical room ID to editable art-file guide for installed content.</summary>
-    public string RoomArtIndexPath => Path.Combine(ContentDirectory, RoomArtIndexFiles.FileName);
     /// <summary>Editable BG tilemaps survive replacement of stock game content.</summary>
     public string RoomBackgroundTilemapOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomBackgroundTilemapDirectoryName);
     public RoomBackgroundTilemapCatalog LoadRoomBackgroundTilemaps() =>
@@ -323,7 +321,7 @@ public static class GameInstallationLayout
     public const string RoomPlmDynamicCollectibleArtDirectoryName = "room-plm-collectible-tiles";
     public const string XrayRevealVisualDirectoryName = "xray-reveals";
     public const string ReceiptFileName = "installation.json";
-    public const int FormatVersion = 85;
+    public const int FormatVersion = 86;
     internal const string PreviousDirectoryName = ".game.previous";
     internal const string StagingPrefix = ".game.install-";
     internal const string LockFileName = ".game-install.lock";

@@ -5,20 +5,15 @@ namespace SuperMetroid.ResourceAudit;
 internal sealed record AuditFinding(string Code, string Domain, string Owner, string Resource,
     string Source, string Message);
 internal sealed record AuditCoverage(string Domain, int References, int Exports);
-internal sealed record AuditConsumer(string Domain, string Owner, string Source, string Arguments,
-    string Resolution);
-internal sealed record AuditCompiledDefinition(string Domain, string Resource, string Owner,
-    string Source, string Reason);
-internal sealed record AuditClassification(string Rule, string Owner, string Source, string Reason,
-    string[] ProviderSources);
+internal sealed record AuditConsumer(string Owner, string Source,     string Resolution);
+internal sealed record AuditCompiledDefinition(string Domain, string Resource);
+internal sealed record AuditClassification(string Owner, string Source);
 
 /// <summary>Separate concrete missing exports from unresolved analysis boundaries.</summary>
 internal sealed class AuditReport
 {
     public const string Missing = "SMRA001";
     public const string Unresolved = "SMRA002";
-    public int Version { get; } = 2;
-    public string Scope { get; } = "Compiled definition dependencies and Core resource consumer inventory; no gameplay execution.";
     public int ReferenceCount { get; set; }
     public int MissingCount => Findings.Count(item => item.Code == Missing);
     public int MissingResourceCount => Findings.Where(item => item.Code == Missing)

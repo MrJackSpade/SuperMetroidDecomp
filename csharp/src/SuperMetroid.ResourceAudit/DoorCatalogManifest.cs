@@ -10,7 +10,7 @@ namespace SuperMetroid.ResourceAudit;
 
 internal sealed record NativeDoorRoom(string Name, ushort Room, ushort List, ushort[] Doors,
     NativeDoorState[] States);
-internal sealed record NativeDoorState(ushort State, int Level, int Blocks, int[] DoorBts);
+internal sealed record NativeDoorState(ushort State, int Level, int[] DoorBts);
 internal sealed record NativeDoorManifest(string Revision, string RomSha256,
     NativeDoorRoom[] Rooms, CartridgeDoorHeader[] Headers);
 
@@ -92,7 +92,7 @@ internal static class DoorCatalogManifest
                 for (int i = 0; i < blocks; i++)
                     if ((BinaryPrimitives.ReadUInt16LittleEndian(data.AsSpan(2 + i * 2)) >> 12) == 9)
                         bts.Add(data[2 + bytes + i]);
-                states.Add(new(pointer, header.CompressedLevelDataAddress, blocks, bts.Select(value => (int)value).ToArray()));
+                states.Add(new(pointer, header.CompressedLevelDataAddress, bts.Select(value => (int)value).ToArray()));
             }
             if (states.Count == 0) throw new InvalidDataException($"No independently labeled states for {name}.");
             rooms.Add(new(name, room, list.Pointer, list.Entries, states.ToArray()));

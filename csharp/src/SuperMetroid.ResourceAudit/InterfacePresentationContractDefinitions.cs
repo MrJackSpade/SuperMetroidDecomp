@@ -15,8 +15,7 @@ internal static class InterfacePresentationContractDefinitions
              Source("HeatPaletteColorDefinitions", "0EA2C18E370424905708BBB5FB1C0FD3CD84306C00989FB1C6B086F403BB0241"),
              new("csharp/src/SuperMetroid.Core/Game/PaletteFxHeatInstructionListDefinitions.cs", "3959552F3650DB8A67C0B86D54F1A66FC46D3BE8EE4451D0FE8A1611AD6FCDD6"),
              Source("HeatPaletteInputView", "C2E7D9D529C6D70D676FA1D8C4FA3061D18AA3C0D32FED33130E6A970421A63E"),
-             Source("TitlePalettePresentation", "C1ECCD51302467FDF4B1E32F4936D8FD7724776A598884B3590E4EEA9B07C45A")],
-            "The only two source-owned implementations query private installed colors, including calculated heat and loading row aliases, and return false for unowned addresses; neither demands artwork or throws for a missing key. The separate palette definition inventory checks every recognized bounded program color against actual importer/loader keys. This query proof does not certify the downstream caller's selected program, correct room/title provider binding, installation, clocks, or arbitrary externally injected implementations. New Core implementations or altered reviewed sources revoke it."),
+             Source("TitlePalettePresentation", "C1ECCD51302467FDF4B1E32F4936D8FD7724776A598884B3590E4EEA9B07C45A")]),
         new("SuperMetroid.Core.Assets.IIntroCinematicSpritePresentation", "cinematic-interface-complete-owned-frame-domains", ["Draw"],
             [Source("IIntroCinematicSpritePresentation", "B53C0DC30B4B57E3F0CEF08518C7F44BCD37D3F7E5280E54A844D2D3C1080774"),
              Source("IntroDiscoveryActorSpritePresentation", "1C8DC743598FBB33AB793E2F6EE333ABBC4110DA0D5580C57DAEF3A1010B654D"),
@@ -34,8 +33,7 @@ internal static class InterfacePresentationContractDefinitions
              Source("EndingExplosionSpritePresentation", "F4544E60FA882E3D65ACF6C1C5BFAE945D112BA9AA024904E1194A9E820EDE11"),
              Source("EndingLogoSpritePresentation", "50B428083D15432C6F4B5C6C09A57891FAB0E957A6EBB311253AC2576758F8E3"),
              Source("EndingRewardSpritePresentation", "BD8B9C7D5ECB3A10F18F4D99C411773C00A96B30AA8F38766EEBDFBF18C1D83D"),
-             Source("IntroCinematicSpriteCompiler", "942CADA4FA409A846B28F792D17C631ADD6F7851B49DD1A22E19BC19B92106A1")],
-            "Each of the eleven source-owned concrete catalogs has private construction reached only through a loader that requires every named compiled frame and compiles independent nonnull compositions. The twelfth implementation, CeresSceneSpritePresentation, routes only to the complete destruction catalog when it owns the key, otherwise to complete flight art. This proves availability within the actual receiver's owned domain, not that a union key belongs to every receiver or that an arbitrary actor selected its correct provider. Known pointers outside the combined domain remain findings. New implementations, metadata declarations, or changed loader/compiler/router sources revoke closure. Caller binding, actor lists, positions, OAM capacity, timing and pixels are not certified."),
+             Source("IntroCinematicSpriteCompiler", "942CADA4FA409A846B28F792D17C631ADD6F7851B49DD1A22E19BC19B92106A1")]),
     ];
 
     private static ReviewedSource Source(string name, string hash) => new("csharp/src/SuperMetroid.Core/Assets/" + name + ".cs", hash);

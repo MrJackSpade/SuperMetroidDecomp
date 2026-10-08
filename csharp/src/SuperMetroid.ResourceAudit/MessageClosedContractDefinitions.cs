@@ -14,19 +14,16 @@ internal static class MessageClosedContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.GameplayMessageTitlePresentation", "message-titles-v1-complete-owned-id-set",
-            ["Contains", "Build"], SharedGlyphSources,
-            "The sole private-constructor loader requires exactly all fifteen named title messages, their validated glyph strings and a full border row. Contains is a membership query; Build accepts only this owned ID set. This does not grant title ownership of panel/notice messages."),
+            ["Contains", "Build"], SharedGlyphSources),
         new("SuperMetroid.Core.Assets.GameplayMessagePanelPresentation", "message-panels-v1-complete-owned-id-set",
             ["Contains", "Build"],
             [.. SharedGlyphSources,
              new("csharp/src/SuperMetroid.Core/Assets/GameplayMessagePanelPresentation.cs", "795D43EFE9820AA175301AAA602057A9A58DFA26B2130A694ED7ACD0805A6C97"),
-             new("csharp/src/SuperMetroid.Core/Assets/GameplayMessagePanelDefinitions.cs", "3E857C6847EE06012B18138C2AA1074E68E04124D1AFC282930F94E44124D808")],
-            "Load requires exactly all seven panel messages, complete four-row templates, validated title glyphs and border cells before private construction. Contains is only a membership query; Build resolves the complete owned panel set, not other message families."),
+             new("csharp/src/SuperMetroid.Core/Assets/GameplayMessagePanelDefinitions.cs", "3E857C6847EE06012B18138C2AA1074E68E04124D1AFC282930F94E44124D808")]),
         new("SuperMetroid.Core.Assets.GameplayMessageNoticePresentation", "message-notices-v1-complete-owned-id-set",
             ["Contains", "Build", "ApplySelection"],
             [.. SharedGlyphSources,
              new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticePresentation.cs", "903F8CCAAE5D0264CE35DE30DCEBB4C4D0A9BF33B335784BB93D0D14FC185E71"),
-             new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticeDefinitions.cs", "EDA3F1979E4A230DBAEAA4B333729C7B3D640C4A007940B8BA4282779C1CE44C")],
-            "Load requires all five notice IDs, complete templates/borders and valid text regions; both save prompts require YES and NO rows. Contains is a membership query. Build covers the owned notice set; ApplySelection covers only the two save prompts, not station-completion notices."),
+             new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticeDefinitions.cs", "EDA3F1979E4A230DBAEAA4B333729C7B3D640C4A007940B8BA4282779C1CE44C")]),
     ];
 }

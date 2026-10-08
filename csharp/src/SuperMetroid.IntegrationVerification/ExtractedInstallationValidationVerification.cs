@@ -50,9 +50,6 @@ internal static class ExtractedInstallationValidationVerification
                 File.WriteAllText(receipt, json.ToJsonString());
             }, () => VerifyRejection<InvalidDataException>(fixture, receipt, "wrong source provenance"));
 
-            WithEditedFile(fixture.RoomArtIndexPath, () => File.AppendAllText(fixture.RoomArtIndexPath, " "),
-                () => VerifyRejection<InvalidDataException>(fixture, fixture.RoomArtIndexPath, "index receipt hash mismatch"));
-
             // This is the stale fixture defect observed by the Android gate: the
             // top-level receipt is current but a required nested manifest is not.
             string enemyManifest = Path.Combine(fixture.EnemyTileDirectory, "enemy-tiles.json");

@@ -167,9 +167,6 @@ foreach (string path in Directory.EnumerateFiles(inputDirectory, "*.bin", Search
     }
 
     records.Add(new AssetRecord(
-        Path.GetRelativePath(inputDirectory, path).Replace('\\', '/'),
-        isPalette ? "palette" : format is null ? "data" : "tiles",
-        format?.ToString(), compressed, stored.Length, decoded.Length,
         png?.Replace('\\', '/')));
 }
 
@@ -336,12 +333,6 @@ static TileFormat? ClassifyTileFormat(string name)
 internal enum TileFormat { Planar2Bpp, Planar4Bpp, Mode7 }
 
 internal sealed record AssetRecord(
-    string Source,
-    string Kind,
-    string? Format,
-    bool Compressed,
-    int StoredBytes,
-    int DecodedBytes,
     string? Png);
 
 }

@@ -11,7 +11,6 @@ internal static class LibraryBackgroundClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Rooms/LibraryBackgroundProgramDefinitions.cs", "4D0C3FF6103CD70FA19E37F64AD0ACADAF2539C7C42D28AC05CB5FB765000208"),
              new("csharp/src/SuperMetroid.Core/Rooms/LibraryBackgroundProgramGeneratedDefinitions.cs", "5B95FAC0B0C578C778C0E4F1FCEF735390593A1ADBBBCDD21AD3A7B2A1BDFBB9"),
              new("csharp/src/SuperMetroid.Core/Rooms/LibraryBackgroundCommand.cs", "61A7E66798DE3AA87448D5CE618C97E9C5C70D32D5AF1018AA28C0B13445B460"),
-             new("csharp/src/SuperMetroid.Core/Assets/RoomBackgroundTilemapAtlas.cs", "9FA2182B31CC5B874EC8DD279E72208D7EAA60147C92BF6099B21DCF99863A07")],
-            "Public construction checks all 58 required source IDs derived from the reviewed decompression commands for a nonnull compiled atlas, not just dictionary count, and copies the dictionary before publication. Only the immutable required key domain is complete. This proves successfully constructed catalog membership, not arbitrary sources, caller command selection, WRAM/VRAM destinations, page choice or rendered tiles."),
+             new("csharp/src/SuperMetroid.Core/Assets/RoomBackgroundTilemapAtlas.cs", "9FA2182B31CC5B874EC8DD279E72208D7EAA60147C92BF6099B21DCF99863A07")]),
     ];
 }

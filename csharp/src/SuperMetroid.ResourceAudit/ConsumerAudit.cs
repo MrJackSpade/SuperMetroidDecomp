@@ -82,15 +82,14 @@ internal static class ConsumerAudit
         if (domain is null || key is null)
         {
             string actualDomain = domain ?? method.ContainingType.Name;
-            report.Consumers.Add(new(actualDomain, owner, source, arguments, "unresolved"));
+            report.Consumers.Add(new(owner, source, "unresolved"));
             report.Gap(actualDomain, owner, source, domain is null
                 ? "No definition-coverage adapter for this resource domain. Arguments: " + arguments
                 : "Lookup arguments are not statically constant; adapter coverage does not prove this call's possible IDs. Arguments: " + arguments);
             return;
         }
         report.Require(domain, owner, key, source, exports);
-        report.Consumers.Add(new(domain, owner, source, arguments,
-            exports.Contains(domain, key) ? "resolved" : "missing"));
+        report.Consumers.Add(new(owner, source,             exports.Contains(domain, key) ? "resolved" : "missing"));
     }
 
     private static bool IsResourceType(ITypeSymbol type)

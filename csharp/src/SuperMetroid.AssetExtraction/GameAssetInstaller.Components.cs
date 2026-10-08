@@ -142,7 +142,7 @@ public static partial class GameAssetInstaller
         bool receiptAndIndexValid;
         try
         {
-            ValidateReceiptAndIndex(installation);
+            ValidateReceipt(installation);
             receiptAndIndexValid = true;
         }
         catch (Exception error) when (IsRepairableContentFailure(error))

@@ -156,7 +156,7 @@ internal sealed class ClosedPresentationAudit
         void Gap(string reason)
         {
             report.Gap(method.ContainingType.Name, owner, location, reason);
-            report.Consumers.Add(new(method.ContainingType.Name, owner, location, arguments, "unresolved"));
+            report.Consumers.Add(new(owner, location, "unresolved"));
         }
         if (!reviewed.Valid)
         {
@@ -188,14 +188,13 @@ internal sealed class ClosedPresentationAudit
         }
         if (named == NamedSelectionResult.Missing)
         {
-            report.Consumers.Add(new(method.ContainingType.Name, owner, location, arguments, "missing"));
+            report.Consumers.Add(new(owner, location, "missing"));
             return true;
         }
         report.Require("closed-presentation-contract", owner, contract.Type + "." + method.Name, location, exports);
         references++;
-        report.Consumers.Add(new(method.ContainingType.Name, owner, location, arguments, "closed-provider"));
-        report.Classifications.Add(new(contract.Rule, owner, location, contract.Reason,
-            contract.Sources.Select(source => source.Path + "#SHA256=" + source.Sha256).ToArray()));
+        report.Consumers.Add(new(owner, location, "closed-provider"));
+        report.Classifications.Add(new(owner, location));
         return true;
     }
 

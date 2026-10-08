@@ -16,11 +16,7 @@ internal static class MenuClosedPresentationContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/MenuHeadingBorderDefinitions.cs", "A492AC3C7692DA38E0E838CAB60DC605DDC8E875DBE098475EBAC530C0E47372"),
              new("csharp/src/SuperMetroid.Core/Assets/MenuBorderParts.cs", "6B79556FD47098253A8A977E398C98A1908D01A7DD4E9E5916A38634A33E0080"),
              new("csharp/src/SuperMetroid.Core/Frontend/GameOptionsRomData.cs",
-                "6402E8F44472D8FE1481FC111C546ED638FE28A11EB297F6A048318879CE262A")],
-            "The private-constructor loader requires all six pages, seven controller labels/anchors, " +
-            "two special toggles, four language regions, three heading/cursor sets and four cursor frames. " +
-            "Controller/cursor indices are guarded. Stock geometry calculates from the reviewed native rules; independently edited geometry retains validated supplied fields. " +
-            "Named page/menu/toggle selections additionally require independently resolved finite installed keys."),
+                "6402E8F44472D8FE1481FC111C546ED638FE28A11EB297F6A048318879CE262A")]),
         new("SuperMetroid.Core.Assets.GameOverPresentation", "game-over-v1-complete-enum-domains",
             ["LoadTilemapTo", "DrawBaby", "DrawEgg", "DrawCursor", "ApplyBabyPalette"],
             [new("csharp/src/SuperMetroid.Core/Assets/GameOverPresentation.cs",
@@ -36,19 +32,12 @@ internal static class MenuClosedPresentationContractDefinitions
              new("csharp/src/SuperMetroid.Core/Frontend/GameOverRomData.cs",
                 "3F36311C2B399BCCCEC81D3EAA0E725686263F44237CB57CBC3E1407B1E65FBC"),
              new("csharp/src/SuperMetroid.Core/Frontend/GameOverBabyAnimationDefinitions.cs",
-                "A8617F78639973FB3E9BDD260CC8CE7B38C1259248CF512C86F7039AB7FD3360")],
-            "Private construction requires the full tilemap, all eight named sprites and all four baby palettes. " +
-            "Baby frame/palette enum switches are exhaustive over their supported domains and reject invalid values; " +
-            "all four cursor frames are required and bounds-checked. Egg/tilemap operations use fixed loaded resources."),
+                "A8617F78639973FB3E9BDD260CC8CE7B38C1259248CF512C86F7039AB7FD3360")]),
         new("SuperMetroid.Core.Assets.PauseReserveUiPresentation", "pause-reserve-v1-complete-fields",
             ["ApplyLabel", "ApplyDigit", "ApplyArrowTilePalettes", "ApplyArrowColors"],
             [new("csharp/src/SuperMetroid.Core/Assets/PauseReserveUiPresentation.cs",
                 "123A68E03DBCE63AA5A6F43C6FE5BDAC3A2AED0113E2E5B5FE9E2CA895493C16"),
              new("csharp/src/SuperMetroid.Core/Assets/PauseReserveUiDefinitions.cs",
-                "B435BE1CAD4C5440A35090E6F8785EF44B0795FBAF16543A8FCBE81216149D55")],
-            "The sole private-constructor loader requires Mode/ReserveTank/Manual/Auto labels, ten digit cells, " +
-            "ten arrow cells and thirty-two complete color frames. Digit selectors are range-checked; " +
-            "arrow animation masks to the complete 32-frame set and fixed colors/palettes are loaded. " +
-            "Label selection additionally requires finite installed names, including both conditional branches."),
+                "B435BE1CAD4C5440A35090E6F8785EF44B0795FBAF16543A8FCBE81216149D55")]),
     ];
 }

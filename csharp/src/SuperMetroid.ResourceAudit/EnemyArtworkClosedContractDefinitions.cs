@@ -23,7 +23,6 @@ internal static class EnemyArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/TorizoInstructionVramArtwork.cs", "E713CC6BBF734DD700CBE4397EF8D81ABEDF19299DB65A359453DFC1AEB43FBC"),
              new("csharp/src/SuperMetroid.Core/Assets/TorizoInstructionTileRomData.cs", "10F23555CAF58BB4A559874B08847132683CB1EB1487B3BF51C6B381F93286F1"),
              new("csharp/src/SuperMetroid.Core/Game/CeresEscapeVramTransferDefinitions.cs", "CB446127DC3A4B7AC8E949B1846CEA961A7A7F214F7360C394DFDE0AF029DF15"),
-             new("csharp/src/SuperMetroid.Core/Game/CeresRidleyPaletteRomData.cs", "20CB1E292CC94F8BB30D9F237F148789E3E165F58BD116D5259990370C9E17CE")],
-            "The installed factory requires all 122 compiled graphics-set identities with nonnull palettes and exact native tile lengths; pinned IDs reject substitutions. Native DMA aliases are derived or validated, and complete Ceres and Torizo transfer providers are required. Dictionaries are copied. LoadTo/LoadPaletteTo cover valid definition IDs; TryResolve covers native sheet sources, bounded Ceres/Torizo slices and exact warning tilemaps, returning false for unowned sources. Invalid known identities/lengths remain findings. External Core use of the internal partial fixture factory or new metadata declarations revokes this rule. Other optional boss attachments, caller selection, destinations, timing and rendered pixels are not certified."),
+             new("csharp/src/SuperMetroid.Core/Game/CeresRidleyPaletteRomData.cs", "20CB1E292CC94F8BB30D9F237F148789E3E165F58BD116D5259990370C9E17CE")]),
     ];
 }

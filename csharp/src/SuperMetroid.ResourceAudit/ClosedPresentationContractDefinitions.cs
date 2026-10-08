@@ -2,7 +2,7 @@ namespace SuperMetroid.ResourceAudit;
 
 internal sealed record ReviewedSource(string Path, string Sha256);
 internal sealed record ClosedPresentationContract(string Type, string Rule, string[] Methods,
-    ReviewedSource[] Sources, string Reason);
+    ReviewedSource[] Sources);
 
 /// <summary>
 /// Source-reviewed closure proofs, not an allowlist of failing calls. Only these
@@ -48,12 +48,7 @@ internal static class ClosedPresentationContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs",
                 "550027E3BFCC6F00A3189D4E122510BF78831E0A898E303774DE04DC1E383A0B"),
              new("csharp/src/SuperMetroid.Core/Assets/GameplayHudDefinitions.cs",
-                "0E2B93E2A12A5215127DAC454FE76248F8D05787EA7E88D7E9622B1FE1C7D2C5")],
-            "The sole private constructor compiles every HUD field: two ten-digit arrays, " +
-            "all five named icons, fourteen tank anchors, six AUTO cells and the fixed template. " +
-            "These operations select only that validated domain; digit arithmetic is modulo ten, " +
-            "tank iteration is clamped, and item/coordinate selectors are range-guarded. " +
-            "MinimapCellIndex computes layout, not a resource identity."),
+                "0E2B93E2A12A5215127DAC454FE76248F8D05787EA7E88D7E9622B1FE1C7D2C5")]),
         new("SuperMetroid.Core.Assets.FileSelectPresentation", "file-select-v1-bounded-fields",
             ["LoadBackground", "Slot", "WriteDigit", "WriteSlotLetter", "CursorPosition",
                 "DrawCursor", "DrawHelmet", "DynamicAnchor", "ApplyPatch", "CopyPage", "DrawBorder"],
@@ -63,12 +58,7 @@ internal static class ClosedPresentationContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/MenuBorderParts.cs", "6B79556FD47098253A8A977E398C98A1908D01A7DD4E9E5916A38634A33E0080"),
              new("csharp/src/SuperMetroid.Core/Assets/MapSpriteCatalog.cs", "155C4933434355E65FA4AFD066701B8720222BB5F0B38020FC170048BBDC0DEE"),
              new("csharp/src/SuperMetroid.Core/Frontend/MenuMissileAnimationDefinitions.cs", "92CFE18B185C1526FACE125CF345944D1D878525935BE219DC21EE19838E3E9E"),
-             new("csharp/src/SuperMetroid.Core/Assets/MenuCursorParts.cs", "718108CB3359B183DF55EBB1F4C86D41E0858FC5DFE1AF6A01FC0612E69AD0FF")],
-            "Load is the sole private-constructor path and requires exact page, patch, sprite, " +
-            "border and dynamic-anchor sets plus complete digit/letter/slot/cursor arrays. " +
-            "Reviewed array selectors reject invalid indices; generated cursor/helmet names are bounded. " +
-            "Named patch/anchor/page/border calls additionally require a compiler-resolved finite " +
-            "installed-key set through constants or closed source flow; arbitrary strings remain unresolved."),
+             new("csharp/src/SuperMetroid.Core/Assets/MenuCursorParts.cs", "718108CB3359B183DF55EBB1F4C86D41E0858FC5DFE1AF6A01FC0612E69AD0FF")]),
         new("SuperMetroid.Core.Assets.MotherBrainRoomColorPresentation", "mother-brain-room-v3-complete-rows",
             ["ApplyFlash", "ApplyFinal", "ApplyPhaseTwoInitial", "ApplyRoomEntry", "ApplyRecoveryLights"],
             [new("csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs", "9858BA667DD808C94E9984AE34F086C5411FE58CA24B9B52CA0E025C0DAD4619"),
@@ -81,10 +71,6 @@ internal static class ClosedPresentationContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/MotherBrainHealthPalettePresentation.cs", "05E148A6572B5F7FC629794FC4F0853D9E73DC2D861C721B4843CBB7FF3169E4"),
              new("csharp/src/SuperMetroid.Core/Assets/MotherBrainHealthPaintDefinitions.cs", "CED903B0B3BD50BFD557B00AF84843408D5E3476F04BAA309BE6C043B101C37D"),
              new("csharp/src/SuperMetroid.Core/Game/MotherBrainRoomPaletteProgramDefinitions.cs",
-                "D91EC84D39B3D7692998B1F130599DB279E84C88CAB4941028D04FDD077B0582")],
-            "The validated loader installs all fourteen aligned flash rows, seven recovery-light " +
-            "rows and the fixed final/phase-two/room-entry arrays before private construction. " +
-            "Legacy omissions inherit only from validated stock. Flash alignment/range and recovery " +
-            "indices are guarded; fixed operations perform no external identity lookup."),
+                "D91EC84D39B3D7692998B1F130599DB279E84C88CAB4941028D04FDD077B0582")]),
     ];
 }

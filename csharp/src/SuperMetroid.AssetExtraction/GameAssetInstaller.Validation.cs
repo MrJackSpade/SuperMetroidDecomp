@@ -25,7 +25,7 @@ public static partial class GameAssetInstaller
     /// <summary>Shared strict implementation; startup may use its exception to decide whether repair is needed.</summary>
     private static void ValidateRequiredExtractedContent(GameInstallation installation)
     {
-        ValidateReceiptAndIndex(installation);
+        ValidateReceipt(installation);
         // This is the startup inventory, not a sample of whichever room was run.
         // The component table is the one ordered inventory of stock-resource checks;
         // completeness of each domain's required references is audited separately.
@@ -33,8 +33,8 @@ public static partial class GameAssetInstaller
             component.Validate(installation.ContentDirectory);
     }
 
-    /// <summary>The receipt names this format and source, and the room index matches its hash.</summary>
-    private static void ValidateReceiptAndIndex(GameInstallation installation)
+    /// <summary>The receipt names this format and source.</summary>
+    private static void ValidateReceipt(GameInstallation installation)
     {
         string receiptPath = Path.Combine(installation.ContentDirectory, GameInstallationLayout.ReceiptFileName);
         var receipt = JsonSerializer.Deserialize<InstallationReceipt>(File.ReadAllText(receiptPath));
@@ -43,8 +43,5 @@ public static partial class GameAssetInstaller
                 $"{GameInstallationLayout.FormatVersion}; found {receipt?.FormatVersion.ToString() ?? "null"}. Reimport the supported cartridge.");
         if (receipt.RomSha256 != SupportedCartridge.Sha256)
             throw new InvalidDataException($"Installation receipt {receiptPath} has unsupported source provenance.");
-        if (receipt.RoomArtIndexSha256 != Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(installation.RoomArtIndexPath))))
-            throw new InvalidDataException($"Room artwork index failed its receipt hash: {installation.RoomArtIndexPath}");
-        _ = RoomArtIndexFiles.Load(installation.ContentDirectory);
     }
 }

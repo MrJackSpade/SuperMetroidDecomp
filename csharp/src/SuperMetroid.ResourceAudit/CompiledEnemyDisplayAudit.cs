@@ -20,9 +20,7 @@ internal static class CompiledEnemyDisplayAudit
             // This satisfies the *renderer* contract only. A direct TryGet on the
             // installed OAM catalog still requires an actual catalog entry.
             exports.Add(ResourceDomains.EnemyDisplay, key);
-            report.CompiledDefinitions.Add(new(ResourceDomains.EnemyDisplay, key,
-                "CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap", path,
-                "DrawEnemySpritemap returns without emitting OAM for this compiled zero-part identity."));
+            report.CompiledDefinitions.Add(new(ResourceDomains.EnemyDisplay, key));
         }
     }
 

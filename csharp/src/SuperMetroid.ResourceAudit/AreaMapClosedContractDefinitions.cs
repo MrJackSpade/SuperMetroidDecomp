@@ -15,7 +15,6 @@ internal static class AreaMapClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerTileAtlas.cs", "E2A5D6F4B5EF50E10D293A29679D4B64F3573FD140426DFB90A553ABBD67FE15"),
              new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerGlyphDefinitions.cs", "4942E6802A8F4B086F7C8D3F4A0FD3530E1C07B5C2F467D97CF76FE6855A1366"),
              new("csharp/src/SuperMetroid.Core/Game/KraidBackgroundRomData.cs", "9D5B72D902E311A9C7A434A10D9A24EDFB2E769B2D0FB53A0E0C67BC41354224"),
-             new("csharp/src/SuperMetroid.Core/Hardware/IVramAssetProvider.cs", "73DCE6788B0BB9B1549CF04466AE14CB8AABA3AD9FCC2738E188ABBA2F2F8D44")],
-            "The sole private-constructor path validates and installs every one of the seven areas before publication; Get checks the typed area index. The same atomic loader installs complete HUD and escape-timer tile stores. Resolve owns only the standard HUD, four Kraid restoration quarters and two timer pages, not every VramAssetId. This proves resource presence in successfully loaded catalogs, not file availability, map centering/visibility, caller selections, instance binding, transfer placement or pixels."),
+             new("csharp/src/SuperMetroid.Core/Hardware/IVramAssetProvider.cs", "73DCE6788B0BB9B1549CF04466AE14CB8AABA3AD9FCC2738E188ABBA2F2F8D44")]),
     ];
 }

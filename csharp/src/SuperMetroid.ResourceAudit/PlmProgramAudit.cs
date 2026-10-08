@@ -6,7 +6,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.ResourceAudit;
 
 internal sealed record PlmProgramFinding(string Code, string Owner, ushort Address, string Detail);
-internal sealed record PlmProgramClassification(string Owner, ushort Address, string Route);
+internal sealed record PlmProgramClassification();
 
 /// <summary>Finite closure of immutable PLM records. Never runs a PLM or opens a ROM.</summary>
 internal sealed class PlmProgramAuditReport
@@ -42,7 +42,7 @@ internal static class PlmProgramAudit
         {
             string? route = TypedHeaderRoute(header.Header);
             if (route is not null)
-                report.Classifications.Add(new($"header ${header.Header:X4}", header.InitialInstruction, route));
+                report.Classifications.Add(new());
             else walker.Visit(header.InitialInstruction, $"header ${header.Header:X4}");
         }
         foreach (FieldInfo field in typeof(RoomPlmInstructionLists).GetFields(BindingFlags.Public | BindingFlags.Static))
@@ -50,7 +50,7 @@ internal static class PlmProgramAudit
             if (!field.IsLiteral || field.FieldType != typeof(ushort)) continue;
             ushort address = (ushort)field.GetRawConstantValue()!;
             string? route = TypedListRoute(field.Name);
-            if (route is not null) report.Classifications.Add(new(field.Name, address, route));
+            if (route is not null) report.Classifications.Add(new());
             else walker.Visit(address, field.Name);
         }
         foreach ((ushort address, string owner) in source.AssignedConstantRoots())

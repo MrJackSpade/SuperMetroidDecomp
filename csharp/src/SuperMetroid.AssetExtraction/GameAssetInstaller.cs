@@ -139,14 +139,9 @@ public static partial class GameAssetInstaller
                     step.Validate(directory);
                 }
             }
-            progress?.Report("Indexing room artwork by room ID...");
-            cancellationToken.ThrowIfCancellationRequested();
-            RoomArtIndexFiles.Extract(staging);
             File.WriteAllText(Path.Combine(staging, GameInstallationLayout.ReceiptFileName),
                 JsonSerializer.Serialize(new InstallationReceipt(GameInstallationLayout.FormatVersion,
-                    SupportedCartridge.Sha256,
-                    Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(
-                        Path.Combine(staging, RoomArtIndexFiles.FileName)))))));
+                    SupportedCartridge.Sha256)));
             progress?.Report("Finishing setup…");
             cancellationToken.ThrowIfCancellationRequested();
             // These are fixed app-owned content directories. Player saves, recordings,
@@ -181,6 +176,5 @@ public static partial class GameAssetInstaller
         catch (IOException error) { throw new IOException("Game setup is already in use. Close the other setup window and retry.", error); }
     }
 
-    private sealed record InstallationReceipt(int FormatVersion, string RomSha256,
-        string RoomArtIndexSha256);
+    private sealed record InstallationReceipt(int FormatVersion, string RomSha256);
 }

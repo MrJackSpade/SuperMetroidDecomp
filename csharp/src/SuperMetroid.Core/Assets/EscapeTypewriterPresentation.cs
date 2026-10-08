@@ -18,8 +18,13 @@ public sealed class EscapeTypewriterPresentation
         ContentIdentity = contentIdentity;
     }
 
+    /// <summary>Uppercase SHA-256 of the exact loaded UTF-8 document bytes, including authored formatting; not a hash of only decoded lines.</summary>
     public string ContentIdentity { get; }
 
+    /// <summary>Returns the installed warning text and placement for one escape scenario.</summary>
+    /// <param name="id">Ceres or Zebes program identity; None does not denote an installed program.</param>
+    /// <returns>The retained program with its read-only ordered line sequence and native source identity.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="id"/> is None or another undefined program value.</exception>
     public EscapeTypewriterProgram Get(EscapeTypewriterProgramId id) => id switch
     {
         EscapeTypewriterProgramId.Ceres => ceres,
@@ -28,6 +33,11 @@ public sealed class EscapeTypewriterPresentation
             "Escape typewriter program is not present in the installed catalog."),
     };
 
+    /// <summary>Loads the two editable escape-warning programs and validates their character alphabet and VRAM placement.</summary>
+    /// <param name="json">Non-null caller-owned readable JSON stream, consumed from its current position without being disposed.</param>
+    /// <returns>A catalog owning compiled line selections for the exact Ceres and Zebes key set.</returns>
+    /// <remarks>Requires at least one line per program, with one through 32 characters per line drawn from space, uppercase A-Z, and exclamation mark. Line destinations are VRAM word addresses; the full text must remain below word $8000, but placement is not constrained to a single 32-column map row. Typewriter delay, glyph art, audio cadence, and escape behavior remain compiled.</remarks>
+    /// <exception cref="InvalidDataException">The JSON, schema version, program set, line contents, or VRAM range is invalid.</exception>
     public static EscapeTypewriterPresentation Load(Stream json)
     {
         byte[] source;
@@ -105,6 +115,10 @@ public sealed class EscapeTypewriterPresentation
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
+    /// <summary>Serializes and validates both warning programs before writing their UTF-8 document bytes to the destination.</summary>
+    /// <param name="output">Non-null caller-owned writable stream, written at its current position without being disposed.</param>
+    /// <param name="document">Selected programs satisfying the same schema, alphabet, and placement limits as <see cref="Load"/>.</param>
+    /// <exception cref="InvalidDataException">The document is null or fails warning-program validation.</exception>
     public static void Write(Stream output, EscapeTypewriterDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
@@ -113,33 +127,52 @@ public sealed class EscapeTypewriterPresentation
     }
 }
 
+/// <summary>Mutually exclusive escape-warning identities, independent of the editable English wording.</summary>
 public enum EscapeTypewriterProgramId : byte
 {
+    /// <summary>No installed warning identity; used by a typewriter initialized only with a native text pointer and rejected by presentation lookup.</summary>
     None,
+    /// <summary>Ceres colony self-destruct warning, native <c>TypewriterText_CeresEscapeTimer</c> at <c>$A6:C450</c>, following Ridley's retreat.</summary>
     Ceres,
+    /// <summary>Zebes time-bomb warning, native <c>TypewriterText_ZebesEscapeTimer</c> at <c>$A6:C49C</c>, following Mother Brain's defeat.</summary>
     Zebes,
 }
 
+/// <summary>Selected visual warning program consumed by the shared escape typewriter, without cartridge bytecode or editable timing commands.</summary>
+/// <param name="Id">Ceres or Zebes identity used to rebind content to saved playback state.</param>
+/// <param name="SourceAddress">Full native SNES source identity, $A6:C450 or $A6:C49C; retained for cursor/debugger compatibility, not read during installed-program playback.</param>
+/// <param name="Lines">Ordered text and VRAM placements; loaded catalogs expose a read-only compiled sequence, while this record constructor itself does not copy or validate a supplied list.</param>
 public sealed record EscapeTypewriterProgram(
     EscapeTypewriterProgramId Id,
     int SourceAddress,
     IReadOnlyList<EscapeTypewriterLine> Lines);
 
+/// <summary>One warning line's starting word address and selected text; this value record does not independently validate either field.</summary>
+/// <param name="Destination">Starting VRAM word address, not a byte address or screen-pixel coordinate; loaded programs require the complete line to fit below word $8000.</param>
+/// <param name="Text">One through 32 supported characters in a loaded program. Spaces advance the destination without writing a tile; other characters select the caller's glyph base.</param>
 public sealed record EscapeTypewriterLine(ushort Destination, string Text);
 
+/// <summary>Editable warning schema containing the exact two named escape programs.</summary>
 public sealed record EscapeTypewriterDocument
 {
+    /// <summary>Schema revision; loading requires <see cref="EscapeTypewriterDefinitions.Version"/>.</summary>
     public required int Version { get; init; }
+    /// <summary>Caller-owned mutable dictionary with exactly the case-sensitive keys Ceres and Zebes; None is not a document key.</summary>
     public required Dictionary<string, EscapeTypewriterProgramDocument> Programs { get; init; }
 }
 
+/// <summary>Editable ordered lines for one escape warning; the owning dictionary supplies its scenario identity.</summary>
 public sealed record EscapeTypewriterProgramDocument
 {
+    /// <summary>Nonempty caller-owned mutable line array in typewriter order; stock Ceres has three lines and stock Zebes two, but authored line counts may differ.</summary>
     public required EscapeTypewriterLineDocument[] Lines { get; init; }
 }
 
+/// <summary>Editable text and linear VRAM placement for a single escape-warning line.</summary>
 public sealed record EscapeTypewriterLineDocument
 {
+    /// <summary>Starting VRAM word address, at least zero, with <c>Destination + Text.Length</c> no greater than $8000 when loaded.</summary>
     public required int Destination { get; init; }
+    /// <summary>Nonempty string of at most 32 spaces, uppercase A-Z letters, or exclamation marks; lowercase and other punctuation are rejected.</summary>
     public required string Text { get; init; }
 }

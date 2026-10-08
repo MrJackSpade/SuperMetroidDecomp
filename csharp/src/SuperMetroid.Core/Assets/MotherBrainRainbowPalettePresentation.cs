@@ -196,6 +196,10 @@ public sealed class MotherBrainRainbowPalettePresentation
             cgram.SetColor(legDestination + color, selected.Leg(color));
     }
 
+    /// <summary>Loads and compiles bounded RGB5 rainbow, drain, revival, restoration, and beam-backdrop colors; validates frame geometry and channels without importing engine timers or signed loop terminators.</summary>
+    /// <param name="json">Caller-owned <c>mother-brain-rainbow-palette.json</c> stream, read from its current position and left open.</param>
+    /// <param name="currentStock">Verified current presentation supplying only the missing fake-death fade when loading legacy version 2; without it, version 3 is required.</param>
+    /// <returns>Compiled colors retaining independent edits while sharing calculated native color relationships when their supplied values agree.</returns>
     public static MotherBrainRainbowPalettePresentation Load(Stream json,
         MotherBrainRainbowPalettePresentation? currentStock = null)
     {
@@ -272,6 +276,9 @@ public sealed class MotherBrainRainbowPalettePresentation
         return (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
     }
 
+    /// <summary>Serializes UTF-8 palette JSON and validates it without a legacy fallback before writing any bytes; consequently the document must satisfy the complete version-3 schema.</summary>
+    /// <param name="json">Destination written at its current position and left open.</param>
+    /// <param name="document">Bounded RGB5 palette and beam-color sequences to serialize.</param>
     public static void Write(Stream json, MotherBrainRainbowPaletteDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
@@ -717,25 +724,39 @@ public sealed class MotherBrainRainbowPalettePresentation
     }
 }
 
+/// <summary>Editable Mother Brain palette schema, separating selected RGB5 colors from engine-owned attack/fade cadence and HDMA loop control.</summary>
 public sealed record MotherBrainRainbowPaletteDocument
 {
+    /// <summary>Schema revision: version 3 includes the fake-death fade; version 2 is loadable only with a current-stock presentation supplying that missing sequence.</summary>
     public required int Version { get; init; }
+    /// <summary>Ten native $AD:E434 rainbow-list phases, each containing 15 body/brain colors and 15 rear-leg colors with no trailing word.</summary>
     public required MotherBrainRainbowPaletteFrameDocument[] Rainbow { get; init; }
+    /// <summary>Eight $AD:EF87 drain phases, each containing 15 body/brain colors, five rear-leg colors, and a trailing word written to WRAM $017C.</summary>
     public required MotherBrainRainbowPaletteFrameDocument[] ToGrey { get; init; }
+    /// <summary>Eight $AD:ED9C revival phases, each containing 13 body/brain colors, five rear-leg colors, and a trailing WRAM word; the final two body/brain inks are preserved.</summary>
     public required MotherBrainRainbowPaletteFrameDocument[] FromGrey { get; init; }
+    /// <summary>Eight ordered rows of three brain-only RGB5 inks corresponding to $AD:ED8A, required by version 3 and applied beginning at CGRAM color $91.</summary>
     public PaletteRgb5[][]? FakeDeathToGrey { get; init; }
+    /// <summary>Normal restoration frame with 15 shared body/brain inks and 15 rear-leg inks, matching the roles of $A9:9474/$9494; no trailing word is allowed.</summary>
     public required MotherBrainRainbowPaletteFrameDocument Normal { get; init; }
+    /// <summary>RGB5 fixed backdrop color for the first active rainbow-beam HDMA frame, before the native color cursor advances.</summary>
     public required PaletteRgb5 BeamInitial { get; init; }
+    /// <summary>Exactly 38 RGB5 backdrop samples from the native $88:E833 hue cycle; the terminating signed $FFFF word is engine control and is not included.</summary>
     public required PaletteRgb5[] BeamCycle { get; init; }
 }
 
+/// <summary>One RGB5 palette payload whose array dimensions depend on its rainbow, drain, revival, or normal-restoration role; each channel must be from 0 through 31.</summary>
 public sealed record MotherBrainRainbowPaletteFrameDocument
 {
+    /// <summary>Shared body-BG and brain/neck-OBJ inks copied starting at CGRAM $41 and $91: 15 colors for rainbow/drain/normal, or 13 for revival.</summary>
     public required PaletteRgb5[] Body { get; init; }
+    /// <summary>Rear-leg OBJ inks: 15 copied to CGRAM starting at $B1 for rainbow/normal, or five starting at $B4 for drain/revival.</summary>
     public required PaletteRgb5[] BackLegs { get; init; }
+    /// <summary>Required RGB5 word for drain/revival, written directly to WRAM $7E:017C rather than CGRAM; must be absent for rainbow and normal frames.</summary>
     public PaletteRgb5? TrailingColor { get; init; }
 }
 
+/// <summary>Installed palette filename and fixed native sequence geometry; color content is editable while attack/fade timing and loop termination remain engine-owned.</summary>
 public static class MotherBrainRainbowPaletteFormat
 {
     internal static class RedOriginLayout
@@ -781,10 +802,15 @@ public static class MotherBrainRainbowPaletteFormat
     internal const int BlueRaisedPhase = 9;
     /// <summary>$AD:E666 versusE44A: all15 body inks add5 blue; selected magnitude is chosen paint-animation content.</summary>
     internal const int BlueAddition = 5;
+    /// <summary>Installed editable JSON filename for rainbow, drain/revival, fake-death, restoration, and beam-backdrop colors.</summary>
     public const string FileName = "mother-brain-rainbow-palette.json";
+    /// <summary>Current palette schema revision, requiring the brain-only fake-death sequence alongside all previous color families.</summary>
     public const int Version = 3;
+    /// <summary>Legacy revision lacking fake-death colors, accepted only when loading with a verified current-stock fallback.</summary>
     public const int PreFakeDeathVersion = 2;
+    /// <summary>Ten full-palette phases before the zero terminator in the native $AD:E434 rainbow pointer list.</summary>
     public const int RainbowFrameCount = 10;
+    /// <summary>Eight authored steps in each native drain and revival palette pointer sequence; cadence and completion are controlled by boss AI.</summary>
     public const int GreyFrameCount = 8;
     /// <summary>38 sampled BGR555 words before the signed bank-$88 loop terminator.</summary>
     public const int BeamCycleColorCount = 38;

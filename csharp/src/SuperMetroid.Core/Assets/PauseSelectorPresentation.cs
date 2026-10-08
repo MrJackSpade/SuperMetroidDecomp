@@ -10,19 +10,24 @@ public sealed class PauseSelectorPresentation
     private readonly Dictionary<string, (int? X, int? Y)> anchorOverrides;
     private readonly PhaseComposition reserve, beam, equipment;
     private readonly Dictionary<int, int>? durationOverrides;
+    /// <summary>Gets the initial selector dwell time in accepted update ticks.</summary>
     public int InitialDurationTicks { get; }
+    /// <summary>Gets the selected three-bit OBJ palette encoded in its attribute-word position.</summary>
     public ushort PaletteBits { get; }
+    /// <summary>Gets the number of cyclic visual animation phases.</summary>
     public int PhaseCount { get; }
     private PauseSelectorPresentation(Dictionary<string, (int? X, int? Y)> anchorOverrides,
         PhaseComposition reserve, PhaseComposition beam, PhaseComposition equipment, int phaseCount,
         Dictionary<int, int>? durationOverrides, int initialDuration, int palette)
     { this.anchorOverrides = anchorOverrides; this.reserve = reserve; this.beam = beam; this.equipment = equipment; PhaseCount = phaseCount; this.durationOverrides = durationOverrides; InitialDurationTicks = initialDuration; PaletteBits = SnesObjAttributeWord.Create(0, palette, 0).PaletteBits; }
+    /// <summary>Gets the selected screen-pixel anchor for an equipment category and item.</summary>
     public MapLabelPoint Anchor(int category, int item)
     {
         string name = PauseSelectorDefinitions.Anchor(category, item);
         var basis = PauseSelectorDefinitions.StockAnchor(category, item);
         return anchorOverrides.TryGetValue(name, out var value) ? new(value.X ?? basis.X, value.Y ?? basis.Y) : basis;
     }
+    /// <summary>Wraps a nonnegative animation phase into the authored phase count.</summary>
     public int NormalizePhase(int phase) => phase >= 0 ? phase % PhaseCount : throw new ArgumentOutOfRangeException(nameof(phase));
     /// <summary>Calculates the shared native dwell rule after cyclic phase normalization.</summary>
     public int Duration(int phase)
@@ -31,6 +36,7 @@ public sealed class PauseSelectorPresentation
         return durationOverrides is not null && durationOverrides.TryGetValue(normalized, out int duration)
             ? duration : MenuSelectorTiming.Duration(normalized);
     }
+    /// <summary>Draws the selected category's normalized selector composition at the item's anchor.</summary>
     public void Draw(OamBuffer oam, int category, int item, int phase)
     {
         var point = Anchor(category, item);
@@ -38,6 +44,7 @@ public sealed class PauseSelectorPresentation
         var composition = (category switch { 0 => reserve, 1 => beam, _ => equipment }).Get(normalized);
         composition.DrawOnScreen(oam, (ushort)point.X, (ushort)point.Y, PaletteBits);
     }
+    /// <summary>Loads and validates equipment-selector anchors, frames, animation, palette, and timing.</summary>
     public static PauseSelectorPresentation Load(Stream json)
     {
         PauseSelectorDocument document;
@@ -100,25 +107,38 @@ public sealed class PauseSelectorPresentation
         public PauseSelectorVisual Get(int phase) => overrides is not null && overrides.TryGetValue(phase, out var value)
             ? value : basis;
     }
+    /// <summary>Validates and writes a pause-selector document as JSON.</summary>
     public static void Write(Stream output, PauseSelectorDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false)); output.Write(bytes);
     }
 }
+/// <summary>Defines editable pause equipment-selector placement and animation.</summary>
 public sealed record PauseSelectorDocument
 {
+    /// <summary>Gets the document schema revision.</summary>
     public required int Version { get; init; }
+    /// <summary>Gets the initial selector dwell time in update ticks.</summary>
     public required int InitialDurationTicks { get; init; }
+    /// <summary>Gets the OBJ palette index from zero through seven.</summary>
     public required int Palette { get; init; }
+    /// <summary>Gets all sixteen named selector anchors in screen pixels.</summary>
     public required Dictionary<string, MapLabelPoint> Anchors { get; init; }
+    /// <summary>Gets named selector frames as sprite-part compositions.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
+    /// <summary>Gets the ordered cyclic animation phases.</summary>
     public required PauseSelectorPhase[] Animation { get; init; }
 }
+/// <summary>Defines one timed pause-selector animation phase for all three categories.</summary>
 public sealed record PauseSelectorPhase
 {
+    /// <summary>Gets the phase duration in accepted update ticks.</summary>
     public required int DurationTicks { get; init; }
+    /// <summary>Gets the named frame used by the reserve selector.</summary>
     public required string Reserve { get; init; }
+    /// <summary>Gets the named frame used by the beam selector.</summary>
     public required string Beam { get; init; }
+    /// <summary>Gets the named frame used by the suit-and-equipment selector.</summary>
     public required string Equipment { get; init; }
 }

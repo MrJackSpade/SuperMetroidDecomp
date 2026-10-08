@@ -19,6 +19,7 @@ public sealed class MapArrowPresentation
         MapScrollDirection.Down => down,
         _ => throw new ArgumentOutOfRangeException(nameof(direction)),
     };
+    /// <summary>Loads and validates the four directional map-arrow visuals.</summary>
     public static MapArrowPresentation Load(Stream json)
     {
         MapArrowDocument document;
@@ -37,6 +38,7 @@ public sealed class MapArrowPresentation
             return new(entry.X, entry.Y, entry.DurationTicks);
         }
     }
+    /// <summary>Validates and writes a map-arrow presentation document as JSON.</summary>
     public static void Write(Stream json, MapArrowDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
@@ -44,6 +46,7 @@ public sealed class MapArrowPresentation
         json.Write(bytes);
     }
 }
+/// <summary>Provides one map arrow's screen anchor and cyclic cosmetic phase timing.</summary>
 public sealed class MapArrowVisual
 {
     private readonly Dictionary<int, byte>? durationOverrides;
@@ -56,8 +59,11 @@ public sealed class MapArrowVisual
             if (durations[phase] != MenuSelectorTiming.Duration(phase))
                 (durationOverrides ??= new()).Add(phase, (byte)durations[phase]);
     }
+    /// <summary>Gets the arrow's horizontal screen-pixel anchor.</summary>
     public ushort X { get; }
+    /// <summary>Gets the arrow's vertical screen-pixel anchor.</summary>
     public ushort Y { get; }
+    /// <summary>Gets the number of authored animation phases.</summary>
     public int PhaseCount { get; }
 
     /// <summary>Calculates native arrow timing, with independent authored phase edits.</summary>
@@ -71,21 +77,33 @@ public sealed class MapArrowVisual
             ? value : MenuSelectorTiming.Duration(phase);
     }
 }
+/// <summary>Defines the four directional map-arrow visuals.</summary>
 public sealed record MapArrowDocument
 {
+    /// <summary>Gets the document schema revision.</summary>
     public required int Version { get; init; }
+    /// <summary>Gets the exact Left, Right, Up, and Down arrow entries.</summary>
     public required Dictionary<string, MapArrowEntry> Arrows { get; init; }
 }
+/// <summary>Defines one arrow's screen anchor and per-phase durations.</summary>
 public sealed record MapArrowEntry
 {
+    /// <summary>Gets the horizontal screen-pixel anchor from zero through 255.</summary>
     public required int X { get; init; }
+    /// <summary>Gets the vertical screen-pixel anchor from zero through 223.</summary>
     public required int Y { get; init; }
+    /// <summary>Gets one positive update-tick duration per cyclic animation phase.</summary>
     public required int[] DurationTicks { get; init; }
 }
+/// <summary>Defines the map-arrow document identity and bounded timing limits.</summary>
 public static class MapArrowFormat
 {
+    /// <summary>Supported map-arrow document schema revision.</summary>
     public const int Version = 1;
+    /// <summary>JSON filename containing directional map-arrow visuals.</summary>
     public const string FileName = "map-arrows.json";
+    /// <summary>Largest supported number of cyclic animation phases.</summary>
     public const int MaximumPhases = 255;
+    /// <summary>Largest supported duration, in update ticks, for one phase.</summary>
     public const int MaximumDuration = 254;
 }

@@ -26,8 +26,10 @@ public sealed class IntroNarrationPresentation
         ContentIdentity = contentIdentity;
     }
 
+    /// <summary>Gets the SHA-256 identity of the validated source document.</summary>
     public string ContentIdentity { get; }
 
+    /// <summary>Gets the ordered editable lines for one of the six narration pages.</summary>
     public IReadOnlyList<IntroNarrationLine> GetLines(IntroNarrationPageId page) => page switch
     {
         IntroNarrationPageId.Page1 => page1,
@@ -39,6 +41,7 @@ public sealed class IntroNarrationPresentation
         _ => throw new ArgumentOutOfRangeException(nameof(page), page,
             "The narration catalog does not contain this page."),
     };
+    /// <summary>Compiles a narration page into its ordered typewriter character placements.</summary>
     public IntroNarrationCharacter[] Compile(IntroNarrationPageId page)
     {
         IReadOnlyList<IntroNarrationLine> lines = GetLines(page);
@@ -59,6 +62,7 @@ public sealed class IntroNarrationPresentation
         return result.ToArray();
     }
 
+    /// <summary>Loads and validates the exact six-page opening-narration document.</summary>
     public static IntroNarrationPresentation Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -187,6 +191,7 @@ public sealed class IntroNarrationPresentation
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
+    /// <summary>Validates and writes an opening-narration document as JSON.</summary>
     public static void Write(Stream output, IntroNarrationDocument document)
     {
         ArgumentNullException.ThrowIfNull(output);
@@ -197,23 +202,36 @@ public sealed class IntroNarrationPresentation
     }
 }
 
+/// <summary>Defines all six editable opening-narration pages.</summary>
 public sealed record IntroNarrationDocument
 {
+    /// <summary>Gets the narration document schema revision.</summary>
     public required int Version { get; init; }
+    /// <summary>Gets the pages keyed by <see cref="IntroNarrationPageId"/> name.</summary>
     public required Dictionary<string, IntroNarrationPage> Pages { get; init; }
 }
 
+/// <summary>Defines the ordered lines displayed on one opening-narration page.</summary>
 public sealed record IntroNarrationPage
 {
+    /// <summary>Gets the nonempty lines in ascending tilemap-row order.</summary>
     public required IntroNarrationLine[] Lines { get; init; }
 }
 
+/// <summary>Defines one line of opening-narration text and its tilemap row.</summary>
 public sealed record IntroNarrationLine
 {
+    /// <summary>Gets the even tilemap row from the first through last supported text row.</summary>
     public required int Row { get; init; }
+    /// <summary>Gets the supported narration glyphs, bounded to the page's available columns.</summary>
     public required string Text { get; init; }
 }
 
+/// <summary>Identifies one compiled character emitted in typewriter order.</summary>
+/// <param name="Column">Zero-based tilemap column for the character.</param>
+/// <param name="Row">Zero-based tilemap row for the character.</param>
+/// <param name="TilemapWord">Compiled BG tilemap word for the narration glyph.</param>
+/// <param name="IsSpace">Whether the source character is a space.</param>
 public readonly record struct IntroNarrationCharacter(
     int Column,
     int Row,

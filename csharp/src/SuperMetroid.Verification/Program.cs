@@ -330,6 +330,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--baby-metroid-inherited-fractions"])
+{
+    VerifyBabyMetroidInheritedFractions();
+    return 0;
+}
 if (args is ["--rainbow-release-knockback"])
 {
     VerifyRainbowReleaseKnockback();
@@ -7363,6 +7368,7 @@ VerifyMotherBrainRaiseCounter();
 VerifyMotherBrainHeadHitbox();
 VerifyMotherBrainSmallPurpleBreath();
 VerifyRainbowReleaseKnockback();
+VerifyBabyMetroidInheritedFractions();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

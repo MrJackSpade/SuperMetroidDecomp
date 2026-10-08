@@ -62,7 +62,7 @@ public sealed partial class RoomEnemySystem
         }
 
         var baby = new BabyMetroidCutsceneState();
-        baby.Initialize(slot.Properties);
+        baby.Initialize(slot.XSubposition, slot.YSubposition, slot.Properties);
         state.BabyMetroidSlot = slot;
         state.BabyMetroid = baby;
         state.BabyAppliedInstructionList = baby.InstructionList;

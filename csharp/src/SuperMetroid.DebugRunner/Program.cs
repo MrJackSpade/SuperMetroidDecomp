@@ -6465,7 +6465,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             if (cutsceneBaby is not null)
                 throw new InvalidOperationException("Mother Brain requested the cutscene Baby more than once.");
             cutsceneBaby = new BabyMetroidCutsceneState();
-            cutsceneBaby.Initialize();
+            cutsceneBaby.Initialize(inheritedXSubposition: 0, inheritedYSubposition: 0);
             previousBabyPhase = cutsceneBaby.Phase;
             Console.WriteLine(
                 $"frame {frameIndex + 1,4}: initialized cutscene Baby at " +

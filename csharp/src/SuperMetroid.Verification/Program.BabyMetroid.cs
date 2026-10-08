@@ -77,7 +77,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
     motherBrain.StartAttackCycle(); // Establishes the pre-existing enabled neck flag.
 
     var baby = new BabyMetroidCutsceneState();
-    baby.Initialize();
+    baby.Initialize(inheritedXSubposition: 0, inheritedYSubposition: 0);
     AssertEqual(0x3800, baby.Properties, "Baby population/init property OR");
     AssertEqual(0x0e00, baby.Palette, "Baby cutscene palette");
     AssertEqual(0x00a0, baby.GraphicsOffset, "Baby transferred-tile offset");

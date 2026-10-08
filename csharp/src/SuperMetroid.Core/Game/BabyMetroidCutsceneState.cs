@@ -181,9 +181,13 @@ public sealed partial class BabyMetroidCutsceneState
     /// <summary>
     /// Ports <c>$A9:C710</c>. The population record supplies <c>$2800</c>; initialization
     /// ORs <c>$3000</c>, overwrites the population coordinates, and waits at X/Y
-    /// <c>$140/$60</c> before beginning the dash.
+    /// <c>$140/$60</c> before beginning the dash. Neither <c>$A0:9275</c> nor this
+    /// initializer writes the fractions, so the Baby keeps those of its slot's previous
+    /// occupant and moves from them.
     /// </summary>
     public void Initialize(
+        ushort inheritedXSubposition,
+        ushort inheritedYSubposition,
         ushort populationProperties =
             (ushort)(EnemyProperties.ProcessInstructions |
                 EnemyProperties.ProcessOffScreen))
@@ -213,8 +217,8 @@ public sealed partial class BabyMetroidCutsceneState
         SamusRainbowPhase = BabyMetroidSamusRainbowPhase.Inactive;
         XPosition = 0x0140;
         YPosition = 0x0060;
-        XSubposition = 0;
-        YSubposition = 0;
+        XSubposition = inheritedXSubposition;
+        YSubposition = inheritedYSubposition;
         XVelocity = 0;
         YVelocity = 0;
         Speed = 0;

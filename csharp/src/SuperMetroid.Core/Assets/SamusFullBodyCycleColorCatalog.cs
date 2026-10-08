@@ -205,6 +205,7 @@ public sealed class SamusFullBodyCycleColorCatalog
                 Resolve(pointer, index));
     }
 
+    /// <summary>Loads and validates all 48 full-body cycle palettes for three suits and four families.</summary>
     public static SamusFullBodyCycleColorCatalog Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -231,6 +232,7 @@ public sealed class SamusFullBodyCycleColorCatalog
         return new(palettes);
     }
 
+    /// <summary>Validates and serializes a full-body cycle color document as JSON.</summary>
     public static byte[] Write(SamusFullBodyCycleColorDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
@@ -277,30 +279,46 @@ public sealed class SamusFullBodyCycleColorCatalog
             name => new InvalidDataException($"Duplicate full-body color property {name}."));
 }
 
+/// <summary>Identifies one of the four full-body palette animation families.</summary>
 public enum SamusFullBodyCycleFamily : byte
 {
+    /// <summary>Running Speed Booster glow palettes.</summary>
     SpeedBooster,
+    /// <summary>Screw Attack rotation palettes.</summary>
     ScrewAttack,
+    /// <summary>Stored-shinespark glow palettes.</summary>
     StoredShine,
+    /// <summary>Active-shinespark flight palettes.</summary>
     ActiveShinespark,
 }
 
+/// <summary>Defines the complete editable Samus full-body cycle palette set.</summary>
 public sealed record SamusFullBodyCycleColorDocument
 {
+    /// <summary>Gets the document schema revision.</summary>
     public required int Version { get; init; }
     /// <summary>Suit order: Power, Varia, Gravity; each contains four 16-color shades.</summary>
     public required PaletteRgb5[][][] SpeedBooster { get; init; }
+    /// <summary>Gets Power, Varia, and Gravity Screw Attack palettes, each with four 16-color shades.</summary>
     public required PaletteRgb5[][][] ScrewAttack { get; init; }
+    /// <summary>Gets Power, Varia, and Gravity stored-shine palettes, each with four 16-color shades.</summary>
     public required PaletteRgb5[][][] StoredShine { get; init; }
+    /// <summary>Gets Power, Varia, and Gravity active-shinespark palettes, each with four 16-color shades.</summary>
     public required PaletteRgb5[][][] ActiveShinespark { get; init; }
 }
 
+/// <summary>Defines the document identity and fixed native full-body palette geometry.</summary>
 public static class SamusFullBodyCycleColorFormat
 {
+    /// <summary>JSON filename containing all Samus full-body cycle colors.</summary>
     public const string FileName = "samus-full-body-cycle-colors.json";
+    /// <summary>Supported full-body cycle color schema revision.</summary>
     public const int Version = 1;
+    /// <summary>Number of supported suit variants: Power, Varia, and Gravity.</summary>
     public const int SuitCount = 3;
+    /// <summary>Number of ordered palette shades in each family and suit.</summary>
     public const int ShadesPerSuit = 4;
+    /// <summary>Number of RGB5 entries in each complete Samus OBJ palette.</summary>
     public const int ColorsPerPalette = SamusPaletteRomData.Common.ColorsPerObjPalette;
     /// <summary>Four distinct shade palettes in each of four families for three suits.</summary>
     public const int PaletteCount = SuitCount * ShadesPerSuit * 4;

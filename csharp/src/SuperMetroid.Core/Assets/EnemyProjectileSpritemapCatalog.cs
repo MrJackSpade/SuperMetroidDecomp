@@ -33,6 +33,7 @@ public sealed class EnemyProjectileSpritemapCatalog
         this.programFrames = programFrames;
     }
 
+    /// <summary>Gets ordered compiled OAM parts by bank-$8D spritemap identity; the native $8000 zero-entry map returns no parts, while an uninstalled nonblank identity is rejected.</summary>
     public ReadOnlyMemory<EnemySpritemapPart> Get(ushort pointer) =>
         pointer == EnemyProjectileSpritemapDefinitions.BlankSpritemap
             ? ReadOnlyMemory<EnemySpritemapPart>.Empty
@@ -48,6 +49,10 @@ public sealed class EnemyProjectileSpritemapCatalog
             : throw new InvalidDataException(
                 $"Installed enemy projectile has no frame for $86:{operandAddress:X4}.");
 
+    /// <summary>Loads named projectile compositions and timed-program visual frames, validating version-specific names/counts and OAM bounds without importing timing, motion, collision, or callbacks.</summary>
+    /// <param name="json">Caller-owned <c>enemy-projectile-compositions.json</c> stream, read from its current position and left open; unknown and duplicate properties are rejected.</param>
+    /// <param name="stock">Current verified installation used to retain later-added frames when loading an older override; without this fallback only the current schema is accepted.</param>
+    /// <returns>Compiled packed spritemap parts, preserving supplied part order and merging legacy edits by native pointer or visual-operand identity.</returns>
     public static EnemyProjectileSpritemapCatalog Load(Stream json,
         EnemyProjectileSpritemapCatalog? stock = null)
     {
@@ -196,10 +201,14 @@ public sealed class EnemyProjectileSpritemapCatalog
     };
 }
 
+/// <summary>Presentation-only enemy-projectile JSON schema: named ordered OAM compositions and program-frame bindings, with no executable instruction or gameplay fields.</summary>
 public sealed record EnemyProjectileSpritemapDocument
 {
+    /// <summary>Schema generation determining the required composition and program-frame name sets; older generations require a current-stock fallback at load time.</summary>
     public required int Version { get; init; }
+    /// <summary>Named bank-$8D Ceres elevator and Skree/Metaree debris compositions, each represented by ordered sprite parts; version 1 contains only the three Ceres frames.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
+    /// <summary>Named visual frames keyed by the schema's bank-$86 spritemap-operand identities, required from version 3 onward; editing these parts does not replace the timed instruction program.</summary>
     public Dictionary<string, SpriteVisualPart[]>? ProgramFrames { get; init; }
 }
 
@@ -268,24 +277,39 @@ public static class EnemyProjectileSpritemapDefinitions
     /// </summary>
     public const ushort BlankSpritemap = 0x8000;
 
+    /// <summary>Current schema generation 13, including the single-frame Polyp lava rock and all earlier projectile presentation bindings.</summary>
     public const int Version = 13;
     /// <summary>Schema before the single-frame Polyp lava-rock composition was installed.</summary>
     public const int PrePolypRockVersion = 12;
     /// <summary>Schema 11: all earlier projectile families, before Work Robot laser bindings.</summary>
     public const int PreWorkRobotVersion = 11;
+    /// <summary>Legacy schema 10 containing environment/attack effects but preceding Mother Brain and Bomb Torizo statue program-frame bindings.</summary>
     public const int PreMotherBrainAndStatueVersion = 10;
+    /// <summary>Legacy schema 9 containing generic enemy death/pickup frames but preceding the environment and additional attack-effect bindings.</summary>
     public const int PreEnvironmentAndAttackVersion = 9;
+    /// <summary>Initial schema generation containing only the two Ceres elevator-pad compositions and elevator platform, without debris or timed-program bindings.</summary>
     public const int CeresOnlyVersion = 1;
+    /// <summary>First schema generation requiring named visual frames for the translated shared projectile instruction mechanics.</summary>
     public const int FirstProgramFrameVersion = 3;
+    /// <summary>Legacy schema 8 including Torizo effects but preceding generic enemy death and pickup program frames.</summary>
     public const int PreGenericEnemyDeathVersion = 8;
+    /// <summary>Legacy schema 7 including Golden Torizo eggs but preceding the additional Torizo drool, swipe, sonic-boom, dust, explosion, and orb effects.</summary>
     public const int PreTorizoEffectsVersion = 7;
+    /// <summary>Legacy schema 6 including Golden Torizo super missiles and eye beams but preceding its egg program frames.</summary>
     public const int PreGoldenTorizoEggVersion = 6;
+    /// <summary>Legacy schema 5 including Alcoon fireballs but preceding Golden Torizo super-missile and eye-beam program frames.</summary>
     public const int PreGoldenTorizoVersion = 5;
+    /// <summary>Legacy schema 4's translated family set before Alcoon fireball bindings; loading omits those operands from the later pre-Golden-Torizo set.</summary>
     public const int PreAlcoonVersion = 4;
+    /// <summary>Installed editable JSON filename for projectile OAM compositions and presentation-only timed-program frames.</summary>
     public const string FileName = "enemy-projectile-compositions.json";
+    /// <summary>Three bank-$8D compositions in the version-1 Ceres-only catalog, retained when merging that legacy override with current stock.</summary>
     public const int LegacyFrameCount = 3;
+    /// <summary>Maximum ordered OBJ parts admitted per composition, matching the SNES's 128 physical sprite slots; empty compositions are valid.</summary>
     public const int MaximumParts = 128;
+    /// <summary>Sixteen 8-pixel character columns per OBJ atlas row; row times 16 plus column forms the packed character index.</summary>
     public const int TileColumns = 16;
+    /// <summary>Schema-level bound of 64 atlas rows; the selected row/column character number must also fit the nine-bit hardware OBJ field during packed-word compilation.</summary>
     public const int TileRows = 64;
 
     /// <summary>Ceres arrival frames and Skree/Metaree debris selected by their bank-$86 programs.</summary>

@@ -88,6 +88,7 @@ public sealed class SporeSpawnColorCatalog
             throw new ArgumentOutOfRangeException(nameof(color));
         return spores.TryGetValue(color, out ushort selected) ? selected : health.Resolve(0, color);
     }
+    /// <summary>Gets packed RGB5 ink 0–15 from health row 0–3 at $A5:E379–$E3F8, selected by boss health and copied to OBJ palette 1 at CGRAM 144–159.</summary>
     public ushort ResolveHealth(int frame, int color)
     {
         _ = CheckFrame(frame, SporeSpawnColorRomData.HealthFrameCount);
@@ -153,6 +154,7 @@ public sealed class SporeSpawnColorCatalog
             return (ushort)result;
         }
     }
+    /// <summary>Gets packed RGB5 ink 0–15 from sprite-death phase 0–7 at $A5:E3F9–$E4F8; independently supplied samples override the calculated fade from critical-health colors to the final row.</summary>
     public ushort ResolveDeathSprite(int frame, int color)
     {
         _ = CheckFrame(frame, SporeSpawnColorRomData.DeathSpriteFrameCount);
@@ -185,6 +187,7 @@ public sealed class SporeSpawnColorCatalog
         }
         return (ushort)result;
     }
+    /// <summary>Gets packed RGB5 ink 0–15 from level-graphics death phase 0–6 at $A5:E4F9–$E5D8, assigned to BG palette 4 at CGRAM 64–79 by the death-script owner.</summary>
     public ushort ResolveDeathLevel(int frame, int color)
     {
         _ = CheckFrame(frame, SporeSpawnColorRomData.DeathSceneFrameCount);
@@ -197,6 +200,7 @@ public sealed class SporeSpawnColorCatalog
             return calculated;
         throw new InvalidOperationException("Required Spore Spawn level color is absent.");
     }
+    /// <summary>Gets packed RGB5 ink 0–15 from background death phase 0–6 at $A5:E5D9–$E6B8, assigned to BG palette 7 at CGRAM 112–127 by the death-script owner.</summary>
     public ushort ResolveDeathBackground(int frame, int color)
     {
         _ = CheckFrame(frame, SporeSpawnColorRomData.DeathSceneFrameCount);
@@ -208,6 +212,10 @@ public sealed class SporeSpawnColorCatalog
         return SporeSpawnDeathColorDefinitions.BackgroundColor(finalColor, frame, color);
     }
 
+    /// <summary>Resolves one death-script layer's packed RGB5 ink without writing a palette; the caller chooses current CGRAM or target-image ownership.</summary>
+    /// <param name="layer">Mutually exclusive sprite, level, or background palette row.</param>
+    /// <param name="frame">Zero-based phase, not a native byte offset: 0–7 for sprite, 0–6 for level/background.</param>
+    /// <param name="color">Ink index 0–15, including the row's retained transparent-slot word.</param>
     public ushort ResolveDeath(SporeSpawnDeathPaletteLayer layer, int frame, int color) =>
         layer switch
         {
@@ -217,6 +225,9 @@ public sealed class SporeSpawnColorCatalog
             _ => throw new ArgumentOutOfRangeException(nameof(layer)),
         };
 
+    /// <summary>Loads version-1 <c>spore-spawn-colors.json</c>, validating exact palette-row dimensions and RGB5 channels from 0 through 31 while keeping health thresholds and death timing in boss code.</summary>
+    /// <param name="json">Caller-owned stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>
+    /// <returns>Compiled colors retaining independent edits and using calculated shared colors or fade samples only where supplied values agree.</returns>
     public static SporeSpawnColorCatalog Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -245,6 +256,7 @@ public sealed class SporeSpawnColorCatalog
                 "death background"));
     }
 
+    /// <summary>Serializes the editable palette document as indented camel-case UTF-8 JSON, validating its version, dimensions, and RGB5 channel bounds before returning the bytes.</summary>
     public static byte[] Write(SporeSpawnColorDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
@@ -286,18 +298,28 @@ public sealed class SporeSpawnColorCatalog
             name => new InvalidDataException($"Duplicate Spore Spawn color property {name}."));
 }
 
+/// <summary>Editable Spore Spawn RGB5 images for spores, health stages, and three death-scene layers; every row retains all sixteen native palette slots.</summary>
 public sealed record SporeSpawnColorDocument
 {
+    /// <summary>Color schema revision; loading currently requires version 1.</summary>
     public required int Version { get; init; }
+    /// <summary>Sixteen spore colors corresponding to $A5:E359, installed in OBJ palette 7 at CGRAM 240–255; stock values share the healthy boss row.</summary>
     public required PaletteRgb5[] Spores { get; init; }
+    /// <summary>Four ordered sixteen-color boss rows from healthy to critical, corresponding to $A5:E379–$E3F8; health thresholds remain compiled AI behavior.</summary>
     public required PaletteRgb5[][] Health { get; init; }
+    /// <summary>Eight ordered sixteen-color OBJ-palette-1 death phases corresponding to $A5:E3F9–$E4F8, beginning with the critical-health row in stock content.</summary>
     public required PaletteRgb5[][] DeathSprite { get; init; }
+    /// <summary>Seven ordered sixteen-color level-graphics BG-palette-4 death phases corresponding to $A5:E4F9–$E5D8.</summary>
     public required PaletteRgb5[][] DeathLevel { get; init; }
+    /// <summary>Seven ordered sixteen-color background BG-palette-7 death phases corresponding to $A5:E5D9–$E6B8, independent of the level palette.</summary>
     public required PaletteRgb5[][] DeathBackground { get; init; }
 }
 
+/// <summary>Installed filename and supported schema revision for the boss's bounded editable palette images.</summary>
 public static class SporeSpawnColorFormat
 {
+    /// <summary>Installed editable JSON filename for spore, health, sprite-death, level-death, and background-death colors.</summary>
     public const string FileName = "spore-spawn-colors.json";
+    /// <summary>Supported schema revision, requiring the native frame counts and sixteen RGB5 colors per row.</summary>
     public const int Version = 1;
 }

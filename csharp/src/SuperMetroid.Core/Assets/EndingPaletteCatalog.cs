@@ -8,12 +8,19 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Independent native color resources selected by the ending coroutine.</summary>
 public enum EndingPaletteId
 {
+    /// <summary>$8C:EDE9, Palettes_CloudSpritesInZebesExplosionScene: 256-color image installed for the initial escape view and its atmospheric cloud sprites.</summary>
     Escape,
+    /// <summary>$8C:E7E9, Palettes_PostCredits: 256-color reward-scene image; post-credits restoration preserves CGRAM colors 0 through 3.</summary>
     PostCredits,
+    /// <summary>$8C:E9E9, Palettes_Credits: 256-color resource whose first 128 colors supply the scrolling credits backgrounds and text.</summary>
     Credits,
+    /// <summary>$8C:EBE9, Palettes_ZebesExplosionScene: 256-color resource whose BG and OBJ halves are transferred separately during destruction and flyaway scenes.</summary>
     Explosion,
+    /// <summary>$8B:DE43, .greyGunshipPalette: 16 BG colors restored at CGRAM index 80 for the final gunship view before the operation text.</summary>
     FinalGunship,
+    /// <summary>$8C:EFE9, Palettes_EndingSuperMetroidIconFadingToGrey_Sprite_0: 16 colors initially loaded into OBJ palette 7 for the assembling logo.</summary>
     LogoInitial,
+    /// <summary>$8B:E5E7 palette-pointer pairs consumed by E58A: sixteen successive BG/OBJ palette pairs, flattened as [step][BG then OBJ][16 colors].</summary>
     LogoCrossfade,
 }
 
@@ -38,8 +45,13 @@ public sealed class EndingPalette
             return bytes;
         }
     }
+    /// <summary>Number of color words in the complete resource, including all 512 ordered colors when this is the sixteen-step logo crossfade.</summary>
     public int ColorCount => nativeBytes is not null ? nativeBytes.Length / sizeof(ushort) : EndingLogoPaletteFade.ColorCount;
 
+    /// <summary>Reads one selected color, evaluating a recognized logo fade directly rather than materializing its transfer image.</summary>
+    /// <param name="index">Zero-based color position within <see cref="ColorCount"/>; crossfade positions use (step * 2 + palette) * 16 + color, with BG palette 0 and OBJ palette 1.</param>
+    /// <returns>A native BGR555 word: red in bits 0..4, green in 5..9 and blue in 10..14.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside this resource.</exception>
     public ushort Color(int index)
     {
         if ((uint)index >= ColorCount)
@@ -50,6 +62,12 @@ public sealed class EndingPalette
     }
 
     /// <summary>Preserves the cartridge's partial source/destination CGRAM transfers.</summary>
+    /// <param name="cgram">Destination color memory; colors outside the requested transfer are left unchanged.</param>
+    /// <param name="sourceColor">Zero-based starting color in this resource, not a byte offset.</param>
+    /// <param name="count">Number of consecutive color words to transfer; zero is allowed.</param>
+    /// <param name="destinationColor">Zero-based starting CGRAM color index; the complete transfer must fit its 256 colors.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The source range or destination range is outside its color memory.</exception>
     public void LoadTo(SnesCgram cgram, int sourceColor, int count, int destinationColor)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -72,6 +90,13 @@ public sealed class EndingPalette
             BinaryPrimitives.WriteUInt16LittleEndian(bytes.Slice(i * sizeof(ushort)), Color(sourceColor + i));
     }
 
+    /// <summary>Validates RGB5 JSON against the chosen resource's exact color count and compiles an independent native color representation.</summary>
+    /// <param name="json">UTF-8 JSON read from its current position to the end and left open.</param>
+    /// <param name="id">Palette role determining the required full resource size, not the size of an individual CGRAM transfer.</param>
+    /// <returns>Selected colors copied from the document; a logo crossfade matching the interpolation rule is represented by its endpoints without changing any supplied colors.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="id"/> is not a defined palette role.</exception>
+    /// <exception cref="InvalidDataException">The JSON is invalid or ambiguous, the version or color count is wrong, or a color is null or has a channel outside 0..31.</exception>
     public static EndingPalette Load(Stream json, EndingPaletteId id)
     {
         EndingPaletteDocument document = JsonAssetDocument.Read<EndingPaletteDocument>(
@@ -96,6 +121,13 @@ public sealed class EndingPalette
         return new EndingPalette(native);
     }
 
+    /// <summary>Serializes and validates the entire selected palette before writing its UTF-8 JSON bytes.</summary>
+    /// <param name="json">Destination stream written at its current position and left open; trailing bytes are not truncated.</param>
+    /// <param name="id">Palette role used to validate the document's color count.</param>
+    /// <param name="document">Authored color collection read for serialization, not retained by the writer.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="id"/> is not a defined palette role.</exception>
+    /// <exception cref="InvalidDataException">The serialized document fails <see cref="Load"/>'s schema or RGB5 validation.</exception>
     public static void Write(Stream json, EndingPaletteId id, EndingPaletteDocument document)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -106,9 +138,12 @@ public sealed class EndingPalette
     }
 }
 
+/// <summary>Editable RGB5 color document for one externally selected ending palette role; the color array remains caller-mutable until compilation.</summary>
 public sealed record EndingPaletteDocument
 {
+    /// <summary>Schema revision; loading requires <see cref="EndingPaletteDefinitions.Version"/>.</summary>
     public required int Version { get; init; }
+    /// <summary>Ordered, nonnull RGB5 entries with each channel in 0..31; the role requires 256, 16 or 512 colors. Logo crossfade order is sixteen steps of 16 BG colors followed by 16 OBJ colors.</summary>
     public required PaletteRgb5[] Colors { get; init; }
 }
 
@@ -117,6 +152,14 @@ public sealed class EndingPaletteCatalog
 {
     private readonly EndingPalette escape, postCredits, credits, explosion, finalGunship, logoInitial, logoCrossfade;
 
+    /// <summary>Groups seven independently selected immutable palette resources without copying them or validating their sizes.</summary>
+    /// <param name="escape">Full palette for escape and cloud imagery.</param>
+    /// <param name="postCredits">Full palette for the post-credits reward sequence.</param>
+    /// <param name="credits">Full credits resource, of which scrolling text uses the BG half.</param>
+    /// <param name="explosion">Full destruction/flyaway resource with separately transferred BG and OBJ halves.</param>
+    /// <param name="finalGunship">Sixteen colors for the final gunship's BG palette 5.</param>
+    /// <param name="logoInitial">Sixteen initial assembling-logo colors for OBJ palette 7.</param>
+    /// <param name="logoCrossfade">Sixteen ordered BG/OBJ palette pairs for the final logo transition.</param>
     public EndingPaletteCatalog(EndingPalette escape, EndingPalette postCredits,
         EndingPalette credits, EndingPalette explosion, EndingPalette finalGunship,
         EndingPalette logoInitial, EndingPalette logoCrossfade)
@@ -130,6 +173,10 @@ public sealed class EndingPaletteCatalog
         this.logoCrossfade = logoCrossfade;
     }
 
+    /// <summary>Returns the retained palette resource selected by its ending-scene role.</summary>
+    /// <param name="id">Independent static palette or complete logo-crossfade resource to retrieve.</param>
+    /// <returns>The same palette instance supplied for that role at construction.</returns>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="id"/> is not a defined palette role.</exception>
     public EndingPalette this[EndingPaletteId id] => id switch
     {
         EndingPaletteId.Escape => escape,
@@ -161,7 +208,9 @@ public static class EndingPaletteDefinitions
 {
     // The document shape is unchanged; only the installation manifest gains files.
     // Keeping version one lets existing player-authored palette overrides survive.
+    /// <summary>Revision 1 of the RGB5 palette document, retained for compatibility with existing authored overrides.</summary>
     public const int Version = 1;
+    /// <summary>Installation manifest filename identifying the independently selected ending palette files.</summary>
     public const string ManifestFileName = "ending-palettes-manifest.json";
 
     /// <summary>Six named contiguous resources selected by native ending load operations.

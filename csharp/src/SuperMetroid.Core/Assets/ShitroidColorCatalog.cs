@@ -54,12 +54,14 @@ public sealed class ShitroidColorCatalog
         WriteIndented = true,
     };
 
+    /// <summary>Gets a packed RGB5 ink from normal pulse phase 0–7 and ink 0–3, corresponding to $A9:F6D1 and written to CGRAM colors 165–168; phase cadence and cries remain actor behavior.</summary>
     public ushort NormalColor(int frame, int color) =>
         (uint)frame < ShitroidColorRomData.NormalFrameCount && (uint)color < ShitroidColorRomData.NormalColorsPerFrame
             ? normal.Resolve(frame, color)
             : throw new ArgumentOutOfRangeException(nameof(frame),
                 $"Shitroid normal frame {frame}, color {color} is outside the authored image.");
 
+    /// <summary>Gets packed RGB5 color 0–15 from a selected initialization target, including its retained transparent-slot word; the actor copies targets to its palette image and current CGRAM during setup.</summary>
     public ushort TargetColor(ShitroidColorTarget target, int color)
     {
         if (target == ShitroidColorTarget.Shitroid)
@@ -72,6 +74,9 @@ public sealed class ShitroidColorCatalog
             throw new ArgumentOutOfRangeException(nameof(target));
     }
 
+    /// <summary>Loads <c>shitroid-colors.json</c>, requiring version 1, eight four-color pulse frames, three sixteen-color targets, and RGB5 channels from 0 through 31.</summary>
+    /// <param name="json">Caller-owned JSON stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>
+    /// <returns>Compiled colors retaining independently edited frames and targets exactly, sharing the calculated stock pulse only when all samples agree.</returns>
     public static ShitroidColorCatalog Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -101,6 +106,7 @@ public sealed class ShitroidColorCatalog
                 "dead sidehopper"));
     }
 
+    /// <summary>Serializes the editable color document as indented camel-case UTF-8 JSON and validates the serialized schema, dimensions, and channel bounds before returning it.</summary>
     public static byte[] Write(ShitroidColorDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
@@ -167,24 +173,37 @@ public sealed class ShitroidColorCatalog
             name => new InvalidDataException($"Duplicate Shitroid color property {name}."));
 }
 
+/// <summary>Mutually exclusive sixteen-color initialization images for the live giant Baby Metroid encounter and its Sidehopper victim.</summary>
 public enum ShitroidColorTarget
 {
+    /// <summary>$A9:F8C6, live Sidehopper victim target copied to palette colors $90–$9F during encounter initialization.</summary>
     Sidehopper,
+    /// <summary>$A9:F8E6, giant Baby Metroid target copied to palette colors $A0–$AF; the first word is the retained transparent-slot payload.</summary>
     Shitroid,
+    /// <summary>$A9:F8A6, drained Sidehopper corpse target copied to palette colors $F0–$FF for the encounter's victim transition.</summary>
     DeadSidehopper,
 }
 
+/// <summary>Versioned editable RGB5 pulse and initialization-target images for the live Shitroid encounter, excluding timer, fade-destination, and sound behavior.</summary>
 public sealed record ShitroidColorDocument
 {
+    /// <summary>Color schema revision; loading currently requires version 1.</summary>
     public required int Version { get; init; }
+    /// <summary>Eight ordered phases of four innard inks each, corresponding to $A9:F6D1; all RGB5 channels must be from 0 through 31.</summary>
     public required PaletteRgb5[][] Normal { get; init; }
+    /// <summary>Sixteen ordered live-victim colors corresponding to $A9:F8C6, including transparent palette slot zero.</summary>
     public required PaletteRgb5[] Sidehopper { get; init; }
+    /// <summary>Sixteen ordered giant Baby Metroid colors corresponding to $A9:F8E6; slot zero is preserved as data even though OBJ transparency gives it no visible hue.</summary>
     public required PaletteRgb5[] Shitroid { get; init; }
+    /// <summary>Sixteen ordered drained-victim colors corresponding to $A9:F8A6, including transparent palette slot zero.</summary>
     public required PaletteRgb5[] DeadSidehopper { get; init; }
 }
 
+/// <summary>Installed filename and supported schema revision for the encounter's selected pulse and target colors.</summary>
 public static class ShitroidColorFormat
 {
+    /// <summary>Installed editable JSON filename for the eight-frame pulse and three initialization target images.</summary>
     public const string FileName = "shitroid-colors.json";
+    /// <summary>Supported color schema revision, requiring the exact native frame and target dimensions.</summary>
     public const int Version = 1;
 }

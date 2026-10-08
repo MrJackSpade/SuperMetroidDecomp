@@ -9,7 +9,9 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public enum PuyoEnemyFunction : ushort
 {
+    /// <summary>$A2:9B65, <c>Function_Puyo_Grounded</c>: decrements the hop cooldown and selects an airborne hop when the countdown becomes negative.</summary>
     Grounded = 0x9b65,
+    /// <summary>$A2:9B81, <c>Function_Puyo_Airborne</c>: dispatches the current hop or collision-recovery routine through the airborne function word.</summary>
     Airborne = 0x9b81,
 }
 
@@ -19,11 +21,17 @@ public enum PuyoEnemyFunction : ushort
 /// </summary>
 public enum PuyoAirborneFunction : ushort
 {
+    /// <summary>$A2:9D0B, <c>Function_Puyo_Airborne_Normal_ShortHop</c>: moves the small normal hop and selects the slow grounded animation on landing or terrain collision.</summary>
     NormalShortHop = 0x9d0b,
+    /// <summary>$A2:9D2B, <c>Function_Puyo_Airborne_Normal_BigHop</c>: moves the taller normal hop and selects the medium grounded animation on landing or terrain collision.</summary>
     NormalBigHop = 0x9d2b,
+    /// <summary>$A2:9D4B, <c>Function_Puyo_Airborne_Normal_LongHop</c>: moves hop-table record two with increased horizontal speed and selects the fast grounded animation on landing or terrain collision.</summary>
     NormalLongHop = 0x9d4b,
+    /// <summary>$A2:9D6B, <c>Function_Puyo_Airborne_GiantHop</c>: moves the 128-pixel-height hop; normal landing restores small-hop selection, while wall or ceiling collision retains dropping recovery.</summary>
     GiantHop = 0x9d6b,
+    /// <summary>$A2:9D98, <c>Function_Puyo_Airborne_Dropping</c>: falls vertically at the hop record's packed 8.8 speed until terrain contact selects a random small or big post-drop bounce.</summary>
     Dropping = 0x9d98,
+    /// <summary>$A2:9DCD, <c>Function_Puyo_Airborne_Dropped</c>: moves either post-drop bounce and selects a giant hop for the next grounded launch when the hopping animation is cleared by terrain contact.</summary>
     Dropped = 0x9dcd,
 }
 
@@ -33,18 +41,26 @@ public enum PuyoAirborneFunction : ushort
 /// </summary>
 public enum PuyoHopType : ushort
 {
+    /// <summary>Record zero at $A2:9A07: 16-pixel height, packed 8.8 X speed $0100, and the short-hop function; ordinary distant launches may randomize to record one.</summary>
     NormalSmall = 0,
+    /// <summary>Record one at $A2:9A0F: 32-pixel height, packed 8.8 X speed $0100, and the big-hop function; proximity to Samus permits random selection among normal records zero through two.</summary>
     NormalBig = 1,
+    /// <summary>Record three at $A2:9A1F: 128-pixel height and packed 8.8 X speed $0140, whose fractional byte is discarded by NTSC movement; selected after a post-drop bounce.</summary>
     Giant = 3,
+    /// <summary>Record four at $A2:9A27: no horizontal motion and packed 8.8 downward speed $0100; wall or ceiling collision selects this fall before a recovery bounce.</summary>
     Dropping = 4,
+    /// <summary>Record five at $A2:9A2F: 16-pixel post-drop bounce with packed 8.8 X speed $0100 and curve-index delta $01C0; one of two randomized recovery heights.</summary>
     DroppedSmall = 5,
+    /// <summary>Record six at $A2:9A37: 21-pixel post-drop bounce with packed 8.8 X speed $0100 and curve-index delta $01C0; the taller randomized recovery height.</summary>
     DroppedBig = 6,
 }
 
 /// <summary>The two literal values written to Puyo's direction word.</summary>
 public enum PuyoDirection : ushort
 {
+    /// <summary>Native direction word zero: positive X motion and right-facing hop poses; also selected when Samus and Puyo have equal X coordinates.</summary>
     Right = 0,
+    /// <summary>Native direction word one: negative X motion and left-facing hop poses; terrain collision can latch its opposite for the next launch.</summary>
     Left = 1,
 }
 

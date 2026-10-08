@@ -7,7 +7,16 @@ internal static partial class Program
     // which spawns the death explosion, and only then MetroidDeathItemDropRoutine ($A3:EF74).
     // Enemy projectiles allocate from the top slot down, so the explosion takes the highest
     // free slot and the drops follow below it, as in the 100% movie's first Metroid room.
+    // #1269: $A0:A184 also does not reject a projectile an earlier enemy marked for removal
+    // this pass; the movie's Super Missile hits a respawning Rinka and then the Metroid.
     private static void VerifyMetroidDeathDrops()
+    {
+        VerifyMetroidDeathDrops(alreadyMarked: false);
+        VerifyMetroidDeathDrops(alreadyMarked: true);
+        Console.WriteLine("Metroid death drops: the explosion precedes the five special drops, even for an already-marked missile.");
+    }
+
+    private static void VerifyMetroidDeathDrops(bool alreadyMarked)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
@@ -28,12 +37,12 @@ internal static partial class Program
         runtime.Enemies.PrepareEnemyProcessingList((ushort)(metroid.XPosition - 0x80), (ushort)(metroid.YPosition - 0x70));
 
         var shot = runtime.Projectiles.Slots[0];
-        shot.Type = 0x0100; shot.Damage = 100; shot.Direction = 2;
+        shot.Type = 0x0100; shot.Damage = 100; shot.Direction = (ushort)(alreadyMarked ? 0x12 : 0x02);
         shot.XPosition = metroid.XPosition; shot.YPosition = metroid.YPosition;
         shot.XRadius = shot.YRadius = 4;
         shot.InstructionPointer = 0x9000; shot.InstructionTimer = 1;
         runtime.Enemies.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, samus);
-        AssertEqual((ushort)0, metroid.Health, "the missile kills the frozen Metroid");
+        AssertEqual((ushort)0, metroid.Health, $"the missile kills the frozen Metroid (already marked: {alreadyMarked})");
 
         var projectiles = runtime.Enemies.EnemyProjectiles;
         int explosion = projectiles.Count - 1;
@@ -44,6 +53,5 @@ internal static partial class Program
             AssertTrue(projectiles[slot].Kind != RoomEnemyProjectileKind.EnemyDeathPickup,
                 $"no drop sits above the explosion (slot {slot})");
         AssertEqual(5, runtime.Enemies.MetroidDropRequests.Count, "the Metroid requests its five special drops");
-        Console.WriteLine("Metroid death drops: the explosion is spawned before the five special drops.");
     }
 }

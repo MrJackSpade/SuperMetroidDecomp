@@ -1296,8 +1296,6 @@ public sealed partial class RoomEnemySystem
 
                 if (isMetroid)
                 {
-                    if (projectile.PackedDirection.HasLowByteLifecycleState)
-                        continue;
                     if (enemy.FrozenTimer != 0)
                     {
                         if (family != SamusProjectileFamily.Missile &&
@@ -1314,13 +1312,14 @@ public sealed partial class RoomEnemySystem
                             break;
                         }
 
-                        if (!projectiles.TryStartEnemyImpact(
-                                bus,
-                                sharedProjectiles,
-                                projectile.SlotIndex))
-                        {
-                            continue;
-                        }
+                        // Like the ordinary path, the bank-$A0 walker only marks the
+                        // direction word. $A0:A184 does not reject a projectile an earlier
+                        // enemy marked this pass: a Super Missile that just hit a Rinka
+                        // still reaches EnemyShot_Metroid.
+                        projectiles.ApplyEnemyCollisionPrelude(
+                            projectile.SlotIndex,
+                            enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
+                                (projectile.Type & 0x0008) == 0);
 
                         byte frozenVulnerability = ReadProjectileVulnerability(
                             enemy,

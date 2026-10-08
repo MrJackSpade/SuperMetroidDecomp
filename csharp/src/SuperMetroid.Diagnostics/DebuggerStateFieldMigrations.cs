@@ -68,6 +68,20 @@ internal static class DebuggerStateFieldMigrations
             return SelectSerializedFields(type, current.Where(field => field.Name != "_enemyFrameTimeIsFrozen").ToArray(), count);
         }
         if (type == typeof(MotherBrainEnemyState) &&
+            current.Any(field => field.Name == "<RainbowAppliedSmallPurpleBreathWrites>k__BackingField"))
+        {
+            // Older builds mirrored the sequence's flag every call, so the two already agree.
+            return SelectSerializedFields(type, current.Where(field =>
+                field.Name != "<RainbowAppliedSmallPurpleBreathWrites>k__BackingField").ToArray(), count);
+        }
+        if (type == typeof(MotherBrainRainbowBeamAttackSequence) &&
+            current.Any(field => field.Name == "<SmallPurpleBreathGenerationWriteCount>k__BackingField"))
+        {
+            // Restores as zero, matching the zero latch above.
+            return SelectSerializedFields(type, current.Where(field =>
+                field.Name != "<SmallPurpleBreathGenerationWriteCount>k__BackingField").ToArray(), count);
+        }
+        if (type == typeof(MotherBrainEnemyState) &&
             current.Any(field => field.Name == "<SmallPurpleBreathActive>k__BackingField"))
         {
             // Older builds never spawned the small breath, so no capture has one alive.

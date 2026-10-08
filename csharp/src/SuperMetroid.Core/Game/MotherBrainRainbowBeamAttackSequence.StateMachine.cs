@@ -499,7 +499,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                     {
                         BrainHealth = 0x8ca0;
                         Phase2CorpseState = 1;
-                        SmallPurpleBreathGenerationEnabled = false;
+                        WriteSmallPurpleBreathGeneration(false);
                         Body.Form = 2;
                         Phase = MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfInanimateGrey;
                     }
@@ -520,7 +520,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
                 if ((FunctionTimer & 0x8000) != 0)
                 {
-                    SmallPurpleBreathGenerationEnabled = true;
+                    WriteSmallPurpleBreathGeneration(true);
                     DroolGenerationEnabled = true;
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfTransitionFromGrey;
                     FunctionTimer = 0x00e0;
@@ -781,7 +781,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                     LowerNeckMovementIndex = 0;
                     UpperNeckMovementIndex = 0;
                     DroolGenerationEnabled = false;
-                    SmallPurpleBreathGenerationEnabled = false;
+                    WriteSmallPurpleBreathGeneration(false);
                     BrainPaletteHandlingEnabled = false;
                     HealthBasedPaletteHandlingEnabled = false;
                     BrainPaletteIndex = EnemyPaletteBits.Palette7;

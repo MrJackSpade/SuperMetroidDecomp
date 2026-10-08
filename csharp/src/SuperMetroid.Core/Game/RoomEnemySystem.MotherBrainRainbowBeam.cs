@@ -28,6 +28,7 @@ public sealed partial class RoomEnemySystem
         state.RainbowBeamSequence = sequence;
         state.RainbowPaletteCursor = 0;
         state.RainbowAppliedHeadInstructionList = 0;
+        state.RainbowAppliedSmallPurpleBreathWrites = 0;
         ApplyLiveMotherBrainRainbowState(
             state,
             sequence,
@@ -171,8 +172,11 @@ public sealed partial class RoomEnemySystem
         // is allowed to collapse it to zero.
         if (!sequence.HitboxesEnabled)
             state.HitboxesEnabled = 0;
-        state.SmallPurpleBreathGenerationEnabled =
-            sequence.SmallPurpleBreathGenerationEnabled;
+        if (sequence.SmallPurpleBreathGenerationWriteCount != state.RainbowAppliedSmallPurpleBreathWrites)
+        {
+            state.SmallPurpleBreathGenerationEnabled = sequence.SmallPurpleBreathGenerationEnabled;
+            state.RainbowAppliedSmallPurpleBreathWrites = sequence.SmallPurpleBreathGenerationWriteCount;
+        }
         state.DroolGenerationEnabled = sequence.DroolGenerationEnabled;
 
         // These words are the renderer-facing output of the bank-$88 HDMA object. The beam

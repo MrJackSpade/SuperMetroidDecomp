@@ -324,7 +324,19 @@ internal static partial class Program
         }
         var motherBrainFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(MotherBrainEnemyState)])!;
-        FieldInfo[] preSmallBreathFields = motherBrainFields.Where(field =>
+        FieldInfo[] preBreathLatchFields = motherBrainFields.Where(field =>
+            field.Name != "<RainbowAppliedSmallPurpleBreathWrites>k__BackingField").ToArray();
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(MotherBrainEnemyState), motherBrainFields,
+                preBreathLatchFields.Length).SequenceEqual(preBreathLatchFields),
+            "pre-breath-latch Mother Brain layout omits only the write latch");
+        var sequenceFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
+            BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(MotherBrainRainbowBeamAttackSequence)])!;
+        FieldInfo[] preWriteCountFields = sequenceFields.Where(field =>
+            field.Name != "<SmallPurpleBreathGenerationWriteCount>k__BackingField").ToArray();
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(MotherBrainRainbowBeamAttackSequence), sequenceFields,
+                preWriteCountFields.Length).SequenceEqual(preWriteCountFields),
+            "pre-write-count rainbow sequence layout omits only the write count");
+        FieldInfo[] preSmallBreathFields = preBreathLatchFields.Where(field =>
             field.Name != "<SmallPurpleBreathActive>k__BackingField").ToArray();
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(MotherBrainEnemyState), motherBrainFields,
                 preSmallBreathFields.Length).SequenceEqual(preSmallBreathFields),

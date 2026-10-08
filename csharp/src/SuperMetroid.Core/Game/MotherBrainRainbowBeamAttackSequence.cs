@@ -189,6 +189,19 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     public bool SmallPurpleBreathGenerationEnabled { get; private set; } = true;
 
     /// <summary>
+    /// Count of body-AI writes to <see cref="SmallPurpleBreathGenerationEnabled"/>. The live
+    /// flag has a second native writer, the brain-list opcode $A9:9F8E, so the live state
+    /// publishes this flag only when the body actually wrote it.
+    /// </summary>
+    public uint SmallPurpleBreathGenerationWriteCount { get; private set; }
+
+    private void WriteSmallPurpleBreathGeneration(bool enabled)
+    {
+        SmallPurpleBreathGenerationEnabled = enabled;
+        SmallPurpleBreathGenerationWriteCount++;
+    }
+
+    /// <summary>
     /// Native Mother Brain health-based body-palette flag. Revival writes one only after
     /// the walk to X `$50` has really completed; it is not synonymous with the separate
     /// brain-slot palette handler above.

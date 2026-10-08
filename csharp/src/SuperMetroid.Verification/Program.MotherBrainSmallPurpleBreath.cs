@@ -51,6 +51,15 @@ internal static partial class Program
                 runtime.Camera!.XPosition, runtime.Camera.YPosition);
         AssertEqual(0, Breaths(), "the small breath deletes itself after its eight poses");
         AssertTrue(!state.SmallPurpleBreathActive, "its last instruction clears the active flag");
+
+        // The brain-list opcode $A9:9F8E also clears generation. Publishing the rainbow body's
+        // state must not restore the flag unless the body itself wrote it (#1269).
+        state.SmallPurpleBreathGenerationEnabled = false;
+        typeof(RoomEnemySystem).GetMethod("StartLiveMotherBrainRainbowBeam",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+            .Invoke(runtime.Enemies, [state, runtime.Samus!, null]);
+        AssertTrue(!state.SmallPurpleBreathGenerationEnabled,
+            "an unwritten rainbow-body flag leaves the brain-list clear in place");
         Console.WriteLine("Mother Brain small purple breath: RNG-gated spawn, one at a time, flag cleared on its last instruction.");
     }
 }

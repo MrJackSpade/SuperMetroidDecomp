@@ -377,6 +377,13 @@ public sealed class MotherBrainEnemyState
     internal ushort RainbowAppliedHeadInstructionList { get; set; }
 
     /// <summary>
+    /// Last <see cref="MotherBrainRainbowBeamAttackSequence.SmallPurpleBreathGenerationWriteCount"/>
+    /// published to <see cref="SmallPurpleBreathGenerationEnabled"/>, so a brain-list clear
+    /// survives until the body next writes the flag.
+    /// </summary>
+    internal uint RainbowAppliedSmallPurpleBreathWrites { get; set; }
+
+    /// <summary>
     /// Last drop request emitted when an exploding Samus bomb destroys Mother Brain's bomb.
     /// Pickup selection remains owned by the common enemy-drop seam; retaining the head
     /// definition and exact coordinate makes that request inspectable in the debugger.

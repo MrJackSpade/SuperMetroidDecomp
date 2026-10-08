@@ -414,6 +414,27 @@ static void VerifySamusSolidEnemyCollision()
         samus, [], SamusCollisionDirection.Down, distance: 1, distanceSubposition: 0x2000);
     AssertEqual(103, down.TargetYPosition, "down target shares positive-direction rounding");
 
+    // #1269: after a carry the INC sets Z from the target word, so `$A0:A9A7` rounds a
+    // second pixel even when the carried fraction is exactly zero.
+    samus.YSubposition = 0x9800;
+    SolidEnemyCollisionResult exactCarry = SamusSolidEnemyCollision.Probe(
+        samus, [], SamusCollisionDirection.Down, distance: 2, distanceSubposition: 0x6800);
+    AssertEqual(104, exactCarry.TargetYPosition, "an exact fractional carry still rounds two pixels outward");
+
+    // The 100% movie's Mother Brain room: Samus falls onto a frozen Rinka whose top is three
+    // pixels below her; only the doubled rounding brings the future boxes into overlap.
+    var falling = new SamusKinematicsState
+    {
+        XPosition = 0x00c5, YPosition = 0x0085, YSubposition = 0x9800, XRadius = 5, YRadius = 0x13,
+    };
+    var frozenRinka = new SolidEnemyCollisionBody(
+        Index: 0x00c0, XPosition: 0x00c8, YPosition: 0x00a3, XRadius: 8, YRadius: 8,
+        FreezeTimer: 69, Properties: 0x2800);
+    SolidEnemyCollisionResult landing = SamusSolidEnemyCollision.Probe(
+        falling, [frozenRinka], SamusCollisionDirection.Down, distance: 2, distanceSubposition: 0x6800);
+    AssertTrue(landing.Collided, "a falling Samus lands on the frozen Rinka");
+    AssertEqual(3, landing.Distance, "the landing stops at the Rinka's top edge");
+
     samus.XSubposition = 0;
     samus.YSubposition = 0x7777;
     var decorative = new SolidEnemyCollisionBody(

@@ -330,6 +330,12 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--samus-solid-enemy-collision"])
+{
+    VerifySamusSolidEnemyCollision();
+    Console.WriteLine("Samus solid-enemy collision: native target rounding, eligibility and edge clipping passed.");
+    return 0;
+}
 if (args is ["--mother-brain-glass-super-missile"])
 {
     VerifyMotherBrainGlassSuperMissile();

@@ -59,9 +59,13 @@ public sealed class DraygonColorCatalog
         WriteIndented = true,
     };
 
+    /// <summary>Gets one of the 25 selected RGB5 colors used by Draygon's opening palette.</summary>
     public ushort ResolveIntro(int color) => intro.Color(color);
+    /// <summary>Gets one of the 16 selected normal background colors.</summary>
     public ushort ResolveBackground(int color) => background.Color(color);
+    /// <summary>Gets one of the 16 selected normal sprite colors.</summary>
     public ushort ResolveSprite(int color) => sprite.Color(color);
+    /// <summary>Gets one of the 16 selected white-flash colors, preserving transparent entry zero.</summary>
     public ushort ResolveWhiteFlash(int color)
     {
         if ((uint)color >= DraygonColorRomData.WhiteFlashCount)
@@ -69,6 +73,7 @@ public sealed class DraygonColorCatalog
         return whiteFlash.TryGetValue(color, out ushort selected) ? selected : StockWhiteFlash(color);
     }
 
+    /// <summary>Gets one of the four selected colors in an eight-row health palette table.</summary>
     public ushort ResolveHealthBand(int band, int color)
     {
         _ = CheckBand(band);
@@ -80,9 +85,11 @@ public sealed class DraygonColorCatalog
     /// <summary><c>Palette_Draygon_WhiteFlash</c> at $A5:A297 preserves the backdrop; all visible inks are white.</summary>
     private static ushort StockWhiteFlash(int color) => color == 0 ? DraygonMaterialPaintDefinitions.ClearTarget : (ushort)0x7fff;
 
+    /// <summary>Installs the selected opening colors at their native CGRAM destination.</summary>
     public void ApplyIntro(SnesCgram cgram) =>
         ApplyCalculated(cgram, DraygonColorRomData.IntroCount, DraygonColorRomData.IntroDestination, ResolveIntro);
 
+    /// <summary>Installs Draygon's normal or white-flash material colors and the active health band.</summary>
     public void ApplyHurt(SnesCgram cgram, bool whiteFrame, ushort healthTableByteIndex)
     {
         if (whiteFrame)
@@ -97,6 +104,7 @@ public sealed class DraygonColorCatalog
             ApplyCalculated(cgram, DraygonColorRomData.SpriteCount, DraygonColorRomData.SpriteDestination, ResolveSprite);
     }
 
+    /// <summary>Installs the four-color health band selected by its even native table byte index.</summary>
     public void ApplyHealthBand(SnesCgram cgram, ushort tableByteIndex)
     {
         if ((tableByteIndex & 1) != 0 ||
@@ -109,6 +117,7 @@ public sealed class DraygonColorCatalog
                 ResolveHealthBand(tableByteIndex / sizeof(ushort), color));
     }
 
+    /// <summary>Loads and validates the editable Draygon RGB5 color document.</summary>
     public static DraygonColorCatalog Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -139,6 +148,7 @@ public sealed class DraygonColorCatalog
                     $"health band {index}")).ToArray());
     }
 
+    /// <summary>Validates and serializes a Draygon color document as indented camel-case JSON.</summary>
     public static byte[] Write(DraygonColorDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
@@ -178,18 +188,28 @@ public sealed class DraygonColorCatalog
             name => new InvalidDataException($"Duplicate Draygon color property {name}."));
 }
 
+/// <summary>Defines editable RGB5 colors for Draygon's opening, combat, flash, and health states.</summary>
 public sealed record DraygonColorDocument
 {
+    /// <summary>Gets the document schema version.</summary>
     public required int Version { get; init; }
+    /// <summary>Gets the 25-color opening palette.</summary>
     public required PaletteRgb5[] Intro { get; init; }
+    /// <summary>Gets the 16 normal background colors.</summary>
     public required PaletteRgb5[] Background { get; init; }
+    /// <summary>Gets the 16 normal sprite colors.</summary>
     public required PaletteRgb5[] Sprite { get; init; }
+    /// <summary>Gets the 16 colors used by a white hurt-flash frame.</summary>
     public required PaletteRgb5[] WhiteFlash { get; init; }
+    /// <summary>Gets eight health-band rows containing four colors each.</summary>
     public required PaletteRgb5[][] HealthBands { get; init; }
 }
 
+/// <summary>Defines the filename and schema revision for editable Draygon colors.</summary>
 public static class DraygonColorFormat
 {
+    /// <summary>JSON filename containing Draygon's RGB5 color selections.</summary>
     public const string FileName = "draygon-colors.json";
+    /// <summary>Supported Draygon color document schema revision.</summary>
     public const int Version = 1;
 }

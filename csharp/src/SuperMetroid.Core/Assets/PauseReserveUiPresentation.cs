@@ -56,6 +56,12 @@ public sealed class PauseReserveUiPresentation
     private static int ArrowOffset(int cell) => sizeof(ushort) * (cell < PauseReserveUiDefinitions.VerticalCount
         ? PauseReserveUiDefinitions.VerticalStartCell + cell * PauseReserveUiDefinitions.RowStrideCells
         : PauseReserveUiDefinitions.HorizontalStartCell + cell - PauseReserveUiDefinitions.VerticalCount);
+    /// <summary>Writes one selected label's native BG words into its authored equipment-page location.</summary>
+    /// <param name="tilemap">Mutable little-endian equipment tilemap bytes, large enough for the entire authored label range.</param>
+    /// <param name="name">Case-sensitive label identity: Mode, ReserveTank, Manual, or Auto.</param>
+    /// <param name="preserveAttributes">When true, preserves each destination word's palette, priority, and flip bits while replacing only its ten-bit character selector; used for MANUAL/AUTO replacement.</param>
+    /// <exception cref="InvalidDataException"><paramref name="name"/> is not an installed label identity.</exception>
+    /// <exception cref="ArgumentException">The destination span does not contain the authored label range.</exception>
     public void ApplyLabel(Span<byte> tilemap, string name, bool preserveAttributes = false)
     {
         if (!labels.TryGetValue(name, out var label)) throw new InvalidDataException($"Unknown reserve label {name}.");
@@ -71,6 +77,11 @@ public sealed class PauseReserveUiPresentation
         }
     }
 
+    /// <summary>Writes one selected decimal glyph into the reserve-supply display without calculating the energy value.</summary>
+    /// <param name="tilemap">Mutable equipment-page bytes containing the authored three-word digit range.</param>
+    /// <param name="position">Zero-based left-to-right digit place, zero through two; callers supply hundreds, tens, and units in that order.</param>
+    /// <param name="value">Decimal glyph identity, zero through nine.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The digit position/value is invalid or the destination lacks the selected two-byte word.</exception>
     public void ApplyDigit(Span<byte> tilemap, int position, int value)
     {
         if ((uint)position >= PauseReserveUiDefinitions.SupplyDigitPlaces || (uint)value >= PauseReserveUiDefinitions.DigitCount)
@@ -79,6 +90,10 @@ public sealed class PauseReserveUiPresentation
         BinaryPrimitives.WriteUInt16LittleEndian(tilemap.Slice(digitOffset + position * sizeof(ushort)), word);
     }
 
+    /// <summary>Replaces only the palette selectors of the ten authored arrow cells, preserving their characters, priority, and flips.</summary>
+    /// <param name="tilemap">Mutable little-endian equipment-page bytes containing every authored arrow cell.</param>
+    /// <param name="enabled">Selects the authored enabled palette when true or disabled palette when false; does not change reserve mode or transfer energy.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The destination lacks an authored arrow word.</exception>
     public void ApplyArrowTilePalettes(Span<byte> tilemap, bool enabled)
     {
         int palette = enabled ? enabledPalette : disabledPalette;
@@ -91,6 +106,13 @@ public sealed class PauseReserveUiPresentation
         }
     }
 
+    /// <summary>Writes the two selected arrow bevel colors to live CGRAM, using either the pulse frame or the solid appearance.</summary>
+    /// <param name="cgram">Live palette destination, modified at the two supplied color indices.</param>
+    /// <param name="animated">Whether to sample the 32-phase pulse rather than the solid colors; the pause owner decides when AUTO selection should animate.</param>
+    /// <param name="frame">Pulse phase, masked to its low five bits; normally the accepted eight-bit NMI frame counter and ignored for solid colors.</param>
+    /// <param name="color6Index">CGRAM color index 0-255 for arrow palette slot six, not a byte offset.</param>
+    /// <param name="color11Index">CGRAM color index 0-255 for arrow palette slot eleven, not a byte offset.</param>
+    /// <exception cref="ArgumentOutOfRangeException">A supplied CGRAM color index is invalid.</exception>
     public void ApplyArrowColors(SnesCgram cgram, bool animated, int frame, int color6Index, int color11Index)
     {
         var colors = animated ? (ArrowColor(frame, false), ArrowColor(frame, true)) : (solidColor6, solidColor11);
@@ -139,6 +161,12 @@ public sealed class PauseReserveUiPresentation
         return arrowColorEdits.TryGetValue(frame * 2 + (second ? 1 : 0), out ushort supplied)
             ? supplied : CalculateArrowColor(frame, second);
     }
+    /// <summary>Compiles editable reserve labels, digit words, arrow placements, and RGB5 pulse colors into a selected presentation.</summary>
+    /// <param name="json">Caller-owned readable JSON stream, consumed from its current position without being disposed.</param>
+    /// <returns>A presentation retaining compiled visual data; reserve capacity, mode selection, transfer, and animation cadence remain in the pause owner.</returns>
+    /// <remarks>Requires four exact label keys, seven-word Mode/ReserveTank labels, four-word Manual/Auto labels, ten digit glyphs, ten distinct arrow locations, and 32 color frames. Anchors must be within the 32-by-32 equipment page; application separately checks the actual target ranges.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
+    /// <exception cref="InvalidDataException">The JSON, schema, resource counts, labels, atlas references, coordinates, palettes, or RGB5 colors are invalid.</exception>
     public static PauseReserveUiPresentation Load(Stream json)
     {
         PauseReserveUiDocument document;
@@ -204,6 +232,10 @@ public sealed class PauseReserveUiPresentation
         }
     }
 
+    /// <summary>Serializes and validates the complete reserve UI document before writing its UTF-8 bytes to the destination.</summary>
+    /// <param name="output">Caller-owned writable destination stream, written at its current position without being disposed.</param>
+    /// <param name="document">Selected editable visuals satisfying the same schema and field limits as <see cref="Load"/>.</param>
+    /// <exception cref="InvalidDataException">The document is null or fails presentation validation.</exception>
     public static void Write(Stream output, PauseReserveUiDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
@@ -211,23 +243,63 @@ public sealed class PauseReserveUiPresentation
     }
 }
 
+/// <summary>Complete editable reserve UI schema; nested arrays and dictionaries are mutable authoring data copied into compiled presentation values.</summary>
 public sealed record PauseReserveUiDocument
 {
+    /// <summary>Schema revision; loading requires <see cref="PauseReserveUiDefinitions.Version"/>.</summary>
     public required int Version { get; init; }
+    /// <summary>Exactly four case-sensitive entries named Mode, ReserveTank, Manual, and Auto, defining placement and ordered character words.</summary>
     public required Dictionary<string, PauseReserveLabelVisual> Labels { get; init; }
+    /// <summary>Decimal digit atlas references and starting location of the three-place reserve-energy display.</summary>
     public required PauseReserveDigitVisual Digits { get; init; }
+    /// <summary>Arrow cells, enabled/disabled palettes, solid bevel colors, and the 32-phase pulse.</summary>
     public required PauseReserveArrowVisual Arrow { get; init; }
 }
-public sealed record PauseReserveLabelVisual { public required PauseGridPoint Anchor { get; init; } public required PauseBackdropCell[] Cells { get; init; } }
-public sealed record PauseReserveDigitVisual { public required PauseGridPoint Anchor { get; init; } public required PauseBackdropCell[] Cells { get; init; } }
+/// <summary>One reserve label's equipment-page anchor and consecutive native BG tile references.</summary>
+public sealed record PauseReserveLabelVisual
+{
+    /// <summary>First destination tile cell in the 32-by-32 equipment page; subsequent words continue in native linear tilemap order.</summary>
+    public required PauseGridPoint Anchor { get; init; }
+    /// <summary>Ordered glyph/attribute definitions: seven for Mode or ReserveTank, four for Manual or Auto.</summary>
+    public required PauseBackdropCell[] Cells { get; init; }
+}
+/// <summary>Editable decimal glyphs and placement for the reserve-supply display, independent of its numeric value.</summary>
+public sealed record PauseReserveDigitVisual
+{
+    /// <summary>Destination of the leftmost supply digit; the next two places occupy consecutive native words.</summary>
+    public required PauseGridPoint Anchor { get; init; }
+    /// <summary>Exactly ten BG glyph/attribute definitions in decimal-value order, zero through nine; not ten destination digit places.</summary>
+    public required PauseBackdropCell[] Cells { get; init; }
+}
+/// <summary>Editable arrow placement and palette behavior corresponding to native reserve-arrow owner <c>$82:AD0A</c>.</summary>
 public sealed record PauseReserveArrowVisual
 {
+    /// <summary>Exactly ten distinct equipment-page cell locations; stock layout is an eight-cell vertical stem followed by a two-cell horizontal arm.</summary>
     public required PauseGridPoint[] Cells { get; init; }
+    /// <summary>BG palette selector 0-7 applied when the pause owner enables the arrow; stock uses six.</summary>
     public required int EnabledPalette { get; init; }
+    /// <summary>BG palette selector 0-7 applied when the pause owner disables the arrow; stock uses seven.</summary>
     public required int DisabledPalette { get; init; }
+    /// <summary>RGB5 bevel color for arrow slot six when pulse animation is disabled.</summary>
     public required PaletteRgb5 SolidColor6 { get; init; }
+    /// <summary>RGB5 bevel color for arrow slot eleven when pulse animation is disabled.</summary>
     public required PaletteRgb5 SolidColor11 { get; init; }
+    /// <summary>Exactly 32 ordered pulse frames, selected by the low five bits of the accepted NMI counter; native colors originate at $82:AD5D/$AD9D.</summary>
     public required PauseReserveArrowFrame[] Frames { get; init; }
 }
-public sealed record PauseReserveArrowFrame { public required PaletteRgb5 Color6 { get; init; } public required PaletteRgb5 Color11 { get; init; } }
-public sealed record PauseGridPoint { public required int Column { get; init; } public required int Row { get; init; } }
+/// <summary>One pulse phase's two arrow bevel colors, each with red, green, and blue components from zero through 31.</summary>
+public sealed record PauseReserveArrowFrame
+{
+    /// <summary>RGB5 color written to arrow palette slot six for this phase.</summary>
+    public required PaletteRgb5 Color6 { get; init; }
+    /// <summary>RGB5 color written to arrow palette slot eleven for this phase.</summary>
+    public required PaletteRgb5 Color11 { get; init; }
+}
+/// <summary>Zero-based destination tile-cell coordinates on a 32-by-32 pause equipment page, distinct from character-atlas coordinates.</summary>
+public sealed record PauseGridPoint
+{
+    /// <summary>Destination column in tile cells, zero through 31.</summary>
+    public required int Column { get; init; }
+    /// <summary>Destination row in tile cells, zero through 31; the native word offset is <c>Row * 32 + Column</c>.</summary>
+    public required int Row { get; init; }
+}

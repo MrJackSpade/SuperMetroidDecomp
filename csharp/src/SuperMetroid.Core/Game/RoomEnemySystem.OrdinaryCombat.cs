@@ -1656,15 +1656,15 @@ public sealed partial class RoomEnemySystem
                             // requesting death animation variant four. Wall AI uses B only as
                             // a debug jump destination, so its fatal clear is observable too.
                             enemy.VariableB = 0;
-                            if (enemy.EnemyDefinitionPointer == GoldNinjaSpacePirateDefinition)
-                            {
-                                SpawnEnemyDropScatterAround(
-                                    GoldNinjaSpacePirateDefinition,
-                                    count: 5,
-                                    enemy.XPosition,
-                                    enemy.YPosition);
-                            }
                         }
+                        // $B2:878F records the Gold Ninja's position as the drop origin before
+                        // EnemyDeath clears the slot; $B2:87B4 then spawns the death explosion
+                        // before MetalNinjaPirateDeathItemDropRoutine ($B2:87B8) spawns the drops.
+                        bool spawnsGoldNinjaDrops = isOrdinarySpacePirate &&
+                            hitboxShotAi != EnemyAiCodePointers.BankB2.CommonShot &&
+                            enemy.EnemyDefinitionPointer == GoldNinjaSpacePirateDefinition;
+                        ushort dropOriginX = enemy.XPosition;
+                        ushort dropOriginY = enemy.YPosition;
                         if (isFakeKraid)
                             KillFakeKraid(enemy);
                         else
@@ -1674,6 +1674,14 @@ public sealed partial class RoomEnemySystem
                                     enemy,
                                     projectileType,
                                     forcePirateBigExplosion: isOrdinarySpacePirate && hitboxShotAi != EnemyAiCodePointers.BankB2.CommonShot));
+                        if (spawnsGoldNinjaDrops)
+                        {
+                            SpawnEnemyDropScatterAround(
+                                GoldNinjaSpacePirateDefinition,
+                                count: 5,
+                                dropOriginX,
+                                dropOriginY);
+                        }
                     }
                 }
 

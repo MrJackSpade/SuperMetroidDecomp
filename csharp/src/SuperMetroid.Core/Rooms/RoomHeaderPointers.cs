@@ -135,6 +135,9 @@ public static class RoomHeaderPointers
     /// <summary>RoomHeader_EastTunnel at $8F:CF80; Maridia room $03 with the frozen-enemy gate setup.</summary>
     public const ushort EastTunnel = 0xcf80;
 
+    /// <summary>RoomHeader_MetalPirates at $8F:B62B, Lower Norfair's Gold Ninja Pirate room.</summary>
+    public const ushort MetalPirates = 0xb62b;
+
     /// <summary>RoomHeader_RisingTide at $8F:AFA3, Norfair's rising-lava corridor.</summary>
     public const ushort RisingTide = 0xafa3;
 

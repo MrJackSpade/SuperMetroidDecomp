@@ -145,12 +145,14 @@ public sealed class SamusArmCannonArtworkCatalog
         return new Placement(pointers, data, attributes, sources);
     }
 
+    /// <summary>Serializes the placement document as indented camel-case UTF-8 JSON for <c>samus-arm-cannon.json</c>; table bounds and selector validation occur when placement is loaded, not here.</summary>
     public static byte[] Write(SamusArmCannonArtworkDocument document)
     {
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(document, Options);
         return json;
     }
 
+    /// <summary>Gets the bank-$90 drawing-descriptor pointer for pose 0–252, using an independent supplied edit or the stock $90:C7DF pose-table mapping.</summary>
     public ushort PoseDrawingData(int pose)
     {
         if ((uint)pose >= SamusBodyArtworkCatalog.PoseCount)
@@ -159,6 +161,8 @@ public sealed class SamusArmCannonArtworkCatalog
             : SamusArmCannonArtworkFormat.StockPoseDrawingData(pose);
     }
 
+    /// <summary>Resolves one installed descriptor byte at bank-$90 address $C9D9–$CC38, preferring edits over stock selector/mode bytes and derived body-relative or reflected coordinate bytes.</summary>
+    /// <param name="address">Bank-relative descriptor byte address; coordinate bytes are interpreted as signed pixel offsets by the renderer.</param>
     public byte ReadDrawingByte(ushort address)
     {
         int index = address - SamusArmCannonArtworkFormat.DrawingDataStart;
@@ -175,6 +179,7 @@ public sealed class SamusArmCannonArtworkCatalog
         throw new InvalidDataException("Arm-cannon coordinate basis is incomplete.");
     }
 
+    /// <summary>Gets the packed small-OBJ character, palette, priority, and flip attributes for native direction 0–9; supplied words override the stock $90:C791 table.</summary>
     public ushort SpriteAttributes(int direction)
     {
         if ((uint)direction >= SamusRenderingRomData.ArmCannon.DirectionCount) throw new IndexOutOfRangeException();
@@ -182,6 +187,7 @@ public sealed class SamusArmCannonArtworkCatalog
             : SamusArmCannonArtworkFormat.StockSpriteAttributes((SamusProjectileDirection)direction);
     }
 
+    /// <summary>Gets the bank-$9A tile-source identity for native direction 0–9 and cover frame 0–3; frame 0 is the closed no-transfer sentinel, while frames 1–3 select installed opening artwork.</summary>
     public ushort TileSource(int direction, int frame)
     {
         if ((uint)direction >= SamusRenderingRomData.ArmCannon.DirectionCount ||
@@ -225,26 +231,37 @@ public sealed class SamusArmCannonArtworkCatalog
     };
 }
 
+/// <summary>Versioned <c>samus-arm-cannon.json</c> placement, OBJ-attribute, and tile-selection tables; pixels are supplied separately by <c>samus-arm-cannon-tiles.png</c>, and opening/closing mechanics remain runtime-owned.</summary>
 public sealed record SamusArmCannonArtworkDocument
 {
+    /// <summary>Placement schema revision; loading currently requires version 1.</summary>
     public required int Version { get; init; }
+    /// <summary>Exactly 253 unsigned 16-bit bank-$90 descriptor pointers in pose order; loading requires room for a descriptor within $C9D9–$CC38.</summary>
     public required int[] PosePointers { get; init; }
+    /// <summary>Exactly 608 byte values for $90:C9D9–$CC38: direction and drawing-mode bytes, optional alternate direction/mode, then signed X/Y pixel-offset pairs indexed by body animation frame.</summary>
     public required int[] DrawingData { get; init; }
+    /// <summary>Ten unsigned 16-bit OAM attribute words in native direction order, retaining character index, OBJ palette, priority, and mirror bits.</summary>
     public required int[] SpriteAttributes { get; init; }
+    /// <summary>Ten direction rows of four unsigned 16-bit bank-$9A source identities; each row begins with zero for the closed cover, followed by three entries from the installed twelve-tile source set.</summary>
     public required int[][] TileSources { get; init; }
 }
 
 /// <summary>Bounded retail arm-cannon visual geometry, separate from open/close mechanics.</summary>
 public static class SamusArmCannonArtworkFormat
 {
+    /// <summary>Supported placement JSON schema revision, checked with the fixed pose, descriptor, direction, and frame table dimensions.</summary>
     public const int Version = 1;
+    /// <summary>Installed editable placement, OBJ-attribute, and tile-selector JSON filename, separate from cover pixels and animation mechanics.</summary>
     public const string JsonFileName = "samus-arm-cannon.json";
+    /// <summary>Installed indexed PNG filename holding the twelve 8-by-8 cover characters in native source-identity order.</summary>
     public const string TileFileName = "samus-arm-cannon-tiles.png";
     /// <summary>First pose descriptor at $90:C9D9.</summary>
     public const ushort DrawingDataStart = 0xc9d9;
     /// <summary>Descriptor bytes end immediately before the $90:CC39 code entry.</summary>
     public const ushort DrawingDataEndExclusive = 0xcc39;
+    /// <summary>608 installed bytes spanning the bank-$90 drawing descriptors from $C9D9 through $CC38.</summary>
     public const int DrawingDataByteCount = DrawingDataEndExclusive - DrawingDataStart;
+    /// <summary>Four tile-selector slots per native aim direction: closed sentinel 0 and three successive nonclosed cover-art frames.</summary>
     public const int FramesPerDirection = 4;
     /// <summary>$90:C9DB, ArmCannonDrawingData_FacingForward: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
     private const ushort DrawingFacingForward = 0xC9DB;
@@ -1100,17 +1117,23 @@ public static class SamusArmCannonArtworkFormat
     /// <summary>Calculated source identities in the original exported tile order; no tile pixels are inferred.</summary>
     public readonly record struct TileSourceSequence : IReadOnlyList<ushort>
     {
+        /// <summary>Twelve source identities: three cover frames for each vertical, horizontal, downward-diagonal, and upward-diagonal artwork orientation.</summary>
         public int Count => 12;
+        /// <summary>Array-style length of the twelve-entry native source sequence.</summary>
         public int Length => Count;
+        /// <summary>Gets bank-$9A source identity $9A00 plus index times $200 for zero-based index 0–11; each identity resolves to an installed 32-byte character.</summary>
         public ushort this[int index] => (uint)index < Count
             ? (ushort)(FirstTileSource + index * TileSourceStride)
             : throw new IndexOutOfRangeException();
+        /// <summary>Finds the exact bank-relative native tile identity, returning its exported character index 0–11 or -1 if the address is absent or unaligned.</summary>
         public int IndexOf(ushort source)
         {
             int index = (source - FirstTileSource) / TileSourceStride;
             return (uint)index < Count && this[index] == source ? index : -1;
         }
+        /// <summary>Whether a bank-relative source address exactly matches one of the twelve installed cover characters; the closed zero sentinel is not a character.</summary>
         public bool Contains(ushort source) => IndexOf(source) >= 0;
+        /// <summary>Enumerates source identities in exported PNG character order, with the three frames of each native artwork orientation kept together.</summary>
         public IEnumerator<ushort> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];

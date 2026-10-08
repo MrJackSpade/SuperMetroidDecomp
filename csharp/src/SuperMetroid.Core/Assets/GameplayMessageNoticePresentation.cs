@@ -23,10 +23,17 @@ public sealed class GameplayMessageNoticePresentation
         ContentIdentity = contentIdentity;
     }
 
+    /// <summary>Gets the SHA-256 identity of the validated source document.</summary>
     public string ContentIdentity { get; }
 
+    /// <summary>Determines whether this catalog contains the specified gameplay message.</summary>
+    /// <param name="messageId">The gameplay message to query.</param>
+    /// <returns><see langword="true"/> when the message is present.</returns>
     public bool Contains(GameplayMessageId messageId) => notices.ContainsKey(messageId);
 
+    /// <summary>Builds the complete bordered tilemap for a gameplay message.</summary>
+    /// <param name="messageId">The gameplay message to build.</param>
+    /// <returns>The row-major 32-cell-wide tilemap.</returns>
     public ushort[] Build(GameplayMessageId messageId)
     {
         CompiledNotice notice = Get(messageId);
@@ -51,6 +58,10 @@ public sealed class GameplayMessageNoticePresentation
         return result;
     }
 
+    /// <summary>Installs the selected YES or NO row in a save-confirmation tilemap.</summary>
+    /// <param name="messageId">The save-confirmation message that owns the rows.</param>
+    /// <param name="tilemap">The complete message tilemap to update.</param>
+    /// <param name="yesSelected">Whether to install the YES row instead of the NO row.</param>
     public void ApplySelection(
         GameplayMessageId messageId,
         Span<ushort> tilemap,
@@ -73,6 +84,9 @@ public sealed class GameplayMessageNoticePresentation
             GameplayMessageRomData.Layout.SaveSelectionRowWords));
     }
 
+    /// <summary>Loads and validates a gameplay-message notice document.</summary>
+    /// <param name="json">The stream containing the JSON document.</param>
+    /// <returns>The compiled notice presentation.</returns>
     public static GameplayMessageNoticePresentation Load(Stream json)
     {
         byte[] source;
@@ -171,6 +185,9 @@ public sealed class GameplayMessageNoticePresentation
             Convert.ToHexString(SHA256.HashData(source)));
     }
 
+    /// <summary>Validates and writes a gameplay-message notice document as JSON.</summary>
+    /// <param name="output">The destination stream.</param>
+    /// <param name="document">The document to validate and serialize.</param>
     public static void Write(Stream output, GameplayMessageNoticeDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(
@@ -201,28 +218,45 @@ public sealed class GameplayMessageNoticePresentation
         int Palette);
 }
 
+/// <summary>Defines the editable collection of gameplay-message notices.</summary>
 public sealed record GameplayMessageNoticeDocument
 {
+    /// <summary>Gets the presentation schema version.</summary>
     public required int Version { get; init; }
+    /// <summary>Gets the shared 32-cell border row.</summary>
     public required GameplayMessageTitleCell[] Border { get; init; }
+    /// <summary>Gets the notices keyed by <see cref="GameplayMessageId"/> name.</summary>
     public required Dictionary<string, GameplayMessageNotice> Notices { get; init; }
 }
 
+/// <summary>Defines one gameplay message's tilemap template and editable text regions.</summary>
 public sealed record GameplayMessageNotice
 {
+    /// <summary>Gets the number of content rows, excluding the shared borders.</summary>
     public required int RowCount { get; init; }
+    /// <summary>Gets the row-major 32-cell-wide content template.</summary>
     public required GameplayMessageTitleCell[] Template { get; init; }
+    /// <summary>Gets the text regions overlaid on the template.</summary>
     public required GameplayMessageTextRegion[] Text { get; init; }
+    /// <summary>Gets the optional selected-YES replacement row.</summary>
     public GameplayMessageTitleCell[]? YesSelection { get; init; }
+    /// <summary>Gets the optional selected-NO replacement row.</summary>
     public GameplayMessageTitleCell[]? NoSelection { get; init; }
 }
 
+/// <summary>Defines one bounded text field in a gameplay-message notice.</summary>
 public sealed record GameplayMessageTextRegion
 {
+    /// <summary>Gets the zero-based content-row index.</summary>
     public required int Row { get; init; }
+    /// <summary>Gets the zero-based starting column.</summary>
     public required int Column { get; init; }
+    /// <summary>Gets the field width in tilemap cells.</summary>
     public required int Width { get; init; }
+    /// <summary>Gets the supported left or center alignment name.</summary>
     public required string Alignment { get; init; }
+    /// <summary>Gets the text rendered in this field.</summary>
     public required string Text { get; init; }
+    /// <summary>Gets the three-bit tilemap palette index.</summary>
     public required int Palette { get; init; }
 }

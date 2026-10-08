@@ -19,8 +19,11 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Thirty-two fixed physical enemy records in the native bank-$A0 scheduler, including unused and multipart slots.</summary>
     public const int MaximumEnemyCount = 32;
+    /// <summary>Native enemy-record stride in bytes ($0040), used to translate host slot numbers into cartridge indexes $0000..$07C0.</summary>
     public const int NativeSlotSize = 0x40;
+    /// <summary>Maximum four enemy graphics-set entries accepted by the native room tileset arrays.</summary>
     public const int MaximumGraphicsSetCount = 4;
 
     private readonly RoomEnemySlot[] _slots = new RoomEnemySlot[MaximumEnemyCount];
@@ -99,6 +102,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Creates all 32 stable physical slot objects without loading a room or binding memory, graphics, random-number, or gameplay services.</summary>
     public RoomEnemySystem()
     {
         for (int slotIndex = 0; slotIndex < _slots.Length; slotIndex++)
@@ -123,24 +127,43 @@ public sealed partial class RoomEnemySystem
     [field: NonSerialized]
     public HudTileAtlas? HudTileArtwork { get; set; }
 
+    /// <summary>Bank-$A1 population identity supplied by the current room state, matching native EnemyPopulationPointer ($07CF).</summary>
     public ushort PopulationPointer { get; private set; }
+    /// <summary>Bank-$B4 enemy graphics-set identity supplied by the current room state, matching native EnemySetPointer ($07D1); an empty population does not load that set.</summary>
     public ushort TilesetPointer { get; private set; }
+    /// <summary>Native byte offset marking the allocation frontier, not a zero-based slot number; nonempty population load sets it to record count times $40 and an empty load retains its previous value.</summary>
     public ushort FirstFreeEnemyIndex { get; private set; }
+    /// <summary>Number of population records installed at room load, including multipart records; zero for an empty population, not a live count of surviving actors.</summary>
     public ushort EnemyCount { get; private set; }
+    /// <summary>Wrapping native room kill counter, reset at load and incremented by death paths; counts their publications rather than enumerating remaining or uniquely defeated slots.</summary>
     public ushort EnemiesKilled { get; private set; }
+    /// <summary>Required room kill count from the nonempty population's terminator for enemy-clear triggers; native empty-population initialization retains the previous quota.</summary>
     public byte DeathQuota { get; private set; }
+    /// <summary>Native BossID ($179C) for the loaded encounter, reset to zero on room load and published by nonzero definition IDs or boss initialization; not an area boss-defeated flag.</summary>
     public ushort BossId { get; private set; }
+    /// <summary>Whether an address-space dependency has been bound by <see cref="Load"/>; this reports binding, not successful completion of every initializer or artwork validation.</summary>
     public bool IsLoaded => _bus is not null;
+    /// <summary>Most recent gunship lifecycle event in the current enemy pass, cleared to None at the next pass; answering the save prompt also publishes an event immediately.</summary>
     public GunshipFrameEvent LastGunshipEvent { get; private set; }
+    /// <summary>Whether gunship restoration has requested message box $1C and is awaiting <see cref="AnswerGunshipSavePrompt"/> before its exit animation can resume.</summary>
     public bool GunshipSavePromptPending { get; private set; }
+    /// <summary>Persistent Yes/No result of the latest gunship save answer, reset on room load; true requests outer-runtime SRAM persistence rather than performing a save itself.</summary>
     public bool GunshipSaveRequested { get; private set; }
+    /// <summary>Reserved legacy Mochtroid sound publication, cleared at room load and each enemy pass; current Mochtroid processing does not assign a sound to this field.</summary>
     public ushort? LastMochtroidSoundEffect { get; private set; }
+    /// <summary>Last library-two sound operand emitted by a Hopper instruction this enemy pass, admitted through the native Max6 queue entry; null means no request.</summary>
     public ushort? LastHopperSoundEffect { get; private set; }
+    /// <summary>Last library-two $70 Yard shell kick, launch, or wall-bounce sound this enemy pass, using the Max3 queue entry; cleared before the next pass.</summary>
     public ushort? LastYardSoundEffect { get; private set; }
+    /// <summary>Last library-two Metaree dive ($5B) or floor-impact ($5C) sound this enemy pass, using the Max6 queue entry; cleared before the next pass.</summary>
     public ushort? LastMetareeSoundEffect { get; private set; }
+    /// <summary>Last library-two Skree dive ($5B) or burrow-impact ($5C) sound this enemy pass, also queued by its AI through Max6; cleared before the next pass.</summary>
     public ushort? LastSkreeSoundEffect { get; private set; }
+    /// <summary>Last library-two Alcoon emerge or volley sound this enemy pass, using the Max6 queue entry; null means no current-pass request.</summary>
     public ushort? LastAlcoonSoundEffect { get; private set; }
+    /// <summary>Last library-two Kzan landing sound this enemy pass, using the Max6 queue entry; cleared at the next enemy-frame boundary.</summary>
     public ushort? LastKzanSoundEffect { get; private set; }
+    /// <summary>Last library-two Hibashi eruption sound this enemy pass, using the Max6 queue entry; cleared at the next enemy-frame boundary.</summary>
     public ushort? LastHibashiSoundEffect { get; private set; }
 
     /// <summary>
@@ -152,8 +175,11 @@ public sealed partial class RoomEnemySystem
 
     /// <summary>Last library-three sound requested by an attached Beetom this frame.</summary>
     public ushort? LastBeetomSoundEffect { get; private set; }
+    /// <summary>Native $177E darkness progression, reset on room load and advanced by two per Fireflea death; the cartridge permits values through 12 and rejects the next step to 14.</summary>
     public ushort FirefleaDarknessLevel { get; private set; }
+    /// <summary>Shared wrapping room-shake lifetime word, written by actor/effect producers and decremented by <see cref="HandleRoomShaking"/> for supported types while time is not frozen, not by <see cref="StepFrame"/>.</summary>
     public ushort EarthquakeTimer { get; set; }
+    /// <summary>Native room-shake type selecting background/projectile offsets and whether actors shake; types $00..$23 are consumed by <see cref="HandleRoomShaking"/>, while $24 and above are ignored there.</summary>
     public ushort EarthquakeType { get; set; }
 
     /// <summary>
@@ -488,6 +514,7 @@ public sealed partial class RoomEnemySystem
     /// but LoadEnemyTileData schedules its final VRAM copies after standard room graphics.
     /// A direct host load alone would be overwritten by the next accepted NMI.
     /// </remarks>
+    /// <param name="queue">Ordered NMI VRAM-write queue to which selected enemy character transfers are appended.</param>
     public void QueueGraphicsUploads(VramWriteQueue queue)
     {
         ArgumentNullException.ThrowIfNull(queue);
@@ -505,10 +532,6 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>
-    /// Rebuilds native active/interactive lists, executes selected enemy AI, advances
-    /// instruction lists, and records the layer queues consumed by the later draw phase.
-    /// </summary>
-    /// <summary>
     /// Runs the bank-$88 morph-ball eye beam HDMA object, then
     /// <c>Determine_Which_Enemies_to_Process</c> ($A0:8EB6).
     /// </summary>
@@ -520,6 +543,8 @@ public sealed partial class RoomEnemySystem
     /// initialization) and shutdown (the full beam sees the body's cleared activation word on
     /// the following frame).
     /// </remarks>
+    /// <param name="cameraX">Horizontal viewport origin in whole room pixels for native active and interactive selection.</param>
+    /// <param name="cameraY">Vertical viewport origin in whole room pixels for native active and interactive selection.</param>
     public void PrepareEnemyProcessingList(ushort cameraX, ushort cameraY)
     {
         EnsureLoaded();
@@ -527,6 +552,26 @@ public sealed partial class RoomEnemySystem
         DetermineWhichEnemiesToProcess(cameraX, cameraY);
     }
 
+    /// <summary>
+    /// Runs one native enemy pass: executes selected AI and instruction lists, publishes
+    /// live collision bodies and frame requests, and builds queues for the later draw phase.
+    /// </summary>
+    /// <param name="cameraX">Horizontal viewport origin in whole room pixels.</param>
+    /// <param name="cameraY">Vertical viewport origin in whole room pixels.</param>
+    /// <param name="timeIsFrozen">Whether time-freeze gating suppresses actor AI and instructions; this does not suppress every timer, palette hook, or frame publication.</param>
+    /// <param name="samus">Active player state required by player-dependent enemy paths.</param>
+    /// <param name="newlyPressedControllerInput">Raw SNES button-edge mask for this update, distinct from held buttons.</param>
+    /// <param name="level">Room terrain and collision data required by terrain-dependent actors.</param>
+    /// <param name="controllerInput">Raw held SNES controller-button mask for this update.</param>
+    /// <param name="samusProjectiles">Player shot system used by enemy collision and custom touch paths.</param>
+    /// <param name="nmiFrameCounter8">Current native eight-bit NMI clock; null uses the low byte of the standalone enemy-pass clock.</param>
+    /// <param name="mode7Transform">Active Mode-7 transform sampled by rotating Ceres steam to derive draw offsets without changing its world collision coordinates.</param>
+    /// <param name="sharedProjectiles">Shared bomb and power-bomb state used by native collision order and actor effects.</param>
+    /// <param name="vramWriteQueue">Optional destination for corpse-row graphics transfers produced during this pass.</param>
+    /// <param name="resolveSamusContactBeforeAi">Whether to perform the configured projectile, bomb, and player-contact pass against each actor's pre-AI state.</param>
+    /// <param name="collisionPlms">Optional room PLMs participating in the scoped enemy terrain-collision probes.</param>
+    /// <param name="nmiFrameCounter">Current independent sixteen-bit NMI clock; null uses the standalone enemy-pass clock.</param>
+    /// <param name="processingListPrepared">True when <see cref="PrepareEnemyProcessingList"/> already ran at the native pre-Samus boundary; false prepares the lists here for standalone callers.</param>
     public void StepFrame(
         ushort cameraX,
         ushort cameraY,
@@ -874,6 +919,8 @@ public sealed partial class RoomEnemySystem
     /// persistence remains an outer-runtime seam; the actor publishes a Yes choice while
     /// continuing the cartridge's identical exit animation for either answer.
     /// </summary>
+    /// <param name="save">True to request outer-runtime persistence, or false to resume the exit animation without requesting a save.</param>
+    /// <exception cref="InvalidOperationException">The system is not loaded or no gunship save prompt is awaiting a response.</exception>
     public void AnswerGunshipSavePrompt(bool save)
     {
         EnsureLoaded();
@@ -894,6 +941,14 @@ public sealed partial class RoomEnemySystem
     /// <summary>
     /// Writes queued enemies for an inclusive layer range using native slot order.
     /// </summary>
+    /// <remarks>Drawing consumes each emitted actor's shake timer and may apply installed extended-frame BG2 presentation changes; it is a native draw phase, not a side-effect-free snapshot render.</remarks>
+    /// <param name="oam">OAM buffer receiving the selected actors' ordinary, extended, and supplemental sprites.</param>
+    /// <param name="cameraX">Horizontal viewport origin in whole room pixels, subtracted from world draw positions.</param>
+    /// <param name="cameraY">Vertical viewport origin in whole room pixels, subtracted from world draw positions.</param>
+    /// <param name="firstLayer">First native draw layer, inclusively, in the range 0..7.</param>
+    /// <param name="lastLayer">Last native draw layer, inclusively, in the range 0..7 and not below firstLayer.</param>
+    /// <exception cref="ArgumentNullException">The OAM buffer is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The inclusive layer range is invalid.</exception>
     public void DrawLayers(
         OamBuffer oam,
         ushort cameraX,

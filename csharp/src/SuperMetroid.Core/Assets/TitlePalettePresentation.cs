@@ -25,16 +25,22 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
         SkipCopyrightRed = skipCopyrightRed;
     }
 
-    /// <summary>The two copyright glyph colors restored by the title's fast-skip route.</summary>
+    /// <summary>Selected BGR555 copyright highlight restored at CGRAM color 201 by the title fast-skip route and title-screen presentation rebinding.</summary>
     public ushort SkipCopyrightWhite { get; }
+    /// <summary>Selected BGR555 copyright tint restored at CGRAM color 202 on fast skip; the legacy Red name does not restrict its channels, and the stock word is $7D80.</summary>
     public ushort SkipCopyrightRed { get; }
 
     /// <inheritdoc />
+    /// <param name="pointer">Bank-$8D address of a color operand in the tube-light or display program, not its duration or instruction word.</param>
+    /// <param name="color">Selected native BGR555 word when found, otherwise zero.</param>
+    /// <returns>True when the pointer identifies an authored or matching calculated ambient color; false for unrelated program addresses.</returns>
     public bool TryReadColor(ushort pointer, out ushort color) =>
         animatedColors.TryGetValue(pointer, out color) ||
         TitleAmbientColorDefinitions.TryCalculate(pointer, colors, animatedColors, out color);
 
     /// <summary>Loads the complete authored palette into native CGRAM slots zero through 255.</summary>
+    /// <param name="destination">Color memory whose full initial palette is replaced; ambient animation and skip-only replacements are applied separately by the title state.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="destination"/> is null.</exception>
     public void Apply(SnesCgram destination)
     {
         ArgumentNullException.ThrowIfNull(destination);
@@ -42,6 +48,11 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
             destination.SetColor(index, colors[index]);
     }
 
+    /// <summary>Validates initial, ambient-animation and skip-only RGB5 colors and compiles independently owned native palette words.</summary>
+    /// <param name="json">UTF-8 JSON read from its current position to the end and left open.</param>
+    /// <returns>An immutable color source; ambient samples are calculated from selected paint only where the calculated output matches the supplied sample, preserving independent edits.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
+    /// <exception cref="InvalidDataException">JSON is invalid or ambiguous, its version or array dimensions are wrong, or a required color is null or has a channel outside 0..31.</exception>
     public static TitlePalettePresentation Load(Stream json)
     {
         TitlePaletteDocument document = JsonAssetDocument.Read<TitlePaletteDocument>(
@@ -140,6 +151,10 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
         return (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
     }
 
+    /// <summary>Serializes and validates the complete title palette document before writing any UTF-8 JSON bytes.</summary>
+    /// <param name="json">Destination stream written at its current position and left open; trailing bytes are not truncated.</param>
+    /// <param name="document">Editable RGB5 collections read for serialization, not retained by the writer.</param>
+    /// <exception cref="InvalidDataException">The serialized document fails <see cref="Load"/>'s schema, frame-size or RGB5 validation.</exception>
     public static void Write(Stream json, TitlePaletteDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
@@ -148,18 +163,28 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
     }
 }
 
+/// <summary>Editable RGB5 schema for the initial title palette, ambient color frames and copyright replacements; nested arrays remain caller-mutable until compilation.</summary>
 public sealed record TitlePaletteDocument
 {
+    /// <summary>Schema revision; loading requires <see cref="TitlePaletteFormat.Version"/>.</summary>
     public required int Version { get; init; }
+    /// <summary>Exactly 256 nonnull colors in CGRAM index order, corresponding to Palettes_TitleScreen at $8C:E1E9; every channel is 0..31.</summary>
     public required PaletteRgb5[] Colors { get; init; }
+    /// <summary>Eight ordered four-color RGB5 rows for $8D:C7FE's tube-light loop, targeting CGRAM 42..45; each row's ten-update duration remains compiled mechanics.</summary>
     public required PaletteRgb5[][] BabyMetroidTubeLight { get; init; }
+    /// <summary>Two ordered two-color RGB5 rows for $8D:C866's display-flicker loop, targeting CGRAM 46..47; alternating one-update durations remain compiled mechanics.</summary>
     public required PaletteRgb5[][] FlickeringDisplays { get; init; }
+    /// <summary>Nonnull RGB5 copyright highlight restored at CGRAM 201 on fast skip, independently editable from the initial palette's same slot.</summary>
     public required PaletteRgb5 SkipCopyrightWhite { get; init; }
+    /// <summary>Nonnull RGB5 copyright tint restored at CGRAM 202 on fast skip, independently editable from the initial palette; Red is a legacy role name rather than a color constraint.</summary>
     public required PaletteRgb5 SkipCopyrightRed { get; init; }
 }
 
+/// <summary>Installed file identity and schema revision for title palette paint and its selected ambient animation colors.</summary>
 public static class TitlePaletteFormat
 {
+    /// <summary>JSON filename loaded by the title presentation catalog for initial, ambient and skip-only colors.</summary>
     public const string FileName = "title-palette.json";
+    /// <summary>Revision 3 of the schema, requiring all 256 initial colors, both ambient frame sets and both copyright replacements.</summary>
     public const int Version = 3;
 }

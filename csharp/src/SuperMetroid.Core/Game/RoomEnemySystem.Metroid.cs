@@ -12,16 +12,20 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public enum MetroidAiFunction : ushort
 {
+    /// <summary>Index 0 selects $A3:EC11, Function_Metroid_0_ChaseSamus: proportional 16.16 attraction toward Samus's X and eight pixels above her Y, capped at three pixels per update.</summary>
     Homing = 0,
+    /// <summary>Index 1 selects $A3:ECDC, Function_Metroid_1_LatchOntoSamus: byte-oriented close-range seeking entered on touch before the attachment threshold is reached.</summary>
     ClosingOnSamus = 1,
+    /// <summary>Index 2 selects $A3:ED8F, Function_Metroid_2_LatchedOntoSamus: hard-lock position to Samus's X and Y minus eight pixels, clearing movement velocities.</summary>
     AttachedToSamus = 2,
+    /// <summary>Index 3 selects $A3:EDAB, Function_Metroid_3_BombedOffSamus: perform four displacement steps after bomb collision detaches the Metroid, then resume homing.</summary>
     PowerBombEscape = 3,
 }
 
 /// <summary>
 /// One requested drop from <c>Enemy_ItemDrop_Metroid</c> at <c>$A0:B968</c>. Actual pickup
-/// actors remain owned by the shared enemy-projectile pool; retaining all five authored
-/// requests makes their source, RNG scatter, and eventual integration explicit.
+/// actors are spawned into the shared enemy-projectile pool. This empty marker counts
+/// each of the five requests; it does not retain the pickup's RNG-scattered coordinates.
 /// </summary>
 public readonly record struct MetroidDropRequest();
 
@@ -44,24 +48,28 @@ public sealed class MetroidEnemyState
         OuterBodyB = outerBodyB;
     }
 
+    /// <summary>Variable A at native $0FA8: unsigned low word of horizontal 16.16 velocity; fractional units are 1/65536 pixel per movement update.</summary>
     public ushort XSubvelocity
     {
         get => _slot.VariableA;
         internal set => _slot.VariableA = value;
     }
 
+    /// <summary>Variable B at native $0FAA: signed high word of horizontal 16.16 velocity, in pixels per update; positive values move right.</summary>
     public short XVelocity
     {
         get => unchecked((short)_slot.VariableB);
         internal set => _slot.VariableB = unchecked((ushort)value);
     }
 
+    /// <summary>Variable C at native $0FAC: unsigned low word of vertical 16.16 velocity; fractional units are 1/65536 pixel per movement update.</summary>
     public ushort YSubvelocity
     {
         get => _slot.VariableC;
         internal set => _slot.VariableC = value;
     }
 
+    /// <summary>Variable D at native $0FAE: signed high word of vertical 16.16 velocity, in pixels per update; positive values move down.</summary>
     public short YVelocity
     {
         get => unchecked((short)_slot.VariableD);
@@ -75,13 +83,16 @@ public sealed class MetroidEnemyState
         internal set => _slot.VariableE = value;
     }
 
+    /// <summary>Variable F at native $0FB2: zero-based movement dispatcher index 0..3 into $A3:EC09, not an AI routine pointer.</summary>
     public MetroidAiFunction Function
     {
         get => (MetroidAiFunction)_slot.VariableF;
         internal set => _slot.VariableF = (ushort)value;
     }
 
+    /// <summary>Live shared-pool electricity sprite object, native selector $32 and reference $7E:7800; the Metroid owner repositions, freezes and terminates it alongside the central body.</summary>
     public RoomSpriteObjectSlot OuterBodyA { get; }
+    /// <summary>Live shared-pool shell sprite object, native selector $34 and reference $7E:7802; distinct from both the electricity layer and central enemy spritemap.</summary>
     public RoomSpriteObjectSlot OuterBodyB { get; }
 
     /// <summary>
@@ -90,7 +101,9 @@ public sealed class MetroidEnemyState
     /// </summary>
     public ushort DrainAccumulator { get; internal set; }
 
+    /// <summary>Horizontal velocity composed losslessly from variables B:A as signed 16.16 pixels per movement update.</summary>
     public int SignedXVelocity => unchecked((XVelocity << 16) | XSubvelocity);
+    /// <summary>Vertical velocity composed losslessly from variables D:C as signed 16.16 pixels per movement update.</summary>
     public int SignedYVelocity => unchecked((YVelocity << 16) | YSubvelocity);
 }
 

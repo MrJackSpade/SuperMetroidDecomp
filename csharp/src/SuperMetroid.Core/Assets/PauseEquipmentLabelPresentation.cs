@@ -21,7 +21,9 @@ public sealed class PauseEquipmentLabelPresentation
         ContentIdentity = contentIdentity;
     }
 
+    /// <summary>BG palette selector 0..7 substituted into collected but unequipped labels; the retail gray-text selector is three.</summary>
     public int DisabledPalette { get; }
+    /// <summary>Uppercase hexadecimal SHA-256 of the exact source JSON bytes, used by pause-menu rebinding to decide whether to rebuild inventory labels.</summary>
     public string ContentIdentity { get; }
 
     internal bool OwnsLiveCell(int cell)
@@ -100,6 +102,10 @@ public sealed class PauseEquipmentLabelPresentation
         if (disabled) Recolor(destination, DisabledPalette);
     }
 
+    /// <summary>Validates and compiles pause-equipment-labels.json into placement and tile-word edits relative to the native $82:BF32-C01A label artwork.</summary>
+    /// <param name="json">UTF-8 JSON source read from its current position to the end and left open.</param>
+    /// <returns>Compiled inventory-label artwork independent of the mutable document collections and cartridge memory.</returns>
+    /// <exception cref="InvalidDataException">The JSON, version, exact label set, cell references, placement, disabled palette, or permitted label/live-state footprints are invalid.</exception>
     public static PauseEquipmentLabelPresentation Load(Stream json)
     {
         byte[] source;
@@ -167,6 +173,10 @@ public sealed class PauseEquipmentLabelPresentation
             Convert.ToHexString(SHA256.HashData(source)));
     }
 
+    /// <summary>Serializes the editable label schema to UTF-8 JSON, validates it through <see cref="Load"/>, then writes the validated bytes.</summary>
+    /// <param name="output">Destination written at its current position and left open; existing trailing bytes are not truncated.</param>
+    /// <param name="document">Label artwork and placement to serialize; the writer does not retain the document.</param>
+    /// <exception cref="InvalidDataException">The serialized document fails the loader's schema, cell, or placement validation.</exception>
     public static void Write(Stream output, PauseEquipmentLabelDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
@@ -231,17 +241,26 @@ public sealed class PauseEquipmentLabelPresentation
     }
 }
 
+/// <summary>Editable pause equipment-page label schema, separating inventory-owned text from the backdrop, wireframe, and reserve controls.</summary>
 public sealed record PauseEquipmentLabelDocument
 {
+    /// <summary>Schema revision; loading requires version one from <see cref="PauseEquipmentLabelDefinitions.Version"/>.</summary>
     public required int Version { get; init; }
+    /// <summary>BG palette selector 0..7 applied to collected but unequipped labels while preserving their character, priority, and flip bits.</summary>
     public required int DisabledPalette { get; init; }
+    /// <summary>Nine nonnull cells replacing the native zero-word blank strip at $82:C01A; uncollected labels and discarded Hyper beam slots use the needed prefix.</summary>
     public required PauseBackdropCell[] Blank { get; init; }
+    /// <summary>Exactly fourteen case-sensitive ordinary selector-anchor keys plus Beam.Hyper, with no reserve labels; entries specify editable tile artwork and destinations.</summary>
     public required Dictionary<string, PauseEquipmentLabel> Labels { get; init; }
 }
 
+/// <summary>One horizontal strip of pause BG tile artwork and its destination within the equipment page's 32x32 tilemap.</summary>
 public sealed record PauseEquipmentLabel
 {
+    /// <summary>Zero-based destination tile column 0..31, not an artwork-atlas column; the displayed label must fit within the tilemap row.</summary>
     public required int Column { get; init; }
+    /// <summary>Zero-based destination tile row 0..31 in the equipment page, with each tile occupying eight screen pixels vertically.</summary>
     public required int Row { get; init; }
+    /// <summary>Left-to-right nonnull artwork cells: five for ordinary beams and nine for equipment, boots, and Beam.Hyper; Hyper displays only its first five cells.</summary>
     public required PauseBackdropCell[] Cells { get; init; }
 }

@@ -16,6 +16,10 @@ public sealed class FileSelectMapNavigation
     [NonSerialized] private SuperMetroid.Core.Assets.WorldMapLabelLayout? labels;
     internal void BindLabels(SuperMetroid.Core.Assets.WorldMapLabelLayout? content) => labels = content;
 
+    /// <summary>Creates normal area/room-map navigation for a saved area's native index.</summary>
+    /// <param name="bus">Installed address space used when constructing the room-map window.</param>
+    /// <param name="area">Zero-based saved area index.</param>
+    /// <param name="initialHeldInput">Controller state to latch so already-held buttons do not create edges.</param>
     public FileSelectMapNavigation(ISnesAddressSpace bus, int area, ushort initialHeldInput = 0)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
@@ -25,7 +29,10 @@ public sealed class FileSelectMapNavigation
         previousInput = initialHeldInput;
     }
 
+    /// <summary>Gets the current mutually exclusive navigation or transition-request phase.</summary>
     public FileSelectMapNavigationPhase Phase { get; private set; } = FileSelectMapNavigationPhase.Area;
+
+    /// <summary>Gets the room-map window after preparation begins, or <see langword="null"/> on the area map.</summary>
     public FileSelectMapWindow? Window { get; private set; }
     /// <summary>Entry/fade owners consume controller samples without executing menu actions.</summary>
     public void LatchInputWithoutNavigation(ushort heldInput) => previousInput = heldInput;
@@ -90,13 +97,22 @@ public sealed class FileSelectMapNavigation
 /// <summary>Exclusive navigation phases; these names are not cartridge dispatcher addresses.</summary>
 public enum FileSelectMapNavigationPhase
 {
+    /// <summary>Accepts area-map confirm or cancel edges.</summary>
     Area,
+    /// <summary>Creates the selected area's room-map window.</summary>
     PreparingWindow,
+    /// <summary>Advances the window-opening animation.</summary>
     ExpandingWindow,
+    /// <summary>Installs the room-map contents after the frame reaches its endpoint.</summary>
     InitializingRoom,
+    /// <summary>Accepts room-map load or return edges.</summary>
     Room,
+    /// <summary>Waits for the frontend to finish returning to the area map.</summary>
     AreaReturnRequested,
+    /// <summary>Requests a transition back to the file-options menu.</summary>
     OptionsRequested,
+    /// <summary>Requests loading the selected save file.</summary>
     LoadRequested,
+    /// <summary>Represents the frontend-owned transition into an area map.</summary>
     EnteringArea,
 }

@@ -19,6 +19,10 @@ public sealed class CeresFlightActorLayout
         this.placements = stock ? null : placements;
     }
 
+    /// <summary>Resolves one selected rear-view actor's starting screen placement, using its native default when the complete layout is unchanged.</summary>
+    /// <param name="actorIndex">Zero-based native spawn-order index: large asteroids, station under attack, small asteroids, vortex, then rear stars.</param>
+    /// <returns>The fixed actor identity and encoded whole-pixel X/Y coordinates for that slot.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside 0 through 4.</exception>
     public CeresFlightActorPlacement this[int actorIndex]
     {
         get
@@ -48,6 +52,11 @@ public sealed class CeresFlightActorLayout
         }
     });
 
+    /// <summary>Loads the supported layout schema, requiring all five fixed actor IDs in native order and unsigned sixteen-bit starting coordinates.</summary>
+    /// <param name="json">Readable JSON stream, left open after deserialization.</param>
+    /// <returns>Validated starting visual placements without changing instruction programs, physical motion, or the front-view star field.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
+    /// <exception cref="InvalidDataException">The JSON, schema version, actor count/order/identity, or coordinate range is invalid.</exception>
     public static CeresFlightActorLayout Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -80,6 +89,11 @@ public sealed class CeresFlightActorLayout
         return new CeresFlightActorLayout(document.Actors);
     }
 
+    /// <summary>Serializes the editable layout as UTF-8 JSON and validates it through <see cref="Load"/> before writing any bytes to the destination.</summary>
+    /// <param name="json">Destination stream, written at its current position and left open; existing trailing bytes are not truncated.</param>
+    /// <param name="document">Supported-version document containing the five ordered actor placements.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
+    /// <exception cref="InvalidDataException">The serialized document fails layout validation.</exception>
     public static void Write(Stream json, CeresFlightActorLayoutDocument document)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -90,21 +104,31 @@ public sealed class CeresFlightActorLayout
     }
 }
 
+/// <summary>One editable initial screen placement for a fixed rear-view Ceres actor; coordinates preserve native sixteen-bit encoding rather than motion parameters.</summary>
 public sealed record CeresFlightActorPlacement
 {
+    /// <summary>Case-sensitive actor-role identity required to match its native spawn-order slot, not an editable instruction or behavior selector.</summary>
     public required string Id { get; init; }
+    /// <summary>Initial whole-pixel screen X encoded in 0..65535; negative off-screen origins retain two's-complement encoding, such as 65504 for -32.</summary>
     public required int X { get; init; }
+    /// <summary>Initial whole-pixel screen Y encoded in 0..65535, without restricting the actor to the visible viewport.</summary>
     public required int Y { get; init; }
 }
 
+/// <summary>Editable JSON payload for the five rear-view initial placements, excluding front stars, actor instruction programs, and movement mechanics.</summary>
 public sealed record CeresFlightActorLayoutDocument
 {
+    /// <summary>Schema revision required to equal <see cref="CeresFlightActorLayoutFormat.Version"/> during loading.</summary>
     public required int Version { get; init; }
+    /// <summary>Exactly five nonnull placements in order: <c>large-asteroid</c>, <c>station-under-attack</c>, <c>small-asteroid</c>, <c>vortex</c>, and <c>rear-stars</c>.</summary>
     public required CeresFlightActorPlacement[] Actors { get; init; }
 }
 
+/// <summary>Installed resource identity and supported schema version for rear-view Ceres actor placement.</summary>
 public static class CeresFlightActorLayoutFormat
 {
+    /// <summary>Supported actor-layout JSON schema revision one.</summary>
     public const int Version = 1;
+    /// <summary>Installed rear-view placement resource, <c>ceres-flight-actors.json</c>.</summary>
     public const string FileName = "ceres-flight-actors.json";
 }

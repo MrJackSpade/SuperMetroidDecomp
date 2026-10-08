@@ -52,6 +52,10 @@ public sealed class SamusSuitColorCatalog
         WriteIndented = true,
     };
 
+    /// <summary>Resolves one packed RGB555 color from the selected normal suit palette.</summary>
+    /// <param name="suitTableOffset">Native categorical table offset: 0 for Power, 2 for Varia, or 4 for Gravity.</param>
+    /// <param name="colorIndex">OBJ palette slot from 0 through 15, including the transparent slot.</param>
+    /// <returns>The selected packed SNES RGB555 word.</returns>
     public ushort Resolve(ushort suitTableOffset, int colorIndex)
     {
         Dictionary<int, ushort>? differences = suitTableOffset switch
@@ -76,6 +80,9 @@ public sealed class SamusSuitColorCatalog
                 Resolve(suitTableOffset, index));
     }
 
+    /// <summary>Loads and validates the three complete normal-suit palettes from JSON.</summary>
+    /// <param name="json">Caller-owned stream containing the suit-color document.</param>
+    /// <returns>The compiled suit-color catalog.</returns>
     public static SamusSuitColorCatalog Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -97,6 +104,9 @@ public sealed class SamusSuitColorCatalog
             Compile(document.Gravity, "Gravity"));
     }
 
+    /// <summary>Validates and serializes a suit-color document as UTF-8 JSON.</summary>
+    /// <param name="document">Document containing all three 16-color palettes.</param>
+    /// <returns>A new caller-owned JSON byte array.</returns>
     public static byte[] Write(SamusSuitColorDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
@@ -125,17 +135,29 @@ public sealed class SamusSuitColorCatalog
             name => new InvalidDataException($"Duplicate Samus suit color property {name}."));
 }
 
+/// <summary>JSON schema for the Power, Varia, and Gravity normal body palettes.</summary>
 public sealed record SamusSuitColorDocument
 {
+    /// <summary>Gets the schema version required by <see cref="SamusSuitColorFormat.Version"/>.</summary>
     public required int Version { get; init; }
+
+    /// <summary>Gets the sixteen editable Power-suit RGB5 colors.</summary>
     public required PaletteRgb5[] Power { get; init; }
+
+    /// <summary>Gets the sixteen editable Varia-suit RGB5 colors.</summary>
     public required PaletteRgb5[] Varia { get; init; }
+
+    /// <summary>Gets the sixteen editable Gravity-suit RGB5 colors.</summary>
     public required PaletteRgb5[] Gravity { get; init; }
 }
 
+/// <summary>Defines the installed normal-suit color resource and its fixed palette size.</summary>
 public static class SamusSuitColorFormat
 {
+    /// <summary>Canonical normal-suit color asset file name.</summary>
     public const string FileName = "samus-suit-colors.json";
+    /// <summary>Supported normal-suit color schema version.</summary>
     public const int Version = 1;
+    /// <summary>Number of OBJ palette colors stored for each suit, including the transparent slot.</summary>
     public const int ColorsPerSuit = SamusPaletteRomData.Common.ColorsPerObjPalette;
 }

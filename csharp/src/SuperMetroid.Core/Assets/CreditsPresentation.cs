@@ -16,8 +16,15 @@ public sealed class CreditsPresentation
         ContentIdentity = contentIdentity;
     }
 
+    /// <summary>Gets the uppercase SHA-256 identity of the exact loaded JSON bytes.</summary>
     public string ContentIdentity { get; }
+
+    /// <summary>Gets the fixed number of 32-word tilemap rows in the compiled staff roll.</summary>
     public int RowCount => fixtureRows?.Length ?? CreditsPresentationDefinitions.ExpectedCompiledRows;
+
+    /// <summary>Compiles one staff-roll tilemap row, including authored blank-row cadence.</summary>
+    /// <param name="index">Zero-based compiled row index.</param>
+    /// <returns>Thirty-two complete SNES BG tilemap words.</returns>
     public ReadOnlySpan<ushort> GetRow(int index)
     {
         if ((uint)index >= RowCount)
@@ -38,6 +45,9 @@ public sealed class CreditsPresentation
         }
         return BlankRow();
     }
+    /// <summary>Loads and validates the ordered editable staff-credit lines from JSON.</summary>
+    /// <param name="json">Caller-owned stream containing a credits document.</param>
+    /// <returns>The compiled credits presentation.</returns>
     public static CreditsPresentation Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -104,6 +114,9 @@ public sealed class CreditsPresentation
         return new(document.Lines, null, Convert.ToHexString(SHA256.HashData(source)));
     }
 
+    /// <summary>Validates and writes a credits document as JSON.</summary>
+    /// <param name="output">Destination stream.</param>
+    /// <param name="document">Document to validate and serialize.</param>
     public static void Write(Stream output, CreditsPresentationDocument document)
     {
         ArgumentNullException.ThrowIfNull(output);
@@ -150,16 +163,28 @@ public sealed class CreditsPresentation
             CreditsPresentationDefinitions.TilemapWidth).ToArray();
 }
 
+/// <summary>JSON schema for the complete ordered staff-credit script.</summary>
 public sealed record CreditsPresentationDocument
 {
+    /// <summary>Gets the schema version required by <see cref="CreditsPresentationDefinitions.Version"/>.</summary>
     public required int Version { get; init; }
+
+    /// <summary>Gets the editable lines in their fixed native display order.</summary>
     public required CreditsLineDocument[] Lines { get; init; }
 }
 
+/// <summary>Defines the text and tilemap placement of one staff-credit line.</summary>
 public sealed record CreditsLineDocument
 {
+    /// <summary>Gets the stable line identifier matched against the native cadence definition.</summary>
     public required string Id { get; init; }
+
+    /// <summary>Gets the text compiled with the line's predefined font style.</summary>
     public required string Text { get; init; }
+
+    /// <summary>Gets the zero-based starting column in the 32-word tilemap row.</summary>
     public required int Column { get; init; }
+
+    /// <summary>Gets the BG palette selector encoded into the compiled tilemap words.</summary>
     public required int Palette { get; init; }
 }

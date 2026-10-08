@@ -10,7 +10,9 @@ namespace SuperMetroid.Core.Game;
 [Flags]
 public enum WallSpacePirateParameterFlags : ushort
 {
+    /// <summary>Parameter-one bit zero tested by $B2:EF9F: starts the downward-climbing list and detection function on the right wall; clearing it selects the left wall.</summary>
     StartsOnRightWall = 0x0001,
+    /// <summary>Parameter-one bit fifteen preserves the native slow jump settings: two byte-angle units per update with right/left endpoint angles $BE/$42 instead of the fast $C0/$40 endpoints.</summary>
     SlowJumpAndLaser = 0x8000,
 }
 
@@ -39,7 +41,9 @@ public enum WallSpacePirateFunction : ushort
 /// <summary>The binary climb direction stored in native variable C.</summary>
 public enum WallSpacePirateClimbDirection : ushort
 {
+    /// <summary>Variable-C value zero selects the downward climb list, whose movement opcodes add three room pixels to Y before collision handling.</summary>
     Down = 0,
+    /// <summary>Variable-C value one selects the upward climb list, whose movement opcodes subtract three room pixels from Y before collision handling.</summary>
     Up = 1,
 }
 
@@ -54,6 +58,7 @@ public sealed class WallSpacePirateEnemyState
 
     internal WallSpacePirateEnemyState(RoomEnemySlot slot) => _slot = slot;
 
+    /// <summary>Bank-$B2 AI entry stored in slot variable A, initialized for the starting wall and replaced by instruction $B2:EF83 as attack, jump, and landing lists advance.</summary>
     public WallSpacePirateFunction Function
     {
         get => (WallSpacePirateFunction)_slot.VariableA;
@@ -67,33 +72,41 @@ public sealed class WallSpacePirateEnemyState
         internal set => _slot.VariableB = value;
     }
 
+    /// <summary>Binary direction in slot variable C; starts downward, reverses on a blocked vertical move, and is reselected from RNG bit zero by the climb-list direction opcodes.</summary>
     public WallSpacePirateClimbDirection ClimbDirection
     {
         get => (WallSpacePirateClimbDirection)_slot.VariableC;
         internal set => _slot.VariableC = (ushort)value;
     }
 
+    /// <summary>Whole room-pixel X center in slot variable D, set by $B2:EED4/$EEFD to the departure X plus or minus half parameter two for the jump ellipse.</summary>
     public ushort WallJumpArcCenterX
     {
         get => _slot.VariableD;
         internal set => _slot.VariableD = value;
     }
 
+    /// <summary>Whole room-pixel Y center in slot variable E, captured from departure Y when preparing either jump and used by the cosine-based arc position writer.</summary>
     public ushort WallJumpArcCenterY
     {
         get => _slot.VariableE;
         internal set => _slot.VariableE = value;
     }
 
+    /// <summary>Slot variable F's byte-angle phase, wrapping over 0..255: starts at $40 for a rightward jump or $C0 for a leftward jump and advances after each whole-position calculation.</summary>
     public ushort WallJumpArcAngle
     {
         get => _slot.VariableF;
         internal set => _slot.VariableF = value;
     }
 
+    /// <summary>Native $7E:8000 per-enemy rightward endpoint: $BE for slow jumps or $C0 for fast jumps; equality after decreasing the angle installs the right-wall landing list.</summary>
     public ushort RightJumpTargetAngle { get; internal set; }
+    /// <summary>Native $7E:8002 per-enemy leftward endpoint: $42 for slow jumps or $40 for fast jumps; equality after increasing the angle installs the left-wall landing list.</summary>
     public ushort LeftJumpTargetAngle { get; internal set; }
+    /// <summary>Native $7E:8004 per-enemy byte-angle increment magnitude, two for slow or four for fast jumps; subtracted when jumping right and added when jumping left.</summary>
     public ushort JumpAngleDelta { get; internal set; }
+    /// <summary>Host diagnostic count of successfully allocated lasers since this enemy state was initialized; shared projectile-pool exhaustion does not increment it.</summary>
     public int SpawnedLaserCount { get; internal set; }
 }
 

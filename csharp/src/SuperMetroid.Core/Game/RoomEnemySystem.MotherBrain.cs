@@ -121,7 +121,6 @@ public sealed partial class RoomEnemySystem
     private void RunMotherBrainBodyMain(
         RoomEnemySlot body,
         SamusState? samus,
-        byte nmiFrameCounter8,
         SamusBombProjectileSystem? sharedProjectiles)
     {
         MotherBrainEnemyState state = RequireCompleteMotherBrainState(body);
@@ -130,7 +129,7 @@ public sealed partial class RoomEnemySystem
         // dispatches the body function. Keeping that order is visible on the exact frame
         // the fake-death flash begins and later when the main tube stops the loop.
         RunMotherBrainRoomPalette(state);
-        RunMotherBrainBodyFunction(state, samus, nmiFrameCounter8, sharedProjectiles);
+        RunMotherBrainBodyFunction(state, samus, sharedProjectiles);
         // Every body function returns through the common contact tail. The first-phase
         // function also has its own authored contact call; retain both native sites.
         if (samus is not null)
@@ -140,7 +139,6 @@ public sealed partial class RoomEnemySystem
     private void RunMotherBrainBodyFunction(
         MotherBrainEnemyState state,
         SamusState? samus,
-        byte nmiFrameCounter8,
         SamusBombProjectileSystem? sharedProjectiles)
     {
         switch (state.Function)
@@ -259,7 +257,6 @@ public sealed partial class RoomEnemySystem
                 RunMotherBrainPhaseTwoAscent(
                     state,
                     samus,
-                    nmiFrameCounter8,
                     sharedProjectiles);
                 return;
             default:

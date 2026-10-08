@@ -1702,7 +1702,7 @@ public sealed partial class RoomEnemySystem
                 RunDraygonPartMain(slot, samus);
                 return;
             case EnemyAiCodePointers.MainAI_HurtAI_MotherBrainBody when slot.EnemyDefinitionPointer == MotherBrainBodyDefinition:
-                RunMotherBrainBodyMain(slot, samus, nmiFrameCounter8, sharedProjectiles);
+                RunMotherBrainBodyMain(slot, samus, sharedProjectiles);
                 return;
             case EnemyAiCodePointers.MainAI_HurtAI_MotherBrainHead when slot.EnemyDefinitionPointer == MotherBrainHeadDefinition:
                 RunMotherBrainHeadMain(slot, samus);

@@ -3762,8 +3762,8 @@ internal static class SamusMovementRomDataVerticalMotionConstants
 /// <summary>Cartridge values of <see cref="SamusPaletteRomData.Banks"/> that only verification reads.</summary>
 internal static class SamusPaletteRomDataBanksConstants
 {
-    /// <summary>Bank containing flare animation delays.</summary>
-    public const int Movement = 0x900000;
+    /// <summary>Bank <c>$91</c>, which owns Samus palette pointer lists.</summary>
+    public const int Movement = 0x910000;
 
     extension(SamusPaletteRomData.Banks)
     {

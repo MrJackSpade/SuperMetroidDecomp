@@ -1009,12 +1009,19 @@ public sealed partial class SuperMetroidGame
                     !StepHitDoorBlockFunction(controllerInput))
                     break;
                 // State $0A ($82:E1B7) follows in the same dispatch and publishes state $0B.
-                // It calls $84:8250, which runs Samus code $1D and queues library-two $71 so
-                // movement/charge loops terminate rather than leaking into the next room.
                 // MainGameLoop's HDMA pass ($88:84B9) runs before this state handler. A rising
                 // liquid's rumble or ambient sound it requests is admitted ahead of the cancels.
                 runtime!.RunDoorSoundWaitPrologue(controllerInput);
                 PublishDoorEntryRoomFxSounds(runtime);
+                // $82:E1BB sets the door/enemy pause flags, then $82:E1CA-E1D6 run the source
+                // enemy/draw owners while sounds are still admitted, so an enemy instruction's
+                // sound on this frame is queued before the door's cancels.
+                doorTransition.Begin(runtime);
+                runtime.DrawDoorTransitionActors(runEnemyProjectiles: false);
+                CollectDoorSoundWaitAudioRequests(runtime);
+                // $82:E26B calls $84:8250, which runs Samus code $1D, then $82:E272 queues
+                // library-two $71 so movement/charge loops terminate rather than leaking
+                // into the next room.
                 SamusState doorSamus = runtime.Samus
                     ?? throw new InvalidOperationException("Door transition requires live Samus state.");
                 SamusMovementType doorMovementType = doorSamus.ReadMovementType(bus);
@@ -1031,10 +1038,6 @@ public sealed partial class SuperMetroidGame
                 audio.QueueSound(SoundEffectLibrary2Sounds.CancelAll, maximumQueued: 15);
                 // $82:E279 follows both entry cancellation commands, not precedes them.
                 audio.DoorTransitionSoundsDisabled = true;
-                doorTransition.Begin(runtime);
-                // $82:E1B7 runs the source enemy/draw owners on the entry frame,
-                // with transition ownership already installed and Samus stationary.
-                runtime.DrawDoorTransitionActors(runEnemyProjectiles: false);
                 // State $09 calls state $0A synchronously for ordinary doors; state $0A
                 // publishes state $0B before returning. Consequently neither intermediate
                 // numeric value owns a separately displayed frame.

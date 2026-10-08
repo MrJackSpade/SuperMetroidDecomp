@@ -330,6 +330,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--door-entry-enemy-sound"])
+{
+    VerifyDoorEntryEnemySound();
+    return 0;
+}
 if (args is ["--gold-ninja-death-drops"])
 {
     VerifyGoldNinjaDeathDrops();
@@ -7237,6 +7242,7 @@ VerifySpringBallBounce();
 VerifyMainGameLoopCarry();
 VerifyDoorEntryRoomFxSound();
 VerifyGoldNinjaDeathDrops();
+VerifyDoorEntryEnemySound();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

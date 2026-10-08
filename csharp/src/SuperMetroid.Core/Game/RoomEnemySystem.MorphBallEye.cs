@@ -7,10 +7,15 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public enum MorphBallEyeAiFunction : ushort
 {
+    /// <summary>Native <c>Function_Eye_WaitForSamusToGetNear</c> at <c>$A8:90F1</c>; waits until Samus is strictly within 128 room pixels on both axes before starting the opening animation.</summary>
     WaitForSamus = 0x90f1,
+    /// <summary>Native <c>Function_Eye_Activating</c> at <c>$A8:912E</c>; decrements the 32-update opening countdown, then requests the reveal beam and begins tracking Samus.</summary>
     Activating = 0x912e,
+    /// <summary>Native <c>Function_Eye_Active</c> at <c>$A8:9160</c>; aims toward Samus and selects angle-dependent eye artwork while within 176 horizontal and 128 vertical pixels, otherwise begins closing.</summary>
     Active = 0x9160,
+    /// <summary>Native <c>Function_Eye_Deactivating</c> at <c>$A8:91CE</c>; waits for the 32-update closing countdown to reach zero or wrap negative, then resumes proximity waiting.</summary>
     Deactivating = 0x91ce,
+    /// <summary>Native <c>RTL_A891DC</c> at <c>$A8:91DC</c> for the decorative mount selected by population parameter 2's sign bit; it does not track Samus or own the beam.</summary>
     MountNoOp = 0x91dc,
 }
 
@@ -62,10 +67,15 @@ public sealed class MorphBallEyeEnemyState
 /// <summary>The translated lifetime of the morph-ball eye's bank-$88 HDMA object.</summary>
 public enum MorphBallEyeBeamPhase
 {
+    /// <summary>No reveal HDMA object is installed; beam accumulators and fixed-color components are at their reset values.</summary>
     Inactive,
+    /// <summary>The eye AI requested a beam, but its initialization instruction will run in the next HDMA-object pass, before the next enemy AI pass.</summary>
     PendingInitialization,
+    /// <summary>The initialized object accelerates its 16.16 angular half-width until it reaches four of the 256 angle units per full turn.</summary>
     Widening,
+    /// <summary>The four-unit half-width beam tracks the body angle and cycles sixteen yellow brightness steps while the body's activation flag remains set.</summary>
     Full,
+    /// <summary>The object's fixed-color RGB components fade toward zero; reaching the green selector-only value deletes the beam on the following pass.</summary>
     Deactivating,
 }
 
@@ -75,6 +85,7 @@ public enum MorphBallEyeBeamPhase
 /// </summary>
 public sealed class MorphBallEyeBeamState
 {
+    /// <summary>Current host projection of the room-global HDMA object's lifetime, advanced before enemy AI; separate from the body's bank-$A8 function word.</summary>
     public MorphBallEyeBeamPhase Phase { get; internal set; }
 
     /// <summary>Literal body slot read by <c>$88:E96D/$88:E98B</c>; retail uses slot one.</summary>
@@ -128,6 +139,14 @@ public sealed class MorphBallEyeBeamState
 /// compact presentation record prevents the software compositor from pairing yesterday's
 /// OAM with today's cone angle or camera position.
 /// </remarks>
+/// <param name="Phase">Beam lifetime phase latched with the accepted NMI's actor image.</param>
+/// <param name="WorldX">Eye body's horizontal origin in whole room pixels, before layer-one scroll is subtracted.</param>
+/// <param name="WorldY">Eye body's vertical origin in whole room pixels, before layer-one scroll is subtracted.</param>
+/// <param name="Angle">Latched beam aim, measured clockwise from up in 256 table units per turn.</param>
+/// <param name="AngularWidth">Whole angular half-width in table units, normally zero through four; fractional widening state is not included in this render snapshot.</param>
+/// <param name="Red">Raw SNES COLDATA red-selector/component byte, with selector bit <c>$20</c> and intensity in the low five bits.</param>
+/// <param name="Green">Raw SNES COLDATA green-selector/component byte, with selector bit <c>$40</c> and intensity in the low five bits.</param>
+/// <param name="Blue">Raw SNES COLDATA blue-selector/component byte, with selector bit <c>$80</c> and intensity in the low five bits.</param>
 public readonly record struct MorphBallEyeBeamRenderSnapshot(
     MorphBallEyeBeamPhase Phase,
     ushort WorldX,

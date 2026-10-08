@@ -122,6 +122,11 @@ public sealed class SamusHyperBeamColorCatalog
         WriteIndented = true,
     };
 
+    /// <summary>Validates and compiles the ten full-body Hyper Beam RGB5 rows, preserving independently supplied color edits while leaving palette-cycle timing to Samus's native handler.</summary>
+    /// <param name="json">UTF-8 JSON source consumed from its current position and left open.</param>
+    /// <returns>Compiled packed-color catalog detached from the document arrays, with shared hue/shade relationships resolved on demand.</returns>
+    /// <exception cref="ArgumentNullException">The source stream is null.</exception>
+    /// <exception cref="InvalidDataException">The JSON contains duplicate or unknown properties, an unsupported version, dimensions other than ten rows of sixteen colors, null colors, or channels outside 0..31.</exception>
     public static SamusHyperBeamColorCatalog Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -166,6 +171,10 @@ public sealed class SamusHyperBeamColorCatalog
         return new(compiled);
     }
 
+    /// <summary>Serializes the editable full-body palette cycle to indented camel-case UTF-8 JSON and validates the resulting bytes through <see cref="Load"/>.</summary>
+    /// <param name="document">Ten complete RGB5 palette rows to serialize; the writer does not retain their arrays.</param>
+    /// <returns>Validated JSON bytes for <see cref="SamusHyperBeamColorFormat.FileName"/>.</returns>
+    /// <exception cref="InvalidDataException">The serialized document fails schema, palette-dimension, or RGB5-channel validation.</exception>
     public static byte[] Write(SamusHyperBeamColorDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
@@ -268,17 +277,25 @@ public sealed class SamusHyperBeamColorCatalog
             name => new InvalidDataException($"Duplicate Samus Hyper Beam color property {name}."));
 }
 
+/// <summary>Editable ten-row full-body Hyper Beam palette schema, separate from the gameplay-owned cycle clock and acquisition state.</summary>
 public sealed record SamusHyperBeamColorDocument
 {
+    /// <summary>Schema revision; loading requires version one from <see cref="SamusHyperBeamColorFormat.Version"/>.</summary>
     public required int Version { get; init; }
+    /// <summary>Ten ordered rows of sixteen nonnull RGB5 colors, corresponding to $91:D99E's descending sources $9B:A360..A240; includes color zero's copied payload even though OBJ index-zero pixels remain transparent.</summary>
     public required PaletteRgb5[][] Frames { get; init; }
 }
 
+/// <summary>Installed-resource identity and native row geometry for the full-body Hyper Beam RGB5 cycle.</summary>
 public static class SamusHyperBeamColorFormat
 {
+    /// <summary>JSON resource filename containing the ten editable full-body Hyper Beam palettes.</summary>
     public const string FileName = "samus-hyper-beam-colors.json";
+    /// <summary>Supported schema revision, one, requiring all ten complete RGB5 palette rows.</summary>
     public const int Version = 1;
+    /// <summary>Ten authored palette phases selected by $91:D99E; this count does not specify the number of gameplay updates between phases.</summary>
     public const int FrameCount = SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteCount;
+    /// <summary>Sixteen colors in each complete OBJ palette, including transparent index zero and fifteen opaque ink slots.</summary>
     public const int ColorsPerFrame = SamusPaletteRomData.Common.ColorsPerObjPalette;
 
     /// <summary>Selects a shadow channel shared with the same frame's middle ink13.</summary>

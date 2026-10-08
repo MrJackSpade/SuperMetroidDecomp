@@ -151,6 +151,9 @@ public sealed class HyperBeamFxColorCatalog
         WriteIndented = true,
     };
 
+    /// <summary>Loads ten eight-color projectile palette rows, rejecting duplicate or unknown properties, unsupported versions, incorrect dimensions, and RGB5 channels outside 0..31; preserves supplied edits independently of shared-color and midpoint relationships.</summary>
+    /// <param name="json">UTF-8 JSON stream containing the versioned projectile-color document.</param>
+    /// <returns>The validated catalog used by the Hyper Beam palette-FX handler.</returns>
     public static HyperBeamFxColorCatalog Load(Stream json)
     {
         HyperBeamFxColorDocument document;
@@ -188,6 +191,10 @@ public sealed class HyperBeamFxColorCatalog
         return new(compiled);
     }
 
+    /// <summary>Resolves and writes the eight colors of one projectile palette row without advancing animation state; the native Hyper Beam handler targets OBJ palette 6 colors 1..8, CGRAM entries 225..232.</summary>
+    /// <param name="cgram">Destination color memory to update.</param>
+    /// <param name="frame">Zero-based palette row, from 0 through 9.</param>
+    /// <param name="destination">CGRAM color-entry index of the first output color, not a byte offset; the following seven entries are also written.</param>
     public void Apply(SnesCgram cgram, int frame, int destination)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -196,6 +203,9 @@ public sealed class HyperBeamFxColorCatalog
             cgram.SetColor(destination + color, Resolve(frame, color));
     }
 
+    /// <summary>Serializes the projectile-color document as indented camel-case UTF-8 JSON, then validates it through <see cref="Load"/> before returning the bytes.</summary>
+    /// <param name="document">Document containing the supported version and all ten eight-color RGB5 rows.</param>
+    /// <returns>Validated JSON bytes suitable for the projectile-color asset file.</returns>
     public static byte[] Write(HyperBeamFxColorDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, Options);
@@ -208,9 +218,12 @@ public sealed class HyperBeamFxColorCatalog
             name => new InvalidDataException("Duplicate Hyper Beam FX color property."));
 }
 
+/// <summary>Editable JSON schema for the ten Hyper Beam projectile palette rows; the separate native palette program retains frame durations, destination selection, and loop control.</summary>
 public sealed record HyperBeamFxColorDocument
 {
+    /// <summary>Schema revision, which must equal <see cref="HyperBeamFxColorFormat.Version"/>.</summary>
     public required int Version { get; init; }
+    /// <summary>Ten ordered rows of eight RGB5 colors corresponding to payloads at <c>$8D:D906 + 20 * row</c>; row colors map to OBJ palette 6 colors 1..8, and every supplied channel remains independently editable.</summary>
     public required PaletteRgb5[][] Frames { get; init; }
 }
 
@@ -280,8 +293,12 @@ public static class HyperBeamFxColorFormat
         int b = ((red >> 10 & 31) * redWeight + (white >> 10 & 31) * whiteWeight + 2) / 5;
         return (ushort)(r | g << 5 | b << 10);
     }
+    /// <summary>Asset filename for the Hyper Beam projectile palette colors, separate from Samus's full-body Hyper Beam cycle.</summary>
     public const string FileName = "hyper-beam-fx-colors.json";
+    /// <summary>Supported revision of the ten-row RGB5 projectile-color JSON schema.</summary>
     public const int Version = 1;
+    /// <summary>Ten palette rows in the native <c>$8D:D900</c> cycle; stock even rows supply red, yellow, green, blue, and magenta endpoints, with intervening midpoint rows.</summary>
     public const int FrameCount = 10;
+    /// <summary>Eight colors per native palette record, written to OBJ palette 6 colors 1..8; control words and frame duration are not included.</summary>
     public const int ColorsPerFrame = 8;
 }

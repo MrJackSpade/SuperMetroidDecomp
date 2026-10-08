@@ -41,6 +41,10 @@ public sealed class MotherBrainHealthPalettePresentation
         return (ushort)result;
     }
     /// <summary>Calculates one damage-tinted color pair to the three native CGRAM destinations.</summary>
+    /// <param name="cgram">Mutable destination; body colors replace indices 65..79 and 145..159, while rear-leg colors replace indices 177..191. Transparent palette slots remain unchanged.</param>
+    /// <param name="damageState">Zero-based health-band selector: zero for health at least 9000, one for 5400..8999, two for 1800..5399, and three below 1800; health selection itself remains in gameplay code.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="damageState"/> is outside zero through three.</exception>
     public void Apply(SnesCgram cgram, int damageState)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -177,6 +181,11 @@ public sealed class MotherBrainHealthPalettePresentation
             return (ushort)result;
         }
     }
+    /// <summary>Compiles installed RGB5 health-state artwork, retaining supplied edits independently of the native shade ramps and red-tint calculations.</summary>
+    /// <param name="json">UTF-8 JSON input consumed from its current position to the end; the stream remains open.</param>
+    /// <returns>Compiled body and rear-leg palette state independent of the source document's mutable arrays.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
+    /// <exception cref="InvalidDataException">The JSON is malformed, null, has duplicate properties, uses an unsupported version, or lacks four fifteen-color rows in each palette with RGB5 channels from zero through 31.</exception>
     public static MotherBrainHealthPalettePresentation Load(Stream json)
     {
         MotherBrainHealthPaletteDocument document = JsonAssetDocument.Read<MotherBrainHealthPaletteDocument>(
@@ -209,6 +218,10 @@ public sealed class MotherBrainHealthPalettePresentation
         }
     }
 
+    /// <summary>Serializes artwork as UTF-8 JSON, validates it through <see cref="Load"/>, then writes the validated bytes without retaining the document.</summary>
+    /// <param name="json">Output written at its current position and left open; existing trailing bytes are not truncated.</param>
+    /// <param name="document">Four health-band images for body/brain and rear legs; supplied arrays are not modified.</param>
+    /// <exception cref="InvalidDataException">The serialized document is null or fails schema, palette dimensions, or RGB5 channel validation.</exception>
     public static void Write(Stream json, MotherBrainHealthPaletteDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
@@ -217,16 +230,24 @@ public sealed class MotherBrainHealthPalettePresentation
     }
 }
 
+/// <summary>Editable health-band palette JSON, separate from rainbow cycling and death-fade artwork; array references, rows, and RGB5 entries remain caller-owned and mutable.</summary>
 public sealed record MotherBrainHealthPaletteDocument
 {
+    /// <summary>Schema version required to match <see cref="MotherBrainHealthPaletteFormat.Version"/> during loading or writing.</summary>
     public required int Version { get; init; }
+    /// <summary>Four rows of fifteen RGB5 colors in native <c>MotherBrainHealthBasedPalettes_BrainBody</c> order from <c>$AD:E6A2</c>; ascending row index denotes lower health, and each row supplies both body BG and brain/neck OBJ colors 1..15.</summary>
     public required PaletteRgb5[][] Body { get; init; }
+    /// <summary>Four rows of fifteen RGB5 colors in native <c>MotherBrainHealthBasedPalettes_BackLeg</c> order from <c>$AD:E742</c>, aligned with the body health bands and supplying rear-leg OBJ palette colors 1..15.</summary>
     public required PaletteRgb5[][] BackLegs { get; init; }
 }
 
+/// <summary>Installed JSON identity and dimensions for the four final-phase health-dependent palettes selected by native <c>MotherBrainHealthBasedPaletteHandling</c> at <c>$AD:E3D5</c>.</summary>
 public static class MotherBrainHealthPaletteFormat
 {
+    /// <summary>Installed resource filename loaded with area-map presentation assets for Mother Brain's body/brain and rear-leg damage colors.</summary>
     public const string FileName = "mother-brain-health-palette.json";
+    /// <summary>Supported schema version requiring paired body and rear-leg arrays with four fifteen-color RGB5 rows each.</summary>
     public const int Version = 1;
+    /// <summary>Four health-band selectors in least-to-most-damaged order; excludes the unused fifth entry present in the native pointer tables.</summary>
     public const int StateCount = 4;
 }

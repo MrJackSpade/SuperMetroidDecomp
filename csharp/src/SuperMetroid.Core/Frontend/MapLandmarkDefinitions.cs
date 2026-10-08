@@ -36,9 +36,14 @@ public static class MapLandmarkDefinitions
         private readonly AreaId area;
         private readonly int count;
         internal BossSequence(AreaId area, int count) { this.area = area; this.count = count; }
+        /// <summary>Gets the number of native boss slots consumed by the area.</summary>
         public int Count => count;
+        /// <summary>Gets the sequence length for array-style consumers.</summary>
         public int Length => Count;
+        /// <summary>Gets whether the area consumes no boss-map slots.</summary>
         public bool IsEmpty => Count == 0;
+        /// <summary>Gets a boss landmark identity, or <see langword="null"/> for a reserved native slot.</summary>
+        /// <param name="index">Zero-based native slot index.</param>
         public string? this[int index]
         {
             get
@@ -56,6 +61,8 @@ public static class MapLandmarkDefinitions
                 };
             }
         }
+        /// <summary>Enumerates boss identities and reserved slots in native order.</summary>
+        /// <returns>An enumerator over the area's fixed slot sequence.</returns>
         public IEnumerator<string?> GetEnumerator()
         {
             for (int i = 0; i < Count; i++) yield return this[i];
@@ -73,8 +80,12 @@ public static class MapLandmarkDefinitions
         private readonly AreaId area;
         private readonly int count;
         internal ElevatorSequence(AreaId area, int count) { this.area = area; this.count = count; }
+        /// <summary>Gets the number of elevator label records for the area.</summary>
         public int Count => count;
+        /// <summary>Gets the sequence length for array-style consumers.</summary>
         public int Length => Count;
+        /// <summary>Gets the stable label identity and physical destination for one native record.</summary>
+        /// <param name="index">Zero-based record index within the source area.</param>
         public MapElevatorLabel this[int index]
         {
             get
@@ -92,6 +103,8 @@ public static class MapLandmarkDefinitions
                 return new($"{area}.Elevator.{index}", destination);
             }
         }
+        /// <summary>Enumerates the area's elevator labels in native record order.</summary>
+        /// <returns>An enumerator over the fixed label sequence.</returns>
         public IEnumerator<MapElevatorLabel> GetEnumerator()
         {
             for (int i = 0; i < Count; i++) yield return this[i];
@@ -106,6 +119,8 @@ public static class MapLandmarkDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(destination))
     };
 
+    /// <summary>Enumerates every published boss, elevator, and gunship landmark identity.</summary>
+    /// <returns>All non-reserved landmark IDs in area and native-slot order.</returns>
     public static IEnumerable<string> AllIds()
     {
         foreach (AreaId area in Enum.GetValues<AreaId>())

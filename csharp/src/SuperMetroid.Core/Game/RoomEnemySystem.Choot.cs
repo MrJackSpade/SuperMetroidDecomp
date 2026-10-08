@@ -3,9 +3,13 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The literal bank-$A2 function pointer stored in a Choot's variable A.</summary>
 public enum ChootEnemyFunction : ushort
 {
+    /// <summary><c>$A2:E035</c>, native <c>Function_Choot_WaitForSamusToGetNear</c>: waits for Samus within 80 horizontal pixels, then loads the population's jump delay.</summary>
     WaitingForSamus = 0xe035,
+    /// <summary><c>$A2:E04F</c>, native <c>Function_Choot_PrepareToJump</c>: decrements the jump delay through signed underflow before selecting the jump animation and ascent state.</summary>
     PreparingJump = 0xe04f,
+    /// <summary><c>$A2:E06A</c>, native <c>Function_Choot_Jumping</c>: applies negative quadratic-table Y displacement until the ascent cursor underflows, then snaps whole coordinates to the precalculated falling origin.</summary>
     Jumping = 0xe06a,
+    /// <summary><c>$A2:E0CD</c>, native <c>Function_Choot_Falling</c>: plays and repeats the selected X/Y offset stream, advancing its Y origin between loops, then restores the spawn position and rearms proximity activation.</summary>
     Falling = 0xe0cd,
 }
 
@@ -48,6 +52,7 @@ public sealed class ChootEnemyState
         _jumpDelayTimers = jumpDelayTimers;
     }
 
+    /// <summary>Native <c>function</c> at <c>$0FA8 + enemy index</c>, stored in variable A: the bank-$A2 callback selected by Choot's main AI dispatcher.</summary>
     public ChootEnemyFunction Function
     {
         get => (ChootEnemyFunction)_slot.VariableA;
@@ -92,42 +97,49 @@ public sealed class ChootEnemyState
         internal set => _slot.VariableF = value;
     }
 
+    /// <summary>Native <c>spawnXPosition</c> at <c>$7E:7800 + enemy index</c>: the initial room X coordinate in whole pixels, restored after the last falling-pattern loop.</summary>
     public ushort SpawnXPosition
     {
         get => _spawnXPositions[_slot.SlotIndex];
         internal set => _spawnXPositions[_slot.SlotIndex] = value;
     }
 
+    /// <summary>Native <c>spawnYPosition</c> at <c>$7E:7802 + enemy index</c>: the initial room Y coordinate in whole pixels, restored after the last falling-pattern loop.</summary>
     public ushort SpawnYPosition
     {
         get => _spawnYPositions[_slot.SlotIndex];
         internal set => _spawnYPositions[_slot.SlotIndex] = value;
     }
 
+    /// <summary>Native <c>initialFallingXPosition</c> at <c>$7E:7804 + enemy index</c>: the whole-pixel X coordinate saved from spawn and installed as the position and falling X origin at the apex transition.</summary>
     public ushort InitialFallingXPosition
     {
         get => _initialFallingXPositions[_slot.SlotIndex];
         internal set => _initialFallingXPositions[_slot.SlotIndex] = value;
     }
 
+    /// <summary>Native <c>initialFallingYPosition</c> at <c>$7E:7806 + enemy index</c>: the wrapped whole-pixel spawn Y minus the computed jump height, installed as the position and falling Y origin at the apex transition.</summary>
     public ushort InitialFallingYPosition
     {
         get => _initialFallingYPositions[_slot.SlotIndex];
         internal set => _initialFallingYPositions[_slot.SlotIndex] = value;
     }
 
+    /// <summary>Native <c>fallingXOrigin</c> at <c>$7E:7808 + enemy index</c>: the whole-pixel X base added to each signed falling-pattern offset; initialized at the apex and retained across pattern loops.</summary>
     public ushort FallingXOrigin
     {
         get => _fallingXOrigins[_slot.SlotIndex];
         internal set => _fallingXOrigins[_slot.SlotIndex] = value;
     }
 
+    /// <summary>Native <c>fallingYOrigin</c> at <c>$7E:780A + enemy index</c>: the whole-pixel Y base added to each signed falling-pattern offset and advanced by <see cref="FallingPatternYDistance"/> at every stream terminator.</summary>
     public ushort FallingYOrigin
     {
         get => _fallingYOrigins[_slot.SlotIndex];
         internal set => _fallingYOrigins[_slot.SlotIndex] = value;
     }
 
+    /// <summary>Native <c>initialYSpeedTableIndex</c> at <c>$7E:780C + enemy index</c>: the saved encoded ascent cursor calculated from the population's loop count and pattern height; copied back to <see cref="YSpeedTableIndex"/> when the jump cycle finishes.</summary>
     public ushort InitialYSpeedTableIndex
     {
         get => _initialYSpeedTableIndexes[_slot.SlotIndex];

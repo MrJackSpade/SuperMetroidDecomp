@@ -10,8 +10,11 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public enum MochtroidMovementMode : ushort
 {
+    /// <summary>Uses proportional free flight toward Samus.</summary>
     NotTouchingSamus = 0,
+    /// <summary>Moves one pixel per axis toward Samus while contact is republished.</summary>
     TouchingSamus = 1,
+    /// <summary>Runs the shipped but unreferenced four-direction shake routine.</summary>
     Shaking = 2,
 }
 
@@ -26,24 +29,28 @@ public sealed class MochtroidEnemyState
 
     internal MochtroidEnemyState(RoomEnemySlot slot) => _slot = slot;
 
+    /// <summary>Gets the fractional word of the signed horizontal 16.16 velocity.</summary>
     public ushort XSubvelocity
     {
         get => _slot.VariableA;
         internal set => _slot.VariableA = value;
     }
 
+    /// <summary>Gets the signed whole-pixel word of the horizontal 16.16 velocity.</summary>
     public short XVelocity
     {
         get => unchecked((short)_slot.VariableB);
         internal set => _slot.VariableB = unchecked((ushort)value);
     }
 
+    /// <summary>Gets the fractional word of the signed vertical 16.16 velocity.</summary>
     public ushort YSubvelocity
     {
         get => _slot.VariableC;
         internal set => _slot.VariableC = value;
     }
 
+    /// <summary>Gets the signed whole-pixel word of the vertical 16.16 velocity.</summary>
     public short YVelocity
     {
         get => unchecked((short)_slot.VariableD);
@@ -57,6 +64,7 @@ public sealed class MochtroidEnemyState
         internal set => _slot.VariableE = value;
     }
 
+    /// <summary>Gets the one-update movement selector cleared before each main-AI dispatch.</summary>
     public MochtroidMovementMode MovementMode
     {
         get => (MochtroidMovementMode)_slot.VariableF;
@@ -69,7 +77,10 @@ public sealed class MochtroidEnemyState
     /// <summary>$7E:8800 parallel word; contact damage occurs when this reaches 80.</summary>
     public ushort AttachmentDamageTimer { get; internal set; }
 
+    /// <summary>Gets the combined signed horizontal velocity in 16.16 fixed-point units.</summary>
     public int SignedXVelocity => unchecked((XVelocity << 16) | XSubvelocity);
+
+    /// <summary>Gets the combined signed vertical velocity in 16.16 fixed-point units.</summary>
     public int SignedYVelocity => unchecked((YVelocity << 16) | YSubvelocity);
 }
 

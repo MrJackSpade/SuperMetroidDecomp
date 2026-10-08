@@ -796,12 +796,12 @@ public static partial class SamusBlockCollision
     }
 
     /// <summary>
-    /// Setup $84:CE83 checks boost stage independently of pose or movement handler.
-    /// Existing explicit admissions cover Screw Attack/Shinespark and ownerless probes;
-    /// reading the live owner here also admits grounded/falling/transition Speedball.
+    /// Setup $84:CE83 reads the live boost stage and pose for every scan that reaches it,
+    /// independently of the movement handler; this includes the observational wall-jump
+    /// probe. Explicit admissions remain for ownerless probes.
     /// </summary>
     private static bool CanBreakCollisionBombBlock(SamusKinematicsState state, bool explicitAdmission) =>
-        explicitAdmission || state.SamusOwner?.HorizontalSpeed.IsActivelySpeedBoosting == true;
+        explicitAdmission || state.SamusOwner?.BreaksCollisionBombBlocks == true;
 
     private static (int Displacement, bool Collided) ClipVerticalToNonSquareSlope(
         ISnesAddressSpace bus,

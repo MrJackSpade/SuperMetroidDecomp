@@ -244,14 +244,9 @@ public static class SamusAerialMovement
         else if (!fullySubmergedWithoutGravity && samus.ProjectileFlareCounter >= 0x003c)
             samus.HorizontalSpeed.ContactDamageIndex = 4;
 
-        // Setup_Collision_RespawningBombBlock at `$84:CE83` admits either boost stage four
-        // (`$0B3E & $0F00 == $0400`) or literal Screw Attack pose `$81/$82`. This gate is
-        // independent of contact-damage publication above: liquid suppresses Samus damage,
-        // but the bank-$84 setup itself still reads pose/boost and can break the terrain.
-        bool canBreakCollisionBombBlocks =
-            (samus.HorizontalSpeed.SpeedBoostCounter & 0x0f00) == 0x0400 ||
-            SamusState.IsScrewAttackPose(samus.Pose);
-
+        // Bomb-block breaking is independent of contact-damage publication above: liquid
+        // suppresses Samus damage, but $84:CE83 still reads pose/boost through the shared
+        // collision gate (SamusState.BreaksCollisionBombBlocks) and can break the terrain.
         samus.HorizontalSpeed.HandleExtraRunSpeed(
             movementType: SamusMovementType.SpinJumping,
             controllerInput,
@@ -292,7 +287,6 @@ public static class SamusAerialMovement
             level,
             samus.Kinematics,
             requested.Displacement,
-            canBreakBombBlocks: canBreakCollisionBombBlocks,
             plms: plms,
             collisionMovementDirection: requested.CollisionDirection);
         if (horizontal.Collided)
@@ -326,7 +320,6 @@ public static class SamusAerialMovement
             samus,
             horizontal,
             nmiFrameCounter,
-            canBreakBombBlocks: canBreakCollisionBombBlocks,
             plms: plms);
         return verticalResult with
         {

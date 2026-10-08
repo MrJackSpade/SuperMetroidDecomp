@@ -330,6 +330,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--wall-probe-bomb-block"])
+{
+    VerifyWallProbeBombBlock();
+    return 0;
+}
 if (args is ["--golden-torizo-attack-choice"])
 {
     VerifyGoldenTorizoAttackChoice();
@@ -7201,6 +7206,7 @@ VerifyEvirInitTimer();
 VerifyRefillStationLock();
 VerifyMagdolliteApexThreshold();
 VerifyGoldenTorizoAttackChoice();
+VerifyWallProbeBombBlock();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

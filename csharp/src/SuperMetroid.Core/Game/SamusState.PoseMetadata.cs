@@ -572,6 +572,16 @@ public sealed partial class SamusState
     public static bool IsScrewAttackPose(byte pose) => pose is
         SamusPoseIds.ScrewAttackRightPose or SamusPoseIds.ScrewAttackLeftPose;
 
+    /// <summary>
+    /// <c>Setup_Collision_RespawningBombBlock</c> ($84:CE83) breaks the block when the boost
+    /// stage is active or Samus is screw attacking ($81/$82) or shinesparking ($C9-$CE).
+    /// </summary>
+    public bool BreaksCollisionBombBlocks =>
+        HorizontalSpeed.IsActivelySpeedBoosting ||
+        IsScrewAttackPose(Pose) ||
+        Pose is >= (byte)SamusPoseId.ShinesparkHorizontalRightPose
+            and <= (byte)SamusPoseId.ShinesparkDiagonalLeftPose;
+
     /// <summary>True only for the two Space Jump animation records `$1B/$1C`.</summary>
     public static bool IsSpaceJumpPose(byte pose) => pose is
         SamusPoseIds.SpaceJumpRightPose or SamusPoseIds.SpaceJumpLeftPose;

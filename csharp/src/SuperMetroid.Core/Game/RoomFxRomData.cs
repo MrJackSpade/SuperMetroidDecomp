@@ -14,14 +14,18 @@ public static class RoomFxRomData
     /// <summary>SNES banks that own the translated room-FX data and bytecode.</summary>
     public static class Banks
     {
+        /// <summary>SNES bank base containing animated-tile object definitions and bytecode.</summary>
         public const int AnimatedTiles = 0x870000;
+        /// <summary>SNES bank base containing shared room-effect tilemaps.</summary>
         public const int Tilemaps = 0x8a0000;
+        /// <summary>SNES bank base containing palette-effect objects and bytecode.</summary>
         public const int PaletteFx = 0x8d0000;
     }
 
     /// <summary>Layout of one bank-$83 <c>FxDef</c> entry.</summary>
     public static class Record
     {
+        /// <summary>Size in bytes of one bank-$83 room-FX definition.</summary>
         public const int ByteCount = 16;
 
         /// <summary>Door word that terminates an FX list without selecting a record.</summary>
@@ -31,7 +35,9 @@ public static class RoomFxRomData
     /// <summary>Fixed pointer tables shared by room loading and effect interpreters.</summary>
     public static class Tables
     {
+        /// <summary>$83:ABF0, table of layer-three effect tilemap pointers.</summary>
         public const int Layer3TilemapPointers = 0x83abf0;
+        /// <summary>$89:AA02, color words blended into the temporary FX palette entries.</summary>
         public const int PaletteBlendColors = 0x89aa02;
     }
 
@@ -83,9 +89,13 @@ public static class RoomFxRomData
         /// <summary>Words cleared from $5880 through $5FFF on every room load.</summary>
         public const int ClearWordCount = 0x0780;
 
+        /// <summary>VRAM word destination of a room effect's layer-three tilemap.</summary>
         public const ushort TilemapDestinationWord = 0x5be0;
+        /// <summary>CGRAM index cleared when no room-effect palette is selected.</summary>
         public const int EmptyPaletteColorIndex = 27;
+        /// <summary>First CGRAM index receiving the shared three-color FX blend.</summary>
         public const int PaletteBlendDestinationIndex = 25;
+        /// <summary>Number of colors copied by the shared room-effect palette blend.</summary>
         public const int PaletteBlendColorCount = 3;
     }
 
@@ -117,6 +127,7 @@ public static class RoomFxRomData
     /// <summary>Landing Site rain tile animation and fixed-point velocities.</summary>
     public static class Rain
     {
+        /// <summary>Positive six-pixel vertical rain velocity in signed 8.8 units.</summary>
         public const ushort VerticalVelocity = 0x0600;
 
         /// <summary>Calculates rain's signed 8.8 horizontal velocity for selector 0..3.</summary>
@@ -280,7 +291,9 @@ public static class RoomFxRomData
     /// <summary>Climb fog fixed-point BG3 velocities.</summary>
     public static class Fog
     {
+        /// <summary>Positive one-quarter-pixel vertical fog velocity in signed 8.8 units.</summary>
         public const ushort VerticalVelocity = 0x0040;
+        /// <summary>Positive five-sixteenths-pixel horizontal fog velocity in signed 8.8 units.</summary>
         public const ushort HorizontalVelocity = 0x0050;
     }
 
@@ -316,18 +329,29 @@ public static class RoomFxRomData
                 index == 17 ? 0x7000 : index < 20 ? 0xc000 - (index - 18) * 0x4000 : 0);
             return new(top, subspeed, 0, index == 11 ? 8 : index);
         }
+        /// <summary>VRAM word base of the scrolling-sky BG2 tilemap.</summary>
         public const ushort Bg2TilemapBaseWord = 0x4800;
+        /// <summary>$88:AD9C, land sky chunk pointers used by the scrolling-sky room main.</summary>
         public const int LandChunkPointerTableAddress = 0x88ad9c;
         /// <summary>$88:ADA6, ocean sky chunk pointers passed by RoomMainAsm_ScrollingSkyOcean ($88:AF99).</summary>
         public const int OceanChunkPointerTableAddress = 0x88ada6;
+        /// <summary>Number of horizontal-scroll accumulator and HDMA data slots.</summary>
         public const int DataSlotCount = 23;
+        /// <summary>Exclusive vertical world position of the authored sky-band table.</summary>
         public const ushort WorldEndPosition = 0x0500;
+        /// <summary>First gameplay scanline below the 32-pixel HUD.</summary>
         public const ushort GameplayFirstScanline = 32;
+        /// <summary>Byte stride of one 32-word BG tilemap row.</summary>
         public const ushort TilemapRowByteCount = 0x0040;
+        /// <summary>Word count of one 32-tile BG tilemap row.</summary>
         public const ushort TilemapHalfRowWordCount = 0x0020;
+        /// <summary>Camera Y offset selecting the upper circular tilemap row.</summary>
         public const ushort UpperRowCameraOffset = 16;
+        /// <summary>Camera Y offset selecting the lower circular tilemap row.</summary>
         public const ushort LowerRowCameraOffset = 240;
+        /// <summary>Mask aligning the circular tilemap position to an eight-pixel row.</summary>
         public const ushort TilemapPositionMask = 0x01f8;
+        /// <summary>Mask aligning a sky source position within its 2048-pixel wrap.</summary>
         public const ushort SourcePositionMask = 0x07f8;
 
 
@@ -336,9 +360,13 @@ public static class RoomFxRomData
     /// <summary>Bank-$A0 room-shake displacement data and type boundaries.</summary>
     public static class Earthquake
     {
+        /// <summary>First earthquake type that also shakes enemy positions.</summary>
         public const ushort FirstEnemyShakingType = 0x0012;
+        /// <summary>First earthquake type whose displacement is not applied to rendering.</summary>
         public const ushort FirstNonRenderedType = 0x0024;
+        /// <summary>Timer bit selecting the alternating shake direction.</summary>
         public const ushort AlternatingDirectionTimerMask = 2;
+        /// <summary>Updates for which an enemy retains one applied shake displacement.</summary>
         public const ushort EnemyShakeDuration = 2;
 
         /// <summary>Room-shake type written every active lava/acid rise frame.</summary>

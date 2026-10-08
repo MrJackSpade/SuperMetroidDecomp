@@ -48,7 +48,7 @@ internal static class ExploredMapPackingDefinitions
             AreaId.Tourian => TourianSource,
             _ => throw new ArgumentOutOfRangeException(nameof(area)),
         };
-        return new(checked((ushort)offset), source, new(maps.Get((AreaId)area)));
+        return new(checked((ushort)offset), new(maps.Get((AreaId)area)));
     }
 
     /// <summary>
@@ -102,5 +102,4 @@ internal static class ExploredMapPackingDefinitions
 /// <summary>One area's calculated SRAM destination and occupied native map-byte view.</summary>
 internal readonly record struct ExploredMapPackingDefinition(
     ushort DestinationOffset,
-    ushort NativeSourcePointer,
     ExploredMapPackingDefinitions.OccupiedByteIndexes AreaByteIndexes);

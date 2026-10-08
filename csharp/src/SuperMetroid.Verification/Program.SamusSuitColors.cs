@@ -163,9 +163,12 @@ internal static partial class Program
             "momentum cancellation preserves edited Varia color");
 
         samus.HurtFlashCounter = 2;
-        SamusHurtFlashPaletteStepResult hurtRestore = SamusHurtFlashPalette.Update(
+        // Overwrite the restored color first so only a real normal-suit reload passes.
+        ushort hurtRestoreSentinel = unchecked((ushort)(edited.SamusSuitColors.Resolve(2, 1) ^ 0x7fff));
+        cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + 1, hurtRestoreSentinel);
+        SamusHurtFlashPalette.Update(
             guard, cgram, samus, controllerInput: 0);
-        AssertEqual(SamusHurtFlashPaletteAction.NormalSuitRestore, hurtRestore.Action,
+        AssertTrue(cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + 1] != hurtRestoreSentinel,
             "even hurt-flash frame restores the normal suit");
         AssertEqual(edited.SamusSuitColors.Resolve(2, 1),
             cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + 1],

@@ -33,8 +33,10 @@ internal static partial class Program
         {
             if (frame < 64 && frame % 4 == 0)
                 Execute(TorizoInstructionCodes.Instruction_Torizo_AdvanceGradualColorChange);
+            ushort timerBeforeShake = enemies.EarthquakeTimer;
             var shake = enemies.HandleRoomShaking(false);
-            AssertEqual(frame < 32, shake.Applied, $"Palette instruction cannot extend landing shake at frame {frame}");
+            // An accepted shake frame is exactly one that consumes an earthquake-timer tick.
+            AssertEqual(frame < 32, enemies.EarthquakeTimer != timerBeforeShake, $"Palette instruction cannot extend landing shake at frame {frame}");
             if (frame < 32)
             {
                 AssertEqual((short)0, shake.Bg1X, "Landing BG1 X");

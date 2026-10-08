@@ -918,13 +918,18 @@ internal static partial class Program
             TitleLogoFadePaletteFxProgramMechanicsDefinitions.DefinitionPointer,
             TitleLogoFadePaletteFxProgramMechanicsDefinitions.ColorByteIndex,
             "title-logo fade");
-        foreach (NintendoLogoFadePaletteFxProgramDefinition nintendoDefinition in
-                 NintendoLogoFadePaletteFxProgramMechanicsDefinitions.All)
+        foreach ((string owner, ushort definitionPointer,
+                     ushort colorByteIndex) in new[]
+                 {
+                     ("BootLogo",
+                         NintendoLogoFadePaletteFxProgramMechanicsDefinitions.BootLogoDefinitionPointer,
+                         NintendoLogoFadePaletteFxProgramMechanicsDefinitions.BootLogoColorByteIndex),
+                     ("Copyright",
+                         NintendoLogoFadePaletteFxProgramMechanicsDefinitions.CopyrightDefinitionPointer,
+                         NintendoLogoFadePaletteFxProgramMechanicsDefinitions.CopyrightColorByteIndex),
+                 })
         {
-            AssertOverride(
-                nintendoDefinition.DefinitionPointer,
-                nintendoDefinition.ColorByteIndex,
-                $"Nintendo shared fade {nintendoDefinition.Owner}");
+            AssertOverride(definitionPointer, colorByteIndex, $"Nintendo shared fade {owner}");
         }
         AssertOverride(
             ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.DefinitionPointer,
@@ -934,22 +939,23 @@ internal static partial class Program
             ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.DefinitionPointer,
             ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.ColorByteIndex,
             "Zebes explosion finale");
-        foreach (ZebesExplosionWhiteoutPaletteFxProgramDefinition whiteoutDefinition in
-                 ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.All)
+        foreach ((string owner, ushort definitionPointer,
+                     ushort colorByteIndex) in new[]
+                 {
+                     ("WideExplosionBackground",
+                         ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
+                             .WideExplosionBackgroundDefinitionPointer,
+                         ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
+                             .WideExplosionBackgroundColorByteIndex),
+                     ("SpaceWhiteout",
+                         ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
+                             .SpaceWhiteoutDefinitionPointer,
+                         ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
+                             .SpaceWhiteoutColorByteIndex),
+                 })
         {
-            ushort colorByteIndex = whiteoutDefinition.Owner switch
-            {
-                ZebesExplosionWhiteoutPaletteFxProgramOwner.WideExplosionBackground =>
-                    ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
-                        .WideExplosionBackgroundColorByteIndex,
-                ZebesExplosionWhiteoutPaletteFxProgramOwner.SpaceWhiteout =>
-                    ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
-                        .SpaceWhiteoutColorByteIndex,
-                _ => throw new InvalidOperationException(
-                    $"Unknown whiteout owner {whiteoutDefinition.Owner}."),
-            };
-            AssertOverride(whiteoutDefinition.DefinitionPointer, colorByteIndex,
-                $"Zebes explosion whiteout {whiteoutDefinition.Owner}");
+            AssertOverride(definitionPointer, colorByteIndex,
+                $"Zebes explosion whiteout {owner}");
         }
         foreach (ZebesExplosionAmbientPaletteFxProgramDefinition ambientDefinition in
                  ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions.All)

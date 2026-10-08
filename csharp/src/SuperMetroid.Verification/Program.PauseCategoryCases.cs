@@ -7,10 +7,9 @@ internal static partial class Program
     {
         Suite(nameof(VerifyPauseCategoryOffsets), () => VerifyPauseCategoryOffsets(rom));
         Suite(nameof(VerifyPauseCategoryTilemapPointers), () => VerifyPauseCategoryTilemapPointers(rom));
-        Suite(nameof(VerifyPauseCategoryMaskPointers), () => VerifyPauseCategoryMaskPointers(rom));
         Suite(nameof(VerifyPauseCategoryItemCounts), () => VerifyPauseCategoryItemCounts(rom));
         Suite(nameof(VerifyPauseCategoryCopyLengths), () => VerifyPauseCategoryCopyLengths(rom));
-        AssertEqual(new PauseEquipmentCategoryDefinition(0, 0, 0, 0, 0, 0),
+        AssertEqual(new PauseEquipmentCategoryDefinition(0, 0, 0, 0, 0),
             PauseEquipmentCategories.Get(0), "reserve controls retain the original managed zero-data contract");
         for (int category = 0; category < 4; category++)
             AssertEqual(category, PauseEquipmentCategories.Get(category).Category, "category identity");
@@ -31,13 +30,6 @@ internal static partial class Program
         for (int category = 1; category <= 3; category++)
             AssertEqual(0x820000 | ReadVerificationWord(rom, 0x82c044 + 2 * category),
                 PauseEquipmentCategories.Get(category).TilemapPointerTableAddress, "native category tilemap-list pointer");
-    }
-
-    private static void VerifyPauseCategoryMaskPointers(ISnesAddressSpace rom)
-    {
-        for (int category = 1; category <= 3; category++)
-            AssertEqual(0x820000 | ReadVerificationWord(rom, 0x82c034 + 2 * category),
-                PauseEquipmentCategories.Get(category).BitmaskTableAddress, "native category bitmask-list pointer");
     }
 
     private static void VerifyPauseCategoryItemCounts(ISnesAddressSpace rom)

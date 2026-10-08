@@ -66,14 +66,19 @@ internal static partial class Program
         var guarded = new ForbiddenVisorColorBus(rom);
         for (int frame = 0; frame < 32; frame++)
         {
-            SamusVisorPaletteStepResult expected = native.Update(rom, nativeCgram, 0,
+            byte sourceOffset = native.PaletteByteOffset;
+            native.Update(rom, nativeCgram, 0,
                 LayerBlendingConfiguration.VisorBackdrop28);
-            SamusVisorPaletteStepResult actual = installed.Update(guarded, installedCgram, 0,
+            installed.Update(guarded, installedCgram, 0,
                 LayerBlendingConfiguration.VisorBackdrop28);
-            if (expected.SourceByteOffset is byte sourceOffset)
+            // `$91:D864` reloads the expired countdown to the frame delay only on the call
+            // that writes a color; countdown calls leave it below that delay.
+            bool expectedWrite = native.Timer == SamusPaletteRomData.Visor.FrameDelay;
+            bool actualWrite = installed.Timer == SamusPaletteRomData.Visor.FrameDelay;
+            if (expectedWrite)
                 AssertEqual(ReadVisorFixtureColor(rom, sourceOffset), installedCgram.Colors[196],
                     $"room visor frame {frame} matches native color word");
-            AssertEqual(expected.Action, actual.Action, $"room visor frame {frame} action");
+            AssertEqual(expectedWrite, actualWrite, $"room visor frame {frame} action");
             AssertEqual(native.PackedTimerIndex, installed.PackedTimerIndex,
                 $"room visor frame {frame} timer and index");
             AssertEqual(nativeCgram.Colors[196], installedCgram.Colors[196],

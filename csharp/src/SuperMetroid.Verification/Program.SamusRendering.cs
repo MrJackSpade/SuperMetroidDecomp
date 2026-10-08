@@ -519,37 +519,43 @@ static void VerifySamusArmCannon()
 
     // The HUD producer requires two identical samples. Merely changing selection sets the
     // native toggle word to one; only the following stable frame is allowed to transition.
-    SamusArmCannonUpdateResult closedSampleOne = samus.ArmCannon.Update(bus, samus);
-    SamusArmCannonUpdateResult closedSampleTwo = samus.ArmCannon.Update(bus, samus);
-    AssertEqual(0, closedSampleOne.FrameAfter,
+    // A transition start is the only path that rewrites the open flag, so an unchanged open
+    // flag across one update proves no transition began during it.
+    SamusArmCannonState cannon = samus.ArmCannon;
+    cannon.Update(bus, samus);
+    AssertEqual(0, cannon.Frame,
         "first closed HUD sample leaves cannon invisible");
-    AssertEqual(0, closedSampleTwo.FrameAfter,
+    cannon.Update(bus, samus);
+    AssertEqual(0, cannon.Frame,
         "second closed HUD sample agrees with already-closed state");
-    AssertEqual(2, samus.ArmCannon.ToggleFlag,
+    AssertEqual(2, cannon.ToggleFlag,
         "stable HUD selection saturates arm-cannon toggle at two");
-    AssertEqual(2, closedSampleTwo.DrawingMode,
+    AssertEqual(2, cannon.DrawingMode,
         "pose record publishes after-body arm-cannon draw mode");
 
     samus.SelectedHudItem = 1;
-    SamusArmCannonUpdateResult selectionChanged = samus.ArmCannon.Update(bus, samus);
-    AssertTrue(selectionChanged.HudItemChanged && !selectionChanged.TransitionStarted,
+    byte openBeforeSelection = cannon.OpenFlag;
+    cannon.Update(bus, samus);
+    AssertTrue(cannon.ToggleFlag == 1 && cannon.OpenFlag == openBeforeSelection,
         "new missile selection waits one stable HUD frame");
-    AssertEqual(0, selectionChanged.FrameAfter,
+    AssertEqual(0, cannon.Frame,
         "selection-change frame keeps cannon closed");
 
-    SamusArmCannonUpdateResult openingOne = samus.ArmCannon.Update(bus, samus);
-    AssertTrue(openingOne.TransitionStarted, "second missile sample begins opening");
-    AssertEqual(1, openingOne.FrameAfter,
+    byte openBeforeOpening = cannon.OpenFlag;
+    cannon.Update(bus, samus);
+    AssertTrue(openBeforeOpening == 0 && cannon.OpenFlag != openBeforeOpening,
+        "second missile sample begins opening");
+    AssertEqual(1, cannon.Frame,
         "opening starts at zero and advances to frame one in the same call");
-    AssertEqual(1, openingOne.OpenFlag, "missile selection stores open flag one");
-    AssertEqual(1, openingOne.CloseFlag, "opening frame one retains transition flag");
+    AssertEqual(1, cannon.OpenFlag, "missile selection stores open flag one");
+    AssertEqual(1, cannon.CloseFlag, "opening frame one retains transition flag");
 
-    SamusArmCannonUpdateResult openingTwo = samus.ArmCannon.Update(bus, samus);
-    SamusArmCannonUpdateResult openingThree = samus.ArmCannon.Update(bus, samus);
-    AssertEqual(2, openingTwo.FrameAfter, "opening advances to cover frame two");
-    AssertEqual(1, openingTwo.CloseFlag, "frame two remains transitional");
-    AssertEqual(3, openingThree.FrameAfter, "opening clamps at cover frame three");
-    AssertEqual(0, openingThree.CloseFlag, "fully open cover clears transition flag");
+    cannon.Update(bus, samus);
+    AssertEqual(2, cannon.Frame, "opening advances to cover frame two");
+    AssertEqual(1, cannon.CloseFlag, "frame two remains transitional");
+    cannon.Update(bus, samus);
+    AssertEqual(3, cannon.Frame, "opening clamps at cover frame three");
+    AssertEqual(0, cannon.CloseFlag, "fully open cover clears transition flag");
 
     // Rewind is intentionally unnecessary: selecting frame one in the public state is not
     // possible, which protects the model from debugger-only invalid combinations. The
@@ -557,24 +563,22 @@ static void VerifySamusArmCannon()
     var oam = new OamBuffer();
     var vramWrites = new VramWriteQueue();
     oam.BeginFrame();
-    SamusArmCannonDrawResult draw = samus.ArmCannon.Draw(
-        bus, oam, vramWrites, samus, layer1X: 0x0400, layer1Y: 0, nmiFrameCounter: 0);
-    AssertTrue(draw.SpriteWritten && draw.TileUploadQueued,
+    cannon.Draw(bus, oam, vramWrites, samus, layer1X: 0x0400, layer1Y: 0, nmiFrameCounter: 0);
+    AssertTrue(oam.NextByteOffset == 4 && vramWrites.Entries.Count == 1,
         "open cover emits one OBJ and queues its tile upload");
-    AssertEqual(2, draw.DirectionSelector, "pose record selects direction two");
-    AssertEqual(0x281f, draw.Attributes, "direction two uses retail OAM attributes");
-    AssertEqual(0x9e00, draw.TileSource, "frame three indexes third cover tile");
-    AssertEqual(135, draw.ScreenX, "cover X includes signed pose offset and camera");
-    AssertEqual(125, draw.ScreenY,
-        "cover Y includes signed offset, graphics origin, and camera");
     AssertEqual(4, oam.NextByteOffset, "cover consumes exactly one four-byte OAM record");
     OamEntry cover = oam.GetEntry(0);
-    AssertEqual(135, cover.X, "cover OAM X");
-    AssertEqual(125, cover.Y, "cover OAM Y");
-    AssertEqual(0x1f, cover.TileNumber, "cover OAM tile slot");
-    AssertEqual(4, cover.Palette, "cover OAM palette");
-    AssertEqual(2, cover.Priority, "cover OAM priority");
+    AssertEqual(135, cover.X, "cover X includes signed pose offset and camera");
+    AssertEqual(125, cover.Y,
+        "cover Y includes signed offset, graphics origin, and camera");
+    // Direction two's retail attributes $281F: tile $1F, palette four, priority two, no flips.
+    AssertEqual(0x1f, cover.TileNumber, "direction two attributes select cover OAM tile slot");
+    AssertEqual(4, cover.Palette, "direction two attributes select cover OAM palette");
+    AssertEqual(2, cover.Priority, "direction two attributes select cover OAM priority");
+    AssertTrue(!cover.FlipX && !cover.FlipY, "direction two attributes leave cover unflipped");
     AssertTrue(!cover.IsLarge, "arm-cannon cover is a small OBJ");
+    AssertEqual(0x9a9e00, vramWrites.Entries[0].SourceAddress,
+        "pose record selects direction two, whose frame three indexes the third cover tile");
     AssertEqual(new VramWriteEntry(0x20, 0x9a9e00, 0x61f0), vramWrites.Entries[0],
         "cover queues native bank-$9A tile DMA to VRAM $61F0");
 
@@ -584,9 +588,8 @@ static void VerifySamusArmCannon()
     var flickerOam = new OamBuffer();
     var flickerWrites = new VramWriteQueue();
     flickerOam.BeginFrame();
-    SamusArmCannonDrawResult flicker = samus.ArmCannon.Draw(
-        bus, flickerOam, flickerWrites, samus, 0x0400, 0, nmiFrameCounter: 1);
-    AssertTrue(!flicker.SpriteWritten && !flicker.TileUploadQueued,
+    cannon.Draw(bus, flickerOam, flickerWrites, samus, 0x0400, 0, nmiFrameCounter: 1);
+    AssertTrue(flickerOam.NextByteOffset == 0 && flickerWrites.Entries.Count == 0,
         "odd invincibility frame suppresses cover OBJ and DMA");
     AssertEqual(0, flickerWrites.Entries.Count, "flicker return leaves VRAM queue untouched");
 
@@ -594,28 +597,30 @@ static void VerifySamusArmCannon()
     var clippedOam = new OamBuffer();
     var clippedWrites = new VramWriteQueue();
     clippedOam.BeginFrame();
-    SamusArmCannonDrawResult clipped = samus.ArmCannon.Draw(
-        bus, clippedOam, clippedWrites, samus, layer1X: 0x0500, layer1Y: 0, nmiFrameCounter: 0);
-    AssertTrue(!clipped.SpriteWritten && clipped.TileUploadQueued,
+    cannon.Draw(bus, clippedOam, clippedWrites, samus, layer1X: 0x0500, layer1Y: 0, nmiFrameCounter: 0);
+    AssertTrue(clippedOam.NextByteOffset == 0 && clippedWrites.Entries.Count == 1,
         "off-screen cover omits OAM but retains tile DMA");
     AssertEqual(1, clippedWrites.Entries.Count, "clipped cover still has one VRAM transfer");
 
     // Closing mirrors opening but starts from synthetic frame four. The same stable-sample
     // call decrements immediately to three, followed by two, one, and invisible zero.
     samus.SelectedHudItem = 0;
-    SamusArmCannonUpdateResult closeChanged = samus.ArmCannon.Update(bus, samus);
-    AssertTrue(closeChanged.HudItemChanged && !closeChanged.TransitionStarted,
+    byte openBeforeDeselection = cannon.OpenFlag;
+    cannon.Update(bus, samus);
+    AssertTrue(cannon.ToggleFlag == 1 && cannon.OpenFlag == openBeforeDeselection,
         "item deselection also waits one stable frame");
-    SamusArmCannonUpdateResult closingThree = samus.ArmCannon.Update(bus, samus);
-    SamusArmCannonUpdateResult closingTwo = samus.ArmCannon.Update(bus, samus);
-    SamusArmCannonUpdateResult closingOne = samus.ArmCannon.Update(bus, samus);
-    SamusArmCannonUpdateResult closingZero = samus.ArmCannon.Update(bus, samus);
-    AssertTrue(closingThree.TransitionStarted, "second empty-item sample begins closing");
-    AssertEqual(3, closingThree.FrameAfter, "closing begins visibly at frame three");
-    AssertEqual(2, closingTwo.FrameAfter, "closing decrements to frame two");
-    AssertEqual(1, closingOne.FrameAfter, "closing decrements to frame one");
-    AssertEqual(0, closingZero.FrameAfter, "closing reaches invisible frame zero");
-    AssertEqual(0, closingZero.CloseFlag, "fully closed cover clears transition flag");
+    byte openBeforeClosing = cannon.OpenFlag;
+    cannon.Update(bus, samus);
+    AssertTrue(openBeforeClosing == 1 && cannon.OpenFlag == 0,
+        "second empty-item sample begins closing");
+    AssertEqual(3, cannon.Frame, "closing begins visibly at frame three");
+    cannon.Update(bus, samus);
+    AssertEqual(2, cannon.Frame, "closing decrements to frame two");
+    cannon.Update(bus, samus);
+    AssertEqual(1, cannon.Frame, "closing decrements to frame one");
+    cannon.Update(bus, samus);
+    AssertEqual(0, cannon.Frame, "closing reaches invisible frame zero");
+    AssertEqual(0, cannon.CloseFlag, "fully closed cover clears transition flag");
 
     Console.WriteLine(
         "  Samus arm cannon: HUD debounce, open/close cadence, OAM, clipping, flicker, and tile DMA agree.");
@@ -635,22 +640,20 @@ static void VerifySamusVisorPalette()
     var visorColors = SamusVisorColorCatalog.Load(new MemoryStream(SuperMetroid.AssetExtraction.SamusVisorColorExtractor.Extract(bus)));
     var state = new SamusVisorPaletteState { PresentationColors = visorColors };
     cgram.SetColor(196, 0x7777);
-    SamusVisorPaletteStepResult normal = state.Update(
+    state.Update(
         bus, cgram, specialSamusPaletteType: 0,
         layerBlendingDefaultConfig: LayerBlendingConfiguration.NormalGameplay);
-    AssertEqual(SamusVisorPaletteAction.ResetForNormalRoom, normal.Action,
-        "ordinary room resets visor animation");
     AssertEqual(0x0601, state.PackedTimerIndex,
-        "ordinary room primes timer one and table offset six");
+        "ordinary room resets visor animation, priming timer one and table offset six");
     AssertEqual(0x7777, cgram.Colors[196],
         "ordinary room reset does not overwrite current visor color");
 
     // The first `$28` call decrements timer one to zero and immediately copies offset six.
-    SamusVisorPaletteStepResult first = state.Update(
+    state.Update(
         bus, cgram, 0, LayerBlendingConfiguration.VisorBackdrop28);
-    AssertEqual(SamusVisorPaletteAction.ColorWritten, first.Action,
+    AssertTrue(cgram.Colors[196] != 0x7777,
         "backdrop room writes first visor color immediately");
-    AssertEqual((byte?)6, first.SourceByteOffset, "first visor source is table offset six");
+    AssertEqual(colors[6 / 2], cgram.Colors[196], "first visor source is table offset six");
     AssertEqual(0x2000, cgram.Colors[196], "first backdrop visor color");
     AssertEqual(0x0805, state.PackedTimerIndex,
         "first write reloads five and advances packed offset to eight");
@@ -658,18 +661,21 @@ static void VerifySamusVisorPalette()
     // Four calls retain timers 4/3/2/1. The fifth reaches zero, writes, and reloads five.
     for (ushort expectedTimer = 4; expectedTimer >= 1; expectedTimer--)
     {
-        SamusVisorPaletteStepResult countdown = state.Update(
+        ushort colorBeforeCountdown = cgram.Colors[196];
+        byte offsetBeforeCountdown = state.PaletteByteOffset;
+        state.Update(
             bus, cgram, 0, LayerBlendingConfiguration.VisorBackdrop2A);
-        AssertEqual(SamusVisorPaletteAction.Countdown, countdown.Action,
-            $"visor countdown timer {expectedTimer}");
+        AssertTrue(cgram.Colors[196] == colorBeforeCountdown &&
+                state.PaletteByteOffset == offsetBeforeCountdown,
+            $"visor countdown timer {expectedTimer} writes no color and keeps its offset");
         AssertEqual(unchecked((byte)expectedTimer), state.Timer,
             $"visor packed low byte reaches {expectedTimer}");
         if (expectedTimer == 1)
             break;
     }
-    SamusVisorPaletteStepResult second = state.Update(
+    state.Update(
         bus, cgram, 0, LayerBlendingConfiguration.VisorBackdrop2A);
-    AssertEqual((byte?)8, second.SourceByteOffset, "second visor source is table offset eight");
+    AssertEqual(colors[8 / 2], cgram.Colors[196], "second visor source is table offset eight");
     AssertEqual(0x2001, cgram.Colors[196], "second backdrop visor color");
     AssertEqual(0x0a05, state.PackedTimerIndex,
         "second write advances packed offset to ten");
@@ -682,9 +688,9 @@ static void VerifySamusVisorPalette()
 
     ushort packedBeforeXray = state.PackedTimerIndex;
     cgram.SetColor(196, 0x3456);
-    SamusVisorPaletteStepResult xray = state.Update(
+    state.Update(
         bus, cgram, 8, LayerBlendingConfiguration.VisorBackdrop28);
-    AssertEqual(SamusVisorPaletteAction.SuppressedByXray, xray.Action,
+    AssertTrue(state.PackedTimerIndex == packedBeforeXray && cgram.Colors[196] == 0x3456,
         "X-ray special handler suppresses ordinary visor cycle");
     AssertEqual(packedBeforeXray, state.PackedTimerIndex,
         "X-ray suppression freezes both packed bytes");
@@ -701,9 +707,8 @@ static void VerifySamusVisorPalette()
         layerBlendingDefaultConfig: LayerBlendingConfiguration.VisorBackdrop28);
     AssertEqual(SamusBeamChargePaletteAction.Inactive, charge.Action,
         "inactive charging retains beam-palette result");
-    AssertEqual(SamusVisorPaletteAction.ColorWritten,
-        projectiles.LastVisorPaletteStep.Action,
-        "inactive charging falls through to visor handler");
+    AssertEqual(0x0805, integratedSamus.VisorPalette.PackedTimerIndex,
+        "inactive charging falls through to visor handler, which writes and advances");
     AssertEqual(0x2000, cgram.Colors[196],
         "integrated visor call reads bank-$9B room-cycle color");
 
@@ -746,15 +751,19 @@ static void VerifySamusHurtFlashPalette()
     int untouchedCalls = 0;
     for (int call = 1; call <= 59; call++)
     {
-        SamusHurtFlashPaletteStepResult step = SamusHurtFlashPalette.Update(
+        ushort counterBefore = samus.HurtFlashCounter;
+        ushort[] paletteBefore = cgram.Colors.Slice(192, 16).ToArray();
+        int soundsBefore = samus.LiquidPhysics.SoundRequests.Count;
+        SamusHurtFlashPalette.Update(
             bus, cgram, samus, controllerInput: 0, presentationColors: hurtColors);
-        AssertEqual(call, step.CounterBefore,
+        bool paletteChanged = !paletteBefore.AsSpan().SequenceEqual(cgram.Colors.Slice(192, 16));
+        AssertEqual(call, counterBefore,
             $"hurt palette call {call} reads pre-increment counter");
 
         if (call <= 6 && (call & 1) != 0)
         {
             hurtPaletteCalls++;
-            AssertEqual(SamusHurtFlashPaletteAction.HurtFlash, step.Action,
+            AssertTrue(paletteChanged,
                 $"odd hurt call {call} selects fixed flash palette");
             for (int color = 0; color < 16; color++)
             {
@@ -765,10 +774,10 @@ static void VerifySamusHurtFlashPalette()
         else if (call <= 6)
         {
             normalPaletteCalls++;
-            AssertEqual(SamusHurtFlashPaletteAction.NormalSuitRestore, step.Action,
+            AssertTrue(paletteChanged,
                 $"even hurt call {call} restores equipment palette");
-            AssertEqual(0x9b9800, step.PaletteAddress!.Value,
-                $"hurt call {call} gives Gravity priority over Varia");
+            AssertEqual(0x0300, cgram.Colors[192],
+                $"hurt call {call} gives Gravity ($9B:9800) priority over Varia");
             for (int color = 0; color < 16; color++)
             {
                 AssertEqual(unchecked((ushort)(0x0300 + color)), cgram.Colors[192 + color],
@@ -778,13 +787,14 @@ static void VerifySamusHurtFlashPalette()
         else
         {
             untouchedCalls++;
-            AssertEqual(SamusHurtFlashPaletteAction.NoPaletteChange, step.Action,
+            AssertTrue(!paletteChanged,
                 $"hurt call {call} preserves the existing palette");
         }
 
         if (call == 2)
         {
-            AssertTrue(step.HurtSoundQueued, "hurt call two publishes impact SFX");
+            AssertEqual(soundsBefore + 1, samus.LiquidPhysics.SoundRequests.Count,
+                "hurt call two publishes impact SFX");
             AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x35), 6),
                 samus.LiquidPhysics.SoundRequests[^1],
                 "hurt impact uses library one sound $35 maximum six");
@@ -803,13 +813,12 @@ static void VerifySamusHurtFlashPalette()
     // place of equipment-selected colors. Odd call one remains the common hurt palette.
     var cinematic = new SamusState { HurtFlashCounter = 2, EquippedItems = 0x0020 };
     cinematic.LiquidPhysics.CinematicFunctionActive = true;
-    SamusHurtFlashPaletteStepResult intro = SamusHurtFlashPalette.Update(
+    SamusHurtFlashPalette.Update(
         bus, cgram, cinematic, controllerInput: 0, presentationColors: hurtColors);
-    AssertEqual(SamusHurtFlashPaletteAction.IntroRestore, intro.Action,
+    AssertEqual(0x5000, cgram.Colors[192],
         "cinematic even hurt call selects intro palette");
-    AssertTrue(!intro.HurtSoundQueued, "cinematic hurt call suppresses impact SFX");
     AssertEqual(0, cinematic.LiquidPhysics.SoundRequests.Count,
-        "cinematic hurt call leaves sound queue empty");
+        "cinematic hurt call suppresses impact SFX, leaving sound queue empty");
     for (int color = 0; color < 16; color++)
     {
         AssertEqual(unchecked((ushort)(0x5000 + color)), cgram.Colors[192 + color],
@@ -825,9 +834,9 @@ static void VerifySamusHurtFlashPalette()
         Pose = SamusPoseIds.ScrewAttackRightPose,
         HurtFlashCounter = 39,
     };
-    SamusHurtFlashPaletteStepResult spinRecovery = SamusHurtFlashPalette.Update(
+    SamusHurtFlashPalette.Update(
         bus, cgram, spinning, controllerInput: 0);
-    AssertEqual(SamusHurtFlashRecoveryAction.ScrewAttackSound, spinRecovery.Recovery,
+    AssertEqual(1, spinning.LiquidPhysics.SoundRequests.Count,
         "counter forty restores Screw Attack sound");
     AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x33), 9),
         spinning.LiquidPhysics.SoundRequests[^1],
@@ -843,11 +852,10 @@ static void VerifySamusHurtFlashPalette()
         HurtFlashCounter = 39,
         ProjectileFlareCounter = 0x10,
     };
-    SamusHurtFlashPaletteStepResult chargeRecovery = SamusHurtFlashPalette.Update(
+    SamusHurtFlashPalette.Update(
         bus, cgram, charging, (ushort)SnesButton.X);
-    AssertEqual(SamusHurtFlashRecoveryAction.ResumeChargingBeamRequested,
-        chargeRecovery.Recovery,
-        "counter forty arms charging-beam recovery");
+    AssertEqual(0, charging.LiquidPhysics.SoundRequests.Count,
+        "counter forty arms charging-beam recovery without an immediate sound");
     AssertEqual(1, charging.ResumeChargingBeamSoundFlag,
         "charging recovery publishes native flag one");
     AssertTrue(SamusHurtFlashPalette.ConsumeResumeChargingBeamSound(
@@ -863,9 +871,9 @@ static void VerifySamusHurtFlashPalette()
     // still below `$C856`; cancel-pending is exactly the cutoff and must remain silent.
     var grapple = new SamusState { HurtFlashCounter = 39 };
     grapple.Grapple.Phase = GrapplePhase.WallGrabRelease;
-    SamusHurtFlashPaletteStepResult grappleRecovery = SamusHurtFlashPalette.Update(
+    SamusHurtFlashPalette.Update(
         bus, cgram, grapple, controllerInput: 0);
-    AssertEqual(SamusHurtFlashRecoveryAction.GrappleSound, grappleRecovery.Recovery,
+    AssertEqual(1, grapple.LiquidPhysics.SoundRequests.Count,
         "counter forty restores pre-cancel grapple sound");
     AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x06), 9),
         grapple.LiquidPhysics.SoundRequests[^1],
@@ -873,10 +881,10 @@ static void VerifySamusHurtFlashPalette()
 
     var cancelledGrapple = new SamusState { HurtFlashCounter = 39 };
     cancelledGrapple.Grapple.Phase = GrapplePhase.CancelPending;
-    SamusHurtFlashPaletteStepResult cancelledRecovery = SamusHurtFlashPalette.Update(
+    SamusHurtFlashPalette.Update(
         bus, cgram, cancelledGrapple, controllerInput: 0);
-    AssertEqual(SamusHurtFlashRecoveryAction.None, cancelledRecovery.Recovery,
-        "grapple cancel cutoff suppresses recovery sound");
+    AssertEqual(0, cancelledGrapple.ResumeChargingBeamSoundFlag,
+        "grapple cancel cutoff suppresses recovery sound and charging latch");
     AssertEqual(0, cancelledGrapple.LiquidPhysics.SoundRequests.Count,
         "cancelled grapple leaves sound queue empty");
 

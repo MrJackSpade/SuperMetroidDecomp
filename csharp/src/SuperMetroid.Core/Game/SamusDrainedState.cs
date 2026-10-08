@@ -333,10 +333,7 @@ public sealed class SamusDrainedState
         }
 
         return new DrainedSamusMovementResult(
-            vertical,
-            hitCeiling,
             downwardDisplacement && vertical.Collided,
-            Phase,
             impactYSpeed,
             impactYSubspeed);
     }
@@ -461,9 +458,6 @@ public enum DrainedGetUpHandler
 
 /// <summary>One-frame debugger witness from the translated `$90:94CB` handler.</summary>
 public readonly record struct DrainedSamusMovementResult(
-    BlockMoveResult Vertical,
-    bool HitCeiling,
     bool Landed,
-    DrainedSamusPhase PhaseAfterStep,
     ushort ImpactYSpeed,
     ushort ImpactYSubspeed);

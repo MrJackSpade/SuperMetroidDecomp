@@ -84,7 +84,7 @@ internal static partial class Program
             runtime.RunNmi(0, mainLoopRequestedNmi: true);
             var registers = runtime.DisplayedGameplayWindowRegisters;
             AssertEqual((byte)0x11, registers.MainScreen, "waterfall native TM");
-            AssertEqual((byte)0x06, registers.Subscreen, "waterfall native TS");
+            AssertEqual((byte)0x06, runtime.CachedGameplaySubscreen, "waterfall native TS");
             var snapshot = GameplayDisplayCapture.TryCaptureFrame(runtime)
                 ?? throw new InvalidDataException("Waterfall room capture is absent.");
             var math = snapshot.Layers[0] as GameplayColorMathRenderLayer

@@ -66,7 +66,6 @@ internal static class HyperBeamPaletteFxProgramDefinitions
         return new HyperBeamPaletteFxFrame(
             frameIndex,
             FrameDuration,
-            unchecked((ushort)(framePointer + sizeof(ushort))),
             unchecked((ushort)(framePointer + FrameByteCount)));
     }
 }
@@ -74,10 +73,8 @@ internal static class HyperBeamPaletteFxProgramDefinitions
 /// <summary>One resolved Hyper Beam palette frame and its fixed control metadata.</summary>
 /// <param name="Index">Zero-based frame number.</param>
 /// <param name="Duration">Number of handler calls for which the frame remains active.</param>
-/// <param name="FirstColorPointer">Bank-$8D pointer to the editable eight-color payload.</param>
 /// <param name="NextInstructionPointer">Bank-$8D pointer reached after the done command.</param>
 internal readonly record struct HyperBeamPaletteFxFrame(
     int Index,
     ushort Duration,
-    ushort FirstColorPointer,
     ushort NextInstructionPointer);

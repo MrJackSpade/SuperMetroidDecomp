@@ -1700,8 +1700,22 @@ internal static partial class Program
     }
     private static void VerifyLookupStream5PaletteEntries(ISnesAddressSpace rom)
     {
-        CheckEntries(CeresCinematicLightPaletteFxProgramMechanicsDefinitions.All,
-            entry => (entry.DefinitionPointer, entry.ProgramStart), 3);
+        // Ceres light entries carry no identity; their native definition/program pairs are
+        // the compiled owner constants, checked against the original definition list.
+        CheckEntryCount(CeresCinematicLightPaletteFxProgramMechanicsDefinitions.All, 3);
+        foreach ((ushort definition, ushort program) in new[]
+        {
+            (CeresCinematicLightPaletteFxProgramMechanicsDefinitions.GunshipEngineDefinitionPointer,
+                CeresCinematicLightPaletteFxProgramMechanicsDefinitions.GunshipEngineProgramStart),
+            (CeresCinematicLightPaletteFxProgramMechanicsDefinitions.SpriteNavigationLightsDefinitionPointer,
+                CeresCinematicLightPaletteFxProgramMechanicsDefinitions.SpriteNavigationLightsProgramStart),
+            (CeresCinematicLightPaletteFxProgramMechanicsDefinitions.BackgroundNavigationLightsDefinitionPointer,
+                CeresCinematicLightPaletteFxProgramMechanicsDefinitions.BackgroundNavigationLightsProgramStart),
+        })
+        {
+            AssertEqual(ReadVerificationWord(rom, 0x8d0000 | definition + 2), program,
+                "Original palette definition list pointer");
+        }
         CheckEntries(CinematicGlowPaletteFxProgramMechanicsDefinitions.All,
             entry => (entry.DefinitionPointer, entry.ProgramStart), 2);
         CheckEntries(TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.All,
@@ -1748,6 +1762,19 @@ internal static partial class Program
                 var identity = project(entry);
                 AssertEqual(identity, project(entries[index]), "Palette entry enumeration order");
                 AssertEqual(ReadVerificationWord(rom, 0x8d0000 | identity.Definition + 2), identity.Program, "Original palette definition list pointer");
+                index++;
+            }
+            AssertEqual(expectedCount, index, "All palette entries enumerated");
+            AssertThrows<ArgumentOutOfRangeException>(() => { _ = entries[-1]; }, "Palette entries lower bound");
+            AssertThrows<ArgumentOutOfRangeException>(() => { _ = entries[expectedCount]; }, "Palette entries upper bound");
+        }
+        void CheckEntryCount<T>(IReadOnlyList<T> entries, int expectedCount)
+        {
+            AssertEqual(expectedCount, entries.Count, "Palette entry count");
+            int index = 0;
+            foreach (T entry in entries)
+            {
+                AssertEqual(entry, entries[index], "Palette entry enumeration order");
                 index++;
             }
             AssertEqual(expectedCount, index, "All palette entries enumerated");

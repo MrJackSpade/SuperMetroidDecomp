@@ -24,9 +24,10 @@ internal static partial class Program
             {
                 ushort input = frame == 0 ? (ushort)SnesButton.X : (ushort)0;
                 shared.StepFrame(bus, room, samus, input, input);
-                var result = projectiles.StepFrame(bus, room, samus, input, input,
+                projectiles.StepFrame(bus, room, samus, input, input,
                     (ushort)(edge == 1 ? 192 : 384), 0, shared);
-                if (frame == 0) AssertEqual((int?)0, result.FiredSlot, "Missile edge fixture uses actual fire dispatch");
+                if (frame == 0) AssertTrue(projectiles.LastFiredProjectileSnapshot is not null,
+                    "Missile edge fixture uses actual fire dispatch");
                 var shot = projectiles.Slots[0];
                 ushort[] actual = [shot.XPosition, shot.XSubposition, shot.YPosition, shot.YSubposition,
                     unchecked((ushort)shot.XVelocity), unchecked((ushort)shot.YVelocity), shot.Type, shot.InstructionPointer];

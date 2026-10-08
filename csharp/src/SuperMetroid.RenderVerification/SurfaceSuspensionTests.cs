@@ -40,17 +40,17 @@ internal static partial class SwapchainTests
                 PumpUntil(() => { worker.ThrowIfFaulted(); return elapsed.ElapsedMilliseconds >= 250; });
                 if (worker.LastConsumedSequence != consumed || worker.SubmittedUploadCalls != submissions ||
                     worker.PresentedFrames + worker.OccludedFrames != presentations ||
-                    !worker.MailboxMetrics.HasPendingFrame || worker.MailboxMetrics.Replaced != replacements + 31)
+                    !MailboxCounters(worker).HasPendingFrame || worker.MailboxMetrics.Replaced != replacements + 31)
                     throw new InvalidOperationException("Suspended surface consumed/rendered frames or lost bounded latest-frame accounting.");
 
                 worker.AdvanceGeneration(++generation);
-                if (worker.MailboxMetrics.HasPendingFrame)
+                if (MailboxCounters(worker).HasPendingFrame)
                     throw new InvalidOperationException("Generation change retained a queued pre-load frame while suspended.");
                 worker.Publish(new(new(++sequence, generation, 0), new Rgba32(43, 91, 173)));
                 worker.Resize(641, 481);
                 PumpUntil(() => { worker.ThrowIfFaulted(); return !worker.IsSurfaceSuspended &&
                     worker.LastConsumedSequence == sequence && worker.LastDrawnSize == (641, 481); });
-                var metrics = worker.MailboxMetrics;
+                RenderMailboxCounterView metrics = MailboxCounters(worker);
                 if (metrics.HasPendingFrame || metrics.Generation != generation ||
                     metrics.Published != metrics.Taken + metrics.Replaced + metrics.Invalidated)
                     throw new InvalidOperationException("Surface restore lost latest generation/mailbox accounting.");

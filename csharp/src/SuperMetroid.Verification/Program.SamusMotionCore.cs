@@ -27,7 +27,8 @@ static void VerifySamusPoseTransitionMatching()
         canonicalHeldInput: 0x0980,
         canonicalNewInput: 0x0080)!.Value;
     AssertEqual(0x55, jumpUp.ProspectivePose, "Samus transition required-new plus held chord");
-    AssertEqual(0x91a0ec, jumpUp.EntryAddress, "Samus transition winning ROM record address");
+    AssertTrue(SamusPoseInputDefinitions.TryGetPointer(fixturePose, out _),
+        "Samus transition fixture pose has an authored table");
 
     SamusPoseTransition up = SamusPoseTransitionTable.Find(
         bus,
@@ -581,13 +582,14 @@ static void VerifySamusExtraDisplacement()
     transition.Kinematics.ExtraXSubdisplacement = 0x8000; // -0.8000
     transition.Kinematics.ExtraYDisplacement = 0;
     transition.Kinematics.ExtraYSubdisplacement = 0x4000; // +0.4000
+    uint transitionXBefore = transition.Kinematics.XFixed;
     AerialMovementResult transitionResult = SamusAerialMovement.StepNormalJump(
         bus,
         level,
         transition,
         (ushort)SnesButton.A,
         nmiFrameCounter: 0);
-    AssertEqual(unchecked((int)0xffff8000), transitionResult.Horizontal.AcceptedDisplacement,
+    AssertEqual(unchecked((int)0xffff8000), unchecked((int)(transition.Kinematics.XFixed - transitionXBefore)),
         "jump transition applies signed external X with zero base speed");
     AssertEqual(0x00014000, transitionResult.Vertical!.Value.AcceptedDisplacement,
         "jump transition applies extra-only Y with positive bias");

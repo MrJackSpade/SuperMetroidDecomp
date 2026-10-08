@@ -12,10 +12,7 @@ public enum CeresCinematicLightPaletteFxProgramOwner
 }
 
 /// <summary>Immutable entry metadata for one Ceres cinematic-light palette program.</summary>
-public readonly record struct CeresCinematicLightPaletteFxProgramDefinition(
-    CeresCinematicLightPaletteFxProgramOwner Owner,
-    ushort DefinitionPointer,
-    ushort ProgramStart);
+public readonly record struct CeresCinematicLightPaletteFxProgramDefinition();
 
 /// <summary>
 /// Immutable mechanics for the cutscene gunship-engine and shared Ceres navigation-light
@@ -108,15 +105,9 @@ public static class CeresCinematicLightPaletteFxProgramMechanicsDefinitions
         public CeresCinematicLightPaletteFxProgramDefinition this[int index] =>
             (CeresCinematicLightPaletteFxProgramOwner)index switch
             {
-                CeresCinematicLightPaletteFxProgramOwner.GunshipEngine => new(
-                    CeresCinematicLightPaletteFxProgramOwner.GunshipEngine,
-                    GunshipEngineDefinitionPointer, GunshipEngineProgramStart),
-                CeresCinematicLightPaletteFxProgramOwner.SpriteNavigationLights => new(
-                    CeresCinematicLightPaletteFxProgramOwner.SpriteNavigationLights,
-                    SpriteNavigationLightsDefinitionPointer, SpriteNavigationLightsProgramStart),
-                CeresCinematicLightPaletteFxProgramOwner.BackgroundNavigationLights => new(
-                    CeresCinematicLightPaletteFxProgramOwner.BackgroundNavigationLights,
-                    BackgroundNavigationLightsDefinitionPointer, BackgroundNavigationLightsProgramStart),
+                CeresCinematicLightPaletteFxProgramOwner.GunshipEngine => new(),
+                CeresCinematicLightPaletteFxProgramOwner.SpriteNavigationLights => new(),
+                CeresCinematicLightPaletteFxProgramOwner.BackgroundNavigationLights => new(),
                 _ => throw new ArgumentOutOfRangeException(nameof(index)),
             };
         public IEnumerator<CeresCinematicLightPaletteFxProgramDefinition> GetEnumerator()

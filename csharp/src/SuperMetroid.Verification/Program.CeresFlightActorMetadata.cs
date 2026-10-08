@@ -6,7 +6,8 @@ internal static partial class Program
     private static void VerifyCeresFlightActorMetadata(ISnesAddressSpace retail)
     {
         CeresFlightActorDefinition front = CeresFlightActorDefinitions.FrontStars;
-        Suite(nameof(VerifyActor), () => VerifyActor(retail, front, "front stars"));
+        ushort frontDefinition = ReadWord(retail, 0x8bbe57);
+        Suite(nameof(VerifyActor), () => VerifyActor(retail, front, frontDefinition, "front stars"));
         AssertEqual(ReadWord(retail, 0x8bbe84), front.InitialTimer, "front stars initial timer");
         AssertEqual(ReadWord(retail, 0x8bbe8a), front.X, "front stars X");
         AssertEqual(ReadWord(retail, 0x8bbe90), front.Y, "front stars Y");
@@ -18,13 +19,14 @@ internal static partial class Program
         for (int index = 0; index < CeresFlightActorDefinitions.RearViewActorCount; index++)
         {
             CeresFlightActorDefinition actor = CeresFlightActorDefinitions.RearViewActor(index);
-            VerifyActor(retail, actor, $"rear actor {index}");
             int[] spawnOperands = [0x8bbe3c, 0x8bbe42, 0x8bbe48, 0x8bbe4e, 0x8bbe57];
             AssertEqual((byte)0xa0, retail.ReadByte(spawnOperands[index] - 1), "native rear spawn LDY");
-            AssertEqual(ReadWord(retail, spawnOperands[index]), actor.Pointer, "native rear spawn identity");
+            ushort definition = ReadWord(retail, spawnOperands[index]);
+            VerifyActor(retail, actor, definition, $"rear actor {index}");
             AssertEqual((ushort)0, actor.InitialTimer, "rear initializer leaves cleared timer");
             if (index != 4)
-                AssertEqual(actor.DefinitionPreInstruction, actor.ActivePreInstruction, "rear initializer preserves callback");
+                AssertEqual(ReadWord(retail, CeresFlightActorDefinitions.NativeBank | (definition + 2)),
+                    actor.ActivePreInstruction, "rear initializer preserves the definition callback");
             switch (index)
             {
                 case 0:
@@ -72,21 +74,18 @@ internal static partial class Program
                 () => CeresFlightActorDefinitions.RearViewActor(index), "rear metadata invalid index");
         AssertEqual((ushort)1, ReadWord(retail, 0x8bbe51), "rear vortex native initializer parameter");
         AssertEqual((ushort)1, ReadWord(retail, 0x8bbe5a), "rear stars native initializer parameter");
-        AssertEqual(front.Pointer, CeresFlightActorDefinitions.RearViewActor(4).Pointer, "front/rear native definition alias");
         AssertEqual(front.InstructionList, CeresFlightActorDefinitions.RearViewActor(4).InstructionList, "front/rear program alias");
-        AssertEqual(front.DefinitionPreInstruction, front.ActivePreInstruction, "front stars preserve callback");
+        AssertEqual(ReadWord(retail, CeresFlightActorDefinitions.NativeBank | (frontDefinition + 2)),
+            front.ActivePreInstruction, "front stars preserve the definition callback");
         AssertEqual(0, front.HorizontalDelta, "front stars have callback-driven acceleration instead of fixed X velocity");
         AssertEqual(false, front.WrapX, "front stars have no nine-bit wrap");
         static void VerifyActor(
             ISnesAddressSpace source,
             CeresFlightActorDefinition actor,
+            ushort definitionPointer,
             string name)
         {
-            int address = CeresFlightActorDefinitions.NativeBank | actor.Pointer;
-            AssertEqual(ReadWord(source, address), actor.Initialization,
-                $"{name} initialization callback");
-            AssertEqual(ReadWord(source, address + 2), actor.DefinitionPreInstruction,
-                $"{name} definition pre-instruction");
+            int address = CeresFlightActorDefinitions.NativeBank | definitionPointer;
             AssertEqual(ReadWord(source, address + 4), actor.InstructionList,
                 $"{name} instruction list");
         }

@@ -158,7 +158,6 @@ internal static partial class Program
                     "quicksand allocator rejects unsupported headers including clone gaps");
                 continue;
             }
-            AssertEqual(header, actual.HeaderPointer, "quicksand retains requested identity");
             AssertEqual(actual, QuicksandDefinitions.ResolveReaction(header), "quicksand allocator resolution");
             ushort native = ReadBotwoonInstructionWord(rom, 0x840000 | (header + (instruction ? 2 : 0)));
             AssertEqual(native, instruction ? actual.InstructionListPointer : actual.SetupPointer,

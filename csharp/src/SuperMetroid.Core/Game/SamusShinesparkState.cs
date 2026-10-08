@@ -388,8 +388,7 @@ public sealed class SamusShinesparkState
             }
 
             return new ShinesparkMovementResult(
-                phaseAtStart, null, null, timedOut, false, false, false,
-                PendingLaunchPose: pendingLaunchPose);
+timedOut,                 PendingLaunchPose: pendingLaunchPose);
         }
 
         if (Phase is not (ShinesparkPhase.Horizontal or
@@ -406,7 +405,7 @@ public sealed class SamusShinesparkState
             // Stored/inactive states are not installed special movement handlers. Returning
             // an empty snapshot is defensive; runtime normally never dispatches them here.
             return new ShinesparkMovementResult(
-                phaseAtStart, null, null, false, false, false, false);
+false);
         }
 
         samus.HorizontalSpeed.ContactDamageIndex = 2;
@@ -450,7 +449,7 @@ public sealed class SamusShinesparkState
             samus.Health = unchecked((ushort)(samus.Health - 1));
 
         return new ShinesparkMovementResult(
-            phaseAtStart, horizontal, vertical, false, collided, lowEnergy, drained);
+false);
     }
 
     /// <summary>
@@ -605,7 +604,7 @@ public sealed class SamusShinesparkState
             unchecked((ushort)(samus.YPosition + secondOffsetY)));
 
         return new ShinesparkMovementResult(
-            phaseAtStart, null, null, false, false, false, false);
+false);
     }
 
     /// <summary>Ports the 30-frame center echo hold at `$90:D3F3`.</summary>
@@ -617,7 +616,7 @@ public sealed class SamusShinesparkState
         if (timer.IsZeroOrNegative)
             Phase = ShinesparkPhase.CrashFinish;
         return new ShinesparkMovementResult(
-            phaseAtStart, null, null, false, false, false, false);
+false);
     }
 
     /// <summary>
@@ -664,8 +663,7 @@ public sealed class SamusShinesparkState
         VerticalAccelerationSubspeed = 0;
         Phase = ShinesparkPhase.Inactive;
         return new ShinesparkMovementResult(
-            phaseAtStart, null, null, false, false, false, false,
-            CrashSequenceFinished: true);
+false,             CrashSequenceFinished: true);
     }
 
     /// <summary>Commits the crash's transitional standing pose after this frame's animation.</summary>
@@ -733,9 +731,7 @@ public sealed class SamusShinesparkState
         short screenX = unchecked((short)(slot.XPosition - layer1X));
         if (screenX < 0 || screenX >= 256)
         {
-            LastReleasedCrashEchoClear = new(
-                nativeSlot, slot.Angle, slot.Radius,
-                slot.XPosition, slot.YPosition, screenX, null, ShinesparkEchoClearAxis.X);
+            LastReleasedCrashEchoClear = new();
             slot.Clear();
             return false;
         }
@@ -744,9 +740,7 @@ public sealed class SamusShinesparkState
         short screenY = unchecked((short)(slot.YPosition - layer1Y));
         if (screenY < 0 || screenY >= 256)
         {
-            LastReleasedCrashEchoClear = new(
-                nativeSlot, slot.Angle, slot.Radius,
-                slot.XPosition, slot.YPosition, screenX, screenY, ShinesparkEchoClearAxis.Y);
+            LastReleasedCrashEchoClear = new();
             slot.Clear();
             return false;
         }
@@ -862,7 +856,7 @@ public sealed class SamusShinesparkState
             unchecked((ushort)(collisionMagnitude >> 16)), unchecked((ushort)collisionMagnitude));
         samus.Kinematics.RecordSolidEnemyCollision(SamusCollisionDirection.Up, enemy.EnemyIndex);
         if (enemy.Collided)
-            return new BlockMoveResult(0, true, null, false, null, null, EnemyCollision: enemy);
+            return new BlockMoveResult(0, true, EnemyCollision: enemy);
 
         return SamusBlockCollision.MoveVertical(
             bus,
@@ -890,7 +884,7 @@ public sealed class SamusShinesparkState
         public ushort YPosition { get; set; }
 
         public ShinesparkReleasedEcho Snapshot => new(
-            Active, Angle, Radius, XPosition, YPosition);
+            Active, XPosition, YPosition);
 
         // Crash entry changes only the drawing enable. It does not clear coordinates,
         // projectile ownership, or the aliased angular-travel word.
@@ -934,38 +928,15 @@ public enum ShinesparkPhase
 
 /// <summary>Debugger snapshot of one windup or active shinespark handler call.</summary>
 public readonly record struct ShinesparkMovementResult(
-    ShinesparkPhase PhaseAtStart,
-    BlockMoveResult? Horizontal,
-    BlockMoveResult? Vertical,
     bool WindupTimedOut,
-    bool EndedByCollision,
-    bool EndedByLowEnergy,
-    bool EnergyDrained,
     bool CrashSequenceFinished = false,
     byte? PendingLaunchPose = null);
 
 /// <summary>Immutable debugger view of one departing crash-echo projectile.</summary>
 public readonly record struct ShinesparkReleasedEcho(
     bool Active,
-    SnesAngle Angle,
-    ushort Radius,
     ushort XPosition,
     ushort YPosition);
 
 /// <summary>Debugger-only witness captured immediately before an off-camera echo clears.</summary>
-public readonly record struct ShinesparkReleasedEchoClear(
-    byte NativeSlot,
-    SnesAngle Angle,
-    ushort Radius,
-    ushort XPosition,
-    ushort YPosition,
-    short ScreenX,
-    short? ScreenY,
-    ShinesparkEchoClearAxis Axis);
-
-/// <summary>Which ordered viewport comparison rejected a departing echo.</summary>
-public enum ShinesparkEchoClearAxis
-{
-    X,
-    Y,
-}
+public readonly record struct ShinesparkReleasedEchoClear();

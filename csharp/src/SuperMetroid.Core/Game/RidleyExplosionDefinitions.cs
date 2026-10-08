@@ -74,7 +74,7 @@ internal static class RidleyExplosionDefinitions
 
         int part = parameter >> 1;
         if (parameter <= RidleyExplosionParts.TailTip)
-            return new(parameter, (ushort)(0x48 + 8 * part), (ushort)(TailInitializerStart + 0x18 * part));
+            return new((ushort)(0x48 + 8 * part));
 
         // Body initializers have the same two-facing layout, so their native
         // addresses advance by 50 bytes. Torso is the last fragment to expire;
@@ -82,7 +82,7 @@ internal static class RidleyExplosionDefinitions
         int body = (parameter - RidleyExplosionParts.Wings) / 2;
         ushort lifetime = parameter == RidleyExplosionParts.Torso ? (ushort)0x80
             : (ushort)(0x28 + 8 * (body - (parameter == RidleyExplosionParts.Claw ? 1 : 0)));
-        return new(parameter, lifetime, (ushort)(BodyInitializerStart + 0x32 * body));
+        return new(lifetime);
     }
 
     /// <summary>
@@ -138,9 +138,7 @@ internal static class RidleyExplosionDefinitions
 
 /// <summary>One native Ridley-breakup lifetime and initializer-dispatch record.</summary>
 internal readonly record struct RidleyExplosionPartDefinition(
-    ushort Parameter,
-    ushort Lifetime,
-    ushort InitializationRoutine);
+    ushort Lifetime);
 
 /// <summary>One facing-specific body fragment placement and animation selector.</summary>
 internal readonly record struct RidleyExplosionBodyPartDefinition(

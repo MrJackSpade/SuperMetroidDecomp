@@ -28,7 +28,7 @@ internal static partial class Program
         mailbox.Publish(new(new(3, 1, 1), default(Rgba32)));
         AssertEqual(1L, mailbox.Metrics.Replaced, "superseded visuals counted");
         mailbox.AdvanceGeneration(2);
-        AssertEqual(1L, mailbox.Metrics.Invalidated, "queued old generation discarded");
+        AssertEqual(1L, mailbox.VerificationCounters.Invalidated, "queued old generation discarded");
         AssertTrue(!mailbox.IsCurrent(first), "consumer-held old packet invalidated");
         AssertTrue(mailbox.TakeLatest() is null, "old generation cannot be acquired after reset");
         AssertThrows<InvalidOperationException>(() => mailbox.Publish(first), "old publication generation rejected");
@@ -63,7 +63,7 @@ internal static partial class Program
             Task.Delay(250).GetAwaiter().GetResult();
             AssertTrue(!consumer.IsCompleted, "producer finished while consumer remained blocked");
             AssertEqual(1005L, mailbox.TakeLatest()!.Identity.Sequence, "resumption sees only newest frame");
-            RenderMailboxMetrics metrics = mailbox.Metrics;
+            RenderMailboxCounterView metrics = mailbox.VerificationCounters;
             AssertEqual(metrics.Published, metrics.Taken + metrics.Replaced + metrics.Invalidated,
                 "every visual publication accounted for with bounded pending storage");
             AssertTrue(!metrics.HasPendingFrame, "latest acquisition drains single pending slot");

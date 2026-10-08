@@ -20,12 +20,12 @@ internal static partial class Program
                 XRadius: 8, YRadius: 8, FreezeTimer: (ushort)(frozen ? 1 : 0),
                 Properties: (ushort)(frozen ? EnemyProperties.None : EnemyProperties.SolidToSamus))];
             uint initialY = samus.Kinematics.YFixed;
-            var result = samus.Shinespark.Step(bus, level, samus, 0);
+            samus.Shinespark.Step(bus, level, samus, 0);
             if (gap == 4)
             {
                 AssertEqual(initialY, samus.Kinematics.YFixed, "spark enemy hit retains exact crash Y instead of advancing to boundary");
-                AssertEqual(0, result.Vertical!.Value.AcceptedDisplacement, "spark solid-enemy stop accepts no vertical displacement");
-                AssertTrue(result.Vertical.Value.EnemyCollision is { Collided: true }, "spark stop retains enemy collision evidence");
+                AssertEqual(0, unchecked((int)(samus.Kinematics.YFixed - initialY)), "spark solid-enemy stop accepts no vertical displacement");
+                AssertTrue(samus.Kinematics.DidCollideWithSolidEnemy(0), "spark stop retains enemy collision evidence");
                 AssertEqual(ShinesparkPhase.Crash, samus.Shinespark.Phase, "spark enemy hit starts crash");
             }
             else

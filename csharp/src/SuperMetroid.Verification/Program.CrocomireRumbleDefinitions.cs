@@ -15,12 +15,21 @@ internal static partial class Program
 
         var expectedWords = new ushort[32];
         var assigned = new bool[32];
+        // Walk the native cursor chain: each target's next-target cursor names the following
+        // word, skipping the two timing words that only negative targets carry.
+        ushort tableOffset = 0;
         foreach (CrocomireRumbleDefinition definition in CrocomireRumbleDefinitions.All)
         {
-            int targetIndex = definition.TableOffset >> 1;
+            AssertEqual(definition, CrocomireRumbleDefinitions.AtOffset(tableOffset),
+                $"Crocomire rumble cursor ${tableOffset:X4} resolves its enumerated target");
+            int targetIndex = tableOffset >> 1;
             expectedWords[targetIndex] = unchecked((ushort)definition.TargetYOffset);
             assigned[targetIndex] = true;
-            if (!definition.HasTiming)
+            bool hasTiming = !definition.IsTerminator && definition.NextTargetOffset == tableOffset + 6;
+            tableOffset = definition.IsTerminator
+                ? (ushort)(tableOffset + 2)
+                : definition.NextTargetOffset;
+            if (!hasTiming)
                 continue;
 
             expectedWords[targetIndex + 1] = definition.Cooldown;

@@ -50,25 +50,26 @@ internal static partial class Program
             () => IntroBabyDiscoveryInstructionDefinitions.ReadWord(
                 IntroBabyDiscoveryInstructionDefinitions.EggEnd),
             "SR388 discovery reader rejects scientist-scene lists");
-        IntroBabyActorDefinition[] actors =
+        // Native cinematic-object definitions $8B:CE5B/CE61/CE67/CE79, in compiled order.
+        (IntroBabyActorDefinition Actor, ushort DefinitionPointer)[] actors =
         [
-            IntroBabyActorDefinitions.Egg,
-            IntroBabyActorDefinitions.DeliveredBaby,
-            IntroBabyActorDefinitions.ExaminedBaby,
-            IntroBabyActorDefinitions.ConfusedBaby,
+            (IntroBabyActorDefinitions.Egg, 0xce5b),
+            (IntroBabyActorDefinitions.DeliveredBaby, 0xce61),
+            (IntroBabyActorDefinitions.ExaminedBaby, 0xce67),
+            (IntroBabyActorDefinitions.ConfusedBaby, 0xce79),
         ];
         for (int index = 0; index < actors.Length; index++)
         {
-            IntroBabyActorDefinition actual = actors[index];
-            int definitionAddress = IntroBabyActorDefinitions.NativeBank | actual.Pointer;
-            AssertEqual(ReadIntroBabyActorWord(retail, definitionAddress), actual.Initialization,
-                $"intro baby actor {index} initialization callback");
+            IntroBabyActorDefinition actual = actors[index].Actor;
+            int definitionAddress = IntroBabyActorDefinitions.NativeBank | actors[index].DefinitionPointer;
             AssertEqual(ReadIntroBabyActorWord(retail, definitionAddress + 2), actual.PreInstruction,
                 $"intro baby actor {index} pre-instruction callback");
             AssertEqual(ReadIntroBabyActorWord(retail, definitionAddress + 4), actual.InstructionList,
                 $"intro baby actor {index} instruction list");
 
-            int initializer = IntroBabyActorDefinitions.NativeBank | actual.Initialization;
+            // The definition's initialization callback supplies the compiled placement.
+            int initializer = IntroBabyActorDefinitions.NativeBank |
+                ReadIntroBabyActorWord(retail, definitionAddress);
             AssertEqual(ReadIntroBabyActorWord(retail, initializer + 1), actual.X,
                 $"intro baby actor {index} initializer X immediate");
             AssertEqual(ReadIntroBabyActorWord(retail, initializer + 7), actual.Y,

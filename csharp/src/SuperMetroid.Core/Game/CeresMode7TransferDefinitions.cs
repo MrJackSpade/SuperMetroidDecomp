@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 
 /// <summary>One $A6 Mode 7 low-byte tilemap DMA descriptor and its authored source bytes.</summary>
 public readonly record struct CeresMode7Transfer(
-    int SourceAddress, ushort DestinationWord, CeresMode7TransferDefinitions.TileSequence TileNumbers);
+ushort DestinationWord, CeresMode7TransferDefinitions.TileSequence TileNumbers);
 
 /// <summary>
 /// The seven fixed transfer lists selected by the Ceres door/elevator and Ridley
@@ -74,19 +74,17 @@ public static class CeresMode7TransferDefinitions
             {
                 if ((uint)index >= Count) throw new IndexOutOfRangeException();
                 if (pointer is ElevatorLight or ElevatorDark)
-                    return new(PlatformPayload + (pointer == ElevatorDark ? 4 : 0),
-                        (ushort)(PlatformRow * MapColumns + PlatformColumn), new(pointer, index, 4));
+                    return new(                        (ushort)(PlatformRow * MapColumns + PlatformColumn), new(pointer, index, 4));
                 if (pointer is BabyFrame0 or BabyFrame1 or BabyFrame2)
                 {
                     int frame = (pointer - BabyFrame0) / (2 * 9 + 1);
-                    return new(BabyPayload + frame * 4 + index * 2,
-                        (ushort)((BabyRow + index) * MapColumns + BabyColumn), new(pointer, index, 2));
+                    return new(                        (ushort)((BabyRow + index) * MapColumns + BabyColumn), new(pointer, index, 2));
                 }
                 WingRegion region = WingRegions[index];
                 int offset = 0;
                 for (int row = 0; row < index; row++) offset += 2 * WingRegions[row].Width;
                 if (pointer == WingFrame1) offset += region.Width;
-                return new(WingPayload + offset, (ushort)(index * MapColumns + region.Column),
+                return new((ushort)(index * MapColumns + region.Column),
                     new(pointer, index, region.Width));
             }
         }

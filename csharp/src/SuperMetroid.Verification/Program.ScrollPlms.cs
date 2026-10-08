@@ -89,7 +89,7 @@ internal static partial class Program
             var insideSamus = new SamusState { XPosition = 72, YPosition = centerY };
             insideSamus.Kinematics.YRadius = radius;
             SamusInsideBlockReactions.PrepareFrame(bus, level, insideSamus, AreaId.Crateria, plms: plms);
-            AssertEqual(shouldWake, plms.ScrollPlms[0].Triggered,
+            AssertEqual(shouldWake, plms.ScrollPlmTriggered(origin),
                 "inside scroll reaction admits only a separately visited center, not feet/head");
             plms.Step(bus, level, streamer, 0, 0, 0, scrolls);
         }
@@ -98,12 +98,12 @@ internal static partial class Program
         // room-owned bank-$8F bytecode, restores sleep/type-three state, and remains live.
         AssertTrue(plms.TryNotifyScrollTouch(origin),
             "direct special-air contact finds resident scroll owner");
-        AssertTrue(plms.ScrollPlms[0].Triggered,
+        AssertTrue(plms.ScrollPlmTriggered(origin),
             "direct contact sets native PLM var bit fifteen");
         plms.Step(bus, level, streamer, 0, 0, 0, scrolls);
         AssertEqual(1, scrolls.ReadStorage(1),
             "scroll byte-pair program mutates active room grid");
-        AssertTrue(!plms.ScrollPlms[0].Triggered,
+        AssertTrue(!plms.ScrollPlmTriggered(origin),
             "scroll object returns to resident sleep after program terminator");
 
         // Place a seven-pixel-tall test body immediately left of the right extension. The
@@ -125,7 +125,7 @@ internal static partial class Program
             plms: plms);
         AssertTrue(!movement.Collided,
             "scroll extension remains traversable special air");
-        AssertTrue(plms.ScrollPlms[0].Triggered,
+        AssertTrue(plms.ScrollPlmTriggered(origin),
             "horizontal extension resolves and wakes B703 owner");
         plms.Step(bus, level, streamer, 0, 0, 0, scrolls);
         AssertEqual(1, scrolls.ReadStorage(1),
@@ -147,15 +147,16 @@ internal static partial class Program
         ball.RefreshCollisionRadii(bus);
         ball.Kinematics.ExtraXDisplacement = 1;
         ball.Kinematics.ExtraXSubdisplacement = 0;
-        MorphBallMovementResult ballMovement = SamusMorphBallMovement.StepGrounded(
+        ushort ballStartX = ball.XPosition;
+        SamusMorphBallMovement.StepGrounded(
             bus,
             level,
             ball,
             nmiFrameCounter: 0,
             plms: plms);
-        AssertTrue(!ballMovement.Horizontal.Collided,
+        AssertTrue(ball.XPosition > ballStartX,
             "Morph Ball traverses scroll extension as special air");
-        AssertTrue(plms.ScrollPlms[0].Triggered,
+        AssertTrue(plms.ScrollPlmTriggered(origin),
             "Morph Ball wrapper forwards live PLM owner to block collision");
         plms.Step(bus, level, streamer, 0, 0, 0, scrolls);
         AssertEqual(1, scrolls.ReadStorage(1),
@@ -181,15 +182,15 @@ internal static partial class Program
         SamusBombJumpMovement.Start(bus, bombJump);
         bombJump.Kinematics.YSpeed = 1;
         bombJump.Kinematics.YSubspeed = 0;
-        BombJumpMovementResult bombJumpMovement = SamusBombJumpMovement.Step(
+        SamusBombJumpMovement.Step(
             bus,
             level,
             bombJump,
             nmiFrameCounter: 0,
             plms);
-        AssertTrue(!bombJumpMovement.Ended,
+        AssertTrue(bombJump.BombJumpActive,
             "unobstructed scroll extension does not terminate bomb-jump ascent");
-        AssertTrue(plms.ScrollPlms[0].Triggered,
+        AssertTrue(plms.ScrollPlmTriggered(origin),
             "bomb-jump wrapper forwards live PLM owner to block collision");
 
         Console.WriteLine(

@@ -79,7 +79,7 @@ public sealed partial class RoomPlmSystem
             RoomPlmPlacement placement = population.Placements.Span[recordIndex];
             ushort header = placement.Header.Header;
             var record = new RoomPlmPopulationRecord(
-                populationPointer, recordIndex,
+recordIndex,
                 unchecked((ushort)(populationPointer + recordIndex * RoomPlmPopulationFormat.RecordByteCount)),
                 header, placement.BlockX, placement.BlockY, placement.RoomArgument);
 
@@ -320,7 +320,6 @@ public sealed partial class RoomPlmSystem
 
 /// <summary>One immutable six-byte record decoded from a bank-$8F room population.</summary>
 public readonly record struct RoomPlmPopulationRecord(
-    ushort PopulationPointer,
     int RecordIndex,
     ushort RecordPointer,
     ushort HeaderPointer,

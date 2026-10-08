@@ -77,15 +77,7 @@ public sealed class SamusArmCannonState
 
         ushort drawingData = PoseDrawingData(bus, samus.Pose);
         DrawingMode = ReadDrawingByte(bus, unchecked((ushort)(drawingData + 1)));
-        return new SamusArmCannonUpdateResult(
-            itemChanged,
-            transitionStarted,
-            frameBefore,
-            Frame,
-            OpenFlag,
-            CloseFlag,
-            DrawingMode,
-            drawingData);
+        return new SamusArmCannonUpdateResult();
     }
 
     /// <summary>
@@ -109,7 +101,7 @@ public sealed class SamusArmCannonState
         // The cannon shares Samus's invincibility flicker, and a closed frame performs
         // neither OAM nor DMA work. Native returns before even consulting pose data.
         if (Frame == 0 || (samus.InvincibilityTimer != 0 && (nmiFrameCounter & 1) != 0))
-            return new SamusArmCannonDrawResult(false, false, Frame);
+            return new SamusArmCannonDrawResult();
 
         ushort drawingData = PoseDrawingData(bus, samus.Pose);
         byte firstSelector = ReadDrawingByte(bus, drawingData);
@@ -153,15 +145,7 @@ public sealed class SamusArmCannonState
             sourceAddress: SamusRenderingRomData.Banks.CharacterData | tileSource,
             encodedVramDestination: SamusRenderingRomData.ArmCannon.TileVramDestination);
 
-        return new SamusArmCannonDrawResult(
-            spriteWritten,
-            TileUploadQueued: true,
-            Frame,
-            selector,
-            attributes,
-            tileSource,
-            screenX,
-            screenY);
+        return new SamusArmCannonDrawResult();
     }
 
     private bool TryStartTransition(ushort selectedHudItem)
@@ -223,23 +207,7 @@ public sealed class SamusArmCannonState
 }
 
 /// <summary>Debugger witness from the once-per-frame arm-cannon state update.</summary>
-public readonly record struct SamusArmCannonUpdateResult(
-    bool HudItemChanged,
-    bool TransitionStarted,
-    ushort FrameBefore,
-    ushort FrameAfter,
-    byte OpenFlag,
-    byte CloseFlag,
-    ushort DrawingMode,
-    ushort DrawingDataPointer);
+public readonly record struct SamusArmCannonUpdateResult();
 
 /// <summary>Debugger witness from one optional arm-cannon OBJ/tile upload.</summary>
-public readonly record struct SamusArmCannonDrawResult(
-    bool SpriteWritten,
-    bool TileUploadQueued,
-    ushort Frame,
-    byte DirectionSelector = 0,
-    ushort Attributes = 0,
-    ushort TileSource = 0,
-    short ScreenX = 0,
-    short ScreenY = 0);
+public readonly record struct SamusArmCannonDrawResult();

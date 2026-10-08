@@ -42,22 +42,13 @@ public enum BabyMetroidSamusRainbowPhase
 }
 
 /// <summary>Health/flash mutation produced by one colliding Mother Brain blue ring.</summary>
-public readonly record struct BabyMetroidOnionRingHitResult(
-    bool Applied,
-    ushort HealthBefore,
-    ushort HealthAfter,
-    ushort FlashTimer);
+public readonly record struct BabyMetroidOnionRingHitResult();
 
 /// <summary>Whole/subpixel coordinates before or after one cutscene-enemy main-AI call.</summary>
-public readonly record struct BabyMetroidCutscenePoint(
-    ushort XPosition,
-    ushort XSubposition,
-    ushort YPosition,
-    ushort YSubposition);
+public readonly record struct BabyMetroidCutscenePoint();
 
 /// <summary>One `$86:E509` dust explosion requested during the Baby's death.</summary>
 public readonly record struct BabyMetroidDeathExplosionRequest(
-    ushort PatternIndex,
     ushort XPosition,
     ushort YPosition,
     ushort ProjectileParameter,
@@ -91,31 +82,10 @@ public readonly record struct MotherBrainBackgroundPaletteTransferRequest(
 public readonly record struct BabyMetroidCutsceneStepResult(
     BabyMetroidCutscenePhase PhaseBefore,
     BabyMetroidCutscenePhase PhaseAfter,
-    BabyMetroidCutscenePoint Before,
-    BabyMetroidCutscenePoint After,
-    ushort XVelocity,
-    ushort YVelocity,
-    ushort Speed,
-    ushort Angle,
-    ushort FunctionTimer,
-    bool BrainCollision,
-    bool SamusStandingRequested,
     bool BodyStumbleRequested,
-    bool MotherBrainInterrupted,
     bool LatchSoundQueued,
-    ushort InstructionList,
     IReadOnlyList<BabyMetroidReleaseDustRequest> ReleaseDustClouds,
-    bool SamusCrouchingRequested,
-    ushort MovementTablePointer,
     bool AmbientCrySoundQueued,
-    bool SamusTouchCollision,
-    bool HealingCompleted,
-    ushort Health,
-    bool SamusRainbowActivated,
-    bool SamusAnimationFrozen,
-    bool SamusRainbowDisabled,
-    bool HyperBeamEnabled,
-    bool PhaseThreeHandoff,
     BabyMetroidDeathExplosionRequest? DeathExplosion,
     BabyMetroidPaletteTransferRequest? BabyPaletteTransfer,
     MotherBrainSpriteTileTransferRequest? AttackTileTransfer,

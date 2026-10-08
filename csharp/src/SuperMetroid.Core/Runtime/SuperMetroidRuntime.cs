@@ -1612,12 +1612,7 @@ public sealed partial class SuperMetroidRuntime
                     SamusGrappleMovement.BeginFiring(_addressSpace, Samus, Controller1.Current);
                     LastGrappleMovement = new GrappleMovementResult(
                         Samus.Grapple.Phase,
-                        Released: false,
-                        ReleaseQueued: false,
                         Fired: Samus.Grapple.Phase == GrapplePhase.Firing,
-                        Connected: false,
-                        CancelQueued: Samus.Grapple.Phase == GrapplePhase.CancelPending,
-                        Cancelled: false,
                         OwnsMovement: false);
                 }
 
@@ -2228,7 +2223,7 @@ public sealed partial class SuperMetroidRuntime
                         // for presentation, pose selection and command-five speed cleanup.
                         if (grounding.Collided && groundingDisplacement >= 0)
                             LastAerialSamusMovement = new AerialMovementResult(
-                                default, grounding, Landed: true, HitCeiling: false);
+grounding, Landed: true, HitCeiling: false);
                         break;
                     }
                     case SamusPoseIds.CrouchingTransitionRightPose:
@@ -3930,12 +3925,7 @@ public sealed partial class SuperMetroidRuntime
 
         infiniteAmmoGuard.Complete(Samus);
 
-        return new RuntimeFrameResult(
-            NmiFrameCounter,
-            Controller1.Current,
-            Controller1.NewlyPressed,
-            EscapeTimer.State,
-            escapeTimerExpired);
+        return new RuntimeFrameResult();
     }
 
 }
@@ -3962,12 +3952,7 @@ public readonly record struct SaveStationPersistenceRequest(
 /// Small immutable return value for loggers and debugger watches after a frame step.
 /// Mutable detail remains available on <see cref="SuperMetroidRuntime"/> itself.
 /// </summary>
-public readonly record struct RuntimeFrameResult(
-    ushort FrameNumber,
-    ushort ControllerInput,
-    ushort ControllerNewInput,
-    EscapeTimerState EscapeTimerState,
-    bool EscapeTimerExpired);
+public readonly record struct RuntimeFrameResult();
 
 /// <summary>Debugger-visible work performed by the room's force-blank tilemap fill.</summary>
-public readonly record struct InitialViewportResult(int UpdateRequestCount, int DmaSegmentCount);
+public readonly record struct InitialViewportResult();

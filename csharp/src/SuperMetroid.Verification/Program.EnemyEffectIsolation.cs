@@ -89,6 +89,9 @@ internal static partial class Program
         for (int call = 1; call <= 118; call++)
         {
             ushort seed = unchecked((ushort)(call * 37));
+            short[] rowYBefore = Enumerable.Range(0, MotherBrainCorpseRottingState.EntryCount)
+                .Select(index => MotherBrainCorpseRottingState.ReadEntry(baseline, index).YOffset)
+                .ToArray();
             var expected = baselineRot.Step(baseline, baseline, 100, 120, seed, (ushort)call);
             var actual = editedRot.Step(edited, edited, 100, 120, seed, (ushort)call);
             AssertEqual(call < 118, expected.StillRotting, "exact corpse lifetime");
@@ -97,9 +100,16 @@ internal static partial class Program
             AssertEqual(call < 118 ? 6 : 0, expected.VramTransfers.Count, "six uploads on each active call, none on completion");
             AssertTrue(expected.VramTransfers.SequenceEqual(actual.VramTransfers), "same corpse upload schedule");
             AssertTrue(expected.DustRequests.SequenceEqual(actual.DustRequests), "same completion dust and audio");
-            foreach (MotherBrainCorpseDustRequest dust in expected.DustRequests)
+            // Rows finished by this call, in table order: `$DBDF` marks a completed row
+            // `$FFFF`, except the final row, which completes as the call returns carry clear.
+            int[] finishedRows = Enumerable.Range(0, MotherBrainCorpseRottingState.EntryCount)
+                .Where(index => rowYBefore[index] >= 0 &&
+                    (MotherBrainCorpseRottingState.ReadEntry(baseline, index).YOffset < 0 ||
+                        (!expected.StillRotting && index == MotherBrainCorpseRottingState.EntryCount - 1)))
+                .ToArray();
+            AssertEqual(finishedRows.Length, expected.DustRequests.Count, "one dust request per completed corpse row");
+            foreach ((MotherBrainCorpseDustRequest dust, int index) in expected.DustRequests.Zip(finishedRows))
             {
-                int index = dust.EntryIndex;
                 AssertEqual(2 * index + Math.Max(1, (index + 1) / 2), call, "exact per-row completion call");
                 AssertEqual(unchecked((ushort)(100 + (seed & 31) - 16)), dust.XPosition, "native dust X and sampled RNG");
                 AssertEqual((ushort)136, dust.YPosition, "native dust Y");

@@ -11,13 +11,13 @@ public sealed partial class BabyMetroidCutsceneState
     {
         ushort healthBefore = Health;
         if (healthBefore == 0)
-            return new BabyMetroidOnionRingHitResult(false, healthBefore, healthBefore, OnionRingHitFlashTimer);
+            return new BabyMetroidOnionRingHitResult();
 
         OnionRingHitFlashTimer = 0x0010;
         Health = healthBefore < damage
             ? (ushort)0
             : unchecked((ushort)(healthBefore - damage));
-        return new BabyMetroidOnionRingHitResult(true, healthBefore, Health, OnionRingHitFlashTimer);
+        return new BabyMetroidOnionRingHitResult();
     }
 
     private void StepSamusRainbowPaletteAnimation(
@@ -101,7 +101,6 @@ public sealed partial class BabyMetroidCutsceneState
         // index before looking up a pair, so a freshly cleared counter begins at entry one.
         (short x, short y) = DeathExplosionScatterDefinitions.Offset(DeathExplosionPatternIndex);
         return new BabyMetroidDeathExplosionRequest(
-            PatternIndex: DeathExplosionPatternIndex,
             XPosition: unchecked((ushort)(XPosition + x)),
             YPosition: unchecked((ushort)(YPosition + y)),
             ProjectileParameter: 3,
@@ -353,9 +352,5 @@ public sealed partial class BabyMetroidCutsceneState
         return true;
     }
 
-    private BabyMetroidCutscenePoint Capture() => new(
-        XPosition,
-        XSubposition,
-        YPosition,
-        YSubposition);
+    private static BabyMetroidCutscenePoint Capture() => new();
 }

@@ -157,11 +157,6 @@ static void VerifyRoomEnemyLoading()
     AssertEqual(0, slot.ShakeTimer, "room load clears shake timer");
     AssertEqual(0x804f, slot.SpritemapPointer,
         "extended actor receives native extended-nothing map after initialization");
-    AssertEqual(0x3100, slot.Spawn.NameWords.Word0, "spawn name first word");
-    AssertEqual(0x3104, slot.Spawn.NameWords.Word4, "spawn name fifth copied word");
-    AssertEqual(0x3106, slot.Spawn.NameWords.Word6, "spawn name skips source word five");
-    AssertEqual(0x0600, slot.Spawn.PaletteIndex,
-        "spawn snapshot retains pre-initialization palette index");
 
     RoomEnemyDefinition definition = slot.Definition;
     AssertEqual(0x110e, definition.HurtSoundEffect, "definition hurt SFX offset $0E");
@@ -240,8 +235,6 @@ private sealed class EnemyTileSourceReadGuard(TestAddressSpace source) :
     public RoomEnemyDefinition ReadEnemyDefinition(ushort pointer) =>
         source.ReadEnemyDefinition(pointer);
 
-    public RoomEnemySpawnNameWords ReadEnemySpawnNameWords(ushort pointer) =>
-        source.ReadEnemySpawnNameWords(pointer);
 
     public RoomEnemyPopulationDefinition ReadEnemyPopulation(ushort pointer) =>
         source.ReadEnemyPopulation(pointer);
@@ -1362,7 +1355,8 @@ static void VerifyCeresRidleyRoomEntry()
         samus.XPosition = unchecked((ushort)(ridley.XPosition + 8));
         samus.YPosition = ridley.YPosition;
         sharedProjectiles.StepFrame(bus, air, samus, 0, 0);
-        SamusProjectileFrameResult fired = projectiles.StepFrame(
+        SamusProjectileSlotObservation slotsBeforeFire = projectiles.ObserveSlots();
+        projectiles.StepFrame(
             bus,
             air,
             samus,
@@ -1371,7 +1365,7 @@ static void VerifyCeresRidleyRoomEntry()
             0,
             0,
             sharedProjectiles);
-        AssertEqual((int?)0, fired.FiredSlot,
+        AssertEqual((int?)0, slotsBeforeFire.FiredSlot(projectiles),
             $"Ceres Ridley hit {hit + 1} allocates the power-beam slot");
         AssertTrue(projectiles.Slots[0].XPosition - projectiles.Slots[0].XRadius > ridley.XPosition + 8,
             $"Ceres Ridley hit {hit + 1} is outside the header collision radius");

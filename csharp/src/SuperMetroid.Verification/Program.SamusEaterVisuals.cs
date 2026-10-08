@@ -255,8 +255,11 @@ internal static partial class Program
         AssertEqual(physicalWord,
             level.GetCollisionBlockByIndex(origin).LevelWord,
             "Samus Eater edited draw retains native collision word");
+        // The redraw identifies its block by the block's DrawPLM BG1 ring destination.
+        ushort originDestination = level.CreateBackgroundStreamer()
+            .BuildPlmLevelBlockUpdate(origin, 0).TopRowDestination;
         AssertTrue(plms.TilemapUpdates.Any(update =>
-                update.BlockIndex == origin && update.TopRow[0] == visualWord),
+                update.TopRowDestination == originDestination && update.TopRow[0] == visualWord),
             "Samus Eater edited block reaches the real redraw path");
         int nativeCursor = 0x840000 | pointer;
         int expectedX = 8, expectedY = 8;

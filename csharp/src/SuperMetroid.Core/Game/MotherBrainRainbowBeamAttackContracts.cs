@@ -108,20 +108,6 @@ public enum MotherBrainProjectileType
     BeamExplosion = 7,
 }
 
-/// <summary>Phase-three head attack selected by `$A9:C22C-$C23E`.</summary>
-public enum MotherBrainPhase3AttackKind
-{
-    Bomb,
-    FourOnionRings,
-}
-
-/// <summary>Head-projectile animation selected by `$A9:BD71-$BD83`.</summary>
-public enum MotherBrainFinishOffAttackKind
-{
-    TwoOnionRings,
-    Bomb,
-}
-
 /// <summary>
 /// One native seven-byte sprite-tile transfer entry consumed by `$A9:C5BE`.
 /// </summary>
@@ -133,24 +119,18 @@ public readonly record struct MotherBrainSpriteTileTransferRequest(
 
 /// <summary>One requested beam explosion projectile and its native sound number.</summary>
 public readonly record struct MotherBrainRainbowExplosionRequest(
-    ushort SequenceIndex,
     short XOffset,
-    short YOffset,
-    ushort SoundEffect);
+    short YOffset);
 
 /// <summary>One projectile in a simultaneous `$A9:B03E` death-explosion batch.</summary>
 public readonly record struct MotherBrainDeathExplosionRequest(
-    ushort PatternIndex,
     short XOffset,
     short YOffset,
-    ushort XPosition,
-    ushort YPosition,
     ushort ProjectileParameter,
     ushort SoundEffect);
 
 /// <summary>One periodic misc-dust projectile emitted around the escape door by `$A9:B346`.</summary>
 public readonly record struct MotherBrainEscapeDoorExplosionRequest(
-    ushort PatternIndex,
     ushort XPosition,
     ushort YPosition,
     ushort ProjectileParameter,
@@ -170,35 +150,16 @@ public readonly record struct MotherBrainRainbowBeamAttackStepResult(
     MotherBrainRainbowBeamAttackPhase PhaseBefore,
     MotherBrainRainbowBeamAttackPhase PhaseAfter,
     MotherBrainForcedSamusMovementResult? Movement,
-    ushort HealthBefore,
-    ushort HealthAfter,
-    ushort MissilesBefore,
-    ushort MissilesAfter,
-    ushort SuperMissilesBefore,
-    ushort SuperMissilesAfter,
-    ushort PowerBombsBefore,
-    ushort PowerBombsAfter,
     bool SoundQueued,
     bool PaletteRequested,
     MotherBrainRainbowExplosionRequest? Explosion,
-    bool UnlockedSamus,
-    ushort AngularWidth,
-    ushort FunctionTimer,
-    ushort EarthquakeType,
-    ushort EarthquakeTimer,
     bool ChargeSoundQueued,
     bool BodyWalkRequested,
-    ushort HeadInstructionList,
     bool HeadInstructionListRequested,
-    ushort NeckAngleDelta,
-    ushort LowerNeckMovementIndex,
-    ushort UpperNeckMovementIndex,
     bool BodyPostureRequested,
-    MotherBrainFinishOffAttackKind? FinishOffAttack,
     MotherBrainSpriteTileTransferRequest? SpriteTileTransfer,
     bool BabySpawnRequested,
     bool FinalBeamSoundQueued,
-    MotherBrainPhase3AttackKind? Phase3Attack,
     IReadOnlyList<MotherBrainDeathExplosionRequest> DeathExplosions,
     IReadOnlyList<MotherBrainSpriteTileTransferRequest> CorpseRottingVramTransfers,
     IReadOnlyList<MotherBrainCorpseDustRequest> CorpseDustRequests,
@@ -209,8 +170,6 @@ public readonly record struct MotherBrainRainbowBeamAttackStepResult(
     bool EscapeMusicTrackQueued,
     IReadOnlyList<ushort> EscapePaletteFxRequests,
     bool EscapeTypewriterSetupRequested,
-    bool TypewriterStepRequested,
-    ushort? TypewriterTextPointer,
     bool TimeBombSetSubtitleSpawnRequested,
     MotherBrainEscapeDoorExplosionRequest? EscapeDoorExplosion,
     bool TimerHandlingEnableRequested,

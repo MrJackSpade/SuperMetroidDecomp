@@ -27,8 +27,12 @@ internal static partial class Program
         samus.HorizontalSpeed.AccelerationMode = 2;
         for (ushort frame = 0; frame < 8; frame++)
         {
-            var result = SamusAerialMovement.StepSpinJump(memory, level, samus, 0, frame);
-            AssertEqual(-0x00016000, result.Horizontal.AcceptedDisplacement,
+            // Whole and fractional X as one 16.16 position, so the accepted displacement
+            // is the exact difference across the movement step.
+            int xBefore = samus.XPosition << 16 | samus.Kinematics.XSubposition;
+            SamusAerialMovement.StepSpinJump(memory, level, samus, 0, frame);
+            int xAfter = samus.XPosition << 16 | samus.Kinematics.XSubposition;
+            AssertEqual(-0x00016000, xAfter - xBefore,
                 $"recorded neutral spin carry at frame {frame} matches cartridge carry-set branch");
             AssertEqual((ushort)1, samus.HorizontalSpeed.BaseSpeed, "retained spin whole speed");
             AssertEqual((ushort)0x6000, samus.HorizontalSpeed.BaseSubspeed, "retained spin fractional speed");

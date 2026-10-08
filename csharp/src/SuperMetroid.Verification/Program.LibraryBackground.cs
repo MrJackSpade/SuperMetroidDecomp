@@ -132,7 +132,8 @@ static void VerifyLibraryBackgroundLoader()
     var vram = new SnesVram();
     LibraryBackgroundExecutionResult result =
         SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.ExecuteReference(bus, vram, 0xe000, activeDoorPointer: 0);
-    AssertEqual(4, result.ExecutedCommandCount, "library-background command count includes terminator");
+    AssertEqual(4, SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.Read(bus, 0xe000).Instructions.Count + 1,
+        "library-background command count includes terminator");
     AssertEqual<ushort?>(null, result.Bg3CharacterBaseWord, "ordinary library list leaves BG3 base unchanged");
     AssertEqual(0x2211, vram.ReadWord(0x4800), "library background first BG2 page word");
     AssertEqual(0x4433, vram.ReadWord(0x4801), "library background first BG2 page tail");
@@ -158,7 +159,7 @@ static void VerifyLibraryBackgroundLoader()
     var wrapped = new LibraryBackgroundTypedReadGuard(wrappedBus);
     native = SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.ExecuteReference(
         wrapped, new SnesVram(), 0xffff, activeDoorPointer: 0);
-    AssertEqual(1, native.ExecutedCommandCount,
+    AssertEqual(1, SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.Read(wrappedBus, 0xffff).Instructions.Count + 1,
         "bank-end native library-background terminator executes once");
     AssertEqual(1, wrapped.CartridgeReads,
         "bank-end command low byte comes from cartridge");

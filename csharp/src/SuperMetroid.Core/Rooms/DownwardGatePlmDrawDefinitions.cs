@@ -14,7 +14,7 @@ internal static class DownwardGatePlmDrawDefinitions
     /// <summary>$84:A5D7: blue-left trigger; color pairs occupy twenty bytes.</summary>
     private const ushort TriggerLeftFirst = 0xa5d7;
 
-    internal readonly record struct Draw(ushort Pointer, bool Column, int Frame, bool Right)
+    internal readonly record struct Draw(bool Column, int Frame, bool Right)
     {
         internal int RunCount => Column || Right ? 1 : 2;
         internal int WordCount(int run)
@@ -47,13 +47,13 @@ internal static class DownwardGatePlmDrawDefinitions
         int columnOffset = pointer - ResidentFirst;
         if (columnOffset >= 0 && columnOffset <= 70 && columnOffset % 14 == 0)
         {
-            draw = new(pointer, true, columnOffset / 14, false);
+            draw = new(true, columnOffset / 14, false);
             return true;
         }
         int triggerOffset = pointer - TriggerLeftFirst;
         if (triggerOffset >= 0 && triggerOffset <= 72 && triggerOffset % 20 is 0 or 12)
         {
-            draw = new(pointer, false, triggerOffset / 20, triggerOffset % 20 == 12);
+            draw = new(false, triggerOffset / 20, triggerOffset % 20 == 12);
             return true;
         }
         return false;

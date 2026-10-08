@@ -100,7 +100,6 @@ internal readonly record struct PauseEquipmentCategoryDefinition(
     int Category,
     int OffsetTableAddress,
     int TilemapPointerTableAddress,
-    int BitmaskTableAddress,
     int ItemCount,
     int LabelWordCount);
 
@@ -131,10 +130,10 @@ internal static class PauseEquipmentCategories
     /// Invalid categories preserve the former array's IndexOutOfRangeException.</remarks>
     public static PauseEquipmentCategoryDefinition Get(int category) => category switch
     {
-        Reserves => new(Reserves, 0, 0, 0, 0, 0),
-        Beams => new(Beams, 0x82c06c, 0x82c08c, 0x82c04c, 5, 5),
-        Suits => new(Suits, 0x82c076, 0x82c096, 0x82c056, 6, 9),
-        Boots => new(Boots, 0x82c082, 0x82c0a2, 0x82c062, 3, 9),
+        Reserves => new(Reserves, 0, 0, 0, 0),
+        Beams => new(Beams, 0x82c06c, 0x82c08c, 5, 5),
+        Suits => new(Suits, 0x82c076, 0x82c096, 6, 9),
+        Boots => new(Boots, 0x82c082, 0x82c0a2, 3, 9),
         _ => throw new IndexOutOfRangeException(),
     };
 }

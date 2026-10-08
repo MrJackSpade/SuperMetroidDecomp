@@ -26,7 +26,7 @@ internal static partial class Program
                 timer = Word(offset);
             var actual = state.Step(empty, null, 0x8000, allowDeparture: false);
             AssertEqual(changed, actual.MatrixChanged, "shaft matrix publication frame");
-            AssertEqual(timer, actual.RotationTimer, "shaft native timer every frame");
+            AssertEqual(timer, state.RotationTimer, "shaft native timer every frame");
             if (changed)
             {
                 AssertEqual(Word(offset + 4), actual.Transform.MatrixA, "shaft native cosine every publication");
@@ -37,7 +37,7 @@ internal static partial class Program
                     : phaseWord == 67 ? (ushort)0x8044 : (ushort)(phaseWord + 1);
                 updates++;
             }
-            AssertEqual(phaseWord, actual.RotationIndex, "shaft forward/reverse native phase");
+            AssertEqual(phaseWord, state.RotationIndex, "shaft forward/reverse native phase");
         }
     }
 }

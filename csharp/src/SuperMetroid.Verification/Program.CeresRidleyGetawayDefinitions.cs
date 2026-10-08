@@ -57,8 +57,6 @@ internal static partial class Program
                 ushort destination = (ushort)(rom.ReadByte(cursor + 6) | rom.ReadByte(cursor + 7) << 8);
                 AssertEqual((byte)0, rom.ReadByte(cursor + 8),
                     "Ceres Mode 7 native VRAM increment mode");
-                AssertEqual(source, transfer.SourceAddress,
-                    "Ceres Mode 7 compiled source identity");
                 AssertEqual(size, transfer.TileNumbers.Length,
                     "Ceres Mode 7 compiled byte count");
                 AssertEqual(destination, transfer.DestinationWord,

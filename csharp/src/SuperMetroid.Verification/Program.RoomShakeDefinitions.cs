@@ -26,12 +26,10 @@ internal static partial class Program
             enemies.EarthquakeTimer = 1;
             RoomShakeFrameResult positive = enemies.HandleRoomShaking(timeIsFrozen: false);
             AssertEqual(new RoomShakeFrameResult(
-                    Applied: true,
                     definition.Bg1X,
                     definition.Bg1Y,
                     definition.Bg2X,
-                    definition.Bg2Y,
-                    ShakesEnemies: type >= RoomFxRomData.Earthquake.FirstEnemyShakingType),
+                    definition.Bg2Y),
                 positive,
                 $"room shake type {type} positive production frame");
             AssertEqual((ushort)0, enemies.EarthquakeTimer,
@@ -40,12 +38,10 @@ internal static partial class Program
             enemies.EarthquakeTimer = 2;
             RoomShakeFrameResult negative = enemies.HandleRoomShaking(timeIsFrozen: false);
             AssertEqual(new RoomShakeFrameResult(
-                    Applied: true,
                     unchecked((short)-definition.Bg1X),
                     unchecked((short)-definition.Bg1Y),
                     unchecked((short)-definition.Bg2X),
-                    unchecked((short)-definition.Bg2Y),
-                    ShakesEnemies: type >= RoomFxRomData.Earthquake.FirstEnemyShakingType),
+                    unchecked((short)-definition.Bg2Y)),
                 negative,
                 $"room shake type {type} alternating production frame");
 

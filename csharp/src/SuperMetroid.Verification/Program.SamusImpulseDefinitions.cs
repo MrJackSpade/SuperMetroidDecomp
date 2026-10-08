@@ -29,7 +29,7 @@ internal static partial class Program
             bomb.BombJumpActive = false;
             bomb.Kinematics.YAcceleration = 7;
             bomb.Kinematics.YSubacceleration = 123;
-            var result = SamusBombJumpMovement.Start(noReads, bomb);
+            SamusBombJumpMovement.Start(noReads, bomb);
             int medium = gravity == 0 && raw < bombBottom ? liquid : 0;
             AssertEqual(Word(0x909ef5 + medium * 2), bomb.Kinematics.YSpeed, "Bomb native whole launch");
             AssertEqual(Word(0x909efb + medium * 2), bomb.Kinematics.YSubspeed, "Bomb native fractional launch");
@@ -37,7 +37,7 @@ internal static partial class Program
             AssertEqual((ushort)7, bomb.Kinematics.YAcceleration, "Bomb launch retains live whole gravity");
             AssertEqual((ushort)123, bomb.Kinematics.YSubacceleration, "Bomb launch retains live fractional gravity");
             AssertEqual((ushort)128, bomb.YPosition, "Bomb setup does not move Samus");
-            AssertTrue(result.Started && bomb.BombJumpActive && !bomb.BombJumpStarting, "Bomb mover handoff");
+            AssertTrue(bomb.BombJumpActive && !bomb.BombJumpStarting, "Bomb mover handoff");
             bombCases++;
         }
 

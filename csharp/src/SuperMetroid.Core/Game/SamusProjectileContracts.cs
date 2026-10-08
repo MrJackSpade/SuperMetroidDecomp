@@ -163,11 +163,8 @@ public sealed class SamusProjectileTrailSide
 
 /// <summary>Immutable summary of one ordinary-projectile alpha pass.</summary>
 public readonly record struct SamusProjectileFrameResult(
-    int? FiredSlot,
     SoundEffectId? QueuedSoundEffect,
     byte QueuedSoundMaximum,
-    bool CollisionStartedExplosion,
-    bool ProjectileDeleted,
     IReadOnlyList<SamusSoundRequest>? AdditionalSoundRequests = null,
     bool QueuedSoundSuppressed = false,
     bool PersistentMemoryCorrupted = false);
@@ -177,22 +174,11 @@ public readonly record struct SamusProjectileFrameResult(
 /// A beam may collide or leave the native movement window in that same alpha pass, so the
 /// mutable slot can already be clear by the time a debugger inspects the frame result.
 /// </summary>
-public readonly record struct SamusProjectileSpawnSnapshot(
-    int SlotIndex,
-    ushort Direction,
-    ushort XPosition,
-    ushort YPosition,
-    short XVelocity,
-    short YVelocity);
+public readonly record struct SamusProjectileSpawnSnapshot();
 
 /// <summary>Semantic branch and raw table/timer evidence from one `$91:D743` call.</summary>
 public readonly record struct SamusBeamChargePaletteStepResult(
-    SamusBeamChargePaletteAction Action,
-    ushort TimerBefore,
-    ushort TimerAfter,
-    ushort PalettePointer,
-    int? HyperPaletteIndex,
-    int? ChargePaletteIndex = null);
+    SamusBeamChargePaletteAction Action);
 
 /// <summary>Named outcomes of the nonzero charged-shot glow branches.</summary>
 public enum SamusBeamChargePaletteAction : byte

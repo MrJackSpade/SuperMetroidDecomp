@@ -45,7 +45,7 @@ internal static class CinematicClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/CeresDoorWarmTargetPaintDefinitions.cs", "83FC3DD9E39B03EFE124A160AF62EEC1DAFB49215A6C1D99806B4E5C2A2B5F16"),
              new("csharp/src/SuperMetroid.Core/Game/CeresDoorVisualRomData.cs", "E228548CA07516CBA4465A124F1B6F97422994CEBA7DD976244A13DDD0DC35DF"),
              new("csharp/src/SuperMetroid.Core/Assets/RoomCharacterAtlas.cs", "0C2CD85F446A356CF2A0E226E7F9D45C64F23C118A58097058E2B33152F97512"),
-             new("csharp/src/SuperMetroid.Core/Game/CeresMode7TransferDefinitions.cs", "45C2F669C3FCA32E775889CF4018E43A1BE5D88ECAFCE95A3A17A552626FE640")],
+             new("csharp/src/SuperMetroid.Core/Game/CeresMode7TransferDefinitions.cs", "1048A1E2CA66139656F19F761FB9B9C9A70EF70DB7DE8E9EE809A9C4C250F026")],
             "Private construction requires the exact door tile stream, both fifteen-color setup images, eight six-color animation rows and two four-byte Mode-7 maps. Arrays are compiled independently; indexed selections have CLR bounds. CGRAM/VRAM destinations are placement, not resource identities. Door behavior and quake synchronization are not certified."),
         new("SuperMetroid.Core.Assets.EscapeTimerPresentation", "escape-timer-complete-decimal-and-label-art", ["Draw"],
             [new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerPresentation.cs", "650B7F9AA880EB27E53D822A1D95E90000D86F2D891DD3624663A38254286AC9"),

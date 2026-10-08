@@ -244,10 +244,8 @@ internal static partial class Program
                 (ushort)0x0100,
                 (ushort)0x0080,
                 new MotherBrainRainbowExplosionRequest(
-                    SequenceIndex: 3,
                     XOffset: -9,
-                    YOffset: 7,
-                    SoundEffect: 0x0024),
+                    YOffset: 7),
             ]);
         RoomEnemyProjectileSlot explosion = explosionEnemies.EnemyProjectiles.Single(
             projectile => projectile.Kind ==
@@ -282,11 +280,8 @@ internal static partial class Program
                 deathExplosionEnemies,
                 [
                     new MotherBrainDeathExplosionRequest(
-                        PatternIndex: 0,
                         XOffset: -5,
                         YOffset: 9,
-                        XPosition: 0,
-                        YPosition: 0,
                         ProjectileParameter: parameter,
                         SoundEffect: 0),
                 ]);

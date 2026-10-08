@@ -1608,25 +1608,6 @@ internal static partial class Program
                 "room sprite native kind domain rejects invalid selector");
         Console.WriteLine("Room sprite dispatch: 62 native entries and actual spawns, initial timing/visuals, source-read guards and invalid selectors pass.");
     }
-    private static void VerifyLookupStream4EnemyNameRecords(ISnesAddressSpace rom)
-    {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
-        ushort[] nativeNamePointers = RoomEnemyDefinitionCatalog.Pointers
-            .Select(pointer => ReadNativeEnemyDefinition(rom, pointer).NamePointer)
-            .Where(pointer => pointer != 0).Distinct().Order().ToArray();
-        AssertTrue(nativeNamePointers.SequenceEqual(RoomEnemySpawnNameDefinitions.Pointers),
-            "spawn-name exact native referenced identity order");
-        foreach (ushort pointer in nativeNamePointers)
-        {
-            int address = 0xb40000 | pointer;
-            var native = new RoomEnemySpawnNameWords(Word(address), Word(address + 2), Word(address + 4),
-                Word(address + 6), Word(address + 8), Word(address + 12));
-            AssertEqual(native, RoomEnemySpawnNameDefinitions.Get(pointer), "spawn-name native five text words and debug ordinal");
-        }
-        foreach (ushort invalid in new ushort[] { 0, 0xdd89, 0xdd98, 0xdda5, 0xffff })
-            AssertThrows<InvalidDataException>(() => RoomEnemySpawnNameDefinitions.Get(invalid),
-                "spawn-name unreferenced or unaligned identity rejected");
-    }
     private static void VerifyLookupStream4RidleyFrameDomain(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1908,7 +1889,6 @@ internal static partial class Program
     }
     private static void VerifyLookupStream4(ISnesAddressSpace rom)
     {
-        Suite(nameof(VerifyLookupStream4EnemyNameRecords), () => VerifyLookupStream4EnemyNameRecords(rom));
         Suite(nameof(VerifyLookupStream4RidleyFrameDomain), () => VerifyLookupStream4RidleyFrameDomain(rom));
         Suite(nameof(VerifyLookupStream4BeamColorRelations), () => VerifyLookupStream4BeamColorRelations(rom));
         Suite(nameof(VerifyLookupStream4RidleyMovementPolicy), () => VerifyLookupStream4RidleyMovementPolicy(rom));
@@ -1944,7 +1924,6 @@ internal static partial class Program
             ushort pointer = Word(0x8fe7a7 + 2 * theme);
             int source = 0x8f0000 | pointer;
             TilesetDefinition actual = RoomTilesetDefinitions.Get(theme);
-            AssertEqual(pointer, actual.Pointer, "tileset native contiguous definition identity");
             AssertEqual(Long(source), actual.BlockDefinitionsAddress, "tileset native theme block resource");
             AssertEqual(Long(source + 3), actual.CharacterAddress, "tileset native theme character resource");
             AssertEqual(Long(source + 6), actual.PaletteAddress, "tileset native theme palette resource");
@@ -1988,9 +1967,7 @@ internal static partial class Program
         for (ushort parameter = 0; parameter <= 22; parameter += 2)
         {
             var actual = RidleyExplosionDefinitions.GetPart(parameter);
-            AssertEqual(parameter, actual.Parameter, "stream4 breakup parameter identity");
             AssertEqual(Word(0xa6c6ce + parameter), actual.Lifetime, "stream4 native breakup lifetime");
-            AssertEqual(Word(0xa6c6e6 + parameter), actual.InitializationRoutine, "stream4 native breakup initialization routine");
         }
         for (int orientation = 0; orientation < 16; orientation++)
             AssertEqual(Word(0xa6c7ba + 2 * orientation), RidleyExplosionDefinitions.SelectTailInstructionList(RidleyExplosionParts.TailTip, orientation), "stream4 native tail-tip orientation program");

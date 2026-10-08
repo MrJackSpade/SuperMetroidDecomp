@@ -85,10 +85,6 @@ public sealed class SamusReserveAutoRecoveryState
         }
 
         return new SamusReserveAutoRecoveryStep(
-            healthBefore,
-            samus.Health,
-            reserveBefore,
-            samus.ReserveEnergy,
             refillSoundRequested,
             completed);
     }
@@ -96,9 +92,5 @@ public sealed class SamusReserveAutoRecoveryState
 
 /// <summary>Inspectable publication from one native reserve-refill call.</summary>
 public readonly record struct SamusReserveAutoRecoveryStep(
-    ushort HealthBefore,
-    ushort HealthAfter,
-    ushort ReserveBefore,
-    ushort ReserveAfter,
     bool RefillSoundRequested,
     bool Completed);

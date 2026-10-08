@@ -61,11 +61,13 @@ internal static partial class Program
             samus.HorizontalSpeed.ContactDamageIndex = family == 0 ? (ushort)0 : (ushort)4;
             for (int phase = 0; phase < SamusChargeColorFormat.PhasesPerSuit; phase++)
             {
+                // The live charge-palette index holds twice the phase this call applies.
+                int appliedPhase = projectiles.SamusChargePaletteIndex / 2;
                 var step = projectiles.UpdateBeamChargePalette(guarded, cgram, samus);
                 AssertEqual(family == 0 ? SamusBeamChargePaletteAction.ChargeCycle :
                     SamusBeamChargePaletteAction.PseudoScrewCycle, step.Action,
                     $"installed family {family} suit {suit} phase {phase}");
-                AssertEqual(phase, step.ChargePaletteIndex,
+                AssertEqual(phase, appliedPhase,
                     $"installed charge phase {family}/{suit}/{phase}");
                 for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
                     AssertEqual(edited.SamusChargeColors.ResolveCharge(family != 0, suit, phase, color),
@@ -80,6 +82,7 @@ internal static partial class Program
         for (int call = 0; call < 20; call++)
         {
             ushort[] before = cgram.Colors.ToArray();
+            ushort glowTimerBefore = projectiles.ChargedShotGlowTimer;
             var step = projectiles.UpdateBeamChargePalette(guarded, cgram, samus);
             if ((call & 1) != 0)
             {
@@ -92,7 +95,8 @@ internal static partial class Program
             int frame = call / 2;
             AssertEqual(SamusBeamChargePaletteAction.HyperPalette, step.Action,
                 $"Hyper-shot call {call} paints");
-            AssertEqual(frame, step.HyperPaletteIndex, $"Hyper-shot playback frame {frame}");
+            // Even low-five-bit timer offsets $14..$02 select Hyper palettes 0..9.
+            AssertEqual(0x14 - frame * 2, glowTimerBefore & 0x001e, $"Hyper-shot playback frame {frame}");
             for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
                 AssertEqual(edited.SamusChargeColors.ResolveHyper(frame, color),
                     cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + color],
@@ -563,8 +567,9 @@ internal static partial class Program
             samus.HorizontalSpeed.ContactDamageIndex = family == 0 ? (ushort)0 : (ushort)4;
             for (int phase = 0; phase < 6; phase++)
             {
+                int appliedPhase = projectiles.SamusChargePaletteIndex / 2;
                 var step = projectiles.UpdateBeamChargePalette(guarded, cgram, samus);
-                AssertEqual(phase, step.ChargePaletteIndex, "Native charge phase order");
+                AssertEqual(phase, appliedPhase, "Native charge phase order");
                 AssertEqual(family == 0 ? SamusBeamChargePaletteAction.ChargeCycle : SamusBeamChargePaletteAction.PseudoScrewCycle,
                     step.Action, "Native charge family action");
                 for (int color = 0; color < 16; color++)

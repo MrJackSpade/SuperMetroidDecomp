@@ -118,8 +118,11 @@ internal static partial class Program
         AssertEqual(physicalWord,
             level.GetCollisionBlockByIndex(blockIndex).LevelWord,
             $"Mother Brain visual header ${header:X4} retains physical block");
+        // The redraw identifies its block by the block's DrawPLM BG1 ring destination.
+        ushort blockDestination = level.CreateBackgroundStreamer()
+            .BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
         AssertTrue(plms.TilemapUpdates.Any(update =>
-                update.BlockIndex == blockIndex &&
+                update.TopRowDestination == blockDestination &&
                 update.TopRow[0] == visualWord),
             $"Mother Brain visual header ${header:X4} presents edited tile");
         AssertEqual(0, guard.ForbiddenReadAttempts,

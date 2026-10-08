@@ -234,9 +234,8 @@ internal static partial class Program
             NintendoLogoFadePaletteFxProgramMechanicsDefinitions.FrameCount,
             NintendoLogoFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
             NintendoLogoFadePaletteFxProgramMechanicsDefinitions.ColorPointer,
-            NintendoLogoFadePaletteFxProgramMechanicsDefinitions.All
-                .Select(definition => definition.DefinitionPointer)
-                .ToArray(),
+            [NintendoLogoFadePaletteFxProgramMechanicsDefinitions.BootLogoDefinitionPointer,
+                NintendoLogoFadePaletteFxProgramMechanicsDefinitions.CopyrightDefinitionPointer],
             NintendoLogoFadePaletteFxProgramMechanicsDefinitions.CycleFrames + 1));
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(
             bus, presentation, "Zebes explosion foreground",
@@ -257,8 +256,8 @@ internal static partial class Program
             ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.FrameCount,
             ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
             ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.ColorPointer,
-            ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.All
-                .Select(definition => definition.DefinitionPointer).ToArray(),
+            [ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.WideExplosionBackgroundDefinitionPointer,
+                ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.SpaceWhiteoutDefinitionPointer],
             ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.CycleFrames + 1));
         foreach (ZebesExplosionAmbientPaletteFxProgramDefinition definition in
                  ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions.All)
@@ -872,7 +871,8 @@ internal static partial class Program
             installed.SpawnDefinition(guard, RoomPaletteFxDefinitions.SamusInHeat, equipment);
             var nativeCgram = new SnesCgram();
             var installedCgram = new SnesCgram();
-            int steps = 1 + definition.Frames.Sum(frame => frame.Duration);
+            int steps = 1 + Enumerable.Range(0, definition.Frames.Count)
+                .Sum(phase => PaletteFxHeatProgramDefinition.Duration(definition.Suit, phase));
             for (int step = 0; step <= steps; step++)
             {
                 native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), 0, equipment, false, false);

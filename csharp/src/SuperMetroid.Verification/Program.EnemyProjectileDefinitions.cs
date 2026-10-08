@@ -25,8 +25,6 @@ internal static partial class Program
                 forbidden.Add(address + index);
 
             EnemyProjectileDefinition definition = EnemyProjectileDefinitionCatalog.Get(kind);
-            AssertEqual(Word(address), definition.InitializationCallback,
-                $"{kind} initialization callback");
             AssertEqual(Word(address + 2), definition.PreInstruction,
                 $"{kind} pre-instruction");
             AssertEqual(Word(address + 4), definition.InitialInstructionList,

@@ -7,6 +7,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Bank-$81 pointers to the native sparse map-byte lists (SRAMMapData_crateria through
+    /// SRAMMapData_tourian, $81:8146-$81:82A6) in packed-area order. Production calculates
+    /// these lists from stock map occupancy, so the verifier keeps the native locations to
+    /// compare that calculation with the cartridge and to forbid reads of the lists.
+    /// </summary>
+    private static readonly ushort[] ExploredMapNativeSourcePointers =
+        [0x8146, 0x8196, 0x81e6, 0x8236, 0x8256, 0x82a6];
+
     private static void VerifyExploredMapPackingDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
@@ -28,14 +37,15 @@ internal static partial class Program
                     ExploredMapPackingDefinitions.NativeDestinationOffsetTable + area * 2),
                 definition.DestinationOffset,
                 $"packed map area {area} SRAM offset");
+            ushort nativeSourcePointer = ExploredMapNativeSourcePointers[area];
             AssertEqual(Word(
                     ExploredMapPackingDefinitions.NativeSourcePointerTable + area * 2),
-                definition.NativeSourcePointer,
+                nativeSourcePointer,
                 $"packed map area {area} source pointer");
             for (int index = 0; index < indexes.Count; index++)
             {
                 AssertEqual(retail.ReadByte(0x810000 |
-                        unchecked((ushort)(definition.NativeSourcePointer + index))),
+                        unchecked((ushort)(nativeSourcePointer + index))),
                     indexes[index],
                     $"packed map area {area} byte index {index}");
             }
@@ -200,7 +210,7 @@ internal static partial class Program
             {
                 ExploredMapPackingDefinition definition =
                     ExploredMapPackingDefinitions.Area(area, RetailPresentationFixture());
-                int start = 0x810000 | definition.NativeSourcePointer;
+                int start = 0x810000 | ExploredMapNativeSourcePointers[area];
                 if (address >= start &&
                     address < start + definition.AreaByteIndexes.Count)
                     return true;

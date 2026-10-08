@@ -73,8 +73,10 @@ internal static partial class Program
             var editedConnection = connect(guarded, changed, changed.Grapple, 512, 512, true, false);
             AssertEqual(expectedConnection, selectedConnection, "Stock placement retains connection result");
             AssertEqual(expectedConnection, editedConnection, "Edited placement retains connection result");
-            Compare(expectedConnection.LockedInPlace);
-            if (expectedConnection.LockedInPlace) locked++;
+            // A non-swinging connection installs the locked-in-place grapple function.
+            bool lockedInPlace = native.Grapple.Phase == GrapplePhase.ConnectedLocked;
+            Compare(lockedInPlace);
+            if (lockedInPlace) locked++;
 
             SamusState Seed(ChargeFlarePlacementCatalog? placement)
             {

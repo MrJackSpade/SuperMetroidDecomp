@@ -307,6 +307,7 @@ static void VerifySamusPowerBeamProjectiles()
         var bombs = CreateSyntheticBombs();
         var projectiles = CreateSyntheticProjectiles();
         bombs.StepFrame(bus, air, samus, 0, 0);
+        SamusProjectileSlotObservation beforeShot = projectiles.ObserveSlots();
         SamusProjectileFrameResult result = projectiles.StepFrame(
             bus,
             air,
@@ -317,7 +318,7 @@ static void VerifySamusPowerBeamProjectiles()
             0,
             bombs);
 
-        AssertEqual((int?)0, result.FiredSlot, $"power beam direction {direction} allocates slot zero");
+        AssertEqual((int?)0, beforeShot.FiredSlot(projectiles), $"power beam direction {direction} allocates slot zero");
         AssertEqual(
             (SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x000b),
             result.QueuedSoundEffect,
@@ -363,6 +364,7 @@ static void VerifySamusPowerBeamProjectiles()
         var combinedBombs = CreateSyntheticBombs();
         var combinedProjectiles = CreateSyntheticProjectiles();
         combinedBombs.StepFrame(bus, air, combinedSamus, 0, 0);
+        SamusProjectileSlotObservation beforeCombined = combinedProjectiles.ObserveSlots();
         SamusProjectileFrameResult combinedResult = combinedProjectiles.StepFrame(
             bus,
             air,
@@ -374,7 +376,7 @@ static void VerifySamusPowerBeamProjectiles()
             combinedBombs);
 
         SamusProjectileSlot combinedSlot = combinedProjectiles.Slots[0];
-        AssertEqual((int?)0, combinedResult.FiredSlot,
+        AssertEqual((int?)0, beforeCombined.FiredSlot(combinedProjectiles),
             $"beam combination {beamType} allocates one ordinary slot");
         AssertEqual(NativeDamage(0x9383c1, beamType), combinedSlot.Damage,
             $"beam combination {beamType} indexes uncharged data pointer");
@@ -480,6 +482,7 @@ static void VerifySamusPowerBeamProjectiles()
     for (int frame = 0; frame < 60; frame++)
     {
         chargeBombs.StepFrame(bus, air, chargeSamus, 0, 0);
+        SamusProjectileSlotObservation beforeChargeFrame = chargeProjectiles.ObserveSlots();
         SamusProjectileFrameResult chargeFrame = chargeProjectiles.StepFrame(
             bus,
             air,
@@ -490,7 +493,7 @@ static void VerifySamusPowerBeamProjectiles()
             0,
             chargeBombs);
         if (frame == 0)
-            AssertEqual((int?)0, chargeFrame.FiredSlot, "charge press fires initial ordinary shot");
+            AssertEqual((int?)0, beforeChargeFrame.FiredSlot(chargeProjectiles), "charge press fires initial ordinary shot");
         else if (frame == 15)
         {
             AssertEqual(
@@ -547,9 +550,10 @@ static void VerifySamusPowerBeamProjectiles()
             rejectedReleaseBombs);
     }
     rejectedReleaseBombs.SetSharedCooldown(1);
+    SamusProjectileSlotObservation beforeRejectedRelease = rejectedReleaseProjectiles.ObserveSlots();
     SamusProjectileFrameResult rejectedRelease = rejectedReleaseProjectiles.StepFrame(
         bus, air, rejectedReleaseSamus, 0, 0, 0, 0, rejectedReleaseBombs);
-    AssertEqual((int?)null, rejectedRelease.FiredSlot,
+    AssertEqual((int?)null, beforeRejectedRelease.FiredSlot(rejectedReleaseProjectiles),
         "cooldown gate rejects charged-audio release fixture");
     AssertEqual((SoundEffectId?)SoundEffectLibrary1Sounds.CancelAll,
         rejectedRelease.QueuedSoundEffect,
@@ -641,21 +645,19 @@ static void VerifySamusPowerBeamProjectiles()
             chargeSamus.EquippedItems = suitEquipment[suit];
             for (int palette = 0; palette < 6; palette++)
             {
+                // `$0B62` holds the byte offset of the palette this call installs.
+                AssertEqual(palette * 2, chargeProjectiles.SamusChargePaletteIndex,
+                    $"{(pseudoScrew ? "pseudo-screw" : "beam-charge")} selects palette ordinal");
                 SamusBeamChargePaletteStepResult liveChargeStep =
                     chargeProjectiles.UpdateBeamChargePalette(bus, liveChargeCgram, chargeSamus);
-                // The palette identity stays native; installed colors come from the synthetic bus.
-                ushort expectedPointer = NativeWord(0x910000 |
-                    (NativeWord((pseudoScrew ? 0x91d7ff : 0x91d7d5) + suit * 2) + palette * 2));
+                // The installed colors are unique per family/suit/palette, so the CGRAM check
+                // below identifies the palette the call selected.
                 AssertEqual(
                     pseudoScrew
                         ? SamusBeamChargePaletteAction.PseudoScrewCycle
                         : SamusBeamChargePaletteAction.ChargeCycle,
                     liveChargeStep.Action,
                     $"{(pseudoScrew ? "pseudo-screw" : "beam-charge")} suit {suit} palette {palette} branch");
-                AssertEqual(palette, liveChargeStep.ChargePaletteIndex,
-                    $"{(pseudoScrew ? "pseudo-screw" : "beam-charge")} exposes palette ordinal");
-                AssertEqual(expectedPointer, liveChargeStep.PalettePointer,
-                    $"{(pseudoScrew ? "pseudo-screw" : "beam-charge")} uses exact nested ROM pointer");
                 for (int color = 0; color < 16; color++)
                 {
                     ushort expectedColor = unchecked((ushort)(
@@ -689,10 +691,12 @@ static void VerifySamusPowerBeamProjectiles()
     chargeSamus.Grapple.Phase = GrapplePhase.Inactive;
 
     chargeBombs.StepFrame(bus, air, chargeSamus, 0, 0);
+    SamusProjectileSlotObservation beforeChargedRelease = chargeProjectiles.ObserveSlots();
     SamusProjectileFrameResult chargedRelease = chargeProjectiles.StepFrame(
         bus, air, chargeSamus, 0, 0, 0, 0, chargeBombs);
-    AssertTrue(chargedRelease.FiredSlot is not null, "charged release allocates projectile");
-    SamusProjectileSlot chargedSlot = chargeProjectiles.Slots[chargedRelease.FiredSlot!.Value];
+    int? chargedReleaseSlot = beforeChargedRelease.FiredSlot(chargeProjectiles);
+    AssertTrue(chargedReleaseSlot is not null, "charged release allocates projectile");
+    SamusProjectileSlot chargedSlot = chargeProjectiles.Slots[chargedReleaseSlot!.Value];
     AssertEqual(60, chargedSlot.Damage, "charged release uses charged data pointer");
     AssertEqual(0x0010, unchecked((ushort)(chargedSlot.Type & 0x0010)),
         "charged release sets charged type bit");
@@ -722,7 +726,7 @@ static void VerifySamusPowerBeamProjectiles()
         {
             AssertEqual(SamusBeamChargePaletteAction.OrdinaryWhite, paletteStep.Action,
                 $"ordinary charged glow call {call + 1} selects white branch");
-            AssertEqual(unchecked((ushort)(3 - call)), paletteStep.TimerAfter,
+            AssertEqual(unchecked((ushort)(3 - call)), chargeProjectiles.ChargedShotGlowTimer,
                 $"ordinary charged glow call {call + 1} decrements before branch");
             AssertEqual(0x4321, chargedGlowCgram.Colors[192],
                 $"ordinary charged glow call {call + 1} preserves transparent color zero");
@@ -736,8 +740,7 @@ static void VerifySamusPowerBeamProjectiles()
         {
             AssertEqual(SamusBeamChargePaletteAction.RestoredNormalSuit, paletteStep.Action,
                 "ordinary charged glow fourth call restores suit");
-            AssertEqual(normalSuitPalettePointers[2], paletteStep.PalettePointer,
-                "ordinary charged glow restore selects Gravity pointer");
+            // Gravity's unique fixture colors prove the restore selected the Gravity palette.
             for (int color = 0; color < 16; color++)
             {
                 AssertEqual(unchecked((ushort)(0x0140 + color)), chargedGlowCgram.Colors[192 + color],
@@ -785,7 +788,8 @@ static void VerifySamusPowerBeamProjectiles()
     AssertEqual(0x8002, bridgeSamus.PoseTransitionShotDirection,
         "normal-jump initializer publishes tagged shot direction");
     bridgeBombs.StepFrame(bus, air, bridgeSamus, 0, 0);
-    SamusProjectileFrameResult bridgeRelease = bridgeProjectiles.StepFrame(
+    SamusProjectileSlotObservation beforeBridgeRelease = bridgeProjectiles.ObserveSlots();
+    bridgeProjectiles.StepFrame(
         bus,
         air,
         bridgeSamus,
@@ -794,10 +798,11 @@ static void VerifySamusPowerBeamProjectiles()
         layer1X: 0,
         layer1Y: 0,
         sharedProjectiles: bridgeBombs);
-    AssertTrue(bridgeRelease.FiredSlot is not null,
+    int? bridgeReleaseSlot = beforeBridgeRelease.FiredSlot(bridgeProjectiles);
+    AssertTrue(bridgeReleaseSlot is not null,
         "pose-direction bridge forces charged release while Shoot remains held");
     AssertEqual(2,
-        bridgeProjectiles.Slots[bridgeRelease.FiredSlot!.Value].Direction,
+        bridgeProjectiles.Slots[bridgeReleaseSlot!.Value].Direction,
         "pose-direction bridge supplies stored low-byte direction");
     AssertEqual(0, bridgeProjectiles.FlareCounter,
         "pose-direction bridge consumes charge counter");
@@ -834,12 +839,16 @@ static void VerifySamusPowerBeamProjectiles()
         }
 
         combinedChargeBombs.StepFrame(bus, air, combinedChargeSamus, 0, 0);
+        SamusProjectileSlotObservation beforeCombinedChargedRelease =
+            combinedChargeProjectiles.ObserveSlots();
         SamusProjectileFrameResult combinedChargedRelease = combinedChargeProjectiles.StepFrame(
             bus, air, combinedChargeSamus, 0, 0, 0, 0, combinedChargeBombs);
-        AssertTrue(combinedChargedRelease.FiredSlot is not null,
+        int? combinedChargedReleaseSlot =
+            beforeCombinedChargedRelease.FiredSlot(combinedChargeProjectiles);
+        AssertTrue(combinedChargedReleaseSlot is not null,
             $"charged beam combination {beamType} allocates on release");
         SamusProjectileSlot combinedChargedSlot =
-            combinedChargeProjectiles.Slots[combinedChargedRelease.FiredSlot!.Value];
+            combinedChargeProjectiles.Slots[combinedChargedReleaseSlot!.Value];
         AssertEqual(NativeDamage(0x9383d9, beamType), combinedChargedSlot.Damage,
             $"charged beam combination {beamType} indexes charged data pointer");
         AssertEqual((ushort)30, combinedChargeBombs.CooldownTimer,
@@ -875,6 +884,7 @@ static void VerifySamusPowerBeamProjectiles()
     var hyperBombs = CreateSyntheticBombs();
     var hyperProjectiles = CreateSyntheticProjectiles();
     hyperBombs.StepFrame(bus, air, hyperSamus, 0, 0);
+    SamusProjectileSlotObservation beforeHyper = hyperProjectiles.ObserveSlots();
     SamusProjectileFrameResult hyperResult = hyperProjectiles.StepFrame(
         bus,
         air,
@@ -885,7 +895,7 @@ static void VerifySamusPowerBeamProjectiles()
         0,
         hyperBombs);
     SamusProjectileSlot hyperSlot = hyperProjectiles.Slots[0];
-    AssertEqual((int?)0, hyperResult.FiredSlot, "Hyper Beam allocates ordinary slot zero");
+    AssertEqual((int?)0, beforeHyper.FiredSlot(hyperProjectiles), "Hyper Beam allocates ordinary slot zero");
     AssertEqual(0x9018, hyperSlot.Type, "Hyper Beam forces literal type `$9018`");
     AssertEqual(1000, hyperSlot.Damage, "Hyper Beam overwrites ROM-table damage with 1000");
     AssertEqual(SamusProjectilePreInstruction.HyperBeam, hyperSlot.PreInstruction,
@@ -909,6 +919,7 @@ static void VerifySamusPowerBeamProjectiles()
     for (int call = 0; call < 21; call++)
     {
         ushort[] beforeColors = hyperGlowCgram.Colors.ToArray();
+        ushort hyperTimerBefore = hyperProjectiles.ChargedShotGlowTimer;
         SamusBeamChargePaletteStepResult paletteStep =
             hyperProjectiles.UpdateBeamChargePalette(bus, hyperGlowCgram, hyperSamus);
         if (call < 20 && (call & 1) == 0)
@@ -916,10 +927,10 @@ static void VerifySamusPowerBeamProjectiles()
             int palette = call / 2;
             AssertEqual(SamusBeamChargePaletteAction.HyperPalette, paletteStep.Action,
                 $"Hyper body glow call {call + 1} loads palette");
-            AssertEqual(palette, paletteStep.HyperPaletteIndex,
-                $"Hyper body glow call {call + 1} reports descending table index");
-            AssertEqual(NativeWord(0x91d829 + 0x14 - palette * 2), paletteStep.PalettePointer,
-                $"Hyper body glow call {call + 1} reads exact pointer");
+            // The timer's even low-five-bit value is the `$91:D829` byte offset; offsets
+            // descend from $14, selecting palettes 0..9 in order.
+            AssertEqual(0x14 - palette * 2, hyperTimerBefore & 0x001e,
+                $"Hyper body glow call {call + 1} uses descending table index");
             ushort[] expectedPalette = Enumerable.Range(0, 16)
                 .Select(color => unchecked((ushort)(0x2000 + palette * 0x20 + color)))
                 .ToArray();
@@ -939,8 +950,11 @@ static void VerifySamusPowerBeamProjectiles()
         {
             AssertEqual(SamusBeamChargePaletteAction.RestoredNormalSuit, paletteStep.Action,
                 "Hyper body glow call 21 restores suit");
-            AssertEqual(normalSuitPalettePointers[0], paletteStep.PalettePointer,
-                "Hyper body glow restore selects Power Suit pointer");
+            AssertPaletteSlice(hyperGlowCgram, 192,
+                Enumerable.Range(0, 16)
+                    .Select(color => unchecked((ushort)(0x0100 + color)))
+                    .ToArray(),
+                "Hyper body glow restore installs the Power Suit palette");
         }
     }
     AssertEqual(0, hyperProjectiles.ChargedShotGlowTimer,
@@ -1088,7 +1102,8 @@ static void VerifySamusPowerBeamProjectiles()
     for (int frame = 0; frame < 12; frame++)
     {
         waveWallBombs.StepFrame(bus, wall, waveWallSamus, 0, 0);
-        SamusProjectileFrameResult waveFrame = waveWallProjectiles.StepFrame(
+        SamusProjectileSlotObservation beforeWaveFrame = waveWallProjectiles.ObserveSlots();
+        waveWallProjectiles.StepFrame(
             bus,
             wall,
             waveWallSamus,
@@ -1097,7 +1112,7 @@ static void VerifySamusPowerBeamProjectiles()
             0,
             0,
             waveWallBombs);
-        waveReportedExplosion |= waveFrame.CollisionStartedExplosion;
+        waveReportedExplosion |= beforeWaveFrame.CollisionStartedExplosion(waveWallProjectiles);
     }
     AssertTrue(!waveReportedExplosion, "wave beam never converts on a type-eight wall");
     AssertTrue(waveWallProjectiles.Slots[0].XPosition > 112,
@@ -1133,14 +1148,16 @@ static void VerifySamusPowerBeamProjectiles()
     AssertEqual(0x1000, wallProjectiles.Slots[0].XSubposition,
         "right beam first frame retains one-sixteenth pixel");
 
-    SamusProjectileFrameResult wallResult = default;
-    for (int frame = 0; frame < 16 && !wallResult.CollisionStartedExplosion; frame++)
+    bool wallExploded = false;
+    for (int frame = 0; frame < 16 && !wallExploded; frame++)
     {
         wallBombs.StepFrame(bus, wall, wallSamus, 0, 0);
-        wallResult = wallProjectiles.StepFrame(
+        SamusProjectileSlotObservation beforeWallFrame = wallProjectiles.ObserveSlots();
+        wallProjectiles.StepFrame(
             bus, wall, wallSamus, 0, 0, 0, 0, wallBombs);
+        wallExploded = beforeWallFrame.CollisionStartedExplosion(wallProjectiles);
     }
-    AssertTrue(wallResult.CollisionStartedExplosion, "power beam reaches type-eight wall");
+    AssertTrue(wallExploded, "power beam reaches type-eight wall");
     AssertEqual(SamusProjectileFamily.BeamExplosion,
         wallProjectiles.Slots[0].PackedType.Family,
         "wall collision installs beam-explosion family");
@@ -1185,11 +1202,12 @@ static void VerifySamusPowerBeamProjectiles()
     var solidShotBombs = CreateSyntheticBombs();
     var solidShotProjectiles = CreateSyntheticProjectiles();
     var solidShotPlms = new RoomPlmSystem();
-    SamusProjectileFrameResult solidShotResult = default;
-    for (int frame = 0; frame < 16 && !solidShotResult.CollisionStartedExplosion; frame++)
+    bool solidShotExploded = false;
+    for (int frame = 0; frame < 16 && !solidShotExploded; frame++)
     {
         solidShotBombs.StepFrame(bus, solidShotWall, solidShotSamus, 0, 0);
-        solidShotResult = solidShotProjectiles.StepFrame(
+        SamusProjectileSlotObservation beforeSolidShotFrame = solidShotProjectiles.ObserveSlots();
+        solidShotProjectiles.StepFrame(
             bus,
             solidShotWall,
             solidShotSamus,
@@ -1199,8 +1217,9 @@ static void VerifySamusPowerBeamProjectiles()
             0,
             solidShotBombs,
             roomPlms: solidShotPlms);
+        solidShotExploded = beforeSolidShotFrame.CollisionStartedExplosion(solidShotProjectiles);
     }
-    AssertTrue(solidShotResult.CollisionStartedExplosion,
+    AssertTrue(solidShotExploded,
         "type-C shootable block retains solid shot collision");
     AssertTrue(solidShotPlms.ActiveCount > 0,
         "ordinary beam collision allocates bank-$84 shot-block PLM");
@@ -1242,7 +1261,8 @@ static void VerifySamusPowerBeamProjectiles()
     for (int frame = 0; frame < 12; frame++)
     {
         waveShotBombs.StepFrame(bus, waveShotWall, waveShotSamus, 0, 0);
-        SamusProjectileFrameResult waveShotFrame = waveShotProjectiles.StepFrame(
+        SamusProjectileSlotObservation beforeWaveShotFrame = waveShotProjectiles.ObserveSlots();
+        waveShotProjectiles.StepFrame(
             bus,
             waveShotWall,
             waveShotSamus,
@@ -1252,7 +1272,7 @@ static void VerifySamusPowerBeamProjectiles()
             0,
             waveShotBombs,
             roomPlms: waveShotPlms);
-        waveShotReportedExplosion |= waveShotFrame.CollisionStartedExplosion;
+        waveShotReportedExplosion |= beforeWaveShotFrame.CollisionStartedExplosion(waveShotProjectiles);
     }
     AssertTrue(!waveShotReportedExplosion,
         "Wave remains alive after publishing type-four shot-block reaction");
@@ -1284,6 +1304,7 @@ static void VerifySamusPowerBeamProjectiles()
     var missileBombs = CreateSyntheticBombs();
     var missileProjectiles = CreateSyntheticProjectiles();
     missileBombs.StepFrame(bus, wall, missileSamus, 0, 0);
+    SamusProjectileSlotObservation beforeMissile = missileProjectiles.ObserveSlots();
     SamusProjectileFrameResult missileFired = missileProjectiles.StepFrame(
         bus,
         wall,
@@ -1294,7 +1315,7 @@ static void VerifySamusPowerBeamProjectiles()
         0,
         missileBombs);
     SamusProjectileSlot missile = missileProjectiles.Slots[0];
-    AssertEqual((int?)0, missileFired.FiredSlot, "missile fresh press allocates slot zero");
+    AssertEqual((int?)0, beforeMissile.FiredSlot(missileProjectiles), "missile fresh press allocates slot zero");
     AssertEqual(
         (SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 3),
         missileFired.QueuedSoundEffect,
@@ -1351,14 +1372,16 @@ static void VerifySamusPowerBeamProjectiles()
     AssertEqual(0, missileTrail.Right.InstructionTimer,
         "missile's empty right trail stream terminates immediately");
 
-    SamusProjectileFrameResult missileImpact = default;
-    for (int frame = 0; frame < 32 && !missileImpact.CollisionStartedExplosion; frame++)
+    bool missileExploded = false;
+    for (int frame = 0; frame < 32 && !missileExploded; frame++)
     {
         missileBombs.StepFrame(bus, wall, missileSamus, 0, 0);
-        missileImpact = missileProjectiles.StepFrame(
+        SamusProjectileSlotObservation beforeMissileFrame = missileProjectiles.ObserveSlots();
+        missileProjectiles.StepFrame(
             bus, wall, missileSamus, 0, 0, 0, 0, missileBombs);
+        missileExploded = beforeMissileFrame.CollisionStartedExplosion(missileProjectiles);
     }
-    AssertTrue(missileImpact.CollisionStartedExplosion,
+    AssertTrue(missileExploded,
         "accelerating missile reaches the type-eight wall");
     AssertEqual(SamusProjectileFamily.MissileExplosion, missile.PackedType.Family,
         "missile collision installs missile-explosion family `$0800`");
@@ -1392,7 +1415,8 @@ static void VerifySamusPowerBeamProjectiles()
     AssertEqual(0, missileSamus.SelectedHudItem,
         "Select wrap chooses the ordinary beam producer");
     missileBombs.Reset();
-    SamusProjectileFrameResult postMissileBeamResult = missileProjectiles.StepFrame(
+    SamusProjectileSlotObservation beforePostMissileBeam = missileProjectiles.ObserveSlots();
+    missileProjectiles.StepFrame(
         bus,
         wall,
         missileSamus,
@@ -1401,10 +1425,11 @@ static void VerifySamusPowerBeamProjectiles()
         0,
         0,
         missileBombs);
-    AssertTrue(postMissileBeamResult.FiredSlot.HasValue,
+    int? postMissileBeamSlot = beforePostMissileBeam.FiredSlot(missileProjectiles);
+    AssertTrue(postMissileBeamSlot.HasValue,
         "Shoot after missile deselection allocates a new beam");
     SamusProjectileSlot postMissileBeam =
-        missileProjectiles.Slots[postMissileBeamResult.FiredSlot!.Value];
+        missileProjectiles.Slots[postMissileBeamSlot!.Value];
     AssertEqual(0x8000, postMissileBeam.Type,
         "post-missile shot rebuilds active packed type as uncharged Power Beam");
     AssertEqual(0x0014, postMissileBeam.Damage,
@@ -1425,7 +1450,8 @@ static void VerifySamusPowerBeamProjectiles()
         return CreateRoom(width, height, words, behaviors);
     }
 
-    SamusProjectileFrameResult FirePointMissile(RoomLevelData terrain, ushort yPosition)
+    // True when the fresh missile's first alpha pass collided and became an explosion.
+    bool FirePointMissile(RoomLevelData terrain, ushort yPosition)
     {
         var pointSamus = new SamusState
         {
@@ -1440,7 +1466,8 @@ static void VerifySamusPowerBeamProjectiles()
         var pointBombs = CreateSyntheticBombs();
         var pointProjectiles = CreateSyntheticProjectiles();
         pointBombs.StepFrame(bus, terrain, pointSamus, 0, 0);
-        return pointProjectiles.StepFrame(
+        SamusProjectileSlotObservation beforePointMissile = pointProjectiles.ObserveSlots();
+        pointProjectiles.StepFrame(
             bus,
             terrain,
             pointSamus,
@@ -1449,21 +1476,22 @@ static void VerifySamusPowerBeamProjectiles()
             0,
             0,
             pointBombs);
+        return beforePointMissile.CollisionStartedExplosion(pointProjectiles);
     }
 
     RoomLevelData nonSquareSlope = BuildPointSlopeRoom(0x12);
-    AssertTrue(!FirePointMissile(nonSquareSlope, 96).CollisionStartedExplosion,
+    AssertTrue(!FirePointMissile(nonSquareSlope, 96),
         "non-square point above ROM height remains air");
-    AssertTrue(FirePointMissile(nonSquareSlope, 111).CollisionStartedExplosion,
+    AssertTrue(FirePointMissile(nonSquareSlope, 111),
         "non-square point at ROM height collides");
 
     // Shape zero is the retail half-height square: top-left/top-right are air and both
     // bottom quadrants are solid. These two centers differ only in bit three of Y, proving
     // `$94:A66A`'s perpendicular quadrant XOR used during horizontal missile movement.
     RoomLevelData squareSlope = BuildPointSlopeRoom(0x00);
-    AssertTrue(!FirePointMissile(squareSlope, 96).CollisionStartedExplosion,
+    AssertTrue(!FirePointMissile(squareSlope, 96),
         "square-slope top half remains air");
-    AssertTrue(FirePointMissile(squareSlope, 104).CollisionStartedExplosion,
+    AssertTrue(FirePointMissile(squareSlope, 104),
         "square-slope bottom half collides");
 
     // `$94:A1B5` gives bombable air and bombable solid distinct carry results even when
@@ -1479,21 +1507,21 @@ static void VerifySamusPowerBeamProjectiles()
         return CreateRoom(width, height, words, behaviors);
     }
 
-    AssertTrue(!FirePointMissile(BuildPointBlockRoom(0x7000), 96).CollisionStartedExplosion,
+    AssertTrue(!FirePointMissile(BuildPointBlockRoom(0x7000), 96),
         "bombable-air point reaction spawns-and-deletes PLM but returns carry clear");
-    AssertTrue(FirePointMissile(BuildPointBlockRoom(0xf000), 96).CollisionStartedExplosion,
+    AssertTrue(FirePointMissile(BuildPointBlockRoom(0xf000), 96),
         "bombable-solid point reaction spawns-and-deletes PLM and returns carry set");
 
     // Horizontal/vertical extensions return N set and redispatch the signed parent rather
     // than using the extension's own apparent carry. Resolve both forms into bombable solid.
     RoomLevelData horizontalExtension = BuildPointBlockRoom(0x5000, behavior: 1);
     horizontalExtension.SetForegroundEntry(6 * width + 5, 0xf000);
-    AssertTrue(FirePointMissile(horizontalExtension, 96).CollisionStartedExplosion,
+    AssertTrue(FirePointMissile(horizontalExtension, 96),
         "horizontal extension redispatches missile against signed parent");
 
     RoomLevelData verticalExtension = BuildPointBlockRoom(0xd000, behavior: 1);
     verticalExtension.SetForegroundEntry(7 * width + 4, 0xf000);
-    AssertTrue(FirePointMissile(verticalExtension, 96).CollisionStartedExplosion,
+    AssertTrue(FirePointMissile(verticalExtension, 96),
         "vertical extension redispatches missile against row-relative parent");
 
     // Landing Site's first door is the more important inverse case: its power beam hits
@@ -1913,7 +1941,8 @@ static void VerifySamusPowerBeamProjectiles()
     var contactDoorProjectiles = CreateSyntheticProjectiles();
     var contactDoorPlms = new RoomPlmSystem();
     contactDoorBombs.StepFrame(bus, contactDoor, contactDoorSamus, 0, 0);
-    SamusProjectileFrameResult contactDoorImpact = contactDoorProjectiles.StepFrame(
+    SamusProjectileSlotObservation beforeContactDoor = contactDoorProjectiles.ObserveSlots();
+    contactDoorProjectiles.StepFrame(
         bus,
         contactDoor,
         contactDoorSamus,
@@ -1923,7 +1952,7 @@ static void VerifySamusPowerBeamProjectiles()
         0,
         contactDoorBombs,
         roomPlms: contactDoorPlms);
-    AssertTrue(contactDoorImpact.CollisionStartedExplosion,
+    AssertTrue(beforeContactDoor.CollisionStartedExplosion(contactDoorProjectiles),
         "beam born inside a blue cap collides before first-frame movement");
     AssertEqual(1, contactDoorPlms.ActiveCount,
         "contact-distance shot allocates the blue-door opening PLM");
@@ -1942,11 +1971,12 @@ static void VerifySamusPowerBeamProjectiles()
     var blueDoorBombs = CreateSyntheticBombs();
     var blueDoorProjectiles = CreateSyntheticProjectiles();
     var blueDoorPlms = new RoomPlmSystem();
-    SamusProjectileFrameResult blueDoorImpact = default;
-    for (int frame = 0; frame < 16 && !blueDoorImpact.CollisionStartedExplosion; frame++)
+    bool blueDoorExploded = false;
+    for (int frame = 0; frame < 16 && !blueDoorExploded; frame++)
     {
         blueDoorBombs.StepFrame(bus, blueDoor, blueDoorSamus, 0, 0);
-        blueDoorImpact = blueDoorProjectiles.StepFrame(
+        SamusProjectileSlotObservation beforeBlueDoorFrame = blueDoorProjectiles.ObserveSlots();
+        blueDoorProjectiles.StepFrame(
             bus,
             blueDoor,
             blueDoorSamus,
@@ -1956,8 +1986,9 @@ static void VerifySamusPowerBeamProjectiles()
             0,
             blueDoorBombs,
             roomPlms: blueDoorPlms);
+        blueDoorExploded = beforeBlueDoorFrame.CollisionStartedExplosion(blueDoorProjectiles);
     }
-    AssertTrue(blueDoorImpact.CollisionStartedExplosion,
+    AssertTrue(blueDoorExploded,
         "power beam collides through negative vertical door extension");
     AssertEqual(1, blueDoorPlms.ActiveCount,
         "BTS $41 collision allocates one right-facing blue-door PLM");
@@ -1996,6 +2027,7 @@ static void VerifySamusPowerBeamProjectiles()
     var superBombs = CreateSyntheticBombs();
     var superProjectiles = CreateSyntheticProjectiles();
     superBombs.StepFrame(bus, wall, superSamus, 0, 0);
+    SamusProjectileSlotObservation beforeSuper = superProjectiles.ObserveSlots();
     SamusProjectileFrameResult superFired = superProjectiles.StepFrame(
         bus,
         wall,
@@ -2007,7 +2039,7 @@ static void VerifySamusPowerBeamProjectiles()
         superBombs);
     SamusProjectileSlot super = superProjectiles.Slots[0];
     SamusProjectileSlot superLink = superProjectiles.Slots[1];
-    AssertEqual((int?)0, superFired.FiredSlot, "super fresh press allocates owner slot zero");
+    AssertEqual((int?)0, beforeSuper.FiredSlot(superProjectiles), "super fresh press allocates owner slot zero");
     AssertEqual(
         (SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 4),
         superFired.QueuedSoundEffect,
@@ -2052,14 +2084,16 @@ static void VerifySamusPowerBeamProjectiles()
     AssertEqual(2, super.TrailTimer,
         "super exhaust reloads two instead of missile four");
 
-    SamusProjectileFrameResult superImpact = default;
-    for (int frame = 0; frame < 24 && !superImpact.CollisionStartedExplosion; frame++)
+    bool superExploded = false;
+    for (int frame = 0; frame < 24 && !superExploded; frame++)
     {
         superBombs.StepFrame(bus, wall, superSamus, 0, 0);
-        superImpact = superProjectiles.StepFrame(
+        SamusProjectileSlotObservation beforeSuperFrame = superProjectiles.ObserveSlots();
+        superProjectiles.StepFrame(
             bus, wall, superSamus, 0, 0, 0, 0, superBombs);
+        superExploded = beforeSuperFrame.CollisionStartedExplosion(superProjectiles);
     }
-    AssertTrue(superImpact.CollisionStartedExplosion,
+    AssertTrue(superExploded,
         "accelerating super reaches the type-eight wall");
     AssertEqual(0x8800, super.Type,
         "super impact preserves active bit and selects family `$0800`");
@@ -2144,12 +2178,14 @@ static void VerifySamusPowerBeamProjectiles()
     var integratedSuperBombs = CreateSyntheticBombs();
     var integratedSuperProjectiles = CreateSyntheticProjectiles();
     var integratedSuperPlms = new RoomPlmSystem();
-    SamusProjectileFrameResult integratedSuperResult = default;
-    for (int frame = 0; frame < 32 && !integratedSuperResult.CollisionStartedExplosion; frame++)
+    bool integratedSuperExploded = false;
+    for (int frame = 0; frame < 32 && !integratedSuperExploded; frame++)
     {
         integratedSuperBombs.StepFrame(
             bus, integratedSuperWall, integratedSuperSamus, 0, 0);
-        integratedSuperResult = integratedSuperProjectiles.StepFrame(
+        SamusProjectileSlotObservation beforeIntegratedSuperFrame =
+            integratedSuperProjectiles.ObserveSlots();
+        integratedSuperProjectiles.StepFrame(
             bus,
             integratedSuperWall,
             integratedSuperSamus,
@@ -2159,6 +2195,8 @@ static void VerifySamusPowerBeamProjectiles()
             0,
             integratedSuperBombs,
             roomPlms: integratedSuperPlms);
+        integratedSuperExploded =
+            beforeIntegratedSuperFrame.CollisionStartedExplosion(integratedSuperProjectiles);
     }
     AssertTrue(integratedSuperPlms.ActiveCount > 0,
         "live Super Missile publishes weapon-gated block PLM");

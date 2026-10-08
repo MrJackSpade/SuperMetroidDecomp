@@ -152,7 +152,6 @@ public static class SamusAerialMovement
                     plms: plms);
             }
             return new AerialMovementResult(
-                horizontal,
                 vertical,
                 Landed: externalY >= 0 && vertical is { Collided: true },
                 HitCeiling: externalY < 0 && vertical is { Collided: true });
@@ -281,7 +280,6 @@ public static class SamusAerialMovement
             // do not execute on the trigger frame. Runtime pose handling consumes command
             // five after movement and installs `$83/$84` with the ROM launch speed.
             return new AerialMovementResult(
-                horizontal,
                 Vertical: null,
                 Landed: false,
                 HitCeiling: false,
@@ -443,8 +441,7 @@ public static class SamusAerialMovement
         // airborne turn art. Moonfall therefore pauses gravity during its turn;
         // this is the same branch used by grounded aimed crouching turns.
         AerialMovementResult result = samus.Kinematics.YDirection == 0
-            ? new AerialMovementResult(horizontal,
-                SamusGroundedMovement.RunNoSpeedCalculationGroundingProbe(bus, level, samus, nmiFrameCounter, plms),
+            ? new AerialMovementResult(                SamusGroundedMovement.RunNoSpeedCalculationGroundingProbe(bus, level, samus, nmiFrameCounter, plms),
                 false, false)
             : FinishVerticalMovement(bus, level, samus, horizontal, nmiFrameCounter,
                 plms: plms, deferCeilingResponse: true);
@@ -664,7 +661,7 @@ public static class SamusAerialMovement
             deferCeilingResponse);
         bool landed = downwardDisplacement && vertical.Collided;
 
-        return new AerialMovementResult(horizontal, vertical, landed, hitCeiling);
+        return new AerialMovementResult(vertical, landed, hitCeiling);
     }
 
     /// <summary>
@@ -921,7 +918,6 @@ public static class SamusAerialMovement
 
 /// <summary>Both collision scans and collision state produced by one aerial frame.</summary>
 public readonly record struct AerialMovementResult(
-    BlockMoveResult Horizontal,
     BlockMoveResult? Vertical,
     bool Landed,
     bool HitCeiling,

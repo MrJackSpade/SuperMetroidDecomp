@@ -65,10 +65,6 @@ internal static partial class Program
             var component = CrocomireTongueCollisionDefinitions.ComponentAt(frame);
             AssertEqual((ushort)1, ReadWord(0xa40000 | frame),
                 $"Crocomire tongue $A4:{frame:X4} native one-component header");
-            AssertEqual(unchecked((short)ReadWord(0xa40000 | frame + 2)), component.X,
-                "Crocomire tongue native component X");
-            AssertEqual(unchecked((short)ReadWord(0xa40000 | frame + 4)), component.Y,
-                "Crocomire tongue native component Y");
             AssertEqual(ReadWord(0xa40000 | frame + 8), component.HitboxPointer,
                 "Crocomire tongue native hitbox-list pointer");
             AssertEqual((ushort)0, ReadWord(0xa40000 | component.HitboxPointer), "tongue native empty hitboxes");

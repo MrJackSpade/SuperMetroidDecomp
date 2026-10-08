@@ -169,9 +169,10 @@ internal static partial class Program
             ?? throw new InvalidOperationException("Stock BG2 row was suppressed.");
         TilemapStreamUpdate editedBg2 = editedStream.Build(bg2Request)!
             ?? throw new InvalidOperationException("Edited BG2 row was suppressed.");
-        AssertTrue(nativeBg2.FirstHalves.AsSpan().SequenceEqual(stockBg2.FirstHalves),
+        // A row update's first DMA segment sources the complete staged top-half tile row.
+        AssertTrue(nativeBg2.Segments[0].SourceWords.AsSpan().SequenceEqual(stockBg2.Segments[0].SourceWords),
             "stock installed BG2 layout retains native rendered tile words");
-        AssertTrue(!nativeBg2.FirstHalves.AsSpan().SequenceEqual(editedBg2.FirstHalves),
+        AssertTrue(!nativeBg2.Segments[0].SourceWords.AsSpan().SequenceEqual(editedBg2.Segments[0].SourceWords),
             "edited BG2 layout changes the live renderer's first row");
 
         // Ceres has no authored BG2 tail, while the Wrecked Ship allocation includes

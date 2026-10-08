@@ -918,8 +918,7 @@ internal static partial class Program
             int extent = (Word(address) & 0x8000) == 0 ? 1 : 2;
             int nativeX = Word(address) & 0x1ff;
             if (nativeX >= 256) nativeX -= 512;
-            AssertEqual(new DeadTorizoStockPart(tile + 0x100, nativeX,
-                    unchecked((sbyte)rom.ReadByte(address + 2)), extent),
+            AssertEqual(new DeadTorizoStockPart(tile + 0x100, extent),
                 DeadTorizoStationaryCompositionDefinitions.Part(part),
                 "Immutable stock part preserves native tile/size/visible origin");
             for (int y = 0; y < extent; y++)

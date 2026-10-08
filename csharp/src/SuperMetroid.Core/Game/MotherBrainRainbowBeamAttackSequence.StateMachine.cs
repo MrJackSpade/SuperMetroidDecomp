@@ -38,15 +38,12 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         ushort missilesBefore = samus.Missiles;
         ushort supersBefore = samus.SuperMissiles;
         ushort bombsBefore = samus.PowerBombs;
-        bool unlockedSamus = false;
         bool chargeSoundQueued = false;
         bool bodyWalkRequested = false;
         bool bodyPostureRequested = false;
-        MotherBrainFinishOffAttackKind? finishOffAttack = null;
         MotherBrainSpriteTileTransferRequest? spriteTileTransfer = null;
         bool babySpawnRequested = false;
         bool finalBeamSoundQueued = false;
-        MotherBrainPhase3AttackKind? phase3Attack = null;
         var deathExplosions = new List<MotherBrainDeathExplosionRequest>(capacity: 4);
         var corpseRottingVramTransfers =
             new List<MotherBrainSpriteTileTransferRequest>(capacity: 6);
@@ -59,8 +56,6 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         bool escapeMusicTrackQueued = false;
         var escapePaletteFxRequests = new List<ushort>(capacity: 4);
         bool escapeTypewriterSetupRequested = false;
-        bool typewriterStepRequested = false;
-        ushort? typewriterTextPointer = null;
         bool timeBombSetSubtitleSpawnRequested = false;
         MotherBrainEscapeDoorExplosionRequest? escapeDoorExplosion = null;
         bool timerHandlingEnableRequested = false;
@@ -218,7 +213,6 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                     EarthquakeTimer = 0;
                     RainbowBeamSoundPlaying = false;
                     samus.InputLocked = false; // Samus command one at `$90:F117`.
-                    unlockedSamus = true;
                     SamusProjectileCooldownTimer = 8;
                     Phase = MotherBrainRainbowBeamAttackPhase.LetSamusFall;
                 }
@@ -296,12 +290,10 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                     (randomNumberSeed & 0x0fff) < 0x0ff0)
                 {
                     SetHeadInstructionList(HeadAttackingTwoOnionRingsPhase2InstructionList);
-                    finishOffAttack = MotherBrainFinishOffAttackKind.TwoOnionRings;
                 }
                 else
                 {
                     SetHeadInstructionList(HeadAttackingBombPhase2InstructionList);
-                    finishOffAttack = MotherBrainFinishOffAttackKind.Bomb;
                 }
                 break;
 
@@ -705,12 +697,10 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 if ((randomNumberSeed & 0x00ff) < 0x0080)
                 {
                     SetHeadInstructionList(HeadAttackingBombPhase3InstructionList);
-                    phase3Attack = MotherBrainPhase3AttackKind.Bomb;
                 }
                 else
                 {
                     SetHeadInstructionList(HeadAttackingFourOnionRingsPhase3InstructionList);
-                    phase3Attack = MotherBrainPhase3AttackKind.FourOnionRings;
                 }
 
                 Phase = MotherBrainRainbowBeamAttackPhase.Phase3FightingAttackCooldown;
@@ -1027,8 +1017,6 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 // A request plus explicit completion input preserves that scheduler boundary:
                 // the boss never invents character cadence, yet its carry-dependent handoff
                 // remains directly testable and debuggable.
-                typewriterStepRequested = true;
-                typewriterTextPointer = 0x2610;
                 if (typewriterFinished)
                 {
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceDoorExplodingStartTimer;
@@ -1092,35 +1080,16 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
             phaseBefore,
             Phase,
             movement,
-            healthBefore,
-            samus.Health,
-            missilesBefore,
-            samus.Missiles,
-            supersBefore,
-            samus.SuperMissiles,
-            bombsBefore,
-            samus.PowerBombs,
             soundQueued,
             paletteRequested,
             explosion,
-            unlockedSamus,
-            AngularWidth,
-            FunctionTimer,
-            EarthquakeType,
-            EarthquakeTimer,
             chargeSoundQueued,
             bodyWalkRequested,
-            HeadInstructionList,
             _headInstructionListRequestSerial != headInstructionListRequestSerialBefore,
-            NeckAngleDelta,
-            LowerNeckMovementIndex,
-            UpperNeckMovementIndex,
             bodyPostureRequested,
-            finishOffAttack,
             spriteTileTransfer,
             babySpawnRequested,
             finalBeamSoundQueued,
-            phase3Attack,
             deathExplosions,
             corpseRottingVramTransfers,
             corpseDustRequests,
@@ -1131,8 +1100,6 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
             escapeMusicTrackQueued,
             escapePaletteFxRequests,
             escapeTypewriterSetupRequested,
-            typewriterStepRequested,
-            typewriterTextPointer,
             timeBombSetSubtitleSpawnRequested,
             escapeDoorExplosion,
             timerHandlingEnableRequested,

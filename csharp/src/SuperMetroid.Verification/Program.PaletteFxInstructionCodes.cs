@@ -257,31 +257,39 @@ internal static partial class Program
             }
         }
 
-        foreach (NintendoLogoFadePaletteFxProgramDefinition definition in
-                 NintendoLogoFadePaletteFxProgramMechanicsDefinitions.All)
+        (string Owner, ushort DefinitionPointer)[] nintendoLogoEntries =
+        [
+            ("BootLogo",
+                NintendoLogoFadePaletteFxProgramMechanicsDefinitions.BootLogoDefinitionPointer),
+            ("Copyright",
+                NintendoLogoFadePaletteFxProgramMechanicsDefinitions.CopyrightDefinitionPointer),
+        ];
+        AssertEqual(nintendoLogoEntries.Length, NintendoLogoFadePaletteFxProgramMechanicsDefinitions.All.Count,
+            "Nintendo-logo fade exposes one definition per entry");
+        foreach ((string owner, ushort definitionPointer) in nintendoLogoEntries)
         {
             var guarded = new PaletteFxMechanicsForbiddenBus(bus);
             var paletteFx = new RoomPaletteFxSystem();
-            paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, 0);
+            paletteFx.SpawnDefinition(guarded, definitionPointer, 0);
             for (int step = 0;
                  step < NintendoLogoFadePaletteFxProgramMechanicsDefinitions.CycleFrames;
                  step++)
             {
                 paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
             }
-            AssertTrue(paletteFx.IsDefinitionActive(definition.DefinitionPointer),
-                $"{definition.Owner} fade remains active through its final hold");
+            AssertTrue(paletteFx.IsDefinitionActive(definitionPointer),
+                $"{owner} fade remains active through its final hold");
             paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
-            AssertTrue(!paletteFx.IsDefinitionActive(definition.DefinitionPointer),
-                $"{definition.Owner} fade deletes after its final hold");
+            AssertTrue(!paletteFx.IsDefinitionActive(definitionPointer),
+                $"{owner} fade deletes after its final hold");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
-                $"{definition.Owner} fade avoids mechanics ROM reads");
+                $"{owner} fade avoids mechanics ROM reads");
             AssertEqual(
                 NintendoLogoFadePaletteFxProgramMechanicsDefinitions.FrameCount *
                 NintendoLogoFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
                 sizeof(ushort),
                 guarded.PresentationReadCount,
-                $"{definition.Owner} fade retains every live color");
+                $"{owner} fade retains every live color");
         }
     }
 
@@ -939,28 +947,36 @@ internal static partial class Program
                 "Zebes explosion whiteout colors remain presentation-owned");
         }
 
-        foreach (ZebesExplosionWhiteoutPaletteFxProgramDefinition definition in
-                 ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.All)
+        (string Owner, ushort DefinitionPointer)[] whiteoutEntries =
+        [
+            ("WideExplosionBackground",
+                ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.WideExplosionBackgroundDefinitionPointer),
+            ("SpaceWhiteout",
+                ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.SpaceWhiteoutDefinitionPointer),
+        ];
+        AssertEqual(whiteoutEntries.Length, ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.All.Count,
+            "Zebes explosion whiteout exposes one definition per entry");
+        foreach ((string owner, ushort definitionPointer) in whiteoutEntries)
         {
             var guarded = new PaletteFxMechanicsForbiddenBus(bus);
             var paletteFx = new RoomPaletteFxSystem();
-            paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, 0);
+            paletteFx.SpawnDefinition(guarded, definitionPointer, 0);
             for (int step = 0;
                  step <= ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.CycleFrames;
                  step++)
             {
                 paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
             }
-            AssertTrue(!paletteFx.IsDefinitionActive(definition.DefinitionPointer),
-                $"{definition.Owner} whiteout deletes after its final hold");
+            AssertTrue(!paletteFx.IsDefinitionActive(definitionPointer),
+                $"{owner} whiteout deletes after its final hold");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
-                $"{definition.Owner} whiteout avoids mechanics ROM reads");
+                $"{owner} whiteout avoids mechanics ROM reads");
             AssertEqual(
                 ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.FrameCount *
                 ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
                 sizeof(ushort),
                 guarded.PresentationReadCount,
-                $"{definition.Owner} whiteout retains every live color");
+                $"{owner} whiteout retains every live color");
         }
     }
 
@@ -1366,10 +1382,20 @@ internal static partial class Program
             }
         }
 
-        foreach (CeresCinematicLightPaletteFxProgramDefinition definition in
-                 CeresCinematicLightPaletteFxProgramMechanicsDefinitions.All)
+        (CeresCinematicLightPaletteFxProgramOwner Owner, ushort DefinitionPointer)[] ceresLightEntries =
+        [
+            (CeresCinematicLightPaletteFxProgramOwner.GunshipEngine,
+                CeresCinematicLightPaletteFxProgramMechanicsDefinitions.GunshipEngineDefinitionPointer),
+            (CeresCinematicLightPaletteFxProgramOwner.SpriteNavigationLights,
+                CeresCinematicLightPaletteFxProgramMechanicsDefinitions.SpriteNavigationLightsDefinitionPointer),
+            (CeresCinematicLightPaletteFxProgramOwner.BackgroundNavigationLights,
+                CeresCinematicLightPaletteFxProgramMechanicsDefinitions.BackgroundNavigationLightsDefinitionPointer),
+        ];
+        AssertEqual(ceresLightEntries.Length, CeresCinematicLightPaletteFxProgramMechanicsDefinitions.All.Count,
+            "Ceres cinematic lights expose one definition per entry");
+        foreach ((CeresCinematicLightPaletteFxProgramOwner owner, ushort definitionPointer) in ceresLightEntries)
         {
-            bool isGunship = definition.Owner ==
+            bool isGunship = owner ==
                 CeresCinematicLightPaletteFxProgramOwner.GunshipEngine;
             int cycleFrames = isGunship
                 ? CeresCinematicLightPaletteFxProgramMechanicsDefinitions
@@ -1389,16 +1415,16 @@ internal static partial class Program
 
             var guarded = new PaletteFxMechanicsForbiddenBus(bus);
             var paletteFx = new RoomPaletteFxSystem();
-            paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, 0);
+            paletteFx.SpawnDefinition(guarded, definitionPointer, 0);
             for (int step = 0; step <= cycleFrames; step++)
                 paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
-            AssertTrue(paletteFx.IsDefinitionActive(definition.DefinitionPointer),
-                $"{definition.Owner} completes and repeats its cycle");
+            AssertTrue(paletteFx.IsDefinitionActive(definitionPointer),
+                $"{owner} completes and repeats its cycle");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
-                $"{definition.Owner} avoids mechanics ROM reads");
+                $"{owner} avoids mechanics ROM reads");
             AssertEqual((frameCount + 1) * colorsPerFrame * sizeof(ushort),
                 guarded.PresentationReadCount,
-                $"{definition.Owner} retains every live color");
+                $"{owner} retains every live color");
         }
     }
 
@@ -2194,7 +2220,7 @@ internal static partial class Program
                     $"{definition.Owner} cartridge word $8D:{word.Pointer:X4}");
                 mechanicsWords++;
             }
-            foreach (PaletteFxMechanicsByte item in definition.MechanicsBytes)
+            foreach ((ushort Pointer, byte Value) item in definition.TimerMechanicsBytes)
             {
                 AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsByte(
                         item.Pointer,
@@ -2807,7 +2833,9 @@ internal static partial class Program
                 var frame = definition.Frames[phase];
                 Capture(cursor);
                 AssertEqual((ushort)cursor, frame.InstructionPointer, "Calculated frame address");
-                AssertEqual(expected[(ushort)cursor], frame.Duration, "Original duration schedule");
+                AssertTrue(definition.TryReadMechanicsWord(frame.InstructionPointer, out ushort duration),
+                    "Frame duration word is mechanics");
+                AssertEqual(expected[(ushort)cursor], duration, "Original duration schedule");
                 cursor += 2;
                 AssertEqual((ushort)cursor, frame.FirstColorPointer, "Calculated first color address");
                 for (int color = 0; color < 15; color++, cursor += 2)
@@ -2857,7 +2885,10 @@ internal static partial class Program
                 _ => throw new InvalidOperationException(),
             };
             paletteFx.SpawnDefinition(guarded, definition: 0xf761, equippedItems);
-            int steps = 1 + definition.Frames.Sum(frame => frame.Duration);
+            int steps = 1 + definition.Frames.Sum(frame =>
+                definition.TryReadMechanicsWord(frame.InstructionPointer, out ushort duration)
+                    ? duration
+                    : throw new InvalidOperationException($"{definition.Suit} heat frame ${frame.InstructionPointer:X4} has no duration word"));
             for (int step = 0; step <= steps; step++)
             {
                 paletteFx.Step(

@@ -40,7 +40,8 @@ internal static partial class Program
         AssertTrue(samus.InputLocked && maw.HasGrabbedSamus, "Maw retains input until native delay underflows");
         runtime.StepFrame(0x8210);
         AssertEqual(SamusPoseIds.FacingLeftNormalPose, heldPose, "command three drops swing to native standing pose while held");
-        AssertTrue(heldMovement is { Dropped: true, PendingDropPose: SamusPoseIds.FacingLeftNormalPose }, "Maw uses C8C5 deferred drop, not C856 cancellation");
+        // Only the `$9B:C8C5` drop completion publishes a deferred drop pose.
+        AssertTrue(heldMovement is { Phase: GrapplePhase.Inactive, PendingDropPose: SamusPoseIds.FacingLeftNormalPose }, "Maw uses C8C5 deferred drop, not C856 cancellation");
         AssertTrue(!samus.InputLocked && !maw.HasGrabbedSamus, "native timer expiry releases player control");
         AssertTrue(samus.ReadMovementType(bus) != SamusMovementType.Grappling, "released Samus has an ordinary movement body");
         AssertTrue(runtime.LastGrappleMovement is { Fired: true }, "released control accepts the retained shoot edge as a new grapple");

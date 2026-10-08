@@ -175,8 +175,11 @@ internal static partial class Program
         AssertEqual(expectedPhysical,
             level.GetCollisionBlockByIndex(blockIndex).LevelWord,
             $"Spore Spawn {(clear ? "clear" : "crumble")} edited art retains physical word");
+        // The redraw identifies its block by the block's DrawPLM BG1 ring destination.
+        ushort blockDestination = level.CreateBackgroundStreamer()
+            .BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
         AssertTrue(plms.TilemapUpdates.Any(update =>
-                update.BlockIndex == blockIndex &&
+                update.TopRowDestination == blockDestination &&
                 update.TopRow[0] == expectedVisual),
             $"Spore Spawn {(clear ? "clear" : "crumble")} edit reaches immediate redraw");
         AssertEqual(expectedVisual,

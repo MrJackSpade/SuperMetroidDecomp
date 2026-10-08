@@ -32,18 +32,24 @@ internal static partial class Program
             samus.ArmCannon.Artwork = artwork;
             var guarded = new ArmCannonPolicyReadGuard(rom);
 
-            SamusArmCannonUpdateResult first = samus.ArmCannon.Update(guarded, samus);
-            SamusArmCannonUpdateResult second = samus.ArmCannon.Update(guarded, samus);
-            AssertTrue(
-                !first.TransitionStarted,
+            // Starting a transition is the only path that rewrites the open flag; it also arms
+            // the transition flag and advances the cover frame in the same call. Unchanged
+            // flags and frame therefore prove that no transition began.
+            SamusArmCannonState cannon = samus.ArmCannon;
+            (byte Open, byte Close, ushort Frame) initial =
+                (cannon.OpenFlag, cannon.CloseFlag, cannon.Frame);
+            cannon.Update(guarded, samus);
+            AssertEqual(initial, (cannon.OpenFlag, cannon.CloseFlag, cannon.Frame),
                 $"arm-cannon HUD item {selectedHudItem} waits for a stable second sample");
+            byte openBeforeSecond = cannon.OpenFlag;
+            cannon.Update(guarded, samus);
             AssertEqual(
                 expected != 0,
-                second.TransitionStarted,
+                cannon.OpenFlag != openBeforeSecond,
                 $"arm-cannon HUD item {selectedHudItem} starts only its native opening transition");
             AssertEqual(
                 expected,
-                second.OpenFlag,
+                cannon.OpenFlag,
                 $"arm-cannon HUD item {selectedHudItem} publishes its compiled open flag");
         }
 

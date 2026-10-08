@@ -150,13 +150,16 @@ static void VerifySamusAerialMovement()
     };
     spinLeft.HorizontalSpeed.BaseSpeed = 1;
     spinLeft.ApplyOrdinaryJumpTransition(bus, SamusPoseIds.SpinJumpLeftPose);
-    AerialMovementResult spinFrame = SamusAerialMovement.StepSpinJump(
+    int spinStartX = (spinLeft.XPosition << 16) | spinLeft.Kinematics.XSubposition;
+    SamusAerialMovement.StepSpinJump(
         bus,
         level,
         spinLeft,
         (ushort)(SnesButton.Left | SnesButton.A),
         nmiFrameCounter: 0);
-    AssertEqual(-0x00016000, spinFrame.Horizontal.AcceptedDisplacement, "left spin jump reaches native cap");
+    AssertEqual(-0x00016000,
+        ((spinLeft.XPosition << 16) | spinLeft.Kinematics.XSubposition) - spinStartX,
+        "left spin jump reaches native cap");
     AssertEqual(2, spinLeft.HorizontalSpeed.AccelerationMode, "spin jump selects aerial mode two");
     AssertEqual(46, spinLeft.XPosition, "left spin jump whole X");
     AssertEqual(0xa000, spinLeft.Kinematics.XSubposition, "left spin jump fractional X");
@@ -754,9 +757,8 @@ static void VerifySamusSpaceJumpAndScrewAttack()
         plms: screwBombPlms);
     AssertTrue(screwBombFrame.Vertical is { Collided: false },
         "Screw collision-bomb setup returns carry clear and preserves vertical travel");
-    AssertEqual(screwBombIndex,
-        screwBombFrame.Vertical!.Value.BrokenBombBlock!.Value.Index,
-        "Screw vertical collision publishes the exact BTS-4 block");
+    AssertTrue(screwBombPlms.PopulationSlots.Any(slot => slot.BlockIndex == screwBombIndex),
+        "Screw vertical collision reacts at the exact BTS-4 block");
     AssertEqual(0x0058,
         screwBombLevel.GetCollisionBlockByIndex(screwBombIndex).LevelWord,
         "Screw setup installs CE83's replacement visual before the PLM handler");

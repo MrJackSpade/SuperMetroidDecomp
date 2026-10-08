@@ -33,7 +33,7 @@ internal static class IntroRinkaDefinitions
     /// spritemaps or adjacent visual data.
     /// </remarks>
     public static IntroRinkaActorDefinition RinkaActor =>
-        new(0xcf21, 0xb896, SharedNoOp, 0xcdeb);
+        new(SharedNoOp, 0xcdeb);
 
     /// <summary><c>$8B:CF27</c>, Rinka-spawner no-op callbacks and initial list.</summary>
     /// <remarks>
@@ -49,7 +49,7 @@ internal static class IntroRinkaDefinitions
     /// recurrence or infer a third wave from adjacent data.
     /// </remarks>
     public static IntroRinkaActorDefinition SpawnerActor =>
-        new(0xcf27, SharedNoOp, SharedNoOp, 0xce0d);
+        new(SharedNoOp, 0xce0d);
 
     /// <summary>Number of parameter-selected Rinka initializer rows at <c>$8B:B8B5</c>.</summary>
     public const int RinkaCount = 4;
@@ -110,8 +110,6 @@ internal static class IntroRinkaDefinitions
 
 /// <summary>One native six-byte intro-Rinka cinematic-object definition.</summary>
 internal readonly record struct IntroRinkaActorDefinition(
-    ushort Pointer,
-    ushort Initialization,
     ushort PreInstruction,
     ushort InstructionList);
 

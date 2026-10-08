@@ -27,7 +27,7 @@ internal static partial class Program
             DeadSidehopperCorpseDefinitions.InitiallyDead));
 
         Console.WriteLine(
-            "Dead sidehopper corpse definitions: all 16 native configuration words, two derived wrap offsets, and both production initializers pass with migrated metadata reads forbidden.");
+            "Dead sidehopper corpse definitions: all 14 consumed native configuration words, two derived wrap offsets, and both production initializers pass with migrated metadata reads forbidden.");
     }
 
     private static void VerifyDefinition(
@@ -38,9 +38,9 @@ internal static partial class Program
         AssertEqual(expectedConfigurationPointer, definition.ConfigurationPointer,
             "dead sidehopper configuration identity");
         int address = 0xa90000 | definition.ConfigurationPointer;
-        ushort[] expected = new ushort[8];
-        for (int index = 0; index < expected.Length; index++)
-            expected[index] = ReadDeadSidehopperCorpseWord(rom, address + index * 2);
+        // Word five, the graphics-initialization callback, has no compiled consumer.
+        ushort[] expected = [.. new[] { 0, 1, 2, 3, 4, 6, 7 }
+            .Select(index => ReadDeadSidehopperCorpseWord(rom, address + index * 2))];
 
         ushort[] actual =
         [
@@ -49,7 +49,6 @@ internal static partial class Program
             definition.CopyFunction,
             definition.MoveFunction,
             definition.EntryCount,
-            definition.GraphicsInitializationFunction,
             definition.RotationTablePointer,
             definition.FinishFunction,
         ];

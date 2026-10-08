@@ -283,12 +283,7 @@ public static class SamusKnockbackMovement
         }
 
         return new KnockbackMovementResult(
-            horizontal,
-            vertical,
-            Ended: false,
-            Landed: landed,
-            impactYSpeed,
-            impactYSubspeed);
+            Landed: landed);
     }
 
     /// <summary>
@@ -469,7 +464,7 @@ public static class SamusKnockbackMovement
         samus.Kinematics.YSubspeed = 0;
         samus.Kinematics.YSpeed = 0;
         samus.Kinematics.YDirection = 2;
-        return new KnockbackMovementResult(null, null, Ended: true);
+        return new KnockbackMovementResult();
     }
 
     private static BlockMoveResult MoveWithSharedVerticalSpeedCalculation(
@@ -520,9 +515,4 @@ public static class SamusKnockbackMovement
 
 /// <summary>Collision and lifetime result from one `$90:DF38` frame.</summary>
 public readonly record struct KnockbackMovementResult(
-    BlockMoveResult? Horizontal,
-    BlockMoveResult? Vertical,
-    bool Ended,
-    bool Landed = false,
-    ushort ImpactYSpeed = 0,
-    ushort ImpactYSubspeed = 0);
+    bool Landed = false);

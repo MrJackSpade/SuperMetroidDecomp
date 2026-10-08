@@ -5,11 +5,7 @@ namespace SuperMetroid.Core.Game;
 /// system still owns random drop selection; this record preserves the exact source enemy
 /// definition and bank-$86 projectile slot used by instruction $DFEA.
 /// </summary>
-public readonly record struct MagdolliteLavaDropRequest(
-    ushort X,
-    ushort Y,
-    ushort EnemyDefinitionPointer,
-    ushort EnemyProjectileNativeIndex);
+public readonly record struct MagdolliteLavaDropRequest();
 
 public sealed partial class RoomEnemySystem
 {
@@ -77,11 +73,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports shot-list instruction $86:DFEA.</summary>
     private void RequestMagdolliteLavaDrop(RoomEnemyProjectileSlot projectile)
     {
-        LastMagdolliteLavaDropRequest = new MagdolliteLavaDropRequest(
-            projectile.XPosition,
-            projectile.YPosition,
-            MagdolliteDefinition,
-            checked((ushort)(projectile.SlotIndex * 2)));
+        LastMagdolliteLavaDropRequest = new MagdolliteLavaDropRequest();
         SpawnEnemyDropFromEnemyHeader(
             projectile.XPosition,
             projectile.YPosition,

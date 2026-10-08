@@ -45,7 +45,7 @@ internal static partial class Program
                 $"{kind} exposed header loads through room population");
             CollectiblePlmSnapshot loaded = fixture.Plms.Collectibles[0];
             AssertEqual(kind, loaded.Kind, $"{kind} header identity");
-            AssertEqual(CollectiblePresentation.Exposed, loaded.Presentation,
+            AssertEqual(CollectiblePresentation.Exposed, fixture.Plms.CollectiblePresentations[0],
                 $"{kind} exposed presentation");
             if (kind is InWorldCollectibleKind.VariaSuit or InWorldCollectibleKind.GravitySuit)
                 fixture.Samus.ProjectileFlareCounter = 60;
@@ -144,14 +144,15 @@ internal static partial class Program
         SeedStationaryGrappleCollisionProbe(bus, grappleSamus);
         var orbHit = SamusGrappleMovement.StepFiring(bus, orb.Level, grappleSamus,
             (ushort)SnesButton.X, orb.Plms);
-        AssertTrue(orbHit.CancelQueued, "grapple collides with the solid Chozo orb");
+        AssertEqual(GrapplePhase.CancelPending, grappleSamus.Grapple.Phase,
+            "grapple collides with the solid Chozo orb");
         orb.Plms.Step(bus, orb.Level, orb.Streamer, 0, 0, 0);
         AssertTrue(orb.System.HasRoomChozoBit(91),
             "breaking a Chozo orb persists before item acquisition");
         AssertTrue(!orb.System.HasCollectedItemBit(91),
             "breaking a Chozo orb does not prematurely collect its item");
         StepFrames(9, _ => orb.Plms.Step(bus, orb.Level, orb.Streamer, 0, 0, 0));
-        AssertEqual(CollectiblePhase.Visible, orb.Plms.Collectibles[0].Phase,
+        AssertEqual(CollectiblePhase.Visible, orb.Plms.CollectiblePhases[0],
             "Chozo burst exposes the item");
         ushort orbItemWord = orb.Level.ForegroundEntries.Span[orb.BlockIndex];
         AssertTrue(orb.Plms.TryNotifyCollectibleTouch(orb.BlockIndex),
@@ -174,7 +175,7 @@ internal static partial class Program
             roomArgument: 91,
             precollected: false,
             preopenedChozo: true);
-        AssertEqual(CollectiblePhase.Visible, reopenedOrb.Plms.Collectibles[0].Phase,
+        AssertEqual(CollectiblePhase.Visible, reopenedOrb.Plms.CollectiblePhases[0],
             "previously broken Chozo orb reloads as exposed item");
         AssertTrue(!reopenedOrb.System.HasCollectedItemBit(91),
             "reloaded broken orb remains independently uncollected");
@@ -192,7 +193,7 @@ internal static partial class Program
         AssertTrue(shot.Plms.TryNotifyCollectibleProjectileHit(shot.BlockIndex, 0x0100),
             "concealed shot item accepts projectile reaction");
         StepUntil(
-            () => shot.Plms.Collectibles[0].Phase == CollectiblePhase.ShotBlockVisible,
+            () => shot.Plms.CollectiblePhases[0] == CollectiblePhase.ShotBlockVisible,
             _ => shot.Plms.Step(bus, shot.Level, shot.Streamer, 0, 0, 0),
             maximumFrames: 20,
             context: "shot item reveal");
@@ -207,10 +208,10 @@ internal static partial class Program
         shot.Plms.CompleteCollectibleMessage();
         shot.Plms.Step(bus, shot.Level, shot.Streamer, 0, 0, 0);
         AssertEqual(CollectiblePhase.CollectedShotBlockEmpty,
-            shot.Plms.Collectibles[0].Phase,
+            shot.Plms.CollectiblePhases[0],
             "collected shot item retains empty respawn owner");
         StepUntil(
-            () => shot.Plms.Collectibles[0].Phase == CollectiblePhase.CollectedShotBlock,
+            () => shot.Plms.CollectiblePhases[0] == CollectiblePhase.CollectedShotBlock,
             _ => shot.Plms.Step(bus, shot.Level, shot.Streamer, 0, 0, 0),
             maximumFrames: 220,
             context: "collected shot block restoration");
@@ -242,7 +243,7 @@ internal static partial class Program
         fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, 1024, 512, 0);
         AssertTrue(fixture.System.HasCollectedItemBit(26), "Morph Ball pickup persists");
         AssertPermanentCollectibleEffect(InWorldCollectibleKind.MorphBall, fixture.Samus);
-        AssertEqual(CollectiblePhase.AwaitingMessage, fixture.Plms.Collectibles[0].Phase,
+        AssertEqual(CollectiblePhase.AwaitingMessage, fixture.Plms.CollectiblePhases[0],
             "Morph Ball retains its owner during the synchronous message");
         AssertEqual(1, fixture.Plms.CollectiblePickupEvents.Count, "Morph Ball publishes one pickup");
         fixture.Plms.CompleteCollectibleMessage();
@@ -251,7 +252,7 @@ internal static partial class Program
             plms: fixture.Plms, alignToSlopeAfterMovement: false);
         AssertEqual((ushort)1122, movement.XPosition, "message-return horizontal movement advances");
         AssertTrue(!next.Collided, "message-return Morph Ball block remains passable");
-        AssertEqual(CollectiblePhase.ResumeAfterMessage, fixture.Plms.Collectibles[0].Phase,
+        AssertEqual(CollectiblePhase.ResumeAfterMessage, fixture.Plms.CollectiblePhases[0],
             "repeat contact preserves the pending cleanup continuation");
         fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, 1024, 512, 0);
         AssertEqual(0, fixture.Plms.ActiveCount, "Morph Ball owner deletes after message return");

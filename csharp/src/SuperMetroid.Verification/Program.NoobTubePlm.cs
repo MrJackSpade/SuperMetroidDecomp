@@ -96,7 +96,8 @@ internal static partial class Program
         SeedStationaryGrappleCollisionProbe(bus, grappleSamus);
         var grappleHit = SamusGrappleMovement.StepFiring(bus, level, grappleSamus,
             (ushort)SnesButton.X, plms);
-        AssertTrue(grappleHit.CancelQueued, "solid resident trigger cancels the grapple endpoint");
+        AssertEqual(GrapplePhase.CancelPending, grappleSamus.Grapple.Phase,
+            "solid resident trigger cancels the grapple endpoint");
         AssertEqual(0x8000, plms.PopulationSlots.Single().LoopTimer,
             "grapple publishes the native hit bit without a missile/power-bomb family");
         StepNoobTube(plms, guarded, level, streamer);
@@ -137,10 +138,10 @@ internal static partial class Program
             SamusBombProjectileSystem.PowerBombType);
         AssertEqual(1, reactions.Count,
             "Power Bomb boundary visits the live n00b-tube origin");
-        AssertEqual(RoomCollisionType.ShootableBlock, reactions[0].CollisionType,
+        AssertEqual(RoomCollisionType.ShootableBlock, level.GetCollisionBlockByIndex(blockIndex).CollisionType,
             "Power Bomb observes the intact tube's type-$C collision");
         AssertEqual(RoomBlockBehaviorValues.ResidentPlmProjectileTrigger,
-            reactions[0].Behavior,
+            level.GetCollisionBlockByIndex(blockIndex).Bts,
             "Power Bomb observes the intact tube's BTS-$44 trigger");
         AssertEqual((ushort)0x8300, plms.PopulationSlots.Single().LoopTimer,
             "generic trigger publishes the native marked Power Bomb word");

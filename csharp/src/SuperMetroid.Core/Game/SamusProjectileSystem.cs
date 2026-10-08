@@ -245,12 +245,7 @@ public sealed partial class SamusProjectileSystem
                 LastBeamChargePaletteStep = new(
                     pseudoScrew
                         ? SamusBeamChargePaletteAction.PseudoScrewCycle
-                        : SamusBeamChargePaletteAction.ChargeCycle,
-                    timerBefore,
-                    ChargedShotGlowTimer,
-                    palettePointer,
-                    HyperPaletteIndex: null,
-                    ChargePaletteIndex: paletteIndex);
+                        : SamusBeamChargePaletteAction.ChargeCycle);
                 return LastBeamChargePaletteStep;
             }
 
@@ -264,12 +259,7 @@ public sealed partial class SamusProjectileSystem
                 samus.Xray.SpecialPaletteType,
                 layerBlendingDefaultConfig);
             LastBeamChargePaletteStep = new(
-                SamusBeamChargePaletteAction.Inactive,
-                TimerBefore: 0,
-                TimerAfter: 0,
-                PalettePointer: 0,
-                HyperPaletteIndex: null,
-                ChargePaletteIndex: null);
+                SamusBeamChargePaletteAction.Inactive);
             return LastBeamChargePaletteStep;
         }
 
@@ -283,11 +273,7 @@ public sealed partial class SamusProjectileSystem
             {
                 ushort normalPointer = LoadNormalSuitPalette(bus, cgram, samus);
                 LastBeamChargePaletteStep = new(
-                    SamusBeamChargePaletteAction.RestoredNormalSuit,
-                    timerBefore,
-                    ChargedShotGlowTimer,
-                    normalPointer,
-                    HyperPaletteIndex: null);
+                    SamusBeamChargePaletteAction.RestoredNormalSuit);
                 return LastBeamChargePaletteStep;
             }
 
@@ -298,11 +284,7 @@ public sealed partial class SamusProjectileSystem
                 cgram.SetColor(SamusProjectileRomData.Palettes.SamusCgramIndex + color, 0x03ff);
 
             LastBeamChargePaletteStep = new(
-                SamusBeamChargePaletteAction.OrdinaryWhite,
-                timerBefore,
-                ChargedShotGlowTimer,
-                PalettePointer: 0,
-                HyperPaletteIndex: null);
+                SamusBeamChargePaletteAction.OrdinaryWhite);
             return LastBeamChargePaletteStep;
         }
 
@@ -313,11 +295,7 @@ public sealed partial class SamusProjectileSystem
         {
             ChargedShotGlowTimer = unchecked((ushort)(ChargedShotGlowTimer - 1));
             LastBeamChargePaletteStep = new(
-                SamusBeamChargePaletteAction.HyperHold,
-                timerBefore,
-                ChargedShotGlowTimer,
-                PalettePointer: 0,
-                HyperPaletteIndex: null);
+                SamusBeamChargePaletteAction.HyperHold);
             return LastBeamChargePaletteStep;
         }
 
@@ -329,11 +307,7 @@ public sealed partial class SamusProjectileSystem
             ChargedShotGlowTimer = 0;
             ushort normalPointer = LoadNormalSuitPalette(bus, cgram, samus);
             LastBeamChargePaletteStep = new(
-                SamusBeamChargePaletteAction.RestoredNormalSuit,
-                timerBefore,
-                ChargedShotGlowTimer,
-                normalPointer,
-                HyperPaletteIndex: null);
+                SamusBeamChargePaletteAction.RestoredNormalSuit);
             return LastBeamChargePaletteStep;
         }
 
@@ -348,11 +322,7 @@ public sealed partial class SamusProjectileSystem
             .ApplyHyper(cgram, hyperPaletteIndex);
         ChargedShotGlowTimer = unchecked((ushort)(ChargedShotGlowTimer - 1));
         LastBeamChargePaletteStep = new(
-            SamusBeamChargePaletteAction.HyperPalette,
-            timerBefore,
-            ChargedShotGlowTimer,
-            hyperPointer,
-            hyperPaletteIndex);
+            SamusBeamChargePaletteAction.HyperPalette);
         return LastBeamChargePaletteStep;
     }
 
@@ -457,13 +427,7 @@ public sealed partial class SamusProjectileSystem
         List<SamusSoundRequest>? comboSounds = null;
 
         LastFiredProjectileSnapshot = firedSlot is { } newSlot
-            ? new SamusProjectileSpawnSnapshot(
-                newSlot,
-                _slots[newSlot].Direction,
-                _slots[newSlot].XPosition,
-                _slots[newSlot].YPosition,
-                _slots[newSlot].XVelocity,
-                _slots[newSlot].YVelocity)
+            ? new SamusProjectileSpawnSnapshot()
             : null;
 
         // `$90:AECE` walks the complete ten-slot arrays from byte index $12 down to zero.
@@ -594,13 +558,10 @@ public sealed partial class SamusProjectileSystem
         }
 
         LastFrameResult = new SamusProjectileFrameResult(
-            firedSlot,
             queuedSound == 0
                 ? null
                 : SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, queuedSound),
             queuedSoundMaximum,
-            collisionStartedExplosion,
-            projectileDeleted,
             comboSounds?.ToArray(),
             soundSuppressedAtProduction,
             persistentMemoryCorrupted);

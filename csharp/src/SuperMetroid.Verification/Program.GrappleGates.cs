@@ -40,7 +40,7 @@ internal static partial class Program
                 {
                     SeedStationaryGrappleCollisionProbe(bus, samus);
                     var result = SamusGrappleMovement.StepFiring(bus, level, samus, (ushort)SnesButton.X, plms);
-                    AssertTrue(result.CancelQueued, "green gate rejects grapple attachment");
+                    AssertEqual(GrapplePhase.CancelPending, result.Phase, "green gate rejects grapple attachment");
                 }
                 StepDownwardGatePlm(plms, bus, level, streamer);
                 AssertEqual(0, plms.TakeDownwardGateProjectileRequests().Count, "rejected grapple does not wake or replace gate actor");

@@ -32,7 +32,12 @@ internal static partial class Program
         var collision = SamusBlockCollision.MoveVertical(loaded.AddressSpace, level,
             samus.Kinematics, 2 << 16, scanLeftToRight: true, canBreakBombBlocks: false,
             includeSolidEnemies: false, plms: runtime.Plms);
-        if (!collision.Collided || collision.CollisionBlock?.Index != hand.Index ||
+        // Samus's whole horizontal extent lies in the hand's column, so the downward contact
+        // that collided is the hand block; activating the statue is that block's trigger effect.
+        bool spanWithinHandColumn =
+            (samus.XPosition - samus.Kinematics.XRadius) >> 4 == 0x4a &&
+            (samus.XPosition + samus.Kinematics.XRadius - 1) >> 4 == 0x4a;
+        if (!collision.Collided || !spanWithinHandColumn ||
             runtime.Enemies.Slots[0].Parameter1 != 1 || runtime.GroundedSamusMovementEnabled)
             throw new InvalidDataException("Physical morph contact did not activate the Chozo and disable controls.");
         int soundFrames = 0;

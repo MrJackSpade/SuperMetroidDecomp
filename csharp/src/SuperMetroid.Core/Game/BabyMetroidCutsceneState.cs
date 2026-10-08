@@ -235,24 +235,15 @@ public sealed partial class BabyMetroidCutsceneState
         BabyMetroidCutscenePhase phaseBefore = Phase;
         BabyMetroidCutscenePoint before = Capture();
         bool brainCollision = false;
-        bool samusStandingRequested = false;
         bool bodyStumbleRequested = false;
-        bool motherBrainInterrupted = false;
         bool latchSoundQueued = false;
         // `$A9:C98C-C9C2` emits three independent `$86:E509` allocations when the Baby
         // finally lets go. Keep the individual room coordinates and parameter instead of
         // collapsing that native side effect into a boolean: allocation order matters when
         // the shared eighteen-slot enemy-projectile pool is nearly full.
         var releaseDustClouds = new List<BabyMetroidReleaseDustRequest>(capacity: 3);
-        bool samusCrouchingRequested = false;
         bool ambientCrySoundQueued = false;
-        bool samusTouchCollision = false;
-        bool healingCompleted = false;
         bool samusRainbowActivated = false;
-        bool samusAnimationFrozen = false;
-        bool samusRainbowDisabled = false;
-        bool hyperBeamEnabled = false;
-        bool phaseThreeHandoff = false;
         BabyMetroidDeathExplosionRequest? deathExplosion = null;
         BabyMetroidPaletteTransferRequest? babyPaletteTransfer = null;
         MotherBrainSpriteTileTransferRequest? attackTileTransfer = null;
@@ -305,7 +296,6 @@ public sealed partial class BabyMetroidCutsceneState
                 {
                     Phase = BabyMetroidCutscenePhase.LatchOntoMotherBrain;
                     samus.Drained.PutStanding(bus, samus); // Drained Samus command one.
-                    samusStandingRequested = true;
                 }
                 break;
 
@@ -353,7 +343,6 @@ public sealed partial class BabyMetroidCutsceneState
                     Phase = BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse;
                     PaletteHandlerDelay = 1;
                     motherBrain.InterruptFinalBeamForBabyDrain();
-                    motherBrainInterrupted = true;
                     latchSoundQueued = true; // Sound library one, effect `$40`.
                 }
                 break;
@@ -438,7 +427,6 @@ public sealed partial class BabyMetroidCutsceneState
                 if (ceilingCollision)
                 {
                     samus.Drained.PutCrouchingOrFalling(bus, samus);
-                    samusCrouchingRequested = true;
                     Phase = BabyMetroidCutscenePhase.MoveToSamus;
                     MovementTablePointer = BabyMetroidRouteDefinitions.FirstRecordPointer;
                 }
@@ -543,7 +531,6 @@ public sealed partial class BabyMetroidCutsceneState
                     samus.Health = samus.MaxHealth;
                     samus.ReserveEnergy = samus.MaxReserveEnergy;
                     Phase = BabyMetroidCutscenePhase.IdleUntilNoHealth;
-                    healingCompleted = true;
                 }
                 break;
             }
@@ -719,7 +706,6 @@ public sealed partial class BabyMetroidCutsceneState
                     // `$CC8B` also installs the first rainbow handler; neither handler is
                     // executed until the Baby's following enemy-AI call.
                     SamusDrainedState.FreezeForHyperBeamAcquisition(samus);
-                    samusAnimationFrozen = true;
                     SamusRainbowPhase = BabyMetroidSamusRainbowPhase.ActivateWhenEnemyIsLow;
                     Phase = BabyMetroidCutscenePhase.DeathSequence;
                 }
@@ -807,11 +793,8 @@ public sealed partial class BabyMetroidCutsceneState
 
                 motherBrain.BeginPhase3RecoveryFromBabyCutscene();
                 samus.Drained.DisableRainbowAndStartStandingAnimation(samus);
-                samusRainbowDisabled = true;
                 samus.Drained.EnableHyperBeam(samus);
-                hyperBeamEnabled = true;
                 Properties = Properties.With(EnemyProperties.Deleted);
-                phaseThreeHandoff = true;
                 break;
             }
 
@@ -834,7 +817,6 @@ public sealed partial class BabyMetroidCutsceneState
                 samus.Kinematics.XRadius,
                 samus.Kinematics.YRadius))
         {
-            samusTouchCollision = true;
             bool reachedLatchPoint = AccelerateTowardsPoint(
                 samus.XPosition,
                 unchecked((ushort)(samus.YPosition - 0x0014)),
@@ -864,31 +846,10 @@ public sealed partial class BabyMetroidCutsceneState
         return new BabyMetroidCutsceneStepResult(
             phaseBefore,
             Phase,
-            before,
-            Capture(),
-            XVelocity,
-            YVelocity,
-            Speed,
-            Angle,
-            FunctionTimer,
-            brainCollision,
-            samusStandingRequested,
             bodyStumbleRequested,
-            motherBrainInterrupted,
             latchSoundQueued,
-            InstructionList,
             releaseDustClouds.ToArray(),
-            samusCrouchingRequested,
-            MovementTablePointer,
             ambientCrySoundQueued,
-            samusTouchCollision,
-            healingCompleted,
-            Health,
-            samusRainbowActivated,
-            samusAnimationFrozen,
-            samusRainbowDisabled,
-            hyperBeamEnabled,
-            phaseThreeHandoff,
             deathExplosion,
             babyPaletteTransfer,
             attackTileTransfer,

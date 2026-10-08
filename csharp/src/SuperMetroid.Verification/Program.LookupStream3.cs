@@ -1124,18 +1124,13 @@ internal static partial class Program
         {
             int offset = segment * 2;
             ushort collision = (ushort)(rom.ReadByte(0xaadf13 + offset) | rom.ReadByte(0xaadf14 + offset) << 8);
-            ushort attack = (ushort)(rom.ReadByte(0xaadf21 + offset) | rom.ReadByte(0xaadf22 + offset) << 8);
             AssertEqual(collision, ShaktoolInstructionDefinitions.CollisionForSegment(segment),
                 "stream 3 native Shaktool collision program");
-            AssertEqual(attack, ShaktoolInstructionDefinitions.AttackForSegment(segment),
-                "stream 3 native Shaktool dormant attack program");
         }
         foreach (int invalid in new[] { -1, 7, int.MinValue, int.MaxValue })
         {
             AssertThrows<InvalidDataException>(() => ShaktoolInstructionDefinitions.CollisionForSegment(invalid),
                 "stream 3 invalid Shaktool collision segment");
-            AssertThrows<InvalidDataException>(() => ShaktoolInstructionDefinitions.AttackForSegment(invalid),
-                "stream 3 invalid Shaktool attack segment");
         }
         Suite(nameof(VerifyStream3WorkRobotColors), () => VerifyStream3WorkRobotColors(rom));
         Suite(nameof(VerifyStream3PickupAndFirefleaPrograms), () => VerifyStream3PickupAndFirefleaPrograms(rom));
@@ -1325,10 +1320,10 @@ internal static partial class Program
                 {
                     short x = (short)Read(0xa9b099 + 16 * group + 4 * item);
                     short y = (short)Read(0xa9b09b + 16 * group + 4 * item);
-                    AssertEqual((ushort)group, requests[item].PatternIndex, "stream 3 death scatter reverse group order");
+                    AssertEqual((ushort)group, scatter.DeathExplosionIndex, "stream 3 death scatter reverse group order");
                     AssertEqual((x, y), (requests[item].XOffset, requests[item].YOffset), "stream 3 selected death scatter anchors");
-                    AssertEqual((ushort)(320 + x), requests[item].XPosition, "stream 3 death scatter body-relative X");
-                    AssertEqual((ushort)(192 + y), requests[item].YPosition, "stream 3 death scatter body-relative Y");
+                    AssertEqual((ushort)(320 + x), unchecked((ushort)(scatter.Body.XPosition + requests[item].XOffset)), "stream 3 death scatter body-relative X");
+                    AssertEqual((ushort)(192 + y), unchecked((ushort)(scatter.Body.YPosition + requests[item].YOffset)), "stream 3 death scatter body-relative Y");
                     AssertEqual(mixed ? (ushort)2 : (ushort)1, requests[item].ProjectileParameter, "stream 3 independent death type case");
                 }
             }
@@ -3621,9 +3616,17 @@ internal static partial class Program
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var entries = NintendoLogoFadePaletteFxProgramMechanicsDefinitions.All;
         AssertEqual(2, entries.Count, "both semantic Nintendo fade entries");
-        AssertEqual(NintendoLogoFadePaletteFxProgramOwner.BootLogo, entries[0].Owner, "boot entry remains first");
-        AssertEqual(NintendoLogoFadePaletteFxProgramOwner.Copyright, entries[1].Owner, "copyright entry remains second");
-        foreach (var entry in entries)
+        foreach (var entry in new[]
+        {
+            (DefinitionPointer: NintendoLogoFadePaletteFxProgramMechanicsDefinitions.BootLogoDefinitionPointer,
+                ProgramStart: NintendoLogoFadePaletteFxProgramMechanicsDefinitions.BootLogoEntry,
+                ColorByteIndex: NintendoLogoFadePaletteFxProgramMechanicsDefinitions.BootLogoColorByteIndex,
+                BranchesToSharedBody: false),
+            (DefinitionPointer: NintendoLogoFadePaletteFxProgramMechanicsDefinitions.CopyrightDefinitionPointer,
+                ProgramStart: NintendoLogoFadePaletteFxProgramMechanicsDefinitions.CopyrightEntry,
+                ColorByteIndex: NintendoLogoFadePaletteFxProgramMechanicsDefinitions.CopyrightColorByteIndex,
+                BranchesToSharedBody: true),
+        })
         {
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | (entry.DefinitionPointer + 2)), entry.ProgramStart,
                 "native definition selects exact semantic program entry");

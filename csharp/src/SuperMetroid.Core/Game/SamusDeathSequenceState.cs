@@ -122,13 +122,7 @@ public sealed class SamusDeathSequenceState
         LastQueuedSegment = null;
         Phase = SamusDeathSequencePhase.PreFlashing;
 
-        return new SamusDeathSequenceStartResult(
-            sourceMovementType,
-            deathPose,
-            initialFrame,
-            ScreenX,
-            ScreenY,
-            SpinJumpSoundRequested);
+        return new SamusDeathSequenceStartResult();
     }
 
     /// <summary>
@@ -239,18 +233,9 @@ public sealed class SamusDeathSequenceState
         }
 
         return new SamusDeathSequenceStepResult(
-            phaseAtStart,
             Phase,
-            indexAtStart,
-            AnimationIndex,
-            AnimationTimer,
-            AnimationCounter,
-            LastQueuedSegment,
-            paletteChanged,
-            whiteoutChanged,
             drawPose,
             drawExplosion,
-            ExplosionSpritemapIndex,
             Phase == SamusDeathSequencePhase.Complete);
     }
 
@@ -382,26 +367,11 @@ public enum SamusDeathSequencePhase
 }
 
 /// <summary>Inspectable output from `$9B:B3A7`'s pose-selection boundary.</summary>
-public readonly record struct SamusDeathSequenceStartResult(
-    SamusMovementType SourceMovementType,
-    byte DeathPose,
-    ushort InitialFrame,
-    ushort ScreenX,
-    ushort ScreenY,
-    bool SpinJumpSoundRequested);
+public readonly record struct SamusDeathSequenceStartResult();
 
 /// <summary>One native death game-state call, including draw and NMI-transfer requests.</summary>
 public readonly record struct SamusDeathSequenceStepResult(
-    SamusDeathSequencePhase PhaseAtStart,
     SamusDeathSequencePhase PhaseAfterStep,
-    ushort IndexAtStart,
-    ushort IndexAfterStep,
-    ushort TimerAfterStep,
-    ushort CounterAfterStep,
-    byte? QueuedSegment,
-    bool PaletteChanged,
-    bool WhiteoutChanged,
     bool DrawPose,
     bool DrawExplosion,
-    ushort? ExplosionSpritemapIndex,
     bool Completed);

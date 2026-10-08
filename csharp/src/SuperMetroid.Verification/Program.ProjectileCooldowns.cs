@@ -47,9 +47,11 @@ internal static partial class Program
                 XPosition = 211, YPosition = 288, EquippedBeams = (ushort)(chargeEquipped ? 0x1009 : 9) };
             typeof(SamusState).GetProperty(nameof(SamusState.PoseTransitionShotDirection))!
                 .SetValue(samus, (ushort)0x8007);
-            var result = projectiles.StepFrame(bus, room, samus, (ushort)SnesButton.X,
+            SamusProjectileSlotObservation slotsBefore = projectiles.ObserveSlots();
+            projectiles.StepFrame(bus, room, samus, (ushort)SnesButton.X,
                 0, 0, 0, shared, controllerPreviousNewInput: chargeEquipped ? (ushort)0 : (ushort)SnesButton.X);
-            AssertEqual((int?)0, result.FiredSlot, "native handoff/previous-edge shot is produced");
+            AssertEqual((int?)0, slotsBefore.FiredSlot(projectiles),
+                "native handoff/previous-edge shot is produced");
             AssertEqual((ushort)15, shared.CooldownTimer, "Charge equipment or previous Shoot edge selects ordinary cooldown");
         }
         foreach (ushort beam in new ushort[] { 0, 10 })
@@ -63,9 +65,9 @@ internal static partial class Program
                 // Actual shared cooldown owner advances before humanoid fire dispatch.
                 shared.StepFrame(bus, room, samus, (ushort)SnesButton.X,
                     frame == 0 ? (ushort)SnesButton.X : (ushort)0);
-                var result = projectiles.StepFrame(bus, room, samus, (ushort)SnesButton.X,
+                projectiles.StepFrame(bus, room, samus, (ushort)SnesButton.X,
                     frame == 0 ? (ushort)SnesButton.X : (ushort)0, 0, 0, shared);
-                if (result.FiredSlot is not null) frames.Add(frame);
+                if (projectiles.LastFiredProjectileSnapshot is not null) frames.Add(frame);
             }
             int firstDelay = beam == 10 ? 12 : 15;
             AssertTrue(frames.SequenceEqual(new[] { 0, firstDelay, firstDelay + 25, firstDelay + 50 }),

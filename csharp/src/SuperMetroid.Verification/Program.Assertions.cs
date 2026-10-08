@@ -80,13 +80,6 @@ sealed class TestAddressSpace : ISnesAddressSpace, ISnesMutableMemory,
     public RoomEnemyDefinition ReadEnemyDefinition(ushort pointer) =>
         SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(this, pointer);
 
-    public RoomEnemySpawnNameWords ReadEnemySpawnNameWords(ushort pointer)
-    {
-        int address = RoomEnemyRomLayout.TilesetBank | pointer;
-        return new(ReadFixtureWord(address), ReadFixtureWord(address + 2),
-            ReadFixtureWord(address + 4), ReadFixtureWord(address + 6),
-            ReadFixtureWord(address + 8), ReadFixtureWord(address + 12));
-    }
 
     public RoomEnemyPopulationRecord ReadFallingTubePopulation(ushort pointer)
     {

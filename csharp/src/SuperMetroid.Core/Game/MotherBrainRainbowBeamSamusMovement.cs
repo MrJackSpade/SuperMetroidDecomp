@@ -236,24 +236,10 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         bool reachedVerticalBoundary,
         bool nativeCarry) => new(
             before,
-            Capture(samus),
-            xVelocity,
-            yVelocity,
-            reachedWall,
-            reachedVerticalBoundary,
-            nativeCarry,
-            // Both helpers write the new current values into the native previous-position
-            // words. A future camera integration must use this point instead of `before`.
-            Capture(samus));
+            nativeCarry);
 }
 
 /// <summary>One-call witness for Mother Brain's forced Samus coordinate helpers.</summary>
 public readonly record struct MotherBrainForcedSamusMovementResult(
     SamusCameraPoint Before,
-    SamusCameraPoint After,
-    ushort XVelocity,
-    ushort YVelocity,
-    bool ReachedWall,
-    bool ReachedVerticalBoundary,
-    bool NativeCarry,
-    SamusCameraPoint CameraPreviousPosition);
+    bool NativeCarry);

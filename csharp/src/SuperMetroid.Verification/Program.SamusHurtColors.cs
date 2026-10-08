@@ -56,38 +56,36 @@ internal static partial class Program
         samus.LiquidPhysics.CinematicFunctionActive = cinematic;
         var cgram = new SnesCgram();
         var guarded = new ForbiddenHurtColorBus(rom);
-        int expectedPaletteAddress = 0;
+        // Each call starts from a sentinel palette, so CGRAM shows whether that call wrote
+        // colors and, when it did, which native source it selected.
+        const ushort sentinel = 0x5a5a;
         for (int call = 1; call <= 7; call++)
         {
-            SamusHurtFlashPaletteStepResult step = SamusHurtFlashPalette.Update(
+            for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
+                cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + index, sentinel);
+            SamusHurtFlashPalette.Update(
                 guarded, cgram, samus, 0, catalog);
-            SamusHurtFlashPaletteAction expectedAction = call == 7
-                ? SamusHurtFlashPaletteAction.NoPaletteChange
-                : (call & 1) != 0
-                    ? SamusHurtFlashPaletteAction.HurtFlash
-                    : cinematic
-                        ? SamusHurtFlashPaletteAction.IntroRestore
-                        : SamusHurtFlashPaletteAction.NormalSuitRestore;
-            AssertEqual(expectedAction, step.Action,
-                $"{(cinematic ? "intro" : "ordinary")} hurt call {call} action");
             AssertEqual((ushort)(call + 1), samus.HurtFlashCounter,
                 $"{(cinematic ? "intro" : "ordinary")} hurt call {call} counter");
-            if (call <= 6)
+            if (call == 7)
             {
-                expectedPaletteAddress = (call & 1) != 0
-                    ? SamusHurtColorFormat.HurtSourceAddress
-                    : cinematic
-                        ? SamusHurtColorFormat.IntroSourceAddress
-                        : SamusRenderingRomData.Body.PowerSuitPalette;
-                AssertEqual((int?)expectedPaletteAddress, step.PaletteAddress,
-                    $"{(cinematic ? "intro" : "ordinary")} hurt call {call} source");
+                for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
+                    AssertEqual(sentinel,
+                        cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + index],
+                        $"{(cinematic ? "intro" : "ordinary")} hurt call {call} leaves CGRAM {index} unchanged");
+                continue;
             }
+            int expectedPaletteAddress = (call & 1) != 0
+                ? SamusHurtColorFormat.HurtSourceAddress
+                : cinematic
+                    ? SamusHurtColorFormat.IntroSourceAddress
+                    : SamusRenderingRomData.Body.PowerSuitPalette;
             for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
                 AssertEqual((ushort)(SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(
                         CartridgeImportSource.Require(rom),
                         expectedPaletteAddress + index * sizeof(ushort)) & 0x7fff),
                     cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + index],
-                    $"{(cinematic ? "intro" : "ordinary")} hurt call {call} CGRAM {index}");
+                    $"{(cinematic ? "intro" : "ordinary")} hurt call {call} source CGRAM {index}");
         }
         AssertEqual(0, guarded.ForbiddenReads,
             $"installed {(cinematic ? "intro" : "ordinary")} hurt cycle does not read native art");
@@ -115,13 +113,14 @@ internal static partial class Program
             samus.LiquidPhysics.CinematicFunctionActive = cinematic;
             var cgram = new SnesCgram();
             var guarded = new ForbiddenHurtColorBus(rom);
-            SamusHurtFlashPaletteStepResult step = SamusHurtFlashPalette.Update(
+            SamusHurtFlashPalette.Update(
                 guarded, cgram, samus, 0, edited.SamusHurtColors);
             SamusHurtColorVariant variant = cinematic
                 ? SamusHurtColorVariant.Intro : SamusHurtColorVariant.Hurt;
-            AssertEqual(cinematic ? SamusHurtFlashPaletteAction.IntroRestore :
-                SamusHurtFlashPaletteAction.HurtFlash, step.Action,
-                $"edited {variant} path remains selected by native counter");
+            for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
+                AssertEqual(edited.SamusHurtColors.Resolve(variant, index),
+                    cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + index],
+                    $"edited {variant} path remains selected by native counter (CGRAM {index})");
             AssertEqual(edited.SamusHurtColors.Resolve(variant, 5), cgram.Colors[197],
                 $"edited {variant} color reaches CGRAM");
             AssertEqual(0, guarded.ForbiddenReads, $"edited {variant} avoids native art");

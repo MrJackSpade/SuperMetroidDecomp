@@ -32,7 +32,6 @@ public static class RoomLevelStreamDefinitions
         if (data.Length < HeaderByteCount || !data.AsSpan(0, 4).SequenceEqual("SMLV"u8) ||
             BinaryPrimitives.ReadInt32LittleEndian(data.AsSpan(4)) != FormatVersion)
             throw new InvalidDataException("Compiled room-level corpus has an invalid header.");
-        byte[] provenance = data.AsSpan(8, 32).ToArray();
         int count = BinaryPrimitives.ReadInt32LittleEndian(data.AsSpan(40));
         HashSet<int> expected = BuildExpectedSources();
         if (count != expected.Count)
@@ -56,7 +55,7 @@ public static class RoomLevelStreamDefinitions
         }
         if (cursor != data.Length)
             throw new InvalidDataException("Compiled room-level corpus has trailing bytes.");
-        return new Corpus(streams, provenance);
+        return new Corpus(streams);
     }
 
     private static HashSet<int> BuildExpectedSources()
@@ -69,6 +68,5 @@ public static class RoomLevelStreamDefinitions
     }
 
     private sealed record Corpus(
-        IReadOnlyDictionary<int, ReadOnlyMemory<byte>> Streams,
-        ReadOnlyMemory<byte> SourceSha256);
+        IReadOnlyDictionary<int, ReadOnlyMemory<byte>> Streams);
 }

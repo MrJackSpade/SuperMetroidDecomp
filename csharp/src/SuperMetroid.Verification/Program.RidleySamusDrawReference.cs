@@ -4,8 +4,22 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Oracle-owned description of one $90:C663 arm-cannon draw: whether the OBJ is visible,
+    /// whether the tile upload is queued, and the OAM/DMA words the native routine emits.
+    /// </summary>
+    private readonly record struct RidleyNativeCannonDrawResult(
+        bool SpriteWritten,
+        bool TileUploadQueued,
+        ushort Frame,
+        byte DirectionSelector = 0,
+        ushort Attributes = 0,
+        ushort TileSource = 0,
+        short ScreenX = 0,
+        short ScreenY = 0);
+
     /// <summary>Independent $90:C663 arm-cannon draw/transfer result from native state and ROM.</summary>
-    private static SamusArmCannonDrawResult RidleyNativeCannonDraw(
+    private static RidleyNativeCannonDrawResult RidleyNativeCannonDraw(
         ISnesAddressSpace rom, byte[] checkpoint, bool invincibleAtDraw, ushort nmi)
     {
         ushort W(int address) => BinaryPrimitives.ReadUInt16LittleEndian(checkpoint.AsSpan(address, 2));
@@ -13,7 +27,7 @@ internal static partial class Program
         if ((W(RidleyMovieMemory.CannonDrawingMode) & 15) == 0) return default;
         ushort frame = W(RidleyMovieMemory.CannonFrame);
         if (frame == 0 || (invincibleAtDraw && (nmi & 1) != 0))
-            return new SamusArmCannonDrawResult(false, false, frame);
+            return new RidleyNativeCannonDrawResult(false, false, frame);
         ushort pose = W(RidleyMovieMemory.Pose), animation = W(RidleyMovieMemory.Animation);
         int drawing = RidleyMovieMemory.CannonDefinitionBank | R(RidleyMovieMemory.CannonPosePointers + pose * 2);
         byte first = rom.ReadByte(drawing);
@@ -26,12 +40,12 @@ internal static partial class Program
             rom.ReadByte(RidleyMovieMemory.PoseDefinitions + pose * 8 + 4) - W(RidleyMovieMemory.CameraY)));
         ushort attributes = R(RidleyMovieMemory.CannonAttributes + direction * 2);
         int tiles = RidleyMovieMemory.CannonDefinitionBank | R(RidleyMovieMemory.CannonTileLists + direction * 2);
-        return new SamusArmCannonDrawResult(x >= 0 && x < 256 && y >= 0 && y < 256,
+        return new RidleyNativeCannonDrawResult(x >= 0 && x < 256 && y >= 0 && y < 256,
             true, frame, direction, attributes, R(tiles + frame * 2), x, y);
     }
 
     private static bool ContainsMovieCannonSprite(ReadOnlySpan<byte> low, ReadOnlySpan<byte> high,
-        SamusArmCannonDrawResult draw)
+        RidleyNativeCannonDrawResult draw)
     {
         for (int index = 0; index < 128; index++)
         {

@@ -11,7 +11,7 @@ public enum CrateriaLightningPaletteOwner
 public readonly record struct PaletteFxMechanicsWord(ushort Pointer, ushort Value);
 
 /// <summary>One immutable byte-sized palette-program mechanic.</summary>
-public readonly record struct PaletteFxMechanicsByte(ushort Pointer, byte Value);
+public readonly record struct PaletteFxMechanicsByte();
 
 /// <summary>One timed lightning color record whose BGR555 payload remains live.</summary>
 public readonly record struct CrateriaLightningPaletteFrame(
@@ -140,7 +140,7 @@ public sealed class CrateriaLightningPaletteFxProgramDefinition
     }
 
     private PaletteFxMechanicsByte TimerByte(int index) => index == 0
-        ? new((ushort)(TimerTwoPointer + 2), 2) : new((ushort)(TimerOnePointer + 2), 1);
+        ? new() : new();
 
     internal bool TryReadWord(ushort pointer, out ushort value)
     {

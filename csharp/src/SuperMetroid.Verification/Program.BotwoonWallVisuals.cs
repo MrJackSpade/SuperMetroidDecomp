@@ -153,8 +153,10 @@ internal static partial class Program
         AssertEqual((ushort)0x00ff,
             level.GetCollisionBlockByIndex(blockIndex).LevelWord,
             "edited Botwoon wall art retains the physical clear word");
+        // A PLM redraw identifies its block by the BG1 ring destination it targets.
+        ushort blockDestination = streamer.BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
         AssertTrue(plms.TilemapUpdates.Any(update =>
-                update.BlockIndex == blockIndex &&
+                update.TopRowDestination == blockDestination &&
                 update.TopRow[0] == 0x0058),
             "Botwoon wall edit reaches immediate redraw");
         AssertEqual((ushort)0x0058,

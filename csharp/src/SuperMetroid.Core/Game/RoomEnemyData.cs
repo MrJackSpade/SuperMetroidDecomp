@@ -59,27 +59,7 @@ public readonly record struct RoomEnemyGraphicsSetEntry(
 /// <summary>Immutable spawn words retained beside the mutable native enemy slot.</summary>
 public readonly record struct RoomEnemySpawnSnapshot(
     RoomEnemyPopulationRecord Population,
-    ushort XRadius,
-    ushort YRadius,
-    ushort Health,
-    byte Layer,
-    ushort VramTilesIndex,
-    ushort PaletteIndex,
-    RoomEnemySpawnNameWords NameWords);
-
-/// <summary>
-/// The six words copied by <c>RecordEnemySpawnData</c> from the bank-$B4 enemy-name
-/// record. The retail routine intentionally skips source word five and stores word six in
-/// its place; explicit field names preserve that oddity instead of presenting a false
-/// contiguous string abstraction.
-/// </summary>
-public readonly record struct RoomEnemySpawnNameWords(
-    ushort Word0,
-    ushort Word1,
-    ushort Word2,
-    ushort Word3,
-    ushort Word4,
-    ushort Word6);
+    ushort VramTilesIndex);
 
 /// <summary>
 /// Mutable projection of the 64-byte WRAM <c>EnemyData</c> record. Named properties retain

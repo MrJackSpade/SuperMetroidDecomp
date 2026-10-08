@@ -8,7 +8,7 @@ internal static class ColoredDoorPlmDrawDefinitions
     internal const int DrawListBytes = 12;
 
     /// <summary>One of forty-eight twelve-byte records at $84:A767..A9A6.</summary>
-    internal readonly record struct Draw(ushort Pointer, int Color, int Orientation, int Frame)
+    internal readonly record struct Draw(int Color, int Orientation, int Frame)
     {
         internal bool Vertical => Orientation < 2;
         internal ushort DirectionAndCount => Vertical ? (ushort)0x8004 : (ushort)4;
@@ -39,7 +39,7 @@ internal static class ColoredDoorPlmDrawDefinitions
         int offset = pointer - YellowLeft;
         bool owned = offset >= 0 && offset < 48 * DrawListBytes && offset % DrawListBytes == 0;
         int index = offset / DrawListBytes;
-        draw = owned ? new(pointer, index / 16, index / 4 % 4, index % 4) : default;
+        draw = owned ? new(index / 16, index / 4 % 4, index % 4) : default;
         return owned;
     }
 

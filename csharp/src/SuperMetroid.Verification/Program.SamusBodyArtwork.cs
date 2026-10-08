@@ -321,8 +321,10 @@ internal static partial class Program
                     stock.DeathPalettes);
                 AssertTrue(nativeColors.Colors.SequenceEqual(installedColors.Colors) &&
                     nativeStep.PhaseAfterStep == installedStep.PhaseAfterStep &&
-                    nativeStep.TimerAfterStep == installedStep.TimerAfterStep &&
-                    nativeStep.CounterAfterStep == installedStep.CounterAfterStep,
+                    nativeSamus.DeathSequence.AnimationTimer ==
+                        installedSamus.DeathSequence.AnimationTimer &&
+                    nativeSamus.DeathSequence.AnimationCounter ==
+                        installedSamus.DeathSequence.AnimationCounter,
                     $"death suit {suit} frame {frame} native/installed colors and timing");
                 if (nativeStep.Completed)
                     break;
@@ -480,20 +482,19 @@ internal static partial class Program
         editedArmOam.BeginFrame();
         var originalArmWrites = new VramWriteQueue();
         var editedArmWrites = new VramWriteQueue();
-        SamusArmCannonDrawResult originalArmDraw = originalArmSamus.ArmCannon.Draw(
+        originalArmSamus.ArmCannon.Draw(
             guardedBus, originalArmOam, originalArmWrites, originalArmSamus, 0, 0, 0);
-        SamusArmCannonDrawResult editedArmDraw = editedArmSamus.ArmCannon.Draw(
+        editedArmSamus.ArmCannon.Draw(
             guardedBus, editedArmOam, editedArmWrites, editedArmSamus, 0, 0, 0);
-        AssertTrue(originalArmDraw.SpriteWritten && editedArmDraw.SpriteWritten,
+        AssertTrue(originalArmOam.NextByteOffset == 4 && editedArmOam.NextByteOffset == 4,
             "stock and edited covers both emit a visible OBJ");
         int originalSignedX = unchecked((sbyte)stockArmX);
         int editedSignedX = unchecked((sbyte)((stockArmX + 1) & 255));
-        AssertEqual((short)(originalArmDraw.ScreenX + editedSignedX - originalSignedX),
-            editedArmDraw.ScreenX,
-            "edited arm-cannon pose offset moves the production OBJ on screen");
-        AssertEqual((ushort)editedArmDraw.ScreenX, editedArmOam.GetEntry(0).X,
-            "edited cover coordinate reaches the actual OAM entry");
-        AssertEqual(selectedArmTileSource, editedArmDraw.TileSource,
+        AssertEqual(originalArmOam.GetEntry(0).X + editedSignedX - originalSignedX,
+            editedArmOam.GetEntry(0).X,
+            "edited arm-cannon pose offset moves the production OAM entry on screen");
+        AssertEqual(SamusRenderingRomData.Banks.CharacterData | selectedArmTileSource,
+            editedArmWrites.Entries[editedArmWrites.Entries.Count - 1].SourceAddress,
             "edited cannon PNG belongs to the displayed cover frame");
         AssertTrue(originalArmWrites.Entries.SequenceEqual(editedArmWrites.Entries),
             "cosmetic cover edits leave native tile-upload ordering and destination unchanged");
@@ -737,12 +738,11 @@ internal static partial class Program
         installedOam.BeginFrame();
         var nativeWrites = new VramWriteQueue();
         var installedWrites = new VramWriteQueue();
-        SamusArmCannonDrawResult nativeDraw = nativeSamus.ArmCannon.Draw(bus,
+        nativeSamus.ArmCannon.Draw(bus,
             nativeOam, nativeWrites, nativeSamus, 0, 0, 0);
-        SamusArmCannonDrawResult installedDraw = installedSamus.ArmCannon.Draw(
+        installedSamus.ArmCannon.Draw(
             new FrontendCartridgeReadGuard(bus), installedOam, installedWrites,
             installedSamus, 0, 0, 0);
-        AssertEqual(nativeDraw, installedDraw, "installed arm-cannon pose, OAM and DMA selection");
         AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable),
             "installed arm-cannon cover writes identical visible OAM");
         AssertTrue(nativeWrites.Entries.SequenceEqual(installedWrites.Entries),

@@ -105,7 +105,7 @@ public static class SamusSlopePhysics
         ArgumentNullException.ThrowIfNull(level);
 
         if (!horizontalSlopeCollisionEnabled)
-            return new SlopeAlignmentResult(yPosition, Adjusted: false, FloorBlock: null, CeilingBlock: null);
+            return new SlopeAlignmentResult(yPosition, Adjusted: false);
 
         bool adjusted = false;
         RoomCollisionBlock? floorBlock = null;
@@ -153,7 +153,7 @@ public static class SamusSlopePhysics
             }
         }
 
-        return new SlopeAlignmentResult(yPosition, adjusted, floorBlock, ceilingBlock);
+        return new SlopeAlignmentResult(yPosition, adjusted);
     }
 
     private static bool TryGetBlockAtPixel(
@@ -180,6 +180,4 @@ public static class SamusSlopePhysics
 /// <summary>Debugger-visible result of bank-$94's post-horizontal slope correction.</summary>
 public readonly record struct SlopeAlignmentResult(
     ushort YPosition,
-    bool Adjusted,
-    RoomCollisionBlock? FloorBlock,
-    RoomCollisionBlock? CeilingBlock);
+    bool Adjusted);

@@ -112,14 +112,11 @@ public sealed partial class RoomEnemySystem
             ushort y = bomb.YPosition;
             DeleteMotherBrainBomb(bomb, state);
             SpawnRoomGraphicsDustExplosion(x, y, animationIndex: 9);
-            state.LastBombDropRequest = new MotherBrainBombDropRequest(
-                x,
-                y,
-                state.Head!.EnemyDefinitionPointer);
+            state.LastBombDropRequest = new MotherBrainBombDropRequest();
             SpawnEnemyDropFromEnemyHeader(
                 x,
                 y,
-                state.Head.EnemyDefinitionPointer);
+                state.Head!.EnemyDefinitionPointer);
             return true;
         }
 

@@ -409,7 +409,4 @@ public readonly record struct MotherBrainMusicRequest(MusicCommand Command, Musi
 public readonly record struct MotherBrainPlmRequest(byte BlockX, byte BlockY, ushort Header);
 
 /// <summary>One <c>$86:C5BB</c> enemy-drop request produced by a destroyed Mother Brain bomb.</summary>
-public readonly record struct MotherBrainBombDropRequest(
-    ushort X,
-    ushort Y,
-    ushort EnemyDefinitionPointer);
+public readonly record struct MotherBrainBombDropRequest();

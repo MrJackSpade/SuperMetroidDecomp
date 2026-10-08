@@ -59,6 +59,8 @@ internal static partial class Program
         ushort[] expected = new ushort[8];
         for (int index = 0; index < expected.Length; index++)
             expected[index] = ReadDeadTourianCorpseWord(rom, address + index * 2);
+        // Word five is the graphics-initialization routine, which production never calls.
+        expected = [.. expected[..5], .. expected[6..]];
         ushort[] actual =
         [
             definition.RottingTablePointer,
@@ -66,7 +68,6 @@ internal static partial class Program
             definition.CopyFunction,
             definition.MoveFunction,
             definition.EntryCount,
-            definition.GraphicsInitializationFunction,
             definition.RotationTablePointer,
             definition.FinishFunction,
         ];

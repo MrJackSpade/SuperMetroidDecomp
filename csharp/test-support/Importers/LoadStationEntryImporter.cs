@@ -17,10 +17,8 @@ internal static class LoadStationEntryImporter
             LoadStationRomData.PointerTable + areaTableIndex * 2);
         int address = 0x800000 | unchecked((ushort)(listPointer + stationIndex * LoadStationRomData.EntryByteCount));
         return new LoadStationEntry(
-            areaIndex, stationIndex, listPointer,
             RoomPointer: ReadWord(bus, address),
             DoorPointer: ReadWord(bus, address + 2),
-            DoorBts: ReadWord(bus, address + 4),
             CameraX: ReadWord(bus, address + 6),
             CameraY: ReadWord(bus, address + 8),
             SamusYOffset: ReadWord(bus, address + 10),

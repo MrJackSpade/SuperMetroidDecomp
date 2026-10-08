@@ -81,8 +81,6 @@ public sealed partial class RoomPlmSystem
             slot.BlockIndex,
             slot.RoomArgument,
             slot.Item!.Kind,
-            slot.Item.Presentation,
-            slot.Item.Phase,
             slot.Item.GraphicsSlot))
         .ToArray();
 
@@ -560,11 +558,7 @@ public sealed partial class RoomPlmSystem
 
         var pickup = new CollectiblePickupEvent(
             item.Kind,
-            item.Presentation,
-            slot.RoomArgument,
-            GetMessageBoxIndex(item.Kind),
-            slot.BlockIndex,
-            item.LastTriggerProjectileType);
+            GetMessageBoxIndex(item.Kind));
         _collectiblePickupEvents.Add(pickup);
         _lastCollectiblePickup = pickup;
         _collectibleFanfareRequested = true;
@@ -800,15 +794,9 @@ public readonly record struct CollectiblePlmSnapshot(
     int BlockIndex,
     ushort RoomArgument,
     InWorldCollectibleKind Kind,
-    CollectiblePresentation Presentation,
-    CollectiblePhase Phase,
     int GraphicsSlot);
 
 /// <summary>One cartridge-defined permanent pickup completed by the current PLM pass.</summary>
 public readonly record struct CollectiblePickupEvent(
     InWorldCollectibleKind Kind,
-    CollectiblePresentation Presentation,
-    ushort RoomArgument,
-    GameplayMessageId MessageBoxIndex,
-    int BlockIndex,
-    SamusProjectileTypeWord TriggerProjectileType);
+    GameplayMessageId MessageBoxIndex);

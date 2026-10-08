@@ -67,7 +67,6 @@ internal static partial class Program
             }
         }
         var guard = new SkyPageReadGuard(bus);
-        LandingSiteEntryState entry = LandingSiteEntryState.LoadLandingCutscene(bus);
         LibraryBackgroundSource[] landingSources = LibraryBackgroundSourceInventory.Scan(bus)
             .Where(source => source.ListPointer ==
                 unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress))
@@ -90,21 +89,21 @@ internal static partial class Program
                 $"Landing Site command {index} VRAM destination");
             AssertEqual(compiled.ByteCount, native.TransferByteCount!.Value,
                 $"Landing Site command {index} transfer size");
-            LandingSiteEntryState compiledEntry = LandingSiteEntryState.Load(
+            _ = LandingSiteEntryState.Load(
                 new SkyPageReadGuard(bus, blockLandingList: true), compiled.DoorPointer);
-            AssertEqual(compiled.SourceAddress, compiledEntry.SkySourceAddress,
+            AssertEqual(compiled.SourceAddress,
+                LibraryBackgroundProgramDefinitions.GetDoorTransfer(
+                    unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress),
+                    compiled.DoorPointer).SourceAddress,
                 $"Landing Site door {index} uses compiled sky selection without list ROM reads");
             var expectedVram = new SnesVram();
             expectedVram.LoadBytes(compiled.Destination * 2,
                 RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), compiled.SourceAddress, compiled.ByteCount));
             var compiledVram = new SnesVram();
-            LibraryBackgroundExecutionResult result = LibraryBackgroundLoader.Execute(
+            LibraryBackgroundLoader.Execute(
                 new SkyPageReadGuard(bus, blockLandingList: true), compiledVram,
                 unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress),
                 compiled.DoorPointer, skyArt: stock);
-            AssertEqual(landingProgram.Instructions.Count + 1,
-                result.ExecutedCommandCount,
-                $"Landing Site door {index} executes every native command and terminator");
             AssertTrue(expectedVram.Bytes.SequenceEqual(compiledVram.Bytes),
                 $"Landing Site door {index} uploads the exact stock sky page without visual/list ROM reads");
         }
@@ -113,10 +112,10 @@ internal static partial class Program
         var installedDoorVram = new SnesVram();
         SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeDoorVram,
             unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress),
-            entry.DoorPointer);
+            LandingSiteRomData.LandingCutsceneDoorPointer);
         LibraryBackgroundLoader.Execute(new SkyPageReadGuard(bus, blockLandingList: true), installedDoorVram,
             unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress),
-            entry.DoorPointer, skyArt: stock);
+            LandingSiteRomData.LandingCutsceneDoorPointer, skyArt: stock);
         AssertTrue(nativeDoorVram.Bytes.SequenceEqual(installedDoorVram.Bytes),
             "Landing Site door-selected sky upload uses installed pages without ROM visual reads");
 

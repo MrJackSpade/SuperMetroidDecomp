@@ -248,37 +248,12 @@ internal static class LandingSiteEntryStateAccess
                     unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress),
                     doorPointer);
             return new LandingSiteEntryState(
-                doorPointer,
-                Direction: door.Orientation,
-                DoorCapXBlock: door.PlmX,
-                DoorCapYBlock: door.PlmY,
-                ScreenX: door.DestinationScreenX,
-                ScreenY: door.DestinationScreenY,
-                SpawnDistance: door.SamusDistance,
-                DoorAsmPointer: door.SetupCodePointer,
-                transfer.SourceAddress,
-                transfer.Destination,
-                transfer.ByteCount,
                 RoomIdentity: roomIdentity,
                 RoomMapX: room.MapX,
                 RoomMapY: room.MapY,
-                RoomWidthInScreens: room.WidthInScreens,
-                RoomHeightInScreens: room.HeightInScreens,
                 UpScroller: room.UpScroller,
-                DownScroller: room.DownScroller,
-                RoomStatePointer: state.Pointer,
-                EnemyPopulationPointer: state.EnemyPopulationPointer,
-                EnemyTilesetPointer: state.EnemyTilesetPointer);
+                DownScroller: room.DownScroller);
         }
-    }
-
-    extension(LandingSiteEntryState self)
-    {
-        /// <summary>Initial layer-1 X position encoded by the door's screen-X byte.</summary>
-        internal ushort CameraX => (ushort)(self.ScreenX << 8);
-
-        /// <summary>Initial layer-1 Y position encoded by the door's screen-Y byte.</summary>
-        internal ushort CameraY => (ushort)(self.ScreenY << 8);
     }
 }
 
@@ -526,8 +501,22 @@ internal static class RoomLevelStreamDefinitionsAccess
         /// <summary>Every distinct level-data source referenced by the compiled retail room states.</summary>
         internal static int Count => PrivateState.Property<IReadOnlyDictionary<int, ReadOnlyMemory<byte>>>(InstalledStreams, "Streams").Count;
 
-        /// <summary>Pinned source-cartridge provenance recorded during development-time extraction.</summary>
-        internal static ReadOnlyMemory<byte> SourceSha256 => PrivateState.Property<ReadOnlyMemory<byte>>(InstalledStreams, "SourceSha256");
+        /// <summary>
+        /// Source-cartridge provenance in the embedded corpus header (bytes 8..40), written at
+        /// development-time extraction; the loader does not read it.
+        /// </summary>
+        internal static ReadOnlyMemory<byte> SourceSha256
+        {
+            get
+            {
+                string resource = PrivateState.StaticField<string>(typeof(RoomLevelStreamDefinitions), "ResourceName");
+                using Stream source = typeof(RoomLevelStreamDefinitions).Assembly.GetManifestResourceStream(resource)
+                    ?? throw new InvalidDataException($"Missing compiled resource {resource}.");
+                byte[] header = new byte[40];
+                source.ReadExactly(header);
+                return header.AsMemory(8, 32);
+            }
+        }
     }
 }
 

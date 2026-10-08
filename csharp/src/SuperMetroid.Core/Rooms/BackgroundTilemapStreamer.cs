@@ -112,7 +112,6 @@ public sealed class BackgroundTilemapStreamer
             _levelEntries[blockIndex],
             _blockDefinitions);
         return new PlmTilemapUpdate(
-            blockIndex,
             destination,
             new[] { tiles.TopLeft, tiles.TopRight },
             new[] { tiles.BottomLeft, tiles.BottomRight });
@@ -180,7 +179,7 @@ public sealed class BackgroundTilemapStreamer
             segments.Add(new(rightTiles, unwrappedWords, wrappedWords, unchecked((ushort)(wrappedDestination + 1)), TilemapDmaDirection.Column));
         }
 
-        return new TilemapStreamUpdate(request, leftTiles, rightTiles, segments);
+        return new TilemapStreamUpdate(segments);
     }
 
     private TilemapStreamUpdate BuildRow(BackgroundUpdateRequest request)
@@ -234,7 +233,7 @@ public sealed class BackgroundTilemapStreamer
             new(topTiles, unwrappedWords, wrappedWords, wrappedDestination, TilemapDmaDirection.Row),
             new(bottomTiles, unwrappedWords, wrappedWords, (ushort)(wrappedDestination | 0x0020), TilemapDmaDirection.Row),
         };
-        return new TilemapStreamUpdate(request, topTiles, bottomTiles, segments);
+        return new TilemapStreamUpdate(segments);
     }
 
     private ReadOnlySpan<ushort> SelectSource(BackgroundLayer layer) => layer switch
@@ -268,7 +267,6 @@ public sealed class BackgroundTilemapStreamer
 
 /// <summary>One visible 16x16 PLM block redraw in BG1's two-screen ring.</summary>
 public sealed record PlmTilemapUpdate(
-    int BlockIndex,
     ushort TopRowDestination,
     ushort[] TopRow,
     ushort[] BottomRow)
@@ -287,9 +285,6 @@ public sealed record PlmTilemapUpdate(
 
 /// <summary>One completed WRAM staging buffer and its ordered NMI DMA operations.</summary>
 public sealed record TilemapStreamUpdate(
-    BackgroundUpdateRequest Request,
-    ushort[] FirstHalves,
-    ushort[] SecondHalves,
     IReadOnlyList<TilemapDmaSegment> Segments)
 {
     /// <summary>

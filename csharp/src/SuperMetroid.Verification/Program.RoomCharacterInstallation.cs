@@ -269,16 +269,19 @@ internal static partial class Program
                 "installed background override changes only its selected Ceres BG tile");
 
             RoomSkyTilemapCatalog stockSky = installed.LoadRoomSkyTilemaps();
-            LandingSiteEntryState landingEntry = LandingSiteEntryState.LoadLandingCutscene(bus);
-            int skyPage = (landingEntry.SkySourceAddress -
+            // The landing-cutscene door's command-E record selects the uploaded sky page.
+            LibraryBackgroundInstruction landingSky = LibraryBackgroundProgramDefinitions.GetDoorTransfer(
+                unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress),
+                LandingSiteRomData.LandingCutsceneDoorPointer);
+            int skyPage = (landingSky.SourceAddress -
                 RoomSkyTilemapFormat.FirstSourceAddress) / RoomSkyTilemapFormat.PageByteCount;
             string skyName = RoomSkyTilemapFormat.FileName(skyPage);
             string skyStockPath = Path.Combine(installed.RoomBackgroundTilemapDirectory, skyName);
             AssertTrue(File.Exists(skyStockPath), "selected scrolling-sky page is installed");
             byte[] nativeSky = SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                landingEntry.SkySourceAddress, landingEntry.SkyByteCount);
-            AssertTrue(stockSky.TryResolve(landingEntry.SkySourceAddress,
-                    landingEntry.SkyByteCount, out ReadOnlyMemory<byte> installedSky) &&
+                landingSky.SourceAddress, landingSky.ByteCount);
+            AssertTrue(stockSky.TryResolve(landingSky.SourceAddress,
+                    landingSky.ByteCount, out ReadOnlyMemory<byte> installedSky) &&
                 installedSky.Span.SequenceEqual(nativeSky),
                 "installed scrolling-sky page retains native door-selected bytes");
             JsonNode skyDocument = JsonNode.Parse(File.ReadAllText(skyStockPath))
@@ -290,8 +293,8 @@ internal static partial class Program
                 installed.RoomBackgroundTilemapOverrideDirectory, skyName);
             File.WriteAllText(skyOverridePath, skyDocument.ToJsonString());
             RoomSkyTilemapCatalog editedSky = installed.LoadRoomSkyTilemaps();
-            AssertTrue(editedSky.TryResolve(landingEntry.SkySourceAddress,
-                    landingEntry.SkyByteCount, out ReadOnlyMemory<byte> changedSky) &&
+            AssertTrue(editedSky.TryResolve(landingSky.SourceAddress,
+                    landingSky.ByteCount, out ReadOnlyMemory<byte> changedSky) &&
                 !changedSky.Span[..2].SequenceEqual(nativeSky.AsSpan(0, 2)) &&
                 changedSky.Span[2..].SequenceEqual(nativeSky.AsSpan(2)),
                 "installed sky override changes exactly its selected door tile word");
@@ -347,8 +350,8 @@ internal static partial class Program
                 tilemapArt: repaired.LoadRoomBackgroundTilemaps());
             AssertTrue(repairedBackgroundVram.Bytes.SequenceEqual(editedBackgroundVram.Bytes),
                 "repaired installation retains selected user background tilemap");
-            AssertTrue(repaired.LoadRoomSkyTilemaps().TryResolve(landingEntry.SkySourceAddress,
-                    landingEntry.SkyByteCount, out ReadOnlyMemory<byte> repairedSky) &&
+            AssertTrue(repaired.LoadRoomSkyTilemaps().TryResolve(landingSky.SourceAddress,
+                    landingSky.ByteCount, out ReadOnlyMemory<byte> repairedSky) &&
                 repairedSky.Span.SequenceEqual(changedSky.Span),
                 "repaired installation retains selected user scrolling sky");
 

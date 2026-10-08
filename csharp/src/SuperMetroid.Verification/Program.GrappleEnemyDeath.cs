@@ -103,7 +103,7 @@ internal static partial class Program
             AssertEqual(GrapplePhase.Dropped, samus.Grapple.Phase, "enemy death queues drop while ordinary pose remains active");
             var movementRoom = CreateRoom(32, 32, new ushort[32 * 32], new byte[32 * 32]);
             var result = SamusGrappleMovement.Step(retail, movementRoom, samus, 0, 0);
-            AssertTrue(result.Dropped, $"reported ordinary pose {pose:X2} completes grapple cleanup");
+            AssertEqual(GrapplePhase.Inactive, result.Phase, $"reported ordinary pose {pose:X2} completes grapple cleanup");
             AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "cleanup releases grapple ownership");
             AssertEqual(pose == SamusPoseIds.StandingAimDiagonalDownRightPose ? pose : SamusPoseIds.FacingRightNormalPose,
                 samus.Pose, "native dropped table selects aim or standing body");

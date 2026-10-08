@@ -50,7 +50,6 @@ internal static class DeadTourianCorpseDefinitions
             (ushort)((skree ? FirstSkreeTransfer : FirstWideTransfer)+(skree ? 34 : 18)*layout),
             (ushort)(move+(skree ? 53 : 79)),move,
             skree ? (ushort)32 : (ushort)16,
-            (ushort)((skree ? FirstSkreeGraphicsInitialization : FirstWideGraphicsInitialization)+(skree ? 57 : 29)*layout),
             (ushort)(FirstRotation+6*rotationIndex),Finish,
             (ushort)(32*rowTiles-12));
     }
@@ -64,7 +63,6 @@ internal readonly record struct DeadTourianCorpseDefinition(
     ushort CopyFunction,
     ushort MoveFunction,
     ushort EntryCount,
-    ushort GraphicsInitializationFunction,
     ushort RotationTablePointer,
     ushort FinishFunction,
     ushort WrapOffset);

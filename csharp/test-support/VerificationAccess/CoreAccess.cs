@@ -17,7 +17,6 @@ internal static partial class CoreAccess
     {
         internal SuperMetroidRuntime? RuntimeForVerification => PrivateState.Field<SuperMetroidRuntime?>(game, "runtime");
         internal int AttractDemoHoldFramesRemaining => PrivateState.Field<int>(game, "demoHoldFramesRemaining");
-        internal int? GameplayLastFiredProjectileSlot => game.RuntimeForVerification?.Projectiles.LastFrameResult.FiredSlot;
         internal bool GameplayMovementEnabled => game.RuntimeForVerification?.GroundedSamusMovementEnabled ?? false;
         internal byte GameplaySamusPose => game.RuntimeForVerification?.Samus?.Pose ?? 0;
         internal ushort GameplaySamusX => game.RuntimeForVerification?.Samus?.XPosition ?? 0;

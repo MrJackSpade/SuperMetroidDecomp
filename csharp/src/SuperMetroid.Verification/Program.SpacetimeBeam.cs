@@ -104,6 +104,7 @@ internal static partial class Program
                 SaveRamLayout.ProgressionPaddingWramAddress + index,
                 0xa5);
         }
+        SamusProjectileSlotObservation slotsBeforeHeld = projectiles.ObserveSlots();
         SamusProjectileFrameResult held = projectiles.StepFrame(
             gameplayBus,
             level,
@@ -113,7 +114,8 @@ internal static partial class Program
             0,
             0,
             shared);
-        AssertEqual((int?)0, held.FiredSlot, "SpaceTime initial shot allocation");
+        AssertEqual((int?)0, slotsBeforeHeld.FiredSlot(projectiles),
+            "SpaceTime initial shot allocation");
         AssertTrue(!held.PersistentMemoryCorrupted,
             "initial inherited Y=$0038 does not enter the palette-copy loop");
         AssertEqual((ushort)0x9137, projectiles.Slots[0].InstructionPointer,
@@ -122,6 +124,7 @@ internal static partial class Program
             "native frame-zero progression hash remains the A5 baseline");
 
         system.WritePersistentMirror(bus);
+        SamusProjectileSlotObservation slotsBeforeRelease = projectiles.ObserveSlots();
         SamusProjectileFrameResult released = projectiles.StepFrame(
             gameplayBus,
             level,
@@ -131,7 +134,7 @@ internal static partial class Program
             0,
             0,
             shared);
-        AssertEqual((int?)1, released.FiredSlot,
+        AssertEqual((int?)1, slotsBeforeRelease.FiredSlot(projectiles),
             "Charge release allocates the second uncharged SpaceTime shot");
         AssertTrue(released.PersistentMemoryCorrupted,
             "prior shot's inherited Y=$912F crosses the persistent mirror");

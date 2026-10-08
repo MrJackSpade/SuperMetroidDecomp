@@ -71,19 +71,23 @@ internal static partial class Program
         AssertTrue(samus.CeresRidleyEjection.IsActive, "next frame promotes Ridley ejection");
         AssertTrue(!samus.InputLocked, "promoted ejection replaces movement but not pose input");
 
-        CeresRidleyEjectionResult initialized = samus.CeresRidleyEjection.Step(
+        bool initializationWasPending = samus.CeresRidleyEjection.InitializationPending;
+        uint xBeforeInitialization = samus.Kinematics.XFixed;
+        uint yBeforeInitialization = samus.Kinematics.YFixed;
+        samus.CeresRidleyEjection.Step(
             bus,
             emptyRoom,
             samus,
             layer1X: 0,
             nmiFrameCounter: 0);
-        AssertTrue(initialized.Initialized, "first ejection gamma initializes state");
+        AssertTrue(initializationWasPending && !samus.CeresRidleyEjection.InitializationPending,
+            "first ejection gamma initializes state");
         AssertEqual(SamusPoseIds.FacingRightNormalPose, samus.PoseHistory.LastDifferentPose, "ejection initialization shifts prior pose");
         AssertEqual(8, samus.PoseHistory.LastDifferentDirectionAndMovement, "ejection initialization shifts prior metadata");
         AssertEqual(SamusPoseIds.KnockbackRightPose, samus.PoseHistory.PreviousPose, "ejection initialization publishes hurt pose");
         AssertEqual(0x0a08, samus.PoseHistory.PreviousDirectionAndMovement, "ejection initialization publishes hurt metadata");
-        AssertTrue(initialized.Horizontal is null, "first gamma performs no horizontal movement");
-        AssertTrue(initialized.Vertical is null, "first gamma performs no vertical movement");
+        AssertEqual(xBeforeInitialization, samus.Kinematics.XFixed, "first gamma performs no horizontal movement");
+        AssertEqual(yBeforeInitialization, samus.Kinematics.YFixed, "first gamma performs no vertical movement");
         AssertEqual(SamusPoseIds.KnockbackRightPose, samus.Pose, "ejection selects pose from old facing");
         AssertEqual(1, samus.CeresRidleyEjection.PushDirection, "left-half Samus is pushed left");
         AssertEqual(5, samus.Kinematics.YSpeed, "ejection installs terminal downward speed");
@@ -99,13 +103,13 @@ internal static partial class Program
                 0x0a * SpeedTableEntry.ByteCount),
             1, 0, 1, 0, 0, 0);
         samus.Kinematics.XPosition = samus.Kinematics.XRadius;
-        CeresRidleyEjectionResult wallCollision = samus.CeresRidleyEjection.Step(
+        samus.CeresRidleyEjection.Step(
             bus,
             emptyRoom,
             samus,
             layer1X: 0,
             nmiFrameCounter: 1);
-        AssertTrue(wallCollision.Ended, "room-wall contact terminates Ceres ejection");
+        AssertEqual(0, samus.CeresRidleyEjection.PushDirection, "room-wall contact terminates Ceres ejection");
         AssertTrue(!samus.CeresRidleyEjection.IsActive, "wall contact restores normal movement");
         AssertTrue(!samus.InputLocked, "wall contact leaves ordinary pose input available");
         AssertEqual(SamusPoseIds.FallingRightPose, samus.Pose,

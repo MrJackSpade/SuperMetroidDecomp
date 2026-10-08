@@ -11,18 +11,14 @@ internal static class EndingLogoDefinitions
     /// <summary>$8B:EF81, first of four consecutive six-byte logo definitions.</summary>
     private const ushort FirstActor = 0xef81;
 
-    /// <summary>Definition address for native allocation index0..3; six bytes per actor.</summary>
-    public static ushort ActorPointer(int index) => (uint)index < ActorCount
-        ? (ushort)(FirstActor + index * 6) : throw new ArgumentOutOfRangeException(nameof(index));
-
     /// <summary>$8B:EF81: upper S, initialized by F18F, moved by F1E7, displaying list EE5D.</summary>
-    private static EndingLogoActorDefinition UpperS => new(ActorPointer((int)EndingLogoActorKind.UpperS), 0xf18f, 0xf1e7, 0xee5d);
+    private static EndingLogoActorDefinition UpperS => new(0xf1e7, 0xee5d);
     /// <summary>$8B:EF87: lower S, initialized by F1A8, moved by F227, displaying list EE65.</summary>
-    private static EndingLogoActorDefinition LowerS => new(ActorPointer((int)EndingLogoActorKind.LowerS), 0xf1a8, 0xf227, 0xee65);
+    private static EndingLogoActorDefinition LowerS => new(0xf227, 0xee65);
     /// <summary>$8B:EF8D: upper circle, initialized by F1C1, stationary with right-wrap list EE6D.</summary>
-    private static EndingLogoActorDefinition UpperCircle => new(ActorPointer((int)EndingLogoActorKind.UpperCircle), 0xf1c1, EndingRewardActorDefinitions.SharedNoOp, 0xee6d);
+    private static EndingLogoActorDefinition UpperCircle => new(EndingRewardActorDefinitions.SharedNoOp, 0xee6d);
     /// <summary>$8B:EF93: lower circle, initialized by F1D4, stationary with left-wrap list EE87.</summary>
-    private static EndingLogoActorDefinition LowerCircle => new(ActorPointer((int)EndingLogoActorKind.LowerCircle), 0xf1d4, EndingRewardActorDefinitions.SharedNoOp, 0xee87);
+    private static EndingLogoActorDefinition LowerCircle => new(EndingRewardActorDefinitions.SharedNoOp, 0xee87);
 
     /// <summary>Named native actor cases; allocation index is not a sampled numeric curve.</summary>
     public static EndingLogoActorDefinition Actor(int index) => (EndingLogoActorKind)index switch
@@ -71,8 +67,6 @@ internal static class EndingLogoDefinitions
 
 /// <summary>One native six-byte final-logo cinematic-object definition.</summary>
 internal readonly record struct EndingLogoActorDefinition(
-    ushort Pointer,
-    ushort Initialization,
     ushort PreInstruction,
     ushort InstructionList);
 

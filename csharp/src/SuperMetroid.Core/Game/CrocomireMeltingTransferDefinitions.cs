@@ -45,7 +45,7 @@ internal static class CrocomireMeltingTransferDefinitions
     /// <summary>Exclusive end of the two native records.</summary>
     internal const int NativeByteCount = 0x00b4;
 
-    internal static CrocomireMeltingPassSequence Passes => new(2);
+    internal static CrocomireMeltingPassSequence Passes => new();
 
     /// <summary>Six chunks in the first pass and seven in the second. Each header
     /// occupies eight bytes, each copy four, each upload eight, and each list ends
@@ -127,7 +127,7 @@ internal readonly record struct CrocomireMeltingUploadSequence(CrocomireMeltingP
     }
 }
 /// <summary>Enumerates the two native melt passes without stored records.</summary>
-internal readonly record struct CrocomireMeltingPassSequence(int Length)
+internal readonly record struct CrocomireMeltingPassSequence()
 {
     internal CrocomireMeltingPass this[int index] => index switch
     {

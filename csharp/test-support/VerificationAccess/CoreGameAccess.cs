@@ -282,10 +282,11 @@ internal static class CrocomireMeltingPassSequenceAccess
 {
     extension(CrocomireMeltingPassSequence self)
     {
+        /// <summary>The two native melt passes, in header order; the indexer rejects any other index.</summary>
         internal IEnumerator<CrocomireMeltingPass> GetEnumerator()
         {
-            for (int index = 0; index < self.Length; index++)
-                yield return self[index];
+            yield return self[0];
+            yield return self[1];
         }
     }
 }
@@ -1231,23 +1232,6 @@ internal static class RoomEnemyPopulationDefinitionsAccess
     }
 }
 
-/// <summary>Verification access to <see cref="RoomEnemySpawnNameDefinitions"/> members production does not use.</summary>
-internal static class RoomEnemySpawnNameDefinitionsAccess
-{
-    extension(RoomEnemySpawnNameDefinitions)
-    {
-        /// <summary>The identities referenced by all retail enemy headers, in native record order.</summary>
-        internal static IEnumerable<ushort> Pointers
-        {
-            get
-            {
-                for (int pointer = PrivateState.StaticField<ushort>(typeof(RoomEnemySpawnNameDefinitions), "FirstNameRecord"); pointer <= PrivateState.StaticField<ushort>(typeof(RoomEnemySpawnNameDefinitions), "LastNameRecord"); pointer += 14)
-                    if (((string?)(PrivateState.InvokeStatic(typeof(RoomEnemySpawnNameDefinitions), "Name", (ushort)((ushort)pointer)))!) is not null) yield return (ushort)pointer;
-            }
-        }
-    }
-}
-
 /// <summary>Verification access to <see cref="RoomEnemySystem"/> members production does not use.</summary>
 internal static class RoomEnemySystemAccess
 {
@@ -1469,20 +1453,6 @@ internal static class RoomEnemySystemAccess
         {
             self.StepEnemyProjectileInstructions(level, samus, cameraX, cameraY, nmiFrameCounter8, samusBombs);
             self.ResolveEnemyProjectileSamusHits(samus);
-        }
-
-        internal void StartUnusedShaktoolAttack(RoomEnemySlot anySegment)
-        {
-            RoomEnemySlot[] group = ((RoomEnemySlot[])(PrivateState.Invoke(self, "GetShaktoolGroup", (RoomEnemySlot)(anySegment)))!);
-            for (int index = PrivateState.StaticField<int>(typeof(RoomEnemySystem), "ShaktoolSegmentCount") - 1; index >= 0; index--)
-            {
-                RoomEnemySlot segment = group[index];
-                ((ShaktoolSegmentState)(PrivateState.Invoke(self, "RequireShaktoolState", (RoomEnemySlot)(segment)))!).PreInstruction =
-                    ShaktoolPreInstruction.IdleAfterAttack;
-                segment.CurrentInstruction =
-                    ShaktoolInstructionDefinitions.AttackForSegment(index);
-                segment.InstructionTimer = 1;
-            }
         }
 
         /// <summary>
@@ -2168,16 +2138,6 @@ internal static class ScrollBoundaryCameraAccess
     }
 }
 
-/// <summary>Verification access to <see cref="ShaktoolInstructionDefinitions"/> members production does not use.</summary>
-internal static class ShaktoolInstructionDefinitionsAccess
-{
-    extension(ShaktoolInstructionDefinitions)
-    {
-        /// <summary>Returns the dormant retail attack list for one physical segment.</summary>
-        internal static ushort AttackForSegment(int segmentIndex) =>
-            ((ShaktoolSegmentInstructionDefinition)(PrivateState.InvokeStatic(typeof(ShaktoolInstructionDefinitions), "ForSegment", (int)(segmentIndex)))!).AttackInstruction;
-    }
-}
 
 /// <summary>Verification access to <see cref="ShitroidEnemyState"/> members production does not use.</summary>
 internal static class ShitroidEnemyStateAccess

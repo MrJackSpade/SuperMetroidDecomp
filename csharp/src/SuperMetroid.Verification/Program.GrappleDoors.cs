@@ -37,7 +37,7 @@ internal static partial class Program
             SeedStationaryGrappleCollisionProbe(bus, samus);
             var plms = new RoomPlmSystem();
             var result = SamusGrappleMovement.StepFiring(bus, level, samus, (ushort)SnesButton.X, plms);
-            AssertTrue(result.CancelQueued, $"grapple cancels on blue {orientation} cap {hitOffset}");
+            AssertTrue(result.Phase == GrapplePhase.CancelPending, $"grapple cancels on blue {orientation} cap {hitOffset}");
             AssertEqual(1, plms.ActiveCount, "grapple allocates one blue-door opening actor");
             AssertEqual(RoomCollisionType.SolidBlock, level.GetCollisionBlockByIndex(origin).CollisionType,
                 "blue-door setup changes origin before animation");

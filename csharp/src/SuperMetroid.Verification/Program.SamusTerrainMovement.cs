@@ -58,7 +58,6 @@ static void VerifySamusSlopePhysics()
         yRadius: 5);
     AssertEqual(19, aligned.YPosition, "non-square floor slope whole-pixel Y correction");
     AssertTrue(aligned.Adjusted, "non-square floor slope sets adjusted flag");
-    AssertEqual(0x12, aligned.FloorBlock!.Value.Behavior, "non-square floor reports source BTS");
 
     SlopeAlignmentResult disabled = SamusSlopePhysics.AlignYPosition(
         bus,
@@ -111,7 +110,7 @@ static void VerifySamusBlockCollision()
     AssertEqual(24, slopeBody.XPosition, "subpixel slope move preserves whole X");
     AssertEqual(0xc000, slopeBody.XSubposition, "subpixel slope move updates X fraction");
     AssertEqual(19, slopeBody.YPosition, "post-horizontal scan aligns non-square floor Y");
-    AssertTrue(slopeMove.PositionAdjustedBySlope, "horizontal scan reports slope adjustment");
+    AssertTrue(slopeBody.YPosition != 21, "horizontal scan applies slope adjustment to Y");
 
     // Resting at center Y=19 puts the bottom at 23. The native +1.0 grounding probe
     // targets bottom 24; height 8 yields correction -1 and clips the accepted move to zero.
@@ -131,7 +130,8 @@ static void VerifySamusBlockCollision()
     AssertTrue(groundProbe.Collided, "vertical non-square grounding probe collides");
     AssertEqual(0, groundProbe.AcceptedDisplacement, "vertical non-square grounding probe clips to zero");
     AssertEqual(19, groundedBody.YPosition, "grounding collision preserves resting center Y");
-    AssertEqual(0x12, groundProbe.CollisionBlock!.Value.Behavior, "grounding collision reports slope BTS");
+    AssertEqual(0x12, level.GetCollisionBlockAtPixel(24, 24).Behavior,
+        "grounding collision probe's target block carries slope BTS");
 
     // Moving two pixels right from X=26 would enter the type-8 block at X=32. The solid
     // formula permits one pixel, writes subposition $FFFF, and stops center X at 27.FFFF.
@@ -304,8 +304,8 @@ static void VerifySamusBlockCollision()
     AssertTrue(rightEdgeMove.Collided, "prefilled right room edge is solid");
     AssertEqual(0x00010000, rightEdgeMove.AcceptedDisplacement,
         "prefilled right room edge clips at logical boundary");
-    AssertEqual(0x8000, rightEdgeMove.CollisionBlock!.Value.LevelWord,
-        "prefilled right room edge exposes native $8000 word");
+    AssertEqual(0x8000, level.GetCollisionBlockOrPrefilledSolid(4, 1).LevelWord,
+        "prefilled right room edge probe reads native $8000 word");
 
     var bottomEdgeBody = new SamusKinematicsState
     {
@@ -323,8 +323,8 @@ static void VerifySamusBlockCollision()
     AssertTrue(bottomEdgeMove.Collided, "prefilled bottom room edge is solid");
     AssertEqual(0x00010000, bottomEdgeMove.AcceptedDisplacement,
         "prefilled bottom room edge clips at logical boundary");
-    AssertEqual(0x8000, bottomEdgeMove.CollisionBlock!.Value.LevelWord,
-        "prefilled bottom room edge exposes native $8000 word");
+    AssertEqual(0x8000, level.GetCollisionBlockOrPrefilledSolid(3, 4).LevelWord,
+        "prefilled bottom room edge probe reads native $8000 word");
 
     // Grapple endpoint/body collision now consumes this same room-owned seam instead of
     // maintaining a second interpretation of the native prefill. Check coordinate and

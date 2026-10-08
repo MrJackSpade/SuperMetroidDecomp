@@ -39,7 +39,7 @@ internal sealed class CreditsObjectState
     public CreditsObjectStepResult Step()
     {
         if (!Enabled)
-            return new CreditsObjectStepResult(false, Finished, destinationRow, scrollWhole);
+            return new CreditsObjectStepResult(false, Finished);
 
         // AddToHiLo($198F,$198D,$00008000): half a pixel per accepted frame.
         uint fixedScroll = ((uint)scrollWhole << 16) | scrollSubposition;
@@ -51,7 +51,7 @@ internal sealed class CreditsObjectState
         // A new source row is interpreted whenever the scroll advances eight whole pixels,
         // i.e. every sixteen NTSC frames. The signed modular comparison is intentional.
         if ((short)unchecked((ushort)(scrollWhole - previousCopiedScroll - 8)) < 0)
-            return new CreditsObjectStepResult(false, Finished, destinationRow, scrollWhole);
+            return new CreditsObjectStepResult(false, Finished);
 
         previousCopiedScroll = scrollWhole;
         CreditsPresentation content = presentation ?? throw new InvalidOperationException(
@@ -72,7 +72,7 @@ internal sealed class CreditsObjectState
                 (EndingCreditsRomData.Rendering.TilemapHeight - 1);
             copied = true;
         }
-        return new CreditsObjectStepResult(copied, Finished, destinationRow, scrollWhole);
+        return new CreditsObjectStepResult(copied, Finished);
     }
 
     /// <summary>Uploads the live circular tilemap to native BG1 base word $4800.</summary>
@@ -89,6 +89,4 @@ internal sealed class CreditsObjectState
 
 internal readonly record struct CreditsObjectStepResult(
     bool CopiedRow,
-    bool Finished,
-    int NextDestinationRow,
-    ushort VerticalScroll);
+    bool Finished);

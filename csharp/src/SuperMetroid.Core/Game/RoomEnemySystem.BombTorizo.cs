@@ -79,11 +79,7 @@ public readonly record struct BombTorizoMusicRequest(MusicCommand Command, Music
 /// <c>$86:AB8A</c> selects one of two enemy headers by area; the initialized Torizo variant
 /// is the equivalent concrete authority in this room-scoped runtime.
 /// </summary>
-public readonly record struct TorizoOrbDropRequest(
-    ushort X,
-    ushort Y,
-    ushort EnemyDefinitionPointer,
-    ushort ItemDropChancesPointer);
+public readonly record struct TorizoOrbDropRequest();
 
 /// <summary>
 /// Cartridge-faithful translation of enemy definition $EEFF. Bomb Torizo's dormant

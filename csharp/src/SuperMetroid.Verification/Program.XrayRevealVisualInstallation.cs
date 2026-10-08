@@ -112,8 +112,7 @@ internal static partial class Program
             "X-ray visual override leaves collision type and BTS untouched");
 
         var item = new CollectiblePlmSnapshot(RoomPlmHeaders.ExposedEnergyTank, 33, 1,
-            InWorldCollectibleKind.Bombs, CollectiblePresentation.Exposed,
-            CollectiblePhase.Visible, 0);
+            InWorldCollectibleKind.Bombs, 0);
         var overlayLevel = new RoomLevelData(32, 32, new ushort[1024], new byte[1024],
             new ushort[1024], definitions);
         var noRomVisualData = new TestAddressSpace();

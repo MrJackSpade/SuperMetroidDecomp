@@ -30,12 +30,8 @@ internal static partial class Program
         {
             RidleyExplosionPartDefinition definition =
                 RidleyExplosionDefinitions.GetPart(parameter);
-            AssertEqual(parameter, definition.Parameter,
-                $"Ridley breakup parameter ${parameter:X2}");
             AssertEqual(Word(rom, 0xa6c6ce + parameter), definition.Lifetime,
                 $"Ridley breakup lifetime ${parameter:X2}");
-            AssertEqual(Word(rom, 0xa6c6e6 + parameter), definition.InitializationRoutine,
-                $"Ridley breakup initializer ${parameter:X2}");
         }
 
         int[] fixedTailOperands = [0xa6c710, 0xa6c728, 0xa6c740, 0xa6c758, 0xa6c770, 0xa6c788];

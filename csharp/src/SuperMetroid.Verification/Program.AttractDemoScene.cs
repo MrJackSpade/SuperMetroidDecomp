@@ -32,7 +32,7 @@ internal static partial class Program
         WriteRomWord(rom, (DemoInputRomData.BankBase | DemoInputRomData.Attract.ShinesparkContinuation) + 2,
             (ushort)SnesButton.Right);
         var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
-        var expected = new AttractDemoScene(0x91f8, 0x8000, 1, 0x100, 0x200, 0x40, -46,
+        var expected = new AttractDemoScene(0x91f8, 0x8000, 0x100, 0x200, 0x40, -46,
             0x151, 0x8924, 0x8a53, 0x3105, 10, 5, 2, 399, 0x100f, 0x100b, 0x9000);
         if (SuperMetroid.AssetExtraction.AttractDemoSceneImporter.Read(bus, 0, 0) != expected)
             throw new InvalidDataException("Demo room/equipment/setup tables did not join at the same scene index.");

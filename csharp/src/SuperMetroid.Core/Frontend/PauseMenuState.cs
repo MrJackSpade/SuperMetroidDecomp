@@ -252,7 +252,7 @@ internal sealed partial class PauseMenuState
         objScratchPriorities ??= new byte[256 * 224];
         SnesObjRenderer.RenderResolved(oam, vram, cgram, PauseMenuLayout.ObjectSelection,
             objScratchPixels, objScratchPriorities, 256, 224);
-        var objects = new ResolvedObjFrame(objScratchPixels, objScratchPriorities, 256, 224);
+        var objects = new ResolvedObjFrame(objScratchPixels, objScratchPriorities);
 
         // Back to front for BGMODE=$09:
         // OBJ0, BG3-low, OBJ1, BG2-low, BG1-low, OBJ2, BG2-high, BG1-high,

@@ -106,7 +106,6 @@ public sealed class MotherBrainCorpseRottingState
                 // RNG. One dust projectile is emitted for every completed table entry.
                 FinishedEntryCount++;
                 dustRequests.Add(new MotherBrainCorpseDustRequest(
-                    EntryIndex: entryIndex,
                     XPosition: unchecked((ushort)(
                         brainXPosition + (randomNumberSeed & 0x001f) - 0x0010)),
                     YPosition: unchecked((ushort)(brainYPosition + 0x0010)),
@@ -195,7 +194,6 @@ public sealed class MotherBrainCorpseRottingState
 
 /// <summary>One MiscDust projectile emitted by Mother Brain's row-finished hook.</summary>
 public readonly record struct MotherBrainCorpseDustRequest(
-    ushort EntryIndex,
     ushort XPosition,
     ushort YPosition,
     ushort ProjectileParameter,

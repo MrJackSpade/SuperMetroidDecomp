@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Game;
 
 /// <summary>Native physical component of a selected Crocomire tongue frame.</summary>
 internal readonly record struct CrocomireTongueCollisionComponent(
-    short X, short Y, ushort HitboxPointer);
+ushort HitboxPointer);
 
 /// <summary>
 /// All nine extended frames selected by Crocomire's independently scheduled
@@ -57,14 +57,14 @@ internal static class CrocomireTongueCollisionDefinitions
     /// OAM/artwork identity remains separate from this physical geometry.</summary>
     internal static CrocomireTongueCollisionComponent ComponentAt(ushort frame)
     {
-        if (IsFightFrame(frame)) return new(-32, -24, FightHitboxes);
+        if (IsFightFrame(frame)) return new(FightHitboxes);
         return frame switch
         {
-            MeltingPose0 => new(1, 11, MeltingHitboxes),
-            MeltingPose1 => new(0, 8, MeltingHitboxes),
-            MeltingPose2 => new(1, 8, MeltingHitboxes),
-            MeltingPose3 => new(0, 10, MeltingHitboxes),
-            MeltingPose4 => new(1, 12, MeltingHitboxes),
+            MeltingPose0 => new(MeltingHitboxes),
+            MeltingPose1 => new(MeltingHitboxes),
+            MeltingPose2 => new(MeltingHitboxes),
+            MeltingPose3 => new(MeltingHitboxes),
+            MeltingPose4 => new(MeltingHitboxes),
             _ => throw new InvalidDataException(
                 $"Crocomire tongue frame $A4:{frame:X4} has no compiled collision."),
         };

@@ -15,12 +15,7 @@ public static partial class SamusGrappleMovement
         grapple.Phase = GrapplePhase.CancelPending;
         return new GrappleMovementResult(
             grapple.Phase,
-            Released: false,
-            ReleaseQueued: false,
             Fired: false,
-            Connected: false,
-            CancelQueued: true,
-            Cancelled: false,
             OwnsMovement: false);
     }
 
@@ -248,8 +243,7 @@ public static partial class SamusGrappleMovement
             grapple.CancelFromConnectedPose = false;
             // The helper clears delta, then its firing caller immediately writes -8.
             grapple.RopeLengthDelta = SamusGrappleRomData.Physics.InitialConnectionRetraction;
-            return new GrappleMovementResult(grapple.Phase, Released: false,
-                ReleaseQueued: false, Connected: true, OwnsMovement: false, LockedInPlace: true);
+            return new GrappleMovementResult(grapple.Phase, OwnsMovement: false);
         }
 
         bool movingVertically =
@@ -355,11 +349,7 @@ public static partial class SamusGrappleMovement
             // the old pose and every speed word while the Grapple function remains live.
             return new GrappleMovementResult(
                 grapple.Phase,
-                Released: false,
-                ReleaseQueued: false,
-                Connected: true,
                 OwnsMovement: false,
-                LockedInPlace: !swinging,
                 PendingConnection: new GrapplePendingConnection(
                     pose,
                     swinging,
@@ -377,11 +367,7 @@ public static partial class SamusGrappleMovement
                 previousYPosition));
         return new GrappleMovementResult(
             grapple.Phase,
-            Released: false,
-            ReleaseQueued: false,
-            Connected: true,
             OwnsMovement: true,
-            LockedInPlace: !swinging,
             CameraPreviousX: cameraPreviousX,
             CameraPreviousY: cameraPreviousY);
     }

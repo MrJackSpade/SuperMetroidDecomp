@@ -95,9 +95,10 @@ internal static partial class Program
         {
             var result=game.Step(0);
             renderer.RenderFrame(result.AudioCommands);game.SetAudioAcknowledgements(renderer.ReadAcknowledgements());
-            var shake=runtime.Enemies.LastRoomShake;if(shake.Applied)shaken++;
+            // Every rendered earthquake type displaces BG1 or BG2, so only an unapplied frame leaves the default delta.
+            var shake=runtime.Enemies.LastRoomShake;bool shakeApplied=shake!=default;if(shakeApplied)shaken++;
             if(frame%8==0 || frame>=30)Console.WriteLine($"frame={frame} actor={body.XPosition},{body.YPosition} hp={body.Health} pre={state.PreInstruction:X4} timer={runtime.Enemies.EarthquakeTimer} shake={shake}");
-            if(shake.Applied!=(frame<32))throw new InvalidDataException("Full frontend landing-shake lifetime differs from 32 native frames.");
+            if(shakeApplied!=(frame<32))throw new InvalidDataException("Full frontend landing-shake lifetime differs from 32 native frames.");
         }
         Console.WriteLine($"shaken={shaken}");
         return 0;

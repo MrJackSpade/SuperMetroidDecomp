@@ -78,12 +78,19 @@ internal static partial class Program
             if (samus.Shinespark.Phase == ShinesparkPhase.Crash)
             {
                 var movement = runtime.LastShinesparkMovement!.Value;
+                // The crash handler keeps no cause word. `$90:D2BD`'s energy exit is taken
+                // exactly when host invincibility is off and energy is below the native
+                // sustaining threshold (the exit frame does not drain); any other crash
+                // was begun by the shared terrain/enemy collision flag.
+                bool endedByLowEnergy = !runtime.PlayerInvincibilityEnabled &&
+                    unchecked((short)(samus.Health -
+                        SamusSpecialSequenceRomData.Shinespark.MinimumSustainingEnergy)) < 0;
                 if (replenishHealth || invincibility)
                 {
                     // The normal room ceiling is at pixel 48; the vertical-spark pose's
                     // center is 19 pixels below it. This checks the entire shaft height,
                     // not simply that Samus moved upward or that the frame did not crash.
-                    Check(!movement.EndedByLowEnergy && movement.EndedByCollision && samus.YPosition == 67,
+                    Check(!endedByLowEnergy && samus.YPosition == 67,
                         $"Invincible/recharged spark failed to clear the shaft: Y={samus.YPosition}, {movement}.");
                     if (!replenishHealth)
                         Check(samus.Health == 1, "Invincible spark must drain to one without restoring health or underflowing.");
@@ -91,7 +98,7 @@ internal static partial class Program
                 }
                 else
                 {
-                    Check(movement.EndedByLowEnergy && !movement.EndedByCollision && samus.YPosition == 619,
+                    Check(endedByLowEnergy && samus.YPosition == 619,
                         $"Saved-energy spark did not reproduce the native low-energy stop: {movement}.");
                     Console.WriteLine($"PASS exact saved-energy replay: stops at Y={samus.YPosition}, energy=1, without collision.");
                 }

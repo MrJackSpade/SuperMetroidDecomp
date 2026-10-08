@@ -7,13 +7,17 @@ internal static partial class Program
     private static void VerifyDeadTorizoCorpseDefinitions(SuperMetroidAddressSpace rom)
     {
         DeadTorizoCorpseDefinition definition = DeadTorizoCorpseDefinitions.Corpse;
-        AssertEqual((ushort)0xdd58, definition.ConfigurationPointer,
-            "dead Torizo configuration identity");
 
-        int address = 0xa90000 | definition.ConfigurationPointer;
-        ushort[] expected = new ushort[8];
-        for (int index = 0; index < expected.Length; index++)
-            expected[index] = ReadDeadTorizoCorpseWord(rom, address + index * 2);
+        // Native configuration record $A9:DD58. Word 5 (graphics initializer $DE18) has
+        // no port counterpart; the remaining seven words are the definition's fields.
+        const int address = 0xa9dd58;
+        ushort[] expected = new ushort[7];
+        for (int index = 0, word = 0; word < 8; word++)
+        {
+            if (word == 5)
+                continue;
+            expected[index++] = ReadDeadTorizoCorpseWord(rom, address + word * 2);
+        }
 
         ushort[] actual =
         [
@@ -22,7 +26,6 @@ internal static partial class Program
             definition.CopyFunction,
             definition.MoveFunction,
             definition.EntryCount,
-            definition.GraphicsInitializationFunction,
             definition.RotationTablePointer,
             definition.FinishFunction,
         ];

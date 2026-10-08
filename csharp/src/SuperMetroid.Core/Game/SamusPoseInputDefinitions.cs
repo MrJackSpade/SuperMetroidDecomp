@@ -25,10 +25,10 @@ internal enum CanonicalPoseButtons : ushort
 }
 
 /// <summary>The selected native condition, retained for transition diagnostics.</summary>
-internal readonly record struct SamusPoseInputRule(ushort RequiredNewInput, ushort RequiredHeldInput, ushort TargetPose);
+internal readonly record struct SamusPoseInputRule(ushort TargetPose);
 
 /// <summary>A decision result, including the distinction between an empty list and exhausted conditions.</summary>
-internal readonly record struct SamusPoseInputMatch(SamusPoseInputRule? Rule, int Index, bool HasConditions);
+internal readonly record struct SamusPoseInputMatch(SamusPoseInputRule? Rule, bool HasConditions);
 
 /// <summary>Native pose-to-input dispatch and selected-condition diagnostics; no stored transition rows.</summary>
 internal static class SamusPoseInputDefinitions
@@ -378,5 +378,5 @@ internal static class SamusPoseInputDefinitions
 
     internal static SamusPoseInputMatch Accept(int index, CanonicalPoseButtons newlyPressed,
         CanonicalPoseButtons held, SamusPoseId target) =>
-        new(new((ushort)newlyPressed, (ushort)held, (ushort)target), index, HasConditions: true);
+        new(new((ushort)target), HasConditions: true);
 }

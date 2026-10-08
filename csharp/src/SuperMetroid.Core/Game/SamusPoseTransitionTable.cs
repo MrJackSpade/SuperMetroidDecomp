@@ -63,11 +63,7 @@ public static class SamusPoseTransitionTable
 
         return new SamusPoseTransitionLookup(
             new SamusPoseTransition(
-                CurrentPose: currentPose,
-                ProspectivePose: rule.TargetPose,
-                RequiredNewInput: rule.RequiredNewInput,
-                RequiredHeldInput: rule.RequiredHeldInput,
-                EntryAddress: SamusMovementRomData.Banks.Pose | (tablePointer + match.Index * 6)),
+                ProspectivePose: rule.TargetPose),
             UsesPoseDefinitionFallback: false);
     }
 
@@ -75,11 +71,7 @@ public static class SamusPoseTransitionTable
 
 /// <summary>Debugger-readable winning six-byte transition-table record.</summary>
 public readonly record struct SamusPoseTransition(
-    byte CurrentPose,
-    ushort ProspectivePose,
-    ushort RequiredNewInput,
-    ushort RequiredHeldInput,
-    int EntryAddress);
+    ushort ProspectivePose);
 
 /// <summary>
 /// Full control-flow result from <c>$91:81A9</c>, including its otherwise invisible

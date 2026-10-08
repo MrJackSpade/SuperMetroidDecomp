@@ -152,17 +152,17 @@ static void VerifySamusCrystalFlash()
     samus.InvincibilityTimer = 77;
     for (int frame = 0; frame < 9; frame++)
     {
-        CrystalFlashMovementResult raise = samus.CrystalFlash.Step(bus, samus, (ushort)frame);
-        AssertEqual(CrystalFlashPhase.Raising, raise.PhaseAfterStep,
+        samus.CrystalFlash.Step(bus, samus, (ushort)frame);
+        AssertEqual(CrystalFlashPhase.Raising, samus.CrystalFlash.Phase,
             $"raise frame {frame} retains start handler");
         AssertEqual(77, samus.InvincibilityTimer, "ordinary raise handler does not clear immunity");
         samus.AnimateNoFx(bus, chord);
     }
     AssertEqual((initialY - 18), samus.YPosition, "first nine raise calls move 18 pixels");
 
-    CrystalFlashMovementResult raiseTransition = samus.CrystalFlash.Step(bus, samus, 9);
+    samus.CrystalFlash.Step(bus, samus, 9);
     AssertEqual(0, samus.InvincibilityTimer, "raise completion clears hit immunity");
-    AssertEqual(CrystalFlashPhase.DrainingAmmo, raiseTransition.PhaseAfterStep,
+    AssertEqual(CrystalFlashPhase.DrainingAmmo, samus.CrystalFlash.Phase,
         "tenth raise call installs ammo handler");
     AssertEqual((initialY - 20), samus.YPosition, "complete raise is 20 pixels");
     AssertEqual(samus.YPosition, samus.CrystalFlash.RaisedYPosition,
@@ -235,10 +235,13 @@ static void VerifySamusCrystalFlash()
     // that can consume ammo or restore energy; skipped counters are checked separately.
     samus.InvincibilityTimer = 77;
     samus.KnockbackTimer = 5;
-    CrystalFlashMovementResult skipped = samus.CrystalFlash.Step(bus, samus, 15);
+    var resourcesBeforeSkipped =
+        (samus.Health, samus.Missiles, samus.SuperMissiles, samus.PowerBombs);
+    samus.CrystalFlash.Step(bus, samus, 15);
     AssertEqual(0, samus.InvincibilityTimer, "non-draining main frame still clears hit immunity");
     AssertEqual(0, samus.KnockbackTimer, "non-draining main frame still clears knockback timer");
-    AssertTrue(!skipped.ConsumedAmmo && !skipped.RestoredEnergy,
+    AssertEqual(resourcesBeforeSkipped,
+        (samus.Health, samus.Missiles, samus.SuperMissiles, samus.PowerBombs),
         "non-mod-eight frame leaves Crystal Flash resources untouched");
     for (ushort drain = 1; drain <= 30; drain++)
     {
@@ -273,9 +276,10 @@ static void VerifySamusCrystalFlash()
     AssertEqual(CrystalFlashPhase.Finishing, samus.CrystalFlash.Phase,
         "pose transition does not prematurely replace installed handler");
     samus.InvincibilityTimer = 77;
-    CrystalFlashMovementResult cleanup = samus.CrystalFlash.Step(bus, samus, 0x0200);
+    samus.CrystalFlash.Step(bus, samus, 0x0200);
     AssertEqual(0, samus.InvincibilityTimer, "Crystal Flash normal-input completion clears hit immunity");
-    AssertTrue(cleanup.Completed, "following beta pass restores normal movement handler");
+    AssertEqual(CrystalFlashPhase.Inactive, samus.CrystalFlash.Phase,
+        "following beta pass restores normal movement handler");
     AssertEqual(0xffff, samus.CrystalFlash.SpecialPaletteTimer,
         "cleanup requests normal palette restoration");
     AssertTrue(samus.CrystalFlash.UpdatePalette(bus, crystalCgram, samus, beamPalettes, crystalColors),
@@ -488,11 +492,11 @@ static void VerifySamusXray()
     standing.PoseHistory.LastDifferentPose = SamusPoseIds.SpinJumpRightPose;
     standing.PoseHistory.LastDifferentDirectionAndMovement = 0x0308;
     byte xrayPoseBeforeTurn = standing.Pose;
-    XrayPoseInputResult startedTurn = standing.Xray.HandlePoseInput(
+    standing.Xray.HandlePoseInput(
         bus,
         standing,
         (ushort)SnesButton.Left);
-    AssertTrue(startedTurn.StartedTurn, "X-ray starts standing turn");
+    AssertTrue(standing.Pose != xrayPoseBeforeTurn, "X-ray starts standing turn");
     AssertEqual(xrayPoseBeforeTurn, standing.PoseHistory.LastDifferentPose, "X-ray turn shifts previous pose");
     AssertEqual(8, standing.PoseHistory.LastDifferentDirectionAndMovement, "X-ray turn shifts previous metadata");
     AssertEqual(standing.Pose, standing.PoseHistory.PreviousPose, "X-ray turn publishes turning pose");
@@ -505,8 +509,8 @@ static void VerifySamusXray()
         standing.AnimateNoFx(bus);
     AssertEqual(2, standing.AnimationFrame, "X-ray turn reaches frame two");
     AssertEqual(1, standing.AnimationFrameTimer, "X-ray turn reaches timer one");
-    XrayPoseInputResult completedTurn = standing.Xray.HandlePoseInput(bus, standing, 0);
-    AssertTrue(completedTurn.CompletedTurn, "X-ray completes standing turn");
+    standing.Xray.HandlePoseInput(bus, standing, 0);
+    AssertTrue(standing.Pose != 0x25, "X-ray completes standing turn");
     AssertEqual(0x25, standing.PoseHistory.LastDifferentPose, "X-ray completion shifts turning pose");
     AssertEqual(0x0e04, standing.PoseHistory.LastDifferentDirectionAndMovement, "X-ray completion shifts turning metadata");
     AssertEqual(standing.Pose, standing.PoseHistory.PreviousPose, "X-ray completion publishes stable pose");
@@ -766,22 +770,23 @@ static void VerifySamusDeathSequence()
     samus.PoseHistory.PreviousDirectionAndMovement = 8;
     samus.PoseHistory.LastDifferentPose = SamusPoseIds.SpinJumpLeftPose;
     samus.PoseHistory.LastDifferentDirectionAndMovement = 0x0304;
-    SamusDeathSequenceStartResult start = samus.DeathSequence.Begin(
+    SamusMovementType deathSourceMovementType = samus.ReadMovementType(guardedBus);
+    samus.DeathSequence.Begin(
         guardedBus,
         samus,
         layer1X: 0x03e0,
         layer1Y: 0x0400);
-    AssertEqual(SamusMovementType.Standing, start.SourceMovementType, "death source standing type");
-    AssertEqual(0xd7, start.DeathPose, "death selects right pose");
+    AssertEqual(SamusMovementType.Standing, deathSourceMovementType, "death source standing type");
+    AssertEqual(0xd7, samus.Pose, "death selects right pose");
     AssertEqual(SamusPoseIds.FacingRightNormalPose, samus.PoseHistory.LastDifferentPose, "death shifts prior pose");
     AssertEqual(8, samus.PoseHistory.LastDifferentDirectionAndMovement, "death shifts prior metadata");
     AssertEqual(0xd7, samus.PoseHistory.PreviousPose, "death commits right pose");
     AssertEqual(samus.ReadPoseXDirection(bus) | ((byte)samus.ReadMovementType(bus) << 8),
         samus.PoseHistory.PreviousDirectionAndMovement, "death commits right metadata");
-    AssertEqual(5, start.InitialFrame, "ordinary death starts unmorphed frame five");
-    AssertEqual(0x00a0, start.ScreenX, "death captures screen X");
-    AssertEqual(0x00c0, start.ScreenY, "death captures screen Y");
-    AssertTrue(!start.SpinJumpSoundRequested, "ordinary death does not request spin SFX");
+    AssertEqual(5, samus.AnimationFrame, "ordinary death starts unmorphed frame five");
+    AssertEqual(0x00a0, samus.DeathSequence.ScreenX, "death captures screen X");
+    AssertEqual(0x00c0, samus.DeathSequence.ScreenY, "death captures screen Y");
+    AssertTrue(!samus.DeathSequence.SpinJumpSoundRequested, "ordinary death does not request spin SFX");
     AssertEqual(2, samus.AnimationFrameTimer, "death pose retains two-tick delay");
 
     var cgram = new SnesCgram();
@@ -824,7 +829,7 @@ static void VerifySamusDeathSequence()
         "explosion begins at index zero");
     AssertEqual(20, samus.DeathSequence.AnimationTimer,
         "same-call first explosion decrement");
-    AssertEqual(0x081c, step.ExplosionSpritemapIndex!.Value,
+    AssertEqual(0x081c, samus.DeathSequence.ExplosionSpritemapIndex!.Value,
         "right explosion base spritemap");
     AssertEqual(0x0100, cgram.Colors[192], "finish restores suit palette zero");
     AssertEqual(0x0400, cgram.Colors[240], "finish restores suitless palette zero");
@@ -866,27 +871,27 @@ static void VerifySamusDeathSequence()
     morphedLeft.InitializeAnimation(guardedBus);
     morphedLeft.PoseHistory.PreviousPose = morphedLeft.Pose;
     morphedLeft.PoseHistory.PreviousDirectionAndMovement = 0x0404;
-    SamusDeathSequenceStartResult morphStart = morphedLeft.DeathSequence.Begin(
+    morphedLeft.DeathSequence.Begin(
         guardedBus, morphedLeft, layer1X: 0, layer1Y: 0);
-    AssertEqual(0xd8, morphStart.DeathPose, "left Morph death selects D8");
+    AssertEqual(0xd8, morphedLeft.Pose, "left Morph death selects D8");
     AssertEqual(SamusPoseIds.MorphBallGroundLeftPose, morphedLeft.PoseHistory.LastDifferentPose, "left death shifts prior pose");
     AssertEqual(0x0404, morphedLeft.PoseHistory.LastDifferentDirectionAndMovement, "left death shifts prior metadata");
     AssertEqual(0xd8, morphedLeft.PoseHistory.PreviousPose, "death commits left pose");
     AssertEqual(morphedLeft.ReadPoseXDirection(bus) | ((byte)morphedLeft.ReadMovementType(bus) << 8),
         morphedLeft.PoseHistory.PreviousDirectionAndMovement, "death commits left metadata");
-    AssertEqual(1, morphStart.InitialFrame, "Morph death begins unmorph frame one");
+    AssertEqual(1, morphedLeft.AnimationFrame, "Morph death begins unmorph frame one");
 
     var spinning = new SamusState { Pose = SamusPoseIds.SpinJumpRightPose };
     spinning.RefreshCollisionRadii(guardedBus);
     spinning.InitializeAnimation(guardedBus);
-    SamusDeathSequenceStartResult spinStart = spinning.DeathSequence.Begin(
+    spinning.DeathSequence.Begin(
         guardedBus, spinning, layer1X: 0, layer1Y: 0);
-    AssertTrue(spinStart.SpinJumpSoundRequested, "spin death requests sound $32");
+    AssertTrue(spinning.DeathSequence.SpinJumpSoundRequested, "spin death requests sound $32");
     AssertTrue(spinning.DeathSequence.ConsumeSpinJumpSoundRequest(),
         "spin-death sound is consumable exactly once");
     AssertTrue(!spinning.DeathSequence.ConsumeSpinJumpSoundRequest(),
         "consumed spin-death sound cannot replay during death animation");
-    AssertEqual(5, spinStart.InitialFrame, "spin death begins unmorphed frame five");
+    AssertEqual(5, spinning.AnimationFrame, "spin death begins unmorphed frame five");
 
     Console.WriteLine(
         "  Samus death: D7/D8 selection, unmorph art, five VRAM segments, flash palettes, " +

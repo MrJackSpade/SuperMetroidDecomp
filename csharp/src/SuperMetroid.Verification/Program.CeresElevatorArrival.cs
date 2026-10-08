@@ -81,16 +81,8 @@ internal static partial class Program
         })
         {
             int address = CeresElevatorArrivalDefinitions.BankBase | definition.DefinitionPointer;
-            VerificationAssert.AssertEqual(Word(rom, address), definition.Initialization,
-                "Ceres elevator compiled initialization callback");
-            VerificationAssert.AssertEqual(Word(rom, address + 2), definition.PreInstruction,
-                "Ceres elevator compiled pre-instruction callback");
             VerificationAssert.AssertEqual(Word(rom, address + 4), definition.InitialInstruction,
                 "Ceres elevator compiled instruction-list identity");
-            VerificationAssert.AssertEqual(Word(rom, address + 6), definition.PackedRadius,
-                "Ceres elevator compiled radius");
-            VerificationAssert.AssertEqual(Word(rom, address + 8), definition.Properties,
-                "Ceres elevator compiled properties");
         }
 
         ushort[] pointers = [0xa28b, 0xa28d, 0xa291, 0xa295, 0xa299, 0xa29d];

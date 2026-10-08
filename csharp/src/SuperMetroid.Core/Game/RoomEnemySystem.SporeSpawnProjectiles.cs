@@ -129,9 +129,7 @@ public sealed partial class RoomEnemySystem
             throw new InvalidOperationException(
                 $"Projectile {spore.Kind} reached Spore Spawn drop opcode $DC61.");
         }
-        _sporeSpawnDropRequests.Add(new SporeSpawnDropRequest(
-            spore.XPosition,
-            spore.YPosition));
+        _sporeSpawnDropRequests.Add(new SporeSpawnDropRequest());
         SpawnEnemyDropFromEnemyHeader(
             spore.XPosition,
             spore.YPosition,

@@ -368,7 +368,7 @@ public sealed class SamusXrayState
                 (true, true) => SamusPoseIds.TurningLeftToRightCrouchingPose,
             };
             ApplyXrayPoseChange(bus, samus, targetPose);
-            return new XrayPoseInputResult(true, false, targetPose, Angle);
+            return new XrayPoseInputResult();
         }
 
         // Native waits until the final visible turning frame has exactly one tick left.
@@ -386,7 +386,7 @@ public sealed class SamusXrayState
                 ? SamusPoseIds.XrayingStandingRightPose
                 : SamusPoseIds.XrayingCrouchingRightPose;
         ApplyXrayPoseChange(bus, samus, completedPose);
-        return new XrayPoseInputResult(false, true, completedPose, Angle);
+        return new XrayPoseInputResult();
     }
 
     /// <summary>
@@ -728,18 +728,12 @@ public sealed class SamusXrayState
         _ => XrayPosture.Disallowed,
     };
 
-    private XrayBeamStepResult SnapshotBeamStep(
+    private static XrayBeamStepResult SnapshotBeamStep(
         XrayBeamPhase phaseAtStart,
         SnesAngle angleAtStart,
         ushort widthAtStart,
         bool completed) => new(
             phaseAtStart,
-            BeamPhase,
-            SetupStage,
-            angleAtStart,
-            Angle,
-            widthAtStart,
-            AngularWidth,
             completed);
 
     private void EnsureActive()
@@ -768,19 +762,9 @@ public enum XrayBeamPhase : ushort
 }
 
 /// <summary>One dedicated-input-handler call, suitable for debugger watches and assertions.</summary>
-public readonly record struct XrayPoseInputResult(
-    bool StartedTurn,
-    bool CompletedTurn,
-    byte Pose,
-    SnesAngle Angle);
+public readonly record struct XrayPoseInputResult();
 
 /// <summary>One bank-$88 beam-state call exposing the words consumed by the window renderer.</summary>
 public readonly record struct XrayBeamStepResult(
     XrayBeamPhase PhaseAtStart,
-    XrayBeamPhase PhaseAfterStep,
-    byte SetupStage,
-    SnesAngle AngleAtStart,
-    SnesAngle AngleAfterStep,
-    ushort WidthAtStart,
-    ushort WidthAfterStep,
     bool Completed);

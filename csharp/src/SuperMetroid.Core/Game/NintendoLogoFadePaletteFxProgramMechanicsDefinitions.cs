@@ -1,14 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>The mutually exclusive Nintendo-logo fade entry.</summary>
-public enum NintendoLogoFadePaletteFxProgramOwner
-{
-    /// <summary>The unused Nintendo boot-logo fade.</summary>
-    BootLogo,
-    /// <summary>The Nintendo copyright fade.</summary>
-    Copyright,
-}
-
 /// <summary>Immutable mechanics shared by the Nintendo boot-logo and copyright fades.</summary>
 /// <remarks>
 /// Issue #850 / #625: pinned NTSC J/U v1.0 ROM definition <c>$8D:E198</c>
@@ -80,10 +71,8 @@ public static class NintendoLogoFadePaletteFxProgramMechanicsDefinitions
         public int Count => 2;
         public NintendoLogoFadePaletteFxProgramDefinition this[int index] => index switch
         {
-            0 => new(NintendoLogoFadePaletteFxProgramOwner.BootLogo, BootLogoDefinitionPointer,
-                BootLogoEntry, BootLogoColorByteIndex, BranchesToSharedBody: false),
-            1 => new(NintendoLogoFadePaletteFxProgramOwner.Copyright, CopyrightDefinitionPointer,
-                CopyrightEntry, CopyrightColorByteIndex, BranchesToSharedBody: true),
+            0 => new(),
+            1 => new(),
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
         public IEnumerator<NintendoLogoFadePaletteFxProgramDefinition> GetEnumerator()
@@ -144,9 +133,4 @@ public static class NintendoLogoFadePaletteFxProgramMechanicsDefinitions
 }
 
 /// <summary>One entry into the shared Nintendo-logo fade body.</summary>
-public sealed record NintendoLogoFadePaletteFxProgramDefinition(
-    NintendoLogoFadePaletteFxProgramOwner Owner,
-    ushort DefinitionPointer,
-    ushort ProgramStart,
-    ushort ColorByteIndex,
-    bool BranchesToSharedBody);
+public sealed record NintendoLogoFadePaletteFxProgramDefinition();

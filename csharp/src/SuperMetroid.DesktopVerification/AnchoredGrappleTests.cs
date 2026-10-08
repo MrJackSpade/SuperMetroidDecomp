@@ -66,7 +66,8 @@ internal static partial class Program
                 Check(samus.Grapple.Phase == GrapplePhase.WallGrabRelease && samus.Grapple.WallJumpTimer == 30,
                     "Shoot release must open the native 30-frame grace window.");
             if (grabbedFrames == 7)
-                Check(runtime.LastGrappleMovement is { WallJumpQueued: true, WallProbeCollided: true },
+                // `$9B:C8A9` installs the wall-jump function only after the wall probe collides.
+                Check(samus.Grapple.Phase == GrapplePhase.WallJumping,
                     "Fresh Jump must accept the real wall contact in the player's room.");
             if (grabbedFrames == 8)
                 Check(runtime.LastGrappleMovement is { WallJumpStarted: true } &&

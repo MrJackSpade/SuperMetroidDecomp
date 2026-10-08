@@ -268,7 +268,6 @@ public static class RoomTilesetDefinitions
         if (graphicsSet >= Count)
             throw new InvalidDataException($"Graphics set ${graphicsSet:X2} is outside the compiled retail tileset table.");
         var theme = (Theme)graphicsSet;
-        return new((ushort)(FirstDefinition + 9 * graphicsSet),
-            (int)SelectBlockSource(theme), (int)SelectCharacterSource(theme), (int)SelectPaletteSource(theme));
+        return new(            (int)SelectBlockSource(theme), (int)SelectCharacterSource(theme), (int)SelectPaletteSource(theme));
     }
 }

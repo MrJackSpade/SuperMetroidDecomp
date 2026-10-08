@@ -5,8 +5,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal readonly record struct ZebetiteInstructionProgram(
     ushort Entry,
-    ushort Presentation,
-    ushort Sleep);
+    ushort Presentation);
 
 /// <summary>
 /// Compiled timing and terminal control for every Zebetite health-tier program. The
@@ -98,7 +97,7 @@ internal abstract class ZebetiteInstructionProgramDefinitions : IInstructionProg
     }
 
     private static ZebetiteInstructionProgram Program(ushort entry) =>
-        new(entry, unchecked((ushort)(entry + 2)), unchecked((ushort)(entry + 4)));
+        new(entry, unchecked((ushort)(entry + 2)));
 
     private static InstructionMechanicsWord Word(ushort entry, ushort offset) =>
         new(

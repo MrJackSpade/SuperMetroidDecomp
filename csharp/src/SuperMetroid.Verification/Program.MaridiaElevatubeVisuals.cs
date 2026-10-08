@@ -63,8 +63,11 @@ internal static partial class Program
             AssertEqual((ushort)0x8180,
                 level.GetCollisionBlockByIndex(blockIndex).LevelWord,
                 "edited elevatube tile retains native physical block");
+            // A PLM redraw identifies its block by the BG1 ring destination of that block.
+            ushort blockDestination = level.CreateBackgroundStreamer()
+                .BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
             AssertTrue(plms.TilemapUpdates.Any(update =>
-                    update.BlockIndex == blockIndex && update.TopRow[0] == 0x0058),
+                    update.TopRowDestination == blockDestination && update.TopRow[0] == 0x0058),
                 "edited elevatube reaches immediate tilemap update");
             AssertEqual((ushort)0x0058,
                 level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(

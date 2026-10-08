@@ -102,7 +102,7 @@ internal static class LibraryBackgroundProgramImporter
                     throw new InvalidDataException($"Unsupported imported background command {instruction.Command}.");
             }
         }
-        return new(program.Instructions.Count + 1, characterBase);
+        return new(characterBase);
 
         void ClearAndTransfer(RoomAssetRomData.TilemapTransfer transfer, bool includeKraidPage)
         {

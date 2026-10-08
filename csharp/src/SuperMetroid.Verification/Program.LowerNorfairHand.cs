@@ -55,7 +55,12 @@ internal static partial class Program
         samus.YPosition = (ushort)(8 * 16 - samus.Kinematics.YRadius - 1);
         var collision = SamusBlockCollision.MoveVertical(bus, level, samus.Kinematics,
             2 << 16, true, false, false, runtime.Plms);
-        AssertTrue(collision.Collided && collision.CollisionBlock?.Index == hand.Index,
+        // Samus's whole width lies in the hand's block column, so the downward probe's
+        // only candidate is the hand block at (4, 8).
+        int leftColumn = (samus.Kinematics.XPosition - samus.Kinematics.XRadius) >> 4;
+        int rightColumn = (samus.Kinematics.XPosition + samus.Kinematics.XRadius - 1) >> 4;
+        AssertTrue(collision.Collided && leftColumn == hand.Index % level.WidthInBlocks &&
+            rightColumn == hand.Index % level.WidthInBlocks,
             "downward morph contact lands on the actual hand tile");
         AssertTrue(runtime.System.HasEvent(EventNumber.LowerNorfairChozoLoweredAcid), "hand sets native acid event");
         AssertEqual((ushort)1, runtime.Enemies.Slots[0].Parameter1, "hand wakes statue");

@@ -417,11 +417,6 @@ public static partial class SamusBlockCollision
         return new BlockMoveResult(
             acceptedDisplacement,
             collided,
-            collisionBlock,
-            alignment.Adjusted,
-            alignment.FloorBlock,
-            alignment.CeilingBlock,
-            brokenBombBlock,
             enemyCollision);
     }
 
@@ -771,11 +766,6 @@ public static partial class SamusBlockCollision
         return new BlockMoveResult(
             acceptedDisplacement,
             collided,
-            collisionBlock,
-            state.PositionAdjustedBySlope,
-            FloorSlopeBlock: null,
-            CeilingSlopeBlock: null,
-            BrokenBombBlock: brokenBombBlock,
             EnemyCollision: enemyCollision);
     }
 
@@ -1162,11 +1152,6 @@ public static partial class SamusBlockCollision
 public readonly record struct BlockMoveResult(
     int AcceptedDisplacement,
     bool Collided,
-    RoomCollisionBlock? CollisionBlock,
-    bool PositionAdjustedBySlope,
-    RoomCollisionBlock? FloorSlopeBlock,
-    RoomCollisionBlock? CeilingSlopeBlock,
-    RoomCollisionBlock? BrokenBombBlock = null,
     SolidEnemyCollisionResult? EnemyCollision = null)
 {
     /// <summary>

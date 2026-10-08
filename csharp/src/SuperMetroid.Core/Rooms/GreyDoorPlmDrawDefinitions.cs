@@ -11,7 +11,7 @@ internal static class GreyDoorPlmDrawDefinitions
     internal const int DrawListBytes = 12;
 
     /// <summary>One of twenty twelve-byte records at $84:A677..A766.</summary>
-    internal readonly record struct Draw(ushort Pointer, int Orientation, int Frame)
+    internal readonly record struct Draw(int Orientation, int Frame)
     {
         internal bool Vertical => Orientation < 2;
         internal ushort DirectionAndCount => Vertical ? (ushort)0x8004 : (ushort)4;
@@ -47,7 +47,7 @@ internal static class GreyDoorPlmDrawDefinitions
         int offset = pointer - ClearLeft;
         bool owned = offset >= 0 && offset < 20 * DrawListBytes && offset % DrawListBytes == 0;
         int index = offset / DrawListBytes;
-        draw = owned ? new(pointer, index < 4 ? index : (index - 4) / 4, index < 4 ? -1 : (index - 4) % 4) : default;
+        draw = owned ? new(index < 4 ? index : (index - 4) / 4, index < 4 ? -1 : (index - 4) % 4) : default;
         return owned;
     }
 

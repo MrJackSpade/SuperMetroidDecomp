@@ -42,7 +42,7 @@ internal static partial class Program
         AssertTrue(plms.TryNotifyScrollTouch(level.GetBlockIndex(3, 3)), "typed trigger wakes at its placement");
         plms.Step(memory, level, streamer, 0, 0, 0, scrolls);
         AssertEqual((byte)RoomScrollState.Green, scrolls.ReadStorage(1), "decoded pairs mutate the intended live scroll cell");
-        AssertTrue(!plms.ScrollPlms[0].Triggered, "decoded trigger returns to native sleep after its terminator");
+        AssertTrue(!plms.ScrollPlmTriggered(plms.ScrollPlms[0].BlockIndex), "decoded trigger returns to native sleep after its terminator");
 
         AssertThrows<InvalidDataException>(() => new RoomPlmPopulationDefinition(0x9000,
             [trigger with { ScrollProgram = new byte[] { 0, 2 } }]), "unterminated decoded pairs are rejected before allocation");

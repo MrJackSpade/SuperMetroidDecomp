@@ -67,11 +67,7 @@ public sealed class FakeKraidEnemyState
 /// retaining the exact origin and table pointer prevents the enemy-specific event from being
 /// silently lost while that shared system is translated.
 /// </summary>
-public readonly record struct FakeKraidDropRequest(
-    ushort X,
-    ushort Y,
-    ushort ItemDropChancesPointer,
-    ushort DeathExplosionVariant);
+public readonly record struct FakeKraidDropRequest();
 
 /// <summary>
 /// Literal translation of Fake Kraid/Mini-Kraid definition <c>$E0FF</c>, its five bank-$A6
@@ -358,11 +354,7 @@ public sealed partial class RoomEnemySystem
         ushort originX = slot.XPosition;
         ushort originY = slot.YPosition;
         ushort chancePointer = slot.Definition.ItemDropChancesPointer;
-        LastFakeKraidDropRequest = new FakeKraidDropRequest(
-            originX,
-            originY,
-            chancePointer,
-            DeathExplosionVariant: 3);
+        LastFakeKraidDropRequest = new FakeKraidDropRequest();
         SpawnEnemyDropScatterAround(
             FakeKraidDefinition,
             count: 4,

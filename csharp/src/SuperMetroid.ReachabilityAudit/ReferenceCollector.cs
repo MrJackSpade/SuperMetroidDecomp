@@ -108,6 +108,7 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
         var conversion = model.GetConversion(expression);
         if (conversion.IsUserDefined)
             targets.Add(conversion.MethodSymbol);
+        AddRecordValueReads(model, expression, info, targets);
         switch (expression)
         {
             case InitializerExpressionSyntax initializer when initializer.IsKind(SyntaxKind.CollectionInitializerExpression):
@@ -134,6 +135,61 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
                 reflection.ObserveCall(model, invocation, method);
                 break;
         }
+    }
+
+    /// <summary>
+    /// A record's synthesized equality, hashing and formatting read every member value, but have
+    /// no source declaration to reach. Comparing, hashing or formatting a record, or handing it to
+    /// generic code as a type argument (dictionary and set keys, Distinct, EqualityComparer),
+    /// therefore reaches all of its properties and fields.
+    /// </summary>
+    private static void AddRecordValueReads(SemanticModel model, ExpressionSyntax expression, SymbolInfo info, List<ISymbol?> targets)
+    {
+        if (info.Symbol is IMethodSymbol { ContainingType.IsRecord: true } method &&
+            method.Name is WellKnownMemberNames.EqualityOperatorName or WellKnownMemberNames.InequalityOperatorName
+                or nameof(Equals) or nameof(GetHashCode) or nameof(ToString))
+            AddRecordMembers(method.ContainingType, targets);
+        if (info.Symbol is IMethodSymbol { IsGenericMethod: true } generic && EqualitySensitiveMethods.Contains(generic.Name))
+            foreach (var argument in generic.TypeArguments)
+                AddRecordMembers(argument, targets);
+        if (info.Symbol is IMethodSymbol { ContainingType: { IsGenericType: true } owner } member &&
+            (EqualitySensitiveTypes.Contains(owner.Name) || EqualitySensitiveMethods.Contains(member.Name)))
+            foreach (var argument in owner.TypeArguments)
+                AddRecordMembers(argument, targets);
+        if (expression is GenericNameSyntax && info.Symbol is INamedTypeSymbol { IsGenericType: true } genericType &&
+            EqualitySensitiveTypes.Contains(genericType.Name))
+            foreach (var argument in genericType.TypeArguments)
+                AddRecordMembers(argument, targets);
+        if (expression.Parent is InterpolationSyntax && model.GetTypeInfo(expression).Type is { } formatted)
+            AddRecordMembers(formatted, targets);
+    }
+
+    /// <summary>Generic types that hash or compare their type arguments' values.</summary>
+    private static readonly HashSet<string> EqualitySensitiveTypes =
+    [
+        "Dictionary", "HashSet", "SortedSet", "SortedDictionary", "ConcurrentDictionary", "ImmutableDictionary",
+        "ImmutableHashSet", "FrozenDictionary", "FrozenSet", "EqualityComparer", "Lookup", "ILookup", "IEquatable",
+    ];
+
+    /// <summary>Generic methods that compare or hash element values.</summary>
+    private static readonly HashSet<string> EqualitySensitiveMethods =
+    [
+        "Distinct", "DistinctBy", "Contains", "SequenceEqual", "Union", "UnionBy", "Intersect", "IntersectBy",
+        "Except", "ExceptBy", "GroupBy", "ToDictionary", "ToHashSet", "ToLookup", "IndexOf", "LastIndexOf",
+        "Remove", "CountBy", "AggregateBy", "ToFrozenDictionary", "ToFrozenSet", "Equals",
+    ];
+
+    private static void AddRecordMembers(ITypeSymbol? type, List<ISymbol?> targets, int depth = 0)
+    {
+        if (depth > 4 || type is not INamedTypeSymbol { IsRecord: true } record)
+            return;
+        foreach (var member in record.GetMembers())
+            if (member is IPropertySymbol { IsStatic: false } or IFieldSymbol { IsStatic: false, IsImplicitlyDeclared: false })
+            {
+                targets.Add(member);
+                // Value equality is structural: a nested record member compares its own members.
+                AddRecordMembers(member is IPropertySymbol property ? property.Type : ((IFieldSymbol)member).Type, targets, depth + 1);
+            }
     }
 
     private static void AddDeconstruction(DeconstructionInfo info, List<ISymbol?> targets)

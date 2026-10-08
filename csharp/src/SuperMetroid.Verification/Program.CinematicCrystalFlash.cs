@@ -54,8 +54,12 @@ internal static partial class Program
                 motherSamus,
                 enemyFrameCounter: frame,
                 mainEnemyExecutionCounter: frame);
+            // `$90:F117` command one clears the input lock as the beam installs LetSamusFall.
+            bool unlockedSamus = !motherSamus.InputLocked &&
+                step.PhaseBefore != MotherBrainRainbowBeamAttackPhase.LetSamusFall &&
+                step.PhaseAfter == MotherBrainRainbowBeamAttackPhase.LetSamusFall;
             motherRuntime.StepFrame(0);
-            if (!step.UnlockedSamus)
+            if (!unlockedSamus)
                 continue;
 
             motherUnlocked = true;

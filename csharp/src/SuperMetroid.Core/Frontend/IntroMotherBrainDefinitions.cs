@@ -8,15 +8,15 @@ internal static class IntroMotherBrainDefinitions
 
     /// <summary><c>$8B:CE55</c>, intro Mother Brain initialization, pre-instruction, and initial list.</summary>
     public static IntroMotherBrainActorDefinition MotherBrain =>
-        new(0xce55, 0xb773, 0xb786, 0xcb05);
+        new(0xcb05);
 
     /// <summary><c>$8B:CF15</c>, large explosion initialization, pre-instruction, and initial list.</summary>
     public static IntroMotherBrainActorDefinition BigExplosionActor =>
-        new(0xcf15, 0xb98d, 0xba0f, 0xcdab);
+        new(0xcdab);
 
     /// <summary><c>$8B:CF1B</c>, small explosion initialization, pre-instruction, and initial list.</summary>
     public static IntroMotherBrainActorDefinition SmallExplosionActor =>
-        new(0xcf1b, 0xb9d4, 0xba0f, 0xcdcb);
+        new(0xcdcb);
 
     /// <summary><c>$8B:B773</c> fixes Mother Brain's cinematic origin at (56,111).</summary>
     public static (ushort X, ushort Y) MotherBrainOrigin => (0x0038, 0x006f);
@@ -68,9 +68,6 @@ internal static class IntroMotherBrainDefinitions
 
 /// <summary>One native six-byte bank-$8B cinematic-object definition.</summary>
 internal readonly record struct IntroMotherBrainActorDefinition(
-    ushort Pointer,
-    ushort Initialization,
-    ushort PreInstruction,
     ushort InstructionList);
 
 /// <summary>One signed origin-offset and start-delay record for an intro explosion actor.</summary>

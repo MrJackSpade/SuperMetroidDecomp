@@ -12,20 +12,12 @@ internal static class CeresElevatorArrivalDefinitions
     /// <summary>$86:A387, moving pad spawned first into enemy-projectile slot $22.</summary>
     internal static readonly CeresElevatorProjectileDefinition MovingPad = new(
         DefinitionPointer: 0xa387,
-        Initialization: 0xa2ee,
-        PreInstruction: 0xa328,
-        InitialInstruction: 0xa28d,
-        PackedRadius: 0x0101,
-        Properties: 0x3000);
+        InitialInstruction: 0xa28d);
 
     /// <summary>$86:A395, stationary level-data concealer spawned into slot $20.</summary>
     internal static readonly CeresElevatorProjectileDefinition StationaryPlatform = new(
         DefinitionPointer: 0xa395,
-        Initialization: 0xa31b,
-        PreInstruction: 0xa364,
-        InitialInstruction: 0xa299,
-        PackedRadius: 0x0101,
-        Properties: 0x3000);
+        InitialInstruction: 0xa299);
 
     /// <summary>$86:A301 clears the transient enemy graphics word in both projectiles.</summary>
     internal const ushort NativeGraphicsIndex = 0;
@@ -107,11 +99,7 @@ internal static class CeresElevatorArrivalDefinitions
 /// <summary>One immutable bank-$86 enemy-projectile header.</summary>
 internal readonly record struct CeresElevatorProjectileDefinition(
     ushort DefinitionPointer,
-    ushort Initialization,
-    ushort PreInstruction,
-    ushort InitialInstruction,
-    ushort PackedRadius,
-    ushort Properties);
+    ushort InitialInstruction);
 
 /// <summary>The three operations reachable from the two Ceres arrival programs.</summary>
 internal enum CeresElevatorProjectileOperation

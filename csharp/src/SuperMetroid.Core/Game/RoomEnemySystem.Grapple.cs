@@ -55,9 +55,7 @@ public sealed partial class RoomEnemySystem
                     "is not one of the translated common reactions."),
             };
             return new GrappleEnemyCollision(
-                Collided: true,
                 reaction,
-                nativeIndex,
                 enemy.XPosition,
                 enemy.YPosition,
                 enemy.Definition.Damage);

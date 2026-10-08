@@ -28,9 +28,10 @@ internal static partial class Program
             var samus = new SamusState { XPosition = 248, YPosition = (ushort)(y * 16 + 8) };
             SeedStationaryGrappleCollisionProbe(bus, samus);
             int before = plms.ActiveCount;
-            var reaction = SamusGrappleMovement.StepFiring(bus, level, samus,
+            SamusGrappleMovement.StepFiring(bus, level, samus,
                 (ushort)SuperMetroid.Core.Input.SnesButton.X, plms);
-            AssertTrue(reaction.CancelQueued, "grapple stops on rescue origin or extension");
+            AssertEqual(GrapplePhase.CancelPending, samus.Grapple.Phase,
+                "grapple stops on rescue origin or extension");
             AssertEqual(before, plms.ActiveCount, "zero grapple word cannot allocate the rescue animation");
             AssertEqual((byte)0x4f, level.GetCollisionBlock(15, 10).Behavior, "grapple leaves rescue wall intact");
             AssertTrue(!system.HasEvent(EventNumber.CrittersEscaped), "grapple alone cannot rescue animals");

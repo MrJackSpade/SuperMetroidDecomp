@@ -38,7 +38,7 @@ internal static class DraygonCannonPlmDrawDefinitions
     /// Shield frames advance two tiles; damaged frames advance one. Lower tiles
     /// are one tileset row (32 tiles) below their upper partners. Right art mirrors X.
     /// </summary>
-    internal readonly record struct Draw(ushort Pointer, bool Right, bool Shield, int Frame)
+    internal readonly record struct Draw(bool Right, bool Shield, int Frame)
     {
         internal int RunCount => Right ? 2 : 3;
         private void CheckRun(int run)
@@ -86,7 +86,7 @@ internal static class DraygonCannonPlmDrawDefinitions
         { right = false; shield = false; offset = pointer - LeftDamagedA; stride = 20; }
         else { draw = default; return false; }
         bool owned = offset % stride == 0;
-        draw = owned ? new(pointer, right, shield, offset / stride) : default;
+        draw = owned ? new(right, shield, offset / stride) : default;
         return owned;
     }
 

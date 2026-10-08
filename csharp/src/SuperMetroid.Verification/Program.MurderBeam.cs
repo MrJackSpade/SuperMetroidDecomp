@@ -52,6 +52,7 @@ internal static partial class Program
             "same-frame Boots Left+A equips all four beams while retaining Charge");
 
         shared.StepFrame(bus, level, samus, 0, 0);
+        SamusProjectileSlotObservation slotsBeforeFire = projectiles.ObserveSlots();
         SamusProjectileFrameResult fired = projectiles.StepFrame(
             bus,
             level,
@@ -61,7 +62,8 @@ internal static partial class Program
             0,
             0,
             shared);
-        AssertEqual((int?)0, fired.FiredSlot, "charged-left Murder Beam allocates slot zero");
+        AssertEqual((int?)0, slotsBeforeFire.FiredSlot(projectiles),
+            "charged-left Murder Beam allocates slot zero");
         AssertTrue(fired.QueuedSoundEffect is null,
             "Murder Beam's adjacent sound-table entry is zero");
 
@@ -244,7 +246,7 @@ internal static partial class Program
             "missile auto-cancel request retains the selected HUD index");
 
         shared.StepFrame(bus, level, samus, (ushort)SnesButton.X, (ushort)SnesButton.X);
-        SamusProjectileFrameResult missile = projectiles.StepFrame(
+        projectiles.StepFrame(
             bus,
             level,
             samus,
@@ -253,7 +255,8 @@ internal static partial class Program
             0,
             0,
             shared);
-        AssertTrue(missile.FiredSlot is not null, "auto-cancel setup fires one Missile");
+        AssertTrue(projectiles.LastFiredProjectileSnapshot is not null,
+            "auto-cancel setup fires one Missile");
         AssertEqual((ushort)0, samus.SelectedHudItem,
             "successful Missile auto-cancels back to beams");
         AssertEqual((ushort)0, samus.AutoCancelHudItemIndex,
@@ -261,11 +264,13 @@ internal static partial class Program
 
         HoldCharge(bus, level, samus, projectiles, shared, shootAlreadyHeld: true);
         shared.StepFrame(bus, level, samus, 0, 0);
-        SamusProjectileFrameResult murder = projectiles.StepFrame(
+        SamusProjectileSlotObservation slotsBeforeMurder = projectiles.ObserveSlots();
+        projectiles.StepFrame(
             bus, level, samus, 0, 0, 0, 0, shared);
-        AssertTrue(murder.FiredSlot is not null,
+        int? murderSlot = slotsBeforeMurder.FiredSlot(projectiles);
+        AssertTrue(murderSlot is not null,
             "missile cooldown suppresses the unsafe uncharged shot and permits charged release");
-        AssertEqual((ushort)0x901f, projectiles.Slots[murder.FiredSlot!.Value].Type,
+        AssertEqual((ushort)0x901f, projectiles.Slots[murderSlot!.Value].Type,
             "missile auto-cancel alternative produces Murder Beam");
     }
 

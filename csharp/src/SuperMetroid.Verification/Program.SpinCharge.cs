@@ -24,9 +24,9 @@ internal static partial class Program
             samus.Pose = pose;
             foreach (ushort input in new ushort[] { (ushort)SnesButton.X, 0, 0 })
             {
-                var result = projectiles.StepFrame(bus, air, samus, input, 0, 0, 0, bombs);
+                projectiles.StepFrame(bus, air, samus, input, 0, 0, 0, bombs);
                 AssertEqual(60, projectiles.FlareCounter, $"pose {pose:X2} preserves charge on hold/release");
-                AssertEqual((int?)null, result.FiredSlot, $"pose {pose:X2} does not produce a release shot");
+                AssertTrue(projectiles.LastFiredProjectileSnapshot is null, $"pose {pose:X2} does not produce a release shot");
                 AssertEqual(0, projectiles.ProjectileCounter, $"pose {pose:X2} keeps empty projectile slots");
             }
             // Leaving spin must restore normal release semantics, not lock charge forever.

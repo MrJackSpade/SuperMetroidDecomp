@@ -23,8 +23,9 @@ internal static partial class Program
         Suite(nameof(VerifySamusEaterProgramDraws), () => VerifySamusEaterProgramDraws(rom));
         Suite(nameof(VerifySamusEaterProgramSound), () => VerifySamusEaterProgramSound(rom));
 
-        foreach (SamusEaterPlmDefinition definition in definitions)
+        foreach (ushort headerPointer in new ushort[] { 0xb6cb, 0xb6cf })
         {
+            SamusEaterPlmDefinition definition = SamusEaterPlmDefinitions.Resolve(headerPointer);
             const int width = 4;
             const int height = 4;
             int blockCount = width * height;
@@ -45,11 +46,11 @@ internal static partial class Program
             samus.Kinematics.YRadius = 16;
 
             RoomCollisionBlock block = level.GetCollisionBlock(1, 1);
-            plms.TrySpawnSamusEater(level, block, definition.HeaderPointer, samus);
+            plms.TrySpawnSamusEater(level, block, headerPointer, samus);
 
             RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
             AssertEqual(39, slot.NativeSlotIndex, "Samus Eater uses highest free native slot");
-            AssertEqual(definition.HeaderPointer, slot.HeaderPointer, "Samus Eater header identity");
+            AssertEqual(headerPointer, slot.HeaderPointer, "Samus Eater header identity");
             AssertEqual(5, slot.BlockIndex, "Samus Eater trigger block");
             AssertEqual(
                 definition.InstructionListPointer,
@@ -87,7 +88,8 @@ internal static partial class Program
                 continue;
             }
             var actual = SamusEaterPlmDefinitions.Resolve(header);
-            AssertEqual(header, actual.HeaderPointer, "plant selected header identity");
+            AssertEqual(header == 0xb6cb ? SamusEaterPlmDefinitions.Floor : SamusEaterPlmDefinitions.Ceiling,
+                actual, "plant selected header identity");
             if (mounting)
             {
                 ushort setup = ReadSamusEaterPlmWord(rom, 0x840000 | header);

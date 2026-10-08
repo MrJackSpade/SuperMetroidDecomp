@@ -9,9 +9,7 @@ public sealed partial class RoomPlmSystem
     public IReadOnlyList<ScrollPlmSnapshot> ScrollPlms => _slots
         .Where(slot => slot.Active && slot.Scroll is not null)
         .Select(slot => new ScrollPlmSnapshot(
-            slot.BlockIndex,
-            slot.RoomArgument,
-            slot.Scroll!.Triggered))
+            slot.BlockIndex))
         .ToArray();
 
     /// <summary>
@@ -154,6 +152,4 @@ public sealed partial class RoomPlmSystem
 }
 
 public readonly record struct ScrollPlmSnapshot(
-    int BlockIndex,
-    ushort DataPointer,
-    bool Triggered);
+    int BlockIndex);

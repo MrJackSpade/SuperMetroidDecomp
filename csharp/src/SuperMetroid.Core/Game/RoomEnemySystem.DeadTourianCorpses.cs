@@ -16,7 +16,6 @@ public sealed partial class RoomEnemySystem
 
     private static readonly DeadTourianCorpseProfile DeadZoomerProfile = new(
         DeadTourianCorpseSpecies.Zoomer,
-        DeadZoomerDefinition,
         WaitFunction: 0xda69,
         PreRotFunction: 0xda94,
         RottingFunction: 0xdad0,
@@ -26,7 +25,6 @@ public sealed partial class RoomEnemySystem
 
     private static readonly DeadTourianCorpseProfile DeadRipperProfile = new(
         DeadTourianCorpseSpecies.Ripper,
-        DeadRipperDefinition,
         WaitFunction: 0xda73,
         PreRotFunction: 0xda99,
         RottingFunction: 0xdae6,
@@ -36,7 +34,6 @@ public sealed partial class RoomEnemySystem
 
     private static readonly DeadTourianCorpseProfile DeadSkreeProfile = new(
         DeadTourianCorpseSpecies.Skree,
-        DeadSkreeDefinition,
         WaitFunction: 0xda6e,
         PreRotFunction: 0xda9e,
         RottingFunction: 0xdafc,
@@ -330,7 +327,6 @@ public sealed partial class RoomEnemySystem
 
     internal sealed record DeadTourianCorpseProfile(
         DeadTourianCorpseSpecies Species,
-        ushort DefinitionPointer,
         ushort WaitFunction,
         ushort PreRotFunction,
         ushort RottingFunction,

@@ -8,9 +8,18 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
-    private static void VerifyPauseBeamMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, 1, 0x82c04c, 5);
-    private static void VerifyPauseSuitMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, 2, 0x82c056, 6);
-    private static void VerifyPauseBootMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, 3, 0x82c062, 3);
+    /// <summary>Native $82:C04C/$C056/$C062 beam, suit/misc and boot upgrade-mask tables.</summary>
+    private static int PauseMaskTableAddress(int category) => category switch
+    {
+        1 => 0x82c04c,
+        2 => 0x82c056,
+        3 => 0x82c062,
+        _ => throw new ArgumentOutOfRangeException(nameof(category)),
+    };
+
+    private static void VerifyPauseBeamMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, 1, PauseMaskTableAddress(1), 5);
+    private static void VerifyPauseSuitMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, 2, PauseMaskTableAddress(2), 6);
+    private static void VerifyPauseBootMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, 3, PauseMaskTableAddress(3), 3);
 
     private static void VerifyPauseMaskCases(ISnesAddressSpace rom, int category, int address, int count)
     {
@@ -65,7 +74,7 @@ internal static partial class Program
         {
             var definition = PauseEquipmentCategories.Get(category);
             ushort[] masks = Enumerable.Range(0, definition.ItemCount)
-                .Select(item => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), definition.BitmaskTableAddress + item * 2)).ToArray();
+                .Select(item => PauseEquipmentRules.Mask(category, item)).ToArray();
             for (int item = 0; item < masks.Length; item++)
             {
                 var samus = Inventory(category, masks[item]);
@@ -137,7 +146,7 @@ internal static partial class Program
             if ((uint)(address - PauseMenuRomData.EquipmentSetTable) < 8 ||
                 (uint)(address - PauseReserveTransferRomData.TransferAmount) < 2 ||
                 Enumerable.Range(0, 4).Select(PauseEquipmentCategories.Get).Any(category => category.ItemCount != 0 &&
-                    (uint)(address - category.BitmaskTableAddress) < category.ItemCount * 2))
+                    (uint)(address - PauseMaskTableAddress(category.Category)) < category.ItemCount * 2))
                 throw new InvalidOperationException($"Pause read compiled inventory/transfer rule at {address:X6}.");
             return source.ReadByte(address);
         }

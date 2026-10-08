@@ -11,15 +11,13 @@ internal static partial class Program
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Load-station oracle revision");
         Suite(nameof(VerifyLoadStationDomain), () => VerifyLoadStationDomain(rom));
-        Suite(nameof(VerifyLoadStationListPointers), () => VerifyLoadStationListPointers(rom));
         Suite(nameof(VerifyLoadStationRoomPointer), () => VerifyLoadStationRoomPointer(rom));
         Suite(nameof(VerifyLoadStationDoorPointer), () => VerifyLoadStationDoorPointer(rom));
-        Suite(nameof(VerifyLoadStationDoorBts), () => VerifyLoadStationDoorBts(rom));
         Suite(nameof(VerifyLoadStationCameraX), () => VerifyLoadStationCameraX(rom));
         Suite(nameof(VerifyLoadStationCameraY), () => VerifyLoadStationCameraY(rom));
         Suite(nameof(VerifyLoadStationSamusYOffset), () => VerifyLoadStationSamusYOffset(rom));
         Suite(nameof(VerifyLoadStationSamusXOffset), () => VerifyLoadStationSamusXOffset(rom));
-        Console.WriteLine("Load stations: all134 original records, seven area pointers/lengths, seven placement fields and complete byte area/station bounds pass.");
+        Console.WriteLine("Load stations: all134 original records, seven area lengths, six placement fields and complete byte area/station bounds pass.");
     }
 
     private static int OriginalLoadStationCount(SuperMetroidAddressSpace rom, int area)
@@ -50,11 +48,7 @@ internal static partial class Program
             {
                 byte station = (byte)stationValue;
                 if (stationValue < count)
-                {
-                    LoadStationEntry entry = LoadStationDefinitions.Get(area, station);
-                    AssertEqual(area, entry.RequestedAreaIndex, "Selected load-station area identity");
-                    AssertEqual(station, entry.StationIndex, "Selected load-station slot identity");
-                }
+                    _ = LoadStationDefinitions.Get(area, station);
                 else
                     AssertThrows<ArgumentOutOfRangeException>(() => LoadStationDefinitions.Get(area, station),
                         "Every unsupported area/station pair rejects before placeholder selection");
@@ -63,20 +57,8 @@ internal static partial class Program
         AssertEqual(134, total, "All original retail station slots");
     }
 
-    private static void VerifyLoadStationListPointers(SuperMetroidAddressSpace rom)
-    {
-        for (int area = 0; area < 7; area++)
-        {
-            ushort expected = ReadVerificationWord(rom, 0x80c4b5 + area * 2);
-            for (int station = 0; station < OriginalLoadStationCount(rom, area); station++)
-                AssertEqual(expected, LoadStationDefinitions.Get((AreaId)area, (byte)station).ListPointer,
-                    "Calculated prefix-sum pointer matches the original area-table word");
-        }
-    }
-
     private static void VerifyLoadStationRoomPointer(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.RoomPointer, "RoomPointer");
     private static void VerifyLoadStationDoorPointer(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.DoorPointer, "DoorPointer");
-    private static void VerifyLoadStationDoorBts(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.DoorBts, "DoorBts");
     private static void VerifyLoadStationCameraX(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.CameraX, "CameraX");
     private static void VerifyLoadStationCameraY(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.CameraY, "CameraY");
     private static void VerifyLoadStationSamusYOffset(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.SamusYOffset, "SamusYOffset");

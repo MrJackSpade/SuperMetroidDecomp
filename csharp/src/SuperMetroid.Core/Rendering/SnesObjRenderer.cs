@@ -278,10 +278,6 @@ public static class SnesObjRenderer
 /// </summary>
 /// <param name="Pixels">Winning opaque color at each pixel, or transparent RGBA.</param>
 /// <param name="Priorities">Winning OBJ priority zero through three, or $FF when empty.</param>
-/// <param name="Width">Raster width used to resolve the parallel arrays.</param>
-/// <param name="Height">Raster height used to resolve the parallel arrays.</param>
 public readonly record struct ResolvedObjFrame(
     Rgba32[] Pixels,
-    byte[] Priorities,
-    int Width,
-    int Height);
+    byte[] Priorities);

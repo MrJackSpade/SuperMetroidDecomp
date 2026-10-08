@@ -95,8 +95,11 @@ internal static partial class Program
             AssertEqual((ushort)0xb0b6,
                 level.GetCollisionBlockByIndex(blockIndex).LevelWord,
                 "edited reveal retains compiled type-B physical level word");
+            // A PLM redraw identifies its block by the BG1 ring destination of that block.
+            ushort blockDestination = level.CreateBackgroundStreamer()
+                .BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
             AssertTrue(plms.TilemapUpdates.Any(update =>
-                    update.BlockIndex == blockIndex && update.TopRow[0] == 0x0058),
+                    update.TopRowDestination == blockDestination && update.TopRow[0] == 0x0058),
                 "edited reveal reaches the immediate tilemap update");
             AssertEqual((ushort)0x0058,
                 level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(

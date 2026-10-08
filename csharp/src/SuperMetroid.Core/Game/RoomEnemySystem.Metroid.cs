@@ -23,11 +23,7 @@ public enum MetroidAiFunction : ushort
 /// actors remain owned by the shared enemy-projectile pool; retaining all five authored
 /// requests makes their source, RNG scatter, and eventual integration explicit.
 /// </summary>
-public readonly record struct MetroidDropRequest(
-    ushort XPosition,
-    ushort YPosition,
-    ushort EnemyDefinitionPointer,
-    ushort SourceSpriteObjectIndex);
+public readonly record struct MetroidDropRequest();
 
 /// <summary>
 /// Typed view of ordinary Metroid's six common enemy variables plus its three parallel
@@ -461,11 +457,7 @@ public sealed partial class RoomEnemySystem
             ushort random = _nextRandom!();
             ushort x = unchecked((ushort)(slot.XPosition + (random & 0x001f) - 16));
             ushort y = unchecked((ushort)(slot.YPosition + ((random & 0x1f00) >> 8) - 16));
-            _metroidDropRequests.Add(new MetroidDropRequest(
-                x,
-                y,
-                MetroidDefinition,
-                state.OuterBodyB.NativeIndex));
+            _metroidDropRequests.Add(new MetroidDropRequest());
             SpawnEnemyDropFromEnemyHeader(x, y, MetroidDefinition);
         }
     }

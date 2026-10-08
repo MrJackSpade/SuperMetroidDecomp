@@ -38,7 +38,7 @@ internal static partial class Program
             0, 0, 0, scrolls);
         AssertEqual((byte)RoomScrollState.Green, scrolls.ReadStorage(0),
             "compiled retail scroll program mutates the intended cell");
-        AssertTrue(!plms.ScrollPlms[0].Triggered,
+        AssertTrue(!plms.ScrollPlmTriggered(level.GetBlockIndex(8, 13)),
             "retail scroll trigger returns to resident sleep");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "retail scroll PLM did not read any compiled program from the ROM bus");

@@ -11,20 +11,18 @@ internal static partial class Program
         Suite(nameof(VerifyIntroMotherBrainInstructions), () => VerifyIntroMotherBrainInstructions(retail));
         Suite(nameof(VerifyIntroMotherBrainExplosionPrograms), () => VerifyIntroMotherBrainExplosionPrograms(retail));
 
-        IntroMotherBrainActorDefinition[] actors =
+        // Native six-byte definition records `$8B:CE55`, `$8B:CF15`, and `$8B:CF1B`; the
+        // initial instruction list is the record's third word.
+        (ushort Pointer, IntroMotherBrainActorDefinition Definition)[] actors =
         [
-            IntroMotherBrainDefinitions.MotherBrain,
-            IntroMotherBrainDefinitions.BigExplosionActor,
-            IntroMotherBrainDefinitions.SmallExplosionActor,
+            (0xce55, IntroMotherBrainDefinitions.MotherBrain),
+            (0xcf15, IntroMotherBrainDefinitions.BigExplosionActor),
+            (0xcf1b, IntroMotherBrainDefinitions.SmallExplosionActor),
         ];
         for (int index = 0; index < actors.Length; index++)
         {
-            IntroMotherBrainActorDefinition actual = actors[index];
-            int address = IntroMotherBrainDefinitions.NativeBank | actual.Pointer;
-            AssertEqual(ReadIntroMotherBrainWord(retail, address), actual.Initialization,
-                $"intro Mother Brain actor {index} initialization callback");
-            AssertEqual(ReadIntroMotherBrainWord(retail, address + 2), actual.PreInstruction,
-                $"intro Mother Brain actor {index} pre-instruction callback");
+            (ushort pointer, IntroMotherBrainActorDefinition actual) = actors[index];
+            int address = IntroMotherBrainDefinitions.NativeBank | pointer;
             AssertEqual(ReadIntroMotherBrainWord(retail, address + 4), actual.InstructionList,
                 $"intro Mother Brain actor {index} instruction list");
         }

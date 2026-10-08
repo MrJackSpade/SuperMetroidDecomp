@@ -111,8 +111,12 @@ internal static partial class Program
         AssertEqual(physicalWord,
             level.GetCollisionBlockByIndex(blockIndex).LevelWord,
             $"Crocomire visual header ${header:X4} retains physical block");
+        // $84:8E7C places block (x, y) in BG1's two-screen ring at this word (BG1 X offset zero).
+        int ringX = (blockIndex % width) & 0x1f;
+        int ringY = (blockIndex / width) & 0x0f;
+        ushort blockDestination = (ushort)((ringX < 0x10 ? 0x5000 : 0x53e0) + ringY * 0x40 + ringX * 2);
         AssertTrue(plms.TilemapUpdates.Any(update =>
-                update.BlockIndex == blockIndex &&
+                update.TopRowDestination == blockDestination &&
                 update.TopRow[0] == visualWord),
             $"Crocomire visual header ${header:X4} presents edited tile");
         AssertEqual(0, guard.ForbiddenReadAttempts,

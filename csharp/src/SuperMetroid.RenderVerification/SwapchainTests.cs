@@ -6,6 +6,10 @@ using SuperMetroid.Rendering.Direct3D11;
 
 internal static partial class SwapchainTests
 {
+    /// <summary>Reads the worker mailbox's private publication counters under its own lock.</summary>
+    private static RenderMailboxCounterView MailboxCounters(D3D11RenderWorker worker) =>
+        PrivateState.Field<LatestRenderFrameMailbox>(worker, "mailbox").VerificationCounters;
+
     internal static void RunWorker(D3D11RenderDevice selection)
     {
         nint window = CreateWindowExW(0, "STATIC", "Hidden GPU worker verification", 0, 0, 0, 640, 480, 0, 0, 0, 0);
@@ -33,14 +37,14 @@ internal static partial class SwapchainTests
             long previousRedraws = worker.RetainedRedraws;
             worker.Resize(800, 600);
             PumpUntil(() => { worker.ThrowIfFaulted(); return worker.RetainedRedraws > previousRedraws && worker.LastDrawnSize == (800, 600); });
-            if (worker.MailboxMetrics.Published != 1000 || worker.LastConsumedSequence != 1000)
+            if (MailboxCounters(worker).Published != 1000 || worker.LastConsumedSequence != 1000)
                 throw new InvalidOperationException("Retained redraw consumed or manufactured a simulation frame.");
             previousRedraws = worker.RetainedRedraws;
             Interlocked.Exchange(ref injectedLoss, D3D11RecoveryPolicy.DeviceRemoved);
             worker.Resize(801, 601);
             PumpUntil(() => { worker.ThrowIfFaulted(); return worker.DeviceRecoveries == 1 &&
                 worker.RetainedRedraws > previousRedraws && worker.LastDrawnSize == (801, 601); });
-            if (worker.MailboxMetrics.Published != 1000 || worker.LastConsumedSequence != 1000)
+            if (MailboxCounters(worker).Published != 1000 || worker.LastConsumedSequence != 1000)
                 throw new InvalidOperationException("Device recovery manufactured a simulation frame.");
             var loss = worker.LastDeviceLoss;
             if (loss is null || loss.FailureHResult != D3D11RecoveryPolicy.DeviceRemoved ||
@@ -55,7 +59,7 @@ internal static partial class SwapchainTests
             if (worker.LastDeviceLoss?.FailureHResult != D3D11RecoveryPolicy.DeviceReset ||
                 worker.LastDeviceLoss!.Frame?.Generation != 2)
                 throw new InvalidOperationException("Reset diagnostic retained obsolete frame/failure context.");
-            var metrics = worker.MailboxMetrics;
+            RenderMailboxCounterView metrics = MailboxCounters(worker);
             var timings = worker.CaptureTimings();
             if (timings.CpuComposition.Observed == 0 || timings.CpuDisplayAndPresent.Observed == 0)
                 throw new InvalidOperationException("Worker did not record CPU submission/presentation timings.");

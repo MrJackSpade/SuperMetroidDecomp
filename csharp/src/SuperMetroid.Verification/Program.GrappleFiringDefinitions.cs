@@ -172,8 +172,8 @@ internal static partial class Program
             grapple.AnchorY = unchecked((ushort)(coordinate + 8));
             grapple.RopeLength = 32;
             samus.LiquidPhysics.BeginFrameSoundRequests();
-            var result = connect(bus, samus, grapple, coordinate, coordinate, true, false);
-            if (!result.LockedInPlace) continue;
+            connect(bus, samus, grapple, coordinate, coordinate, true, false);
+            if (grapple.Phase != GrapplePhase.ConnectedLocked) continue;
             locked++;
             AssertEqual(unchecked((ushort)(grapple.RopeStartX - Word(0x9bc122 + direction * 2))), samus.XPosition, "Locked connection body X");
             AssertEqual(unchecked((ushort)(grapple.RopeStartY - Word(0x9bc136 + direction * 2))), samus.YPosition, "Locked connection body Y ignores graphics correction");

@@ -173,11 +173,12 @@ internal static partial class Program
             AssertEqual((ushort)2, originalDuration, "Native Hyper Beam FX duration");
             for (int color = 0; color < 8; color++)
                 nativeCgram.SetColor(225 + color, ReadVerificationWord(bus, 0x8dd906 + 20 * expectedFrame + 2 * color));
-            HyperBeamPaletteFxStepResult extractedStep = extracted.Step(
+            int frameBefore = extracted.CurrentFrameIndex;
+            extracted.Step(
                 new ProjectileCompositionForbiddenBus(), extractedCgram, catalog);
-            AssertEqual(expectedFrame, extractedStep.FrameIndex, "Native FX frame order including loop");
-            AssertEqual((call & 1) == 0, extractedStep.PaletteWritten, "Native FX paint/hold cadence");
-            AssertEqual((ushort)((call & 1) == 0 ? originalDuration : originalDuration - 1), extractedStep.InstructionTimer, "Native FX timer");
+            AssertEqual(expectedFrame, extracted.CurrentFrameIndex, "Native FX frame order including loop");
+            AssertEqual((call & 1) == 0, extracted.CurrentFrameIndex != frameBefore, "Native FX paint/hold cadence");
+            AssertEqual((ushort)((call & 1) == 0 ? originalDuration : originalDuration - 1), extracted.InstructionTimer, "Native FX timer");
             AssertTrue(nativeCgram.Colors.SequenceEqual(extractedCgram.Colors),
                 "Extracted Hyper Beam frame matches full CGRAM including untouched colors");
         }

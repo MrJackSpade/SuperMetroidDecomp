@@ -52,7 +52,8 @@ internal static partial class Program
                     }
                 }
                 shared.StepFrame(bus, room, samus, input, input);
-                var result = projectiles.StepFrame(bus, room, samus, input, input, cameraX, cameraY, shared);
+                SamusProjectileSlotObservation beforeStep = projectiles.ObserveSlots();
+                projectiles.StepFrame(bus, room, samus, input, input, cameraX, cameraY, shared);
                 if (native is not null)
                 {
                     ushort[] actual = [cameraX, cameraY, shot.XPosition, shot.XSubposition,
@@ -62,7 +63,7 @@ internal static partial class Program
                         $"Native Hero trace vertical={vertical}, camera={cameraMode}, frame={frame}: actual {string.Join(',', actual.Select(x => x.ToString("X4")))}");
                     comparedFrames++;
                 }
-                if (frame == 0) AssertEqual((int?)0, result.FiredSlot, "Hero fixture fires through normal input dispatch");
+                if (frame == 0) AssertEqual((int?)0, beforeStep.FiredSlot(projectiles), "Hero fixture fires through normal input dispatch");
                 if (shot.PackedType.Family == SamusProjectileFamily.BeamExplosion)
                 {
                     impactFrame = frame;

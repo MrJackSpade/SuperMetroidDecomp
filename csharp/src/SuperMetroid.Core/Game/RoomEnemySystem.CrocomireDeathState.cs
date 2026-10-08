@@ -7,10 +7,7 @@ public readonly record struct CrocomirePlmRequest(byte BlockX, byte BlockY, usho
 public readonly record struct CrocomireMusicRequest(MusicCommand Command, MusicCommandDelay Delay);
 
 /// <summary>Boss-specific pickup request emitted by <c>Enemy_ItemDrop_Crocomire</c>.</summary>
-public readonly record struct CrocomireDropRequest(
-    ushort X,
-    ushort Y,
-    ushort ItemDropChancesPointer);
+public readonly record struct CrocomireDropRequest();
 
 /// <summary>
 /// Typed host projection of Crocomire's non-slot WRAM. The cartridge stores these values in

@@ -57,7 +57,7 @@ internal static class SamusPoseInputRulesEarly
     /// <summary>$91:A0DC TransitionTable list for pose $2F: native priority order.</summary>
     private static SamusPoseInputMatch MatchEmptyTransitionList(ushort held, ushort newlyPressed)
     {
-        return new(null, -1, HasConditions: false);
+        return new(null, HasConditions: false);
     }
 
     /// <summary>$91:A0DE TransitionTable_00_9B_FacingForward: native priority order.</summary>
@@ -67,7 +67,7 @@ internal static class SamusPoseInputRulesEarly
             return Accept(0, None, Right, SamusPoseId.TurningLeftToRightPose);
         if (Has(held, Left))
             return Accept(1, None, Left, SamusPoseId.TurningRightToLeftPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A0EC TransitionTable_01_03_05_07_A4_A6_E0_E2_E4_E6_FacingRight: native priority order.</summary>
@@ -117,7 +117,7 @@ internal static class SamusPoseInputRulesEarly
             return Accept(20, None, AimDown, SamusPoseId.StandingAimDiagonalDownRightPose);
         if (Has(held, Right))
             return Accept(21, None, Right, SamusPoseId.MovingRightNormalPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A172 TransitionTable_02_04_06_08_A5_A7_E1_E3_E5_E7_FacingLeft: native priority order.</summary>
@@ -167,7 +167,7 @@ internal static class SamusPoseInputRulesEarly
             return Accept(20, None, AimDown, SamusPoseId.StandingAimDiagonalDownLeftPose);
         if (Has(held, Left))
             return Accept(21, None, Left, SamusPoseId.MovingLeftNormalPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A1F8 TransitionTable_09_0D_0F_11_MovingRight: native priority order.</summary>
@@ -197,7 +197,7 @@ internal static class SamusPoseInputRulesEarly
             return Accept(10, None, AimUp, SamusPoseId.StandingAimDiagonalUpRightPose);
         if (Has(held, AimDown))
             return Accept(11, None, AimDown, SamusPoseId.StandingAimDiagonalDownRightPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A242 TransitionTable_0A_0E_10_12_MovingLeft: native priority order.</summary>
@@ -227,7 +227,7 @@ internal static class SamusPoseInputRulesEarly
             return Accept(10, None, AimUp, SamusPoseId.StandingAimDiagonalUpLeftPose);
         if (Has(held, AimDown))
             return Accept(11, None, AimDown, SamusPoseId.StandingAimDiagonalDownLeftPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A28C TransitionTable_4B_55_57_59_FacingRight_NormalJumpTransition: native priority order.</summary>
@@ -249,7 +249,7 @@ internal static class SamusPoseInputRulesEarly
             return Accept(6, None, Shoot | Jump, SamusPoseId.NormalJumpGunExtendedRightPose);
         if (Has(held, Shoot))
             return Accept(7, None, Shoot, SamusPoseId.NormalJumpGunExtendedRightPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A2BE TransitionTable_4C_56_58_5A_FacingLeft_NormalJumpTransition: native priority order.</summary>
@@ -273,7 +273,7 @@ internal static class SamusPoseInputRulesEarly
             return Accept(7, None, Right, SamusPoseId.TurningLeftToRightJumpPose);
         if (Has(held, Shoot))
             return Accept(8, None, Shoot, SamusPoseId.NormalJumpGunExtendedLeftPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A2F6 TransitionTable_15_4D_51_69_6B_FacingRight_NormalJump: native priority order.</summary>
@@ -321,7 +321,7 @@ internal static class SamusPoseInputRulesEarly
             return Accept(19, None, Jump, SamusPoseId.NeutralJumpRightPose);
         if (Has(held, Shoot))
             return Accept(20, None, Shoot, SamusPoseId.NormalJumpGunExtendedRightPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A376 TransitionTable_16_4E_52_6A_6C_FacingLeft_NormalJump: native priority order.</summary>
@@ -369,7 +369,7 @@ internal static class SamusPoseInputRulesEarly
             return Accept(19, None, Jump, SamusPoseId.NeutralJumpLeftPose);
         if (Has(held, Shoot))
             return Accept(20, None, Shoot, SamusPoseId.NormalJumpGunExtendedLeftPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A3F6 TransitionTable_4F_FacingLeft_DamageBoost: native priority order.</summary>
@@ -381,7 +381,7 @@ internal static class SamusPoseInputRulesEarly
             return Accept(1, None, Jump | Right, SamusPoseId.DamageBoostLeftPose);
         if (Has(held, Jump))
             return Accept(2, None, Jump, SamusPoseId.NeutralJumpLeftPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A40A TransitionTable_50_FacingRight_DamageBoost: native priority order.</summary>
@@ -393,7 +393,7 @@ internal static class SamusPoseInputRulesEarly
             return Accept(1, None, Jump | Right, SamusPoseId.NormalJumpForwardRightPose);
         if (Has(held, Jump))
             return Accept(2, None, Jump, SamusPoseId.NeutralJumpRightPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A41E TransitionTable_19_FacingRight_SpinJump: native priority order.</summary>
@@ -425,7 +425,7 @@ internal static class SamusPoseInputRulesEarly
             return Accept(11, None, Right, SamusPoseId.SpinJumpRightPose);
         if (Has(held, Left))
             return Accept(12, None, Left, SamusPoseId.SpinJumpLeftPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A46E TransitionTable_1A_FacingLeft_SpinJump: native priority order.</summary>
@@ -457,7 +457,7 @@ internal static class SamusPoseInputRulesEarly
             return Accept(11, None, Left, SamusPoseId.SpinJumpLeftPose);
         if (Has(held, Right))
             return Accept(12, None, Right, SamusPoseId.SpinJumpRightPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A4BE TransitionTable_1B_FacingRight_SpaceJump: native priority order.</summary>
@@ -489,7 +489,7 @@ internal static class SamusPoseInputRulesEarly
             return Accept(11, None, Right, SamusPoseId.SpaceJumpRightPose);
         if (Has(held, Left))
             return Accept(12, None, Left, SamusPoseId.SpaceJumpLeftPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A50E TransitionTable_1C_FacingLeft_SpaceJump: native priority order.</summary>
@@ -521,7 +521,7 @@ internal static class SamusPoseInputRulesEarly
             return Accept(11, None, Left, SamusPoseId.SpaceJumpLeftPose);
         if (Has(held, Right))
             return Accept(12, None, Right, SamusPoseId.SpaceJumpRightPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A55E TransitionTable_81_ScrewAttack: native priority order.</summary>
@@ -553,7 +553,7 @@ internal static class SamusPoseInputRulesEarly
             return Accept(11, None, Right, SamusPoseId.ScrewAttackRightPose);
         if (Has(held, Left))
             return Accept(12, None, Left, SamusPoseId.ScrewAttackLeftPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A5AE TransitionTable_82_FacingLeft_ScrewAttack: native priority order.</summary>
@@ -585,7 +585,7 @@ internal static class SamusPoseInputRulesEarly
             return Accept(11, None, Left, SamusPoseId.ScrewAttackLeftPose);
         if (Has(held, Right))
             return Accept(12, None, Right, SamusPoseId.ScrewAttackRightPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A5FE TransitionTable_1D_FaceRight_MorphBall_NoSpringBall_OnGround: native priority order.</summary>
@@ -599,7 +599,7 @@ internal static class SamusPoseInputRulesEarly
             return Accept(2, None, Right, SamusPoseId.MorphBallMovingRightPose);
         if (Has(held, Left))
             return Accept(3, None, Left, SamusPoseId.MorphBallMovingLeftPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A618 TransitionTable_1E_MoveRight_MorphBall_NoSpringBall_OnGround: native priority order.</summary>
@@ -613,7 +613,7 @@ internal static class SamusPoseInputRulesEarly
             return Accept(2, None, Right, SamusPoseId.MorphBallMovingRightPose);
         if (Has(held, Left))
             return Accept(3, None, Left, SamusPoseId.MorphBallMovingLeftPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A632 TransitionTable_1F_MoveLeft_MorphBall_NoSpringBall_OnGround: native priority order.</summary>
@@ -627,7 +627,7 @@ internal static class SamusPoseInputRulesEarly
             return Accept(2, None, Right, SamusPoseId.MorphBallMovingRightPose);
         if (Has(held, Left))
             return Accept(3, None, Left, SamusPoseId.MorphBallMovingLeftPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A64C TransitionTable_1D_FaceLeft_MorphBall_NoSpringBall_OnGround: native priority order.</summary>
@@ -641,25 +641,25 @@ internal static class SamusPoseInputRulesEarly
             return Accept(2, None, Right, SamusPoseId.MorphBallMovingRightPose);
         if (Has(held, Left))
             return Accept(3, None, Left, SamusPoseId.MorphBallMovingLeftPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A666 TransitionTable list for pose $20: native priority order.</summary>
     private static SamusPoseInputMatch MatchUnusedPose20List(ushort held, ushort newlyPressed)
     {
-        return new(null, -1, HasConditions: false);
+        return new(null, HasConditions: false);
     }
 
     /// <summary>$91:A668 TransitionTable list for pose $23: native priority order.</summary>
     private static SamusPoseInputMatch MatchUnusedPose23List(ushort held, ushort newlyPressed)
     {
-        return new(null, -1, HasConditions: false);
+        return new(null, HasConditions: false);
     }
 
     /// <summary>$91:A66A TransitionTable list for pose $42: native priority order.</summary>
     private static SamusPoseInputMatch MatchUnusedPose42List(ushort held, ushort newlyPressed)
     {
-        return new(null, -1, HasConditions: false);
+        return new(null, HasConditions: false);
     }
 
     /// <summary>$91:A66C TransitionTable_27_71_73_85_FacingRight_Crouching: native priority order.</summary>
@@ -691,7 +691,7 @@ internal static class SamusPoseInputRulesEarly
             return Accept(11, None, AimDown, SamusPoseId.CrouchingAimDiagonalDownRightPose);
         if (Has(held, Right))
             return Accept(12, None, Right, SamusPoseId.FacingRightNormalPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A6BC TransitionTable_28_72_74_86_Crouching: native priority order.</summary>
@@ -723,7 +723,7 @@ internal static class SamusPoseInputRulesEarly
             return Accept(11, None, AimDown, SamusPoseId.CrouchingAimDiagonalDownLeftPose);
         if (Has(held, Left))
             return Accept(12, None, Left, SamusPoseId.FacingLeftNormalPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A70C TransitionTable_29_2B_6D_6F_FacingRight_Falling: native priority order.</summary>
@@ -751,7 +751,7 @@ internal static class SamusPoseInputRulesEarly
             return Accept(9, None, Shoot, SamusPoseId.FallingGunExtendedRightPose);
         if (Has(held, Right))
             return Accept(10, None, Right, SamusPoseId.FallingRightPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A750 TransitionTable_2A_2C_6E_70_FacingLeft_Falling: native priority order.</summary>
@@ -779,7 +779,7 @@ internal static class SamusPoseInputRulesEarly
             return Accept(9, None, Shoot, SamusPoseId.FallingGunExtendedLeftPose);
         if (Has(held, Left))
             return Accept(10, None, Left, SamusPoseId.FallingLeftPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A794 TransitionTable_31_FacingRight_MorphBall_NoSpringBall_InAir: native priority order.</summary>
@@ -793,7 +793,7 @@ internal static class SamusPoseInputRulesEarly
             return Accept(2, None, Right, SamusPoseId.MorphBallFallingRightPose);
         if (Has(held, Left))
             return Accept(3, None, Left, SamusPoseId.MorphBallFallingLeftPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A7AE TransitionTable_32_FacingLeft_MorphBall_NoSpringBall_InAir: native priority order.</summary>
@@ -807,19 +807,19 @@ internal static class SamusPoseInputRulesEarly
             return Accept(2, None, Left, SamusPoseId.MorphBallFallingLeftPose);
         if (Has(held, Right))
             return Accept(3, None, Right, SamusPoseId.MorphBallFallingRightPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A7C8 TransitionTable list for pose $33: native priority order.</summary>
     private static SamusPoseInputMatch MatchUnusedKnockbackRightPoseList(ushort held, ushort newlyPressed)
     {
-        return new(null, -1, HasConditions: false);
+        return new(null, HasConditions: false);
     }
 
     /// <summary>$91:A7CA TransitionTable list for pose $34: native priority order.</summary>
     private static SamusPoseInputMatch MatchUnusedKnockbackLeftPoseList(ushort held, ushort newlyPressed)
     {
-        return new(null, -1, HasConditions: false);
+        return new(null, HasConditions: false);
     }
 
     /// <summary>$91:A7CC UNUSED_TransitionTable_45_91A7CC: native priority order.</summary>
@@ -831,7 +831,7 @@ internal static class SamusPoseInputRulesEarly
             return Accept(1, None, Right, SamusPoseId.MovingRightNormalPose);
         if (Has(held, Left))
             return Accept(2, None, Left, SamusPoseId.TurningRightToLeftPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A7E0 UNUSED_TransitionTable_46_91A7E0: native priority order.</summary>
@@ -843,19 +843,19 @@ internal static class SamusPoseInputRulesEarly
             return Accept(1, None, Left, SamusPoseId.MovingLeftNormalPose);
         if (Has(held, Right))
             return Accept(2, None, Right, SamusPoseId.TurningLeftToRightPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A7F4 TransitionTable list for pose $47: native priority order.</summary>
     private static SamusPoseInputMatch MatchUnusedPose47List(ushort held, ushort newlyPressed)
     {
-        return new(null, -1, HasConditions: false);
+        return new(null, HasConditions: false);
     }
 
     /// <summary>$91:A834 TransitionTable list for pose $48: native priority order.</summary>
     private static SamusPoseInputMatch MatchUnusedPose48List(ushort held, ushort newlyPressed)
     {
-        return new(null, -1, HasConditions: false);
+        return new(null, HasConditions: false);
     }
 
     /// <summary>$91:A874 TransitionTable_49_75_77_FacingLeft_Moonwalk: native priority order.</summary>
@@ -879,7 +879,7 @@ internal static class SamusPoseInputRulesEarly
             return Accept(7, None, Left, SamusPoseId.MovingLeftNormalPose);
         if (Has(held, Right))
             return Accept(8, None, Right, SamusPoseId.TurningLeftToRightPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A8AC TransitionTable_4A_76_78_FacingRight_Moonwalk: native priority order.</summary>
@@ -903,7 +903,7 @@ internal static class SamusPoseInputRulesEarly
             return Accept(7, None, Right, SamusPoseId.MovingRightNormalPose);
         if (Has(held, Left))
             return Accept(8, None, Left, SamusPoseId.TurningRightToLeftPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A8E4 TransitionTable_53_FacingRight_Knockback: native priority order.</summary>
@@ -911,7 +911,7 @@ internal static class SamusPoseInputRulesEarly
     {
         if (Has(held, Jump | Left))
             return Accept(0, None, Jump | Left, SamusPoseId.DamageBoostRightPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A8EC TransitionTable_54_FacingLeft_Knockback: native priority order.</summary>
@@ -919,7 +919,7 @@ internal static class SamusPoseInputRulesEarly
     {
         if (Has(held, Jump | Right))
             return Accept(0, None, Jump | Right, SamusPoseId.DamageBoostLeftPose);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A8FC UNUSED_TransitionTable_5B_91A8FC: native priority order.</summary>
@@ -927,7 +927,7 @@ internal static class SamusPoseInputRulesEarly
     {
         if (Has(held, Jump | Left))
             return Accept(0, None, Jump | Left, SamusPoseId.UnusedPose66);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A904 UNUSED_TransitionTable_5C_91A904: native priority order.</summary>
@@ -935,6 +935,6 @@ internal static class SamusPoseInputRulesEarly
     {
         if (Has(held, Jump | Right))
             return Accept(0, None, Jump | Right, SamusPoseId.UnusedPose65);
-        return new(null, -1, HasConditions: true);
+        return new(null, HasConditions: true);
     }
 }

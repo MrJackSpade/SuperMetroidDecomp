@@ -334,11 +334,7 @@ public sealed partial class RoomEnemySystem
         }
 
         RoomEnemyDefinition eye = ResolveRoomEnemyDefinition(_bus!, PhantoonEyeDefinition);
-        _phantoonFlameDropRequests.Add(new PhantoonFlameDropRequest(
-            flame.XPosition,
-            flame.YPosition,
-            PhantoonEyeDefinition,
-            eye.ItemDropChancesPointer));
+        _phantoonFlameDropRequests.Add(new PhantoonFlameDropRequest());
         SpawnEnemyDropFromChanceTable(
             flame.XPosition,
             flame.YPosition,

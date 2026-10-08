@@ -9,17 +9,17 @@ internal static partial class Program
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyIntroRinkaPrograms), () => VerifyIntroRinkaPrograms(retail));
-        IntroRinkaActorDefinition[] actors =
+        // Native six-byte definitions $8B:CF21 (Rinka) and $8B:CF27 (spawner). Their first
+        // word, the initialization callback, has no port counterpart.
+        (IntroRinkaActorDefinition Actor, ushort NativePointer)[] actors =
         [
-            IntroRinkaDefinitions.RinkaActor,
-            IntroRinkaDefinitions.SpawnerActor,
+            (IntroRinkaDefinitions.RinkaActor, 0xcf21),
+            (IntroRinkaDefinitions.SpawnerActor, 0xcf27),
         ];
         for (int index = 0; index < actors.Length; index++)
         {
-            IntroRinkaActorDefinition actual = actors[index];
-            int address = IntroRinkaDefinitions.NativeBank | actual.Pointer;
-            AssertEqual(ReadIntroRinkaWord(retail, address), actual.Initialization,
-                $"intro Rinka actor {index} initialization callback");
+            IntroRinkaActorDefinition actual = actors[index].Actor;
+            int address = IntroRinkaDefinitions.NativeBank | actors[index].NativePointer;
             AssertEqual(ReadIntroRinkaWord(retail, address + 2), actual.PreInstruction,
                 $"intro Rinka actor {index} pre-instruction callback");
             AssertEqual(ReadIntroRinkaWord(retail, address + 4), actual.InstructionList,

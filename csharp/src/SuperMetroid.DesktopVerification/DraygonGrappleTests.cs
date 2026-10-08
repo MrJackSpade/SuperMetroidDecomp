@@ -23,10 +23,10 @@ internal static partial class Program
         ushort heldX = samus.XPosition, heldY = samus.YPosition;
         // Exercise the real connection consumer with a controlled attachable endpoint.
         // Acquisition semantics are shared with the room-block path; no pose is fabricated.
-        var connected = SamusGrappleMovement.StepFiring(loaded.AddressSpace, runtime.LevelData!, samus,
+        SamusGrappleMovement.StepFiring(loaded.AddressSpace, runtime.LevelData!, samus,
             (ushort)SnesButton.X, runtime.Plms,
-            (x, y) => new GrappleEnemyCollision(true, GrappleEnemyReaction.Attach, 0, x, y, 0));
-        if (!connected.Connected || samus.Grapple.Phase != GrapplePhase.ConnectedLocked)
+            (x, y) => new GrappleEnemyCollision(GrappleEnemyReaction.Attach, x, y, 0));
+        if (samus.Grapple.Phase != GrapplePhase.ConnectedLocked)
             throw new InvalidOperationException("Held grapple did not select the native locked connection.");
         CheckHeldBody();
         SamusGrappleMovement.Step(loaded.AddressSpace, runtime.LevelData!, samus, 0, 0);

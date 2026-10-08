@@ -1024,9 +1024,9 @@ static void VerifyBackgroundTilemapStreamer()
         VramYBlock: 5);
     TilemapStreamUpdate column = streamer.Build(columnRequest)!
         ?? throw new InvalidOperationException("Non-Mode-7 column was incorrectly skipped.");
-    AssertEqual(32, column.FirstHalves.Length, "column left staging words");
-    AssertEqual(0x0001, column.FirstHalves[0], "column top-left tile");
-    AssertEqual(0x0003, column.FirstHalves[1], "column bottom-left tile");
+    AssertEqual(32, column.Segments[0].SourceWords.Length, "column left staging words");
+    AssertEqual(0x0001, column.Segments[0].SourceWords[0], "column top-left tile");
+    AssertEqual(0x0003, column.Segments[0].SourceWords[1], "column bottom-left tile");
     AssertEqual(4, column.Segments.Count, "wrapped column DMA count");
     AssertEqual(22, column.Segments[0].WordCount, "column unwrapped word count");
     AssertEqual(10, column.Segments[2].WordCount, "column wrapped word count");
@@ -1050,9 +1050,9 @@ static void VerifyBackgroundTilemapStreamer()
         VramYBlock: 6);
     TilemapStreamUpdate row = streamer.Build(rowRequest)!
         ?? throw new InvalidOperationException("Non-Mode-7 row was incorrectly skipped.");
-    AssertEqual(34, row.FirstHalves.Length, "row top staging words");
-    AssertEqual(0x0001, row.FirstHalves[0], "row top-left tile");
-    AssertEqual(0x0002, row.FirstHalves[1], "row top-right tile");
+    AssertEqual(34, row.Segments[0].SourceWords.Length, "row top staging words");
+    AssertEqual(0x0001, row.Segments[0].SourceWords[0], "row top-left tile");
+    AssertEqual(0x0002, row.Segments[0].SourceWords[1], "row top-right tile");
     AssertEqual(22, row.Segments[0].WordCount, "row unwrapped word count");
     AssertEqual(12, row.Segments[2].WordCount, "row wrapped word count");
     AssertEqual(0x518a, row.Segments[0].VramWordDestination, "row unwrapped destination");
@@ -1085,9 +1085,9 @@ static void VerifyBackgroundTilemapStreamer()
             VramXBlock: 0,
             VramYBlock: 0))
         ?? throw new InvalidOperationException("Ceres door BG2 column was incorrectly skipped.");
-    AssertEqual(32, ceresDoorColumn.FirstHalves.Length,
+    AssertEqual(32, ceresDoorColumn.Segments[0].SourceWords.Length,
         "$83:AB7C complete off-room BG2 column allocation");
-    AssertEqual((ushort)0x0001, ceresDoorColumn.FirstHalves[^2],
+    AssertEqual((ushort)0x0001, ceresDoorColumn.Segments[0].SourceWords[^2],
         "$83:AB7C bottom overread retains prefilled block definition");
 
     AssertEqual<TilemapStreamUpdate?>(null, streamer.Build(rowRequest, mode7Enabled: true), "$80:AB78 Mode 7 return");

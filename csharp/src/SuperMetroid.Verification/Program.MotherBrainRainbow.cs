@@ -21,6 +21,11 @@ static void VerifyMotherBrainRainbowBeamSamusMovement()
     WriteTestWord(bus, 0xa0b443 + 0x40 * 2, 0x0100);
     WriteTestWord(bus, 0xa0b443 + 0xc0 * 2, 0xff00);
 
+    // The helpers add a signed 8.8 velocity to the whole Y word and only the high
+    // subposition byte, so the applied vertical velocity is the delta of that 8.8 view.
+    static ushort YEightEight(SamusState state) =>
+        unchecked((ushort)((state.YPosition << 8) | (state.Kinematics.YSubposition >> 8)));
+
     var movement = new MotherBrainRainbowBeamSamusMovement();
     var samus = new SamusState
     {
@@ -42,9 +47,7 @@ static void VerifyMotherBrainRainbowBeamSamusMovement()
     AssertEqual(0x01aa, samus.Kinematics.XSubposition, "rainbow fall preserves X low sub-byte");
     AssertEqual(101, samus.YPosition, "rainbow fall Y fractional carry");
     AssertEqual(0x08bb, samus.Kinematics.YSubposition, "rainbow fall preserves Y low sub-byte");
-    AssertEqual(first.After, first.CameraPreviousPosition,
-        "forced movement publishes new position as camera previous");
-    AssertTrue(!first.NativeCarry && !first.ReachedVerticalBoundary,
+    AssertTrue(!first.NativeCarry && samus.YPosition is > 0x0030 and < 0x00c0,
         "unclamped first fall returns clear vertical carry");
 
     // Exactly 127 more +$0002 updates carry the negative X word to zero. Native clamps it
@@ -61,14 +64,18 @@ static void VerifyMotherBrainRainbowBeamSamusMovement()
     // crosses from $7C.D0 to $7D.10 through the eight-bit fractional carry.
     samus.YPosition = 0x007c;
     samus.Kinematics.YSubposition = 0xd055;
-    MotherBrainForcedSamusMovementResult middleDown = MotherBrainRainbowBeamSamusMovement.MoveTowardMiddleOfWall(samus);
-    AssertEqual(0x0040, middleDown.YVelocity, "middle-wall below target velocity");
+    ushort middleDownBefore = YEightEight(samus);
+    MotherBrainRainbowBeamSamusMovement.MoveTowardMiddleOfWall(samus);
+    AssertEqual(0x0040, unchecked((ushort)(YEightEight(samus) - middleDownBefore)),
+        "middle-wall below target velocity");
     AssertEqual(0x007d, samus.YPosition, "middle-wall downward whole carry");
     AssertEqual(0x1055, samus.Kinematics.YSubposition, "middle-wall downward fraction");
 
     // Above $7C, two's-complement $FFC0 moves upward. $7D.10 + (-$00.40) becomes $7C.D0.
-    MotherBrainForcedSamusMovementResult middleUp = MotherBrainRainbowBeamSamusMovement.MoveTowardMiddleOfWall(samus);
-    AssertEqual(0xffc0, middleUp.YVelocity, "middle-wall above target velocity");
+    ushort middleUpBefore = YEightEight(samus);
+    MotherBrainRainbowBeamSamusMovement.MoveTowardMiddleOfWall(samus);
+    AssertEqual(0xffc0, unchecked((ushort)(YEightEight(samus) - middleUpBefore)),
+        "middle-wall above target velocity");
     AssertEqual(0x007c, samus.YPosition, "middle-wall upward whole borrow");
     AssertEqual(0xd055, samus.Kinematics.YSubposition, "middle-wall upward fraction");
 
@@ -79,8 +86,10 @@ static void VerifyMotherBrainRainbowBeamSamusMovement()
     samus.YPosition = 100;
     samus.Kinematics.YSubposition = 0x0033;
     movement.RainbowBeamAngle = SnesAngle.Zero;
+    ushort beamBefore = YEightEight(samus);
     MotherBrainForcedSamusMovementResult beam = movement.MoveTowardWall(bus, samus);
-    AssertEqual(0x1000, beam.YVelocity, "rainbow beam table-derived Y velocity");
+    AssertEqual(0x1000, unchecked((ushort)(YEightEight(samus) - beamBefore)),
+        "rainbow beam table-derived Y velocity");
     AssertEqual(116, samus.XPosition, "rainbow beam horizontal $10.00 step");
     AssertEqual(116, samus.YPosition, "rainbow beam vertical $10.00 step");
     AssertTrue(!beam.NativeCarry, "rainbow beam caller clears vertical-helper carry");
@@ -90,7 +99,7 @@ static void VerifyMotherBrainRainbowBeamSamusMovement()
     samus.Kinematics.XSubposition = 0x7777;
     samus.YPosition = 100;
     MotherBrainForcedSamusMovementResult wall = movement.MoveTowardWall(bus, samus);
-    AssertTrue(wall.ReachedWall && wall.NativeCarry, "rainbow beam wall clamp returns carry");
+    AssertTrue(samus.XPosition == 0x00eb && wall.NativeCarry, "rainbow beam wall clamp returns carry");
     AssertEqual(0x00eb, samus.XPosition, "rainbow beam hardcoded wall X $EB");
     AssertEqual(0, samus.Kinematics.XSubposition, "rainbow wall clamp clears X subposition");
     AssertEqual(100, samus.YPosition, "rainbow wall clamp skips vertical movement");
@@ -103,7 +112,7 @@ static void VerifyMotherBrainRainbowBeamSamusMovement()
     samus.Kinematics.YSubposition = 0x9999;
     movement.RainbowBeamAngle = SnesAngle.HalfTurn;
     MotherBrainForcedSamusMovementResult ceiling = movement.MoveTowardWall(bus, samus);
-    AssertTrue(ceiling.ReachedVerticalBoundary && !ceiling.NativeCarry,
+    AssertTrue(samus.YPosition == 0x0030 && samus.Kinematics.YSubposition == 0 && !ceiling.NativeCarry,
         "rainbow ceiling clamp is hidden from caller carry");
     AssertEqual(0x0030, samus.YPosition, "rainbow hardcoded ceiling Y $30");
     AssertEqual(0, samus.Kinematics.YSubposition, "rainbow ceiling clears Y subposition");
@@ -244,16 +253,16 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
         "wall carry installs one-frame-delay function");
     AssertTrue(wall.SoundQueued && wall.PaletteRequested,
         "wall function runs sound and bit-one palette cadence");
-    AssertEqual(0x0380, wall.AngularWidth, "wall function widens before aiming");
-    AssertTrue(wall.Explosion is { XOffset: 6, YOffset: 2, SoundEffect: 0x24 },
+    AssertEqual(0x0380, attack.AngularWidth, "wall function widens before aiming");
+    AssertTrue(wall.Explosion is { XOffset: 6, YOffset: 2 },
         "zero explosion timer increments to literal offset record one");
 
     MotherBrainRainbowBeamAttackStepResult delay = attack.Step(
         bus, samus, enemyFrameCounter: 0, mainEnemyExecutionCounter: 2);
     AssertEqual(MotherBrainRainbowBeamAttackPhase.StartDrainingSamus, attack.Phase,
         "zero delay timer underflows and schedules drain initializer");
-    AssertEqual(8, delay.EarthquakeType, "delay underflow selects earthquake type eight");
-    AssertEqual(8, delay.EarthquakeTimer, "delay underflow seeds eight-frame earthquake");
+    AssertEqual(8, attack.EarthquakeType, "delay underflow selects earthquake type eight");
+    AssertEqual(8, attack.EarthquakeTimer, "delay underflow seeds eight-frame earthquake");
 
     int drainCalls = 0;
     int queuedBeamSounds = (wall.SoundQueued ? 1 : 0) + (delay.SoundQueued ? 1 : 0);
@@ -285,17 +294,16 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
         "drain timer underflow installs finish-firing function");
 
     int narrowingCalls = 0;
-    bool observedUnlock = false;
+    bool lockedBeforeNarrowing = samus.InputLocked;
     while (attack.Phase == MotherBrainRainbowBeamAttackPhase.FinishFiring)
     {
-        MotherBrainRainbowBeamAttackStepResult narrowing = attack.Step(
+        attack.Step(
             bus, samus, enemyFrameCounter: 0, mainEnemyExecutionCounter: 0);
         narrowingCalls++;
-        observedUnlock |= narrowing.UnlockedSamus;
     }
     AssertEqual(7, narrowingCalls, "$0C00 beam narrows below $0200 in seven calls");
     AssertEqual(0x0200, attack.AngularWidth, "beam shutdown pins angular width floor");
-    AssertTrue(observedUnlock && !samus.InputLocked, "beam shutdown runs Samus command one");
+    AssertTrue(lockedBeforeNarrowing && !samus.InputLocked, "beam shutdown runs Samus command one");
     AssertTrue(!attack.HdmaActive, "beam shutdown disables its HDMA channel");
     AssertEqual(8, attack.SamusProjectileCooldownTimer,
         "beam shutdown reloads Samus projectile cooldown");
@@ -335,11 +343,12 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
         "low-health decision immediately installs native forward body walk");
     AssertEqual(1, attack.Body.InstructionTimer,
         "low-health decision makes forward walk eligible in same enemy frame");
+    ushort headBeforeFinishThreshold = attack.HeadInstructionList;
     MotherBrainRainbowBeamAttackStepResult finishThreshold = attack.Step(
         bus, samus, enemyFrameCounter: 0, mainEnemyExecutionCounter: 0);
     AssertEqual(MotherBrainRainbowBeamAttackPhase.FinishSamusOff, finishThreshold.PhaseAfter,
         "399 energy remains above no-suit finish threshold 340");
-    AssertEqual<MotherBrainFinishOffAttackKind?>(null, finishThreshold.FinishOffAttack,
+    AssertEqual(headBeforeFinishThreshold, attack.HeadInstructionList,
         "RNG zero takes finish-off no-attack branch");
 
     // Boundary 700 uses command five; 699 uses `$18`. The second fixture also proves that

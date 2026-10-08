@@ -116,11 +116,7 @@ public sealed class PhantoonEnemyState
 /// drop selector; retaining both that header and its table pointer makes the otherwise
 /// implicit choice explicit to the eventual pickup-system owner.
 /// </summary>
-public readonly record struct PhantoonFlameDropRequest(
-    ushort X,
-    ushort Y,
-    ushort EnemyDefinitionPointer,
-    ushort ItemDropChancesPointer);
+public readonly record struct PhantoonFlameDropRequest();
 
 public sealed partial class RoomEnemySystem
 {

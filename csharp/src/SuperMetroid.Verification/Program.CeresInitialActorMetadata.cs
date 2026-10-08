@@ -9,15 +9,14 @@ internal static partial class Program
         {
             CeresDestructionActorDefinition actor =
                 CeresDestructionActorDefinitions.InitialActor(index);
-            VerifyActor(retail, actor, $"initial destruction actor {index}");
             int[] spawnOperands = [0x8bc27d, 0x8bc283, 0x8bc28e];
             AssertEqual((byte)0xa0, retail.ReadByte(spawnOperands[index] - 1), "native destruction spawn LDY");
-            AssertEqual(ReadWord(retail, spawnOperands[index]), actor.Pointer, "native destruction spawn identity");
+            // The spawn operand names the native definition this compiled actor must match.
+            VerifyActor(retail, ReadWord(retail, spawnOperands[index]), actor,
+                preservesDefinitionCallback: index != 2, $"initial destruction actor {index}");
             AssertEqual((ushort)0, actor.SlideAcceleration, "destruction actor has no slide acceleration");
             AssertEqual((ushort)0, actor.SlidePreInstruction, "destruction actor has no slide callback");
             AssertEqual(false, actor.CompletesScene, "destruction actor does not own Zebes completion");
-            if (index != 2)
-                AssertEqual(actor.DefinitionPreInstruction, actor.ActivePreInstruction, "asteroid initializer preserves callback");
         }
         Suite(nameof(VerifyWrappedActor), () => VerifyWrappedActor(retail, CeresDestructionActorDefinitions.InitialActor(0),
             0x8bbf23, 0x8bbf29, 0x8bbf2f, 0x8bbf3a, 0x8bbf46,
@@ -45,14 +44,17 @@ internal static partial class Program
 
         static void VerifyActor(
             ISnesAddressSpace source,
+            ushort definitionPointer,
             CeresDestructionActorDefinition actor,
+            bool preservesDefinitionCallback,
             string name)
         {
-            int address = CeresDestructionActorDefinitions.NativeBank | actor.Pointer;
-            AssertEqual(ReadWord(source, address), actor.Initialization,
-                $"{name} initialization callback");
-            AssertEqual(ReadWord(source, address + 2), actor.DefinitionPreInstruction,
-                $"{name} definition pre-instruction");
+            int address = CeresDestructionActorDefinitions.NativeBank | definitionPointer;
+            // The asteroid initializers keep the definition's pre-instruction; only the
+            // vortex's parameter-zero initializer replaces it with the no-op override.
+            if (preservesDefinitionCallback)
+                AssertEqual(ReadWord(source, address + 2), actor.ActivePreInstruction,
+                    $"{name} initializer preserves definition pre-instruction");
             AssertEqual(ReadWord(source, address + 4), actor.InstructionList,
                 $"{name} instruction list");
         }

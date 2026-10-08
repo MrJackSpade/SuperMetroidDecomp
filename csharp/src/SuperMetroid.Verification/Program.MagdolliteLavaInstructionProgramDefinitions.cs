@@ -94,10 +94,15 @@ internal static partial class Program
             "Magdollite shot program follows its native goto into shared delete");
         AssertTrue(enemies.LastMagdolliteLavaDropRequest is not null,
             "Magdollite shot program executes its native drop callback");
-        AssertEqual(source.XPosition, enemies.LastMagdolliteLavaDropRequest!.Value.X,
+        // `$86:DFEA` allocates its pickup actor at the shot projectile's position.
+        RoomEnemyProjectileSlot drop = enemies.EnemyProjectiles.Single(
+            projectile =>
+                projectile.IsActive &&
+                projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup);
+        AssertEqual(source.XPosition, drop.XPosition,
             "Magdollite drop preserves projectile X");
         AssertEqual(unchecked((ushort)(source.YPosition + 2)),
-            enemies.LastMagdolliteLavaDropRequest!.Value.Y,
+            drop.YPosition,
             "Magdollite drop preserves projectile Y");
 
         AssertEqual(

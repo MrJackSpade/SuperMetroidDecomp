@@ -24,8 +24,10 @@ internal static class RetailCeresQuakeTests
                 // Native door actors produce quake requests and the shared room
                 // scheduler advances them. Do not inject screen offsets into capture.
                 runtime.StepFrame(0);
+                // HandleRoomShaking publishes the default (zero) delta on frames it does not
+                // shake, so a non-default delta is a frame that displaced the backgrounds.
                 var shake = runtime.Enemies.LastRoomShake;
-                if (shake.Applied) { shaking++; offsets.Add(shake); }
+                if (shake != default) { shaking++; offsets.Add(shake); }
                 var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
                 var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), GameplayDisplayCapture.TryCaptureFrame(runtime)!);
                 packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(packet));

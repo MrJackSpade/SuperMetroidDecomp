@@ -77,8 +77,8 @@ internal sealed class GhCliGitHubIssueClient : IGitHubIssueClient
             throw new InvalidOperationException(
                 $"GitHub CLI exited with code {process.ExitCode}: {error.Trim()}");
         }
-        return new ProcessResult(output, error);
+        return new ProcessResult(output);
     }
 
-    private sealed record ProcessResult(string StandardOutput, string StandardError);
+    private sealed record ProcessResult(string StandardOutput);
 }

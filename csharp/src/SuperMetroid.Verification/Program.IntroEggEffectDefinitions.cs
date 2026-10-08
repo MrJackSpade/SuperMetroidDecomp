@@ -9,9 +9,9 @@ internal static partial class Program
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyIntroEggEffectPrograms), () => VerifyIntroEggEffectPrograms(retail));
         for (int index = 0; index < IntroEggEffectDefinitions.ParticleCount; index++)
-            VerifyIntroEggEffectActor(retail, IntroEggEffectDefinitions.Particle(index),
+            VerifyIntroEggEffectActor(retail, unchecked((ushort)(0xcecd + index * 6)), IntroEggEffectDefinitions.Particle(index),
                 $"intro egg particle {index}");
-        Suite(nameof(VerifyIntroEggEffectActor), () => VerifyIntroEggEffectActor(retail, IntroEggEffectDefinitions.SlimeDrop,
+        Suite(nameof(VerifyIntroEggEffectActor), () => VerifyIntroEggEffectActor(retail, 0xcef1, IntroEggEffectDefinitions.SlimeDrop,
             "intro egg slime drop"));
         AssertThrows<ArgumentOutOfRangeException>(
             () => IntroEggEffectDefinitions.Particle(IntroEggEffectDefinitions.ParticleCount),
@@ -66,12 +66,12 @@ internal static partial class Program
 
     private static void VerifyIntroEggEffectActor(
         SuperMetroidAddressSpace retail,
+        ushort definitionPointer,
         IntroEggEffectActorDefinition actual,
         string name)
     {
-        int address = IntroEggEffectDefinitions.NativeDefinitionBank | actual.Pointer;
-        AssertEqual(ReadIntroEggEffectWord(retail, address), actual.Initialization,
-            $"{name} initialization callback");
+        // The six-byte header's first word (initialization callback) has no compiled owner.
+        int address = IntroEggEffectDefinitions.NativeDefinitionBank | definitionPointer;
         AssertEqual(ReadIntroEggEffectWord(retail, address + 2), actual.PreInstruction,
             $"{name} pre-instruction callback");
         AssertEqual(ReadIntroEggEffectWord(retail, address + 4), actual.InstructionList,

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>One immutable stock sprite's tile coverage and visible origin.</summary>
-internal readonly record struct DeadTorizoStockPart(int Tile, int X, int Y, int TileExtent);
+internal readonly record struct DeadTorizoStockPart(int Tile, int TileExtent);
 
 /// <summary>
 /// Stock $A9:D6E2-D760 composition, separate from editable display OAM. Its authored
@@ -29,21 +29,18 @@ internal static class DeadTorizoStationaryCompositionDefinitions
     internal static DeadTorizoStockPart Part(int index)
     {
         if ((uint)index >= Count) throw new IndexOutOfRangeException();
-        if (index == 0) return new(AnkleTile, AnkleX, AnkleY, 1);
+        if (index == 0) return new(AnkleTile, 1);
         if (index <= HeadParts)
         {
             int column = HeadParts - index;
-            return new(HeadTile + column * LargeExtent,
-                HeadX + column * LargeExtent * TilePixels, HeadY, LargeExtent);
+            return new(HeadTile + column * LargeExtent, LargeExtent);
         }
         int bodyPart = index - 1 - HeadParts;
         if (bodyPart < BodyColumns * BodyRows)
         {
             int row = bodyPart / BodyColumns, column = BodyColumns - 1 - bodyPart % BodyColumns;
-            return new(BodyTile + row * LargeExtent * SourceColumns + column * LargeExtent,
-                BodyX + column * LargeExtent * TilePixels,
-                BodyY + row * LargeExtent * TilePixels, LargeExtent);
+            return new(BodyTile + row * LargeExtent * SourceColumns + column * LargeExtent, LargeExtent);
         }
-        return new(FootTile, FootX, FootY, LargeExtent);
+        return new(FootTile, LargeExtent);
     }
 }

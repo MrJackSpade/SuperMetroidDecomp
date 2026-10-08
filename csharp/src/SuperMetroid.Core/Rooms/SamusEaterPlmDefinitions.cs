@@ -10,11 +10,11 @@ internal static class SamusEaterPlmDefinitions
 {
     /// <summary><c>$84:B6CB/$ACB8</c>, Brinstar floor plant and its initial instruction list.</summary>
     public static readonly SamusEaterPlmDefinition Floor =
-        new(0xb6cb, 0xacb8, Ceiling: false);
+        new(0xacb8, Ceiling: false);
 
     /// <summary><c>$84:B6CF/$ACF8</c>, Brinstar ceiling plant and its initial instruction list.</summary>
     public static readonly SamusEaterPlmDefinition Ceiling =
-        new(0xb6cf, 0xacf8, Ceiling: true);
+        new(0xacf8, Ceiling: true);
 
     /// <summary>Resolves one supported plant header without interpreting adjacent bank-$84 data.</summary>
     public static SamusEaterPlmDefinition Resolve(ushort headerPointer) => headerPointer switch
@@ -27,6 +27,5 @@ internal static class SamusEaterPlmDefinitions
 
 /// <summary>One Samus Eater PLM header paired with its initial list and mounting direction.</summary>
 internal readonly record struct SamusEaterPlmDefinition(
-    ushort HeaderPointer,
     ushort InstructionListPointer,
     bool Ceiling);

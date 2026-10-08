@@ -668,13 +668,18 @@ internal static partial class Program
 
         // $88:C3E9 installs the BG3 callback on the room's first HDMA pass; the
         // verification load skips the door fade that would otherwise run it.
+        // HandleRoomShaking leaves the default (zero) delta on a frame it does not shake;
+        // the rising-liquid type's BG1/BG2 X displacement words are nonzero, so every
+        // accepted frame of this effect publishes a non-default delta.
+        static bool Shook(RoomShakeFrameResult shake) => shake != default;
+
         runtime.StepFrame(0);
-        AssertTrue(!runtime.Enemies.LastRoomShake.Applied, "room $02/$28 callback install pass does not shake");
+        AssertTrue(!Shook(runtime.Enemies.LastRoomShake), "room $02/$28 callback install pass does not shake");
         AssertEqual(0, runtime.RoomLayer3Fx.SoundRequests.Count, "room $02/$28 callback install pass is silent");
 
         StepAndVerifySound(0);
         RoomShakeFrameResult dormantShake = runtime.Enemies.LastRoomShake;
-        AssertTrue(!dormantShake.Applied,
+        AssertTrue(!Shook(dormantShake),
             "room $02/$28 dormant rise initializer does not shake one frame early");
         AssertEqual(0, runtime.RoomLayer3Fx.SoundRequests.Count,
             "room $02/$28 dormant rise initializer does not sound one frame early");
@@ -690,7 +695,8 @@ internal static partial class Program
             "room $02/$28 earthquake sound queue cap");
         AssertEqual(RoomFxRomData.Earthquake.RisingLiquidType, runtime.Enemies.EarthquakeType,
             "room $02/$28 earthquake type");
-        AssertTrue(firstActiveShake.Applied && firstActiveShake.ShakesEnemies,
+        AssertTrue(Shook(firstActiveShake) &&
+            runtime.Enemies.EarthquakeType >= RoomFxRomData.Earthquake.FirstEnemyShakingType,
             "room $02/$28 first wait frame shakes backgrounds and enemies");
 
         int table = RoomFxRomData.Earthquake.BgDisplacementTableAddress +
@@ -725,7 +731,7 @@ internal static partial class Program
         for (int frame = 3; frame < RetailRoomFxDefinitions.MaximumRiseAuditFrames; frame++)
         {
             StepAndVerifySound(frame);
-            if (runtime.Enemies.LastRoomShake.Applied)
+            if (Shook(runtime.Enemies.LastRoomShake))
             {
                 appliedFrames++;
                 lastShakeFrame = frame;

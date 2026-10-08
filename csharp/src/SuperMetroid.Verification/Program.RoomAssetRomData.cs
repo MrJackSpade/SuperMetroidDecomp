@@ -57,8 +57,6 @@ internal static partial class Program
                 graphicsSet * sizeof(ushort);
             ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), pointerAddress);
             int definitionAddress = RoomAssetRomData.Tilesets.DefinitionBank | pointer;
-            AssertEqual(pointer, compiled.Pointer,
-                $"graphics set ${graphicsSet:X2} compiled definition pointer");
             AssertEqual(RomDataReader.ReadLongFixedBank(CartridgeImportSource.Require(bus),
                     definitionAddress + RoomAssetRomData.Tilesets.BlockDefinitionsAddressOffset),
                 compiled.BlockDefinitionsAddress,
@@ -303,6 +301,12 @@ internal static partial class Program
     private sealed class TilesetDefinitionReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        // The guarded range begins at graphics set zero's native definition, located once
+        // through the unguarded source's pointer table.
+        private readonly int firstDefinitionAddress = RoomAssetRomData.Tilesets.DefinitionBank |
+            RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source),
+                RoomAssetRomData.Tilesets.PointerTableAddress);
+
         public byte ReadByte(int address)
         {
             RejectDefinitionRead(address);
@@ -315,12 +319,11 @@ internal static partial class Program
             return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
         }
 
-        private static void RejectDefinitionRead(int address)
+        private void RejectDefinitionRead(int address)
         {
-            int first = RoomAssetRomData.Tilesets.DefinitionBank | RoomTilesetDefinitions.Get(0).Pointer;
             int end = RoomAssetRomData.Tilesets.PointerTableAddress +
                 RoomTilesetDefinitions.Count * sizeof(ushort);
-            if (address >= first && address < end)
+            if (address >= firstDefinitionAddress && address < end)
                 throw new InvalidOperationException(
                     $"Room loader reread compiled tileset definition data at ${address:X6}.");
         }

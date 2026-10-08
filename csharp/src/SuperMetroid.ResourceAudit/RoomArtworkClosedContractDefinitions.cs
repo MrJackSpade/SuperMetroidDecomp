@@ -4,7 +4,7 @@ namespace SuperMetroid.ResourceAudit;
 internal static class RoomArtworkClosedContractDefinitions
 {
     private static readonly ReviewedSource TilesetSources = new(
-        "csharp/src/SuperMetroid.Core/Rooms/RoomTilesetDefinitions.cs", "4E35C7055A72BBAF20BB7C8B6C2965E83480B361EF0851820B4A4E713C09845B");
+        "csharp/src/SuperMetroid.Core/Rooms/RoomTilesetDefinitions.cs", "27370C7F21BAA928E3A7491BE09D0182A94FAA9C902F2308EDE0730112EF33C9");
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.RoomCharacterAtlasCatalog", "room-complete-tileset-character-sources", ["Get"],

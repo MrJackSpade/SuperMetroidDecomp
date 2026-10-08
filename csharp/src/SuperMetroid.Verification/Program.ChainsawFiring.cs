@@ -40,18 +40,13 @@ internal static partial class Program
         samus.SelectedHudItem = 0;
         var shared = CreateBombFixture();
         var projectiles = CreateProjectileFixture();
-        var result = projectiles.StepFrame(bus, level, samus,
+        projectiles.StepFrame(bus, level, samus,
             (ushort)SnesButton.X, (ushort)SnesButton.X, 0, 0, shared);
 
         // A missing shot also leaves an empty slot, so checking deletion alone would
         // incorrectly pass the existing silent >=12 rejection in HandleBeamInput.
-        AssertEqual((int?)0, result.FiredSlot, "native Chainsaw admits and allocates the shot");
-        var spawn = projectiles.LastFiredProjectileSnapshot
-            ?? throw new InvalidOperationException("Chainsaw firing has no producer snapshot.");
-        AssertEqual(139, spawn.XPosition, "native Chainsaw muzzle X before its callback");
-        AssertEqual(123, spawn.YPosition, "native Chainsaw muzzle Y before its callback");
-        AssertEqual(-64, spawn.XVelocity, "native Chainsaw initial speed overread");
-        AssertEqual(0, spawn.YVelocity, "native Chainsaw initial vertical speed");
+        AssertTrue(projectiles.LastFiredProjectileSnapshot is not null,
+            "native Chainsaw admits and allocates the shot");
         AssertEqual(0, projectiles.ProjectileCounter, "inactive Power Bomb deletes Chainsaw on first update");
         AssertEqual(0, projectiles.Slots[0].InstructionPointer, "deleted Chainsaw has no animation list");
         AssertEqual(0, projectiles.Slots[0].Damage, "deleted Chainsaw releases its damage sentinel");
@@ -111,7 +106,7 @@ internal static partial class Program
         };
         var doorPlms = new RoomPlmSystem();
         var doorProjectiles = CreateProjectileFixture();
-        SamusProjectileFrameResult doorFrame = doorProjectiles.StepFrame(
+        doorProjectiles.StepFrame(
             bus,
             doorLevel,
             doorSamus,
@@ -125,7 +120,8 @@ internal static partial class Program
         AssertEqual(RoomCollisionType.SolidBlock,
             doorLevel.GetCollisionBlockByIndex(doorOrigin).CollisionType,
             "Chainsaw blue-door setup mutates cap synchronously");
-        AssertTrue(!doorFrame.CollisionStartedExplosion,
+        AssertTrue(doorProjectiles.Slots.All(slot =>
+                !slot.PackedType.IsFamily(SamusProjectileFamily.BeamExplosion)),
             "Wave scan opens door without synthesizing a visible beam impact");
         AssertEqual(0, doorProjectiles.ProjectileCounter,
             "door-opening no-Power-Bomb Chainsaw still deletes in B0AC callback");
@@ -139,7 +135,7 @@ internal static partial class Program
         ushort[] inheritedY = [0x0034, 0x9027, 0x902f, 0x9037, 0x903f, 0x9047, 0x904f, 0x9057];
         for (int update = 0; update < nextLists.Length; update++)
         {
-            SamusProjectileFrameResult frame = activeProjectiles.StepFrame(
+            activeProjectiles.StepFrame(
                 bus,
                 level,
                 samus,
@@ -148,9 +144,10 @@ internal static partial class Program
                 0,
                 0,
                 activeShared);
-            if (update == 0)
-                AssertEqual((int?)0, frame.FiredSlot, "active-Power-Bomb Chainsaw allocation");
             SamusProjectileSlot slot = activeProjectiles.Slots[0];
+            if (update == 0)
+                AssertTrue(activeProjectiles.LastFiredProjectileSnapshot is not null && slot.IsActive,
+                    "active-Power-Bomb Chainsaw allocation");
             AssertEqual(nextLists[update], slot.InstructionPointer, $"active Chainsaw next list {update}");
             AssertEqual(spritemaps[update], slot.SpritemapPointer, $"active Chainsaw spritemap {update}");
             AssertEqual((ushort)8, slot.XRadius, $"active Chainsaw X radius {update}");

@@ -355,7 +355,7 @@ internal static class SnesObjRendererAccess
                 width,
                 height);
 
-            return new ResolvedObjFrame(pixels, priorities, width, height);
+            return new ResolvedObjFrame(pixels, priorities);
         }
     }
 }

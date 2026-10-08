@@ -238,12 +238,7 @@ public sealed class SamusBombProjectileSystem
         byte publishedDirection = deferSamusOverlap ? (byte)0 : PublishBombJumpOverlap(samus);
 
         LastFrameResult = new BombProjectileFrameResult(
-            placedSlot,
-            explosionStarted,
-            projectileDeleted,
             publishedDirection,
-            blockReactions.ToArray(),
-            bombSpreadStarted,
             beamChargeConsumed,
             soundRequests.ToArray());
         return LastFrameResult;
@@ -858,11 +853,7 @@ public sealed class SamusBombProjectileSystem
         ushort projectileType)
     {
         RoomCollisionBlock visitedBlock = level.GetCollisionBlock(x, y);
-        reactions.Add(new BombBlockReaction(
-            x,
-            y,
-            visitedBlock.CollisionType,
-            visitedBlock.Bts));
+        reactions.Add(new BombBlockReaction());
 
         // `$94:9411/$9447` do not react to an extension block directly. A nonzero signed
         // BTS redirects CurrentBlockIndex horizontally (type $5) or by whole room rows
@@ -1261,12 +1252,7 @@ public sealed class SamusBombProjectileSlot
 
 /// <summary>One frame's debugger-visible bomb lifecycle transitions.</summary>
 public readonly record struct BombProjectileFrameResult(
-    int? PlacedSlot,
-    bool ExplosionStarted,
-    bool ProjectileDeleted,
     byte PublishedBombJumpDirection,
-    IReadOnlyList<BombBlockReaction>? BlockReactions,
-    bool BombSpreadStarted = false,
     bool BeamChargeConsumed = false,
     IReadOnlyList<SamusSoundRequest>? SoundRequests = null);
 
@@ -1281,8 +1267,4 @@ internal enum BombSpreadAdmission
 /// <summary>
 /// One block visited by `$94:9CF4`'s normal-bomb cross or `$94:9D68`'s Power Bomb border.
 /// </summary>
-public readonly record struct BombBlockReaction(
-    int BlockX,
-    int BlockY,
-    RoomCollisionType CollisionType,
-    RoomBlockBehavior Behavior);
+public readonly record struct BombBlockReaction();

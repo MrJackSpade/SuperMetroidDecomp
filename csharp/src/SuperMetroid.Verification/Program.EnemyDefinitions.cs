@@ -65,40 +65,17 @@ internal static partial class Program
             AssertEqual(ReadNativeEnemyDefinition(bus, pointer), compiled,
                 $"auxiliary enemy header $A0:{pointer:X4} retains all 33 native fields");
         }
-        var namePointers = referencedPointers
-            .Select(pointer => RoomEnemyDefinitionCatalog.Get(pointer).NamePointer)
-            .Where(pointer => pointer != 0)
-            .ToHashSet();
-        AssertTrue(namePointers.SetEquals(RoomEnemySpawnNameDefinitions.Pointers),
-            "compiled enemy spawn-name identities exactly match all retail headers");
-        foreach (ushort pointer in namePointers)
-        {
-            int address = RoomEnemyRomLayout.TilesetBank | pointer;
-            var native = new RoomEnemySpawnNameWords(
-                ReadVerificationWord(bus, address),
-                ReadVerificationWord(bus, address + 2),
-                ReadVerificationWord(bus, address + 4),
-                ReadVerificationWord(bus, address + 6),
-                ReadVerificationWord(bus, address + 8),
-                ReadVerificationWord(bus, address + 12));
-            AssertEqual(native, RoomEnemySpawnNameDefinitions.Get(pointer),
-                $"compiled enemy name $B4:{pointer:X4} retains exactly the six copied words");
-        }
         AssertThrows<ArgumentOutOfRangeException>(
             () => RoomEnemyDefinitionCatalog.Get(0),
             "compiled enemy headers reject an unrecognized pointer");
         AssertTrue(!RoomEnemyAuxiliaryDefinitionCatalog.TryGet(0, out _),
             "auxiliary enemy headers reject an unrecognized pointer");
-        AssertThrows<InvalidDataException>(
-            () => RoomEnemySpawnNameDefinitions.Get(0),
-            "compiled enemy names reject an unrecognized pointer");
 
         Suite(nameof(VerifyMotherBrainFallingTubePopulationDefinitions), () => VerifyMotherBrainFallingTubePopulationDefinitions(bus));
 
         Console.WriteLine(
             $"Enemy definitions: {referencedPointers.Count} retail + " +
-            $"{auxiliaryPointers.Length} auxiliary headers and " +
-            $"{namePointers.Count} spawn-name records match all retained fields; " +
+            $"{auxiliaryPointers.Length} auxiliary headers match all retained fields; " +
             "cartridge parsing is isolated in the importer.");
     }
 

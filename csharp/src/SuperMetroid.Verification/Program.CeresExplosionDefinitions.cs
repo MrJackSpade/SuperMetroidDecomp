@@ -7,11 +7,11 @@ internal static partial class Program
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
 
-        Suite(nameof(VerifyActor), () => VerifyActor(retail, CeresExplosionDefinitions.InitialActor, "initial explosion"));
-        Suite(nameof(VerifyActor), () => VerifyActor(retail, CeresExplosionDefinitions.RepeatingActor, "repeating explosion"));
-        Suite(nameof(VerifyActor), () => VerifyActor(retail, CeresExplosionDefinitions.FinalWaveActor, "final-wave explosion"));
-        Suite(nameof(VerifyActor), () => VerifyActor(retail, CeresExplosionDefinitions.StationBlastActor, "station blast"));
-        Suite(nameof(VerifyActor), () => VerifyActor(retail, CeresExplosionDefinitions.SpawnerActor, "explosion spawner"));
+        Suite(nameof(VerifyActor), () => VerifyActor(retail, 0xcebb, CeresExplosionDefinitions.InitialActor, "initial explosion"));
+        Suite(nameof(VerifyActor), () => VerifyActor(retail, 0xcec1, CeresExplosionDefinitions.RepeatingActor, "repeating explosion"));
+        Suite(nameof(VerifyActor), () => VerifyActor(retail, 0xcec7, CeresExplosionDefinitions.FinalWaveActor, "final-wave explosion"));
+        Suite(nameof(VerifyActor), () => VerifyActor(retail, 0xcf2d, CeresExplosionDefinitions.StationBlastActor, "station blast"));
+        Suite(nameof(VerifyActor), () => VerifyActor(retail, 0xcf33, CeresExplosionDefinitions.SpawnerActor, "explosion spawner"));
 
         Suite(nameof(VerifyCeresInitialBlastX), () => VerifyCeresInitialBlastX(retail));
         Suite(nameof(VerifyCeresInitialBlastY), () => VerifyCeresInitialBlastY(retail));
@@ -49,12 +49,12 @@ internal static partial class Program
 
         static void VerifyActor(
             SuperMetroidAddressSpace source,
+            ushort definitionPointer,
             CeresExplosionActorDefinition definition,
             string name)
         {
-            int address = CeresExplosionDefinitions.NativeBank | definition.Pointer;
-            AssertEqual(ReadWord(source, address), definition.Initialization,
-                $"{name} initialization callback");
+            // The six-byte header's first word (initialization callback) has no compiled owner.
+            int address = CeresExplosionDefinitions.NativeBank | definitionPointer;
             AssertEqual(ReadWord(source, address + 2), definition.PreInstruction,
                 $"{name} pre-instruction callback");
             AssertEqual(ReadWord(source, address + 4), definition.InstructionList,

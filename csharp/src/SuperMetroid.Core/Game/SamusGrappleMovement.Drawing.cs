@@ -210,14 +210,8 @@ public static partial class SamusGrappleMovement
         ClearFlareAnimation(grapple);
         return new GrappleMovementResult(
             GrapplePhase.Inactive,
-            Released: false,
-            ReleaseQueued: false,
             Fired: false,
-            Connected: false,
-            CancelQueued: false,
-            Cancelled: true,
-            OwnsMovement: cancelledConnectedPose,
-            LockedInPlace: cancelledConnectedPose);
+            OwnsMovement: cancelledConnectedPose);
     }
 
 }

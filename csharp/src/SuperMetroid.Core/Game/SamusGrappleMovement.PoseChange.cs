@@ -24,8 +24,7 @@ public static partial class SamusGrappleMovement
                 QueueGrappleSound(samus, SamusGrappleRomData.Sounds.RestartStop);
                 grapple.Phase = GrapplePhase.Inactive;
                 BeginFiring(bus, samus, controllerInput);
-                return new GrappleMovementResult(grapple.Phase, Released: false,
-                    ReleaseQueued: false, Fired: grapple.Phase == GrapplePhase.Firing,
+                return new GrappleMovementResult(grapple.Phase, Fired: grapple.Phase == GrapplePhase.Firing,
                     OwnsMovement: false);
             }
         }

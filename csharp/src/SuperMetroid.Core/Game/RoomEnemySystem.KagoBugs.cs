@@ -6,11 +6,7 @@ namespace SuperMetroid.Core.Game;
 /// Event emitted by Kago bug instruction <c>$86:D1CE</c>. Pickup selection remains owned by
 /// the shared enemy-drop subsystem; this retains the exact cartridge definition and origin.
 /// </summary>
-public readonly record struct KagoBugDropRequest(
-    ushort X,
-    ushort Y,
-    ushort EnemyDefinitionPointer,
-    ushort EnemyProjectileNativeIndex);
+public readonly record struct KagoBugDropRequest();
 
 public sealed partial class RoomEnemySystem
 {
@@ -203,11 +199,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports shot-list drop instruction <c>$86:D1CE</c>.</summary>
     private void RequestKagoBugDrop(RoomEnemyProjectileSlot projectile)
     {
-        LastKagoBugDropRequest = new KagoBugDropRequest(
-            projectile.XPosition,
-            projectile.YPosition,
-            KagoDefinition,
-            checked((ushort)(projectile.SlotIndex * 2)));
+        LastKagoBugDropRequest = new KagoBugDropRequest();
         SpawnEnemyDropFromEnemyHeader(
             projectile.XPosition,
             projectile.YPosition,

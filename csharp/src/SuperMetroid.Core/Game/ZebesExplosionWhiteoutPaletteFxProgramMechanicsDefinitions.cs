@@ -1,14 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>The mutually exclusive owner of the shared Zebes-explosion whiteout ramp.</summary>
-public enum ZebesExplosionWhiteoutPaletteFxProgramOwner
-{
-    /// <summary>The wide explosion's background color.</summary>
-    WideExplosionBackground,
-    /// <summary>The space backdrop whiteout.</summary>
-    SpaceWhiteout,
-}
-
 /// <summary>
 /// Immutable mechanics for the shared wide-background and space-whiteout palette ramp.
 /// </summary>
@@ -72,14 +63,8 @@ public static class ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
     [AccessedByReflection]
     public static IReadOnlyList<ZebesExplosionWhiteoutPaletteFxProgramDefinition> All { get; } =
     [
-        new(
-            ZebesExplosionWhiteoutPaletteFxProgramOwner.WideExplosionBackground,
-            WideExplosionBackgroundDefinitionPointer,
-            WideExplosionBackgroundProgramStart),
-        new(
-            ZebesExplosionWhiteoutPaletteFxProgramOwner.SpaceWhiteout,
-            SpaceWhiteoutDefinitionPointer,
-            SpaceWhiteoutProgramStart),
+        new(),
+        new(),
     ];
 
     /// <summary>Returns one shared timed-record pointer.</summary>
@@ -135,7 +120,4 @@ public static class ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
 }
 
 /// <summary>One native entry into the shared Zebes-explosion whiteout program.</summary>
-public readonly record struct ZebesExplosionWhiteoutPaletteFxProgramDefinition(
-    ZebesExplosionWhiteoutPaletteFxProgramOwner Owner,
-    ushort DefinitionPointer,
-    ushort ProgramStart);
+public readonly record struct ZebesExplosionWhiteoutPaletteFxProgramDefinition();

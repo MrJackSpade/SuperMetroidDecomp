@@ -203,12 +203,7 @@ internal static partial class Program
             int spawn = 0x8be554 + index * 6;
             AssertEqual((byte)0xa0, bus.ReadByte(spawn), "native LDY actor definition" );
             ushort nativePointer = ReadWord(bus, spawn + 1);
-            AssertEqual(nativePointer, EndingLogoDefinitions.ActorPointer(index), "calculated actor pointer" );
-            AssertEqual(nativePointer, actual.Pointer,
-                $"logo actor {index} definition pointer");
             int address = EndingLogoDefinitions.NativeDefinitionBank | nativePointer;
-            AssertEqual(ReadWord(bus, address), actual.Initialization,
-                $"logo actor {index} initialization callback");
             AssertEqual(ReadWord(bus, address + 2), actual.PreInstruction,
                 $"logo actor {index} pre-instruction callback");
             AssertEqual(ReadWord(bus, address + 4), actual.InstructionList,
@@ -222,7 +217,6 @@ internal static partial class Program
         }
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingLogoDefinitions.ActorPointer(invalid), "actor pointer bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => EndingLogoDefinitions.Actor(invalid), "actor definition bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => EndingLogoDefinitions.Origin(invalid), "actor origin bounds");
         }
@@ -266,7 +260,8 @@ internal static partial class Program
             }
             for (int index = 0; index < EndingLogoDefinitions.ActorCount; index++)
             {
-                int start = EndingLogoDefinitions.NativeDefinitionBank | EndingLogoDefinitions.ActorPointer(index);
+                // The four six-byte logo definitions start at $8B:EF81.
+                int start = EndingLogoDefinitions.NativeDefinitionBank | (0xef81 + index * 6);
                 if (address >= start && address < start + 3 * sizeof(ushort))
                 {
                     ForbiddenReadAttempts++;

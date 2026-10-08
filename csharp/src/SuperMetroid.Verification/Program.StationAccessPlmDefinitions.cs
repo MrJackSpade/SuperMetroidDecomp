@@ -14,7 +14,7 @@ internal static partial class Program
         // both phases. Its sparse bus intentionally omits all six header+2 words.
         Suite(nameof(VerifySequentialRoomPlmPopulationLoader), () => VerifySequentialRoomPlmPopulationLoader());
         Console.WriteLine(
-            "Station access PLMs: all six native header/list identities and real access animations pass without runtime header reads.");
+            "Station access PLMs: all six native access draw operands and real access animations pass without runtime header reads.");
     }
 
     private static void VerifyStationAccessHeaders(SuperMetroidAddressSpace rom) => VerifyStationAccessField(rom, 0);
@@ -35,13 +35,10 @@ internal static partial class Program
                 continue;
             }
             var selected = StationAccessPlmDefinitions.Resolve(behavior);
-            AssertEqual(behavior, selected.Behavior, "Station access original BTS identity");
             AssertEqual(selected, entries[raw - 0x47], "Station access original enumeration order");
             ushort header = ReadStationAccessWord(rom, 0x9491c7 + (raw - 0x47) * 2);
             ushort program = ReadStationAccessWord(rom, 0x840000 | (header + 2));
-            if (field == 0) AssertEqual(header, selected.HeaderPointer, "Station native collision dispatch header");
-            else if (field == 1) AssertEqual(program, selected.InstructionListPointer, "Station native initial list");
-            else
+            if (field >= 2)
             {
                 bool extended = field == 3;
                 // Map lists start with a packed three-byte sound command. Resource

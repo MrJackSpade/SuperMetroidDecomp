@@ -810,13 +810,14 @@ static void VerifySamusMorphBallMovement()
     };
     noBombItemSamus.RefreshCollisionRadii(bus);
     var noBombItemSystem = CreateBombFixture();
-    BombProjectileFrameResult rejectedBomb = noBombItemSystem.StepFrame(
+    noBombItemSystem.StepFrame(
         bus,
         floor,
         noBombItemSamus,
         (ushort)SnesButton.X,
         (ushort)SnesButton.X);
-    AssertEqual<int?>(null, rejectedBomb.PlacedSlot, "bomb item bit gates placement");
+    AssertTrue(noBombItemSystem.BombCounter == 0 && noBombItemSystem.Slots.All(slot => !slot.IsActive),
+        "bomb item bit gates placement");
 
     var bombProjectileSamus = new SamusState
     {
@@ -827,13 +828,14 @@ static void VerifySamusMorphBallMovement()
     };
     bombProjectileSamus.RefreshCollisionRadii(bus);
     var bombs = CreateBombFixture();
-    BombProjectileFrameResult placement = bombs.StepFrame(
+    bombs.StepFrame(
         bus,
         floor,
         bombProjectileSamus,
         (ushort)SnesButton.X,
         (ushort)SnesButton.X);
-    AssertEqual<int?>(0, placement.PlacedSlot, "first normal bomb uses physical slot zero");
+    AssertTrue(bombs.Slots[0].IsActive && bombs.Slots.Skip(1).All(slot => !slot.IsActive),
+        "first normal bomb uses physical slot zero");
     AssertEqual(1, bombs.BombCounter, "placement increments native bomb counter");
     AssertEqual(0x0010, bombs.CooldownTimer, "normal bomb loads cooldown table entry five");
     AssertEqual(59, bombs.Slots[0].BombTimer, "placement frame immediately decrements timer 60 to 59");
@@ -846,13 +848,14 @@ static void VerifySamusMorphBallMovement()
     // aggregate. Release is a separate frame so ControllerInputState-like edge semantics
     // are represented explicitly in this direct subsystem test.
     bombs.StepFrame(bus, floor, bombProjectileSamus, 0, 0);
-    BombProjectileFrameResult cooldownRejected = bombs.StepFrame(
+    bombs.StepFrame(
         bus,
         floor,
         bombProjectileSamus,
         (ushort)SnesButton.X,
         (ushort)SnesButton.X);
-    AssertEqual<int?>(null, cooldownRejected.PlacedSlot, "active bomb cooldown rejects another edge");
+    AssertTrue(bombs.Slots.Skip(1).All(slot => !slot.IsActive),
+        "active bomb cooldown rejects another edge");
     AssertEqual(1, bombs.BombCounter, "rejected edge does not alter bomb counter");
 
     // Run to timer nine, then prove bank-$A0's three X comparisons at timer eight using
@@ -926,13 +929,12 @@ static void VerifySamusMorphBallMovement()
         "morphed setup adds command-three bit on following frame");
 
     BombProjectileFrameResult explosion = default;
-    while (!explosion.ExplosionStarted)
+    while (!bombs.Slots[0].IsExploding)
         explosion = bombs.StepFrame(bus, floor, bombProjectileSamus, 0, 0);
     AssertTrue(bombs.Slots[0].IsExploding, "timer zero selects bomb explosion list");
     AssertEqual(0x0501, bombs.Slots[0].Type, "first explosion pass marks block cross handled");
-    AssertEqual(5, explosion.BlockReactions!.Count, "bomb explosion visits center/up/right/left/down");
-    AssertEqual(RoomCollisionType.SolidBlock, explosion.BlockReactions[4].CollisionType,
-        "bottom reaction reaches fixture solid floor without inventing a PLM");
+    AssertEqual(0x8000, floor.GetCollisionBlockByIndex(4 * width + 3).LevelWord,
+        "bottom reaction leaves the fixture solid floor intact without inventing a PLM");
     AssertEqual(1, explosion.SoundRequests!.Count,
         "normal bomb fuse expiry publishes exactly one sound request");
     AssertEqual(
@@ -959,13 +961,13 @@ static void VerifySamusMorphBallMovement()
     };
     spreadSamus.RefreshCollisionRadii(bus);
     var spreadBombs = CreateBombFixture();
-    BombProjectileFrameResult spreadHeld = spreadBombs.StepFrame(
+    spreadBombs.StepFrame(
         bus,
         empty,
         spreadSamus,
         (ushort)(SnesButton.X | SnesButton.Down),
         0);
-    AssertTrue(!spreadHeld.BombSpreadStarted,
+    AssertTrue(spreadBombs.Slots.All(slot => !slot.IsActive),
         "held Down charges bomb spread without spawning");
     AssertEqual(1, spreadSamus.BombSpreadChargeTimeoutCounter,
         "held Down advances native bomb-spread timeout");
@@ -976,7 +978,7 @@ static void VerifySamusMorphBallMovement()
         spreadSamus,
         (ushort)SnesButton.X,
         0);
-    AssertTrue(spreadReleased.BombSpreadStarted,
+    AssertTrue(spreadBombs.Slots.All(slot => slot.IsActive && slot.IsBombSpread),
         "releasing Down while holding charged Shoot starts bomb spread");
     AssertTrue(spreadReleased.BeamChargeConsumed,
         "bomb spread publishes charge teardown to shared beam owner");
@@ -1014,16 +1016,15 @@ static void VerifySamusMorphBallMovement()
     };
     selectedPowerBombSpreadSamus.RefreshCollisionRadii(bus);
     var selectedPowerBombSpreadBombs = CreateBombFixture();
-    BombProjectileFrameResult selectedPowerBombHeld =
-        selectedPowerBombSpreadBombs.StepFrame(
-            bus,
-            empty,
-            selectedPowerBombSpreadSamus,
-            (ushort)SnesButton.X,
-            0);
-    AssertTrue(!selectedPowerBombHeld.BombSpreadStarted,
+    selectedPowerBombSpreadBombs.StepFrame(
+        bus,
+        empty,
+        selectedPowerBombSpreadSamus,
+        (ushort)SnesButton.X,
+        0);
+    AssertTrue(selectedPowerBombSpreadBombs.Slots.All(slot => !slot.IsBombSpread),
         "selected Power Bomb bypasses charged regular-bomb spread");
-    AssertEqual<int?>(null, selectedPowerBombHeld.PlacedSlot,
+    AssertTrue(selectedPowerBombSpreadBombs.Slots.All(slot => !slot.IsActive),
         "held Shoot without a new edge does not place the selected Power Bomb");
     AssertEqual(0, selectedPowerBombSpreadBombs.BombCounter,
         "selected Power Bomb charge state leaves all five bomb slots unused");
@@ -1086,15 +1087,15 @@ static void VerifySamusMorphBallMovement()
     };
     timeoutSamus.RefreshCollisionRadii(bus);
     var timeoutBombs = CreateBombFixture();
-    BombProjectileFrameResult timeoutLastWait = timeoutBombs.StepFrame(
+    timeoutBombs.StepFrame(
         bus, empty, timeoutSamus, (ushort)(SnesButton.X | SnesButton.Down), 0);
-    AssertTrue(!timeoutLastWait.BombSpreadStarted,
+    AssertTrue(timeoutBombs.Slots.All(slot => !slot.IsActive),
         "timeout `$BF` advances to `$C0` before forced launch");
     AssertEqual(0x00c0, timeoutSamus.BombSpreadChargeTimeoutCounter,
         "last held charging frame reaches timeout threshold");
-    BombProjectileFrameResult timeoutLaunch = timeoutBombs.StepFrame(
+    timeoutBombs.StepFrame(
         bus, empty, timeoutSamus, (ushort)(SnesButton.X | SnesButton.Down), 0);
-    AssertTrue(timeoutLaunch.BombSpreadStarted,
+    AssertTrue(timeoutBombs.Slots.All(slot => slot.IsActive && slot.IsBombSpread),
         "timeout `$C0` forces launch even while Down remains held");
 
     // Releasing Shoot in ball form cancels an inherited flare without placing a normal
@@ -1111,7 +1112,7 @@ static void VerifySamusMorphBallMovement()
         bus, empty, cancelledSpreadSamus, 0, 0);
     AssertTrue(cancelledSpread.BeamChargeConsumed,
         "released Shoot publishes carried-charge cancellation");
-    AssertEqual<int?>(null, cancelledSpread.PlacedSlot,
+    AssertTrue(cancelledSpreadBombs.Slots.All(slot => !slot.IsActive),
         "charge cancellation does not place an ordinary bomb");
 
     // Selected HUD item three takes the power-bomb branch even without the normal Bomb
@@ -1128,13 +1129,13 @@ static void VerifySamusMorphBallMovement()
     };
     powerBombSamus.RefreshCollisionRadii(bus);
     var powerBombs = CreateBombFixture();
-    BombProjectileFrameResult powerBombPlacement = powerBombs.StepFrame(
+    powerBombs.StepFrame(
         bus,
         floor,
         powerBombSamus,
         (ushort)SnesButton.X,
         (ushort)SnesButton.X);
-    AssertEqual<int?>(0, powerBombPlacement.PlacedSlot,
+    AssertTrue(powerBombs.Slots[0].IsActive && powerBombs.Slots.Skip(1).All(slot => !slot.IsActive),
         "selected power bomb uses first physical bomb slot");
     AssertEqual(1, powerBombSamus.PowerBombs,
         "power-bomb placement decrements ammo exactly once");
@@ -1157,13 +1158,13 @@ static void VerifySamusMorphBallMovement()
     // instruction pointer. A second selected-item edge is rejected by the armed flag
     // before helper two can perturb either aggregate counter.
     powerBombs.StepFrame(bus, floor, powerBombSamus, 0, 0);
-    BombProjectileFrameResult armedRejected = powerBombs.StepFrame(
+    powerBombs.StepFrame(
         bus,
         floor,
         powerBombSamus,
         (ushort)SnesButton.X,
         (ushort)SnesButton.X);
-    AssertEqual<int?>(null, armedRejected.PlacedSlot,
+    AssertTrue(powerBombs.Slots.Skip(1).All(slot => !slot.IsActive),
         "negative power-bomb flag rejects a second placement");
     AssertEqual(1, powerBombs.BombCounter,
         "armed rejection preserves bomb aggregate");
@@ -1178,7 +1179,7 @@ static void VerifySamusMorphBallMovement()
         "armed Power Bomb draws its fast-list spritemap before detonation");
 
     BombProjectileFrameResult powerBombFuse = default;
-    while (!powerBombFuse.ExplosionStarted)
+    while (!powerBombs.PowerBombExplosion.IsActive)
         powerBombFuse = powerBombs.StepFrame(bus, floor, powerBombSamus, 0, 0);
     AssertEqual(0, powerBombs.Slots[0].BombTimer,
         "$FFFF fuse sentinel is consumed by first mode-three collision call");
@@ -1189,8 +1190,6 @@ static void VerifySamusMorphBallMovement()
         "pre-explosion radius is not initialized during allocation");
     AssertEqual(0x8000, powerBombs.PowerBombExplosion.Status,
         "normal explosion publishes active status $8000");
-    AssertEqual(0, powerBombFuse.BlockReactions!.Count,
-        "fuse-expiration sentinel frame does not scan terrain");
     AssertEqual(
         new SamusSoundRequest(SoundEffectLibrary1Sounds.PowerBombExplosion, 15),
         powerBombFuse.SoundRequests!.Single(),
@@ -1210,17 +1209,12 @@ static void VerifySamusMorphBallMovement()
     // The following HDMA pass runs the new pre-instruction. White pre-flash grows 4.00 by 48.00,
     // then the still-zero damaging radius scans the one-block rectangle's four duplicated
     // corners in bank-$94 top/left/bottom/right order.
-    BombProjectileFrameResult firstPowerBombRadius = powerBombs.StepFrame(
+    powerBombs.StepFrame(
         bus, floor, powerBombSamus, 0, 0);
     AssertEqual(0x3400, powerBombs.PowerBombExplosion.PreExplosionRadius,
         "first white pre-explosion frame applies $3000 speed");
     AssertEqual(0x2f80, powerBombs.PowerBombExplosion.RadiusSpeed,
         "white pre-explosion subtracts $0080 acceleration");
-    AssertEqual(4, firstPowerBombRadius.BlockReactions!.Count,
-        "zero damaging radius scans four inclusive one-block edges");
-    AssertTrue(firstPowerBombRadius.BlockReactions.All(reaction =>
-            reaction.BlockX == 3 && reaction.BlockY == 3),
-        "zero-radius border duplicates the center exactly four times");
 
     int whiteFlashFrames = 1;
     while (powerBombs.PowerBombExplosion.Phase == PowerBombExplosionPhase.PreExplosionWhite)
@@ -1279,16 +1273,15 @@ static void VerifySamusMorphBallMovement()
     // releases the flag; the same projectile pass sees flag zero and deletes the slot.
     powerBombSamus.XPosition++;
     int afterglowFrames = 0;
-    BombProjectileFrameResult cleanupFrame = default;
     while (powerBombs.PowerBombExplosion.IsActive)
     {
-        cleanupFrame = powerBombs.StepFrame(bus, floor, powerBombSamus, 0, 0);
+        powerBombs.StepFrame(bus, floor, powerBombSamus, 0, 0);
         afterglowFrames++;
         AssertTrue(afterglowFrames < 160, "power-bomb afterglow reaches cleanup");
     }
     AssertEqual(32, afterglowFrames,
         "afterglow retains the underflowed timer high byte across its low-byte reload");
-    AssertTrue(cleanupFrame.ProjectileDeleted,
+    AssertTrue(!powerBombs.Slots[0].IsActive,
         "cleanup frame deletes released power-bomb projectile");
     AssertEqual(0, powerBombs.BombCounter,
         "power-bomb cleanup decrements shared bomb counter");
@@ -1336,10 +1329,9 @@ static void VerifySamusMorphBallMovement()
         (ushort)SnesButton.X,
         reactionPlms);
 
-    BombProjectileFrameResult reactionExplosion = default;
-    while (!reactionExplosion.ExplosionStarted)
+    while (!reactionBombs.Slots[0].IsExploding)
     {
-        reactionExplosion = reactionBombs.StepFrame(
+        reactionBombs.StepFrame(
             bus,
             reactionLevel,
             reactionSamus,
@@ -1349,12 +1341,16 @@ static void VerifySamusMorphBallMovement()
     }
 
     AssertEqual(RoomCollisionType.HorizontalExtension,
-        reactionExplosion.BlockReactions![0].CollisionType,
-        "bomb cross records the visited horizontal extension");
-    AssertEqual(new RoomBlockBehavior(0xff), reactionExplosion.BlockReactions[0].Behavior,
+        reactionLevel.GetCollisionBlockByIndex(reactionExtensionIndex).CollisionType,
+        "bomb cross leaves the visited horizontal extension in place");
+    AssertEqual(new RoomBlockBehavior(0xff),
+        reactionLevel.GetCollisionBlockByIndex(reactionExtensionIndex).Bts,
         "bomb cross preserves the extension's signed redirect BTS");
-    AssertEqual(RoomCollisionType.SolidBlock, reactionExplosion.BlockReactions[3].CollisionType,
+    AssertEqual(RoomCollisionType.SolidBlock,
+        reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).CollisionType,
         "later left-arm reaction observes the synchronously mutated parent");
+    AssertTrue(reactionPlms.PopulationSlots.Any(slot => slot.BlockIndex == reactionParentIndex),
+        "extension redirect installs its reaction PLM on the parent block");
     AssertEqual(1, reactionPlms.ActiveCount,
         "extension and later parent visit produce one native reaction PLM");
     AssertEqual(0x8058,
@@ -1424,10 +1420,9 @@ static void VerifySamusMorphBallMovement()
         (ushort)SnesButton.X,
         (ushort)SnesButton.X,
         integratedRevealPlms);
-    BombProjectileFrameResult integratedRevealExplosion = default;
-    while (!integratedRevealExplosion.ExplosionStarted)
+    while (!integratedRevealBombs.Slots[0].IsExploding)
     {
-        integratedRevealExplosion = integratedRevealBombs.StepFrame(
+        integratedRevealBombs.StepFrame(
             bus,
             integratedRevealLevel,
             integratedRevealSamus,
@@ -1436,8 +1431,10 @@ static void VerifySamusMorphBallMovement()
             integratedRevealPlms);
     }
     AssertEqual(RoomCollisionType.ShootableBlock,
-        integratedRevealExplosion.BlockReactions![0].CollisionType,
-        "bomb dispatcher records center shootable-solid parent");
+        integratedRevealLevel.GetCollisionBlockByIndex(integratedRevealIndex).CollisionType,
+        "bomb dispatcher visits center shootable-solid parent");
+    AssertTrue(integratedRevealPlms.PopulationSlots.Any(slot => slot.BlockIndex == integratedRevealIndex),
+        "bomb dispatcher installs its reveal PLM on the center parent");
     AssertEqual(1, integratedRevealPlms.ActiveCount,
         "bomb dispatcher installs shootable reveal PLM");
     AssertEqual(0xc000,
@@ -1488,10 +1485,9 @@ static void VerifySamusMorphBallMovement()
         (ushort)SnesButton.X,
         (ushort)SnesButton.X,
         bombDoorPlms);
-    BombProjectileFrameResult bombDoorExplosion = default;
-    while (!bombDoorExplosion.ExplosionStarted)
+    while (!bombDoorBombs.Slots[0].IsExploding)
     {
-        bombDoorExplosion = bombDoorBombs.StepFrame(
+        bombDoorBombs.StepFrame(
             bus,
             bombDoorLevel,
             bombDoorSamus,
@@ -1649,10 +1645,9 @@ static void VerifySamusMorphBallMovement()
         (ushort)SnesButton.X,
         (ushort)SnesButton.X,
         integratedPowerBombPlms);
-    BombProjectileFrameResult integratedPowerBombExplosion = default;
-    while (!integratedPowerBombExplosion.ExplosionStarted)
+    while (!integratedPowerBombs.PowerBombExplosion.IsActive)
     {
-        integratedPowerBombExplosion = integratedPowerBombs.StepFrame(
+        integratedPowerBombs.StepFrame(
             bus,
             integratedPowerBombLevel,
             integratedPowerBombSamus,
@@ -1663,17 +1658,14 @@ static void VerifySamusMorphBallMovement()
     AssertEqual(0xc321,
         integratedPowerBombLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
         "power-bomb fuse frame leaves gated block intact before radius scan");
-    BombProjectileFrameResult integratedPowerBombRadius = integratedPowerBombs.StepFrame(
+    integratedPowerBombs.StepFrame(
         bus,
         integratedPowerBombLevel,
         integratedPowerBombSamus,
         0,
         0,
         integratedPowerBombPlms);
-    AssertTrue(integratedPowerBombRadius.BlockReactions!.Any(reaction =>
-            reaction.BlockX == 3 && reaction.BlockY == 3 &&
-            reaction.CollisionType == RoomCollisionType.ShootableBlock &&
-            reaction.Behavior == new RoomBlockBehavior(8)),
+    AssertTrue(integratedPowerBombPlms.PopulationSlots.Any(slot => slot.BlockIndex == shotIndex),
         "expanding power bomb visits BTS-eight shootable block");
     AssertEqual(0x8057,
         integratedPowerBombLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
@@ -1707,17 +1699,13 @@ static void VerifySamusMorphBallMovement()
         new ushort[collisionProbeWords.Length],
         reactionDefinitions);
     var collisionProbePlms = new RoomPlmSystem();
-    BombProjectileFrameResult collisionProbeRadius =
-        RunPowerBombToInitialBoundary(
+    RunPowerBombToInitialBoundary(
             bus,
             collisionProbeLevel,
             collisionProbePlms,
             xPosition: 48,
             yPosition: 48);
-    AssertTrue(collisionProbeRadius.BlockReactions!.Any(reaction =>
-            reaction.BlockX == 3 && reaction.BlockY == 3 &&
-            reaction.CollisionType == RoomCollisionType.ShootableBlock &&
-            reaction.Behavior == new RoomBlockBehavior(0x10)),
+    AssertTrue(collisionProbePlms.PopulationSlots.Any(slot => slot.BlockIndex == shotIndex),
         "expanding power bomb visits native BTS-ten collision-probe entry");
     AssertEqual(4, collisionProbePlms.ActiveCount,
         "zero-radius border visits its center four times and allocates four B974 PLMs");
@@ -1998,8 +1986,9 @@ static void VerifySamusMorphBallMovement()
     AssertEqual(0x0803, bombJump.BombJumpDirection, "right bomb jump command word");
     ushort startX = bombJump.XPosition;
     ushort startY = bombJump.YPosition;
-    BombJumpMovementResult start = SamusBombJumpMovement.Start(bus, bombJump);
-    AssertTrue(start.Started && !start.Ended, "bomb-jump start handler reports initialization");
+    SamusBombJumpMovement.Start(bus, bombJump);
+    AssertTrue(bombJump.BombJumpActive && !bombJump.BombJumpStarting,
+        "bomb-jump start handler activates the special handler");
     AssertEqual(startX, bombJump.XPosition, "bomb-jump start frame has no horizontal displacement");
     AssertEqual(startY, bombJump.YPosition, "bomb-jump start frame has no vertical displacement");
     AssertEqual(2, bombJump.Kinematics.YSpeed, "bomb-jump whole speed comes from $90:9EF5");
@@ -2009,9 +1998,9 @@ static void VerifySamusMorphBallMovement()
     // The first diagonal handler frame accelerates by the native 0.3000 record,
     // moves right fractionally, moves upward by the pre-gravity 2.C000 magnitude, then stores
     // the reduced 2.8000 magnitude for the following frame.
-    BombJumpMovementResult diagonal = SamusBombJumpMovement.Step(
+    SamusBombJumpMovement.Step(
         bus, empty, bombJump, nmiFrameCounter: 0, new RoomPlmSystem());
-    AssertTrue(!diagonal.Ended, "unobstructed diagonal bomb jump remains active");
+    AssertTrue(bombJump.BombJumpActive, "unobstructed diagonal bomb jump remains active");
     AssertEqual(startX, bombJump.XPosition, "right bomb jump retains whole X on first fractional step");
     AssertEqual(0x3000, bombJump.Kinematics.XSubposition, "right bomb jump uses native $90:9F25 fractional displacement");
     AssertEqual(2, bombJump.Kinematics.YSpeed, "bomb-jump gravity stores next whole speed");
@@ -2022,9 +2011,9 @@ static void VerifySamusMorphBallMovement()
     // making another vertical move. The normal type-four ball handler owns the descent.
     bombJump.Kinematics.YSpeed = 0xffff;
     bombJump.Kinematics.YSubspeed = 0;
-    BombJumpMovementResult apex = SamusBombJumpMovement.Step(
+    SamusBombJumpMovement.Step(
         bus, empty, bombJump, nmiFrameCounter: 1, new RoomPlmSystem());
-    AssertTrue(apex.Ended, "signed bomb-jump apex ends special handler");
+    AssertTrue(!bombJump.BombJumpActive, "signed bomb-jump apex ends special handler");
     AssertEqual(0, bombJump.BombJumpDirection, "bomb-jump apex clears command word");
     AssertEqual(2, bombJump.Kinematics.YDirection, "bomb-jump apex hands off downward direction");
     AssertEqual(2, bombJump.HorizontalSpeed.AccelerationMode, "diagonal apex selects mode two");
@@ -2055,11 +2044,13 @@ static void VerifySamusMorphBallMovement()
     straightBombJump.Kinematics.YSubacceleration = 0x4000;
     straightBombJump.RequestMorphedBombJump(2);
     SamusBombJumpMovement.Start(bus, straightBombJump);
+    ushort straightXSubposition = straightBombJump.Kinematics.XSubposition;
     BombJumpMovementResult ceilingHit = SamusBombJumpMovement.Step(
         bus, ceiling, straightBombJump, nmiFrameCounter: 0, new RoomPlmSystem());
-    AssertTrue(ceilingHit.Ended && ceilingHit.Vertical is { Collided: true },
+    AssertTrue(!straightBombJump.BombJumpActive && ceilingHit.Vertical is { Collided: true },
         "straight bomb jump terminates on ceiling");
-    AssertTrue(ceilingHit.Horizontal is null, "straight bomb jump performs no horizontal move");
+    AssertEqual(straightXSubposition, straightBombJump.Kinematics.XSubposition,
+        "straight bomb jump performs no horizontal move");
     AssertEqual(48, straightBombJump.XPosition, "straight bomb jump preserves X");
     AssertEqual(0, straightBombJump.Kinematics.YSpeed, "ceiling hit clears vertical speed");
 
@@ -2081,7 +2072,7 @@ static void VerifySamusMorphBallMovement()
     Console.WriteLine("  Morph Ball: entry, bomb spread, bomb jump, reaction PLMs, bounce, and tunnel collision agree.");
 }
 
-private static BombProjectileFrameResult RunPowerBombToInitialBoundary(
+private static void RunPowerBombToInitialBoundary(
     ISnesAddressSpace bus,
     RoomLevelData level,
     RoomPlmSystem plms,
@@ -2108,13 +2099,12 @@ private static BombProjectileFrameResult RunPowerBombToInitialBoundary(
         (ushort)SnesButton.X,
         plms);
 
-    BombProjectileFrameResult fuseFrame = default;
-    while (!fuseFrame.ExplosionStarted)
-        fuseFrame = bombs.StepFrame(bus, level, samus, 0, 0, plms);
+    while (!bombs.PowerBombExplosion.IsActive)
+        bombs.StepFrame(bus, level, samus, 0, 0, plms);
 
     // `$90:C157` first turns the fuse-expiration sentinel into zero. The following frame
     // is the first `$94:A06A` boundary scan, initially the single center block.
-    return bombs.StepFrame(bus, level, samus, 0, 0, plms);
+    bombs.StepFrame(bus, level, samus, 0, 0, plms);
 }
 
 }

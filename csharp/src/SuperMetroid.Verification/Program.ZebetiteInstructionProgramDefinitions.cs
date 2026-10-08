@@ -74,10 +74,12 @@ internal static partial class Program
             executedOperands.Add(expected.Presentation);
             AssertEqual(ReadZebetiteInstructionWord(rom, expected.Presentation), slot.SpritemapPointer,
                 $"Zebetite program {programIndex} selected sprite matches the cartridge");
-            AssertEqual(expected.Sleep, slot.CurrentInstruction,
+            // The sleep instruction immediately follows the two-word timed frame record.
+            ushort sleep = unchecked((ushort)(expected.Entry + 4));
+            AssertEqual(sleep, slot.CurrentInstruction,
                 $"Zebetite program {programIndex} frame handoff");
             process.Invoke(enemies, arguments);
-            AssertEqual(expected.Sleep, slot.CurrentInstruction,
+            AssertEqual(sleep, slot.CurrentInstruction,
                 $"Zebetite program {programIndex} terminal sleep");
         }
 

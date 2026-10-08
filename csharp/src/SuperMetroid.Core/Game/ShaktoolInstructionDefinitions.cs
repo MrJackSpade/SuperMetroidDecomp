@@ -2,8 +2,7 @@ namespace SuperMetroid.Core.Game;
 
 /// <summary>Collision-recovery and dormant-attack programs for one Shaktool segment.</summary>
 internal readonly record struct ShaktoolSegmentInstructionDefinition(
-    ushort CollisionInstruction,
-    ushort AttackInstruction);
+    ushort CollisionInstruction);
 
 /// <summary>Compiled fixed instruction selectors used by Shaktool's mechanics state machine.</summary>
 internal static class ShaktoolInstructionDefinitions
@@ -42,16 +41,11 @@ internal static class ShaktoolInstructionDefinitions
 
         return segmentIndex switch
         {
-            0 => new(ShaktoolInstructionProgramDefinitions.SawHandHeadBobPrimaryPiece,
-                ShaktoolInstructionProgramDefinitions.SawHandAttackPrimaryPiece),
-            1 or 5 => new(ShaktoolInstructionProgramDefinitions.ArmPieceHeadBobBack,
-                ShaktoolInstructionProgramDefinitions.ArmPieceAttackBack),
-            2 or 4 => new(ShaktoolInstructionProgramDefinitions.ArmPieceHeadBobFront,
-                ShaktoolInstructionProgramDefinitions.ArmPieceAttackFront),
-            3 => new(ShaktoolInstructionProgramDefinitions.HeadHeadBob,
-                ShaktoolInstructionProgramDefinitions.HeadAttack),
-            _ => new(ShaktoolInstructionProgramDefinitions.SawHandHeadBobFinalPiece,
-                ShaktoolInstructionProgramDefinitions.SawHandAttackFinalPiece),
+            0 => new(ShaktoolInstructionProgramDefinitions.SawHandHeadBobPrimaryPiece),
+            1 or 5 => new(ShaktoolInstructionProgramDefinitions.ArmPieceHeadBobBack),
+            2 or 4 => new(ShaktoolInstructionProgramDefinitions.ArmPieceHeadBobFront),
+            3 => new(ShaktoolInstructionProgramDefinitions.HeadHeadBob),
+            _ => new(ShaktoolInstructionProgramDefinitions.SawHandHeadBobFinalPiece),
         };
     }
 }

@@ -88,7 +88,7 @@ internal static partial class Program
             AssertEqual(pose, samus.Pose, "Actual native connection pose");
             bool locked = function == 0xc77e;
             AssertEqual(locked ? GrapplePhase.ConnectedLocked : GrapplePhase.ConnectedSwinging, g.Phase, "Actual next connection phase");
-            AssertEqual(locked, result.LockedInPlace, "Connection result phase");
+            AssertEqual(locked, g.Phase == GrapplePhase.ConnectedLocked, "Connection locks Samus in place");
             AssertEqual(0, samus.Kinematics.YSpeed, "Connection clears Y whole speed");
             AssertEqual(0, samus.Kinematics.YSubspeed, "Connection clears Y fractional speed");
         }

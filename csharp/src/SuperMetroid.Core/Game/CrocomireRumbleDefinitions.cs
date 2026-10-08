@@ -5,12 +5,10 @@ namespace SuperMetroid.Core.Game;
 /// cooldown and approach delta loaded when their oscillation completes.
 /// </summary>
 internal readonly record struct CrocomireRumbleDefinition(
-    ushort TableOffset,
     short TargetYOffset,
     ushort NextTargetOffset,
     ushort Cooldown,
     ushort Delta,
-    bool HasTiming,
     bool IsTerminator);
 
 /// <summary>Fixed hidden-wall rumble schedule from <c>$A4:98CA-$A4:9909</c>.</summary>
@@ -80,19 +78,19 @@ internal static class CrocomireRumbleDefinitions
             {
                 if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
                 if (index < 2)
-                    return new((ushort)(index * 2), index == 0 ? CopiedPrefixTarget0 : CopiedPrefixTarget1, (ushort)(index * 2 + 2),
-                        0, 0, false, false);
+                    return new(index == 0 ? CopiedPrefixTarget0 : CopiedPrefixTarget1, (ushort)(index * 2 + 2),
+                        0, 0, false);
                 if (index >= Count - 2)
-                    return new((ushort)(4 + PhaseCount * 8 + (index - (Count - 2)) * 2), unchecked((short)EndMarker), CompletedCursor,
-                        0, 0, false, true);
+                    return new(unchecked((short)EndMarker), CompletedCursor,
+                        0, 0, true);
                 int phase = (index - 2) / 2;
                 bool negative = (index & 1) != 0;
                 ushort offset = (ushort)(4 + phase * 8 + (negative ? 2 : 0));
                 if (!negative)
-                    return new(offset, phase == 0 ? (short)0 : (short)ApproachDelta(phase - 1),
-                        (ushort)(offset + 2), 0, 0, false, false);
-                return new(offset, NegativeTarget(phase), (ushort)(offset + 6),
-                    Cooldown(phase), ApproachDelta(phase), true, false);
+                    return new(phase == 0 ? (short)0 : (short)ApproachDelta(phase - 1),
+                        (ushort)(offset + 2), 0, 0, false);
+                return new(NegativeTarget(phase), (ushort)(offset + 6),
+                    Cooldown(phase), ApproachDelta(phase), false);
             }
         }
 

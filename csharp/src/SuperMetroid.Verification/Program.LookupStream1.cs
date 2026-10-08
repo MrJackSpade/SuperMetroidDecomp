@@ -3354,10 +3354,13 @@ internal static partial class Program
                 int x = unchecked((sbyte)rom.ReadByte(0x900000 | (pointer + offset + frame * 2)));
                 int y = unchecked((sbyte)rom.ReadByte(0x900000 | (pointer + offset + frame * 2 + 1)));
                 int graphics = unchecked((sbyte)rom.ReadByte(0x91b629 + pose * 8 + 4));
-                var result = cannon.Draw(rom, new OamBuffer(), new VramWriteQueue(), samus, 0, 0, 0);
-                AssertTrue(result.SpriteWritten && result.TileUploadQueued, "Actual cover draw and DMA publication");
-                AssertEqual((short)(128 + x), result.ScreenX, "Actual native cover X");
-                AssertEqual((short)(128 + y - graphics), result.ScreenY, "Actual native cover Y including pose origin");
+                var cannonOam = new OamBuffer();
+                var cannonWrites = new VramWriteQueue();
+                cannon.Draw(rom, cannonOam, cannonWrites, samus, 0, 0, 0);
+                AssertTrue(cannonOam.NextByteOffset == 4 && cannonWrites.Entries.Count == 1, "Actual cover draw and DMA publication");
+                OamEntry cannonEntry = cannonOam.GetEntry(0);
+                AssertEqual(128 + x, cannonEntry.X, "Actual native cover X");
+                AssertEqual(128 + y - graphics, (int)cannonEntry.Y, "Actual native cover Y including pose origin");
                 draws++;
             }
         }

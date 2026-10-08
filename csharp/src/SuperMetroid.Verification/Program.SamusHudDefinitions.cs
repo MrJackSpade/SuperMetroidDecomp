@@ -67,11 +67,11 @@ internal static partial class Program
             bool ball = pose is >= 0x1d and <= 0x1f or 0x31 or 0x32 or 0x41 or >= 0x79 and <= 0x80;
             bool preserves = ball || pose is 0 or 0x9b || handler == 0xddb6 || handler == 0xdd74 && turn == 0 ||
                 handler == 0xdd8c && !Transition(pose, false);
-            var result = shots.StepFrame(bus, level, samus, (ushort)SnesButton.X, 0, 0, 0, bombs);
+            shots.StepFrame(bus, level, samus, (ushort)SnesButton.X, 0, 0, 0, bombs);
             // An admitted nonzero turn handoff forces release before held-input charge
             // processing; with no new Shoot edge this partial charge emits no projectile.
             AssertEqual(preserves ? 10 : turn != 0 ? 0 : 11, shots.FlareCounter, $"Actual projectile HUD charge preservation movement={movement:X2} pose={pose:X2} turn={turn}");
-            AssertEqual((int?)null, result.FiredSlot, "Held partial charge does not emit shot");
+            AssertTrue(shots.Slots.All(slot => !slot.IsActive), "Held partial charge does not emit shot");
         }
         AssertThrows<ArgumentOutOfRangeException>(
             () => SamusHudDefinitions.PostureObservation(

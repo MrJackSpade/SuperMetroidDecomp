@@ -151,9 +151,6 @@ public sealed class CeresElevatorShaftRoomMainState
         samus.Kinematics.YSubspeed == 0;
 
     private CeresElevatorShaftRoomMainResult Snapshot(bool matrixChanged) => new(
-        IsActive,
-        RotationIndex,
-        RotationTimer,
         Transform,
         matrixChanged,
         DepartureRequestedThisFrame);
@@ -168,9 +165,6 @@ public sealed class CeresElevatorShaftRoomMainState
 
 /// <summary>Debugger-visible result of one Ceres elevator shaft room-main call.</summary>
 public readonly record struct CeresElevatorShaftRoomMainResult(
-    bool IsActive,
-    ushort RotationIndex,
-    ushort RotationTimer,
     SamusMode7Transform Transform,
     bool MatrixChanged,
     bool DepartureRequestedThisFrame);

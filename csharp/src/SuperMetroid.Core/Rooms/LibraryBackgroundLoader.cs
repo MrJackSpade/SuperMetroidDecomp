@@ -100,7 +100,7 @@ public static class LibraryBackgroundLoader
         }
 
         return new LibraryBackgroundExecutionResult(
-            program.Instructions.Count + 1, bg3CharacterBaseWord);
+bg3CharacterBaseWord);
     }
 
     private static void TransferToVram(ISnesAddressSpace bus, SnesVram vram,
@@ -239,5 +239,4 @@ public static class LibraryBackgroundLoader
 /// side effects which cannot be represented by VRAM writes alone.
 /// </summary>
 public readonly record struct LibraryBackgroundExecutionResult(
-    int ExecutedCommandCount,
     ushort? Bg3CharacterBaseWord);

@@ -220,13 +220,7 @@ public sealed class SamusCrystalFlashState
 
         return new CrystalFlashMovementResult(
             phaseAtStart,
-            Phase,
-            samus.Health != healthAtStart,
-            samus.Missiles != missilesAtStart ||
-                samus.SuperMissiles != supersAtStart ||
-                samus.PowerBombs != powerBombsAtStart,
-            BubbleHdmaRequested,
-            Phase == CrystalFlashPhase.Inactive);
+            BubbleHdmaRequested);
     }
 
     private void StepRaising(SamusState samus)
@@ -443,8 +437,4 @@ public enum CrystalFlashPhase
 /// <summary>One-frame debugger witness from the translated Crystal Flash handler.</summary>
 public readonly record struct CrystalFlashMovementResult(
     CrystalFlashPhase PhaseAtStart,
-    CrystalFlashPhase PhaseAfterStep,
-    bool RestoredEnergy,
-    bool ConsumedAmmo,
-    bool BubbleHdmaRequested,
-    bool Completed);
+    bool BubbleHdmaRequested);

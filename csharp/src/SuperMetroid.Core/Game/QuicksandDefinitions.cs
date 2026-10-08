@@ -10,7 +10,6 @@ public readonly record struct QuicksandSurfacePhysics(
 
 /// <summary>One quicksand PLM header paired with its setup routine and initial list.</summary>
 public readonly record struct QuicksandReactionDefinition(
-    ushort HeaderPointer,
     ushort SetupPointer,
     ushort InstructionListPointer);
 
@@ -50,7 +49,7 @@ public static class QuicksandDefinitions
                 QuicksandRomData.SandFallsCollision,
             _ => 0,
         };
-        definition = setup == 0 ? default : new(header, setup, RoomPlmInstructionLists.Delete);
+        definition = setup == 0 ? default : new(setup, RoomPlmInstructionLists.Delete);
         return setup != 0;
     }
 

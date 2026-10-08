@@ -18,7 +18,7 @@ internal static class BlueDoorPlmDrawDefinitions
     internal const int DrawListBytes = 12;
 
     /// <summary>One of twenty twelve-byte records at $84:A9A7..AA96.</summary>
-    internal readonly record struct Draw(ushort Pointer, int Orientation, int Frame)
+    internal readonly record struct Draw(int Orientation, int Frame)
     {
         internal bool Vertical => Orientation < 2;
         internal ushort DirectionAndCount => Vertical ? (ushort)0x8004 : (ushort)4;
@@ -50,7 +50,7 @@ internal static class BlueDoorPlmDrawDefinitions
         int offset = pointer - (LeftFrame0 - DrawListBytes);
         bool owned = offset >= 0 && offset < 20 * DrawListBytes && offset % DrawListBytes == 0;
         int index = offset / DrawListBytes;
-        draw = owned ? new(pointer, index / 5, index % 5 - 1) : default;
+        draw = owned ? new(index / 5, index % 5 - 1) : default;
         return owned;
     }
 

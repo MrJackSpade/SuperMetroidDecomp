@@ -66,13 +66,7 @@ public sealed class HyperBeamPaletteFxState
 
         if (!IsActive)
         {
-            return new HyperBeamPaletteFxStepResult(
-                Active: false,
-                PaletteWritten: false,
-                FrameIndex: CurrentFrameIndex,
-                InstructionTimer,
-                _instructionPointer,
-                CompletedCycles);
+            return new HyperBeamPaletteFxStepResult();
         }
 
         RoomPaletteFxDefinition definition = RoomPaletteFxDefinitions.Get(
@@ -91,13 +85,7 @@ public sealed class HyperBeamPaletteFxState
         InstructionTimer = unchecked((ushort)(InstructionTimer - 1));
         if (InstructionTimer != 0)
         {
-            return new HyperBeamPaletteFxStepResult(
-                Active: true,
-                PaletteWritten: false,
-                FrameIndex: CurrentFrameIndex,
-                InstructionTimer,
-                _instructionPointer,
-                CompletedCycles);
+            return new HyperBeamPaletteFxStepResult();
         }
 
         HyperBeamPaletteFxFrame frame =
@@ -114,22 +102,10 @@ public sealed class HyperBeamPaletteFxState
         InstructionTimer = frame.Duration;
         CurrentFrameIndex = frame.Index;
         _instructionPointer = frame.NextInstructionPointer;
-        return new HyperBeamPaletteFxStepResult(
-            Active: true,
-            PaletteWritten: true,
-            FrameIndex: CurrentFrameIndex,
-            InstructionTimer,
-            _instructionPointer,
-            CompletedCycles);
+        return new HyperBeamPaletteFxStepResult();
     }
 
 }
 
 /// <summary>Debugger-visible result of one Hyper Beam palette-object handler call.</summary>
-public readonly record struct HyperBeamPaletteFxStepResult(
-    bool Active,
-    bool PaletteWritten,
-    int FrameIndex,
-    ushort InstructionTimer,
-    ushort InstructionPointer,
-    ushort CompletedCycles);
+public readonly record struct HyperBeamPaletteFxStepResult();

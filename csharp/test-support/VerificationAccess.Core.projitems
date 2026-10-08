@@ -14,6 +14,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreViewTypes.cs" Link="TestSupport/VerificationAccess/CoreViewTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/RetailRomOracleConstants.cs" Link="TestSupport/VerificationAccess/RetailRomOracleConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CollisionRecordRunsAccess.cs" Link="TestSupport/VerificationAccess/CollisionRecordRunsAccess.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreAccess.Group1.cs" Link="TestSupport/VerificationAccess/CoreAccess.Group1.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreAccess.Group2.cs" Link="TestSupport/VerificationAccess/CoreAccess.Group2.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreAccess.Group4.cs" Link="TestSupport/VerificationAccess/CoreAccess.Group4.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreAccess.Group5.cs" Link="TestSupport/VerificationAccess/CoreAccess.Group5.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/DoorPointers.cs" Link="TestSupport/VerificationAccess/DoorPointers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/StereoPcmContinuityMeter.cs" Link="TestSupport/VerificationAccess/StereoPcmContinuityMeter.cs" />
   </ItemGroup>

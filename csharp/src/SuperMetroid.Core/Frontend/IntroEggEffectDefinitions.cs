@@ -50,8 +50,6 @@ internal static class IntroEggEffectDefinitions
         if ((uint)index >= ParticleCount)
             throw new ArgumentOutOfRangeException(nameof(index));
         return new(
-            unchecked((ushort)(0xcecd + index * 6)),
-            0xa958,
             0xa994,
             unchecked((ushort)(0xcd39 + index * 8)));
     }
@@ -69,12 +67,10 @@ internal static class IntroEggEffectDefinitions
     /// identities and do not infer a sixth frame from adjacent ROM data.
     /// </remarks>
     public static IntroEggEffectActorDefinition SlimeDrop =>
-        new(0xcef1, 0xaa9a, 0xaab3, 0xcd69);
+        new(0xaab3, 0xcd69);
 }
 
 /// <summary>One native six-byte shell/slime cinematic-object definition.</summary>
 internal readonly record struct IntroEggEffectActorDefinition(
-    ushort Pointer,
-    ushort Initialization,
     ushort PreInstruction,
     ushort InstructionList);

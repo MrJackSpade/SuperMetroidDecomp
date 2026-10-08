@@ -15,10 +15,8 @@ internal static partial class Program
             int spawnOperand = 0x8bc811 + 6 * index;
             AssertEqual((byte)0xa0, retail.ReadByte(spawnOperand - 1), "native spawn LDY");
             ushort pointer = ReadWord(retail, spawnOperand);
-            AssertEqual(pointer, actor.Pointer, "native reveal spawn identity");
-            AssertEqual(ReadWord(retail, 0x8b0000 | pointer), actor.Initialization, "native reveal initializer");
-            AssertEqual(ReadWord(retail, (0x8b0000 | pointer) + 2), actor.DefinitionPreInstruction, "native reveal callback");
-            AssertEqual(actor.DefinitionPreInstruction, actor.ActivePreInstruction, "initializer leaves callback unchanged");
+            AssertEqual(ReadWord(retail, (0x8b0000 | pointer) + 2), actor.ActivePreInstruction,
+                "native reveal callback, which the initializer leaves unchanged");
             AssertEqual(ReadWord(retail, (0x8b0000 | pointer) + 4), actor.InstructionList, "native reveal program");
             AssertEqual(0, actor.HorizontalDelta, "reveal actor has no horizontal motion");
             AssertEqual(false, actor.WrapX, "reveal actor has no horizontal wrap");

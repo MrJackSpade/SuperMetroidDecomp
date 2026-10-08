@@ -21,9 +21,6 @@ internal static partial class Program
             AssertEqual(Word(0xaadf13 + index * 2),
                 ShaktoolInstructionDefinitions.CollisionForSegment(index),
                 $"Shaktool collision list {index}");
-            AssertEqual(Word(0xaadf21 + index * 2),
-                ShaktoolInstructionDefinitions.AttackForSegment(index),
-                $"Shaktool attack list {index}");
         }
 
         RoomEnemySystem enemies = CreateCompiledShaktoolGroup(rom, flags);
@@ -64,14 +61,6 @@ internal static partial class Program
                 $"Shaktool production collision list {index}");
         }
 
-        enemies.StartUnusedShaktoolAttack(enemies.Slots[0]);
-        for (int index = 0; index < 7; index++)
-        {
-            AssertEqual(ShaktoolInstructionDefinitions.AttackForSegment(index),
-                enemies.Slots[index].CurrentInstruction,
-                $"Shaktool production dormant attack list {index}");
-        }
-
         AssertThrows<InvalidDataException>(
             () => ShaktoolInstructionDefinitions.ForOrientationBucket(1),
             "unaligned Shaktool orientation bucket");
@@ -81,11 +70,8 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => ShaktoolInstructionDefinitions.CollisionForSegment(-1),
             "negative Shaktool collision segment");
-        AssertThrows<InvalidDataException>(
-            () => ShaktoolInstructionDefinitions.AttackForSegment(7),
-            "Shaktool attack segment past table");
         Console.WriteLine(
-            "Shaktool instruction definitions: 22 native selectors and all orientation, collision-reversal and dormant-attack production handoffs pass with source tables forbidden.");
+            "Shaktool instruction definitions: 22 native selectors and all orientation and collision-reversal production handoffs pass with source tables forbidden.");
     }
 
     private static void VerifyShaktoolInstructionProgramDefinitions()
@@ -145,25 +131,6 @@ internal static partial class Program
         reverse(tail, tailState, tail.XPosition, tail.YPosition);
         for (int index = 0; index < 7; index++)
             RunForcedShaktoolInstructions(process, enemies, enemies.Slots[index], 8);
-
-        enemies.StartUnusedShaktoolAttack(enemies.Slots[0]);
-        bool observedAttackMovement = false;
-        for (int index = 0; index < 7; index++)
-        {
-            observedAttackMovement |= RunForcedShaktoolInstructions(
-                process,
-                enemies,
-                enemies.Slots[index],
-                14);
-        }
-        AssertTrue(observedAttackMovement,
-            "Shaktool dormant attack programs execute their movement callbacks");
-        for (int index = 0; index < 7; index++)
-        {
-            AssertEqual(ShaktoolSegmentDefinitions.ForIndex(index).PreInstruction,
-                enemies.ShaktoolSegments[index]!.PreInstruction,
-                $"Shaktool dormant attack restores segment {index} pre-instruction");
-        }
 
         AssertEqual(0, guard.ObservedPresentationWords.Count,
             "Shaktool execution uses compiled spritemap selectors");

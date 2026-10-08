@@ -67,7 +67,7 @@ public sealed class SporeSpawnEnemyState
 public readonly record struct SporeSpawnPlmRequest(byte BlockX, byte BlockY, ushort Header);
 
 /// <summary>One destroyed spore's request to use enemy $DF3F's item-drop table.</summary>
-public readonly record struct SporeSpawnDropRequest(ushort X, ushort Y);
+public readonly record struct SporeSpawnDropRequest();
 
 public sealed partial class RoomEnemySystem
 {

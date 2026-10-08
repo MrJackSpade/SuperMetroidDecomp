@@ -23,13 +23,13 @@ internal static partial class Program
             ushort shootDown = (ushort)(SnesButton.X | SnesButton.Down);
             for (int tick = 0; tick < hold; tick++)
             {
-                var charging = bombs.StepFrame(bus, level, samus, shootDown, 0);
-                AssertTrue(!charging.BombSpreadStarted && bombs.BombCounter == 0, "Down+Shoot postpones grounded spread");
+                bombs.StepFrame(bus, level, samus, shootDown, 0);
+                AssertTrue(bombs.Slots.All(slot => !slot.IsActive) && bombs.BombCounter == 0, "Down+Shoot postpones grounded spread");
                 AssertEqual(SamusBombSpreadRomData.RequiredChargeFrames, samus.ProjectileFlareCounter, "retained spread charge is not consumed while holding Down");
                 AssertEqual((ushort)(tick + 1), samus.BombSpreadChargeTimeoutCounter, "grounded spread hold counter advances once per tick");
             }
             var released = bombs.StepFrame(bus, level, samus, keepDown ? shootDown : (ushort)SnesButton.X, 0);
-            AssertTrue(released.BombSpreadStarted && released.BeamChargeConsumed, "release or timeout creates spread and consumes charge");
+            AssertTrue(bombs.Slots.All(slot => slot.IsActive && slot.IsBombSpread) && released.BeamChargeConsumed, "release or timeout creates spread and consumes charge");
             AssertEqual((ushort)5, bombs.BombCounter, "spread fills all five bomb slots");
             AssertEqual((ushort)0, samus.ProjectileFlareCounter, "spawn clears actual flare counter");
             AssertEqual((ushort)0, samus.BombSpreadChargeTimeoutCounter, "spawn clears hold counter");

@@ -50,8 +50,7 @@ internal static partial class Program
                         { match = i; break; }
                     expected = match < 0 ? new(null, native.Count != 0)
                         : native[match].Target == pose ? new(null, false)
-                        : new(new SamusPoseTransition(pose, native[match].Target, native[match].New,
-                            native[match].Held, 0x910000 | (pointer + match * 6)), false);
+                        : new(new SamusPoseTransition(native[match].Target), false);
                 }
                 AssertEqual(expected, SamusPoseTransitionTable.Lookup(forbidden, pose, input, edges),
                     "Compiled input graph preserves native first-match, self-match and fallback result");

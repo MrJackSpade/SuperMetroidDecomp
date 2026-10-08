@@ -32,7 +32,7 @@ public static class SamusBombJumpMovement
         samus.Kinematics.YDirection = 1;
         samus.BombJumpStarting = false;
         samus.BombJumpActive = true;
-        return new BombJumpMovementResult(null, null, Started: true, Ended: false);
+        return new BombJumpMovementResult(null);
     }
 
     /// <summary>Runs one `$90:E032` main-handler frame.</summary>
@@ -129,7 +129,7 @@ public static class SamusBombJumpMovement
         if (vertical.Collided)
             return End(samus, horizontal, vertical);
 
-        return new BombJumpMovementResult(horizontal, vertical, Started: false, Ended: false);
+        return new BombJumpMovementResult(vertical);
     }
 
     private static BlockMoveResult MoveUpWithGravity(
@@ -173,14 +173,11 @@ public static class SamusBombJumpMovement
         samus.BombJumpStarting = false;
         samus.BombJumpActive = false;
         samus.BombJumpPoseInputLocked = false;
-        return new BombJumpMovementResult(horizontal, vertical, Started: false, Ended: true);
+        return new BombJumpMovementResult(vertical);
     }
 
 }
 
 /// <summary>Observable output of one special bomb-jump handler frame.</summary>
 public readonly record struct BombJumpMovementResult(
-    BlockMoveResult? Horizontal,
-    BlockMoveResult? Vertical,
-    bool Started,
-    bool Ended);
+    BlockMoveResult? Vertical);

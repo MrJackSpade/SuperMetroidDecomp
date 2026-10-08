@@ -95,8 +95,8 @@ internal static partial class Program
         hyperBeam.Spawn();
         var hyperColors = SuperMetroid.Core.Assets.HyperBeamFxColorCatalog.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.HyperBeamFxColorExtractor.Extract(rom)));
-        HyperBeamPaletteFxStepResult hyperStep = hyperBeam.Step(guardedRom, new SnesCgram(), hyperColors);
-        AssertTrue(hyperStep.PaletteWritten,
+        hyperBeam.Step(guardedRom, new SnesCgram(), hyperColors);
+        AssertEqual(0, hyperBeam.CurrentFrameIndex,
             "specialized Hyper Beam owner executes with its definition bytes forbidden");
 
         AssertThrows<InvalidDataException>(

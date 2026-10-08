@@ -112,7 +112,7 @@ public static class SamusMorphBallMovement
                 speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
         }
 
-        return new MorphBallMovementResult(horizontal, vertical, landed, hitCeiling);
+        return new MorphBallMovementResult(vertical, landed, hitCeiling);
     }
 
     /// <summary>Executes movement type eight at <c>$90:A5CA</c>.</summary>
@@ -211,7 +211,7 @@ public static class SamusMorphBallMovement
                 out landed,
                 out hitCeiling);
         }
-        return new MorphBallMovementResult(horizontal, vertical, landed, hitCeiling);
+        return new MorphBallMovementResult(vertical, landed, hitCeiling);
     }
 
     /// <summary>Executes Spring Ball movement type $12 at <c>$90:A6F1</c>.</summary>
@@ -284,7 +284,7 @@ public static class SamusMorphBallMovement
             plms,
             out bool landed,
             out bool hitCeiling);
-        return new MorphBallMovementResult(horizontal, vertical, landed, hitCeiling);
+        return new MorphBallMovementResult(vertical, landed, hitCeiling);
     }
 
     /// <summary>
@@ -354,7 +354,7 @@ public static class SamusMorphBallMovement
             }
         }
 
-        return new MorphBallMovementResult(horizontal, vertical, landed, hitCeiling);
+        return new MorphBallMovementResult(vertical, landed, hitCeiling);
     }
 
     private static BlockMoveResult MoveVerticallyWithGravity(
@@ -476,7 +476,6 @@ public static class SamusMorphBallMovement
 
 /// <summary>Collision and direction result produced by one ordinary Morph-Ball frame.</summary>
 public readonly record struct MorphBallMovementResult(
-    BlockMoveResult Horizontal,
     BlockMoveResult Vertical,
     bool Landed,
     bool HitCeiling);

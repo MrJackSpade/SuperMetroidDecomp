@@ -72,7 +72,7 @@ internal sealed class D3D11GpuTimer : IDisposable
         ulong compositionFinished = finish;
         if (slot.HasCompositionBoundary && !Read(slot.CompositionFinished, out compositionFinished)) return false;
         bool valid = !clock.Disjoint && clock.Frequency != 0 && finish >= compositionFinished && compositionFinished >= start;
-        sample = new(slot.Identity, valid, valid ? (finish - start) * 1000.0 / clock.Frequency : double.NaN,
+        sample = new(valid, valid ? (finish - start) * 1000.0 / clock.Frequency : double.NaN,
             valid ? (compositionFinished - start) * 1000.0 / clock.Frequency : double.NaN);
         tail = (tail + 1) % slots.Length;
         pending--;
@@ -127,4 +127,4 @@ internal sealed class D3D11GpuTimer : IDisposable
     }
 }
 
-internal readonly record struct GpuTimingSample(RenderFrameIdentity Identity, bool Valid, double Milliseconds, double CompositionMilliseconds);
+internal readonly record struct GpuTimingSample(bool Valid, double Milliseconds, double CompositionMilliseconds);

@@ -40,8 +40,12 @@ internal static partial class Program
         AssertEqual((byte)0xAB, first.MainScreen, "upload retains unused TM bits");
         AssertEqual((byte)0xAB, state.ReadByte(0x6A), "accepted NMI copies gameplay_TM");
         AssertEqual((byte)0x91, first.MainScreenWindow, "upload retains literal TMW");
-        AssertEqual((byte)4, first.Subscreen, "TS does not read gameplay_TM gap");
-        AssertEqual((byte)0, first.SubscreenWindow, "TSW uploads independently");
+        // The displayed snapshot carries no TS/TSW; their cached gameplay bytes keep the
+        // initialized values independently of the neighboring gameplay_TM write.
+        AssertEqual((byte)4, state.ReadByte(GameplayWindowRegisterAddresses.Subscreen),
+            "TS does not read gameplay_TM gap");
+        AssertEqual((byte)0, state.ReadByte(GameplayWindowRegisterAddresses.SubscreenWindow),
+            "TSW is cached independently");
         state.InitializeWindowAndScreenSelection();
         state.LatchNmi(false);
         AssertEqual(first, state.Displayed, "later cached writes and lag cannot mutate displayed frame");

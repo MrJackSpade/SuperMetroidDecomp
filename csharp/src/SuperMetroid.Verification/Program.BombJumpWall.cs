@@ -18,11 +18,12 @@ internal static partial class Program
         samus.RequestMorphedBombJump(3);
         SamusBombJumpMovement.Start(bus, samus);
         var result = SamusBombJumpMovement.Step(bus, level, samus, 0, new RoomPlmSystem());
-        AssertTrue(result.Horizontal is { Collided: true }, $"diagonal bomb jump hits the shaft wall (X={samus.Kinematics.XFixed:X8}, radius={samus.Kinematics.XRadius}, move={result.Horizontal})");
+        // Only the X mover's wall hit clears the base speed the bomb-jump calculator just accelerated.
+        AssertTrue(samus.HorizontalSpeed.BaseFixed == 0, $"diagonal bomb jump hits the shaft wall (X={samus.Kinematics.XFixed:X8}, radius={samus.Kinematics.XRadius})");
         AssertTrue(result.Vertical is { Collided: false }, "shaft wall leaves vertical travel clear");
         // Original $90:E032 bytes: GrapplePoseAudit bomb-wall. A horizontal collision
         // must not end the special handler; the native branch tests the later Y result.
-        AssertTrue(!result.Ended && samus.BombJumpActive, "wall-only collision retains native bomb-jump handler");
+        AssertTrue(samus.BombJumpActive, "wall-only collision retains native bomb-jump handler");
         AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "bomb-jump wall hit clears horizontal momentum without cancelling ascent");
         AssertEqual(0x0803, samus.BombJumpDirection, "native bomb-wall direction remains armed");
         AssertEqual(59, samus.XPosition, "native bomb-wall X endpoint");

@@ -120,7 +120,9 @@ internal static partial class Program
                     $"{name} copy routine ends after its last column");
 
                 // Initialization routine: per tile row, PHB / LDX #sheet / LDY #work / LDA #length-1 / MVN / PLB.
-                int init = bank | definition.GraphicsInitializationFunction;
+                // Production does not call the graphics-initialization routine; locate it through
+                // the native configuration record's sixth word.
+                int init = bank | SmallTableWord(rom, bank | (definition.ConfigurationPointer + 10));
                 for (int row = 0; row < layout.InitialGraphicsCopies.Length; row++)
                 {
                     var expected = layout.InitialGraphicsCopies[row];

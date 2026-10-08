@@ -24,7 +24,10 @@ internal static class GpuTimingTests
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.Readback(), "timed GPU composition");
             for (int i = 0; i < 2; i++)
             {
-                if (!timer.TryRead(out var sample) || sample.Identity.Sequence != batch * 2 + i + 1)
+                // The oldest pending slot (the ring tail) is the one TryRead consumes.
+                object oldest = PrivateState.Field<Array>(timer, "slots").GetValue(PrivateState.Field<int>(timer, "tail"))!;
+                RenderFrameIdentity oldestIdentity = PrivateState.Field<RenderFrameIdentity>(oldest, "Identity");
+                if (!timer.TryRead(out var sample) || oldestIdentity.Sequence != batch * 2 + i + 1)
                     throw new InvalidOperationException("Completed GPU timer lost FIFO frame identity.");
                 if (!sample.Valid || !double.IsFinite(sample.Milliseconds) || sample.Milliseconds < 0)
                     throw new InvalidOperationException("Timing fixture returned an invalid GPU clock sample.");

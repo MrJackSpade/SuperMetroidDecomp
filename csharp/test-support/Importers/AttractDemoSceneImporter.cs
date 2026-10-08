@@ -26,8 +26,7 @@ internal static class AttractDemoSceneImporter
         ushort setup = RomDataReader.ReadWordFixedBank(cartridge,
             RecordAddress(AttractDemoRomData.EquipmentBank, setupList, scene, sizeof(ushort)));
         return new(
-            Room(AttractDemoRomDataRoomFields.Room), Room(AttractDemoRomDataRoomFields.Door),
-            Room(AttractDemoRomDataRoomFields.DoorSlot), Room(AttractDemoRomDataRoomFields.CameraX),
+            Room(AttractDemoRomDataRoomFields.Room), Room(AttractDemoRomDataRoomFields.Door), Room(AttractDemoRomDataRoomFields.CameraX),
             Room(AttractDemoRomDataRoomFields.CameraY), Room(AttractDemoRomDataRoomFields.SamusYFromTop),
             unchecked((short)Room(AttractDemoRomDataRoomFields.SamusXFromCenter)),
             Room(AttractDemoRomDataRoomFields.Duration), Room(AttractDemoRomDataRoomFields.Setup), setup,

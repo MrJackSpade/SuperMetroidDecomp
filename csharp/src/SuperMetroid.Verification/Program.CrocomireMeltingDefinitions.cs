@@ -53,7 +53,6 @@ internal static partial class Program
 
     private static void VerifyCrocomireMeltHeaders(SuperMetroidAddressSpace rom)
     {
-        AssertEqual(2, CrocomireMeltingTransferDefinitions.Passes.Length, "two native melt passes");
         int index = 0;
         foreach (CrocomireMeltingPass pass in CrocomireMeltingTransferDefinitions.Passes)
         {

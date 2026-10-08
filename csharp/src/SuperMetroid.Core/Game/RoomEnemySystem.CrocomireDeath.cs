@@ -545,10 +545,7 @@ public sealed partial class RoomEnemySystem
         state.Body.YRadius = 28;
         state.Body.XRadius = 40;
         PublishCrocomirePlm(0x30, 0x03, RoomPlmHeaders.ClearCrocomireInvisibleWall);
-        LastCrocomireDropRequest = new CrocomireDropRequest(
-            state.Body.XPosition,
-            state.Body.YPosition,
-            state.Body.Definition.ItemDropChancesPointer);
+        LastCrocomireDropRequest = new CrocomireDropRequest();
 
         // $A0:B995 emits sixteen independent $F337 projectiles across Crocomire's
         // authored arena rectangle. These are not a single pickup at the corpse position:

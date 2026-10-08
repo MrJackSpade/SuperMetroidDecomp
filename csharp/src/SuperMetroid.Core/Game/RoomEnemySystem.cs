@@ -1141,13 +1141,7 @@ public sealed partial class RoomEnemySystem
         slot.VramTilesIndex = tileIndex;
         slot.Spawn = new RoomEnemySpawnSnapshot(
             population,
-            definition.XRadius,
-            definition.YRadius,
-            definition.Health,
-            definition.Layer,
-            tileIndex,
-            paletteIndex,
-            ReadSpawnNameWords(definition));
+            tileIndex);
     }
 
     private (ushort TileIndex, ushort PaletteIndex) FindGraphicsIndexes(ushort definitionPointer)
@@ -4040,16 +4034,6 @@ public sealed partial class RoomEnemySystem
         bus is IRoomEnemyFixtureSource fixture
             ? fixture.ReadEnemyGraphicsSet(pointer)
             : RoomEnemyGraphicsSetDefinitions.Get(pointer);
-
-    private RoomEnemySpawnNameWords ReadSpawnNameWords(RoomEnemyDefinition definition)
-    {
-        if (definition.NamePointer == 0)
-            return default;
-
-        return _bus is IRoomEnemyFixtureSource fixture
-            ? fixture.ReadEnemySpawnNameWords(definition.NamePointer)
-            : RoomEnemySpawnNameDefinitions.Get(definition.NamePointer);
-    }
 
     private static bool IsNegative16(int value) => (short)unchecked((ushort)value) < 0;
 

@@ -253,7 +253,6 @@ public sealed class CartridgeRoomAssets
 
 /// <summary>One nine-byte bank-$8F tileset definition selected by graphics-set index.</summary>
 public readonly record struct TilesetDefinition(
-    ushort Pointer,
     int BlockDefinitionsAddress,
     int CharacterAddress,
     int PaletteAddress);

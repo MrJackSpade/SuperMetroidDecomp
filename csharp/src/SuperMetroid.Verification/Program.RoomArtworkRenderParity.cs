@@ -29,12 +29,14 @@ internal static partial class Program
             if (useRealLandingDoor)
             {
                 var sourceBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
-                LandingSiteEntryState entry = LandingSiteEntryState.LoadLandingCutscene(sourceBus);
+                ushort landingDoor = LandingSiteRomData.LandingCutsceneDoorPointer;
+                LibraryBackgroundInstruction skyTransfer = LibraryBackgroundProgramDefinitions.GetDoorTransfer(
+                    unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress), landingDoor);
                 byte[] sky = RomDataReader.ReadFixedBank(sourceBus,
-                    entry.SkySourceAddress, entry.SkyByteCount);
-                AssertTrue(native.ActiveDoor?.Pointer == entry.DoorPointer &&
+                    skyTransfer.SourceAddress, skyTransfer.ByteCount);
+                AssertTrue(native.ActiveDoor?.Pointer == landingDoor &&
                     native.ScrollingSky is not null &&
-                    native.Vram.Bytes.Slice(entry.SkyVramDestination * 2, sky.Length)
+                    native.Vram.Bytes.Slice(skyTransfer.Destination * 2, sky.Length)
                         .SequenceEqual(sky),
                     "Landing Site frame contains its real door-selected sky page");
             }

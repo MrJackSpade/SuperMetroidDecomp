@@ -35,14 +35,9 @@ public static class SamusHurtFlashPalette
         ushort counterBefore = samus.HurtFlashCounter;
         if (counterBefore == 0)
         {
-            return new SamusHurtFlashPaletteStepResult(
-                SamusHurtFlashPaletteAction.Inactive,
-                CounterBefore: 0,
-                CounterAfter: 0);
+            return new SamusHurtFlashPaletteStepResult();
         }
 
-        bool hurtSoundQueued = false;
-        SamusHurtFlashPaletteAction action = SamusHurtFlashPaletteAction.NoPaletteChange;
         int? paletteAddress = null;
 
         // `$91:D8B3-$D8D4` plays the impact sound exactly on call two. Cinematics and the
@@ -54,7 +49,6 @@ public static class SamusHurtFlashPalette
               samus.Pose == SamusPoseIds.KnockbackLeftPose))
         {
             samus.LiquidPhysics.QueueMovementSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x35), maximumQueued: 6);
-            hurtSoundQueued = true;
         }
 
         // Only calls one through six write colors. Odd calls select the fixed hurt palette;
@@ -65,13 +59,11 @@ public static class SamusHurtFlashPalette
             if ((counterBefore & 1) != 0)
             {
                 LoadPresentation(SamusHurtColorVariant.Hurt);
-                action = SamusHurtFlashPaletteAction.HurtFlash;
                 paletteAddress = SamusPaletteRomData.HurtFlash.Colors;
             }
             else if (samus.LiquidPhysics.CinematicFunctionActive)
             {
                 LoadPresentation(SamusHurtColorVariant.Intro);
-                action = SamusHurtFlashPaletteAction.IntroRestore;
                 paletteAddress = SamusPaletteRomData.HurtFlash.IntroColors;
             }
             else
@@ -79,7 +71,6 @@ public static class SamusHurtFlashPalette
                 ushort palettePointer = SamusNormalSuitPalette.Load(
                     cgram, samus.EquippedItems, samus.SuitColors);
                 paletteAddress = SamusPaletteRomData.Banks.Palette | palettePointer;
-                action = SamusHurtFlashPaletteAction.NormalSuitRestore;
             }
         }
 
@@ -99,13 +90,7 @@ public static class SamusHurtFlashPalette
             counterAfter = 0;
         }
 
-        return new SamusHurtFlashPaletteStepResult(
-            action,
-            counterBefore,
-            counterAfter,
-            paletteAddress,
-            hurtSoundQueued,
-            recovery);
+        return new SamusHurtFlashPaletteStepResult();
 
         void LoadPresentation(SamusHurtColorVariant variant)
         {
@@ -184,16 +169,6 @@ public static class SamusHurtFlashPalette
 
 }
 
-/// <summary>Palette write (or intentional non-write) performed by one hurt-counter call.</summary>
-public enum SamusHurtFlashPaletteAction : byte
-{
-    Inactive,
-    HurtFlash,
-    NormalSuitRestore,
-    IntroRestore,
-    NoPaletteChange,
-}
-
 /// <summary>Counter-forty audio recovery selected by native movement/grapple state.</summary>
 public enum SamusHurtFlashRecoveryAction : byte
 {
@@ -206,10 +181,4 @@ public enum SamusHurtFlashRecoveryAction : byte
 }
 
 /// <summary>Immutable debugger witness for one call of the hurt palette handler.</summary>
-public readonly record struct SamusHurtFlashPaletteStepResult(
-    SamusHurtFlashPaletteAction Action,
-    ushort CounterBefore,
-    ushort CounterAfter,
-    int? PaletteAddress = null,
-    bool HurtSoundQueued = false,
-    SamusHurtFlashRecoveryAction Recovery = SamusHurtFlashRecoveryAction.None);
+public readonly record struct SamusHurtFlashPaletteStepResult();

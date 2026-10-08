@@ -97,11 +97,8 @@ public static class SamusSolidEnemyCollision
             return new SolidEnemyCollisionResult(
                 Collided: true,
                 Distance: gap,
-                DistanceSubposition: 0,
                 EnemyIndex: enemy.Index,
-                WasTouching: wasTouching,
-                TargetXPosition: targetX,
-                TargetYPosition: targetY);
+                WasTouching: wasTouching);
         }
 
         // The target is retained in the managed result solely to make probes inspectable in
@@ -109,11 +106,8 @@ public static class SamusSolidEnemyCollision
         return new SolidEnemyCollisionResult(
             Collided: false,
             Distance: distance,
-            DistanceSubposition: distanceSubposition,
             EnemyIndex: null,
-            WasTouching: false,
-            TargetXPosition: targetX,
-            TargetYPosition: targetY);
+            WasTouching: false);
     }
 
     private static (ushort X, ushort Y) BuildRoundedTarget(
@@ -239,8 +233,5 @@ public readonly record struct SolidEnemyCollisionBody(
 public readonly record struct SolidEnemyCollisionResult(
     bool Collided,
     ushort Distance,
-    ushort DistanceSubposition,
     ushort? EnemyIndex,
-    bool WasTouching,
-    ushort TargetXPosition,
-    ushort TargetYPosition);
+    bool WasTouching);

@@ -110,7 +110,6 @@ public static class StockAttractDemoScenes
         Demonstration.LandingSite => new(
             RoomPointer: 0x91f8,
             DoorPointer: 0x896a,
-            DoorSlot: 1,
             CameraX: CameraForScreens(4),
             CameraY: CameraForScreens(4),
             SamusYFromTop: 64,
@@ -129,7 +128,6 @@ public static class StockAttractDemoScenes
         Demonstration.MissileDoor => new(
             RoomPointer: 0x9f11,
             DoorPointer: 0x8eaa,
-            DoorSlot: 1,
             CameraX: CameraForScreens(0),
             CameraY: CameraForScreens(0),
             SamusYFromTop: GroundedY(8, demonstration),
@@ -148,7 +146,6 @@ public static class StockAttractDemoScenes
         Demonstration.PreSporeSpawnHall => new(
             RoomPointer: 0x9d9c,
             DoorPointer: 0x8dc6,
-            DoorSlot: 0,
             CameraX: CameraForScreens(1),
             CameraY: CameraForScreens(0),
             SamusYFromTop: GroundedY(13, demonstration),
@@ -167,7 +164,6 @@ public static class StockAttractDemoScenes
         Demonstration.SpeedBooster => new(
             RoomPointer: 0xb106,
             DoorPointer: 0x970e,
-            DoorSlot: 0,
             CameraX: CameraForScreens(7),
             CameraY: CameraForScreens(0),
             SamusYFromTop: GroundedY(10, demonstration),
@@ -186,7 +182,6 @@ public static class StockAttractDemoScenes
         Demonstration.GrappleBeam => new(
             RoomPointer: 0xaffb,
             DoorPointer: 0x9792,
-            DoorSlot: 1,
             CameraX: CameraForScreens(0),
             CameraY: CameraForScreens(0),
             SamusYFromTop: GroundedY(10, demonstration),
@@ -205,7 +200,6 @@ public static class StockAttractDemoScenes
         Demonstration.PseudoScrewAttack => new(
             RoomPointer: 0x9d19,
             DoorPointer: 0x8e7a,
-            DoorSlot: 0,
             CameraX: CameraForScreens(2),
             CameraY: CameraForScreens(6),
             SamusYFromTop: GroundedY(10, demonstration),
@@ -224,7 +218,6 @@ public static class StockAttractDemoScenes
         Demonstration.IceBeam => new(
             RoomPointer: 0xa408,
             DoorPointer: 0xa36c,
-            DoorSlot: 0,
             CameraX: CameraForScreens(1),
             CameraY: CameraForScreens(1),
             SamusYFromTop: GroundedY(10, demonstration),
@@ -243,7 +236,6 @@ public static class StockAttractDemoScenes
         Demonstration.FirefleaRoom => new(
             RoomPointer: 0x9c5e,
             DoorPointer: 0x8cca,
-            DoorSlot: 3,
             CameraX: CameraForScreens(2),
             CameraY: CameraForScreens(0),
             SamusYFromTop: GroundedY(10, demonstration),
@@ -262,7 +254,6 @@ public static class StockAttractDemoScenes
         Demonstration.BrinstarDiagonalRoom => new(
             RoomPointer: 0x9e52,
             DoorPointer: 0x8dea,
-            DoorSlot: 3,
             CameraX: CameraForScreens(5),
             CameraY: CameraForScreens(3),
             SamusYFromTop: GroundedY(12, demonstration),
@@ -281,7 +272,6 @@ public static class StockAttractDemoScenes
         Demonstration.LowerNorfairEntrance => new(
             RoomPointer: 0xaf14,
             DoorPointer: 0x967e,
-            DoorSlot: 2,
             CameraX: CameraForScreens(3),
             CameraY: CameraForScreens(0),
             SamusYFromTop: GroundedY(10, demonstration),
@@ -300,7 +290,6 @@ public static class StockAttractDemoScenes
         Demonstration.ScrewAttack => new(
             RoomPointer: 0x9879,
             DoorPointer: 0x8982,
-            DoorSlot: 3,
             CameraX: CameraForScreens(0),
             CameraY: CameraForScreens(0),
             SamusYFromTop: GroundedY(13, demonstration),
@@ -319,7 +308,6 @@ public static class StockAttractDemoScenes
         Demonstration.Dachora => new(
             RoomPointer: 0x9cb3,
             DoorPointer: 0x8dd2,
-            DoorSlot: 1,
             CameraX: CameraForScreens(4),
             CameraY: CameraForScreens(2),
             SamusYFromTop: 128,
@@ -338,7 +326,6 @@ public static class StockAttractDemoScenes
         Demonstration.PrePhantoonHall => new(
             RoomPointer: 0xcc6f,
             DoorPointer: 0xa21c,
-            DoorSlot: 3,
             CameraX: CameraForScreens(2),
             CameraY: CameraForScreens(0),
             SamusYFromTop: 96,
@@ -357,7 +344,6 @@ public static class StockAttractDemoScenes
         Demonstration.DiagonalShinespark => new(
             RoomPointer: 0x91f8,
             DoorPointer: 0x896a,
-            DoorSlot: 1,
             CameraX: CameraForScreens(3),
             CameraY: CameraForScreens(4),
             SamusYFromTop: 176,
@@ -376,7 +362,6 @@ public static class StockAttractDemoScenes
         Demonstration.EyeDoor => new(
             RoomPointer: 0xa56b,
             DoorPointer: 0x919e,
-            DoorSlot: 1,
             CameraX: CameraForScreens(0),
             CameraY: CameraForScreens(1),
             SamusYFromTop: GroundedY(10, demonstration),
@@ -395,7 +380,6 @@ public static class StockAttractDemoScenes
         Demonstration.RedBrinstarElevator => new(
             RoomPointer: 0xa322,
             DoorPointer: 0x90ea,
-            DoorSlot: 0,
             CameraX: CameraForScreens(0),
             CameraY: CameraForScreens(7),
             SamusYFromTop: GroundedY(10, demonstration),
@@ -414,7 +398,6 @@ public static class StockAttractDemoScenes
         Demonstration.Kraid => new(
             RoomPointer: 0xa59f,
             DoorPointer: 0x91b6,
-            DoorSlot: 1,
             CameraX: CameraForScreens(0),
             CameraY: CameraForScreens(1),
             SamusYFromTop: GroundedY(10, demonstration),
@@ -433,7 +416,6 @@ public static class StockAttractDemoScenes
         Demonstration.TourianEntrance => new(
             RoomPointer: 0xa66a,
             DoorPointer: 0x91f2,
-            DoorSlot: 1,
             CameraX: CameraForScreens(0),
             CameraY: CameraForScreens(0),
             SamusYFromTop: GroundedY(10, demonstration),
@@ -452,7 +434,6 @@ public static class StockAttractDemoScenes
         Demonstration.GauntletEntrance => new(
             RoomPointer: 0x91f8,
             DoorPointer: 0x890a,
-            DoorSlot: 0,
             CameraX: CameraForScreens(6),
             CameraY: CameraForScreens(2),
             SamusYFromTop: 128,
@@ -471,7 +452,6 @@ public static class StockAttractDemoScenes
         Demonstration.AdvancedGrappleBeam => new(
             RoomPointer: 0xd0b9,
             DoorPointer: 0xa474,
-            DoorSlot: 0,
             CameraX: CameraForScreens(2),
             CameraY: CameraForScreens(0),
             SamusYFromTop: GroundedY(12, demonstration),
@@ -490,7 +470,6 @@ public static class StockAttractDemoScenes
         Demonstration.InfiniteBombJump => new(
             RoomPointer: 0x91f8,
             DoorPointer: 0x890a,
-            DoorSlot: 0,
             CameraX: CameraForScreens(6),
             CameraY: CameraForScreens(2),
             SamusYFromTop: 123,
@@ -509,7 +488,6 @@ public static class StockAttractDemoScenes
         Demonstration.SpecialBeamAttack => new(
             RoomPointer: 0x9ad9,
             DoorPointer: 0x8d42,
-            DoorSlot: 1,
             CameraX: CameraForScreens(0),
             CameraY: CameraForScreens(4),
             SamusYFromTop: GroundedY(10, demonstration),
@@ -528,7 +506,6 @@ public static class StockAttractDemoScenes
         Demonstration.CrystalFlash => new(
             RoomPointer: 0x91f8,
             DoorPointer: 0x890a,
-            DoorSlot: 0,
             CameraX: CameraForScreens(6),
             CameraY: CameraForScreens(2),
             SamusYFromTop: GroundedY(10, demonstration),

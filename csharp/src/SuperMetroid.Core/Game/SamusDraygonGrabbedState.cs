@@ -111,14 +111,7 @@ public sealed class SamusDraygonGrabbedState
         // The native routine writes whole positions only. It does not clear subpositions,
         // so preserving the split low words is intentional even though the actor overwrites
         // the visible whole coordinates on every owner update.
-        return new DraygonOwnerPlacement(
-            ownerXPosition,
-            ownerYPosition,
-            draygonFacingRight,
-            xOffset,
-            0x28,
-            samus.XPosition,
-            samus.YPosition);
+        return new DraygonOwnerPlacement();
     }
 
     /// <summary>
@@ -132,12 +125,7 @@ public sealed class SamusDraygonGrabbedState
 
         ushort previousResult = samus.SolidVerticalCollisionResult;
         samus.SolidVerticalCollisionResult = 0;
-        return new DraygonGrabbedMovementResult(
-            samus.Pose,
-            samus.XPosition,
-            samus.YPosition,
-            previousResult,
-            samus.SolidVerticalCollisionResult);
+        return new DraygonGrabbedMovementResult();
     }
 
     /// <summary>
@@ -175,11 +163,6 @@ public sealed class SamusDraygonGrabbedState
             Release(bus, samus);
 
         return new DraygonEscapeResult(
-            poseBeforeRelease,
-            samus.Pose,
-            dpad,
-            counted,
-            EscapeButtonCounter,
             grappleLockedInPlace,
             released);
     }
@@ -252,29 +235,12 @@ public sealed class SamusDraygonGrabbedState
 }
 
 /// <summary>Debugger-visible result of the otherwise one-instruction `$90:A7D2` handler.</summary>
-public readonly record struct DraygonGrabbedMovementResult(
-    byte Pose,
-    ushort XPosition,
-    ushort YPosition,
-    ushort PreviousSolidVerticalCollisionResult,
-    ushort SolidVerticalCollisionResult);
+public readonly record struct DraygonGrabbedMovementResult();
 
 /// <summary>Literal claw offsets and resulting Samus position from `$A5:94A9`.</summary>
-public readonly record struct DraygonOwnerPlacement(
-    ushort OwnerXPosition,
-    ushort OwnerYPosition,
-    bool OwnerFacingRight,
-    short XOffset,
-    short YOffset,
-    ushort SamusXPosition,
-    ushort SamusYPosition);
+public readonly record struct DraygonOwnerPlacement();
 
 /// <summary>One timer/hack-handler pass at `$90:E2A1`.</summary>
 public readonly record struct DraygonEscapeResult(
-    byte PoseBeforeRelease,
-    byte PoseAfterRelease,
-    ushort NewlyPressedDpad,
-    bool CountedInput,
-    ushort EscapeButtonCounter,
     bool SuppressProspectivePose,
     bool Released);

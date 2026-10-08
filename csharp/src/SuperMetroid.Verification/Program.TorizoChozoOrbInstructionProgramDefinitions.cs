@@ -167,15 +167,23 @@ internal static partial class Program
                 $"{(golden ? "Golden" : "Bomb")} Torizo orb shot deletes after drop callback");
             AssertEqual(1, enemies.TorizoOrbDropRequests.Count,
                 $"{(golden ? "Golden" : "Bomb")} Torizo orb shot publishes one drop");
-            TorizoOrbDropRequest request = enemies.TorizoOrbDropRequests[0];
-            AssertEqual(golden
-                    ? TorizoChozoOrbInstructionProgramDefinitions.GoldenOrbEnemyHeader
-                    : TorizoChozoOrbInstructionProgramDefinitions.BombOrbEnemyHeader,
-                request.EnemyDefinitionPointer,
+            // The drop callback spawns its pickup from the selected header's chance table at
+            // the orb's position; that pickup is the observable trace of header and placement.
+            ushort expectedHeader = golden
+                ? TorizoChozoOrbInstructionProgramDefinitions.GoldenOrbEnemyHeader
+                : TorizoChozoOrbInstructionProgramDefinitions.BombOrbEnemyHeader;
+            RoomEnemyDefinition expectedDefinition =
+                RoomEnemyAuxiliaryDefinitionCatalog.TryGet(expectedHeader, out RoomEnemyDefinition auxiliary)
+                    ? auxiliary
+                    : RoomEnemyDefinitionCatalog.Get(expectedHeader);
+            RoomEnemyProjectileSlot pickup = enemies.EnemyProjectiles.Single(slot =>
+                slot.Kind == RoomEnemyProjectileKind.EnemyDeathPickup);
+            AssertEqual(expectedDefinition.ItemDropChancesPointer,
+                pickup.ItemDropChancesPointerOverride,
                 $"{(golden ? "Golden" : "Bomb")} Torizo orb shot drop header");
-            AssertEqual((ushort)0x0350, request.X,
+            AssertEqual((ushort)0x0350, pickup.XPosition,
                 $"{(golden ? "Golden" : "Bomb")} Torizo orb shot drop X");
-            AssertEqual((ushort)0x0260, request.Y,
+            AssertEqual((ushort)0x0260, pickup.YPosition,
                 $"{(golden ? "Golden" : "Bomb")} Torizo orb shot drop Y");
         }
 

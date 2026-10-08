@@ -610,11 +610,7 @@ public sealed partial class RoomEnemySystem
         }
 
         RoomEnemyDefinition definition = ResolveRoomEnemyDefinition(_bus!, header);
-        _torizoOrbDropRequests.Add(new TorizoOrbDropRequest(
-            projectile.XPosition,
-            projectile.YPosition,
-            header,
-            definition.ItemDropChancesPointer));
+        _torizoOrbDropRequests.Add(new TorizoOrbDropRequest());
         SpawnEnemyDropFromChanceTable(
             projectile.XPosition,
             projectile.YPosition,

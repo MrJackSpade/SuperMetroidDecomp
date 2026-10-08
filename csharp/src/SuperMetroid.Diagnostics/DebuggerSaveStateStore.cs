@@ -108,7 +108,6 @@ internal sealed class DebuggerSaveStateStore
         string destination = GetSlotPath(slot);
         string temporary = Path.Combine(directory, $".{Path.GetFileName(destination)}.{Guid.NewGuid():N}.tmp");
         var metadata = new DebuggerSaveStateMetadata(
-            slot,
             DateTimeOffset.UtcNow,
             game.FrameNumber,
             game.GameState,
@@ -245,7 +244,7 @@ internal sealed class DebuggerSaveStateStore
             root.AddressSpace,
             root.Game,
             root.AudioPlayer,
-            new DebuggerSaveStateMetadata(slot, savedUtc, frame, gameState, room, roomState, path), warnings.AsReadOnly());
+            new DebuggerSaveStateMetadata(savedUtc, frame, gameState, room, roomState, path), warnings.AsReadOnly());
     }
 
     /// <summary>
@@ -367,7 +366,6 @@ internal sealed class DebuggerSaveStateStore
 }
 
 internal readonly record struct DebuggerSaveStateMetadata(
-    int Slot,
     DateTimeOffset SavedUtc,
     ushort FrameNumber,
     SuperMetroidGameState GameState,

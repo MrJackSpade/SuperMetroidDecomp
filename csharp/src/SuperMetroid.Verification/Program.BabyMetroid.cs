@@ -83,9 +83,15 @@ static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(0x00a0, baby.GraphicsOffset, "Baby transferred-tile offset");
     AssertEqual(BabyMetroidCutsceneState.InitialInstructionList, baby.InstructionList,
         "Baby initial instruction list");
-    AssertEqual(new BabyMetroidCutscenePoint(0x0140, 0, 0x0060, 0),
-        new BabyMetroidCutscenePoint(
-            baby.XPosition, baby.XSubposition, baby.YPosition, baby.YSubposition),
+    // Whole/subpixel coordinates in native `$0F7A/$0F7C/$0F7E/$0F80` order.
+    (ushort, ushort, ushort, ushort) BabyPoint() =>
+        (baby.XPosition, baby.XSubposition, baby.YPosition, baby.YSubposition);
+    static (ushort, ushort, ushort, ushort) ExpectedBabyPoint(
+        ushort xPosition, ushort xSubposition, ushort yPosition, ushort ySubposition) =>
+        (xPosition, xSubposition, yPosition, ySubposition);
+
+    AssertEqual(ExpectedBabyPoint(0x0140, 0, 0x0060, 0),
+        BabyPoint(),
         "Baby initialization overwrites population coordinates");
 
     // `$F8` reaches zero without expiring. This is 248 visibly stationary calls, not an
@@ -98,15 +104,15 @@ static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(0x0140, baby.XPosition, "Baby remains still through call 248");
     AssertEqual(0x0060, baby.YPosition, "Baby Y remains still through call 248");
 
-    BabyMetroidCutsceneStepResult firstCurve = baby.Step(bus, samus, motherBrain);
+    baby.Step(bus, samus, motherBrain);
     AssertEqual(BabyMetroidCutscenePhase.CurveTowardMotherBrainHead, baby.Phase,
         "Baby call 249 falls through into curve function");
     AssertEqual(0xd680, baby.Angle, "Baby first curve angle");
     AssertEqual(0x0a00, baby.Speed, "Baby first curve speed");
-    AssertEqual(0xf772, firstCurve.XVelocity, "Baby first ROM sine X velocity");
-    AssertEqual(0x051e, firstCurve.YVelocity, "Baby first ROM cosine Y velocity");
-    AssertEqual(new BabyMetroidCutscenePoint(0x0137, 0x7200, 0x0065, 0x1e00),
-        firstCurve.After,
+    AssertEqual(0xf772, baby.XVelocity, "Baby first ROM sine X velocity");
+    AssertEqual(0x051e, baby.YVelocity, "Baby first ROM cosine Y velocity");
+    AssertEqual(ExpectedBabyPoint(0x0137, 0x7200, 0x0065, 0x1e00),
+        BabyPoint(),
         "Baby first curve fixed-point displacement");
 
     BabyMetroidCutsceneStepResult latch = default;
@@ -117,30 +123,32 @@ static void VerifyBabyMetroidCutsceneEntrance()
     while (baby.Phase != BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse &&
            calls < 700)
     {
+        byte samusPoseBeforeStep = samus.Pose;
         latch = baby.Step(bus, samus, motherBrain);
         calls++;
         sawBodyStumbleRequest |= latch.BodyStumbleRequested;
-        sawMotherBrainInterrupt |= latch.MotherBrainInterrupted;
+        sawMotherBrainInterrupt |= motherBrain.Phase ==
+            MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidTakenAback;
         sawLatchSound |= latch.LatchSoundQueued;
 
         if (calls == 259)
         {
             AssertEqual(BabyMetroidCutscenePhase.GetRightUpInMotherBrainsFace, baby.Phase,
                 "Baby curve timer expires on call 259");
-            AssertEqual(new BabyMetroidCutscenePoint(0x00da, 0x0c00, 0x0086, 0x7a00),
-                latch.After,
+            AssertEqual(ExpectedBabyPoint(0x00da, 0x0c00, 0x0086, 0x7a00),
+                BabyPoint(),
                 "Baby curve endpoint from retail ROM");
         }
         else if (calls == 269)
         {
             AssertEqual(BabyMetroidCutscenePhase.LatchOntoMotherBrain, baby.Phase,
                 "Baby face timer expires on call 269");
-            AssertTrue(latch.SamusStandingRequested,
+            AssertTrue(samusPoseBeforeStep != samus.Pose,
                 "Baby face completion calls drained controller one");
             AssertEqual(SamusPoseIds.DrainedStandingLeftPose, samus.Pose,
                 "Baby face completion installs left drained standing pose");
-            AssertEqual(new BabyMetroidCutscenePoint(0x008c, 0xc400, 0x004b, 0x6300),
-                latch.After,
+            AssertEqual(ExpectedBabyPoint(0x008c, 0xc400, 0x004b, 0x6300),
+                BabyPoint(),
                 "Baby face endpoint from retail ROM");
         }
     }
@@ -154,8 +162,8 @@ static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(BabyMetroidCutsceneState.DrainingMotherBrainInstructionList,
         baby.InstructionList,
         "Baby pin installs draining animation");
-    AssertEqual(new BabyMetroidCutscenePoint(0x0040, 0x1400, 0x0048, 0xd200),
-        latch.After,
+    AssertEqual(ExpectedBabyPoint(0x0040, 0x1400, 0x0048, 0xd200),
+        BabyPoint(),
         "Baby pin changes whole coordinates but retains native subpositions");
     AssertEqual(MotherBrainRainbowBeamAttackSequence.BodyWalkingBackwardReallyFastInstructionList,
         motherBrain.Body.InstructionPointer,

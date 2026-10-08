@@ -354,12 +354,7 @@ public static partial class SamusGrappleMovement
 
         return new GrappleMovementResult(
             grapple.Phase,
-            Released: false,
-            ReleaseQueued: false,
             Fired: true,
-            Connected: false,
-            CancelQueued: false,
-            Cancelled: false,
             OwnsMovement: false);
     }
 
@@ -408,7 +403,7 @@ public static partial class SamusGrappleMovement
             // $9B:CB8B executes on the frame after $9B:C79D queued it. The launch velocity
             // was already published, so this pass changes art/handlers and clears grapple.
             CompleteQueuedRelease(bus, level, samus, grapple);
-            return new GrappleMovementResult(GrapplePhase.Inactive, Released: true, ReleaseQueued: false);
+            return new GrappleMovementResult(GrapplePhase.Inactive);
         }
 
         // These are literal bank-$9B function-pointer phases. Each handler owns the whole
@@ -441,10 +436,7 @@ public static partial class SamusGrappleMovement
             {
                 grapple.Phase = GrapplePhase.Dropped;
                 return new GrappleMovementResult(
-                    grapple.Phase,
-                    Released: false,
-                    ReleaseQueued: false,
-                    DropQueued: true);
+                    grapple.Phase);
             }
 
             PropelSamusFromSwing(samus, grapple);
@@ -453,7 +445,7 @@ public static partial class SamusGrappleMovement
             // independent release handler during this same gameplay frame.
             grapple.ReleasedMovementActive = true;
             grapple.Phase = GrapplePhase.ReleaseFromSwing;
-            return new GrappleMovementResult(grapple.Phase, Released: false, ReleaseQueued: true);
+            return new GrappleMovementResult(grapple.Phase);
         }
 
         ApplyRopeAndDirectionInput(grapple, controllerInput, newlyPressedInput);
@@ -503,13 +495,9 @@ public static partial class SamusGrappleMovement
                 grapple.Phase = GrapplePhase.Dropped;
                 return new GrappleMovementResult(
                     grapple.Phase,
-                    Released: false,
-                    ReleaseQueued: false,
                     TerrainCollided: terrain.Collided,
                     CollisionDistanceFromFeet: terrain.DistanceFromFeet,
-                    RopeLengthBlocked: ropeLengthBlocked,
-                    AnchorDisconnected: true,
-                    DropQueued: true);
+                    RopeLengthBlocked: ropeLengthBlocked);
             }
 
             PropelSamusFromSwing(samus, grapple);
@@ -517,24 +505,18 @@ public static partial class SamusGrappleMovement
             grapple.Phase = GrapplePhase.ReleaseFromSwing;
             return new GrappleMovementResult(
                 grapple.Phase,
-                Released: false,
-                ReleaseQueued: true,
                 TerrainCollided: terrain.Collided,
                 CollisionDistanceFromFeet: terrain.DistanceFromFeet,
-                RopeLengthBlocked: ropeLengthBlocked,
-                AnchorDisconnected: true);
+                RopeLengthBlocked: ropeLengthBlocked);
         }
 
         PositionSamusFromPendulum(bus, samus, grapple);
 
         return new GrappleMovementResult(
             grapple.Phase,
-            Released: false,
-            ReleaseQueued: false,
             TerrainCollided: terrain.Collided,
             CollisionDistanceFromFeet: terrain.DistanceFromFeet,
-            RopeLengthBlocked: ropeLengthBlocked,
-            AnchorDisconnected: false);
+            RopeLengthBlocked: ropeLengthBlocked);
     }
 
     private static GrappleMovementResult StepLocked(
@@ -556,10 +538,7 @@ public static partial class SamusGrappleMovement
         if (shootHeld && anchorHeld)
         {
             return new GrappleMovementResult(
-                grapple.Phase,
-                Released: false,
-                ReleaseQueued: false,
-                LockedInPlace: true);
+                grapple.Phase);
         }
 
         // Both release and block disconnection install `$C856`. Mark the origin because
@@ -569,12 +548,7 @@ public static partial class SamusGrappleMovement
         grapple.Phase = GrapplePhase.CancelPending;
         return new GrappleMovementResult(
             grapple.Phase,
-            Released: false,
-            ReleaseQueued: false,
-            CancelQueued: true,
-            OwnsMovement: true,
-            LockedInPlace: true,
-            AnchorDisconnected: !anchorHeld);
+            OwnsMovement: true);
     }
 
     /// <summary>
@@ -655,10 +629,7 @@ public static partial class SamusGrappleMovement
         if (shootHeld && anchorHeld)
         {
             return new GrappleMovementResult(
-                grapple.Phase,
-                Released: false,
-                ReleaseQueued: false,
-                WallGrabEntered: true);
+                grapple.Phase);
         }
 
         // `$9B:C81B` writes decimal 30 and changes only the grapple function. The contact
@@ -666,11 +637,7 @@ public static partial class SamusGrappleMovement
         grapple.WallJumpTimer = 30;
         grapple.Phase = GrapplePhase.WallGrabRelease;
         return new GrappleMovementResult(
-            grapple.Phase,
-            Released: false,
-            ReleaseQueued: false,
-            WallJumpWindowOpened: true,
-            AnchorDisconnected: !anchorHeld);
+            grapple.Phase);
     }
 
     private static GrappleMovementResult StepWallGrabRelease(
@@ -688,10 +655,7 @@ public static partial class SamusGrappleMovement
         {
             grapple.Phase = GrapplePhase.Dropped;
             return new GrappleMovementResult(
-                grapple.Phase,
-                Released: false,
-                ReleaseQueued: false,
-                DropQueued: true);
+                grapple.Phase);
         }
 
         // `$90:9CAC` probes solid/frozen enemies first, then 16 pixels of room blocks toward
@@ -716,18 +680,11 @@ public static partial class SamusGrappleMovement
             }
             grapple.Phase = GrapplePhase.WallJumping;
             return new GrappleMovementResult(
-                grapple.Phase,
-                Released: false,
-                ReleaseQueued: false,
-                WallJumpQueued: true,
-                WallProbeCollided: true);
+                grapple.Phase);
         }
 
         return new GrappleMovementResult(
-            grapple.Phase,
-            Released: false,
-            ReleaseQueued: false,
-            WallProbeCollided: wall.Collided);
+            grapple.Phase);
     }
 
     private static GrappleMovementResult CompleteGrappleWallJump(
@@ -744,8 +701,6 @@ public static partial class SamusGrappleMovement
         ClearConnectedGrapple(grapple);
         return new GrappleMovementResult(
             GrapplePhase.Inactive,
-            Released: false,
-            ReleaseQueued: false,
             WallJumpStarted: true);
     }
 
@@ -771,9 +726,6 @@ public static partial class SamusGrappleMovement
         ClearConnectedGrapple(grapple);
         return new GrappleMovementResult(
             GrapplePhase.Inactive,
-            Released: false,
-            ReleaseQueued: false,
-            Dropped: true,
             OwnsMovement: !deferPoseChange || emptyBeta,
             PendingDropPose: deferPoseChange ? targetPose : null);
     }
@@ -839,11 +791,6 @@ public static partial class SamusGrappleMovement
             ushort cameraPreviousY = ClampPreviousPosition(samus.YPosition, previousYPosition);
             result = new GrappleMovementResult(
                 phase,
-                Released: false,
-                ReleaseQueued: false,
-                SpecialAngleHandled: true,
-                LockedInPlace: phase == GrapplePhase.ConnectedLocked,
-                WallGrabEntered: phase == GrapplePhase.WallGrab,
                 CameraPreviousX: cameraPreviousX,
                 CameraPreviousY: cameraPreviousY);
             return true;

@@ -46,9 +46,6 @@ internal static class CeresFlightActorDefinitions
     /// Both aliases select the same installed visual frame.
     /// </remarks>
     public static CeresFlightActorDefinition FrontStars => new(
-        Pointer: 0xcf0f,
-        Initialization: 0xbe7e,
-        DefinitionPreInstruction: 0xbeb5,
         ActivePreInstruction: 0xbeb5,
         InstructionList: 0xcda3,
         X: 0x0070,
@@ -80,28 +77,28 @@ internal static class CeresFlightActorDefinitions
     /// BF22 initializes (80,159), palette0800; BF35 adds 1/4 pixel and masks X to nine bits;
     /// CE4B selects the large-asteroid loop. The destruction scene substitutes CE7F/CC3F.</summary>
     private static CeresFlightActorDefinition LargeAsteroids =>
-        new(0xcf39, 0xbf22, 0xbf35, 0xbf35, 0xce4b,
+        new(0xbf35, 0xce4b,
             80, 159, 0x0800, 0, 0x4000, true);
 
     /// <summary>$8B:CE85, CinematicSpriteObjectDefinitions_CeresUnderAttack.
     /// BF4C initializes (116,160), palette0C00; BF5F adds 1/16 pixel with nine-bit X wrap;
     /// CC47 selects the station-under-attack loop.</summary>
     private static CeresFlightActorDefinition StationUnderAttack =>
-        new(0xce85, 0xbf4c, 0xbf5f, 0xbf5f, 0xcc47,
+        new(0xbf5f, 0xcc47,
             116, 160, 0x0c00, 0, 0x1000, true);
 
     /// <summary>$8B:CE8B, CinematicSpriteObjectDefinitions_CeresSmallAsteroids.
     /// BF76 initializes (128,96), palette0800; BF89 adds 1/32 pixel with nine-bit X wrap;
     /// CC4F selects the small-asteroid loop. Both Ceres scenes share this identity.</summary>
     private static CeresFlightActorDefinition SmallAsteroids =>
-        new(0xce8b, 0xbf76, 0xbf89, 0xbf89, 0xcc4f,
+        new(0xbf89, 0xcc4f,
             128, 96, 0x0800, 0, 0x0800, true);
 
     /// <summary>$8B:CE91, CinematicSpriteObjectDefinitions_CeresPurpleSpaceVortex, parameter1.
     /// BFA0 takes the nonzero branch to (224,87), palette0800, preserving BFC6 movement;
     /// CC57 alternates two frames. Parameter0 is the stationary destruction-scene variant.</summary>
     private static CeresFlightActorDefinition MovingVortex =>
-        new(0xce91, 0xbfa0, VortexMotionCallback, VortexMotionCallback, 0xcc57,
+        new(VortexMotionCallback, 0xcc57,
             224, 87, 0x0800, 0, VortexHorizontalDelta, false);
 
     /// <summary>$8B:CF0F, CinematicSpriteObjectDefinitions_CeresStars, parameter1.
@@ -125,9 +122,6 @@ internal static class CeresFlightActorDefinitions
 
 /// <summary>One Ceres cinematic actor definition plus its fixed initializer result.</summary>
 internal readonly record struct CeresFlightActorDefinition(
-    ushort Pointer,
-    ushort Initialization,
-    ushort DefinitionPreInstruction,
     ushort ActivePreInstruction,
     ushort InstructionList,
     ushort X,

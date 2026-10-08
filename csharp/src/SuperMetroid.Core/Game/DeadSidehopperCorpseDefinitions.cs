@@ -14,7 +14,6 @@ internal static class DeadSidehopperCorpseDefinitions
         CopyFunction: 0xe4f5,
         MoveFunction: 0xe468,
         EntryCount: 0x0028,
-        GraphicsInitializationFunction: 0xdec1,
         RotationTablePointer: 0xe240,
         FinishFunction: 0xdc08,
         WrapOffset: 0x0094);
@@ -30,7 +29,6 @@ internal static class DeadSidehopperCorpseDefinitions
         CopyFunction: 0xe5f6,
         MoveFunction: 0xe564,
         EntryCount: 0x0028,
-        GraphicsInitializationFunction: 0xdf08,
         RotationTablePointer: 0xe240,
         FinishFunction: 0xdc08,
         WrapOffset: 0x0094);
@@ -44,7 +42,6 @@ internal readonly record struct DeadSidehopperCorpseDefinition(
     ushort CopyFunction,
     ushort MoveFunction,
     ushort EntryCount,
-    ushort GraphicsInitializationFunction,
     ushort RotationTablePointer,
     ushort FinishFunction,
     ushort WrapOffset);

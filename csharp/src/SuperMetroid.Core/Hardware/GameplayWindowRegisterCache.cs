@@ -67,9 +67,7 @@ public sealed class GameplayWindowRegisterCache
             ReadByte(GameplayWindowRegisterAddresses.BackgroundLogic),
             ReadByte(GameplayWindowRegisterAddresses.ObjectColorLogic)),
             ReadByte(GameplayWindowRegisterAddresses.MainScreen),
-            ReadByte(GameplayWindowRegisterAddresses.Subscreen),
-            ReadByte(GameplayWindowRegisterAddresses.MainScreenWindow),
-            ReadByte(GameplayWindowRegisterAddresses.SubscreenWindow));
+            ReadByte(GameplayWindowRegisterAddresses.MainScreenWindow));
     }
 
     private int Index(ushort address)
@@ -86,5 +84,4 @@ public sealed class GameplayWindowRegisterCache
 /// those bits, but a later native read or overwrite must retain the raw values.
 /// </summary>
 public readonly record struct GameplayWindowRegisterSnapshot(
-    SnesWindowRegisters Windows, byte MainScreen, byte Subscreen,
-    byte MainScreenWindow, byte SubscreenWindow);
+    SnesWindowRegisters Windows, byte MainScreen,     byte MainScreenWindow);

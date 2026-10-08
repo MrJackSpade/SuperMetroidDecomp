@@ -42,10 +42,8 @@ internal static partial class Program
                 _ = EnemyVulnerabilityDefinitions.Read(vulnerability, field);
             if (definition.ItemDropChancesPointer != 0)
                 EnemyDropChanceDefinitions.Copy(definition.ItemDropChancesPointer, drop);
-            if (definition.NamePointer != 0)
-                _ = RoomEnemySpawnNameDefinitions.Get(definition.NamePointer);
         }
-        Console.WriteLine("Enemy reference closure: all 153 headers resolve compiled vulnerabilities, drops and spawn names.");
+        Console.WriteLine("Enemy reference closure: all 153 headers resolve compiled vulnerabilities and drops.");
     }
 
     private static void VerifyEnemyPopulationPresentationIsolation(CartridgeImportAddressSpace source)

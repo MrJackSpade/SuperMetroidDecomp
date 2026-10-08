@@ -90,11 +90,10 @@ public sealed class LatestRenderFrameMailbox
     {
         get
         {
-            lock (sync) return new(generation, published, taken, replaced, invalidated, pending is not null);
+            lock (sync) return new(replaced);
         }
     }
 }
 
 /// <summary>Visual-only counters; none represents skipped emulation ticks or audio.</summary>
-public readonly record struct RenderMailboxMetrics(long Generation, long Published, long Taken,
-    long Replaced, long Invalidated, bool HasPendingFrame);
+public readonly record struct RenderMailboxMetrics(    long Replaced);

@@ -13,7 +13,7 @@ internal static class EnemyVisualTypedProgramAudit
     {
         const string ceresSource = "csharp/src/SuperMetroid.Core/Game/CeresElevatorArrivalDefinitions.cs";
         EnemyVisualProgramSpecializations.GuardSource(root, ceresSource,
-            "8EE8D83506305DD6372F18722C89D54E3E92CD1ED9A7AA98FEB874FC77402C88");
+            "3B9835374295B8479A7063A62A03C1F9D387E90C8020D5A900A1AB13CCBDDDC4");
         SyntaxTree tree = compilation.SyntaxTrees.Single(tree => tree.FilePath == ceresSource);
         SemanticModel model = compilation.GetSemanticModel(tree);
         MethodDeclarationSyntax reader = tree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>()

@@ -112,11 +112,7 @@ public sealed class SamusCeresRidleyEjectionState
 
             // `$90:E12E` initializes only handler state on this call. `$90:E1C8` does not
             // perform the first collision/movement pass until the following frame.
-            return new CeresRidleyEjectionResult(
-                Initialized: true,
-                Horizontal: null,
-                Vertical: null,
-                Ended: false);
+            return new CeresRidleyEjectionResult();
         }
 
         // `Samus_BombJumpFallingXMovement_` deliberately uses the current pose's movement
@@ -155,11 +151,7 @@ public sealed class SamusCeresRidleyEjectionState
             samus.Kinematics.YSubspeed = 0;
             samus.Kinematics.YDirection = 0;
             SamusKnockbackMovement.FinishHumanoidToFalling(bus, samus);
-            return new CeresRidleyEjectionResult(
-                Initialized: false,
-                Horizontal: horizontal,
-                Vertical: null,
-                Ended: true);
+            return new CeresRidleyEjectionResult();
         }
 
         // `$90:8F5A` accelerates only while the signed whole speed is below five. The
@@ -181,17 +173,9 @@ public sealed class SamusCeresRidleyEjectionState
             unchecked((int)samus.Kinematics.VerticalSpeedFixed),
             scanLeftToRight: (nmiFrameCounter & 1) == 0);
 
-        return new CeresRidleyEjectionResult(
-            Initialized: false,
-            Horizontal: horizontal,
-            Vertical: vertical,
-            Ended: false);
+        return new CeresRidleyEjectionResult();
     }
 }
 
 /// <summary>Debugger-visible work performed by one Ceres ejection handler call.</summary>
-public readonly record struct CeresRidleyEjectionResult(
-    bool Initialized,
-    BlockMoveResult? Horizontal,
-    BlockMoveResult? Vertical,
-    bool Ended);
+public readonly record struct CeresRidleyEjectionResult();

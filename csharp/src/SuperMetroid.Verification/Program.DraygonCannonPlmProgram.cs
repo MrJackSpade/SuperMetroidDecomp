@@ -73,9 +73,12 @@ internal static partial class Program
         AssertEqual((ushort)0xc514,
             level.GetCollisionBlockByIndex(rightShieldBlock).LevelWord,
             "edited right shield retains native physical collision and tile reference");
+        // The immediate redraw is identified by its BG1 ring destination (bg1XOffset 0).
+        ushort rightShieldDestination = streamer.BuildPlmLevelBlockUpdate(
+            rightShieldBlock, bg1XOffset: 0).TopRowDestination;
         AssertEqual((ushort)0x0053,
             plms.TilemapUpdates.Last(update =>
-                update.BlockIndex == rightShieldBlock).TopRow[0],
+                update.TopRowDestination == rightShieldDestination).TopRow[0],
             "edited right shield reaches the immediate tilemap update");
         AssertEqual((ushort)0x0053,
             level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(

@@ -142,8 +142,11 @@ internal static partial class Program
         AssertEqual((ushort)0x8180,
             tubeLevel.GetCollisionBlockByIndex(tubeBlock).LevelWord,
             "elevatube retains shared native physical word");
+        // A PLM redraw identifies its block by the BG1 ring destination of that block.
+        ushort tubeDestination = tubeLevel.CreateBackgroundStreamer()
+            .BuildPlmLevelBlockUpdate(tubeBlock, 0).TopRowDestination;
         AssertTrue(tubePlms.TilemapUpdates.Any(update =>
-                update.BlockIndex == tubeBlock && update.TopRow[0] == 0x005b),
+                update.TopRowDestination == tubeDestination && update.TopRow[0] == 0x005b),
             "elevatube retains its own edited appearance, not Kraid's first frame");
         AssertEqual(0, tubeGuard.ForbiddenReadAttempts,
             "elevatube does not read migrated Kraid source data");
@@ -183,8 +186,10 @@ internal static partial class Program
             level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
                 blockIndex, 0).TopRow[0],
             $"Kraid draw ${drawPointer:X4} edit survives streaming");
+        ushort blockDestination = level.CreateBackgroundStreamer()
+            .BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
         AssertTrue(plms.TilemapUpdates.Any(update =>
-                update.BlockIndex == blockIndex &&
+                update.TopRowDestination == blockDestination &&
                 update.TopRow[0] == visualWord),
             $"Kraid draw ${drawPointer:X4} uses owner-specific visible block {blockOffset}");
         AssertEqual(0, guard.ForbiddenReadAttempts,

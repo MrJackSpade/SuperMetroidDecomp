@@ -508,10 +508,10 @@ static void VerifyFrameRuntime()
     var firstMode7 = new SamusMode7Transform(0x00f0, 0x0010, 0xfff0, 0x0080, 0x03f0);
     runtime.ActiveSamusMode7Transform = firstMode7;
 
-    RuntimeFrameResult first = runtime.StepFrame((ushort)SnesButton.Start);
-    AssertEqual(1, first.FrameNumber, "first accepted runtime frame");
-    AssertEqual((ushort)SnesButton.Start, first.ControllerNewInput, "runtime latches controller before logic");
-    AssertEqual(EscapeTimerState.InitialDelay, first.EscapeTimerState, "runtime dispatches timer after NMI");
+    runtime.StepFrame((ushort)SnesButton.Start);
+    AssertEqual(1, runtime.NmiFrameCounter, "first accepted runtime frame");
+    AssertEqual((ushort)SnesButton.Start, runtime.Controller1.NewlyPressed, "runtime latches controller before logic");
+    AssertEqual(EscapeTimerState.InitialDelay, runtime.EscapeTimer.State, "runtime dispatches timer after NMI");
     AssertEqual(0xca, runtime.Vram.ReadByte(0x40), "runtime NMI drains VRAM low byte");
     AssertEqual(0xfe, runtime.Vram.ReadByte(0x41), "runtime NMI drains VRAM high byte");
     AssertEqual(0, runtime.VramWrites.TailInBytes, "runtime NMI clears VRAM queue");
@@ -520,8 +520,8 @@ static void VerifyFrameRuntime()
 
     var secondMode7 = new SamusMode7Transform(0x00e0, 0x0020, 0xffe0, 0x0080, 0x03f0);
     runtime.ActiveSamusMode7Transform = secondMode7;
-    RuntimeFrameResult second = runtime.StepFrame((ushort)SnesButton.Start);
-    AssertEqual(0, second.ControllerNewInput, "second runtime frame sees stable hold");
+    runtime.StepFrame((ushort)SnesButton.Start);
+    AssertEqual(0, runtime.Controller1.NewlyPressed, "second runtime frame sees stable hold");
     AssertEqual(2, runtime.NmiFrameCounter, "accepted NMI counter advances twice");
     AssertEqual((ulong)2, runtime.CompletedGameplayAudioPublication,
         "complete gameplay passes publish distinct audio generations");

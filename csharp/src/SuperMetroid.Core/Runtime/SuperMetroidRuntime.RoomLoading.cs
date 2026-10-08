@@ -1069,7 +1069,7 @@ public sealed partial class SuperMetroidRuntime
             // the opening IRQ and visibly offsets door/elevator arrivals.
             _pendingDoorOpeningPpuScroll = doorOpeningPpuScroll;
             LastBackgroundUpdateCount = 0;
-            return new InitialViewportResult(0, 0);
+            return new InitialViewportResult();
         }
 
         _pendingDoorOpeningPpuScroll = null;
@@ -1086,7 +1086,7 @@ public sealed partial class SuperMetroidRuntime
             segmentCount += update.Segments.Count;
         }
         BackgroundScroll.PrimePreviousBlocks();
-        return new InitialViewportResult(requests.Count, segmentCount);
+        return new InitialViewportResult();
     }
 
     /// <summary>

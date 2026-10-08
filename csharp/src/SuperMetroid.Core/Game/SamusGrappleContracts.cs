@@ -32,9 +32,7 @@ public enum GrappleEnemyReaction : ushort
 
 /// <summary>One endpoint sample from the live interactive-enemy list.</summary>
 public readonly record struct GrappleEnemyCollision(
-    bool Collided,
     GrappleEnemyReaction Reaction,
-    ushort EnemyNativeIndex,
     ushort AnchorX,
     ushort AnchorY,
     ushort EnemyDamage)
@@ -180,26 +178,12 @@ public sealed class SamusGrappleState
 /// <summary>One observable bank-$9B grapple-function result.</summary>
 public readonly record struct GrappleMovementResult(
     GrapplePhase Phase,
-    bool Released,
-    bool ReleaseQueued,
     bool Fired = false,
-    bool Connected = false,
-    bool CancelQueued = false,
-    bool Cancelled = false,
     bool OwnsMovement = true,
     bool TerrainCollided = false,
     int CollisionDistanceFromFeet = 0,
     bool RopeLengthBlocked = false,
-    bool AnchorDisconnected = false,
-    bool SpecialAngleHandled = false,
-    bool LockedInPlace = false,
-    bool WallGrabEntered = false,
-    bool WallJumpWindowOpened = false,
-    bool WallProbeCollided = false,
-    bool WallJumpQueued = false,
     bool WallJumpStarted = false,
-    bool DropQueued = false,
-    bool Dropped = false,
     ushort? CameraPreviousX = null,
     ushort? CameraPreviousY = null,
     byte? PendingDropPose = null,

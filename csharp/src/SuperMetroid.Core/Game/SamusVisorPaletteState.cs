@@ -56,11 +56,7 @@ public sealed class SamusVisorPaletteState
         // preserving both packed bytes so ordinary room animation resumes where it stopped.
         if ((SamusSpecialPaletteType)specialSamusPaletteType == SamusSpecialPaletteType.Xray)
         {
-            return new SamusVisorPaletteStepResult(
-                SamusVisorPaletteAction.SuppressedByXray,
-                packedBefore,
-                PackedTimerIndex,
-                layerBlendingDefaultConfig);
+            return new SamusVisorPaletteStepResult();
         }
 
         // Every other room writes `$0601` on every call. Besides disabling the animation,
@@ -69,11 +65,7 @@ public sealed class SamusVisorPaletteState
         if (!layerBlendingDefaultConfig.AnimatesVisor())
         {
             PackedTimerIndex = SamusPaletteRomData.Visor.NormalRoomReset;
-            return new SamusVisorPaletteStepResult(
-                SamusVisorPaletteAction.ResetForNormalRoom,
-                packedBefore,
-                PackedTimerIndex,
-                layerBlendingDefaultConfig);
+            return new SamusVisorPaletteStepResult();
         }
 
         // DEC is deliberately word-wide. Normally only the low timer changes, but if an
@@ -82,11 +74,7 @@ public sealed class SamusVisorPaletteState
         PackedTimerIndex = unchecked((ushort)(PackedTimerIndex - 1));
         if (Timer != 0)
         {
-            return new SamusVisorPaletteStepResult(
-                SamusVisorPaletteAction.Countdown,
-                packedBefore,
-                PackedTimerIndex,
-                layerBlendingDefaultConfig);
+            return new SamusVisorPaletteStepResult();
         }
 
         // OR rather than assignment is literal `$91:D864`: the expired low byte is zero in
@@ -112,32 +100,10 @@ public sealed class SamusVisorPaletteState
                 : SamusPaletteRomData.Visor.CycleFirstByteOffset));
         PackedTimerIndex = unchecked((ushort)(Timer | (storedNextOffset << 8)));
 
-        return new SamusVisorPaletteStepResult(
-            SamusVisorPaletteAction.ColorWritten,
-            packedBefore,
-            PackedTimerIndex,
-            layerBlendingDefaultConfig,
-            sourceOffset,
-            color);
+        return new SamusVisorPaletteStepResult();
     }
 
 }
 
 /// <summary>Branch and packed-word witness from one native visor-palette call.</summary>
-public readonly record struct SamusVisorPaletteStepResult(
-    SamusVisorPaletteAction Action,
-    ushort PackedBefore,
-    ushort PackedAfter,
-    LayerBlendingConfiguration LayerBlendingDefaultConfig,
-    byte? SourceByteOffset = null,
-    ushort? WrittenColor = null);
-
-/// <summary>Observable exits from <c>$91:D83F-$91:D8A4</c>.</summary>
-public enum SamusVisorPaletteAction : byte
-{
-    None,
-    SuppressedByXray,
-    ResetForNormalRoom,
-    Countdown,
-    ColorWritten,
-}
+public readonly record struct SamusVisorPaletteStepResult();

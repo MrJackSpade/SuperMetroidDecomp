@@ -98,7 +98,7 @@ public sealed class PaletteFxHeatProgramDefinition
             get
             {
                 if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
-                return new(PaletteFxHeatInstructionListDefinitions.Resolve(suit, (ushort)index), Duration(suit, index));
+                return new(PaletteFxHeatInstructionListDefinitions.Resolve(suit, (ushort)index));
             }
         }
         public IEnumerator<PaletteFxHeatProgramFrameDefinition> GetEnumerator()
@@ -139,8 +139,7 @@ public sealed class PaletteFxHeatProgramDefinition
 }
 /// <summary>One timed fifteen-color record in a Samus-in-heat palette program.</summary>
 public readonly record struct PaletteFxHeatProgramFrameDefinition(
-    ushort InstructionPointer,
-    ushort Duration)
+    ushort InstructionPointer)
 {
     /// <summary>The first live BGR555 presentation word after the duration.</summary>
     /// <remarks>Derived from the native duration word followed immediately by color data.

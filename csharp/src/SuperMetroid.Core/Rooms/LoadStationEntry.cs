@@ -5,12 +5,8 @@ namespace SuperMetroid.Core.Rooms;
 
 /// <summary>One fourteen-byte entry consumed by <c>LoadFromLoadStation</c> at $80:C437.</summary>
 public sealed record LoadStationEntry(
-    AreaId RequestedAreaIndex,
-    byte StationIndex,
-    ushort ListPointer,
     ushort RoomPointer,
     ushort DoorPointer,
-    ushort DoorBts,
     ushort CameraX,
     ushort CameraY,
     ushort SamusYOffset,

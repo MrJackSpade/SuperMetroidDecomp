@@ -10,7 +10,4 @@ internal interface IRoomEnemyFixtureSource
     RoomEnemyDefinition ReadEnemyDefinition(ushort pointer);
     RoomEnemyPopulationDefinition ReadEnemyPopulation(ushort pointer);
     RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer);
-
-    /// <summary>Typed name-record override; ordinary fixtures retain the compiled retail words.</summary>
-    RoomEnemySpawnNameWords ReadEnemySpawnNameWords(ushort pointer) => RoomEnemySpawnNameDefinitions.Get(pointer);
 }

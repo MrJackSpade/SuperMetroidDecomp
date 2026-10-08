@@ -71,21 +71,17 @@ public sealed partial class RoomEnemySystem
         }
 
         LastRoomShake = new RoomShakeFrameResult(
-            Applied: true,
             Bg1X: bg1X,
             Bg1Y: bg1Y,
             Bg2X: bg2X,
-            Bg2Y: bg2Y,
-            ShakesEnemies: shakesEnemies);
+            Bg2Y: bg2Y);
         return LastRoomShake;
     }
 }
 
 /// <summary>Signed PPU-scroll deltas produced by one accepted gameplay frame.</summary>
 public readonly record struct RoomShakeFrameResult(
-    bool Applied,
     short Bg1X,
     short Bg1Y,
     short Bg2X,
-    short Bg2Y,
-    bool ShakesEnemies);
+    short Bg2Y);

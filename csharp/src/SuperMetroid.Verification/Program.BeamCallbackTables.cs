@@ -68,7 +68,7 @@ internal static partial class Program
                         frame == 0 ? (ushort)SnesButton.X : (ushort)0, 0, 0, shared);
                 }
             }
-            SamusProjectileFrameResult result = projectiles.StepFrame(
+            projectiles.StepFrame(
                 bus,
                 room,
                 samus,
@@ -77,13 +77,16 @@ internal static partial class Program
                 0,
                 0,
                 shared);
-            AssertTrue(result.FiredSlot.HasValue,
+            AssertTrue(projectiles.LastFiredProjectileSnapshot is not null,
                 $"charged={charged} beam {beamType:X1} fires");
+            // The fixture starts with every ordinary slot empty, so the fired shot is the
+            // lowest live slot after the release frame.
+            SamusProjectileSlot fired = projectiles.Slots.First(slot => slot.IsActive);
             SamusBeamCallbackDefinition expected =
                 SamusBeamCallbackDefinitions.Resolve(charged, beamType);
             AssertEqual(
                 expected.Translated!.Value,
-                projectiles.Slots[result.FiredSlot!.Value].PreInstruction,
+                fired.PreInstruction,
                 $"charged={charged} beam {beamType:X1} installs compiled callback");
         }
         Console.WriteLine(

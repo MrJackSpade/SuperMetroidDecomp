@@ -449,11 +449,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 : (ushort)1;
             (short xOffset, short yOffset) = MotherBrainDeathExplosionDefinitions.Anchor(pairIndex + explosionIndex);
             requests.Add(new MotherBrainDeathExplosionRequest(
-                PatternIndex: DeathExplosionIndex,
                 XOffset: xOffset,
                 YOffset: yOffset,
-                XPosition: unchecked((ushort)(Body.XPosition + xOffset)),
-                YPosition: unchecked((ushort)(Body.YPosition + yOffset)),
                 ProjectileParameter: parameter,
                 SoundEffect: 0x0013));
         }
@@ -498,7 +495,6 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         ushort random = nextRandomNumber();
         ushort projectileParameter = random < 0x4000 ? (ushort)0x000c : (ushort)0x0003;
         return new MotherBrainEscapeDoorExplosionRequest(
-            PatternIndex: EscapeDoorIndex,
             XPosition: x,
             YPosition: y,
             ProjectileParameter: projectileParameter,
@@ -561,10 +557,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         ExplosionIndex++;
         int offsetIndex = ExplosionIndex & 7;
         return new MotherBrainRainbowExplosionRequest(
-            ExplosionIndex,
             ExplosionXOffsets[offsetIndex],
-            ExplosionYOffsets[offsetIndex],
-            SoundEffect: 0x0024);
+            ExplosionYOffsets[offsetIndex]);
     }
 
     private static void DamageSamusDueToRainbowBeam(SamusState samus)

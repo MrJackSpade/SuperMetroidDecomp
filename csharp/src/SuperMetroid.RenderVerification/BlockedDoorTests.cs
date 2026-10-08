@@ -37,12 +37,14 @@ internal static partial class SwapchainTests
                     worker.Publish(latest);
                 });
             PumpUntil(() => clock.ElapsedMilliseconds >= 250);
-            if (latest is null || worker.LastConsumedSequence != 0 || !worker.MailboxMetrics.HasPendingFrame ||
+            LatestRenderFrameMailbox mailbox = PrivateState.Field<LatestRenderFrameMailbox>(worker, "mailbox");
+            if (latest is null || worker.LastConsumedSequence != 0 || !mailbox.VerificationCounters.HasPendingFrame ||
                 worker.MailboxMetrics.Replaced != sequence - 2)
                 throw new InvalidOperationException("Door transition failed to advance under the held consumer with a bounded mailbox.");
             release.Set();
             PumpUntil(() => { worker.ThrowIfFaulted(); return worker.LastConsumedSequence == sequence; });
-            if (worker.MailboxMetrics.HasPendingFrame || worker.MailboxMetrics.Taken != 2)
+            RenderMailboxCounterView resumed = mailbox.VerificationCounters;
+            if (resumed.HasPendingFrame || resumed.Taken != 2)
                 throw new InvalidOperationException("Resumed door consumer did not skip superseded transition packets.");
             PixelComparison.Verify(latest, SuperMetroidRuntimeFrameRenderer.Render(runtime),
                 renderer.RenderForReadback(latest), $"{device.Kind}: retained destination after blocked {context} door");

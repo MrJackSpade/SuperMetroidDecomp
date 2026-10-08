@@ -32,7 +32,8 @@ internal static partial class Program
             AssertEqual(100, samus.YPosition, "zero-distance contact leaves whole Y unchanged");
             AssertEqual(gap == 0 ? 0 : 0xffff, samus.Kinematics.YSubposition,
                 "zero-distance jump preserves native enemy tangency fraction write and one-pixel miss");
-            AssertTrue(result.Horizontal.EnemyCollision is { WasTouching: true } == (gap == 0),
+            // The touching solid-enemy path's only trace is its STZ of Samus's Y subposition.
+            AssertTrue((samus.Kinematics.YSubposition == 0) == (gap == 0),
                 "zero-distance jump reports actual touching enemy, not fabricated movement");
             AssertTrue(result.Vertical is null, "zero-distance contact does not invent vertical movement");
         }

@@ -20,15 +20,22 @@ internal static partial class Program
             var samus = new SamusState { Pose = AimPose(direction), XPosition = 128, YPosition = 128,
                 EquippedBeams = combination };
             var projectiles = CreateProjectileFixture();
-            var result = projectiles.StepFrame(bus, room, samus, (ushort)SnesButton.X,
+            projectiles.StepFrame(bus, room, samus, (ushort)SnesButton.X,
                 (ushort)SnesButton.X, 0, 0, CreateBombFixture());
-            AssertEqual((int?)0, result.FiredSlot, "speed-row fixture allocates projectile");
-            var shot = projectiles.LastFiredProjectileSnapshot!.Value;
+            AssertTrue(projectiles.Slots[0].IsActive && projectiles.Slots.Skip(1).All(slot => !slot.IsActive),
+                "speed-row fixture allocates projectile");
+            var shot = projectiles.Slots[0];
             int speed = direction is 1 or 3 or 6 or 8 ? 0x02ab : 0x0400;
             int x = direction is 1 or 2 or 3 ? speed : direction is 6 or 7 or 8 ? -speed : 0;
             int y = direction is 0 or 1 or 8 or 9 ? -speed : direction is 3 or 4 or 5 or 6 ? speed : 0;
-            AssertEqual(x, shot.XVelocity, $"beam {combination} direction {direction} native speed-row X");
-            AssertEqual(y, shot.YVelocity, $"beam {combination} direction {direction} native speed-row Y");
+            // The fire frame's beam pre-instruction adds one direction-indexed acceleration
+            // word to the speed-row velocity before the slot is observable.
+            short ax = unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
+                SamusProjectileRomData.Beams.XAccelerations + direction * 2));
+            short ay = unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
+                SamusProjectileRomData.Beams.YAccelerations + direction * 2));
+            AssertEqual(unchecked((short)(x + ax)), shot.XVelocity, $"beam {combination} direction {direction} native speed-row X");
+            AssertEqual(unchecked((short)(y + ay)), shot.YVelocity, $"beam {combination} direction {direction} native speed-row Y");
         }
         // Unlike the twelve identical authored rows, C..F overread different adjacent
         // words. Exercise the actual initializer to detect a dropped combination index.
@@ -73,9 +80,11 @@ internal static partial class Program
                 projectiles.StepFrame(bus, room, samus, input, input, 0, 0, bombs);
                 if (frame == 0)
                 {
-                    var origin = projectiles.LastFiredProjectileSnapshot!.Value;
-                    x = (uint)origin.XPosition << 16;
-                    y = (uint)origin.YPosition << 16;
+                    // Anchor the trajectory at the spawn origin: the fire-frame position less
+                    // that frame's unaccelerated ignition step, which the update below re-adds.
+                    var fired = projectiles.Slots[0];
+                    x = unchecked((((uint)fired.XPosition << 16) | fired.XSubposition) - (uint)(vx << 8));
+                    y = unchecked((((uint)fired.YPosition << 16) | fired.YSubposition) - (uint)(vy << 8));
                 }
                 else
                 {

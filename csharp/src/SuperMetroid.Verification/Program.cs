@@ -330,6 +330,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--spring-ball-bounce"])
+{
+    VerifySpringBallBounce();
+    return 0;
+}
 if (args is ["--puromi-arc-position"])
 {
     VerifyPuromiArcPosition();
@@ -7213,6 +7218,7 @@ VerifyMagdolliteApexThreshold();
 VerifyGoldenTorizoAttackChoice();
 VerifyWallProbeBombBlock();
 VerifyPuromiArcPosition();
+VerifySpringBallBounce();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

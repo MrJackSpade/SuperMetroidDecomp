@@ -138,19 +138,39 @@ public static class SamusMorphBallMovement
                 $"Falling ball movement requires type-$08 or type-$13 pose, not ${samus.Pose:X2}/type ${(byte)movementType:X2}.");
         }
 
+        bool directionHeld = (controllerInput &
+            ((ushort)SnesButton.Left | (ushort)SnesButton.Right)) != 0;
+        if (!directionHeld && samus.HorizontalSpeed.AccelerationMode == 0)
+        {
+            // The outer `$90:A5CD` wrapper clears persistent motion before dispatching to
+            // either the falling or bouncing subroutine. The inner routine still calculates
+            // once, then erases base speed and moves horizontally by zero.
+            samus.HorizontalSpeed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
+        }
+
+        return StepMorphedFallingOrBouncing(bus, level, samus, controllerInput, nmiFrameCounter, plms, movementType);
+    }
+
+    /// <summary>
+    /// Executes <c>Samus_Morphed_Falling_Movement</c> ($90:919F) or, while
+    /// <see cref="SamusState.MorphBallBounceState"/> is nonzero,
+    /// <c>Samus_Morphed_Bouncing_Movement</c> ($90:91D1). Morph-ball falling ($90:A5CA)
+    /// and both Spring Ball air handlers ($90:A6F1, $90:A703) dispatch here.
+    /// </summary>
+    private static MorphBallMovementResult StepMorphedFallingOrBouncing(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        SamusState samus,
+        ushort controllerInput,
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms,
+        SamusMovementType movementType)
+    {
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
 
         bool directionHeld = (controllerInput &
             ((ushort)SnesButton.Left | (ushort)SnesButton.Right)) != 0;
-        if (!directionHeld && speed.AccelerationMode == 0)
-        {
-            // The outer `$90:A5CD` wrapper clears persistent motion before dispatching to
-            // either the falling or bouncing subroutine. The inner routine still calculates
-            // once, then erases base speed and moves horizontally by zero.
-            speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
-        }
-
         AerialBaseSpeedResult calculation =
             speed.CalculateBaseSpeedDecelerationDisallowed(bus, movementType);
         SamusHorizontalDisplacement requestedHorizontal;
@@ -232,6 +252,14 @@ public static class SamusMorphBallMovement
         {
             throw new InvalidOperationException(
                 $"Spring-Ball powered jump requires type-$12 pose $7F/$80, not ${samus.Pose:X2}.");
+        }
+
+        // `$90:A6F4`: a nonzero bounce state selects the bouncing routine instead of the
+        // powered jump, so a rebound's upward speed survives a released Jump button.
+        if (samus.MorphBallBounceState != 0)
+        {
+            return StepMorphedFallingOrBouncing(
+                bus, level, samus, controllerInput, nmiFrameCounter, plms, SamusMovementType.SpringBallInAir);
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;

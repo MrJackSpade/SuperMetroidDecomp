@@ -103,20 +103,29 @@ public sealed class RoomFxLayer3TilemapCatalog
     };
 }
 
+/// <summary>Editable JSON definition of the six room-FX BG3 transfers, storing character selectors and BG attributes instead of packed SNES tilemap words.</summary>
 public sealed record RoomFxLayer3TilemapDocument
 {
+    /// <summary>Schema revision; loading requires <see cref="RoomFxLayer3TilemapFormat.Version"/> before compiling any page.</summary>
     public required int Version { get; init; }
+    /// <summary>Exactly six pages keyed by <c>Lava</c>, <c>Acid</c>, <c>Water</c>, <c>Spores</c>, <c>Rain</c>, and <c>Fog</c>; each contains 1056 non-null cells in row-major transfer order with valid character and palette selectors.</summary>
     public required Dictionary<string, RoomBackgroundTilemapCell[]> Pages { get; init; }
 }
 
 /// <summary>Native bank-$8A 32x33 BG3 effect-page geometry and presentation identities.</summary>
 public static class RoomFxLayer3TilemapFormat
 {
+    /// <summary>Shared editable JSON filename containing all six room-FX BG3 page definitions.</summary>
     public const string FileName = "room-fx-layer3-tilemaps.json";
+    /// <summary>Required revision of the tile-reference document schema, independent of the native FX type identifiers.</summary>
     public const int Version = 1;
+    /// <summary>Destination cells per transfer row; cell index modulo 32 selects its map column, not its character-sheet column.</summary>
     public const int WidthInTiles = 32;
+    /// <summary>Rows retained from each native transfer, including its thirty-third row; these resources exceed a standard 32-by-32 BG page.</summary>
     public const int HeightInTiles = 33;
+    /// <summary>Required editable cells per FX resource, 1056, preserving the complete native 32-by-33 transfer.</summary>
     public const int CellsPerPage = WidthInTiles * HeightInTiles;
+    /// <summary>Compiled transfer length, $0840 bytes, with one little-endian sixteen-bit SNES BG tilemap word per cell.</summary>
     public const int PageByteCount = CellsPerPage * sizeof(ushort);
 
     /// <summary>$8A:8000, first room-FX BG3 page; the six pages end at $8A:B17F.</summary>

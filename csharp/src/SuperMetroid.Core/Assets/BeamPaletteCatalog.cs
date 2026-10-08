@@ -29,6 +29,9 @@ public sealed class BeamPaletteCatalog
         WriteIndented = true,
     };
 
+    /// <summary>Loads all twelve ordinary beam palette selections, rejecting duplicate or unknown properties, unsupported versions, missing keys, rows other than sixteen colors, and RGB5 channels outside 0..31; independently supplied color edits remain exact.</summary>
+    /// <param name="json">UTF-8 JSON stream containing the versioned beam-palette document.</param>
+    /// <returns>The validated immutable palette catalog.</returns>
     public static BeamPaletteCatalog Load(Stream json)
     {
         BeamPaletteDocument document;
@@ -61,6 +64,9 @@ public sealed class BeamPaletteCatalog
         return new(compiled);
     }
 
+    /// <summary>Copies all sixteen colors of an ordinary beam selection to CGRAM entries 224..239 (OBJ palette 6), matching native <c>Load_Beam_Palette_withStackPrepped</c> at <c>$90:ACCD</c>; does not run charge or Hyper Beam color animation.</summary>
+    /// <param name="cgram">Destination color memory to update.</param>
+    /// <param name="selection">Ordinary beam combination index 0..11, using the Wave, Ice, Spazer, and Plasma bits without the Charge bit.</param>
     public void LoadTo(SnesCgram cgram, int selection)
     {
         if ((uint)selection >= BeamTileAtlasDefinitions.SelectionCount) throw new ArgumentOutOfRangeException(nameof(selection));
@@ -68,6 +74,9 @@ public sealed class BeamPaletteCatalog
             cgram.SetColor(SamusProjectileRomData.Palettes.BeamDestinationIndex + i, Color(selection, i));
     }
 
+    /// <summary>Serializes a beam-palette document as indented camel-case UTF-8 JSON and validates it through <see cref="Load"/> before returning the bytes.</summary>
+    /// <param name="document">Document containing the supported version and all twelve sixteen-color RGB5 palettes.</param>
+    /// <returns>Validated JSON bytes suitable for the beam-palette asset file.</returns>
     public static byte[] Write(BeamPaletteDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, Options);
@@ -80,9 +89,12 @@ public sealed class BeamPaletteCatalog
             name => new InvalidDataException("Duplicate beam palette property."));
 }
 
+/// <summary>Editable JSON schema for ordinary beam-combination colors; palette selection and charge/Hyper Beam animation are engine-owned rather than document data.</summary>
 public sealed record BeamPaletteDocument
 {
+    /// <summary>Schema revision, which must equal <see cref="BeamPaletteDefinitions.Version"/>.</summary>
     public required int Version { get; init; }
+    /// <summary>All twelve selections keyed by <see cref="BeamPaletteDefinitions.Key"/>, each with sixteen RGB5 colors in OBJ palette order, including color zero; combinations may independently edit colors even when their stock native pointers alias.</summary>
     public required Dictionary<string, PaletteRgb5[]> Palettes { get; init; }
 }
 
@@ -104,8 +116,11 @@ public sealed record BeamPaletteDocument
 /// </remarks>
 public static class BeamPaletteDefinitions
 {
+    /// <summary>Asset filename for the ordinary beam-combination RGB5 palettes.</summary>
     public const string FileName = "beam-palettes.json";
+    /// <summary>Supported revision of the twelve-selection beam-palette JSON schema.</summary>
     public const int Version = 1;
+    /// <summary>Sixteen colors copied by the native beam loader, covering all entries of OBJ palette 6, including color zero.</summary>
     public const int ColorCount = 16;
     /// <summary>$90:C3C9..C3E0 selects Ice before Plasma before Wave before Spazer before Power; the first two colors alias the common Power inputs in all five rows.</summary>
     internal static int ColorSourceSelection(int selection, int color)
@@ -122,6 +137,9 @@ public static class BeamPaletteDefinitions
     /// <summary>$90:C3F3..C3FE and corresponding Power/Wave/Plasma/Spazer slots9..14 are black; Ice uses independent colored entries.</summary>
     internal static bool IsBlackSlot(int selection, int color) =>
         ((SamusBeamFlags)selection & SamusBeamFlags.Ice) == 0 && color is >= 9 and <= 14;
+    /// <summary>Returns the canonical JSON key for an ordinary beam combination using its uppercase two-digit hexadecimal selection index.</summary>
+    /// <param name="selection">Beam combination index from 0 through 11; Charge and unsupported simultaneous Spazer/Plasma selections are outside this catalog.</param>
+    /// <returns>A key from <c>beam-00</c> through <c>beam-0B</c>.</returns>
     public static string Key(int selection)
     {
         if ((uint)selection >= BeamTileAtlasDefinitions.SelectionCount) throw new ArgumentOutOfRangeException(nameof(selection));

@@ -37,6 +37,9 @@ public sealed class ZebetiteColorCatalog
         WriteIndented = true,
     };
 
+    /// <summary>Loads all eight two-color pulse rows, rejecting duplicate or unknown properties, unsupported versions, incorrect dimensions, and RGB5 channels outside 0..31; preserves each supplied color edit independently of the stock symmetric pulse.</summary>
+    /// <param name="json">UTF-8 JSON stream containing the versioned Zebetite color document.</param>
+    /// <returns>The validated immutable barrier-color catalog.</returns>
     public static ZebetiteColorCatalog Load(Stream json)
     {
         ZebetiteColorDocument document;
@@ -74,6 +77,10 @@ public sealed class ZebetiteColorCatalog
         return new(edits);
     }
 
+    /// <summary>Writes the selected pulse row's two colors without advancing the shared palette counter or testing fade/linkage conditions; native <c>HandleZebetitePaletteAnimation</c> at <c>$A6:FD5E</c> targets CGRAM entries 172 and 173 (OBJ palette 2 colors 12 and 13).</summary>
+    /// <param name="cgram">Destination color memory to update.</param>
+    /// <param name="frame">Zero-based pulse row from 0 through 7.</param>
+    /// <param name="destinationColor">CGRAM color-entry index for the first color, not a byte offset; the next entry receives the second color.</param>
     public void Apply(SnesCgram cgram, int frame, int destinationColor)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -82,6 +89,9 @@ public sealed class ZebetiteColorCatalog
             cgram.SetColor(destinationColor + color, Resolve(frame, color));
     }
 
+    /// <summary>Serializes a Zebetite color document as indented camel-case UTF-8 JSON, then validates the result through <see cref="Load"/> before returning it.</summary>
+    /// <param name="document">Document containing the supported version and all eight two-color RGB5 rows.</param>
+    /// <returns>Validated JSON bytes suitable for the barrier-color asset file.</returns>
     public static byte[] Write(ZebetiteColorDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, Options);
@@ -94,17 +104,24 @@ public sealed class ZebetiteColorCatalog
             name => new InvalidDataException("Duplicate Zebetite color property."));
 }
 
+/// <summary>Editable JSON schema for Zebetite's two barrier-core inks across eight pulse steps; shared animation-counter ownership, update conditions, health, and collision remain engine behavior.</summary>
 public sealed record ZebetiteColorDocument
 {
+    /// <summary>Schema revision, which must equal <see cref="ZebetiteColorFormat.Version"/>.</summary>
     public required int Version { get; init; }
+    /// <summary>Eight ordered rows of two RGB5 colors, corresponding to native words at <c>$A6:FD87 + 4 * row</c>; row entries paint OBJ palette 2 colors 12 and 13 in that order.</summary>
     public required PaletteRgb5[][] Frames { get; init; }
 }
 
 /// <summary>Presentation geometry of Zebetite palette records at $A6:FD87..FDA6.</summary>
 public static class ZebetiteColorFormat
 {
+    /// <summary>Asset filename for the editable Zebetite barrier pulse colors.</summary>
     public const string FileName = "zebetite-colors.json";
+    /// <summary>Supported revision of the eight-row, two-color RGB5 JSON schema.</summary>
     public const int Version = 1;
+    /// <summary>Eight pulse rows selected by the native shared counter masked with <c>$0007</c>; these are palette steps rather than independent video-refresh timing data.</summary>
     public const int FrameCount = 8;
+    /// <summary>Two adjacent barrier-core colors copied per pulse step to OBJ palette 2 colors 12 and 13.</summary>
     public const int ColorsPerFrame = 2;
 }

@@ -1220,23 +1220,33 @@ public sealed class SamusBombProjectileSlot
     /// <summary>Logical bomb index zero through four; physical projectile index is 5+Index.</summary>
     public int Index { get; }
 
+    /// <summary>Whole room-pixel X coordinate, the high word of the slot's 16.16 position; native <c>SamusProjectile_XPositions</c> at <c>$0B6E + 2*Index</c>.</summary>
     public ushort XPosition { get; internal set; }
+    /// <summary>Whole room-pixel Y coordinate, the high word of the slot's 16.16 position; native <c>SamusProjectile_YPositions</c> at <c>$0B82 + 2*Index</c>.</summary>
     public ushort YPosition { get; internal set; }
+    /// <summary>Raw native <c>SamusProjectile_BombDirections</c> word at <c>$0C0E + 2*Index</c>; any <c>$F0</c> kill-request bit clears the slot before its pre-instruction, and the <c>$10</c> collision marker also excludes Samus overlap.</summary>
     public ushort Direction { get; internal set; }
+    /// <summary>Packed native projectile family/type word at <c>$0C22 + 2*Index</c>, preserving bomb, Power Bomb, spread, and status bits; use <see cref="PackedType"/> for semantic decoding.</summary>
     public ushort Type { get; internal set; }
     /// <summary>Lossless semantic view of the native projectile family/type word.</summary>
     public SamusProjectileTypeWord PackedType => new(Type);
+    /// <summary>Native damage word at <c>$0C36 + 2*Index</c>, initialized from bank-$93 projectile data; zero excludes the slot from damage-bearing overlap tests.</summary>
     public ushort Damage { get; internal set; }
+    /// <summary>Bank-$93 instruction-list cursor at <c>$0C4A + 2*Index</c>; zero marks an inactive slot, and a consumed timed frame advances the cursor to its following record.</summary>
     public ushort InstructionPointer { get; internal set; }
+    /// <summary>Wrapping sixteen-bit duration countdown at <c>$0C5E + 2*Index</c>, decremented once per unfrozen projectile update; reaching zero runs the next bank-$93 instruction.</summary>
     public ushort InstructionTimer { get; internal set; }
+    /// <summary>Current bank-$93 spritemap identity at <c>$0CC2 + 2*Index</c>, selected by the timed-frame interpreter or installed frame binding and resolved through the sprite catalog when drawing.</summary>
     public ushort SpritemapPointer { get; internal set; }
+    /// <summary>Horizontal collision half-extent in whole pixels, loaded from a timed-frame byte and stored in native <c>SamusProjectile_XRadii</c> at <c>$0BBE + 2*Index</c>; not the global Power Bomb blast radius.</summary>
     public ushort XRadius { get; internal set; }
+    /// <summary>Vertical collision half-extent in whole pixels, loaded from a timed-frame byte and stored in native <c>SamusProjectile_YRadii</c> at <c>$0BD2 + 2*Index</c>; used with Samus's radius for strict overlap tests.</summary>
     public ushort YRadius { get; internal set; }
 
-    /// <summary>Fractional X position at WRAM <c>$0B64+slot</c>.</summary>
+    /// <summary>Fractional low word of the 16.16 X position, native <c>SamusProjectile_XSubPositions</c> at <c>$0B96 + 2*Index</c>.</summary>
     public ushort XSubposition { get; internal set; }
 
-    /// <summary>Fractional Y position at WRAM <c>$0B78+slot</c>.</summary>
+    /// <summary>Fractional low word of the 16.16 Y position, native <c>SamusProjectile_YSubPositions</c> at <c>$0BAA + 2*Index</c>.</summary>
     public ushort YSubposition { get; internal set; }
 
     /// <summary>Whether bank-$90 installed <c>ProjectilePreInstruction_BombSpread</c>.</summary>
@@ -1291,6 +1301,9 @@ public sealed class SamusBombProjectileSlot
 }
 
 /// <summary>One frame's debugger-visible bomb lifecycle transitions.</summary>
+/// <param name="PublishedBombJumpDirection">Overlap direction written this pass: zero for no publication, one for left, two for straight up, or three for right; later overlapping slots overwrite earlier ones.</param>
+/// <param name="BeamChargeConsumed">Whether spread admission or rejected placement consumed/cancelled beam charge; runtime clears ordinary charge state and restores Samus's suit colors when true.</param>
+/// <param name="SoundRequests">Ordered sound requests from this bomb pass, including per-call queue limits and suppression witnesses; the usual result owns a newly created array, while the default result has null.</param>
 public readonly record struct BombProjectileFrameResult(
     byte PublishedBombJumpDirection,
     bool BeamChargeConsumed = false,

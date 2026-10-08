@@ -15,6 +15,14 @@ public sealed class RoomStaticPalette
     /// <summary>Exact native-size CGRAM transfer after discarding the unused high color bit.</summary>
     public ReadOnlyMemory<byte> Transfer => nativeBytes;
 
+    /// <summary>
+    /// Loads one room graphics-set palette from a JSON document containing exactly 128 RGB5 colors.
+    /// </summary>
+    /// <param name="json">The caller-owned stream containing the palette document.</param>
+    /// <returns>The compiled 256-byte little-endian CGRAM transfer.</returns>
+    /// <exception cref="InvalidDataException">
+    /// The document version, color count, or an RGB5 component is invalid.
+    /// </exception>
     public static RoomStaticPalette Load(Stream json)
     {
         RoomStaticPaletteDocument document = JsonAssetDocument.Read<RoomStaticPaletteDocument>(
@@ -39,6 +47,9 @@ public sealed class RoomStaticPalette
         return new RoomStaticPalette(native);
     }
 
+    /// <summary>Validates and writes one editable room-palette document as JSON.</summary>
+    /// <param name="json">The caller-owned destination stream.</param>
+    /// <param name="document">The palette document to validate and serialize.</param>
     public static void Write(Stream json, RoomStaticPaletteDocument document)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -47,6 +58,8 @@ public sealed class RoomStaticPalette
         json.Write(bytes);
     }
 
+    /// <summary>Loads all 128 colors into CGRAM beginning at color zero.</summary>
+    /// <param name="cgram">The color memory that receives the 256-byte native transfer.</param>
     public void LoadTo(SnesCgram cgram)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -62,17 +75,27 @@ public sealed class RoomStaticPalette
     };
 }
 
+/// <summary>Editable JSON representation of one room graphics-set palette source.</summary>
 public sealed record RoomStaticPaletteDocument
 {
+    /// <summary>Gets the room-palette schema version.</summary>
     public required int Version { get; init; }
+
+    /// <summary>Gets the exactly 128 RGB5 colors in native CGRAM order.</summary>
     public required PaletteRgb5[] Colors { get; init; }
 }
 
 /// <summary>One editable RGB5 palette file per distinct graphics-set color source.</summary>
 public static class RoomStaticPaletteFormat
 {
+    /// <summary>The supported room-palette JSON schema version.</summary>
     public const int Version = 1;
+
+    /// <summary>The number of RGB5 colors in one room graphics-set palette source.</summary>
     public const int ColorCount = RoomAssetRomData.GraphicsLayout.BackgroundPaletteByteCount / sizeof(ushort);
 
+    /// <summary>Builds the editable file name for a palette's 24-bit native source address.</summary>
+    /// <param name="sourceAddress">The palette's 24-bit native source address.</param>
+    /// <returns>A file name in the form <c>room-palette-XXXXXX.json</c>.</returns>
     public static string SourceFileName(int sourceAddress) => $"room-palette-{sourceAddress:X6}.json";
 }

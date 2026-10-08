@@ -27,10 +27,17 @@ public static class SamusSpecialSequenceRomData
         /// <summary>$9B:B420: ball, unused glitch-ball and ordinary movement select their death pose phase.</summary>
         public static InitialFrameSequence InitialFramesByMovementType => default;
 
+        /// <summary>Allocation-free view of the five $9B:B7BF/B7C9 death-artwork transfers in native queue order, with the first physical graphics page deliberately uploaded last.</summary>
         public readonly struct TileSegmentSequence : IReadOnlyList<SamusDeathTileSegment>
         {
+            /// <summary>Five native DMA source/destination pairs, each transferring $0400 bytes.</summary>
             public int Count => 5;
+            /// <summary>Transfer-pair count, equivalent to <see cref="Count"/>, for array-style segment traversal.</summary>
             public int Length => Count;
+            /// <summary>Returns the source and destination of one authored death-artwork upload without reordering its native schedule.</summary>
+            /// <param name="index">Zero-based queue-order segment index 0..4, selecting physical pages 1, 2, 3, 4, then 0.</param>
+            /// <returns>Bank-$9B source address and matching VRAM word destination for the selected $0400-byte transfer.</returns>
+            /// <exception cref="IndexOutOfRangeException">The segment index is outside 0..4.</exception>
             public SamusDeathTileSegment this[int index]
             {
                 get
@@ -41,16 +48,25 @@ public static class SamusSpecialSequenceRomData
                         (ushort)(TileDestinationBase + segment * (TileSegmentByteCount / 2)));
                 }
             }
+            /// <summary>Enumerates all five death-artwork transfers in their original queue order.</summary>
+            /// <returns>An enumerator yielding physical graphics pages 1, 2, 3, 4, then 0 with their paired destinations.</returns>
             public IEnumerator<SamusDeathTileSegment> GetEnumerator()
             {
                 for (int index = 0; index < Count; index++) yield return this[index];
             }
             System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
         }
+        /// <summary>Allocation-free view of $9B:B420's initial death-animation index selected by the movement type in effect before fatal-damage pose setup.</summary>
         public readonly struct InitialFrameSequence : IReadOnlyList<byte>
         {
+            /// <summary>Twenty-eight movement-type entries, covering native values $00 through Special ($1B).</summary>
             public int Count => (int)SamusMovementType.Special + 1;
+            /// <summary>Movement-type entry count, equivalent to <see cref="Count"/>, used to reject unsupported death-entry movement identities.</summary>
             public int Length => Count;
+            /// <summary>Returns the initial visible death-pose animation index for one prior movement type, without replacing the separately initialized animation timer.</summary>
+            /// <param name="index">Native movement-type value $00..$1B, not a death-sequence phase or elapsed-update count.</param>
+            /// <returns>One for ordinary ball movement, zero for the two unused glitch-ball types, or five for all other supported movement types.</returns>
+            /// <exception cref="IndexOutOfRangeException">The movement-type index is outside $00..$1B.</exception>
             public byte this[int index]
             {
                 get
@@ -66,6 +82,8 @@ public static class SamusSpecialSequenceRomData
                     };
                 }
             }
+            /// <summary>Enumerates the initial death-animation indices in ascending native movement-type order.</summary>
+            /// <returns>An enumerator yielding all twenty-eight movement-type selections.</returns>
             public IEnumerator<byte> GetEnumerator()
             {
                 for (int index = 0; index < Count; index++) yield return this[index];
@@ -196,6 +214,8 @@ public static class SamusSpecialSequenceRomData
 }
 
 /// <summary>One immutable death-tile DMA source/destination pairing.</summary>
+/// <param name="SourceAddress">Full 24-bit SNES CPU source address in bank $9B, identifying one $0400-byte death-artwork page.</param>
+/// <param name="EncodedVramDestination">Queued VRAM word address, not a byte address; native death pages use $6000..$6800 with bit fifteen clear for one-word increments.</param>
 public readonly record struct SamusDeathTileSegment(
     int SourceAddress,
     ushort EncodedVramDestination);

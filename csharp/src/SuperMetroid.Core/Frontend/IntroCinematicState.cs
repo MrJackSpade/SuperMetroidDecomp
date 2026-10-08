@@ -24,6 +24,7 @@ public sealed partial class IntroCinematicState
     /// <summary>Current host appearance; snapshots retain simulation state, not external overrides.</summary>
     [NonSerialized] private ProjectileTrailCatalog? trailArtwork;
     [NonSerialized] private bool trailArtworkRefreshPending;
+    /// <summary>Gets or sets the host-owned projectile-trail artwork used by flashbacks.</summary>
     public ProjectileTrailCatalog? TrailArtwork
     {
         get => trailArtwork;
@@ -168,6 +169,13 @@ public sealed partial class IntroCinematicState
     private int timer = 8;
     private int fadeDelay;
 
+    /// <summary>Creates the opening cinematic and performs its initial native graphics and music setup.</summary>
+    /// <param name="bus">The cartridge address space used by cinematic actors and projectiles.</param>
+    /// <param name="audio">Optional cartridge audio state that owns queued music and sound effects.</param>
+    /// <param name="introFont">The installed opening-cinematic font atlas.</param>
+    /// <param name="characterArtwork">The installed opening-cinematic BG and OBJ artwork.</param>
+    /// <param name="beamArtwork">Optional installed beam graphics used by gameplay flashbacks.</param>
+    /// <param name="samusBodyArtwork">Optional installed Samus body artwork used by gameplay flashbacks.</param>
     public IntroCinematicState(
         ISnesAddressSpace bus,
         CartridgeAudioState? audio = null,
@@ -252,6 +260,7 @@ public sealed partial class IntroCinematicState
         vram.LoadBytes(IntroCinematicRomData.Vram.FontOneDestinationByte, transfer);
     }
 
+    /// <summary>Gets the current opening-cinematic state-machine phase.</summary>
     public IntroCinematicPhase Phase { get; private set; }
 
     /// <summary>True after the final narration fade hands control to the Ceres flight.</summary>
@@ -260,6 +269,8 @@ public sealed partial class IntroCinematicState
     /// <summary>True when the SPACE COLONY caption and its final fade have completed.</summary>
     public bool CeresFlightFinished => ceresFlight?.Finished ?? false;
 
+    /// <summary>Advances the opening cinematic by one gameplay update.</summary>
+    /// <param name="controllerInput">The current raw controller-held word.</param>
     public void Step(ushort controllerInput)
     {
         flashbackProjectiles.BeginImpactAudioFrame(cinematicActive: true);
@@ -552,6 +563,8 @@ public sealed partial class IntroCinematicState
             scientistCutscene?.Step(bus, crossfadeCounter, introCrossfadeCounter);
     }
 
+    /// <summary>Renders the current cinematic phase into the reusable 256-by-224 RGBA frame buffer.</summary>
+    /// <returns>The current cinematic frame, valid until the next render call.</returns>
     public Rgba32[] Render()
     {
         // The Mode 7 flight owns a fresh PPU setup and INIDISP value. Returning its frame
@@ -1511,40 +1524,75 @@ public sealed partial class IntroCinematicState
     }
 }
 
+/// <summary>Ordered phases of the opening narration, flashbacks, laboratory scenes, and Ceres flight.</summary>
 public enum IntroCinematicPhase
 {
+    /// <summary>Waits for the initial opening music commands to finish queuing.</summary>
     WaitForInitialMusicQueue,
+    /// <summary>Fades in the first narration card.</summary>
     FadeInFirstNarration,
+    /// <summary>Holds the “last Metroid” narration card.</summary>
     LastMetroidIsInCaptivity,
+    /// <summary>Holds the “galaxy is at peace” narration card.</summary>
     GalaxyIsAtPeace,
+    /// <summary>Waits for the Mother Brain flashback music commands.</summary>
     WaitForSecondMusicQueue,
+    /// <summary>Holds the first narration card for its authored four seconds.</summary>
     FourSecondHold,
+    /// <summary>Fades out the first narration card.</summary>
     FadeOutFirstNarration,
+    /// <summary>Waits for the first illustrated page's music queue.</summary>
     WaitForPageOneMusicQueue,
+    /// <summary>Fades in the first illustrated narration page.</summary>
     FadeInPageOne,
+    /// <summary>Types and displays the first illustrated page.</summary>
     PageOneText,
+    /// <summary>Waits for input after the first illustrated page.</summary>
     PageOneAwaitingInput,
+    /// <summary>Crossfades from page one into the Mother Brain gameplay flashback.</summary>
     MotherBrainCrossfade,
+    /// <summary>Runs the Mother Brain gameplay flashback.</summary>
     MotherBrainFlashback,
+    /// <summary>Crossfades from the Mother Brain flashback to narration page two.</summary>
     PageTwoCrossfade,
+    /// <summary>Types and displays narration page two.</summary>
     PageTwoText,
+    /// <summary>Waits for input after narration page two.</summary>
     PageTwoAwaitingInput,
+    /// <summary>Crossfades from page two into the baby Metroid discovery flashback.</summary>
     BabyDiscoveryCrossfade,
+    /// <summary>Runs the SR388 baby Metroid discovery flashback.</summary>
     BabyDiscovery,
+    /// <summary>Crossfades from the discovery flashback to narration page three.</summary>
     PageThreeCrossfade,
+    /// <summary>Types and displays narration page three.</summary>
     PageThreeText,
+    /// <summary>Waits for input after narration page three.</summary>
     PageThreeAwaitingInput,
+    /// <summary>Crossfades from page three into the baby Metroid delivery scene.</summary>
     BabyMetroidDeliveryCrossfade,
+    /// <summary>Runs the Ceres baby Metroid delivery scene.</summary>
     BabyMetroidDelivery,
+    /// <summary>Crossfades from the delivery scene to narration page four.</summary>
     PageFourCrossfade,
+    /// <summary>Types and displays narration page four.</summary>
     PageFourText,
+    /// <summary>Waits for input after narration page four.</summary>
     PageFourAwaitingInput,
+    /// <summary>Crossfades from page four into the baby Metroid examination scene.</summary>
     BabyMetroidExaminationCrossfade,
+    /// <summary>Runs the Ceres scientist examination scene.</summary>
     BabyMetroidExamination,
+    /// <summary>Crossfades from the examination scene to narration page five.</summary>
     PageFiveCrossfade,
+    /// <summary>Types and displays narration page five.</summary>
     PageFiveText,
+    /// <summary>Waits for input after narration page five.</summary>
     PageFiveAwaitingInput,
+    /// <summary>Types and displays the final narration page.</summary>
     PageSixText,
+    /// <summary>Fades out the completed narration sequence.</summary>
     IntroFadeOut,
+    /// <summary>Runs the SPACE COLONY Ceres approach sequence.</summary>
     CeresFlight,
 }

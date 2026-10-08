@@ -447,7 +447,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Kills both composited outer layers and clears Samus's Metroid flash state.</summary>
-    private void FinishMetroidDeath(RoomEnemySlot slot, SamusState? samus, bool requestDrops)
+    private void FinishMetroidDeath(RoomEnemySlot slot, SamusState? samus)
     {
         MetroidEnemyState state = RequireMetroidState(slot);
         state.XVelocity = 0;
@@ -455,18 +455,19 @@ public sealed partial class RoomEnemySystem
         state.OuterBodyB.InstructionPointer = 0;
         if (samus is not null)
             samus.SpecialSuperPaletteFlags = 0;
-
-        if (requestDrops)
-            RequestMetroidDrops(slot, state);
     }
 
-    private void RequestMetroidDrops(RoomEnemySlot slot, MetroidEnemyState state)
+    /// <summary>
+    /// <c>MetroidDeathItemDropRoutine</c> ($A0:B968) around the origin $A3:EF31/EF38
+    /// recorded before <c>EnemyDeath</c> cleared the slot.
+    /// </summary>
+    private void RequestMetroidDrops(ushort originX, ushort originY, MetroidEnemyState state)
     {
         for (int dropIndex = 0; dropIndex < MetroidSpecialDropCount; dropIndex++)
         {
             ushort random = _nextRandom!();
-            ushort x = unchecked((ushort)(slot.XPosition + (random & 0x001f) - 16));
-            ushort y = unchecked((ushort)(slot.YPosition + ((random & 0x1f00) >> 8) - 16));
+            ushort x = unchecked((ushort)(originX + (random & 0x001f) - 16));
+            ushort y = unchecked((ushort)(originY + ((random & 0x1f00) >> 8) - 16));
             _metroidDropRequests.Add(new MetroidDropRequest(
                 x,
                 y,

@@ -1341,8 +1341,14 @@ public sealed partial class RoomEnemySystem
 
                         if (enemy.Health == 0)
                         {
-                            FinishMetroidDeath(enemy, samus, requestDrops: true);
+                            // $A3:EF31 records the drop origin, EnemyDeath ($A3:EF4B) spawns
+                            // the explosion, and only then $A3:EF74 spawns the five drops.
+                            ushort dropOriginX = enemy.XPosition;
+                            ushort dropOriginY = enemy.YPosition;
+                            MetroidEnemyState dyingMetroid = RequireMetroidState(enemy);
+                            FinishMetroidDeath(enemy, samus);
                             StartGenericEnemyDeath(enemy, deathAnimation: 4);
+                            RequestMetroidDrops(dropOriginX, dropOriginY, dyingMetroid);
                         }
 
                         hitCount++;
@@ -2616,7 +2622,7 @@ public sealed partial class RoomEnemySystem
                         if (isFireflea)
                             AdvanceFirefleaDarknessLevel();
                         if (isMetroid)
-                            FinishMetroidDeath(enemy, samus, requestDrops: false);
+                            FinishMetroidDeath(enemy, samus);
 
                         // Mini Kraid's private power-bomb callback still owns its four
                         // direct pickup explosions, spawned after its death explosion.

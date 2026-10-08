@@ -1,0 +1,49 @@
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Rooms;
+
+internal static partial class Program
+{
+    // #1269: EnemyShot_Metroid records the drop origin ($A3:EF31), runs EnemyDeath ($A3:EF4B),
+    // which spawns the death explosion, and only then MetroidDeathItemDropRoutine ($A3:EF74).
+    // Enemy projectiles allocate from the top slot down, so the explosion takes the highest
+    // free slot and the drops follow below it, as in the 100% movie's first Metroid room.
+    private static void VerifyMetroidDeathDrops()
+    {
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.InitializeStartingCeresRoom();
+        runtime.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.TourianMetroids1);
+        var samus = runtime.Samus!;
+        samus.InputLocked = true;
+        RoomEnemySlot metroid = runtime.Enemies.Slots.First(slot =>
+            slot.EnemyDefinitionPointer == RoomEnemySystem.MetroidDefinition);
+        // The shot pass rejects the empty spritemap sentinel; install the frame the movie's
+        // Metroid showed when it was shot ($F137).
+        metroid.SpritemapPointer = 0xf137;
+        // A frozen Metroid takes the frozen branch of its shot AI; one missile finishes it.
+        metroid.FrozenTimer = 100;
+        metroid.Health = 1;
+        runtime.Enemies.PrepareEnemyProcessingList((ushort)(metroid.XPosition - 0x80), (ushort)(metroid.YPosition - 0x70));
+
+        var shot = runtime.Projectiles.Slots[0];
+        shot.Type = 0x0100; shot.Damage = 100; shot.Direction = 2;
+        shot.XPosition = metroid.XPosition; shot.YPosition = metroid.YPosition;
+        shot.XRadius = shot.YRadius = 4;
+        shot.InstructionPointer = 0x9000; shot.InstructionTimer = 1;
+        runtime.Enemies.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, samus);
+        AssertEqual((ushort)0, metroid.Health, "the missile kills the frozen Metroid");
+
+        var projectiles = runtime.Enemies.EnemyProjectiles;
+        int explosion = projectiles.Count - 1;
+        while (explosion >= 0 && projectiles[explosion].Kind != RoomEnemyProjectileKind.EnemyDeathExplosion)
+            explosion--;
+        AssertTrue(explosion >= 0, "EnemyDeath spawns the death explosion");
+        for (int slot = explosion + 1; slot < projectiles.Count; slot++)
+            AssertTrue(projectiles[slot].Kind != RoomEnemyProjectileKind.EnemyDeathPickup,
+                $"no drop sits above the explosion (slot {slot})");
+        AssertEqual(5, runtime.Enemies.MetroidDropRequests.Count, "the Metroid requests its five special drops");
+        Console.WriteLine("Metroid death drops: the explosion is spawned before the five special drops.");
+    }
+}

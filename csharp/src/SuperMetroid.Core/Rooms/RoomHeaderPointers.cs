@@ -135,6 +135,9 @@ public static class RoomHeaderPointers
     /// <summary>RoomHeader_EastTunnel at $8F:CF80; Maridia room $03 with the frozen-enemy gate setup.</summary>
     public const ushort EastTunnel = 0xcf80;
 
+    /// <summary>RoomHeader_Metroids1 at $8F:DAE1, Tourian's first Metroid room.</summary>
+    public const ushort TourianMetroids1 = 0xdae1;
+
     /// <summary>RoomHeader_RedFish at $8F:D104, Maridia's sloped Red Fish room.</summary>
     public const ushort RedFish = 0xd104;
 

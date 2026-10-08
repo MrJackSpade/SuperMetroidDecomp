@@ -330,6 +330,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--metroid-death-drops"])
+{
+    VerifyMetroidDeathDrops();
+    return 0;
+}
 if (args is ["--tourian-statue-descent-rounding"])
 {
     VerifyTourianStatueDescentRounding();
@@ -7291,6 +7296,7 @@ VerifySaveConfirmationCadence();
 VerifyTourianStatueXrayFreeze();
 VerifyDoorAnimatedTiles();
 VerifyTourianStatueDescentRounding();
+VerifyMetroidDeathDrops();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

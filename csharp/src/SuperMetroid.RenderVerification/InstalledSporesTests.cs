@@ -62,7 +62,7 @@ internal static partial class InstalledSporesTests
             mechanics.Frames.Count == 3 && mechanics.Frames.All(frame => frame.Duration == 10),
             "Compiled spores controls differ from pinned $87:82ED-$8302.");
         int records = 0, comparisons = 0, alteredTransfers = 0;
-        foreach (var definition in RoomFxRecordDefinitions.All.Where(record => record.Type == (byte)RoomFxType.Spores))
+        foreach (var definition in CoreAccess.AllRoomFxRecords().Where(record => record.Type == (byte)RoomFxType.Spores))
         {
             records++;
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();

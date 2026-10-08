@@ -31,12 +31,6 @@ public sealed class VramWriteQueue
     private readonly List<VramWriteEntry> _entries = [];
 
     /// <summary>
-    /// Current logical entries in append order. The collection cannot be cast back to a
-    /// mutable List, keeping TailInBytes and the record list synchronized.
-    /// </summary>
-    public IReadOnlyList<VramWriteEntry> Entries => _entries;
-
-    /// <summary>
     /// Byte offset at which the ROM would write the next record, corresponding to WRAM
     /// <c>$0330</c>. It advances by seven rather than by one.
     /// </summary>

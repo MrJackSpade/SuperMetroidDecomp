@@ -111,28 +111,6 @@ public sealed partial class RoomEnemySystem
     private ushort _rinkaCameraX;
     private ushort _rinkaCameraY;
 
-    /// <summary>Typed state for every physical enemy slot currently owned by a Rinka.</summary>
-    public IReadOnlyList<RinkaEnemyState?> RinkaStates => _rinkaStates;
-
-    /// <summary>
-    /// Shared $7E:783C word (Rinka variable $1E) incremented by instruction $B9C7. Special
-    /// Rinkas decrement it when a visible actor dies or leaves the viewport.
-    /// </summary>
-    public ushort RinkaActiveCount => _rinkaActiveCount;
-
-    /// <summary>
-    /// Shared $7E:783A word (Rinka variable $1D). Mother Brain sets this during the room's
-    /// terminal transition; live, frozen, and off-screen special Rinkas all consume it.
-    /// </summary>
-    public ushort RinkaTerminationFlag
-    {
-        get => _rinkaTerminationFlag;
-        set => _rinkaTerminationFlag = value;
-    }
-
-    /// <summary>Occupancy bits corresponding one-for-one with the eleven ROM spawn triples.</summary>
-    public IReadOnlyList<bool> RinkaOccupiedSpawnResources => _rinkaOccupiedSpawnResources;
-
     /// <summary>Clears the two shared words and all per-slot/extra-RAM spawn ownership.</summary>
     private void ResetRinkaRoomState(ushort cameraX, ushort cameraY)
     {

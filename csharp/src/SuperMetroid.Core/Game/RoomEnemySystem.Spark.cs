@@ -58,9 +58,6 @@ public sealed partial class RoomEnemySystem
     private readonly SparkEnemyState?[] _sparkStates =
         new SparkEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed Spark state for all 32 physical enemy slots.</summary>
-    public IReadOnlyList<SparkEnemyState?> SparkStates => _sparkStates;
-
     /// <summary>Ports <c>InitAI_Spark</c> at <c>$A8:E637</c>.</summary>
     private void InitializeSpark(RoomEnemySlot slot)
     {

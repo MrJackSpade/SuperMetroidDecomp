@@ -48,15 +48,6 @@ public sealed partial class SamusProjectileSystem
     /// <summary>The slots in native low-to-high byte-index order: $00, $02, ... $08.</summary>
     public IReadOnlyList<SamusProjectileSlot> Slots => _slots;
 
-    /// <summary>
-    /// The independent trail pool in native low-to-high byte-index order. Allocation scans
-    /// this collection backward, matching <c>$90:B679-$B683</c> rather than using a queue.
-    /// </summary>
-    public IReadOnlyList<SamusProjectileTrailSlot> TrailSlots => _trailSlots;
-
-    /// <summary>Debugger-friendly count of slots whose left stream still owns the slot.</summary>
-    public int ActiveTrailCount => _trailSlots.Count(slot => slot.IsActive);
-
     /// <summary>WRAM <c>$0CCE</c>; maintained separately from free-slot scans by the ROM.</summary>
     public ushort ProjectileCounter { get; private set; }
 

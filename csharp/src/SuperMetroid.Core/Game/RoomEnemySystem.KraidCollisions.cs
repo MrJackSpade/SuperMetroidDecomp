@@ -181,15 +181,6 @@ public sealed partial class RoomEnemySystem
         return mouthHits + bodyHits;
     }
 
-    private bool KraidMouthHitboxOverlapsShot(
-        RoomEnemySlot body,
-        ushort hitboxPointer,
-        SamusProjectileSlot shot)
-    {
-        return LoadKraidCollisionScratch(body, hitboxPointer).OverlapsMouth(
-            new(shot.XPosition, shot.YPosition, shot.XRadius, shot.YRadius, shot.Type, shot.Damage));
-    }
-
     private KraidCollisionScratch LoadKraidCollisionScratch(RoomEnemySlot body, ushort pointer)
     {
         (short left, short top, short bottom) = KraidMouthHitboxes.ResolveCollision(_bus!, pointer);

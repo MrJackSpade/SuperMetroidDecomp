@@ -9,16 +9,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class WreckedShipTreadmillMechanicsDefinitions
 {
-    /// <summary>Both named directions in native header order, without a stored roster.</summary>
-    public static IEnumerable<WreckedShipTreadmillObjectDefinition> All
-    {
-        get
-        {
-            yield return ForDirection(WreckedShipTreadmillDirection.Rightwards);
-            yield return ForDirection(WreckedShipTreadmillDirection.Leftwards);
-        }
-    }
-
     /// <summary>Dispatches the two physical conveyor directions to their native headers.</summary>
     public static WreckedShipTreadmillObjectDefinition ForDirection(
         WreckedShipTreadmillDirection direction) => direction switch
@@ -92,10 +82,6 @@ public sealed class WreckedShipTreadmillObjectDefinition
 
     /// <summary>The first timed frame reached after Phantoon is defeated.</summary>
     public ushort LoopInstructionPointer => unchecked((ushort)(WaitInstructionPointer + 2));
-
-    /// <summary>The four timed frame-control addresses in execution order.</summary>
-    public IReadOnlyList<ushort> FrameInstructionPointers =>
-        frameInstructionPointers;
 
     /// <summary>
     /// Returns the native artwork identity for a frame-control record without reading

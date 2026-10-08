@@ -118,26 +118,33 @@ internal static partial class Program
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
+    /// <summary>The ten reward gesture and jump actors, in native spawn order.</summary>
+    private static readonly ushort[] RewardActorPointers =
+    [
+        EndingRewardActorDefinitions.SuitlessUpper, EndingRewardActorDefinitions.SuitlessLower,
+        EndingRewardActorDefinitions.SuitedBody, EndingRewardActorDefinitions.SuitedArm,
+        EndingRewardActorDefinitions.HelmetedHead, EndingRewardActorDefinitions.HelmetlessHead,
+        EndingRewardJumpDefinitions.SuitlessBody, EndingRewardJumpDefinitions.SuitedBody,
+        EndingRewardJumpDefinitions.HelmetedHead, EndingRewardJumpDefinitions.HelmetlessHead,
+    ];
+
+    /// <summary>The original LDY operand addresses that independently identify each actor record.</summary>
+    private static readonly int[] RewardActorSpawnLoads =
+        [0x8be3a1, 0x8be3a7, 0x8be385, 0x8be37f, 0x8be379, 0x8be38d, 0x8bf51e, 0x8bf575, 0x8bf55d, 0x8bf56a];
+
     private static void VerifyEndingRewardActorDefinitions(ISnesAddressSpace bus)
     {
         static ushort ReadWord(ISnesAddressSpace source, int address) => unchecked((ushort)(
             source.ReadByte(address) | source.ReadByte(address + 1) << 8));
 
         // Original LDY operands independently identify all ten records.
-        (EndingRewardActorRole Role, int Load)[] spawns =
-        [
-            (EndingRewardActorRole.HairUpper, 0x8be3a1), (EndingRewardActorRole.HairLower, 0x8be3a7),
-            (EndingRewardActorRole.ThumbsUpBody, 0x8be385), (EndingRewardActorRole.ThumbsUpArm, 0x8be37f),
-            (EndingRewardActorRole.ThumbsUpHelmet, 0x8be379), (EndingRewardActorRole.ThumbsUpHead, 0x8be38d),
-            (EndingRewardActorRole.SuitlessJump, 0x8bf51e), (EndingRewardActorRole.SuitedJump, 0x8bf575),
-            (EndingRewardActorRole.JumpHelmet, 0x8bf55d), (EndingRewardActorRole.JumpHead, 0x8bf56a),
-        ];
+        (ushort Pointer, int Load)[] spawns = [.. RewardActorPointers.Zip(RewardActorSpawnLoads)];
         var initializers = new HashSet<ushort>();
         foreach (var spawn in spawns)
         {
             AssertEqual((byte)0xa0, bus.ReadByte(spawn.Load), "reward native spawn uses LDY immediate");
             ushort pointer = ReadWord(bus, spawn.Load + 1);
-            AssertEqual(pointer, EndingRewardActorDefinitions.Pointer(spawn.Role), "reward role selects native spawn record");
+            AssertEqual(spawn.Pointer, pointer, "named reward record matches native spawn operand");
             EndingRewardActorDefinition actual = EndingRewardActorDefinitions.Get(pointer);
             int address = 0x8b0000 | pointer;
             ushort initializer = ReadWord(bus, address);
@@ -154,9 +161,6 @@ internal static partial class Program
             AssertEqual((int)ReadWord(bus, code + 13), origin.Palette, "reward native initial palette");
         }
         AssertEqual(4, initializers.Count, "reward initializer domain");
-        AssertEqual(spawns.Length, Enum.GetValues<EndingRewardActorRole>().Length, "reward role domain");
-        foreach (int invalid in new[] { int.MinValue, -1, 10, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingRewardActorDefinitions.Pointer((EndingRewardActorRole)invalid), "reward role bounds");
         foreach (ushort invalid in new ushort[] { 0, 0xef32, 0xef34, 0xef45, 0xffff })
             AssertThrows<InvalidDataException>(() => EndingRewardActorDefinitions.Get(invalid), "reward record membership");
         foreach (ushort invalid in new ushort[] { 0, 0xf142, 0xf144, 0xffff })
@@ -194,9 +198,8 @@ internal static partial class Program
         private static HashSet<int> CreateForbidden()
         {
             var result = new HashSet<int>();
-            foreach (EndingRewardActorRole role in Enum.GetValues<EndingRewardActorRole>())
+            foreach (ushort pointer in RewardActorPointers)
             {
-                ushort pointer = EndingRewardActorDefinitions.Pointer(role);
                 int address = EndingRewardActorDefinitions.NativeDefinitionBank | pointer;
                 for (int offset = 0; offset < 3 * sizeof(ushort); offset++)
                     result.Add(address + offset);

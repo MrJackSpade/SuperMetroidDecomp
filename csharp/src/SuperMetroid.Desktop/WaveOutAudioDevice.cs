@@ -353,52 +353,6 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
         }
     }
 
-    /// <summary>
-    /// Test-only synchronization boundary proving that every accepted managed block reached
-    /// the waveOut worker. Normal gameplay never waits here; doing so would restore the UI
-    /// pacing defect this queue exists to remove.
-    /// </summary>
-    internal void WaitForPendingSubmissions()
-    {
-        long target = Volatile.Read(ref enqueuedFrames);
-        Stopwatch timeout = Stopwatch.StartNew();
-        while (Volatile.Read(ref completedFrames) < target)
-        {
-            ThrowWorkerFailure();
-            if (timeout.ElapsedMilliseconds >= WaveOutAudioPolicy.BufferReturnTimeoutMilliseconds)
-            {
-                throw new TimeoutException(
-                    $"waveOut worker completed {Volatile.Read(ref completedFrames)} of " +
-                    $"{target} accepted PCM frames within the bounded audit interval.");
-            }
-            Thread.Sleep(1);
-        }
-        ThrowWorkerFailure();
-    }
-
-    /// <summary>
-    /// Number of pinned headers that have entered waveOut ownership at least once. Unlike
-    /// WHDR_DONE this remains deterministic after playback consumes a short buffer, making
-    /// it suitable for verifying startup preroll without racing the physical device clock.
-    /// </summary>
-    internal int PreparedBufferCountForVerification
-    {
-        get
-        {
-            lock (deviceGate)
-                return slots.Count(slot => slot.Prepared);
-        }
-    }
-
-    /// <summary>Diagnostic-only ownership probe; live UI telemetry never waits on the device gate.</summary>
-    internal int NativeQueuedBufferCountForVerification
-    {
-        get
-        {
-            lock (deviceGate) return slots.Count(slot => slot.Prepared && !slot.IsDone);
-        }
-    }
-
     /// <summary>Returns queued pool arrays when Reset, failure, or disposal abandons them.</summary>
     private void ReturnPendingFramesToPool()
     {

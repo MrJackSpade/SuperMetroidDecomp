@@ -27,8 +27,7 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guarded = new KraidMouthLowHalfReadGuard(rom);
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guarded);
-        var overlaps = typeof(RoomEnemySystem).GetMethod("KraidMouthHitboxOverlapsShot", flags)!
-            .CreateDelegate<Func<RoomEnemySlot, ushort, SamusProjectileSlot, bool>>(enemies);
+        Func<RoomEnemySlot, ushort, SamusProjectileSlot, bool> overlaps = enemies.KraidMouthHitboxOverlapsShot;
         var body = enemies.Slots[0];
         var shot = new SamusProjectileSystem().Slots[0];
         body.XPosition = 256;

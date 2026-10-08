@@ -89,9 +89,6 @@ public static class EnemyPropertyFlagExtensions
     public static bool HasAny(this ushort word, EnemyProperties flags) =>
         (word.ReadFlagsChecked() & flags) != 0;
 
-    public static bool HasAll(this ushort word, EnemyProperties flags) =>
-        (word.ReadFlagsChecked() & flags) == flags;
-
     public static ushort With(this ushort word, EnemyProperties flags)
     {
         ValidateKnown(flags);
@@ -115,12 +112,6 @@ public static class EnemyPropertyFlagExtensions
     {
         ValidateKnown(flags);
         return ((EnemyExtraProperties)word & flags) != 0;
-    }
-
-    public static bool HasAll(this ushort word, EnemyExtraProperties flags)
-    {
-        ValidateKnown(flags);
-        return ((EnemyExtraProperties)word & flags) == flags;
     }
 
     public static ushort With(this ushort word, EnemyExtraProperties flags)

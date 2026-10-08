@@ -33,13 +33,6 @@ internal static partial class Program
         ImportedSpritemapOracle.DrawEnemyProjectile(CartridgeImportSource.Require(bus), oam,
             bank8dSpritemapPointer, originX, originY, graphicsIndex, originYIsOnScreen);
 
-    /// <summary>Resolves a fixture's selected frame without restoring a visual-pointer reader in Core.</summary>
-    private static ushort ReadImportedMotherBrainVisualSelector(TestAddressSpace bus,
-        MotherBrainEnemyProjectileSlot slot) => slot.PresentationOperandAddress == 0
-            ? EnemyProjectileSpritemapDefinitions.BlankSpritemap
-            : (ushort)(bus.ReadCartridgeByte(0x860000 | slot.PresentationOperandAddress) |
-                bus.ReadCartridgeByte(0x860000 | (ushort)(slot.PresentationOperandAddress + 1)) << 8);
-
     /// <summary>Imports only the sprite records authored in a sparse projectile fixture.</summary>
     private static EnemyProjectileSpritemapCatalog ImportFixtureProjectileSprites(TestAddressSpace bus)
     {

@@ -68,11 +68,4 @@ internal readonly record struct CrocomireSkeletonFrameSequence(int Length)
         for (int index = 0; index < result.Length; index++) result[index] = this[index];
         return result;
     }
-    public Enumerator GetEnumerator() => new(this);
-    internal struct Enumerator(CrocomireSkeletonFrameSequence sequence)
-    {
-        private int index = -1;
-        public bool MoveNext() => ++index < sequence.Length;
-        public EnemyExtendedFrameDefinition Current => sequence[index];
-    }
 }

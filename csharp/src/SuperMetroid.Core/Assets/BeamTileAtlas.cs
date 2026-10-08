@@ -53,9 +53,6 @@ public sealed class BeamTileAtlas
         Enumerable.Range(0, BeamTileAtlasDefinitions.Width * BeamTileAtlasDefinitions.Height)
             .Select(Pixel).ToArray(), BeamTileAtlasDefinitions.Width, BeamTileAtlasDefinitions.Height, 4);
 
-    public void LoadTo(SnesVram vram) =>
-        vram.LoadBytes(BeamTileAtlasDefinitions.DestinationWord * 2, Transfer.Span);
-
     private byte Pixel(int pixel)
     {
         if (pixels.TryGetValue(pixel, out byte selected)) return selected;

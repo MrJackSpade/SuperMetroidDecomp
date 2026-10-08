@@ -61,7 +61,7 @@ internal static class ClosedPresentationContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/FileSelectHelmetParts.cs", "E8CBB300A98ED35D2DDB5D927C8D3A3BE8C7E72FD5EE47FA886BA6A1AE02FC98"),
              new("csharp/src/SuperMetroid.Core/Assets/MenuHeadingBorderDefinitions.cs", "A492AC3C7692DA38E0E838CAB60DC605DDC8E875DBE098475EBAC530C0E47372"),
              new("csharp/src/SuperMetroid.Core/Assets/MenuBorderParts.cs", "6B79556FD47098253A8A977E398C98A1908D01A7DD4E9E5916A38634A33E0080"),
-             new("csharp/src/SuperMetroid.Core/Assets/MapSpriteCatalog.cs", "6FDADA7BC65E29CCCA60F6D9301DD5B6020202553A025A2994AADA8BE497DA28"),
+             new("csharp/src/SuperMetroid.Core/Assets/MapSpriteCatalog.cs", "155C4933434355E65FA4AFD066701B8720222BB5F0B38020FC170048BBDC0DEE"),
              new("csharp/src/SuperMetroid.Core/Frontend/MenuMissileAnimationDefinitions.cs", "92CFE18B185C1526FACE125CF345944D1D878525935BE219DC21EE19838E3E9E"),
              new("csharp/src/SuperMetroid.Core/Assets/MenuCursorParts.cs", "718108CB3359B183DF55EBB1F4C86D41E0858FC5DFE1AF6A01FC0612E69AD0FF")],
             "Load is the sole private-constructor path and requires exact page, patch, sprite, " +
@@ -81,7 +81,7 @@ internal static class ClosedPresentationContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/MotherBrainHealthPalettePresentation.cs", "05E148A6572B5F7FC629794FC4F0853D9E73DC2D861C721B4843CBB7FF3169E4"),
              new("csharp/src/SuperMetroid.Core/Assets/MotherBrainHealthPaintDefinitions.cs", "CED903B0B3BD50BFD557B00AF84843408D5E3476F04BAA309BE6C043B101C37D"),
              new("csharp/src/SuperMetroid.Core/Game/MotherBrainRoomPaletteProgramDefinitions.cs",
-                "8DF2C86FD271EC092B568582EBDD8FBA84E2DDC4E945AA3C3F93528D689CE938")],
+                "D91EC84D39B3D7692998B1F130599DB279E84C88CAB4941028D04FDD077B0582")],
             "The validated loader installs all fourteen aligned flash rows, seven recovery-light " +
             "rows and the fixed final/phase-two/room-entry arrays before private construction. " +
             "Legacy omissions inherit only from validated stock. Flash alignment/range and recovery " +

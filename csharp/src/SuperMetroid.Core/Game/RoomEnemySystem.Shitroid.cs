@@ -106,9 +106,6 @@ public sealed class ShitroidEnemyState
     /// this value on the boss state makes that cross-slot side effect directly auditable.
     /// </summary>
     public ushort VictimActivationFlag { get; internal set; }
-
-    /// <summary>The independent 256-color target palette written during initialization.</summary>
-    public ReadOnlyMemory<ushort> TargetPalette => _targetPalette;
     internal Span<ushort> MutableTargetPalette => _targetPalette;
 }
 
@@ -127,8 +124,6 @@ public sealed partial class RoomEnemySystem
     private ShitroidEnemyState? _shitroid;
     private ushort _shitroidCameraX;
     private ushort _shitroidCameraY;
-
-    public ShitroidEnemyState? Shitroid => _shitroid;
 
     /// <summary>Frame-local wall mutations requested by the current Shitroid state.</summary>
     public IReadOnlyList<ShitroidPlmRequest> ShitroidPlmRequests => _shitroidPlmRequests;

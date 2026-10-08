@@ -28,10 +28,6 @@ internal static class ShaktoolInstructionDefinitions
     internal static ushort CollisionForSegment(int segmentIndex) =>
         ForSegment(segmentIndex).CollisionInstruction;
 
-    /// <summary>Returns the dormant retail attack list for one physical segment.</summary>
-    internal static ushort AttackForSegment(int segmentIndex) =>
-        ForSegment(segmentIndex).AttackInstruction;
-
     /// <summary>
     /// $AA:DF13 and $AA:DF21 select collision and dormant-attack behavior by body part:
     /// primary saw, rear arm, front arm, head, front arm, rear arm, final saw.

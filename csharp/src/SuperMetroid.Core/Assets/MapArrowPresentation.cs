@@ -59,7 +59,6 @@ public sealed class MapArrowVisual
     public ushort X { get; }
     public ushort Y { get; }
     public int PhaseCount { get; }
-    internal int StoredDurationCount => durationOverrides?.Count ?? 0;
 
     /// <summary>Calculates native arrow timing, with independent authored phase edits.</summary>
     /// <remarks>$82:C137 holds the initial phase for15 ticks and every following

@@ -26,8 +26,6 @@ public sealed class RoomPlmBlueDoorVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
-    private RoomPlmBlueDoorVisualCatalog() { }
-
     public RoomPlmBlueDoorVisualCatalog(IEnumerable<RoomPlmBlueDoorVisualEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
@@ -55,9 +53,6 @@ public sealed class RoomPlmBlueDoorVisualCatalog
                 "Blue-door visuals do not cover all compiled frames.");
         if (selected.Count != 0) customBlocks = selected;
     }
-
-    /// <summary>Calculate stock visuals directly; only selected custom frames need storage.</summary>
-    public static RoomPlmBlueDoorVisualCatalog Stock() => new();
 
     public ushort GetWord(ushort drawPointer, int blockIndex)
     {

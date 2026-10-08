@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction;
 /// Import-only decoding of bank-$8F background lists. Gameplay executes compiled
 /// instructions and never interprets cartridge commands or decompresses ROM data.
 /// </summary>
-public static class LibraryBackgroundProgramImporter
+internal static class LibraryBackgroundProgramImporter
 {
     public static LibraryBackgroundProgram Read(ISnesAddressSpace source, ushort pointer)
     {

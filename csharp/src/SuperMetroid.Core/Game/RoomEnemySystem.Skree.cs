@@ -60,9 +60,6 @@ public sealed partial class RoomEnemySystem
     private readonly SkreeEnemyState?[] _skreeStates =
         new SkreeEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed state for every physical slot currently owned by a Skree.</summary>
-    public IReadOnlyList<SkreeEnemyState?> SkreeStates => _skreeStates;
-
     private void InitializeSkree(RoomEnemySlot slot)
     {
         var state = new SkreeEnemyState(slot)

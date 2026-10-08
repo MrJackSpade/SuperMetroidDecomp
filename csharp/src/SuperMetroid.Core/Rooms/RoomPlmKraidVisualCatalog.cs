@@ -83,14 +83,6 @@ public sealed class RoomPlmKraidVisualCatalog
                 "Kraid room visuals do not cover all ten compiled draws.");
     }
 
-    public static RoomPlmKraidVisualCatalog Stock() => new(
-        KraidRoomPlmDrawDefinitions.All.Select(draw =>
-            new RoomPlmKraidVisualEntry(
-                KraidRoomPlmDrawDefinitions.VisualId(draw.Pointer),
-                draw.Runs.Span.ToArray().SelectMany(run =>
-                    run.LevelWords.Span.ToArray().Select(word =>
-                        new RoomLevelWord(word).VisualWord)).ToArray())));
-
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {
         ushort[] words = Frame(drawPointer);

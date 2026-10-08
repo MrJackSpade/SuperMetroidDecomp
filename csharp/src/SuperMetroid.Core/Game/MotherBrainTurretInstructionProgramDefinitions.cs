@@ -42,7 +42,6 @@ internal abstract class MotherBrainTurretInstructionProgramDefinitions : IInstru
 
     public static int MechanicsWordCount => 49;
     public static int PresentationWordCount => 21;
-    internal static int DirectionCount => 8;
 
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
@@ -74,12 +73,6 @@ internal abstract class MotherBrainTurretInstructionProgramDefinitions : IInstru
             : BulletTouchOrShot + 6 + 4 * (index - 16));
     }
 
-    internal static ushort TurretProgram(MotherBrainTurretDirection direction) =>
-        DirectionProgram(TurretLeft, direction);
-
-    internal static ushort BulletProgram(MotherBrainTurretDirection direction) =>
-        DirectionProgram(BulletLeft, direction);
-
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.MotherBrainRoomTurret or
         RoomEnemyProjectileKind.MotherBrainRoomTurretBullet;
@@ -96,15 +89,6 @@ internal abstract class MotherBrainTurretInstructionProgramDefinitions : IInstru
         (address & 0xff0000) == EnemyProjectileCodePointers.BankBase &&
         (TryRead(unchecked((ushort)address), out _) ||
          TryRead(unchecked((ushort)(address - 1)), out _));
-
-    private static ushort DirectionProgram(ushort first, MotherBrainTurretDirection direction)
-    {
-        int index = (byte)direction;
-        if ((uint)index >= DirectionCount)
-            throw new ArgumentOutOfRangeException(nameof(direction), direction,
-                "Mother Brain turret direction must be zero through seven.");
-        return (ushort)(first + 6 * index);
-    }
 
     private static InstructionMechanicsWord PoseWord(ushort first, int index) =>
         new((ushort)(first + 6 * (index / 2) + 4 * (index % 2)),

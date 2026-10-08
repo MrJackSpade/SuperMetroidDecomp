@@ -86,7 +86,7 @@ internal static partial class Program
             CartridgeAudioCommand titleUpload =
                 CartridgeAudioCommand.Upload(AudioUploadAddresses.TitleSequence);
             CartridgeAudioCommand titleTrack = CartridgeAudioCommand.WritePort(
-                AudioRomData.Apu.MusicPort, AudioRomData.MusicTracks.Title);
+                AudioRomData.Apu.MusicPort, AudioRomDataMusicTracks.Title);
             stockRenderer.RenderFrame([common]);
             editedRenderer.RenderFrame([common]);
             stockRenderer.RenderFrame([titleUpload]);

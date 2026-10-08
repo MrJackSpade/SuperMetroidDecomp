@@ -578,25 +578,6 @@ public sealed partial class SamusState
         SamusPoseIds.UnmorphingTransitionRightPose or SamusPoseIds.UnmorphingTransitionLeftPose;
 
     /// <summary>
-    /// Convenience debugger/test entry that performs both native phases: publishing the
-    /// bank-$A0 timer-eight overlap direction, then consuming it through $90:DF99 and
-    /// special command three $91:EE80. Live runtime code calls those phases on either
-    /// side of movement through <see cref="PublishBombJumpDirection"/> and
-    /// <see cref="TrySetupPublishedBombJump"/>.
-    /// </summary>
-    public void RequestMorphedBombJump(byte direction)
-    {
-        if (!IsStableBallPose(Pose))
-        {
-            throw new InvalidOperationException(
-                $"The morphed bomb-jump fixture requires a stable ball pose, not ${Pose:X2}.");
-        }
-
-        PublishBombJumpDirection(direction);
-        ArmPublishedBombJump();
-    }
-
-    /// <summary>
     /// Stores only bank-$A0's low-byte bomb direction. The gameplay loop does this after
     /// frame-handler alpha; setup considers it after movement and hurt arbitration.
     /// </summary>

@@ -8,51 +8,6 @@ public sealed partial class RoomPlmSystem
 {
     private Bank80SystemState? _coloredDoorSystem;
 
-    /// <summary>Every resident colored-door actor in the shared native PLM pool.</summary>
-    public IReadOnlyList<ColoredDoorPlmSnapshot> ColoredDoors => _slots
-        .Where(slot => slot.Active && slot.ColoredDoor is not null)
-        .Select(slot => new ColoredDoorPlmSnapshot(
-            slot.HeaderPointer,
-            slot.BlockIndex,
-            slot.RoomArgument,
-            slot.ColoredDoor!.Color,
-            slot.ColoredDoor.Orientation,
-            slot.ColoredDoor.Phase,
-            slot.ColoredDoor.HitCounter))
-        .ToArray();
-
-    /// <summary>
-    /// Publishes the projectile word observed by a resident type-$C/BTS-$44 door. The
-    /// resident actor, not the collision table, decides whether that family is accepted.
-    /// </summary>
-    public bool TryNotifyColoredDoorHit(int blockIndex, SamusProjectileTypeWord projectileType)
-    {
-        if (TryNotifyEyeDoorHit(blockIndex, projectileType))
-            return true;
-
-        foreach (PlmSlot slot in _slots)
-        {
-            if (!slot.Active || slot.BlockIndex != blockIndex || slot.ColoredDoor is null)
-                continue;
-
-            // Once the threshold branch has selected the opening list, native clears the
-            // pre-instruction pointer. Later projectiles therefore cannot enqueue another
-            // family check or restart the animation while the cap is disappearing.
-            if (slot.ColoredDoor.Phase is
-                ColoredDoorPhase.Opening or
-                ColoredDoorPhase.Closing)
-                return false;
-
-            slot.ColoredDoor.PendingProjectileType = projectileType;
-            slot.ColoredDoor.HasPendingHit = true;
-            return true;
-        }
-        // Keep the established public name for projectile/bomb callers, but route the
-        // same generic shot-trigger collision to grey doors. In native code BTS $44 finds
-        // the resident PLM by block index; it does not distinguish the door's color here.
-        return TryNotifyGreyDoorHit(blockIndex, projectileType);
-    }
-
     private static void ApplyColoredDoorSetup(RoomLevelData level, int blockIndex)
     {
         // Setup `$84:C7B1` preserves the visual twelve bits, installs shootable-solid
@@ -69,7 +24,7 @@ public sealed partial class RoomPlmSystem
     /// sequential room-population loader. Allocation deliberately does not live here:
     /// native <c>Spawn_Room_PLM</c> chooses the physical ID before calling this routine.
     /// </summary>
-    private void SetupColoredDoorSlot(
+    private static void SetupColoredDoorSlot(
         ISnesAddressSpace bus,
         RoomLevelData level,
         Bank80SystemState system,
@@ -228,14 +183,6 @@ public sealed partial class RoomPlmSystem
         return false;
     }
 
-    private static bool IsColoredDoorHeader(ushort header) => header is
-        RoomPlmHeaders.YellowDoorFacingLeft or RoomPlmHeaders.YellowDoorFacingRight or
-        RoomPlmHeaders.YellowDoorFacingUp or RoomPlmHeaders.YellowDoorFacingDown or
-        RoomPlmHeaders.GreenDoorFacingLeft or RoomPlmHeaders.GreenDoorFacingRight or
-        RoomPlmHeaders.GreenDoorFacingUp or RoomPlmHeaders.GreenDoorFacingDown or
-        RoomPlmHeaders.RedDoorFacingLeft or RoomPlmHeaders.RedDoorFacingRight or
-        RoomPlmHeaders.RedDoorFacingUp or RoomPlmHeaders.RedDoorFacingDown;
-
     private static bool TryIdentifyColoredDoor(
         ushort header,
         out ColoredDoorColor color,
@@ -383,13 +330,3 @@ public enum ColoredDoorPhase : byte
     ConvertToBlue,
     Closing,
 }
-
-/// <summary>Stable debugger view over a resident colored-door PLM slot.</summary>
-public readonly record struct ColoredDoorPlmSnapshot(
-    ushort Header,
-    int BlockIndex,
-    ushort RoomArgument,
-    ColoredDoorColor Color,
-    ColoredDoorOrientation Orientation,
-    ColoredDoorPhase Phase,
-    byte HitCounter);

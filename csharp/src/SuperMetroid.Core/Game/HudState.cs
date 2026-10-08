@@ -36,9 +36,6 @@ public sealed class HudState
     /// <summary>$82:E1B7 restores minimap updates when leaving the room.</summary>
     internal void EnableMinimapAfterDoorEntry() => MinimapDisabled = false;
 
-    /// <summary>Native SNES tilemap words for debugger inspection.</summary>
-    public ReadOnlySpan<ushort> Tiles => _tiles;
-
     /// <summary>Whether a ROM template has been copied into this state.</summary>
     public bool IsInitialized { get; private set; }
 

@@ -13,7 +13,7 @@ internal static class InterfacePresentationContractDefinitions
              Source("LoadingPaletteInputView", "75AD4BE101D4CF0C9230325B23C505015933CFAF99B6D40135050635A5AB4CD9"),
              Source("LoadingPaletteColorDefinitions", "22521B690AF6FFFD1C89A4271C2F3BF97253890355253E559849B210A4D5D697"),
              Source("HeatPaletteColorDefinitions", "0EA2C18E370424905708BBB5FB1C0FD3CD84306C00989FB1C6B086F403BB0241"),
-             new("csharp/src/SuperMetroid.Core/Game/PaletteFxHeatInstructionListDefinitions.cs", "145331301C26464315BA0D09B133766757220E35C717862574CC791DD7EC6411"),
+             new("csharp/src/SuperMetroid.Core/Game/PaletteFxHeatInstructionListDefinitions.cs", "3959552F3650DB8A67C0B86D54F1A66FC46D3BE8EE4451D0FE8A1611AD6FCDD6"),
              Source("HeatPaletteInputView", "C2E7D9D529C6D70D676FA1D8C4FA3061D18AA3C0D32FED33130E6A970421A63E"),
              Source("TitlePalettePresentation", "C1ECCD51302467FDF4B1E32F4936D8FD7724776A598884B3590E4EEA9B07C45A")],
             "The only two source-owned implementations query private installed colors, including calculated heat and loading row aliases, and return false for unowned addresses; neither demands artwork or throws for a missing key. The separate palette definition inventory checks every recognized bounded program color against actual importer/loader keys. This query proof does not certify the downstream caller's selected program, correct room/title provider binding, installation, clocks, or arbitrary externally injected implementations. New Core implementations or altered reviewed sources revoke it."),

@@ -120,7 +120,7 @@ internal static class MapCrossViewAudit
             for (int outputX = 0; outputX < 5; outputX++)
             {
                 int mapX = (hud.MinimapCenterX + outputX - 2) & 0x3f;
-                MapTileWord hudWord = hud.Tiles[26 + outputY * HudState.WidthInTiles + outputX];
+                MapTileWord hudWord = new(hud.Tiles[26 + outputY * HudState.WidthInTiles + outputX]);
                 MapTileWord pauseWord = pause.ReadDisplayedMapTile(mapX, mapY);
                 if (hudWord.IsBlank != pauseWord.IsBlank ||
                     (!hudWord.IsBlank &&

@@ -90,18 +90,6 @@ public sealed partial class FileSelectMenuState
     /// <summary>True only on the frame in which Copy or Clear mutated cartridge SRAM.</summary>
     public bool SaveRamChangedThisFrame { get; private set; }
 
-    /// <summary>Current INIDISP brightness nibble.</summary>
-    public byte Brightness => (byte)brightness;
-
-    /// <summary>
-    /// Read-only access for cartridge-layout verification. Gameplay code uploads this same
-    /// buffer to BG1; exposing a span avoids adding a second, test-only tilemap builder.
-    /// </summary>
-    internal ReadOnlySpan<ushort> BackgroundTilemap => bg1Tilemap;
-
-    /// <summary>Selected helmet frame retained through the fade into loading/options.</summary>
-    internal int SelectedHelmetFrame => helmetAnimationFrame;
-
     /// <summary>Advances one native menu frame from a raw SNES controller word.</summary>
     public void Step(ushort controllerInput)
     {

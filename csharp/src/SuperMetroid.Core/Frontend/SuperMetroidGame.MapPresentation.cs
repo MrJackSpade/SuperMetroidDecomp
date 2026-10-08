@@ -8,8 +8,6 @@ public sealed partial class SuperMetroidGame
     // in debugger states where it would hide newer user overrides on disk.
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
 
-    public string? MapPresentationIdentity => mapPresentation?.ContentIdentity;
-
     /// <summary>Attaches the host's current catalog after construction or debugger-state load.</summary>
     public void BindMapPresentation(AreaMapPresentationCatalog? catalog)
     {

@@ -69,9 +69,6 @@ public sealed partial class RoomEnemySystem
     private readonly WaverEnemyState?[] _waverStates =
         new WaverEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed Waver state for all 32 physical enemy slots.</summary>
-    public IReadOnlyList<WaverEnemyState?> WaverStates => _waverStates;
-
     /// <summary>Ports <c>InitAI_Waver</c> at <c>$A3:86ED</c>.</summary>
     private void InitializeWaver(RoomEnemySlot slot)
     {

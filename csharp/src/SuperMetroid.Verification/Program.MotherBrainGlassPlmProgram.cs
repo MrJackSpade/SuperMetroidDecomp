@@ -70,12 +70,12 @@ internal static partial class Program
         for (int shot = 0; shot < 18; shot++)
             plms.IncrementMotherBrainGlassRoomArgument();
         int emitted = 0;
-        for (int frame = 0; frame < 128 && !plms.MotherBrainGlassWasDeleted; frame++)
+        for (int frame = 0; frame < 128 && plms.HasActiveHeader(RoomPlmHeaders.MotherBrainGlass); frame++)
         {
             plms.Step(guarded, level, streamer, 0, 0, 0);
             emitted += plms.MotherBrainGlassProjectileRequests.Count;
         }
-        AssertTrue(eventSet && plms.MotherBrainGlassWasDeleted,
+        AssertTrue(eventSet && !plms.HasActiveHeader(RoomPlmHeaders.MotherBrainGlass),
             $"all glass stages end by setting the event and deleting the PLM; " +
             $"pointer=${plms.MotherBrainGlassInstructionPointer:X4}, " +
             $"timer={plms.MotherBrainGlassInstructionTimer}");

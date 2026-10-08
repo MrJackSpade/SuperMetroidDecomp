@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Reads native load-station records only while importing or verifying a cartridge.</summary>
-public static class LoadStationEntryImporter
+internal static class LoadStationEntryImporter
 {
     public static LoadStationEntry Load(ISnesAddressSpace bus, AreaId areaIndex, byte stationIndex)
     {

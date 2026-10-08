@@ -124,46 +124,6 @@ public sealed class ScrollBoundaryCamera
     public void SetLayerOneYFromScrollingFinishedHook(ushort yPosition) =>
         YPosition = yPosition;
 
-    /// <summary>Applies a debug rightward stimulus, then runs <c>$80:A641</c>.</summary>
-    public void MoveRight(ushort pixelDistance)
-    {
-        RequireDistance(pixelDistance);
-        CameraXSpeed = pixelDistance;
-        IdealXPosition = unchecked((ushort)(XPosition + pixelDistance));
-        XPosition = IdealXPosition;
-        HandleScrollingRight();
-    }
-
-    /// <summary>Applies a debug leftward stimulus, then runs <c>$80:A6BB</c>.</summary>
-    public void MoveLeft(ushort pixelDistance)
-    {
-        RequireDistance(pixelDistance);
-        CameraXSpeed = pixelDistance;
-        IdealXPosition = unchecked((ushort)(XPosition - pixelDistance));
-        XPosition = IdealXPosition;
-        HandleScrollingLeft();
-    }
-
-    /// <summary>Applies a debug downward stimulus, then runs <c>$80:A893</c>.</summary>
-    public void MoveDown(ushort pixelDistance)
-    {
-        RequireDistance(pixelDistance);
-        CameraYSpeed = pixelDistance;
-        IdealYPosition = unchecked((ushort)(YPosition + pixelDistance));
-        YPosition = IdealYPosition;
-        HandleScrollingDown();
-    }
-
-    /// <summary>Applies a debug upward stimulus, then runs <c>$80:A936</c>.</summary>
-    public void MoveUp(ushort pixelDistance)
-    {
-        RequireDistance(pixelDistance);
-        CameraYSpeed = pixelDistance;
-        IdealYPosition = unchecked((ushort)(YPosition - pixelDistance));
-        YPosition = IdealYPosition;
-        HandleScrollingUp();
-    }
-
     /// <summary>
     /// Ports horizontal Samus tracking at <c>$90:95A0</c> plus camera-speed calculation
     /// <c>$90:96C0</c>. Integer movement follows the facing-dependent camera target;
@@ -597,12 +557,6 @@ public sealed class ScrollBoundaryCamera
         fixedPosition = unchecked(fixedPosition - fixedSpeed);
         YPosition = (ushort)(fixedPosition >> 16);
         YSubposition = (ushort)fixedPosition;
-    }
-
-    private static void RequireDistance(ushort pixelDistance)
-    {
-        if (pixelDistance == 0 || pixelDistance >= 0x8000)
-            throw new ArgumentOutOfRangeException(nameof(pixelDistance));
     }
 }
 

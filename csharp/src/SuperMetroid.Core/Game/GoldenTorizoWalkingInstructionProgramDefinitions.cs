@@ -94,8 +94,5 @@ internal abstract class GoldenTorizoWalkingInstructionProgramDefinitions : IInst
     public static int PresentationWordCount => Layout.PresentationSlotCount;
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
-    internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
-        Layout.TryReadMechanicsWord(address, out value);
-
     public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

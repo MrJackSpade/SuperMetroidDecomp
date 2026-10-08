@@ -105,20 +105,6 @@ public readonly record struct MusicCommandDelay
     public static MusicCommandDelay FromDelayedYArgument(ushort requestedFrames) =>
         new(Math.Max(requestedFrames, AudioRomData.Queues.MinimumMusicDelayFrames));
 
-    /// <summary>
-    /// Rehydrates an already-effective delay published by a translated subsystem.
-    /// </summary>
-    public static MusicCommandDelay FromEffectiveFrames(ushort frames)
-    {
-        if (frames < AudioRomData.Queues.MinimumMusicDelayFrames)
-        {
-            throw new InvalidDataException(
-                $"Effective music delay {frames} is below bank $80's minimum of eight frames.");
-        }
-
-        return new MusicCommandDelay(frames);
-    }
-
     /// <inheritdoc />
     public override string ToString() => $"{Frames} frames";
 }

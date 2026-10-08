@@ -20,18 +20,4 @@ internal static class MapScrollControls
         MapScrollDirection.Down => SnesButton.Down,
         _ => throw new ArgumentOutOfRangeException(nameof(direction)),
     });
-
-    public static ButtonSequence Buttons => default;
-
-    internal readonly struct ButtonSequence
-    {
-
-        public ushort this[int index] => (uint)index < DirectionCount
-            ? ButtonFor((MapScrollDirection)(index + 1))
-            : throw new ArgumentOutOfRangeException(nameof(index));
-        public IEnumerator<ushort> GetEnumerator()
-        {
-            for (int index = 0; index < DirectionCount; index++) yield return this[index];
-        }
-    }
 }

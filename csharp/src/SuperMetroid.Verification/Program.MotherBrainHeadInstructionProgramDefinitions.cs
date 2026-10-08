@@ -69,20 +69,6 @@ internal static partial class Program
             "uncatalogued Mother Brain head instruction pointer fails explicitly");
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var sequence = new MotherBrainRainbowBeamAttackSequence();
-        typeof(MotherBrainRainbowBeamAttackSequence).GetMethod(
-            "SetHeadInstructionList", flags)!.Invoke(sequence,
-                [MotherBrainHeadInstructionProgramDefinitions.BabyAttackStart]);
-        var samus = new SamusState { XPosition = 0x00e0, YPosition = 0x0078 };
-        MotherBrainHeadAnimationStepResult firstBabyFrame = sequence.StepHeadAnimation(
-            new MotherBrainHeadInstructionReadGuard(rom), samus,
-            new BabyMetroidCutsceneState());
-        AssertTrue(firstBabyFrame.LoadedFrame,
-            "compiled Baby-attack head commands reach their first timed frame");
-        AssertEqual((ushort)0x9dc5, firstBabyFrame.InstructionPointerAfter,
-            "compiled Baby-attack head program reaches the native first-frame cursor");
-        AssertEqual((ushort)0xa717, firstBabyFrame.SpritemapPointer,
-            "compiled Baby-attack head program selects the native first-frame visual");
 
         MethodInfo processInstructions = typeof(RoomEnemySystem).GetMethod(
             "ProcessInstructions", flags)!;
@@ -146,7 +132,7 @@ internal static partial class Program
 
         Console.WriteLine(
             $"Mother Brain head programs: {checkedWords} native words, strict data gaps, " +
-            "guarded Baby-attack, nine ordinary-enemy entry frames and a branch loop pass.");
+            "nine ordinary-enemy entry frames and a branch loop pass.");
     }
 
     private sealed class MotherBrainHeadInstructionReadGuard(ISnesAddressSpace source) :

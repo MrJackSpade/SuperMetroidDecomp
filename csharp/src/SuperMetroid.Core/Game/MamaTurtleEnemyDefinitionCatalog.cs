@@ -88,21 +88,4 @@ internal static class MamaTurtleEnemyDefinitionCatalog
         ItemDropChancesPointer: 0xf3bc,
         VulnerabilityPointer: 0xeec6,
         NamePointer: 0x0000);
-
-    /// <summary>Resolves a compiled family header by its native bank-$A0 pointer.</summary>
-    internal static bool TryGet(ushort pointer, out RoomEnemyDefinition definition)
-    {
-        switch (pointer)
-        {
-            case MamaPointer:
-                definition = Mama;
-                return true;
-            case BabyPointer:
-                definition = Baby;
-                return true;
-            default:
-                definition = default;
-                return false;
-        }
-    }
 }

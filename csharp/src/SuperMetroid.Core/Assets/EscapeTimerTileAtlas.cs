@@ -100,18 +100,6 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
         return false;
     }
 
-    /// <summary>Queues both native records in their original order and at their original destinations.</summary>
-    public void QueueTo(VramWriteQueue queue)
-    {
-        ArgumentNullException.ThrowIfNull(queue);
-        if (Transfer().Length != EscapeTimerTileAtlasFormat.TotalByteCount)
-            throw new InvalidDataException("Escape timer artwork no longer matches its native transfer pages.");
-        queue.EnqueueAsset(VramAssetId.EscapeTimerFirstTiles,
-            EscapeTimerTileAtlasFormat.FirstByteCount, EscapeTimerTileAtlasFormat.FirstDestinationWord);
-        queue.EnqueueAsset(VramAssetId.EscapeTimerSecondTiles,
-            EscapeTimerTileAtlasFormat.SecondByteCount, EscapeTimerTileAtlasFormat.SecondDestinationWord);
-    }
-
     /// <summary>Queues an installed page when a native transfer record identifies timer artwork.</summary>
     public bool TryQueueNativeTransfer(VramWriteQueue queue, int sourceAddress, ushort byteCount,
         ushort destinationWord)

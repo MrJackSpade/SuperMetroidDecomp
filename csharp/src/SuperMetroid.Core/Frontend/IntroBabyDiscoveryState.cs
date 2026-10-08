@@ -59,8 +59,6 @@ internal sealed class IntroBabyDiscoveryState
 
     public bool EggHatchingStarted { get; private set; }
 
-    public int ActiveEggParticleCount => eggParticles.Count(particle => particle.IsActive);
-
     public bool PageThreeRequested { get; private set; }
 
     public void Step(ushort nmiFrameCounter, ushort introCrossfadeTimer)

@@ -144,7 +144,4 @@ public sealed partial class RoomEnemySystem
     {
         CeresMode7TransferDefinitions.ApplyTo(_vram!, pointer);
     }
-
-    private static int AdvanceBankAddress(int address, int byteCount) =>
-        (int)SnesAddress.FromBusAddress(address).AddWithinBank(byteCount);
 }

@@ -27,19 +27,6 @@ internal static class SnesDspTables
         int ratio = ((selector - 1) % 3) switch { 0 => 8, 1 => 6, _ => 5 };
         return (ushort)((ratio << 8) >> group);
     }
-    /// <summary>Exact S-DSP interpolation coefficient for index 0..511.
-    /// A Blackman-windowed sinc is normalized over each four-tap phase, then
-    /// rounded to the nearest integer at scale 2048. Independently checked
-    /// against every gaussValues coefficient in pinned upstream-sm/src/snes/dsp.c.</summary>
-    /// <remarks>Uses double precision without stored samples or a generated cache.
-    /// Every rounded coefficient is checked against the independent native table.
-    /// Invalid indices preserve the former array exception.</remarks>
-    internal static ushort GaussianCoefficient(int index)
-    {
-        if ((uint)index >= 512) throw new IndexOutOfRangeException();
-        var taps = GaussianCoefficients(index & 255);
-        return index < 256 ? taps.Tap3 : taps.Tap2;
-    }
 
     /// <summary>Calculates the four S-DSP interpolation taps for one 8-bit sample phase.</summary>
     /// <remarks>The native order is indices 255-phase, 511-phase, 256+phase, phase.

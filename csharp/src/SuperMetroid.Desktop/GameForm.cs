@@ -10,17 +10,6 @@ internal sealed class GameForm : Form
     private readonly PlayableGameControl gameControl;
     private bool closingRenderer;
     private bool rendererStopped;
-    public GameForm(
-        string romPath,
-        SuperMetroidGameOptions gameOptions,
-        ControllerInputRecording? replay = null,
-        GitHubErrorReporter? errorReporter = null,
-        string? audioDirectory = null,
-        string? dataDirectory = null)
-        : this(new PlayableGameControl(romPath, gameOptions, replay, errorReporter,
-            audioDirectory, dataDirectory))
-    {
-    }
 
     /// <summary>The normal ROM-independent host path after asset installation.</summary>
     public GameForm(

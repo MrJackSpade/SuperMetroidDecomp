@@ -91,7 +91,6 @@ public sealed class SamusSpritemapArtworkCatalog
             ? Pointer(SamusSpritemapFrameDefinitions.SourceIndex(index))
             : SamusSpritemapFrameDefinitions.TryPointer(index, definitions, out ushort calculated)
                 ? calculated : throw new InvalidDataException("Installed OAM allocation no longer supplies its selected identity.");
-    public IReadOnlyCollection<SamusSpritemapDefinition> Definitions => definitions.Values;
     public ushort TopBase(byte pose)
     {
         if (pose >= SamusBodyArtworkCatalog.PoseCount) throw new IndexOutOfRangeException();

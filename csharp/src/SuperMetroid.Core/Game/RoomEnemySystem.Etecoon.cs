@@ -122,9 +122,6 @@ public sealed partial class RoomEnemySystem
     private readonly EtecoonEnemyState?[] _etecoonStates =
         new EtecoonEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed native state for every physical Etecoon slot.</summary>
-    public IReadOnlyList<EtecoonEnemyState?> EtecoonStates => _etecoonStates;
-
     /// <summary>Most recent library-two Etecoon sound request during this frame.</summary>
     public ushort? LastEtecoonSoundEffect { get; private set; }
 

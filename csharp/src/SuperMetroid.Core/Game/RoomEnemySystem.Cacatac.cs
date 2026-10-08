@@ -120,9 +120,6 @@ public sealed partial class RoomEnemySystem
     private readonly CacatacEnemyState?[] _cacatacStates =
         new CacatacEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed state for every physical Cacatac-capable enemy slot.</summary>
-    public IReadOnlyList<CacatacEnemyState?> CacatacStates => _cacatacStates;
-
     /// <summary>Last library-two spike-release sound requested in this enemy frame.</summary>
     public ushort? LastCacatacSoundEffect { get; private set; }
 

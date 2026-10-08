@@ -22,8 +22,8 @@ internal static partial class Program
         {
             random = (ushort)raw;
             int offset = raw & 0x1c;
-            ushort whole = Word(EnemyRomTablePointers.FallingSpark.HorizontalWholeWords + offset);
-            ushort fraction = Word(EnemyRomTablePointers.FallingSpark.HorizontalFractionWords + offset);
+            ushort whole = Word(EnemyRomTablePointersFallingSpark.HorizontalWholeWords + offset);
+            ushort fraction = Word(EnemyRomTablePointersFallingSpark.HorizontalFractionWords + offset);
             var compiled = FallingSparkLaunchDefinitions.FromRandom(random);
             AssertEqual(whole, compiled.Whole, "Every RNG word preserves native spark whole velocity");
             AssertEqual(fraction, compiled.Fraction, "Every RNG word preserves native spark fractional velocity");

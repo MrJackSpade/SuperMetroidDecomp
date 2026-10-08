@@ -405,9 +405,6 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions : IInstru
         };
     }
 
-    /// <summary>Native $86:E42C selector domain, including its final two out-of-order roots.</summary>
-    internal static int MiscDustProgramCount => 30;
-
     public static int MechanicsWordCount
     {
         get
@@ -514,23 +511,6 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions : IInstru
 
     internal static VisualFrameList VisualFrames { get; } = new();
 
-    internal static bool IsVisualOperand(ushort address)
-    {
-        int offset = address - MotherBrainBlueRingInitial;
-        if (offset is >= 6 and < 48 && offset % 8 == 6) return true;
-        offset = address - MotherBrainBlueRingTouch;
-        if (offset is >= 6 and < 28 && offset % 4 == 2) return true;
-        offset = address - MotherBrainDroolInitial;
-        if (offset is >= 2 and < 20 && offset % 4 == 2 || offset == 28) return true;
-        for (int index = 0; index < TimedProgramCount; index++)
-        {
-            var program = TimedProgram(index);
-            offset = address - program.InitialPointer - (program.PrefixInstruction.HasValue ? 2 : 0);
-            if (offset is >= 2 && offset < program.FrameCount * 4 && offset % 4 == 2) return true;
-        }
-        return false;
-    }
-
     internal sealed class VisualFrameList : IReadOnlyList<EnemyProjectilePresentationFrameDefinition>
     {
         public int Count
@@ -542,7 +522,6 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions : IInstru
                 return count;
             }
         }
-        public int Length => Count;
         public EnemyProjectilePresentationFrameDefinition this[int index]
         {
             get

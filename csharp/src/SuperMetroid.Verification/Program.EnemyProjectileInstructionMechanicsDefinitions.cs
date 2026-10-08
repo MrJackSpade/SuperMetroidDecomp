@@ -66,30 +66,10 @@ internal static partial class Program
         }
 
         var guarded = new EnemyProjectileMechanicsReadGuard(rom);
-        var motherBrain = new MotherBrainRainbowBeamAttackSequence
-        {
-            BrainXPosition = 0x0080,
-            BrainYPosition = 0x0060,
-        };
         var samus = new SamusState { XPosition = 0x4000, YPosition = 0x4000 };
 
-        Suite(nameof(VerifyCompiledBlueRingProgram), () => VerifyCompiledBlueRingProgram(guarded, motherBrain, samus));
-        Suite(nameof(VerifyCompiledBombProgram), () => VerifyCompiledBombProgram(guarded, motherBrain, samus));
-        Suite(nameof(VerifyCompiledPurpleBreathProgram), () => VerifyCompiledPurpleBreathProgram(guarded, motherBrain, samus));
-        Suite(nameof(VerifyCompiledEscapeDoorProgram), () => VerifyCompiledEscapeDoorProgram(guarded, motherBrain, samus));
-        Suite(nameof(VerifyCompiledSubtitleProgram), () => VerifyCompiledSubtitleProgram(guarded, motherBrain, samus));
-        Suite(nameof(VerifyCompiledMiscDustPrograms), () => VerifyCompiledMiscDustPrograms(guarded, motherBrain, samus));
         Suite(nameof(VerifyCompiledRoomSharedPrograms), () => VerifyCompiledRoomSharedPrograms(guarded, samus, rom));
 
-        var invalid = new MotherBrainEnemyProjectileSystem();
-        int invalidSlotIndex = invalid.SpawnTimeBombSetSubtitle() ??
-            throw new InvalidDataException("Fresh subtitle pool rejected its first slot.");
-        MotherBrainEnemyProjectileSlot invalidSlot = invalid.Slots[invalidSlotIndex];
-        invalidSlot.InstructionPointer = 0xcb13;
-        invalidSlot.InstructionTimer = 1;
-        AssertThrows<InvalidDataException>(
-            () => invalid.StepFrame(guarded, motherBrain, baby: null, samus, layer1X: 0),
-            "restored projectile pointer after the translated subtitle fails loudly");
         AssertThrows<InvalidDataException>(
             () => MotherBrainHandBeamInstructionProgramDefinitions.ReadExternalFunction(
                 unchecked((ushort)(
@@ -107,6 +87,8 @@ internal static partial class Program
         // A one-time promotion is not a per-frame allocation. Repeat a bounded
         // measurement until the steady-state pass is reached; persistent allocation
         // still fails after all four passes.
+        // The callback operand address is a fixture constant; only the production lookups are measured.
+        ushort externalCall = MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallInstruction(0);
         long allocated = long.MaxValue;
         int checksum = 0;
         for (int pass = 0; pass < 4 && allocated != 0; pass++)
@@ -118,8 +100,7 @@ internal static partial class Program
                     EnemyProjectileInstructionMechanicsDefinitions.MotherBrainBombInitial);
                 checksum += MotherBrainHandBeamInstructionProgramDefinitions.ReadMechanicsWord(
                     MotherBrainHandBeamInstructionProgramDefinitions.Initial);
-                checksum += MotherBrainHandBeamInstructionProgramDefinitions.ReadExternalFunction(
-                    MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallInstruction(0));
+                checksum += MotherBrainHandBeamInstructionProgramDefinitions.ReadExternalFunction(externalCall);
             }
             allocated = GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
         }
@@ -549,134 +530,6 @@ internal static partial class Program
             Process(droolEnemies, drool, samus);
             AssertTrue(!drool.IsActive,
                 $"{expectedKind} splash deletes on the frame after its 40-frame lifetime");
-        }
-    }
-
-    private static void VerifyCompiledBlueRingProgram(
-        ISnesAddressSpace bus,
-        MotherBrainRainbowBeamAttackSequence motherBrain,
-        SamusState samus)
-    {
-        var projectiles = new MotherBrainEnemyProjectileSystem();
-        int slotIndex = projectiles.Spawn(
-                bus,
-                motherBrain,
-                new MotherBrainOnionRingSpawnRequest(SnesAngle.Zero)) ??
-            throw new InvalidDataException("Fresh blue-ring pool rejected its first slot.");
-        MotherBrainEnemyProjectileSlot slot = projectiles.Slots[slotIndex];
-
-        // Keep the ring in the native head-follow delay so room collision cannot truncate
-        // the complete animation program before its final sleep instruction is reached.
-        slot.DelayTimer = ushort.MaxValue;
-        for (int frame = 0; frame < 60; frame++)
-            projectiles.StepFrame(bus, motherBrain, baby: null, samus, layer1X: 0);
-
-        AssertEqual(6, slot.XRadius, "blue-ring program reaches final X radius");
-        AssertEqual(6, slot.YRadius, "blue-ring program reaches final Y radius");
-        AssertEqual(0xc462, slot.InstructionPointer,
-            "blue-ring program sleeps at its authored terminal pointer");
-    }
-
-    private static void VerifyCompiledBombProgram(
-        ISnesAddressSpace bus,
-        MotherBrainRainbowBeamAttackSequence motherBrain,
-        SamusState samus)
-    {
-        var projectiles = new MotherBrainEnemyProjectileSystem();
-        int slotIndex = projectiles.SpawnBomb(motherBrain, new(0)) ??
-            throw new InvalidDataException("Fresh bomb pool rejected its first slot.");
-        MotherBrainEnemyProjectileSlot slot = projectiles.Slots[slotIndex];
-        for (int frame = 0; frame < 40; frame++)
-            projectiles.StepFrame(bus, motherBrain, baby: null, samus, layer1X: 0);
-
-        AssertTrue(slot.IsActive, "bomb survives one complete compiled animation loop");
-        AssertTrue(slot.InstructionPointer is >= 0xc772 and <= 0xc792,
-            "bomb loop remains inside its translated pointer domain");
-    }
-
-    private static void VerifyCompiledPurpleBreathProgram(
-        ISnesAddressSpace bus,
-        MotherBrainRainbowBeamAttackSequence motherBrain,
-        SamusState samus)
-    {
-        var projectiles = new MotherBrainEnemyProjectileSystem();
-        int slotIndex = projectiles.SpawnPurpleBreathBig(motherBrain) ??
-            throw new InvalidDataException("Fresh purple-breath pool rejected its first slot.");
-        MotherBrainEnemyProjectileSlot slot = projectiles.Slots[slotIndex];
-        for (int frame = 0; frame < 77; frame++)
-            projectiles.StepFrame(bus, motherBrain, baby: null, samus, layer1X: 0);
-        AssertTrue(!slot.IsActive, "purple breath deletes after its full compiled lifetime");
-    }
-
-    private static void VerifyCompiledEscapeDoorProgram(
-        ISnesAddressSpace bus,
-        MotherBrainRainbowBeamAttackSequence motherBrain,
-        SamusState samus)
-    {
-        var projectiles = new MotherBrainEnemyProjectileSystem();
-        int slotIndex = projectiles.SpawnEscapeDoorParticle(new(0)) ??
-            throw new InvalidDataException("Fresh escape-fragment pool rejected its first slot.");
-        MotherBrainEnemyProjectileSlot slot = projectiles.Slots[slotIndex];
-        for (int frame = 0; frame < 20; frame++)
-            projectiles.StepFrame(bus, motherBrain, baby: null, samus, layer1X: 0);
-
-        AssertTrue(slot.IsActive, "escape fragment survives one compiled animation loop");
-        AssertTrue(slot.InstructionPointer is >= 0xca26 and <= 0xca42,
-            "escape fragment loop remains inside its translated pointer domain");
-    }
-
-    private static void VerifyCompiledSubtitleProgram(
-        ISnesAddressSpace bus,
-        MotherBrainRainbowBeamAttackSequence motherBrain,
-        SamusState samus)
-    {
-        var projectiles = new MotherBrainEnemyProjectileSystem();
-        int slotIndex = projectiles.SpawnTimeBombSetSubtitle() ??
-            throw new InvalidDataException("Fresh subtitle pool rejected its first slot.");
-        MotherBrainEnemyProjectileSlot slot = projectiles.Slots[slotIndex];
-        projectiles.StepFrame(bus, motherBrain, baby: null, samus, layer1X: 0);
-        projectiles.StepFrame(bus, motherBrain, baby: null, samus, layer1X: 0);
-        AssertTrue(slot.IsActive, "subtitle sleep retains the projectile");
-        AssertEqual(0xcb11, slot.InstructionPointer,
-            "subtitle sleeps at its authored terminal pointer");
-    }
-
-    private static void VerifyCompiledMiscDustPrograms(
-        ISnesAddressSpace bus,
-        MotherBrainRainbowBeamAttackSequence motherBrain,
-        SamusState samus)
-    {
-        for (ushort animation = 0;
-             animation < EnemyProjectileInstructionMechanicsDefinitions.MiscDustProgramCount;
-             animation++)
-        {
-            var projectiles = new MotherBrainEnemyProjectileSystem();
-            int slotIndex = projectiles.SpawnMiscDust(bus, 0x0080, 0x0080, animation) ??
-                throw new InvalidDataException(
-                    $"Fresh misc-dust pool rejected animation {animation}.");
-            MotherBrainEnemyProjectileSlot slot = projectiles.Slots[slotIndex];
-
-            if (animation == 28)
-            {
-                // `$E1FC` is the one persistent two-frame misc program. It exposed the
-                // missing native goto support in the formerly finite-only shared handler.
-                for (int frame = 0; frame < 12; frame++)
-                    projectiles.StepFrame(bus, motherBrain, baby: null, samus, 0, 0);
-                AssertTrue(slot.IsActive, "looping misc-dust animation remains active");
-                AssertTrue(slot.InstructionPointer is 0xe200 or 0xe204,
-                    "looping misc-dust pointer remains in `$E1FC` program");
-                continue;
-            }
-
-            int calls = 0;
-            while (slot.IsActive && calls < 200)
-            {
-                projectiles.StepFrame(bus, motherBrain, baby: null, samus, 0, 0);
-                calls++;
-            }
-
-            AssertTrue(!slot.IsActive,
-                $"finite misc-dust animation {animation} reaches delete");
         }
     }
 

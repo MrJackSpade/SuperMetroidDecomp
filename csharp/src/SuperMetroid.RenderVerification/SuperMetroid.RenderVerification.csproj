@@ -22,4 +22,7 @@
   <ItemGroup>
     <Compile Include="../../test-support/PixelComparison.cs" Link="TestSupport/PixelComparison.cs" />
   </ItemGroup>
+  <Import Project="../../test-support/VerificationAccess.Core.projitems" />
+  <Import Project="../../test-support/VerificationAccess.Desktop.projitems" />
+  <Import Project="../../test-support/VerificationAccess.Rendering.projitems" />
 </Project>

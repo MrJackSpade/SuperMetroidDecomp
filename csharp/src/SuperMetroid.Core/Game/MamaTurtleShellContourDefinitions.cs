@@ -37,12 +37,4 @@ internal static class MamaTurtleShellContourDefinitions
         int index = parentMinusActorX < 0 ? distance + HalfWidth : distance;
         return Offsets[index];
     }
-
-    /// <summary>Returns one raw word by native table index for cartridge parity checks.</summary>
-    internal static short GetRawOffset(int index)
-    {
-        if ((uint)index >= EntryCount)
-            throw new ArgumentOutOfRangeException(nameof(index));
-        return Offsets[index];
-    }
 }

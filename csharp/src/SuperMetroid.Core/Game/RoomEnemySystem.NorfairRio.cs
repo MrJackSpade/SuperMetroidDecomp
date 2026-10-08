@@ -71,8 +71,6 @@ public sealed partial class RoomEnemySystem
     private readonly NorfairRioEnemyState?[] _norfairRioStates =
         new NorfairRioEnemyState?[MaximumEnemyCount];
 
-    public IReadOnlyList<NorfairRioEnemyState?> NorfairRioStates => _norfairRioStates;
-
     /// <summary>Most recent library-two dive sound request produced during this frame.</summary>
     public ushort? LastNorfairRioSoundEffect { get; private set; }
 

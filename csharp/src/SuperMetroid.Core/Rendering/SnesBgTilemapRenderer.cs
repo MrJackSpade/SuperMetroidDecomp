@@ -7,42 +7,6 @@ namespace SuperMetroid.Core.Rendering;
 public static class SnesBgTilemapRenderer
 {
     /// <summary>
-    /// Renders a pixel-scrolled Mode-1 4-bpp viewport from any BGSC 32/64-by-32/64 map.
-    /// Palette index zero is transparent so a lower-priority BG or backdrop remains visible.
-    /// </summary>
-    public static Rgba32[] Render4BppViewport(
-        SnesVram vram,
-        SnesCgram cgram,
-        ushort tilemapBaseWord,
-        ushort characterBaseWord,
-        ushort horizontalScroll,
-        ushort verticalScroll,
-        int width,
-        int height,
-        int tilemapWidthInTiles = 64,
-        int tilemapHeightInTiles = 32,
-        IReadOnlyList<ushort>? horizontalScrollByLine = null,
-        bool? priority = null)
-    {
-        var output = new Rgba32[checked(width * height)];
-        Composite4BppViewport(
-            output,
-            vram,
-            cgram,
-            tilemapBaseWord,
-            characterBaseWord,
-            horizontalScroll,
-            verticalScroll,
-            width,
-            height,
-            tilemapWidthInTiles,
-            tilemapHeightInTiles,
-            horizontalScrollByLine,
-            priority);
-        return output;
-    }
-
-    /// <summary>
     /// Decodes a pixel-scrolled Mode-1 4-bpp viewport directly over an existing raster.
     /// Transparent character pixels and nonmatching priority tiles leave the destination
     /// untouched, allowing a PPU compositor to build its priority ladder without allocating
@@ -148,35 +112,6 @@ public static class SnesBgTilemapRenderer
                 screenX += runLength;
             }
         }
-    }
-
-    /// <summary>
-    /// Renders consecutive tilemap rows. This first implementation supports the 2-bpp BG3
-    /// format used by the gameplay HUD; its parameters retain the actual VRAM bases so the
-    /// debugger can be compared directly with PPU registers.
-    /// </summary>
-    public static Rgba32[] Render2Bpp(
-        SnesVram vram,
-        SnesCgram cgram,
-        ushort tilemapBaseWord,
-        ushort characterBaseWord,
-        int rowCount,
-        bool transparentColorZero = false,
-        bool? priority = null)
-    {
-        const int width = 32 * 8;
-        int height = rowCount * 8;
-        var output = new Rgba32[width * height];
-        Render2Bpp(
-            output,
-            vram,
-            cgram,
-            tilemapBaseWord,
-            characterBaseWord,
-            rowCount,
-            transparentColorZero,
-            priority);
-        return output;
     }
 
     /// <summary>

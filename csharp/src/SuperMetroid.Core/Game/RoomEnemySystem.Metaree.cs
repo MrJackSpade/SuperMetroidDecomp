@@ -83,9 +83,6 @@ public sealed partial class RoomEnemySystem
     private readonly MetareeEnemyState?[] _metareeStates =
         new MetareeEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed Metaree state for all 32 physical enemy slots.</summary>
-    public IReadOnlyList<MetareeEnemyState?> MetareeStates => _metareeStates;
-
     /// <summary>Ports <c>InitAI_Metaree</c> at <c>$A3:8960</c>.</summary>
     private void InitializeMetaree(RoomEnemySlot slot)
     {

@@ -18,7 +18,9 @@ public static class RgbaBitmapSmokeTest
             new(255, 0, 0), new(0, 255, 0),
             new(0, 0, 255), new(255, 255, 255),
         ];
-        using Bitmap bitmap = RgbaBitmap.Create(width: 2, height: 2, first);
+        // The playable canvas owns one 32-bpp ARGB bitmap and refreshes it in place.
+        using var bitmap = new Bitmap(2, 2, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+        RgbaBitmap.CopyTo(bitmap, width: 2, height: 2, first);
         AssertPixel(bitmap, 0, 0, Color.FromArgb(255, 255, 0, 0), "initial red");
         AssertPixel(bitmap, 1, 0, Color.FromArgb(255, 0, 255, 0), "initial green");
 

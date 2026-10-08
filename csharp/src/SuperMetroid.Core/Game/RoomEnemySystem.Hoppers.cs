@@ -98,9 +98,6 @@ public sealed partial class RoomEnemySystem
     private readonly HopperEnemyState?[] _hopperStates =
         new HopperEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed state for every physical slot currently owned by the hopper family.</summary>
-    public IReadOnlyList<HopperEnemyState?> HopperStates => _hopperStates;
-
     private static bool IsHopperDefinition(ushort definitionPointer) => definitionPointer is
         SidehopperDefinition or
         DessgeegaDefinition or

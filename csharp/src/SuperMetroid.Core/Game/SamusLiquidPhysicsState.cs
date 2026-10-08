@@ -161,24 +161,6 @@ public sealed partial class SamusLiquidPhysicsState
     }
 
     /// <summary>
-    /// Reproduces <c>SetLiquidPhysicsType</c> at <c>$90:8E0F</c>. Unlike movement-table
-    /// selection, this room-load helper dispatches on FX type and does not exempt Gravity
-    /// Suit; animation later suppresses the suit's delay while retaining the medium word.
-    /// </summary>
-    public void InitializeRememberedMedium(SamusState samus)
-    {
-        ArgumentNullException.ThrowIfNull(samus);
-        ushort bottom = samus.Kinematics.BottomBoundary;
-        LiquidPhysicsType = FxType switch
-        {
-            RoomFxType.Lava or RoomFxType.Acid
-                when IsBelowSurface(LavaAcidYPosition, bottom) => LavaAcid,
-            RoomFxType.Water or RoomFxType.TourianEntranceStatue when WaterAffectsBoundary(bottom) => Water,
-            _ => Air,
-        };
-    }
-
-    /// <summary>
     /// Selects air/water/lava physics for routines that test Samus's bottom boundary and
     /// bypass all liquid behavior when Gravity Suit bit <c>$0020</c> is equipped.
     /// </summary>

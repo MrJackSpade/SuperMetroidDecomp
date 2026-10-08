@@ -16,7 +16,7 @@ internal static partial class Program
         var native = new byte[20];
         for (int i = 0; i < native.Length; i++)
         {
-            native[i] = rom.ReadByte(SamusProjectileRomData.Collision.SquareSlopeDefinitions + i);
+            native[i] = rom.ReadByte(SamusProjectileRomDataCollision.SquareSlopeDefinitions + i);
             AssertEqual(native[i], SquareSlopeDefinitions.ReadSamusQuadrant(i), "Native Samus square quadrant byte");
         }
         foreach (int invalid in new[] { -1, 20, int.MinValue, int.MaxValue })

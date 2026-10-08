@@ -160,25 +160,4 @@ internal static class RoomPlmShotBlockProgramDefinitions
         value = 0;
         return false;
     }
-
-    /// <summary>All authored control-word addresses, excluding draw-list operands.</summary>
-    internal static IEnumerable<ushort> MechanicsWordAddresses()
-    {
-        for (int index = 0; index < ProgramCount; index++)
-        {
-            Program program = ProgramAt(index);
-            yield return program.Start;
-            for (int frame = 0; frame < program.FrameCount; frame++)
-                yield return checked((ushort)(program.Start + 3 + 4 * frame));
-            yield return program.TerminalAddress;
-            if (program.RestoresLevelWord)
-                yield return checked((ushort)(program.TerminalAddress + 2));
-        }
-    }
-
-    internal static IEnumerable<ushort> MechanicsByteAddresses()
-    {
-        for (int index = 0; index < ProgramCount; index++)
-            yield return checked((ushort)(ProgramAt(index).Start + 2));
-    }
 }

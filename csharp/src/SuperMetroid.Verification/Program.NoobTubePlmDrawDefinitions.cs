@@ -64,13 +64,8 @@ internal static partial class Program
             unchecked((byte)(RoomPlmHeaders.NoobTube >> 8)),
             originX, originY, 0, 0, 0, 0,
         ]);
-        // The retail control stream is compiled and immutable. A constructed
-        // three-word list at a nonretail address selects each physical layout
-        // through the production PLM interpreter without patching that catalog.
-        const ushort probeList = 0xd600;
-        WriteWord(bus, 0x840000 | probeList, 1);
-        WriteWord(bus, 0x840000 | (probeList + 2), selected.Pointer);
-        WriteWord(bus, 0x840000 | (probeList + 4), RoomPlmInstructionCodes.Delete);
+        // The retail control stream is compiled and immutable. Draw each physical layout through
+        // the production timed-frame draw without patching that catalog.
         var guarded = new NoobTubeDrawReadGuard(bus, lists);
         byte[] blockDefinitions = new byte[0x400 * 8];
         blockDefinitions[0x59 * 8] = 0x59;
@@ -85,8 +80,7 @@ internal static partial class Program
                 hasEvent: _ => false,
                 setEvent: _ => { }),
             $"n00b tube loads for draw ${selected.Pointer:X4}");
-        plms.SetSoleInstructionPointerForVerification(probeList, [1, selected.Pointer, RoomPlmInstructionCodes.Delete]);
-        plms.Step(guarded, level, streamer, 0, 0, 0);
+        plms.DrawSolePlmFrameForVerification(guarded, level, streamer, selected.Pointer);
 
         int entryX = originX;
         int entryY = originY;

@@ -23,9 +23,6 @@ internal sealed class MapObjectTileArtwork
     private readonly MenuThinBorderArtwork thinBorder;
     private readonly Dictionary<int, byte>? reserveEdits;
     private readonly Dictionary<int, byte>? highlightEdits;
-    internal int StoredHighlightPixelCount => highlightEdits?.Count ?? 0;
-    internal int StoredReservePixelCount => reserveEdits?.Count ?? 0;
-    internal int StoredOtherByteCount => otherCharacters.Length;
 
     internal MapObjectTileArtwork(IndexedPngImage image)
     {

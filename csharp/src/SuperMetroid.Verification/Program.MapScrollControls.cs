@@ -26,7 +26,7 @@ internal static partial class Program
             ushort held = 0;
             for (int index = 0; index < buttons.Length; index++)
                 if ((combination & (1 << index)) != 0) held |= buttons[index];
-            var native = new FileSelectMapScroll(bus, map, system, 240, 128, buttons);
+            var native = new FileSelectMapScroll(bus, map, system, 240, 128);
             var compiled = new FileSelectMapScroll(guard, map, system, 240, 128);
             // Sustained direction runs include reaching native boundaries, opposing
             // input precedence, then releasing while an eight-tick step is pending.

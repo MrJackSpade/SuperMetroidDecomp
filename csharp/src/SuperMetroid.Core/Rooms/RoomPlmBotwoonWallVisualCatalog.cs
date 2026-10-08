@@ -24,8 +24,6 @@ public sealed class RoomPlmBotwoonWallVisualCatalog
 
     private readonly ushort[]? blocks;
 
-    private RoomPlmBotwoonWallVisualCatalog() { }
-
     public RoomPlmBotwoonWallVisualCatalog(
         IEnumerable<RoomPlmBotwoonWallVisualEntry> entries)
     {
@@ -43,10 +41,6 @@ public sealed class RoomPlmBotwoonWallVisualCatalog
             stock &= selected[0].Blocks[index] == StockWord(index);
         if (!stock) blocks = selected[0].Blocks.ToArray();
     }
-
-    /// <summary>The native stock appearance is the visual part of the calculated
-    /// nine-block air fill. Only custom artwork needs a stored payload.</summary>
-    public static RoomPlmBotwoonWallVisualCatalog Stock() => new();
 
     private static ushort StockWord(int index) =>
         new RoomLevelWord(BotwoonWallPlmDrawDefinitions.LevelWordAt(index)).VisualWord;

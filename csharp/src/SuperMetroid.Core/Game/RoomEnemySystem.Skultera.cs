@@ -141,9 +141,6 @@ public sealed partial class RoomEnemySystem
     private readonly SkulteraEnemyState?[] _skulteraStates =
         new SkulteraEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed Skultera state for all 32 physical enemy slots.</summary>
-    public IReadOnlyList<SkulteraEnemyState?> SkulteraStates => _skulteraStates;
-
     /// <summary>Ports <c>InitAI_Skultera</c> at <c>$A3:90B5</c>.</summary>
     private void InitializeSkultera(RoomEnemySlot slot)
     {

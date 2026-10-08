@@ -31,8 +31,6 @@ public sealed class RoomPlmSamusEaterVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customWords;
 
-    private RoomPlmSamusEaterVisualCatalog() { }
-
     public RoomPlmSamusEaterVisualCatalog(
         IEnumerable<RoomPlmSamusEaterVisualEntry> entries)
     {
@@ -63,9 +61,6 @@ public sealed class RoomPlmSamusEaterVisualCatalog
                 "Samus Eater visuals do not cover all eight compiled frames.");
         if (selected.Count != 0) customWords = selected;
     }
-
-    /// <summary>Stock appearance is calculated from the physical draw's visual bits without a cache.</summary>
-    public static RoomPlmSamusEaterVisualCatalog Stock() => new();
 
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {

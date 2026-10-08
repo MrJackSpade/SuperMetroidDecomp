@@ -315,7 +315,7 @@ internal static partial class Program
             Until(() => game.RuntimeForVerification is not null, 200);
             AssertEqual(AreaId.Ceres, game.RuntimeForVerification!.ActiveRoom!.AreaIndex,
                 "Ceres checkpoint bypasses Zebes map and retains elevator arrival");
-            AssertTrue(game.RuntimeForVerification.CeresElevatorArrival is not null,
+            AssertTrue(game.RuntimeForVerification!.CeresElevatorArrival is not null,
                 "Ceres checkpoint still owns its arrival sequence");
             return;
         }

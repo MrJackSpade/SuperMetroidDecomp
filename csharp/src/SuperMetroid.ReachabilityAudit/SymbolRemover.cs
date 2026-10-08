@@ -7,8 +7,8 @@ namespace SuperMetroid.ReachabilityAudit;
 /// <summary>
 /// Deletes the declarations of the selected finding categories from repository source. Every
 /// part of a partial declaration is removed; a field declaration only when all of its variables
-/// are removed. Positional record parameters change constructor signatures and are reported for
-/// manual edits instead. Removed instance fields, including auto-property backing fields, are
+/// are removed. A positional record parameter is removed together with the matching argument of
+/// every construction, record base call and <c>with</c> initializer. Removed instance fields, including auto-property backing fields, are
 /// listed so persisted debugger-state layouts can retire them.
 /// </summary>
 internal static class SymbolRemover
@@ -24,9 +24,15 @@ internal static class SymbolRemover
         var retired = new SortedSet<string>(StringComparer.Ordinal);
         var processed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         int removedNodes = 0, deletedFiles = 0;
-        foreach (var (_, compilation) in solution.Projects)
+        var trees = solution.Projects
+            .SelectMany(p => p.Compilation.SyntaxTrees.Where(identity.IsRepositorySource).Select(t => (Tree: t, p.Compilation)))
+            .GroupBy(entry => Path.GetFullPath(entry.Tree.FilePath), StringComparer.OrdinalIgnoreCase)
+            .Select(group => group.First()).ToArray();
+        // Positional record properties are constructor parameters: removing one edits the record
+        // and every construction of it, so collect those edits across the whole solution first.
+        var parameterEdits = PositionalParameterEdits(trees, identity, targets, retired);
+        foreach (var (tree, compilation) in trees)
         {
-            foreach (var tree in compilation.SyntaxTrees.Where(identity.IsRepositorySource))
             {
                 string path = Path.GetFullPath(tree.FilePath);
                 if (!processed.Add(path))
@@ -34,16 +40,14 @@ internal static class SymbolRemover
                 var model = compilation.GetSemanticModel(tree);
                 var root = tree.GetRoot();
                 var removals = new List<SyntaxNode>();
+                if (parameterEdits.TryGetValue(tree, out var positional))
+                    removals.AddRange(positional.Nodes);
                 foreach (var node in root.DescendantNodes())
                 {
-                    if (SymbolIdentity.Normalize(DeclarationCollector.DeclaredSymbol(model, node)) is not { } symbol
+                    if (node is ParameterSyntax
+                        || SymbolIdentity.Normalize(DeclarationCollector.DeclaredSymbol(model, node)) is not { } symbol
                         || identity.Key(symbol) is not { } key || !targets.Contains(key))
                         continue;
-                    if (node is ParameterSyntax)
-                    {
-                        Console.WriteLine($"SKIP positional record property {symbol.ToDisplayString()} ({identity.Relative(path)})");
-                        continue;
-                    }
                     removals.Add(RemovalNode(node, model, identity, targets));
                     if (RetiredField(symbol) is { } field)
                         retired.Add($"{RuntimeName(field.ContainingType)}\t{field.Name}");
@@ -61,12 +65,134 @@ internal static class SymbolRemover
                     continue;
                 }
                 bool bom = File.ReadAllBytes(path) is [0xEF, 0xBB, 0xBF, ..];
-                File.WriteAllText(path, edited.ToFullString(), new UTF8Encoding(bom));
+                string text = edited.ToFullString();
+                if (positional is not null)
+                    text = RemoveParameterDocumentation(text, positional.DocumentedParameters);
+                File.WriteAllText(path, text, new UTF8Encoding(bom));
             }
         }
         File.WriteAllLines(retiredFieldsPath, retired, new UTF8Encoding(false));
         Console.WriteLine($"Removed {removedNodes} declarations of {targets.Count} findings; deleted {deletedFiles} emptied files; " +
             $"{retired.Count} retired instance fields written to {retiredFieldsPath}.");
+    }
+
+    /// <summary>The syntax a set of positional-parameter removals takes out of one file.</summary>
+    private sealed record PositionalEdits(List<SyntaxNode> Nodes, List<(string Record, string Parameter)> DocumentedParameters);
+
+    /// <summary>
+    /// For every targeted positional record parameter: the parameter itself and the matching
+    /// argument of each primary-constructor call, record base call and <c>with</c> initializer.
+    /// </summary>
+    private static Dictionary<SyntaxTree, PositionalEdits> PositionalParameterEdits(
+        (SyntaxTree Tree, Compilation Compilation)[] trees, SymbolIdentity identity, HashSet<string> targets,
+        SortedSet<string> retired)
+    {
+        var edits = new Dictionary<SyntaxTree, PositionalEdits>();
+        PositionalEdits For(SyntaxTree tree) => edits.TryGetValue(tree, out var e) ? e : edits[tree] = new([], []);
+
+        // Primary constructor documentation id -> its removed parameter ordinals.
+        var removedByConstructor = new Dictionary<string, HashSet<int>>(StringComparer.Ordinal);
+        foreach (var (tree, compilation) in trees)
+        {
+            var model = compilation.GetSemanticModel(tree);
+            foreach (var parameter in tree.GetRoot().DescendantNodes().OfType<ParameterSyntax>())
+            {
+                if (parameter.Parent?.Parent is not RecordDeclarationSyntax record ||
+                    model.GetDeclaredSymbol(parameter) is not IParameterSymbol symbol ||
+                    symbol.ContainingSymbol is not IMethodSymbol constructor)
+                    continue;
+                var property = constructor.ContainingType.GetMembers(symbol.Name).OfType<IPropertySymbol>().FirstOrDefault();
+                if (property is null || identity.Key(property) is not { } key || !targets.Contains(key))
+                    continue;
+                For(tree).Nodes.Add(parameter);
+                For(tree).DocumentedParameters.Add((record.Identifier.Text, symbol.Name));
+                string id = constructor.GetDocumentationCommentId()
+                    ?? throw new InvalidOperationException($"{constructor.ToDisplayString()} has no documentation id.");
+                if (!removedByConstructor.TryGetValue(id, out var ordinals))
+                    removedByConstructor[id] = ordinals = [];
+                ordinals.Add(symbol.Ordinal);
+                if (RetiredField(property) is { } field)
+                    retired.Add($"{RuntimeName(field.ContainingType)}\t{field.Name}");
+            }
+        }
+        if (removedByConstructor.Count == 0)
+            return edits;
+
+        foreach (var (tree, compilation) in trees)
+        {
+            var model = compilation.GetSemanticModel(tree);
+            foreach (var node in tree.GetRoot().DescendantNodes())
+            {
+                if (node is WithExpressionSyntax with)
+                {
+                    // `record with { P = value }` writes a removed property: drop that assignment.
+                    foreach (var assignment in with.Initializer.Expressions.OfType<AssignmentExpressionSyntax>())
+                        if (model.GetSymbolInfo(assignment.Left).Symbol is IPropertySymbol property &&
+                            identity.Key(property) is { } key && targets.Contains(key))
+                            For(tree).Nodes.Add(assignment);
+                    continue;
+                }
+                (ArgumentListSyntax? arguments, ISymbol? called) = node switch
+                {
+                    BaseObjectCreationExpressionSyntax creation => (creation.ArgumentList, model.GetSymbolInfo(creation).Symbol),
+                    PrimaryConstructorBaseTypeSyntax baseType => (baseType.ArgumentList, model.GetSymbolInfo(baseType).Symbol),
+                    ConstructorInitializerSyntax initializer => (initializer.ArgumentList, model.GetSymbolInfo(initializer).Symbol),
+                    _ => (null, null),
+                };
+                if (arguments is null || called is not IMethodSymbol constructor ||
+                    constructor.OriginalDefinition.GetDocumentationCommentId() is not { } id ||
+                    !removedByConstructor.TryGetValue(id, out var removed))
+                    continue;
+                for (int index = 0; index < arguments.Arguments.Count; index++)
+                {
+                    var argument = arguments.Arguments[index];
+                    int ordinal = argument.NameColon is { } name
+                        ? constructor.Parameters.Single(p => p.Name == name.Name.Identifier.Text).Ordinal
+                        : index;
+                    if (!removed.Contains(ordinal))
+                        continue;
+                    if (argument.Expression.DescendantNodesAndSelf().Any(HasEffect))
+                        Console.WriteLine($"REVIEW removed argument with a call or write: {argument} " +
+                            $"({identity.Relative(Path.GetFullPath(tree.FilePath))}:{argument.GetLocation().GetLineSpan().StartLinePosition.Line + 1})");
+                    For(tree).Nodes.Add(argument);
+                }
+            }
+        }
+        return edits;
+    }
+
+    /// <summary>Whether evaluating this expression node could call code or write state.</summary>
+    private static bool HasEffect(SyntaxNode node) => node is InvocationExpressionSyntax or AssignmentExpressionSyntax
+        or AwaitExpressionSyntax or BaseObjectCreationExpressionSyntax
+        || node is PrefixUnaryExpressionSyntax or PostfixUnaryExpressionSyntax &&
+            node.RawKind is (int)Microsoft.CodeAnalysis.CSharp.SyntaxKind.PreIncrementExpression
+                or (int)Microsoft.CodeAnalysis.CSharp.SyntaxKind.PreDecrementExpression
+                or (int)Microsoft.CodeAnalysis.CSharp.SyntaxKind.PostIncrementExpression
+                or (int)Microsoft.CodeAnalysis.CSharp.SyntaxKind.PostDecrementExpression;
+
+    /// <summary>Drops the <c>param</c> documentation of removed positional parameters from each record's comment.</summary>
+    private static string RemoveParameterDocumentation(string text, List<(string Record, string Parameter)> removed)
+    {
+        string newline = text.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
+        var lines = text.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n').ToList();
+        foreach (var (record, parameter) in removed)
+        {
+            var declarationPattern = new System.Text.RegularExpressions.Regex($@"\brecord\s+(struct\s+|class\s+)?{record}\b");
+            int declaration = lines.FindIndex(declarationPattern.IsMatch);
+            if (declaration < 0)
+                throw new InvalidOperationException($"Record {record} not found while removing its {parameter} documentation.");
+            int first = declaration;
+            while (first > 0 && lines[first - 1].TrimStart() is var previous &&
+                   (previous.StartsWith("///", StringComparison.Ordinal) || previous.StartsWith('[')))
+                first--;
+            string tag = $"<param name=\"{parameter}\">";
+            int start = lines.FindIndex(first, declaration - first, line => line.Contains(tag, StringComparison.Ordinal));
+            if (start < 0)
+                continue;
+            int end = lines.FindIndex(start, line => line.Contains("</param>", StringComparison.Ordinal));
+            lines.RemoveRange(start, end - start + 1);
+        }
+        return string.Join(newline, lines);
     }
 
     private static SyntaxNode RemovalNode(SyntaxNode node, SemanticModel model, SymbolIdentity identity, HashSet<string> targets)

@@ -16,8 +16,8 @@ internal static partial class Program
         var slot = enemies.EnemyProjectiles[^1];
         for (ushort parameter = 0; parameter <= 10; parameter += 2)
         {
-            short dx = unchecked((short)Word(EnemyRomTablePointers.Gunship.DustXOffsetWords + parameter));
-            ushort instruction = Word(EnemyRomTablePointers.Gunship.DustInstructionPointers + parameter);
+            short dx = unchecked((short)Word(EnemyRomTablePointersGunship.DustXOffsetWords + parameter));
+            ushort instruction = Word(EnemyRomTablePointersGunship.DustInstructionPointers + parameter);
             var definition = GunshipDustDefinitions.ForParameter(parameter);
             AssertEqual(dx, definition.XOffset, "All native dust signed X offsets");
             AssertEqual(instruction, definition.Instruction, "All native dust instruction selections");

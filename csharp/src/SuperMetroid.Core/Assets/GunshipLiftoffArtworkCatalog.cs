@@ -17,14 +17,6 @@ internal static class GunshipLiftoffTransferDefinitions
 
     /// <summary>First $94:C800 character chunk, uploaded to VRAM word $7600.</summary>
     internal static GunshipLiftoffTransferDefinition First => Frame(0);
-    /// <summary>Second $94:CC00 character chunk, uploaded to VRAM word $7800.</summary>
-    internal static GunshipLiftoffTransferDefinition Second => Frame(1);
-    /// <summary>Third $94:D000 character chunk, uploaded to VRAM word $7A00.</summary>
-    internal static GunshipLiftoffTransferDefinition Third => Frame(2);
-    /// <summary>Fourth $94:D400 character chunk, uploaded to VRAM word $7C00.</summary>
-    internal static GunshipLiftoffTransferDefinition Fourth => Frame(3);
-    /// <summary>Fifth $94:D800 character chunk, uploaded to VRAM word $7E00.</summary>
-    internal static GunshipLiftoffTransferDefinition Fifth => Frame(4);
 
     /// <summary>$A2:AC07/$AC11 select five consecutive $400-byte source and VRAM regions.</summary>
     private static GunshipLiftoffTransferDefinition Frame(int index)

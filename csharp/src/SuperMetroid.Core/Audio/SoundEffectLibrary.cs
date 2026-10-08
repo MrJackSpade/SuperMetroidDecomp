@@ -16,16 +16,6 @@ public static class SoundEffectLibraries
 {
     public const int Count = 3;
 
-    /// <summary>Validates a raw cartridge library number before it enters typed code.</summary>
-    public static SoundEffectLibrary FromCartridge(byte value, string source) => value switch
-    {
-        1 => SoundEffectLibrary.Library1,
-        2 => SoundEffectLibrary.Library2,
-        3 => SoundEffectLibrary.Library3,
-        _ => throw new InvalidDataException(
-            $"{source} contains sound-effect library {value}, expected one through three."),
-    };
-
     /// <summary>Returns the zero-based host queue for a validated library selector.</summary>
     public static int ToQueueIndex(SoundEffectLibrary library) => library switch
     {

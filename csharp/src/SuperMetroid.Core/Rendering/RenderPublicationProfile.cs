@@ -11,17 +11,6 @@ internal sealed class RenderPublicationProfile : IDisposable
     internal long AllocatedBytes { get; private set; }
     internal int Publications { get; private set; }
 
-    internal RenderPublicationProfile()
-    {
-        if (active is not null) throw new InvalidOperationException("Nested render publication profiling.");
-        active = this;
-    }
-
-    internal void Reset()
-    {
-        VerifyOwner(); Ticks = 0; AllocatedBytes = 0; Publications = 0;
-    }
-
     internal static Sample Measure() => active is { } profile ? new(profile) : default;
 
     internal readonly struct Sample : IDisposable

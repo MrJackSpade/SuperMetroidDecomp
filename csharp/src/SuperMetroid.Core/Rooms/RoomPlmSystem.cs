@@ -244,9 +244,6 @@ public sealed partial class RoomPlmSystem
     /// <summary>Sound commands emitted during the most recent handler pass.</summary>
     public IReadOnlyList<PlmSoundRequest> SoundRequests => _soundRequests;
 
-    /// <summary>Visible BG1 mutations emitted during the most recent handler pass.</summary>
-    public IReadOnlyList<PlmTilemapUpdate> TilemapUpdates => _tilemapUpdates;
-
     /// <summary>Number of occupied native-equivalent PLM slots.</summary>
     public int ActiveCount
     {
@@ -659,19 +656,6 @@ public sealed partial class RoomPlmSystem
         return false;
     }
 
-    /// <summary>
-    /// Runs setup <c>$84:CFB5</c> for BTS one or two and installs the corresponding PLM.
-    /// </summary>
-    /// <returns>False only when all 40 native slots are occupied.</returns>
-    public bool TrySpawnBreakableGrappleBlock(
-        RoomLevelData level,
-        int blockIndex,
-        byte behavior)
-        => TrySpawnBreakableGrappleBlock(
-            level,
-            blockIndex,
-            new RoomBlockBehavior(behavior));
-
     /// <summary>Typed BTS overload used by grapple collision dispatch.</summary>
     public bool TrySpawnBreakableGrappleBlock(
         RoomLevelData level,
@@ -709,27 +693,6 @@ public sealed partial class RoomPlmSystem
 
         return false;
     }
-
-    /// <summary>
-    /// Spawns the bank-$84 collision PLM selected by type-$F BTS zero through seven.
-    /// </summary>
-    /// <remarks>
-    /// The caller has already satisfied setup <c>$84:CE83</c>'s speed/screw pose gate. Setup
-    /// saves <c>(levelWord &amp; $F000) | $0058</c> in <c>PLM_Vars</c>, then clears only the
-    /// collision nibble in level data and returns carry clear so Samus continues moving.
-    /// BTS 0..3 later redraw a linked 1x1/2x1/1x2/2x2 collision shape after the exact
-    /// 384-frame hold; BTS 4..7 delete after their four-frame break animation.
-    /// </remarks>
-    /// <returns>
-    /// True when a native slot was allocated. False preserves <c>Spawn_PLM</c>'s full-pool
-    /// behavior: setup never ran, so the level word remains untouched even though bank $94
-    /// inherited carry clear and lets the current movement scan continue.
-    /// </returns>
-    public bool TrySpawnCollisionBombBlock(
-        RoomLevelData level,
-        int blockIndex,
-        byte behavior)
-        => TrySpawnCollisionBombBlock(level, blockIndex, new RoomBlockBehavior(behavior));
 
     /// <summary>Typed BTS overload used by Samus collision dispatch.</summary>
     public bool TrySpawnCollisionBombBlock(
@@ -893,36 +856,6 @@ public sealed partial class RoomPlmSystem
         return false;
     }
 
-    /// <summary>
-    /// Spawns the bank-$84 shot/bombed/grappled-reaction PLM selected by bombable BTS.
-    /// </summary>
-    /// <remarks>
-    /// This is setup <c>$84:CEDA</c>, not the collision setup above. A normal bomb family
-    /// (<c>$0500</c>) advances the entry instruction pointer by three bytes, deliberately
-    /// skipping its leading sound-$0A opcode because the bomb explosion already owns its
-    /// sound. A power bomb (<c>$0300</c>) retains that opcode. Both accepted projectile
-    /// families synthesize <c>(levelWord &amp; $F000) | $0058</c> for later restoration and
-    /// then apply <c>AND $8FFF</c> to live terrain. Thus a type-$F solid bomb block remains
-    /// temporarily type-$8 solid until the same frame's PLM pass draws its first air frame,
-    /// while a type-$7 bombable-air parent becomes ordinary air immediately.
-    ///
-    /// BTS 8..15 point at <c>PLMEntries_nothing</c>. Native code still allocates a slot and
-    /// deletes it on the next handler pass, so this implementation retains that otherwise
-    /// invisible resource/timing effect. A negative BTS is filtered by bank $94 before this
-    /// method is called because it denotes an area-dependent/duplicate path.
-    /// </remarks>
-    /// <returns>False only when all 40 native slots are occupied.</returns>
-    public bool TrySpawnBombReactionBlock(
-        RoomLevelData level,
-        int blockIndex,
-        byte behavior,
-        SamusProjectileTypeWord projectileType)
-        => TrySpawnBombReactionBlock(
-            level,
-            blockIndex,
-            new RoomBlockBehavior(behavior),
-            projectileType);
-
     /// <summary>Typed BTS overload used by bomb collision dispatch.</summary>
     public bool TrySpawnBombReactionBlock(
         RoomLevelData level,
@@ -988,163 +921,6 @@ public sealed partial class RoomPlmSystem
 
         return false;
     }
-
-    /// <summary>
-    /// Runs the normal-bomb branch of the shootable-air/block entries selected at
-    /// <c>$94:9EA6</c> and installs their exact bank-$84 instruction list.
-    /// </summary>
-    /// <remarks>
-    /// BTS 0..3 use setup <c>$84:CE6B</c>: synthesize <c>$x052</c> for restoration and
-    /// apply <c>AND $8FFF</c> to the live word. BTS 4..7 use setup <c>$84:B3C1</c>, which
-    /// applies that AND directly to the original word and never restores it. BTS 8/9 and
-    /// A/B normally require a power bomb or super missile; a normal bomb redirects to the
-    /// tiny reveal lists at <c>$C91C/$C922</c>. BTS C..F still allocate the retail
-    /// <c>PLMEntries_nothing</c> slot and delete it during the next handler pass. Negative
-    /// type-$C BTS uses an eight-entry area table whose retail entries are also all no-ops;
-    /// it retains that allocation even though type-$4 takes an early return in bank $94.
-    /// </remarks>
-    public bool TrySpawnBombedShootableBlock(
-        RoomLevelData level,
-        int blockIndex,
-        byte behavior,
-        SamusProjectileTypeWord projectileType)
-        => TrySpawnBombedShootableBlock(
-            level,
-            blockIndex,
-            new RoomBlockBehavior(behavior),
-            projectileType);
-
-    /// <summary>Typed BTS overload used by bomb collision dispatch.</summary>
-    public bool TrySpawnBombedShootableBlock(
-        RoomLevelData level,
-        int blockIndex,
-        RoomBlockBehavior bts,
-        SamusProjectileTypeWord projectileType)
-    {
-        ArgumentNullException.ThrowIfNull(level);
-        bool areaDependent = bts.UsesAreaReactionTable;
-        if (areaDependent && !bts.IsAreaReactionIndex(8))
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(bts),
-                "Area-dependent shootable BTS must address one of its eight native entries.");
-        }
-        if (!areaDependent && !bts.IsNormalReactionIndex(16))
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(bts),
-                "Translated normal-bomb shootable BTS must be in range zero through fifteen.");
-        }
-        if (projectileType.Family != SamusProjectileFamily.Bomb)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(projectileType),
-                "This setup translation currently accepts the normal-bomb family only.");
-        }
-
-        // Spawn_PLM's descending free-slot search happens before any setup routine. A full
-        // pool must therefore leave both level data and BTS completely untouched.
-        for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
-        {
-            PlmSlot slot = _slots[slotIndex];
-            if (slot.Active)
-                continue;
-
-            RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-            ClearSlot(slot);
-            slot.Active = true;
-            slot.BlockIndex = blockIndex;
-            slot.InstructionTimer = 1;
-            slot.RestoreLevelWord = 0;
-
-            if (areaDependent)
-            {
-                // `$94:9E8D-$9E9E` indexes the current area's eight-entry table before
-                // Spawn_PLM. Every retail entry at `$94:9F46-$9FC4` is PLMEntries_nothing.
-                slot.InstructionPointer = RoomPlmInstructionLists.Delete;
-                return true;
-            }
-
-            if (bts.IsRespawningReaction)
-            {
-                // CE6B throws away the original visual/BTS low twelve bits. The generated
-                // `$x052` word is both PLM_Vars and the source of the temporary collision
-                // word, exactly like the retail setup's two consecutive stores.
-                slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x0052));
-                slot.InstructionPointer =
-                    RoomPlmInstructionLists.RespawningShotBySize(bts.NormalReactionIndex);
-                level.SetForegroundEntry(
-                    blockIndex,
-                    unchecked((ushort)(slot.RestoreLevelWord & 0x8fff)));
-                return true;
-            }
-
-            if (bts.IsPermanentReaction)
-            {
-                // Setup_DeactivatePLM does not synthesize a restore word. Clearing bits
-                // `$7000` turns type-$4 air into ordinary air and type-$C solid into type-$8
-                // solid until the same-frame list draws its first breaking frame.
-                slot.InstructionPointer =
-                    RoomPlmInstructionLists.PermanentShotBySize(bts.NormalReactionIndex - 4);
-                level.SetForegroundEntry(
-                    blockIndex,
-                    unchecked((ushort)(block.LevelWord & 0x8fff)));
-                return true;
-            }
-
-            if (bts.RequiresPowerBombReaction)
-            {
-                // CF2E sees projectile family `$0500` and replaces the entry's normal
-                // power-bomb animation pointer with the one-frame visible `$C057` reveal.
-                slot.InstructionPointer = RoomPlmInstructionLists.BombedPowerBombBlockUnused;
-                return true;
-            }
-
-            if (bts.RequiresSuperMissileReaction)
-            {
-                // CF67 performs the analogous redirect to visible super-missile word
-                // `$C09F`; it neither clears collision nor queues the shot-block sound.
-                slot.InstructionPointer = RoomPlmInstructionLists.BombedSuperMissileBlockUnused;
-                return true;
-            }
-
-            slot.InstructionPointer = RoomPlmInstructionLists.Delete;
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Spawns the projectile reaction selected by a type-$4/$C shootable block's BTS byte.
-    /// </summary>
-    /// <remarks>
-    /// `$94:9E55/$9E73` share table `$94:9EA6` for beams, missiles, bombs, and grapple.
-    /// Entries zero through three select `$84:CE6B`'s respawning shot-block setup; entries
-    /// four through seven select `$84:B3C1`'s permanent deactivation setup. Entries eight
-    /// and nine run `$84:CF2E`'s power-bomb-family gate, while A and B run `$84:CF67`'s
-    /// Super-Missile-family gate. Entries C through F are the retail no-op PLM header,
-    /// and the deliberate seventeenth entry $10 selects one-frame header `$84:B974`.
-    ///
-    /// Negative BTS behaves differently for the two collision nibbles. Shootable air exits
-    /// without spawning anything, while shootable solid indexes an area table whose retail
-    /// entries are all `PLMEntries_nothing`; preserve that otherwise invisible allocation.
-    /// The normal-bomb `$0500` reveal redirects are retained because bombed block reactions
-    /// call the same table. All other rejected families reproduce setup's cleared PLM header:
-    /// no terrain mutation and no live slot survives the synchronous Spawn_PLM call.
-    /// </remarks>
-    public bool TrySpawnProjectileShotBlock(
-        RoomLevelData level,
-        int blockIndex,
-        byte behavior,
-        SamusProjectileTypeWord projectileType,
-        bool solidBlock)
-        => TrySpawnProjectileShotBlock(
-            level,
-            blockIndex,
-            new RoomBlockBehavior(behavior),
-            projectileType,
-            solidBlock);
 
     /// <summary>Typed BTS overload used by projectile and grapple collision dispatch.</summary>
     public bool TrySpawnProjectileShotBlock(
@@ -1304,33 +1080,6 @@ public sealed partial class RoomPlmSystem
         return false;
     }
 
-    /// <summary>
-    /// Spawns the special-block reveal selected by <c>$94:9D71-$9E53</c> for a bomb-family
-    /// boundary visit.
-    /// </summary>
-    /// <remarks>
-    /// Nonnegative BTS 0..7 selects a dimensioned crumble reveal, 8..D selects the native
-    /// no-op entry, and E/F reveals a speed-booster block. A negative BTS selects an
-    /// eight-word area table: only Brinstar entries 2..5 reveal speed blocks; every other
-    /// bomb-special area entry is <c>PLMEntries_nothing</c>. Setup <c>$84:CFA0</c> accepts
-    /// normal bombs without mutating terrain, so the visible type-$B word arrives on the
-    /// first PLM handler pass and the object deletes on the following pass. Power Bomb
-    /// family `$0300` still reaches Spawn_PLM, but `$84:CFA0` clears the new PLM header
-    /// synchronously; observably no terrain changes and no active slot survives.
-    /// </remarks>
-    public bool TrySpawnBombedSpecialBlock(
-        RoomLevelData level,
-        int blockIndex,
-        byte behavior,
-        AreaId areaIndex,
-        SamusProjectileTypeWord projectileType)
-        => TrySpawnBombedSpecialBlock(
-            level,
-            blockIndex,
-            new RoomBlockBehavior(behavior),
-            areaIndex,
-            projectileType);
-
     /// <summary>Typed BTS overload used by bomb collision dispatch.</summary>
     public bool TrySpawnBombedSpecialBlock(
         RoomLevelData level,
@@ -1391,28 +1140,6 @@ public sealed partial class RoomPlmSystem
 
         return false;
     }
-
-    /// <summary>
-    /// Executes <c>PLM_Handler</c>'s timer/instruction portion for all translated slots.
-    /// </summary>
-    /// <remarks>
-    /// The caller supplies current layer-1 coordinates because native DrawPLM clips before
-    /// queuing VRAM work. Level-data writes always occur; only the PPU-ring update is clipped.
-    /// Returned updates are also exposed through <see cref="TilemapUpdates"/> so a debugger
-    /// can inspect the exact block and destination before the runtime executes them.
-    /// </remarks>
-    public IReadOnlyList<PlmTilemapUpdate> Step(
-        ISnesAddressSpace bus,
-        RoomLevelData level,
-        BackgroundTilemapStreamer streamer,
-        ushort layer1XPosition,
-        ushort layer1YPosition,
-        ushort bg1XOffset,
-        RoomScrollGrid? scrolls = null,
-        ushort enemyDeaths = 0,
-        byte enemyDeathQuota = 0)
-        => Step(bus, level, streamer, layer1XPosition, layer1YPosition, bg1XOffset,
-            scrolls, enemyDeaths, enemyDeathQuota, controllerNewInput: 0);
 
     /// <summary>
     /// Executes the PLM handler with the accepted NMI's newly pressed controller bits.
@@ -2457,11 +2184,10 @@ public sealed partial class RoomPlmSystem
 
     // Instruction control is compiled independently of PLM draw-list payloads. A
     // compiled family claims only its own exact control addresses; all other bank-$84
-    // identities must have compiled mechanics or an explicitly authored fixture.
+    // identities must have compiled mechanics.
     // A low-window wrap may still read live WRAM; no branch can read cartridge bytes.
-    private ushort ReadProgramWord(ISnesAddressSpace bus, ushort address) =>
-        RoomPlmProgramDefinitions.TryReadWord(address, out ushort value) ||
-        TryReadVerificationInstructionWord(address, out value)
+    private static ushort ReadProgramWord(ISnesAddressSpace bus, ushort address) =>
+        RoomPlmProgramDefinitions.TryReadWord(address, out ushort value)
             ? value
             : address < RoomPlmMemoryLayout.WorkRamMirrorEnd
                 ? ReadPlmWorkRamWord(bus as ISnesMutableMemory ??
@@ -2469,9 +2195,8 @@ public sealed partial class RoomPlmSystem
                 : throw new InvalidDataException(
                     $"PLM program word $84:{address:X4} has no compiled definition.");
 
-    private byte ReadProgramByte(ISnesAddressSpace bus, ushort address) =>
-        RoomPlmProgramDefinitions.TryReadByte(address, out byte value) ||
-        TryReadVerificationInstructionByte(address, out value)
+    private static byte ReadProgramByte(ISnesAddressSpace bus, ushort address) =>
+        RoomPlmProgramDefinitions.TryReadByte(address, out byte value)
             ? value
             : address < RoomPlmMemoryLayout.WorkRamMirrorEnd
                 ? ReadPlmWorkRamByte(bus as ISnesMutableMemory ??

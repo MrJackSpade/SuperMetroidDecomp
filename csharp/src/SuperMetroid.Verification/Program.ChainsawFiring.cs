@@ -206,21 +206,21 @@ internal static partial class Program
         const int yellowDoorBlock = 1 * 5 + 2;
         const int bombableBlock = 2 * 5 + 1;
         var interferenceBus = new TestAddressSpace();
-        WriteTestWord(interferenceBus, 0x84c85c, 0xe000);
-        WriteTestWord(interferenceBus, 0x84e002, 0xe100);
-        WriteTestWord(interferenceBus, 0x84e006, 0xe200);
-        WriteTestWord(interferenceBus, 0x84e00e, 0xe300);
-        interferenceBus.WriteByte(0x84e202, 1);
-        WriteTestWord(interferenceBus, 0x84e203, 0xe400);
-        WriteTestWord(interferenceBus, 0x84e205, 1);
-        WriteTestWord(interferenceBus, 0x84e207, 0xe320);
-        WriteTestWord(interferenceBus, 0x84e400, 12);
-        WriteTestWord(interferenceBus, 0x84e402, 0xe340);
-        WriteTestWord(interferenceBus, 0x84e105, 0xe360);
-        WriteDoorDrawList(interferenceBus, 0x84e300, [0x0001, 0xc000, 0x0000]);
-        WriteDoorDrawList(interferenceBus, 0x84e320, [0x0001, 0xc000, 0x0000]);
-        WriteDoorDrawList(interferenceBus, 0x84e340, [0x0001, 0xc000, 0x0000]);
-        WriteDoorDrawList(interferenceBus, 0x84e360, [0x0001, 0x8000, 0x0000]);
+        WriteTestWord(interferenceBus, 0x84c85c, 0x0400);
+        WriteTestWord(interferenceBus, 0x840402, 0x0500);
+        WriteTestWord(interferenceBus, 0x840406, 0x0600);
+        WriteTestWord(interferenceBus, 0x84040e, 0x0700);
+        interferenceBus.WriteByte(0x840602, 1);
+        WriteTestWord(interferenceBus, 0x840603, 0x0800);
+        WriteTestWord(interferenceBus, 0x840605, 1);
+        WriteTestWord(interferenceBus, 0x840607, 0x0720);
+        WriteTestWord(interferenceBus, 0x840800, 12);
+        WriteTestWord(interferenceBus, 0x840802, 0x0740);
+        WriteTestWord(interferenceBus, 0x840505, 0x0760);
+        WriteDoorDrawList(interferenceBus, 0x840700, [0x0001, 0xc000, 0x0000]);
+        WriteDoorDrawList(interferenceBus, 0x840720, [0x0001, 0xc000, 0x0000]);
+        WriteDoorDrawList(interferenceBus, 0x840740, [0x0001, 0xc000, 0x0000]);
+        WriteDoorDrawList(interferenceBus, 0x840760, [0x0001, 0x8000, 0x0000]);
         WriteTestWord(
             interferenceBus,
             0x8f0000 | yellowDoorPopulation,
@@ -244,16 +244,6 @@ internal static partial class Program
             new ushort[25],
             new byte[8]);
         var interferencePlms = new RoomPlmSystem();
-        // Supply the fixture's short yellow-door programs explicitly; compiled
-        // retail instruction lookup deliberately excludes these synthetic addresses.
-        foreach ((ushort pointer, int length) in new (ushort, int)[]
-                 { (0xe000, 16), (0xe100, 7), (0xe200, 9), (0xe400, 4) })
-        {
-            byte[] instructions = Enumerable.Range(0, length)
-                .Select(offset => interferenceBus.ReadByte(0x840000 | (pointer + offset)))
-                .ToArray();
-            interferencePlms.SupplyInstructionFragmentForVerification(pointer, instructions);
-        }
         var interferenceStreamer = interferenceLevel.CreateBackgroundStreamer();
         AssertEqual(1, interferencePlms.LoadRoomPopulation(
                 interferenceBus,

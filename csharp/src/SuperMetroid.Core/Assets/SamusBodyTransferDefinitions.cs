@@ -85,19 +85,6 @@ internal static class SamusBodyTransferDefinitions
         return start;
     }
 
-    /// <summary>
-    /// Canonical in-group OAM establishes the first-row footprint; the remainder
-    /// of the separately owned packed pixel payload is the second transfer.
-    /// Physical cross-group selectors remain valid but do not redefine a glyph's
-    /// canonical composition from an unrelated pose's OAM.
-    /// </summary>
-    internal static bool TryFirstSize(SamusBodyArtworkCatalog body, bool upper, int set, int position,
-        int payloadBytes, out ushort firstSize)
-    {
-        if (TrySelectedPacking(upper, set, position, payloadBytes, out firstSize)) return true;
-        return TryFirstSize(body, upper, set, position, payloadBytes, body.PosePointers, body.Frames, out firstSize);
-    }
-
     /// <summary>Import binding reuses its transient calculated snapshot across records; no snapshot is retained by the installed catalog.</summary>
     internal static bool TryFirstSize(SamusBodyArtworkCatalog body, bool upper, int set, int position,
         int payloadBytes, ReadOnlySpan<ushort> pointers, ReadOnlySpan<SamusBodyFrameSelection> frames, out ushort firstSize)

@@ -17,8 +17,6 @@ public sealed class MapSaveMarkerLayout
     private readonly Dictionary<string, (int? X, int? Y)> coordinateOverrides;
     private MapSaveMarkerLayout(Dictionary<string, (int? X, int? Y)> coordinateOverrides) =>
         this.coordinateOverrides = coordinateOverrides;
-    internal int StoredCoordinateComponentCount => coordinateOverrides.Values.Sum(point =>
-        (point.X.HasValue ? 1 : 0) + (point.Y.HasValue ? 1 : 0));
 
     public MapLabelPoint Get(AreaId area, int index)
     {

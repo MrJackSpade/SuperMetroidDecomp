@@ -2,12 +2,6 @@ using static SuperMetroid.Core.Game.InstructionItem;
 
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One complete Dachora animation program exposed for focused verification.</summary>
-internal readonly record struct DachoraInstructionProgram(
-    ushort Entry,
-    int FrameCount,
-    bool Loops);
-
 /// <summary>
 /// Compiled engine-control words for Dachora's body and four echo actors. The eighty-one
 /// spritemap selections resolve compiled identities to installed artwork.
@@ -172,17 +166,8 @@ internal abstract class DachoraInstructionProgramDefinitions : IInstructionProgr
         RunningLeft, RunningLeftFast, RunningLeftVeryFast, IdleLeft, BlinkLeft, EchoLeft, FallingLeft,
         RunningRight, RunningRightFast, RunningRightVeryFast, IdleRight, BlinkRight, ChargeRight, EchoRight, FallingRight,
     ];
-
-    internal static int ProgramCount => ProgramEntries.Length;
     public static int MechanicsWordCount => Layout.MechanicsWordCount;
     public static int PresentationWordCount => Layout.PresentationSlotCount;
-
-    internal static DachoraInstructionProgram Program(int index)
-    {
-        ushort entry = ProgramEntries[index];
-        (int frames, ushort terminator) = Layout.FramesFrom(entry);
-        return new(entry, frames, terminator == CommonEnemyInstructionCodes.Goto);
-    }
 
     public static InstructionMechanicsWord MechanicsWord(int index)
     {

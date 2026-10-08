@@ -12,7 +12,6 @@ internal static partial class Program
         Suite(nameof(VerifyShaktoolLayerSelection), () => VerifyShaktoolLayerSelection(rom));
         Suite(nameof(VerifyShaktoolCallbackSelection), () => VerifyShaktoolCallbackSelection(rom));
         Suite(nameof(VerifyShaktoolInitialAngleAlgorithm), () => VerifyShaktoolInitialAngleAlgorithm(rom));
-        Suite(nameof(VerifyShaktoolAngularVelocityAlgorithm), () => VerifyShaktoolAngularVelocityAlgorithm(rom));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         ushort Word(int address) =>
             (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -98,18 +97,6 @@ internal static partial class Program
     private static void VerifyShaktoolInitialAngleAlgorithm(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeInitialAngleAddress,
             definition => definition.InitialOrbitAngle, "initial angle algorithm"));
-
-    private static void VerifyShaktoolAngularVelocityAlgorithm(SuperMetroidAddressSpace rom)
-    {
-        Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolAngularVelocityDefinitions.ReferenceAddress,
-            definition => definition.AngularVelocity, "angular velocity algorithm"));
-        for (int index = 0; index < 7; index++)
-            AssertEqual(ShaktoolSegmentDefinitions.ForIndex(index).AngularVelocity,
-                ShaktoolAngularVelocityDefinitions.ForSegment(index), "Shaktool velocity alias");
-        foreach (int invalid in new[] { -1, 7, int.MinValue, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => ShaktoolAngularVelocityDefinitions.ForSegment(invalid),
-                "Shaktool velocity alias bounds");
-    }
 
     private static void VerifyShaktoolOwnerOffsetAlgorithm(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeOwnerOffsetAddress,

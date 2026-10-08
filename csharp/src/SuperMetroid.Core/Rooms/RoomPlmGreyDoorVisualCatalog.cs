@@ -26,8 +26,6 @@ public sealed class RoomPlmGreyDoorVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
-    private RoomPlmGreyDoorVisualCatalog() { }
-
     public RoomPlmGreyDoorVisualCatalog(IEnumerable<RoomPlmGreyDoorVisualEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
@@ -55,9 +53,6 @@ public sealed class RoomPlmGreyDoorVisualCatalog
                 "Grey-door visuals do not cover all compiled frames.");
         if (selected.Count != 0) customBlocks = selected;
     }
-
-    /// <summary>Calculate stock visuals directly; only selected custom frames need storage.</summary>
-    public static RoomPlmGreyDoorVisualCatalog Stock() => new();
 
     public ushort GetWord(ushort drawPointer, int blockIndex)
     {

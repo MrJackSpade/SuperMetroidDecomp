@@ -12,7 +12,6 @@ public sealed class PhantoonWaveHdmaState
     public bool Active { get; private set; }
     public ushort Phase { get; private set; }
     public ushort[]? DisplayedScrolls { get; private set; }
-    internal ReadOnlySpan<ushort> ScrollCycle => _cycle.AsSpan(0, _cycleLength);
 
     /// <summary>
     /// $A7:D446-D451 fills the native $200-byte WavyPhantoonBG2XScrollHDMADataTable

@@ -311,18 +311,6 @@ public sealed partial class RoomEnemySystem
             graphicsIndex: 0);
     }
 
-    private static void SelectCrocomireSinkingInstruction(RoomEnemySlot body)
-    {
-        ushort pointer = body.YPosition < 248
-            ? CrocomireInstructionProgramDefinitions.MeltingOneTopFourRows
-            : body.YPosition < 264
-                ? CrocomireInstructionProgramDefinitions.MeltingOneTopThreeRows
-                : body.YPosition < 280
-                    ? CrocomireInstructionProgramDefinitions.MeltingOneTopTwoRows
-                    : CrocomireInstructionProgramDefinitions.MeltingOneTopRow;
-        InstallCrocomireInstructionList(body, pointer);
-    }
-
     private static void SelectCrocomireRisingInstruction(RoomEnemySlot body)
     {
         ushort pointer = body.YPosition < 248

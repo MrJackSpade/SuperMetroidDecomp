@@ -19,8 +19,8 @@ internal static class RetailDeathCaptureTests
         var options = new SuperMetroidGameOptions { SkipOpeningCinematic = true };
         var legacy = RepositoryInstallation.CreateGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), options);
         var captured = RepositoryInstallation.CreateGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), options);
-        using var legacyAudio = new SpcAudioEngine();
-        using var capturedAudio = new SpcAudioEngine();
+        using var legacyAudio = DesktopAccess.CreateAudioEngine();
+        using var capturedAudio = DesktopAccess.CreateAudioEngine();
         long sequence = 0;
         void Step(ushort input, bool comparePixels)
         {
@@ -43,11 +43,11 @@ internal static class RetailDeathCaptureTests
         foreach (var game in new[] { legacy, captured })
         {
             game.RuntimeForVerification!.LoadCartridgeRoomForDebug(SlowConsumerFixture.AlphaPowerBombRoom, 0, 0);
-            game.RuntimeForVerification.RunNmi(0, true);
-            game.RuntimeForVerification.Samus!.Health = 0;
-            game.RuntimeForVerification.Samus.MaxReserveEnergy = ReserveCaptureFixtureDefinitions.Capacity;
-            game.RuntimeForVerification.Samus.ReserveEnergy = reserveRecovery ? ReserveCaptureFixtureDefinitions.Capacity : (ushort)0;
-            game.RuntimeForVerification.Samus.ReserveTankMode = ReserveCaptureFixtureDefinitions.AutomaticMode;
+            game.RuntimeForVerification!.RunNmi(0, true);
+            game.RuntimeForVerification!.Samus!.Health = 0;
+            game.RuntimeForVerification!.Samus!.MaxReserveEnergy = ReserveCaptureFixtureDefinitions.Capacity;
+            game.RuntimeForVerification!.Samus!.ReserveEnergy = reserveRecovery ? ReserveCaptureFixtureDefinitions.Capacity : (ushort)0;
+            game.RuntimeForVerification!.Samus!.ReserveTankMode = ReserveCaptureFixtureDefinitions.AutomaticMode;
         }
         var states = new HashSet<SuperMetroidGameState>();
         int frames = 0;
@@ -59,7 +59,7 @@ internal static class RetailDeathCaptureTests
             var actualSamus = captured.RuntimeForVerification!.Samus!;
             if (expectedSamus.Health != actualSamus.Health || expectedSamus.ReserveEnergy != actualSamus.ReserveEnergy ||
                 expectedSamus.InputLocked != actualSamus.InputLocked ||
-                legacy.RuntimeForVerification.GameplayTimeFrozen != captured.RuntimeForVerification.GameplayTimeFrozen)
+                legacy.RuntimeForVerification!.GameplayTimeFrozen != captured.RuntimeForVerification!.GameplayTimeFrozen)
                 throw new InvalidOperationException("Death/recovery state diverged between captured and legacy owners.");
             if (reserveRecovery && states.Contains(SuperMetroidGameState.ReserveTanksAuto) &&
                 legacy.GameState == SuperMetroidGameState.MainGameplay) break;
@@ -70,7 +70,7 @@ internal static class RetailDeathCaptureTests
             var samus = legacy.RuntimeForVerification!.Samus!;
             if (frames == 2000 || !states.Contains(SuperMetroidGameState.ReserveTanksAuto) ||
                 legacy.GameState != SuperMetroidGameState.MainGameplay || samus.Health == 0 ||
-                samus.ReserveEnergy != 0 || samus.InputLocked || legacy.RuntimeForVerification.GameplayTimeFrozen)
+                samus.ReserveEnergy != 0 || samus.InputLocked || legacy.RuntimeForVerification!.GameplayTimeFrozen)
                 throw new InvalidOperationException("Reserve fixture missed recovery, depletion or release.");
             Console.WriteLine($"{device.Kind}: {frames + 1} exact automatic reserve recovery frames, matching PCM, energy/lock/freeze state and gameplay handoff.");
             return;

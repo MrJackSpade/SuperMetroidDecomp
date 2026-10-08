@@ -59,7 +59,6 @@ internal sealed class SamusAnimationSegment
     }
 
     internal ushort Address { get; }
-    internal ReadOnlySpan<byte> Delays => delays;
     internal SamusAnimationCommand Command { get; }
 
     /// <summary>Address of the frame selected by <see cref="SamusAnimationCommand.RepeatFrom"/>.</summary>
@@ -132,8 +131,6 @@ internal sealed class SamusAnimationSegment
 /// </remarks>
 internal static class SamusAnimationDelayPrograms
 {
-    internal static ReadOnlySpan<SamusAnimationSegment> Segments => segments;
-
     // Native segments are contiguous from $91:B20A: each starts where the previous one ends,
     // so start addresses are laid out from the stream start rather than stored.
     private static readonly SamusAnimationSegment[] segments = Layout(

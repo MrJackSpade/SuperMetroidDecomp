@@ -130,38 +130,6 @@ public sealed class RoomLevelData
         }
     }
 
-    /// <summary>
-    /// Returns this level to <paramref name="source"/>'s complete state in place: every block
-    /// plane, allocation tail and pending door flag. Both levels must share one layout.
-    /// </summary>
-    internal void RestoreFrom(RoomLevelData source)
-    {
-        ArgumentNullException.ThrowIfNull(source);
-        if (source.WidthInBlocks != WidthInBlocks || source.HeightInBlocks != HeightInBlocks ||
-            source.DoorListPointer != DoorListPointer ||
-            source._blockDefinitions.Length != _blockDefinitions.Length ||
-            source._streamingForegroundAllocation.Length != _streamingForegroundAllocation.Length ||
-            source._streamingBackgroundAllocation.Length != _streamingBackgroundAllocation.Length ||
-            source._plmForegroundAllocation.Length != _plmForegroundAllocation.Length ||
-            ReferenceEquals(source._visualStreamingForegroundAllocation, source._streamingForegroundAllocation) !=
-                ReferenceEquals(_visualStreamingForegroundAllocation, _streamingForegroundAllocation) ||
-            ReferenceEquals(source._visualStreamingBackgroundAllocation, source._streamingBackgroundAllocation) !=
-                ReferenceEquals(_visualStreamingBackgroundAllocation, _streamingBackgroundAllocation))
-            throw new ArgumentException("A level can only be restored from one with the same layout.", nameof(source));
-        source._foregroundEntries.CopyTo(_foregroundEntries, 0);
-        source._behaviorBytes.CopyTo(_behaviorBytes, 0);
-        source._backgroundEntries.CopyTo(_backgroundEntries, 0);
-        source._blockDefinitions.CopyTo(_blockDefinitions, 0);
-        source._streamingForegroundAllocation.CopyTo(_streamingForegroundAllocation, 0);
-        source._streamingBackgroundAllocation.CopyTo(_streamingBackgroundAllocation, 0);
-        source._visualStreamingForegroundAllocation.CopyTo(_visualStreamingForegroundAllocation, 0);
-        source._visualStreamingBackgroundAllocation.CopyTo(_visualStreamingBackgroundAllocation, 0);
-        source._plmForegroundAllocation.CopyTo(_plmForegroundAllocation, 0);
-        source._plmBehaviorAllocation.CopyTo(_plmBehaviorAllocation, 0);
-        PendingDoorTransition = source.PendingDoorTransition;
-        ElevatorDoorContactPending = source.ElevatorDoorContactPending;
-    }
-
     /// <summary>Native <c>room_width_in_blocks</c>, used as every row's index stride.</summary>
     public int WidthInBlocks { get; }
 
@@ -192,9 +160,6 @@ public sealed class RoomLevelData
 
     /// <summary>Read-only parallel BTS (“block type special”) byte plane.</summary>
     public ReadOnlyMemory<byte> BehaviorBytes => _behaviorBytes;
-
-    /// <summary>Read-only logical BG2 words.</summary>
-    public ReadOnlyMemory<ushort> BackgroundEntries => _backgroundEntries;
 
     /// <summary>CRE definitions followed by area definitions, eight bytes per visual block.</summary>
     public ReadOnlyMemory<byte> BlockDefinitions => _blockDefinitions;
@@ -429,31 +394,6 @@ public sealed class RoomLevelData
     }
 
     /// <summary>
-    /// Applies bank-$84 bomb-block setup's immediate <c>level_data &amp;= $0FFF</c> write.
-    /// </summary>
-    /// <remarks>
-    /// Collision-triggered bomb blocks retain their low twelve visual/flip bits while the
-    /// high dispatcher nibble becomes air. The later PLM animation is a separate producer;
-    /// this method models only the synchronous mutation that bank $94 observes during the
-    /// same movement scan. The native streaming allocation aliases logical BG1, so keep our
-    /// retained streaming copy coherent as well.
-    /// </remarks>
-    public void ClearCollisionType(int blockIndex)
-    {
-        if ((uint)blockIndex >= (uint)_foregroundEntries.Length)
-            throw new ArgumentOutOfRangeException(nameof(blockIndex));
-
-        ushort airWord = unchecked((ushort)(_foregroundEntries[blockIndex] & 0x0fff));
-        _foregroundEntries[blockIndex] = airWord;
-        _plmForegroundAllocation[blockIndex] = airWord;
-        if (blockIndex < _streamingForegroundAllocation.Length)
-            _streamingForegroundAllocation[blockIndex] = airWord;
-        if (blockIndex < _visualStreamingForegroundAllocation.Length)
-            _visualStreamingForegroundAllocation[blockIndex] = unchecked((ushort)(
-                _visualStreamingForegroundAllocation[blockIndex] & 0x0fff));
-    }
-
-    /// <summary>
     /// Replaces one complete native <c>level_data</c> word and keeps the bank-$80
     /// streaming allocation coherent with the collision plane.
     /// </summary>
@@ -543,26 +483,8 @@ public readonly record struct RoomCollisionBlock(int Index, ushort LevelWord, by
     public RoomCollisionType CollisionType => PackedWord.CollisionType;
 
     /// <summary>
-    /// Raw collision nibble retained for diagnostics and lossless cartridge inspection.
-    /// Gameplay dispatch should use <see cref="CollisionType"/>.
-    /// </summary>
-    public byte CollisionTypeValue => PackedWord.CollisionTypeValue;
-
-    /// <summary>
-    /// Compatibility alias for code that explicitly describes the dispatcher category as
-    /// a collision kind.
-    /// </summary>
-    public RoomCollisionType CollisionKind => CollisionType;
-
-    /// <summary>
     /// Context-aware, lossless view of the raw BTS byte. The collision type determines
     /// which of its named interpretations is valid.
     /// </summary>
     public RoomBlockBehavior Bts => new(Behavior);
-
-    /// <summary>Low ten bits selecting the visual 16×16 block definition.</summary>
-    public ushort VisualBlockIndex => PackedWord.VisualBlockIndex;
-
-    /// <summary>Parent block horizontal/vertical flip flags in bits 10 and 11.</summary>
-    public LevelBlockFlipFlags VisualFlipFlags => PackedWord.VisualFlipFlags;
 }

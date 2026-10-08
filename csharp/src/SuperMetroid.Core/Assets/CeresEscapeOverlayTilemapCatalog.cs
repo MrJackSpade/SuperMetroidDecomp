@@ -103,15 +103,6 @@ internal static class CeresEscapeOverlayTilemapDefinitions
                 return true;
         return false;
     }
-
-    internal static bool ContainsByteAddress(int address)
-    {
-        foreach (CeresEscapeOverlayTilemapDefinition page in All)
-            if (address >= page.SourceAddress &&
-                address < page.SourceAddress + page.WordCount * sizeof(ushort))
-                return true;
-        return false;
-    }
 }
 
 /// <summary>Human-readable visual tile words; DMA timing and destinations are not editable.</summary>

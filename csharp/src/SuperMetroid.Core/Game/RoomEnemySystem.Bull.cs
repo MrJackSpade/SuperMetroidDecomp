@@ -155,9 +155,6 @@ public sealed partial class RoomEnemySystem
     private readonly ushort[] _bullShotReactionDisableTimers = new ushort[MaximumEnemyCount];
     private readonly ushort[] _bullPreviousHealth = new ushort[MaximumEnemyCount];
 
-    /// <summary>Typed Bull state for all 32 physical enemy slots.</summary>
-    public IReadOnlyList<BullEnemyState?> BullStates => _bullStates;
-
     /// <summary>Ports <c>InitAI_Bull</c> at <c>$A8:D8C9</c>.</summary>
     private void InitializeBull(RoomEnemySlot slot)
     {

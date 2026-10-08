@@ -111,11 +111,4 @@ internal static class KraidRoomPlmProgramDefinitions
         value = 0;
         return false;
     }
-
-    internal static IEnumerable<ushort> NativeWordAddresses()
-    {
-        for (int address = CrumbleCeilingBackground1; address < EndExclusive; address++)
-            if (TryReadMechanicsWord((ushort)address, out _))
-                yield return (ushort)address;
-    }
 }

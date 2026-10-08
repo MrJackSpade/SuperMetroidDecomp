@@ -669,10 +669,6 @@ public sealed class Bank80SystemState
         return _exploredMapTiles[areaIndex * ExploredMapBytesPerArea + byteIndex];
     }
 
-    /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
-    public byte GetExploredMapByteRaw(AreaId areaIndex, int byteIndex) =>
-        GetExploredMapByteRaw(AreaIds.ToIndex(areaIndex), byteIndex);
-
     /// <summary>Restores all seven unpacked WRAM explored-map planes from a save snapshot.</summary>
     public void LoadExploredMapBytes(ReadOnlySpan<byte> bytes)
     {
@@ -752,13 +748,6 @@ public sealed class Bank80SystemState
             throw new ArgumentException("A map-station snapshot must contain exactly 12 bytes.", nameof(bytes));
         bytes.CopyTo(_mapStations);
     }
-
-    /// <summary>
-    /// Unsigned <c>16 x 16 -> 32</c> multiplication from <c>$80:82D6</c>.
-    /// The widening casts must happen before multiplication or C# would discard the high
-    /// word before returning it.
-    /// </summary>
-    public static uint Multiply16By16(ushort left, ushort right) => (uint)left * right;
 
     /// <summary>
     /// C# equivalent of <c>$80:818E</c>: split a bit number into a byte index and mask.

@@ -92,9 +92,6 @@ public sealed class PlanetZebesTextPaletteFxProgramDefinition
     /// <summary>The mutually exclusive text-fade owner.</summary>
     public PlanetZebesTextPaletteFxProgramOwner Owner { get; }
 
-    /// <summary>Native four-byte definition identity selected by fade direction.</summary>
-    public ushort DefinitionPointer => (ushort)(PlanetZebesTextPaletteFxProgramMechanicsDefinitions.FadeInDefinition + (int)Owner * 4);
-
     /// <summary>Fade-out begins after fade-in's setup, timed records and final delete word.</summary>
     public ushort ProgramStart => (ushort)(PlanetZebesTextPaletteFxProgramMechanicsDefinitions.FadeInProgram
         + (Owner == PlanetZebesTextPaletteFxProgramOwner.FadeOut

@@ -210,7 +210,7 @@ static void VerifyTypedNativeWords()
     ];
     foreach ((string name, ushort raw) in mapCellRoundTrips)
     {
-        MapTileWord cell = raw;
+        var cell = new MapTileWord(raw);
         AssertEqual(raw, (ushort)cell, $"{name} map cell raw round trip");
     }
     AssertTrue(MapTileWords.PauseBlank.IsBlank && MapTileWords.HudBlank.IsBlank,

@@ -74,9 +74,9 @@ internal static partial class Program
         ushort[] pointers = orientation == EyeDoorOrientation.Left
             ? [0x9c03, 0x9c2b, 0x9c3d]
             : [0x9c5b, 0x9c83, 0x9c95];
-        WriteWord(bus, 0x84e01a, pointers[0]);
-        WriteWord(bus, 0x84e10e, pointers[1]);
-        WriteWord(bus, 0x84e20e, pointers[2]);
+        WriteWord(bus, 0x84041a, pointers[0]);
+        WriteWord(bus, 0x84050e, pointers[1]);
+        WriteWord(bus, 0x84060e, pointers[2]);
 
         byte[] blockDefinitions = new byte[0x400 * 8];
         blockDefinitions[0x55 * 8] = 0x55;
@@ -85,7 +85,6 @@ internal static partial class Program
             new ushort[width * width], blockDefinitions);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var plms = new RoomPlmSystem { EyeDoorVisuals = visuals };
-        BindEyeDoorFixturePrograms(plms, bus);
         var guarded = new EyeDoorDrawReadGuard(bus, lists);
         AssertEqual(3, plms.LoadRoomPopulation(guarded, level, streamer,
                 new SnesVram(), RoomPlmPopulationImporter.Read(guarded, 0x9000), new Bank80SystemState(), AreaId.Brinstar,
@@ -277,9 +276,14 @@ internal static partial class Program
 
     private sealed class EyeDoorDrawReadGuard(
         ISnesAddressSpace source,
-        RoomPlmShotBlockDrawDefinitions.DrawList[] lists) : ISnesAddressSpace, IImportCartridgeSource
+        RoomPlmShotBlockDrawDefinitions.DrawList[] lists) : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
         internal int ForbiddenReadAttempts { get; private set; }
+
+        // The fixture's constructed eye-door programs run from low work RAM.
+        public byte ReadWorkRamByte(int address) => ((ISnesMutableMemory)source).ReadWorkRamByte(address);
+
+        public byte ReadSaveRamByte(int address) => ((ISnesMutableMemory)source).ReadSaveRamByte(address);
 
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 

@@ -32,13 +32,6 @@ public sealed class SamusShinesparkState
         _audioPowerBomb = powerBomb;
     }
 
-    /// <summary>
-    /// Compatibility seam for focused producer tests that only exercise the sound guard.
-    /// Ordinary gameplay binds both owners through <see cref="BindProjectileOwners"/>.
-    /// </summary>
-    internal void BindPowerBombAudio(SamusPowerBombExplosionState powerBomb) =>
-        _audioPowerBomb = powerBomb;
-
     /// <summary>Native queue guard captured at the stored-shine warning call, not at publication.</summary>
     public bool StoredShineWarningSoundSuppressed { get; private set; }
     /// <summary>Native queue guard captured at directional launch.</summary>
@@ -184,11 +177,6 @@ public sealed class SamusShinesparkState
     /// slot three, even though it is initialized second.
     /// </summary>
     public ShinesparkReleasedEcho SecondReleasedCrashEcho => _secondReleasedCrashEcho.Snapshot;
-
-    /// <summary>Number of enabled departing echo drawings, independent of slot ownership.</summary>
-    public int ReleasedCrashEchoCount =>
-        (_firstReleasedCrashEcho.Active ? 1 : 0) +
-        (_secondReleasedCrashEcho.Active ? 1 : 0);
 
     /// <summary>
     /// Most recent viewport deletion, retained only as a debugger witness after native slot
@@ -695,24 +683,6 @@ public sealed class SamusShinesparkState
         // publishes the new live radius on the following frame.
         samus.AlignBottomAfterPoseChange(previousRadius, SamusState.ReadPoseYRadius(bus, standingPose));
         samus.InitializeAnimation(bus, initialFrame: 0);
-    }
-
-    /// <summary>
-    /// Runs <c>ProjPreInstr_SpeedEcho</c> at <c>$90:D4D2</c> for the two fixed crash-echo
-    /// projectile slots. Call this during alpha projectile processing, before Samus moves.
-    /// </summary>
-    public void StepReleasedCrashEchoProjectiles(
-        ISnesAddressSpace bus,
-        SamusState samus,
-        ushort layer1X,
-        ushort layer1Y)
-    {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
-        StepReleasedCrashEcho(
-            samus, layer1X, layer1Y, nativeSlot: 3, _firstReleasedCrashEcho);
-        StepReleasedCrashEcho(
-            samus, layer1X, layer1Y, nativeSlot: 4, _secondReleasedCrashEcho);
     }
 
     /// <summary>

@@ -37,32 +37,8 @@ internal sealed class CollisionRecordRuns<TElement>
 
     internal int Count { get; }
 
-    /// <summary>Every record address, in run order.</summary>
-    internal IEnumerable<ushort> Pointers
-    {
-        get
-        {
-            foreach (CollisionRecordRun<TElement> run in runs)
-            {
-                ushort cursor = run.Start;
-                foreach (TElement[] record in run.Records)
-                {
-                    yield return cursor;
-                    cursor = Next(cursor, record.Length);
-                }
-            }
-        }
-    }
-
     /// <summary>Address of the <paramref name="index"/>th record in run order.</summary>
     internal ushort PointerAt(int index) => Locate(index, out _);
-
-    /// <summary>Elements of the <paramref name="index"/>th record in run order.</summary>
-    internal TElement[] RecordAt(int index)
-    {
-        Locate(index, out TElement[] record);
-        return record;
-    }
 
     internal bool TryGet(ushort pointer, out TElement[] elements)
     {

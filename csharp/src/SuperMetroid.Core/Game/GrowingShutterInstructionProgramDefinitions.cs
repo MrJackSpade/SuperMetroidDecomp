@@ -20,7 +20,6 @@ internal abstract class GrowingShutterInstructionProgramDefinitions : IInstructi
 
     public static int MechanicsWordCount => 8;
     public static int PresentationWordCount => 4;
-    internal static int ProgramCount => 4;
 
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
@@ -39,13 +38,6 @@ internal abstract class GrowingShutterInstructionProgramDefinitions : IInstructi
     {
         int offset = address - (TenPixels + 2);
         return (uint)offset < 24 && offset % 6 == 0;
-    }
-
-    /// <summary>Each growth stage owns a six-byte duration/visual/sleep program.</summary>
-    internal static ushort ProgramEntryPoint(int index)
-    {
-        if ((uint)index >= ProgramCount) throw new ArgumentOutOfRangeException(nameof(index));
-        return (ushort)(TenPixels + 6 * index);
     }
 
     internal static ushort ReadMechanicsWord(ushort address)

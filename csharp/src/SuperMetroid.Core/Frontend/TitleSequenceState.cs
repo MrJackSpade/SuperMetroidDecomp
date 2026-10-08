@@ -121,24 +121,6 @@ public sealed class TitleSequenceState
     /// <summary>Current native title sub-state, exposed as a stable debugger label.</summary>
     public TitleSequencePhase Phase => phase;
 
-    /// <summary>Current INIDISP brightness nibble; zero is black and fifteen is full.</summary>
-    public byte Brightness => (byte)brightness;
-
-    /// <summary>Current title CGRAM, including cartridge palette-animation writes.</summary>
-    public ReadOnlySpan<ushort> PaletteColors => cgram.Colors;
-
-    /// <summary>Current native Mode-7 A/D scalar, exposed for transform regression audits.</summary>
-    public ushort Mode7MatrixScale => unchecked((ushort)zoom);
-
-    /// <summary>Current signed M7HOFS word, exposed for pre-title pan regression audits.</summary>
-    public short Mode7HorizontalOffset => unchecked((short)mode7X);
-
-    /// <summary>
-    /// NTSC demo countdown. Retail initializes this to $0384 (900 frames); PAL uses $02D0
-    /// so both revisions hold the title for approximately fifteen seconds.
-    /// </summary>
-    public int TitleScreenFramesRemaining => phase == TitleSequencePhase.TitleScreen ? phaseTimer : 0;
-
     /// <summary>True after the title's slow fade has handed control to file select.</summary>
     public bool FileSelectRequested { get; private set; }
     /// <summary>True after the idle timeout's slow fade reaches native demo state $28.</summary>

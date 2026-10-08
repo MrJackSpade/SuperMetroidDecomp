@@ -122,7 +122,6 @@ internal static class DeadMonsterRottingDefinitions
         ushort firstSize = 0, ushort firstDestinationOffset = 0) : IReadOnlyList<DeadMonsterVramTransferDefinition>
     {
         public int Count => count;
-        public int Length => Count;
         public DeadMonsterVramTransferDefinition this[int index]
         {
             get

@@ -164,9 +164,6 @@ public sealed partial class BabyMetroidCutsceneState
     /// <summary>Which of the two native rainbow-palette handlers is currently installed.</summary>
     public BabyMetroidSamusRainbowPhase SamusRainbowPhase { get; private set; }
 
-    /// <summary>True when enemy property `$0100` suppresses the Baby's spritemap.</summary>
-    public bool IsInvisible => Properties.HasAny(EnemyProperties.Invisible);
-
     /// <summary>True after enemy property `$0200` marks the cutscene actor deleted.</summary>
     public bool IsDeleted => Properties.HasAny(EnemyProperties.Deleted);
 

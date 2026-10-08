@@ -35,12 +35,6 @@ public sealed class SamusDrainedState
     public DrainedSamusPhase Phase { get; private set; }
 
     /// <summary>
-    /// True after controller function three writes equipped beams <c>$1009</c>, writes
-    /// hyper-beam flag <c>$8000</c>, and spawns the persistent bank-$8D palette object.
-    /// </summary>
-    public bool HyperBeamPaletteFxRequested => HyperBeamPaletteFx.IsActive;
-
-    /// <summary>
     /// Live translation of object <c>$8D:E1F0</c>. It animates OBJ palette-six colors
     /// one through eight independently of the earlier full-body rainbow palette handler.
     /// </summary>

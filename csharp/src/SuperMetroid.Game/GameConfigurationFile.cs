@@ -19,22 +19,6 @@ internal sealed record GameConfigurationFile(
         return LoadFromDirectory(dataDirectory, defaultsDirectory, "installation data-directory settings");
     }
 
-    /// <summary>Legacy diagnostic entry point that can anchor settings beside a supplied ROM.</summary>
-    public static GameConfigurationFile LoadOrCreate(string romPath, string? dataDirectory = null,
-        string? defaultsDirectory = null)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(romPath);
-
-        // Historical diagnostic callers may still place settings beside a supplied ROM.
-        // Normal startup uses LoadInstalled and never needs this path.
-        string fullRomPath = System.IO.Path.GetFullPath(romPath);
-        string romDirectory = System.IO.Path.GetDirectoryName(fullRomPath)
-            ?? throw new InvalidOperationException(
-                $"Private ROM path has no containing directory: {fullRomPath}");
-        return LoadFromDirectory(dataDirectory ?? romDirectory, defaultsDirectory,
-            dataDirectory is null ? "legacy ROM-directory settings" : "installation data-directory settings");
-    }
-
     private static GameConfigurationFile LoadFromDirectory(string dataDirectory,
         string? defaultsDirectory, string source)
     {

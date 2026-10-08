@@ -17,24 +17,6 @@ public static class SamusPoseTransitionTable
     private const ushort StartAndSelectMask = 0x3000;
 
     /// <summary>
-    /// Finds the first matching transition for canonical Super Metroid input bits.
-    /// </summary>
-    /// <param name="bus">CPU address space containing bank-$91 transition data.</param>
-    /// <param name="currentPose">Current pose whose pointer-table entry is selected.</param>
-    /// <param name="canonicalHeldInput">
-    /// Held input after custom bindings have been translated to the table's canonical bits.
-    /// Directional bits already equal their SNES hardware values; canonical action bits are
-    /// jump=$0080, shoot=$0040, aim-down=$0020, aim-up=$0010.
-    /// </param>
-    /// <param name="canonicalNewInput">Rising-edge form of the same canonical input.</param>
-    public static SamusPoseTransition? Find(
-        ISnesAddressSpace bus,
-        byte currentPose,
-        ushort canonicalHeldInput,
-        ushort canonicalNewInput) =>
-        Lookup(bus, currentPose, canonicalHeldInput, canonicalNewInput).Transition;
-
-    /// <summary>
     /// Runs the complete native lookup and preserves whether failure enters
     /// <c>Samus_Pose_Func2</c>'s pose-definition fallback.
     /// </summary>

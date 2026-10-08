@@ -175,5 +175,4 @@ public sealed partial class SuperMetroidGame
 /// </summary>
 public readonly record struct CapturedFrontendFrame(FrontendFrame Frame, RenderFrameSnapshot? Snapshot)
 {
-    public bool UsedLegacyRaster => Snapshot is null;
 }

@@ -142,9 +142,6 @@ public sealed partial class RoomEnemySystem
     private readonly BabyTurtleEnemyState?[] _babyTurtleStates =
         new BabyTurtleEnemyState?[MaximumEnemyCount];
 
-    public IReadOnlyList<MamaTurtleEnemyState?> MamaTurtleStates => _mamaTurtleStates;
-    public IReadOnlyList<BabyTurtleEnemyState?> BabyTurtleStates => _babyTurtleStates;
-
     /// <summary>Last library-two sound requested by this family during the enemy frame.</summary>
     public ushort? LastMamaTurtleSoundEffect { get; private set; }
 

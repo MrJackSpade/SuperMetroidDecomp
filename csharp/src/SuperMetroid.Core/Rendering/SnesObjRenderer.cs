@@ -30,29 +30,6 @@ public static class SnesObjRenderer
         (16, 32, 32, 32),
     ];
 
-    /// <summary>
-    /// Renders finalized OAM over a transparent canvas. Color index zero remains
-    /// transparent, matching the OBJ-specific transparency rule in the SNES PPU.
-    /// </summary>
-    public static Rgba32[] Render(
-        OamBuffer oam,
-        SnesVram vram,
-        SnesCgram cgram,
-        byte obsel,
-        int width = SnesPpuLayout.ScreenWidthPixels,
-        int height = SnesPpuLayout.ScreenHeightPixels,
-        int? priority = null)
-    {
-        ArgumentNullException.ThrowIfNull(oam);
-        ArgumentNullException.ThrowIfNull(vram);
-        ArgumentNullException.ThrowIfNull(cgram);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
-        var output = new Rgba32[checked(width * height)];
-        Render(output, oam, vram, cgram, obsel, width, height, priority);
-        return output;
-    }
-
     /// <summary>Renders finalized OAM into caller-owned storage, clearing it to transparent first.</summary>
     public static void Render(
         Span<Rgba32> output,
@@ -112,48 +89,6 @@ public static class SnesObjRenderer
         for (int spriteIndex = oam.LastFinalizedSpriteCount - 1; spriteIndex >= 0; spriteIndex--)
             DrawSprite(pixels, width, height, oam.GetEntry(spriteIndex), vram, cgram, obsel,
                 selectedPriority: null, resolvedPalettes: palettes);
-    }
-
-    /// <summary>
-    /// Resolves the winning OBJ and its BG-relative priority for every output pixel in one
-    /// OAM walk.
-    /// </summary>
-    /// <remarks>
-    /// Ordinary gameplay needs to interleave four OBJ priority groups with BG1 and BG2.
-    /// Calling <see cref="Render"/> four times is correct but needlessly decodes every
-    /// sprite tile four times and allocates four RGBA canvases. This form performs the
-    /// expensive character decode once, stores only the winning color plus its priority,
-    /// and lets the PPU compositor place that winner at the appropriate point in its BG
-    /// ladder. Empty pixels retain <see cref="TransparentPriority"/>.
-    /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public static ResolvedObjFrame RenderResolved(
-        OamBuffer oam,
-        SnesVram vram,
-        SnesCgram cgram,
-        byte obsel,
-        int width = SnesPpuLayout.ScreenWidthPixels,
-        int height = SnesPpuLayout.ScreenHeightPixels)
-    {
-        ArgumentNullException.ThrowIfNull(oam);
-        ArgumentNullException.ThrowIfNull(vram);
-        ArgumentNullException.ThrowIfNull(cgram);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
-
-        var pixels = new Rgba32[checked(width * height)];
-        var priorities = new byte[pixels.Length];
-        RenderResolved(
-            oam,
-            vram,
-            cgram,
-            obsel,
-            pixels,
-            priorities,
-            width,
-            height);
-
-        return new ResolvedObjFrame(pixels, priorities, width, height);
     }
 
     /// <summary>

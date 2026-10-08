@@ -19,23 +19,6 @@ namespace SuperMetroid.Core.Game;
 public static class SamusAerialMovement
 {
     /// <summary>
-    /// Ports the dry-air, no-hi-jump path through
-    /// <c>Make_Samus_Jump</c> at <c>$90:98BC</c> and the normal-air branch of
-    /// <c>Determine_Samus_YAcceleration</c> at <c>$90:9C5B</c>.
-    /// </summary>
-    public static void InitializeDryAirJump(ISnesAddressSpace bus, SamusState samus)
-    {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
-
-        (samus.Kinematics.YSpeed, samus.Kinematics.YSubspeed) =
-            SamusVerticalMotionDefinitions.Launch(SamusLiquidPhysicsState.Air, highJump: false, wallJump: false);
-        ApplyEquippedSpeedBoosterJumpBonus(samus);
-        ConfigureDryAirGravity(bus, samus);
-        samus.Kinematics.YDirection = 1;
-    }
-
-    /// <summary>
     /// Ports all environment/equipment paths through <c>Make_Samus_Jump</c> at
     /// <c>$90:98BC</c>. Air/water/lava select word offsets zero/two/four in the normal or
     /// Hi-Jump tables; Gravity Suit forces offset zero before that equipment choice.
@@ -90,19 +73,6 @@ public static class SamusAerialMovement
             samus.Kinematics.YSubspeed + samus.HorizontalSpeed.ExtraRunSubspeed));
         samus.Kinematics.YSpeed = unchecked((ushort)(
             samus.Kinematics.YSpeed + (samus.HorizontalSpeed.ExtraRunSpeed >> 1)));
-    }
-
-    /// <summary>
-    /// Publishes the normal-air gravity pair selected by <c>$90:9C5B</c>. The normal frame
-    /// pipeline refreshes these environment-dependent words before movement even when the
-    /// pose change was a walk-off rather than <c>Make_Samus_Jump</c>.
-    /// </summary>
-    public static void ConfigureDryAirGravity(ISnesAddressSpace bus, SamusState samus)
-    {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
-        (samus.Kinematics.YAcceleration, samus.Kinematics.YSubacceleration) =
-            SamusVerticalMotionDefinitions.Gravity(SamusLiquidPhysicsState.Air);
     }
 
     /// <summary>

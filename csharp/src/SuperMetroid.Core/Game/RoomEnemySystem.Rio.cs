@@ -78,9 +78,6 @@ public sealed partial class RoomEnemySystem
 
     private readonly RioEnemyState?[] _rioStates = new RioEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed state for every physical enemy slot currently owned by a Rio.</summary>
-    public IReadOnlyList<RioEnemyState?> RioStates => _rioStates;
-
     /// <summary>Most recent library-two sound request produced by Rio during this frame.</summary>
     public ushort? LastRioSoundEffect { get; private set; }
 

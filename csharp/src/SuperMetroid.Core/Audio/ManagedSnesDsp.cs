@@ -83,8 +83,6 @@ public sealed class ManagedSnesDsp
         sampleOffset = 0;
     }
 
-    public byte ReadRegister(byte address) => registers[address & 0x7f];
-
     /// <summary>
     /// Installs the source-number map associated with the latest cartridge upload. Existing
     /// voices retain their current window; key-ons and subsequent loop-directory reads

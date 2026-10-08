@@ -80,10 +80,6 @@ public sealed partial class RoomEnemySystem
     private readonly RipperVariantEnemyState?[] _ripperVariantStates =
         new RipperVariantEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed state for GRipper and Ripper II physical slots.</summary>
-    public IReadOnlyList<RipperVariantEnemyState?> RipperVariantStates =>
-        _ripperVariantStates;
-
     private void ResetRipperVariantRoomState()
     {
         Array.Clear(_ripperVariantMinimumXPositions);

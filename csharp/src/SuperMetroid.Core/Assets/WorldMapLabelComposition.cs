@@ -26,10 +26,6 @@ internal sealed class WorldMapLabelComposition
     { this.identity = identity; this.upperOrigin = upperOrigin; this.lowerOrigin = lowerOrigin;
         this.letterAdvances = letterAdvances; this.authored = authored; }
 
-    internal bool StoresComposition => authored is not null;
-    internal int StoredHorizontalCount => authored is not null ? 0 :
-        (identity == MapSpriteDefinitions.WorldWreckedShip ? 2 : 1) + (letterAdvances?.Count ?? 0);
-
     /// <summary>Area names are semantic text content; named cases select the map-label wording.</summary>
     private static string Text(ushort id) => id switch
     {

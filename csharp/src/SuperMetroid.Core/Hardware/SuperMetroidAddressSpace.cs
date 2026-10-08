@@ -26,9 +26,6 @@ public class SuperMetroidAddressSpace : ISnesAddressSpace, ISnesMutableMemory
     public static SuperMetroidAddressSpace CreateWithoutCartridge() =>
         new();
 
-    /// <summary>Mutable physical WRAM used by translated routines and save-state tools.</summary>
-    public Span<byte> WorkRam => _workRam;
-
     /// <summary>Mutable battery-backed SRAM; persistence remains an explicit host concern.</summary>
     public Span<byte> SaveRam => _saveRam;
 

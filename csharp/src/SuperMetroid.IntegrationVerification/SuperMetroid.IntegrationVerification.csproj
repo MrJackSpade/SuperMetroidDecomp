@@ -10,4 +10,5 @@
   <Import Project="../../test-support/StateFixtures.projitems" />
   <Import Project="../../test-support/WindowsConsole.projitems" />
   <Import Project="../../test-support/RepositoryInstallation.projitems" />
+  <Import Project="../../test-support/VerificationAccess.Core.projitems" />
 </Project>

@@ -52,7 +52,6 @@ public sealed class EndingTextPresentation
         private readonly EndingTextPresentation owner;
         internal SubtitleSequence(EndingTextPresentation owner) => this.owner = owner;
         public int Count => EndingTextLayoutDefinitions.SubtitleCellCount;
-        public int Length => Count;
         public ushort this[int index]
         {
             get

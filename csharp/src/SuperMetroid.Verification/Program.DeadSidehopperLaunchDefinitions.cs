@@ -17,8 +17,8 @@ internal static partial class Program
         var state = new DeadSidehopperEnemyState(slot, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         for (ushort phase = 0; phase < 4; phase++)
         {
-            ushort vx = Word(EnemyRomTablePointers.DeadSidehopper.HorizontalVelocityWords + phase * 2);
-            ushort vy = Word(EnemyRomTablePointers.DeadSidehopper.VerticalVelocityWords + phase * 2);
+            ushort vx = Word(EnemyRomTablePointersDeadSidehopper.HorizontalVelocityWords + phase * 2);
+            ushort vy = Word(EnemyRomTablePointersDeadSidehopper.VerticalVelocityWords + phase * 2);
             AssertEqual(vx, DeadSidehopperLaunchDefinitions.Horizontal[phase], "Native corpse X launch");
             AssertEqual(vy, DeadSidehopperLaunchDefinitions.Vertical[phase], "Native corpse Y launch");
             foreach (ushort paletteStage in new ushort[] { 0, 1 })

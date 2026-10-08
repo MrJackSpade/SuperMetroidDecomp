@@ -160,23 +160,15 @@ public sealed class RidleyEnemyState
     // Lower Norfair combat state ($7E:78xx/$80xx). These replace opaque numbered words
     // with the meanings established by the corresponding bank-$A6 consumers.
     public ushort HealthStage { get; internal set; }
-    public ushort AttackTableIndex { get; internal set; }
-    public ushort PreviousSamusX { get; internal set; }
-    public ushort SamusMovementDirection { get; internal set; }
-    public ushort GrabbedSamusMovementLagTimer { get; internal set; }
-    public ushort GrabbedSamusMovementIndex { get; internal set; }
     public ushort GrabState { get; internal set; }
     public ushort IntangibilityTimer { get; internal set; }
     public ushort TargetX { get; internal set; }
     public ushort TargetY { get; internal set; }
-    public ushort PogoTargetX { get; internal set; }
     public ushort PogoBounceCount { get; internal set; }
     public ushort PogoDownwardAcceleration { get; internal set; }
     public ushort PogoUpwardAcceleration { get; internal set; }
     public ushort GrabXOffset { get; internal set; }
     public ushort GrabYOffset { get; internal set; }
-    public ushort FireballVolleyCounter { get; internal set; }
-    public ushort FireballCooldown { get; internal set; }
     public ushort PowerBombReactionLatched { get; internal set; }
     public ushort HurtMovementClamp { get; internal set; }
     public ushort ZeroHealthLungeCount { get; internal set; }

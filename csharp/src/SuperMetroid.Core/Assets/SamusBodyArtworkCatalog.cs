@@ -389,9 +389,6 @@ public sealed class SamusBodyTileDefinition
         firstSizeOverride = calculatedFirstSize == first ? null : first;
     }
 
-    internal SamusBodyTileDefinition WithTransferGeometry(SamusBodyArtworkCatalog body, bool upper, int set, int position) =>
-        new(this, body, upper, set, position, body.PosePointers, body.Frames);
-
     internal SamusBodyTileDefinition WithTransferGeometry(SamusBodyArtworkCatalog body, bool upper, int set, int position,
         ReadOnlySpan<ushort> pointers, ReadOnlySpan<SamusBodyFrameSelection> frames) =>
         new(this, body, upper, set, position, pointers, frames);

@@ -80,9 +80,6 @@ public sealed class CrocomireDeathState
     /// <summary>Body X captured immediately before each melting distortion starts.</summary>
     public ushort BodyXBeforeMelting { get; internal set; }
 
-    /// <summary>Rumble table byte offset used after the skeleton reaches the left wall.</summary>
-    public ushort RumbleIndex { get; internal set; }
-
     /// <summary>Signed skeleton Y jitter added to its captured X-position word.</summary>
     public ushort RumbleYOffset { get; internal set; }
 
@@ -97,9 +94,6 @@ public sealed class CrocomireDeathState
 
     /// <summary>True once the skeleton-collapse state invokes the boss item-drop routine.</summary>
     public bool ItemDropRequested { get; internal set; }
-
-    /// <summary>Resultant per-column erase heights, exposed read-only to the debugger.</summary>
-    public IReadOnlyList<byte> MeltingColumnHeights => _meltingColumnHeights;
 
     /// <summary>Resultant 256-line BG2 vertical-scroll table used by the melting window.</summary>
     public IReadOnlyList<ushort> Bg2ScrollByScanline => _bg2ScrollByScanline;

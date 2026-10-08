@@ -107,9 +107,6 @@ public sealed partial class RoomEnemySystem
     private readonly DachoraEnemyState?[] _dachoraStates =
         new DachoraEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed native state for all five physical Dachora records.</summary>
-    public IReadOnlyList<DachoraEnemyState?> DachoraStates => _dachoraStates;
-
     /// <summary>Most recent library-two Dachora sound request during this frame.</summary>
     public ushort? LastDachoraSoundEffect { get; private set; }
 

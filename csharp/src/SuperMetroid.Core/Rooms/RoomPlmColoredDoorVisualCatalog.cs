@@ -26,8 +26,6 @@ public sealed class RoomPlmColoredDoorVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
-    private RoomPlmColoredDoorVisualCatalog() { }
-
     public RoomPlmColoredDoorVisualCatalog(IEnumerable<RoomPlmColoredDoorVisualEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
@@ -55,9 +53,6 @@ public sealed class RoomPlmColoredDoorVisualCatalog
                 "Colored-door visuals do not cover all compiled frames.");
         if (selected.Count != 0) customBlocks = selected;
     }
-
-    /// <summary>Calculate stock visuals directly; only selected custom frames need storage.</summary>
-    public static RoomPlmColoredDoorVisualCatalog Stock() => new();
 
     public ushort GetWord(ushort drawPointer, int blockIndex)
     {

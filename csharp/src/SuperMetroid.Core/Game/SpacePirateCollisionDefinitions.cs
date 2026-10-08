@@ -4,8 +4,6 @@ namespace SuperMetroid.Core.Game;
 internal readonly record struct SpacePirateCollisionComponent(short X, short Y, ushort HitboxPointer);
 /// <summary>Engine-owned signed collision bounds and touch/shot callbacks.</summary>
 internal readonly record struct SpacePirateCollisionHitbox(short Left, short Top, short Right, short Bottom, ushort TouchAi, ushort ShotAi);
-internal readonly record struct SpacePirateCollisionFrame(ushort Pointer, SpacePirateCollisionComponent[] Components);
-internal readonly record struct SpacePirateCollisionList(ushort Pointer, SpacePirateCollisionHitbox[] Rectangles);
 
 /// <summary>Fixed bank-$B2 walking/wall/ninja-Pirate collision data, separate from editable OAM art.</summary>
 /// <remarks>
@@ -391,13 +389,6 @@ internal static class SpacePirateCollisionDefinitions
             [new(-7, -19, 6, 30, 0x876c, 0x883e), new(6, -6, 32, 30, 0x876c, 0x883e)],
             [new(-7, -19, 6, 16, 0x876c, 0x8779), new(6, 3, 31, 16, 0x876c, 0x8779)],
         ]));
-
-    internal static int FrameCount => Frames.Count;
-    internal static int ListCount => Lists.Count;
-    internal static SpacePirateCollisionFrame Frame(int index) =>
-        new(Frames.PointerAt(index), Frames.RecordAt(index));
-    internal static SpacePirateCollisionList List(int index) =>
-        new(Lists.PointerAt(index), Lists.RecordAt(index));
 
     internal static ReadOnlySpan<SpacePirateCollisionComponent> ComponentsAt(ushort pointer) =>
         Frames.TryGet(pointer, out SpacePirateCollisionComponent[] components)

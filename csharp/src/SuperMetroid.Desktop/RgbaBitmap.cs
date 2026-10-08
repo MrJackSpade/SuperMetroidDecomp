@@ -8,30 +8,6 @@ namespace SuperMetroid.Desktop;
 public static class RgbaBitmap
 {
     /// <summary>
-    /// Converts without <see cref="Bitmap.SetPixel(int, int, Color)"/>, whose per-pixel
-    /// managed/native transition makes multi-megapixel rooms painfully slow to inspect.
-    /// </summary>
-    public static unsafe Bitmap Create(int width, int height, ReadOnlySpan<Rgba32> pixels)
-    {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
-        if (pixels.Length != checked(width * height))
-            throw new ArgumentException("Pixel count does not match dimensions.", nameof(pixels));
-
-        var bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
-        try
-        {
-            CopyTo(bitmap, width, height, pixels);
-            return bitmap;
-        }
-        catch
-        {
-            bitmap.Dispose();
-            throw;
-        }
-    }
-
-    /// <summary>
     /// Updates an existing GDI bitmap in place. The playable canvas owns one bitmap for its
     /// lifetime instead of allocating and disposing a native GDI object on every video frame.
     /// </summary>

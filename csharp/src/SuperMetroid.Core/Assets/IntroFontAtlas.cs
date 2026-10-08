@@ -24,18 +24,6 @@ public sealed class IntroFontAtlas
         }
         return new(planar);
     }
-
-    /// <summary>Imports an explicit planar font for startup or focused fixtures, preserving independently supplied drawings.</summary>
-    internal static IntroFontAtlas FromPlanarBytes(ReadOnlySpan<byte> planar)
-    {
-        if (planar.Length != IntroFontAtlasFormat.ByteCount)
-        {
-            throw new InvalidDataException(
-                $"Opening font contains {planar.Length} bytes; expected " +
-                $"{IntroFontAtlasFormat.ByteCount}.");
-        }
-        return new(planar.ToArray());
-    }
 }
 
 /// <summary>PNG and native transfer geometry for the 144-tile opening font.</summary>

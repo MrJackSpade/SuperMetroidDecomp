@@ -115,9 +115,6 @@ public sealed partial class RoomEnemySystem
     private readonly ushort[] _dragonAnimationFinishedFlags = new ushort[MaximumEnemyCount];
     private readonly DragonEnemyState?[] _dragonStates = new DragonEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed Dragon state by physical enemy slot, including cosmetic wing slots.</summary>
-    public IReadOnlyList<DragonEnemyState?> DragonStates => _dragonStates;
-
     /// <summary>Last library-two sound queued by a Dragon volley during the current frame.</summary>
     public ushort? LastDragonSoundEffect { get; private set; }
 

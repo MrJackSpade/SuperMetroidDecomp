@@ -34,17 +34,6 @@ public sealed class EndingFontAtlas
                 $"Ending font compiled to {planar.Length} bytes; expected {EndingFontAtlasFormat.ByteCount}.");
         return new(image.Pixels);
     }
-
-    /// <summary>Constructs the fallback cartridge-backed atlas used by focused legacy ending tests.</summary>
-    internal static EndingFontAtlas FromPlanarBytes(ReadOnlySpan<byte> planar)
-    {
-        if (planar.Length != EndingFontAtlasFormat.ByteCount)
-            throw new InvalidDataException(
-                $"Ending font contains {planar.Length} planar bytes; expected {EndingFontAtlasFormat.ByteCount}.");
-        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, EndingFontAtlasFormat.BitsPerPixel,
-            EndingFontAtlasFormat.TilesPerRow, out _, out _);
-        return new(pixels);
-    }
 }
 
 /// <summary>PNG and native transfer geometry for the 160-tile ending font resource.</summary>

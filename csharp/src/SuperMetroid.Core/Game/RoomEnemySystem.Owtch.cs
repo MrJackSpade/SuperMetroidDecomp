@@ -89,9 +89,6 @@ public sealed partial class RoomEnemySystem
     private readonly OwtchEnemyState?[] _owtchStates =
         new OwtchEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed state for every physical Owtch-capable enemy slot.</summary>
-    public IReadOnlyList<OwtchEnemyState?> OwtchStates => _owtchStates;
-
     /// <summary>Ports <c>InitAI_Owtch</c> at $A2:A3F9.</summary>
     private void InitializeOwtch(RoomEnemySlot slot)
     {

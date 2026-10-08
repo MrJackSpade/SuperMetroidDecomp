@@ -98,9 +98,6 @@ public readonly record struct MapTileWord(ushort Raw)
     /// <summary>Whether the native BG priority bit is set.</summary>
     public bool HasPriority => (Raw & PriorityMask) != 0;
 
-    /// <summary>Independent native horizontal and vertical flip attributes.</summary>
-    public SnesTileFlipFlags FlipFlags => (SnesTileFlipFlags)(Raw & FlipMask);
-
     /// <summary>Whether this word selects the cartridge's empty map character.</summary>
     public bool IsBlank => CharacterIndex == MapTileWords.PauseBlank.CharacterIndex;
 
@@ -122,8 +119,6 @@ public readonly record struct MapTileWord(ushort Raw)
     /// Applies the alternating Samus-location palette bits used by the HUD minimap blink.
     /// </summary>
     public MapTileWord WithLocationBlink() => new((ushort)(Raw | HudLocationBlinkAttributes));
-
-    public static implicit operator MapTileWord(ushort raw) => new(raw);
 
     public static explicit operator ushort(MapTileWord word) => word.Raw;
 }

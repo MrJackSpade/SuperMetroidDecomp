@@ -168,7 +168,6 @@ internal static partial class Program
         Suite(nameof(VerifyBotwoonHealthPaletteDefinitions), () => VerifyBotwoonHealthPaletteDefinitions(rom));
         Suite(nameof(VerifyCompiledCrawlerSpeeds), () => VerifyCompiledCrawlerSpeeds(rom));
         Suite(nameof(VerifyCompiledPolypLaunchDefinitions), () => VerifyCompiledPolypLaunchDefinitions(rom));
-        Suite(nameof(VerifyCompiledShaktoolAngularVelocities), () => VerifyCompiledShaktoolAngularVelocities(rom));
         Suite(nameof(VerifyShaktoolSegmentDefinitions), () => VerifyShaktoolSegmentDefinitions(rom));
         Suite(nameof(VerifyShaktoolInstructionDefinitions), () => VerifyShaktoolInstructionDefinitions(rom));
         Suite(nameof(VerifyShaktoolInstructionProgramDefinitions), () => VerifyShaktoolInstructionProgramDefinitions(rom));

@@ -141,76 +141,6 @@ internal sealed partial class PauseMenuState
     /// <summary>Zero for the map and one for the equipment page, matching WRAM $0753.</summary>
     public int ScreenMode { get; private set; }
 
-    /// <summary>True while a map/equipment page change is fading or loading; page input waits for it.</summary>
-    internal bool IsPageTransitionActive => transition != default;
-
-    /// <summary>Low byte of the native category/item selector word.</summary>
-    public int SelectedCategory => selectedCategory;
-
-    /// <summary>High byte of the native category/item selector word.</summary>
-    public int SelectedItem => selectedItem;
-    /// <summary>Read-only diagnostic timing for the native equipment-selector animation.</summary>
-    internal (int Frame, int Timer) ItemSelectorAnimationState => (itemSelectorAnimationFrame, itemSelectorAnimationTimer);
-
-    /// <summary>Number of cartridge OBJ records emitted by the most recent render.</summary>
-    public int LastRenderedSpriteCount => oam.LastFinalizedSpriteCount;
-
-    /// <summary>Native BG1 horizontal scroll selected while centering the pause map.</summary>
-    public ushort MapHorizontalScroll => mapHorizontalScroll;
-
-    /// <summary>Native BG1 vertical scroll selected while centering the pause map.</summary>
-    public ushort MapVerticalScroll => mapVerticalScroll;
-
-    /// <summary>Last screen-space origin passed to the cartridge menu-spritemap loader.</summary>
-    public ushort LastIndicatorOriginX => lastIndicatorOriginX;
-
-    /// <summary>Last screen-space Y origin passed to the cartridge menu-spritemap loader.</summary>
-    public ushort LastIndicatorOriginY => lastIndicatorOriginY;
-
-    /// <summary>Last bank-$82 menu spritemap ID selected by a pause draw routine.</summary>
-    public ushort LastIndicatorSpritemapId => lastIndicatorSpritemapId;
-
-    /// <summary>
-    /// Reads one native $7E:3000-relative button-label word after its queued-equivalent
-    /// upload. This narrow friend-test seam proves the bottom pause chrome reached VRAM;
-    /// callers cannot mutate the private menu PPU.
-    /// </summary>
-    internal ushort ReadPauseButtonLabelWord(int nativeWordIndex)
-    {
-        const int firstUploadedNativeWordIndex = 0x0320;
-        int uploadedWordOffset = nativeWordIndex - firstUploadedNativeWordIndex;
-        if ((uint)uploadedWordOffset >= PauseMenuLayout.ButtonRowsByteCount / 2)
-            throw new ArgumentOutOfRangeException(nameof(nativeWordIndex));
-        int byteAddress = (PauseMenuLayout.ButtonRowsDestinationWord + uploadedWordOffset) * 2;
-        return unchecked((ushort)(
-            vram.ReadByte(byteAddress) | (vram.ReadByte(byteAddress + 1) << 8)));
-    }
-
-    /// <summary>
-    /// Reads the displayed pause-map word for one absolute area-map coordinate. This is a
-    /// diagnostic projection of the same BG1 VRAM image rendered by the pause screen.
-    /// </summary>
-    internal MapTileWord ReadDisplayedMapTile(int mapX, int mapY)
-    {
-        int wordIndex = AreaMapLayout.GetTilemapWordIndex(mapX, mapY);
-        int byteAddress = (PauseMenuLayout.Bg1TilemapWord + wordIndex) * 2;
-        return unchecked((ushort)(vram.ReadByte(byteAddress) | (vram.ReadByte(byteAddress + 1) << 8)));
-    }
-
-    /// <summary>
-    /// Reads one of the three reserve-supply digits from the mutable equipment tilemap.
-    /// This exposes rendered menu state to focused tests without exposing mutation.
-    /// </summary>
-    internal SnesBgTilemapWord ReadReserveSupplyDigit(int digitIndex)
-    {
-        if ((uint)digitIndex >= PauseMenuLayout.ReserveSupplyDigitCount)
-            throw new ArgumentOutOfRangeException(nameof(digitIndex));
-
-        int byteOffset = PauseMenuLayout.ReserveSupplyDigitsByteOffset + digitIndex * 2;
-        return unchecked((ushort)(
-            equipmentTilemap[byteOffset] | (equipmentTilemap[byteOffset + 1] << 8)));
-    }
-
     /// <summary>
     /// Runs state-$0F menu input after the caller has latched NMI input and invoked the
     /// bank-$80 delayed-held filter. Returns true when Start requests game state $10.
@@ -854,19 +784,6 @@ internal sealed partial class PauseMenuState
 
     private static ushort ReadCategoryMask(PauseEquipmentCategoryDefinition category, int item) =>
         PauseEquipmentRules.Mask(category.Category, item);
-
-    private static void RecolorLabel(Span<byte> bytes)
-    {
-        for (int offset = 0; offset < bytes.Length; offset += 2)
-        {
-            var word = new SnesBgTilemapWord(unchecked((ushort)(
-                bytes[offset] | (bytes[offset + 1] << 8))))
-                .WithPaletteIndex(PauseMenuLayout.DisabledEquipmentPaletteIndex);
-            bytes[offset] = unchecked((byte)word.Raw);
-            bytes[offset + 1] = unchecked((byte)(word.Raw >> 8));
-        }
-    }
-
 }
 
 internal enum PauseMenuTransition

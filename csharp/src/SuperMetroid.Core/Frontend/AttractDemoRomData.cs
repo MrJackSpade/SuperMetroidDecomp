@@ -3,14 +3,6 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Cartridge definition tables consumed by the title-demo loaders.</summary>
 public static class AttractDemoRomData
 {
-    /// <summary>Bank-$91 input-object identities for the two grapple demonstrations.</summary>
-    public static class InputObjects
-    {
-        /// <summary>$91:9EB2, DemoInputObjects_Title_GrappleBeam, ordinary grapple demonstration.</summary>
-        public const ushort GrappleBeam = 0x9eb2;
-        /// <summary>$91:9EC4, DemoInputObjects_Title_AdvancedGrappleBeam, advanced grapple demonstration.</summary>
-        public const ushort AdvancedGrappleBeam = 0x9ec4;
-    }
     /// <summary>$82:8548 waits ninety NMI calls on the completed demo's final image.</summary>
     public const int FinalImageHoldFrames = 90;
     /// <summary>$82:8000 demo enemy-graphics loop starts at six and includes zero.</summary>
@@ -19,8 +11,6 @@ public static class AttractDemoRomData
     public const int DefaultSetCount = 3;
     /// <summary>$70:1FE0, completion marker checked by VerifySRAM to unlock set four.</summary>
     public const int CompletionMarkerAddress = (SuperMetroid.Core.Game.SaveRamLayout.SramBank << 16) | SuperMetroid.Core.Game.SaveRamLayout.CompletionMarkerOffset;
-    /// <summary>VerifySRAM compares the twelve letters without a terminator; the selected-slot word follows.</summary>
-    public static ReadOnlySpan<byte> CompletionMarker => SuperMetroid.Core.Game.SaveRamLayout.CompletionMarker;
     /// <summary>Literal state writes in the demo setup routines.</summary>
     public static class SetupValues
     {
@@ -80,18 +70,4 @@ public static class AttractDemoRomData
     public const int EquipmentBank = 0x910000, EquipmentRecordBytes = 16;
     /// <summary>CheckForNextDemo's room-list termination word.</summary>
     public const ushort EndOfSet = 0xffff;
-
-    /// <summary>Word offsets in a DemoRoomData record at bank $82.</summary>
-    public static class RoomFields
-    {
-        public const int Room = 0, Door = 2, DoorSlot = 4, CameraX = 6, CameraY = 8,
-            SamusYFromTop = 10, SamusXFromCenter = 12, Duration = 14, Setup = 16;
-    }
-
-    /// <summary>Word offsets in a DemoSetDef record at bank $91.</summary>
-    public static class EquipmentFields
-    {
-        public const int Items = 0, Missiles = 2, SuperMissiles = 4, PowerBombs = 6,
-            Health = 8, CollectedBeams = 10, EquippedBeams = 12, InputObject = 14;
-    }
 }

@@ -104,9 +104,6 @@ internal static class SporeSpawnCollisionDefinitions
         TrailingShotPoint, MirroredTrailingShotPoint, TrailingDudPoint, MovingHead4, MovingHead5,
     ];
 
-    internal static int FrameCount => 12;
-    internal static int ListCount => ListPointers.Length;
-
     private static bool IsOpeningFrame(ushort pointer) =>
         pointer >= FirstOpeningFrame && pointer <= FirstOpeningFrame + 6 * 18 &&
         (pointer - FirstOpeningFrame) % 18 == 0;

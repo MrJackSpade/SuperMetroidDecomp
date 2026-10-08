@@ -18,7 +18,6 @@ internal static partial class Program
         AssertPaletteFxCatalog(typeof(PaletteFxPreInstructionCodes), expectedCount: 9);
         AssertPaletteFxCatalog(typeof(PaletteFxInstructionListPointers), expectedCount: 5);
         AssertPaletteFxCatalog(typeof(PaletteFxHeatData), expectedCount: 2, requireMappedPointers: false);
-        Suite(nameof(VerifyConstructedAudioInstructions), () => VerifyConstructedAudioInstructions());
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(romPath))
@@ -3629,73 +3628,6 @@ internal static partial class Program
         }
 
         public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
-    }
-
-    private static void VerifyConstructedAudioInstructions()
-    {
-        Suite(nameof(VerifyConstructedSoundInstruction), () => VerifyConstructedSoundInstruction(
-            PaletteFxInstructionCodes.QueueSfx1,
-            SoundEffectLibrary.Library1,
-            sound: 0x11));
-        Suite(nameof(VerifyConstructedSoundInstruction), () => VerifyConstructedSoundInstruction(
-            PaletteFxInstructionCodes.QueueSfx2,
-            SoundEffectLibrary.Library2,
-            sound: 0x22));
-        Suite(nameof(VerifyConstructedSoundInstruction), () => VerifyConstructedSoundInstruction(
-            PaletteFxInstructionCodes.QueueSfx3,
-            SoundEffectLibrary.Library3,
-            sound: 0x33));
-
-        (RoomPaletteFxSystem paletteFx, TestAddressSpace bus) =
-            CreateSingleAudioInstruction(PaletteFxInstructionCodes.QueueMusic, operand: 0x05);
-        paletteFx.Step(bus, new SnesCgram(), new ReferencePaletteFxColorSource(bus), 0, 0, false, false);
-        AssertEqual(1, paletteFx.MusicRequests.Count,
-            "constructed palette-FX music opcode publishes once");
-        AssertEqual(MusicCommand.SelectTrack(5), paletteFx.MusicRequests[0].Command,
-            "constructed palette-FX music opcode preserves its byte operand");
-        AssertEqual(MusicCommandDelay.EightFrames, paletteFx.MusicRequests[0].Delay,
-            "constructed palette-FX music opcode selects QueueMusic_Delayed8");
-    }
-
-    private static void VerifyConstructedSoundInstruction(
-        ushort instruction,
-        SoundEffectLibrary expectedLibrary,
-        byte sound)
-    {
-        (RoomPaletteFxSystem paletteFx, TestAddressSpace bus) =
-            CreateSingleAudioInstruction(instruction, sound);
-        paletteFx.Step(bus, new SnesCgram(), new ReferencePaletteFxColorSource(bus), 0, 0, false, false);
-        AssertEqual(1, paletteFx.SoundRequests.Count,
-            $"constructed {expectedLibrary} palette-FX sound opcode publishes once");
-        AssertEqual(new SoundEffectId(expectedLibrary, sound),
-            paletteFx.SoundRequests[0].SoundEffect,
-            $"constructed {expectedLibrary} palette-FX opcode preserves its byte operand");
-        AssertEqual(PaletteFxAudioQueueLimits.SoundEffects,
-            paletteFx.SoundRequests[0].MaximumQueued,
-            $"constructed {expectedLibrary} palette-FX opcode selects Max6");
-    }
-
-    private static (RoomPaletteFxSystem PaletteFx, TestAddressSpace Bus)
-        CreateSingleAudioInstruction(ushort instruction, byte operand)
-    {
-        const ushort instructionList = 0x8f00;
-        var bus = new TestAddressSpace();
-        bus.WriteBytes(
-            0x8d0000 | instructionList,
-            [
-                unchecked((byte)instruction),
-                (byte)(instruction >> 8),
-                operand,
-                0x01, 0x00,
-                unchecked((byte)PaletteFxInstructionCodes.Wait),
-                (byte)(PaletteFxInstructionCodes.Wait >> 8),
-            ]);
-
-        var paletteFx = new RoomPaletteFxSystem();
-        paletteFx.SpawnConstructedProgramForVerification(instructionList,
-            [(byte)instruction, (byte)(instruction >> 8), operand, 1, 0,
-             (byte)(PaletteFxInstructionCodes.Wait & 0xff), (byte)(PaletteFxInstructionCodes.Wait >> 8)]);
-        return (paletteFx, bus);
     }
 
     /// <summary>

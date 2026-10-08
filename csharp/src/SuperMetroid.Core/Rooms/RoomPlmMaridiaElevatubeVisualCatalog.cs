@@ -32,11 +32,6 @@ public sealed class RoomPlmMaridiaElevatubeVisualCatalog
         visualWord = blocks[0];
     }
 
-    public static RoomPlmMaridiaElevatubeVisualCatalog Stock() => new(
-        [new RoomPlmMaridiaElevatubeVisualEntry(
-            MaridiaElevatubePlmDefinitions.VisualId,
-            [new RoomLevelWord(MaridiaElevatubePlmDefinitions.PhysicalWord).VisualWord])]);
-
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {
         if (drawPointer != MaridiaElevatubePlmDefinitions.DrawPointer ||

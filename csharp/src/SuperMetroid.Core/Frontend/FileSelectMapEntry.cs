@@ -68,9 +68,6 @@ public sealed class FileSelectMapEntry
         }
     }
 
-    /// <summary>BG1/OBJ/subscreen are visible inside window one; the cleared BG2 covers its exterior.</summary>
-    public Rgba32[] Render(ReadOnlySpan<Rgba32> areaScene) => Render(areaScene, new Rgba32[areaScene.Length]);
-
     /// <summary>As above, writing into <paramref name="pixels"/>, which must not alias the area scene.</summary>
     public Rgba32[] Render(ReadOnlySpan<Rgba32> areaScene, Rgba32[] pixels)
     {

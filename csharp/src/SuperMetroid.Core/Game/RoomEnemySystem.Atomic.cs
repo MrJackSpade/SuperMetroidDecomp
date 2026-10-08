@@ -110,9 +110,6 @@ public sealed partial class RoomEnemySystem
     private readonly ushort[] _atomicNegativeSpeedFractions = new ushort[MaximumEnemyCount];
     private readonly ushort[] _atomicNegativeSpeedWholes = new ushort[MaximumEnemyCount];
 
-    /// <summary>Typed Atomic state for all 32 physical enemy slots.</summary>
-    public IReadOnlyList<AtomicEnemyState?> AtomicStates => _atomicStates;
-
     /// <summary>Ports <c>InitAI_Atomic</c> at <c>$A8:E388</c>.</summary>
     private void InitializeAtomic(RoomEnemySlot slot)
     {

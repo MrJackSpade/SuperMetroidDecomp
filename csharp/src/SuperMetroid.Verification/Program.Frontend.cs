@@ -581,13 +581,13 @@ static void VerifyCinematicPaletteFader()
 static void VerifyDemoInputObject()
 {
     var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
-    int objectAddress = DemoInputRomData.BankBase | DemoInputRomData.IntroMotherBrain.Object;
+    int objectAddress = DemoInputRomData.BankBase | DemoInputRomDataIntroMotherBrain.Object;
     WriteRomWord(rom, objectAddress, DemoInputRomData.Routines.NoOp); // Initializer: RTS.
     WriteRomWord(rom, objectAddress + 2, DemoInputRomData.Routines.NoOp); // Pre-instruction: RTS.
     WriteRomWord(
         rom,
         objectAddress + 4,
-        DemoInputRomData.IntroMotherBrain.InputList);
+        DemoInputRomDataIntroMotherBrain.InputList);
 
     // Exact six records at $91:8694. The two one-frame X edges are separated by held-X
     // records; normal projectile cooldown/motion code—not this fixture—decides each shot.
@@ -603,7 +603,7 @@ static void VerifyDemoInputObject()
     for (int index = 0; index < words.Length; index++)
         WriteRomWord(
             rom,
-            (DemoInputRomData.BankBase | DemoInputRomData.IntroMotherBrain.InputList) +
+            (DemoInputRomData.BankBase | DemoInputRomDataIntroMotherBrain.InputList) +
                 index * sizeof(ushort),
             words[index]);
 
@@ -611,7 +611,7 @@ static void VerifyDemoInputObject()
     var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
     demo.Clear();
     demo.Enable();
-    demo.LoadObject(bus, DemoInputRomData.IntroMotherBrain.Object, definitionWord: pointer => ReadDemoFixtureWord(bus, pointer));
+    demo.LoadObject(bus, DemoInputRomDataIntroMotherBrain.Object, definitionWord: pointer => ReadDemoFixtureWord(bus, pointer));
 
     int[] boundaries = [90, 1, 40, 1, 29, 70];
     ushort[] held =
@@ -633,7 +633,7 @@ static void VerifyDemoInputObject()
     }
 
     AssertEqual(231, elapsed, "old Mother Brain demo-input duration");
-    AssertEqual(DemoInputRomData.IntroMotherBrain.NextRecord, demo.InstructionPointer,
+    AssertEqual(DemoInputRomDataIntroMotherBrain.NextRecord, demo.InstructionPointer,
         "old Mother Brain next record pointer");
     // Loading a record and publishing its first visible frame happen in the same handler
     // call. Consequently the last of its 70 visible frames leaves timer one; the following
@@ -646,7 +646,7 @@ static void VerifyDemoInputObject()
         var retailDemo = new DemoInputState();
         var retailBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(File.ReadAllBytes(retailPath));
         retailDemo.Enable();
-        retailDemo.LoadObject(retailBus, DemoInputRomData.IntroMotherBrain.Object, definitionWord: pointer => ReadDemoFixtureWord(retailBus, pointer));
+        retailDemo.LoadObject(retailBus, DemoInputRomDataIntroMotherBrain.Object, definitionWord: pointer => ReadDemoFixtureWord(retailBus, pointer));
         for (int frame = 0; frame < elapsed; frame++)
             retailDemo.Step(retailBus, instructionWord: pointer => ReadDemoFixtureWord(retailBus, pointer));
         AssertEqual(demo.InstructionPointer, retailDemo.InstructionPointer,

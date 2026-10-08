@@ -69,8 +69,6 @@ internal static class TorizoInstructionVramTransferDefinitions
         new(0xd1cc, 0x0040, 0xaab339, 0x7d80),
     ];
 
-    internal static ReadOnlySpan<TorizoInstructionVramTransferDefinition> All => Entries;
-
     internal static bool TryGet(ushort instruction,
         out TorizoInstructionVramTransferDefinition transfer)
     {

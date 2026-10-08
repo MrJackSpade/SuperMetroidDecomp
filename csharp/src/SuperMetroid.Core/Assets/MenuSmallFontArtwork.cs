@@ -17,13 +17,6 @@ internal sealed class MenuSmallFontArtwork
     internal const int FirstTile = 0x60, TileCount = 41;
     private readonly byte[] faces = new byte[TileCount * 8];
     private readonly Dictionary<int, byte>? edits;
-    internal int StoredFaceByteCount => faces.Length;
-    internal int StoredEditCount => edits?.Count ?? 0;
-    internal bool HasPixelOverride(int tile, int x, int y)
-    {
-        if (!Contains(tile) || (uint)x >= 8 || (uint)y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
-        return edits is not null && edits.ContainsKey((tile - FirstTile) * 64 + y * 8 + x);
-    }
 
     internal MenuSmallFontArtwork(IndexedPngImage image)
     {

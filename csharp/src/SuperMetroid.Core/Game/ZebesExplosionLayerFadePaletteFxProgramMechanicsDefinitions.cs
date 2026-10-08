@@ -108,11 +108,6 @@ public sealed class ZebesExplosionLayerFadePaletteFxProgramDefinition
     /// <summary>The cartridge-authored duration of each timed record.</summary>
     public ushort FrameDuration { get; }
 
-    /// <summary>The complete one-shot fade duration in frames.</summary>
-    public int CycleFrames =>
-        ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.FrameCount *
-        FrameDuration;
-
     /// <summary>The first timed record after color-index setup.</summary>
     public ushort FirstFramePointer => unchecked((ushort)(ProgramStart + 4));
 

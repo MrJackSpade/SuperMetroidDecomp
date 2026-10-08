@@ -18,7 +18,4 @@ public readonly record struct FrontendFrame(
 {
     public const int Width = SnesPpuLayout.ScreenWidthPixels;
     public const int Height = SnesPpuLayout.ScreenHeightPixels;
-
-    /// <summary>This frame with a private copy of its pixels, safe to keep across later steps.</summary>
-    public FrontendFrame WithCopiedPixels() => this with { Pixels = Pixels.ToArray() };
 }

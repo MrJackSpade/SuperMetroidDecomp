@@ -8,7 +8,6 @@ internal sealed class MenuThinBorderArtwork
 {
     internal const int TileCount = 2;
     private readonly Dictionary<int, byte>? edits;
-    internal int StoredEditCount => edits?.Count ?? 0;
     internal static bool Contains(int tile) => tile is 0xad or 0xae;
 
     internal MenuThinBorderArtwork(IndexedPngImage image)

@@ -35,23 +35,6 @@ public static class GameplayMessageIds
     public const GameplayMessageId GravitySuit = GameplayMessageId.GravitySuit;
     /// <summary>$85:873D definition; $A2:AB1F requests the gunship save/completion coroutine.</summary>
     public const GameplayMessageId GunshipSaveConfirmation = GameplayMessageId.GunshipSaveConfirmation;
-
-    /// <summary>
-    /// Converts a byte read from a translated cartridge owner into the closed retail
-    /// message catalog. The diagnostic identifies both the raw ID and the owner that read
-    /// it, rather than failing later at an unrelated definition-table access.
-    /// </summary>
-    public static GameplayMessageId FromCartridge(byte value, string sourceContext)
-    {
-        if ((value is < (byte)GameplayMessageId.EnergyTank or > (byte)GameplayMessageId.GravitySuit) &&
-            value != (byte)GameplayMessageId.GunshipSaveConfirmation)
-        {
-            throw new NotSupportedException(
-                $"Gameplay message ${value:X2} from {sourceContext} is not translated.");
-        }
-
-        return (GameplayMessageId)value;
-    }
 }
 
 /// <summary>

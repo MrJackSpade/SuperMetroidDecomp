@@ -368,13 +368,6 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     public ushort OnionRingsTargetAngle { get; internal set; }
 
-    /// <summary>
-    /// Parameters passed to the twelve <c>$86</c> Mother Brain turret initializers during
-    /// body load. The matching actors occupy the shared eighteen-slot projectile pool; this
-    /// retained request list makes their native creation order explicit in debugger state.
-    /// </summary>
-    public IReadOnlyList<ushort> InitialTurretParameters => _initialTurretParameters;
-
     private readonly ushort[] _initialTurretParameters = new ushort[12];
     private readonly List<MotherBrainMusicRequest> _musicRequests = new();
     private readonly List<MotherBrainPlmRequest> _plmRequests = new();

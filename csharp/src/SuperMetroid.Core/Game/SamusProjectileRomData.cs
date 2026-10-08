@@ -175,17 +175,6 @@ public static class SamusProjectileRomData
         public const int AccelerationRecordByteCount = 4;
     }
 
-    /// <summary>Projectile collision geometry read from bank $94.</summary>
-    public static class Collision
-    {
-        /// <summary>Sixteen height bytes for each non-square slope shape.</summary>
-        /// <remarks>Physical alias of <see cref="SlopeHeightDefinitions.Read"/>. Proof: #625 / #914.</remarks>
-        public const int NonSquareSlopeDefinitions = 0x948b2b;
-        /// <summary>Four-quadrant solidity bytes for square slope shapes.</summary>
-        /// <remarks>Physical bank-$94 alias of <see cref="SquareSlopeDefinitions.ReadSamusQuadrant"/>. Proof: #625 / #915.</remarks>
-        public const int SquareSlopeDefinitions = 0x948e54;
-    }
-
     /// <summary>Beam-trail instructions and direction/frame offset families.</summary>
     public static class Trails
     {

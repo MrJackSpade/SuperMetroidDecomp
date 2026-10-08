@@ -1,0 +1,20 @@
+<Project>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/PrivateState.cs" Link="TestSupport/VerificationAccess/PrivateState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreAccess.cs" Link="TestSupport/VerificationAccess/CoreAccess.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreAssetsAccess.cs" Link="TestSupport/VerificationAccess/CoreAssetsAccess.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreAudioAccess.cs" Link="TestSupport/VerificationAccess/CoreAudioAccess.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreFrontendAccess.cs" Link="TestSupport/VerificationAccess/CoreFrontendAccess.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreGameAccess.cs" Link="TestSupport/VerificationAccess/CoreGameAccess.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreHardwareAccess.cs" Link="TestSupport/VerificationAccess/CoreHardwareAccess.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreInputAccess.cs" Link="TestSupport/VerificationAccess/CoreInputAccess.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreRenderingAccess.cs" Link="TestSupport/VerificationAccess/CoreRenderingAccess.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreRoomsAccess.cs" Link="TestSupport/VerificationAccess/CoreRoomsAccess.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreRuntimeAccess.cs" Link="TestSupport/VerificationAccess/CoreRuntimeAccess.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreViewTypes.cs" Link="TestSupport/VerificationAccess/CoreViewTypes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/RetailRomOracleConstants.cs" Link="TestSupport/VerificationAccess/RetailRomOracleConstants.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CollisionRecordRunsAccess.cs" Link="TestSupport/VerificationAccess/CollisionRecordRunsAccess.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/DoorPointers.cs" Link="TestSupport/VerificationAccess/DoorPointers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/StereoPcmContinuityMeter.cs" Link="TestSupport/VerificationAccess/StereoPcmContinuityMeter.cs" />
+  </ItemGroup>
+</Project>

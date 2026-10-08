@@ -56,17 +56,4 @@ internal static class SporeSpawnCeilingPlmProgramDefinitions
         value = 0;
         return false;
     }
-
-    internal static IEnumerable<ushort> NativeWordAddresses()
-    {
-        yield return Crumble;
-        for (int frame = 0; frame < 3; frame++)
-        {
-            yield return checked((ushort)(Crumble + 3 + frame * 4));
-            yield return checked((ushort)(Crumble + 5 + frame * 4));
-        }
-        yield return Clear;
-        yield return checked((ushort)(Clear + 2));
-        yield return checked((ushort)(Clear + 4));
-    }
 }

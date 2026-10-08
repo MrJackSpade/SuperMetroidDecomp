@@ -107,18 +107,9 @@ internal static partial class Program
         AssertTrue(expectedCeres.AsSpan().SequenceEqual(guardedCeres.Camera!.Scrolls.Storage),
             "production Ceres entry installs compiled scroll storage");
 
-        CartridgeRoomState landingState = RoomStateDefinitions.Get(
-            RoomStateSelectionDefinitions.Select(RoomHeaderPointers.LandingSite, default));
-        var guardedLanding = CreateRetailRuntimeFixture(new RoomScrollSourceReadGuard(
-            bus, landingState.ScrollPointer));
-        guardedLanding.InitializeLandingSiteCamera();
-        AssertTrue(RoomScrollDefinitions.Get(landingState.ScrollPointer).Storage.Span
-                .SequenceEqual(guardedLanding.Camera!.Scrolls.Storage),
-            "special Landing Site entry installs compiled scroll storage");
-
         Console.WriteLine(
             "Room scrolls: all 323 states (200 explicit/123 implicit), 159 distinct " +
-            "allocations, Ceres, and Landing Site match without native scroll reads.");
+            "allocations and Ceres match without native scroll reads.");
     }
 
     private sealed class RoomScrollNoReadAddressSpace(ISnesAddressSpace source)

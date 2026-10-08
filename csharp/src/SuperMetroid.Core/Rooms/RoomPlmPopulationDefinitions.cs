@@ -13,16 +13,6 @@ internal static partial class RoomPlmPopulationDefinitions
     internal const int RetailPopulationCount = 284;
     internal const int RetailRecordCount = 941;
 
-    internal static IEnumerable<ushort> Pointers
-    {
-        get
-        {
-            for (int pointer = 0x8000; pointer <= ushort.MaxValue; pointer++)
-                if (TryPlace((ushort)pointer, null))
-                    yield return (ushort)pointer;
-        }
-    }
-
     internal static void Place(ushort pointer, Action<ushort, byte, byte, ushort> place)
     {
         ArgumentNullException.ThrowIfNull(place);

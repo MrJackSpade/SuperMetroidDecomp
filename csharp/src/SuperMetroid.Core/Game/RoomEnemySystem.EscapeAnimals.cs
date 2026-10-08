@@ -59,10 +59,6 @@ public sealed class EscapeDachoraEnemyState
     private readonly RoomEnemySlot _slot;
 
     internal EscapeDachoraEnemyState(RoomEnemySlot slot) => _slot = slot;
-
-    public ushort InstructionPointer => _slot.CurrentInstruction;
-    public ushort InstructionTimer => _slot.InstructionTimer;
-    public ushort LoopTimer => _slot.Timer;
 }
 
 /// <summary>
@@ -88,14 +84,6 @@ public sealed partial class RoomEnemySystem
         new EscapeEtecoonEnemyState?[MaximumEnemyCount];
     private readonly EscapeDachoraEnemyState?[] _escapeDachoraStates =
         new EscapeDachoraEnemyState?[MaximumEnemyCount];
-
-    /// <summary>Typed state for each physical escape-Etecoon slot.</summary>
-    public IReadOnlyList<EscapeEtecoonEnemyState?> EscapeEtecoonStates =>
-        _escapeEtecoonStates;
-
-    /// <summary>Typed script state for each physical escape-Dachora slot.</summary>
-    public IReadOnlyList<EscapeDachoraEnemyState?> EscapeDachoraStates =>
-        _escapeDachoraStates;
 
     /// <summary>Clears family-local typed views at the ordinary room-load boundary.</summary>
     private void ResetEscapeAnimalRoomState()

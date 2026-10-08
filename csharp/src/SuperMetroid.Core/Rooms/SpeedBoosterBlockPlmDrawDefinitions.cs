@@ -42,16 +42,4 @@ internal static class SpeedBoosterBlockPlmDrawDefinitions
         list = default;
         return false;
     }
-
-    internal static bool TryGet(ushort pointer,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        if (pointer == SpeedBoosterBlockPlmProgramDefinitions.BombRevealDraw)
-        {
-            list = BombReveal;
-            return true;
-        }
-        list = default;
-        return false;
-    }
 }

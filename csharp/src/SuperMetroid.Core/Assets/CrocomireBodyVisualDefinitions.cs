@@ -69,12 +69,6 @@ internal static class CrocomireBodyVisualDefinitions
 internal readonly record struct CrocomireBodyFrameSequence(int Length)
 {
     internal ushort this[int index] => CrocomireBodyVisualDefinitions.FramePointer(index);
-    internal ushort[] ToArray()
-    {
-        var result = new ushort[Length];
-        for (int i = 0; i < result.Length; i++) result[i] = this[i];
-        return result;
-    }
     public Enumerator GetEnumerator() => new(this);
     internal struct Enumerator(CrocomireBodyFrameSequence sequence)
     {

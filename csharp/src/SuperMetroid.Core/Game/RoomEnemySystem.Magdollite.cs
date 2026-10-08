@@ -116,8 +116,6 @@ public sealed partial class RoomEnemySystem
     private ushort _magdollitePaletteBaseByteOffset;
     private bool _magdollitePaletteAnimationInstalled;
 
-    public IReadOnlyList<MagdolliteEnemyState?> MagdolliteStates => _magdolliteStates;
-
     /// <summary>Last library-two sound emitted by throw opcode $A8:AE12 this frame.</summary>
     public ushort? LastMagdolliteSoundEffect { get; private set; }
 

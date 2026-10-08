@@ -60,7 +60,7 @@ internal static partial class Program
             AssertEqual(pointers.Contains((ushort)pointer), MotherBrainBodyVisualDefinitions.HasBg2((ushort)pointer), "Mother Brain exact BG2 domain including dummy exclusion");
         AssertThrows<IndexOutOfRangeException>(() => MotherBrainBodyVisualDefinitions.Bg2Frame(-1), "negative Mother Brain BG2 index");
         AssertThrows<IndexOutOfRangeException>(() => MotherBrainBodyVisualDefinitions.Bg2Frame(16), "Mother Brain BG2 past end");
-        byte[] nativeJson = EnemyBg2FrameFiles.Extract(rom, 0xa9, expected, 1, 10, "Mother Brain body", allowMixedOam: true);
+        byte[] nativeJson = EnemyBg2FrameFiles.Extract(rom, 0xa9, new EnemyBg2FrameDefinitionSequence(expected.Length, index => expected[index]), 1, 10, "Mother Brain body", allowMixedOam: true);
         byte[] generatedJson = MotherBrainBodyBg2FrameFiles.Extract(rom);
         AssertTrue(nativeJson.SequenceEqual(generatedJson), "Mother Brain exact extraction JSON");
         using var stream = new MemoryStream(generatedJson, writable: false);

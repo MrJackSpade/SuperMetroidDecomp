@@ -10,37 +10,6 @@ namespace SuperMetroid.Core.Rooms;
 public sealed partial class RoomPlmSystem
 {
     /// <summary>
-    /// Returns whether a room-authored header has a setup owner in the sequential loader.
-    /// This is a read-only inventory seam for private-ROM audits; production still performs
-    /// dispatch and contextual failure from <see cref="LoadRoomPopulation"/> itself.
-    /// </summary>
-    public static bool IsSupportedRoomPopulationHeader(ushort header)
-    {
-        if (header is RoomPlmHeaders.ScrollTrigger or
-            RoomPlmHeaders.RightwardsScrollExtension or
-            RoomPlmHeaders.LeftwardsScrollExtension or
-            RoomPlmHeaders.DownwardsScrollExtension or
-            RoomPlmHeaders.UpwardsScrollExtension or
-            RoomPlmHeaders.MotherBrainGlass or RoomPlmHeaders.BombTorizoHand or
-            RoomPlmHeaders.MapStation or RoomPlmHeaders.EnergyStation or
-            RoomPlmHeaders.MissileStation or RoomPlmHeaders.ElevatorPlatform or
-            RoomPlmHeaders.SaveStation or
-            RoomPlmHeaders.SpeedBoosterEscape or
-            RoomPlmHeaders.WreckedShipAttic or
-            RoomPlmHeaders.NoobTube or
-            RoomPlmHeaders.SetMetroidsClearedStatesWhenRequired or
-            RoomPlmHeaders.MotherBrainEscapeRoomGate or
-            RoomPlmHeaders.DownwardGate or RoomPlmHeaders.DownwardGateShotBlock ||
-            IsEyeDoorHeader(header) || IsDraygonCannonHeader(header))
-        {
-            return true;
-        }
-        if (IsColoredDoorHeader(header) || TryIdentifyGreyDoor(header, out _))
-            return true;
-        return TryIdentifyPermanentCollectible(header, out _, out _);
-    }
-
-    /// <summary>
     /// Allocates one decoded room population exactly once, in increasing source-record
     /// order. Each record is allocated before its setup routine runs, matching
     /// <c>Spawn_Room_PLM</c> at <c>$84:846A</c>. A setup may immediately delete its slot;
@@ -169,52 +138,6 @@ public sealed partial class RoomPlmSystem
         }
 
         return spawnedRecordCount;
-    }
-
-    /// <summary>Physical-slot views in cartridge handler order, highest ID first.</summary>
-    public IReadOnlyList<RoomPlmSlotSnapshot> PopulationSlots
-    {
-        get
-        {
-            var snapshots = new RoomPlmSlotSnapshot[ActiveCount];
-            int next = 0;
-            for (int index = _slots.Length - 1; index >= 0; index--)
-                if (_slots[index].Active) snapshots[next++] = Snapshot(index);
-            return snapshots;
-        }
-    }
-
-    /// <summary>
-    /// The one active slot running <paramref name="headerPointer"/>, without building the
-    /// whole population. Throws unless exactly one active slot uses that header.
-    /// </summary>
-    public RoomPlmSlotSnapshot SinglePopulationSlot(ushort headerPointer)
-    {
-        int found = -1;
-        for (int index = _slots.Length - 1; index >= 0; index--)
-        {
-            if (!_slots[index].Active || _slots[index].HeaderPointer != headerPointer) continue;
-            if (found >= 0)
-                throw new InvalidOperationException($"More than one active PLM uses header ${headerPointer:X4}.");
-            found = index;
-        }
-        return found >= 0 ? Snapshot(found)
-            : throw new InvalidOperationException($"No active PLM uses header ${headerPointer:X4}.");
-    }
-
-    private RoomPlmSlotSnapshot Snapshot(int index)
-    {
-        PlmSlot slot = _slots[index];
-        return new RoomPlmSlotSnapshot(
-            NativeSlotIndex: index,
-            HeaderPointer: slot.HeaderPointer,
-            BlockIndex: slot.BlockIndex,
-            RoomArgument: slot.RoomArgument,
-            InstructionPointer: slot.InstructionPointer,
-            PreInstruction: slot.PreInstruction,
-            InstructionTimer: slot.InstructionTimer,
-            LinkInstruction: slot.LinkInstruction,
-            LoopTimer: slot.LoopTimer);
     }
 
     private PlmSlot? AllocateRoomPopulationSlot(
@@ -404,15 +327,3 @@ public readonly record struct RoomPlmPopulationRecord(
     byte BlockX,
     byte BlockY,
     ushort RoomArgument);
-
-/// <summary>Debugger/test view of one occupied physical PLM slot.</summary>
-public readonly record struct RoomPlmSlotSnapshot(
-    int NativeSlotIndex,
-    ushort HeaderPointer,
-    int BlockIndex,
-    ushort RoomArgument,
-    ushort InstructionPointer,
-    ushort PreInstruction,
-    ushort InstructionTimer,
-    ushort LinkInstruction,
-    ushort LoopTimer);

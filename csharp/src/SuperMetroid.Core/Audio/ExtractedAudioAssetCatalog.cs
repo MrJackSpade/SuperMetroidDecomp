@@ -42,12 +42,6 @@ public sealed class ExtractedAudioAssetCatalog
         this.contentIdentity = contentIdentity;
     }
 
-    /// <summary>Number of physical WAV assets after logical deduplication.</summary>
-    public int CanonicalSampleCount => canonicalSampleCount;
-
-    /// <summary>Total source-number aliases exposed across common and music banks.</summary>
-    public int SourceMappingCount => sampleBanks.Values.Sum(bank => bank.Samples.Count);
-
     /// <summary>
     /// Stable SHA-256 identity of the validated selected manifest. The canonical JSON contains
     /// every upload/WAV hash plus all editable routing, instrument, music, and SFX definitions,

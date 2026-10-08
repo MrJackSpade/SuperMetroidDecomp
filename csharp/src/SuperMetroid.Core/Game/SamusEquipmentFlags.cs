@@ -47,36 +47,8 @@ public static class SamusEquipmentFlagExtensions
     public static bool HasAny(this ushort word, SamusEquipmentFlags flags) =>
         ((SamusEquipmentFlags)word & flags) != 0;
 
-    public static bool HasAll(this ushort word, SamusEquipmentFlags flags) =>
-        ((SamusEquipmentFlags)word & flags) == flags;
-
     public static bool HasAny(this ushort word, SamusBeamFlags flags) =>
         ((SamusBeamFlags)word & flags) != 0;
-
-    public static bool HasAll(this ushort word, SamusBeamFlags flags) =>
-        ((SamusBeamFlags)word & flags) == flags;
-
-    /// <summary>
-    /// Returns a native equipment word with the requested, independently combinable bits
-    /// enabled. Keeping this operation here prevents call sites from reintroducing casts and
-    /// hexadecimal masks merely because the WRAM-facing property remains a <see cref="ushort"/>.
-    /// </summary>
-    public static ushort With(this ushort word, SamusEquipmentFlags flags) =>
-        (ushort)(word | (ushort)flags);
-
-    /// <summary>Returns a native equipment word with the requested bits disabled.</summary>
-    public static ushort Without(this ushort word, SamusEquipmentFlags flags) =>
-        (ushort)(word & ~(ushort)flags);
-
-    /// <summary>Returns a native beam word with the requested equipment bits enabled.</summary>
-    public static ushort With(this ushort word, SamusBeamFlags flags) =>
-        (ushort)(word | (ushort)flags);
-
-    /// <summary>Returns a native beam word with the requested equipment bits disabled.</summary>
-    public static ushort Without(this ushort word, SamusBeamFlags flags) =>
-        (ushort)(word & ~(ushort)flags);
-
-    public static ushort ToNativeWord(this SamusEquipmentFlags flags) => (ushort)flags;
 
     public static ushort ToNativeWord(this SamusBeamFlags flags) => (ushort)flags;
 

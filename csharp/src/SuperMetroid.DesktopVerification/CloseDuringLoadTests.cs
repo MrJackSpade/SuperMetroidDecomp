@@ -12,7 +12,7 @@ internal static partial class Program
         Directory.CreateDirectory(directory);
         string rom = Path.Combine(directory, "Super Metroid.smc");
         File.Copy(Path.GetFullPath("Super Metroid.smc"), rom);
-        using var form = new GameForm(rom, new SuperMetroidGameOptions { Renderer = RendererSelection.Direct3D11, AudioEnabled = false });
+        using var form = new GameForm(DesktopAccess.InstallationFor(rom), new SuperMetroidGameOptions { Renderer = RendererSelection.Direct3D11, AudioEnabled = false });
         _ = form.Handle;
         var control = Field<PlayableGameControl>(form, "gameControl");
         _ = control.Handle;

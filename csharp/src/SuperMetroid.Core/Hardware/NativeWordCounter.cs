@@ -17,9 +17,6 @@ public readonly record struct NativeWordCounterStep(ushort Value)
 
     /// <summary>Common native expiry predicate implemented as BEQ followed by BMI.</summary>
     public bool IsZeroOrNegative => IsZero || IsNegative;
-
-    /// <summary>Whether decrementing zero wrapped through <c>$FFFF</c>.</summary>
-    public bool Underflowed => Value == ushort.MaxValue;
 }
 
 /// <summary>Shared operations for cartridge-owned wrapping and saturating word counters.</summary>
@@ -28,11 +25,4 @@ public static class NativeWordCounter
     /// <summary>Executes one wrapping 16-bit DEC and exposes its resulting N/Z flags.</summary>
     public static NativeWordCounterStep Decrement(ushort value) =>
         new(unchecked((ushort)(value - 1)));
-
-    /// <summary>
-    /// Decrements a nonzero word and leaves zero saturated, matching the common
-    /// <c>LDA timer / BEQ done / DEC timer</c> pattern rather than unconditional DEC.
-    /// </summary>
-    public static ushort DecrementSaturating(ushort value) =>
-        value == 0 ? (ushort)0 : unchecked((ushort)(value - 1));
 }

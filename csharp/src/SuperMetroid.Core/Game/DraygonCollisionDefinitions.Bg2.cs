@@ -55,9 +55,6 @@ internal static partial class DraygonCollisionDefinitions
     internal readonly record struct ComponentSequence(bool HasComponent, ushort HitboxPointer)
         : IEnumerable<DraygonCollisionComponent>
     {
-        internal int Length => HasComponent ? 1 : 0;
-        internal DraygonCollisionComponent this[int index] => HasComponent && index == 0
-            ? new(0, 0, HitboxPointer) : throw new IndexOutOfRangeException();
         public IEnumerator<DraygonCollisionComponent> GetEnumerator()
         {
             if (HasComponent) yield return new(0, 0, HitboxPointer);

@@ -12,8 +12,6 @@ public sealed class PauseReserveTankPresentation
     private readonly ushort paletteBits;
     private PauseReserveTankPresentation(Dictionary<int, (int? X, int? Y)> anchorOverrides, FrameSet frames, int palette)
     { this.anchorOverrides = anchorOverrides; this.frames = frames; paletteBits = SnesObjAttributeWord.Create(0, palette, 0).PaletteBits; }
-    internal int StoredFrameCount => (frames.Full is null ? 0 : 1) + (frames.EndCap is null ? 0 : 1) + (frames.Empty is null ? 0 : 1) + (frames.Fill1 is null ? 0 : 1) + (frames.Fill2 is null ? 0 : 1) + (frames.Fill3 is null ? 0 : 1) + (frames.Fill4 is null ? 0 : 1) + (frames.Fill5 is null ? 0 : 1) + (frames.Fill6 is null ? 0 : 1) + (frames.Fill7 is null ? 0 : 1);
-    internal int StoredAnchorComponentCount => anchorOverrides.Values.Sum(value => (value.X.HasValue ? 1 : 0) + (value.Y.HasValue ? 1 : 0));
     public MapLabelPoint Anchor(int index)
     {
         var basis = PauseReserveTankDefinitions.StockAnchor(index);

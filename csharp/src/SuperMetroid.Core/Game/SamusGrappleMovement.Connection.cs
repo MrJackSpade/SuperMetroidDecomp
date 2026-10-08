@@ -226,26 +226,6 @@ public static partial class SamusGrappleMovement
         throw new InvalidDataException("Grapple extension chain exceeded sixteen blocks.");
     }
 
-    private static GrappleMovementResult ConnectAcceptedFiring(
-        ISnesAddressSpace bus,
-        SamusState samus,
-        SamusGrappleState grapple,
-        ushort previousXPosition,
-        ushort previousYPosition,
-        bool validateAnchorBlock = true,
-        bool validateAnchorEnemy = false)
-    {
-        return ConnectAcceptedFiringCore(
-            bus,
-            samus,
-            grapple,
-            previousXPosition,
-            previousYPosition,
-            validateAnchorBlock,
-            validateAnchorEnemy,
-            deferConnectionPoseChange: false);
-    }
-
     private static GrappleMovementResult ConnectAcceptedFiringCore(
         ISnesAddressSpace bus,
         SamusState samus,

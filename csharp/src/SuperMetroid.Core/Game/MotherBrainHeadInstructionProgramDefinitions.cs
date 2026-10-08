@@ -409,12 +409,6 @@ public static class MotherBrainHeadInstructionProgramDefinitions
         Frame(30, Spritemaps_MotherBrain_0),
         Op(MotherBrainInstructionCodes.Instruction_MotherBrain_GotoX, InstList_MotherBrainHead_ChargingRainbowBeam_1));
 
-    /// <summary>The precise pointer windows executed by the dedicated head interpreter.</summary>
-    public static bool IsActivePointer(ushort pointer) =>
-        pointer is >= NeutralStart and <= NeutralActiveEnd or
-            >= BabyAttackStart and <= BabyAttackActiveEnd or
-            >= BombStart and <= BombActiveEnd;
-
     /// <summary>Whether a word belongs to one of the six compiled head-list regions.</summary>
     public static bool ContainsWord(ushort pointer) => Layout.Owns(pointer);
 

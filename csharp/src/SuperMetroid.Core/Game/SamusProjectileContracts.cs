@@ -132,10 +132,8 @@ public sealed class SamusProjectileTrailSlot
     }
 
     public int SlotIndex { get; }
-    public int NativeByteIndex => SlotIndex * 2;
     public SamusProjectileTrailSide Left { get; }
     public SamusProjectileTrailSide Right { get; }
-    public bool IsActive => Left.InstructionTimer != 0;
 
     internal void ClearFields()
     {

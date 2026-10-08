@@ -15,7 +15,6 @@ internal sealed class PauseSelectorVisual
     private readonly int group;
     private readonly SpriteComposition? authored;
     private PauseSelectorVisual(int group, SpriteComposition? authored) { this.group = group; this.authored = authored; }
-    internal bool StoresParts => authored is not null;
 
     /// <summary>Original beam highlight paint order expressed as row-major grid cells, not coordinates or tiles.</summary>
     private static ReadOnlySpan<byte> BeamOrder => [10, 4, 6, 7, 8, 9, 11, 5, 3, 2, 1, 0];

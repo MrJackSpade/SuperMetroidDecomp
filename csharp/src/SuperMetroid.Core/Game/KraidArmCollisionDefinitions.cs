@@ -49,17 +49,6 @@ internal static class KraidArmCollisionDefinitions
     internal const int FrameCount = 22;
     private const int GeneralFrameBytes = 2 + 5 * 8;
     private const int SingleComponentFrameBytes = 2 + 8;
-
-    /// <summary>Calculates the ordered physical frame roots from native component-record sizes.</summary>
-    /// <remarks>Independently reviewed for #1165 against bank_A7.asm and every original
-    /// frame count. General and rising/sinking groups have ten five-component frames
-    /// each; the final two frames have one component. No pointer roster is stored.</remarks>
-    internal static ushort FramePointer(int index)
-    {
-        if ((uint)index >= FrameCount) throw new IndexOutOfRangeException();
-        return (ushort)(index < 20 ? FirstGeneralFrame + GeneralFrameBytes * index
-            : FirstSingleComponentFrame + SingleComponentFrameBytes * (index - 20));
-    }
     private static readonly KraidArmCollisionGeometry[] Geometry =
     [
         new(-13, -11, -3, -5),
@@ -249,12 +238,6 @@ internal readonly record struct KraidArmHitboxSequence(int Start, int Length)
             if ((uint)index >= (uint)Length) throw new IndexOutOfRangeException();
             return KraidArmCollisionDefinitions.Rectangle(Start + index);
         }
-    }
-    internal KraidArmCollisionHitbox[] ToArray()
-    {
-        var result = new KraidArmCollisionHitbox[Length];
-        for (int index = 0; index < result.Length; index++) result[index] = this[index];
-        return result;
     }
     public Enumerator GetEnumerator() => new(this);
     internal struct Enumerator(KraidArmHitboxSequence sequence)

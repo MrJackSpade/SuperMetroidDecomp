@@ -142,9 +142,6 @@ public sealed partial class RoomEnemySystem
 
     private readonly SbugEnemyState?[] _sbugStates = new SbugEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed state for every physical slot currently owned by Sbug/Sbug2.</summary>
-    public IReadOnlyList<SbugEnemyState?> SbugStates => _sbugStates;
-
     /// <summary>Ports <c>InitAI_Sbug</c> at $A3:A14D.</summary>
     private void InitializeSbug(RoomEnemySlot slot)
     {

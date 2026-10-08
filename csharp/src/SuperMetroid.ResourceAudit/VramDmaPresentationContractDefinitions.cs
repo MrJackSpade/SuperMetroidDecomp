@@ -10,7 +10,7 @@ internal static class VramDmaPresentationContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/GrappleTileDefinitions.cs", "44C416557FCF09011152213B3F15BB52517C1999175A375DA338AA293E5DED09")],
             "Private PNG construction retains exact planar geometry. TryResolve accepts only declared exact source/count pairs and resolves the same bytes as typed uploads. Unowned sources/counts validly return false. This proves installed membership, not nullable runtime binding, corrupted saved operands, NMI timing or rendered pixels."),
         new("SuperMetroid.Core.Assets.EscapeTimerTileAtlas", "native-EscapeTimerTileAtlas-dma-aliases", ["TryResolve"],
-            [new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerTileAtlas.cs", "4030EC86F2F18FB11FA9481298140D0D2B96F6E17DC45408FB81C48C8F9D6E7E"),
+            [new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerTileAtlas.cs", "E2A5D6F4B5EF50E10D293A29679D4B64F3573FD140426DFB90A553ABBD67FE15"),
              new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerGlyphDefinitions.cs", "4942E6802A8F4B086F7C8D3F4A0FD3530E1C07B5C2F467D97CF76FE6855A1366"),
              new("csharp/src/SuperMetroid.Core/Assets/GrappleTileDefinitions.cs", "44C416557FCF09011152213B3F15BB52517C1999175A375DA338AA293E5DED09")],
             "Private PNG construction retains exact planar geometry. TryResolve accepts only declared exact source/count pairs and resolves the same bytes as typed uploads. Unowned sources/counts validly return false. This proves installed membership, not nullable runtime binding, corrupted saved operands, NMI timing or rendered pixels."),

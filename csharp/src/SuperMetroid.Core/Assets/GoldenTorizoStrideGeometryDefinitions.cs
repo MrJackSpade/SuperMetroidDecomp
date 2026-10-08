@@ -24,12 +24,6 @@ internal static class GoldenTorizoStrideGeometryDefinitions
     /// <summary>$AA:8FD6-8FE4 and the other body poses: three8px floor-strip tiles $160/$161/$162.</summary>
     private const int FirstFootTile = 0x160, FootTiles = 3, TilePixels = 8;
 
-    internal static int NativeFrameIdentity(int phase)
-    {
-        if ((uint)phase >= 10) throw new ArgumentOutOfRangeException(nameof(phase));
-        return FirstFrame + FrameBytes * phase;
-    }
-
     private static int SupportFootX(int phase) => (phase % 5) switch
     {
         0 or 1 => ForwardPlantX,

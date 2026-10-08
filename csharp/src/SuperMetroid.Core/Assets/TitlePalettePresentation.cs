@@ -25,8 +25,6 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
         SkipCopyrightRed = skipCopyrightRed;
     }
 
-    public ReadOnlySpan<ushort> Colors => colors;
-
     /// <summary>Installed ambient-color identities for the development dependency auditor.</summary>
     internal IReadOnlyCollection<ushort> ColorPointers { get; } = new AmbientPointerSequence();
 

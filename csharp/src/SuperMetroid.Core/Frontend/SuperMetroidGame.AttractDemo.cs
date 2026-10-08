@@ -13,10 +13,6 @@ public sealed partial class SuperMetroidGame
     private bool demoCancelled;
     private bool demoHasNextScene;
 
-    internal int AttractDemoSet => demoSet;
-    internal int AttractDemoSceneIndex => demoScene - 1;
-    internal int AttractDemoHoldFramesRemaining => demoHoldFramesRemaining;
-
     private void StepAttractDemo(ushort controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
         switch (GameState)

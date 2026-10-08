@@ -107,10 +107,6 @@ public sealed class TourianEscapeRedFlashPaletteFxProgramDefinition
         TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount *
         FrameByteCount));
 
-    /// <summary>Frames from the first record through the next first record.</summary>
-    public int CycleFrames =>
-        TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount * Duration;
-
     /// <summary>Returns one timed-record pointer.</summary>
     public ushort FramePointer(int frame)
     {

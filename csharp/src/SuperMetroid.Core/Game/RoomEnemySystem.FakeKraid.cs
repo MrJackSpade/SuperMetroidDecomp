@@ -87,8 +87,6 @@ public sealed partial class RoomEnemySystem
     private readonly FakeKraidEnemyState?[] _fakeKraidStates =
         new FakeKraidEnemyState?[MaximumEnemyCount];
 
-    public IReadOnlyList<FakeKraidEnemyState?> FakeKraidStates => _fakeKraidStates;
-
     /// <summary>Last library-two sound requested by Fake Kraid during this enemy frame.</summary>
     public ushort? LastFakeKraidSoundEffect { get; private set; }
 

@@ -22,9 +22,6 @@ public readonly record struct SnesAngle : IComparable<SnesAngle>
     /// <summary>The high-byte index consumed by 256-entry trigonometry tables.</summary>
     public byte TableIndex => unchecked((byte)(RawValue >> 8));
 
-    /// <summary>The byte offset for a table containing one 16-bit sample per angle.</summary>
-    public int SineTableByteOffset => TableIndex * sizeof(ushort);
-
     /// <summary>Zero turns.</summary>
     public static SnesAngle Zero { get; } = new(0x0000);
 
@@ -56,20 +53,6 @@ public readonly record struct SnesAngle : IComparable<SnesAngle>
 
     /// <summary>Adds whole sine-table units while retaining the fractional low byte.</summary>
     public SnesAngle AddTableUnits(int delta) => AddRaw(delta << 8);
-
-    /// <summary>
-    /// Returns the native signed shortest delta from this angle to <paramref name="target"/>.
-    /// The exactly-opposite case is <see cref="short.MinValue"/>, matching 65816 subtraction.
-    /// </summary>
-    public short SignedDeltaTo(SnesAngle target) =>
-        unchecked((short)(target.RawValue - RawValue));
-
-    /// <summary>
-    /// Returns the signed high-byte delta used by byte-angle dispatchers. The opposite
-    /// direction is <see cref="sbyte.MinValue"/>, matching native eight-bit truncation.
-    /// </summary>
-    public sbyte SignedTableDeltaTo(SnesAngle target) =>
-        unchecked((sbyte)(target.TableIndex - TableIndex));
 
     /// <inheritdoc />
     public int CompareTo(SnesAngle other) => RawValue.CompareTo(other.RawValue);

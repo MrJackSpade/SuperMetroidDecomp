@@ -66,17 +66,6 @@ public readonly record struct SnesBgTilemapWord(ushort Raw)
         return new(unchecked((ushort)((Raw & ~CharacterMask) | characterIndex)));
     }
 
-    /// <summary>Replaces only the priority bit.</summary>
-    public SnesBgTilemapWord WithPriority(bool priority) =>
-        new(unchecked((ushort)(priority ? Raw | PriorityMask : Raw & ~PriorityMask)));
-
-    /// <summary>Replaces both independent flip bits.</summary>
-    public SnesBgTilemapWord WithFlips(SnesTileFlipFlags flips)
-    {
-        ValidateFlips(flips);
-        return new(unchecked((ushort)((Raw & ~FlipMask) | (ushort)flips)));
-    }
-
     /// <summary>
     /// Replaces only the PPU's three-bit palette field while preserving character,
     /// priority, and flip fields in the packed word.
@@ -171,30 +160,6 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
         return WithPaletteBits(unchecked((ushort)(paletteIndex << PaletteShift)));
     }
 
-    /// <summary>Replaces only the nine-bit tile number.</summary>
-    public SnesObjAttributeWord WithTileNumber(int tileNumber)
-    {
-        if ((uint)tileNumber > TileNumberMask)
-            throw new ArgumentOutOfRangeException(nameof(tileNumber));
-        return new(unchecked((ushort)((Raw & ~TileNumberMask) | tileNumber)));
-    }
-
-    /// <summary>Replaces only the two-bit OBJ priority.</summary>
-    public SnesObjAttributeWord WithPriority(int priority)
-    {
-        if ((uint)priority > TwoBitMask)
-            throw new ArgumentOutOfRangeException(nameof(priority));
-        return new(unchecked((ushort)(
-            (Raw & ~PriorityFieldMask) | (priority << PriorityShift))));
-    }
-
-    /// <summary>Replaces both independent flip bits.</summary>
-    public SnesObjAttributeWord WithFlips(SnesTileFlipFlags flips)
-    {
-        ValidateFlips(flips);
-        return new(unchecked((ushort)((Raw & ~FlipMask) | (ushort)flips)));
-    }
-
     /// <summary>
     /// Adds a native base-tile value to the complete packed word. Enemy spritemap writers
     /// deliberately allow tile-number overflow to carry into the adjacent attribute bits.
@@ -254,8 +219,6 @@ public readonly record struct SnesSpritemapXWord(ushort Raw)
 {
     private const ushort OffsetMask = 0x01ff;
     private const ushort LargeObjectMask = 0x8000;
-
-    public int UnsignedOffset => Raw & OffsetMask;
     public bool IsLarge => (Raw & LargeObjectMask) != 0;
     /// <summary>Signed nine-bit visual displacement; unrelated upper bits never reach OAM X.</summary>
     public int SignedOffset => unchecked((short)((Raw & OffsetMask) << 7)) >> 7;

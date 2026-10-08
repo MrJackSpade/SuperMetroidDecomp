@@ -90,13 +90,6 @@ public static partial class RenderFrameSnapshotCodec
         public override void WriteByte(byte value) { inner.WriteByte(value); Written++; }
     }
 
-    public static RenderFrameSnapshot Deserialize(ReadOnlySpan<byte> bytes)
-    {
-        if (bytes.Length > RenderPacketFormat.MaximumPacketBytes)
-            throw new InvalidDataException("Display fixture exceeds the bounded packet size.");
-        return Deserialize(bytes.ToArray());
-    }
-
     /// <summary>Reads a packet held in an array directly, without first copying it.</summary>
     public static RenderFrameSnapshot Deserialize(byte[] bytes)
     {

@@ -52,17 +52,6 @@ internal abstract class GunshipDustInstructionProgramDefinitions : IInstructionP
         return new(initial, (ushort)(initial + 4), (ushort)(initial + 4 + 4 * count),
             new(count, initialDuration));
     }
-    internal static ushort InitialForParameter(ushort parameter) => parameter switch
-    {
-        0 => Index0,
-        2 => Index2,
-        4 => Index4,
-        6 => Index6,
-        8 => Index8,
-        10 => IndexA,
-        _ => throw new ArgumentOutOfRangeException(
-            nameof(parameter), parameter, "Gunship dust parameter must be 0,2,4,6,8,A."),
-    };
 
     public static InstructionMechanicsWord MechanicsWord(int index)
     {

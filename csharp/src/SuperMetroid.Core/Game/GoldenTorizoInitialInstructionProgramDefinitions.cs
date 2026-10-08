@@ -48,21 +48,6 @@ internal abstract class GoldenTorizoInitialInstructionProgramDefinitions : IInst
         ? InitialFrameOperand
         : throw new ArgumentOutOfRangeException(nameof(index));
 
-    internal static bool TryReadMechanicsWord(ushort address, out ushort value)
-    {
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            InstructionMechanicsWord word = MechanicsWord(index);
-            if (word.Address == address)
-            {
-                value = word.Value;
-                return true;
-            }
-        }
-        value = 0;
-        return false;
-    }
-
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xaa0000)

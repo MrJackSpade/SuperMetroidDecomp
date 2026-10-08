@@ -138,9 +138,6 @@ public sealed partial class RoomEnemySystem
     private readonly AlcoonEnemyState?[] _alcoonStates =
         new AlcoonEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed Alcoon state for all 32 physical enemy slots.</summary>
-    public IReadOnlyList<AlcoonEnemyState?> AlcoonStates => _alcoonStates;
-
     /// <summary>Ports <c>InitAI_Alcoon</c> at <c>$A8:DCCD</c>, including its floor search.</summary>
     private void InitializeAlcoon(RoomEnemySlot slot, RoomLevelData? level)
     {

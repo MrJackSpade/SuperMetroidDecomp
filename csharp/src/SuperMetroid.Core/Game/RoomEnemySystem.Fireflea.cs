@@ -103,9 +103,6 @@ public sealed partial class RoomEnemySystem
     private readonly FirefleaEnemyState?[] _firefleaStates =
         new FirefleaEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed Fireflea state for all 32 physical enemy slots.</summary>
-    public IReadOnlyList<FirefleaEnemyState?> FirefleaStates => _firefleaStates;
-
     /// <summary>Ports <c>InitAI_Fireflea</c> at <c>$A3:8D2D</c>.</summary>
     private void InitializeFireflea(RoomEnemySlot slot)
     {

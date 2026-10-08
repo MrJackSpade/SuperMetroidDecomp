@@ -58,40 +58,4 @@ internal static class AreaAnimatedTileObjectDefinitions
 
         return SelectObject(AreaIds.ToIndex(area), bit);
     }
-
-    /// <summary>Calculates a native list identity as AC76+20h*area, for indices0..7.</summary>
-    /// <remarks>Each eight-word animation list follows an eight-word palette list,
-    /// producing the native32-byte area stride. All eight original pointer words
-    /// are independently verified; invalid indices reject before arithmetic.</remarks>
-    internal static ushort NativeListPointer(int nativeAreaIndex)
-    {
-        ValidateNativeAreaIndex(nativeAreaIndex);
-        return (ushort)(0xac76 + 0x20 * nativeAreaIndex);
-    }
-
-    /// <summary>
-    /// Returns one object pointer from any native row, including the non-retail eighth
-    /// row retained solely for a complete immutable-source audit.
-    /// </summary>
-    internal static ushort NativeObjectPointer(int nativeAreaIndex, int bit)
-    {
-        ValidateNativeAreaIndex(nativeAreaIndex);
-        if ((uint)bit >= ObjectsPerArea)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(bit), bit, $"Animated-tile bit must be 0..{ObjectsPerArea - 1}.");
-        }
-
-        return SelectObject(nativeAreaIndex, bit);
-    }
-
-    private static void ValidateNativeAreaIndex(int nativeAreaIndex)
-    {
-        if ((uint)nativeAreaIndex >= NativeAreaCount)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(nativeAreaIndex), nativeAreaIndex,
-                $"Native animated-tile area index must be 0..{NativeAreaCount - 1}.");
-        }
-    }
 }

@@ -1,0 +1,10 @@
+<Project>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Importers/AttractDemoSceneImporter.cs" Link="TestSupport/Importers/AttractDemoSceneImporter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Importers/LibraryBackgroundProgramImporter.cs" Link="TestSupport/Importers/LibraryBackgroundProgramImporter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Importers/LibraryBackgroundSourceInventory.cs" Link="TestSupport/Importers/LibraryBackgroundSourceInventory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Importers/LoadStationEntryImporter.cs" Link="TestSupport/Importers/LoadStationEntryImporter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Importers/RetailDoorHeaderCatalog.cs" Link="TestSupport/Importers/RetailDoorHeaderCatalog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Importers/RoomPlmPopulationImporter.cs" Link="TestSupport/Importers/RoomPlmPopulationImporter.cs" />
+  </ItemGroup>
+</Project>

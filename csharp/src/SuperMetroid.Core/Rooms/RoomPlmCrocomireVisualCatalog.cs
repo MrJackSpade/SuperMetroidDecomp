@@ -30,8 +30,6 @@ public sealed class RoomPlmCrocomireVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customWords;
 
-    private RoomPlmCrocomireVisualCatalog() { }
-
     public RoomPlmCrocomireVisualCatalog(
         IEnumerable<RoomPlmCrocomireVisualEntry> entries)
     {
@@ -62,9 +60,6 @@ public sealed class RoomPlmCrocomireVisualCatalog
                 "Crocomire visuals do not cover all five compiled draws.");
         if (selected.Count != 0) customWords = selected;
     }
-
-    /// <summary>Calculate stock appearances from the draw geometry; retain only customized frames.</summary>
-    public static RoomPlmCrocomireVisualCatalog Stock() => new();
 
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {

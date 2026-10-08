@@ -7,12 +7,6 @@ namespace SuperMetroid.Core.Rendering;
 /// <summary>Source-aware reference for native Mode-1/window/color-math configurations.</summary>
 public static class SoftwareGameplayColorMathRenderer
 {
-    public static Rgba32[] Render(PpuMemorySnapshot snapshot, GameplayColorMathRenderLayer layer, byte objectSelection)
-    {
-        using var scratch = new RenderScratch();
-        return Render(scratch.Memory(snapshot), layer, objectSelection, null);
-    }
-
     internal static Rgba32[] Render(SoftwarePpuSnapshotMemory memory, GameplayColorMathRenderLayer layer,
         byte objectSelection, Rgba32[]? outputBuffer)
     {

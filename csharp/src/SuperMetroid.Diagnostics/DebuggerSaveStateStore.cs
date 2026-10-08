@@ -81,8 +81,6 @@ internal sealed class DebuggerSaveStateStore
             contentIdentity);
     }
 
-    public string DirectoryPath => directory;
-
     public static string SlotName(int slot)
     {
         ValidateSlot(slot);

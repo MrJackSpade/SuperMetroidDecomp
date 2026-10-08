@@ -93,9 +93,6 @@ public sealed class MaridiaEnvironmentalPaletteFxProgramDefinition
     /// <summary>The environmental animation represented by this program.</summary>
     public MaridiaEnvironmentalPaletteOwner Owner { get; }
 
-    /// <summary>Native four-byte definition identity selected by environmental owner.</summary>
-    public ushort DefinitionPointer => (ushort)(MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.SandPitDefinition + (int)Owner * 4);
-
     /// <summary>The native setup entry; each following owner begins after its predecessor's terminal goto operand.</summary>
     public ushort ProgramStart => Owner switch
     {
@@ -137,9 +134,6 @@ public sealed class MaridiaEnvironmentalPaletteFxProgramDefinition
     /// <summary>Bytes from a duration word through its terminal wait command.</summary>
     public int FrameByteCount =>
         sizeof(ushort) + ColorsPerFrame * sizeof(ushort) + sizeof(ushort);
-
-    /// <summary>Frames from the first record through the next first record.</summary>
-    public int CycleFrames => FrameCount * Duration;
 
     /// <summary>Returns the timed-record pointer for one zero-based cycle frame.</summary>
     public ushort FramePointer(int frame)

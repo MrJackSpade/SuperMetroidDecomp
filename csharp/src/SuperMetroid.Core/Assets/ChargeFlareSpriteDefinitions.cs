@@ -93,7 +93,6 @@ public static class ChargeFlareSpriteDefinitions
     public readonly struct NativePointerSequence : IReadOnlyList<ushort>
     {
         public int Count => 28;
-        public int Length => Count;
         public ushort this[int index]
         {
             get

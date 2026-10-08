@@ -32,8 +32,6 @@ internal sealed class CreditsObjectState
     public bool Enabled => enabled;
     public bool Finished { get; private set; }
     public ushort VerticalScroll => scrollWhole;
-    public int DestinationRow => destinationRow;
-    public ReadOnlySpan<ushort> Tilemap => tilemap;
 
     public void BindPresentation(CreditsPresentation? value) => presentation = value;
 

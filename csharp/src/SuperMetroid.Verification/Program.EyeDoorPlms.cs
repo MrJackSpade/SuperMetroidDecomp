@@ -136,7 +136,6 @@ internal static partial class Program
         };
         var effects = new List<EyeDoorProjectileRequest>();
         var plms = new RoomPlmSystem();
-        BindEyeDoorFixturePrograms(plms, bus);
         AssertEqual(3, plms.LoadRoomPopulation(
             bus,
             level,
@@ -229,20 +228,6 @@ internal static partial class Program
         }
     }
 
-    private static void BindEyeDoorFixturePrograms(RoomPlmSystem plms, TestAddressSpace fixture)
-    {
-        // Decode only the seven explicitly authored control fragments. Draw payloads
-        // remain compiled domain records and are still forbidden by the read guard.
-        foreach ((ushort pointer, int length) in new (ushort, int)[]
-                 { (0xe000, 30), (0xe040, 9), (0xe080, 4), (0xe100, 18),
-                   (0xe140, 2), (0xe200, 18), (0xe240, 2) })
-        {
-            byte[] instructions = Enumerable.Range(0, length)
-                .Select(offset => fixture.ReadByte(0x840000 | (pointer + offset))).ToArray();
-            plms.SupplyInstructionFragmentForVerification(pointer, instructions);
-        }
-    }
-
     private static void SeedEyeDoorFixtureRom(
         TestAddressSpace bus,
         EyeDoorOrientation orientation)
@@ -272,13 +257,13 @@ internal static partial class Program
             unchecked((byte)bottomHeader), unchecked((byte)(bottomHeader >> 8)), 7, 8, 5, 0,
             0, 0,
         ]);
-        WriteWord(bus, 0x840000 | eyeHeader + 2, 0xe000);
-        WriteWord(bus, 0x840000 | doorHeader + 2, 0xe100);
-        WriteWord(bus, 0x840000 | bottomHeader + 2, 0xe200);
+        WriteWord(bus, 0x840000 | eyeHeader + 2, 0x0400);
+        WriteWord(bus, 0x840000 | doorHeader + 2, 0x0500);
+        WriteWord(bus, 0x840000 | bottomHeader + 2, 0x0600);
 
-        bus.WriteBytes(0x84e000, [
-            0x72, 0x8a, 0x80, 0xe0,
-            0x24, 0x8a, 0x40, 0xe0,
+        bus.WriteBytes(0x840400, [
+            0x72, 0x8a, 0x80, 0x04,
+            0x24, 0x8a, 0x40, 0x04,
             0xc1, 0x86, 0x50, 0xbd,
             0x7a, 0xd7, 0x00, 0x00,
             0x90, 0xd7, 0x00, 0x00,
@@ -287,15 +272,15 @@ internal static partial class Program
             0x01, 0x00, 0x00, 0xf0,
             0xb4, 0x86,
         ]);
-        bus.WriteBytes(0x84e040, [
-            0x91, 0x8a, 0x03, 0x80, 0xe0,
-            0x24, 0x87, 0x00, 0xe0,
+        bus.WriteBytes(0x840440, [
+            0x91, 0x8a, 0x03, 0x80, 0x04,
+            0x24, 0x87, 0x00, 0x04,
         ]);
-        WriteWord(bus, 0x84e080, convertInstruction);
-        WriteWord(bus, 0x84e082, RoomPlmInstructionCodes.Delete);
+        WriteWord(bus, 0x840480, convertInstruction);
+        WriteWord(bus, 0x840482, RoomPlmInstructionCodes.Delete);
 
-        SeedPassiveEyeDoorList(bus, 0xe100, 0xe140, 0xf010);
-        SeedPassiveEyeDoorList(bus, 0xe200, 0xe240, 0xf020);
+        SeedPassiveEyeDoorList(bus, 0x0500, 0x0540, 0xf010);
+        SeedPassiveEyeDoorList(bus, 0x0600, 0x0640, 0xf020);
         WriteOneBlockDraw(bus, 0xf000, 0x8001);
         WriteOneBlockDraw(bus, 0xf010, 0x8002);
         WriteOneBlockDraw(bus, 0xf020, 0x8003);

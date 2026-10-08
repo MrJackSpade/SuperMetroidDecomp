@@ -42,7 +42,7 @@ internal static class SimulationProfile
     {
         var game = RepositoryInstallation.CreateGame(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"),
             new SuperMetroidGameOptions { SkipOpeningCinematic = true, Invincibility = true });
-        using var audio = new SpcAudioEngine();
+        using var audio = DesktopAccess.CreateAudioEngine();
         using var publicationProfile = new RenderPublicationProfile();
         long sequence = 0;
         long nonzeroPcmSamples = 0;
@@ -71,7 +71,7 @@ internal static class SimulationProfile
             Step(tick % 47 == 0 ? (ushort)SnesButton.Start : (ushort)0);
         if (game.GameState != SuperMetroidGameState.MainGameplay) throw new InvalidOperationException("Profile failed startup.");
         game.RuntimeForVerification!.LoadCartridgeRoomForDebug(room, 0, 0);
-        game.RuntimeForVerification.RunNmi(0, true);
+        game.RuntimeForVerification!.RunNmi(0, true);
         Step(0);
         if (paused)
         {

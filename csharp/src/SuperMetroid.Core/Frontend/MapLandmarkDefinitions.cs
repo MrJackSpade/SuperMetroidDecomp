@@ -75,7 +75,6 @@ public static class MapLandmarkDefinitions
         internal ElevatorSequence(AreaId area, int count) { this.area = area; this.count = count; }
         public int Count => count;
         public int Length => Count;
-        public bool IsEmpty => Count == 0;
         public MapElevatorLabel this[int index]
         {
             get

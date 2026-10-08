@@ -124,7 +124,7 @@ internal static partial class Program
     {
         var bus = installation.OpenRuntimeAddressSpace();
         var game = RepositoryInstallation.CreateGame(bus, options);
-        using var audio = new SpcAudioEngine();
+        using var audio = DesktopAccess.CreateAudioEngine();
         long sequence = 0;
         void Step(ushort input)
         {
@@ -136,7 +136,7 @@ internal static partial class Program
             Step(tick % 47 == 0 ? (ushort)SnesButton.Start : (ushort)0);
         Check(game.GameState == SuperMetroidGameState.MainGameplay, "desktop soak seed startup failed");
         game.RuntimeForVerification!.LoadCartridgeRoomForDebug(paused ? HiddenSoakRooms.MaridiaTube : HiddenSoakRooms.AlphaPowerBomb, 0, 0);
-        game.RuntimeForVerification.RunNmi(0, true);
+        game.RuntimeForVerification!.RunNmi(0, true);
         Step(0);
         if (paused) Step((ushort)SnesButton.Start);
         for (int warmup = 0; warmup < 120; warmup++) Step(0);

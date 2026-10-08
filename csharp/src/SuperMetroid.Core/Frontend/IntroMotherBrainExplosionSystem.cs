@@ -17,9 +17,6 @@ internal sealed class IntroMotherBrainExplosionSystem
 {
     private readonly List<ExplosionActor> actors = [];
 
-    /// <summary>All eight actors remain allocated until the later page-two crossfade.</summary>
-    public int ActiveCount => actors.Count(actor => actor.IsActive);
-
     /// <summary>
     /// Replays the eight spawn calls at $8B:B7C6-$B80B in their original order.
     /// </summary>

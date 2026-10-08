@@ -64,8 +64,6 @@ public sealed partial class RoomEnemySystem
     private readonly KagoEnemyState?[] _kagoStates =
         new KagoEnemyState?[MaximumEnemyCount];
 
-    public IReadOnlyList<KagoEnemyState?> KagoStates => _kagoStates;
-
     /// <summary>Ports <c>Kago_Init</c> at <c>$A8:AB46</c>.</summary>
     private void InitializeKago(RoomEnemySlot slot)
     {

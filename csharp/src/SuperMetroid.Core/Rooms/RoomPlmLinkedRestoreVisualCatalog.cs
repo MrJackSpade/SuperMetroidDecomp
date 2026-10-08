@@ -30,8 +30,6 @@ public sealed class RoomPlmLinkedRestoreVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customWords;
 
-    private RoomPlmLinkedRestoreVisualCatalog() { }
-
     public RoomPlmLinkedRestoreVisualCatalog(IEnumerable<RoomPlmLinkedRestoreVisualEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
@@ -55,9 +53,6 @@ public sealed class RoomPlmLinkedRestoreVisualCatalog
             throw new InvalidDataException("Linked restoration visuals do not cover all six compiled layouts.");
         if (selected.Count != 0) customWords = selected;
     }
-
-    /// <summary>Stock words are calculated from the physical draw's visual portion.</summary>
-    public static RoomPlmLinkedRestoreVisualCatalog Stock() => new();
 
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {

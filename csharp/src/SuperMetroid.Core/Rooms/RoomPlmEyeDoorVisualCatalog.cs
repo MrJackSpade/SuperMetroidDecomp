@@ -27,8 +27,6 @@ public sealed class RoomPlmEyeDoorVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
-    private RoomPlmEyeDoorVisualCatalog() { }
-
     public RoomPlmEyeDoorVisualCatalog(IEnumerable<RoomPlmEyeDoorVisualEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
@@ -57,9 +55,6 @@ public sealed class RoomPlmEyeDoorVisualCatalog
                 "Eye-door visuals do not cover all compiled frames.");
         if (selected.Count != 0) customBlocks = selected;
     }
-
-    /// <summary>Calculate stock visuals directly; retain only customized frames.</summary>
-    public static RoomPlmEyeDoorVisualCatalog Stock() => new();
 
     public ushort GetWord(ushort drawPointer, int blockIndex)
     {

@@ -11,7 +11,6 @@ internal sealed class D3D11GpuTimer : IDisposable
     private int head, tail, pending;
     private bool active, disposed;
     internal long SkippedSamples { get; private set; }
-    internal int PendingSamples => pending;
 
     internal D3D11GpuTimer(D3D11RenderDevice owner, int capacity = 8)
     {

@@ -78,13 +78,6 @@ public sealed class SamusTileTransferState
         // set, and Samus_Draw refreshes the selected definitions during each main-loop pass.
     }
 
-    /// <summary>Clears both transfer flags as the game-state reset routines do.</summary>
-    public void ClearTransferFlags()
-    {
-        TopTransferEnabled = false;
-        BottomTransferEnabled = false;
-    }
-
     private static void ExecuteInstalledDefinition(SnesVram vram,
         SamusBodyTileDefinition definition,
         SamusRenderingRomData.TileTransfers.SplitVramDestinations destinations)

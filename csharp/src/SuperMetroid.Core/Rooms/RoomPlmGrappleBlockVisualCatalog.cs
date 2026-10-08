@@ -26,8 +26,6 @@ public sealed class RoomPlmGrappleBlockVisualCatalog
 
     private readonly Dictionary<ushort, ushort>? customWords;
 
-    private RoomPlmGrappleBlockVisualCatalog() { }
-
     public RoomPlmGrappleBlockVisualCatalog(IEnumerable<RoomPlmGrappleBlockVisualEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
@@ -52,9 +50,6 @@ public sealed class RoomPlmGrappleBlockVisualCatalog
                 "Grapple-block visuals do not cover all compiled draw lists.");
         if (selected.Count != 0) customWords = selected;
     }
-
-    /// <summary>Stock visuals use the calculated draw word without storing derived entries.</summary>
-    public static RoomPlmGrappleBlockVisualCatalog Stock() => new();
 
     public ushort GetWord(ushort drawPointer)
     {

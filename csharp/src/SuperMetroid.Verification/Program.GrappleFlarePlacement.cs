@@ -30,8 +30,7 @@ internal static partial class Program
         var edited = ChargeFlarePlacementCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
         var refresh = typeof(SamusGrappleMovement).GetMethod("RefreshFiringDrawOrigins", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Action<ISnesAddressSpace, SamusState, SamusGrappleState>>();
-        var connect = typeof(SamusGrappleMovement).GetMethod("ConnectAcceptedFiring", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Func<ISnesAddressSpace, SamusState, SamusGrappleState, ushort, ushort, bool, bool, GrappleMovementResult>>();
+        Func<ISnesAddressSpace, SamusState, SamusGrappleState, ushort, ushort, bool, bool, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
         var empty = CreateRoom(64, 64, new ushort[4096], new byte[4096]);
         int locked = 0;
         var authoredPoses = Enumerable.Range(0, 253)

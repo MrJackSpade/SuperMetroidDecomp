@@ -25,7 +25,7 @@ public static class CartridgeAudioSmokeTest
         int nonZeroSamples = 0;
         int peakAmplitude = 0;
         CartridgeAudioAcknowledgements acknowledgements = default;
-        using var engine = new SpcAudioEngine();
+        using var engine = DesktopAccess.CreateAudioEngine();
         for (int frame = 0; frame < frames; frame++)
         {
             IReadOnlyList<CartridgeAudioCommand> commands =
@@ -73,7 +73,7 @@ public static class CartridgeAudioSmokeTest
         bool requestAcknowledged = false;
         bool clearAcknowledgedAfterRequest = false;
         int nonZeroSamples = 0;
-        using var soundEngine = new SpcAudioEngine();
+        using var soundEngine = DesktopAccess.CreateAudioEngine();
 
         for (int frame = 0; frame < auditFrames; frame++)
         {

@@ -54,12 +54,6 @@ public sealed class GameOverMenuState
 
     public bool TitleRequested { get; private set; }
 
-    /// <summary>Currently displayed Baby Metroid frame, exposed for deterministic replay.</summary>
-    public ushort BabySpritemap => babySpritemap;
-
-    /// <summary>Current bank-$82 Baby instruction pointer, exposed for debugger inspection.</summary>
-    public ushort BabyInstructionPointer => babyInstructionPointer;
-
     /// <summary>
     /// Reattaches host-owned presentation after debugger restoration and refreshes only
     /// presentation-owned PPU state. Animation phase, answer selection and fade remain live.

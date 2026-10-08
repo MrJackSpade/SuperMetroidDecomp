@@ -31,8 +31,6 @@ public sealed class RoomPlmNoobTubeVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
-    private RoomPlmNoobTubeVisualCatalog() { }
-
     public RoomPlmNoobTubeVisualCatalog(
         IEnumerable<RoomPlmNoobTubeVisualEntry> entries)
     {
@@ -65,9 +63,6 @@ public sealed class RoomPlmNoobTubeVisualCatalog
                 "N00b tube visuals do not cover all compiled frames.");
         if (selected.Count != 0) customBlocks = selected;
     }
-
-    /// <summary>Calculate original appearances directly; store only customized frames.</summary>
-    public static RoomPlmNoobTubeVisualCatalog Stock() => new();
 
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {

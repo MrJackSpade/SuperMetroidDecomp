@@ -70,9 +70,6 @@ public sealed partial class RoomEnemySystem
     private readonly LowerNorfairRioEnemyState?[] _lowerNorfairRioStates =
         new LowerNorfairRioEnemyState?[MaximumEnemyCount];
 
-    public IReadOnlyList<LowerNorfairRioEnemyState?> LowerNorfairRioStates =>
-        _lowerNorfairRioStates;
-
     /// <summary>Most recent library-two return sound request produced during this frame.</summary>
     public ushort? LastLowerNorfairRioSoundEffect { get; private set; }
 

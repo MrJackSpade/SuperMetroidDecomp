@@ -78,9 +78,6 @@ public sealed partial class RoomEnemySystem
     private ushort _workRobotPaletteAnimationTableOffset;
     private ushort _workRobotPaletteAnimationPaletteIndex;
 
-    /// <summary>Typed state for powered and deactivated Work Robots in all physical slots.</summary>
-    public IReadOnlyList<WorkRobotEnemyState?> WorkRobotStates => _workRobotStates;
-
     /// <summary>
     /// Most recent library-two sound requested by robot feet ($68) or a robot laser ($67).
     /// It is cleared at the beginning of every enemy frame, like the other audio seams.

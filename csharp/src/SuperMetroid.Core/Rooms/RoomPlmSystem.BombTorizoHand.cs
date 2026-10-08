@@ -24,8 +24,6 @@ public sealed partial class RoomPlmSystem
         _bombTorizoStatueProjectileRequests = [];
     private readonly List<PlmMusicRequest> _musicRequests = [];
     private Func<SamusState?>? _bombTorizoSamus;
-    private bool _bombTorizoHandWasLoaded;
-    private bool _bombTorizoHandWasDeleted;
 
     /// <summary>Raw seven-byte VRAM queue entries emitted during the latest PLM pass.</summary>
     public IReadOnlyList<PlmVramWriteRequest> VramWriteRequests => _vramWriteRequests;
@@ -36,12 +34,6 @@ public sealed partial class RoomPlmSystem
 
     /// <summary>Delayed music commands emitted during the latest PLM pass.</summary>
     public IReadOnlyList<PlmMusicRequest> MusicRequests => _musicRequests;
-
-    /// <summary>Whether this room population contained a live, undefeated hand trigger.</summary>
-    public bool BombTorizoHandWasLoaded => _bombTorizoHandWasLoaded;
-
-    /// <summary>Whether instruction <c>$84:86BC</c> consumed the loaded hand trigger.</summary>
-    public bool BombTorizoHandWasDeleted => _bombTorizoHandWasDeleted;
 
     /// <summary>
     /// Tests the physical PLM header array exactly as enemy code such as
@@ -66,8 +58,6 @@ public sealed partial class RoomPlmSystem
 
         slot.InstructionPointer = RoomPlmInstructionLists.BombTorizoCrumblingChozo;
         _bombTorizoHandRoomWidth = level.WidthInBlocks;
-        _bombTorizoHandWasLoaded = true;
-        _bombTorizoHandWasDeleted = false;
     }
 
     private void BeginBombTorizoHandFrame()
@@ -82,8 +72,6 @@ public sealed partial class RoomPlmSystem
         BeginBombTorizoHandFrame();
         _bombTorizoSamus = null;
         _bombTorizoHandRoomWidth = 0;
-        _bombTorizoHandWasLoaded = false;
-        _bombTorizoHandWasDeleted = false;
     }
 
     /// <summary>
@@ -168,11 +156,10 @@ public sealed partial class RoomPlmSystem
 
     private int _bombTorizoHandRoomWidth;
 
-    private void MarkBombTorizoHandDeleted(PlmSlot slot)
+    private static void MarkBombTorizoHandDeleted(PlmSlot slot)
     {
         if (slot.HeaderPointer != RoomPlmHeaders.BombTorizoHand)
             return;
-        _bombTorizoHandWasDeleted = true;
         slot.HeaderPointer = 0;
         slot.PreInstruction = 0;
     }

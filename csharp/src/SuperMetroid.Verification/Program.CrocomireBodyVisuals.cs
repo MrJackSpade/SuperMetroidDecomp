@@ -61,7 +61,7 @@ internal static partial class Program
 
         // Confirm the changed generator boundary through the real extractor and
         // loader, using original-ROM-derived definitions through the span path.
-        byte[] expectedJson = EnemyBg2FrameFiles.Extract(rom, 0xa4, expected, 1,
+        byte[] expectedJson = EnemyBg2FrameFiles.Extract(rom, 0xa4, new EnemyBg2FrameDefinitionSequence(expected.Length, index => expected[index]), 1,
             EnemyBg2FrameLayout.MaximumComponents, "Crocomire", allowMixedOam: true);
         byte[] generatedJson = CrocomireBg2FrameFiles.Extract(rom);
         AssertTrue(expectedJson.SequenceEqual(generatedJson), "generated catalog preserves exact extracted JSON");

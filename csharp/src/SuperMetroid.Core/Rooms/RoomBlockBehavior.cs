@@ -60,9 +60,6 @@ public readonly record struct RoomBlockBehavior(byte Value)
     /// <summary>Validated direct index for a non-area projectile/bomb reaction table.</summary>
     public byte NormalReactionIndex => Value;
 
-    /// <summary>Low-two-bit size variant shared by the four breakable-block dimensions.</summary>
-    public byte ReactionSizeIndex => unchecked((byte)(Value & 0x03));
-
     /// <summary>Entries zero through three restore after their break animation.</summary>
     public bool IsRespawningReaction => IsNormalReactionIndex(4);
 

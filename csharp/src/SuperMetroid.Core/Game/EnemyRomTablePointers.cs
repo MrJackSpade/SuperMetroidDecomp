@@ -6,56 +6,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class EnemyRomTablePointers
 {
-    /// <summary>Movement and collision tables shared across enemy banks.</summary>
-    public static class Common
-    {
-        /// <summary>256 signed 16-bit sine/cosine samples at $A0:B443 (512 bytes).</summary>
-        /// <remarks>
-        /// Physical view of <see cref="EnemyTrigonometryTables.SignedSine"/>
-        /// within the 320-word prefix/full-cycle region. Proof: #625 / #910.
-        /// </remarks>
-        public const int SignedSineCosineWords = 0xa0b443;
-        /// <summary>Thirty-two 16-byte slope-height profiles at $94:8B2B (512 bytes).</summary>
-        /// <remarks>Physical alias of <see cref="SlopeHeightDefinitions.Read"/>. Proof: #625 / #914.</remarks>
-        public const int SlopeHeightBytes = 0x948b2b;
-    }
-
-    /// <summary>Bomb/Golden Torizo actor and projectile tables.</summary>
-    public static class Torizo
-    {
-        /// <summary>Two Golden Torizo super-missile list pointers at $86:B209 (4 bytes).</summary>
-        public const int SuperMissileInstructionPointers = 0x86b209;
-        /// <summary>Two Bomb Torizo wake positions at $AA:C95F (4 bytes).</summary>
-        public const int WakeXPositions = 0xaac95f;
-        /// <summary>Two Bomb Torizo wake positions at $AA:C963 (4 bytes).</summary>
-        public const int WakeYPositions = 0xaac963;
-        /// <summary>Two Bomb Torizo wake instruction lists at $AA:C967 (4 bytes).</summary>
-        public const int WakeInstructionLists = 0xaac967;
-        /// <summary>Two Bomb Torizo wake property masks at $AA:C96B (4 bytes).</summary>
-        public const int WakePropertyMasks = 0xaac96b;
-        /// <summary>Two Bomb Torizo wake X radii at $AA:C96F (4 bytes).</summary>
-        public const int WakeXRadii = 0xaac96f;
-        /// <summary>Two Bomb Torizo wake Y radii at $AA:C973 (4 bytes).</summary>
-        public const int WakeYRadii = 0xaac973;
-        /// <summary>Twenty Golden Torizo walking displacement words at $AA:D59A (40 bytes).</summary>
-        public const int WalkHorizontalVelocityWords = 0xaad59a;
-        /// <summary>Bomb Torizo palette-FX color words at $84:8032.</summary>
-        public const int BodyPaletteFxColors = 0x848032;
-        /// <summary>Bomb Torizo belly palette-FX color words at $84:8132.</summary>
-        public const int BellyPaletteFxColors = 0x848132;
-    }
-
-    /// <summary>Chozo-statue palette and motion tables in bank $AA.</summary>
-    public static class ChozoStatue
-    {
-        /// <summary>Thirty-two signed statue movement velocities at $AA:E630 (64 bytes).</summary>
-        public const int CarryVelocityWords = 0xaae630;
-        /// <summary>Thirty-two carried-Samus X offsets at $AA:E670 (64 bytes).</summary>
-        public const int CarriedSamusXOffsetWords = 0xaae670;
-        /// <summary>Thirty-two carried-Samus Y offsets at $AA:E6B0 (64 bytes).</summary>
-        public const int CarriedSamusYOffsetWords = 0xaae6b0;
-    }
-
     /// <summary>Ceres Ridley, destruction, and door animation data.</summary>
     public static class Ceres
     {
@@ -69,59 +19,6 @@ internal static class EnemyRomTablePointers
         public const int RidleyRotationDivisorBytes = 0xa6d712;
         /// <summary>Sixteen three-color Ceres Ridley eye-fade palette rows at $A6:E2AA.</summary>
         public const int RidleyEyeFadePaletteRows = 0xa6e2aa;
-    }
-
-    /// <summary>Crocomire death graphics-transfer tables.</summary>
-    public static class Crocomire
-    {
-        /// <summary>Seven VRAM destination offsets at $A4:99CB (14 bytes).</summary>
-        public const int DeathVramDestinationWords = 0xa499cb;
-        /// <summary>Seven source pointers at $A4:99D9 (14 bytes).</summary>
-        public const int DeathGraphicsSourceWords = 0xa499d9;
-    }
-
-    /// <summary>Dead Sidehopper launch tables.</summary>
-    public static class DeadSidehopper
-    {
-        /// <summary>Four signed vertical velocity words at $A9:D951 (8 bytes).</summary>
-        public const int VerticalVelocityWords = 0xa9d951;
-        /// <summary>Four signed horizontal velocity words at $A9:D959 (8 bytes).</summary>
-        public const int HorizontalVelocityWords = 0xa9d959;
-    }
-
-    /// <summary>Landing Site gunship graphics-transfer tables.</summary>
-    public static class Gunship
-    {
-        /// <summary>Six signed liftoff dust X-offset words at $86:A2D6 (12 bytes).</summary>
-        public const int DustXOffsetWords = 0x86a2d6;
-        /// <summary>Six liftoff dust instruction-list pointers at $86:A2E2 (12 bytes).</summary>
-        public const int DustInstructionPointers = 0x86a2e2;
-        /// <summary>Five graphics source pointers at $A2:AC07 (10 bytes).</summary>
-        public const int LiftoffGraphicsSourceWords = 0xa2ac07;
-        /// <summary>Five VRAM destination words at $A2:AC11 (10 bytes).</summary>
-        public const int LiftoffVramDestinationWords = 0xa2ac11;
-    }
-
-    /// <summary>Bank-$86 falling-spark randomization data.</summary>
-    public static class FallingSpark
-    {
-        /// <summary>Falling-spark horizontal whole-velocity words at $86:F3D4, four-byte stride; seven authored records plus an eighth native overread.</summary>
-        public const int HorizontalWholeWords = 0x86f3d4;
-        /// <summary>Falling-spark horizontal fractional-velocity words at $86:F3D6, four-byte stride.</summary>
-        public const int HorizontalFractionWords = 0x86f3d6;
-    }
-
-    /// <summary>KiHunter distance and orbit-radius data.</summary>
-    public static class KiHunter
-    {
-        /// <summary>Attack trigger distance word at $A8:F180.</summary>
-        public const int TriggerDistanceWord = 0xa8f180;
-        /// <summary>Fractional falling/hopping acceleration word at $A8:F182.</summary>
-        public const int GravityFractionWord = 0xa8f182;
-        /// <summary>Whole falling/hopping acceleration word at $A8:F184.</summary>
-        public const int GravityWholeWord = 0xa8f184;
-        /// <summary>Detached-wing orbit radius low byte at $A8:F186.</summary>
-        public const int DetachedWingRadiusByte = 0xa8f186;
     }
 
     /// <summary>Kraid palettes, hitboxes, growth, and projectile motion data.</summary>
@@ -169,27 +66,6 @@ internal static class EnemyRomTablePointers
         public const int NailPositionOffsetWords = 0xa7bf1d;
         /// <summary>Kraid death explosion Y/function records at $A7:C5E7.</summary>
         public const int DeathExplosionRecords = 0xa7c5e7;
-    }
-
-    /// <summary>Phantoon movement, timing, palette, and flame-pattern data.</summary>
-    public static class Phantoon
-    {
-        /// <summary>Eight first-round hiding timer words at $A7:CD41 (16 bytes).</summary>
-        public const int FirstRoundHidingTimerWords = 0xa7cd41;
-        /// <summary>Eight eye-closed timer words at $A7:CD53 (16 bytes).</summary>
-        public const int EyeClosedTimerWords = 0xa7cd53;
-        /// <summary>Figure-eight speed and limit words at $A7:CD73.</summary>
-        public const int FigureEightMotionWords = 0xa7cd73;
-        /// <summary>Eight random direction bytes at $A7:CDA5.</summary>
-        public const int RandomDirectionBytes = 0xa7cda5;
-        /// <summary>Mouth flame-pattern pointer words at $A7:CCFD.</summary>
-        public const int MouthPatternPointerWords = 0xa7ccfd;
-        /// <summary>Phantoon flame random-angle bytes at $86:98B4.</summary>
-        public const int FlameAngleBytes = 0x8698b4;
-        /// <summary>Phantoon flame-rain X-position bytes at $86:98F7.</summary>
-        public const int FlameRainXBytes = 0x8698f7;
-        /// <summary>Phantoon spiral-flame angle bytes at $86:9979.</summary>
-        public const int SpiralAngleBytes = 0x869979;
     }
 
     /// <summary>Norfair Ridley movement and health-scaling tables.</summary>
@@ -249,16 +125,5 @@ internal static class EnemyRomTablePointers
         public const int InitialInstructionListWords = 0xa8cc30;
         /// <summary>Six four-color/timer palette records at $A8:CCC1 (60 bytes).</summary>
         public const int PaletteAnimationRecords = 0xa8ccc1;
-    }
-
-    /// <summary>Retail populations used to validate Ripper-family OAM mode.</summary>
-    public static class Ripper
-    {
-        /// <summary>GRipper room-population record at $A1:B16D.</summary>
-        public const int GRipperPopulationRecord = 0xa1b16d;
-        /// <summary>Ripper II room-population record at $A1:A48B.</summary>
-        public const int Ripper2PopulationRecord = 0xa1a48b;
-        /// <summary>Ordinary Ripper room-population record at $A1:9452.</summary>
-        public const int RipperPopulationRecord = 0xa19452;
     }
 }

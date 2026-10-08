@@ -446,27 +446,6 @@ public sealed class GameOptionsMenuState
             GameOptionsPresentationDefinitions.MoonwalkToggle, MoonwalkEnabled);
     }
 
-    private static void ApplySpecialToggle(
-        byte[] tilemap,
-        GameOptionsToggleLayout layout,
-        bool enabled)
-    {
-        int enabledPalette = enabled
-            ? GameOptionsRomData.TilePalettes.Selected
-            : GameOptionsRomData.TilePalettes.Unselected;
-        int disabledPalette = enabled
-            ? GameOptionsRomData.TilePalettes.Unselected
-            : GameOptionsRomData.TilePalettes.Selected;
-        ReplacePaletteIndex(tilemap, layout.EnabledTop,
-            GameOptionsRomData.SpecialToggles.PaletteRegionByteCount, enabledPalette);
-        ReplacePaletteIndex(tilemap, layout.EnabledBottom,
-            GameOptionsRomData.SpecialToggles.PaletteRegionByteCount, enabledPalette);
-        ReplacePaletteIndex(tilemap, layout.DisabledTop,
-            GameOptionsRomData.SpecialToggles.PaletteRegionByteCount, disabledPalette);
-        ReplacePaletteIndex(tilemap, layout.DisabledBottom,
-            GameOptionsRomData.SpecialToggles.PaletteRegionByteCount, disabledPalette);
-    }
-
     private void ApplyControllerLabels()
     {
         var content = mapPresentation ?? throw new InvalidOperationException(
@@ -494,19 +473,6 @@ public sealed class GameOptionsMenuState
             "Options cursor requires installed presentation assets."))
             .GameOptions.CursorPosition(PresentationPageName(cursorPage.Value), SelectedItem);
         return (checked((ushort)point.X), checked((ushort)point.Y));
-    }
-
-    private static void ReplacePaletteIndex(
-        byte[] tilemap,
-        int byteOffset,
-        int byteCount,
-        int paletteIndex)
-    {
-        for (int offset = byteOffset; offset < byteOffset + byteCount; offset += 2)
-        {
-            SnesBgTilemapWord word = ReadWord(tilemap, offset);
-            WriteWord(tilemap, offset, word.WithPaletteIndex(paletteIndex).Raw);
-        }
     }
 
     private void StepMissile()
@@ -552,15 +518,6 @@ public sealed class GameOptionsMenuState
                     color.A);
             }
         }
-    }
-
-    private static ushort ReadWord(ReadOnlySpan<byte> bytes, int offset) =>
-        unchecked((ushort)(bytes[offset] | (bytes[offset + 1] << 8)));
-
-    private static void WriteWord(Span<byte> bytes, int offset, ushort value)
-    {
-        bytes[offset] = unchecked((byte)value);
-        bytes[offset + 1] = unchecked((byte)(value >> 8));
     }
 }
 

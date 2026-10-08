@@ -46,10 +46,4 @@ internal static class CrocomireArenaPlmProgramDefinitions
         };
         return true;
     }
-
-    internal static IEnumerable<ushort> NativeWordAddresses()
-    {
-        for (int address = ClearBridge; address < EndExclusive; address += 2)
-            yield return (ushort)address;
-    }
 }

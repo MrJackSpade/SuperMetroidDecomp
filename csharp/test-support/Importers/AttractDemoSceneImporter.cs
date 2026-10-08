@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Reads native title-demo scene records for import and reference diagnostics.</summary>
-public static class AttractDemoSceneImporter
+internal static class AttractDemoSceneImporter
 {
     public static AttractDemoScene? Read(ISnesAddressSpace bus, int set, int scene)
     {
@@ -17,7 +17,7 @@ public static class AttractDemoSceneImporter
         int roomList = RomDataReader.ReadWordFixedBank(cartridge, AttractDemoRomData.RoomSetPointers + set * 2);
         int roomAddress = RecordAddress(AttractDemoRomData.RoomBank, roomList, scene, AttractDemoRomData.RoomRecordBytes);
         ushort Room(int offset) => RomDataReader.ReadWordFixedBank(cartridge, roomAddress + offset);
-        if (Room(AttractDemoRomData.RoomFields.Room) == AttractDemoRomData.EndOfSet)
+        if (Room(AttractDemoRomDataRoomFields.Room) == AttractDemoRomData.EndOfSet)
             return null;
         int equipmentList = RomDataReader.ReadWordFixedBank(cartridge, AttractDemoRomData.EquipmentSetPointers + set * 2);
         int equipmentAddress = RecordAddress(AttractDemoRomData.EquipmentBank, equipmentList, scene, AttractDemoRomData.EquipmentRecordBytes);
@@ -26,15 +26,15 @@ public static class AttractDemoSceneImporter
         ushort setup = RomDataReader.ReadWordFixedBank(cartridge,
             RecordAddress(AttractDemoRomData.EquipmentBank, setupList, scene, sizeof(ushort)));
         return new(
-            Room(AttractDemoRomData.RoomFields.Room), Room(AttractDemoRomData.RoomFields.Door),
-            Room(AttractDemoRomData.RoomFields.DoorSlot), Room(AttractDemoRomData.RoomFields.CameraX),
-            Room(AttractDemoRomData.RoomFields.CameraY), Room(AttractDemoRomData.RoomFields.SamusYFromTop),
-            unchecked((short)Room(AttractDemoRomData.RoomFields.SamusXFromCenter)),
-            Room(AttractDemoRomData.RoomFields.Duration), Room(AttractDemoRomData.RoomFields.Setup), setup,
-            Equipment(AttractDemoRomData.EquipmentFields.Items), Equipment(AttractDemoRomData.EquipmentFields.Missiles),
-            Equipment(AttractDemoRomData.EquipmentFields.SuperMissiles), Equipment(AttractDemoRomData.EquipmentFields.PowerBombs),
-            Equipment(AttractDemoRomData.EquipmentFields.Health), Equipment(AttractDemoRomData.EquipmentFields.CollectedBeams),
-            Equipment(AttractDemoRomData.EquipmentFields.EquippedBeams), Equipment(AttractDemoRomData.EquipmentFields.InputObject));
+            Room(AttractDemoRomDataRoomFields.Room), Room(AttractDemoRomDataRoomFields.Door),
+            Room(AttractDemoRomDataRoomFields.DoorSlot), Room(AttractDemoRomDataRoomFields.CameraX),
+            Room(AttractDemoRomDataRoomFields.CameraY), Room(AttractDemoRomDataRoomFields.SamusYFromTop),
+            unchecked((short)Room(AttractDemoRomDataRoomFields.SamusXFromCenter)),
+            Room(AttractDemoRomDataRoomFields.Duration), Room(AttractDemoRomDataRoomFields.Setup), setup,
+            Equipment(AttractDemoRomDataEquipmentFields.Items), Equipment(AttractDemoRomDataEquipmentFields.Missiles),
+            Equipment(AttractDemoRomDataEquipmentFields.SuperMissiles), Equipment(AttractDemoRomDataEquipmentFields.PowerBombs),
+            Equipment(AttractDemoRomDataEquipmentFields.Health), Equipment(AttractDemoRomDataEquipmentFields.CollectedBeams),
+            Equipment(AttractDemoRomDataEquipmentFields.EquippedBeams), Equipment(AttractDemoRomDataEquipmentFields.InputObject));
     }
 
     private static int RecordAddress(int bank, int list, int scene, int stride)

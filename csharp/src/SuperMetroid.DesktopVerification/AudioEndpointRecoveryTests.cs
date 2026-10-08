@@ -57,8 +57,8 @@ internal static partial class Program
             native!.WaitForPendingSubmissions();
             live.Reset();
             live.Submit(new short[1600]);
-            native.WaitForPendingSubmissions();
-            Check(native.PreparedBufferCountForVerification == WaveOutAudioPolicy.PrerollSilenceBufferCount + 1,
+            native!.WaitForPendingSubmissions();
+            Check(native!.PreparedBufferCountForVerification == WaveOutAudioPolicy.PrerollSilenceBufferCount + 1,
                 "recovery wrapper must preserve native startup and pause-reset preroll");
         }
         Console.WriteLine("Audio endpoint recovery: reported driver loss, cleanup failure, bounded retry, current PCM on reconnect, queue pacing and pause loss pass.");

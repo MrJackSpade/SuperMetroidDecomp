@@ -30,7 +30,7 @@ public static class DebuggerSaveStateSmokeTest
             var game = new SuperMetroidGame(bus, new SuperMetroidGameOptions());
             var maps = installation.LoadMaps();
             game.BindMapPresentation(maps);
-            using var audio = new SpcAudioEngine(installation.AudioDirectory);
+            using var audio = DesktopAccess.CreateAudioEngine(installation.AudioDirectory);
             for (int frame = 0; frame < 90; frame++)
             {
                 FrontendFrame current = game.Step(0);

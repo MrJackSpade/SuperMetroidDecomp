@@ -107,9 +107,9 @@ internal static partial class Program
                 $"standalone speed record ${speedRecord:X6}");
         }
 
-        TouchRange(bus, SamusMovementRomData.Slopes.HorizontalMultipliers,
+        TouchRange(bus, SamusMovementRomDataSlopes.HorizontalMultipliers,
             32 * 2 * sizeof(ushort), "non-square slope multipliers");
-        TouchRange(bus, SamusMovementRomData.Slopes.AlignmentHeights,
+        TouchRange(bus, SamusMovementRomDataSlopes.AlignmentHeights,
             32 * 16, "non-square slope height profiles");
 
         Console.WriteLine(

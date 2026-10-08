@@ -147,6 +147,7 @@ internal static partial class Program
                     return;
                 }
                 if (args.Length != 0) throw new ArgumentException("Usage: DesktopVerification [--audio-queue]");
+                DebuggerRetiredFieldTests.Run();
                 await Verify(RendererSelection.Software);
                 await Verify(RendererSelection.Direct3D11);
                 await Verify(RendererSelection.Auto);
@@ -173,7 +174,7 @@ internal static partial class Program
         string rom = Path.Combine(directory, "Super Metroid.smc");
         File.Copy(Path.GetFullPath("Super Metroid.smc"), rom);
         using var form = new Form { ClientSize = new(900, 760), ShowInTaskbar = false };
-        using var control = new PlayableGameControl(rom, new SuperMetroidGameOptions { Renderer = renderer, AudioEnabled = false });
+        using var control = DesktopAccess.CreateGameControl(rom, new SuperMetroidGameOptions { Renderer = renderer, AudioEnabled = false });
         form.Controls.Add(control);
         // Construct handles without Show/ShowDialog; the UI loop remains alive for DXGI.
         _ = form.Handle;
@@ -207,15 +208,12 @@ internal static partial class Program
                 // Hidden forms do not receive native minimize messages. Raise the
                 // real host event explicitly while retaining their child dimensions.
                 typeof(Form).GetMethod("OnResize", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(form, [EventArgs.Empty]);
-                await Until(() => (bool)typeof(D3D11RenderWorker).GetProperty("IsSurfaceSuspended",
-                    BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(worker)!, worker);
+                await Until(() => worker.IsSurfaceSuspended, worker);
                 form.WindowState = FormWindowState.Normal;
                 typeof(Form).GetMethod("OnResize", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(form, [EventArgs.Empty]);
-                await Until(() => !(bool)typeof(D3D11RenderWorker).GetProperty("IsSurfaceSuspended",
-                    BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(worker)!, worker);
+                await Until(() => !worker.IsSurfaceSuspended, worker);
                 var canvas = Field<RuntimeCanvas>(control, "canvas");
-                await Until(() => ((int Width, int Height))typeof(D3D11RenderWorker)
-                    .GetProperty("LastDrawnSize", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(worker)!
+                await Until(() => worker.LastDrawnSize
                     == (canvas.ClientSize.Width, canvas.ClientSize.Height), worker);
             }
             if (renderer != RendererSelection.Software)

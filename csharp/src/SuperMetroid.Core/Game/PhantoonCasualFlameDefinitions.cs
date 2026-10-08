@@ -18,7 +18,6 @@ public static class PhantoonCasualFlameDefinitions
     {
         private int BurstRank => pattern == 0 ? 2 : pattern == 1 ? 1 : 3;
         public int Count => 2 * BurstRank + 3;
-        public int Length => Count;
         public ushort this[int index]
         {
             get

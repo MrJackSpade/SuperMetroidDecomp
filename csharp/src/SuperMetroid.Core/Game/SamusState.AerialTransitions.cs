@@ -117,32 +117,6 @@ public sealed partial class SamusState
         return true;
     }
 
-    /// <summary>
-    /// Compatibility name for the `$13/$14` Fire subset. Keeping this narrow wrapper makes
-    /// existing focused tests readable while all input-table exits share one native handler.
-    /// </summary>
-    public bool TryApplySpinToNormalJumpFireTransition(
-        ISnesAddressSpace bus,
-        RoomLevelData level,
-        byte targetPose,
-        ushort nmiFrameCounter,
-        ushort controllerNewInput,
-        RoomPlmSystem? plms = null)
-    {
-        if (targetPose is not (SamusPoseIds.NormalJumpGunExtendedRightPose or SamusPoseIds.NormalJumpGunExtendedLeftPose))
-        {
-            throw new InvalidOperationException(
-                $"Spin-fire compatibility route requires pose $13/$14, not ${targetPose:X2}.");
-        }
-        return TryApplySpinOrWallJumpToNormalJumpTransition(
-            bus,
-            level,
-            targetPose,
-            nmiFrameCounter,
-            controllerNewInput,
-            plms);
-    }
-
     public bool TryApplyAerialTurn(
         ISnesAddressSpace bus,
         RoomLevelData level,

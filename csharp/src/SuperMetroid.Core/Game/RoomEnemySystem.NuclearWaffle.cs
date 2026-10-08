@@ -91,9 +91,6 @@ public sealed partial class RoomEnemySystem
     private readonly NuclearWaffleEnemyState?[] _nuclearWaffleStates =
         new NuclearWaffleEnemyState?[MaximumEnemyCount];
 
-    public IReadOnlyList<NuclearWaffleEnemyState?> NuclearWaffleStates =>
-        _nuclearWaffleStates;
-
     /// <summary>Last library-two sound requested by a joint turn during this enemy frame.</summary>
     public ushort? LastNuclearWaffleSoundEffect { get; private set; }
 

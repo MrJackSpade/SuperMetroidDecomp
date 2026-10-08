@@ -31,8 +31,6 @@ public sealed class RoomPlmMotherBrainGlassVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
-    private RoomPlmMotherBrainGlassVisualCatalog() { }
-
     public RoomPlmMotherBrainGlassVisualCatalog(
         IEnumerable<RoomPlmMotherBrainGlassVisualEntry> entries)
     {
@@ -65,9 +63,6 @@ public sealed class RoomPlmMotherBrainGlassVisualCatalog
                 "Mother Brain glass visuals do not cover all compiled frames.");
         if (selected.Count != 0) customBlocks = selected;
     }
-
-    /// <summary>Calculate original appearances directly; store only customized frames.</summary>
-    public static RoomPlmMotherBrainGlassVisualCatalog Stock() => new();
 
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {

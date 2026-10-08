@@ -125,30 +125,4 @@ internal static class SpeedBoosterBlockPlmProgramDefinitions
         value = 0;
         return false;
     }
-
-    internal static IEnumerable<ushort> MechanicsWordAddresses()
-    {
-        yield return BombReveal;
-        yield return checked((ushort)(BombReveal + 2));
-        yield return checked((ushort)(BombReveal + 4));
-        for (int index = 0; index < ProgramCount; index++)
-        {
-            Program program = ProgramAt(index);
-            yield return program.Start;
-            for (int frame = 0; frame < program.FrameCount; frame++)
-            {
-                yield return checked((ushort)(program.Start + 3 + frame * 4));
-                yield return checked((ushort)(program.Start + 5 + frame * 4));
-            }
-            yield return program.Terminal;
-            if (program.Respawns)
-                yield return checked((ushort)(program.Terminal + 2));
-        }
-    }
-
-    internal static IEnumerable<ushort> MechanicsByteAddresses()
-    {
-        for (int index = 0; index < ProgramCount; index++)
-            yield return checked((ushort)(ProgramAt(index).Start + 2));
-    }
 }

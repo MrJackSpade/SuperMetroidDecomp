@@ -39,9 +39,6 @@ public sealed class NorfairRidleyColorCatalog
         WriteIndented = true,
     };
 
-    public ushort ResolveInitial(int color) => initial.ColorAt(color);
-    public ushort ResolveReveal(int row, int color) => reveal.ColorAt(row, color);
-
     public void ApplyInitial(SnesCgram cgram)
     {
         ArgumentNullException.ThrowIfNull(cgram);

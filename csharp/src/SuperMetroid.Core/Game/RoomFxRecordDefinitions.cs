@@ -16,50 +16,11 @@ public sealed record RoomFxRecordDefinition(
     byte AnimatedTileBitset,
     byte PaletteBlend)
 {
-    /// <summary>Exposes one native byte for consumers that use offset-based FX fields.</summary>
-    public byte ReadByte(int offset) => offset switch
-    {
-        0 => (byte)DoorPointer,
-        1 => (byte)(DoorPointer >> 8),
-        2 => (byte)BaseYPosition,
-        3 => (byte)(BaseYPosition >> 8),
-        4 => (byte)TargetYPosition,
-        5 => (byte)(TargetYPosition >> 8),
-        6 => (byte)PackedYVelocity,
-        7 => (byte)(PackedYVelocity >> 8),
-        8 => Timer,
-        9 => Type,
-        10 => DefaultLayerBlend,
-        11 => Layer3LayerBlend,
-        12 => LiquidOptions,
-        13 => PaletteFxBitset,
-        14 => AnimatedTileBitset,
-        15 => PaletteBlend,
-        _ => throw new ArgumentOutOfRangeException(nameof(offset)),
-    };
-
-    public ushort ReadWord(int offset)
-    {
-        if ((uint)offset > RoomFxRomData.Record.ByteCount - sizeof(ushort))
-            throw new ArgumentOutOfRangeException(nameof(offset));
-        return (ushort)(ReadByte(offset) | ReadByte(offset + 1) << 8);
-    }
 }
 
 /// <summary>Compiled retail room-FX records selected by all known room states.</summary>
 public static partial class RoomFxRecordDefinitions
 {
-    /// <summary>Enumerates every selected record in ascending native identity order without a stored cache.</summary>
-    public static IEnumerable<RoomFxRecordDefinition> All
-    {
-        get
-        {
-            for (int pointer = 0x8000; pointer <= ushort.MaxValue; pointer++)
-                if (SelectRecord((ushort)pointer) is { } record)
-                    yield return record;
-        }
-    }
-
     /// <summary>Directly selects the room-FX configuration for one original record identity.</summary>
     /// <remarks>All 295 selected identities preserve the native four words/eight bytes.
     /// Terminator identities preserve the existing canonical view: door FFFF and

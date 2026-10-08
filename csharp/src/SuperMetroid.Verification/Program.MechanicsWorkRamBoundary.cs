@@ -24,7 +24,6 @@ internal static partial class Program
             "horizontal speed must not retain a mapped CPU-byte reader");
 
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        foreach (bool instructionInWorkRam in new[] { false, true })
         {
             const int origin = 3 * 16 + 3;
             var words = new ushort[16 * 16];
@@ -34,22 +33,11 @@ internal static partial class Program
             var plms = new RoomPlmSystem();
             var streamer = level.CreateBackgroundStreamer();
             AssertTrue(plms.TrySpawnBreakableGrappleBlock(level, origin, 1), "allocate bounded mechanics fixture");
-            if (instructionInWorkRam)
-            {
-                WriteMemoryWord(memory, 0x841100, RoomPlmInstructionCodes.DrawPlmBlockClone);
-                WriteMemoryWord(memory, 0x841102, RoomPlmInstructionCodes.Delete);
-                plms.SetSoleInstructionPointerForVerification(0x1100);
-            }
-            else
-            {
-                WriteMemoryWord(memory, 0x841000, 1);
-                WriteMemoryWord(memory, 0x841002, 0xc321);
-                WriteMemoryWord(memory, 0x841004, 0);
-                plms.SetSoleInstructionPointerForVerification(0xf300,
-                    [1, 0x1000, RoomPlmInstructionCodes.Delete]);
-            }
+            WriteMemoryWord(memory, 0x841100, RoomPlmInstructionCodes.DrawPlmBlockClone);
+            WriteMemoryWord(memory, 0x841102, RoomPlmInstructionCodes.Delete);
+            plms.SetSoleInstructionPointerForVerification(0x1100);
             plms.Step(memory, level, streamer, 0, 0, 0);
-            AssertEqual(instructionInWorkRam ? 0xc456 : 0xc321,
+            AssertEqual(0xc456,
                 level.GetCollisionBlockByIndex(origin).LevelWord, "active WRAM drives the exact physical output");
             AssertEqual(1, plms.TilemapUpdates.Count, "WRAM-backed draw publishes its visible update");
             plms.Step(memory, level, streamer, 0, 0, 0);

@@ -119,10 +119,6 @@ public sealed partial class RoomEnemySystem
     private readonly WreckedShipGhostEnemyState?[] _wreckedShipGhostStates =
         new WreckedShipGhostEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed native state for every physical Wrecked Ship ghost slot.</summary>
-    public IReadOnlyList<WreckedShipGhostEnemyState?> WreckedShipGhostStates =>
-        _wreckedShipGhostStates;
-
     /// <summary>Ports <c>WreckedShipGhost_Init</c> at <c>$A8:9AEE</c>.</summary>
     private void InitializeWreckedShipGhost(RoomEnemySlot slot)
     {

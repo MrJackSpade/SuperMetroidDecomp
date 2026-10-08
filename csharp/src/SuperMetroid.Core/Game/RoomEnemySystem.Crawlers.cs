@@ -68,9 +68,6 @@ public sealed partial class RoomEnemySystem
     private readonly CrawlerEnemyState?[] _crawlerStates =
         new CrawlerEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed state for every physical slot currently owned by a crawler family.</summary>
-    public IReadOnlyList<CrawlerEnemyState?> CrawlerStates => _crawlerStates;
-
     /// <summary>
     /// Ports the species wrappers at $A3:96E3/$993B/$B66F/$E2D4/$E59C/$E669 and their
     /// shared initializer at $A3:E67A. Each wrapper differs only by its four-list table and

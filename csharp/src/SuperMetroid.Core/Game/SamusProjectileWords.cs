@@ -43,13 +43,6 @@ public readonly record struct SamusBeamLoadoutWord(ushort Raw)
     private const ushort NativeConfigurationMask = 0x0fff;
 
     /// <summary>
-    /// Retail table index formed by the four independently combinable beam bits. Values
-    /// 12–15 are reachable through retail inventory's simultaneous-direction/accept glitch
-    /// as well as corrupted/debug-edited state; they read beyond ordinary beam tables.
-    /// </summary>
-    public int CombinationIndex => Raw & CombinationMask;
-
-    /// <summary>
     /// Exact low-twelve-bit index used by native defensive table checks. Unlike
     /// <see cref="CombinationIndex"/>, this deliberately retains unknown/debug-edited bits
     /// so invalid WRAM state still takes the cartridge's rejection branch.
@@ -65,17 +58,6 @@ public readonly record struct SamusBeamLoadoutWord(ushort Raw)
         SamusBeamFlags.Charge));
 
     public bool HasAny(SamusBeamFlags flags) => (KnownFlags & flags) != 0;
-
-    /// <summary>
-    /// Replaces the four-bit retail combination index while preserving Charge and every
-    /// other raw bit. Debug menus use this to emulate changing only the selected beams.
-    /// </summary>
-    public ushort WithCombinationIndex(int combinationIndex)
-    {
-        if ((uint)combinationIndex > CombinationMask)
-            throw new ArgumentOutOfRangeException(nameof(combinationIndex));
-        return (ushort)((Raw & ~CombinationMask) | combinationIndex);
-    }
 
     public static implicit operator SamusBeamLoadoutWord(ushort raw) => new(raw);
 }
@@ -94,8 +76,6 @@ public readonly record struct SamusProjectileTypeWord(ushort Raw)
     public ushort FamilyValue => (ushort)(Raw & FamilyMask);
     public SamusProjectileFamily Family => (SamusProjectileFamily)FamilyValue;
     public bool IsChargedBeam => (Raw & ChargedBeamMarker) != 0;
-    public bool IsSpazerSba => (Raw & SpazerSbaMarker) != 0;
-    public bool IsLive => (Raw & LiveMarker) != 0;
 
     public bool IsFamily(SamusProjectileFamily family) => FamilyValue == (ushort)family;
 
@@ -167,6 +147,4 @@ public readonly record struct SamusProjectileDirectionWord(ushort Raw)
     /// </summary>
     public ushort WithCollisionLifecycleState() =>
         unchecked((ushort)(Raw | CollisionLifecycleState));
-
-    public static implicit operator SamusProjectileDirectionWord(ushort raw) => new(raw);
 }

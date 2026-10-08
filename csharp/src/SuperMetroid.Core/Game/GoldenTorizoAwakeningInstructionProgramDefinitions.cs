@@ -116,18 +116,6 @@ internal abstract class GoldenTorizoAwakeningInstructionProgramDefinitions : IIn
             Cursor += sizeof(ushort) + 3 + sizeof(ushort);
         }
     }
-    internal static bool TryReadMechanicsWord(ushort address, out ushort value)
-    {
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            var word = MechanicsWord(index);
-            if (word.Address != address) continue;
-            value = word.Value;
-            return true;
-        }
-        value = 0;
-        return false;
-    }
 
     public static bool IsCompiledMechanicsByte(int address)
     {

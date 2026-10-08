@@ -118,59 +118,6 @@ public sealed partial class SuperMetroidGame
     /// <summary>Wrapping frame counter corresponding to the game's 16-bit NMI counter.</summary>
     public ushort FrameNumber { get; private set; }
 
-    /// <summary>
-    /// Debugger-visible hit counter owned by the live intro actor, or zero outside that
-    /// sequence. Exposing the actor's real counter keeps capture assertions out of gameplay.
-    /// </summary>
-    public ushort IntroMotherBrainHitCount => intro?.MotherBrainHitCount ?? 0;
-
-    /// <summary>Live ordinary projectiles in the active intro flashback.</summary>
-    public ushort IntroActiveProjectileCount => intro?.ActiveFlashbackProjectileCount ?? 0;
-
-    /// <summary>Live fourth-hit cinematic explosion actors, or zero outside the intro.</summary>
-    public int IntroMotherBrainExplosionCount => intro?.ActiveMotherBrainExplosionCount ?? 0;
-
-    /// <summary>World X from the active SR388 intro demo, or zero before it is created.</summary>
-    public ushort IntroBabyDiscoverySamusX => intro?.BabyDiscoverySamusX ?? 0;
-
-    /// <summary>Live result of the SR388 egg actor's Samus-X proximity test.</summary>
-    public bool IntroBabyDiscoveryEggHatchingStarted =>
-        intro?.BabyDiscoveryEggHatchingStarted ?? false;
-
-    /// <summary>Live shell fragments from the SR388 egg's native particle burst.</summary>
-    public int IntroBabyDiscoveryEggParticleCount =>
-        intro?.ActiveBabyDiscoveryEggParticleCount ?? 0;
-
-    /// <summary>The bank-$8B Ceres-flight subphase while game state remains $1E.</summary>
-    public string IntroCeresFlightPhaseName => intro?.CeresFlightPhaseName ?? string.Empty;
-
-    /// <summary>World X owned by the live gameplay Samus, or zero before state $1F.</summary>
-    public ushort GameplaySamusX => runtime?.Samus?.XPosition ?? 0;
-
-    /// <summary>World Y owned by the live gameplay Samus, or zero before state $1F.</summary>
-    public ushort GameplaySamusY => runtime?.Samus?.YPosition ?? 0;
-
-    /// <summary>Live layer-1 camera Y, exposed for debugger watches and ROM smoke captures.</summary>
-    public ushort GameplayCameraY => runtime?.Camera?.YPosition ?? 0;
-
-    /// <summary>The BG1/M7 vertical-scroll mirror published from the gameplay camera.</summary>
-    public ushort GameplayBg1VerticalScroll => runtime?.BackgroundScroll.Bg1VerticalScroll ?? 0;
-
-    /// <summary>Ordinary tilemap uploads produced by the most recent gameplay scroll pass.</summary>
-    public int GameplayBackgroundUpdateCount => runtime?.LastBackgroundUpdateCount ?? 0;
-
-    /// <summary>Live ordinary beam/missile slots in the gameplay projectile owner.</summary>
-    public ushort GameplayProjectileCount => runtime?.Projectiles.ProjectileCounter ?? 0;
-
-    /// <summary>Most recent projectile slot allocated by the gameplay alpha handler.</summary>
-    public int? GameplayLastFiredProjectileSlot => runtime?.Projectiles.LastFrameResult.FiredSlot;
-
-    /// <summary>The live cartridge pose byte, or zero before the gameplay runtime exists.</summary>
-    public byte GameplaySamusPose => runtime?.Samus?.Pose ?? 0;
-
-    /// <summary>Whether the Ceres elevator has restored ordinary player movement.</summary>
-    public bool GameplayMovementEnabled => runtime?.GroundedSamusMovementEnabled ?? false;
-
     /// <summary>Current bank-$8F room header pointer, exposed for door-transition watches.</summary>
     public ushort? GameplayActiveRoomPointer => runtime?.ActiveRoom?.Pointer;
 
@@ -188,62 +135,6 @@ public sealed partial class SuperMetroidGame
 
     /// <summary>Current bank-$83 entry door pointer, exposed for door-transition watches.</summary>
     public ushort? GameplayActiveDoorPointer => runtime?.ActiveDoor?.Pointer;
-
-    /// <summary>
-    /// Read-only access point for friend verification assemblies that need to observe the
-    /// complete cartridge-owned room graph while sending input through <see cref="Step"/>.
-    /// Production hosts never use this reference, and route audits must not invoke runtime
-    /// mutators through it; its purpose is to avoid manufacturing hundreds of writable
-    /// frontend proxy properties merely for collision-aware controller planning.
-    /// </summary>
-    internal SuperMetroidRuntime? RuntimeForVerification => runtime;
-
-    /// <summary>
-    /// Exposes the cartridge coroutine phase only to the friend verification/debug hosts.
-    /// Production UI code continues to consume the coarser public game state.
-    /// </summary>
-    internal DoorTransitionPhase DoorTransitionPhaseForVerification => doorTransition.Phase;
-
-    /// <summary>Live equipped-item word, including Morph Ball and Bomb bits.</summary>
-    public ushort GameplayEquippedItems => runtime?.Samus?.EquippedItems ?? 0;
-
-    /// <summary>Live collected-item word displayed by the pause equipment screen.</summary>
-    public ushort GameplayCollectedItems => runtime?.Samus?.CollectedItems ?? 0;
-
-    /// <summary>Live energy restored from SRAM and consumed by gameplay damage.</summary>
-    public ushort GameplayHealth => runtime?.Samus?.Health ?? 0;
-
-    /// <summary>Saved maximum-energy word restored alongside current energy.</summary>
-    public ushort GameplayMaxHealth => runtime?.Samus?.MaxHealth ?? 0;
-
-    /// <summary>Saved gameplay minutes, exposed for frontend reload regression watches.</summary>
-    public ushort GameplayTimeMinutes => runtime?.GameTime.Minutes ?? 0;
-
-    /// <summary>Saved gameplay hours, exposed for frontend reload regression watches.</summary>
-    public ushort GameplayTimeHours => runtime?.GameTime.Hours ?? 0;
-
-    /// <summary>Saved gameplay seconds, exposed for frontend reload regression watches.</summary>
-    public ushort GameplayTimeSeconds => runtime?.GameTime.Seconds ?? 0;
-
-    /// <summary>Saved subsecond gameplay frame word.</summary>
-    public ushort GameplayTimeFrames => runtime?.GameTime.Frames ?? 0;
-
-    /// <summary>Queries one live area-boss mask without exposing writable system arrays.</summary>
-    public bool GameplayHasBossBits(AreaId areaIndex, BossBits bits) =>
-        runtime?.System.HasAnyBossBits(areaIndex, bits) ?? false;
-
-    /// <summary>Queries a restored explored-map cell through the native 64-by-32 layout.</summary>
-    public bool GameplayIsMapTileExplored(AreaId areaIndex, int mapX, int mapY) =>
-        runtime?.System.IsMapTileExplored(areaIndex, mapX, mapY) ?? false;
-
-    /// <summary>Current pause page: zero for map, one for equipment, or -1 outside pause.</summary>
-    public int PauseScreenMode => pauseMenu?.ScreenMode ?? -1;
-
-    /// <summary>Equipment selector category, matching the low byte of native word $0754.</summary>
-    public int PauseSelectedEquipmentCategory => pauseMenu?.SelectedCategory ?? -1;
-
-    /// <summary>Equipment selector item, matching the high byte of native word $0754.</summary>
-    public int PauseSelectedEquipmentItem => pauseMenu?.SelectedItem ?? -1;
 
     /// <summary>Runs one dispatcher frame and returns the PPU-visible result.</summary>
     public FrontendFrame Step(ushort controllerInput)

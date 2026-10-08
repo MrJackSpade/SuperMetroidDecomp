@@ -132,32 +132,4 @@ internal static class RoomPlmBombBlockProgramDefinitions
         value = 0;
         return false;
     }
-
-    internal static IEnumerable<ushort> MechanicsWordAddresses()
-    {
-        for (int index = 0; index < ProgramCount; index++)
-        {
-            Program program = ProgramAt(index);
-            yield return program.CollisionHead;
-            yield return checked((ushort)(program.CollisionHead + 3));
-            yield return checked((ushort)(program.CollisionHead + 5));
-            yield return program.ReactionHead;
-            for (int frame = 0; frame < program.FrameCount; frame++)
-                yield return checked((ushort)(program.Tail + 4 * frame));
-            yield return program.Terminal;
-            if (program.Respawns)
-                yield return checked((ushort)(program.Terminal +
-                    (program.SingleBlock ? 2 : 4)));
-        }
-    }
-
-    internal static IEnumerable<ushort> MechanicsByteAddresses()
-    {
-        for (int index = 0; index < ProgramCount; index++)
-        {
-            Program program = ProgramAt(index);
-            yield return checked((ushort)(program.CollisionHead + 2));
-            yield return checked((ushort)(program.ReactionHead + 2));
-        }
-    }
 }

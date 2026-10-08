@@ -32,8 +32,6 @@ public sealed class RoomPlmMotherBrainFakeDeathVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customWords;
 
-    private RoomPlmMotherBrainFakeDeathVisualCatalog() { }
-
     public RoomPlmMotherBrainFakeDeathVisualCatalog(
         IEnumerable<RoomPlmMotherBrainFakeDeathVisualEntry> entries)
     {
@@ -65,9 +63,6 @@ public sealed class RoomPlmMotherBrainFakeDeathVisualCatalog
                 "Mother Brain fake-death visuals do not cover all twenty-two draws.");
         if (selected.Count != 0) customWords = selected;
     }
-
-    /// <summary>Project stock appearance from physical cells without a duplicate stock cache.</summary>
-    public static RoomPlmMotherBrainFakeDeathVisualCatalog Stock() => new();
 
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {

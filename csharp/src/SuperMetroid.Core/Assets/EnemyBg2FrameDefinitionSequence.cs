@@ -16,13 +16,6 @@ internal readonly ref struct EnemyBg2FrameDefinitionSequence
         Length = count;
     }
 
-    private EnemyBg2FrameDefinitionSequence(ReadOnlySpan<EnemyBg2FrameDefinition> stored)
-    {
-        this.stored = stored;
-        generate = null;
-        Length = stored.Length;
-    }
-
     public EnemyBg2FrameDefinition this[int index]
     {
         get
@@ -30,16 +23,6 @@ internal readonly ref struct EnemyBg2FrameDefinitionSequence
             if ((uint)index >= Length) throw new IndexOutOfRangeException();
             return generate is null ? stored[index] : generate(index);
         }
-    }
-
-    public static implicit operator EnemyBg2FrameDefinitionSequence(ReadOnlySpan<EnemyBg2FrameDefinition> value) => new(value);
-    public static implicit operator EnemyBg2FrameDefinitionSequence(EnemyBg2FrameDefinition[] value) => new(value);
-
-    internal EnemyBg2FrameDefinition[] ToArray()
-    {
-        var result = new EnemyBg2FrameDefinition[Length];
-        for (int index = 0; index < result.Length; index++) result[index] = this[index];
-        return result;
     }
 
     public Enumerator GetEnumerator() => new(this);

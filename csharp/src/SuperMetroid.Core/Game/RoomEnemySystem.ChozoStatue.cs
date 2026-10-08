@@ -87,16 +87,6 @@ public sealed partial class RoomEnemySystem
     private Action<bool>? _setSamusControlsEnabled;
     private Action<int, RoomScrollState>? _setRoomScrollState;
 
-    /// <summary>Typed per-slot state; non-statue slots contain null.</summary>
-    public IReadOnlyList<ChozoStatueState?> ChozoStatueStates => _chozoStatueStates;
-
-    /// <summary>
-    /// Pending bank-$84 requests in publication order. Runtime consumes each header once
-    /// through the shared PLM pool; actor-only diagnostics may inspect them before handoff.
-    /// </summary>
-    public IReadOnlyList<ChozoStatuePlmRequest> ChozoStatuePlmRequests =>
-        _chozoStatuePlmRequests;
-
     /// <summary>Consumes each published request once through the shared bank-$84 slot allocator.</summary>
     public void ApplyPendingChozoStatuePlms(RoomLevelData level, RoomPlmSystem plms)
     {

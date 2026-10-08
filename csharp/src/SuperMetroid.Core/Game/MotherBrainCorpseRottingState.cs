@@ -72,21 +72,6 @@ public sealed class MotherBrainCorpseRottingState
         IsInitialized = true;
     }
 
-    /// <summary>Reads one native four-byte table entry for debugger and verification use.</summary>
-    public static MotherBrainCorpseRotEntry ReadEntry(ISnesMutableMemory memory, int entryIndex)
-    {
-        ArgumentNullException.ThrowIfNull(memory);
-        if ((uint)entryIndex >= EntryCount)
-            throw new ArgumentOutOfRangeException(nameof(entryIndex));
-
-        CorpseRottingTableEntry entry = CorpseRottingTableProcessor.ReadEntry(
-            memory,
-            RotTableAddress,
-            EntryCount,
-            entryIndex);
-        return new MotherBrainCorpseRotEntry(entry.YOffset, entry.Timer);
-    }
-
     /// <summary>Runs one exact call of <c>ProcessCorpseRotting</c> for Mother Brain.</summary>
     public MotherBrainCorpseRottingStepResult Step(
         ISnesAddressSpace bus,
@@ -207,9 +192,6 @@ public sealed class MotherBrainCorpseRottingState
     }
 
 }
-
-/// <summary>One native <c>(signed Y offset, timer)</c> corpse-rotting table record.</summary>
-public readonly record struct MotherBrainCorpseRotEntry(short YOffset, ushort Timer);
 
 /// <summary>One MiscDust projectile emitted by Mother Brain's row-finished hook.</summary>
 public readonly record struct MotherBrainCorpseDustRequest(

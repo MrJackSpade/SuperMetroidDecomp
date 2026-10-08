@@ -152,9 +152,9 @@ internal static partial class Program
                 $"trail offset-family table ${offsets:X6}");
         }
 
-        TouchRange(bus, SamusProjectileRomData.Collision.NonSquareSlopeDefinitions,
+        TouchRange(bus, SamusProjectileRomDataCollision.NonSquareSlopeDefinitions,
             32 * 16, "projectile non-square slope profiles");
-        TouchRange(bus, SamusProjectileRomData.Collision.SquareSlopeDefinitions,
+        TouchRange(bus, SamusProjectileRomDataCollision.SquareSlopeDefinitions,
             4, "projectile square-slope quadrants");
         bus.ReadByte(SamusProjectileRomData.Banks.Movement |
             SamusProjectileRomData.Trails.MoveLeftDown);

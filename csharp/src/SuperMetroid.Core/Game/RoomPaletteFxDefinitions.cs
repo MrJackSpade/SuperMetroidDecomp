@@ -33,18 +33,6 @@ internal static class RoomPaletteFxDefinitions
     internal const int AreaCount = 8;
     internal const int DefinitionsPerArea = 8;
 
-    /// <summary>Calculates a native palette-FX area-list identity for index0..7.</summary>
-    /// <remarks>$83:AC46 has eight pointers to AC66+20h*area. Each area owns an
-    /// eight-word palette list followed by an eight-word animated-tile list.
-    /// Includes the debug area; invalid indices retain the former span rejection.
-    /// Independently verified against NTSC J/U v1.0 and pinned bank_83.asm
-    /// (362be646929cf8e483f692b73a6561cfc2dc1d0d).</remarks>
-    internal static ushort NativeAreaListPointer(int areaIndex)
-    {
-        if ((uint)areaIndex >= AreaCount) throw new IndexOutOfRangeException();
-        return (ushort)(0xac66 + areaIndex * 0x20);
-    }
-
     /// <summary>Selects setup callback and initial program by native palette-FX object identity.</summary>
     /// <remarks>The 63 aligned objects occupy E194..E200, F745..F7A5 and FFC9..FFED
     /// in bank8D. Each identity dispatches to one setup operation and animation program.

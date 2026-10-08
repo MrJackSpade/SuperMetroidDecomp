@@ -26,8 +26,6 @@ internal sealed class IntroEggParticle
         sprite.PreInstructionPointerForDiscovery(definition.PreInstruction);
     }
 
-    public bool IsActive => sprite.IsActive;
-
     public void Step(ISnesAddressSpace bus)
     {
         if (!sprite.IsActive)

@@ -35,23 +35,6 @@ public static class CorpseRottingTableProcessor
         }
     }
 
-    /// <summary>Reads one native table record without inventing a parallel host state.</summary>
-    public static CorpseRottingTableEntry ReadEntry(
-        ISnesMutableMemory memory,
-        int tableAddress,
-        ushort entryCount,
-        int entryIndex)
-    {
-        ArgumentNullException.ThrowIfNull(memory);
-        if ((uint)entryIndex >= entryCount)
-            throw new ArgumentOutOfRangeException(nameof(entryIndex));
-
-        int entryAddress = checked(tableAddress + entryIndex * EntryByteCount);
-        return new CorpseRottingTableEntry(
-            unchecked((short)SnesWorkRam.ReadWord(memory, entryAddress)),
-            SnesWorkRam.ReadWord(memory, entryAddress + 2));
-    }
-
     /// <summary>Runs one complete call of the shared cartridge table processor.</summary>
     /// <param name="copyOrMovePixelRow">
     /// Receives the current unsigned Y row and whether the selected enemy-specific routine
@@ -129,6 +112,3 @@ public static class CorpseRottingTableProcessor
         bus.WriteByte(address + 1, unchecked((byte)(value >> 8)));
     }
 }
-
-/// <summary>One shared native <c>(signed Y offset, timer)</c> corpse-rotting record.</summary>
-public readonly record struct CorpseRottingTableEntry(short YOffset, ushort Timer);

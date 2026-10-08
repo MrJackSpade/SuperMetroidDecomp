@@ -16,14 +16,6 @@ internal static partial class Program
             AssertEqual(native, MiscDustProjectileDefinitions.InstructionList(index),
                 $"misc-dust instruction selector {index}");
 
-            var motherBrainProjectiles = new MotherBrainEnemyProjectileSystem();
-            int slotIndex = motherBrainProjectiles.SpawnMiscDust(
-                new MiscDustDefinitionReadGuard(rom), 0x1234, 0x5678, index) ??
-                throw new InvalidDataException("Fresh Mother Brain projectile pool rejected misc dust.");
-            MotherBrainEnemyProjectileSlot motherBrainSlot = motherBrainProjectiles.Slots[slotIndex];
-            AssertEqual(native, motherBrainSlot.InstructionPointer,
-                $"Mother Brain misc-dust production selector {index}");
-
             var enemies = CreateMiscDustEnemySystem(rom);
             var spawn = typeof(RoomEnemySystem).GetMethod(
                     "SpawnRoomGraphicsDustExplosion", flags)!
@@ -77,14 +69,6 @@ internal static partial class Program
         AssertEqual(MiscDustProjectileDefinitions.InstructionList(29),
             ridley.EnemyProjectiles.Single(slot => slot.IsActive).InstructionPointer,
             "Ridley production dust clamps oversized variants to native selector 29");
-
-        var invalidMotherBrain = new MotherBrainEnemyProjectileSystem();
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => invalidMotherBrain.SpawnMiscDust(
-                new MiscDustDefinitionReadGuard(rom), 0, 0, 30),
-            "misc-dust selector beyond authored table");
-        AssertEqual(0, invalidMotherBrain.Slots.Count(slot => slot.IsActive),
-            "invalid Mother Brain misc dust does not partially allocate a slot");
 
         var invalidRoom = CreateMiscDustEnemySystem(rom);
         var spawnInvalidRoom = typeof(RoomEnemySystem).GetMethod(

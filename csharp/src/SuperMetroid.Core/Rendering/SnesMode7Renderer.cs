@@ -18,56 +18,6 @@ public static class SnesMode7Renderer
     private const int Mode7CoordinateMask = 0x03ff;
 
     /// <summary>
-    /// Renders one Mode 7 viewport using the signed 8.8 matrix/register convention.
-    /// </summary>
-    /// <remarks>
-    /// The identity values A=D=$0100 and B=C=0 produce one source pixel per screen pixel.
-    /// Outside-map policy defaults to M7SEL=$80: bit 7 disables wrapping and bit 6 leaves
-    /// overflow transparent. Character-zero fill is available for the distinct $C0 mode.
-    /// Wrapping selects M7SEL bit seven clear and takes precedence over character-zero fill.
-    /// Transparent color zero is returned with alpha zero so OBJ/backdrop composition can
-    /// retain the normal renderer contract.
-    /// </remarks>
-    public static Rgba32[] RenderViewport(
-        SnesVram vram,
-        SnesCgram cgram,
-        short matrixA,
-        short matrixB,
-        short matrixC,
-        short matrixD,
-        short centerX,
-        short centerY,
-        short horizontalOffset,
-        short verticalOffset,
-        int width = SnesPpuLayout.ScreenWidthPixels,
-        int height = SnesPpuLayout.ScreenHeightPixels,
-        bool fillOutsideWithCharacterZero = false, bool wrapOutsideMap = false)
-    {
-        ArgumentNullException.ThrowIfNull(vram);
-        ArgumentNullException.ThrowIfNull(cgram);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
-
-        var output = new Rgba32[checked(width * height)];
-        CompositeViewport(
-            output,
-            vram,
-            cgram,
-            matrixA,
-            matrixB,
-            matrixC,
-            matrixD,
-            centerX,
-            centerY,
-            horizontalOffset,
-            verticalOffset,
-            width,
-            height,
-            fillOutsideWithCharacterZero, wrapOutsideMap);
-        return output;
-    }
-
-    /// <summary>
     /// Projects Mode 7 directly over caller-owned storage. Transparent samples leave the
     /// existing destination intact, allowing the gameplay compositor to begin with its
     /// backdrop and avoid a second full-frame raster plus copy.

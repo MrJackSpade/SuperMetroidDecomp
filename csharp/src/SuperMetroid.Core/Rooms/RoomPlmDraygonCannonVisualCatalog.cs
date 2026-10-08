@@ -31,8 +31,6 @@ public sealed class RoomPlmDraygonCannonVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
-    private RoomPlmDraygonCannonVisualCatalog() { }
-
     public RoomPlmDraygonCannonVisualCatalog(
         IEnumerable<RoomPlmDraygonCannonVisualEntry> entries)
     {
@@ -65,9 +63,6 @@ public sealed class RoomPlmDraygonCannonVisualCatalog
                 "Draygon cannon visuals do not cover all reachable compiled frames.");
         if (selected.Count != 0) customBlocks = selected;
     }
-
-    /// <summary>Calculate original appearances directly; store only customized frames.</summary>
-    public static RoomPlmDraygonCannonVisualCatalog Stock() => new();
 
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {

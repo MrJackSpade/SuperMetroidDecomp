@@ -340,15 +340,6 @@ public sealed class OamBuffer
             IsLarge: highPair.IsLarge);
     }
 
-    /// <summary>Copies the exact contiguous 544-byte payload sent to PPU OAM.</summary>
-    public byte[] CreateUploadPayload()
-    {
-        var payload = new byte[UploadByteCount];
-        _lowTable.CopyTo(payload, 0);
-        _highTable.CopyTo(payload, LowTableByteCount);
-        return payload;
-    }
-
     /// <summary>
     /// Restores a complete physical OAM image for a software render consumer. The
     /// physical image has no construction cursor. Retain the producer's modeled

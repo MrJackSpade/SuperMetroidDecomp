@@ -59,21 +59,6 @@ public static partial class LibraryBackgroundProgramDefinitions
             ? program
             : throw new InvalidDataException(
                 $"No compiled library-background program for $8F:{pointer:X4}.");
-
-    /// <summary>Finds a command-E transfer for one door in a compiled program.</summary>
-    public static LibraryBackgroundInstruction GetDoorTransfer(ushort listPointer,
-        ushort doorPointer)
-    {
-        foreach (LibraryBackgroundInstruction instruction in Get(listPointer).Instructions)
-        {
-            if (instruction.Command == LibraryBackgroundCommand.TransferForDoor &&
-                instruction.DoorPointer == doorPointer)
-                return instruction;
-        }
-        throw new InvalidDataException(
-            $"Library background $8F:{listPointer:X4} has no command-E record " +
-            $"for door $83:{doorPointer:X4}.");
-    }
 }
 
 /// <summary>One ordered, fixed native list; the terminator is implicit in the command count.</summary>

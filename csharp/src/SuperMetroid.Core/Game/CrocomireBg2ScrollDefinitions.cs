@@ -1,9 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One native Crocomire BG2 Y-scroll correction keyed by body spritemap.</summary>
-internal readonly record struct CrocomireBg2VerticalCorrection(
-    ushort SpritemapPointer, ushort Offset);
-
 /// <summary>
 /// Fixed scroll data used by <c>Update Crocomire BG2 scroll</c> at $A4:8B5B.
 /// The cartridge searches the 17 pointers at $A4:8B79 in reverse order and,
@@ -48,18 +44,6 @@ internal static class CrocomireBg2ScrollDefinitions
     private const ushort MovingClaws3 = MovingClawsFrameStart + 3 * 0x32;
     /// <summary>$A4:C542 ExtendedSpritemap_Crocomire_MovingClaws_4.</summary>
     private const ushort MovingClaws4 = MovingClawsFrameStart + 4 * 0x32;
-
-    internal static int EntryCount => 17;
-
-    /// <summary>Native pointer order: twelve charge/step-back frames followed by
-    /// five moving-claw frames. Each six-component extended frame occupies $32 bytes.</summary>
-    internal static CrocomireBg2VerticalCorrection Entry(int index)
-    {
-        if ((uint)index >= EntryCount) throw new IndexOutOfRangeException();
-        ushort frame = (ushort)(index < 12 ? ChargeStepFrameStart + 0x32 * index
-            : MovingClawsFrameStart + 0x32 * (index - 12));
-        return new(frame, unchecked((ushort)Correction(frame)));
-    }
 
     /// <summary>Aligns BG2 to the selected body's extended-frame pose. These named
     /// pose cases reproduce the native pointer search and signed Y adjustment;

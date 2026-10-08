@@ -15,16 +15,6 @@ internal static class SidehopperDrainShadeDefinitions
     private static int LightShadeRed(ushort light) => (light & 31) - SelectedLightRedDrop;
     private static int DarkShadeRed(ushort dark) => (dark & 31) + SelectedDarkRedLift;
 
-    internal static bool Matches(ReadOnlySpan<ushort> colors) =>
-        MatchesShade(colors[1], colors[4], LightShadeRed(colors[1]), colors[2]) &&
-        MatchesShade(colors[1], colors[4], DarkShadeRed(colors[4]), colors[3]) &&
-        MatchesShade(colors[5], colors[8], LightShadeRed(colors[5]), colors[6]) &&
-        MatchesShade(colors[5], colors[8], DarkShadeRed(colors[8]), colors[7]);
-
-    /// <summary>Resolves the two matched ramps from three independently supplied paints and the shared corpse dark.</summary>
-    internal static ushort Resolve(int color, ReadOnlySpan<ushort> anchors, ushort bodyDark) =>
-        Resolve(color, anchors[0], anchors[1], anchors[2], bodyDark);
-
     internal static ushort Resolve(int color, ushort bodyLight, ushort detailLight, ushort detailDark, ushort bodyDark) => color switch
     {
         1 => bodyLight,
@@ -37,12 +27,6 @@ internal static class SidehopperDrainShadeDefinitions
         8 => detailDark,
         _ => throw new ArgumentOutOfRangeException(nameof(color)),
     };
-
-    private static bool MatchesShade(ushort light, ushort dark, int red, ushort supplied)
-    {
-        int lightRed = light & 31, darkRed = dark & 31;
-        return lightRed > darkRed && red >= darkRed && red <= lightRed && Shade(light, dark, red) == supplied;
-    }
 
     private static ushort Shade(ushort light, ushort dark, int red)
     {

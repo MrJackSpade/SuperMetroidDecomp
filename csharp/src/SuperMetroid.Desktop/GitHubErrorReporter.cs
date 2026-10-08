@@ -112,15 +112,6 @@ public sealed class GitHubErrorReporter : IDisposable
         return fingerprint;
     }
 
-    /// <summary>Waits until every report queued so far has completed its remote check.</summary>
-    internal async Task FlushAsync()
-    {
-        var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        if (!queue.Writer.TryWrite(new QueuedError(completion)))
-            throw new ObjectDisposedException(nameof(GitHubErrorReporter));
-        await completion.Task.ConfigureAwait(false);
-    }
-
     public void Dispose()
     {
         if (Interlocked.Exchange(ref disposed, 1) != 0)
@@ -301,11 +292,6 @@ public sealed class GitHubErrorReporter : IDisposable
     {
         public QueuedError(string fingerprint, Exception exception, GitHubErrorContext context)
             : this(fingerprint, exception, context, null)
-        {
-        }
-
-        public QueuedError(TaskCompletionSource completion)
-            : this(null, null, null, completion)
         {
         }
     }

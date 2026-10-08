@@ -70,9 +70,6 @@ public sealed partial class RoomEnemySystem
     private const int FlyAttackHorizontalRange = 0x70;
     private readonly FlyEnemyState?[] _flyStates = new FlyEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed state for every physical slot currently owned by the fly family.</summary>
-    public IReadOnlyList<FlyEnemyState?> FlyStates => _flyStates;
-
     private void InitializeFly(RoomEnemySlot slot)
     {
         var state = new FlyEnemyState(slot)

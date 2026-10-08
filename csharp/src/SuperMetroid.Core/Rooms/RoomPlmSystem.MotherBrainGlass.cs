@@ -20,33 +20,11 @@ public sealed partial class RoomPlmSystem
     private Action<EventNumber>? _setEvent;
     private int _motherBrainGlassSlotIndex = -1;
     private bool _motherBrainGlassWasLoaded;
-    private bool _motherBrainGlassWasDeleted;
     private ushort _motherBrainGlassLastRoomArgument;
 
     /// <summary>Shard actors requested by the most recent PLM handler pass.</summary>
     public IReadOnlyList<MotherBrainGlassProjectileRequest> MotherBrainGlassProjectileRequests =>
         _motherBrainGlassProjectileRequests;
-
-    /// <summary>Whether the cartridge's room population installed PLM <c>$D6DE</c>.</summary>
-    public bool MotherBrainGlassWasLoaded => _motherBrainGlassWasLoaded;
-
-    /// <summary>Whether the final event-setting instruction deleted the glass PLM.</summary>
-    public bool MotherBrainGlassWasDeleted => _motherBrainGlassWasDeleted;
-
-    /// <summary>Current native room argument, retained after the header deletes itself.</summary>
-    public ushort MotherBrainGlassRoomArgument => TryGetMotherBrainGlassSlot(out PlmSlot? slot)
-        ? slot!.RoomArgument
-        : _motherBrainGlassLastRoomArgument;
-
-    /// <summary>Current bank-$84 instruction pointer, or zero after deletion.</summary>
-    public ushort MotherBrainGlassInstructionPointer => TryGetMotherBrainGlassSlot(out PlmSlot? slot)
-        ? slot!.InstructionPointer
-        : (ushort)0;
-
-    /// <summary>Current PLM instruction countdown, or zero after deletion.</summary>
-    public ushort MotherBrainGlassInstructionTimer => TryGetMotherBrainGlassSlot(out PlmSlot? slot)
-        ? slot!.InstructionTimer
-        : (ushort)0;
 
     /// <summary>Runs setup $D5F6 against the already allocated highest room slot.</summary>
     private void SetupMotherBrainGlassSlot(
@@ -76,7 +54,6 @@ public sealed partial class RoomPlmSystem
         _motherBrainGlassSlotIndex = physicalSlot;
         _motherBrainGlassRoomWidth = level.WidthInBlocks;
         _motherBrainGlassWasLoaded = true;
-        _motherBrainGlassWasDeleted = false;
         _motherBrainGlassLastRoomArgument = 0;
     }
 
@@ -109,7 +86,6 @@ public sealed partial class RoomPlmSystem
         _motherBrainHasAreaBossBit = null;
         _motherBrainGlassSlotIndex = -1;
         _motherBrainGlassWasLoaded = false;
-        _motherBrainGlassWasDeleted = false;
         _motherBrainGlassLastRoomArgument = 0;
         _motherBrainGlassRoomWidth = 0;
     }
@@ -244,7 +220,6 @@ public sealed partial class RoomPlmSystem
         if (slot.HeaderPointer != RoomPlmHeaders.MotherBrainGlass)
             return;
         _motherBrainGlassLastRoomArgument = slot.RoomArgument;
-        _motherBrainGlassWasDeleted = true;
         _motherBrainGlassSlotIndex = -1;
         // Deleted physical slots are reusable. Clear the family discriminator now so a
         // later ordinary PLM cannot accidentally inherit glass-only instruction dispatch.

@@ -119,43 +119,6 @@ internal static class TorizoCollisionDefinitions
 
     private static int MirroredCount => LeftFrames.Length + AwakeningFrames.Length;
 
-    internal static int FrameCount => 2 + MirroredCount * 2 + JumpBackFrames.Length;
-
-    /// <summary>Every frame pointer, derived from the four runs.</summary>
-    internal static IEnumerable<ushort> FramePointers
-    {
-        get
-        {
-            yield return BlankFrame;
-            yield return TurningFrame;
-            ushort cursor = LeftStart;
-            foreach (GoldenTorizoCollisionComponent[] frame in LeftFrames)
-            {
-                yield return cursor;
-                cursor = Next(cursor, frame.Length);
-            }
-            cursor = AwakeningStart;
-            foreach (GoldenTorizoCollisionComponent[] frame in AwakeningFrames)
-            {
-                yield return cursor;
-                cursor = Next(cursor, frame.Length);
-            }
-            cursor = RightStart;
-            for (int index = 0; index < MirroredCount; index++)
-            {
-                yield return cursor;
-                cursor = Next(cursor, LeftFacing(index).Length);
-            }
-            foreach (GoldenTorizoCollisionComponent[] frame in JumpBackFrames)
-            {
-                yield return cursor;
-                cursor = Next(cursor, frame.Length);
-            }
-        }
-    }
-
-    internal static IEnumerable<ushort> HitboxPointers => ListPointers;
-
     /// <summary>Components of <paramref name="frame"/>; right-facing frames mirror on read.</summary>
     internal static TorizoCollisionComponents ComponentsAt(ushort frame)
     {
@@ -176,20 +139,6 @@ internal static class TorizoCollisionDefinitions
             cursor = Next(cursor, jump.Length);
         }
         throw new InvalidDataException($"Torizo frame $AA:{frame:X4} is not compiled.");
-    }
-
-    internal static bool HasFrame(ushort frame) => TryGetComponents(frame, out _);
-
-    internal static bool TryGetComponents(ushort frame, out TorizoCollisionComponents components)
-    {
-        foreach (ushort pointer in FramePointers)
-        {
-            if (pointer != frame) continue;
-            components = ComponentsAt(frame);
-            return true;
-        }
-        components = default;
-        return false;
     }
 
     /// <summary>The <paramref name="index"/>th left-facing frame in mirror order.</summary>

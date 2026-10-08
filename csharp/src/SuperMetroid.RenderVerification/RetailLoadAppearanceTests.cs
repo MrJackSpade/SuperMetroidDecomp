@@ -46,11 +46,11 @@ internal static class RetailLoadAppearanceTests
                     $"{device.Kind}: saved-file load frame {tick}, {expected.GameState}");
                 samples++;
             }
-            if (sawAppearance && legacy.RuntimeForVerification is { SamusLoadAppearanceActive: false } runtime &&
+            if (sawAppearance && legacy.RuntimeForVerification is { } runtime && !runtime.SamusLoadAppearanceActive &&
                 legacy.GameState == SuperMetroidGameState.MainGameplay)
             {
                 if (runtime.Samus!.InputLocked || captured.RuntimeForVerification!.SamusLoadAppearanceActive ||
-                    captured.RuntimeForVerification.Samus!.InputLocked)
+                    captured.RuntimeForVerification!.Samus!.InputLocked)
                     throw new InvalidOperationException("Load appearance did not release both owners.");
                 completed = true; break;
             }

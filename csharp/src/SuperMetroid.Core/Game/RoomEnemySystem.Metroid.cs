@@ -123,12 +123,6 @@ public sealed partial class RoomEnemySystem
         new MetroidEnemyState?[MaximumEnemyCount];
     private readonly List<MetroidDropRequest> _metroidDropRequests = new();
 
-    /// <summary>Typed state for each physical enemy slot currently owned by a Metroid.</summary>
-    public IReadOnlyList<MetroidEnemyState?> MetroidStates => _metroidStates;
-
-    /// <summary>Five ROM-authored scatter requests emitted by the most recent special death.</summary>
-    public IReadOnlyList<MetroidDropRequest> MetroidDropRequests => _metroidDropRequests;
-
     /// <summary>Most recent library-two Metroid sound requested during this enemy frame.</summary>
     public ushort? LastMetroidSoundEffectLibrary2 { get; private set; }
 

@@ -14,12 +14,6 @@ public static class LayerBlendingConfigurations
         return configuration;
     }
 
-    /// <summary>Rejects undefined configuration values supplied by host-side callers.</summary>
-    public static void Validate(
-        LayerBlendingConfiguration configuration,
-        string parameterName) =>
-        ValidateDefined(configuration, parameterName, cartridgeData: false);
-
     /// <summary>Accepts exactly the even word offsets0..$34 in $88:803E..8072.</summary>
     /// <remarks>The native dispatcher indexes27 consecutive two-byte pointers; every
     /// slot has a named identity, including unused routines and repeated targets.

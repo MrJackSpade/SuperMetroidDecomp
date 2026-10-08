@@ -24,16 +24,4 @@ public static class DachoraColorRomData
     public const int ColorsPerFrame = 16;
     public const int AnimatedFrameCount = 4;
     public const int FrameByteCount = ColorsPerFrame * sizeof(ushort);
-
-    /// <summary>Returns the authored color source for a cartridge-selected phase/frame.</summary>
-    public static int Source(DachoraPalettePhase phase, int frame) => phase switch
-    {
-        DachoraPalettePhase.Default when frame == 0 => DefaultSource,
-        DachoraPalettePhase.Speed when (uint)frame < AnimatedFrameCount =>
-            SpeedSource + frame * FrameByteCount,
-        DachoraPalettePhase.Shine when (uint)frame < AnimatedFrameCount =>
-            ShineSource + frame * FrameByteCount,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame),
-            $"Dachora phase {phase} has no frame {frame}."),
-    };
 }

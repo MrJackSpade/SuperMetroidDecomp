@@ -106,39 +106,4 @@ public sealed partial class FileSelectMenuState
         presentation.WriteDigit(bg1Tilemap, layout.TimeValueAnchor, 3, minutes / 10);
         presentation.WriteDigit(bg1Tilemap, layout.TimeValueAnchor, 4, minutes % 10);
     }
-
-    private void RebuildLegacyPresentationPage()
-    {
-        switch (currentPresentationPage)
-        {
-            case FileSelectPresentationDefinitions.MainWithDataPage:
-            case FileSelectPresentationDefinitions.MainEmptyPage:
-                BuildSaveTilemap();
-                break;
-            case FileSelectPresentationDefinitions.CopySourcePage:
-                BuildCopySourceTilemap();
-                break;
-            case FileSelectPresentationDefinitions.CopyDestinationPage:
-                BuildCopyDestinationTilemap();
-                break;
-            case FileSelectPresentationDefinitions.CopyConfirmPage:
-                BuildCopyConfirmationTilemap();
-                break;
-            case FileSelectPresentationDefinitions.CopyCompletedPage:
-                BuildCopyCompletedTilemap();
-                break;
-            case FileSelectPresentationDefinitions.ClearSelectionPage:
-                BuildClearSelectionTilemap();
-                break;
-            case FileSelectPresentationDefinitions.ClearConfirmPage:
-                BuildClearConfirmationTilemap();
-                break;
-            case FileSelectPresentationDefinitions.ClearCompletedPage:
-                BuildClearCompletedTilemap();
-                break;
-            default:
-                throw new InvalidDataException(
-                    $"Unknown file-select presentation page {currentPresentationPage}.");
-        }
-    }
 }

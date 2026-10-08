@@ -9,11 +9,4 @@ internal static class KraidHealthThresholdDefinitions
         if ((uint)index >= 8) throw new IndexOutOfRangeException();
         return (ushort)((initialHealth >> 3) * (index + 1));
     }
-
-    /// <summary>$A7:AA23-AA43: truncate health/4, then accumulate four multiples.</summary>
-    public static ushort Quarter(ushort initialHealth, int index)
-    {
-        if ((uint)index >= 4) throw new IndexOutOfRangeException();
-        return (ushort)((initialHealth >> 2) * (index + 1));
-    }
 }

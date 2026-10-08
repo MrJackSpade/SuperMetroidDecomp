@@ -28,8 +28,6 @@ public sealed class RoomPlmSporeSpawnCeilingVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customWords;
 
-    private RoomPlmSporeSpawnCeilingVisualCatalog() { }
-
     public RoomPlmSporeSpawnCeilingVisualCatalog(
         IEnumerable<RoomPlmSporeSpawnCeilingVisualEntry> entries)
     {
@@ -58,9 +56,6 @@ public sealed class RoomPlmSporeSpawnCeilingVisualCatalog
                 "Spore Spawn ceiling visuals do not cover all four compiled frames.");
         if (selected.Count != 0) customWords = selected;
     }
-
-    /// <summary>Calculate each stock square from its physical draw word; retain only custom artwork.</summary>
-    public static RoomPlmSporeSpawnCeilingVisualCatalog Stock() => new();
 
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {

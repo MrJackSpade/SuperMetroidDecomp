@@ -10,20 +10,6 @@ public sealed partial class RoomPlmSystem
     private Func<SamusState?>? _eyeDoorSamus;
     private Action<EyeDoorProjectileRequest>? _spawnEyeDoorProjectile;
 
-    /// <summary>Debugger-visible projections of every live eye-door component.</summary>
-    public IReadOnlyList<EyeDoorPlmSnapshot> EyeDoors => _slots
-        .Where(slot => slot.Active && slot.EyeDoor is not null)
-        .Select(slot => new EyeDoorPlmSnapshot(
-            slot.HeaderPointer,
-            slot.BlockIndex,
-            slot.RoomArgument,
-            slot.EyeDoor!.Component,
-            slot.EyeDoor.Orientation,
-            slot.EyeDoor.HitCounter,
-            slot.InstructionPointer,
-            slot.PreInstruction))
-        .ToArray();
-
     private static bool IsEyeDoorHeader(ushort header) => header is
         RoomPlmHeaders.EyeDoorEyeFacingRight or
         RoomPlmHeaders.EyeDoorFacingRight or
@@ -53,7 +39,7 @@ public sealed partial class RoomPlmSystem
             _ => throw new ArgumentOutOfRangeException(
                 nameof(slot), slot.HeaderPointer, "Not an eye-door PLM header."),
         };
-        slot.EyeDoor = new EyeDoorPlmState(component, orientation);
+        slot.EyeDoor = new EyeDoorPlmState(component);
 
         Bank80SystemState system = _eyeDoorSystem ??
             throw new InvalidOperationException("Eye-door setup has no persistence owner.");
@@ -77,31 +63,6 @@ public sealed partial class RoomPlmSystem
         }
 
         WritePlmCollisionTypeAndBts(level, slot.BlockIndex, EyeDoorPlmRomData.ClosedComponentWord);
-    }
-
-    /// <summary>
-    /// Publishes the projectile word to the resident eye controller at a type-$C/BTS-$44
-    /// block. The following PLM pre-instruction performs the missile-family filtering.
-    /// </summary>
-    private bool TryNotifyEyeDoorHit(
-        int blockIndex,
-        SamusProjectileTypeWord projectileType)
-    {
-        foreach (PlmSlot slot in _slots)
-        {
-            if (!slot.Active || slot.BlockIndex != blockIndex ||
-                slot.EyeDoor?.Component != EyeDoorComponent.Eye)
-            {
-                continue;
-            }
-
-            // PLM_Timers is a single pending word. A later collision before the handler
-            // pass replaces it rather than accumulating a host-side queue.
-            slot.LoopTimer = projectileType.Raw;
-            slot.EyeDoor.HasPendingHit = true;
-            return true;
-        }
-        return false;
     }
 
     private void RunEyeDoorPreInstruction(PlmSlot slot)
@@ -342,24 +303,10 @@ public sealed partial class RoomPlmSystem
         _spawnEyeDoorProjectile = null;
     }
 
-    private sealed class EyeDoorPlmState(
-        EyeDoorComponent component,
-        EyeDoorOrientation orientation)
+    private sealed class EyeDoorPlmState(EyeDoorComponent component)
     {
         public EyeDoorComponent Component { get; } = component;
-        public EyeDoorOrientation Orientation { get; } = orientation;
         public byte HitCounter { get; set; }
         public bool HasPendingHit { get; set; }
     }
 }
-
-/// <summary>Stable debugger view over one of the three physical eye-door PLMs.</summary>
-public readonly record struct EyeDoorPlmSnapshot(
-    ushort Header,
-    int BlockIndex,
-    ushort RoomArgument,
-    EyeDoorComponent Component,
-    EyeDoorOrientation Orientation,
-    byte HitCounter,
-    ushort InstructionPointer,
-    ushort PreInstruction);

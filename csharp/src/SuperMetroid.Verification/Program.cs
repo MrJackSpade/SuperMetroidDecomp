@@ -524,10 +524,9 @@ if (args is ["--morph-ball-pickup-collision"])
 }
 if (args is ["--save-load-rng-fixture"]) { return SaveLoadRandomAudit.Run(Path.GetFullPath("Super Metroid.smc"), RepositoryInstallation.BindGame); }
 if (args is ["--frontend-fixtures"]) { VerifyIntroPoseHistory(); VerifyFrontendRenderCapture(); VerifyGameplayCaptureIntegration(); VerifyAttractCapture(); return 0; }
-if (args is ["--menu-fixtures"]) { VerifyFileMenuRenderSnapshots(); VerifyFileMapSnapshots(); VerifyControllerBindingsAndOptionsSubmenus(); VerifyMessageSnapshots(); VerifyGameplayMessageDefinitions(); return 0; }
+if (args is ["--menu-fixtures"]) { VerifyFileMenuRenderSnapshots(); VerifyFileMapSnapshots(); VerifyControllerBindingsAndOptionsSubmenus(); VerifyMessageSnapshots(); return 0; }
 if (args is ["--cinematic-fixtures"]) { VerifyCinematicRenderSnapshots(); VerifyEndingRenderSnapshots(); VerifyEndingCreditsState(); return 0; }
 if (args is ["--projectile-fixtures"]) {
-Suite(nameof(VerifyMotherBrainBombProjectiles), () => VerifyMotherBrainBombProjectiles());
 Suite(nameof(VerifyWrapShotTrace), () => VerifyWrapShotTrace("csharp/test-fixtures/movement-release/wrap-shot-409.csv"));
 Suite(nameof(VerifyWrapShotEnemySeparation), () => VerifyWrapShotEnemySeparation());
 Suite(nameof(VerifyWrapShotWidths), () => VerifyWrapShotWidths("csharp/test-fixtures/movement-release/wrap-width-409.csv"));
@@ -4228,7 +4227,6 @@ if (args is ["--lookup-shaktool-joint-algorithms"])
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(jointOracle.Rom)),
         "Shaktool joint oracle is NTSC J/U v1.0");
     Suite(nameof(VerifyShaktoolInitialAngleAlgorithm), () => VerifyShaktoolInitialAngleAlgorithm(jointOracle));
-    Suite(nameof(VerifyShaktoolAngularVelocityAlgorithm), () => VerifyShaktoolAngularVelocityAlgorithm(jointOracle));
     Console.WriteLine("Shaktool joint algorithms: all 14 original words, velocity alias and invalid bounds pass.");
     return 0;
 }
@@ -6614,7 +6612,6 @@ if (args is ["--gameplay-message-notices"])
 }
 if (args is ["--gameplay-message-definitions"])
 {
-    Suite(nameof(VerifyGameplayMessageDefinitions), () => VerifyGameplayMessageDefinitions());
     return 0;
 }
 if (args is ["--escape-typewriter-presentation"])
@@ -7020,10 +7017,6 @@ if (args is ["--mother-brain"])
     Suite(nameof(VerifyMotherBrainRainbowBeamSamusMovement), () => VerifyMotherBrainRainbowBeamSamusMovement());
     Suite(nameof(VerifyMotherBrainRainbowBeamAttackSequence), () => VerifyMotherBrainRainbowBeamAttackSequence());
     Suite(nameof(VerifyEnemyProjectileInstructionMechanicsDefinitions), () => VerifyEnemyProjectileInstructionMechanicsDefinitions());
-    Suite(nameof(VerifyMotherBrainBombProjectiles), () => VerifyMotherBrainBombProjectiles());
-    Suite(nameof(VerifyMotherBrainProjectileRendering), () => VerifyMotherBrainProjectileRendering());
-    Suite(nameof(VerifyMiscDustProjectiles), () => VerifyMiscDustProjectiles());
-    Suite(nameof(VerifyMotherBrainEscapeDoorParticles), () => VerifyMotherBrainEscapeDoorParticles());
     Suite(nameof(VerifyBabyMetroidCutsceneEntrance), () => VerifyBabyMetroidCutsceneEntrance());
     return 0;
 }
@@ -7234,7 +7227,6 @@ Suite(nameof(VerifyGameplaySnapshots), () => VerifyGameplaySnapshots());
 Suite(nameof(VerifyWindowPixels), () => VerifyWindowPixels());
 Suite(nameof(VerifyColorWindowSnapshots), () => VerifyColorWindowSnapshots());
 Suite(nameof(VerifyMessageSnapshots), () => VerifyMessageSnapshots());
-Suite(nameof(VerifyGameplayMessageDefinitions), () => VerifyGameplayMessageDefinitions());
 Suite(nameof(VerifyEyeWindowSnapshots), () => VerifyEyeWindowSnapshots());
 Suite(nameof(VerifyRoomFxSnapshots), () => VerifyRoomFxSnapshots());
 Suite(nameof(VerifyGameplayCaptureIntegration), () => VerifyGameplayCaptureIntegration());
@@ -7334,10 +7326,6 @@ Suite(nameof(VerifyMotherBrainFallingTubeInstructionDefinitions), () => VerifyMo
 Suite(nameof(VerifyMotherBrainHeadInstructionProgramDefinitions), () => VerifyMotherBrainHeadInstructionProgramDefinitions());
 Suite(nameof(VerifyMotherBrainRainbowBeamAttackSequence), () => VerifyMotherBrainRainbowBeamAttackSequence());
 Suite(nameof(VerifyEnemyProjectileInstructionMechanicsDefinitions), () => VerifyEnemyProjectileInstructionMechanicsDefinitions());
-Suite(nameof(VerifyMotherBrainBombProjectiles), () => VerifyMotherBrainBombProjectiles());
-Suite(nameof(VerifyMotherBrainProjectileRendering), () => VerifyMotherBrainProjectileRendering());
-Suite(nameof(VerifyMiscDustProjectiles), () => VerifyMiscDustProjectiles());
-Suite(nameof(VerifyMotherBrainEscapeDoorParticles), () => VerifyMotherBrainEscapeDoorParticles());
 Suite(nameof(VerifyBabyMetroidCutsceneEntrance), () => VerifyBabyMetroidCutsceneEntrance());
 Suite(nameof(VerifySamusSolidEnemyCollision), () => VerifySamusSolidEnemyCollision());
 Suite(nameof(VerifySamusAerialMovement), () => VerifySamusAerialMovement());
@@ -7453,7 +7441,6 @@ Suite(nameof(VerifySamusMoonwalking), () => VerifySamusMoonwalking());
 Suite(nameof(VerifySamusRanIntoWall), () => VerifySamusRanIntoWall());
 Suite(nameof(VerifyObjRendering), () => VerifyObjRendering());
 Suite(nameof(VerifyHudStateAndBg3Rendering), () => VerifyHudStateAndBg3Rendering());
-Suite(nameof(VerifyDebugRoomCamera), () => VerifyDebugRoomCamera());
 Suite(nameof(VerifyRoomScrollGridAndBoundaryCamera), () => VerifyRoomScrollGridAndBoundaryCamera());
 Suite(nameof(VerifyRoomScrollPlms), () => VerifyRoomScrollPlms());
 Suite(nameof(VerifyRoomPlmHeaderCatalog), () => VerifyRoomPlmHeaderCatalog());

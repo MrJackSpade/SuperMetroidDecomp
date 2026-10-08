@@ -45,8 +45,8 @@ internal static partial class Program
     private static void VerifyGrappleConnectionDispatch(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
-        var connect = typeof(SamusGrappleMovement).GetMethod("ConnectAcceptedFiring", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Func<ISnesAddressSpace, SamusState, SamusGrappleState, ushort, ushort, bool, bool, GrappleMovementResult>>();
+        Func<ISnesAddressSpace, SamusState, SamusGrappleState, ushort, ushort, bool, bool, GrappleMovementResult> connect =
+            SamusGrappleMovement.ConnectAcceptedFiring;
         var metadata = new GrappleFiringReadGuard(rom);
         var guard = new GrappleConnectionReadGuard(metadata);
         var samus = new SamusState();

@@ -25,9 +25,9 @@ internal static partial class SwapchainTests
         var headless = RenderRetailFixture.CreateGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), options);
         // Compile the real desktop audio adapter into this diagnostic executable;
         // do not substitute a second hand-written queue-to-PCM implementation.
-        using var legacyAudio = new SpcAudioEngine();
-        using var capturedAudio = new SpcAudioEngine();
-        using var headlessAudio = new SpcAudioEngine();
+        using var legacyAudio = DesktopAccess.CreateAudioEngine();
+        using var capturedAudio = DesktopAccess.CreateAudioEngine();
+        using var headlessAudio = DesktopAccess.CreateAudioEngine();
         long sequence = 0, pcmSamples = 0, nonzero = 0;
         CapturedFrontendFrame Step(ushort input)
         {
@@ -67,7 +67,7 @@ internal static partial class SwapchainTests
         foreach (var game in new[] { legacy, captured, headless })
         {
             game.RuntimeForVerification!.LoadCartridgeRoomForDebug(room, 0, 0);
-            game.RuntimeForVerification.RunNmi(0, true);
+            game.RuntimeForVerification!.RunNmi(0, true);
         }
         nint window = CreateWindowExW(0, "STATIC", "Hidden slow-consumer test", 0, 0, 0, 640, 480, 0, 0, 0, 0);
         if (window == 0) throw new Win32Exception(Marshal.GetLastWin32Error());

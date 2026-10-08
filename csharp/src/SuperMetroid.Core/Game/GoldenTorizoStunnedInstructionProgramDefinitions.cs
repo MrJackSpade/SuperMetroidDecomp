@@ -59,8 +59,5 @@ internal abstract class GoldenTorizoStunnedInstructionProgramDefinitions : IInst
         return new(address, value);
     }
 
-    internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
-        Layout.TryReadMechanicsWord(address, out value);
-
     public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

@@ -38,20 +38,6 @@ internal static class StationAccessPlmDefinitions
         new(StationAccessBehavior.MissileLeft, RoomPlmHeaders.MissileStationLeftAccess,
             0xae9d, 0x9fc1, 0x9fc7);
 
-    /// <summary>Enumerate the six named station/side cases in their native BTS order.</summary>
-    public static IEnumerable<StationAccessPlmDefinition> All
-    {
-        get
-        {
-            yield return MapRight;
-            yield return MapLeft;
-            yield return EnergyRight;
-            yield return EnergyLeft;
-            yield return MissileRight;
-            yield return MissileLeft;
-        }
-    }
-
     /// <summary>Resolves the access actor selected by one station-special-block BTS.</summary>
     public static StationAccessPlmDefinition Resolve(StationAccessBehavior behavior) => behavior switch
     {

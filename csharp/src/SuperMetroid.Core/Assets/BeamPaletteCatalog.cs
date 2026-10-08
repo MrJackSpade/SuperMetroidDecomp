@@ -122,21 +122,6 @@ public static class BeamPaletteDefinitions
     /// <summary>$90:C3F3..C3FE and corresponding Power/Wave/Plasma/Spazer slots9..14 are black; Ice uses independent colored entries.</summary>
     internal static bool IsBlackSlot(int selection, int color) =>
         ((SamusBeamFlags)selection & SamusBeamFlags.Ice) == 0 && color is >= 9 and <= 14;
-    /// <summary>$90:C42D (Wave slot6) and C44D (Plasma slot6) average the RGB5 channels of their slot5/7 highlight endpoints.</summary>
-    internal static ushort MiddleHighlight(ushort first, ushort last)
-    {
-        int result = 0;
-        for (int shift = 0; shift <= 10; shift += 5)
-            result |= (((first >> shift & 31) + (last >> shift & 31)) / 2) << shift;
-        return (ushort)result;
-    }
-
-    /// <summary>$90:C46B..C470 (Spazer slots5..7) selects the corresponding Plasma highlight green channel for red/green and red channel for blue.</summary>
-    internal static ushort SpazerHighlight(ushort plasma)
-    {
-        int green = plasma >> 5 & 31;
-        return (ushort)(green | green << 5 | (plasma & 31) << 10);
-    }
     public static string Key(int selection)
     {
         if ((uint)selection >= BeamTileAtlasDefinitions.SelectionCount) throw new ArgumentOutOfRangeException(nameof(selection));

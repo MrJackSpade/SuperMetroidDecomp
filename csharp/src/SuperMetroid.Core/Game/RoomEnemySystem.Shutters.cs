@@ -195,10 +195,7 @@ public sealed partial class RoomEnemySystem
     private readonly HorizontalShutterEnemyState?[] _horizontalShutterStates = new HorizontalShutterEnemyState?[MaximumEnemyCount];
     private ushort _shutterCameraX;
     private ushort _shutterCameraY;
-
-    public IReadOnlyList<GrowingShutterEnemyState?> GrowingShutterStates => _growingShutterStates;
     public IReadOnlyList<VerticalShutterEnemyState?> VerticalShutterStates => _verticalShutterStates;
-    public IReadOnlyList<HorizontalShutterEnemyState?> HorizontalShutterStates => _horizontalShutterStates;
 
     /// <summary>Last library-two shutter sound queued during the current enemy frame.</summary>
     public ushort? LastShutterSoundEffect { get; private set; }
@@ -223,11 +220,6 @@ public sealed partial class RoomEnemySystem
     private static bool IsVerticalShutterDefinition(ushort definition) => definition is
         ShootableVerticalShutterDefinition or DestroyableVerticalShutterDefinition or
         KamerVerticalPlatformDefinition;
-
-    private static bool IsAnyShutterDefinition(ushort definition) =>
-        definition == GrowingShutterDefinition ||
-        definition == ShootableHorizontalShutterDefinition ||
-        IsVerticalShutterDefinition(definition);
 
     /// <summary>Adds a signed 16.16 velocity using the same wrapping carry as ADC.</summary>
     private static (ushort Position, ushort Subposition) AddShutterVelocity(

@@ -67,12 +67,6 @@ public sealed class CrocomireColorCatalog
         WriteIndented = true,
     };
 
-    public ushort ResolveFightBody(int color) => Get(Band.FightBody, color);
-    public ushort ResolveInitialWall(int color) => Get(Band.InitialWall, color);
-    public ushort ResolveInitialProjectile(int color) => Get(Band.InitialProjectile, color);
-    public ushort ResolveSkeletonArm(int color) => Get(Band.SkeletonArm, color);
-    public ushort ResolveWallSpikes(int color) => Get(Band.WallSpikes, color);
-
     public void ApplyInitial(SnesCgram cgram)
     {
         Apply(cgram, Band.InitialWall, CrocomirePaletteRomData.InitialWallDestination);

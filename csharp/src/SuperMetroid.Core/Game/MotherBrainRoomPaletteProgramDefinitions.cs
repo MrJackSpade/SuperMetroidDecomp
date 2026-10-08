@@ -25,15 +25,6 @@ internal static class MotherBrainRoomPaletteProgramDefinitions
     /// <summary>$A9:D07E: closing Goto opcode following the timed frames.</summary>
     private const ushort LoopInstruction = FlashStart + PresentationWordCount * 4;
 
-    internal static InstructionMechanicsWord MechanicsWord(int index)
-    {
-        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        return index < PresentationWordCount
-            ? new((ushort)(FlashStart + index * 4), FlashImageTicks)
-            : new((ushort)(LoopInstruction + (index - PresentationWordCount) * 2),
-                index == PresentationWordCount ? GotoInstruction : FlashStart);
-    }
-
     internal static ushort PresentationWordAddress(int index) =>
         (uint)index < PresentationWordCount ? (ushort)(FlashStart + index * 4 + 2) :
             throw new IndexOutOfRangeException();
@@ -56,23 +47,5 @@ internal static class MotherBrainRoomPaletteProgramDefinitions
         if (address == LoopInstruction + 2) return FlashStart;
         throw new InvalidDataException(
             $"Mother Brain room-palette mechanics pointer $A9:{address:X4} is not compiled.");
-    }
-
-    internal static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa90000) return false;
-        int offset = (ushort)address - FlashStart;
-        return (uint)offset < PresentationWordCount * 4 && offset % 4 < 2 ||
-            offset >= PresentationWordCount * 4 && offset < PresentationWordCount * 4 + 4;
-    }
-
-    internal static bool TryGetPresentationWord(int address, out ushort wordAddress)
-    {
-        wordAddress = 0;
-        if ((address & 0xff0000) != 0xa90000) return false;
-        int offset = (ushort)address - FlashStart;
-        if ((uint)offset >= PresentationWordCount * 4 || offset % 4 < 2) return false;
-        wordAddress = (ushort)(address & 0xfffe);
-        return true;
     }
 }

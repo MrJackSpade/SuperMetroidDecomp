@@ -83,10 +83,6 @@ public sealed partial class RoomEnemySystem
     private readonly DeadTourianCorpseEnemyState?[] _deadTourianCorpseStates =
         new DeadTourianCorpseEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Dead Zoomer/Ripper/Skree state indexed by physical enemy slot.</summary>
-    public IReadOnlyList<DeadTourianCorpseEnemyState?> DeadTourianCorpses =>
-        _deadTourianCorpseStates;
-
     private void ResetDeadTourianCorpseRoomState() =>
         Array.Clear(_deadTourianCorpseStates);
 

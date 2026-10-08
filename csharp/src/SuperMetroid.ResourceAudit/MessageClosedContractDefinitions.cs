@@ -8,7 +8,7 @@ internal static class MessageClosedContractDefinitions
         new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageTitlePresentation.cs", "5EABBA7475F00DDFAB0931844CFF0ABDA0C3BC8F737410D4B51465ED7CD4818E"),
         new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageTitleDefinitions.cs", "175BE431D6D7C958B3A3A5EADBD3B9B407059B31BA5349C3DCB1D5826F306BF7"),
         new("csharp/src/SuperMetroid.Core/Game/GameplayMessageRomData.cs", "1BA8298AB9D9F0E9324CD08B936A4939363F77C3CE7F447A6667EE81AA76E84C"),
-        new("csharp/src/SuperMetroid.Core/Game/GameplayMessageIds.cs", "57B96B36E9562F316B3024A1CBE96663CD2823C89A7BF490FB078083563D71BD"),
+        new("csharp/src/SuperMetroid.Core/Game/GameplayMessageIds.cs", "400AF5615A00F434B6200EADCA93DF013A3F93B50B740EF48DF4E20603322CD8"),
     ];
 
     internal static readonly ClosedPresentationContract[] All =

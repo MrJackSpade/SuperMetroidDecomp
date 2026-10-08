@@ -23,12 +23,7 @@ public sealed class MapSpriteCatalog
             oam.AddOnScreenSpritePart(part.X, part.Y, part.Attributes.WithPaletteBits(paletteBits), x, y);
         }
     }
-    internal bool StoresComposition(ushort id) => GetWorldLabel(id)?.StoresComposition ?? (GetFrame(id) is not null);
-    internal int StoredLabelHorizontalCount(ushort id) => GetWorldLabel(id)?.StoredHorizontalCount ?? 0;
     public void LoadArtworkTo(SnesVram vram, int destinationByte) => characters.LoadTo(vram, destinationByte);
-    internal int StoredHighlightPixelCount => characters.StoredHighlightPixelCount;
-    internal int StoredReservePixelCount => characters.StoredReservePixelCount;
-    internal int StoredArtworkByteCount => characters.StoredOtherByteCount;
     /// <summary>Selects an installed composition by its named native drawing role.</summary>
     private SpriteComposition? GetFrame(ushort id) => id switch
     {

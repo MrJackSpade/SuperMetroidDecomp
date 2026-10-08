@@ -31,8 +31,6 @@ public sealed class RoomPlmDownwardGateVisualCatalog
 
     private readonly Dictionary<ushort, ushort[][]>? customWords;
 
-    private RoomPlmDownwardGateVisualCatalog() { }
-
     public RoomPlmDownwardGateVisualCatalog(IEnumerable<RoomPlmDownwardGateVisualEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
@@ -69,9 +67,6 @@ public sealed class RoomPlmDownwardGateVisualCatalog
             throw new InvalidDataException("Downward gate visuals do not cover all compiled frames.");
         if (selected.Count != 0) customWords = selected;
     }
-
-    /// <summary>Calculate stock appearances from physical draws; store only customized frames.</summary>
-    public static RoomPlmDownwardGateVisualCatalog Stock() => new();
 
     public ushort GetWord(ushort drawPointer, int runIndex, int wordIndex)
     {

@@ -73,9 +73,6 @@ public sealed partial class RoomEnemySystem
     private readonly PowampEnemyState?[] _powampStates =
         new PowampEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed Powamp state for all 32 physical enemy slots.</summary>
-    public IReadOnlyList<PowampEnemyState?> PowampStates => _powampStates;
-
     /// <summary>Ports <c>InitAI_Powamp</c> at $A8:C1C9.</summary>
     private void InitializePowamp(RoomEnemySlot slot)
     {

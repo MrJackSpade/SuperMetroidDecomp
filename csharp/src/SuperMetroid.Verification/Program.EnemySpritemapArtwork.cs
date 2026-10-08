@@ -1030,7 +1030,7 @@ internal static partial class Program
         {
             AssertTrue(stock.Spritemaps!.TryGet(frame.Bank, frame.Pointer, out var parts),
                 $"installed enemy frame {frame.Name} exists");
-            AssertTrue(stock.Spritemaps.TryGetDisplay(frame.Bank, frame.Pointer, out _),
+            AssertTrue(stock.Spritemaps!.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                 $"installed enemy frame {frame.Name} has a display binding");
             foreach ((ushort x, ushort y, ushort palette, ushort baseTile) in
                      new (ushort, ushort, ushort, ushort)[]

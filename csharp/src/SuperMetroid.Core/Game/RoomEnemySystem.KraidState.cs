@@ -110,7 +110,6 @@ public sealed class KraidEnemyState
         .ToArray();
 
     public ushort Unknown2 { get; internal set; }
-    public ushort Unknown4 { get; internal set; }
     public ushort ThinkingTimer { get; internal set; }
     public ushort MinimumYPositionForEjection { get; internal set; }
     public ushort MouthFlags { get; internal set; }
@@ -118,7 +117,6 @@ public sealed class KraidEnemyState
     public ushort InitialHealth { get; internal set; }
     public ushort HealthEighthThreshold(int index) => KraidHealthThresholdDefinitions.Eighth(InitialHealth, index);
     public ushort TargetX { get; internal set; }
-    public ushort HealthQuarterThreshold(int index) => KraidHealthThresholdDefinitions.Quarter(InitialHealth, index);
     public ushort HurtFrame { get; internal set; }
     public ushort HurtFrameTimer { get; internal set; }
     public ushort CurrentHeadTilemap { get; internal set; }
@@ -221,14 +219,4 @@ public sealed partial class RoomEnemySystem
         }
         return _kraidState;
     }
-
-    private static bool IsKraidPartDefinition(ushort definition) => definition is
-        KraidDefinition or
-        KraidArmDefinition or
-        KraidTopLintDefinition or
-        KraidMiddleLintDefinition or
-        KraidBottomLintDefinition or
-        KraidFootDefinition or
-        KraidGoodNailDefinition or
-        KraidBadNailDefinition;
 }

@@ -16,21 +16,6 @@ internal static class NoobTubePlmProgramDefinitions
     /// <summary>Already-broken room-state branch at $84:D521.</summary>
     private const ushort AlreadyBrokenStart = 0xd521;
 
-    internal static IEnumerable<ushort> MechanicsWordAddresses()
-    {
-        for (int offset = 0; offset <= 0x30; offset += 2)
-            yield return checked((ushort)(MainStart + offset));
-        for (int offset = 0; offset <= 0x10; offset += 2)
-            yield return checked((ushort)(MainAfterSound + offset));
-        yield return AlreadyBrokenStart;
-        yield return checked((ushort)(AlreadyBrokenStart + 2));
-    }
-
-    internal static IEnumerable<ushort> MechanicsByteAddresses()
-    {
-        yield return BreakSoundAddress;
-    }
-
     /// <summary>$84:D4E8: install the accepted-input wake callback after a power-bomb hit.</summary>
     private const ushort WaitForInput = 0xd4e8;
     /// <summary>$84:D4F2: lock Samus and begin the crack/break sequence.</summary>

@@ -22,10 +22,6 @@ internal sealed class IntroRinkaSystem
         0, 0, 0, IntroRinkaDefinitions.SpawnerActor.InstructionList);
     private readonly List<IntroDiscoverySprite> rinkas = [];
 
-    public int ActiveCount => rinkas.Count(static rinka => rinka.IsActive);
-
-    public int SpawnedCount => rinkas.Count;
-
     /// <summary>Runs pre-instructions first, then each actor's generic list handler.</summary>
     public void Step(ISnesAddressSpace bus, SamusState samus, bool motherBrainExploding)
     {

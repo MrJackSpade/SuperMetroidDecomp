@@ -20,20 +20,6 @@ public sealed class AttractDemoInput
         Script.Enable();
     }
 
-    /// <summary>Reference path for cartridge and synthetic-program verification.</summary>
-    public AttractDemoInput(ISnesAddressSpace bus, AttractDemoScene scene)
-    {
-        ArgumentNullException.ThrowIfNull(scene);
-        Script.LoadObject(bus, scene.InputObject, scene.InputObject);
-        Script.Enable();
-    }
-
-    /// <summary>Executes the cartridge pre-instruction before this frame's input record.</summary>
-    public void Step(ISnesAddressSpace bus, SuperMetroidGameState gameState, SamusMovementType movementType)
-    {
-        Script.Step(bus, (_, pointer) => ApplyPreInstruction(pointer, gameState, movementType));
-    }
-
     /// <summary>Steps application-owned inputs; no address space is required.</summary>
     public void StepStock(SuperMetroidGameState gameState, SamusMovementType movementType) =>
         Script.StepStockAttract((_, pointer) => ApplyPreInstruction(pointer, gameState, movementType));

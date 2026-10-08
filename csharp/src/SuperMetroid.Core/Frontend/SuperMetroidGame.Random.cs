@@ -11,8 +11,6 @@ public sealed partial class SuperMetroidGame
     private Bank80SystemState FrontendRandomOwner =>
         runtime?.System ?? (menuRandom ??= new Bank80SystemState());
 
-    internal ushort DispatcherRandomNumber => FrontendRandomOwner.RandomNumber;
-
     private void ReleaseRuntimePreservingRandom()
     {
         (menuRandom ??= new()).SetRandomNumber(FrontendRandomOwner.RandomNumber);

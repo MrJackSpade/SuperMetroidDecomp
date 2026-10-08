@@ -19,7 +19,7 @@ internal static partial class Program
         {
             var game = RepositoryInstallation.CreateGame(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"),
                 new SuperMetroidGameOptions { SkipOpeningCinematic = true, Invincibility = true });
-            using var audio = new SpcAudioEngine();
+            using var audio = DesktopAccess.CreateAudioEngine();
             long sequence = 0;
             CapturedFrontendFrame Step(ushort input)
             {

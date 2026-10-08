@@ -1874,16 +1874,6 @@ internal static partial class Program
     private static void VerifyLookupStream4MessageDispatch(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
-        for (int id = 1; id <= 29; id++)
-        {
-            var definition = GameplayMessageDefinitions.AtNativeIndex(id);
-            int address = 0x85869b + (id - 1) * 6;
-            AssertEqual(Word(address), definition.ModifyFunction, "Native message setup callback case");
-            AssertEqual(Word(address + 2), definition.DrawFunction, "Native message drawing callback case");
-            AssertEqual(Word(address + 4), definition.ContentPointer, "Native message presentation identity case");
-        }
-        foreach (int invalid in new[] { int.MinValue, 0, 30, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => GameplayMessageDefinitions.AtNativeIndex(invalid), "Native message record domain");
         var resolve = typeof(GameplayMessageBoxState).GetMethod("ResolveButtonTilemapWord", BindingFlags.Static | BindingFlags.NonPublic)!
             .CreateDelegate<Func<ushort, ushort>>();
         for (int bits = 0; bits <= ushort.MaxValue; bits++)

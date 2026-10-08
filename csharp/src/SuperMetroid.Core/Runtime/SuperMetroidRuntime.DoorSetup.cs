@@ -88,24 +88,6 @@ public sealed partial class SuperMetroidRuntime
         }
     }
 
-    /// <summary>
-    /// Test seam for applying the active cartridge door routine to a captured regression
-    /// state. Gameplay calls the same dispatcher from the room loader.
-    /// </summary>
-    internal void RunActiveDoorSetupForVerification()
-    {
-        CartridgeDoorHeader door = ActiveDoor
-            ?? throw new InvalidOperationException("No active door exists in the captured state.");
-        RunDoorSetupCode(door);
-    }
-
-    /// <summary>
-    /// Test seam for invoking a real cartridge header after directly loading its destination
-    /// room. Production reaches the identical private dispatcher through door transition.
-    /// </summary>
-    internal void RunDoorSetupForVerification(CartridgeDoorHeader door) =>
-        RunDoorSetupCode(door);
-
     private void StartWreckedShipTreadmill(WreckedShipTreadmillDirection direction)
     {
         if (LevelData is null || BackgroundStreamer is null || ActiveRoom is null)

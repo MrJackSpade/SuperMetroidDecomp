@@ -125,14 +125,6 @@ internal readonly record struct CrocomireMeltingUploadSequence(CrocomireMeltingP
             return new(0x160, (ushort)(index * 0x100), 0x7e, (ushort)(0x4000 + index * 0x200));
         }
     }
-
-    public Enumerator GetEnumerator() => new(this);
-    internal struct Enumerator(CrocomireMeltingUploadSequence sequence)
-    {
-        private int index = -1;
-        public bool MoveNext() => ++index < sequence.Length;
-        public CrocomireMeltingUpload Current => sequence[index];
-    }
 }
 /// <summary>Enumerates the two native melt passes without stored records.</summary>
 internal readonly record struct CrocomireMeltingPassSequence(int Length)
@@ -143,12 +135,4 @@ internal readonly record struct CrocomireMeltingPassSequence(int Length)
         1 => CrocomireMeltingTransferDefinitions.Header(CrocomireMeltingTransferDefinitions.SecondHeaderOffset),
         _ => throw new IndexOutOfRangeException(),
     };
-
-    public Enumerator GetEnumerator() => new(this);
-    internal struct Enumerator(CrocomireMeltingPassSequence sequence)
-    {
-        private int index = -1;
-        public bool MoveNext() => ++index < sequence.Length;
-        public CrocomireMeltingPass Current => sequence[index];
-    }
 }

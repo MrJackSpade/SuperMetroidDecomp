@@ -15,9 +15,6 @@ public sealed class GameplayBasePaletteCatalog
         this.commonSprites = commonSprites;
     }
 
-    public ReadOnlySpan<ushort> Initial => initial;
-    public ReadOnlySpan<ushort> CommonSprites => commonSprites;
-
     /// <summary>Identity of the decoded selected colors, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(GameplayBasePaletteCatalog), content =>
     {

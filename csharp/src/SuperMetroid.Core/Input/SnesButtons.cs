@@ -45,8 +45,4 @@ public static class SnesButtons
     /// <summary>Tests whether at least one requested button is present.</summary>
     public static bool HasAny(this SnesButton input, SnesButton buttons) =>
         (input & buttons) != SnesButton.None;
-
-    /// <summary>Tests whether every requested button is present.</summary>
-    public static bool HasAll(this SnesButton input, SnesButton buttons) =>
-        (input & buttons) == buttons;
 }

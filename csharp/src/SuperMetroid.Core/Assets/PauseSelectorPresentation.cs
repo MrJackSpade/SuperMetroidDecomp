@@ -10,17 +10,13 @@ public sealed class PauseSelectorPresentation
     private readonly Dictionary<string, (int? X, int? Y)> anchorOverrides;
     private readonly PhaseComposition reserve, beam, equipment;
     private readonly Dictionary<int, int>? durationOverrides;
-    internal int StoredDurationCount => durationOverrides?.Count ?? 0;
     public int InitialDurationTicks { get; }
     public ushort PaletteBits { get; }
     public int PhaseCount { get; }
-    internal bool StoresCompositionParts => reserve.StoresParts || beam.StoresParts || equipment.StoresParts;
-    internal int StoredCompositionOverrideCount => reserve.OverrideCount + beam.OverrideCount + equipment.OverrideCount;
     private PauseSelectorPresentation(Dictionary<string, (int? X, int? Y)> anchorOverrides,
         PhaseComposition reserve, PhaseComposition beam, PhaseComposition equipment, int phaseCount,
         Dictionary<int, int>? durationOverrides, int initialDuration, int palette)
     { this.anchorOverrides = anchorOverrides; this.reserve = reserve; this.beam = beam; this.equipment = equipment; PhaseCount = phaseCount; this.durationOverrides = durationOverrides; InitialDurationTicks = initialDuration; PaletteBits = SnesObjAttributeWord.Create(0, palette, 0).PaletteBits; }
-    internal int StoredAnchorComponentCount => anchorOverrides.Values.Sum(value => (value.X.HasValue ? 1 : 0) + (value.Y.HasValue ? 1 : 0));
     public MapLabelPoint Anchor(int category, int item)
     {
         string name = PauseSelectorDefinitions.Anchor(category, item);
@@ -97,8 +93,6 @@ public sealed class PauseSelectorPresentation
     {
         private readonly PauseSelectorVisual basis = basis;
         private Dictionary<int, PauseSelectorVisual>? overrides;
-        public bool StoresParts => basis.StoresParts || (overrides?.Values.Any(value => value.StoresParts) ?? false);
-        public int OverrideCount => overrides?.Count ?? 0;
         public void Capture(int phase, PauseSelectorVisual value)
         {
             if (!ReferenceEquals(basis, value)) (overrides ??= new()).Add(phase, value);

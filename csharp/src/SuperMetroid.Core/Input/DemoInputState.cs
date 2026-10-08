@@ -40,14 +40,8 @@ public sealed class DemoInputState
     /// <summary>Controller word currently replacing player-held input.</summary>
     public ushort Held { get; private set; }
 
-    /// <summary>Typed view of the cartridge-authored held-input word.</summary>
-    public SnesButton HeldButtons => (SnesButton)Held;
-
     /// <summary>Controller edge word currently replacing newly pressed input.</summary>
     public ushort NewlyPressed { get; private set; }
-
-    /// <summary>Typed view of the cartridge-authored rising-edge word.</summary>
-    public SnesButton NewlyPressedButtons => (SnesButton)NewlyPressed;
 
     /// <summary>Previous demo-held word retained by <c>$91:83D3</c>'s publication seam.</summary>
     public ushort PreviousHeld { get; private set; }
@@ -339,8 +333,4 @@ public readonly record struct DemoInputInstructionResult(
     /// <summary>Continues decoding at the supplied cursor after a handled instruction.</summary>
     public static DemoInputInstructionResult ContinueAt(ushort nextInstructionPointer) =>
         new(true, nextInstructionPointer, false);
-
-    /// <summary>Stops this handler call after a translated terminating instruction.</summary>
-    public static DemoInputInstructionResult TerminateAt(ushort nextInstructionPointer) =>
-        new(true, nextInstructionPointer, true);
 }

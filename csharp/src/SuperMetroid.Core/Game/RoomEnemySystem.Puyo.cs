@@ -145,9 +145,6 @@ public sealed partial class RoomEnemySystem
     private readonly PuyoEnemyState?[] _puyoStates =
         new PuyoEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed state for all 32 physical Puyo-capable enemy slots.</summary>
-    public IReadOnlyList<PuyoEnemyState?> PuyoStates => _puyoStates;
-
     /// <summary>Ports <c>InitAI_Puyo</c> at $A2:9A3F.</summary>
     private void InitializePuyo(RoomEnemySlot slot)
     {

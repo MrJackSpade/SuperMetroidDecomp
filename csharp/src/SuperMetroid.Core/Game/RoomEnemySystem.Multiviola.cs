@@ -61,9 +61,6 @@ public sealed partial class RoomEnemySystem
     private readonly MultiviolaEnemyState?[] _multiviolaStates =
         new MultiviolaEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed state for every physical Multiviola-capable enemy slot.</summary>
-    public IReadOnlyList<MultiviolaEnemyState?> MultiviolaStates => _multiviolaStates;
-
     /// <summary>Ports <c>InitAI_Multiviola</c> at $A2:B3E0.</summary>
     private void InitializeMultiviola(RoomEnemySlot slot)
     {

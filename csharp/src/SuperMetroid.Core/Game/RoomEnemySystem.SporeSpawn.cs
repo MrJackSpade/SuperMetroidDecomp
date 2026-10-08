@@ -46,14 +46,6 @@ public sealed class SporeSpawnEnemyState
     public bool DeathDropRequested { get; internal set; }
     public bool LoadedAsDefeated { get; internal set; }
 
-    /// <summary>
-    /// The global target-palette words written by $A5:EA2A/$E91C. The runtime currently
-    /// presents completed room fades directly in CGRAM, but retaining this buffer makes the
-    /// cartridge's separate target/current ownership inspectable and testable.
-    /// </summary>
-    public ReadOnlyMemory<ushort> TargetPalette => _targetPalette;
-    internal Span<ushort> MutableTargetPalette => _targetPalette;
-
     internal void WriteTargetColor(int index, ushort value)
     {
         _targetPalette[index] = value;
@@ -87,15 +79,8 @@ public sealed partial class RoomEnemySystem
 
     private readonly List<SporeSpawnDropRequest> _sporeSpawnDropRequests = new();
 
-    /// <summary>The live Spore Spawn extension, or null outside its room.</summary>
-    public SporeSpawnEnemyState? SporeSpawn => _sporeSpawn;
-
     /// <summary>Frame-local hardcoded ceiling PLM request.</summary>
     public SporeSpawnPlmRequest? LastSporeSpawnPlm { get; private set; }
-
-    /// <summary>Frame-local drops requested by destroyed free-floating spores.</summary>
-    public IReadOnlyList<SporeSpawnDropRequest> SporeSpawnDropRequests =>
-        _sporeSpawnDropRequests;
 
     /// <summary>Last library-two sound requested by the boss or one of its instructions.</summary>
     public ushort? LastSporeSpawnSoundEffectLibrary2 { get; private set; }

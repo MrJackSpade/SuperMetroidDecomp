@@ -149,16 +149,6 @@ internal static class RoomEnemySpawnNameDefinitions
         int Character(int index) => index < name.Length ? name[index] : ' ';
     }
 
-    /// <summary>The identities referenced by all retail enemy headers, in native record order.</summary>
-    internal static IEnumerable<ushort> Pointers
-    {
-        get
-        {
-            for (int pointer = FirstNameRecord; pointer <= LastNameRecord; pointer += 14)
-                if (Name((ushort)pointer) is not null) yield return (ushort)pointer;
-        }
-    }
-
     /// <summary>$B4:E2E5, EnemyName_RobotNoPower: final fourteen-byte name record.</summary>
     private const ushort LastNameRecord = 0xe2e5;
 

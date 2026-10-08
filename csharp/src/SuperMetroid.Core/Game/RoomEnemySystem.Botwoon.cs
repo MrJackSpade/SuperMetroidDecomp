@@ -155,17 +155,11 @@ public sealed partial class RoomEnemySystem
     private BotwoonEnemyState? _botwoonState;
     private readonly List<BotwoonDropRequest> _botwoonDropRequests = new();
 
-    /// <summary>Botwoon's slot-zero extra state, or null outside its room.</summary>
-    public BotwoonEnemyState? Botwoon => _botwoonState;
-
     /// <summary>Last library-two sound selected by Botwoon in the current enemy frame.</summary>
     public ushort? LastBotwoonSoundEffect { get; private set; }
 
     /// <summary>Specialized drop request published when all body pieces have landed.</summary>
     public BotwoonDropRequest? LastBotwoonDropRequest { get; private set; }
-
-    /// <summary>All sixteen ROM-authored scatter requests from the most recent death.</summary>
-    public IReadOnlyList<BotwoonDropRequest> BotwoonDropRequests => _botwoonDropRequests;
 
     /// <summary>
     /// Hardcoded bank-$84 PLM requested by Botwoon. $B797 is the already-defeated wall;

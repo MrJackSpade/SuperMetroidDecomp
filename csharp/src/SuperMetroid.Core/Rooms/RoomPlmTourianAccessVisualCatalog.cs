@@ -29,8 +29,6 @@ public sealed class RoomPlmTourianAccessVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customWords;
 
-    private RoomPlmTourianAccessVisualCatalog() { }
-
     public RoomPlmTourianAccessVisualCatalog(
         IEnumerable<RoomPlmTourianAccessVisualEntry> entries)
     {
@@ -59,9 +57,6 @@ public sealed class RoomPlmTourianAccessVisualCatalog
                 "Tourian access visuals do not cover all five compiled layouts.");
         if (selected.Count != 0) customWords = selected;
     }
-
-    /// <summary>Calculate stock row appearance from physical draw words; retain only custom artwork.</summary>
-    public static RoomPlmTourianAccessVisualCatalog Stock() => new();
 
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {

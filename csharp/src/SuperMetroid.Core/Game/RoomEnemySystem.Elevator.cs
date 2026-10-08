@@ -61,9 +61,6 @@ public sealed partial class RoomEnemySystem
     private readonly ElevatorEnemyState?[] _elevatorStates =
         new ElevatorEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed actor extensions in fixed native slot order.</summary>
-    public IReadOnlyList<ElevatorEnemyState?> ElevatorStates => _elevatorStates;
-
     /// <summary>WRAM $0E16. Collision with an elevator pseudo-door publishes value one.</summary>
     public ushort ElevatorFlags { get; private set; }
 

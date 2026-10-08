@@ -114,7 +114,7 @@ internal static partial class Program
             AssertEqual(originalPointers.Contains((ushort)pointer), isFrame((ushort)pointer), $"{family} exact selector domain");
         AssertThrows<IndexOutOfRangeException>(() => frameAt(-1), $"{family} negative definition index");
         AssertThrows<IndexOutOfRangeException>(() => frameAt(expected.Length), $"{family} definition past end");
-        byte[] originalJson = EnemyBg2FrameFiles.Extract(rom, bank, expected, 1,
+        byte[] originalJson = EnemyBg2FrameFiles.Extract(rom, bank, new EnemyBg2FrameDefinitionSequence(expected.Length, index => expected[index]), 1,
             family == "Phantoon" ? 2 : 1, family);
         byte[] generatedJson = extract();
         AssertTrue(originalJson.SequenceEqual(generatedJson), $"{family} exact native extraction JSON");

@@ -32,8 +32,6 @@ public sealed class RoomPlmShotBlockVisualCatalog
 
     private readonly Dictionary<ushort, ushort[][]>? customWords;
 
-    private RoomPlmShotBlockVisualCatalog() { }
-
     public RoomPlmShotBlockVisualCatalog(IEnumerable<RoomPlmShotBlockVisualEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
@@ -69,9 +67,6 @@ public sealed class RoomPlmShotBlockVisualCatalog
             throw new InvalidDataException("Shot-block visuals do not cover all compiled draw lists.");
         if (selected.Count != 0) customWords = selected;
     }
-
-    /// <summary>Native visual selections, useful when no installed override is present.</summary>
-    public static RoomPlmShotBlockVisualCatalog Stock() => new();
 
     /// <summary>Returns one visual reference without exposing the catalog's mutable backing arrays.</summary>
     public ushort GetWord(ushort drawPointer, int runIndex, int wordIndex)

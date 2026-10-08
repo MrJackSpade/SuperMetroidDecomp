@@ -68,16 +68,6 @@ public static class SamusSlopePhysics
         }
     }
 
-    /// <summary>
-    /// Returns the five-bit height sample selected by BTS shape/mirroring and Samus X.
-    /// Values may be 0–20; masking with $1F is part of every native consumer.
-    /// </summary>
-    public static byte ReadAlignmentHeight(
-        ISnesAddressSpace bus,
-        byte behavior,
-        ushort xPosition)
-        => ReadAlignmentHeight(bus, new RoomBlockBehavior(behavior), xPosition);
-
     /// <summary>Typed BTS overload used by live room collision.</summary>
     public static byte ReadAlignmentHeight(
         ISnesAddressSpace bus,

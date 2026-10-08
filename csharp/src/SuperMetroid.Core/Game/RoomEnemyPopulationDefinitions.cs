@@ -60,7 +60,4 @@ public static partial class RoomEnemyPopulationDefinitions
         throw new ArgumentOutOfRangeException(nameof(pointer), pointer,
             "Pointer is not a retail bank-$A1 enemy population.");
     }
-
-    /// <summary>Enumerates every compiled population identity for ROM-oracle tests.</summary>
-    public static IEnumerable<ushort> Pointers => Definitions.Select(list => list.Pointer);
 }

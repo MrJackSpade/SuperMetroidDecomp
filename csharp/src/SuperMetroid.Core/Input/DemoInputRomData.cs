@@ -36,11 +36,4 @@ public static class DemoInputRomData
         public const int InputRecordBytes = 6;
         public const int WordBytes = sizeof(ushort);
     }
-
-    public static class IntroMotherBrain
-    {
-        public const ushort Object = 0x8784;
-        public const ushort InputList = 0x8694;
-        public const ushort NextRecord = 0x86b8;
-    }
 }

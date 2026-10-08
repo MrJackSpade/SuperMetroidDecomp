@@ -85,9 +85,6 @@ public sealed partial class RoomEnemySystem
     private readonly BoulderEnemyState?[] _boulderStates =
         new BoulderEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed Boulder state for every physical enemy slot.</summary>
-    public IReadOnlyList<BoulderEnemyState?> BoulderStates => _boulderStates;
-
     /// <summary>Most recent library-two sound emitted by a landing or terminal impact.</summary>
     public ushort? LastBoulderSoundEffect { get; private set; }
 

@@ -78,8 +78,6 @@ internal static class KraidFootCollisionDefinitions
     {
         if ((uint)frame >= FrameCount) throw new IndexOutOfRangeException();
     }
-    internal static ushort FramePointer(int index) =>
-        checked((ushort)(FirstFrame + index * FrameByteCount));
 
     internal static bool TryGetComponents(ushort pointer,
         out KraidFootComponentSequence components)
@@ -142,7 +140,6 @@ internal readonly record struct KraidFootHitboxSequence(int Length)
                 EnemyAiCodePointers.BankA7.KraidNoOpShot);
         }
     }
-    internal KraidFootCollisionHitbox[] ToArray() => [this[0]];
     public Enumerator GetEnumerator() => new(this);
     internal struct Enumerator(KraidFootHitboxSequence sequence)
     {

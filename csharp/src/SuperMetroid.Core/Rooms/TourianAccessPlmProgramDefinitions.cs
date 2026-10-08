@@ -64,21 +64,4 @@ internal static class TourianAccessPlmProgramDefinitions
         value = 0;
         return false;
     }
-
-    internal static IEnumerable<ushort> NativeWordAddresses()
-    {
-        yield return Crumble;
-        for (int frame = 0; frame < 4; frame++)
-        {
-            yield return checked((ushort)(Crumble + 3 + frame * 4));
-            yield return checked((ushort)(Crumble + 5 + frame * 4));
-        }
-        yield return checked((ushort)(Crumble + 19));
-        yield return checked((ushort)(Crumble + 21));
-        yield return checked((ushort)(Crumble + 23));
-        yield return checked((ushort)(Crumble + 25));
-        yield return Clear;
-        yield return checked((ushort)(Clear + 2));
-        yield return checked((ushort)(Clear + 4));
-    }
 }

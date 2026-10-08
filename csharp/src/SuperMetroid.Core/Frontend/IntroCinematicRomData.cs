@@ -106,7 +106,6 @@ public static class IntroCinematicRomData
             private readonly Scene scene;
             internal Regions(Scene scene) => this.scene = scene;
             public int Count => scene switch { Scene.Narration => 4, Scene.Discovery => 2, _ => 3 };
-            public bool IsEmpty => Count == 0;
             public IntroPaletteSpan this[int index] => scene switch
             {
                 Scene.Gameplay or Scene.GameplayClear => index switch

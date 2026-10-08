@@ -86,9 +86,6 @@ public sealed class BrinstarBlueSporePaletteFxProgramDefinition
     /// <summary>The room family represented by this program.</summary>
     public BrinstarBlueSporePaletteOwner Owner { get; }
 
-    /// <summary>Native palette-FX definitions $8D:F775 (standard) and $8D:F779 (Spore Spawn).</summary>
-    public ushort DefinitionPointer => (ushort)(0xf775 + 4 * (int)Owner);
-
     /// <summary>Native blue-spore setup entries $8D:ED99 (standard) and $8D:EE2D (Spore Spawn).</summary>
     public ushort ProgramStart => DeletesWithAreaMiniBoss ? (ushort)0xee2d : (ushort)0xed99;
 

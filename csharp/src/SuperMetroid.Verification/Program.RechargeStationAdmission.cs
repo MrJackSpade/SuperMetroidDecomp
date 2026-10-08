@@ -23,7 +23,7 @@ internal static partial class Program
                 RoomPlmPopulationImporter.Read(bus, 0x9000), new Bank80SystemState(),
                 areaIndex: AreaId.Crateria, getSamus: () => samus, isAreaTorizoDefeated: () => false);
             int accessX = right ? 9 : 7;
-            byte behavior = level.GetCollisionBlock(accessX, 8).Behavior;
+            var behavior = new RoomBlockBehavior(level.GetCollisionBlock(accessX, 8).Behavior);
             bool Touch() => plms.TryNotifyStationCollision(level.GetBlockIndex(accessX, 8), behavior,
                 right ? SamusPoseIds.RanIntoWallLeftPose : SamusPoseIds.RanIntoWallRightPose,
                 horizontal: true, movingPositive: !right, roomWidthInBlocks: 32);

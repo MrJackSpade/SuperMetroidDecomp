@@ -255,7 +255,6 @@ internal abstract class CeresDoorInstructionProgramDefinitions : IInstructionPro
     public static int PresentationWordCount => 33;
 
     public static ushort PresentationWordAddress(int index) => PresentationWord(index).Address;
-    internal static ushort PresentationWordFrame(int index) => PresentationWord(index).Frame;
 
     /// <summary>
     /// $A6:F95F-FAC6 contains five opening poses per facing. Four inner OAM parts

@@ -195,9 +195,6 @@ public sealed partial class RoomEnemySystem
     private readonly PlatformEnemyState?[] _platformStates =
         new PlatformEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed Tripper/Kamer state for all 32 physical enemy slots.</summary>
-    public IReadOnlyList<PlatformEnemyState?> PlatformStates => _platformStates;
-
     private static bool IsPlatformDefinition(ushort definition) =>
         definition is TripperDefinition or KamerDefinition;
 

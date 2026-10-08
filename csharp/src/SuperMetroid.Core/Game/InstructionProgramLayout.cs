@@ -181,40 +181,6 @@ internal sealed class InstructionProgramLayout
     internal bool IsPresentationWord(ushort address) =>
         index.Value.TryGet(address, out InstructionWord word) && word.IsPresentation;
 
-    /// <summary>
-    /// Counts the timed frames that run from <paramref name="entry"/> and returns the opcode of
-    /// the first control instruction after them.
-    /// </summary>
-    internal (int Frames, ushort Terminator) FramesFrom(ushort entry)
-    {
-        int index = Array.FindIndex(items, item => item.Kind == InstructionItemKind.Entry && item.Value == entry);
-        if (index < 0) throw new ArgumentOutOfRangeException(nameof(entry), entry, "Entry is not part of this layout.");
-        int frames = 0;
-        for (index++; index < items.Length; index++)
-        {
-            InstructionItem item = items[index];
-            if (item.Kind != InstructionItemKind.Words) continue;
-            if (item.Words is [{ IsPresentation: false }, { IsPresentation: true }]) { frames++; continue; }
-            return (frames, item.Words[0].Value);
-        }
-        throw new InvalidDataException($"Instruction entry ${Bank:X2}:{entry:X4} has no terminating instruction.");
-    }
-
-    /// <summary>Finds the presentation slot containing either byte at <paramref name="longAddress"/>.</summary>
-    internal bool TryGetPresentationWord(int longAddress, out ushort wordAddress)
-    {
-        wordAddress = 0;
-        if (longAddress >> 16 != Bank) return false;
-        int bankAddress = longAddress & ushort.MaxValue;
-        // Words never overlap, so the byte belongs to the word starting one byte before it or at it.
-        if (TryWordContaining(bankAddress, out ushort start, out InstructionWord word) && word.IsPresentation)
-        {
-            wordAddress = start;
-            return true;
-        }
-        return false;
-    }
-
     /// <summary>The word containing <paramref name="bankAddress"/>, checking the earlier start first.</summary>
     private bool TryWordContaining(int bankAddress, out ushort start, out InstructionWord word)
     {

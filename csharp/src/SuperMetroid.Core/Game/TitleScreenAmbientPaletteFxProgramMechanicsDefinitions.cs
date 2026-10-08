@@ -83,9 +83,6 @@ public sealed class TitleScreenAmbientPaletteFxProgramDefinition
     internal TitleScreenAmbientPaletteFxProgramDefinition(TitleScreenAmbientPaletteFxProgramOwner owner) => Owner = owner;
     public TitleScreenAmbientPaletteFxProgramOwner Owner { get; }
     private bool IsTubeLight => Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight;
-
-    /// <summary>Native palette definitions $8D:E1A0 (tube) / $E1A4 (displays).</summary>
-    public ushort DefinitionPointer => IsTubeLight ? TitleSequenceRomData.ConsolePaletteFx.SlowLights : TitleSequenceRomData.ConsolePaletteFx.FastLights;
     /// <summary>Native instruction entries $8D:C7FA (tube) / $C862 (displays).</summary>
     public ushort ProgramStart => IsTubeLight ? TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.TubeProgram
         : (ushort)(TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.TubeLight.LoopInstructionPointer + 2 * sizeof(ushort));
@@ -101,9 +98,6 @@ public sealed class TitleScreenAmbientPaletteFxProgramDefinition
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public int FrameByteCount => sizeof(ushort) + ColorsPerFrame * sizeof(ushort) +
         sizeof(ushort);
-
-    /// <summary>The complete loop duration in frames.</summary>
-    public int CycleFrames => FrameCount * FrameDuration;
 
     /// <summary>The first timed record after color-index setup.</summary>
     public ushort FirstFramePointer => unchecked((ushort)(ProgramStart + 4));

@@ -82,22 +82,6 @@ public sealed partial class RoomEnemySystem
             .Select(index => new RoomSpriteObjectSlot(index))
             .ToArray();
 
-    /// <summary>All 32 physical bank-$B4 slots, including inactive ones.</summary>
-    public IReadOnlyList<RoomSpriteObjectSlot> RoomSpriteObjects => _roomSpriteObjects;
-
-    /// <summary>
-    /// Compatibility/debugger view of Spark's object-$30 trail entries inside the now-shared
-    /// native pool. Other object kinds no longer steal an impossible second set of 32 slots.
-    /// </summary>
-    public IReadOnlyList<RoomSpriteObjectSlot> FallingSparkTrails =>
-        _roomSpriteObjects
-            .Where(slot => slot.Kind == RoomSpriteObjectKind.FallingSparkTrail)
-            .ToArray();
-
-    public int ActiveFallingSparkTrailCount =>
-        _roomSpriteObjects.Count(slot =>
-            slot.IsActive && slot.Kind == RoomSpriteObjectKind.FallingSparkTrail);
-
     /// <summary>Ports <c>CreateSpriteAtPos</c> at <c>$B4:BC26</c>.</summary>
     private RoomSpriteObjectSlot? SpawnRoomSpriteObject(
         ushort x,

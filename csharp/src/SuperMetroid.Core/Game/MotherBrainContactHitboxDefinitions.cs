@@ -48,16 +48,6 @@ internal static class MotherBrainContactHitboxDefinitions
             MotherBrainContactPart.Body or MotherBrainContactPart.Brain or MotherBrainContactPart.Neck => new(part),
             _ => throw new ArgumentOutOfRangeException(nameof(part)),
         };
-
-    /// <summary>Returns the pinned list address used only for parity diagnostics.</summary>
-    internal static int GetSourceAddress(MotherBrainContactPart part) =>
-        part switch
-        {
-            MotherBrainContactPart.Body => BodySourceAddress,
-            MotherBrainContactPart.Brain => BrainSourceAddress,
-            MotherBrainContactPart.Neck => NeckSourceAddress,
-            _ => throw new ArgumentOutOfRangeException(nameof(part)),
-        };
 }
 
 /// <summary>Ordered physical regions of a component; no stored rectangle sequence.</summary>

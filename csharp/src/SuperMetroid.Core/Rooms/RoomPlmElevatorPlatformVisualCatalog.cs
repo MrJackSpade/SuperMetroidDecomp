@@ -31,8 +31,6 @@ public sealed class RoomPlmElevatorPlatformVisualCatalog
 
     private readonly Dictionary<ushort, ushort[][]>? customWords;
 
-    private RoomPlmElevatorPlatformVisualCatalog() { }
-
     public RoomPlmElevatorPlatformVisualCatalog(
         IEnumerable<RoomPlmElevatorPlatformVisualEntry> entries)
     {
@@ -72,9 +70,6 @@ public sealed class RoomPlmElevatorPlatformVisualCatalog
                 "Elevator-platform visuals do not cover all compiled frames.");
         if (selected.Count != 0) customWords = selected;
     }
-
-    /// <summary>Calculate stock appearances directly; retain only customized frames.</summary>
-    public static RoomPlmElevatorPlatformVisualCatalog Stock() => new();
 
     public ushort GetWord(ushort drawPointer, int runIndex, int wordIndex)
     {

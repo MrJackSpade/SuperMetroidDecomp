@@ -10,44 +10,6 @@ public sealed partial class RoomPlmSystem
     private AreaId _greyDoorArea;
     private Func<bool>? _isTourianStatueFinished;
 
-    /// <summary>Debugger-stable views of every resident grey-door PLM.</summary>
-    public IReadOnlyList<GreyDoorPlmSnapshot> GreyDoors => _slots
-        .Where(slot => slot.Active && slot.GreyDoor is not null)
-        .Select(slot => new GreyDoorPlmSnapshot(
-            slot.HeaderPointer,
-            slot.BlockIndex,
-            slot.RoomArgument,
-            slot.GreyDoor!.Orientation,
-            slot.GreyDoor.Condition,
-            slot.GreyDoor.Phase,
-            slot.GreyDoor.InitialList,
-            slot.GreyDoor.FlashList,
-            slot.GreyDoor.OpeningList))
-        .ToArray();
-
-    /// <summary>Publishes the native projectile word to a resident grey-door actor.</summary>
-    private bool TryNotifyGreyDoorHit(int blockIndex, SamusProjectileTypeWord projectileType)
-    {
-        foreach (PlmSlot slot in _slots)
-        {
-            if (!slot.Active || slot.BlockIndex != blockIndex || slot.GreyDoor is null)
-                continue;
-
-            // Once the one-hit instruction selects the opening stream, native clears the
-            // shot pre-instruction. Further impacts cannot restart or duplicate the sound.
-            if (slot.GreyDoor.Phase is
-                GreyDoorPhase.Opening or
-                GreyDoorPhase.ConvertToBlue or
-                GreyDoorPhase.Closing)
-                return false;
-
-            slot.GreyDoor.PendingProjectileType = projectileType;
-            slot.GreyDoor.HasPendingHit = true;
-            return true;
-        }
-        return false;
-    }
-
     private bool TryStepGreyDoor(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -218,7 +180,7 @@ public sealed partial class RoomPlmSystem
     }
 
     /// <summary>Runs Setup_GreyDoor on a slot allocated in native record order.</summary>
-    private void SetupGreyDoorSlot(
+    private static void SetupGreyDoorSlot(
         ISnesAddressSpace bus,
         RoomLevelData level,
         Bank80SystemState system,
@@ -308,18 +270,6 @@ public enum GreyDoorPhase : byte
     ConvertToBlue,
     Closing,
 }
-
-/// <summary>Stable debugger view over a resident grey-door PLM slot.</summary>
-public readonly record struct GreyDoorPlmSnapshot(
-    ushort Header,
-    int BlockIndex,
-    ushort RoomArgument,
-    ColoredDoorOrientation Orientation,
-    GreyDoorCondition Condition,
-    GreyDoorPhase Phase,
-    ushort InitialList,
-    ushort FlashList,
-    ushort OpeningList);
 
 internal sealed class GreyDoorPlmState(
     ColoredDoorOrientation orientation,

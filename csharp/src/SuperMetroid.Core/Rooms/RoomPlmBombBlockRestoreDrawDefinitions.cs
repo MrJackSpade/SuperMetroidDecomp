@@ -54,17 +54,6 @@ internal static class RoomPlmBombBlockRestoreDrawDefinitions
         }
     }
 
-    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        if (TryDescribe(pointer, out Draw draw))
-        {
-            list = Export(draw);
-            return true;
-        }
-        list = default;
-        return false;
-    }
-
     private static RoomPlmShotBlockDrawDefinitions.DrawList Export(Draw draw)
     {
         var runs = new RoomPlmShotBlockDrawDefinitions.Run[draw.RunCount];

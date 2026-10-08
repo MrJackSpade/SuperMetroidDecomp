@@ -14,4 +14,7 @@
       <HintPath>$(MSBuildSDKsPath)/../Roslyn/bincore/Microsoft.CodeAnalysis.CSharp.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="../../test-support/VerificationAccess/PrivateState.cs" Link="TestSupport/VerificationAccess/PrivateState.cs" />
+  </ItemGroup>
 </Project>

@@ -16,7 +16,6 @@ internal sealed class EndingRewardJump
     public bool ShotRequested { get; private set; }
     public byte ObjectSelection { get; private set; }
     public short BodyY => unchecked((short)body.YPosition);
-    public int VerticalVelocity => velocity;
 
     public EndingRewardJump(ISnesAddressSpace bus, EndingReward reward, Action<int> queueGraphicsUpload)
     {

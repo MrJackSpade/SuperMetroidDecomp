@@ -84,11 +84,6 @@ internal static class CeresExplosionDefinitions
     public static CeresExplosionActorDefinition StationBlastActor =>
         new(0xcf2d, 0xc5a9, 0xc582, 0xce1b);
 
-    /// <summary><c>$8B:CF33</c>, invisible actor whose list owns the three-wave schedule.</summary>
-    /// <remarks>Native list $8B:CE35..CE4A owns the three-wave schedule translated by StepCeresActors. The native list is translated to EventsAtFrame, with a mutable repeat countdown reset by fade completion. Initial/final instruction timing and repeat-before-final ordering are independently verified under #1165.</remarks>
-    public static CeresExplosionActorDefinition SpawnerActor =>
-        new(0xcf33, 0x93d9, 0x93d9, 0xce35);
-
     /// <summary>
     /// Returns one of the five timer/X/Y rows at <c>$8B:C46B/$C475/$C47F</c>.
     /// </summary>

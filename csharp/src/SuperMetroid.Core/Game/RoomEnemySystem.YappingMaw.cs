@@ -108,8 +108,6 @@ public sealed class YappingMawEnemyState
     // calculations are allowed to mutate the backing arrays.
     internal ushort[] CorrectionX { get; } = new ushort[4];
     internal ushort[] CorrectionY { get; } = new ushort[4];
-    public IReadOnlyList<ushort> SegmentXCorrections => CorrectionX;
-    public IReadOnlyList<ushort> SegmentYCorrections => CorrectionY;
 }
 
 /// <summary>
@@ -130,9 +128,6 @@ public sealed partial class RoomEnemySystem
 
     private readonly YappingMawEnemyState?[] _yappingMawStates =
         new YappingMawEnemyState?[MaximumEnemyCount];
-
-    /// <summary>Typed native state for every loaded Yapping Maw slot.</summary>
-    public IReadOnlyList<YappingMawEnemyState?> YappingMawStates => _yappingMawStates;
 
     /// <summary>Most recent library-two $2F request emitted by animation opcode $A133.</summary>
     public ushort? LastYappingMawSoundEffect { get; private set; }

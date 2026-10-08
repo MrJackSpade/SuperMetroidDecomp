@@ -53,10 +53,6 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All =>
         BoundaryDraws().Concat(BackgroundDraws()).Concat(RegularDraws());
 
-    internal static bool TryGet(ushort pointer,
-        out RoomPlmShotBlockDrawDefinitions.DrawList draw) =>
-        TryGetBackground(pointer, out draw) || TryGetRegular(pointer, out draw) || TryGetBoundary(pointer, out draw);
-
     internal static string VisualId(ushort pointer) => pointer switch
     {
         FillWall => "fill-wall",

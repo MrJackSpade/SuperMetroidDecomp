@@ -188,6 +188,4 @@ public readonly record struct RoomFxAnimatedTileFrameDefinition(
     ushort InstructionPointer,
     ushort Duration)
 {
-    /// <summary>Native artwork-operand identity immediately after this compiled control word.</summary>
-    public ushort SourceOperandPointer => unchecked((ushort)(InstructionPointer + 2));
 }

@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed class EndingShootingStars
 {
     private readonly EndingShootingStar[] stars = new EndingShootingStar[EndingShootingStarDefinitions.Count];
-    internal ReadOnlySpan<EndingShootingStar> Stars => stars;
 
     internal EndingShootingStars()
     {

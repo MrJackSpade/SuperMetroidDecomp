@@ -91,15 +91,6 @@ internal static class SamusRunningCadenceDefinitions
             "or a mutable bank-$91 low-half alias.");
     }
 
-    /// <summary>Returns one byte from the complete bounded native cadence catalog.</summary>
-    internal static byte ReadCompiledByte(int address)
-    {
-        if (TryReadCompiledByte(address, out byte value))
-            return value;
-        throw new ArgumentOutOfRangeException(
-            nameof(address), address, "Address is outside the compiled Samus running-cadence catalog.");
-    }
-
     private static bool TryReadCompiledByte(int address, out byte value)
     {
         if (address is OrdinaryPointer or OrdinaryPointer + 1)

@@ -27,7 +27,6 @@ internal static partial class Program
             .GetMethod(name, BindingFlags.NonPublic | BindingFlags.Static)!.CreateDelegate<T>();
         var enemy = Reader<Func<ushort, byte, ushort>>(typeof(RoomEnemySystem), "MultiplyCartridgeSinCos");
         var baby = Reader<Func<ushort, byte, ushort>>(typeof(BabyMetroidCutsceneState), "CalculateVelocityComponent");
-        var mother = Reader<Func<ushort, byte, ushort>>(typeof(MotherBrainEnemyProjectileSystem), "CalculateVelocityComponent");
         var rainbow = Reader<Func<ushort, SnesAngle, ushort>>(typeof(MotherBrainRainbowBeamSamusMovement), "CalculateYVelocity");
         var fly = Reader<Func<int, short>>(typeof(RoomEnemySystem), "ReadSignedSineCosine");
         var glass = Reader<Func<int, ushort>>(typeof(RoomEnemySystem), "ReadSignedSineSample");
@@ -70,7 +69,7 @@ internal static partial class Program
             var cosineAngle = SnesAngle.FromRaw(unchecked((ushort)(((angle - 64) << 8) | 255)));
             if (EnemyTrigonometryTables.MultiplySignedSine((ushort)speed, (byte)angle) != expected ||
                 enemy((ushort)speed, (byte)angle) != expected || baby((ushort)speed, (byte)angle) != expected ||
-                mother((ushort)speed, (byte)angle) != expected || rainbow((ushort)speed, cosineAngle) != expected)
+                rainbow((ushort)speed, cosineAngle) != expected)
                 throw new InvalidDataException($"Signed projectile product differs: angle={angle}, speed={speed}.");
         }
         for (int index = 0; index < 320; index++)

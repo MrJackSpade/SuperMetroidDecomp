@@ -83,12 +83,6 @@ public sealed class PipeBugEnemyState
             PipeBugDefinitions.BrinstarEnemyDefinition or
             PipeBugDefinitions.StrongBrinstarEnemyDefinition;
 
-    public bool IsNorfair =>
-        DefinitionAtInitialization == PipeBugDefinitions.NorfairEnemyDefinition;
-
-    public bool IsYellow =>
-        DefinitionAtInitialization == PipeBugDefinitions.YellowEnemyDefinition;
-
     // The names below follow their role in the currently selected species. They are kept
     // together because the cartridge overlays all of them in one Enemy_PipeBug structure.
     public ushort SpawnX { get; internal set; }
@@ -136,16 +130,6 @@ public sealed partial class RoomEnemySystem
 
     private readonly PipeBugEnemyState?[] _pipeBugStates =
         new PipeBugEnemyState?[MaximumEnemyCount];
-
-    /// <summary>Typed state for every physical Pipe Bug enemy slot.</summary>
-    public IReadOnlyList<PipeBugEnemyState?> PipeBugStates => _pipeBugStates;
-
-    internal static bool IsPipeBugDefinition(ushort definition) =>
-        definition is
-            PipeBugDefinitions.BrinstarEnemyDefinition or
-            PipeBugDefinitions.StrongBrinstarEnemyDefinition or
-            PipeBugDefinitions.NorfairEnemyDefinition or
-            PipeBugDefinitions.YellowEnemyDefinition;
 
     private static bool IsBrinstarPipeBugDefinition(ushort definition) =>
         definition is PipeBugDefinitions.BrinstarEnemyDefinition or

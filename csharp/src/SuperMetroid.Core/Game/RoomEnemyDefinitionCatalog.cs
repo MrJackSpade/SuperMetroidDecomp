@@ -199,7 +199,4 @@ public static class RoomEnemyDefinitionCatalog
         throw new ArgumentOutOfRangeException(nameof(pointer), pointer,
             "Pointer is not a referenced retail bank-$A0 enemy definition.");
     }
-
-    /// <summary>Enumerates every compiled native definition pointer for ROM-oracle tests.</summary>
-    public static IEnumerable<ushort> Pointers => Definitions.Select(entry => entry.Pointer);
 }

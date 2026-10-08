@@ -148,10 +148,6 @@ public sealed partial class RoomEnemySystem
     private readonly MaridiaLargeSnailEnemyState?[] _maridiaLargeSnailStates =
         new MaridiaLargeSnailEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed Oum state for all 32 physical enemy slots.</summary>
-    public IReadOnlyList<MaridiaLargeSnailEnemyState?> MaridiaLargeSnailStates =>
-        _maridiaLargeSnailStates;
-
     /// <summary>
     /// Most recent library-two sound requested by Oum this frame. The outer audio mixer is
     /// still a frontend seam, so the enemy publishes the exact native sound identifier.

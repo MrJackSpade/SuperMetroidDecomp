@@ -66,12 +66,8 @@ internal static partial class Program
             unchecked((byte)(RoomPlmHeaders.MotherBrainGlass >> 8)),
             originX, originY, 0x00, 0x80, 0x00, 0x00,
         ]);
-        // The production control list is compiled and immutable. Redirect the
-        // loaded glass slot to an isolated one-frame draw probe instead of
-        // mutating a cartridge operand that execution no longer reads.
-        const ushort probeList = 0xf100;
-        WriteWord(bus, 0x840000 | probeList, 1);
-        WriteWord(bus, 0x840000 | (probeList + 2), selected.Pointer);
+        // The production control list is compiled and immutable. Draw each layout through the
+        // production timed-frame draw instead of mutating a cartridge operand execution no longer reads.
         var guarded = new MotherBrainGlassDrawReadGuard(bus, lists);
         byte[] blockDefinitions = new byte[0x400 * 8];
         blockDefinitions[0x57 * 8] = 0x57;
@@ -89,8 +85,7 @@ internal static partial class Program
             $"Mother Brain glass loads for draw ${selected.Pointer:X4}");
         AssertTrue(plms.MotherBrainGlassWasLoaded,
             $"glass header retains its PLM owner for draw ${selected.Pointer:X4}");
-        plms.SetSoleInstructionPointerForVerification(probeList, [1, selected.Pointer]);
-        plms.Step(guarded, level, streamer, 0, 0, 0);
+        plms.DrawSolePlmFrameForVerification(guarded, level, streamer, selected.Pointer);
 
         int entryX = originX;
         int entryY = originY;

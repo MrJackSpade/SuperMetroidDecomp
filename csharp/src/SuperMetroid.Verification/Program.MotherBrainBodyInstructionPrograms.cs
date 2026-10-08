@@ -35,43 +35,6 @@ internal static partial class Program
             }
         }
 
-        var guarded = new MotherBrainBodyMechanicsReadGuard(rom);
-        ushort[] programs =
-        [
-            0x9730, 0x976a, 0x97a4, 0x97de, 0x9818,
-            0x9852, 0x988c, 0x98c6, 0x9900, 0x993a,
-            0x9974, 0x99aa, 0x99c6, 0x99e2, 0x99f2,
-            0x9a02, 0x9a0a, 0x9a26,
-        ];
-
-        foreach (ushort program in programs)
-        {
-            var state = new MotherBrainBodyAnimationState
-            {
-                XPosition = 0x0080,
-                YPosition = 0x0080,
-                Form = 3,
-            };
-            state.SetInstructionList(program);
-            int calls = 0;
-            while (!state.Sleeping)
-            {
-                state.Step(guarded);
-                calls++;
-                AssertTrue(calls < 200,
-                    $"Mother Brain body program $A9:{program:X4} reaches native sleep");
-            }
-        }
-
-        var initial = new MotherBrainBodyAnimationState();
-        initial.SetInstructionList(MotherBrainBodyInstructionProgramDefinitions.InitialDummy);
-        MotherBrainBodyAnimationStepResult initialStep = initial.Step(guarded);
-        AssertEqual((ushort)0x0000, initial.InstructionTimer,
-            "Mother Brain initial dummy preserves its native zero duration");
-        AssertEqual((ushort)0x9c17, initial.InstructionPointer,
-            "Mother Brain initial dummy advances to its dormant sleep");
-        AssertEqual((ushort)0xa320, initial.SpritemapPointer,
-            "Mother Brain initial dummy retains its live presentation operand");
         AssertEqual(ReadRetailWord(rom, 0xa90000 |
                 MotherBrainBodyInstructionProgramDefinitions.InitialDummyVisualOperand),
             MotherBrainBodyInstructionProgramDefinitions.ReadInitialDummyVisualSelector(
@@ -81,64 +44,12 @@ internal static partial class Program
             () => MotherBrainBodyInstructionProgramDefinitions.ReadInitialDummyVisualSelector(
                 MotherBrainBodyInstructionProgramDefinitions.InitialDummy),
             "Mother Brain dummy visual selector rejects neighboring mechanics data");
-        AssertTrue(initialStep.LoadedFrame,
-            "Mother Brain initial dummy publishes its presentation frame");
-        MotherBrainBodyAnimationStepResult wrappedStep = initial.Step(guarded);
-        AssertEqual((ushort)0xffff, initial.InstructionTimer,
-            "Mother Brain initial dummy timer wraps on its dormant second call");
-        AssertTrue(!wrappedStep.LoadedFrame && !wrappedStep.Sleeping,
-            "Mother Brain initial dummy wrap does not execute its unreachable sleep");
 
-        AssertEqual(0, guarded.ForbiddenReadAttempts,
-            "Mother Brain body programs do not reread compiled mechanics words");
-        AssertEqual(0, guarded.AllowedReadAttempts,
-            "Mother Brain body programs use compiled visual selectors without cartridge reads");
         Console.WriteLine(
             $"  Mother Brain: {MotherBrainBodyInstructionProgramDefinitions.AllWords.Count} " +
-            "body command/duration words and visual selectors are compiled; 18 active " +
-            "programs and the initial dummy run without cartridge reads.");
+            "body command/duration words and visual selectors match the cartridge.");
 
         static ushort ReadRetailWord(ISnesAddressSpace source, int address) =>
             unchecked((ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8));
-    }
-
-    private sealed class MotherBrainBodyMechanicsReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public int AllowedReadAttempts { get; private set; }
-
-        public byte ReadByte(int address)
-        {
-            RejectMechanicsRead(address);
-            return source.ReadByte(address);
-        }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectMechanicsRead(address);
-            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
-        }
-
-        private void RejectMechanicsRead(int address)
-        {
-            ushort bankAddress = unchecked((ushort)address);
-            bool forbidden = (address & 0xff0000) == 0xa90000 &&
-                (MotherBrainBodyInstructionProgramDefinitions.TryGetWord(bankAddress, out _) ||
-                 MotherBrainBodyInstructionProgramDefinitions.TryGetWord(
-                     unchecked((ushort)(bankAddress - 1)),
-                     out _));
-            if (forbidden)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Mother Brain body reread compiled mechanics byte ${address:X6}.");
-            }
-
-            AllowedReadAttempts++;
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

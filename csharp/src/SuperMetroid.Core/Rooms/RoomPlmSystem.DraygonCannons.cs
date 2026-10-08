@@ -8,20 +8,6 @@ public sealed partial class RoomPlmSystem
 {
     private Action<ushort>? _disableDraygonCannon;
 
-    /// <summary>Debugger-visible projections of every live Draygon cannon PLM.</summary>
-    public IReadOnlyList<DraygonCannonPlmSnapshot> DraygonCannons => _slots
-        .Where(slot => slot.Active && slot.DraygonCannon is not null)
-        .Select(slot => new DraygonCannonPlmSnapshot(
-            slot.HeaderPointer,
-            slot.BlockIndex,
-            slot.RoomArgument,
-            slot.DraygonCannon!.VariablePointer,
-            slot.DraygonCannon.Orientation,
-            slot.DraygonCannon.Destroyed,
-            slot.InstructionPointer,
-            slot.PreInstruction))
-        .ToArray();
-
     private static bool IsDraygonCannonHeader(ushort header) => header is
         RoomPlmHeaders.DraygonCannonFacingRight or
         RoomPlmHeaders.DraygonCannonFacingRightDestroyed or
@@ -190,14 +176,3 @@ public sealed partial class RoomPlmSystem
         public bool HasPendingHit { get; set; }
     }
 }
-
-/// <summary>Stable debugger view over one retail Draygon cannon PLM.</summary>
-public readonly record struct DraygonCannonPlmSnapshot(
-    ushort Header,
-    int BlockIndex,
-    ushort RoomArgument,
-    ushort VariablePointer,
-    DraygonCannonOrientation Orientation,
-    bool Destroyed,
-    ushort InstructionPointer,
-    ushort PreInstruction);

@@ -163,9 +163,6 @@ public sealed partial class RoomEnemySystem
     private readonly ChootEnemyState?[] _chootStates =
         new ChootEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed Choot state for all 32 physical enemy slots.</summary>
-    public IReadOnlyList<ChootEnemyState?> ChootStates => _chootStates;
-
     /// <summary>Ports <c>InitAI_Choot</c> at <c>$A2:DF76</c>.</summary>
     private void InitializeChoot(RoomEnemySlot slot)
     {

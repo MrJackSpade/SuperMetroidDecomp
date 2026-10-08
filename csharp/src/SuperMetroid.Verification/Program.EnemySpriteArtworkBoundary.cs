@@ -49,9 +49,7 @@ internal static partial class Program
             spriteObjectCases++;
         }
 
-        var motherBrain = new MotherBrainEnemyProjectileSystem();
         RoomEnemyProjectileSlot roomSlot = enemies.EnemyProjectiles[17];
-        MotherBrainEnemyProjectileSlot brainSlot = motherBrain.Slots[17];
         foreach (EnemyProjectilePresentationFrameDefinition frame in EnemyProjectilePresentationFrameDefinitions.All)
         foreach ((ushort x, ushort y) in new (ushort, ushort)[] { (128, 96), (255, 252), (0, ushort.MaxValue) })
         {
@@ -67,20 +65,9 @@ internal static partial class Program
             drawProjectile.Invoke(enemies, [actual, (ushort)0, (ushort)0, EnemyProjectileDrawPriority.High, false]);
             Equal(expected, actual, $"room projectile {frame.Name}");
 
-            brainSlot.ProjectileId = MotherBrainEnemyProjectileSystem.ProjectileDefinition;
-            brainSlot.Properties = 0x1000;
-            brainSlot.PresentationOperandAddress = frame.OperandAddress;
-            brainSlot.XPosition = x; brainSlot.YPosition = y; brainSlot.GraphicsIndex = 0x0a04;
-            actual = new OamBuffer();
-            motherBrain.DrawHighPriority(actual, projectileArtwork, 0, 0);
-            Equal(expected, actual, $"Mother Brain projectile {frame.Name}");
-            brainSlot.Properties = 0;
-            actual = new OamBuffer();
-            motherBrain.DrawLowPriority(actual, projectileArtwork, 0, 0);
-            Equal(expected, actual, $"Mother Brain low projectile {frame.Name}");
             projectileCases++;
         }
-        roomSlot.Clear(); brainSlot.Clear();
+        roomSlot.Clear();
         AssertEqual(0, projectileArtwork.Get(EnemyProjectileSpritemapDefinitions.BlankSpritemap).Length,
             "native initial blank projectile is compiled as a zero-part frame");
         foreach ((ushort pointer, string name) in EnemyProjectileSpritemapDefinitions.Frames)
@@ -112,8 +99,6 @@ internal static partial class Program
         Equal(elevatorExpected, elevatorActual, "Ceres elevator owner ordering and placements");
 
         Suite(nameof(VerifyOamSpritemapPacking), () => VerifyOamSpritemapPacking());
-        Suite(nameof(VerifyMotherBrainProjectileRendering), () => VerifyMotherBrainProjectileRendering());
-        Suite(nameof(VerifyMiscDustProjectiles), () => VerifyMiscDustProjectiles());
         AssertTrue(typeof(OamBuffer).GetMethod("AddEnemyProjectileSpritemap") is null &&
             typeof(OamBuffer).GetMethod("ReadSpritemapByte", BindingFlags.Static | BindingFlags.NonPublic) is null,
             "Core OAM cannot recover a generic spritemap address reader");

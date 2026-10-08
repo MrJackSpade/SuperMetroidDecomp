@@ -14,28 +14,6 @@ internal static class StationAnimationProgramDefinitions
 
     internal readonly record struct Frame(ushort Duration, ushort DrawPointer);
 
-    private static IEnumerable<ushort> Lists()
-    {
-        yield return MapIdle;
-        yield return MapAcquired;
-        yield return Energy;
-        yield return Missile;
-        yield return RoomPlmInstructionLists.SaveStationIdleDraw;
-        yield return RoomPlmInstructionLists.SaveStationAnimationFirstFrame;
-        yield return RoomPlmInstructionLists.SaveStationAnimationSecondFrame;
-    }
-
-    internal static IEnumerable<(ushort Address, ushort Value)> NativeWords()
-    {
-        foreach (ushort list in Lists())
-        for (int index = 0; index < (list is MapIdle or MapAcquired or Energy or Missile ? 3 : 1); index++)
-        {
-            Frame frame = Resolve(list, index);
-            yield return (checked((ushort)(list + 4 * index)), frame.Duration);
-            yield return (checked((ushort)(list + 4 * index + 2)), frame.DrawPointer);
-        }
-    }
-
     /// <summary>
     /// Seven named program entries own fifteen timed frames. Map/resource cycles
     /// have three frames at twelve-byte draw-list strides and six-tick holds;

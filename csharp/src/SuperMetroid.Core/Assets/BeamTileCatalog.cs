@@ -38,19 +38,6 @@ public sealed class BeamTileCatalog : IVramAssetProvider, IInstalledArtworkTrans
             throw new ArgumentException("Every beam selection needs a compiled atlas.", nameof(sheets));
         return new((BeamTileAtlas[])sheets.Clone(), palettes, hyperBeamFxColors);
     }
-    public static BeamTileCatalog Load(IReadOnlyDictionary<string, byte[]> files,
-        BeamPaletteCatalog? palettes = null, HyperBeamFxColorCatalog? hyperBeamFxColors = null)
-    {
-        var sheets = new BeamTileAtlas[BeamTileAtlasDefinitions.ArtworkCount];
-        for (int i = 0; i < sheets.Length; i++)
-        {
-            string name = BeamTileAtlasDefinitions.FileName(BeamTileAtlasDefinitions.SelectionAt(i));
-            if (!files.TryGetValue(name, out var png) || png is null)
-                throw new InvalidDataException($"Missing beam artwork {name}.");
-            sheets[i] = BeamTileAtlas.Load(new MemoryStream(png, writable: false), BeamTileAtlasDefinitions.SelectionAt(i));
-        }
-        return new(sheets, palettes, hyperBeamFxColors);
-    }
 
     public ReadOnlyMemory<byte> Resolve(VramAssetId asset)
     {

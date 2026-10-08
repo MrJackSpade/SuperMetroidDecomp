@@ -3,33 +3,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// Debugger-facing view of Kago bug's aliased bank-$86 variables. The ROM calls the same
-/// <c>eproj_G</c> word an idle timer until a shot replaces it with the projectile type.
-/// </summary>
-public readonly struct KagoBugProjectileState
-{
-    private readonly RoomEnemyProjectileSlot _projectile;
-
-    internal KagoBugProjectileState(RoomEnemyProjectileSlot projectile) =>
-        _projectile = projectile;
-
-    /// <summary>Native <c>eproj_F</c>: byte index of the Kago enemy that emitted this bug.</summary>
-    public ushort SourceEnemyNativeIndex => _projectile.Variable1;
-
-    /// <summary>Native <c>eproj_E</c>: countdown to library-two sound <c>$6C</c>.</summary>
-    public ushort SoundTimer => _projectile.Variable0;
-
-    /// <summary>Native <c>eproj_G</c>, interpreted as the current idle countdown.</summary>
-    public ushort IdleTimer => _projectile.CollidedProjectileType;
-
-    /// <summary>
-    /// Native <c>eproj_G</c> after a shot collision. This is the exact incoming beam or
-    /// missile type; callers distinguish it from an idle timer by the inert shot pre-AI.
-    /// </summary>
-    public ushort CollidedProjectileType => _projectile.CollidedProjectileType;
-}
-
-/// <summary>
 /// Event emitted by Kago bug instruction <c>$86:D1CE</c>. Pickup selection remains owned by
 /// the shared enemy-drop subsystem; this retains the exact cartridge definition and origin.
 /// </summary>
@@ -52,14 +25,6 @@ public sealed partial class RoomEnemySystem
 
     /// <summary>Last Kago bug enemy-drop request produced during this enemy frame.</summary>
     public KagoBugDropRequest? LastKagoBugDropRequest { get; private set; }
-
-    public static KagoBugProjectileState InspectKagoBug(RoomEnemyProjectileSlot projectile)
-    {
-        ArgumentNullException.ThrowIfNull(projectile);
-        if (projectile.Kind != RoomEnemyProjectileKind.KagoBug)
-            throw new ArgumentException("The selected enemy projectile is not a Kago bug.", nameof(projectile));
-        return new KagoBugProjectileState(projectile);
-    }
 
     /// <summary>Ports <c>EprojInit_KagosBugs</c> at <c>$86:D088</c>.</summary>
     private bool SpawnKagoBug(RoomEnemySlot source)

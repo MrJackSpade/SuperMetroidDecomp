@@ -32,15 +32,6 @@ public static class SporeSpawnColorRomData
     public const int BackgroundDestination = 112;
     public const int FrameByteCount = ColorsPerFrame * sizeof(ushort);
 
-    /// <summary>Returns the native source of a selected death-sequence palette row.</summary>
-    public static int DeathSource(SporeSpawnDeathPaletteLayer layer) => layer switch
-    {
-        SporeSpawnDeathPaletteLayer.Sprite => DeathSpriteSource,
-        SporeSpawnDeathPaletteLayer.Level => DeathLevelSource,
-        SporeSpawnDeathPaletteLayer.Background => DeathBackgroundSource,
-        _ => throw new ArgumentOutOfRangeException(nameof(layer)),
-    };
-
     /// <summary>Returns the CGRAM start of a selected death-sequence palette row.</summary>
     public static int DeathDestination(SporeSpawnDeathPaletteLayer layer) => layer switch
     {

@@ -84,7 +84,6 @@ internal static class PhantoonCollisionDefinitions
     internal readonly struct ComponentSequence(ushort list, int count) : IReadOnlyList<PhantoonCollisionComponent>
     {
         public int Count => count;
-        public int Length => Count;
         public PhantoonCollisionComponent this[int index] => (uint)index < Count
             ? new(0, 0, list) : throw new IndexOutOfRangeException();
         public IEnumerator<PhantoonCollisionComponent> GetEnumerator()
@@ -98,7 +97,6 @@ internal static class PhantoonCollisionDefinitions
     internal readonly struct HitboxSequence(ushort list) : IReadOnlyList<PhantoonCollisionHitbox>
     {
         public int Count => list == FullBodyList ? RequiredVerticalBounds.Length : 1;
-        public int Length => Count;
         public PhantoonCollisionHitbox this[int index]
         {
             get

@@ -85,10 +85,6 @@ public sealed partial class RoomEnemySystem
     private readonly NorfairLavaJumpingEnemyState?[] _norfairLavaJumpingEnemyStates =
         new NorfairLavaJumpingEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed state for every physical slot currently owned by this family.</summary>
-    public IReadOnlyList<NorfairLavaJumpingEnemyState?> NorfairLavaJumpingEnemyStates =>
-        _norfairLavaJumpingEnemyStates;
-
     /// <summary>Most recent library-two jump sound request emitted during this frame.</summary>
     public ushort? LastNorfairLavaJumpingEnemySoundEffect { get; private set; }
 

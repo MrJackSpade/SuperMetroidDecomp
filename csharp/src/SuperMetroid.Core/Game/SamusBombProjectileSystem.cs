@@ -1235,12 +1235,6 @@ public sealed class SamusBombProjectileSlot
     /// <summary>Instruction pointer is the native active-slot sentinel.</summary>
     public bool IsActive => InstructionPointer != 0;
 
-    /// <summary>
-    /// True after a normal bomb selects `$93:A06B`, or while a Power Bomb's timer-zero
-    /// slot owns the expanding bank-$88 terrain scan, and before native-style deletion.
-    /// </summary>
-    public bool IsExploding => IsActive && BombTimer == 0;
-
     internal void ClearFields()
     {
         XPosition = 0;

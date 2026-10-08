@@ -82,10 +82,6 @@ internal sealed partial class EndingCreditsState
     }
 
     public EndingCreditsPhase Phase { get; private set; }
-    public byte Brightness => brightness;
-    public ushort CinematicFrame => cinematicFrame;
-    public ushort CreditsVerticalScroll => credits?.VerticalScroll ?? 0;
-    public bool CreditsFinished => credits?.Finished ?? false;
     public EndingReward EndingReward =>
         gameTimeHours < EndingCreditsRomData.Rewards.SuitlessMaximumHoursExclusive
         ? EndingReward.Suitless

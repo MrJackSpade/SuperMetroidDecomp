@@ -52,22 +52,9 @@ internal static partial class Program
         var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Gate header oracle revision");
-        for (int raw = 0; raw <= ushort.MaxValue; raw++)
-        {
-            ushort header = (ushort)raw;
-            bool owned = raw is 0xc82a or 0xc836;
-            AssertEqual(owned, DownwardGatePlmHeaderDefinitions.TryGetInitialInstruction(header, out ushort actual),
-                "Gate complete header selector domain");
-            if (!owned) AssertEqual((ushort)0, actual, "Gate missing header output");
-            else
-            {
-                int source = raw == 0xc82a ? 0x84c82c : 0x84c838;
-                ushort expected = ReadSamusEaterPlmWord(rom, source);
-                AssertEqual(expected, actual, "Gate original first instruction");
-                AssertEqual(expected, RoomPlmHeaderDefinitions.Get(header).InitialInstruction,
-                    "Gate compiled-population first instruction");
-            }
-        }
+        foreach ((ushort header, int source) in new[] { ((ushort)0xc82a, 0x84c82c), ((ushort)0xc836, 0x84c838) })
+            AssertEqual(ReadSamusEaterPlmWord(rom, source), RoomPlmHeaderDefinitions.Get(header).InitialInstruction,
+                "Gate compiled-population first instruction");
     }
 
     private static void VerifyDownwardGateDrawDefinitions()
@@ -306,10 +293,8 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (address is >= DownwardGatePlmHeaderDefinitions.ResidentInitialInstructionAddress and
-                <= DownwardGatePlmHeaderDefinitions.ResidentInitialInstructionAddress + 1 or
-                >= DownwardGatePlmHeaderDefinitions.ShotBlockInitialInstructionAddress and
-                <= DownwardGatePlmHeaderDefinitions.ShotBlockInitialInstructionAddress + 1)
+            // The resident and shot-block gate headers' first-instruction words.
+            if (address is >= 0x84c82c and <= 0x84c82d or >= 0x84c838 and <= 0x84c839)
                 throw new InvalidOperationException(
                     $"Gate population read compiled header word ${address:X6}.");
             return source.ReadByte(address);

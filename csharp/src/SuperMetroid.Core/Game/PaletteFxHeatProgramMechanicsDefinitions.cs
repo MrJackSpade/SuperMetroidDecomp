@@ -147,8 +147,4 @@ public readonly record struct PaletteFxHeatProgramFrameDefinition(
     /// The color values and repeated color-row relationships require their own review;
     /// this address calculation is not a disposition for their contents.</remarks>
     public ushort FirstColorPointer => unchecked((ushort)(InstructionPointer + sizeof(ushort)));
-
-    /// <summary>The terminal wait command after fifteen live BGR555 colors.</summary>
-    public ushort WaitInstructionPointer => unchecked((ushort)(
-        FirstColorPointer + PaletteFxHeatProgramDefinition.ColorsPerFrame * sizeof(ushort)));
 }

@@ -11,7 +11,6 @@ internal sealed class MenuShoulderButtonArtwork
     private readonly ushort leftLetter, rightLetter;
     private readonly Dictionary<int, byte>? edits;
     internal const int StoredGlyphByteCount = 2 * sizeof(ushort);
-    internal int StoredEditCount => edits?.Count ?? 0;
     internal static bool Contains(int tile) => tile is >= 0x28 and <= 0x2a or 0x2e;
 
     internal MenuShoulderButtonArtwork(IndexedPngImage image)

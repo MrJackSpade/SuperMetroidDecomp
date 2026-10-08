@@ -19,9 +19,9 @@ internal static partial class Program
         {
             CrocomireSkeletonTransferDefinition frame = frames[index];
             ushort destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
-                EnemyRomTablePointers.Crocomire.DeathVramDestinationWords + index * 2);
+                EnemyRomTablePointersCrocomire.DeathVramDestinationWords + index * 2);
             ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
-                EnemyRomTablePointers.Crocomire.DeathGraphicsSourceWords + index * 2);
+                EnemyRomTablePointersCrocomire.DeathGraphicsSourceWords + index * 2);
             AssertEqual(destination, frame.DestinationOffset,
                 $"Crocomire skeleton destination {index} matches the cartridge");
             AssertEqual(0xad0000 | source, frame.SourceAddress,
@@ -35,7 +35,7 @@ internal static partial class Program
                     $"Crocomire skeleton chunk {index} byte {offset} matches cartridge art");
         }
         AssertEqual((ushort)0xffff, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
-                EnemyRomTablePointers.Crocomire.DeathVramDestinationWords +
+                EnemyRomTablePointersCrocomire.DeathVramDestinationWords +
                 frames.Length * 2),
             "Crocomire skeleton seventh destination is the native terminator");
         AssertTrue(!CrocomireSkeletonTransferDefinitions.TryGet(frames.Length, out _),
@@ -51,9 +51,9 @@ internal static partial class Program
         for (int index = 0; index < frames.Length; index++)
         {
             int destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
-                EnemyRomTablePointers.Crocomire.DeathVramDestinationWords + index * 2);
+                EnemyRomTablePointersCrocomire.DeathVramDestinationWords + index * 2);
             int source = 0xad0000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
-                EnemyRomTablePointers.Crocomire.DeathGraphicsSourceWords + index * 2);
+                EnemyRomTablePointersCrocomire.DeathGraphicsSourceWords + index * 2);
             byte[] page = Enumerable.Range(0, 0x200).Select(offset => rom.ReadByte(source + offset)).ToArray();
             nativeVram.LoadBytes((0x6000 + destination) * 2, page);
         }

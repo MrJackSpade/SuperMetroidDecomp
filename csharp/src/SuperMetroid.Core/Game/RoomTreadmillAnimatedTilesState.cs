@@ -10,9 +10,6 @@ public sealed class RoomTreadmillAnimatedTilesState
 {
     private readonly List<WreckedShipTreadmillAnimatedTilesState> objects = [];
 
-    /// <summary>Number of treadmill objects selected by the current room/door FX bitset.</summary>
-    public int Count => objects.Count;
-
     /// <summary>Clears the previous population and follows the selected FX record's native bit order.</summary>
     public void LoadRoom(ISnesAddressSpace bus, ushort fxPointer, ushort doorPointer, AreaId area)
     {

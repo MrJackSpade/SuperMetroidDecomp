@@ -1106,14 +1106,6 @@ internal static partial class Program
                 SparkMovementDefinitions.InitialState((ushort)parameter),
                 "stream 3 native Spark selector including adjacent-word case");
         }
-        for (int angle = 0; angle <= byte.MaxValue; angle++)
-        {
-            int offset = 2 * (angle >> 5);
-            short x = (short)(rom.ReadByte(0x86bde3 + offset) | rom.ReadByte(0x86bde4 + offset) << 8);
-            short y = (short)(rom.ReadByte(0x86bdf3 + offset) | rom.ReadByte(0x86bdf4 + offset) << 8);
-            AssertEqual((x, y), ShaktoolProjectilePlacementDefinitions.Offset((byte)angle),
-                "stream 3 native Shaktool circle offset");
-        }
         for (int bucket = 0; bucket <= ushort.MaxValue; bucket++)
         {
             ushort direction = (ushort)bucket;
@@ -1843,7 +1835,7 @@ internal static partial class Program
             object sharing = body.GetType().GetField("sharedChannels", privateFields)!.GetValue(body)!;
             AssertTrue(sharing is not null, $"rainbow phase {phase} actually uses shared channels");
             object channel = sharing!.GetType().GetField("independent", privateFields)!.GetValue(sharing)!;
-            independentChannels += (int)channel.GetType().GetProperty("IndependentCount", privateFields)!.GetValue(channel)!;
+            independentChannels += ((Array)channel.GetType().GetField("inputs", privateFields)!.GetValue(channel)!).Length;
         }
         AssertEqual(28, independentChannels, "remaining independently supplied channels outside red-origin basis");
         foreach (int phase in new[] { 3, 4, 8, 9 })

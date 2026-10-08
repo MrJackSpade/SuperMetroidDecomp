@@ -43,22 +43,6 @@ public readonly record struct SnesAddress
     }
 
     /// <summary>
-    /// Creates an address that must refer to an upper LoROM cartridge window.
-    /// </summary>
-    public static SnesAddress FromUpperLoRom(byte bank, ushort offset)
-    {
-        var address = new SnesAddress(bank, offset);
-        if (!address.IsUpperLoRomWindow)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(offset),
-                offset,
-                "An upper LoROM cartridge address must be in the $8000-$FFFF window.");
-        }
-        return address;
-    }
-
-    /// <summary>
     /// Adds to only the native sixteen-bit offset, wrapping at the bank boundary while
     /// retaining the original bank exactly.
     /// </summary>

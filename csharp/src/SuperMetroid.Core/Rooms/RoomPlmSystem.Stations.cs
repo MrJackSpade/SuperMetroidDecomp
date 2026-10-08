@@ -38,21 +38,6 @@ public sealed partial class RoomPlmSystem
     public IReadOnlyList<StationActivationEvent> StationActivationEvents =>
         _stationActivationEvents;
 
-    /// <summary>Every resident cartridge station in native physical-slot order.</summary>
-    public IReadOnlyList<StationPlmSnapshot> Stations => _slots
-        .Select((slot, index) => (slot, index))
-        .Where(entry => entry.slot.Active && entry.slot.Station is not null)
-        .OrderByDescending(entry => entry.index)
-        .Select(entry => new StationPlmSnapshot(
-            entry.index,
-            entry.slot.BlockIndex,
-            entry.slot.RoomArgument,
-            entry.slot.Station!.Kind,
-            entry.slot.Station.Triggered,
-            entry.slot.Station.SavePhase,
-            _saveStationLockedOut))
-        .ToArray();
-
     /// <summary>
     /// Sets WRAM <c>$1E75</c>'s room-entry lockout used when loading directly onto a save
     /// station. Ordinary destination-room construction clears it by creating a fresh PLM
@@ -136,11 +121,6 @@ public sealed partial class RoomPlmSystem
                 $"Multiple resident save stations share {activation.AreaIndex}:{activation.StationIndex}."),
         };
     }
-
-    /// <summary>Every live elevator-platform PLM in native physical-slot order.</summary>
-    public IReadOnlyList<RoomPlmSlotSnapshot> ElevatorPlatforms => PopulationSlots
-        .Where(snapshot => _slots[snapshot.NativeSlotIndex].IsElevatorPlatform)
-        .ToArray();
 
     private static bool TrySetupStationOrElevator(
         RoomLevelData level,
@@ -278,44 +258,6 @@ public sealed partial class RoomPlmSystem
         if (behavior is { } bts)
             level.SetBehavior(blockIndex, bts);
     }
-
-    /// <summary>
-    /// Publishes contact with BTS $47-$4D to its resident station. This is the same generic
-    /// type-$B collision seam used by item and scroll PLMs; no room identity participates.
-    /// </summary>
-    public bool TryNotifyStationTouch(int accessBlockIndex, byte behavior)
-        => TryNotifyStationTouch(accessBlockIndex, new RoomBlockBehavior(behavior));
-
-    /// <summary>Typed BTS overload used by room collision dispatch.</summary>
-    public bool TryNotifyStationTouch(int accessBlockIndex, RoomBlockBehavior behavior)
-        => TryNotifyStationCollision(
-            accessBlockIndex,
-            behavior,
-            collisionPose: byte.MaxValue,
-            horizontal: true,
-            movingPositive: true,
-            roomWidthInBlocks: 0,
-            bypassSetupGate: true);
-
-    /// <summary>
-    /// Runs the cartridge access setup gate for an ordinary movement collision. A rejected
-    /// pose/direction still returns true when the resident parent exists because the type-B
-    /// access block remains solid; only its activation side effect is conditional.
-    /// </summary>
-    public bool TryNotifyStationCollision(
-        int accessBlockIndex,
-        byte behavior,
-        byte collisionPose,
-        bool horizontal,
-        bool movingPositive,
-        int roomWidthInBlocks)
-        => TryNotifyStationCollision(
-            accessBlockIndex,
-            new RoomBlockBehavior(behavior),
-            collisionPose,
-            horizontal,
-            movingPositive,
-            roomWidthInBlocks);
 
     /// <summary>Typed BTS overload used by room collision dispatch.</summary>
     public bool TryNotifyStationCollision(
@@ -805,15 +747,6 @@ public readonly record struct StationActivationEvent(
     AreaId AreaIndex,
     ushort StationIndex,
     int BlockIndex);
-
-public readonly record struct StationPlmSnapshot(
-    int NativeSlotIndex,
-    int BlockIndex,
-    ushort RoomArgument,
-    StationKind Kind,
-    bool Triggered,
-    SaveStationPhase SavePhase,
-    bool SaveStationLockedOut);
 
 public enum SaveStationPhase : byte
 {

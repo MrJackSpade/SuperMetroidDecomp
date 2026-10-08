@@ -9,9 +9,9 @@ internal static partial class Program
         for (int variant = 0; variant < 2; variant++)
         {
             ushort Word(int address) => (ushort)(rom.ReadByte(address + variant * 2) | rom.ReadByte(address + variant * 2 + 1) << 8);
-            ushort[] native = [Word(EnemyRomTablePointers.Torizo.WakeXPositions), Word(EnemyRomTablePointers.Torizo.WakeYPositions),
-                Word(EnemyRomTablePointers.Torizo.WakeInstructionLists), Word(EnemyRomTablePointers.Torizo.WakePropertyMasks),
-                Word(EnemyRomTablePointers.Torizo.WakeXRadii), Word(EnemyRomTablePointers.Torizo.WakeYRadii)];
+            ushort[] native = [Word(EnemyRomTablePointersTorizo.WakeXPositions), Word(EnemyRomTablePointersTorizo.WakeYPositions),
+                Word(EnemyRomTablePointersTorizo.WakeInstructionLists), Word(EnemyRomTablePointersTorizo.WakePropertyMasks),
+                Word(EnemyRomTablePointersTorizo.WakeXRadii), Word(EnemyRomTablePointersTorizo.WakeYRadii)];
             var compiled = variant == 0 ? TorizoInitializationDefinitions.Bomb : TorizoInitializationDefinitions.Golden;
             ushort[] actual = [compiled.X, compiled.Y, compiled.Instruction, compiled.PropertyMask, compiled.XRadius, compiled.YRadius];
             AssertTrue(native.AsSpan().SequenceEqual(actual), "Every Torizo initialization record word matches ROM");

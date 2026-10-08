@@ -805,38 +805,27 @@ internal static partial class Program
         }
         AssertThrows<ArgumentOutOfRangeException>(() => MapScrollControls.ButtonFor(MapScrollDirection.None), "No direction has no binding");
         AssertThrows<ArgumentOutOfRangeException>(() => MapScrollControls.ButtonFor((MapScrollDirection)5), "Invalid direction");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = MapScrollControls.Buttons[-1], "Lower index bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = MapScrollControls.Buttons[4], "Upper index bound");
         var state = new Bank80SystemState();
         state.MarkExploredMapTile(AreaId.Crateria, 0, 0);
         state.MarkExploredMapTile(AreaId.Crateria, 63, 31);
         var map = new LookupStream5ScrollMap();
-        var field = typeof(FileSelectMapScroll).GetField("customButtons", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        AssertTrue(field.GetValue(new FileSelectMapScroll(rom, map, state, 240, 128)) is null, "Default stores no binding table");
-        AssertTrue(field.GetValue(new FileSelectMapScroll(rom, map, state, 240, 128, native)) is null, "Native injection stores no duplicate table");
-        ushort[] custom = [1, 2, 4, 8];
         for (int selected = 0; selected < 4; selected++)
         {
             var stock = new FileSelectMapScroll(rom, map, state, 240, 128);
-            var edited = new FileSelectMapScroll(rom, map, state, 240, 128, custom);
             ushort startX = stock.Horizontal, startY = stock.Vertical;
             for (int tick = 1; tick <= 8; tick++)
             {
                 AssertEqual(tick == 8, stock.Step(tick == 1 ? native[selected] : (ushort)0), "Stock sound boundary");
-                AssertEqual(tick == 8, edited.Step(tick == 1 ? custom[selected] : (ushort)0), "Custom sound boundary");
-                AssertEqual((stock.Horizontal, stock.Vertical, stock.Direction), (edited.Horizontal, edited.Vertical, edited.Direction), "Custom actual direction and trajectory");
                 int delta = tick >= 4 ? 8 : 0;
                 AssertEqual(unchecked((ushort)(startX + (selected == 0 ? -delta : selected == 1 ? delta : 0))), stock.Horizontal, "Horizontal pulse");
                 AssertEqual(unchecked((ushort)(startY + (selected == 2 ? -delta : selected == 3 ? delta : 0))), stock.Vertical, "Vertical pulse");
                 AssertEqual(tick == 8 ? MapScrollDirection.None : (MapScrollDirection)(selected + 1), stock.Direction, "Accepted direction survives release");
             }
         }
-        var priority = new FileSelectMapScroll(rom, map, state, 240, 128, custom);
-        custom[0] = 0;
-        _ = priority.Step(15);
-        AssertEqual(MapScrollDirection.Left, priority.Direction, "Injected bindings copied; left takes priority");
-        AssertThrows<ArgumentException>(() => _ = new FileSelectMapScroll(rom, map, state, 240, 128, new ushort[3]), "Binding extent");
-        Console.WriteLine("Map buttons: four native semantic cases, domain bounds, no stock storage, actual default/custom four-direction pulses, release and priority pass.");
+        var priority = new FileSelectMapScroll(rom, map, state, 240, 128);
+        _ = priority.Step((ushort)(native[0] | native[1] | native[2] | native[3]));
+        AssertEqual(MapScrollDirection.Left, priority.Direction, "Left takes priority among simultaneous directions");
+        Console.WriteLine("Map buttons: four native semantic cases, domain bounds, four-direction pulses, release and priority pass.");
     }
 
     private sealed class LookupStream5ScrollMap : IAreaMapView

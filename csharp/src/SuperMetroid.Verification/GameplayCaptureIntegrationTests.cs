@@ -93,7 +93,7 @@ internal static partial class Program
         foreach (SuperMetroidGame game in new[] { legacy, packets })
         {
             game.RuntimeForVerification!.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, 0, 0);
-            game.RuntimeForVerification.RunNmi(0, true);
+            game.RuntimeForVerification!.RunNmi(0, true);
         }
         bool sawPause = false;
         var fadeFrames = new Dictionary<SuperMetroidGameState, int>

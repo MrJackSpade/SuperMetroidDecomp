@@ -45,9 +45,6 @@ internal static class MotherBrainFallingTubePopulationDefinitions
     private const int MainBottom = 48;
     /// <summary>$A9:8B33: main-tube delay decremented at $8BCB before falling; remains required.</summary>
     private const ushort MainFallDelay = 32;
-
-    /// <summary>Ordered native population identities, calculated from the eight-word record format.</summary>
-    internal static IReadOnlyList<ushort> Pointers => Records;
     private static readonly RecordPointers Records = new();
     private sealed class RecordPointers : IReadOnlyList<ushort>
     {

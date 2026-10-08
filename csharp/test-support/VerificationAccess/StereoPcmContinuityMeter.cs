@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Audio;
 /// Measures temporal PCM steps within each stereo channel, including across submitted
 /// buffers. Channel separation is not a time discontinuity: never compare L with R.
 /// </summary>
-public sealed class StereoPcmContinuityMeter
+internal sealed class StereoPcmContinuityMeter
 {
     private bool hasPreviousFrame;
     private short previousLeft;

@@ -168,7 +168,6 @@ internal abstract class NoobTubeProjectileInstructionProgramDefinitions : IInstr
 public readonly struct NoobTubeShardProgramSequence : IReadOnlyList<ushort>
 {
     public int Count => 10;
-    public int Length => Count;
     public ushort this[int index] => (uint)index < Count
         ? (ushort)(NoobTubeProjectileInstructionProgramDefinitions.FirstShard+36*index-(index>8?4:0))
         : throw new IndexOutOfRangeException();

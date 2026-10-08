@@ -21,12 +21,6 @@ public static class RoomLevelStreamDefinitions
             : throw new InvalidDataException(
                 $"Compiled room-level data lacks source ${sourceAddress:X6}.");
 
-    /// <summary>Every distinct level-data source referenced by the compiled retail room states.</summary>
-    public static int Count => Installed.Value.Streams.Count;
-
-    /// <summary>Pinned source-cartridge provenance recorded during development-time extraction.</summary>
-    public static ReadOnlyMemory<byte> SourceSha256 => Installed.Value.SourceSha256;
-
     private static Corpus Load()
     {
         using Stream source = typeof(RoomLevelStreamDefinitions).Assembly

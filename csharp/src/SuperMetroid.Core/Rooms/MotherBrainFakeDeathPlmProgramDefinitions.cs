@@ -15,12 +15,6 @@ internal static class MotherBrainFakeDeathPlmProgramDefinitions
     /// <summary>Native size of each timer/draw/delete list in bytes.</summary>
     internal const int ProgramByteLength = 6;
 
-    internal static int ProgramCount => (EndExclusive - Start) / ProgramByteLength;
-
-    internal static IEnumerable<ushort> NativeWordAddresses() =>
-        Enumerable.Range(0, ProgramCount * 3)
-            .Select(index => checked((ushort)(Start + index * 2)));
-
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         int offset = address - Start;

@@ -82,7 +82,7 @@ internal static partial class Program
         SetState(game, SuperMetroidGameState.SetUpNewGame);
         game.StepCaptured(0, ++sequence, 1);
         game.RuntimeForVerification!.System.SetBossBits(AreaId.Ceres, BossBits.AreaBoss);
-        game.RuntimeForVerification.System.LoadSavedLoadingGameState(SaveLoadingGameStates.CeresDestruction);
+        game.RuntimeForVerification!.System.LoadSavedLoadingGameState(SaveLoadingGameStates.CeresDestruction);
         SetState(game, SuperMetroidGameState.CeresGoesBoom);
         game.StepCaptured(0, ++sequence, 1);
         var scene = (CeresDestructionCinematicState)typeof(SuperMetroidGame)

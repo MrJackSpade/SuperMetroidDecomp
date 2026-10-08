@@ -1,10 +1,5 @@
 namespace SuperMetroid.Core.Rooms;
 
-/// <summary>One resident door header and the secondary list used while entering its room.</summary>
-internal readonly record struct ResidentDoorClosingDefinition(
-    ushort Header,
-    ushort ClosingInstructionList);
-
 /// <summary>
 /// Fixed secondary-list metadata selected by <c>$82:E8EB Spawn_Door_Closing_PLM</c>
 /// for resident grey/coloured/eye doors and the Mother Brain escape gate.
@@ -68,34 +63,6 @@ public static class ResidentDoorClosingDefinitions
 
     /// <summary>$84:C427, red door facing down closing program.</summary>
     internal const ushort RedFacingDown = 0xc427;
-
-    /// <summary>Enumerates the twenty supported identities in original header order without cached records.</summary>
-    internal static IEnumerable<ResidentDoorClosingDefinition> All
-    {
-        get
-        {
-            yield return new(RoomPlmHeaders.BombTorizoGreyDoor, Resolve(RoomPlmHeaders.BombTorizoGreyDoor));
-            yield return new(RoomPlmHeaders.GreyDoorFacingLeft, Resolve(RoomPlmHeaders.GreyDoorFacingLeft));
-            yield return new(RoomPlmHeaders.GreyDoorFacingRight, Resolve(RoomPlmHeaders.GreyDoorFacingRight));
-            yield return new(RoomPlmHeaders.GreyDoorFacingUp, Resolve(RoomPlmHeaders.GreyDoorFacingUp));
-            yield return new(RoomPlmHeaders.GreyDoorFacingDown, Resolve(RoomPlmHeaders.GreyDoorFacingDown));
-            yield return new(RoomPlmHeaders.YellowDoorFacingLeft, Resolve(RoomPlmHeaders.YellowDoorFacingLeft));
-            yield return new(RoomPlmHeaders.YellowDoorFacingRight, Resolve(RoomPlmHeaders.YellowDoorFacingRight));
-            yield return new(RoomPlmHeaders.YellowDoorFacingUp, Resolve(RoomPlmHeaders.YellowDoorFacingUp));
-            yield return new(RoomPlmHeaders.YellowDoorFacingDown, Resolve(RoomPlmHeaders.YellowDoorFacingDown));
-            yield return new(RoomPlmHeaders.GreenDoorFacingLeft, Resolve(RoomPlmHeaders.GreenDoorFacingLeft));
-            yield return new(RoomPlmHeaders.GreenDoorFacingRight, Resolve(RoomPlmHeaders.GreenDoorFacingRight));
-            yield return new(RoomPlmHeaders.GreenDoorFacingUp, Resolve(RoomPlmHeaders.GreenDoorFacingUp));
-            yield return new(RoomPlmHeaders.GreenDoorFacingDown, Resolve(RoomPlmHeaders.GreenDoorFacingDown));
-            yield return new(RoomPlmHeaders.RedDoorFacingLeft, Resolve(RoomPlmHeaders.RedDoorFacingLeft));
-            yield return new(RoomPlmHeaders.RedDoorFacingRight, Resolve(RoomPlmHeaders.RedDoorFacingRight));
-            yield return new(RoomPlmHeaders.RedDoorFacingUp, Resolve(RoomPlmHeaders.RedDoorFacingUp));
-            yield return new(RoomPlmHeaders.RedDoorFacingDown, Resolve(RoomPlmHeaders.RedDoorFacingDown));
-            yield return new(RoomPlmHeaders.MotherBrainEscapeRoomGate, Resolve(RoomPlmHeaders.MotherBrainEscapeRoomGate));
-            yield return new(RoomPlmHeaders.EyeDoorFacingRight, Resolve(RoomPlmHeaders.EyeDoorFacingRight));
-            yield return new(RoomPlmHeaders.EyeDoorFacingLeft, Resolve(RoomPlmHeaders.EyeDoorFacingLeft));
-        }
-    }
 
     /// <summary>
     /// Semantic header cases select the original bank-84 header+4 word consumed

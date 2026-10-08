@@ -26,16 +26,6 @@ internal abstract class CommonEnemyProjectileInstructionProgramDefinitions : IIn
         return false;
     }
 
-    internal static ushort ReadMechanicsWord(ushort address)
-    {
-        if (TryReadMechanicsWord(address, out ushort value))
-            return value;
-
-        throw new InvalidDataException(
-            $"Shared enemy-projectile instruction mechanics pointer $86:{address:X4} " +
-            "is not compiled.");
-    }
-
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)

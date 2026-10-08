@@ -86,9 +86,6 @@ public sealed partial class RoomEnemySystem
     private readonly MochtroidEnemyState?[] _mochtroidStates =
         new MochtroidEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed state for every physical slot currently owned by a Mochtroid.</summary>
-    public IReadOnlyList<MochtroidEnemyState?> MochtroidStates => _mochtroidStates;
-
     /// <summary>Ports <c>InitAI_Mochtroid</c> at $A3:A77D.</summary>
     private void InitializeMochtroid(RoomEnemySlot slot)
     {

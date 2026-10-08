@@ -10,7 +10,7 @@ internal static class HostToolbarControlsTest
     {
         string directory = Path.GetFullPath(Path.Combine("csharp", "test-temp", "toolbar-559", Guid.NewGuid().ToString("N")));
         Directory.CreateDirectory(directory);
-        using var host = new PlayableGameControl(rom,
+        using var host = DesktopAccess.CreateGameControl(rom,
             new SuperMetroidGameOptions { AudioEnabled = false, Renderer = RendererSelection.Software },
             dataDirectory: directory);
         host.Size = new(900, 760);

@@ -31,8 +31,6 @@ public sealed class RoomPlmChozoStatueVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
-    private RoomPlmChozoStatueVisualCatalog() { }
-
     public RoomPlmChozoStatueVisualCatalog(
         IEnumerable<RoomPlmChozoStatueVisualEntry> entries)
     {
@@ -65,9 +63,6 @@ public sealed class RoomPlmChozoStatueVisualCatalog
                 "Chozo statue visuals do not cover all compiled frames.");
         if (selected.Count != 0) customBlocks = selected;
     }
-
-    /// <summary>Calculate original appearances directly; store only customized frames.</summary>
-    public static RoomPlmChozoStatueVisualCatalog Stock() => new();
 
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {

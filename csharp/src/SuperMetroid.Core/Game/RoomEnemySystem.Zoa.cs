@@ -64,9 +64,6 @@ public sealed partial class RoomEnemySystem
 
     private readonly ZoaEnemyState?[] _zoaStates = new ZoaEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed state for every physical slot currently owned by a Zoa.</summary>
-    public IReadOnlyList<ZoaEnemyState?> ZoaStates => _zoaStates;
-
     /// <summary>Ports <c>InitAI_Zoa</c> at $A3:B44A.</summary>
     private void InitializeZoa(RoomEnemySlot slot)
     {

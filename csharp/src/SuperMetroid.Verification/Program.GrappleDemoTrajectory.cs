@@ -11,7 +11,7 @@ internal static partial class Program
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var scene = SuperMetroid.AssetExtraction.AttractDemoSceneImporter.Read(bus, 0, 4)!;
-        AssertEqual(AttractDemoRomData.InputObjects.GrappleBeam, scene.InputObject,
+        AssertEqual(AttractDemoRomDataInputObjects.GrappleBeam, scene.InputObject,
             "retail basic grapple demo identity");
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeAttractDemo(scene);

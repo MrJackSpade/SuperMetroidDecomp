@@ -2343,17 +2343,6 @@ public sealed partial class RoomEnemySystem
                 GoldNinjaInvincibleHitboxShotAi;
 
     /// <summary>
-    /// Compatibility entry point retained for focused Metroid tooling. Gameplay uses the
-    /// complete ordinary-bomb pass above; this wrapper no longer implies that bomb/enemy
-    /// collision belongs exclusively to Metroids.
-    /// </summary>
-    public int ResolveMetroidBombHits(
-        SamusBombProjectileSystem bombs,
-        SamusProjectileSystem ordinaryProjectiles,
-        SamusState? samus = null) =>
-        ResolveOrdinaryBombHits(bombs, ordinaryProjectiles, samus);
-
-    /// <summary>
     /// Executes the family-$0500 branch of <c>NormalEnemyShotAiSkipDeathAnim</c> at
     /// $A0:A6DE, followed by <c>NormalEnemyShotAi</c>'s ordinary death tail.
     /// </summary>

@@ -1,17 +1,6 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// The side from which Samus may wake a Blue Brinstar face block. This is derived from the
-/// normalized high-bit marker that retail stores back into population parameter two; it is
-/// not a new host-only behavior selector.
-/// </summary>
-public enum BlueBrinstarFaceBlockActivationSide
-{
-    Left,
-    Right,
-}
-
-/// <summary>
 /// Debugger-facing names for the two private words used by <c>$A8:E8AE</c>. The activation
 /// latch and last horizontal delta remain in the ordinary enemy slot, so watches still map
 /// directly to native variables A and B instead of drifting into a parallel object model.
@@ -41,15 +30,6 @@ public sealed class BlueBrinstarFaceBlockEnemyState
         get => _slot.VariableB;
         internal set => _slot.VariableB = value;
     }
-
-    /// <summary>
-    /// Parameter two after the initializer reduces its original bit zero to either $0000
-    /// (Samus must be left) or $8000 (Samus must be right).
-    /// </summary>
-    public BlueBrinstarFaceBlockActivationSide ActivationSide =>
-        _slot.Parameter2 == 0
-            ? BlueBrinstarFaceBlockActivationSide.Left
-            : BlueBrinstarFaceBlockActivationSide.Right;
 }
 
 /// <summary>
@@ -84,10 +64,6 @@ public sealed partial class RoomEnemySystem
     private ushort _blueBrinstarFaceBlockPaletteTimer;
     private ushort _blueBrinstarFaceBlockPaletteFrame;
     private int _blueBrinstarFaceBlockPaletteDestination;
-
-    /// <summary>Typed face-block state in fixed physical enemy-slot order.</summary>
-    public IReadOnlyList<BlueBrinstarFaceBlockEnemyState?> BlueBrinstarFaceBlockStates =>
-        _blueBrinstarFaceBlockStates;
 
     /// <summary>Clears actor and singleton graphics-hook state at room-load time.</summary>
     private void ResetBlueBrinstarFaceBlockRoomState()

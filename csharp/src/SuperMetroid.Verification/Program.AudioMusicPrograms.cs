@@ -49,7 +49,7 @@ internal static partial class Program
             AudioAssetManifest manifest = ReadAudioManifest(manifestPath);
             AudioBankMetadata title = manifest.Banks.Single(
                 bank => bank.SnesAddress == AudioUploadAddresses.TitleSequence);
-            int titleTrackIndex = AudioRomData.MusicTracks.Title;
+            int titleTrackIndex = AudioRomDataMusicTracks.Title;
             AudioMusicTrackMetadata titleTrack = title.MusicTracks[titleTrackIndex];
             HashSet<ushort> titlePhraseAddresses = titleTrack.Instructions
                 .Where(instruction => instruction.Operation == AudioMusicInstructionOperations.PlayPhrase)

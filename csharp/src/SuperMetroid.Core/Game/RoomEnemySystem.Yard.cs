@@ -92,9 +92,6 @@ public sealed partial class RoomEnemySystem
     private readonly YardEnemyState?[] _yardStates =
         new YardEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed state for each physical slot currently occupied by a Yard.</summary>
-    public IReadOnlyList<YardEnemyState?> YardStates => _yardStates;
-
     /// <summary>Ports Yard initialization at $A3:CDE2-$CE56.</summary>
     private void InitializeYard(RoomEnemySlot slot)
     {

@@ -94,9 +94,6 @@ public sealed partial class RoomEnemySystem
     private readonly StokeEnemyState?[] _stokeStates =
         new StokeEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed Stoke state for each of the 32 physical enemy slots.</summary>
-    public IReadOnlyList<StokeEnemyState?> StokeStates => _stokeStates;
-
     /// <summary>Ports <c>InitAI_Stoke</c> at <c>$A2:89AD</c>.</summary>
     private void InitializeStoke(RoomEnemySlot slot)
     {

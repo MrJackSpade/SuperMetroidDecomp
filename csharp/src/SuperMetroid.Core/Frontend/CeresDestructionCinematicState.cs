@@ -152,26 +152,6 @@ internal sealed partial class CeresDestructionCinematicState
 
     public bool Finished => Phase == CeresDestructionPhase.Finished;
 
-    public ushort Zoom => zoom;
-
-    public byte Brightness => brightness;
-
-    public ushort BackgroundX => backgroundX;
-
-    public ushort BackgroundY => backgroundY;
-
-    internal int ActiveActorCount => actors.Count;
-
-    /// <summary>
-    /// Reads the low-byte Mode-7 map selected by the cinematic's current native transfers.
-    /// </summary>
-    internal byte ReadMode7MapByte(int mapByteIndex)
-    {
-        if ((uint)mapByteIndex >= CeresDestructionRomData.Vram.Mode7MapCapacityBytes)
-            throw new ArgumentOutOfRangeException(nameof(mapByteIndex));
-        return vram.ReadByte(mapByteIndex * 2);
-    }
-
     /// <summary>Executes one call through the native state-$22 cinematic dispatcher.</summary>
     public void Step()
     {

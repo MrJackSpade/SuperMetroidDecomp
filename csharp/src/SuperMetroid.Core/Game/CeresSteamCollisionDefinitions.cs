@@ -58,7 +58,6 @@ internal static class CeresSteamCollisionDefinitions
         ]));
 
     internal static FrameSequence FramePointers { get; } = new();
-    internal static IEnumerable<ushort> HitboxPointers => Lists.Pointers;
     internal static bool HasFrame(ushort frame) =>
         frame >= FirstFrame && frame < FirstFrame + 280 && (frame - FirstFrame) % 10 == 0;
 
@@ -89,7 +88,6 @@ internal static class CeresSteamCollisionDefinitions
     internal readonly struct ComponentSequence(ushort hitboxPointer) : IReadOnlyList<CeresSteamCollisionComponent>
     {
         public int Count => 1;
-        public int Length => Count;
         public CeresSteamCollisionComponent this[int index] => index == 0
             ? new(0, 0, hitboxPointer) : throw new IndexOutOfRangeException();
         public IEnumerator<CeresSteamCollisionComponent> GetEnumerator()

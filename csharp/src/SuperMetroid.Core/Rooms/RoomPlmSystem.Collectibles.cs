@@ -58,9 +58,6 @@ public sealed partial class RoomPlmSystem
     public IReadOnlyList<CollectiblePickupEvent> CollectiblePickupEvents =>
         _collectiblePickupEvents;
 
-    /// <summary>Most recent pickup retained for debugger watches after its frame ends.</summary>
-    public CollectiblePickupEvent? LastCollectiblePickup => _lastCollectiblePickup;
-
     /// <summary>
     /// Consumes the one-shot music request published by a permanent-item instruction.
     /// </summary>

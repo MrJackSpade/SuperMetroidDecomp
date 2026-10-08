@@ -410,6 +410,12 @@ internal static class DebuggerObjectGraphSerializer
                 }
                 if (!remaining.Remove((declaringType, fieldName), out FieldInfo? field))
                 {
+                    // A field removed because nothing read it: drain its saved value.
+                    if (DebuggerRetiredFieldDefinitions.Contains(declaringType, fieldName))
+                    {
+                        Read();
+                        continue;
+                    }
                     throw new InvalidDataException(
                         $"Serialized field {declaringName}.{fieldName} is unknown or duplicated " +
                         $"in the supported {type.FullName} layout.");

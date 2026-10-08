@@ -52,7 +52,4 @@ public static class DoorClosingPlmRomData
             $"Door direction ${direction:X2} indexes beyond the " +
             $"{DirectionCount}-entry retail closing-PLM table."),
     };
-
-    /// <summary>Returns the exact bank-$84 header selected by a retail door direction.</summary>
-    public static ushort GetHeader(byte direction) => GetDefinition(direction).Header;
 }

@@ -51,10 +51,6 @@ public sealed class SamusXrayState
     /// </summary>
     public XraySuspendedSubsystems SuspendedSubsystems { get; private set; }
 
-    /// <summary>True after Reserve recovery has stranded X-Ray's subsystem disables.</summary>
-    public bool IsGMode => !TimeIsFrozen &&
-        SuspendedSubsystems == XraySuspendedSubsystems.All;
-
     public bool AreEnemyProjectilesSuspended =>
         (SuspendedSubsystems & XraySuspendedSubsystems.EnemyProjectiles) != 0;
 

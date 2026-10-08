@@ -15,41 +15,29 @@ internal static partial class Program
     {
         VerifySnippet("using System; class C { public void M(object value) { ArgumentNullException.ThrowIfNull(value); } }",
             EnsureUsageAnalyzer.GuardId, "Ensure.NotNull");
-        VerifySnippet("using System; class C { public void M(string value) { ArgumentException.ThrowIfNullOrWhiteSpace(value); } }",
-            EnsureUsageAnalyzer.GuardId, "Ensure.NotNullOrWhiteSpace");
-        VerifySnippet("using System; class C { public void M(int value) { ArgumentOutOfRangeException.ThrowIfNegativeOrZero(value); } }",
-            EnsureUsageAnalyzer.GuardId, "Ensure.GreaterThanZero");
+        VerifySnippet("using System; class C { public void M(int value) { ArgumentOutOfRangeException.ThrowIfNegative(value); } }",
+            EnsureUsageAnalyzer.GuardId, "Ensure.AtLeastZero");
         VerifySnippet("using System; class C { public void M(object? value) { if (value is null) throw new ArgumentNullException(nameof(value)); } }",
             EnsureUsageAnalyzer.GuardId, "Ensure.NotNull");
-        VerifySnippet("using System; class C { public void M(int value) { if (value <= 0) throw new ArgumentOutOfRangeException(nameof(value)); } }",
-            EnsureUsageAnalyzer.GuardId, "Ensure.GreaterThanZero");
+        VerifySnippet("using System; class C { public void M(int value) { if (value < 0) throw new ArgumentOutOfRangeException(nameof(value)); } }",
+            EnsureUsageAnalyzer.GuardId, "Ensure.AtLeastZero");
         VerifySnippet("using System; class C { public void M(int value) { if (value < 0 || value > 64) throw new ArgumentOutOfRangeException(nameof(value)); } }",
             EnsureUsageAnalyzer.GuardId, "Ensure.BetweenInclusive");
-        VerifySnippet("using System; class C { public void M(int value) { if (value is not (32 or 64)) throw new ArgumentOutOfRangeException(nameof(value)); } }",
-            EnsureUsageAnalyzer.GuardId, "Ensure.OneOf");
         VerifySnippet("using System; class C { public void M(int[] items) { if (items.Length != 4) throw new ArgumentOutOfRangeException(nameof(items)); } }",
             EnsureUsageAnalyzer.GuardId, "Ensure.LengthEqual");
         VerifySnippet("using System; class C { public void M(int[] items) { if (items.Length != 4) throw new ArgumentException(\"Expected four items.\", nameof(items)); } }",
             EnsureUsageAnalyzer.GuardId, "Ensure.LengthEqual");
-        VerifySnippet("using System; enum Mode { A, B } class Opt { public Mode Mode {get;set;} } class C { internal void M(Opt options) { if (!Enum.IsDefined(options.Mode)) throw new ArgumentOutOfRangeException(nameof(options), \"Unknown mode.\"); } }",
-            EnsureUsageAnalyzer.GuardId, "Ensure.IsDefined");
-        VerifySnippet("using System; enum Mode { A, B } class C { public void M(Mode mode) { if (!Enum.IsDefined(typeof(Mode), mode)) throw new ArgumentOutOfRangeException(nameof(mode)); } }",
-            EnsureUsageAnalyzer.GuardId, "Ensure.IsDefined");
         VerifySnippet("using System; class C { public object M(object? value) => value ?? throw new ArgumentNullException(nameof(value)); }",
             EnsureUsageAnalyzer.GuardId, "Ensure.NotNull");
-        VerifySnippet("using System; enum Mode { A, B } class C { public Mode M(Mode mode) => Enum.IsDefined(mode) ? mode : throw new ArgumentOutOfRangeException(nameof(mode)); }",
-            EnsureUsageAnalyzer.GuardId, "Ensure.IsDefined");
-        VerifySnippet("using System; using SuperMetroid.Core; enum Mode { A, B } class C { public void M(Mode mode) { Ensure.IsDefined(mode, nameof(mode)); } }",
-            EnsureUsageAnalyzer.EnumCallId, "manually supplied");
-        VerifySnippet("using System; using SuperMetroid.Core; enum Mode { A, B } class C { public void M(Mode mode) { Ensure.IsDefined((Mode)mode); } }",
-            EnsureUsageAnalyzer.EnumCallId, "redundant cast");
 
+        // Guards without a shared Ensure operation are left as written.
+        VerifySnippet("using System; class C { public void M(int value) { if (value <= 0) throw new ArgumentOutOfRangeException(nameof(value)); } }");
+        VerifySnippet("using System; class C { public void M(int value) { if (value is not (32 or 64)) throw new ArgumentOutOfRangeException(nameof(value)); } }");
+        VerifySnippet("using System; enum Mode { A, B } class C { public void M(Mode mode) { if (!Enum.IsDefined(mode)) throw new ArgumentOutOfRangeException(nameof(mode)); } }");
         VerifySnippet("using System; using SuperMetroid.Core; class C { public void M(object value) { Ensure.NotNull(value); } }");
         VerifySnippet("using System; using System.IO; class C { public void M(int value) { if (value < 0) throw new InvalidDataException(\"corrupt state\"); } }");
-        VerifySnippet("using System; class C { private void PortNative(int spawnArgument) { if (spawnArgument > 3) throw new ArgumentOutOfRangeException(nameof(spawnArgument)); } }");
+        VerifySnippet("using System; class C { private void PortNative(int spawnArgument) { if (spawnArgument < 0) throw new ArgumentOutOfRangeException(nameof(spawnArgument)); } }");
         VerifySnippet("using System; class C { public void M(int value) { if (value > 3) throw new ArgumentOutOfRangeException(nameof(value), \"Cartridge phase is invalid.\"); } }");
-        VerifySnippet("using System; [Flags] enum Bits { A=1, B=2 } class C { public void M(Bits value) { if (!Enum.IsDefined(value)) throw new ArgumentOutOfRangeException(nameof(value)); } }");
-        VerifySnippet("using System; enum Mode { A, B } class C { public bool M(Mode value) => Enum.IsDefined(value); }");
         VerifySnippet("using System; class C { public void M(int width, int height) { if (width <= 0 || height <= 0) throw new ArgumentOutOfRangeException(nameof(width)); } }");
     }
 

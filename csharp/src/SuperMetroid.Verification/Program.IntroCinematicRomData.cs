@@ -73,7 +73,7 @@ internal static partial class Program
             .Select(field => (ushort)field.GetRawConstantValue()!)
             .ToArray();
         ushort[] bank8CLists = GetUshortConstants(typeof(CinematicCodePointers.BackgroundLists))
-            .Concat(GetUshortConstants(typeof(CinematicCodePointers.IndirectData)))
+            .Concat(GetUshortConstants(typeof(CinematicCodePointersIndirectData)))
             .Select(field => (ushort)field.GetRawConstantValue()!)
             .ToArray();
 

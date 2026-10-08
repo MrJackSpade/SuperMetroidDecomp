@@ -44,7 +44,6 @@ internal abstract class DeadTourianCorpseInstructionProgramDefinitions : IInstru
         return (index&1) == 0 ? new(start,1) : new((ushort)(start+4),CommonEnemyInstructionCodes.Sleep);
     }
     internal static ushort PresentationWordAddress(int index) => (ushort)(Program(index)+2);
-    internal static ushort SleepWordAddress(int index) => (ushort)(Program(index)+4);
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

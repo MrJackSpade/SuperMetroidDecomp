@@ -33,8 +33,6 @@ internal static partial class DraygonCollisionDefinitions
         InExpandingFrames(pointer, LeftExpandingFrames) ||
         InExpandingFrames(pointer, RightExpandingFrames);
 
-    internal static int EmptyOamFrameCount => 2 * (6 + 4 + 7 + 7);
-
     private static bool InFixedFrames(ushort pointer, ushort first, int frames, int components)
     {
         int stride = 2 + components * 8;

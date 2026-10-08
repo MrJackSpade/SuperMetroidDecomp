@@ -128,12 +128,6 @@ public sealed partial class RoomEnemySystem
     private readonly ushort[] _kzanFallingYSpeedTableIndexes = new ushort[MaximumEnemyCount];
     private readonly ushort[] _kzanRiseWaitTimers = new ushort[MaximumEnemyCount];
 
-    /// <summary>Typed state for Kzan top halves; bottom and unrelated slots are null.</summary>
-    public IReadOnlyList<KzanEnemyState?> KzanStates => _kzanStates;
-
-    private static bool IsKzanDefinition(ushort definitionPointer) =>
-        definitionPointer is KzanTopDefinition or KzanBottomDefinition;
-
     /// <summary>Ports <c>InitAI_KzanTop</c> at <c>$A6:8B2F</c>.</summary>
     private void InitializeKzanTop(RoomEnemySlot slot)
     {

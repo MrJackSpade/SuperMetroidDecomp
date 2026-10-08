@@ -47,7 +47,8 @@ internal static partial class Program
             var identity = GameContentIdentity.Create(new string('A', 64), new string('B', 64), new string('C', 64),
                 typeof(SuperMetroidGame).Module.ModuleVersionId);
             var store = DebuggerSaveStateStore.ForInstalledGame(directory, null, identity);
-            Directory.CreateDirectory(store.DirectoryPath);
+            string storeDirectory = Path.GetDirectoryName(store.GetSlotPath(0))!;
+            Directory.CreateDirectory(storeDirectory);
             for (int slot = 0; slot < DebuggerStateFormat.SlotCount; slot++)
                 File.WriteAllText(store.GetSlotPath(slot), "manual slot " + slot);
             string autoPath = store.GetSlotPath(DebuggerStateFormat.AutomaticSlot);
@@ -90,7 +91,7 @@ internal static partial class Program
                 AssertSameBytes(bus.WorkRam, loaded.AddressSpace.WorkRam, "restored continuation WRAM");
                 AssertSameBytes(bus.SaveRam, loaded.AddressSpace.SaveRam, "restored continuation SRAM");
                 AssertEqual(runtime.Samus!.XPosition, loaded.Game.RuntimeForVerification!.Samus!.XPosition, "restored Samus movement");
-                AssertEqual(runtime.System.RandomNumber, loaded.Game.RuntimeForVerification.System.RandomNumber, "restored RNG");
+                AssertEqual(runtime.System.RandomNumber, loaded.Game.RuntimeForVerification!.System.RandomNumber, "restored RNG");
                 AssertTrue(expectedPcm.AsSpan().SequenceEqual(actualPcm), "restored continuation PCM");
                 AssertTrue(DoorTransitionAutosave.TrySave(true, false, SuperMetroidGameState.MainGameplay,
                     store, bus, game, audio.Player) is null, "ordinary gameplay does not replace auto");
@@ -113,7 +114,7 @@ internal static partial class Program
                 AssertThrows<IOException>(() => store.Save(DebuggerStateFormat.AutomaticSlot, bus, game, audio.Player),
                     "failed atomic replacement is reported");
             AssertTrue(second.AsSpan().SequenceEqual(File.ReadAllBytes(autoPath)), "failed replacement preserves last valid auto");
-            AssertEqual(0, Directory.GetFiles(store.DirectoryPath, "*.tmp").Length, "failed replacement cleans temporary file");
+            AssertEqual(0, Directory.GetFiles(storeDirectory, "*.tmp").Length, "failed replacement cleans temporary file");
             for (int slot = 0; slot < DebuggerStateFormat.SlotCount; slot++)
                 AssertEqual("manual slot " + slot, File.ReadAllText(store.GetSlotPath(slot)), "manual slots untouched");
             File.WriteAllText(autoPath, "invalid state");

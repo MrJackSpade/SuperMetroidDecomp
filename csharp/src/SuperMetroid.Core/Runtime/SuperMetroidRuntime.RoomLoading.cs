@@ -591,14 +591,6 @@ public sealed partial class SuperMetroidRuntime
     }
 
     /// <summary>
-    /// Immediately loads and displays the destination selected by a live type-$9 collision.
-    /// This compatibility seam is reserved for headless room/mechanics diagnostics that do
-    /// not execute frontend state $0B; playable code must use the incremental transition.
-    /// </summary>
-    public InitialViewportResult LoadPendingDoorDestination() =>
-        LoadPendingDoorDestination(RoomViewportLoadMode.DisplayInitialViewport);
-
-    /// <summary>
     /// Loads state $0B's destination without destroying the source-room VRAM ring. The
     /// following door IRQ replaces that ring incrementally while the screen slides.
     /// </summary>

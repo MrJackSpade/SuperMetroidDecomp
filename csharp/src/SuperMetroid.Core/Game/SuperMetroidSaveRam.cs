@@ -462,50 +462,6 @@ public sealed record SuperMetroidSaveSlot(
     public bool JapaneseText { get; init; }
     public ushort LoadedItemCount { get; init; }
 
-    /// <summary>Creates the complete translated snapshot accepted by the SRAM encoder.</summary>
-    public SuperMetroidSaveSnapshot ToSnapshot() => new()
-    {
-        ControllerBindings = ControllerBindings,
-        MoonwalkEnabled = MoonwalkEnabled,
-        DebugFlag = DebugFlag,
-        NewFileMarker = NewFileMarker,
-        IconCancelEnabled = IconCancelEnabled,
-        ReserveMissiles = ReserveMissiles,
-        JapaneseText = JapaneseText,
-        LoadedItemCount = LoadedItemCount,
-        EquippedItems = EquippedItems,
-        CollectedItems = CollectedItems,
-        EquippedBeams = EquippedBeams,
-        CollectedBeams = CollectedBeams,
-        ReserveMode = ReserveMode,
-        Health = Health,
-        MaxHealth = MaxHealth,
-        Missiles = Missiles,
-        MaxMissiles = MaxMissiles,
-        SuperMissiles = SuperMissiles,
-        MaxSuperMissiles = MaxSuperMissiles,
-        PowerBombs = PowerBombs,
-        MaxPowerBombs = MaxPowerBombs,
-        HudItem = HudItem,
-        MaxReserveEnergy = MaxReserveEnergy,
-        ReserveEnergy = ReserveEnergy,
-        GameTimeFrames = GameTimeFrames,
-        GameTimeSeconds = GameTimeSeconds,
-        GameTimeMinutes = GameTimeMinutes,
-        GameTimeHours = GameTimeHours,
-        SaveStation = SaveStation,
-        Area = Area,
-        EventBytes = EventBytes.ToArray(),
-        BossBytes = BossBytes.ToArray(),
-        RoomChozoBytes = RoomChozoBytes.ToArray(),
-        CollectedItemBytes = CollectedItemBytes.ToArray(),
-        OpenedDoorBytes = OpenedDoorBytes.ToArray(),
-        UsedSaveStationBytes = UsedSaveStationBytes.ToArray(),
-        MapStationBytes = MapStationBytes.ToArray(),
-        ExploredMapBytes = ExploredMapBytes.ToArray(),
-        LoadingGameState = LoadingGameState,
-    };
-
     /// <summary>Restores the subset already represented by the translated Samus owner.</summary>
     public void ApplyTo(SamusState samus)
     {

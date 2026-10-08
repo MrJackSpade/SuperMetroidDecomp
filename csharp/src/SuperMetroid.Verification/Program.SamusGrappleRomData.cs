@@ -130,9 +130,9 @@ internal static partial class Program
             SamusGrappleRomData.Connections.SpecialAngleRecordCount *
                 SamusGrappleRomData.Connections.SpecialAngleRecordByteCount,
             "Grapple special-angle records");
-        TouchRange(bus, SamusGrappleRomData.Release.StandingPoseTable,
+        TouchRange(bus, SamusGrappleRomDataRelease.StandingPoseTable,
             SamusGrappleRomData.Firing.DirectionCount, "Grapple standing release poses");
-        TouchRange(bus, SamusGrappleRomData.Release.CrouchingPoseTable,
+        TouchRange(bus, SamusGrappleRomDataRelease.CrouchingPoseTable,
             SamusGrappleRomData.Firing.DirectionCount, "Grapple crouching release poses");
 
         Console.WriteLine(

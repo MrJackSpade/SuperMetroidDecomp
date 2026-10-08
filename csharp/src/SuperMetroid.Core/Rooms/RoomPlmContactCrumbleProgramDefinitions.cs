@@ -116,25 +116,4 @@ internal static class RoomPlmContactCrumbleProgramDefinitions
         value = 0;
         return false;
     }
-
-    internal static IEnumerable<ushort> MechanicsWordAddresses()
-    {
-        for (int index = 0; index < ProgramCount; index++)
-        {
-            Program program = ProgramAt(index);
-            yield return program.Start;
-            for (int frame = 0; frame < program.FrameCount; frame++)
-                yield return checked((ushort)(program.Start + 3 + 4 * frame));
-            yield return program.Terminal;
-            if (program.Respawns)
-                yield return checked((ushort)(program.Terminal +
-                    (program.Dimension == 0 ? 2 : 4)));
-        }
-    }
-
-    internal static IEnumerable<ushort> MechanicsByteAddresses()
-    {
-        for (int index = 0; index < ProgramCount; index++)
-            yield return checked((ushort)(ProgramAt(index).Start + 2));
-    }
 }

@@ -50,12 +50,6 @@ public sealed class CeresElevatorArrivalState
     /// <summary>True after both projectiles delete themselves when Samus reaches Y=72.</summary>
     public bool IsComplete => !pad.Active && !platform.Active;
 
-    /// <summary>Current pad Y word, exposed for deterministic regression tests.</summary>
-    public ushort PadYPosition => pad.YPosition;
-
-    /// <summary>Current stationary-platform Y word, exposed for debugger inspection.</summary>
-    public ushort PlatformYPosition => platform.YPosition;
-
     /// <summary>Rebinds installed compositions after a debugger-state restore.</summary>
     public void BindProjectileSpritemaps(EnemyProjectileSpritemapCatalog? catalog) =>
         projectileSpritemaps = catalog;

@@ -32,18 +32,6 @@ public sealed class EnemySpritemapCatalog
         this.displayFrames = displayFrames;
     }
 
-    /// <summary>Returns a known installed frame; callers must reject missing artwork.</summary>
-    public bool TryGet(byte bank, ushort pointer, out EnemySpritemapParts parts)
-    {
-        if (frames.TryGetValue((bank << 16) | pointer, out EnemySpritemapParts? found))
-        {
-            parts = found;
-            return true;
-        }
-        parts = EnemySpritemapParts.Empty;
-        return false;
-    }
-
     /// <summary>
     /// Resolves an editable presentation binding without changing the native frame pointer
     /// retained by enemy AI, hitbox selection, or instruction timing.

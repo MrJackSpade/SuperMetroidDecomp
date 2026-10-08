@@ -78,12 +78,6 @@ public sealed class CeresDepartureState
         Phase = CeresDeparturePhase.Complete;
         return true;
     }
-
-    /// <summary>Applies the current master-brightness nibble to a software-rendered frame.</summary>
-    public void ApplyBrightness(Span<Rgba32> pixels)
-    {
-        MasterBrightnessFilter.Apply(pixels, brightness);
-    }
 }
 
 /// <summary>Named bank-$82 phases owned by <see cref="CeresDepartureState"/>.</summary>

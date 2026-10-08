@@ -100,9 +100,6 @@ public sealed partial class RoomEnemySystem
     private readonly BoyonEnemyState?[] _boyonStates =
         new BoyonEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed state for all 32 physical Boyon-capable enemy slots.</summary>
-    public IReadOnlyList<BoyonEnemyState?> BoyonStates => _boyonStates;
-
     /// <summary>Last library-two bounce sound requested during the current enemy frame.</summary>
     public ushort? LastBoyonSoundEffect { get; private set; }
 

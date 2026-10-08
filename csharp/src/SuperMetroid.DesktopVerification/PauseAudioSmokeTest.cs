@@ -23,7 +23,7 @@ public static class PauseAudioSmokeTest
         var game = new SuperMetroidGame(
             bus,
             new SuperMetroidGameOptions { SkipOpeningCinematic = true });
-        using var audio = new SpcAudioEngine();
+        using var audio = DesktopAccess.CreateAudioEngine();
         FrontendFrame frame = default;
         int frames = 0;
         int pauseFrames = 0;

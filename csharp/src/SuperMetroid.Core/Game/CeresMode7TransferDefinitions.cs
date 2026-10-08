@@ -68,7 +68,6 @@ public static class CeresMode7TransferDefinitions
     public readonly struct TransferSequence(ushort pointer, int count) : IReadOnlyList<CeresMode7Transfer>
     {
         public int Count => count;
-        public int Length => Count;
         public CeresMode7Transfer this[int index]
         {
             get
@@ -100,7 +99,6 @@ public static class CeresMode7TransferDefinitions
     public readonly struct TileSequence(ushort pointer, int row, int count) : IReadOnlyList<byte>
     {
         public int Count => count;
-        public int Length => Count;
         public byte this[int index] => (uint)index < Count ? TileAt(pointer, row, index) : throw new IndexOutOfRangeException();
         public IEnumerator<byte> GetEnumerator()
         {

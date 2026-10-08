@@ -16,12 +16,6 @@ internal sealed class SpcAudioEngine : IDisposable
     private readonly CartridgeAudioRenderer renderer;
     private bool disposed;
 
-    public SpcAudioEngine(string? audioDirectory = null) : this(
-        ExtractedAudioAssetCatalog.Load(audioDirectory ?? ExtractedAudioAssetLocator.FindAudioDirectory()),
-        new ManagedSpcPlayer())
-    {
-    }
-
     internal SpcAudioEngine(ExtractedAudioAssetCatalog assets, ManagedSpcPlayer player)
     {
         renderer = new CartridgeAudioRenderer(assets, player ?? throw new ArgumentNullException(nameof(player)));

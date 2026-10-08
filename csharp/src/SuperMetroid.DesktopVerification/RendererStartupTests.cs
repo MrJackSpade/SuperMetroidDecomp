@@ -11,7 +11,7 @@ internal static partial class Program
         Directory.CreateDirectory(directory);
         string rom = Path.Combine(directory, "Super Metroid.smc");
         File.Copy(Path.GetFullPath("Super Metroid.smc"), rom);
-        using var control = new PlayableGameControl(rom, new SuperMetroidGameOptions { Renderer = selection, AudioEnabled = false });
+        using var control = DesktopAccess.CreateGameControl(rom, new SuperMetroidGameOptions { Renderer = selection, AudioEnabled = false });
         _ = control.Handle;
         Call(control, "SetPlaying", false);
         var game = Field<SuperMetroidGame>(control, "game");

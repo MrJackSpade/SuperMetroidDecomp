@@ -37,7 +37,6 @@ internal static class DeadTorizoVramTransferDefinitions
     internal readonly struct PhaseRows(bool odd) : IReadOnlyList<DeadTorizoVramTransferDefinition>
     {
         public int Count => 7;
-        public int Length => Count;
         public DeadTorizoVramTransferDefinition this[int index]
         {
             get

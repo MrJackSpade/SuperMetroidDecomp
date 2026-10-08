@@ -11,8 +11,14 @@ internal static partial class Program
     /// </summary>
     static void VerifyEnemyRomTablePointerCatalog()
     {
-        Type[] families = typeof(EnemyRomTablePointers).GetNestedTypes(
-            BindingFlags.Public | BindingFlags.NonPublic);
+        // Families production reads stay nested in the catalog; oracle-only families live in
+        // test-support as flattened EnemyRomTablePointers* classes.
+        Type[] families =
+        [
+            .. typeof(EnemyRomTablePointers).GetNestedTypes(BindingFlags.Public | BindingFlags.NonPublic),
+            .. typeof(Program).Assembly.GetTypes().Where(type => type != typeof(EnemyRomTablePointers) &&
+                type.Name.StartsWith(nameof(EnemyRomTablePointers), StringComparison.Ordinal)),
+        ];
         AssertTrue(families.Length >= 14, "enemy ROM data is grouped by owning family");
 
         FieldInfo[] fields = families
@@ -56,15 +62,15 @@ internal static partial class Program
     /// </summary>
     private static (int Start, int ByteLength)[] RepresentativeEnemyRomRanges() =>
     [
-        (EnemyRomTablePointers.Common.SignedSineCosineWords, 512),
-        (EnemyRomTablePointers.Torizo.WakeXPositions, 4),
-        (EnemyRomTablePointers.ChozoStatue.CarryVelocityWords, 64),
-        (EnemyRomTablePointers.Gunship.DustInstructionPointers, 12),
-        (EnemyRomTablePointers.Crocomire.DeathGraphicsSourceWords, 14),
-        (EnemyRomTablePointers.DeadSidehopper.HorizontalVelocityWords, 8),
-        (EnemyRomTablePointers.Gunship.LiftoffVramDestinationWords, 10),
+        (EnemyRomTablePointersCommon.SignedSineCosineWords, 512),
+        (EnemyRomTablePointersTorizo.WakeXPositions, 4),
+        (EnemyRomTablePointersChozoStatue.CarryVelocityWords, 64),
+        (EnemyRomTablePointersGunship.DustInstructionPointers, 12),
+        (EnemyRomTablePointersCrocomire.DeathGraphicsSourceWords, 14),
+        (EnemyRomTablePointersDeadSidehopper.HorizontalVelocityWords, 8),
+        (EnemyRomTablePointersGunship.LiftoffVramDestinationWords, 10),
         (EnemyRomTablePointers.Kraid.RoomBackgroundPaletteWords, 32),
-        (EnemyRomTablePointers.Phantoon.FirstRoundHidingTimerWords, 16),
+        (EnemyRomTablePointersPhantoon.FirstRoundHidingTimerWords, 16),
         (EnemyRomTablePointers.Ridley.HealthPaletteWords, 84),
         (EnemyRomTablePointers.TourianStatue.StatuePaletteWords, 32),
         (EnemyRomTablePointers.WorkRobot.InitialInstructionListWords, 4),
@@ -76,10 +82,10 @@ internal static partial class Program
         ushort Word(int address) => unchecked((ushort)(
             rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
 
-        AssertEqual(Word(EnemyRomTablePointers.Torizo.SuperMissileInstructionPointers),
+        AssertEqual(Word(EnemyRomTablePointersTorizo.SuperMissileInstructionPointers),
             GoldenTorizoProjectileDefinitions.GetReflectedSuperMissileInstruction(false),
             "Golden Torizo left reflected-Super list");
-        AssertEqual(Word(EnemyRomTablePointers.Torizo.SuperMissileInstructionPointers + 2),
+        AssertEqual(Word(EnemyRomTablePointersTorizo.SuperMissileInstructionPointers + 2),
             GoldenTorizoProjectileDefinitions.GetReflectedSuperMissileInstruction(true),
             "Golden Torizo right reflected-Super list");
         Suite(nameof(VerifyWorkRobotInitialSelection), () => VerifyWorkRobotInitialSelection(rom));
@@ -144,8 +150,8 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (address is >= EnemyRomTablePointers.Torizo.SuperMissileInstructionPointers and
-                    < EnemyRomTablePointers.Torizo.SuperMissileInstructionPointers + 4 ||
+            if (address is >= EnemyRomTablePointersTorizo.SuperMissileInstructionPointers and
+                    < EnemyRomTablePointersTorizo.SuperMissileInstructionPointers + 4 ||
                 address is >= EnemyRomTablePointers.WorkRobot.InitialInstructionListWords and
                     < EnemyRomTablePointers.WorkRobot.InitialInstructionListWords + 8 ||
                 address is >= EnemyRomTablePointers.TourianStatue.InstructionListWords and

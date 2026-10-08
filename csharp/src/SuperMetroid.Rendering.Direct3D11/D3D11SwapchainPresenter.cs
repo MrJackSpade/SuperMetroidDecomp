@@ -46,10 +46,6 @@ public sealed class D3D11SwapchainPresenter : IDisposable
     /// <summary>Nonblocking readiness query. The host waits outside simulation and the generation gate.</summary>
     public bool TryAcquireFrameOpportunity() { Verify(); return latency.WaitOne(0); }
 
-    /// <summary>Draws and presents only if the frame still belongs to the current load/reset generation.</summary>
-    public D3D11PresentationResult Present(D3D11FrameRenderer renderer, RenderFrameIdentity identity, RenderPresentationGate gate)
-        => Present(renderer, identity, gate, null);
-
     internal D3D11PresentationResult Present(D3D11FrameRenderer renderer, RenderFrameIdentity identity,
         RenderPresentationGate gate, D3D11GpuTimer? timer)
     {

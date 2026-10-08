@@ -81,8 +81,7 @@ internal static partial class Program
                 AssertEqual(1,plms.LoadRoomPopulation(bus,level,level.CreateBackgroundStreamer(),new SnesVram(),
                     SuperMetroid.AssetExtraction.RoomPlmPopulationImporter.Read(bus,0x9400),new Bank80SystemState(),
                     AreaId.Crateria,() => null,() => false),"Eye door draw dispatcher fixture");
-                plms.SetSoleInstructionPointerForVerification(0xf100,[1,pointer]);
-                plms.Step(bus,level,level.CreateBackgroundStreamer(),0,0,0);
+                plms.DrawSolePlmFrameForVerification(bus, level, level.CreateBackgroundStreamer(), pointer);
                 for (int cell = 0; cell < count; cell++)
                     AssertEqual(ReadSamusEaterPlmWord(rom,0x840000 | (pointer + 2 + cell * 2)),
                         level.GetCollisionBlock(3 + (vertical ? 0 : cell),4 + (vertical ? cell : 0)).LevelWord,

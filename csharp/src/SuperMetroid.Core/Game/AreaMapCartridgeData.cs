@@ -26,7 +26,6 @@ public sealed class AreaMapCartridgeData : IAreaMapView
     public int StationRevealMaskAddress { get; }
     public byte[] RawTilemapBytes { get; }
     public byte[] StationRevealMaskBytes { get; }
-    public IReadOnlyList<MapTileWord> Tilemap => tilemap;
 
     /// <summary>Reads one decoded cartridge tilemap word in logical 64-by-32 coordinates.</summary>
     public MapTileWord GetTile(int mapX, int mapY)

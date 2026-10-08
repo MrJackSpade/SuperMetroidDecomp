@@ -254,69 +254,11 @@ public sealed partial class IntroCinematicState
 
     public IntroCinematicPhase Phase { get; private set; }
 
-    /// <summary>
-    /// Number of scripted missiles accepted by Mother Brain's intro collision routine.
-    /// </summary>
-    /// <remarks>
-    /// This is deliberately a read-only debugger seam over the translated actor word. It
-    /// lets the CLI prove that the ROM demo, ordinary missile producer, and cinematic actor
-    /// agree without teaching the front-end dispatcher a second simulation path.
-    /// </remarks>
-    public ushort MotherBrainHitCount => flashbackMotherBrain?.HitCount ?? 0;
-
-    /// <summary>Live ordinary-projectile slots in the Mother Brain flashback.</summary>
-    public ushort ActiveFlashbackProjectileCount => flashbackProjectiles.ProjectileCounter;
-
-    /// <summary>Allocated fourth-hit explosion actors that remain visible in this scene.</summary>
-    public int ActiveMotherBrainExplosionCount => flashbackMotherBrainExplosions?.ActiveCount ?? 0;
-
-    /// <summary>Live ring-projectile actors spawned by the retail $8B:CF27 script.</summary>
-    public int ActiveIntroRinkaCount => flashbackRinkas?.ActiveCount ?? 0;
-
-    /// <summary>Total Rinkas allocated so far, including actors already deleted on hit.</summary>
-    public int SpawnedIntroRinkaCount => flashbackRinkas?.SpawnedCount ?? 0;
-
-    /// <summary>Persistent narration-caret Y word, including native off-screen value $F8.</summary>
-    public ushort IntroCaretY => objects?.CaretY ?? 0;
-
-    /// <summary>Live typewriter-block X position updated by each drawn text character.</summary>
-    public ushort IntroCaretX => objects?.CaretX ?? 0;
-
-    /// <summary>Live scripted hit timer used to prove the first Rinka reached Samus.</summary>
-    public ushort FlashbackSamusInvincibilityTimer => flashbackSamus?.InvincibilityTimer ?? 0;
-
-    /// <summary>Current SR388 Samus pose, exposed so tests verify a hit is visibly consumed.</summary>
-    public byte FlashbackSamusPose => flashbackSamus?.Pose ?? 0;
-
-    /// <summary>Current SR388 Samus world X, including the native Rinka knockback motion.</summary>
-    public ushort FlashbackSamusX => flashbackSamus?.XPosition ?? 0;
-
-    /// <summary>Current SR388 Samus world Y across the complete hurt arc and landing.</summary>
-    public ushort FlashbackSamusY => flashbackSamus?.YPosition ?? 0;
-
-    /// <summary>Current ROM delay-list frame, exposed to audit visible hurt animation.</summary>
-    public ushort FlashbackSamusAnimationFrame => flashbackSamus?.AnimationFrame ?? 0;
-
-    /// <summary>Whether the bank-$91 knockback handler owns SR388 Samus this frame.</summary>
-    public bool FlashbackSamusKnockbackActive => flashbackSamus?.KnockbackActive ?? false;
-
-    /// <summary>World X of the live SR388 demo Samus, or zero before that scene.</summary>
-    public ushort BabyDiscoverySamusX => babyDiscovery?.Samus.XPosition ?? 0;
-
-    /// <summary>Whether the egg actor's $A8E8 proximity test has redirected its ROM list.</summary>
-    public bool BabyDiscoveryEggHatchingStarted => babyDiscovery?.EggHatchingStarted ?? false;
-
-    /// <summary>Live shell fragments spawned by the egg's cartridge opcode $8B:A918.</summary>
-    public int ActiveBabyDiscoveryEggParticleCount => babyDiscovery?.ActiveEggParticleCount ?? 0;
-
     /// <summary>True after the final narration fade hands control to the Ceres flight.</summary>
     public bool NarrationFinished { get; private set; }
 
     /// <summary>True when the SPACE COLONY caption and its final fade have completed.</summary>
     public bool CeresFlightFinished => ceresFlight?.Finished ?? false;
-
-    /// <summary>Debugger-readable inner phase while the outer dispatcher remains state $1E.</summary>
-    public string CeresFlightPhaseName => ceresFlight?.Phase.ToString() ?? string.Empty;
 
     public void Step(ushort controllerInput)
     {

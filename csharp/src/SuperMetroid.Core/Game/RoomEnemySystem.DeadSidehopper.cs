@@ -21,14 +21,6 @@ public sealed partial class RoomEnemySystem
     private RoomLevelData? _deadSidehopperLevel;
     private ushort _deadSidehopperCameraX;
 
-    /// <summary>Companion/corpse state indexed by physical enemy slot.</summary>
-    public IReadOnlyList<DeadSidehopperEnemyState?> DeadSidehoppers =>
-        _deadSidehopperStates;
-
-    /// <summary>VRAM writes emitted by every rotting sidehopper during the latest frame.</summary>
-    public IReadOnlyList<VramWriteEntry> LastDeadSidehopperVramTransfers =>
-        _deadSidehopperFrameVramTransfers;
-
     /// <summary>Last library-two dust sound requested by a completed sidehopper row.</summary>
     public ushort? LastDeadSidehopperSoundEffect { get; private set; }
 

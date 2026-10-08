@@ -22,19 +22,6 @@ internal static class ChozoStatuePlmDefinitions
     /// <summary><c>$84:D113/$D0F6</c>, crumbling Lower Norfair plug and its draw program.</summary>
     public static ChozoStatuePlmDefinition CrumblePlug =>
         new(ChozoStatuePlmRomData.CrumblePlug, ChozoStatuePlmProgramDefinitions.CrumblePlugStart);
-
-    /// <summary>Enumerate the five semantic spawn cases in the original published order.</summary>
-    public static IEnumerable<ChozoStatuePlmDefinition> All
-    {
-        get
-        {
-            yield return LowerNorfairHand;
-            yield return WreckedShipHand;
-            yield return ClearSlopeAccess;
-            yield return BlockSlopeAccess;
-            yield return CrumblePlug;
-        }
-    }
     /// <summary>Resolves a supported header without interpreting adjacent bank-$84 data.</summary>
     public static ChozoStatuePlmDefinition Resolve(ushort headerPointer) => headerPointer switch
     {

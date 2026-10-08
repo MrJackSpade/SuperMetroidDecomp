@@ -28,8 +28,6 @@ internal static class MotherBrainBodyVisualDefinitions
     private const ushort Uncrouching = 0xa28c;
     /// <summary>$A9:A384, first of four nine-component death-beam frames.</summary>
     private const ushort DeathBeamStart = 0xa384;
-
-    internal static MotherBrainBodyFrameSequence Frames => new(FrameCount);
     internal static EnemyBg2FrameDefinitionSequence Bg2Frames => new(Bg2FrameCount, Bg2Frame);
 
     /// <summary>Calculates the published OAM identity. Native record strides are
@@ -73,24 +71,5 @@ internal static class MotherBrainBodyVisualDefinitions
     {
         int offset = pointer - start;
         return offset >= 0 && offset < count * stride && offset % stride == 0;
-    }
-}
-
-/// <summary>Calculated Mother Brain OAM catalog entries without stored lookup data.</summary>
-internal readonly record struct MotherBrainBodyFrameSequence(int Length)
-{
-    internal EnemyExtendedFrameDefinition this[int index] => MotherBrainBodyVisualDefinitions.Frame(index);
-    internal EnemyExtendedFrameDefinition[] ToArray()
-    {
-        var result = new EnemyExtendedFrameDefinition[Length];
-        for (int i = 0; i < result.Length; i++) result[i] = this[i];
-        return result;
-    }
-    public Enumerator GetEnumerator() => new(this);
-    internal struct Enumerator(MotherBrainBodyFrameSequence sequence)
-    {
-        private int index = -1;
-        public bool MoveNext() => ++index < sequence.Length;
-        public EnemyExtendedFrameDefinition Current => sequence[index];
     }
 }

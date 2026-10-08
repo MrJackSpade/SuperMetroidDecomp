@@ -151,18 +151,6 @@ public sealed class DraygonColorCatalog
             ? band
             : throw new ArgumentOutOfRangeException(nameof(band));
 
-    private static ushort Get(ushort[] colors, int index) =>
-        (uint)index < colors.Length
-            ? colors[index]
-            : throw new ArgumentOutOfRangeException(nameof(index));
-
-    private static void Apply(SnesCgram cgram, ushort[] colors, int destination)
-    {
-        ArgumentNullException.ThrowIfNull(cgram);
-        for (int color = 0; color < colors.Length; color++)
-            cgram.SetColor(destination + color, colors[color]);
-    }
-
     private static void ApplyCalculated(SnesCgram cgram, int count, int destination, Func<int, ushort> resolve)
     {
         ArgumentNullException.ThrowIfNull(cgram);

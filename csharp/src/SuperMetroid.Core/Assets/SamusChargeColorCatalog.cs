@@ -47,9 +47,6 @@ public sealed class SamusChargeColorCatalog
         WriteIndented = true,
     };
 
-    public ushort ResolveCharge(bool pseudo, int suit, int phase, int color) =>
-        (pseudo ? pseudoScrew : chargedBeam).Resolve(suit, phase, color);
-
     public ushort ResolveHyper(int frame, int color)
     {
         if ((uint)frame >= SamusChargeColorFormat.HyperFrameCount) throw new ArgumentOutOfRangeException(nameof(frame));

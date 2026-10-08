@@ -1,8 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Compiled mechanics words from the parallel Skree and Metaree programs.</summary>
-internal static class SkreeMetareeInstructionProgramDefinitions
+internal abstract class SkreeMetareeInstructionProgramDefinitions : IDeclaredProgramBank
 {
+    /// <summary>Bank $A3, which holds both species' instruction programs.</summary>
+    static int IDeclaredProgramBank.Bank => 0xa3;
+
     /// <summary><c>InstList_Metaree_Idling</c> at $A3:8910.</summary>
     internal const ushort MetareeIdling = 0x8910;
     /// <summary><c>InstList_Metaree_PrepareToLaunchAttack</c> at $A3:8924.</summary>
@@ -84,18 +87,5 @@ internal static class SkreeMetareeInstructionProgramDefinitions
             if (word.Address == address) return word.Value;
         }
         throw new InvalidDataException($"{(metaree ? "Metaree" : "Skree")} instruction mechanics pointer $A3:{address:X4} is not compiled.");
-    }
-
-    internal static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa30000) return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int species = 0; species < 2; species++)
-        for (int index = 0; index < 20; index++)
-        {
-            ushort word = MechanicsWord(species == 0, index).Address;
-            if (bankAddress == word || bankAddress == word + 1) return true;
-        }
-        return false;
     }
 }

@@ -203,11 +203,4 @@ internal static class CinematicCodePointers
         public const ushort SamusBlinking = 0xd5df;
         public const ushort SamusBlinkingPage6 = 0xd613;
     }
-
-    /// <summary>Named bank-$8C indirect-data records compared by cinematic draw code.</summary>
-    public static class IndirectData
-    {
-        public const ushort IntroTextSpace = 0xd67d;
-    }
-
 }

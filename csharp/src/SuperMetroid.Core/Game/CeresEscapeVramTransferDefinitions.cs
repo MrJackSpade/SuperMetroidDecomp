@@ -92,18 +92,6 @@ internal static class CeresEscapeVramTransferDefinitions
     internal static bool IsTerminator(ushort pointer) =>
         pointer is 0xc3d4 or 0xc4fc or 0xc536;
 
-    internal static bool IsDescriptorByteAddress(int address)
-    {
-        if ((address & 0xff0000) != 0xa60000)
-            return false;
-        ushort offset = unchecked((ushort)address);
-        foreach (CeresEscapeVramTransferDefinition record in Records)
-            if (offset >= record.Pointer && offset < record.Pointer + 7)
-                return true;
-        return IsTerminator(offset) ||
-            IsTerminator(unchecked((ushort)(offset - 1)));
-    }
-
     internal static bool TryGet(ushort pointer,
         out CeresEscapeVramTransferDefinition transfer)
     {

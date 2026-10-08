@@ -72,11 +72,6 @@ public sealed class XrayOverlayVisualCatalog
                     throw new InvalidDataException($"Missing required X-ray room overlay ${pointer:X4}.");
     }
 
-    /// <summary>Explicitly partial room overlays for focused fixtures; never an installed catalog.</summary>
-    internal static XrayOverlayVisualCatalog FromOverlaysForVerification(IEnumerable<ushort> itemMetatiles,
-        IEnumerable<(ushort Pointer, IReadOnlyList<XrayRoomOverlayVisual> Tiles)> rooms) =>
-        new(itemMetatiles, rooms, requireCompleteInstallation: false);
-
     public ushort ItemMetatile(int graphicsSlot) => itemMetatiles[graphicsSlot];
 
     /// <summary>Identity of selected item metatiles and room overlay coordinates/tiles, in native record order.</summary>

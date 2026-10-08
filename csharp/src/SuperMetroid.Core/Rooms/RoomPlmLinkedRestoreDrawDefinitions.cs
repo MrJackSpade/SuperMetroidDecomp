@@ -11,11 +11,6 @@ internal static class RoomPlmLinkedRestoreDrawDefinitions
         RoomPlmBombBlockRestoreDrawDefinitions.All.Concat(
             RoomPlmContactCrumbleRestoreDrawDefinitions.All);
 
-    internal static bool TryGet(ushort pointer,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmBombBlockRestoreDrawDefinitions.TryGet(pointer, out list) ||
-        RoomPlmContactCrumbleRestoreDrawDefinitions.TryGet(pointer, out list);
-
     internal static string VisualId(ushort pointer) => pointer switch
     {
         RoomPlmBombBlockRestoreDrawDefinitions.Horizontal => "bomb-horizontal",

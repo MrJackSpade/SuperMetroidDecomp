@@ -322,12 +322,12 @@ internal static partial class Program
                         // Enter the authored lower-right wake rectangle on both
                         // independently stepped games, without crossing a door.
                         nativeRoom.RuntimeForVerification!.Samus!.XPosition = 0x0180;
-                        nativeRoom.RuntimeForVerification.Samus.YPosition = 0x0150;
+                        nativeRoom.RuntimeForVerification!.Samus!.YPosition = 0x0150;
                         installedRoom.RuntimeForVerification!.Samus!.XPosition = 0x0180;
-                        installedRoom.RuntimeForVerification.Samus.YPosition = 0x0150;
+                        installedRoom.RuntimeForVerification!.Samus!.YPosition = 0x0150;
                         var options = new SuperMetroidGameOptions { Invincibility = false };
-                        nativeRoom.RuntimeForVerification.ApplyHostOptions(options);
-                        installedRoom.RuntimeForVerification.ApplyHostOptions(options);
+                        nativeRoom.RuntimeForVerification!.ApplyHostOptions(options);
+                        installedRoom.RuntimeForVerification!.ApplyHostOptions(options);
                     });
                 VerifyFrontendRomFreeRoom(native, installed,
                     RoomHeaderPointers.GoldenTorizo, "Golden Torizo left-foot right-sonic program",
@@ -451,17 +451,17 @@ internal static partial class Program
         nativeRoom.RuntimeForVerification!.LoadCartridgeRoomForDebug(RoomHeaderPointers.Kraid);
         installedRoom.RuntimeForVerification!.LoadCartridgeRoomForDebug(RoomHeaderPointers.Kraid);
         AssertEqual(RoomAssetRomData.LibraryBackground.KraidHudCharacterBaseWord,
-            installedRoom.RuntimeForVerification.GameplayHudCharacterBaseWord,
+            installedRoom.RuntimeForVerification!.GameplayHudCharacterBaseWord,
             "restored Kraid room selects the relocated HUD character base");
         int bg2Byte = KraidBackgroundRomData.LiveBg2TilemapWord * sizeof(ushort);
         int bg2Bytes = KraidBackgroundRomData.WorkingTilemapWords * sizeof(ushort);
-        AssertTrue(nativeRoom.RuntimeForVerification.Vram.Bytes.Slice(bg2Byte, bg2Bytes)
-                .SequenceEqual(installedRoom.RuntimeForVerification.Vram.Bytes.Slice(bg2Byte, bg2Bytes)),
+        AssertTrue(nativeRoom.RuntimeForVerification!.Vram.Bytes.Slice(bg2Byte, bg2Bytes)
+                .SequenceEqual(installedRoom.RuntimeForVerification!.Vram.Bytes.Slice(bg2Byte, bg2Bytes)),
             "restored Kraid BG2 pages match before the first accepted NMI");
         FrontendFrame expected = nativeRoom.Step(0);
         FrontendFrame actual = installedRoom.Step(0);
-        AssertTrue(nativeRoom.RuntimeForVerification.Vram.Bytes.Slice(bg2Byte, bg2Bytes)
-                .SequenceEqual(installedRoom.RuntimeForVerification.Vram.Bytes.Slice(bg2Byte, bg2Bytes)),
+        AssertTrue(nativeRoom.RuntimeForVerification!.Vram.Bytes.Slice(bg2Byte, bg2Bytes)
+                .SequenceEqual(installedRoom.RuntimeForVerification!.Vram.Bytes.Slice(bg2Byte, bg2Bytes)),
             "restored Kraid BG2 pages remain intact after the deferred HUD refresh");
         AssertTrue(actual.Pixels.AsSpan().SequenceEqual(expected.Pixels),
             "restored Kraid first frame matches native pixels after HUD artwork rebind");
@@ -504,13 +504,13 @@ internal static partial class Program
                 var nativeSamus = native.RuntimeForVerification!.Samus!;
                 var installedSamus = installed.RuntimeForVerification!.Samus!;
                 int firstVram = 0;
-                ReadOnlySpan<byte> nativeVram = native.RuntimeForVerification.Vram.Bytes;
-                ReadOnlySpan<byte> installedVram = installed.RuntimeForVerification.Vram.Bytes;
+                ReadOnlySpan<byte> nativeVram = native.RuntimeForVerification!.Vram.Bytes;
+                ReadOnlySpan<byte> installedVram = installed.RuntimeForVerification!.Vram.Bytes;
                 while (firstVram < nativeVram.Length && nativeVram[firstVram] == installedVram[firstVram])
                     firstVram++;
                 int firstOam = 0;
-                ReadOnlySpan<byte> nativeOam = native.RuntimeForVerification.DisplayedOam.LowTable;
-                ReadOnlySpan<byte> installedOam = installed.RuntimeForVerification.DisplayedOam.LowTable;
+                ReadOnlySpan<byte> nativeOam = native.RuntimeForVerification!.DisplayedOam.LowTable;
+                ReadOnlySpan<byte> installedOam = installed.RuntimeForVerification!.DisplayedOam.LowTable;
                 while (firstOam < nativeOam.Length && nativeOam[firstOam] == installedOam[firstOam])
                     firstOam++;
                 throw new InvalidOperationException(
@@ -571,14 +571,14 @@ internal static partial class Program
         // These isolated rooms are not one continuous playthrough. Refill on
         // entry so damage in an earlier room cannot turn a later comparison
         // into two identical death screens.
-        native.RuntimeForVerification.Samus!.MaxHealth = 1499;
-        native.RuntimeForVerification.Samus.Health = 1499;
-        installed.RuntimeForVerification.Samus!.MaxHealth = 1499;
-        installed.RuntimeForVerification.Samus.Health = 1499;
+        native.RuntimeForVerification!.Samus!.MaxHealth = 1499;
+        native.RuntimeForVerification!.Samus!.Health = 1499;
+        installed.RuntimeForVerification!.Samus!.MaxHealth = 1499;
+        installed.RuntimeForVerification!.Samus!.Health = 1499;
         setup?.Invoke(native, installed);
         RoomEnemySlot? awakenedGoldenTorizo = roomPointer == RoomHeaderPointers.GoldenTorizo &&
             setup is not null
-            ? installed.RuntimeForVerification.Enemies.Slots.FirstOrDefault(slot =>
+            ? installed.RuntimeForVerification!.Enemies.Slots.FirstOrDefault(slot =>
                 slot.EnemyDefinitionPointer == RoomEnemySystem.GoldenTorizoDefinition)
             : null;
         if (roomPointer == RoomHeaderPointers.GoldenTorizo && setup is not null)
@@ -586,7 +586,7 @@ internal static partial class Program
             AssertTrue(awakenedGoldenTorizo is not null,
                 "Golden Torizo wake-up fixture loaded its live boss slot");
             VerifyTorizoOperandFreeCallbackDoesNotReadNextWord(
-                installed.RuntimeForVerification.Enemies, awakenedGoldenTorizo!);
+                installed.RuntimeForVerification!.Enemies, awakenedGoldenTorizo!);
         }
         bool goldenWakeObserved = false;
         bool goldenWalkingObserved = false;
@@ -600,8 +600,8 @@ internal static partial class Program
         bool forcedGoldenLeftTurnObserved = false;
         bool forcedGoldenFallingLeftObserved = false;
         bool goldenLeftFootOrbProgramObserved = false;
-        ReadOnlySpan<byte> nativeLoadedVram = native.RuntimeForVerification.Vram.Bytes;
-        ReadOnlySpan<byte> installedLoadedVram = installed.RuntimeForVerification.Vram.Bytes;
+        ReadOnlySpan<byte> nativeLoadedVram = native.RuntimeForVerification!.Vram.Bytes;
+        ReadOnlySpan<byte> installedLoadedVram = installed.RuntimeForVerification!.Vram.Bytes;
         int firstLoadVram = 0;
         while (firstLoadVram < nativeLoadedVram.Length &&
                nativeLoadedVram[firstLoadVram] == installedLoadedVram[firstLoadVram])
@@ -732,8 +732,8 @@ internal static partial class Program
                         if (nativeVram[offset] != installedVram[offset]) changed++;
                     if (changed != 0) changedVramPages.Add($"${page:X4}:{changed}");
                 }
-                ReadOnlySpan<ushort> nativeColors = native.RuntimeForVerification.Cgram.Colors;
-                ReadOnlySpan<ushort> installedColors = installed.RuntimeForVerification.Cgram.Colors;
+                ReadOnlySpan<ushort> nativeColors = native.RuntimeForVerification!.Cgram.Colors;
+                ReadOnlySpan<ushort> installedColors = installed.RuntimeForVerification!.Cgram.Colors;
                 int changedColors = 0;
                 for (int color = 0; color < nativeColors.Length; color++)
                     if (nativeColors[color] != installedColors[color]) changedColors++;

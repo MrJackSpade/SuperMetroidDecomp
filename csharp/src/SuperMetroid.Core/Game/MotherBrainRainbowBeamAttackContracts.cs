@@ -165,29 +165,6 @@ public readonly record struct MotherBrainEscapeDoorPlmRequest(
     byte BlockY,
     ushort PlmEntry);
 
-/// <summary>One `$86:CB4B` blue-ring spawn emitted by head opcode `$A9:9E29`.</summary>
-public readonly record struct MotherBrainOnionRingSpawnRequest(SnesAngle Angle);
-
-/// <summary>One `$86:CB59` bomb spawn emitted by head opcode `$A9:9EBD`.</summary>
-public readonly record struct MotherBrainBombSpawnRequest(ushort AfterburnCount);
-
-/// <summary>Debugger witness for one translated Mother Brain head-instruction call.</summary>
-public readonly record struct MotherBrainHeadAnimationStepResult(
-    ushort InstructionPointerBefore,
-    ushort InstructionPointerAfter,
-    ushort InstructionTimerBefore,
-    ushort InstructionTimerAfter,
-    ushort SpritemapPointer,
-    bool LoadedFrame,
-    bool BabyAttackCounterIncremented,
-    bool BabyAttackCounterReset,
-    SnesAngle OnionRingTargetAngle,
-    MotherBrainOnionRingSpawnRequest? OnionRingSpawn,
-    MotherBrainBombSpawnRequest? BombSpawn,
-    bool PurpleBreathBigSpawnRequested,
-    ushort? QueuedSoundLibraryTwo,
-    ushort? QueuedSoundLibraryThree);
-
 /// <summary>Debugger witness for one Mother Brain active-rainbow body-function call.</summary>
 public readonly record struct MotherBrainRainbowBeamAttackStepResult(
     MotherBrainRainbowBeamAttackPhase PhaseBefore,

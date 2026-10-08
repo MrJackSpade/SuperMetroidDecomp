@@ -75,11 +75,6 @@ public sealed class RoomVisualLayoutCatalog
                         $"Installed room visual layouts lack required source ${source:X6}.");
     }
 
-    /// <summary>Explicitly partial geometry fixtures; never an installed production catalog.</summary>
-    internal static RoomVisualLayoutCatalog FromLayoutsForVerification(
-        IReadOnlyDictionary<int, RoomVisualLayout> layouts) =>
-        new(layouts, requireCompleteInstallation: false);
-
     /// <summary>SHA-256 of selected room geometry and both ordered visual planes.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomVisualLayoutCatalog), content =>
     {

@@ -31,21 +31,6 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         _headInstructionListRequestSerial++;
     }
 
-    private void AimOnionRings(short deltaX, short deltaY)
-    {
-        // `$A0:C0B1` returns the game's byte angle. `$A9:9E77` converts it to the projectile
-        // convention (`$80-angle`) and performs a circular signed clamp: `$10-$47` survive,
-        // `$48-$BF` clamp to `$48`, and `$C0-$FF/$00-$0F` clamp to `$10`.
-        SnesAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(deltaX, deltaY);
-        byte candidate = SnesAngle.HalfTurn.AddRaw(-sourceAngle.RawValue).TableIndex;
-        OnionRingTargetAngle = SnesAngle.FromTableIndex(candidate switch
-        {
-            >= 0x10 and < 0x48 => candidate,
-            >= 0x48 and < 0xc0 => 0x48,
-            _ => 0x10,
-        });
-    }
-
     private void RetractHead()
     {
         // NTSC takes `$0050` from the regional `$0050/$0063` constant at `$A9:BB51`.

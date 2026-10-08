@@ -146,9 +146,6 @@ public sealed partial class RoomEnemySystem
     private readonly KiHunterEnemyState?[] _kiHunterStates =
         new KiHunterEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed Ki-Hunter state for every body and wing physical enemy slot.</summary>
-    public IReadOnlyList<KiHunterEnemyState?> KiHunterStates => _kiHunterStates;
-
     /// <summary>Last library-two sound queued by an acid-spit instruction this frame.</summary>
     public ushort? LastKiHunterSoundEffect { get; private set; }
 

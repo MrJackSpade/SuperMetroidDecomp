@@ -43,7 +43,6 @@ public sealed class TourianStatueColorCatalog
     };
 
     public ushort ResolveBase(int color) => baseColors.Read(color);
-    public ushort ResolveStatue(int color) => statueColors.Read(color);
     public ushort ResolveEye(int row, int color)
     {
         if ((uint)row >= TourianStatuePaletteRomData.EyeRowCount ||

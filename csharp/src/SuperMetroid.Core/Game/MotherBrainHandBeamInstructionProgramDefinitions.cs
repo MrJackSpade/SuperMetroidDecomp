@@ -23,7 +23,6 @@ internal abstract class MotherBrainHandBeamInstructionProgramDefinitions : IPres
     private static readonly ushort[] Durations = [3, 3, 2, 2, 1, 1, 1];
 
     internal static int NativeWordCount => StageCount * WordsPerStage + 1;
-    internal static int ExternalCallCount => StageCount;
     public static int PresentationWordCount => StageCount * FramesPerStage;
 
     /// <summary>Calculates the interleaved spritemap operand, skipping the first frame's external call.</summary>
@@ -69,12 +68,6 @@ internal abstract class MotherBrainHandBeamInstructionProgramDefinitions : IPres
         return new(address, ReadMechanicsWord(address));
     }
 
-    internal static ushort ExternalCallInstruction(int index)
-    {
-        if ((uint)index >= ExternalCallCount) throw new ArgumentOutOfRangeException(nameof(index));
-        return (ushort)(StageStart(index) + FrameBytes);
-    }
-
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
@@ -86,16 +79,6 @@ internal abstract class MotherBrainHandBeamInstructionProgramDefinitions : IPres
         if (offset < FrameBytes) return false;
         if (offset < FrameBytes + CallbackBytes) return true;
         return (offset - CallbackBytes) % FrameBytes < sizeof(ushort);
-    }
-
-    internal static bool IsPresentationByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
-        int bankAddress = (ushort)address;
-        if (bankAddress < Initial || bankAddress >= TerminalDelete) return false;
-        int offset = (bankAddress - Initial) % StageBytes;
-        if (offset < FrameBytes) return offset >= sizeof(ushort);
-        return offset >= FrameBytes + CallbackBytes && (offset - CallbackBytes) % FrameBytes >= sizeof(ushort);
     }
 
     private static int StageStart(int stage) => Initial + stage * StageBytes;

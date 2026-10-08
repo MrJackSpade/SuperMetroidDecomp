@@ -44,11 +44,11 @@ internal static partial class Program
         }
         foreach ((int record, ushort definition) in new[]
                  {
-                     (EnemyRomTablePointers.Ripper.GRipperPopulationRecord,
+                     (EnemyRomTablePointersRipper.GRipperPopulationRecord,
                          RoomEnemySystem.GRipperDefinition),
-                     (EnemyRomTablePointers.Ripper.Ripper2PopulationRecord,
+                     (EnemyRomTablePointersRipper.Ripper2PopulationRecord,
                          RoomEnemySystem.Ripper2Definition),
-                     (EnemyRomTablePointers.Ripper.RipperPopulationRecord,
+                     (EnemyRomTablePointersRipper.RipperPopulationRecord,
                          RoomEnemySystem.RipperDefinition),
                  })
         {

@@ -49,9 +49,6 @@ public sealed partial class RoomEnemySystem
     private readonly PolypEnemyState?[] _polypStates =
         new PolypEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed state for every physical Polyp-capable enemy slot.</summary>
-    public IReadOnlyList<PolypEnemyState?> PolypStates => _polypStates;
-
     /// <summary>Ports <c>InitAI_Polyp</c> at $A2:B570.</summary>
     private void InitializePolyp(RoomEnemySlot slot)
     {

@@ -162,34 +162,6 @@ internal abstract class CeresBabyInstructionProgramDefinitions : IInstructionPro
             $"Ceres Baby spritemap operand $A6:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledSpritemapByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa60000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < SpritemapOperandCount; index++)
-        {
-            ushort operand = SpritemapOperandAddress(index);
-            if (bankAddress == operand || bankAddress == unchecked((ushort)(operand + 1)))
-                return true;
-        }
-        return false;
-    }
-
-    internal static bool IsCompiledPaletteByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa60000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < PaletteOperandCount; index++)
-        {
-            ushort operand = PaletteOperandAddress(index);
-            if (bankAddress == operand || bankAddress == unchecked((ushort)(operand + 1)))
-                return true;
-        }
-        return false;
-    }
-
     /// <summary>
     /// Reads one compiled control word and rejects presentation or adjacent code addresses.
     /// </summary>

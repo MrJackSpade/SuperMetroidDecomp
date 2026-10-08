@@ -78,9 +78,6 @@ public sealed partial class RoomEnemySystem
     private readonly ZebetiteEnemyState?[] _zebetiteStates =
         new ZebetiteEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed state for each live or previously allocated physical enemy slot.</summary>
-    public IReadOnlyList<ZebetiteEnemyState?> ZebetiteStates => _zebetiteStates;
-
     /// <summary>Most recent library-three sound requested by Zebetite shot AI.</summary>
     public ushort? LastZebetiteSoundEffect { get; private set; }
 

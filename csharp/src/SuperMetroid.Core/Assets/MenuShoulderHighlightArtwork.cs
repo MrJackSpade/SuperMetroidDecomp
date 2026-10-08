@@ -9,7 +9,6 @@ internal sealed class MenuShoulderHighlightArtwork
 {
     internal const int TileCount = 4;
     private readonly Dictionary<int, byte>? edits;
-    internal int StoredEditCount => edits?.Count ?? 0;
     internal static bool Contains(int tile) => tile is 0x3c or 0x3d or 0x43 or 0x51;
 
     internal MenuShoulderHighlightArtwork(IndexedPngImage image)

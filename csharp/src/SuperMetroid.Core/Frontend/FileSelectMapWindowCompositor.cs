@@ -5,13 +5,6 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Opposing BG1/OBJ and BG2 window-one masks installed by $81:AAAC/$81:AFF6.</summary>
 public static class FileSelectMapWindowCompositor
 {
-    /// <summary>
-    /// $81:A5B3 temporarily restores the initial centered window during return setup:
-    /// area graphics are inside it, while the previously installed BG2 frame stays outside.
-    /// </summary>
-    public static Rgba32[] CompositeInitialEntryWindow(ReadOnlySpan<Rgba32> area, ReadOnlySpan<Rgba32> roomFrame) =>
-        CompositeInitialEntryWindow(area, roomFrame, new Rgba32[FrontendFrame.Width * FrontendFrame.Height]);
-
     /// <summary>As above, writing into <paramref name="pixels"/>, which must not alias either input.</summary>
     public static Rgba32[] CompositeInitialEntryWindow(ReadOnlySpan<Rgba32> area, ReadOnlySpan<Rgba32> roomFrame, Rgba32[] pixels)
     {
@@ -27,14 +20,6 @@ public static class FileSelectMapWindowCompositor
         }
         return pixels;
     }
-
-    /// <summary>
-    /// Keeps the area scene outside the window and the empty room frame inside it.
-    /// Inputs must already have their own color math applied; this does not scale pixels.
-    /// </summary>
-    public static Rgba32[] Composite(ReadOnlySpan<Rgba32> area, ReadOnlySpan<Rgba32> roomFrame,
-        FileSelectMapWindow window) =>
-        Composite(area, roomFrame, window, new Rgba32[FrontendFrame.Width * FrontendFrame.Height]);
 
     /// <summary>As above, writing into <paramref name="pixels"/>, which must not alias either input.</summary>
     public static Rgba32[] Composite(ReadOnlySpan<Rgba32> area, ReadOnlySpan<Rgba32> roomFrame,

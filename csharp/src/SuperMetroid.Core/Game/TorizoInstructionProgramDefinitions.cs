@@ -416,8 +416,5 @@ internal abstract partial class TorizoInstructionProgramDefinitions : IInstructi
             throw new InvalidDataException(
                 $"Torizo instruction word $AA:{address:X4} has no compiled mechanics definition.");
 
-    internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
-        Layout.TryReadMechanicsWord(address, out value);
-
     public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

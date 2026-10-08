@@ -79,8 +79,6 @@ public sealed class CrateriaLightningPaletteFxProgramDefinition
 
     public CrateriaLightningPaletteOwner Owner { get; }
     private bool IsSurface => Owner == CrateriaLightningPaletteOwner.SurfaceLightning;
-    /// <summary>$8D:F765 live surface-lightning definition or $F769 unused dark-lightning definition.</summary>
-    public ushort DefinitionPointer => IsSurface ? (ushort)0xf765 : (ushort)0xf769;
     /// <summary>$8D:EB3B/$EC6E setup starts: pre-instruction and CGRAM destination.</summary>
     public ushort ProgramStart => IsSurface ? (ushort)0xeb3b : (ushort)0xec6e;
     /// <summary>Surface uses CGRAM byte $A8; unused dark lightning uses byte $82.</summary>
@@ -91,8 +89,6 @@ public sealed class CrateriaLightningPaletteFxProgramDefinition
     public IReadOnlyList<CrateriaLightningPaletteFrame> Frames { get; }
     public IReadOnlyList<PaletteFxMechanicsWord> MechanicsWords { get; }
     public IReadOnlyList<PaletteFxMechanicsByte> MechanicsBytes { get; }
-    public int CycleFrames => 240 * (1 + NeutralCount) + 2 * 9 + 5;
-    public int DisplayedRecordsPerCycle => 1 + 14 + NeutralCount + 4 + 1;
 
     private int NeutralCount => IsSurface ? 1 : 2;
     private int FrameByteCount => 2 * (ColorsPerFrame + 2);

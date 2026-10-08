@@ -11,9 +11,6 @@ internal sealed class SidehopperCorpsePalette
     private readonly bool calculated;
     private readonly bool stockTarget;
     internal int Count { get; }
-    /// <summary>$A9:ECAA/$F8C4, the ramp dark endpoint also used at final-drain $EC74.
-    /// The fifteen-color import exposes this dependency only when its samples uniquely determine the endpoint.</summary>
-    internal ushort? ReconstructedDarkEndpoint => stockTarget ? SidehopperCorpsePaintDefinitions.Color(15) : calculated ? independentOrSupplied[8] : null;
 
     internal SidehopperCorpsePalette(ushort[] colors)
     {

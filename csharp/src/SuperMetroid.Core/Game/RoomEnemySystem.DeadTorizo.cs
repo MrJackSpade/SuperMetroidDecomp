@@ -20,13 +20,6 @@ public sealed partial class RoomEnemySystem
     private readonly List<VramWriteEntry> _deadTorizoFrameVramTransfers = [];
     private DeadTorizoEnemyState? _deadTorizo;
 
-    /// <summary>The loaded Dead Torizo's typed extended-WRAM state.</summary>
-    public DeadTorizoEnemyState? DeadTorizo => _deadTorizo;
-
-    /// <summary>Alternating VRAM records authored by the most recent actor frame.</summary>
-    public IReadOnlyList<VramWriteEntry> LastDeadTorizoVramTransfers =>
-        _deadTorizoFrameVramTransfers;
-
     /// <summary>Last library-two sound emitted by a completed corpse row.</summary>
     public ushort? LastDeadTorizoSoundEffect { get; private set; }
 

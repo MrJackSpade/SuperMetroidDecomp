@@ -22,11 +22,8 @@ public sealed class D3D11RenderWorker
     private long retainedRedraws;
     private long lastDrawnSize;
     private bool surfaceSuspended;
-    /// <summary>Render-owner acknowledgement of a zero-sized surface; not a host resize request.</summary>
-    internal bool IsSurfaceSuspended => Volatile.Read(ref surfaceSuspended);
     private long deviceRecoveries;
     private D3D11DeviceLossDiagnostic? lastDeviceLoss;
-    public D3D11DeviceLossDiagnostic? LastDeviceLoss => Volatile.Read(ref lastDeviceLoss);
     private readonly RenderTimingWindow cpuCompositionTiming;
     private readonly RenderTimingWindow cpuPresentationTiming;
     private readonly RenderTimingWindow gpuCompositionTiming;
@@ -41,9 +38,6 @@ public sealed class D3D11RenderWorker
         cpuPresentationTiming.Snapshot(), gpuCompositionTiming.Snapshot(), gpuFrameTiming.Snapshot());
     private double gpuCompositionMilliseconds = double.NaN;
     private long validGpuTimingSamples, invalidGpuTimingSamples, skippedGpuTimingSamples;
-    /// <summary>Latest asynchronous GPU composition duration; excludes display scaling/Present.</summary>
-    public double GpuCompositionMilliseconds => Volatile.Read(ref gpuCompositionMilliseconds);
-    public long ValidGpuTimingSamples => Interlocked.Read(ref validGpuTimingSamples);
     public long InvalidGpuTimingSamples => Interlocked.Read(ref invalidGpuTimingSamples);
     public long SkippedGpuTimingSamples => Interlocked.Read(ref skippedGpuTimingSamples);
     public long DeviceRecoveries => Interlocked.Read(ref deviceRecoveries);
@@ -53,14 +47,6 @@ public sealed class D3D11RenderWorker
     public Task Completion => completion.Task;
     public RenderMailboxMetrics MailboxMetrics => mailbox.Metrics;
     public long PresentedFrames => Interlocked.Read(ref presented);
-    public long OccludedFrames => Interlocked.Read(ref occluded);
-    public long StaleFrames => Interlocked.Read(ref stale);
-    public long LastConsumedSequence => Interlocked.Read(ref lastConsumedSequence);
-    public long RetainedRedraws => Interlocked.Read(ref retainedRedraws);
-    internal (int Width, int Height) LastDrawnSize
-    {
-        get { long size = Interlocked.Read(ref lastDrawnSize); return ((int)(size >> 32), (int)size); }
-    }
 
     public D3D11RenderWorker(nint window, int width, int height, long generation, D3D11DeviceKind kind,
         int timingCapacity = RenderTelemetryLimits.DefaultHistoryCapacity)

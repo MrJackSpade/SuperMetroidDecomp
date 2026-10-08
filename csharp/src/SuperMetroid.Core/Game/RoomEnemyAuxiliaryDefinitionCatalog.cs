@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class RoomEnemyAuxiliaryDefinitionCatalog
 {
-    private static readonly IReadOnlyDictionary<ushort, RoomEnemyDefinition> Definitions =
+    private static readonly Dictionary<ushort, RoomEnemyDefinition> Definitions =
         new Dictionary<ushort, RoomEnemyDefinition>
     {
         // Native respawn placeholder selected when a killed actor vacates its slot.
@@ -23,7 +23,4 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalog
     /// <summary>Looks up one native dynamic-actor header without reading the cartridge.</summary>
     internal static bool TryGet(ushort pointer, out RoomEnemyDefinition definition) =>
         Definitions.TryGetValue(pointer, out definition);
-
-    /// <summary>The five auxiliary header identities missing from room lists.</summary>
-    internal static IEnumerable<ushort> Pointers => Definitions.Keys;
 }

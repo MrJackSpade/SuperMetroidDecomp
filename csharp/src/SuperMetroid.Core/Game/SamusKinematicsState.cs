@@ -67,12 +67,6 @@ public sealed class SamusKinematicsState
     public IReadOnlyList<SolidEnemyCollisionBody> InteractiveEnemies { get; set; } =
         Array.Empty<SolidEnemyCollisionBody>();
 
-    /// <summary>
-    /// Native left/right/up/down collision-index words retained for debugger inspection.
-    /// <c>$FFFF</c> means that direction did not encounter a solid enemy.
-    /// </summary>
-    public IReadOnlyList<ushort> SolidEnemyCollisionIndexes => _solidEnemyCollisionIndexes;
-
     /// <summary>Whole-pixel world X at WRAM <c>$0AF6</c>.</summary>
     public ushort XPosition { get; set; }
 

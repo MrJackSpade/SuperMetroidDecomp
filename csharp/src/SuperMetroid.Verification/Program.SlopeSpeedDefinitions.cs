@@ -9,7 +9,7 @@ internal static partial class Program
         var multipliers = new ushort[32];
         for (int shape = 0; shape < multipliers.Length; shape++)
         {
-            int address = SamusMovementRomData.Slopes.HorizontalMultipliers + shape * 4 + 2;
+            int address = SamusMovementRomDataSlopes.HorizontalMultipliers + shape * 4 + 2;
             multipliers[shape] = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
             AssertEqual(multipliers[shape], SlopeSpeedDefinitions.HorizontalMultiplier(shape), "All native horizontal slope multipliers");
         }

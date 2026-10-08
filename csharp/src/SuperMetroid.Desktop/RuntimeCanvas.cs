@@ -52,16 +52,6 @@ public sealed class RuntimeCanvas : Control
             base.IsInputKey(keyData);
     }
 
-    /// <summary>Takes ownership of a newly rendered frame and repaints the control.</summary>
-    public void ReplaceFrame(Bitmap nextFrame)
-    {
-        ArgumentNullException.ThrowIfNull(nextFrame);
-        Bitmap? previous = frame;
-        frame = nextFrame;
-        previous?.Dispose();
-        Invalidate();
-    }
-
     /// <summary>
     /// Copies a core raster into a persistent GDI surface. Gameplay frames never change
     /// dimensions, so this avoids sixty Bitmap allocations and native disposals per second.

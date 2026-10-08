@@ -135,10 +135,6 @@ public sealed partial class RoomEnemySystem
     /// <summary>Active four-slot encounter state when retail Phantoon occupies slot zero.</summary>
     public PhantoonEnemyState? Phantoon => _phantoonState;
 
-    /// <summary>Pickup requests emitted by shot destroyable flames in this room load.</summary>
-    public IReadOnlyList<PhantoonFlameDropRequest> PhantoonFlameDropRequests =>
-        _phantoonFlameDropRequests;
-
     private void ResetPhantoonRoomState()
     {
         _phantoonState = null;

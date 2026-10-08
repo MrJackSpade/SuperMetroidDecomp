@@ -93,28 +93,6 @@ public sealed partial class EnemyTileArtworkCatalog
     /// <summary>Installed extended visual frames; hitbox and AI data stay engine-owned.</summary>
     public EnemyExtendedFrameCatalog? ExtendedFrames { get; private set; }
 
-    /// <summary>
-    /// This installation with its compositions replaced, as the installation loader produces for a
-    /// composition override. The other parts are independent and shared; nothing is derived from
-    /// the compositions at construction.
-    /// </summary>
-    internal EnemyTileArtworkCatalog WithSpritemaps(EnemySpritemapCatalog spritemaps)
-    {
-        ArgumentNullException.ThrowIfNull(spritemaps);
-        var copy = (EnemyTileArtworkCatalog)MemberwiseClone();
-        copy.Spritemaps = spritemaps;
-        return copy;
-    }
-
-    /// <summary>This installation with its extended frames replaced; see <see cref="WithSpritemaps"/>.</summary>
-    internal EnemyTileArtworkCatalog WithExtendedFrames(EnemyExtendedFrameCatalog extendedFrames)
-    {
-        ArgumentNullException.ThrowIfNull(extendedFrames);
-        var copy = (EnemyTileArtworkCatalog)MemberwiseClone();
-        copy.ExtendedFrames = extendedFrames;
-        return copy;
-    }
-
     /// <summary>Editable Phantoon BG2 tilemap frames; collision remains engine-owned.</summary>
     public PhantoonBg2FrameCatalog? PhantoonBg2Frames { get; }
 

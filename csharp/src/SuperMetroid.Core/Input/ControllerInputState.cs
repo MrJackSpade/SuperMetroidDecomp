@@ -26,9 +26,6 @@ public sealed class ControllerInputState
     /// <summary>Raw controller bits currently down, corresponding to direct page <c>$8B</c>.</summary>
     public ushort Current { get; private set; }
 
-    /// <summary>Typed view of <see cref="Current"/> for gameplay button tests.</summary>
-    public SnesButton CurrentButtons => (SnesButton)Current;
-
     /// <summary>
     /// Rising-edge button bits at direct page <c>$8F</c>. A bit is set for exactly the NMI
     /// where it changes from released to pressed.
@@ -43,9 +40,6 @@ public sealed class ControllerInputState
     /// it begins as <see cref="NewlyPressed"/> and periodically emits all held bits.
     /// </summary>
     public ushort NewlyPressedWithRepeat { get; private set; }
-
-    /// <summary>Typed auto-repeat view of <see cref="NewlyPressedWithRepeat"/>.</summary>
-    public SnesButton NewlyPressedWithRepeatButtons => (SnesButton)NewlyPressedWithRepeat;
 
     /// <summary>Prior raw input at direct page <c>$97</c>.</summary>
     public ushort Previous { get; private set; }

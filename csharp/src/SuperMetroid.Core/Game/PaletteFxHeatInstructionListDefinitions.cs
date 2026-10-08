@@ -85,20 +85,4 @@ public static class PaletteFxHeatInstructionListDefinitions
                 : PaletteFxHeatSuit.Power;
         return Resolve(suit, phase);
     }
-
-    /// <summary>Returns the native bank-$8D selector-word address for parity verification.</summary>
-    internal static ushort NativeSourceAddress(PaletteFxHeatSuit suit, int phase)
-    {
-        if ((uint)phase >= PhaseCount)
-            throw new ArgumentOutOfRangeException(nameof(phase));
-
-        ushort table = suit switch
-        {
-            PaletteFxHeatSuit.Power => PowerSourceTable,
-            PaletteFxHeatSuit.Varia => VariaSourceTable,
-            PaletteFxHeatSuit.Gravity => GravitySourceTable,
-            _ => throw new ArgumentOutOfRangeException(nameof(suit), suit, "Unknown heat suit."),
-        };
-        return unchecked((ushort)(table + phase * sizeof(ushort)));
-    }
 }

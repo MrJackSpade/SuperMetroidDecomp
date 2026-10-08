@@ -15,7 +15,6 @@ internal static class GameConfigurationPackageVerification
 
         Assembly game = Assembly.LoadFrom(Path.GetFullPath(gameAssemblyPath));
         Type config = game.GetType("SuperMetroid.Game.GameConfigurationFile", throwOnError: true)!;
-        MethodInfo load = config.GetMethod("LoadOrCreate")!;
         MethodInfo loadInstalled = config.GetMethod("LoadInstalled")!;
         // The temporary directory is test-owned. No ROM is needed: this is the same
         // loader called after installation, not a substitute INI parser.
@@ -26,7 +25,7 @@ internal static class GameConfigurationPackageVerification
             SuperMetroidGameOptions Load(string data, string defaults, bool local = false)
             {
                 Directory.CreateDirectory(data);
-                object result = load.Invoke(null, [Path.Combine(root, "fixture.smc"), data, defaults])!;
+                object result = loadInstalled.Invoke(null, [data, defaults])!;
                 if ((string)config.GetProperty("Path")!.GetValue(result)! != Path.Combine(local ? defaults : data, "SuperMetroid.ini"))
                     throw new InvalidDataException("Published host selected the wrong player INI path.");
                 return (SuperMetroidGameOptions)config.GetProperty("Options")!.GetValue(result)!;

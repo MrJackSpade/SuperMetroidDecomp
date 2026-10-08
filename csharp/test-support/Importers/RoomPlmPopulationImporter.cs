@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction;
 /// Import/reference-only decoding of native PLM placements. The resulting typed
 /// population can be consumed by Core without a cartridge-capable address space.
 /// </summary>
-public static class RoomPlmPopulationImporter
+internal static class RoomPlmPopulationImporter
 {
     public static RoomPlmPopulationDefinition Read(ISnesAddressSpace source, ushort pointer)
     {

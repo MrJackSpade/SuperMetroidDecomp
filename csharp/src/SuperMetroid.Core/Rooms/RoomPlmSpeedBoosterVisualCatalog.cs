@@ -32,12 +32,6 @@ public sealed class RoomPlmSpeedBoosterVisualCatalog
         visualWord = blocks[0];
     }
 
-    public static RoomPlmSpeedBoosterVisualCatalog Stock() => new(
-        [new RoomPlmSpeedBoosterVisualEntry(
-            SpeedBoosterBlockPlmDrawDefinitions.BombRevealVisualId,
-            [new RoomLevelWord(SpeedBoosterBlockPlmDrawDefinitions.BombReveal
-                .Runs.Span[0].LevelWords.Span[0]).VisualWord])]);
-
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {
         if (drawPointer != SpeedBoosterBlockPlmDrawDefinitions.BombReveal.Pointer ||

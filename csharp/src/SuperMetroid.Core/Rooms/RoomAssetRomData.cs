@@ -11,9 +11,6 @@ namespace SuperMetroid.Core.Rooms;
 /// </remarks>
 public static class RoomAssetRomData
 {
-    /// <summary>One compressed stream together with its exact stored extent in the ROM.</summary>
-    public readonly record struct BoundedCompressedAsset(int Address, int StoredByteCount);
-
     /// <summary>One fixed WRAM fill followed by a DMA to a VRAM word destination.</summary>
     public readonly record struct TilemapTransfer(
         int WorkRamSourceAddress,
@@ -77,39 +74,6 @@ public static class RoomAssetRomData
 
         /// <summary>Palette bytes copied by <c>LoadCRETilesTilesetTilesAndPalette</c>.</summary>
         public const int BackgroundPaletteByteCount = 0x0100;
-    }
-
-    /// <summary>Known bounded streams and room geometry for room <c>$8F:91F8</c>.</summary>
-    public static class LandingSite
-    {
-        /// <summary><c>TileTable_CRE</c> and its exact compressed extent.</summary>
-        public static readonly BoundedCompressedAsset CreBlockDefinitions =
-            new(0xb9a09d, 0x0597);
-
-        /// <summary>Upper-Crateria block definitions and their exact compressed extent.</summary>
-        public static readonly BoundedCompressedAsset AreaBlockDefinitions =
-            new(0xc1b6f6, 0x07f8);
-
-        /// <summary>Landing Site BG1/BTS/BG2 stream and its exact compressed extent.</summary>
-        public static readonly BoundedCompressedAsset LevelData =
-            new(0xc2c2bb, 0x142d);
-
-        /// <summary><c>Tiles_CRE</c> and its exact compressed extent.</summary>
-        public static readonly BoundedCompressedAsset CreCharacters =
-            new(0xb98000, 0x209d);
-
-        /// <summary>Upper-Crateria characters and their exact compressed extent.</summary>
-        public static readonly BoundedCompressedAsset AreaCharacters =
-            new(0xbac629, 0x32e8);
-
-        /// <summary>Horizontal screen count declared by room header <c>$8F:91F8</c>.</summary>
-        public const int WidthInScreens = 9;
-
-        /// <summary>Vertical screen count declared by room header <c>$8F:91F8</c>.</summary>
-        public const int HeightInScreens = 5;
-
-        /// <summary>Number of 16x16 blocks along either axis of one room screen.</summary>
-        public const int BlocksPerScreenAxis = 16;
     }
 
     /// <summary>Bank-$82 library-background command memory and transfer definitions.</summary>

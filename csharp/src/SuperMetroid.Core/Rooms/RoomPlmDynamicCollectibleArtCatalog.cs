@@ -15,8 +15,6 @@ public sealed class RoomPlmDynamicCollectibleArtCatalog
 {
     private readonly Dictionary<InWorldCollectibleKind, RoomPlmDynamicCollectibleGraphic>? customGraphics;
 
-    private RoomPlmDynamicCollectibleArtCatalog() { }
-
     public RoomPlmDynamicCollectibleArtCatalog(
         IEnumerable<RoomPlmDynamicCollectibleArtEntry> entries)
     {
@@ -65,9 +63,6 @@ public sealed class RoomPlmDynamicCollectibleArtCatalog
                 content.Append("palette selectors", graphic.PaletteOffsets.Span);
             }
         });
-
-    /// <summary>Resolve stock directly; retain only customized item artwork.</summary>
-    public static RoomPlmDynamicCollectibleArtCatalog Stock() => new();
 
     internal RoomPlmDynamicCollectibleGraphic Resolve(InWorldCollectibleKind kind)
     {

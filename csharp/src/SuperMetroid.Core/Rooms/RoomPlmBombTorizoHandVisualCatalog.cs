@@ -31,8 +31,6 @@ public sealed class RoomPlmBombTorizoHandVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
-    private RoomPlmBombTorizoHandVisualCatalog() { }
-
     public RoomPlmBombTorizoHandVisualCatalog(
         IEnumerable<RoomPlmBombTorizoHandVisualEntry> entries)
     {
@@ -65,9 +63,6 @@ public sealed class RoomPlmBombTorizoHandVisualCatalog
                 "Bomb Torizo hand visuals do not cover all compiled frames.");
         if (selected.Count != 0) customBlocks = selected;
     }
-
-    /// <summary>Calculate original appearances directly; store only customized frames.</summary>
-    public static RoomPlmBombTorizoHandVisualCatalog Stock() => new();
 
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {

@@ -97,14 +97,6 @@ public readonly record struct RoomLevelWord(ushort Raw)
         return new RoomLevelWord(unchecked((ushort)((Raw & ~VisualBlockIndexMask) | visualBlockIndex)));
     }
 
-    /// <summary>Replaces only the parent-block visual transforms.</summary>
-    public RoomLevelWord WithVisualFlipFlags(LevelBlockFlipFlags visualFlipFlags)
-    {
-        ValidateVisualFlipFlags(visualFlipFlags);
-        return new RoomLevelWord(unchecked((ushort)(
-            (Raw & ~VisualFlipMask) | (ushort)visualFlipFlags)));
-    }
-
     /// <summary>Replaces both presentation fields while preserving the physical collision nibble.</summary>
     public RoomLevelWord WithVisualWord(ushort visualWord)
     {

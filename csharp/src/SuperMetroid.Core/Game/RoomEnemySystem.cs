@@ -96,18 +96,9 @@ public sealed partial class RoomEnemySystem
     /// <summary>All 32 physical enemy slots, including unused zero-pointer slots.</summary>
     public IReadOnlyList<RoomEnemySlot> Slots => _slots;
 
-    /// <summary>Native $40-byte slot offsets selected by the most recent activity scan.</summary>
-    public IReadOnlyList<ushort> ActiveEnemyIndexes => _activeEnemyIndexes;
-
-    /// <summary>Native slot offsets admitted to solid-enemy interaction.</summary>
-    public IReadOnlyList<ushort> InteractiveEnemyIndexes => _interactiveEnemyIndexes;
-
     /// <summary>Collision words read from the current slots after their AI has run.</summary>
     public IReadOnlyList<SolidEnemyCollisionBody> InteractiveCollisionBodies =>
         _interactiveCollisionBodies;
-
-    /// <summary>The room's terminated bank-$B4 graphics-set records.</summary>
-    public IReadOnlyList<RoomEnemyGraphicsSetEntry> GraphicsSet => _graphicsSet;
 
     /// <summary>
     /// Installed enemy presentation. Drawing or a named artwork transfer requires its

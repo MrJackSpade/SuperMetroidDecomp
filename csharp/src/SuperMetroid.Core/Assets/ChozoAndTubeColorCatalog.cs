@@ -70,8 +70,6 @@ public sealed class ChozoAndTubeColorCatalog
         int blue = 29 - 4 * step;
         return (ushort)(red | green << 5 | blue << 10);
     }
-    public ushort ResolveWreckedShip(int color) => ResolveStatue(ChozoStatuePalette.WreckedShip, color);
-    public ushort ResolveLowerNorfair(int color) => ResolveStatue(ChozoStatuePalette.LowerNorfair, color);
 
     private ushort ResolveStatue(ChozoStatuePalette palette, int color)
     {

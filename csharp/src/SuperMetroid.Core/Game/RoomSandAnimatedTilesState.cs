@@ -11,9 +11,6 @@ public sealed class RoomSandAnimatedTilesState
 {
     private readonly List<RoomFxAnimatedTilesState> objects = [];
 
-    /// <summary>Number of sand objects selected by the current room/door FX bitset.</summary>
-    public int Count => objects.Count;
-
     /// <summary>Clears the previous room and spawns selected ceiling/falling-sand definitions in native order.</summary>
     public void LoadRoom(ISnesAddressSpace bus, ushort fxPointer, ushort doorPointer, AreaId area)
     {

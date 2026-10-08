@@ -193,10 +193,6 @@ public sealed partial class RoomEnemySystem
     private Func<bool>? _isAreaTorizoDefeated;
     private Action? _setAreaTorizoDefeated;
 
-    /// <summary>Bomb Torizo's state while definition $EEFF owns slot zero.</summary>
-    public TorizoEnemyState? BombTorizo =>
-        _torizoState is { IsGolden: false } ? _torizoState : null;
-
     /// <summary>Golden Torizo's state while definition $EF7F owns slot zero.</summary>
     public TorizoEnemyState? GoldenTorizo =>
         _torizoState is { IsGolden: true } ? _torizoState : null;
@@ -206,10 +202,6 @@ public sealed partial class RoomEnemySystem
 
     /// <summary>Last delayed music request emitted by awakening/death bytecode.</summary>
     public BombTorizoMusicRequest? LastBombTorizoMusicRequest { get; private set; }
-
-    /// <summary>Pickup requests emitted by shot Chozo orbs during this room load.</summary>
-    public IReadOnlyList<TorizoOrbDropRequest> TorizoOrbDropRequests =>
-        _torizoOrbDropRequests;
 
     private void ResetBombTorizoRoomState()
     {

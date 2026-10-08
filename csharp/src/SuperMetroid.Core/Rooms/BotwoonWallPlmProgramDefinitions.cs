@@ -69,23 +69,4 @@ internal static class BotwoonWallPlmProgramDefinitions
         };
         return address is Crumble + 2 or Crumble + 7;
     }
-
-    internal static IEnumerable<ushort> NativeWordAddresses()
-    {
-        yield return Crumble;
-        yield return checked((ushort)(Crumble + 3));
-        yield return checked((ushort)(Crumble + 5));
-        for (int frame = 0; frame < 4; frame++)
-        {
-            yield return checked((ushort)(Crumble + 8 + frame * 4));
-            yield return checked((ushort)(Crumble + 10 + frame * 4));
-        }
-        yield return checked((ushort)(Crumble + 24));
-        yield return checked((ushort)(Crumble + 26));
-        yield return checked((ushort)(Crumble + 28));
-        yield return checked((ushort)(Crumble + 30));
-        yield return Clear;
-        yield return checked((ushort)(Clear + 2));
-        yield return checked((ushort)(Clear + 4));
-    }
 }

@@ -31,8 +31,6 @@ public sealed class RoomPlmStationVisualCatalog
 
     private readonly Dictionary<ushort, ushort[][]>? customWords;
 
-    private RoomPlmStationVisualCatalog() { }
-
     public RoomPlmStationVisualCatalog(
         IEnumerable<RoomPlmStationVisualEntry> entries)
     {
@@ -72,9 +70,6 @@ public sealed class RoomPlmStationVisualCatalog
                 "Station visuals do not cover all compiled frames.");
         if (selected.Count != 0) customWords = selected;
     }
-
-    /// <summary>Calculate stock appearances directly; retain only customized frames.</summary>
-    public static RoomPlmStationVisualCatalog Stock() => new();
 
     public ushort GetWord(ushort drawPointer, int runIndex, int wordIndex)
     {

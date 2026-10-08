@@ -20,34 +20,6 @@ public sealed class SnesCgram
     /// <summary>Read-only native palette words for watches and verification.</summary>
     public ReadOnlySpan<ushort> Colors => _colors;
 
-    /// <summary>
-    /// Transfers colors from mutable CPU memory. Immutable cartridge palettes must
-    /// instead be loaded from an installed asset catalog.
-    /// </summary>
-    public void LoadFromMutableMemory(ISnesMutableMemory memory, SnesAddress sourceAddress,
-        int colorCount = ColorCount, int destinationIndex = 0)
-    {
-        ArgumentNullException.ThrowIfNull(memory);
-        if (colorCount < 0 || destinationIndex < 0 || destinationIndex + colorCount > ColorCount)
-            throw new ArgumentOutOfRangeException(nameof(colorCount), "CGRAM load must remain within 256 colors.");
-
-        byte ReadSource(SnesAddress address) => SnesDmaSourceMap.Classify(address) switch
-        {
-            SnesDmaSourceKind.WorkRam => memory.ReadWorkRamByte((int)address),
-            SnesDmaSourceKind.SaveRam => memory.ReadSaveRamByte((int)address),
-            _ => throw new InvalidOperationException(
-                $"CGRAM mutable-memory source {address} is neither WRAM nor SRAM."),
-        };
-
-        for (int color = 0; color < colorCount; color++)
-        {
-            SnesAddress lowAddress = sourceAddress.AddWithinBank(color * 2);
-            SnesAddress highAddress = sourceAddress.AddWithinBank(color * 2 + 1);
-            _colors[destinationIndex + color] = (ushort)(
-                ReadSource(lowAddress) | (ReadSource(highAddress) << 8));
-        }
-    }
-
     /// <summary>Loads consecutive little-endian palette bytes already decoded in host memory.</summary>
     public void LoadBytes(ReadOnlySpan<byte> bytes, int destinationIndex = 0)
     {
@@ -83,7 +55,4 @@ public sealed class SnesCgram
 
         return SnesGraphics.DecodeBgr555Color(_colors[index]);
     }
-
-    /// <summary>Clears all 256 colors to black.</summary>
-    public void Clear() => Array.Clear(_colors);
 }

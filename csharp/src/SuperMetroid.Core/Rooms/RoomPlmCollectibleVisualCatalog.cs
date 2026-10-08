@@ -26,8 +26,6 @@ public sealed class RoomPlmCollectibleVisualCatalog
 
     private readonly Dictionary<ushort, ushort>? customWords;
 
-    private RoomPlmCollectibleVisualCatalog() { }
-
     public RoomPlmCollectibleVisualCatalog(
         IEnumerable<RoomPlmCollectibleVisualEntry> entries)
     {
@@ -50,9 +48,6 @@ public sealed class RoomPlmCollectibleVisualCatalog
             throw new InvalidDataException("Collectible visuals do not cover all compiled frames.");
         if (selected.Count != 0) customWords = selected;
     }
-
-    /// <summary>Calculate stock appearances directly; retain only customized frames.</summary>
-    public static RoomPlmCollectibleVisualCatalog Stock() => new();
 
     public ushort GetWord(ushort pointer)
     {

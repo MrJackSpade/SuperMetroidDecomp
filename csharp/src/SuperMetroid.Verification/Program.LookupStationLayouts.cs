@@ -65,8 +65,7 @@ internal static partial class Program
                 AssertEqual(1, plms.LoadRoomPopulation(bus, level, level.CreateBackgroundStreamer(),
                     new SnesVram(), SuperMetroid.AssetExtraction.RoomPlmPopulationImporter.Read(bus, 0x9400),
                     new Bank80SystemState(), AreaId.Crateria, () => null, () => false), "Elevator platform fixture spawn");
-                plms.SetSoleInstructionPointerForVerification(0xf100, [1, pointer]);
-                plms.Step(bus, level, level.CreateBackgroundStreamer(), 0, 0, 0);
+                plms.DrawSolePlmFrameForVerification(bus, level, level.CreateBackgroundStreamer(), pointer);
             }
             int drawX = 8, drawY = 8;
             int cursor = 0x840000 | pointer;

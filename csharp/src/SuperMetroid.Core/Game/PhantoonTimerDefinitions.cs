@@ -51,7 +51,6 @@ public static class PhantoonTimerDefinitions
             _ => throw new InvalidOperationException(),
         };
         public int Count => Choices.Length;
-        public int Length => Count;
         public ushort this[int index]
         {
             get

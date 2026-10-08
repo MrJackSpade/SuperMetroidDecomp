@@ -11,7 +11,6 @@ namespace SuperMetroid.EnsureAnalyzer;
 public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
 {
     public const string GuardId = "SME6201";
-    public const string EnumCallId = "SME6202";
 
     private static readonly DiagnosticDescriptor GuardRule = new(
         GuardId,
@@ -22,17 +21,7 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
         isEnabledByDefault: true,
         description: "Keep generic argument validation in the shared Ensure API.");
 
-    private static readonly DiagnosticDescriptor EnumCallRule = new(
-        EnumCallId,
-        "Let Ensure capture the enum expression",
-        "Call Ensure.IsDefined without a redundant cast or manually supplied parameter name",
-        "Usage",
-        DiagnosticSeverity.Warning,
-        isEnabledByDefault: true,
-        description: "Ensure.IsDefined captures the complete caller expression and returns the original enum type.");
-
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        [GuardRule, EnumCallRule];
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [GuardRule];
 
     public override void Initialize(AnalysisContext context)
     {
@@ -47,7 +36,6 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
             start.RegisterSyntaxNodeAction(AnalyzeInvocation, SyntaxKind.InvocationExpression);
             start.RegisterSyntaxNodeAction(AnalyzeIf, SyntaxKind.IfStatement);
             start.RegisterSyntaxNodeAction(AnalyzeCoalesce, SyntaxKind.CoalesceExpression);
-            start.RegisterSyntaxNodeAction(AnalyzeConditional, SyntaxKind.ConditionalExpression);
         });
     }
 
@@ -63,43 +51,12 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
         string? operation = owner switch
         {
             "System.ArgumentNullException" when method.Name == "ThrowIfNull" => "NotNull",
-            "System.ArgumentException" when method.Name == "ThrowIfNullOrEmpty" => "NotNullOrEmpty",
-            "System.ArgumentException" when method.Name == "ThrowIfNullOrWhiteSpace" => "NotNullOrWhiteSpace",
-            "System.ArgumentOutOfRangeException" => method.Name switch
-            {
-                "ThrowIfNegativeOrZero" => "GreaterThanZero",
-                "ThrowIfNegative" => "AtLeastZero",
-                "ThrowIfLessThanOrEqual" => "GreaterThan",
-                "ThrowIfLessThan" => "AtLeast",
-                "ThrowIfGreaterThan" => "AtMost",
-                "ThrowIfGreaterThanOrEqual" => "LessThan",
-                "ThrowIfEqual" => "NotEqual",
-                "ThrowIfNotEqual" => "Equal",
-                _ => null
-            },
+            "System.ArgumentOutOfRangeException" when method.Name == "ThrowIfNegative" => "AtLeastZero",
             _ => null
         };
         if (operation is not null)
             Report(context, invocation.GetLocation(), operation);
-
-        if (owner != "SuperMetroid.Core.Ensure" || method.Name != "IsDefined")
-            return;
-        if (invocation.ArgumentList.Arguments.Count > 1)
-        {
-            context.ReportDiagnostic(Diagnostic.Create(
-                EnumCallRule, invocation.ArgumentList.Arguments[1].GetLocation()));
-            return;
-        }
-        ExpressionSyntax argument = invocation.ArgumentList.Arguments[0].Expression;
-        if (argument is CastExpressionSyntax cast &&
-            SymbolEqualityComparer.Default.Equals(
-                context.SemanticModel.GetTypeInfo(cast).Type,
-                context.SemanticModel.GetTypeInfo(cast.Expression).Type))
-        {
-            context.ReportDiagnostic(Diagnostic.Create(EnumCallRule, cast.GetLocation()));
-        }
     }
-
     private static void AnalyzeIf(SyntaxNodeAnalysisContext context)
     {
         if (InsideEnsure(context))
@@ -109,19 +66,12 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
                 out string exceptionType, out ArgumentListSyntax arguments))
             return;
 
-        if (TryUndefinedEnumGuard(statement.Condition, context.SemanticModel, out ExpressionSyntax enumValue))
-        {
-            if (exceptionType == "System.ArgumentOutOfRangeException")
-                Report(context, statement.Condition.GetLocation(), "IsDefined");
-            return;
-        }
-
         if (!HasParameterName(arguments, exceptionType))
             return;
 
         string? operation = GuardOperation(statement.Condition, context.SemanticModel, out ExpressionSyntax? value);
         if (operation is null || value is null ||
-            (exceptionType == "System.ArgumentException" && operation is not ("LengthEqual" or "CountEqual")) ||
+            (exceptionType == "System.ArgumentException" && operation != "LengthEqual") ||
             !IsApiArgument(value, context) ||
             !ParameterNameMatches(arguments, value, exceptionType))
             return;
@@ -143,20 +93,6 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
         Report(context, expression.GetLocation(), "NotNull");
     }
 
-    private static void AnalyzeConditional(SyntaxNodeAnalysisContext context)
-    {
-        if (InsideEnsure(context))
-            return;
-        var conditional = (ConditionalExpressionSyntax)context.Node;
-        if (conditional.WhenFalse is not ThrowExpressionSyntax thrown ||
-            thrown.Expression is not ObjectCreationExpressionSyntax creation ||
-            context.SemanticModel.GetTypeInfo(creation).Type?.ToDisplayString() != "System.ArgumentOutOfRangeException" ||
-            !TryEnumInvocation(conditional.Condition, context.SemanticModel, out ExpressionSyntax value) ||
-            conditional.WhenTrue.ToString() != value.ToString())
-            return;
-        Report(context, conditional.GetLocation(), "IsDefined");
-    }
-
     private static string? GuardOperation(
         ExpressionSyntax condition,
         SemanticModel model,
@@ -165,17 +101,6 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
         value = null;
         if (condition is ParenthesizedExpressionSyntax parenthesized)
             return GuardOperation(parenthesized.Expression, model, out value);
-
-        if (condition is IsPatternExpressionSyntax pattern &&
-            pattern.Pattern is UnaryPatternSyntax unary && unary.IsKind(SyntaxKind.NotPattern) &&
-            unary.Pattern is ParenthesizedPatternSyntax { Pattern: BinaryPatternSyntax binaryPattern } &&
-            binaryPattern.IsKind(SyntaxKind.OrPattern) &&
-            binaryPattern.Left is ConstantPatternSyntax &&
-            binaryPattern.Right is ConstantPatternSyntax)
-        {
-            value = pattern.Expression;
-            return "OneOf";
-        }
 
         if (condition is IsPatternExpressionSyntax nullPattern &&
             nullPattern.Pattern is ConstantPatternSyntax { Expression: LiteralExpressionSyntax literal } &&
@@ -206,38 +131,19 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
                 return binary.IsKind(SyntaxKind.EqualsExpression) ? "NotNull" : null;
             }
             if (binary.IsKind(SyntaxKind.NotEqualsExpression) &&
-                binary.Left is MemberAccessExpressionSyntax member &&
-                member.Name.Identifier.ValueText is "Length" or "Count")
+                binary.Left is MemberAccessExpressionSyntax { Name.Identifier.ValueText: "Length" } member)
             {
                 value = member.Expression;
-                return member.Name.Identifier.ValueText == "Length" ? "LengthEqual" : "CountEqual";
+                return "LengthEqual";
             }
-            value = binary.Left;
-            return binary.IsKind(SyntaxKind.NotEqualsExpression) ? "Equal" : "NotEqual";
+            return null;
         }
 
-        if (!IsNumeric(model.GetTypeInfo(binary.Left).Type))
+        if (!IsNumeric(model.GetTypeInfo(binary.Left).Type) || !IsZero(binary.Right) ||
+            !binary.IsKind(SyntaxKind.LessThanExpression))
             return null;
         value = binary.Left;
-        if (IsZero(binary.Right))
-        {
-            return binary.Kind() switch
-            {
-                SyntaxKind.LessThanOrEqualExpression => "GreaterThanZero",
-                SyntaxKind.LessThanExpression => "AtLeastZero",
-                SyntaxKind.GreaterThanOrEqualExpression => "LessThanZero",
-                SyntaxKind.GreaterThanExpression => "AtMostZero",
-                _ => null
-            };
-        }
-        return binary.Kind() switch
-        {
-            SyntaxKind.LessThanExpression => "AtLeast",
-            SyntaxKind.LessThanOrEqualExpression => "GreaterThan",
-            SyntaxKind.GreaterThanExpression => "AtMost",
-            SyntaxKind.GreaterThanOrEqualExpression => "LessThan",
-            _ => null
-        };
+        return "AtLeastZero";
     }
 
     private static bool TryOutsideInclusiveRange(
@@ -252,41 +158,6 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
             low.Left.ToString() != high.Left.ToString())
             return false;
         value = low.Left;
-        return true;
-    }
-
-    private static bool TryUndefinedEnumGuard(
-        ExpressionSyntax condition, SemanticModel model, out ExpressionSyntax value)
-    {
-        value = null!;
-        if (condition is not PrefixUnaryExpressionSyntax negated ||
-            !negated.IsKind(SyntaxKind.LogicalNotExpression))
-            return false;
-        return TryEnumInvocation(negated.Operand, model, out value);
-    }
-
-    private static bool TryEnumInvocation(
-        ExpressionSyntax expression, SemanticModel model, out ExpressionSyntax value)
-    {
-        value = null!;
-        if (expression is not InvocationExpressionSyntax invocation ||
-            model.GetSymbolInfo(invocation).Symbol is not IMethodSymbol method ||
-            method.ContainingType.ToDisplayString() != "System.Enum" ||
-            method.Name != "IsDefined")
-            return false;
-        var args = invocation.ArgumentList.Arguments;
-        if (args.Count is not (1 or 2))
-            return false;
-        value = args[args.Count - 1].Expression;
-        if (model.GetTypeInfo(value).Type is not INamedTypeSymbol enumType ||
-            enumType.TypeKind != TypeKind.Enum ||
-            enumType.GetAttributes().Any(a => a.AttributeClass?.ToDisplayString() == "System.FlagsAttribute"))
-            return false;
-        if (args.Count == 2 && args[0].Expression is not TypeOfExpressionSyntax typeOf)
-            return false;
-        if (args.Count == 2 &&
-            !SymbolEqualityComparer.Default.Equals(model.GetTypeInfo(((TypeOfExpressionSyntax)args[0].Expression).Type).Type, enumType))
-            return false;
         return true;
     }
 

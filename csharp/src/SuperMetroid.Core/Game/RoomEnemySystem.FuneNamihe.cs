@@ -88,9 +88,6 @@ public sealed partial class RoomEnemySystem
     private readonly FuneNamiheEnemyState?[] _funeNamiheStates =
         new FuneNamiheEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed state for all physical slots occupied by Fune or Namihe.</summary>
-    public IReadOnlyList<FuneNamiheEnemyState?> FuneNamiheStates => _funeNamiheStates;
-
     /// <summary>
     /// Most recent library-two spit sound requested by opcode $A8:9625. Audio mixing is an
     /// outer frontend concern, so the actor publishes the exact sound number for that seam.

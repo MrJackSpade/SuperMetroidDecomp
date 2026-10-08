@@ -404,24 +404,6 @@ static void SeedMotherBrainCrouchFastProgram(TestAddressSpace bus)
     WriteTestWords(bus, 0xa99a26, words);
 }
 
-/// <summary>Checks both edges and relative tile-step movement of the temporary host camera.</summary>
-static void VerifyDebugRoomCamera()
-{
-    var camera = new DebugRoomCamera(roomWidth: 1024, roomHeight: 512, viewportWidth: 256, viewportHeight: 192);
-    camera.MoveTo(-50, -20);
-    AssertEqual(0, camera.X, "debug camera clamps negative X");
-    AssertEqual(0, camera.Y, "debug camera clamps negative Y");
-
-    camera.MoveTo(5000, 5000);
-    AssertEqual(768, camera.X, "debug camera clamps right edge");
-    AssertEqual(320, camera.Y, "debug camera clamps bottom edge");
-
-    camera.MoveBy(-16, -16);
-    AssertEqual(752, camera.X, "debug camera relative block X");
-    AssertEqual(304, camera.Y, "debug camera relative block Y");
-    Console.WriteLine("  Camera: host viewport movement and room-edge clamps agree.");
-}
-
 /// <summary>
 /// Exercises the exact 50-byte room loader plus all four directional bank-$80 handlers at
 /// internal red boundaries and physical room edges.

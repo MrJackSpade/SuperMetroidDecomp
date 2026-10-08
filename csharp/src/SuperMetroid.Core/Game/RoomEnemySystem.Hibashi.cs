@@ -63,9 +63,6 @@ public sealed partial class RoomEnemySystem
     private readonly HibashiEnemyState?[] _hibashiStates =
         new HibashiEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed state for both graphics and hitbox records in all physical slots.</summary>
-    public IReadOnlyList<HibashiEnemyState?> HibashiStates => _hibashiStates;
-
     /// <summary>Ports <c>InitAI_Hibashi</c> at <c>$A6:8FFC</c>.</summary>
     private void InitializeHibashi(RoomEnemySlot slot)
     {

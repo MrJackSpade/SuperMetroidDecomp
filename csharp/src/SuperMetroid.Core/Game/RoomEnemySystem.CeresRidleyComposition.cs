@@ -640,10 +640,6 @@ public sealed partial class RoomEnemySystem
             originYIsOnScreen: screenY < 0x0100);
     }
 
-    /// <summary>Standalone contact probe; runtime dispatches body before AI and tail during tail update.</summary>
-    public bool ResolveRidleySamusContact(SamusState samus, ushort controllerInput) =>
-        ResolveRidleyBodySamusContact(samus, controllerInput) || ResolveRidleyTailSamusContact(samus);
-
     private bool ResolveRidleyBodySamusContact(SamusState samus, ushort controllerInput)
     {
         ArgumentNullException.ThrowIfNull(samus);
@@ -720,15 +716,6 @@ public sealed partial class RoomEnemySystem
         ApplyNormalEnemyTouchDamage(samus, 0, state.TailDamage, tip.XPosition);
         return true;
     }
-
-    /// <summary>
-    /// Compatibility entry point retained for the focused Ceres debugger. New runtime code
-    /// calls <see cref="ResolveRidleySamusContact"/> so the shared cartridge routine also
-    /// covers the real boss without a second bespoke geometry implementation.
-    /// </summary>
-    public bool ResolveCeresRidleySamusContact(SamusState samus, ushort controllerInput) =>
-        _slots[0].EnemyDefinitionPointer == CeresRidleyDefinition &&
-        ResolveRidleySamusContact(samus, controllerInput);
 
     /// <summary>
     /// Shared port of the rectangle walk used by $A0:9A5A (Samus contact) and $A0:9B7F

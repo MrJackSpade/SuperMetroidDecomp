@@ -202,21 +202,6 @@ public sealed class DraygonEnemyState
     /// </summary>
     internal HashSet<ushort> DisabledCannonWords { get; } = [];
 
-    /// <summary>Whether a named Draygon cannon-control word currently contains one.</summary>
-    public bool IsCannonDisabled(ushort controlWord)
-    {
-        if (!DraygonCannonData.IsControlWord(controlWord))
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(controlWord), controlWord, "Not a Draygon cannon-control word.");
-        }
-        return DisabledCannonWords.Contains(controlWord);
-    }
-
-    /// <summary>Compatibility projection of the body initializer's unused-bottom write.</summary>
-    public bool BottomUnusedTurretDisabled =>
-        IsCannonDisabled(DraygonCannonData.UnusedBottomDisabledWord);
-
     public DraygonAiFunction Function
     {
         get => (DraygonAiFunction)Body.VariableA;

@@ -41,9 +41,6 @@ public sealed class HyperBeamPaletteFxState
     /// <summary>Number of completed ten-frame loops, useful in debugger watches.</summary>
     public ushort CompletedCycles { get; private set; }
 
-    /// <summary>Current bank-$8D instruction pointer, exposed for exact-step debugging.</summary>
-    public ushort InstructionPointer => _instructionPointer;
-
     /// <summary>
     /// Performs <c>Spawn_PaletteFXObject</c>'s state initialization for object
     /// <c>$8D:E1F0</c>. No colors are copied until the global handler runs.

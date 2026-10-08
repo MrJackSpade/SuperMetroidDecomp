@@ -53,7 +53,7 @@ internal static partial class SwapchainTests
             worker.Publish(new(new(1001,2,0), new Rgba32(91,27,173)));
             PumpUntil(() => { worker.ThrowIfFaulted(); return worker.DeviceRecoveries == 2 && worker.LastConsumedSequence == 1001; });
             if (worker.LastDeviceLoss?.FailureHResult != D3D11RecoveryPolicy.DeviceReset ||
-                worker.LastDeviceLoss.Frame?.Generation != 2)
+                worker.LastDeviceLoss!.Frame?.Generation != 2)
                 throw new InvalidOperationException("Reset diagnostic retained obsolete frame/failure context.");
             var metrics = worker.MailboxMetrics;
             var timings = worker.CaptureTimings();
@@ -116,13 +116,13 @@ internal static partial class SwapchainTests
             var packet = new RenderFrameSnapshot(new(1, 1, 0), new Rgba32(173,91,27));
             renderer.Render(packet);
             _ = presenter.TryAcquireFrameOpportunity();
-            var outcome = presenter.Present(renderer, packet.Identity, gate);
+            var outcome = presenter.Present(renderer, packet.Identity, gate, null);
             if (outcome == D3D11PresentationResult.StaleGeneration) throw new InvalidOperationException("Current frame was rejected.");
             gate.AdvanceGeneration(2);
-            if (presenter.Present(renderer, packet.Identity, gate) != D3D11PresentationResult.StaleGeneration)
+            if (presenter.Present(renderer, packet.Identity, gate, null) != D3D11PresentationResult.StaleGeneration)
                 throw new InvalidOperationException("Swapchain presented stale generation.");
             bool mismatch = false;
-            try { presenter.Present(renderer, new(2,2,0), gate); }
+            try { presenter.Present(renderer, new(2,2,0), gate, null); }
             catch (InvalidOperationException) { mismatch = true; }
             if (!mismatch) throw new InvalidOperationException("Swapchain accepted mismatched GPU frame identity.");
             foreach (var size in new[] { (319,601), (1,1), (800,600) })
@@ -130,7 +130,7 @@ internal static partial class SwapchainTests
                 presenter.Resize(size.Item1, size.Item2);
                 packet = new(new(packet.Identity.Sequence + 1, 2, 0), new Rgba32(27,91,173));
                 renderer.Render(packet);
-                outcome = presenter.Present(renderer, packet.Identity, gate);
+                outcome = presenter.Present(renderer, packet.Identity, gate, null);
                 if (outcome == D3D11PresentationResult.StaleGeneration) throw new InvalidOperationException("Resized frame was rejected.");
             }
             Console.WriteLine($"{device.Kind}: hidden flip swapchain creation, readiness, resize and generation checks passed; last status {outcome}.");

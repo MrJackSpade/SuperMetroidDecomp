@@ -113,18 +113,6 @@ public sealed class CreditsPresentation
         output.Write(bytes);
     }
 
-    internal static CreditsPresentation FromCompiledRowsForVerification(
-        params ushort[][] rows)
-    {
-        if (rows.Length == 0 || rows.Any(row =>
-            row.Length != CreditsPresentationDefinitions.TilemapWidth))
-        {
-            throw new ArgumentException(
-                "Verification credits rows must be nonempty 32-word rows.", nameof(rows));
-        }
-        return new(null, rows.Select(row => row.ToArray()).ToArray(), "VERIFICATION");
-    }
-
     private static void ValidateLine(CreditsLineDefinition definition, CreditsLineDocument line)
     {
         foreach (char character in line.Text)

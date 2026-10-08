@@ -178,8 +178,6 @@ internal static partial class Program
         AssertEqual((ushort)0x00ff,
             level.GetCollisionBlockByIndex(handOrigin).LevelWord,
             "five-run cleared hand removes its physical origin block");
-        AssertTrue(plms.BombTorizoHandWasDeleted,
-            "hand deletion remains debugger-visible");
         AssertEqual(1, plms.MusicRequests.Count,
             "terminal hand pass queues one music command");
         AssertEqual(

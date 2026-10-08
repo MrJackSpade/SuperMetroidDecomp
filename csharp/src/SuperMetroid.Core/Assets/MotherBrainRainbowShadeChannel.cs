@@ -40,7 +40,6 @@ internal sealed class MotherBrainRainbowShadeChannel
     private readonly Func<int, int> sourceGreen;
     private readonly byte[] inputs;
     private readonly bool calculated;
-    internal int IndependentCount => inputs.Length;
 
     internal MotherBrainRainbowShadeChannel(byte[] samples, MotherBrainRainbowShadeProfile profile, Func<int, int> sourceGreen)
     {

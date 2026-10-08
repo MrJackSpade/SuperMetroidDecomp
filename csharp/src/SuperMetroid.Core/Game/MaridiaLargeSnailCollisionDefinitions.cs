@@ -68,7 +68,6 @@ internal static class MaridiaLargeSnailCollisionDefinitions
         ]));
 
     internal static FramePointerSequence FramePointers => default;
-    internal static IEnumerable<ushort> HitboxPointers => Lists.Pointers;
 
     internal static bool HasFrame(ushort frame) =>
         frame >= FirstFrame && frame <= LastFrame &&

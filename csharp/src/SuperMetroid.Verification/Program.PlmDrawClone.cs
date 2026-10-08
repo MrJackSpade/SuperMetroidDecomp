@@ -10,7 +10,8 @@ internal static partial class Program
             var bus = new TestAddressSpace();
             // The explicit probe cursor keeps this constructed opcode stream away
             // from immutable retail PLM programs, including future compiled families.
-            const ushort probePointer = 0xf100;
+            // Constructed probes run from low work RAM, where wrapped `$84` pointers execute.
+            const ushort probePointer = 0x1100;
             var words = new ushort[16 * 16];
             const int block = 3 * 16 + 3;
             words[block] = 0xc321;
@@ -19,8 +20,8 @@ internal static partial class Program
             var streamer = level.CreateBackgroundStreamer();
             var plms = new RoomPlmSystem();
             AssertTrue(plms.TrySpawnBreakableGrappleBlock(level, block, 1), "spawn restore-word PLM");
-            plms.SetSoleInstructionPointerForVerification(probePointer,
-                [instruction, RoomPlmInstructionCodes.Delete]);
+            plms.SetSoleWorkRamProgramForVerification(bus, probePointer,
+                instruction, RoomPlmInstructionCodes.Delete);
             plms.Step(bus, level, streamer, 0, 0, 0);
             AssertEqual(0xc321, level.GetCollisionBlockByIndex(block).LevelWord, "draw opcode restores slot level word");
             AssertEqual(1, plms.TilemapUpdates.Count, "draw opcode publishes visible tilemap update");

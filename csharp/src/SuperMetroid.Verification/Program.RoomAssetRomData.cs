@@ -32,28 +32,6 @@ internal static partial class Program
         }
 
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-        RoomAssetRomData.BoundedCompressedAsset[] boundedAssets =
-        [
-            RoomAssetRomData.LandingSite.CreBlockDefinitions,
-            RoomAssetRomData.LandingSite.AreaBlockDefinitions,
-            RoomAssetRomData.LandingSite.LevelData,
-            RoomAssetRomData.LandingSite.CreCharacters,
-            RoomAssetRomData.LandingSite.AreaCharacters,
-        ];
-        foreach (RoomAssetRomData.BoundedCompressedAsset asset in boundedAssets)
-        {
-            byte[] decompressed = DecompressBoundedRoomAsset(bus, asset);
-            AssertTrue(decompressed.Length > 0,
-                $"bounded room asset ${asset.Address:X6} decompresses to nonempty data");
-        }
-
-        byte[] creBlocks = DecompressBoundedRoomAsset(
-            bus,
-            RoomAssetRomData.LandingSite.CreBlockDefinitions);
-        AssertEqual(
-            RoomAssetRomData.GraphicsLayout.CreBlockDefinitionsByteCount,
-            creBlocks.Length,
-            "retail CRE block-definition byte count");
 
         ushort[] roomPointers = File.ReadLines(symbolPath)
             .Select(TryParseRoomHeaderPointer)
@@ -155,8 +133,7 @@ internal static partial class Program
         }
 
         Console.WriteLine(
-            $"  Room assets: {boundedAssets.Length} bounded streams and " +
-            $"{graphicsSets.Count} retail graphics sets validated; all " +
+            $"  Room assets: {graphicsSets.Count} retail graphics sets validated; all " +
             $"{RoomTilesetDefinitions.Count} definitions compiled with live table reads blocked.");
     }
 
@@ -349,23 +326,6 @@ internal static partial class Program
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
-
-    private static byte[] DecompressBoundedRoomAsset(
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
-        RoomAssetRomData.BoundedCompressedAsset asset)
-    {
-        AssertTrue(asset.Address >= 0x808000 && asset.Address <= 0xffffff,
-            $"room asset ${asset.Address:X6} begins in mapped cartridge space");
-        AssertTrue(asset.StoredByteCount > 0,
-            $"room asset ${asset.Address:X6} has a positive stored extent");
-        AssertTrue(asset.Address + asset.StoredByteCount - 1 <= 0xffffff,
-            $"room asset ${asset.Address:X6} ends in 24-bit cartridge space");
-
-        var stored = new byte[asset.StoredByteCount];
-        for (int index = 0; index < stored.Length; index++)
-            stored[index] = bus.ReadByte(asset.Address + index);
-        return SmCompression.Decompress(stored);
     }
 
     private static void ValidateTilemapTransfer(

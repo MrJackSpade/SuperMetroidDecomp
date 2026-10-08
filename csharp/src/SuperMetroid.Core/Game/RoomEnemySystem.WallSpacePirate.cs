@@ -120,9 +120,6 @@ public sealed partial class RoomEnemySystem
     private readonly WallSpacePirateEnemyState?[] _wallSpacePirateStates =
         new WallSpacePirateEnemyState?[MaximumEnemyCount];
 
-    public IReadOnlyList<WallSpacePirateEnemyState?> WallSpacePirateStates =>
-        _wallSpacePirateStates;
-
     internal static bool IsWallSpacePirateDefinition(ushort definition) => definition is
         GreyWallSpacePirateDefinition or
         GreenWallSpacePirateDefinition or

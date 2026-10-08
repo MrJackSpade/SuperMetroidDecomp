@@ -274,10 +274,6 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     public ushort? LastEnemyProjectileDudSoundEffect { get; private set; }
 
-    /// <summary>Number of live actors in the shared bank-$86 enemy-projectile pool.</summary>
-    public int ActiveEnemyProjectileCount =>
-        _enemyProjectiles.Count(projectile => projectile.IsActive);
-
     /// <summary>
     /// Allocates the light or dark Ceres falling-tile actor requested by room main
     /// <c>$8F:E525</c>. The X coordinate and palette variant come directly from the room's
@@ -439,24 +435,6 @@ public sealed partial class RoomEnemySystem
         return hitCount;
     }
 
-    /// <summary>
-    /// Executes the projectile portion of the gameplay frame after enemy instructions have
-    /// had their opportunity to spawn a fireball. This is the same producer/consumer order
-    /// as EnemyMain followed by bank $86's enemy-projectile handler.
-    /// </summary>
-    public void StepEnemyProjectiles(
-        RoomLevelData level,
-        SamusState? samus,
-        ushort controllerInput = 0,
-        ushort cameraX = 0,
-        ushort cameraY = 0,
-        byte? nmiFrameCounter8 = null,
-        SamusBombProjectileSystem? samusBombs = null)
-    {
-        StepEnemyProjectileInstructions(level, samus, cameraX, cameraY, nmiFrameCounter8, samusBombs);
-        ResolveEnemyProjectileSamusHits(samus);
-    }
-
     /// <summary>Advances enemy-projectile actors after Samus movement and before PLMs.</summary>
     public void StepEnemyProjectileInstructions(
         RoomLevelData level,
@@ -547,29 +525,6 @@ public sealed partial class RoomEnemySystem
             samus!.KnockbackXDirection = finalKnockbackXDirection.Value;
             samus.KnockbackTimer = 5;
         }
-    }
-
-    /// <summary>
-    /// Emits both native enemy-projectile priority passes for focused diagnostics which do
-    /// not draw Samus between them. Gameplay must call the two phase-specific methods so
-    /// property bit <c>$1000</c> determines which side of Samus owns each OAM record.
-    /// </summary>
-    public void DrawEnemyProjectiles(OamBuffer oam, ushort cameraX, ushort cameraY, bool timeIsFrozen = false)
-    {
-        ArgumentNullException.ThrowIfNull(oam);
-        EnsureLoaded();
-
-        DrawRoomSpriteObjects(oam, cameraX, cameraY);
-        DrawEnemyProjectilePass(
-            oam,
-            cameraX,
-            cameraY,
-            EnemyProjectileDrawPriority.High, timeIsFrozen);
-        DrawEnemyProjectilePass(
-            oam,
-            cameraX,
-            cameraY,
-            EnemyProjectileDrawPriority.Low, timeIsFrozen);
     }
 
     /// <summary>

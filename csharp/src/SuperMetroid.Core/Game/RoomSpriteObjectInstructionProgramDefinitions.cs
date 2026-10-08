@@ -614,7 +614,4 @@ internal abstract class RoomSpriteObjectInstructionProgramDefinitions : IInstruc
                 $"Room sprite-object instruction mechanics pointer $B4:{address:X4} is not compiled.");
 
     public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
-
-    internal static bool TryGetPresentationWord(int address, out ushort wordAddress) =>
-        Layout.TryGetPresentationWord(address, out wordAddress);
 }

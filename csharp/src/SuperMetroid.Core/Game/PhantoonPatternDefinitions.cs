@@ -25,7 +25,6 @@ public static class PhantoonPatternDefinitions
     public readonly struct RainColumnSequence : IReadOnlyList<byte>
     {
         public int Count => 8;
-        public int Length => Count;
         public byte this[int pattern]
         {
             get

@@ -76,10 +76,4 @@ public static class RoomSetupCodePointers
     public const ushort SpawnCeresHaze = 0xc976;
     /// <summary><c>$8F:C97B SetupASM_SetBG1_2_TilesBaseAddress_SpawnCeresHaze</c>.</summary>
     public const ushort SetCeresRidleyBgCharacterBaseAndSpawnHaze = 0xc97b;
-
-    /// <summary>Whether a translated presentation path consumes Ceres haze from this setup.</summary>
-    public static bool SpawnsCeresHaze(ushort pointer) => pointer is
-        TurnCeresDoorToSolidBlocksAndSpawnHaze or
-        SpawnCeresHaze or
-        SetCeresRidleyBgCharacterBaseAndSpawnHaze;
 }

@@ -116,8 +116,6 @@ public sealed class RoomFxPaletteBlendCatalog
         SelectColors(selection).Apply(cgram);
     }
 
-    public ReadOnlySpan<ushort> Resolve(byte selection) => SelectColors(selection).CreateColors();
-
     private RoomFxBlendColors SelectColors(byte selection) => selection switch
     {
         RoomFxPaletteBlendDefinitions.Lava => lava,
@@ -170,9 +168,6 @@ internal sealed class RoomFxBlendColors
         cgram.SetColor(RoomFxRomData.Layer3.PaletteBlendDestinationIndex + 1, secondary.CreateColor());
         cgram.SetColor(RoomFxRomData.Layer3.PaletteBlendDestinationIndex + 2, thirdOverride?.CreateColor() ?? 0);
     }
-
-    // The generated array is the requested output, never a retained stock-color cache.
-    public ushort[] CreateColors() => [primary.CreateColor(), secondary.CreateColor(), thirdOverride?.CreateColor() ?? 0];
 }
 /// <summary>One of the first two blend colors, separating shared tint rules from edits.</summary>
 internal sealed class RoomFxPairColor

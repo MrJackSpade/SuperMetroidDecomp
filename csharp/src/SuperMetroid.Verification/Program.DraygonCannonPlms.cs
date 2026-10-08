@@ -26,15 +26,6 @@ internal static partial class Program
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var disabledWords = new List<ushort>();
         var plms = new RoomPlmSystem();
-        // These six short programs are authored below, independently of compiled retail control data.
-        foreach ((ushort pointer, int length) in new (ushort, int)[]
-                 { (0xe000, 14), (0xe020, 13), (0xe040, 8),
-                   (0xe100, 14), (0xe120, 13), (0xe140, 8) })
-        {
-            byte[] instructions = Enumerable.Range(0, length)
-                .Select(offset => bus.ReadByte(0x840000 | (pointer + offset))).ToArray();
-            plms.SupplyInstructionFragmentForVerification(pointer, instructions);
-        }
 
         AssertEqual(4, plms.LoadRoomPopulation(
             bus,
@@ -118,24 +109,24 @@ internal static partial class Program
             0x71, 0xdf, 29, 21, 0x08, 0x88,
             0, 0,
         ]);
-        WriteWord(bus, 0x840000 | RoomPlmHeaders.DraygonCannonFacingRight + 2, 0xe000);
-        WriteWord(bus, 0x840000 | RoomPlmHeaders.DraygonCannonFacingRightDestroyed + 2, 0xe040);
-        WriteWord(bus, 0x840000 | RoomPlmHeaders.DraygonCannonFacingLeft + 2, 0xe100);
+        WriteWord(bus, 0x840000 | RoomPlmHeaders.DraygonCannonFacingRight + 2, 0x0400);
+        WriteWord(bus, 0x840000 | RoomPlmHeaders.DraygonCannonFacingRightDestroyed + 2, 0x0440);
+        WriteWord(bus, 0x840000 | RoomPlmHeaders.DraygonCannonFacingLeft + 2, 0x0500);
 
         SeedShieldedCannonList(
             bus,
-            list: 0xe000,
-            hitList: 0xe020,
-            destroyedList: 0xe040,
+            list: 0x0400,
+            hitList: 0x0420,
+            destroyedList: 0x0440,
             damageInstruction: RoomPlmInstructionCodes.DamageDraygonCannonFacingRight,
             idleDraw: 0xf000,
             hitDraw: 0xf010,
             destroyedDraw: 0xf020);
         SeedShieldedCannonList(
             bus,
-            list: 0xe100,
-            hitList: 0xe120,
-            destroyedList: 0xe140,
+            list: 0x0500,
+            hitList: 0x0520,
+            destroyedList: 0x0540,
             damageInstruction: RoomPlmInstructionCodes.DamageDraygonCannonFacingLeft,
             idleDraw: 0xf100,
             hitDraw: 0xf110,

@@ -88,9 +88,6 @@ public sealed partial class RoomEnemySystem
     private readonly EvirEnemyState?[] _evirStates =
         new EvirEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed native state for body, arms, and projectile records.</summary>
-    public IReadOnlyList<EvirEnemyState?> EvirStates => _evirStates;
-
     /// <summary>Most recent library-two spit sound requested during this enemy frame.</summary>
     public ushort? LastEvirSoundEffect { get; private set; }
 

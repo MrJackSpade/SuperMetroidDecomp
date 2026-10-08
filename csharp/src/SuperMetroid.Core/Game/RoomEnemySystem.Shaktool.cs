@@ -26,8 +26,6 @@ public sealed class ShaktoolSegmentState
     private readonly RoomEnemySlot _slot;
 
     internal ShaktoolSegmentState(RoomEnemySlot slot) => _slot = slot;
-
-    public RoomEnemySlot Slot => _slot;
     public ushort TargetAngle
     {
         get => _slot.VariableA;
@@ -85,12 +83,6 @@ public sealed partial class RoomEnemySystem
 
     private readonly ShaktoolSegmentState?[] _shaktoolSegments =
         new ShaktoolSegmentState?[MaximumEnemyCount];
-
-    /// <summary>
-    /// Per-physical-slot Shaktool state. A live retail group occupies seven consecutive
-    /// non-null entries; every other room slot remains null.
-    /// </summary>
-    public IReadOnlyList<ShaktoolSegmentState?> ShaktoolSegments => _shaktoolSegments;
 
     private void ResetShaktoolRoomState() => Array.Clear(_shaktoolSegments);
 
@@ -565,33 +557,6 @@ public sealed partial class RoomEnemySystem
 
     private static ushort ReadShaktoolCommonSineSample(int fullTableIndex) =>
         unchecked((ushort)EnemyTrigonometryTables.SignedSine((byte)(fullTableIndex - 64)));
-
-    /// <summary>
-    /// Ports unused retail routine <c>$AA:DAE5</c>. No cartridge caller reaches it, so the
-    /// normal main AI deliberately does not invoke this helper; debugger audits can still
-    /// prove the seven authored attack lists independently.
-    /// </summary>
-    internal bool TryStartUnusedShaktoolAttack(RoomEnemySlot anySegment)
-    {
-        if ((_nextRandom!() & 0x8431) != 0)
-            return false;
-        StartUnusedShaktoolAttack(anySegment);
-        return true;
-    }
-
-    internal void StartUnusedShaktoolAttack(RoomEnemySlot anySegment)
-    {
-        RoomEnemySlot[] group = GetShaktoolGroup(anySegment);
-        for (int index = ShaktoolSegmentCount - 1; index >= 0; index--)
-        {
-            RoomEnemySlot segment = group[index];
-            RequireShaktoolState(segment).PreInstruction =
-                ShaktoolPreInstruction.IdleAfterAttack;
-            segment.CurrentInstruction =
-                ShaktoolInstructionDefinitions.AttackForSegment(index);
-            segment.InstructionTimer = 1;
-        }
-    }
 
     /// <summary>
     /// Implements Shaktool's fatal-shot tail at <c>$AA:DF34</c>, including its read

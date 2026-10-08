@@ -56,18 +56,6 @@ public sealed partial class PlayableGameControl : UserControl
     private const double TargetFramesPerSecond = 60.0;
     private const int MaximumCatchUpFrames = 4;
 
-    public PlayableGameControl(
-        string romPath,
-        SuperMetroidGameOptions gameOptions,
-        ControllerInputRecording? replay = null,
-        GitHubErrorReporter? errorReporter = null,
-        string? audioDirectory = null,
-        string? dataDirectory = null)
-        : this(ResolveDiagnosticInstallation(romPath, dataDirectory), gameOptions,
-            replay, errorReporter, audioDirectory)
-    {
-    }
-
     /// <summary>Starts from validated installed assets without naming or opening a ROM file.</summary>
     public PlayableGameControl(
         GameInstallation installation,
@@ -184,23 +172,6 @@ public sealed partial class PlayableGameControl : UserControl
         ResetFrameTimings();
         Restart();
         SetPlaying(playing: true);
-    }
-
-    private static GameInstallation ResolveDiagnosticInstallation(string romPath, string? dataDirectory)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(romPath);
-        if (dataDirectory is not null)
-            return new GameInstallation(Path.GetFullPath(dataDirectory));
-
-        // Older diagnostic entry points accept a ROM path. Only this import adapter
-        // may open it, and only if no complete extracted installation exists yet.
-        string fullRomPath = Path.GetFullPath(romPath);
-        string fallbackRoot = Path.Combine(
-            Path.GetDirectoryName(fullRomPath) ?? throw new InvalidOperationException(
-                "Cartridge path has no parent directory."),
-            "SuperMetroid-installed");
-        return GameAssetInstaller.OpenOrRepair(fallbackRoot) ??
-            GameAssetInstaller.Install(fullRomPath, fallbackRoot);
     }
 
     private ExtractedAudioAssetCatalog LoadAudioAssets()

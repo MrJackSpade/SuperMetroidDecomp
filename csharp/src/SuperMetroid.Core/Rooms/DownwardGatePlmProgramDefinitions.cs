@@ -27,26 +27,6 @@ internal static class DownwardGatePlmProgramDefinitions
     /// <summary>$84:BCDF: adjacent upward-trigger program, outside this decoder.</summary>
     private const ushort TriggerEnd = 0xbcdf;
 
-    internal static IEnumerable<(ushort Address, ushort Value)> MechanicsWords
-    {
-        get
-        {
-            for (int address = OpenStart; address < ResidentEnd; address++)
-                if (TryReadMechanicsWord((ushort)address, out ushort value)) yield return ((ushort)address, value);
-            for (int address = RoomPlmInstructionLists.DownwardGateShotBlockBlueLeft; address < TriggerEnd; address += 2)
-                if (TryReadMechanicsWord((ushort)address, out ushort value)) yield return ((ushort)address, value);
-        }
-    }
-
-    internal static IEnumerable<(ushort Address, byte Value)> MechanicsBytes
-    {
-        get
-        {
-            yield return (ClosingSoundAddress, DownwardGatePlmRomData.MovementSound);
-            yield return (OpeningSoundAddress, DownwardGatePlmRomData.MovementSound);
-        }
-    }
-
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         bool owned = address is ClosingSoundAddress or OpeningSoundAddress;

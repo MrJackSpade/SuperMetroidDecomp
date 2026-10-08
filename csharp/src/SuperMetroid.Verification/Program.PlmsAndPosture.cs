@@ -293,7 +293,8 @@ static void VerifyBreakableGrapplePlms()
     // branches to Sleep; with Bombs it consumes the target and reaches Delete inline.
     // Exercising both results proves the shared interpreter reads CollectedItems rather
     // than treating this as a room-specific or equipped-item condition.
-    const ushort instructionProbe = 0xf200;
+    // Constructed probes run from low work RAM, where wrapped `$84` pointers execute.
+    const ushort instructionProbe = 0x1200;
     ushort[] branchInstructions = [RoomPlmInstructionCodes.GotoIfSamusHasNoBombs,
         instructionProbe + 8, RoomPlmInstructionCodes.Delete, 0, RoomPlmInstructionCodes.Sleep];
     RoomLevelData noBombsBranchLevel = CreateLevel(1, definitions);
@@ -301,7 +302,7 @@ static void VerifyBreakableGrapplePlms()
     AssertTrue(noBombsBranchPlms.TrySpawnBreakableGrappleBlock(
         noBombsBranchLevel, blockIndex, 1),
         "no-Bombs branch fixture occupies a PLM slot");
-    noBombsBranchPlms.SetSoleInstructionPointerForVerification(instructionProbe, branchInstructions);
+    noBombsBranchPlms.SetSoleWorkRamProgramForVerification(bus, instructionProbe, branchInstructions);
     noBombsBranchPlms.Step(
         bus,
         noBombsBranchLevel,
@@ -322,7 +323,7 @@ static void VerifyBreakableGrapplePlms()
     AssertTrue(bombsBranchPlms.TrySpawnBreakableGrappleBlock(
         bombsBranchLevel, blockIndex, 1),
         "Bombs branch fixture occupies a PLM slot");
-    bombsBranchPlms.SetSoleInstructionPointerForVerification(instructionProbe, branchInstructions);
+    bombsBranchPlms.SetSoleWorkRamProgramForVerification(bus, instructionProbe, branchInstructions);
     bombsBranchPlms.Step(
         bus,
         bombsBranchLevel,
@@ -345,7 +346,7 @@ static void VerifyBreakableGrapplePlms()
     AssertTrue(unknownOpcodePlms.TrySpawnBreakableGrappleBlock(
         unknownOpcodeLevel, blockIndex, 1),
         "uncatalogued-opcode fixture occupies a PLM slot");
-    unknownOpcodePlms.SetSoleInstructionPointerForVerification(instructionProbe, [0x9000]);
+    unknownOpcodePlms.SetSoleWorkRamProgramForVerification(bus, instructionProbe, 0x9000);
     AssertThrows<InvalidDataException>(
         () => unknownOpcodePlms.Step(
             bus,

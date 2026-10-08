@@ -101,9 +101,6 @@ public sealed partial class RoomEnemySystem
     private readonly WalkingSpacePirateEnemyState?[] _walkingSpacePirateStates =
         new WalkingSpacePirateEnemyState?[MaximumEnemyCount];
 
-    public IReadOnlyList<WalkingSpacePirateEnemyState?> WalkingSpacePirateStates =>
-        _walkingSpacePirateStates;
-
     /// <summary>
     /// Last library-two sound requested by the shared Pirate/Mother-Brain laser initializer
     /// or a Space Pirate instruction during this frame.

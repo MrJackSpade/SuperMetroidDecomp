@@ -73,13 +73,6 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     /// </summary>
     public MotherBrainBodyAnimationState Body { get; } = new();
 
-    /// <summary>
-    /// Shared row-by-row corpse graphics processor initialized by the brain enemy slot.
-    /// Its WRAM table and graphics buffer remain public debugger evidence rather than being
-    /// hidden behind a host-only opacity value.
-    /// </summary>
-    public MotherBrainCorpseRottingState CorpseRotting => _corpseRotting;
-
     /// <summary>Current body-function equivalent.</summary>
     public MotherBrainRainbowBeamAttackPhase Phase { get; private set; } =
         MotherBrainRainbowBeamAttackPhase.Inactive;
@@ -108,12 +101,6 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     /// list installed by body AI; this word advances through timed frames and command words.
     /// </summary>
     public ushort HeadInstructionPointer { get; private set; }
-
-    /// <summary>Current Mother Brain head spritemap selected by a timed instruction pair.</summary>
-    public ushort HeadSpritemapPointer { get; private set; }
-
-    /// <summary>Byte-angle used by newly spawned Mother Brain blue-ring projectiles.</summary>
-    public SnesAngle OnionRingTargetAngle { get; private set; }
 
     /// <summary>Native neck angular delta at Mother Brain body extra word `$0FBC`.</summary>
     public ushort NeckAngleDelta { get; private set; }
@@ -220,12 +207,6 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     /// visible instead of silently deriving a count from the host projectile collection.
     /// </remarks>
     public ushort BombCounter { get; private set; }
-
-    /// <summary>Applies the wrapping 16-bit increment performed by <c>$86:C4BE-C4C3</c>.</summary>
-    public void RegisterBombSpawn() => BombCounter = unchecked((ushort)(BombCounter + 1));
-
-    /// <summary>Applies the wrapping 16-bit decrement shared by both bomb deletion paths.</summary>
-    public void RegisterBombDeletion() => BombCounter = unchecked((ushort)(BombCounter - 1));
 
     /// <summary>Brain-slot health rewritten to 36,000 when corpse state one is published.</summary>
     public ushort BrainHealth { get; private set; } = 0x0bb8;
@@ -422,19 +403,6 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     internal ushort RequestedBodyInstructionList => Body.InstructionPointer;
 
     /// <summary>
-    /// Starts at the low-health handoff in `$A9:BB1A`, including its immediate really-slow
-    /// forward-walk request. This is the exact debugger entry point reached after the `$BB06`
-    /// decision timer; it does not skip the later `$BD45` health-selection loop.
-    /// </summary>
-    public void StartFinishOffSequence()
-    {
-        RequestWalkForwardReallySlow(unchecked((ushort)(Body.XPosition + 0x0010)));
-        BabyMetroidTileTransferIndex = 0;
-        BabyMetroidSpawned = false;
-        Phase = MotherBrainRainbowBeamAttackPhase.FinishSamusOff;
-    }
-
-    /// <summary>
     /// Starts at `$A9:B983`, immediately after the power-bomb gate and charge countdown.
     /// </summary>
     public void StartActiveBeam(ISnesAddressSpace bus, SamusState samus)
@@ -521,22 +489,6 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     }
 
     /// <summary>
-    /// Applies damage already calculated by the ordinary enemy-shot engine. Bank `$A0` owns
-    /// beam/item damage multipliers, invulnerability, projectile deletion, and hit flashing;
-    /// this actor owns only the resulting health word and the phase-three zero-health branch.
-    /// Keeping that boundary explicit lets a live projectile producer call the real actor
-    /// without duplicating the room enemy system's translated generic damage routine.
-    /// </summary>
-    public void ApplyCalculatedBrainDamage(ushort damage)
-    {
-        // Generic enemy damage saturates at zero. A host subtraction with ushort wrapping
-        // would resurrect a nearly dead boss, so perform the borrow test before the write.
-        BrainHealth = damage >= BrainHealth
-            ? (ushort)0
-            : unchecked((ushort)(BrainHealth - damage));
-    }
-
-    /// <summary>
     /// Applies the movement/recoil half of Mother Brain's shared phase-two/three shot
     /// reaction at <c>$A9:B562-$B5C4</c>. The ordinary enemy-shot routine owns damage,
     /// projectile deletion, and flash time; this method intentionally does not duplicate
@@ -607,223 +559,4 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         Body.SetInstructionList(BodyWalkingBackwardReallyFastInstructionList);
         return true;
     }
-
-    /// <summary>
-    /// Executes the movement half of <c>$A9:9072-$91B7</c> on Mother Brain's later brain
-    /// enemy slot. Call this after the body AI/body instruction stage and before the still
-    /// later Baby slot, matching the retail increasing-slot enemy loop.
-    /// </summary>
-    public void StepNeckMovement(ISnesAddressSpace bus, SamusState samus)
-    {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
-        if (NeckMovementEnabled != 0)
-        {
-            ushort lowerAngle = LowerNeckAngle;
-            ushort upperAngle = UpperNeckAngle;
-            ushort lowerIndex = LowerNeckMovementIndex;
-            ushort upperIndex = UpperNeckMovementIndex;
-            MotherBrainNeckKinematics.StepAngles(
-                ref lowerAngle,
-                ref upperAngle,
-                ref lowerIndex,
-                ref upperIndex,
-                NeckAngleDelta,
-                BrainYPosition,
-                samus.YPosition);
-            LowerNeckAngle = lowerAngle;
-            UpperNeckAngle = upperAngle;
-            LowerNeckMovementIndex = lowerIndex;
-            UpperNeckMovementIndex = upperIndex;
-        }
-
-        MotherBrainNeckGeometry geometry = MotherBrainNeckKinematics.CalculateGeometry(
-            Body.XPosition,
-            Body.YPosition,
-            LowerNeckAngle,
-            UpperNeckAngle);
-        BrainXPosition = geometry.Segment4.X;
-        BrainYPosition = geometry.Segment4.Y;
-    }
-
-    /// <summary>
-    /// Executes the translated retail head instruction stage for the Baby-murder, phase-three
-    /// bomb, and phase-three neutral lists.
-    /// Call after the brain-slot neck AI and before the later Baby enemy slot. Commands run
-    /// without consuming a frame until a duration/spritemap pair is loaded, matching the
-    /// common enemy-instruction processor's old-timer-equals-one rule.
-    /// </summary>
-    public MotherBrainHeadAnimationStepResult StepHeadAnimation(
-        ISnesAddressSpace bus,
-        SamusState samus,
-        BabyMetroidCutsceneState? baby,
-        ushort randomNumberSeed = 0)
-    {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
-
-        ushort pointerBefore = HeadInstructionPointer;
-        ushort timerBefore = HeadInstructionTimer;
-        bool loadedFrame = false;
-        bool attackCounterIncremented = false;
-        bool attackCounterReset = false;
-        ushort? queuedSoundLibraryTwo = null;
-        ushort? queuedSoundLibraryThree = null;
-        MotherBrainOnionRingSpawnRequest? onionRing = null;
-        MotherBrainBombSpawnRequest? bomb = null;
-        bool purpleBreathBigSpawnRequested = false;
-
-        // Other rainbow/corpse lists are still represented only by their installed pointer.
-        // Accept precisely the three contiguous native ranges translated here. In particular,
-        // `$9F00` must run even after the cutscene Baby has deleted itself: phase-three bombs
-        // are ordinary combat attacks and have no Baby dependency.
-        if (!MotherBrainHeadInstructionProgramDefinitions.IsActivePointer(
-                HeadInstructionPointer))
-            return CreateResult();
-
-        ushort oldTimer = HeadInstructionTimer;
-        HeadInstructionTimer = unchecked((ushort)(HeadInstructionTimer - 1));
-        if (oldTimer != 1)
-            return CreateResult();
-
-        for (int commandCount = 0; commandCount < 24; commandCount++)
-        {
-            ushort word = MotherBrainHeadInstructionProgramDefinitions.ReadWord(
-                HeadInstructionPointer);
-            if ((word & 0x8000) == 0)
-            {
-                HeadInstructionTimer = word;
-                HeadSpritemapPointer = MotherBrainHeadInstructionProgramDefinitions.ReadWord(
-                    unchecked((ushort)(HeadInstructionPointer + 2)));
-                HeadInstructionPointer = unchecked((ushort)(HeadInstructionPointer + 4));
-                loadedFrame = true;
-                return CreateResult();
-            }
-
-            ushort commandAddress = HeadInstructionPointer;
-            HeadInstructionPointer = unchecked((ushort)(HeadInstructionPointer + 2));
-            switch (word)
-            {
-                case MotherBrainInstructionCodes.Instruction_MotherBrainHead_IncBabyMetroidAttackCounter:
-                    BabyMetroidAttackCounter = Math.Min(
-                        unchecked((ushort)(BabyMetroidAttackCounter + 1)),
-                        (ushort)0x000c);
-                    attackCounterIncremented = true;
-                    break;
-
-                case MotherBrainInstructionCodes.Instruction_MotherBrainHead_ResetBabyMetroidAttackCounter:
-                    BabyMetroidAttackCounter = 0;
-                    attackCounterReset = true;
-                    break;
-
-                case MotherBrainInstructionCodes.Instruction_MotherBrainHead_DisableNeckMovement:
-                    NeckMovementEnabled = 0;
-                    break;
-
-                case MotherBrainInstructionCodes.Instruction_MotherBrainHead_AimOnionRingsAtBabyMetroid:
-                    if (baby is null)
-                    {
-                        throw new InvalidOperationException(
-                            "Mother Brain's Baby-targeting head opcode ran without the Baby enemy slot.");
-                    }
-                    AimOnionRings(
-                        unchecked((short)(baby.XPosition - BrainXPosition - 0x000a)),
-                        unchecked((short)(baby.YPosition - BrainYPosition - 0x0010)));
-                    break;
-
-                case MotherBrainInstructionCodes.Instruction_MotherBrainHead_AimOnionRingsAtSamus:
-                    AimOnionRings(
-                        unchecked((short)(samus.XPosition - BrainXPosition - 0x000a)),
-                        unchecked((short)(samus.YPosition - BrainYPosition - 0x0010)));
-                    break;
-
-                case MotherBrainInstructionCodes.Instruction_MotherBrain_GotoX:
-                    HeadInstructionPointer = MotherBrainHeadInstructionProgramDefinitions.ReadWord(
-                        HeadInstructionPointer);
-                    break;
-
-                case MotherBrainInstructionCodes.Instruction_MotherBrainHead_EnableNeckMovement_GotoX:
-                    NeckMovementEnabled = 1;
-                    HeadInstructionPointer = MotherBrainHeadInstructionProgramDefinitions.ReadWord(
-                        HeadInstructionPointer);
-                    break;
-
-                case MotherBrainInstructionCodes.Instruction_MotherBrainHead_QueueBabyMetroidAttackSFX:
-                    if (BabyMetroidAttackCounter != 0x000b)
-                        queuedSoundLibraryTwo = 0x006f;
-                    break;
-
-                case MotherBrainInstructionCodes.Instruction_MotherBrainHead_SpawnOnionRingsProjectile:
-                    onionRing = new MotherBrainOnionRingSpawnRequest(OnionRingTargetAngle);
-                    break;
-
-                case MotherBrainInstructionCodes.Instruction_MotherBrainHead_QueueSoundX_Lib3_Max6:
-                    queuedSoundLibraryThree = MotherBrainHeadInstructionProgramDefinitions.ReadWord(
-                        HeadInstructionPointer);
-                    HeadInstructionPointer = unchecked((ushort)(HeadInstructionPointer + 2));
-                    break;
-
-                case MotherBrainInstructionCodes.Instruction_MotherBrainHead_QueueSoundX_Lib2_Max6:
-                    queuedSoundLibraryTwo = MotherBrainHeadInstructionProgramDefinitions.ReadWord(
-                        HeadInstructionPointer);
-                    HeadInstructionPointer = unchecked((ushort)(HeadInstructionPointer + 2));
-                    break;
-
-                case MotherBrainInstructionCodes.Instruction_MotherBrainHead_SpawnBombProjectileWithParamX:
-                    bomb = new MotherBrainBombSpawnRequest(
-                        MotherBrainHeadInstructionProgramDefinitions.ReadWord(
-                            HeadInstructionPointer));
-                    HeadInstructionPointer = unchecked((ushort)(HeadInstructionPointer + 2));
-                    break;
-
-                case MotherBrainInstructionCodes.Instruction_MotherBrainHead_SpawnPurpleBreathBigProjectile:
-                    purpleBreathBigSpawnRequested = true;
-                    break;
-
-                case MotherBrainInstructionCodes.Instruction_MotherBrainHead_MaybeGotoNeutralPhase3:
-                    // The processor has already advanced X past the opcode to `$9CDB`.
-                    // Only low-twelve-bit values below `$EC0` replace X with `$9CD1`.
-                    if ((randomNumberSeed & 0x0fff) < 0x0ec0)
-                        HeadInstructionPointer = 0x9cd1;
-                    break;
-
-                default:
-                    throw new InvalidOperationException(
-                        $"Unsupported translated Mother Brain head instruction ${word:X4} " +
-                        $"at $A9:{commandAddress:X4}.");
-            }
-        }
-
-        throw new InvalidOperationException(
-            "Mother Brain head list did not reach a timed frame within 24 commands.");
-
-        MotherBrainHeadAnimationStepResult CreateResult() => new(
-            pointerBefore,
-            HeadInstructionPointer,
-            timerBefore,
-            HeadInstructionTimer,
-            HeadSpritemapPointer,
-            loadedFrame,
-            attackCounterIncremented,
-            attackCounterReset,
-            OnionRingTargetAngle,
-            onionRing,
-            bomb,
-            purpleBreathBigSpawnRequested,
-            queuedSoundLibraryTwo,
-            queuedSoundLibraryThree);
-    }
-
-    /// <summary>
-    /// Executes the body-owned shake countdown consumed while the later graphics hook draws
-    /// Mother Brain's brain at <c>$A9:9382-$939A</c>. Call after all enemy slots, matching the
-    /// renderer: `$BE96` can then observe zero and reseed fifty on the following frame.
-    /// </summary>
-    public ushort StepBrainShakeForDraw()
-    {
-        if (BrainMainShakeTimer != 0)
-            BrainMainShakeTimer = unchecked((ushort)(BrainMainShakeTimer - 1));
-        return unchecked((ushort)(BrainMainShakeTimer & 6));
-    }
-
 }

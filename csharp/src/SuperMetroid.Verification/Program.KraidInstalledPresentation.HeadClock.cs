@@ -138,8 +138,7 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(Enemies, Vram);
             step = typeof(RoomEnemySystem).GetMethod("ProcessKraidHeadInstruction", flags)!
                 .CreateDelegate<Func<RoomEnemySlot, KraidEnemyState, ushort>>(Enemies);
-            hit = typeof(RoomEnemySystem).GetMethod("KraidMouthHitboxOverlapsShot", flags)!
-                .CreateDelegate<Func<RoomEnemySlot, ushort, SamusProjectileSlot, bool>>(Enemies);
+            hit = Enemies.KraidMouthHitboxOverlapsShot;
             transfer = typeof(RoomEnemySystem).GetMethod("TransferKraidHeadTilemap", flags)!
                 .CreateDelegate<Action<KraidEnemyState, ushort>>(Enemies);
             Body.XPosition = 512; Body.YPosition = 512;

@@ -130,10 +130,6 @@ public sealed class CinematicGlowPaletteFxProgramDefinition
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public int FrameByteCount => (ColorsPerFrame + 2) * sizeof(ushort);
 
-    /// <summary>The complete loop duration in frames.</summary>
-    public int CycleFrames =>
-        CinematicGlowPaletteFxProgramMechanicsDefinitions.FrameCount * FrameDuration;
-
     /// <summary>The first timed record after color-index setup.</summary>
     public ushort FirstFramePointer => unchecked((ushort)(ProgramStart + 4));
 

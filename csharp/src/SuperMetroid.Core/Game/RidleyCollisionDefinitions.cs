@@ -80,20 +80,6 @@ internal static class RidleyCollisionDefinitions
     private static readonly ComponentOffset[] LeftBase =
         [new(15, 22), new(-8, 7), new(16, 0), new(-3, -24)];
 
-    internal readonly record struct FramePointerSequence(int Length)
-    {
-        internal ushort this[int index] => (uint)index < Length
-            ? (ushort)((int)BodyFrame.Left + index * SideFrameBytes)
-            : throw new IndexOutOfRangeException();
-        public Enumerator GetEnumerator() => new(this);
-        internal struct Enumerator(FramePointerSequence sequence)
-        {
-            private int index = -1;
-            public readonly ushort Current => sequence[index];
-            public bool MoveNext() => ++index < sequence.Length;
-        }
-    }
-
     internal readonly record struct ComponentSequence(ushort Frame)
     {
         internal int Length => Frame == (ushort)BodyFrame.Forward ? 1 : 4;
@@ -166,8 +152,6 @@ internal static class RidleyCollisionDefinitions
             [new(1, -2, 14, 9, Touch, Shot)],
             [new(-13, -22, 14, 21, Touch, Shot)],
         ]));
-    internal static FramePointerSequence FramePointers => new(11);
-    internal static IEnumerable<ushort> HitboxPointers => Lists.Pointers;
     internal static bool HasFrame(ushort frame) => frame >= (ushort)BodyFrame.Left
         && frame <= (ushort)BodyFrame.Forward && (frame - (ushort)BodyFrame.Left) % SideFrameBytes == 0;
 

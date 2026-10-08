@@ -22,4 +22,6 @@
     <Compile Include="../SuperMetroid.DebugRunner/Assets/MapAssetExtractor.cs" Link="MapAssetExtractor.cs" />
   </ItemGroup>
   <Import Project="../../test-support/RepositoryInstallation.projitems" />
+  <Import Project="../../test-support/VerificationAccess.Core.projitems" />
+  <Import Project="../../test-support/VerificationImporters.projitems" />
 </Project>

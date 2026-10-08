@@ -164,15 +164,4 @@ public static class SamusMovementRomData
         /// <summary>Retail shared type-four/six/seven attribute list at $90:8C17.</summary>
         public const ushort SharedAtmosphericAttributes = 0x8c17;
     }
-
-    /// <summary>Bank-$94 slope response and alignment tables shared by movement/collision.</summary>
-    public static class Slopes
-    {
-        /// <summary>Non-square-slope horizontal velocity multipliers.</summary>
-        public const int HorizontalMultipliers = 0x948586;
-
-        /// <summary>Sixteen-pixel height profiles indexed by non-square slope shape.</summary>
-        /// <remarks>Physical alias of <see cref="SlopeHeightDefinitions.Read"/>. Proof: #625 / #914.</remarks>
-        public const int AlignmentHeights = 0x948b2b;
-    }
 }

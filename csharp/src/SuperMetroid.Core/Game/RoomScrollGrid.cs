@@ -34,13 +34,6 @@ public sealed class RoomScrollGrid
     public int HeightInScreens { get; }
     public int LogicalCellCount => WidthInScreens * HeightInScreens;
 
-    /// <summary>
-    /// All 50 bytes, including bytes beyond the room dimensions. The original explicit
-    /// loader at <c>$82:E878-$82:E889</c> copies 25 words unconditionally, so edge reads can
-    /// observe data following a shorter ROM table rather than an invented zero padding.
-    /// </summary>
-    public ReadOnlySpan<byte> Storage => _cells;
-
     /// <summary>Installs an application-owned copy of the native 50-byte scroll allocation.</summary>
     public static RoomScrollGrid LoadCompiled(
         ISnesAddressSpace bus,

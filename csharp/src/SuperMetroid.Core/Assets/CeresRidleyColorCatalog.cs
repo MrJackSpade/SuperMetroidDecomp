@@ -44,12 +44,6 @@ public sealed class CeresRidleyColorCatalog
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         WriteIndented = true,
     };
-
-    public ushort ResolveStart(int color) => start.Resolve(color);
-    public ushort ResolveEyeFade(int row, int color) => eyeFade.Resolve(row, color);
-    public ushort ResolveBodyFade(int row, int color) => bodyFade.Resolve(row, color);
-    public ushort ResolveHealth(int row, int color) => health.Resolve(row, color);
-    public ushort ResolveAlarm(int row, int color) => alarm.Resolve(row, color);
     public ushort ResolveRetreatBg(int color)
     {
         if ((uint)color >= CeresRidleyPaletteRomData.RetreatBgColorCount)
@@ -64,7 +58,6 @@ public sealed class CeresRidleyColorCatalog
             throw new ArgumentOutOfRangeException(nameof(color));
         return retreatShared.TryGetValue(color, out ushort edited) ? edited : start.Resolve(color + 1);
     }
-    public ushort ResolveBaby(int row, int color) => baby.Resolve(row, color);
 
     public void ApplyStart(SnesCgram cgram)
     {

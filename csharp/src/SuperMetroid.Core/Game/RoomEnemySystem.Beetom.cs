@@ -117,9 +117,6 @@ public sealed partial class RoomEnemySystem
     private readonly ushort[] _beetomInitialAttachmentYOffsets = new ushort[MaximumEnemyCount];
     private readonly BeetomEnemyState?[] _beetomStates = new BeetomEnemyState?[MaximumEnemyCount];
 
-    /// <summary>Typed Beetom state for all 32 physical enemy slots.</summary>
-    public IReadOnlyList<BeetomEnemyState?> BeetomStates => _beetomStates;
-
     /// <summary>Ports <c>InitAI_Beetom</c> at $A8:B776.</summary>
     private void InitializeBeetom(RoomEnemySlot slot, SamusState? samus, ushort controllerInput)
     {

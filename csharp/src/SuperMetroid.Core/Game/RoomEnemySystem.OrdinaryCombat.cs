@@ -1010,8 +1010,15 @@ public sealed partial class RoomEnemySystem
 
                 if (isMotherBrainBody)
                 {
-                    // Body callback `$A9:B503` is exactly CreateDudShot. The common radius
-                    // collision prelude still owns Super-Missile quake before that callback.
+                    // Every body rectangle's shot callback is `$A9:B503`, exactly CreateDudShot;
+                    // only the dummy root's head-callback list could select anything else.
+                    if (hitboxShotAi != EnemyAiCodePointers.BankA9.MotherBrainBodyShot)
+                    {
+                        throw new InvalidDataException(
+                            $"Mother Brain's body selected shot AI $A9:{hitboxShotAi:X4} from " +
+                            $"frame $A9:{enemy.SpritemapPointer:X4}; only $A9:B503 is ported.");
+                    }
+                    // The common collision prelude still owns Super-Missile quake first.
                     projectiles.ApplyEnemyCollisionPrelude(
                         projectile.SlotIndex,
                         enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
@@ -3140,21 +3147,31 @@ public sealed partial class RoomEnemySystem
             return false;
         }
 
-        if (enemy.EnemyDefinitionPointer == MotherBrainHeadDefinition &&
-            enemy.Definition.Bank == MotherBrainHeadCollisionDefinitions.Bank &&
-            enemy.SpritemapPointer == MotherBrainHeadCollisionDefinitions.HitboxFrame)
+        if (enemy.EnemyDefinitionPointer is MotherBrainBodyDefinition or MotherBrainHeadDefinition &&
+            enemy.Definition.Bank == MotherBrainCollisionDefinitions.Bank)
         {
-            // The head's dummy frame places one component at the head origin.
-            MotherBrainHeadCollisionHitbox hitbox = MotherBrainHeadCollisionDefinitions.Hitbox;
-            if (!OverlapsExtendedHitbox(targetLeft, targetRight, targetTop, targetBottom,
-                    unchecked((ushort)(enemy.XPosition + hitbox.Left)),
-                    unchecked((ushort)(enemy.YPosition + hitbox.Top)),
-                    unchecked((ushort)(enemy.XPosition + hitbox.Right)),
-                    unchecked((ushort)(enemy.YPosition + hitbox.Bottom)),
-                    selectShotCallback))
-                return false;
-            callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
-            return true;
+            // Body and head walk the same bank-$A9 roots; the head's dummy list keeps $A320.
+            foreach (MotherBrainCollisionComponent component in
+                     MotherBrainCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
+            {
+                ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
+                ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));
+                foreach (MotherBrainCollisionHitbox hitbox in
+                         MotherBrainCollisionDefinitions.HitboxesAt(component.HitboxPointer))
+                {
+                    ushort left = unchecked((ushort)(componentX + hitbox.Left));
+                    ushort top = unchecked((ushort)(componentY + hitbox.Top));
+                    ushort right = unchecked((ushort)(componentX + hitbox.Right));
+                    ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
+                    if (!OverlapsExtendedHitbox(targetLeft, targetRight,
+                            targetTop, targetBottom, left, top, right, bottom,
+                            selectShotCallback))
+                        continue;
+                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                    return true;
+                }
+            }
+            return false;
         }
 
         throw new InvalidDataException(
@@ -3225,6 +3242,7 @@ public sealed partial class RoomEnemySystem
             KraidFootDefinition or
             NorfairRidleyDefinition or
             DraygonBodyDefinition or
+            MotherBrainBodyDefinition or
             MotherBrainHeadDefinition);
 
     /// <summary>

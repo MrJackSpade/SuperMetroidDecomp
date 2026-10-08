@@ -231,7 +231,7 @@ public sealed partial class RoomEnemySystem
         // typed lifetime rather than pretending it is a body-visibility flag.
         state.RisingHdmaActive = true;
         state.Head!.Properties = state.Head.Properties.With(EnemyProperties.Invisible);
-        SetMotherBrainInstructionList(state.Head, MotherBrainInitialHeadInstruction);
+        SetMotherBrainBrainInstructionList(state, MotherBrainInitialHeadInstruction);
         state.Function = MotherBrainBodyFunction.FakeDeathAscentLoadLegTiles;
         state.FunctionTimer = 0x0100;
 
@@ -390,7 +390,7 @@ public sealed partial class RoomEnemySystem
         if (!DecrementMotherBrainTimerPastZero(state))
             return;
 
-        SetMotherBrainInstructionList(state.Head!, MotherBrainStretchingHeadInstruction);
+        SetMotherBrainBrainInstructionList(state, MotherBrainStretchingHeadInstruction);
         state.Function = MotherBrainBodyFunction.SecondPhaseStretchingBringHeadUp;
         state.NeckAngleDelta = 0x0040;
         state.FunctionTimer = 0x0100;
@@ -524,8 +524,8 @@ public sealed partial class RoomEnemySystem
             // commits immediately and skips the proximity/fallback thresholds entirely.
             if (randomLow >= 0x80)
             {
-                SetMotherBrainInstructionList(
-                    state.Head!,
+                SetMotherBrainBrainInstructionList(
+                    state,
                     MotherBrainFourOnionRingsInstruction);
                 return;
             }
@@ -563,13 +563,13 @@ public sealed partial class RoomEnemySystem
         switch (choice)
         {
             case 0:
-                SetMotherBrainInstructionList(
-                    state.Head,
+                SetMotherBrainBrainInstructionList(
+                    state,
                     MotherBrainNeutralPhaseTwoHeadInstruction);
                 return;
             case 1:
-                SetMotherBrainInstructionList(
-                    state.Head,
+                SetMotherBrainBrainInstructionList(
+                    state,
                     MotherBrainFourOnionRingsInstruction);
                 return;
             case 2:
@@ -657,7 +657,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports the unstored firing tail at <c>$A9:B7CB</c>.</summary>
     private static void FireMotherBrainBomb(MotherBrainEnemyState state)
     {
-        SetMotherBrainInstructionList(state.Head!, MotherBrainBombPhaseTwoHeadInstruction);
+        SetMotherBrainBrainInstructionList(state, MotherBrainBombPhaseTwoHeadInstruction);
         state.Function = MotherBrainBodyFunction.SecondPhaseBombFired;
         state.FunctionTimer = 0x002c;
     }
@@ -781,7 +781,7 @@ public sealed partial class RoomEnemySystem
         state.NeckAngleDelta = (state.NeckAngleDelta & 0x8000) == 0
             ? (ushort)0x0100
             : (ushort)0xff00;
-        SetMotherBrainInstructionList(state.Head!, MotherBrainLaserHeadInstruction);
+        SetMotherBrainBrainInstructionList(state, MotherBrainLaserHeadInstruction);
         state.Function = MotherBrainBodyFunction.SecondPhaseLaserFinishAttack;
         state.FunctionTimer = 0x0010;
     }

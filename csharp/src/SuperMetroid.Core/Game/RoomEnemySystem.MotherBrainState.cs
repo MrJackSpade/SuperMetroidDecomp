@@ -169,6 +169,21 @@ public sealed class MotherBrainEnemyState
     /// <summary>Countdown used by the normal head-palette setup routine, initially ten.</summary>
     public ushort BrainPaletteTimer { get; internal set; }
 
+    /// <summary>
+    /// <c>MotherBrainBody.brainInstListPointer</c> ($7E:8002): the brain's own bank-$A9
+    /// instruction list, separate from the head enemy's dummy list. Bit 15 set means live;
+    /// otherwise the brain is not drawn. Only <c>$A9:C447</c> and the draw-time processor
+    /// (<c>$A9:92AF</c>) write it.
+    /// </summary>
+    public ushort BrainInstructionPointer { get; internal set; }
+
+    /// <summary>
+    /// <c>MotherBrainBody.brainInstructionTimer</c> ($7E:8000). It counts draws up from one
+    /// and the list advances once it exceeds the entry's duration, so each frame shows for
+    /// its duration plus one draw.
+    /// </summary>
+    public ushort BrainInstructionTimer { get; internal set; }
+
     /// <summary>Earthquake timer copied into the head-shake word after the glass event.</summary>
     public ushort BrainMainShakeTimer { get; internal set; }
 

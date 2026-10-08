@@ -40,8 +40,8 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case MotherBrainHandBeamPhase.Finish:
-                SetMotherBrainInstructionList(
-                    state.Head!,
+                SetMotherBrainBrainInstructionList(
+                    state,
                     MotherBrainNeutralPhaseTwoHeadInstruction);
                 state.LowerNeckMovementIndex = 2;
                 state.UpperNeckMovementIndex = 4;

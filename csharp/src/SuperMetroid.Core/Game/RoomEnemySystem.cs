@@ -196,6 +196,9 @@ public sealed partial class RoomEnemySystem
     /// <summary>Language flag sampled by $A6:C0D9 when the warning-text phase begins.</summary>
     // A door load initializes enemies while the door IRQ scrolls; init AIs that read
     // layer 1 then wait for the loader's camera (CompleteLoaderTimeCameraReads).
+    // TimeIsFrozenFlag as the enemy frame saw it; the draw hooks that follow read it.
+    private bool _enemyFrameTimeIsFrozen;
+
     private bool _deferLoaderTimeCameraReads;
 
     public bool JapaneseText { get; set; }
@@ -563,6 +566,7 @@ public sealed partial class RoomEnemySystem
         using var terrainScope = new EnemyTerrainScope(this, collisionPlms);
         EnsureLoaded();
         _samusForEnemyDrops = samus;
+        _enemyFrameTimeIsFrozen = timeIsFrozen;
         _samusProjectilesForEnemyFrame = samusProjectiles;
         _audioPowerBomb = sharedProjectiles?.PowerBombExplosion;
         // Standalone audits do not own the runtime NMI clock. In that case the enemy-frame
@@ -2609,7 +2613,7 @@ public sealed partial class RoomEnemySystem
         Justification = "The instance interpreter selector is a reflection seam for existing focused fixtures.")]
     private ushort ReadEnemyVisualSelector(RoomEnemySlot slot, ushort operandAddress)
     {
-        if (slot.EnemyDefinitionPointer == MotherBrainBodyDefinition &&
+        if (slot.EnemyDefinitionPointer is MotherBrainBodyDefinition or MotherBrainHeadDefinition &&
             operandAddress == MotherBrainBodyInstructionProgramDefinitions.InitialDummyVisualOperand)
             return MotherBrainBodyInstructionProgramDefinitions.ReadInitialDummyVisualSelector(
                 operandAddress);
@@ -3996,6 +4000,12 @@ public sealed partial class RoomEnemySystem
 
         if (slot.EnemyDefinitionPointer == MotherBrainFallingTubeDefinition)
             return MotherBrainFallingTubeInstructionDefinitions.ReadMechanicsWord(address);
+
+        if (slot.EnemyDefinitionPointer == MotherBrainHeadDefinition &&
+            MotherBrainBodyInstructionProgramDefinitions.IsInitialDummyWord(address))
+        {
+            return MotherBrainBodyInstructionProgramDefinitions.ReadMechanicsWord(address);
+        }
 
         if (slot.EnemyDefinitionPointer == MotherBrainHeadDefinition &&
             MotherBrainHeadInstructionProgramDefinitions.ContainsWord(address))

@@ -84,9 +84,31 @@ internal static partial class Program
         AssertEqual((ushort)0xa717, firstBabyFrame.SpritemapPointer,
             "compiled Baby-attack head program selects the native first-frame visual");
 
-        MethodInfo processInstructions = typeof(RoomEnemySystem).GetMethod(
-            "ProcessInstructions", flags)!;
+        // The brain list runs in the draw-time processor ($A9:92AF), not on the head enemy.
+        // $A9:C447 installs a list with timer one without drawing, so its first frame shows
+        // for exactly its duration; frames the processor installs on a draw show one longer.
+        MethodInfo advanceBrain = typeof(RoomEnemySystem).GetMethod(
+            "AdvanceMotherBrainBrainInstructions", flags)!;
         FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus", flags)!;
+        FieldInfo motherBrainField = typeof(RoomEnemySystem).GetField("_motherBrain", flags)!;
+        (RoomEnemySystem Enemies, MotherBrainEnemyState State) CreateBrain(ushort start)
+        {
+            var enemies = new RoomEnemySystem();
+            busField.SetValue(enemies, new MotherBrainHeadInstructionReadGuard(rom));
+            var head = new RoomEnemySlot(1)
+            {
+                EnemyDefinitionPointer = 0xec3f,
+                Definition = default(RoomEnemyDefinition) with { Bank = 0xa9 },
+            };
+            var state = new MotherBrainEnemyState(new RoomEnemySlot(0)) { Head = head };
+            motherBrainField.SetValue(enemies, state);
+            state.BrainInstructionPointer = start;
+            state.BrainInstructionTimer = 1;
+            return (enemies, state);
+        }
+        ushort? Draw(RoomEnemySystem enemies, MotherBrainEnemyState state) =>
+            (ushort?)advanceBrain.Invoke(enemies, [state]);
+
         foreach ((ushort start, ushort duration, ushort spritemap) in new[]
         {
             ((ushort)0x9c21, (ushort)4, (ushort)0xa586),
@@ -103,46 +125,31 @@ internal static partial class Program
             ((ushort)0x9f6e, (ushort)4, (ushort)0xa5f8),
         })
         {
-            var enemies = new RoomEnemySystem();
-            busField.SetValue(enemies, new MotherBrainHeadInstructionReadGuard(rom));
-            var head = new RoomEnemySlot(0)
+            (RoomEnemySystem enemies, MotherBrainEnemyState state) = CreateBrain(start);
+            for (int draw = 0; draw < duration; draw++)
             {
-                EnemyDefinitionPointer = 0xec3f,
-                Definition = default(RoomEnemyDefinition) with { Bank = 0xa9 },
-                CurrentInstruction = start,
-                InstructionTimer = 1,
-            };
-            processInstructions.Invoke(enemies,
-                [head, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0]);
-            AssertEqual((ushort)(start + 4), head.CurrentInstruction,
-                $"ordinary Mother Brain head owner advances ${start:X4} frame cursor");
-            AssertEqual(duration, head.InstructionTimer,
-                $"ordinary Mother Brain head owner retains ${start:X4} frame duration");
-            AssertEqual(spritemap, head.SpritemapPointer,
-                $"ordinary Mother Brain head owner selects ${start:X4} frame artwork");
+                AssertEqual(spritemap, Draw(enemies, state),
+                    $"Mother Brain brain ${start:X4} shows its first frame on draw {draw}");
+                AssertEqual(start, state.BrainInstructionPointer,
+                    $"Mother Brain brain ${start:X4} holds its first frame for its duration");
+            }
+            AssertEqual((ushort)(duration + 1), state.BrainInstructionTimer,
+                $"Mother Brain brain ${start:X4} timer counts up past the duration");
+            Draw(enemies, state);
+            AssertEqual((ushort)1, state.BrainInstructionTimer,
+                $"Mother Brain brain ${start:X4} installs its next frame once the timer exceeds the duration");
         }
 
-        // The first-frame tests above stop before $A9:9C25. Execute its
-        // branch too: the target word at $A9:9C27 is compiled mechanics,
-        // and the guarded bus must not be asked to read it on the loop.
-        var loopingEnemies = new RoomEnemySystem();
-        busField.SetValue(loopingEnemies, new MotherBrainHeadInstructionReadGuard(rom));
-        var loopingHead = new RoomEnemySlot(0)
-        {
-            EnemyDefinitionPointer = 0xec3f,
-            Definition = default(RoomEnemyDefinition) with { Bank = 0xa9 },
-            CurrentInstruction = 0x9c21,
-            InstructionTimer = 1,
-        };
-        processInstructions.Invoke(loopingEnemies,
-            [loopingHead, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0]);
-        loopingHead.InstructionTimer = 1;
-        processInstructions.Invoke(loopingEnemies,
-            [loopingHead, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0]);
-        AssertEqual((ushort)0x9c25, loopingHead.CurrentInstruction,
-            "ordinary Mother Brain head loops through the compiled goto operand");
-        AssertEqual((ushort)0xa586, loopingHead.SpritemapPointer,
-            "ordinary Mother Brain head loop retains the authored visual frame");
+        // The first-frame tests above stop before $A9:9C25. Execute its branch too: the
+        // target word at $A9:9C27 is compiled mechanics, so the guarded bus must not be read.
+        (RoomEnemySystem loopingEnemies, MotherBrainEnemyState looping) = CreateBrain(0x9c21);
+        for (int draw = 0; draw < 4; draw++)
+            Draw(loopingEnemies, looping);
+        AssertEqual((ushort?)0xa586, Draw(loopingEnemies, looping),
+            "Mother Brain brain loop retains the authored visual frame");
+        AssertEqual((ushort)0x9c21, looping.BrainInstructionPointer,
+            "Mother Brain brain loops through the compiled goto operand");
+        AssertEqual((ushort)1, looping.BrainInstructionTimer, "the looped frame restarts its timer");
 
         Console.WriteLine(
             $"Mother Brain head programs: {checkedWords} native words, strict data gaps, " +

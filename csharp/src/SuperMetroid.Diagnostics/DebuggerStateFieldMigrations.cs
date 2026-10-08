@@ -62,6 +62,19 @@ internal static class DebuggerStateFieldMigrations
             return SelectSerializedFields(type, current.Where(field =>
                 field.Name != "<Layer1XBlockResetRequested>k__BackingField").ToArray(), count);
         }
+        if (type == typeof(RoomEnemySystem) && current.Any(field => field.Name == "_enemyFrameTimeIsFrozen"))
+        {
+            // Recorded by each enemy frame for its draw hooks; clear between frames.
+            return SelectSerializedFields(type, current.Where(field => field.Name != "_enemyFrameTimeIsFrozen").ToArray(), count);
+        }
+        if (type == typeof(MotherBrainEnemyState) &&
+            current.Any(field => field.Name == "<BrainInstructionPointer>k__BackingField"))
+        {
+            // The brain list moved off the head enemy; InitializeMissingFields moves it back.
+            return SelectSerializedFields(type, current.Where(field =>
+                field.Name is not "<BrainInstructionPointer>k__BackingField" and
+                    not "<BrainInstructionTimer>k__BackingField").ToArray(), count);
+        }
         if (type == typeof(RoomEnemySystem) &&
             current.Any(field => field.Name == "<MotherBrainDeletedHdmaObjects>k__BackingField"))
         {
@@ -862,6 +875,9 @@ internal static class DebuggerStateFieldMigrations
             typeof(RoomEnemySystem).GetField("<CameraDistanceIndex>k__BackingField",
                 BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(legacyCameraOwner, (CameraDistanceMode)index);
         }
+        if (instance is MotherBrainEnemyState legacyMotherBrain &&
+            serializedCount < GetCurrentInstanceFieldCount(typeof(MotherBrainEnemyState)))
+            MoveLegacyMotherBrainBrainList(legacyMotherBrain);
         if (instance is RoomEnemySystem legacyDeferrals &&
             typeof(RoomEnemySystem).GetField("_deferredRinkaSpawnSlots", BindingFlags.Instance | BindingFlags.NonPublic)!
                 is { } deferredSlots && deferredSlots.GetValue(legacyDeferrals) is null)
@@ -1098,6 +1114,26 @@ internal static class DebuggerStateFieldMigrations
     /// Builds the shared RoomMainASMVar1 for a capture that predates it, from the private copy
     /// of whichever room main owned the active room. Earlier rooms' values were not retained.
     /// </summary>
+    /// <summary>
+    /// Older builds ran the brain's list on the head enemy itself. Its cursor becomes the
+    /// brain list (restarting the timer) and the head returns to its dummy hitbox list.
+    /// </summary>
+    private static void MoveLegacyMotherBrainBrainList(MotherBrainEnemyState state)
+    {
+        RoomEnemySlot head = state.Head ?? throw new InvalidDataException(
+            "Legacy Mother Brain state has no head enemy to carry its brain list.");
+        Console.Error.WriteLine("WARNING: Legacy Mother Brain state ran the brain list on the head enemy; the brain restarts its current frame and the head takes its dummy hitbox list.");
+        typeof(MotherBrainEnemyState).GetProperty(nameof(MotherBrainEnemyState.BrainInstructionPointer))!
+            .SetValue(state, head.CurrentInstruction);
+        typeof(MotherBrainEnemyState).GetProperty(nameof(MotherBrainEnemyState.BrainInstructionTimer))!
+            .SetValue(state, (ushort)1);
+        ushort initialDummy = (ushort)typeof(MotherBrainEnemyState).Assembly
+            .GetType("SuperMetroid.Core.Game.MotherBrainBodyInstructionProgramDefinitions", throwOnError: true)!
+            .GetField("InitialDummy", BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!;
+        typeof(RoomEnemySlot).GetProperty(nameof(RoomEnemySlot.CurrentInstruction))!.SetValue(head, initialDummy);
+        typeof(RoomEnemySlot).GetProperty(nameof(RoomEnemySlot.InstructionTimer))!.SetValue(head, (ushort)1);
+    }
+
     private static void SeedLegacyRoomMainScratch(SuperMetroid.Core.Runtime.SuperMetroidRuntime runtime)
     {
         var main = runtime.ActiveRoom?.State.MainCallback;

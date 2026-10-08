@@ -178,6 +178,13 @@ internal static class MotherBrainBodyInstructionProgramDefinitions
     /// <summary>
     /// Reads one compiled mechanics word and rejects presentation or foreign addresses.
     /// </summary>
+    /// <summary>
+    /// Whether an address lies in the dummy list at $A9:9C13-$9C18 that both the body and
+    /// the head enemy install; the head keeps it for life, its $A320 frame being its hitbox.
+    /// </summary>
+    internal static bool IsInitialDummyWord(ushort address) =>
+        address is >= InitialDummy and < InitialDummy + 6;
+
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (TryGetWord(address, out ushort word))

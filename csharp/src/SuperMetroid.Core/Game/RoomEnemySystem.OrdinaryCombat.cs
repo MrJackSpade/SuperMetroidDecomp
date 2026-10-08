@@ -3140,6 +3140,23 @@ public sealed partial class RoomEnemySystem
             return false;
         }
 
+        if (enemy.EnemyDefinitionPointer == MotherBrainHeadDefinition &&
+            enemy.Definition.Bank == MotherBrainHeadCollisionDefinitions.Bank &&
+            enemy.SpritemapPointer == MotherBrainHeadCollisionDefinitions.HitboxFrame)
+        {
+            // The head's dummy frame places one component at the head origin.
+            MotherBrainHeadCollisionHitbox hitbox = MotherBrainHeadCollisionDefinitions.Hitbox;
+            if (!OverlapsExtendedHitbox(targetLeft, targetRight, targetTop, targetBottom,
+                    unchecked((ushort)(enemy.XPosition + hitbox.Left)),
+                    unchecked((ushort)(enemy.YPosition + hitbox.Top)),
+                    unchecked((ushort)(enemy.XPosition + hitbox.Right)),
+                    unchecked((ushort)(enemy.YPosition + hitbox.Bottom)),
+                    selectShotCallback))
+                return false;
+            callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+            return true;
+        }
+
         throw new InvalidDataException(
             $"Enemy ${enemy.EnemyDefinitionPointer:X4} extended collision frame " +
             $"${enemy.Definition.Bank:X2}:{enemy.SpritemapPointer:X4} has no compiled geometry.");
@@ -3207,7 +3224,8 @@ public sealed partial class RoomEnemySystem
             KraidArmDefinition or
             KraidFootDefinition or
             NorfairRidleyDefinition or
-            DraygonBodyDefinition);
+            DraygonBodyDefinition or
+            MotherBrainHeadDefinition);
 
     /// <summary>
     /// Dispatches the common and Pirate-specific shot callbacks in hitbox records. Only the

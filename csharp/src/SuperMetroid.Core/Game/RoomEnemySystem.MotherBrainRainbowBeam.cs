@@ -124,7 +124,7 @@ public sealed partial class RoomEnemySystem
             (step is { HeadInstructionListRequested: true } ||
              sequence.HeadInstructionList != state.RainbowAppliedHeadInstructionList))
         {
-            SetMotherBrainInstructionList(head, sequence.HeadInstructionList);
+            SetMotherBrainBrainInstructionList(state, sequence.HeadInstructionList);
             state.RainbowAppliedHeadInstructionList = sequence.HeadInstructionList;
         }
 

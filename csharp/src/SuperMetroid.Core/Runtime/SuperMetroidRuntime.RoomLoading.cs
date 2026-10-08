@@ -573,6 +573,9 @@ public sealed partial class SuperMetroidRuntime
                     $"The door scroll finished before the loader initialized elevator slot {placement.EnemySlot}.");
             }
         }
+        Enemies.CompleteLoaderTimeCameraReads(loaderProgress.HasInitializedEnemySlot, Camera.XPosition, Camera.YPosition);
+        if (completed && Enemies.HasDeferredLoaderTimeCameraReads)
+            throw new InvalidDataException("The door scroll finished before the loader initialized every special Rinka.");
         Samus.Kinematics.SetXFixed(state.SamusXFixed);
         Samus.Kinematics.SetYFixed(state.SamusYFixed);
         Camera.PublishDoorSamusPosition((state.Direction & 2) == 0 ? Samus.XPosition : null,
@@ -1090,7 +1093,8 @@ public sealed partial class SuperMetroidRuntime
                 (horizontal, vertical) =>
                     BackgroundScroll.SetBg2ScrollRegisters(horizontal, vertical),
             isRoomPlmPresent: Plms.HasActiveHeader,
-            gunshipLoadScenario: gunshipLoadScenario);
+            gunshipLoadScenario: gunshipLoadScenario,
+            deferLoaderTimeCameraReads: viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor);
         // The shared Ridley initializer calls $90:A7E2 only for a live boss.
         // Ceres also disables the HUD map, but has no matching exploration list.
         if (Enemies.Ridley is not null)

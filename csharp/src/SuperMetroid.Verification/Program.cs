@@ -330,6 +330,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--mother-brain-rinka-door-spawn"])
+{
+    VerifyMotherBrainRinkaDoorSpawn();
+    return 0;
+}
 if (args is ["--shitroid-drain-carry"])
 {
     VerifyShitroidDrainCarry();
@@ -7309,6 +7314,7 @@ VerifyTourianStatueDescentRounding();
 VerifyMetroidDeathDrops();
 VerifyShitroidGradualAcceleration();
 VerifyShitroidDrainCarry();
+VerifyMotherBrainRinkaDoorSpawn();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

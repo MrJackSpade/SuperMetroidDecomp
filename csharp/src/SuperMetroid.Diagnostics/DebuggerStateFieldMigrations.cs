@@ -62,6 +62,13 @@ internal static class DebuggerStateFieldMigrations
             return SelectSerializedFields(type, current.Where(field =>
                 field.Name != "<Layer1XBlockResetRequested>k__BackingField").ToArray(), count);
         }
+        if (type == typeof(RoomEnemySystem) && current.Any(field => field.Name == "_deferredRinkaSpawnSlots"))
+        {
+            // Door loads now defer camera-dependent init reads to the loader's update. A legacy
+            // capture is never mid-door-load with such a read pending; it restores none.
+            return SelectSerializedFields(type, current.Where(field =>
+                field.Name is not "_deferredRinkaSpawnSlots" and not "_deferLoaderTimeCameraReads").ToArray(), count);
+        }
         if (type == typeof(RoomEnemySystem) &&
             current.Any(field => field.Name == "<CameraDistanceIndex>k__BackingField"))
         {
@@ -842,6 +849,10 @@ internal static class DebuggerStateFieldMigrations
             typeof(RoomEnemySystem).GetField("<CameraDistanceIndex>k__BackingField",
                 BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(legacyCameraOwner, (CameraDistanceMode)index);
         }
+        if (instance is RoomEnemySystem legacyDeferrals &&
+            typeof(RoomEnemySystem).GetField("_deferredRinkaSpawnSlots", BindingFlags.Instance | BindingFlags.NonPublic)!
+                is { } deferredSlots && deferredSlots.GetValue(legacyDeferrals) is null)
+            deferredSlots.SetValue(legacyDeferrals, new List<int>());
         if (instance is RoomEnemySystem legacyEnemies && legacyEnemies.GradualColorChange is null)
             typeof(RoomEnemySystem).GetField("<GradualColorChange>k__BackingField",
                 BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(legacyEnemies, new GradualColorChangeCounter());

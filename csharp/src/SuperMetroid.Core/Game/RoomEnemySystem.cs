@@ -194,6 +194,10 @@ public sealed partial class RoomEnemySystem
     public bool CeresEscapeStartedThisFrame { get; private set; }
 
     /// <summary>Language flag sampled by $A6:C0D9 when the warning-text phase begins.</summary>
+    // A door load initializes enemies while the door IRQ scrolls; init AIs that read
+    // layer 1 then wait for the loader's camera (CompleteLoaderTimeCameraReads).
+    private bool _deferLoaderTimeCameraReads;
+
     public bool JapaneseText { get; set; }
 
     /// <summary>
@@ -230,7 +234,8 @@ public sealed partial class RoomEnemySystem
         Func<int, RoomScrollState>? readRoomScrollState = null,
         Action<LayerBlendingConfiguration>? setMotherBrainLayerBlendingDefaultConfig = null,
         Action<ushort, ushort>? setMotherBrainBg2Scroll = null,
-        GunshipLoadScenario gunshipLoadScenario = GunshipLoadScenario.Ordinary)
+        GunshipLoadScenario gunshipLoadScenario = GunshipLoadScenario.Ordinary,
+        bool deferLoaderTimeCameraReads = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
@@ -239,6 +244,7 @@ public sealed partial class RoomEnemySystem
 
         _bus = bus;
         _gunshipLoadScenario = gunshipLoadScenario;
+        _deferLoaderTimeCameraReads = deferLoaderTimeCameraReads;
         _samusAtEnemyInitialization = samus;
         _samusProjectilesForEnemyFrame = null;
         _nextRandom = nextRandom;

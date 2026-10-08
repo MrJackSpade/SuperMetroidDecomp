@@ -330,6 +330,16 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--door-entry-room-fx-sound"])
+{
+    VerifyDoorEntryRoomFxSound();
+    return 0;
+}
+if (args is ["--main-game-loop-carry"])
+{
+    VerifyMainGameLoopCarry();
+    return 0;
+}
 if (args is ["--spring-ball-bounce"])
 {
     VerifySpringBallBounce();
@@ -7219,6 +7229,8 @@ VerifyGoldenTorizoAttackChoice();
 VerifyWallProbeBombBlock();
 VerifyPuromiArcPosition();
 VerifySpringBallBounce();
+VerifyMainGameLoopCarry();
+VerifyDoorEntryRoomFxSound();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

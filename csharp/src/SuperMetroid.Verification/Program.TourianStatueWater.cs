@@ -136,7 +136,7 @@ internal static partial class Program
         AssertEqual<RoomFxEarthquakeRequest?>(null, runtime.RoomLayer3Fx.EarthquakeRequest,
             "Water motion does not invoke the lava/acid earthquake branch");
         AssertEqual(0, runtime.RoomLayer3Fx.SoundRequests.Count, "Water motion does not invoke lava/acid sound feedback");
-        runtime.RoomLayer3Fx.Step(bus, runtime.Vram, 0, 0, timeIsFrozen: true);
+        runtime.RoomLayer3Fx.Step(bus, runtime.Vram, 0, 0, timeIsFrozen: true, mainGameLoopCarry: true);
         AssertEqual((ushort)0xb1, runtime.RoomLayer3Fx.CurrentYPosition, "Frozen HDMA retains the current water surface");
         Console.WriteLine("Four-statues water: actual FX, liquid publication, visible BG3 pixels and independent statue descent verified.");
         return 0;

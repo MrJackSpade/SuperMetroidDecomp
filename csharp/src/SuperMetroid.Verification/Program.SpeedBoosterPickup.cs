@@ -45,11 +45,11 @@ internal static partial class Program
             fixture.Plms.CompleteCollectibleMessage(bus, fixture.Level, fixture.Streamer, 0, 0, 0);
             AssertEqual(chozo ? (ushort)0xffe0 : (ushort)0, fx.PackedYVelocity,
                 "only the Chozo instruction list writes the native upward velocity");
-            fx.Step(cartridge, vram, 0, 0, timeIsFrozen: false);
+            fx.Step(cartridge, vram, 0, 0, timeIsFrozen: false, mainGameLoopCarry: true);
             AssertEqual((ushort)0x20, fx.Timer, "first FX pass selects waiting phase");
             for (int frame = 0; frame < 32; frame++)
             {
-                fx.Step(cartridge, vram, 0, 0, timeIsFrozen: false);
+                fx.Step(cartridge, vram, 0, 0, timeIsFrozen: false, mainGameLoopCarry: true);
                 AssertEqual((ushort)0xda, fx.BaseYPosition, "surface waits throughout native delay");
                 AssertEqual(chozo, fx.EarthquakeRequest.HasValue,
                     "native liquid owner publishes pickup earthquake during delay");
@@ -58,7 +58,7 @@ internal static partial class Program
             // in 8.8, the first four moving frames consume that half pixel.
             for (int frame = 1; frame <= 5; frame++)
             {
-                fx.Step(cartridge, vram, 0, 0, timeIsFrozen: false);
+                fx.Step(cartridge, vram, 0, 0, timeIsFrozen: false, mainGameLoopCarry: true);
                 AssertEqual(chozo && frame == 5 ? (ushort)0xd9 : (ushort)0xda,
                     fx.BaseYPosition, "lava rises at native subpixel speed after delay");
             }

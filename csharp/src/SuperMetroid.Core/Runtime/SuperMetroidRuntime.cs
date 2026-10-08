@@ -1608,6 +1608,7 @@ public sealed partial class SuperMetroidRuntime
                 Camera.XPosition,
                 Camera.YPosition,
                 TimeIsFrozen,
+                System.MainGameLoopCarry,
                 System.RandomNumber,
                 Enemies.FirefleaDarknessLevel,
                 powerBomb: BombProjectiles.PowerBombExplosion,

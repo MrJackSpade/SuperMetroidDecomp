@@ -7,12 +7,21 @@ public sealed partial class SuperMetroidRuntime
     /// <summary>Enemy and draw owners of the door sound-drain coroutine, without Samus movement.</summary>
     public void RunDoorSoundWaitFrame(ushort controllerInput)
     {
+        RunDoorSoundWaitPrologue(controllerInput);
+        DrawDoorTransitionActors(runEnemyProjectiles: false);
+    }
+
+    /// <summary>
+    /// The NMI and MainGameLoop HDMA/RNG prologue of a door dispatch. Both state-$09 entry
+    /// and each $E29E sound-drain dispatch return to MainGameLoop, whose prologue still
+    /// runs while Samus is locked. On the entry frame it precedes the state handler, so
+    /// its room-FX sound requests are queued before the door's cancels and DisableSounds.
+    /// </summary>
+    public void RunDoorSoundWaitPrologue(ushort controllerInput)
+    {
         Plms.BindPowerBombAudio(BombProjectiles.PowerBombExplosion);
         RunNmi(controllerInput, mainLoopRequestedNmi: true);
-        // Both state-$09 entry and each $E29E sound-drain dispatch return to
-        // MainGameLoop. Its HDMA/RNG prologue still runs while Samus is locked.
         AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
-        DrawDoorTransitionActors(runEnemyProjectiles: false);
     }
 
     /// <summary>Native enemy/instruction and draw pass shared by source-door waits and fading.</summary>

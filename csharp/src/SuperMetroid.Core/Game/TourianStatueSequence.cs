@@ -181,7 +181,8 @@ public sealed class TourianStatueSequence
         }
         runtime.Enemies.EarthquakeType = TourianStatueRomData.DescentEarthquakeType;
         runtime.Enemies.EarthquakeTimer |= TourianStatueRomData.DescentEarthquakeTimer;
-        runtime.RoomLayer3Fx.PublishStatueEarthquakeSound(runtime.System.RandomNumber);
+        runtime.RoomLayer3Fx.PublishStatueEarthquakeSound(
+            runtime.System.RandomNumber, runtime.System.MainGameLoopCarry);
         if (delay >= 0)
         {
             if (--delay < 0) runtime.Enemies.SpawnTourianDescentDust();

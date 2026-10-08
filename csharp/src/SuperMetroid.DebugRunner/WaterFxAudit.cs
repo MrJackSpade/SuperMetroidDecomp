@@ -132,7 +132,7 @@ internal static class WaterFxAudit
                 runtime.Vram,
                 cameraX: 0x0100,
                 cameraY: 0,
-                timeIsFrozen: false);
+                timeIsFrozen: false, mainGameLoopCarry: true);
         }
         RoomLayer3FxRenderSnapshot animated = runtime.RoomLayer3Fx.CaptureForDisplay()!.Value;
         if (animated.HorizontalScroll == initialHorizontal ||
@@ -187,7 +187,7 @@ internal static class WaterFxAudit
                 runtime.Vram,
                 cameraX: 0,
                 cameraY: definition.CameraY,
-                timeIsFrozen: false);
+                timeIsFrozen: false, mainGameLoopCarry: true);
             runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
 
             RoomLayer3FxRenderSnapshot fx = runtime.DisplayedRoomLayer3Fx

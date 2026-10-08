@@ -82,7 +82,7 @@ internal static partial class Program
                 throw new InvalidDataException($"Reported waterfall room {room:X4} lost configuration $16.");
             typeof(SuperMetroidRuntime).GetMethod("PrepareGameplayWindowRegisters", flags)!.Invoke(runtime, null);
             runtime.RoomLayer3Fx.Step(bus, runtime.Vram, runtime.Camera!.XPosition,
-                runtime.Camera.YPosition, timeIsFrozen: false);
+                runtime.Camera.YPosition, timeIsFrozen: false, mainGameLoopCarry: true);
             runtime.RunNmi(0, mainLoopRequestedNmi: true);
             var registers = runtime.DisplayedGameplayWindowRegisters;
             AssertEqual((byte)0x11, registers.MainScreen, "waterfall native TM");

@@ -114,6 +114,14 @@ public sealed class Bank80SystemState
         RandomNumber = randomNumberSeed;
     }
 
+    /// <summary>
+    /// Carry flag inside every <c>MainGameLoop</c> iteration ($82:8948). The loop brackets
+    /// each pass with <c>PHP</c>/<c>PLP</c>, so it keeps the carry left by boot's
+    /// <c>DetermineNumberOfDemoSets</c> ($80:8261) when $80:856E jumps to the loop.
+    /// Code that adds or subtracts without first setting carry observes it.
+    /// </summary>
+    public bool MainGameLoopCarry { get; set; }
+
     /// <summary>Restores the raw cartridge word loaded from one checksummed save slot.</summary>
     public void LoadSavedLoadingGameState(ushort value) => SavedLoadingGameState = value;
 

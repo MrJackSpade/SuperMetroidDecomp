@@ -42,7 +42,7 @@ internal static partial class Program
         AssertEqual((ushort)440, fx.TargetYPosition, "native reveal writes acid rise target to shared FX");
         AssertEqual(unchecked((ushort)-96), fx.PackedYVelocity, "native reveal writes rising velocity");
         AssertEqual((ushort)32, fx.Timer, "native reveal writes rise delay once");
-        for (int frame = 0; frame < 400; frame++) fx.Step(bus, runtime.Vram, 0, 256, false);
+        for (int frame = 0; frame < 400; frame++) fx.Step(bus, runtime.Vram, 0, 256, false, true);
         AssertEqual((ushort)440, fx.BaseYPosition, "acid reaches native visible battle height");
         AssertAcidVisible(true);
         state.Function = RidleyAiFunction.NorfairDeathExplosions;
@@ -51,7 +51,7 @@ internal static partial class Program
         AssertEqual((ushort)528, fx.TargetYPosition, "native death roar writes acid drain target");
         AssertEqual((ushort)64, fx.PackedYVelocity, "native death writes draining velocity");
         AssertEqual((ushort)1, fx.Timer, "native death writes drain delay once");
-        for (int frame = 0; frame < 400; frame++) fx.Step(bus, runtime.Vram, 0, 256, false);
+        for (int frame = 0; frame < 400; frame++) fx.Step(bus, runtime.Vram, 0, 256, false, true);
         AssertEqual((ushort)528, fx.BaseYPosition, "acid drains below arena after death");
         AssertAcidVisible(false);
         Console.WriteLine("Ridley acid: retail reveal raises 528 -> 440; death roar drains 440 -> 528 through shared FX.");

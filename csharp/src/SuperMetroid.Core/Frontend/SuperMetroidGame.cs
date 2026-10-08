@@ -25,6 +25,9 @@ public sealed partial class SuperMetroidGame
     public SuperMetroidGameOptions ConfiguredOptions => gameOptions;
     private readonly bool renderGameplayFrames;
     private readonly SuperMetroidSaveRam saveRam;
+
+    /// <summary>Boot-time <see cref="Bank80SystemState.MainGameLoopCarry"/>; fixed for the session.</summary>
+    private readonly bool bootMainLoopCarry;
     private readonly CartridgeAudioState audio = new();
     private TitleSequenceState? title;
     private FileSelectMenuState? fileSelect;
@@ -89,6 +92,8 @@ public sealed partial class SuperMetroidGame
         this.renderGameplayFrames = renderGameplayFrames;
         saveRam = new SuperMetroidSaveRam(bus, mapPresentation);
         selectedSaveSlot = saveRam.ReadSelectedSlot();
+        // Construction is power-on: boot evaluates SRAM once before entering MainGameLoop.
+        bootMainLoopCarry = saveRam.DetermineBootMainLoopCarry();
     }
 
     /// <summary>
@@ -1006,7 +1011,11 @@ public sealed partial class SuperMetroidGame
                 // State $0A ($82:E1B7) follows in the same dispatch and publishes state $0B.
                 // It calls $84:8250, which runs Samus code $1D and queues library-two $71 so
                 // movement/charge loops terminate rather than leaking into the next room.
-                SamusState doorSamus = runtime!.Samus
+                // MainGameLoop's HDMA pass ($88:84B9) runs before this state handler. A rising
+                // liquid's rumble or ambient sound it requests is admitted ahead of the cancels.
+                runtime!.RunDoorSoundWaitPrologue(controllerInput);
+                PublishDoorEntryRoomFxSounds(runtime);
+                SamusState doorSamus = runtime.Samus
                     ?? throw new InvalidOperationException("Door transition requires live Samus state.");
                 SamusMovementType doorMovementType = doorSamus.ReadMovementType(bus);
                 if (doorMovementType is
@@ -1025,7 +1034,7 @@ public sealed partial class SuperMetroidGame
                 doorTransition.Begin(runtime);
                 // $82:E1B7 runs the source enemy/draw owners on the entry frame,
                 // with transition ownership already installed and Samus stationary.
-                runtime.RunDoorSoundWaitFrame(controllerInput);
+                runtime.DrawDoorTransitionActors(runEnemyProjectiles: false);
                 // State $09 calls state $0A synchronously for ordinary doors; state $0A
                 // publishes state $0B before returning. Consequently neither intermediate
                 // numeric value owns a separately displayed frame.
@@ -1319,6 +1328,16 @@ public sealed partial class SuperMetroidGame
             audio.QueueMusicDelayed(request.Command, request.Delay);
     }
 
+    /// <summary>Queues the entry frame's HDMA-pass room-FX sounds while sounds are still enabled.</summary>
+    private void PublishDoorEntryRoomFxSounds(SuperMetroidRuntime source)
+    {
+        if (source.IsAttractDemo)
+            return;
+        foreach (var request in source.RoomLayer3Fx.SoundRequests)
+            audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
+                soundSuppressed: request.SoundSuppressed);
+    }
+
     private void CollectDoorSoundWaitAudioRequests(SuperMetroidRuntime source)
     {
         // This coroutine completes no ordinary gameplay publication. Only the
@@ -1475,6 +1494,7 @@ public sealed partial class SuperMetroidGame
         // Runtime allocation is a managed ownership change, not Vector_RESET.
         // Publish before room initialization so random-consuming enemies see it too.
         runtime.System.SetRandomNumber(incomingRandom);
+        runtime.System.MainGameLoopCarry = bootMainLoopCarry;
         PublishMenuNmiFrameCounters();
         runtime.MapPresentation = mapPresentation;
         runtime.StandardObjectArt = standardObjectArt;

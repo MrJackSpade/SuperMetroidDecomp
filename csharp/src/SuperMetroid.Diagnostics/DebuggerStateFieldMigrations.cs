@@ -123,6 +123,21 @@ internal static class DebuggerStateFieldMigrations
                 and not "<UnlockTourianEnabled>k__BackingField").ToArray();
         }
         if (type == typeof(SuperMetroid.Core.Frontend.SuperMetroidGame) &&
+            current.Any(field => field.Name == "bootMainLoopCarry"))
+        {
+            // Older builds added no main-loop carry; a capture from one keeps that behavior.
+            Console.Error.WriteLine("WARNING: Older frontend lacks the boot main-loop carry; resuming with carry clear, as that build behaved.");
+            return SelectSerializedFields(type, current.Where(field =>
+                field.Name != "bootMainLoopCarry").ToArray(), count);
+        }
+        if (type == typeof(SuperMetroid.Core.Game.Bank80SystemState) &&
+            current.Any(field => field.Name == "<MainGameLoopCarry>k__BackingField"))
+        {
+            Console.Error.WriteLine("WARNING: Older bank-$80 state lacks the main-loop carry; resuming with carry clear, as that build behaved.");
+            return SelectSerializedFields(type, current.Where(field =>
+                field.Name != "<MainGameLoopCarry>k__BackingField").ToArray(), count);
+        }
+        if (type == typeof(SuperMetroid.Core.Frontend.SuperMetroidGame) &&
             current.Any(field => field.Name == "pauseFadeDelay"))
         {
             // Older builds hard-coded the fade reload. Outside a pause fade the native delay

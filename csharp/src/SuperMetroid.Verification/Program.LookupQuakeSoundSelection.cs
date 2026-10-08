@@ -18,7 +18,7 @@ internal static partial class Program
         {
             var state = new RoomLayer3FxState();
             indexField.SetValue(state, index);
-            state.PublishStatueEarthquakeSound(0);
+            state.PublishStatueEarthquakeSound(0, mainGameLoopCarry: true);
             AssertEqual(1, state.SoundRequests.Count, "Each original selection emits exactly one rumble");
             var sound = state.SoundRequests[0];
             int originalIndex = index == count ? 0 : index;

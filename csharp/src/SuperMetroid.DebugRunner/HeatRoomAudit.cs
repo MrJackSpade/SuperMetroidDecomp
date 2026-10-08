@@ -209,11 +209,11 @@ internal static class HeatRoomAudit
             throw new InvalidDataException("Lava/acid wave did not start at native phase zero.");
         for (int frame = 0; frame < RoomFxRomData.LavaAcid.VerticalWavePhaseDuration - 1; frame++)
         {
-            state.Step(bus, vram, cameraX: 0, cameraY: 0, timeIsFrozen: false);
+            state.Step(bus, vram, cameraX: 0, cameraY: 0, timeIsFrozen: false, mainGameLoopCarry: true);
             if (state.CaptureForDisplay()!.Value.LavaAcidBg2WavePhase != 0)
                 throw new InvalidDataException($"Lava/acid wave advanced early on frame {frame + 1}.");
         }
-        state.Step(bus, vram, cameraX: 0, cameraY: 0, timeIsFrozen: false);
+        state.Step(bus, vram, cameraX: 0, cameraY: 0, timeIsFrozen: false, mainGameLoopCarry: true);
         if (state.CaptureForDisplay()!.Value.LavaAcidBg2WavePhase != 15)
             throw new InvalidDataException("Lava/acid wave did not rotate backward after four frames.");
     }

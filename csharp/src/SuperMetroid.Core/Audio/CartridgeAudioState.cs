@@ -442,6 +442,8 @@ public sealed class CartridgeAudioState
         string.Join(",", _musicDelays.Select(delay => delay.Frames.ToString("X")));
 
     /// <summary>Queue start/next indices and dispatcher state of one SFX library ($0643+/$0646+/$0649+).</summary>
+    internal byte SoundQueueEntryForVerification(int queue, int index) => _soundQueues[queue, index];
+
     internal (byte Start, byte Next, byte State) SoundQueueForVerification(int queue) =>
         (_soundReadPositions[queue], _soundWritePositions[queue], _soundStates[queue]);
 

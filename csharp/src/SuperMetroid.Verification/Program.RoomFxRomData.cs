@@ -344,11 +344,11 @@ internal static partial class Program
                      frameNumber < RoomFxRomData.LavaAcid.VerticalWavePhaseDuration - 1;
                      frameNumber++)
                 {
-                    state.Step(bus, vram, cameraX: 0x0100, cameraY: 0, timeIsFrozen: false);
+                    state.Step(bus, vram, cameraX: 0x0100, cameraY: 0, timeIsFrozen: false, mainGameLoopCarry: true);
                     AssertEqual(0, state.CaptureForDisplay()!.Value.LavaAcidBg2WavePhase,
                         $"{type} heat wave retains phase before frame four");
                 }
-                state.Step(bus, vram, cameraX: 0x0100, cameraY: 0, timeIsFrozen: false);
+                state.Step(bus, vram, cameraX: 0x0100, cameraY: 0, timeIsFrozen: false, mainGameLoopCarry: true);
                 AssertEqual(15, state.CaptureForDisplay()!.Value.LavaAcidBg2WavePhase,
                     $"{type} heat wave rotates backward on frame four");
             }

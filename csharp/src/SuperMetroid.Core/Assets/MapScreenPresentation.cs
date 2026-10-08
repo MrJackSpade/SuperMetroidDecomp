@@ -9,7 +9,9 @@ public sealed class MapScreenPresentation
 {
     private readonly Dictionary<string, byte[]> pages;
     private MapScreenPresentation(Dictionary<string, byte[]> pages) => this.pages = pages;
+    /// <summary>Copies the named, compiled 32-by-32 tilemap page to the requested VRAM byte address.</summary>
     public void LoadTo(SnesVram vram, int destinationByteAddress, string page) => vram.LoadBytes(destinationByteAddress, pages[page]);
+    /// <summary>Loads and validates the complete set of named map-screen pages from JSON.</summary>
     public static MapScreenPresentation Load(Stream json)
     {
         MapScreenDocument document;
@@ -41,6 +43,7 @@ public sealed class MapScreenPresentation
         }
         return new(pages);
     }
+    /// <summary>Validates and writes a map-screen document as camel-case JSON.</summary>
     public static void Write(Stream output, MapScreenDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
@@ -52,6 +55,8 @@ public sealed class MapScreenPresentation
 /// <summary>Layout-only content: tile-sheet coordinates, palette selectors, priority and flips.</summary>
 public sealed record MapScreenDocument
 {
+    /// <summary>Gets the map-screen schema revision.</summary>
     public required int Version { get; init; }
+    /// <summary>Gets all named 32-by-32 map-screen tile grids.</summary>
     public required Dictionary<string, MapPresentationCell[]> Pages { get; init; }
 }

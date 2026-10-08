@@ -5,8 +5,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Native $90:AC8D beam-character upload geometry, separate from projectile mechanics.</summary>
 public static class BeamTileAtlasDefinitions
 {
+    /// <summary>Indexed PNG width in pixels, arranging eight 8-pixel beam/impact characters left to right in native upload order.</summary>
     public const int Width = 64;
+    /// <summary>Indexed PNG height in pixels: one row of 8-by-8 characters, not a projectile collision height.</summary>
     public const int Height = 8;
+    /// <summary>Native $90:AC8D upload length, $0100 bytes: eight four-bit planar characters at 32 bytes each.</summary>
     public const int ByteCount = 256;
     /// <summary>$90:AC8D writes eight 4-bpp tiles to VRAM word $6300.</summary>
     public const ushort DestinationWord = 0x6300;
@@ -14,6 +17,10 @@ public static class BeamTileAtlasDefinitions
     public const int SelectionCount = 12;
     /// <summary>Twelve ordinary sheets plus the bounded Chainsaw and SpaceTime adjacent-table uploads.</summary>
     public const int ArtworkCount = SelectionCount + 2;
+    /// <summary>Maps the complete artwork-catalog ordinal to its independently editable beam identity: ordinary selections $00..$0B, then bounded Chainsaw $0D and SpaceTime $0E.</summary>
+    /// <param name="index">Zero-based artwork ordinal 0..13; the last two ordinals are not their returned beam-selection values.</param>
+    /// <returns>The native equipped-beam selection used to name and install the tile sheet; unsupported selection $0C is not enumerated.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The artwork ordinal is outside 0..13.</exception>
     public static int SelectionAt(int index) => index == SelectionCount ? Game.ChainsawBeamGraphicsDefinitions.Selection :
         index == SelectionCount + 1 ? Game.SpacetimeBeamGraphicsDefinitions.Selection : (uint)index < SelectionCount ? index : throw new ArgumentOutOfRangeException(nameof(index));
     /// <summary>$9A:F200, Tiles_PowerBeam; native power-beam character source.</summary>
@@ -37,6 +44,10 @@ public static class BeamTileAtlasDefinitions
         SpazerSource => 4, PlasmaSource => 8, _ => -1,
     };
 
+    /// <summary>Creates a selection-keyed PNG filename, retaining separately editable combination identities even where native combinations share the same source sheet.</summary>
+    /// <param name="selection">Native beam identity $00..$0B, Chainsaw $0D, or SpaceTime $0E; not an artwork-catalog ordinal.</param>
+    /// <returns><c>beam-XX-tiles.png</c> with two uppercase hexadecimal selection digits.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The selection is outside the supported ordinary/bounded domain.</exception>
     public static string FileName(int selection)
     {
         if ((uint)selection >= SelectionCount && selection != Game.ChainsawBeamGraphicsDefinitions.Selection && selection != Game.SpacetimeBeamGraphicsDefinitions.Selection) throw new ArgumentOutOfRangeException(nameof(selection));

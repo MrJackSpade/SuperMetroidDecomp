@@ -295,6 +295,9 @@ public sealed partial class SamusState
     public static bool IsMoonwalkingFacingRightPose(byte pose) => pose is
         SamusPoseIds.MoonwalkFacingRightPose or SamusPoseIds.MoonwalkAimUpRightPose or SamusPoseIds.MoonwalkAimDownRightPose;
 
+    /// <summary>True for the six neutral or aimed moonwalk records in movement type $10, whose artwork faces opposite their travel direction.</summary>
+    /// <param name="pose">Current or prospective native pose byte; no pose metadata or live state is changed.</param>
+    /// <returns>Whether the pose belongs to either visual-facing moonwalk family.</returns>
     public static bool IsMoonwalkingPose(byte pose) =>
         IsMoonwalkingFacingLeftPose(pose) || IsMoonwalkingFacingRightPose(pose);
 
@@ -378,9 +381,15 @@ public sealed partial class SamusState
     public static bool IsLeftFacingRanIntoWallPose(byte pose) => pose is
         SamusPoseIds.RanIntoWallLeftPose or SamusPoseIds.RanIntoWallAimUpLeftPose or SamusPoseIds.RanIntoWallAimDownLeftPose;
 
+    /// <summary>True for the six movement-type-$15 wall-contact records: neutral and the two aimed variants for each facing.</summary>
+    /// <param name="pose">Current or prospective native pose byte.</param>
+    /// <returns>Whether the pose is a supported standing body pressed against a wall, rather than a wall-jump body.</returns>
     public static bool IsRanIntoWallPose(byte pose) =>
         IsRightFacingRanIntoWallPose(pose) || IsLeftFacingRanIntoWallPose(pose);
 
+    /// <summary>True for the four aimed wall-contact records $CF..$D2; neutral wall-contact poses $89/$8A are excluded.</summary>
+    /// <param name="pose">Current or prospective native pose byte.</param>
+    /// <returns>Whether the movement-type-$15 body uses an aimed wall-contact variant.</returns>
     public static bool IsAimedRanIntoWallPose(byte pose) => pose is
         SamusPoseIds.RanIntoWallAimUpRightPose or SamusPoseIds.RanIntoWallAimUpLeftPose or
         SamusPoseIds.RanIntoWallAimDownRightPose or SamusPoseIds.RanIntoWallAimDownLeftPose;
@@ -540,15 +549,24 @@ public sealed partial class SamusState
         SamusPoseIds.TurningRightToLeftFallingAimDownPose or SamusPoseIds.TurningLeftToRightFallingAimDownPose or
         SamusPoseIds.TurningRightToLeftFallingAimDiagonalUpPose or SamusPoseIds.TurningLeftToRightFallingAimDiagonalUpPose;
 
+    /// <summary>True for the sixteen normal-jump or falling turn records in movement types $17/$18, excluding grounded and aimed crouching turns.</summary>
+    /// <param name="pose">Current or prospective native pose byte.</param>
+    /// <returns>Whether either jumping-turn or falling-turn family contains the pose.</returns>
     public static bool IsAerialTurnPose(byte pose) =>
         IsJumpingTurnPose(pose) || IsFallingTurnPose(pose);
 
+    /// <summary>True for the eight jumping/falling turn records that change from right to left, including their up, down, and diagonal-up aim variants.</summary>
+    /// <param name="pose">Prospective or active turn pose; direction describes the facing change, not horizontal velocity.</param>
+    /// <returns>Whether the pose is a right-to-left aerial turn admitted by the transition selector.</returns>
     public static bool IsRightToLeftAerialTurnPose(byte pose) => pose is
         SamusPoseIds.TurningRightToLeftJumpPose or SamusPoseIds.TurningRightToLeftJumpAimUpPose or
         SamusPoseIds.TurningRightToLeftJumpAimDownPose or SamusPoseIds.TurningRightToLeftJumpAimDiagonalUpPose or
         SamusPoseIds.TurningRightToLeftFallingPose or SamusPoseIds.TurningRightToLeftFallingAimUpPose or
         SamusPoseIds.TurningRightToLeftFallingAimDownPose or SamusPoseIds.TurningRightToLeftFallingAimDiagonalUpPose;
 
+    /// <summary>True for the eight jumping/falling turn records that change from left to right, including their up, down, and diagonal-up aim variants.</summary>
+    /// <param name="pose">Prospective or active turn pose; direction describes the facing change, not horizontal velocity.</param>
+    /// <returns>Whether the pose is a left-to-right aerial turn admitted by the transition selector.</returns>
     public static bool IsLeftToRightAerialTurnPose(byte pose) => pose is
         SamusPoseIds.TurningLeftToRightJumpPose or SamusPoseIds.TurningLeftToRightJumpAimUpPose or
         SamusPoseIds.TurningLeftToRightJumpAimDownPose or SamusPoseIds.TurningLeftToRightJumpAimDiagonalUpPose or

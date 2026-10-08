@@ -330,6 +330,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--mother-brain-ring-baby-health"])
+{
+    VerifyMotherBrainRingBabyHealth();
+    return 0;
+}
 if (args is ["--mother-brain-walk-backwards-pose"])
 {
     VerifyMotherBrainWalkBackwardsPose();
@@ -7381,6 +7386,7 @@ VerifyRainbowReleaseKnockback();
 VerifyBabyMetroidInheritedFractions();
 VerifyBabyMetroidHeadTarget();
 VerifyMotherBrainWalkBackwardsPose();
+VerifyMotherBrainRingBabyHealth();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

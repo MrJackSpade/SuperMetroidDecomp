@@ -191,6 +191,11 @@ public sealed partial class RoomEnemySystem
             {
                 state.PendingBabyCryCount = unchecked((ushort)(state.PendingBabyCryCount + 1));
                 _ = baby.ApplyMotherBrainOnionRingHit();
+                // `$86:C399-$C3A5` writes the Baby slot's Enemy.health from this projectile
+                // pass; it must not wait for the Baby's next AI turn to publish it.
+                RoomEnemySlot babySlot = state.BabyMetroidSlot ?? throw new InvalidDataException(
+                    "A Mother Brain onion ring hit the Baby without its physical slot.");
+                babySlot.Health = baby.Health;
                 ushort ringX = ring.XPosition;
                 ushort ringY = ring.YPosition;
                 ExplodeMotherBrainOnionRing(ring, state, ringX, ringY);

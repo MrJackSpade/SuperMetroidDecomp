@@ -29,23 +29,37 @@ public sealed class SamusProjectileSlot
     /// <summary>Lossless semantic view of <see cref="Direction"/>.</summary>
     public SamusProjectileDirectionWord PackedDirection => new(Direction);
 
+    /// <summary>Integer horizontal position in pixels.</summary>
     public ushort XPosition { get; internal set; }
+    /// <summary>Integer vertical position in pixels.</summary>
     public ushort YPosition { get; internal set; }
+    /// <summary>Fractional horizontal position word.</summary>
     public ushort XSubposition { get; internal set; }
+    /// <summary>Fractional vertical position word.</summary>
     public ushort YSubposition { get; internal set; }
+    /// <summary>Signed horizontal velocity component.</summary>
     public short XVelocity { get; internal set; }
+    /// <summary>Signed vertical velocity component.</summary>
     public short YVelocity { get; internal set; }
+    /// <summary>Horizontal collision radius in pixels.</summary>
     public ushort XRadius { get; internal set; }
+    /// <summary>Vertical collision radius in pixels.</summary>
     public ushort YRadius { get; internal set; }
+    /// <summary>Bank-$93 instruction-list pointer; zero marks the slot inactive for animation.</summary>
     public ushort InstructionPointer { get; internal set; }
+    /// <summary>Updates remaining before the current projectile instruction advances.</summary>
     public ushort InstructionTimer { get; internal set; }
+    /// <summary>Bank-relative pointer to the projectile's current spritemap.</summary>
     public ushort SpritemapPointer { get; internal set; }
+    /// <summary>Current animation frame index.</summary>
     public ushort AnimationFrame { get; internal set; }
+    /// <summary>Countdown controlling projectile-trail emission.</summary>
     public ushort TrailTimer { get; internal set; }
     /// <summary>WRAM <c>$0C7C</c>; missile ignition/acceleration state in the high byte.</summary>
     public ushort Variable { get; internal set; }
     /// <summary>WRAM $0CA4: auxiliary phase word used by Spazer special-attack particles.</summary>
     public ushort AuxiliaryPhase { get; internal set; }
+    /// <summary>Gets the semantic identity of the slot's bank-$90 pre-instruction.</summary>
     public SamusProjectilePreInstruction PreInstruction { get; internal set; }
 
     /// <summary>Bank-$93 considers a nonzero instruction pointer allocated and drawable.</summary>
@@ -113,24 +127,43 @@ public sealed class SamusProjectileSlot
 /// <summary>Semantic identities for the bank-$90 function pointers stored per slot.</summary>
 public enum SamusProjectilePreInstruction : byte
 {
+    /// <summary>No pre-instruction is assigned.</summary>
     None,
+    /// <summary>Moves an ordinary beam that does not have the Wave Beam trail.</summary>
     NoWaveBeam,
+    /// <summary>Moves a Wave Beam using its three-frame trail phase.</summary>
     WaveBeamThreeFrameTrail,
+    /// <summary>Moves a Wave Beam using its four-frame trail phase.</summary>
     WaveBeamFourFrameTrail,
+    /// <summary>Moves a Hyper Beam projectile.</summary>
     HyperBeam,
+    /// <summary>Moves and accelerates an ordinary missile.</summary>
     Missile,
+    /// <summary>Moves and accelerates a Super Missile.</summary>
     SuperMissile,
+    /// <summary>Updates the linked Super Missile auxiliary projectile.</summary>
     SuperMissileLink,
+    /// <summary>Updates the main Ice Beam special-attack projectile.</summary>
     IceCombo,
+    /// <summary>Moves an outward Ice Beam special-attack particle.</summary>
     IceComboOutward,
+    /// <summary>Updates the Wave Beam special attack.</summary>
     WaveCombo,
+    /// <summary>Updates the main Spazer special-attack phase.</summary>
     SpazerCombo,
+    /// <summary>Updates the Plasma Beam special attack.</summary>
     PlasmaCombo,
+    /// <summary>Moves a falling Spazer special-attack particle.</summary>
     SpazerComboFalling,
+    /// <summary>Moves a Shinespark echo projectile.</summary>
     ShinesparkEcho,
+    /// <summary>Represents execution that reaches the spacetime palette-copy tail.</summary>
     SpacetimePaletteCopyTail,
+    /// <summary>Represents the chainsaw window-store path before Power Bomb execution.</summary>
     ChainsawWindowStoreThenPowerBomb,
+    /// <summary>Represents charged chainsaw execution through low WRAM.</summary>
     ChargedChainsawLowWramExecution,
+    /// <summary>Represents the Murder Beam's misaligned native execution path.</summary>
     MurderBeamMisalignedExecution,
 }
 
@@ -147,8 +180,11 @@ public sealed class SamusProjectileTrailSlot
         Right = new SamusProjectileTrailSide();
     }
 
+    /// <summary>Gets the zero-based host trail-slot index.</summary>
     public int SlotIndex { get; }
+    /// <summary>Gets the left-side trail animation state and free-slot timer.</summary>
     public SamusProjectileTrailSide Left { get; }
+    /// <summary>Gets the right-side trail animation state.</summary>
     public SamusProjectileTrailSide Right { get; }
 
     internal void ClearFields()
@@ -161,10 +197,15 @@ public sealed class SamusProjectileTrailSlot
 /// <summary>One side of a two-stream bank-$90 projectile-trail animation.</summary>
 public sealed class SamusProjectileTrailSide
 {
+    /// <summary>Horizontal trail-sprite position in pixels.</summary>
     public ushort XPosition { get; internal set; }
+    /// <summary>Vertical trail-sprite position in pixels.</summary>
     public ushort YPosition { get; internal set; }
+    /// <summary>Updates remaining before the current trail instruction advances.</summary>
     public ushort InstructionTimer { get; internal set; }
+    /// <summary>Bank-$90 pointer to the current trail instruction.</summary>
     public ushort InstructionPointer { get; internal set; }
+    /// <summary>Packed tile number and OBJ attributes drawn for this trail side.</summary>
     public ushort TileNumberAttributes { get; internal set; }
 
     internal void ClearFields()
@@ -178,6 +219,11 @@ public sealed class SamusProjectileTrailSide
 }
 
 /// <summary>Immutable summary of one ordinary-projectile alpha pass.</summary>
+/// <param name="QueuedSoundEffect">The primary sound effect queued during the pass, if any.</param>
+/// <param name="QueuedSoundMaximum">The maximum number of simultaneous sounds accepted for the primary request.</param>
+/// <param name="AdditionalSoundRequests">Additional ordered sound requests emitted by the pass.</param>
+/// <param name="QueuedSoundSuppressed">Whether the primary sound request was deliberately suppressed.</param>
+/// <param name="PersistentMemoryCorrupted">Whether the modeled projectile path corrupted persistent memory.</param>
 public readonly record struct SamusProjectileFrameResult(
     SoundEffectId? QueuedSoundEffect,
     byte QueuedSoundMaximum,
@@ -193,17 +239,25 @@ public readonly record struct SamusProjectileFrameResult(
 public readonly record struct SamusProjectileSpawnSnapshot();
 
 /// <summary>Semantic branch and raw table/timer evidence from one `$91:D743` call.</summary>
+/// <param name="Action">The palette action selected by the charge-state branch.</param>
 public readonly record struct SamusBeamChargePaletteStepResult(
     SamusBeamChargePaletteAction Action);
 
 /// <summary>Named outcomes of the nonzero charged-shot glow branches.</summary>
 public enum SamusBeamChargePaletteAction : byte
 {
+    /// <summary>No charge-palette effect is active.</summary>
     Inactive,
+    /// <summary>Advances the ordinary charged-shot glow cycle.</summary>
     ChargeCycle,
+    /// <summary>Advances the pseudo-Screw Attack glow cycle.</summary>
     PseudoScrewCycle,
+    /// <summary>Applies the ordinary white charged-shot palette.</summary>
     OrdinaryWhite,
+    /// <summary>Applies the next Hyper Beam palette entry.</summary>
     HyperPalette,
+    /// <summary>Holds the current Hyper Beam palette.</summary>
     HyperHold,
+    /// <summary>Restores the normal suit palette.</summary>
     RestoredNormalSuit,
 }

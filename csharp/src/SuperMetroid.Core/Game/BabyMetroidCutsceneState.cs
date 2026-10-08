@@ -702,10 +702,13 @@ public sealed partial class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.TakeFinalBlow:
             {
-                // `$A9:CE4C` uses the same four offsets, doubled, around a saved origin.
+                // `ShakeBabyMetroidCutscene` ($A9:CEDB) first adds `$FFFF` to the Y velocity,
+                // which the common mover then applies, and places the Baby at the saved origin
+                // plus the undoubled shaking offsets.
+                YVelocity = unchecked((ushort)(YVelocity + 0xffff));
                 int shakingIndex = (enemyFrameCounter & 6) >> 1;
-                XPosition = unchecked((ushort)(FatalBlowOriginX + 2 * ShakingXOffsets[shakingIndex]));
-                YPosition = unchecked((ushort)(FatalBlowOriginY + 2 * ShakingYOffsets[shakingIndex]));
+                XPosition = unchecked((ushort)(FatalBlowOriginX + ShakingXOffsets[shakingIndex]));
+                YPosition = unchecked((ushort)(FatalBlowOriginY + ShakingYOffsets[shakingIndex]));
                 FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
                 if ((FunctionTimer & 0x8000) != 0)
                 {

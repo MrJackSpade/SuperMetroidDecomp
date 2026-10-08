@@ -225,6 +225,8 @@ public sealed class DoorTransitionState
                 // Native gives it one explicit call before polling the global music queue.
                 runtime.RunBlankGameplayFrame(controllerInput);
                 runtime.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
+                // $82:E659 runs the animated-tile objects once in the destination room.
+                runtime.RunAnimatedTilesObjectHandler();
                 Phase = DoorTransitionPhase.WaitForMusicQueue;
                 break;
 
@@ -262,8 +264,9 @@ public sealed class DoorTransitionState
             case DoorTransitionPhase.FadeInDestinationPalette:
                 runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
                 runtime.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
-                // E737 runs enemy/draw owners on every fade step, without Samus's
-                // movement/animation handler or the ordinary camera streamer.
+                // E737 runs the animated-tile objects, then enemy/draw owners, on every
+                // fade step, without Samus's movement/animation handler or the camera streamer.
+                runtime.RunAnimatedTilesObjectHandler();
                 runtime.DrawDoorTransitionActors(runEnemyProjectiles: true);
                 Phase = DoorTransitionPhase.FadeInDestinationPalette;
                 // Enemy instruction lists run after the initial destination palette copy.

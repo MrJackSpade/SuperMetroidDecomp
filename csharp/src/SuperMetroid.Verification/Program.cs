@@ -330,6 +330,16 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--door-animated-tiles"])
+{
+    VerifyDoorAnimatedTiles();
+    return 0;
+}
+if (args is ["--tourian-statue-xray-freeze"])
+{
+    VerifyTourianStatueXrayFreeze();
+    return 0;
+}
 if (args is ["--save-confirmation-cadence"])
 {
     VerifySaveConfirmationCadence();
@@ -7273,6 +7283,8 @@ VerifyFirefleaDoubleDeath();
 VerifyShutterScrewContact();
 VerifyJumpNoXMovement();
 VerifySaveConfirmationCadence();
+VerifyTourianStatueXrayFreeze();
+VerifyDoorAnimatedTiles();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

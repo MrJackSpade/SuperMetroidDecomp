@@ -1338,6 +1338,36 @@ public sealed partial class SuperMetroidRuntime
     /// handlers. The just-accepted NMI still displays the preceding build for this frame,
     /// matching the cartridge's main-thread/NMI double-buffer boundary.
     /// </summary>
+    /// <summary>
+    /// <c>AnimatedTilesObject_Handler</c> ($87:8064): gameplay ($82:8B75) and the door
+    /// transition's $82:E659 and every $82:E737 fade step call it. XraySetup's
+    /// Disable_AnimatedTilesObjects ($91:E239) freezes every object until the scope ends.
+    /// </summary>
+    internal void RunAnimatedTilesObjectHandler()
+    {
+        if (Samus?.Xray.AreAnimatedTilesSuspended == true)
+            return;
+        SandAnimatedTiles.Step(_addressSpace, Vram, VramWrites);
+        RoomSpikes.Step(_addressSpace, Vram, VramWrites);
+        if (ActiveRoom is not null)
+            RoomTreadmills.Step(_addressSpace,
+                System.HasAnyBossBits(ActiveRoom.AreaIndex, BossBits.AreaBoss), VramWrites);
+        TourianStatues.StepTiles(this);
+
+        // Door ASM $B971/$E1D8 creates an ordinary bank-$87 animated-tile object. Its
+        // handler publishes one 32-byte source per frame only after Phantoon's area-boss
+        // bit is set; NMI consumes the queued transfer on the following accepted frame.
+        if (WreckedShipTreadmill.IsActive)
+        {
+            AreaId areaIndex = ActiveRoom?.AreaIndex ?? throw new InvalidOperationException(
+                "A live Wrecked Ship treadmill animation has no active cartridge room.");
+            WreckedShipTreadmill.Step(
+                _addressSpace,
+                System.HasAnyBossBits(areaIndex, BossBits.AreaBoss),
+                VramWrites);
+        }
+    }
+
     public void RunBlankGameplayFrame(ushort controllerInput)
     {
         RunNmi(controllerInput, mainLoopRequestedNmi: true);
@@ -4146,29 +4176,8 @@ public sealed partial class SuperMetroidRuntime
                 ActiveRoom?.State.MainCallback ?? RoomMainCallback.ScrollingSkyLand);
         }
 
-        if (Samus?.Xray.AreAnimatedTilesSuspended != true)
-        {
-            SandAnimatedTiles.Step(_addressSpace, Vram, VramWrites);
-            RoomSpikes.Step(_addressSpace, Vram, VramWrites);
-            if (ActiveRoom is not null)
-                RoomTreadmills.Step(_addressSpace,
-                    System.HasAnyBossBits(ActiveRoom.AreaIndex, BossBits.AreaBoss), VramWrites);
-        }
+        RunAnimatedTilesObjectHandler();
         StepEscapeRoomEffects();
-        TourianStatues.StepTiles(this);
-
-        // Door ASM $B971/$E1D8 creates an ordinary bank-$87 animated-tile object. Its
-        // handler publishes one 32-byte source per frame only after Phantoon's area-boss
-        // bit is set; NMI consumes the queued transfer on the following accepted frame.
-        if (WreckedShipTreadmill.IsActive && Samus?.Xray.AreAnimatedTilesSuspended != true)
-        {
-            AreaId areaIndex = ActiveRoom?.AreaIndex ?? throw new InvalidOperationException(
-                "A live Wrecked Ship treadmill animation has no active cartridge room.");
-            WreckedShipTreadmill.Step(
-                _addressSpace,
-                System.HasAnyBossBits(areaIndex, BossBits.AreaBoss),
-                VramWrites);
-        }
 
         // Room main $8F:E2B6 is selected by the room state rather than by coordinates.
         // It runs at the common room-main seam after gameplay drawing and before shaking.

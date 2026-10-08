@@ -607,13 +607,14 @@ public sealed partial class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.StareDownMotherBrain:
                 // Literal target from `$CB2D`: four pixels left of Samus and Y `$60`.
-                // The helper's Y index zero means divisor `$10`; its wrong-way X extra is
-                // zero here, unlike the earlier off-screen-safe entrance helpers.
+                // The helper's Y index zero means divisor `$10`. This leg and the next two
+                // enter at `$A9:F466`, which stores a `$10` wrong-way off-screen X extra,
+                // not the `$400` of the entrance helpers.
                 GraduallyAccelerateTowardsPoint(
                     unchecked((ushort)(samus.XPosition - 4)),
                     0x0060,
                     accelerationDivisor: 0x0010,
-                    wrongWayOffScreenXSpeed: 0,
+                    wrongWayOffScreenXSpeed: 0x0010,
                     layer1X,
                     layer1Y);
                 if (CollidesWithRectangle(
@@ -630,7 +631,7 @@ public sealed partial class BabyMetroidCutsceneState
                     0x0110,
                     0x0040,
                     accelerationDivisor: 0x0010,
-                    wrongWayOffScreenXSpeed: 0,
+                    wrongWayOffScreenXSpeed: 0x0010,
                     layer1X,
                     layer1Y);
                 if (CollidesWithRectangle(0x0110, 0x0040, 4, 4))
@@ -645,7 +646,7 @@ public sealed partial class BabyMetroidCutsceneState
                     0x0131,
                     0x00a0,
                     accelerationDivisor: 0x0010,
-                    wrongWayOffScreenXSpeed: 0,
+                    wrongWayOffScreenXSpeed: 0x0010,
                     layer1X,
                     layer1Y);
                 if (CollidesWithRectangle(0x0131, 0x00a0, 4, 4))

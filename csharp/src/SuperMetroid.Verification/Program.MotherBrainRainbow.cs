@@ -577,10 +577,13 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
         retractCalls++;
         AssertTrue(retractCalls < 100, "retracting walk reaches X $28");
     }
-    AssertEqual(41, retractCalls,
-        "AI advances after the -15 opcode crosses hard X $30 boundary");
-    AssertEqual(46, repeatAttack.Body.XPosition,
-        "retract AI handoff occurs at overshot X $2E before walk animation settles");
+    // `$A9:C647` tests pose before the hard `$30` limit. The really-slow program never
+    // stands between steps, so landing inside `$30` mid-step does not complete the walk;
+    // only reaching the `$28` target does, as native does in the 100% movie (#1269).
+    AssertEqual(81, retractCalls,
+        "AI advances when the mid-step walk reaches target X $28");
+    AssertEqual(0x0028, repeatAttack.Body.XPosition,
+        "retract AI handoff occurs at the $28 target, not the hard $30 limit");
     AssertEqual(MotherBrainRainbowBeamAttackPhase.WaitForCharge, repeatAttack.Phase,
         "retract target falls through into second charge wait");
     AssertEqual(0x0050, repeatAttack.NeckAngleDelta, "retract neck NTSC delta");

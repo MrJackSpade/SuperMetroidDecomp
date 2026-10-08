@@ -754,9 +754,10 @@ translated status is documented with the Morph Ball family below.
   `$99C6/$99E2/$99F2/$9A26` stand/lean/crouch lists.
   It reads duration/spritemap pairs and exact movement/pose/sleep opcodes from bank `$A9`,
   mirrors body movement into BG2 scroll (including the posture opcodes' independent X
-  compensation), and retains footstep earthquakes and the form-three sound gate. The backward attack walk
-  crosses the helper's hard X `$30` boundary at `$2E`, so AI advances before the still-running
-  animation settles at `$28`; verification locks that easily missed scheduling detail.
+  compensation), and retains footstep earthquakes and the form-three sound gate. `$A9:C647` tests the body
+  pose before its hard X `$30` boundary, so a walk still mid-step inside `$30` keeps waiting
+  and completes only at the `$28` target, as native WRAM shows in the 100% movie (#1269);
+  verification locks that easily missed scheduling detail.
 - `--mother-brain-rainbow-script` executes the route against the private ROM in native
   AI-then-enemy-instruction order. It reaches retract at 257, crosses X `$30` at 298, begins
   active firing at 570, drains exactly through 872, releases Samus at 879/880, reaches floor

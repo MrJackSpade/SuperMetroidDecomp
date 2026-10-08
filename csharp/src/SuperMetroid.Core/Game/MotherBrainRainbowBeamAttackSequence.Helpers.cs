@@ -71,26 +71,15 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
             return false;
         }
 
-        bool reachedTarget;
-        bool requested;
-        if (PainfulWalkingForward)
-        {
-            requested = RequestWalkForward(0x0048, PainfulWalkingAnimationDelay);
-            reachedTarget = unchecked((short)(0x0048 - Body.XPosition)) < 0 ||
-                NativeAtLeast(Body.XPosition, 0x0080);
-        }
-        else
-        {
-            requested = RequestWalkBackward(0x0028, PainfulWalkingAnimationDelay);
-            reachedTarget = HasReachedBackwardTarget(0x0028);
-        }
-
-        if (reachedTarget)
+        MotherBrainWalkResult walk = PainfulWalkingForward
+            ? RequestWalkForward(0x0048, PainfulWalkingAnimationDelay)
+            : RequestWalkBackward(0x0028, PainfulWalkingAnimationDelay);
+        if (walk.ReachedTarget)
         {
             int timerIndex = Math.Min(PainfulWalkingStage, (ushort)7);
             PainfulWalkingFunctionTimer = MotherBrainPainfulWalkingDefinitions.FunctionTimer(timerIndex);
         }
-        return requested;
+        return walk.Requested;
     }
 
     private bool StepPhase3WalkingHandler(ushort randomNumberSeed)
@@ -136,11 +125,13 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                     return false;
                 }
 
-                return RequestWalkForward(Phase3TargetXPosition, forwardDelay);
+                return RequestWalkForward(Phase3TargetXPosition, forwardDelay).Requested;
 
             case MotherBrainPhase3WalkingPhase.RetreatQuickly:
-                if (!HasReachedBackwardTarget(Phase3TargetXPosition))
-                    return RequestWalkBackward(Phase3TargetXPosition, animationDelay: 0x0002);
+                MotherBrainWalkResult quickRetreat =
+                    RequestWalkBackward(Phase3TargetXPosition, animationDelay: 0x0002);
+                if (!quickRetreat.ReachedTarget)
+                    return quickRetreat.Requested;
 
                 // Reaching the first target chooses another point fourteen pixels left but
                 // does not fall through to the slow request. That request starts only on the
@@ -150,8 +141,10 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 return false;
 
             case MotherBrainPhase3WalkingPhase.RetreatSlowly:
-                if (!HasReachedBackwardTarget(Phase3TargetXPosition))
-                    return RequestWalkBackward(Phase3TargetXPosition, animationDelay: 0x0004);
+                MotherBrainWalkResult slowRetreat =
+                    RequestWalkBackward(Phase3TargetXPosition, animationDelay: 0x0004);
+                if (!slowRetreat.ReachedTarget)
+                    return slowRetreat.Requested;
 
                 // `$C313` writes all three words: forty walk-credit, the inch-forward
                 // function, and a one-pixel-ahead target used by later calls.
@@ -247,12 +240,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         }
     }
 
-    private bool RequestWalkForward(ushort targetX, ushort animationDelay)
+    private MotherBrainWalkResult RequestWalkForward(ushort targetX, ushort animationDelay)
     {
-        if (unchecked((short)(targetX - Body.XPosition)) < 0 || Body.Pose != 0 ||
-            NativeAtLeast(Body.XPosition, 0x0080))
-            return false;
-
         ushort pointer = animationDelay switch
         {
             0x0002 => BodyWalkingForwardReallyFastInstructionList,
@@ -263,15 +252,11 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
             _ => throw new InvalidOperationException(
                 $"Unsupported painful forward animation delay ${animationDelay:X4}."),
         };
-        Body.SetInstructionList(pointer);
-        return true;
+        return MakeBodyWalkForwards(targetX, pointer);
     }
 
-    private bool RequestWalkBackward(ushort targetX, ushort animationDelay)
+    private MotherBrainWalkResult RequestWalkBackward(ushort targetX, ushort animationDelay)
     {
-        if (HasReachedBackwardTarget(targetX) || Body.Pose != 0)
-            return false;
-
         ushort pointer = animationDelay switch
         {
             0x0002 => BodyWalkingBackwardReallyFastInstructionList,
@@ -282,41 +267,50 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
             _ => throw new InvalidOperationException(
                 $"Unsupported painful backward animation delay ${animationDelay:X4}."),
         };
-        Body.SetInstructionList(pointer);
-        return true;
+        return MakeBodyWalkBackwards(targetX, pointer);
     }
 
-    private bool RequestWalkForwardReallySlow(ushort targetX)
+    private MotherBrainWalkResult RequestWalkForwardReallySlow(ushort targetX) =>
+        MakeBodyWalkForwards(targetX, BodyWalkingForwardReallySlowInstructionList);
+
+    private MotherBrainWalkResult RequestWalkBackwardReallySlow(ushort targetX) =>
+        MakeBodyWalkBackwards(targetX, BodyWalkingBackwardReallySlowInstructionList);
+
+    /// <summary>
+    /// Ports <c>$A9:C601</c>. A signed overshoot of the target reports carry first; at
+    /// equality the walk is still requested. A body still mid-pose then reports no carry,
+    /// ahead of the <c>$80</c> arena limit that also reports carry. Only a standing body
+    /// inside both limits installs the walk.
+    /// </summary>
+    private MotherBrainWalkResult MakeBodyWalkForwards(ushort targetX, ushort instructionList)
     {
-        // `$A9:C601` first performs signed CMP/BMI against the target. At equality it still
-        // examines pose and the hard `$80` arena limit; only a strictly overshot target sets
-        // carry at the first branch.
         if (unchecked((short)(targetX - Body.XPosition)) < 0)
-            return false;
+            return MotherBrainWalkResult.Reached;
         if (Body.Pose != 0)
-            return false;
+            return MotherBrainWalkResult.Waiting;
         if (NativeAtLeast(Body.XPosition, 0x0080))
-            return false;
-
-        Body.SetInstructionList(BodyWalkingForwardReallySlowInstructionList);
-        return true;
+            return MotherBrainWalkResult.Reached;
+        Body.SetInstructionList(instructionList);
+        return MotherBrainWalkResult.WalkInstalled;
     }
 
-    private bool RequestWalkBackwardReallySlow(ushort targetX)
+    /// <summary>
+    /// Ports <c>$A9:C647</c>. Reaching or passing the target reports carry first, so a walk
+    /// can complete the AI phase on the frame its movement opcode arrives. A body still
+    /// mid-pose then reports no carry, ahead of the <c>$30</c> arena limit that also reports
+    /// carry. Only a standing body inside both limits installs the walk.
+    /// </summary>
+    private MotherBrainWalkResult MakeBodyWalkBackwards(ushort targetX, ushort instructionList)
     {
-        if (HasReachedBackwardTarget(targetX) || Body.Pose != 0)
-            return false;
-
-        Body.SetInstructionList(BodyWalkingBackwardReallySlowInstructionList);
-        return true;
+        if (unchecked((short)(targetX - Body.XPosition)) >= 0)
+            return MotherBrainWalkResult.Reached;
+        if (Body.Pose != 0)
+            return MotherBrainWalkResult.Waiting;
+        if (unchecked((short)(Body.XPosition - 0x0030)) < 0)
+            return MotherBrainWalkResult.Reached;
+        Body.SetInstructionList(instructionList);
+        return MotherBrainWalkResult.WalkInstalled;
     }
-
-    private bool HasReachedBackwardTarget(ushort targetX) =>
-        // `$A9:C647` reports carry at target/left of target or below the independent `$30`
-        // room limit. This check runs before pose, so an in-progress walk can complete the AI
-        // phase on the exact frame one of its movement opcodes reaches X `$28`.
-        unchecked((short)(targetX - Body.XPosition)) >= 0 ||
-        unchecked((short)(Body.XPosition - 0x0030)) < 0;
 
     private static ushort CalculateFinishOffHealthThreshold(SamusState samus, ushort nominalDamage)
     {
@@ -633,4 +627,15 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
 
     private static bool NativeAtLeast(ushort value, ushort threshold) =>
         unchecked((short)(value - threshold)) >= 0;
+}
+
+/// <summary>
+/// One call of Mother Brain's body walk helpers <c>$A9:C601/$C647</c>: the returned carry
+/// (target or arena limit reached) and whether this call installed a walking program.
+/// </summary>
+internal readonly record struct MotherBrainWalkResult(bool ReachedTarget, bool Requested)
+{
+    internal static MotherBrainWalkResult Reached => new(true, false);
+    internal static MotherBrainWalkResult Waiting => new(false, false);
+    internal static MotherBrainWalkResult WalkInstalled => new(false, true);
 }

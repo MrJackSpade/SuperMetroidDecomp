@@ -615,10 +615,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     public bool RequestBabyStumbleBackward()
     {
         ushort targetX = unchecked((ushort)(Body.XPosition - 1));
-        if (HasReachedBackwardTarget(targetX) || Body.Pose != 0)
-            return false;
-        Body.SetInstructionList(BodyWalkingBackwardReallyFastInstructionList);
-        return true;
+        return MakeBodyWalkBackwards(targetX, BodyWalkingBackwardReallyFastInstructionList).Requested;
     }
 
     /// <summary>

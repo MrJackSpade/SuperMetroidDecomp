@@ -92,10 +92,17 @@ public sealed class SamusCrystalFlashState
     /// Applies every test and initialization write in <c>CrystalFlash</c> at
     /// <c>$90:D5A2</c>.
     /// </summary>
+    /// <param name="bus">Pose, movement-type, collision-radius, and animation definition source used when activation succeeds.</param>
+    /// <param name="samus">Live actor whose admission state is checked and whose pose, handler ownership, shared timers, and hit state are updated on success.</param>
+    /// <param name="controllerInput">Raw held-button word; ordinary admission requires exact equality to Down, L, R, and the Shot binding.</param>
+    /// <param name="shotBinding">Raw controller mask for Shot, defaulting to X; non-controller bits are rejected.</param>
     /// <param name="skipInputCheck">
     /// True only for the title-demo route where game state is at least <c>$28</c>. Ordinary
     /// gameplay must supply the exact chord; extra held buttons make native initiation fail.
     /// </param>
+    /// <returns>True after installing the raising handler; false when the chord or native speed, health, reserve, or ammunition preconditions reject activation.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> or <paramref name="samus"/> is null.</exception>
+    /// <exception cref="InvalidDataException">A controller word contains non-controller bits or the Crystal Flash pose no longer has native movement type $1B.</exception>
     public bool TryBegin(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -180,6 +187,12 @@ public sealed class SamusCrystalFlashState
     }
 
     /// <summary>Executes one active handler call in the native beta-movement position.</summary>
+    /// <param name="bus">Pose movement-type source used by the finishing handler.</param>
+    /// <param name="samus">Live actor receiving movement, ammunition/energy, animation, and handler-completion writes.</param>
+    /// <param name="nmiFrameCounter">Native accepted-NMI counter; ammunition drains only when its low three bits are zero.</param>
+    /// <returns>A value snapshot of the entry phase and retained bubble-HDMA request, even when this call changes phase.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> or <paramref name="samus"/> is null.</exception>
+    /// <exception cref="InvalidOperationException">No Flash movement handler is installed, or the phase/ammunition-family state is unsupported.</exception>
     public CrystalFlashMovementResult Step(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -428,13 +441,19 @@ public sealed class SamusCrystalFlashState
 /// <summary>Named substitutes for Crystal Flash's three bank-$90 handler addresses.</summary>
 public enum CrystalFlashPhase
 {
+    /// <summary>No Crystal Flash movement handler is installed; its palette handler may still await the separate restoration pass.</summary>
     Inactive,
+    /// <summary>$90:D678, SamusMovementHandler_CrystalFlash_RaiseSamus_GenerateBubble: raises the whole Y word two pixels for ten calls, then captures the raised center and requests bubble HDMA.</summary>
     Raising,
+    /// <summary>$90:D6CE, SamusMovementHandler_CrystalFlash_DecrementAmmo: consumes missiles, supers, then power bombs, restoring 50 energy per decrement on every eighth accepted NMI.</summary>
     DrainingAmmo,
+    /// <summary>$90:D75B, SamusMovementHandler_CrystalFlash_Finish: increments Y one pixel whenever it differs from the retained raised word and waits for standing movement type before releasing input locks and requesting palette restoration.</summary>
     Finishing,
 }
 
 /// <summary>One-frame debugger witness from the translated Crystal Flash handler.</summary>
+/// <param name="PhaseAtStart">Handler selected at call entry, before any transition made by that call.</param>
+/// <param name="BubbleHdmaRequested">Retained request flag, not a consumed one-shot event; pair with the raising entry phase to identify bubble activation.</param>
 public readonly record struct CrystalFlashMovementResult(
     CrystalFlashPhase PhaseAtStart,
     bool BubbleHdmaRequested);

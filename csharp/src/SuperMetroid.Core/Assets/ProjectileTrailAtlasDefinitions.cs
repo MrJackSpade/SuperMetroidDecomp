@@ -3,8 +3,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Trail tile ownership within $82:8318's standard sprite transfer from Tiles_Standard_Sprite_0.</summary>
 public static class ProjectileTrailAtlasDefinitions
 {
+    /// <summary>Editable indexed-PNG filename containing only the twelve standard-object projectile-trail characters, not the intervening native tile gap.</summary>
     public const string FileName = "projectile-trails.png";
+    /// <summary>PNG width in pixels: twelve 8x8 4-bpp characters arranged as eight ice/wave tiles followed by four missile-family tiles.</summary>
     public const int Width = 96;
+    /// <summary>PNG height in pixels: one 8-pixel character row; visible colors remain selected by the runtime's projectile palettes.</summary>
     public const int Height = 8;
     /// <summary>$9A:D900 contains OBJ tiles $38..$3F: ice and wave trail frames.</summary>
     public const int IceWaveSource = 0x9ad900;

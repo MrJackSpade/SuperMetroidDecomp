@@ -6,10 +6,14 @@ namespace SuperMetroid.Core.Rendering;
 public sealed record MessageBoxRenderLayer : RenderLayer
 {
     private readonly ushort[] tilemap;
+    /// <summary>Gets the owned packed BG tile words in 32-column row order.</summary>
     public ReadOnlySpan<ushort> Tilemap => tilemap;
+    /// <summary>Gets the validated message height, from three through six eight-pixel rows.</summary>
     public int RowCount => tilemap.Length / GameplayMessageRomData.Layout.TilemapWidth;
+    /// <summary>Gets the current centered reveal half-width in pixels, from zero through 24.</summary>
     public int RadiusPixels { get; }
 
+    /// <summary>Copies a complete message tilemap and captures its current reveal radius for rendering.</summary>
     public MessageBoxRenderLayer(ReadOnlySpan<ushort> tilemap, int radiusPixels)
     {
         int width = GameplayMessageRomData.Layout.TilemapWidth;

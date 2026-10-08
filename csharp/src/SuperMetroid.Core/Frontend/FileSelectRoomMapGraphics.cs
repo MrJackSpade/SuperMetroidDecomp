@@ -14,10 +14,18 @@ public sealed partial class FileSelectRoomMapGraphics
     private readonly MenuPpuState ppu;
     private readonly FileSelectMapIcons icons;
     [NonSerialized] private MapSpriteCatalog? sprites;
+    /// <summary>Live menu-owned VRAM containing the installed BG1 area map, BG2 frame, and map characters; not the gameplay room's VRAM instance.</summary>
     public SnesVram Vram => ppu.Vram;
+    /// <summary>Live menu-owned CGRAM, initialized from file-select presentation colors and subsequently updated by the menu's palette-animation owner.</summary>
     public SnesCgram Cgram => ppu.Cgram;
     internal Bank80SystemState MapSystem => icons.MapSystem;
 
+    /// <summary>Installs one area's revealed BG1 map and fixed BG2 frame into a separate menu PPU owner, following $81:A725/$82:9517 without choosing a load station or advancing menu timing.</summary>
+    /// <param name="bus">Required address-space context for menu PPU setup and drawing APIs.</param>
+    /// <param name="system">Persistence owner supplying downloaded-map, explored-cell, boss, and station visibility state; it is not replaced or cleared.</param>
+    /// <param name="area">One of the six Zebes map areas, excluding Ceres.</param>
+    /// <param name="revealMode">Optional presentation reveal override when projecting installed map cells; ordinary selection uses persistence-driven visibility.</param>
+    /// <param name="mapPresentation">Required installed map tiles, palettes, screens, and sprite/layout resources, despite the optional parameter syntax.</param>
     public FileSelectRoomMapGraphics(ISnesAddressSpace bus, Bank80SystemState system, AreaId area,
         MapRevealMode revealMode = MapRevealMode.None, AreaMapPresentationCatalog? mapPresentation = null)
     {
@@ -79,6 +87,7 @@ public sealed partial class FileSelectRoomMapGraphics
     }
 
     /// <summary>BG2-only endpoint of $81:AC2D; room-map cells are not installed until $81:AD17.</summary>
+    /// <returns>Owned 256-by-224 RGBA frame buffer, valid until this method renders again; BG2 uses fixed scroll (0, 24), with no map icons or timing updates.</returns>
     public Rgba32[] RenderFrameOnly()
     {
         Rgba32[] pixels = frameOnlyBuffer ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height];
@@ -91,6 +100,11 @@ public sealed partial class FileSelectRoomMapGraphics
     }
 
     /// <summary>Draws the saved-station marker over the room map without advancing its animation.</summary>
+    /// <param name="horizontalScroll">BG1/map-icon horizontal scroll in whole pixels; the BG2 frame remains fixed.</param>
+    /// <param name="verticalScroll">BG1/map-icon vertical scroll in whole pixels; the BG2 frame remains fixed.</param>
+    /// <param name="marker">Required saved-station marker whose current animation state is read without stepping it.</param>
+    /// <param name="animations">Optional current arrow-animation owner; drawing does not advance its state.</param>
+    /// <returns>Owned 256-by-224 RGBA background buffer with icons composited in native OAM order; a subsequent background or combined render overwrites it.</returns>
     public Rgba32[] Render(ushort horizontalScroll, ushort verticalScroll, FileSelectStationMarker marker,
         FileSelectMapAnimations? animations = null)
     {
@@ -123,6 +137,9 @@ public sealed partial class FileSelectRoomMapGraphics
     }
 
     /// <summary>Renders Mode-1 BG priorities with independent scrolling for map and fixed frame.</summary>
+    /// <param name="horizontalScroll">BG1 horizontal scroll-register value in pixels.</param>
+    /// <param name="verticalScroll">BG1 vertical scroll-register value in pixels.</param>
+    /// <returns>Owned 256-by-224 RGBA buffer, overwritten by the next background or combined render; within each low/high priority tier the fixed BG2 frame precedes BG1 map cells.</returns>
     public Rgba32[] RenderBackgrounds(ushort horizontalScroll, ushort verticalScroll)
     {
         Rgba32[] pixels = backgroundsBuffer ??= new Rgba32[256 * 224];

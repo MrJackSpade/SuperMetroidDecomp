@@ -5,10 +5,16 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Visual flare placement resource contract, including native low-nibble overread selections.</summary>
 public static class ChargeFlarePlacementDefinitions
 {
+    /// <summary>JSON resource filename for beam-charge flare drawing offsets; editing these signed pixel placements does not change physical projectile origins or charge timing.</summary>
     public const string FileName = "charge-flare-placement.json";
+    /// <summary>Required revision of the shared beam/Grapple placement schema, containing all sixteen standing and sixteen running direction keys.</summary>
     public const int Version = 1;
     /// <summary>The renderer retains all four direction bits, including values beyond named directions.</summary>
     public const int DirectionCount = 16;
+    /// <summary>Formats the exact JSON identity for one movement-mode/direction placement; direction range validation belongs to catalog loading or lookup, not this formatter.</summary>
+    /// <param name="running">True for the running visual-origin table; false for standing, including the native turning/adjacent-row selections.</param>
+    /// <param name="direction">Full native low-nibble selector 0..15, including bounded overreads beyond the ten named aiming directions; formatted as two decimal digits rather than hexadecimal.</param>
+    /// <returns>A key such as <c>standing-00</c> or <c>running-15</c>.</returns>
     public static string Key(bool running, int direction) => $"{(running ? "running" : "standing")}-{direction:D2}";
     /// <summary>$90:C1BC/C1D6: standing turn aiming up or diagonally up.</summary>
     private const int TurningUp = 10;

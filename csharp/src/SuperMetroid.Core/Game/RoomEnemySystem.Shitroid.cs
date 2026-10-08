@@ -675,54 +675,13 @@ public sealed partial class RoomEnemySystem
     {
         if ((uint)divisorTableIndex >= 16)
             throw new ArgumentOutOfRangeException(nameof(divisorTableIndex));
-        int divisor = 16 - divisorTableIndex;
-
-        int deltaX = unchecked((short)(slot.XPosition - targetX));
-        if (deltaX != 0)
-        {
-            int step = Math.Max(1, Math.Abs(deltaX) / divisor);
-            int velocity = unchecked((short)state.XVelocity);
-            if (deltaX > 0)
-            {
-                if (velocity >= 0)
-                {
-                    if (ShitroidIsOffScreen(slot))
-                        velocity -= offscreenReversalKick;
-                    velocity -= 8 + step;
-                }
-                velocity -= step;
-            }
-            else
-            {
-                if (velocity < 0)
-                {
-                    if (ShitroidIsOffScreen(slot))
-                        velocity += offscreenReversalKick;
-                    velocity += 8 + step;
-                }
-                velocity += step;
-            }
-            state.XVelocity = unchecked((ushort)Math.Clamp(velocity, -2048, 2048));
-        }
-
-        int deltaY = unchecked((short)(slot.YPosition - targetY));
-        if (deltaY == 0)
-            return;
-        int verticalStep = Math.Max(1, Math.Abs(deltaY) / divisor);
-        int verticalVelocity = unchecked((short)state.YVelocity);
-        if (deltaY > 0)
-        {
-            if (verticalVelocity >= 0)
-                verticalVelocity -= 8 + verticalStep;
-            verticalVelocity -= verticalStep;
-        }
-        else
-        {
-            if (verticalVelocity < 0)
-                verticalVelocity += 8 + verticalStep;
-            verticalVelocity += verticalStep;
-        }
-        state.YVelocity = unchecked((ushort)Math.Clamp(verticalVelocity, -1280, 1280));
+        // GradualAccelerationDivisorTable ($A9:F56A) holds $10 down to $01.
+        byte divisor = (byte)(16 - divisorTableIndex);
+        state.XVelocity = BabyMetroidGradualAcceleration.AccelerateHorizontally(
+            slot.XPosition, targetX, state.XVelocity, divisor, offscreenReversalKick,
+            () => ShitroidIsOffScreen(slot));
+        state.YVelocity = BabyMetroidGradualAcceleration.AccelerateVertically(
+            slot.YPosition, targetY, state.YVelocity, divisor);
     }
 
     private bool ShitroidIsOffScreen(RoomEnemySlot slot)

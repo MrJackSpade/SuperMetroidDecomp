@@ -202,74 +202,12 @@ public sealed partial class BabyMetroidCutsceneState
         ushort layer1X,
         ushort layer1Y)
     {
-        GraduallyAccelerateHorizontally(
-            targetX,
-            accelerationDivisor,
-            wrongWayOffScreenXSpeed,
-            layer1X,
-            layer1Y);
-
-        short signedDistance = unchecked((short)(YPosition - targetY));
-        if (signedDistance == 0)
-            return;
-        int acceleration = Math.Max(1, Math.Abs((int)signedDistance) / accelerationDivisor);
-        int velocity = unchecked((short)YVelocity);
-        if (signedDistance < 0)
-        {
-            velocity += velocity < 0 ? 8 + acceleration * 2 : acceleration;
-            YVelocity = unchecked((ushort)Math.Min(velocity, 0x0500));
-        }
-        else
-        {
-            velocity -= velocity >= 0 ? 8 + acceleration * 2 : acceleration;
-            YVelocity = unchecked((ushort)Math.Max(velocity, -0x0500));
-        }
-    }
-
-    private void GraduallyAccelerateHorizontally(
-        ushort targetX,
-        ushort accelerationDivisor,
-        ushort wrongWayOffScreenSpeed,
-        ushort layer1X,
-        ushort layer1Y)
-    {
-        short signedDistance = unchecked((short)(XPosition - targetX));
-        if (signedDistance == 0)
-            return;
-        int acceleration = Math.Max(1, Math.Abs((int)signedDistance) / accelerationDivisor);
-        int velocity = unchecked((short)XVelocity);
-        bool offScreen = IsVaguelyOffScreen(layer1X, layer1Y);
-
-        if (signedDistance < 0)
-        {
-            if (velocity < 0)
-            {
-                // The off-screen helper returns carry set. The following ADC therefore
-                // adds `$0401`, an easily missed one-unit native asymmetry.
-                if (offScreen)
-                    velocity += wrongWayOffScreenSpeed + 1;
-                velocity += 8 + acceleration * 2;
-            }
-            else
-            {
-                velocity += acceleration;
-            }
-            XVelocity = unchecked((ushort)Math.Min(velocity, 0x0800));
-        }
-        else
-        {
-            if (velocity >= 0)
-            {
-                if (offScreen)
-                    velocity -= wrongWayOffScreenSpeed;
-                velocity -= 8 + acceleration * 2;
-            }
-            else
-            {
-                velocity -= acceleration;
-            }
-            XVelocity = unchecked((ushort)Math.Max(velocity, -0x0800));
-        }
+        byte divisor = checked((byte)accelerationDivisor);
+        XVelocity = BabyMetroidGradualAcceleration.AccelerateHorizontally(
+            XPosition, targetX, XVelocity, divisor, wrongWayOffScreenXSpeed,
+            () => IsVaguelyOffScreen(layer1X, layer1Y));
+        YVelocity = BabyMetroidGradualAcceleration.AccelerateVertically(
+            YPosition, targetY, YVelocity, divisor);
     }
 
     private bool IsVaguelyOffScreen(ushort layer1X, ushort layer1Y)

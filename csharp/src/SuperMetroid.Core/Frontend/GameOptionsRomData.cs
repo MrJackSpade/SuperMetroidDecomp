@@ -10,13 +10,21 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public static class GameOptionsRomData
 {
+    /// <summary>Bank-$82 base used to expand native sixteen-bit options-menu label pointers into 24-bit cartridge addresses during extraction.</summary>
     public const int MenuBank = 0x820000;
+    /// <summary>Uncompressed page size in bytes: a 32-by-32 tilemap of native sixteen-bit BG entries, also transferred by $82:ECFF.</summary>
     public const int TilemapByteCount = 0x0800;
+    /// <summary>Full intensity of the SNES four-bit brightness field, reached by native options fade-in at $82:ECEC and used to scale rendered colors.</summary>
     public const int MaximumBrightness = 15;
+    /// <summary>BG1 vertical scroll endpoint in pixels at $82:F279; reveals controller-page Exit and Reset rows below the seven action rows.</summary>
     public const int ControllerScrollLimit = 32;
+    /// <summary>Pixels added or removed per menu update by the native controller scroll phases at $82:F274/$F288.</summary>
     public const int ControllerScrollPixelsPerFrame = 2;
+    /// <summary>Number of BG1 tile entries per options-page row; sixteen-bit entries make the byte row stride $40.</summary>
     public const int MenuTilemapWidth = 32;
+    /// <summary>Number of tile rows in each complete options-page tilemap, including rows outside the visible screen.</summary>
     public const int MenuTilemapHeight = 32;
+    /// <summary>Native maximum-six queue policy used for options navigation and confirmation sound requests.</summary>
     public const int MaximumQueuedMenuSounds = 6;
 
     /// <summary>Named import sources loaded by native $82:EC66..ECB8.</summary>
@@ -28,6 +36,7 @@ public static class GameOptionsRomData
     /// </remarks>
     public static class Pages
     {
+        /// <summary>Resolves one of the five page/language selectors to its bank-$97 compressed tilemap source and diagnostic description; unsupported selectors are rejected.</summary>
         public static GameOptionsPageResource Get(GameOptionsTilemap page) => page switch
         {
             GameOptionsTilemap.Primary => new(0x978df4, "primary"),
@@ -53,17 +62,29 @@ public static class GameOptionsRomData
     /// </remarks>
     public static class Rows
     {
+        /// <summary>Primary row zero: begins options fade-out and the following start-game transition.</summary>
         public const int PrimaryStartGame = 0;
+        /// <summary>Primary row three: dissolves to the controller-assignment page after the two intervening language choices.</summary>
         public const int PrimaryControllerSettings = 3;
+        /// <summary>Primary row four: dissolves to the Icon Cancel/Moonwalk special-settings page.</summary>
         public const int PrimarySpecialSettings = 4;
+        /// <summary>Five primary-page rows, bounding selection wrap and the five native cursor records at $82:F307.</summary>
         public const int PrimaryCount = 5;
+        /// <summary>Seven assignable action rows, indices zero through six; Exit and Reset are navigation rows rather than controller bindings.</summary>
         public const int ControllerActionCount = 7;
+        /// <summary>Controller row seven: exits to the primary page; crossing into this row scrolls BG1 down by $20 pixels.</summary>
         public const int ControllerExit = 7;
+        /// <summary>Controller row eight: restores the retail default button permutation without leaving the page.</summary>
         public const int ControllerReset = 8;
+        /// <summary>Nine controller-page rows, bounding selection wrap and the native cursor records at $82:F31B.</summary>
         public const int ControllerCount = 9;
+        /// <summary>Special row zero: toggles Icon Cancel, selected by the $09EA entry of native $82:F0AE.</summary>
         public const int SpecialIconCancel = 0;
+        /// <summary>Special row one: toggles Moonwalk, selected by the $09E4 entry of native $82:F0AE.</summary>
         public const int SpecialMoonwalk = 1;
+        /// <summary>Special row two: returns to the primary page without indexing the two-entry setting-address table.</summary>
         public const int SpecialExit = 2;
+        /// <summary>Three special-page rows, bounding selection wrap and the native cursor records at $82:F33F.</summary>
         public const int SpecialCount = 3;
     }
 
@@ -82,12 +103,15 @@ public static class GameOptionsRomData
     /// </remarks>
     public static class Cursors
     {
+        /// <summary>Screen-pixel X anchor shared by all five primary-page missile cursor records at $82:F307.</summary>
         public const ushort PrimaryX = 0x18;
+        /// <summary>Screen-pixel X anchor shared by all nine controller-page missile cursor records at $82:F31B.</summary>
         public const ushort ControllerX = 0x28;
         /// <summary>$82:F2E0: selector X when the active page phase has no cursor table (including scroll phases).</summary>
         public const ushort HiddenX = 0x180;
         /// <summary>$82:F2E6: selector Y paired with the off-screen X anchor.</summary>
         public const ushort HiddenY = 0x10;
+        /// <summary>Screen-pixel X anchor shared by all three special-page missile cursor records at $82:F33F.</summary>
         public const ushort SpecialX = 0x10;
         /// <summary>Primary options cursor Y for selected row 0..4.</summary>
         /// <remarks>
@@ -137,7 +161,9 @@ public static class GameOptionsRomData
     /// <summary>Controller-label source pointers and destination boxes from $82:F639.</summary>
     public static class ControllerLabels
     {
+        /// <summary>Tile columns in each native controller-button label record; together with its two rows this occupies twelve bytes.</summary>
         public const int WidthInTiles = 3;
+        /// <summary>Tile rows copied for each controller-button label, with source rows packed and destination rows separated by the page's $40-byte stride.</summary>
         public const int HeightInTiles = 2;
         /// <summary>BG1 byte destination for each controller-action label, row 0..6.</summary>
         /// <remarks>
@@ -209,8 +235,11 @@ public static class GameOptionsRomData
     /// </remarks>
     public static class SpecialToggles
     {
+        /// <summary>Native $82:F149/$F14B/$F14D/$F14F choice-box byte offsets for the two-row Icon Cancel toggle.</summary>
         public static GameOptionsToggleLayout IconCancel => Layout(Rows.SpecialIconCancel);
+        /// <summary>Native $82:F151/$F153/$F155/$F157 choice-box byte offsets for the two-row Moonwalk toggle, six tile rows below Icon Cancel.</summary>
         public static GameOptionsToggleLayout Moonwalk => Layout(Rows.SpecialMoonwalk);
+        /// <summary>Bytes recolored in each toggle-choice row: six native tilemap words, with only their palette bits replaced.</summary>
         public const int PaletteRegionByteCount = 0x0c;
 
         /// <summary>
@@ -232,7 +261,9 @@ public static class GameOptionsRomData
     /// <summary>Typed palette indices used to select and dim menu text.</summary>
     public static class TilePalettes
     {
+        /// <summary>BG tile palette zero used to highlight the active language or selected on/off choice; this is a palette index, not packed attribute bits.</summary>
         public const int Selected = 0;
+        /// <summary>BG tile palette one used to dim the inactive language or on/off choice; this is a palette index, not packed attribute bits.</summary>
         public const int Unselected = 1;
     }
 
@@ -288,15 +319,24 @@ public enum GameOptionsTilemap
 }
 
 /// <summary>One compressed options-page resource and its diagnostic name.</summary>
+/// <param name="Address">24-bit cartridge byte address of the bank-$97 compressed tilemap stream, used by asset extraction.</param>
+/// <param name="Description">Human-readable page and language identity for extraction diagnostics.</param>
 public readonly record struct GameOptionsPageResource(int Address, string Description);
 
 /// <summary>One primary-page byte range whose palette identifies the active language.</summary>
+/// <param name="ByteOffset">Byte offset of the first native tilemap word in one language-label row, relative to the page start.</param>
+/// <param name="ByteCount">Contiguous byte length of the row region whose tile palette bits are replaced.</param>
+/// <param name="HighlightWhenJapanese">Whether this region receives the selected palette when Japanese text is active; false identifies an English-label region.</param>
 public readonly record struct GameOptionsLanguagePaletteRegion(
     int ByteOffset,
     int ByteCount,
     bool HighlightWhenJapanese);
 
 /// <summary>Four palette boxes belonging to one binary special-setting row.</summary>
+/// <param name="EnabledTop">Page-relative byte offset of the enabled-choice top row, covering <see cref="GameOptionsRomData.SpecialToggles.PaletteRegionByteCount"/> bytes.</param>
+/// <param name="EnabledBottom">Page-relative byte offset of the enabled-choice bottom row, one $40-byte tilemap row below its top.</param>
+/// <param name="DisabledTop">Page-relative byte offset of the disabled-choice top row, seven tilemap words to the right of the enabled choice.</param>
+/// <param name="DisabledBottom">Page-relative byte offset of the disabled-choice bottom row, one $40-byte tilemap row below its top.</param>
 public readonly record struct GameOptionsToggleLayout(
     int EnabledTop,
     int EnabledBottom,

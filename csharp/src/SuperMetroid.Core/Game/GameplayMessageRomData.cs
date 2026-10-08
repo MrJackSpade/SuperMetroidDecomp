@@ -6,16 +6,22 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Verified bank-$85 message-box tables, routines, layout, and PPU values.</summary>
 public static class GameplayMessageRomData
 {
+    /// <summary>Cartridge addresses of message definitions, borders, and selection tilemaps.</summary>
     public static class Assets
     {
         /// <summary>$85:869B, 29 setup/draw/content definition triples.</summary>
         public const int DefinitionTable = 0x85869b;
+        /// <summary>$85:8000, tilemap words forming the large message-box border.</summary>
         public const int LargeBorder = 0x858000;
+        /// <summary>$85:8040, tilemap words forming the small message-box border.</summary>
         public const int SmallBorder = 0x858040;
+        /// <summary>$85:9581, YES/NO selection rows used by the save prompt.</summary>
         public const int SaveSelectionTilemap = 0x859581;
+        /// <summary>SNES base address of bank $85 for bank-relative message pointers.</summary>
         public const int BankBase = 0x850000;
     }
 
+    /// <summary>Bank-$85 routine identities stored in the message definition table.</summary>
     public static class Routines
     {
         /// <summary>$85:825A, writes the large message-box border layout.</summary>
@@ -32,24 +38,38 @@ public static class GameplayMessageRomData
         public const ushort SetupLarge = 0x8441;
     }
 
+    /// <summary>Message tilemap dimensions, transfer offsets, and window placement.</summary>
     public static class Layout
     {
         /// <summary>Native byte width of one setup/draw/content definition triple.</summary>
         public const int DefinitionBytes = 6;
+        /// <summary>Width of the message BG3 tilemap in tile words.</summary>
         public const int TilemapWidth = 32;
+        /// <summary>Number of rows occupied by the upper and lower borders together.</summary>
         public const int BorderRows = 2;
+        /// <summary>Minimum supported message-box height in tile rows.</summary>
         public const int MinimumRows = 3;
+        /// <summary>Maximum supported message-box height in tile rows.</summary>
         public const int MaximumRows = 6;
+        /// <summary>Width and height of one BG tile in pixels.</summary>
         public const int TilePixels = 8;
+        /// <summary>Destination tilemap word index of the save-selection rows.</summary>
         public const int SaveSelectionDestinationWord = 128;
+        /// <summary>Word count copied for one save-selection row.</summary>
         public const int SaveSelectionRowWords = 32;
+        /// <summary>Source word index of the selected-YES row.</summary>
         public const int SaveSelectionYesSourceWord = 32;
+        /// <summary>Source word index of the selected-NO row.</summary>
         public const int SaveSelectionNoSourceWord = 64;
+        /// <summary>VRAM word base of the message-box BG3 character graphics.</summary>
         public const ushort CharacterBaseWord = 0x4000;
+        /// <summary>Mask removing the native VRAM increment-mode bit from a destination word.</summary>
         public const int VramWordMask = 0x7fff;
+        /// <summary>Vertical screen coordinate around which the message window expands.</summary>
         public const int WindowCenterY = 124;
     }
 
+    /// <summary>Authored lag waits, window-animation steps, and minimum display durations.</summary>
     public static class Timing
     {
         /// <summary>$85:8122: Play_Saving_Sound_Effect waits 160 accepted lag frames.</summary>
@@ -68,20 +88,30 @@ public static class GameplayMessageRomData
         public const int RestoreLagFrames = 5;
         /// <summary>$85:84BC: the save selector waits two lag frames per ReadControllerInput.</summary>
         public const int SaveSelectionReadLagFrames = 2;
+        /// <summary>Maximum half-height reached by the expanding message window.</summary>
         public const int MaximumRadiusPixels = 24;
+        /// <summary>Per-step change in message-window radius.</summary>
         public const int RadiusStepPixels = 2;
+        /// <summary>Minimum updates an item-acquisition message remains displayed.</summary>
         public const int ItemMinimumDisplayFrames = 360;
+        /// <summary>Minimum updates a station message remains displayed.</summary>
         public const int StationMinimumDisplayFrames = 10;
     }
 
+    /// <summary>Temporary CGRAM entries installed while a message box is active.</summary>
     public static class Palette
     {
+        /// <summary>CGRAM color index replaced by the light message color.</summary>
         public const int TemporaryLightIndex = 25;
+        /// <summary>SNES BGR555 light color installed for the message box.</summary>
         public const ushort TemporaryLightColor = 0x0bb1;
+        /// <summary>CGRAM color index replaced by the dark message color.</summary>
         public const int TemporaryDarkIndex = 26;
+        /// <summary>SNES BGR555 dark color installed for the message box.</summary>
         public const ushort TemporaryDarkColor = 0x001f;
     }
 
+    /// <summary>Controller-binding glyph selection and message-relative patch offsets.</summary>
     public static class Buttons
     {
         /// <summary>$85:8426, DrawSpecialButton_SetupPPUForLargeMessageBox.buttons: A glyph.</summary>

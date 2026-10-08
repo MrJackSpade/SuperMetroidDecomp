@@ -5,6 +5,12 @@ public sealed partial class SamusState
     private ushort? _poseCollisionPreviousYPosition;
     private int _poseAlignmentPreviousYDelta;
     private ushort? _previousXPositionWrite;
+    // Pending writes to the previous fractions ($0B12/$0B16): bits set in a mask are replaced
+    // by the matching value bits when the checkpoint is applied. A zero mask means no write.
+    private ushort _previousXSubpositionWriteMask;
+    private ushort _previousXSubpositionWriteValue;
+    private ushort _previousYSubpositionWriteMask;
+    private ushort _previousYSubpositionWriteValue;
 
     /// <summary>
     /// Records a direct write of SamusPreviousXPosition ($0B10) by an owner that runs
@@ -13,6 +19,26 @@ public sealed partial class SamusState
     /// </summary>
     internal void WritePreviousXPosition(ushort xPosition) =>
         _previousXPositionWrite = xPosition;
+
+    /// <summary>
+    /// Records a write to bits of SamusPreviousXSubPosition ($0B12): a byte store sets mask
+    /// $FF00, a word store $FFFF. Later writes this frame replace the bits they cover.
+    /// </summary>
+    internal void WritePreviousXSubposition(ushort mask, ushort value)
+    {
+        _previousXSubpositionWriteValue = (ushort)((_previousXSubpositionWriteValue & ~mask) | (value & mask));
+        _previousXSubpositionWriteMask |= mask;
+    }
+
+    /// <summary>Records a write to bits of SamusPreviousYSubPosition ($0B16), as for X.</summary>
+    internal void WritePreviousYSubposition(ushort mask, ushort value)
+    {
+        _previousYSubpositionWriteValue = (ushort)((_previousYSubpositionWriteValue & ~mask) | (value & mask));
+        _previousYSubpositionWriteMask |= mask;
+    }
+
+    private static ushort ApplyBits(ushort mask, ushort value, ushort word) =>
+        (ushort)((word & ~mask) | value);
 
     /// <summary>
     /// Applies $90:EC7E Samus_AlignBottomWithPrevPose after installing a new pose:
@@ -55,9 +81,19 @@ public sealed partial class SamusState
         ushort correctedY = unchecked((ushort)((_poseCollisionPreviousYPosition ?? previous.YPosition)
             + _poseAlignmentPreviousYDelta));
         ushort xPosition = _previousXPositionWrite ?? previous.XPosition;
+        ushort xSubposition = ApplyBits(_previousXSubpositionWriteMask, _previousXSubpositionWriteValue, previous.XSubposition);
+        ushort ySubposition = ApplyBits(_previousYSubpositionWriteMask, _previousYSubpositionWriteValue, previous.YSubposition);
         _poseCollisionPreviousYPosition = null;
         _poseAlignmentPreviousYDelta = 0;
         _previousXPositionWrite = null;
-        return previous with { XPosition = xPosition, YPosition = correctedY };
+        _previousXSubpositionWriteMask = _previousXSubpositionWriteValue = 0;
+        _previousYSubpositionWriteMask = _previousYSubpositionWriteValue = 0;
+        return previous with
+        {
+            XPosition = xPosition,
+            XSubposition = xSubposition,
+            YPosition = correctedY,
+            YSubposition = ySubposition,
+        };
     }
 }

@@ -232,6 +232,13 @@ internal static class DebuggerStateFieldMigrations
             Console.Error.WriteLine("WARNING: Older runtime has no horizontal-spike animation; restarting the selected room's spike loop at frame zero.");
             return SelectSerializedFields(type, current.Where(field => field.Name != "_roomSpikes").ToArray(), count);
         }
+        if (type == typeof(SamusState) && current.Any(field => field.Name == "_previousYSubpositionWriteMask"))
+        {
+            // Pending previous-fraction writes live within one frame; a capture has none.
+            return SelectSerializedFields(type, current.Where(field => field.Name is not
+                "_previousXSubpositionWriteMask" and not "_previousXSubpositionWriteValue" and not
+                "_previousYSubpositionWriteMask" and not "_previousYSubpositionWriteValue").ToArray(), count);
+        }
         if (type == typeof(SamusState) && current.Any(field => field.Name == "<RefillStationLocked>k__BackingField"))
         {
             // Older builds folded command six into the plain input lock. A capture taken at a

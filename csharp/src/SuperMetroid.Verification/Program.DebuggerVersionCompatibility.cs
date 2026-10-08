@@ -41,12 +41,18 @@ internal static partial class Program
 
         var fields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SamusState)])!;
+        // #1269's pending previous-fraction writes postdate every published Samus layout.
+        string[] previousFractionWrites = ["_previousXSubpositionWriteMask", "_previousXSubpositionWriteValue",
+            "_previousYSubpositionWriteMask", "_previousYSubpositionWriteValue"];
+        FieldInfo[] beforeFractionWrites = fields.Where(field => !previousFractionWrites.Contains(field.Name)).ToArray();
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusState), fields, beforeFractionWrites.Length)
+            .SequenceEqual(beforeFractionWrites), "layout before previous-fraction writes omits only those fields");
         // Every published layout predates the frame-local previous-X write and the station-lock beta.
-        FieldInfo[] published = fields.Where(field => field.Name is not "_previousXPositionWrite"
+        FieldInfo[] published = beforeFractionWrites.Where(field => field.Name is not "_previousXPositionWrite"
             and not "<RefillStationLocked>k__BackingField").ToArray();
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusState), fields, published.Length)
             .SequenceEqual(published), "layout before the previous-X write and station-lock beta omits only those fields");
-        FieldInfo[] beforeStationLock = fields.Where(field => field.Name != "<RefillStationLocked>k__BackingField").ToArray();
+        FieldInfo[] beforeStationLock = beforeFractionWrites.Where(field => field.Name != "<RefillStationLocked>k__BackingField").ToArray();
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusState), fields, beforeStationLock.Length)
             .SequenceEqual(beforeStationLock), "layout before the station-lock beta omits only that field");
         FieldInfo[] legacy = published.Where(field => field.Name is not

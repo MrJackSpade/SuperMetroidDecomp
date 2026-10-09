@@ -21,6 +21,8 @@ public static class ChozoAndTubeColorRomData
     /// </summary>
     public const int LowerNorfairSource = 0xaae35d;
 
+    /// <summary>Color-word count in each 64-byte RGB5 image: two complete sixteen-color OBJ palettes, including each row's transparent color-zero entry.</summary>
     public const int ColorCount = 32;
+    /// <summary>First CGRAM color-word index, not a byte address: 144 starts OBJ palette 1, and the 32-color transfer covers indices 144 through 175 (OBJ palettes 1 and 2), matching the native target-palette rows.</summary>
     public const int Destination = 144;
 }

@@ -26,8 +26,11 @@ public enum NorfairLavaJumpingEnemyFunction : ushort
 /// </summary>
 public sealed class NorfairLavaJumpingEnemyState
 {
+    /// <summary>Physical enemy record that owns the shared C-F words projected by this state.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Binds the typed state view to the room slot whose common words it reads and updates.</summary>
+    /// <param name="slot">The parent or follower record carrying this enemy's common variables.</param>
     internal NorfairLavaJumpingEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>
@@ -82,18 +85,24 @@ public sealed class NorfairLavaJumpingEnemyState
 /// <summary>Literal translation of enemy AI $A2:BE8E-$C02B.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native enemy-definition word used to identify both halves of this paired enemy.</summary>
     internal const ushort NorfairLavaJumpingEnemyDefinition = 0xd2bf;
 
+    /// <summary>Unsigned gravity increment added to the signed 8.8 vertical velocity each update.</summary>
     private const ushort NorfairLavaJumpingEnemyGravity = 56;
+    /// <summary>Unsigned velocity threshold at which the rising phase switches to the jump animation.</summary>
     private const ushort NorfairLavaJumpingEnemyAnimationSwitchVelocity = 0xfc00;
+    /// <summary>Library-two sound selector emitted when the parent begins a jump.</summary>
     private const ushort NorfairLavaJumpingEnemyJumpSound = 0x000d;
 
+    /// <summary>Host-side typed state for each initialized parent or follower enemy slot.</summary>
     private readonly NorfairLavaJumpingEnemyState?[] _norfairLavaJumpingEnemyStates =
         new NorfairLavaJumpingEnemyState?[MaximumEnemyCount];
 
     /// <summary>Most recent library-two jump sound request emitted during this frame.</summary>
     public ushort? LastNorfairLavaJumpingEnemySoundEffect { get; private set; }
 
+    /// <summary>Clears per-slot host state and the room-local sound request when room state is reset.</summary>
     private void ResetNorfairLavaJumpingEnemyRoomState()
     {
         Array.Clear(_norfairLavaJumpingEnemyStates);
@@ -225,6 +234,8 @@ public sealed partial class RoomEnemySystem
         return true;
     }
 
+    /// <summary>Copies the parent's freeze and ascent presentation to its adjacent cosmetic follower.</summary>
+    /// <param name="follower">The follower record whose preceding slot contains its parent.</param>
     private void FollowNorfairLavaJumpingEnemyParent(RoomEnemySlot follower)
     {
         RoomEnemySlot parent = GetPrecedingNorfairLavaJumpingEnemySlot(follower);
@@ -257,6 +268,10 @@ public sealed partial class RoomEnemySystem
         follower.YPosition = parent.YPosition;
     }
 
+    /// <summary>Returns the physical slot immediately before a follower, rejecting slot zero.</summary>
+    /// <param name="follower">The follower whose parent is expected in the preceding slot.</param>
+    /// <returns>The room slot directly preceding <paramref name="follower"/>.</returns>
+    /// <exception cref="InvalidDataException">The follower occupies slot zero and has no preceding slot.</exception>
     private RoomEnemySlot GetPrecedingNorfairLavaJumpingEnemySlot(RoomEnemySlot follower)
     {
         if (follower.SlotIndex == 0)
@@ -268,6 +283,9 @@ public sealed partial class RoomEnemySystem
         return _slots[follower.SlotIndex - 1];
     }
 
+    /// <summary>Checks that a follower immediately follows a parent of this definition.</summary>
+    /// <param name="follower">The follower record whose physical pairing must be validated.</param>
+    /// <exception cref="InvalidDataException">The preceding slot is absent or is not a parent of this enemy.</exception>
     private void ValidateNorfairLavaJumpingEnemyParent(RoomEnemySlot follower)
     {
         RoomEnemySlot parent = GetPrecedingNorfairLavaJumpingEnemySlot(follower);
@@ -282,6 +300,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Applies the enemy's signed 8.8 vertical velocity to its whole and fractional Y coordinates.</summary>
+    /// <param name="slot">The physical record whose Y position is advanced.</param>
+    /// <param name="state">The state supplying the velocity stored in common variable C.</param>
     private static void MoveNorfairLavaJumpingEnemyVertically(
         RoomEnemySlot slot,
         NorfairLavaJumpingEnemyState state)
@@ -307,6 +328,10 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Retrieves the initialized typed state associated with an enemy slot.</summary>
+    /// <param name="slot">The room slot whose Norfair lava-jumping state is required.</param>
+    /// <returns>The state initialized for <paramref name="slot"/>.</returns>
+    /// <exception cref="InvalidOperationException">The slot has not been initialized as this enemy.</exception>
     private NorfairLavaJumpingEnemyState RequireNorfairLavaJumpingEnemyState(RoomEnemySlot slot) =>
         _norfairLavaJumpingEnemyStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Norfair lava-jumping state.");

@@ -22,28 +22,37 @@ internal static class ElevatorPlatformPlmDefinitions
     /// frame; lower art advances two, mirrored about the platform centre.
     /// Continuations are absolute offsets (3,0), (0,1), then the terminator.
     /// </summary>
+    /// <param name="Pointer">Bank-$84 address of one of the three authored frame lists; zero represents an empty draw.</param>
+    /// <param name="Frame">Zero-based platform frame number, used to calculate the tile indices for that layout.</param>
     internal readonly record struct Draw(ushort Pointer, int Frame)
     {
+        /// <summary>Returns three runs for a recognized frame and no runs for the default empty draw.</summary>
         internal int RunCount => Pointer == 0 ? 0 : 3;
+
+        /// <summary>Rejects run indexes outside the draw's emitted horizontal segments.</summary>
         private void CheckRun(int run)
         {
             if ((uint)run >= (uint)RunCount) throw new IndexOutOfRangeException();
         }
+        /// <summary>Returns one tile word for an upper edge or four words for the lower platform row.</summary>
         internal int WordCount(int run)
         {
             CheckRun(run);
             return run == 2 ? 4 : 1;
         }
+        /// <summary>Returns the horizontal offset from this run's origin to the next run.</summary>
         internal sbyte NextX(int run)
         {
             CheckRun(run);
             return run == 0 ? (sbyte)3 : (sbyte)0;
         }
+        /// <summary>Returns the vertical offset from this run's origin to the next run.</summary>
         internal sbyte NextY(int run)
         {
             CheckRun(run);
             return run == 1 ? (sbyte)1 : (sbyte)0;
         }
+        /// <summary>Builds the solid tile word for one cell, mirroring the platform's right half and frame-specific art.</summary>
         internal ushort WordAt(int run, int cell)
         {
             if ((uint)cell >= (uint)WordCount(run)) throw new IndexOutOfRangeException();
@@ -52,6 +61,7 @@ internal static class ElevatorPlatformPlmDefinitions
             return (ushort)(0x8000 | (right ? 0x400 : 0) | tile);
         }
     }
+    /// <summary>Recognizes an aligned authored frame pointer and returns its compact layout descriptor.</summary>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         int offset = pointer - FirstDraw;
@@ -59,6 +69,7 @@ internal static class ElevatorPlatformPlmDefinitions
         draw = owned ? new(pointer, offset / 24) : default;
         return owned;
     }
+    /// <summary>Projects all three native frames into the common shot-block draw-list representation.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> DrawLists
     {
         get
@@ -71,6 +82,7 @@ internal static class ElevatorPlatformPlmDefinitions
         }
     }
 
+    /// <summary>Returns the stable artwork asset identifier for one of the three frame-list pointers.</summary>
     internal static string VisualId(ushort pointer) => pointer switch
     {
         FirstDraw => "first-frame",
@@ -79,6 +91,7 @@ internal static class ElevatorPlatformPlmDefinitions
         _ => throw new InvalidDataException($"Unknown elevator-platform draw list ${pointer:X4}."),
     };
 
+    /// <summary>Resolves a stable artwork identifier to its native pointer and common draw-list representation.</summary>
     internal static bool TryGetByVisualId(string? id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
@@ -118,6 +131,7 @@ internal static class ElevatorPlatformPlmDefinitions
     }
 
     // Temporary artwork DTOs; gameplay draws calculate cells directly.
+    /// <summary>Builds a temporary common artwork list for an authored frame pointer, returning false for unrecognized addresses.</summary>
     internal static bool TryGetDraw(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;

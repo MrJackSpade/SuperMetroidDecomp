@@ -5,6 +5,12 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 
 /// <summary>One consistent read of a render mailbox's private publication counters.</summary>
+/// <param name="Generation">Mailbox generation identifying its current publication lifetime.</param>
+/// <param name="Published">Number of frames published into the mailbox.</param>
+/// <param name="Taken">Number of frames consumed by the reader.</param>
+/// <param name="Replaced">Number of pending frames superseded by a newer publication.</param>
+/// <param name="Invalidated">Number of pending frames discarded during mailbox invalidation.</param>
+/// <param name="HasPendingFrame">Whether a frame was pending when the counters were read under the mailbox lock.</param>
 internal readonly record struct RenderMailboxCounterView(
     long Generation,
     long Published,
@@ -19,6 +25,7 @@ internal readonly record struct RenderMailboxCounterView(
 /// </summary>
 internal static partial class CoreAccess
 {
+    /// <summary>Exposes the private instruction pointers needed to verify Crateria's lightning palette timer operands.</summary>
     extension(CrateriaLightningPaletteFxProgramDefinition self)
     {
         /// <summary>
@@ -32,6 +39,7 @@ internal static partial class CoreAccess
         ];
     }
 
+    /// <summary>Exposes selected private crash-echo projectile coordinates for focused shinespark verification.</summary>
     extension(SamusShinesparkState self)
     {
         /// <summary>Angular-travel word of departing crash-echo projectile slot three.</summary>
@@ -47,6 +55,7 @@ internal static partial class CoreAccess
             PrivateState.Property<ushort>(PrivateState.Field<object>(self, "_firstReleasedCrashEcho"), "Radius");
     }
 
+    /// <summary>Exposes active PLM and collectible state in room-slot order for verification.</summary>
     extension(RoomPlmSystem self)
     {
         /// <summary>Block index of every active PLM, in native slot order.</summary>
@@ -68,6 +77,7 @@ internal static partial class CoreAccess
         ];
     }
 
+    /// <summary>Captures render-mailbox publication counters and pending-frame state as one lock-consistent snapshot.</summary>
     extension(LatestRenderFrameMailbox self)
     {
         /// <summary>Reads every private counter under the mailbox's own lock.</summary>
@@ -89,6 +99,7 @@ internal static partial class CoreAccess
         }
     }
 
+    /// <summary>Exposes the cached gameplay subscreen register value used by accepted NMI uploads.</summary>
     extension(SuperMetroidRuntime self)
     {
         /// <summary>Cached gameplay TS byte the last accepted NMI uploaded with the window registers.</summary>
@@ -98,9 +109,15 @@ internal static partial class CoreAccess
             .ReadByte(GameplayWindowRegisterAddresses.Subscreen);
     }
 
+    /// <summary>Enumerates active room PLM slots in their underlying array order.</summary>
+    /// <param name="plms">Room PLM system whose private slot array is inspected.</param>
+    /// <returns>Active slot objects used by the Group 4 verification accessors.</returns>
     private static IEnumerable<object> Group4ActivePlmSlots(RoomPlmSystem plms) =>
         PrivateState.Field<object[]>(plms, "_slots").Where(slot => PrivateState.Property<bool>(slot, "Active"));
 
+    /// <summary>Selects the non-null item state attached to each active PLM, preserving room-slot order.</summary>
+    /// <param name="plms">Room PLM system whose active slots supply collectible item state.</param>
+    /// <returns>Item objects present in active slots.</returns>
     private static IEnumerable<object> Group4CollectibleItems(RoomPlmSystem plms) =>
         Group4ActivePlmSlots(plms)
             .Select(slot => PrivateState.Property<object?>(slot, "Item"))

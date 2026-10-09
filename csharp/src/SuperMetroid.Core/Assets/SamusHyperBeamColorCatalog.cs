@@ -37,11 +37,17 @@ namespace SuperMetroid.Core.Assets;
 /// no original intermediate correction components remain stored.</remarks>
 public sealed class SamusHyperBeamColorCatalog
 {
+    /// <summary>Explicit RGB5 values that remain independent of the catalog's shared hue and shade calculations.</summary>
     private readonly Dictionary<int, ushort> colors = new();
+    /// <summary>Per-channel inputs retained where a calculated intermediate blend differs from the supplied artwork.</summary>
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> intermediateInputs = new();
+    /// <summary>Independent endpoint channel choices used by the calculated magenta, green, and red rows.</summary>
     private readonly Dictionary<int, EndpointChannels> endpointInputs = new();
+    /// <summary>Per-channel highlight accents retained when the shared shade rule does not reproduce the supplied ink.</summary>
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> shadeInputs = new();
 
+    /// <summary>Compiles supplied palette rows into explicit values and only the independent inputs needed by shared color rules.</summary>
+    /// <param name="frames">Ten rows of packed RGB5 colors used to derive and preserve catalog inputs.</param>
     private SamusHyperBeamColorCatalog(ushort[][] frames)
     {
         for (int frame = 0; frame < frames.Length; frame++)
@@ -115,6 +121,7 @@ public sealed class SamusHyperBeamColorCatalog
         }
     }
 
+    /// <summary>JSON configuration requiring camel-case members, rejecting unknown fields, and formatting saved artwork for review.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -251,10 +258,18 @@ public sealed class SamusHyperBeamColorCatalog
     /// class-level artwork disposition; intermediate relationships are calculated.</remarks>
     internal readonly struct EndpointChannels
     {
+        /// <summary>Supplied red component when it differs from the hue-derived endpoint value.</summary>
         private readonly int? red;
+        /// <summary>Supplied green component when it differs from the hue-derived endpoint value.</summary>
         private readonly int? green;
+        /// <summary>Supplied blue component when it differs from the channel shared by this hue.</summary>
         private readonly int? blue;
 
+        /// <summary>Stores only endpoint components that cannot be recovered from the shared hue channels.</summary>
+        /// <param name="supplied">Packed RGB5 endpoint color from the artwork row.</param>
+        /// <param name="redHue">Whether blue follows the resolved red channel rather than green.</param>
+        /// <param name="expectedRed">Red component produced by the endpoint relationship, if defined.</param>
+        /// <param name="expectedGreen">Green component produced by the endpoint relationship, if defined.</param>
         internal EndpointChannels(ushort supplied, bool redHue, int? expectedRed, int? expectedGreen = null)
         {
             int suppliedRed = supplied & 31;
@@ -265,6 +280,11 @@ public sealed class SamusHyperBeamColorCatalog
             blue = (supplied >> 10 & 31) == expectedBlue ? null : supplied >> 10 & 31;
         }
 
+        /// <summary>Combines stored endpoint exceptions with the calculated hue components into one RGB5 color.</summary>
+        /// <param name="redHue">Whether the default blue channel follows the resolved red channel.</param>
+        /// <param name="expectedRed">Calculated red component used when no independent red input was stored.</param>
+        /// <param name="expectedGreen">Calculated green component used when no independent green input was stored.</param>
+        /// <returns>The packed RGB5 endpoint color.</returns>
         internal ushort Resolve(bool redHue, int expectedRed, int expectedGreen = 0)
         {
             int resolvedRed = red ?? expectedRed;
@@ -272,6 +292,8 @@ public sealed class SamusHyperBeamColorCatalog
             return (ushort)(resolvedRed | resolvedGreen << 5 | (blue ?? (redHue ? resolvedGreen : resolvedRed)) << 10);
         }
     }
+    /// <summary>Rejects repeated object property names before the JSON document is deserialized.</summary>
+    /// <param name="value">Root JSON element to validate for duplicate properties.</param>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Samus Hyper Beam color property {name}."));

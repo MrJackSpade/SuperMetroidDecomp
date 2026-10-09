@@ -15,18 +15,44 @@ internal sealed class FileSelectHelmetParts(int frame) : IReadOnlyList<CompiledS
     private const int BodyTileSide = 3;
     /// <summary>$82:CB2B-CBCA: selected visor overlay top lies two pixels above the shared helmet anchor.</summary>
     private const int VisorTop = -2;
+    /// <summary>Pixel dimensions used to convert atlas tiles into the overlapping 16-pixel OBJ pieces.</summary>
     private const int TileSide = 8, LargeSide = 16;
-    private enum Corner { TopLeft, TopRight, BottomLeft, BottomRight }
+    /// <summary>Quadrants of the four-piece body pose used to preserve the cartridge's part ordering while it turns.</summary>
+    private enum Corner
+    {
+        /// <summary>Upper-left portion of the assembled helmet artwork.</summary>
+        TopLeft,
+        /// <summary>Upper-right portion of the assembled helmet artwork.</summary>
+        TopRight,
+        /// <summary>Lower-left portion of the assembled helmet artwork.</summary>
+        BottomLeft,
+        /// <summary>Lower-right portion of the assembled helmet artwork.</summary>
+        BottomRight
+    }
+
+    /// <summary>Replaces named helmet compositions with the cartridge's tile-based turning pose or visor-glint parts.</summary>
+    /// <param name="name">Sprite composition name; only <c>Helmet.0</c> through <c>Helmet.7</c> select this layout.</param>
+    /// <param name="supplied">Composition to update when its name selects a helmet frame.</param>
+    /// <returns>The supplied composition with calculated helmet parts for a matching name, or unchanged otherwise.</returns>
     internal static SpriteComposition CalculateIfMatching(string name, SpriteComposition supplied) =>
         name.Length == 8 && name.StartsWith("Helmet.", StringComparison.Ordinal) && name[7] is >= '0' and <= '7'
             ? supplied.CalculateIfMatching(new FileSelectHelmetParts(name[7] - '0')) : supplied;
+
+    /// <summary>Number of OBJ parts in the selected pose: four for a turning body and six when two glints overlay it.</summary>
     public int Count => frame < 3 ? 4 : 6;
+
+    /// <summary>Maps a body-part position to its screen quadrant for the selected turning frame.</summary>
+    /// <param name="part">Zero-based body-part position in the native spritemap order.</param>
+    /// <returns>The body quadrant occupied by that part in this frame.</returns>
     private Corner BodyCorner(int part) => frame switch
     {
         0 => part switch { 0 => Corner.TopRight, 1 => Corner.BottomRight, 2 => Corner.BottomLeft, _ => Corner.TopLeft },
         1 => part switch { 0 => Corner.BottomLeft, 1 => Corner.TopLeft, 2 => Corner.TopRight, _ => Corner.BottomRight },
         _ => part switch { 0 => Corner.TopRight, 1 => Corner.TopLeft, 2 => Corner.BottomLeft, _ => Corner.BottomRight },
     };
+    /// <summary>Gets one calculated body or visor-glint OBJ part in cartridge draw order.</summary>
+    /// <param name="index">Zero-based part index, less than <see cref="Count"/>.</param>
+    /// <returns>Tile, position, and OBJ attributes for the selected part.</returns>
     public CompiledSpritePart this[int index]
     {
         get
@@ -50,6 +76,8 @@ internal sealed class FileSelectHelmetParts(int frame) : IReadOnlyList<CompiledS
                 SnesObjAttributeWord.Create(bodyTile, 0, 3, default), true);
         }
     }
+    /// <summary>Enumerates the calculated parts in the order consumed by the sprite composition.</summary>
+    /// <returns>An enumerator over this frame's body and optional visor parts.</returns>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];

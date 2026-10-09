@@ -14,15 +14,19 @@ public sealed class BabyMetroidCutsceneColorCatalog
             fade.AppendIdentity(content);
         });
 
+    /// <summary>Compiled fifteen-color initial image, resolved independently of the source JSON arrays.</summary>
     private readonly BabyMetroidInitialPalette initial;
+    /// <summary>Compiled six-frame death fade, using supplied rows when they differ from the calculated native fade.</summary>
     private readonly ColorFade fade;
 
+    /// <summary>Creates the runtime catalog from already validated packed initial colors and chronological fade rows.</summary>
     private BabyMetroidCutsceneColorCatalog(ushort[] initial, ushort[][] fade)
     {
         this.initial = new(initial);
         this.fade = new(fade);
     }
 
+    /// <summary>JSON rules shared by catalog loading and writing: camel-case names, rejection of unknown members, and indented output.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -53,8 +57,11 @@ public sealed class BabyMetroidCutsceneColorCatalog
     /// no latent RGB8 endpoint reconstruction or stored stock sample is needed.</summary>
     private sealed class ColorFade
     {
+        /// <summary>Deep-copied authored rows, present only when at least one entry differs from the native calculated fade.</summary>
         private readonly ushort[][]? supplied;
 
+        /// <summary>Uses calculated native colors unless the authored rows contain any independently supplied edit.</summary>
+        /// <param name="frames">Validated chronological rows, each containing the displayed fade image's packed RGB5 colors.</param>
         internal ColorFade(ushort[][] frames)
         {
             for (int frame = 0; frame < frames.Length; frame++)
@@ -66,10 +73,16 @@ public sealed class BabyMetroidCutsceneColorCatalog
                 }
         }
 
+        /// <summary>Returns an authored color when edits are present, or calculates that frame's native fade color on demand.</summary>
         internal ushort Resolve(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
 
+        /// <summary>Gets the final-health paint color from which this cutscene's fade frames are derived.</summary>
         private static ushort Endpoint(int color) => BabyMetroidFinalHealthPaintDefinitions.Color(color);
 
+        /// <summary>Calculates one fade sample by scaling each RGB5 component of its endpoint toward black.</summary>
+        /// <param name="frame">Zero-based displayed fade frame, ordered from the brightest image to black.</param>
+        /// <param name="color">Zero-based color within the fourteen entries replaced by the fade.</param>
+        /// <returns>The packed RGB5 sample for the requested frame and color.</returns>
         private static ushort Calculate(int frame, int color)
         {
             ushort endpoint = Endpoint(color);
@@ -81,6 +94,7 @@ public sealed class BabyMetroidCutsceneColorCatalog
             return (ushort)result;
         }
 
+        /// <summary>Adds the frame count and every resolved row in display order to the artwork identity.</summary>
         internal void AppendIdentity(SelectedPresentationHash content)
         {
             content.Append("fade", BabyMetroidCutsceneColorRomData.FadeFrameCount);
@@ -136,6 +150,11 @@ public sealed class BabyMetroidCutsceneColorCatalog
         return bytes;
     }
 
+    /// <summary>Validates an RGB5 color row and packs its channel values into SNES color words.</summary>
+    /// <param name="source">Nullable JSON entries in native image order.</param>
+    /// <param name="required">Exact number of colors required by the image.</param>
+    /// <param name="name">Image label included in validation errors.</param>
+    /// <returns>A newly allocated packed row.</returns>
     private static ushort[] Compile(PaletteRgb5[]? source, int required, string name)
     {
         if (source is null || source.Length != required)
@@ -154,6 +173,7 @@ public sealed class BabyMetroidCutsceneColorCatalog
         return compiled;
     }
 
+    /// <summary>Rejects repeated JSON property names before deserialization can obscure them.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate cutscene Baby color property {name}."));

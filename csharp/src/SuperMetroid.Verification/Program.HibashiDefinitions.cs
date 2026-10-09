@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks Hibashi's authored hitboxes, compiled instruction mechanics, and runtime actors against cartridge data.</summary>
+    /// <param name="rom">Cartridge address space used as the reference for native words and executed selector operands.</param>
     private static void VerifyHibashiDefinitions(SuperMetroidAddressSpace rom)
     {
         const int yOffsetTable = 0xa68dbb;
@@ -171,6 +173,8 @@ internal static partial class Program
             "pass with runtime ROM reads forbidden; 24 executed selectors match the cartridge.");
     }
 
+    /// <summary>Measures warmed mechanics-word lookups to confirm they reuse compiled data without per-call allocations.</summary>
+    /// <returns>A checksum that keeps the lookup results observable during the allocation measurement.</returns>
     private static int ProbeHibashiInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -182,28 +186,53 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads one little-endian cartridge word for comparison with Hibashi's compiled definition.</summary>
+    /// <param name="bus">Cartridge address space containing the reference bytes.</param>
+    /// <param name="address">Byte address of the low byte of the word.</param>
+    /// <returns>The two adjacent bytes combined with the low byte first.</returns>
     private static ushort ReadHibashiWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Address-space decorator that fails if migrated Hibashi activity tables are read at runtime.</summary>
+    /// <param name="source">Underlying address space used for all permitted reads and writes.</param>
     private sealed class HibashiDefinitionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Forwards cartridge-import reads through the guarded address-space path.</summary>
+        /// <param name="address">Cartridge byte address requested by the importer.</param>
+        /// <returns>The byte returned by the source when the address is not forbidden.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the migrated Hibashi hitbox tables and forwards other reads.</summary>
+        /// <param name="address">Byte address requested by production code.</param>
+        /// <returns>The source byte for an address outside the migrated table ranges.</returns>
         public byte ReadByte(int address) => address is >= 0xa68dbb and < 0xa68e13
             ? throw new InvalidOperationException(
                 $"Hibashi attempted migrated hitbox read ${address:X6}.")
             : source.ReadByte(address);
 
+        /// <summary>Forwards writes unchanged because this fixture guards reads from migrated data.</summary>
+        /// <param name="address">Destination byte address.</param>
+        /// <param name="value">Byte written to the source address space.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
+    /// <summary>Address-space decorator that records presentation-operand reads and rejects compiled mechanics reads.</summary>
+    /// <param name="source">Cartridge address space supplying allowed program bytes.</param>
     private sealed class HibashiProgramReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation-word addresses observed while production executes the Hibashi programs.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        /// <summary>Number of attempted reads from bytes that must come from compiled mechanics definitions.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes importer reads through the guard so forbidden program access is also detected.</summary>
+        /// <param name="address">Cartridge byte address requested by the importer.</param>
+        /// <returns>The byte returned by the source when the read is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, tracks presentation operands, and forwards other reads.</summary>
+        /// <param name="address">Byte address requested during program execution.</param>
+        /// <returns>The source byte when the address is not compiled mechanics data.</returns>
         public byte ReadByte(int address)
         {
             if (HibashiInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -234,6 +263,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged; the guard observes only reads from program data.</summary>
+        /// <param name="address">Destination byte address.</param>
+        /// <param name="value">Byte written to the source address space.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

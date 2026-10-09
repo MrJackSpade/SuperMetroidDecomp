@@ -7,6 +7,10 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Compares the extracted full-body color catalog with native palette rows and checks
+    /// every stored or calculated tint, shine, and suit-color derivation against its source data.</summary>
+    /// <param name="rom">Retail address space supplying the original palette words.</param>
+    /// <param name="extracted">Serialized color document produced from the cartridge data.</param>
     private static void VerifyFullBodyPaletteColorData(ISnesAddressSpace rom, byte[] extracted)
     {
         var native = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(extracted));
@@ -385,6 +389,14 @@ internal static partial class Program
                 ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color)), edited.Resolve(pointer, color),
                 "Varia bright-only edit preserves supplied midpoint and other colors");
     }
+    /// <summary>Checks that an installed color override reaches live palette families, survives stock re-extraction,
+    /// and can be removed to restore the original content identity.</summary>
+    /// <param name="stockDirectory">Directory containing the stock map and palette assets.</param>
+    /// <param name="overrideDirectory">Directory receiving the edited full-body color document.</param>
+    /// <param name="original">Stock presentation catalog used to compare content identity.</param>
+    /// <param name="rom">Retail address space used to extract reference content and guard runtime reads.</param>
+    /// <param name="initialPalettes">Installed initial palette artwork supplied to the runtime.</param>
+    /// <param name="fixtureAssets">Room assets bound to the runtime before entering Ceres.</param>
     private static void VerifySamusFullBodyCycleColorOverride(
         string stockDirectory, string overrideDirectory,
         AreaMapPresentationCatalog original, ISnesAddressSpace rom,
@@ -540,13 +552,19 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Address-space wrapper that rejects reads from the native full-body cycle color words.</summary>
     private sealed class FullBodyColorReadGuard :
         ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Underlying address space for permitted reads and all writes.</summary>
         private readonly ISnesAddressSpace source;
+        /// <summary>Byte addresses occupied by the full-body cycle palettes in the cartridge.</summary>
         private readonly HashSet<int> forbidden = new();
+        /// <summary>Number of attempts to read a byte from a guarded palette range.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Wraps a source and builds the set of bytes that runtime palette updates must not reread.</summary>
+        /// <param name="source">Address space supplying bytes outside the guarded color allocations.</param>
         public FullBodyColorReadGuard(ISnesAddressSpace source)
         {
             this.source = source;
@@ -563,6 +581,9 @@ internal static partial class Program
             }
         }
 
+        /// <summary>Rejects a cartridge byte belonging to a full-body cycle palette and records the attempt.</summary>
+        /// <param name="address">Byte address being checked before access.</param>
+        /// <exception cref="InvalidOperationException">The address belongs to a guarded palette range.</exception>
         private void RejectColorSource(int address)
         {
             if (forbidden.Contains(address))
@@ -572,26 +593,45 @@ internal static partial class Program
             }
         }
 
+        /// <summary>Checks the palette guard before forwarding a generic address-space read.</summary>
+        /// <param name="address">Address requested from the wrapped space.</param>
+        /// <returns>The source byte when the address is not a guarded palette byte.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to a guarded palette range.</exception>
         public byte ReadByte(int address)
         {
             RejectColorSource(address);
             return source.ReadByte(address);
         }
 
+        /// <summary>Checks the palette guard before forwarding through the source's cartridge-import interface.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The source byte when the address is not a guarded palette byte.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to a guarded palette range.</exception>
         public byte ReadCartridgeByte(int address)
         {
             RejectColorSource(address);
             return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
         }
 
+        /// <summary>Reads work RAM through the wrapped mutable-memory implementation.</summary>
+        /// <param name="address">Work-RAM address requested by the caller.</param>
+        /// <returns>The byte stored at that address.</returns>
+        /// <exception cref="InvalidOperationException">The source does not expose mutable work RAM.</exception>
         public byte ReadWorkRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Full-body color guard source does not expose WRAM.")).ReadWorkRamByte(address);
 
+        /// <summary>Reads save RAM through the wrapped mutable-memory implementation.</summary>
+        /// <param name="address">Save-RAM address requested by the caller.</param>
+        /// <returns>The byte stored at that address.</returns>
+        /// <exception cref="InvalidOperationException">The source does not expose mutable save RAM.</exception>
         public byte ReadSaveRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Full-body color guard source does not expose SRAM.")).ReadSaveRamByte(address);
 
+        /// <summary>Forwards writes to the wrapped address space without applying the read guard.</summary>
+        /// <param name="address">Address receiving the write.</param>
+        /// <param name="value">Byte stored at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

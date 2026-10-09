@@ -16,6 +16,7 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusPowerBombExplosionState
 {
+    /// <summary>Optional host-installed fixed-color sequence used to resolve power-bomb and Crystal Flash colors.</summary>
     [NonSerialized] private PowerBombFixedColorCatalog? presentationColors;
 
     /// <summary>Current host-owned explosion colors; excluded from debugger-state serialization.</summary>
@@ -92,14 +93,17 @@ public sealed class SamusPowerBombExplosionState
 
     // $19D8 is initialized to zero by HDMA allocation. Stage five performs a wrapping
     // decrement, so zero immediately underflows and permits its first fade step.
+    /// <summary>Shared native afterglow countdown word; zero underflows on the first fade update.</summary>
     private ushort _afterglowTimer;
 
     // $19B4's low byte is initialized to 32 by the last white-explosion frame.
+    /// <summary>Ordinary explosion fade steps remaining before its HDMA state is cleaned up.</summary>
     private byte _afterglowStepsRemaining;
 
     // Crystal Flash's native completion operand was the largest stock COLDATA
     // component. Persist it separately so rebinding editable colors cannot alter
     // HDMA ownership or the wake/cleanup frame, including after state restoration.
+    /// <summary>Crystal Flash fade decrements remaining until the stock-color completion boundary.</summary>
     private byte _crystalFlashAfterglowStepsRemaining;
 
     /// <summary>
@@ -266,6 +270,8 @@ public sealed class SamusPowerBombExplosionState
             Phase = PowerBombExplosionPhase.Inactive;
     }
 
+    /// <summary>Advances the white pre-flash radius and color ramp until yellow shapes begin.</summary>
+    /// <param name="bus">Address-space argument forwarded to fixed-color resolution; the installed catalog supplies the colors.</param>
     private void StepPreExplosionWhite(ISnesAddressSpace bus)
     {
         RenderedPreExplosionRadius = PreExplosionRadius;
@@ -290,6 +296,8 @@ public sealed class SamusPowerBombExplosionState
         Phase = PowerBombExplosionPhase.PreExplosionYellow;
     }
 
+    /// <summary>Consumes each pre-scaled yellow lead-in shape while advancing the non-damaging radius.</summary>
+    /// <param name="bus">Address-space argument forwarded to fixed-color resolution; the installed catalog supplies the colors.</param>
     private void StepPreExplosionYellow(ISnesAddressSpace bus)
     {
         RenderedPreExplosionRadius = PreExplosionRadius;
@@ -327,6 +335,8 @@ public sealed class SamusPowerBombExplosionState
         Phase = PowerBombExplosionPhase.ExplosionYellow;
     }
 
+    /// <summary>Expands the damaging yellow blast and switches to pre-scaled white shapes at its radius limit.</summary>
+    /// <param name="bus">Address-space argument forwarded to fixed-color resolution; the installed catalog supplies the colors.</param>
     private void StepExplosionYellow(ISnesAddressSpace bus)
     {
         RenderedExplosionRadius = ExplosionRadius;
@@ -350,6 +360,8 @@ public sealed class SamusPowerBombExplosionState
         Phase = PowerBombExplosionPhase.ExplosionWhite;
     }
 
+    /// <summary>Consumes the expanding white shape tables and starts the ordinary fixed-color afterglow.</summary>
+    /// <param name="bus">Address-space argument forwarded to fixed-color resolution; the installed catalog supplies the colors.</param>
     private void StepExplosionWhite(ISnesAddressSpace bus)
     {
         RenderedExplosionRadius = ExplosionRadius;
@@ -382,6 +394,8 @@ public sealed class SamusPowerBombExplosionState
         Phase = PowerBombExplosionPhase.Afterglow;
     }
 
+    /// <summary>Advances the 32-step ordinary fade and clears the completed explosion state.</summary>
+    /// <returns>True on the update that finishes cleanup.</returns>
     private bool StepAfterglow()
     {
         _afterglowTimer = unchecked((ushort)(_afterglowTimer - 1));
@@ -416,6 +430,8 @@ public sealed class SamusPowerBombExplosionState
         return false;
     }
 
+    /// <summary>Advances Crystal Flash's shortened yellow expansion until its afterglow phase begins.</summary>
+    /// <param name="bus">Address-space argument forwarded to fixed-color resolution; the installed catalog supplies the colors.</param>
     private void StepCrystalFlashExplosion(ISnesAddressSpace bus)
     {
         // `$88:A552` is a deliberately shorter clone of the yellow Power Bomb expansion.
@@ -442,6 +458,8 @@ public sealed class SamusPowerBombExplosionState
         Phase = PowerBombExplosionPhase.CrystalFlashAfterglow;
     }
 
+    /// <summary>Fades Crystal Flash colors to the native completion boundary and releases both HDMA channels.</summary>
+    /// <returns>True on the update that completes Crystal Flash cleanup.</returns>
     private bool StepCrystalFlashAfterglow()
     {
         _afterglowTimer = unchecked((ushort)(_afterglowTimer - 1));
@@ -487,6 +505,7 @@ public sealed class SamusPowerBombExplosionState
         return true;
     }
 
+    /// <summary>Reloads only the low timer byte, preserving the high-byte underflow used by native fade logic.</summary>
     private void ReloadAfterglowTimerLowByte()
     {
         // Both $88:8BD5 and $88:A3A2 execute STA with an eight-bit accumulator.
@@ -495,6 +514,10 @@ public sealed class SamusPowerBombExplosionState
             SamusSpecialSequenceRomData.PowerBomb.AfterglowTimerReload);
     }
 
+    /// <summary>Resolves one fixed-color entry into the RGB components consumed by the active HDMA phase.</summary>
+    /// <param name="bus">Address-space argument retained by the resolver call; fixed-color values come from the installed catalog.</param>
+    /// <param name="sequence">Power Bomb color sequence to query.</param>
+    /// <param name="colorIndex">Entry within the sequence selected by the current radius.</param>
     private void ReadFixedColor(ISnesAddressSpace bus,
         PowerBombFixedColorSequence sequence, int colorIndex)
     {

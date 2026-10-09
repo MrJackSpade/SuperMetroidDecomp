@@ -27,8 +27,11 @@ public readonly record struct NuclearWaffleOrientation(
 /// </summary>
 public sealed class NuclearWaffleEnemyState
 {
+    /// <summary>Common room-enemy slot whose native words back this articulated boss state.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates the boss-specific projection over its owning common enemy slot.</summary>
+    /// <param name="slot">Physical room slot populated for Nuclear Waffle.</param>
     internal NuclearWaffleEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Native variable A ($0FA8 plus slot byte index): current bank-$A6 inactive/active dispatcher pointer.</summary>
@@ -98,7 +101,9 @@ public sealed class NuclearWaffleEnemyState
     public RoomSpriteObjectSlot?[] SpriteSegments { get; } =
         new RoomSpriteObjectSlot?[3];
 
+    /// <summary>Last observed orientation state for each of the four damaging projectile links.</summary>
     internal ushort[] ProjectileOrientationStates { get; } = new ushort[4];
+    /// <summary>Last observed orientation state for each of the three cosmetic sprite-object links.</summary>
     internal ushort[] SpriteOrientationStates { get; } = new ushort[3];
 }
 
@@ -110,6 +115,7 @@ public sealed class NuclearWaffleEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Boss-specific runtime projections indexed by their owning enemy slot.</summary>
     private readonly NuclearWaffleEnemyState?[] _nuclearWaffleStates =
         new NuclearWaffleEnemyState?[MaximumEnemyCount];
 
@@ -229,6 +235,9 @@ public sealed partial class RoomEnemySystem
         slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
     }
 
+    /// <summary>Allocates the four persistent damaging projectile links and associates them with the boss's initial head pose.</summary>
+    /// <param name="owner">Body slot supplying the link subpositions and projectile ownership context.</param>
+    /// <param name="state">Initialized boss data containing the spawn coordinates and graphics selection.</param>
     private void SpawnNuclearWaffleProjectileSegments(
         RoomEnemySlot owner,
         NuclearWaffleEnemyState state)
@@ -262,6 +271,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Allocates the three persistent cosmetic links from the shared room sprite-object pool.</summary>
+    /// <param name="slot">Boss body slot supplying the initial position and sprite graphics.</param>
+    /// <param name="state">Receives the allocated sprite-object slots in chain order.</param>
     private void SpawnNuclearWaffleSpriteSegments(
         RoomEnemySlot slot,
         NuclearWaffleEnemyState state)
@@ -387,6 +399,11 @@ public sealed partial class RoomEnemySystem
         return new NuclearWaffleOrientation(0, 0);
     }
 
+    /// <summary>Spawns the joint-turn overlay and direction-specific turn sprite at a link's prior position.</summary>
+    /// <param name="x">Room-pixel X coordinate where the orientation change occurred.</param>
+    /// <param name="y">Room-pixel Y coordinate where the orientation change occurred.</param>
+    /// <param name="graphicsIndex">Tile-base and palette bits shared by the boss's effects.</param>
+    /// <param name="orientation">Turn variant and threshold state controlling the effect and sound.</param>
     private void SpawnNuclearWaffleTurnObjects(
         ushort x,
         ushort y,
@@ -411,6 +428,10 @@ public sealed partial class RoomEnemySystem
             LastNuclearWaffleSoundEffect = NuclearWaffleDefinitions.TurnSoundEffect;
     }
 
+    /// <summary>Places the body head on the orbit around its recorded spawn center.</summary>
+    /// <param name="slot">Body slot whose X and Y positions are updated.</param>
+    /// <param name="state">Orbit center and radius for the sweep.</param>
+    /// <param name="angle">Angle used by the cartridge sine and cosine lookup tables.</param>
     private static void PositionNuclearWaffleHead(
         RoomEnemySlot slot,
         NuclearWaffleEnemyState state,
@@ -422,6 +443,8 @@ public sealed partial class RoomEnemySystem
             state.OriginY + ReadEightBitNegativeSineProduct(angle, state.OrbitRadius)));
     }
 
+    /// <summary>Adds the signed 16.16 angular increment, carrying fractional overflow into the whole-angle word.</summary>
+    /// <param name="state">Sweep accumulator and selected angular-speed components to update.</param>
     private static void AddNuclearWaffleAngularSpeed(NuclearWaffleEnemyState state)
     {
         uint fraction = (uint)state.AngleSubposition + state.AngularSpeedFraction;
@@ -430,12 +453,24 @@ public sealed partial class RoomEnemySystem
             state.CurrentAngle + state.AngularSpeedWhole + (fraction >> 16)));
     }
 
+    /// <summary>Tests a wrapping 16-bit subtraction using its signed interpretation.</summary>
+    /// <param name="left">Word from which the right operand is subtracted.</param>
+    /// <param name="right">Word subtracted from the left operand.</param>
+    /// <returns><see langword="true"/> when the wrapped difference is negative as a signed word.</returns>
     private static bool SignedWordDifferenceIsNegative(ushort left, ushort right) =>
         unchecked((short)(left - right)) < 0;
 
+    /// <summary>Tests a wrapping 16-bit subtraction using its signed interpretation.</summary>
+    /// <param name="left">Word from which the right operand is subtracted.</param>
+    /// <param name="right">Word subtracted from the left operand.</param>
+    /// <returns><see langword="true"/> when the wrapped difference is nonnegative as a signed word.</returns>
     private static bool SignedWordDifferenceIsNonnegative(ushort left, ushort right) =>
         unchecked((short)(left - right)) >= 0;
 
+    /// <summary>Retrieves the Nuclear Waffle state associated with the supplied body slot.</summary>
+    /// <param name="slot">Body slot whose initialized extension is required.</param>
+    /// <returns>The boss-specific state stored at the slot's index.</returns>
+    /// <exception cref="InvalidOperationException">The slot has no initialized Nuclear Waffle state.</exception>
     private NuclearWaffleEnemyState RequireNuclearWaffleState(RoomEnemySlot slot) =>
         _nuclearWaffleStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Nuclear Waffle state.");

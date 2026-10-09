@@ -29,8 +29,10 @@ internal static class NoobTubePlmDrawDefinitions
     /// Panel rows use adjacent tiles, vertically reflected below the centre.
     /// Continuations are absolute offsets from the PLM origin, not accumulated steps.
     /// </summary>
+    /// <param name="Pointer">Bank-$84 identity selecting one of the seven compiled tube draw layouts.</param>
     internal readonly record struct Draw(ushort Pointer)
     {
+        /// <summary>Number of native tilemap runs emitted by this layout.</summary>
         internal int RunCount => Pointer switch
         {
             Cleared or BrokenFull => 4,
@@ -38,11 +40,18 @@ internal static class NoobTubePlmDrawDefinitions
             _ => 1,
         };
 
+        /// <summary>Validates a zero-based run index against this layout's run count.</summary>
+        /// <param name="run">Run index to validate.</param>
+        /// <exception cref="IndexOutOfRangeException">The index does not identify a run in this layout.</exception>
         private void CheckRun(int run)
         {
             if ((uint)run >= (uint)RunCount) throw new IndexOutOfRangeException();
         }
 
+        /// <summary>Returns one origin word for single-block states or twelve cells for a tube row.</summary>
+        /// <param name="run">Run whose horizontal word count is requested.</param>
+        /// <returns>Number of tilemap words in the selected run.</returns>
+        /// <exception cref="IndexOutOfRangeException">The run index is outside this layout.</exception>
         internal int WordCount(int run)
         {
             CheckRun(run);
@@ -50,6 +59,9 @@ internal static class NoobTubePlmDrawDefinitions
                 (Pointer is BrokenLate or BrokenFull && run == 0) ? 1 : 12;
         }
 
+        /// <summary>Maps a run index to its authored vertical row, including the broken-panel row offsets.</summary>
+        /// <param name="run">Zero-based run index.</param>
+        /// <returns>Vertical row relative to the PLM origin.</returns>
         private int Row(int run) => Pointer switch
         {
             BrokenLate => run + 3,
@@ -57,12 +69,21 @@ internal static class NoobTubePlmDrawDefinitions
             _ => run,
         };
 
+        /// <summary>Returns the next run's vertical offset from the PLM origin, or zero after the final row.</summary>
+        /// <param name="run">Current run index.</param>
+        /// <returns>Native signed vertical continuation offset.</returns>
+        /// <exception cref="IndexOutOfRangeException">The run index is outside this layout.</exception>
         internal sbyte NextY(int run)
         {
             CheckRun(run);
             return run == RunCount - 1 ? (sbyte)0 : (sbyte)Row(run + 1);
         }
 
+        /// <summary>Calculates one SNES tilemap word from the selected state, row, and horizontal cell.</summary>
+        /// <param name="run">Zero-based vertical run index.</param>
+        /// <param name="cell">Zero-based cell within the run.</param>
+        /// <returns>Tile, flip, and collision bits for the requested tube cell.</returns>
+        /// <exception cref="IndexOutOfRangeException">The run or cell index is outside the layout.</exception>
         internal ushort WordAt(int run, int cell)
         {
             if ((uint)cell >= (uint)WordCount(run)) throw new IndexOutOfRangeException();
@@ -89,6 +110,10 @@ internal static class NoobTubePlmDrawDefinitions
         }
     }
 
+    /// <summary>Recognizes a native tube draw-list pointer and returns its calculated layout.</summary>
+    /// <param name="pointer">Bank-$84 draw-list identity to resolve.</param>
+    /// <param name="draw">Receives the layout for a supported pointer, or the default value on failure.</param>
+    /// <returns><see langword="true"/> when the pointer belongs to the compiled tube layouts.</returns>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         bool owned = pointer is Intact or Damaged or Opened or Cleared or BrokenLate or OpenedRows or BrokenFull;
@@ -96,6 +121,7 @@ internal static class NoobTubePlmDrawDefinitions
         return owned;
     }
 
+    /// <summary>Enumerates the seven exported draw lists in native pointer order.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -108,6 +134,8 @@ internal static class NoobTubePlmDrawDefinitions
         }
     }
 
+    /// <summary>Yields each supported draw-list pointer in the stable native order used by exports.</summary>
+    /// <returns>The intact, damaged, opened, and broken tube layout identities.</returns>
     private static IEnumerable<ushort> Pointers()
     {
         yield return Intact;
@@ -120,6 +148,10 @@ internal static class NoobTubePlmDrawDefinitions
     }
 
     // Temporary artwork import/export DTOs; gameplay calculates cells directly.
+    /// <summary>Builds an export draw list from calculated words for a supported native pointer.</summary>
+    /// <param name="pointer">Bank-$84 draw-list identity to export.</param>
+    /// <param name="list">Receives the calculated list, or the default value when the pointer is unsupported.</param>
+    /// <returns><see langword="true"/> when a compiled layout exists for the pointer.</returns>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;
@@ -135,6 +167,10 @@ internal static class NoobTubePlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Maps a native tube draw-list pointer to its stable editable-artwork key.</summary>
+    /// <param name="pointer">Supported bank-$84 draw-list identity.</param>
+    /// <returns>The lowercase visual identifier used by presentation data.</returns>
+    /// <exception cref="InvalidDataException">The pointer has no compiled visual identity.</exception>
     internal static string VisualId(ushort pointer) => pointer switch
     {
         Intact => "intact",
@@ -147,6 +183,10 @@ internal static class NoobTubePlmDrawDefinitions
         _ => throw new InvalidDataException($"N00b-tube draw ${pointer:X4} has no visual ID."),
     };
 
+    /// <summary>Resolves an editable-artwork key to its compiled export draw list using ordinal matching.</summary>
+    /// <param name="id">Case-sensitive visual identifier such as <c>broken-late</c>.</param>
+    /// <param name="list">Receives the corresponding draw list, or the default value when no key matches.</param>
+    /// <returns><see langword="true"/> when the identifier names a supported tube layout.</returns>
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         foreach (ushort pointer in Pointers())

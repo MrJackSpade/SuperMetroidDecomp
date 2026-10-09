@@ -6,10 +6,16 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Runs the statue instruction-program checks against the retail cartridge image.</summary>
     private static void VerifyBombTorizoStatueInstructionProgramDefinitions() =>
         Suite(nameof(VerifyBombTorizoStatueInstructionProgramDefinitions), () => VerifyBombTorizoStatueInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>
+    /// Compares compiled statue mechanics with cartridge control data and drives every real fragment
+    /// program while a read guard rejects attempts to fetch those mechanics at runtime.
+    /// </summary>
+    /// <param name="rom">Cartridge address space used as the reference for compiled values and allowed assets.</param>
     private static void VerifyBombTorizoStatueInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -122,6 +128,8 @@ internal static partial class Program
             "and deletions pass with mechanics bytes forbidden.");
     }
 
+    /// <summary>Checks that every statue presentation operand resolves to its native spritemap selector.</summary>
+    /// <param name="rom">Cartridge address space containing the statue instruction and sprite records.</param>
     private static void VerifyStatueFragmentVisualMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0xa4c5,0xa4d0,0xa4d6,0xa4e1,0xa4e7,0xa4f2,0xa4f8,0xa503,
@@ -151,6 +159,8 @@ internal static partial class Program
         foreach (ushort address in new ushort[] {0,0x7fff,0xffff})
             AssertThrows<InvalidDataException>(() => EnemyProjectileSpritemapDefinitions.BombTorizoStatueFrameAt(address), "statue distant invalid visual operand");
     }
+    /// <summary>Checks the native control-word order and ensures only control bytes belong to the compiled mechanics set.</summary>
+    /// <param name="rom">Cartridge address space used to compare compiled control words to their native values.</param>
     private static void VerifyStatueProgramControlLayout(SuperMetroidAddressSpace rom)
     {
         ushort[] starts = [0xa4c3,0xa4d4,0xa4e5,0xa4f6,0xa507,0xa518,0xa529,0xa53a,
@@ -186,6 +196,7 @@ internal static partial class Program
         foreach (ushort address in new ushort[] {0,0x7fff,0xffff})
             AssertThrows<InvalidDataException>(() => BombTorizoStatueInstructionProgramDefinitions.ReadMechanicsWord(address), "statue distant invalid control");
     }
+    /// <summary>Checks the ordered visual-operand addresses and their membership independently from control bytes.</summary>
     private static void VerifyStatueProgramPresentationLayout()
     {
         ushort[] expected = [0xa4c5,0xa4d0,0xa4d6,0xa4e1,0xa4e7,0xa4f2,0xa4f8,0xa503,
@@ -201,6 +212,8 @@ internal static partial class Program
         foreach (int index in new[] {int.MinValue,-1,32,int.MaxValue})
             AssertThrows<ArgumentOutOfRangeException>(() => BombTorizoStatueInstructionProgramDefinitions.PresentationWordAddress(index), "statue visual ordinal bounds");
     }
+    /// <summary>Compares the initial wait word of each compiled fragment program with the cartridge and checks lookup bounds.</summary>
+    /// <param name="rom">Cartridge address space containing the sixteen native fragment programs.</param>
     private static void VerifyBombTorizoStatueInitialDurations(SuperMetroidAddressSpace rom)
     {
         ushort[] starts = [0xa4c3,0xa4d4,0xa4e5,0xa4f6,0xa507,0xa518,0xa529,0xa53a,
@@ -221,6 +234,8 @@ internal static partial class Program
         foreach (int index in new[] {int.MinValue,-1,96,int.MaxValue})
             AssertThrows<ArgumentOutOfRangeException>(() => BombTorizoStatueInstructionProgramDefinitionsTooling.MechanicsWord(index), "statue initial duration enumeration domain");
     }
+    /// <summary>Consumes repeated mechanics lookups so the caller can measure warmed lookup allocations.</summary>
+    /// <returns>A checksum that keeps the lookup results observable to the caller.</returns>
     private static int ProbeBombTorizoStatueInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -232,14 +247,24 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Wraps cartridge access to reject runtime reads of compiled mechanics and record visual-operand reads.</summary>
+    /// <param name="source">Backing cartridge address space for reads and writes that pass the guard.</param>
     private sealed class BombTorizoStatueInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation-word addresses observed while production reads the statue instructions.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        /// <summary>Number of attempts to read a byte owned by the compiled mechanics definitions.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes an import-source read through the same mechanics and presentation checks as a normal read.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The byte returned by the backing address space if the read is allowed.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled-mechanics reads, records presentation reads, and forwards other reads.</summary>
+        /// <param name="address">Address to read from the backing cartridge source.</param>
+        /// <returns>The requested byte when it is not owned by compiled mechanics.</returns>
         public byte ReadByte(int address)
         {
             if (BombTorizoStatueInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -268,6 +293,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write to the backing address space without changing the guard's read accounting.</summary>
+        /// <param name="address">Cartridge address to update.</param>
+        /// <param name="value">Byte to write at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -4,6 +4,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Compares the Nuclear Waffle geometry and instruction tables with cartridge data,
+    /// then exercises both production initialization and its compiled instruction stream.
+    /// </summary>
+    /// <param name="rom">The retail address space supplying the native geometry and instruction bytes.</param>
     private static void VerifyNuclearWaffleDefinitions(SuperMetroidAddressSpace rom)
     {
         const int endpointTable = 0xa695f6;
@@ -152,6 +157,11 @@ internal static partial class Program
             "runtime ROM reads forbidden; 12 executed selectors match the cartridge.");
     }
 
+    /// <summary>
+    /// Repeats compiled mechanics lookups to warm the path and produce a checksum for
+    /// the allocation check.
+    /// </summary>
+    /// <returns>A checksum over the looked-up instruction words.</returns>
     private static int ProbeNuclearWaffleInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -163,28 +173,78 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>
+    /// Reads a little-endian word from two adjacent bytes in the supplied address space.
+    /// </summary>
+    /// <param name="bus">The address space containing the native word.</param>
+    /// <param name="address">The address of the word's low byte.</param>
+    /// <returns>The two bytes combined into a 16-bit unsigned value.</returns>
     private static ushort ReadNuclearWaffleWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>
+    /// Guards the migrated Nuclear Waffle geometry table against runtime cartridge reads.
+    /// </summary>
+    /// <param name="source">The address space that supplies reads outside the migrated geometry table and all writes.</param>
     private sealed class NuclearWaffleDefinitionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>
+        /// Routes cartridge reads through the geometry-read guard.
+        /// </summary>
+        /// <param name="address">The bus address to read.</param>
+        /// <returns>The byte supplied by the guarded address space.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>
+        /// Rejects reads from the compiled geometry table and delegates other reads to the wrapped bus.
+        /// </summary>
+        /// <param name="address">The bus address to inspect and read.</param>
+        /// <returns>The byte supplied by the wrapped address space when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address falls within the migrated geometry table.</exception>
         public byte ReadByte(int address) => address is >= 0xa695f6 and < 0xa6960e
             ? throw new InvalidOperationException(
                 $"Nuclear Waffle attempted migrated geometry read ${address:X6}.")
             : source.ReadByte(address);
 
+        /// <summary>
+        /// Forwards writes unchanged to the wrapped address space.
+        /// </summary>
+        /// <param name="address">The bus address to write.</param>
+        /// <param name="value">The byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
+    /// <summary>
+    /// Prevents production execution from rereading compiled Nuclear Waffle mechanics
+    /// bytes and records reads of its visual-selector operands.
+    /// </summary>
+    /// <param name="source">The underlying address space used for permitted reads and all writes.</param>
     private sealed class NuclearWaffleProgramReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>
+        /// Gets the compiled visual-selector words whose bytes were requested during execution.
+        /// </summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>
+        /// Gets the number of attempts to read a compiled mechanics byte before rejection.
+        /// </summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>
+        /// Routes cartridge reads through the mechanics-read guard and selector observation.
+        /// </summary>
+        /// <param name="address">The bus address to read.</param>
+        /// <returns>The byte supplied by the guarded address space when the read is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>
+        /// Rejects compiled mechanics-byte reads, observes visual-selector reads, and delegates
+        /// all permitted reads to the wrapped address space.
+        /// </summary>
+        /// <param name="address">The bus address to inspect and read.</param>
+        /// <returns>The byte supplied by the wrapped address space when the read is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled Nuclear Waffle mechanics.</exception>
         public byte ReadByte(int address)
         {
             if (NuclearWaffleInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -215,6 +275,11 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>
+        /// Forwards writes unchanged to the wrapped address space.
+        /// </summary>
+        /// <param name="address">The bus address to write.</param>
+        /// <param name="value">The byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

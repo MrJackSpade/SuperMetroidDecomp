@@ -4,12 +4,14 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Loads the retail ROM and runs the Morph Ball eye instruction verification suite.</summary>
     private static void VerifyMorphBallEyeInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMorphBallEyeInstructionProgramDefinitions), () => VerifyMorphBallEyeInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks compiled instruction operands, all eye programs, initializer selections, and guarded ROM access.</summary>
     private static void VerifyMorphBallEyeInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -158,6 +160,7 @@ internal static partial class Program
             "without presentation ROM reads.");
     }
 
+    /// <summary>Verifies that body parameters and mount directions select their corresponding native instruction lists.</summary>
     private static void VerifyMorphBallEyeInitializerSelections(
         ISnesAddressSpace bus,
         BindingFlags flags)
@@ -200,6 +203,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Creates a room-enemy system whose cartridge reads are served by the supplied address space.</summary>
     private static RoomEnemySystem NewMorphBallEyeInstructionSystem(
         ISnesAddressSpace bus,
         BindingFlags flags)
@@ -209,6 +213,7 @@ internal static partial class Program
         return enemies;
     }
 
+    /// <summary>Initializes one slot as a bank-$A8 Morph Ball eye and positions its instruction cursor at a chosen entry.</summary>
     private static RoomEnemySlot PrepareMorphBallEyeInstructionSlot(
         RoomEnemySystem enemies,
         ushort entry)
@@ -221,6 +226,7 @@ internal static partial class Program
         return slot;
     }
 
+    /// <summary>Repeats compiled mechanics lookups so the caller can measure warmed allocation behavior.</summary>
     private static int ProbeMorphBallEyeInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -234,6 +240,7 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian instruction word from bank $A8 at the supplied offset.</summary>
     private static ushort ReadMorphBallEyeInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -241,14 +248,20 @@ internal static partial class Program
             source.ReadByte(0xa80000 | address) |
             source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Tracks presentation-word reads and rejects runtime reads from mechanics bytes represented by compiled definitions.</summary>
+    /// <param name="source">Underlying address space used for reads and writes not rejected or recorded by the guard.</param>
     private sealed class MorphBallEyeInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation operands touched during execution, used to confirm the runtime selects compiled visuals.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        /// <summary>Number of attempted reads from mechanics bytes already represented by compiled definitions.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes importer reads through the same tracking and rejection logic as runtime reads.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, records presentation reads, and forwards other bytes to the source.</summary>
         public byte ReadByte(int address)
         {
             if (MorphBallEyeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -277,6 +290,7 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged; this guard only inspects reads.</summary>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -27,10 +27,18 @@ public enum EndingPaletteId
 /// <summary>One exact BGR555 color image, independently editable as RGB5 JSON.</summary>
 public sealed class EndingPalette
 {
+    /// <summary>Little-endian BGR555 bytes for palettes stored directly rather than computed from a logo fade.</summary>
     private readonly byte[]? nativeBytes;
+
+    /// <summary>Compact endpoint representation used to calculate the animated logo crossfade on demand.</summary>
     private readonly EndingLogoPaletteFade? logoFade;
 
+    /// <summary>Creates a palette backed by its complete native BGR555 byte image.</summary>
+    /// <param name="nativeBytes">The ordered little-endian color words retained for transfer and lookup.</param>
     private EndingPalette(byte[] nativeBytes) => this.nativeBytes = nativeBytes;
+
+    /// <summary>Creates a palette whose intermediate logo-crossfade colors are evaluated when requested.</summary>
+    /// <param name="logoFade">The endpoint-based fade definition used to calculate each selected color.</param>
     private EndingPalette(EndingLogoPaletteFade logoFade) => this.logoFade = logoFade;
 
     /// <summary>Transfer/export view. A computed fade is materialized only for this
@@ -84,6 +92,10 @@ public sealed class EndingPalette
         }
     }
 
+    /// <summary>Encodes a consecutive range of this palette as little-endian BGR555 words.</summary>
+    /// <param name="bytes">Destination span with room for <paramref name="count"/> color words.</param>
+    /// <param name="sourceColor">Zero-based first color to encode.</param>
+    /// <param name="count">Number of consecutive colors to encode.</param>
     private void WriteColors(Span<byte> bytes, int sourceColor, int count)
     {
         for (int i = 0; i < count; i++)
@@ -150,6 +162,7 @@ public sealed record EndingPaletteDocument
 /// <summary>Independent static and animated color resources used by the ending.</summary>
 public sealed class EndingPaletteCatalog
 {
+    /// <summary>Retains the seven role-specific palettes used by the ending and its content identity.</summary>
     private readonly EndingPalette escape, postCredits, credits, explosion, finalGunship, logoInitial, logoCrossfade;
 
     /// <summary>Groups seven independently selected immutable palette resources without copying them or validating their sizes.</summary>

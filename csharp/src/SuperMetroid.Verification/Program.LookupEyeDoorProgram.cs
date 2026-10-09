@@ -3,19 +3,45 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks the eye-door program's native control-byte addresses against the supported ROM.</summary>
     private static void VerifyEyeDoorProgramControl(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Control");
+
+    /// <summary>Checks the native duration operands used by eye-door instruction commands.</summary>
     private static void VerifyEyeDoorProgramDuration(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Duration");
+
+    /// <summary>Checks the native draw operands embedded in eye-door instruction programs.</summary>
     private static void VerifyEyeDoorProgramDraw(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Draw");
+
+    /// <summary>Checks the native target operands referenced by eye-door instruction commands.</summary>
     private static void VerifyEyeDoorProgramTarget(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Target");
+
+    /// <summary>Checks the callback operands stored in the eye-door instruction programs.</summary>
     private static void VerifyEyeDoorProgramCallback(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Callback");
+
+    /// <summary>Checks the native column-count operands used by eye-door instruction commands.</summary>
     private static void VerifyEyeDoorProgramColumns(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Columns");
+
+    /// <summary>Checks the native row-count operands used by eye-door instruction commands.</summary>
     private static void VerifyEyeDoorProgramRows(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Rows");
+
+    /// <summary>Checks the attack-state operands contained in the eye-door instruction data.</summary>
     private static void VerifyEyeDoorProgramAttack(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Attack");
+
+    /// <summary>Checks the sweat-animation operands contained in the eye-door instruction data.</summary>
     private static void VerifyEyeDoorProgramSweat(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Sweat");
+
+    /// <summary>Checks the sound-effect operands contained in the eye-door instruction data.</summary>
     private static void VerifyEyeDoorProgramSound(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Sound");
+
+    /// <summary>Checks the hit-count operands used by the eye-door encounter programs.</summary>
     private static void VerifyEyeDoorProgramHitCount(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "HitCount");
+
+    /// <summary>Checks the loop-count operands that control repeated eye-door instruction sequences.</summary>
     private static void VerifyEyeDoorProgramLoopCount(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "LoopCount");
 
+    /// <summary>Compares one named category of eye-door mechanics bytes and overlapping words with independently read cartridge data.</summary>
+    /// <param name="rom">Supported retail ROM address space used as the expected native data source.</param>
+    /// <param name="field">Mechanics category whose native address set is checked.</param>
     private static void VerifyEyeDoorProgramField(SuperMetroidAddressSpace rom, string field)
     {
         // Independent byte ownership from pinned bank_84.asm native instruction/operand declarations.

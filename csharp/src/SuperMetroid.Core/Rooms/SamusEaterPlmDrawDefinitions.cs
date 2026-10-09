@@ -27,26 +27,43 @@ internal static class SamusEaterPlmDrawDefinitions
     /// <summary>Native ceiling-chew-3 draw list at $84:9F09.</summary>
     internal const ushort CeilingChew3 = 0x9f09;
 
+    /// <summary>Describes one floor or ceiling Samus Eater draw list and its chewing-art phase.</summary>
+    /// <param name="Pointer">Native bank-$84 draw-list pointer.</param>
+    /// <param name="Ceiling">Whether the layout is attached to the ceiling and vertically flipped.</param>
+    /// <param name="Phase">Idle or chewing phase selecting the mouth and foliage tiles.</param>
     internal readonly record struct Draw(ushort Pointer, bool Ceiling, int Phase)
     {
+        /// <summary>Returns the block count for one of the two mouth runs or the foliage run.</summary>
+        /// <param name="run">Run index: zero and one are mouth halves; two is foliage.</param>
+        /// <returns>Two blocks for a mouth half or four for foliage.</returns>
         internal static int Count(int run) => run switch
         {
             0 or 1 => 2,
             2 => 4,
             _ => throw new IndexOutOfRangeException(),
         };
+        /// <summary>Returns the horizontal continuation offset between consecutive runs.</summary>
+        /// <param name="run">Run index whose next-X offset is requested.</param>
+        /// <returns>Negative two for either mouth run, zero after foliage.</returns>
         internal static sbyte NextX(int run) => run switch
         {
             0 or 1 => -2,
             2 => 0,
             _ => throw new IndexOutOfRangeException(),
         };
+        /// <summary>Returns the vertical continuation offset, accounting for ceiling orientation.</summary>
+        /// <param name="run">Run index whose next-Y offset is requested.</param>
+        /// <returns>Zero for the first and foliage runs; an orientation-dependent offset for the second mouth run.</returns>
         internal sbyte NextY(int run) => run switch
         {
             0 or 2 => 0,
             1 => Ceiling ? (sbyte)1 : (sbyte)-1,
             _ => throw new IndexOutOfRangeException(),
         };
+        /// <summary>Builds the tile and collision word for one block in the selected run.</summary>
+        /// <param name="run">Run index identifying a mouth half or foliage.</param>
+        /// <param name="block">Zero-based block position within the run.</param>
+        /// <returns>Native level word with tile, collision, mirroring, and optional ceiling-flip bits.</returns>
         internal ushort WordAt(int run, int block)
         {
             if ((uint)block >= Count(run)) throw new IndexOutOfRangeException();
@@ -75,6 +92,10 @@ internal static class SamusEaterPlmDrawDefinitions
         }
     }
 
+    /// <summary>Resolves a supported native list pointer to floor/ceiling orientation and chew phase.</summary>
+    /// <param name="pointer">Bank-$84 draw-list pointer to inspect.</param>
+    /// <param name="draw">Matching layout, or the default value when the pointer is unknown.</param>
+    /// <returns><see langword="true"/> when the pointer identifies one of the eight authored lists.</returns>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         draw = pointer switch
@@ -93,6 +114,7 @@ internal static class SamusEaterPlmDrawDefinitions
     }
 
     // Materialize temporary DTOs only for the existing artwork import/export interface.
+    /// <summary>Enumerates all eight floor/ceiling idle and chew layouts as artwork-facing draw lists.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -108,6 +130,9 @@ internal static class SamusEaterPlmDrawDefinitions
         }
     }
 
+    /// <summary>Maps a supported native list pointer to its stable artwork identifier.</summary>
+    /// <param name="pointer">Native Samus Eater draw-list pointer.</param>
+    /// <returns>The corresponding floor/ceiling and chew-phase identifier.</returns>
     internal static string VisualId(ushort pointer) => pointer switch
     {
         FloorIdle => "floor-idle",
@@ -121,6 +146,10 @@ internal static class SamusEaterPlmDrawDefinitions
         _ => throw new InvalidDataException($"Samus Eater draw ${pointer:X4} has no visual ID."),
     };
 
+    /// <summary>Looks up the artwork-facing draw-list DTO by its stable visual identifier.</summary>
+    /// <param name="id">Identifier to resolve, compared using ordinal case-sensitive matching.</param>
+    /// <param name="list">Matching draw list, or the default value when no identifier matches.</param>
+    /// <returns><see langword="true"/> when the identifier names a supported layout.</returns>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
@@ -136,6 +165,10 @@ internal static class SamusEaterPlmDrawDefinitions
         return false;
     }
 
+    /// <summary>Materializes the three native runs and their block words for a supported list pointer.</summary>
+    /// <param name="pointer">Native bank-$84 draw-list pointer.</param>
+    /// <param name="list">Materialized draw list, or the default value when the pointer is unknown.</param>
+    /// <returns><see langword="true"/> when the pointer resolves to an authored layout.</returns>
     internal static bool TryGet(ushort pointer,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {

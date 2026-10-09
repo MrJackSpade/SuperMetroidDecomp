@@ -10,8 +10,13 @@ namespace SuperMetroid.Core.Assets;
 /// tile selections remain independently editable.</summary>
 internal sealed class EndingExplosionAfterglowParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Custom tile selections, or <see langword="null"/> when the native 37-part sequence is used.</summary>
     private readonly int[]? tiles;
+    /// <summary>Number of compiled sprite parts in the stock afterglow layout.</summary>
     private const int StockPartCount = 37;
+
+    /// <summary>Retains non-stock selections and uses calculated stock tiles when every supplied slot matches.</summary>
+    /// <param name="suppliedTiles">Atlas tile numbers in the sprite composition's part order.</param>
     private EndingExplosionAfterglowParts(int[] suppliedTiles)
     {
         bool stock = suppliedTiles.Length == StockPartCount;
@@ -20,7 +25,16 @@ internal sealed class EndingExplosionAfterglowParts : IReadOnlyList<CompiledSpri
         tiles = stock ? null : suppliedTiles;
     }
 
-    private enum LowerWing { LeftOuter, RightOuter, LeftInner }
+    /// <summary>Lower-wing positions in the native three-part selection sequence.</summary>
+    private enum LowerWing
+    {
+        /// <summary>Outermost wing tile on the left side.</summary>
+        LeftOuter,
+        /// <summary>Outermost wing tile on the right side.</summary>
+        RightOuter,
+        /// <summary>Inner wing tile on the left side.</summary>
+        LeftInner
+    }
 
     /// <summary>Original $8C:A5E2 draw order through cap, wing and body atlas regions.
     /// Large sprites step two tile columns; small cap/wing sprites step one.</summary>
@@ -50,8 +64,16 @@ internal sealed class EndingExplosionAfterglowParts : IReadOnlyList<CompiledSpri
         return Atlas(0x1a, 14 - 2 * (index - 29)); // Full equatorial belt.
     }
 
+    /// <summary>Converts a 16-column atlas coordinate into the tile number used by a spritemap.</summary>
+    /// <param name="row">Zero-based tile row in the extracted atlas.</param>
+    /// <param name="column">Zero-based tile column within that row.</param>
+    /// <returns>The row-major atlas tile number.</returns>
     private static int Atlas(int row, int column) => row * 16 + column;
 
+    /// <summary>Recalculates afterglow placement when the composition uses this pose and its tiles belong to the atlas.</summary>
+    /// <param name="pointer">Sprite-definition pointer identifying the requested pose.</param>
+    /// <param name="supplied">Composition whose selected tiles and current parts are retained.</param>
+    /// <returns>The composition recalculated with afterglow placement when eligible; otherwise the supplied composition.</returns>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         if (pointer != EndingExplosionSpriteDefinitions.Pointer(EndingExplosionSpriteDefinitions.Pose.Afterglow)) return supplied;
@@ -65,7 +87,13 @@ internal sealed class EndingExplosionAfterglowParts : IReadOnlyList<CompiledSpri
         return supplied.CalculateIfMatching(new EndingExplosionAfterglowParts(tiles));
     }
 
+    /// <summary>Number of supplied parts, or the full stock afterglow part count.</summary>
     public int Count => tiles?.Length ?? StockPartCount;
+
+    /// <summary>Gets a part with its tile selected from the stock sequence or caller-supplied atlas choices.</summary>
+    /// <param name="index">Zero-based position in this afterglow composition.</param>
+    /// <returns>The compiled sprite part positioned from its selected atlas row and column.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the composition.</exception>
     public CompiledSpritePart this[int index]
     {
         get
@@ -85,6 +113,7 @@ internal sealed class EndingExplosionAfterglowParts : IReadOnlyList<CompiledSpri
                 SnesObjAttributeWord.Create(tile, 0, 0), true);
         }
     }
+    /// <summary>Enumerates positioned afterglow parts in native draw order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];

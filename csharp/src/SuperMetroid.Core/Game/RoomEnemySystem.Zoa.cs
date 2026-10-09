@@ -18,8 +18,11 @@ public enum ZoaEnemyFunction : ushort
 /// </summary>
 public sealed class ZoaEnemyState
 {
+    /// <summary>Enemy slot supplying Zoa's shared WRAM-backed state words.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates the state view over an initialized enemy slot.</summary>
+    /// <param name="slot">Enemy slot whose variables store Zoa's state.</param>
     internal ZoaEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Whole-pixel room X captured at initialization and restored by offscreen launch reset; the current X subposition is intentionally not captured or reset with it.</summary>
@@ -64,11 +67,15 @@ public sealed class ZoaEnemyState
 /// <summary>Literal translation of Zoa enemy AI $A3:B3C1-$B556.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Enemy-definition pointer used to identify Zoa instances.</summary>
     internal const ushort ZoaDefinition = 0xda7f;
 
+    /// <summary>Horizontal activation threshold from Zoa to Samus, in room pixels.</summary>
     private const int ZoaActivationColumnDistance = 0x0080;
+    /// <summary>NTSC rising velocity in unsigned 16.16 displacement units per update.</summary>
     private const int ZoaRisingSubpixelSpeed = 0x00008000;
 
+    /// <summary>Per-slot state views allocated when each Zoa enemy is initialized.</summary>
     private readonly ZoaEnemyState?[] _zoaStates = new ZoaEnemyState?[MaximumEnemyCount];
 
     /// <summary>Ports <c>InitAI_Zoa</c> at $A3:B44A.</summary>
@@ -120,6 +127,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Waits hidden until Samus enters the horizontal activation column, then selects the facing rise list.</summary>
+    /// <param name="slot">Zoa enemy slot being updated.</param>
+    /// <param name="state">State receiving the selected animation and rising function.</param>
+    /// <param name="samus">Active actor whose horizontal distance and side determine activation.</param>
     private static void RunZoaWait(
         RoomEnemySlot slot,
         ZoaEnemyState state,
@@ -142,6 +153,10 @@ public sealed partial class RoomEnemySystem
         state.Function = ZoaEnemyFunction.Rising;
     }
 
+    /// <summary>Reveals Zoa and raises it toward Samus before switching to its horizontal launch phase.</summary>
+    /// <param name="slot">Zoa enemy slot whose visibility, movement, and loop state are updated.</param>
+    /// <param name="state">Persistent animation selection and AI function state.</param>
+    /// <param name="samus">Active actor whose vertical position determines when the rise ends.</param>
     private static void RunZoaRising(
         RoomEnemySlot slot,
         ZoaEnemyState state,
@@ -162,6 +177,11 @@ public sealed partial class RoomEnemySystem
         state.Function = ZoaEnemyFunction.Shooting;
     }
 
+    /// <summary>Moves Zoa horizontally using its instruction-selected speed and resets whole coordinates after leaving the camera.</summary>
+    /// <param name="slot">Zoa enemy slot whose position and visibility are updated.</param>
+    /// <param name="state">Launch direction, speed-table index, and spawn coordinates.</param>
+    /// <param name="cameraX">Horizontal camera origin used for the native on-screen test.</param>
+    /// <param name="cameraY">Vertical camera origin used for the native on-screen test.</param>
     private static void RunZoaShooting(
         RoomEnemySlot slot,
         ZoaEnemyState state,
@@ -194,6 +214,10 @@ public sealed partial class RoomEnemySystem
         state.Function = ZoaEnemyFunction.WaitForSamus;
     }
 
+    /// <summary>Adds signed fixed-point displacement to both whole and fractional enemy coordinates.</summary>
+    /// <param name="slot">Enemy slot whose position words are advanced.</param>
+    /// <param name="xDisplacement">Signed 16.16 horizontal displacement.</param>
+    /// <param name="yDisplacement">Signed 16.16 vertical displacement.</param>
     private static void AddZoaDisplacement(
         RoomEnemySlot slot,
         int xDisplacement,
@@ -215,6 +239,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Installs the animation list only when its selector differs from the previously installed list.</summary>
+    /// <param name="slot">Enemy slot receiving the instruction pointer and timer reset.</param>
+    /// <param name="state">Current and previous list selectors used to avoid restarting an unchanged list.</param>
     private static void SetZoaInstructionList(RoomEnemySlot slot, ZoaEnemyState state)
     {
         if (state.InstructionListTableIndex == state.PreviousInstructionListTableIndex)
@@ -226,6 +253,9 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Returns initialized Zoa state or fails if the slot has not passed through Zoa initialization.</summary>
+    /// <param name="slot">Enemy slot whose per-slot state is required.</param>
+    /// <returns>The state view associated with the slot.</returns>
     private ZoaEnemyState RequireZoaState(RoomEnemySlot slot) =>
         _zoaStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Zoa state.");

@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks Sbug facing and activation selectors, instruction execution, visual selection, and compiled-data access.</summary>
     private static void VerifySbugMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         const int instructionTable = 0xa3a111;
@@ -168,6 +169,7 @@ internal static partial class Program
             "and all 32 visual-selector reads forbidden.");
     }
 
+    /// <summary>Repeats a compiled mechanics lookup so the caller can measure warmed allocation behavior.</summary>
     private static int ProbeSbugInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -179,6 +181,7 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian instruction word from bank $A3 at the supplied offset.</summary>
     private static ushort ReadSbugProgramWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -186,26 +189,37 @@ internal static partial class Program
             source.ReadByte(0xa30000 | address) |
             source.ReadByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Rejects reads from migrated Sbug selector tables while forwarding unrelated cartridge access.</summary>
+    /// <param name="source">Underlying address space used for reads and writes outside the protected selector range.</param>
     private sealed class SbugMovementReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes importer reads through the selector-range guard.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Throws for Sbug movement selector-table addresses and forwards other reads.</summary>
         public byte ReadByte(int address) =>
             address is >= 0xa3a111 and < 0xa3a12f
                 ? throw new InvalidOperationException(
                     $"Sbug movement attempted migrated selector read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards writes unchanged because this guard restricts reads only.</summary>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
+    /// <summary>Records visual selector reads and rejects runtime reads from Sbug mechanics bytes already compiled into definitions.</summary>
+    /// <param name="source">Underlying address space for reads and writes not otherwise handled by the guard.</param>
     private sealed class SbugProgramReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation operands touched during execution, used to verify visuals are selected from compiled data.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        /// <summary>Count of attempted reads from mechanics bytes represented by the compiled program definitions.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes importer reads through the same tracking and rejection checks as runtime reads.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, records presentation reads, and forwards other bytes to the source.</summary>
         public byte ReadByte(int address)
         {
             if (SbugInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -236,6 +250,7 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged; the guard observes and blocks reads only.</summary>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

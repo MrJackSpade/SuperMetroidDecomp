@@ -20,13 +20,20 @@ internal abstract class GoldenTorizoEyeBeamInstructionProgramDefinitions
     private const ushort WallHold = 4, LandingHold = 8, FlightHold = 1, ExplosionInitialHold = 4;
     /// <summary>$86:B3FC clears projectile property bit13, enabling Samus damage.</summary>
     private const ushort EnableSamusDamageMask = unchecked((ushort)~(1 << 13));
+
+    /// <summary>Number of non-presentation operands addressable in the compiled eye-beam instruction streams.</summary>
     public static int MechanicsWordCount => 28;
+
+    /// <summary>Number of extracted pose operands whose addresses identify eye-beam presentation frames.</summary>
     public static int PresentationWordCount => 17;
+
+    /// <summary>Returns the address and value of one mechanics operand by its ordinal in the compiled stream.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         return Select(index, visual: false);
     }
+    /// <summary>Returns the bank offset of one extracted pose operand by its presentation ordinal.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -66,17 +73,30 @@ internal abstract class GoldenTorizoEyeBeamInstructionProgramDefinitions
         return layout.Result;
     }
 
+    /// <summary>Walks the interleaved instruction bytes and records the requested mechanics word or pose address.</summary>
+    /// <param name="requested">Ordinal of the mechanics or visual operand to capture during the walk.</param>
+    /// <param name="visual">Selects pose-address capture instead of mechanics-word capture.</param>
     private ref struct Layout(int requested, bool visual)
     {
+        /// <summary>Current bank-$86 byte offset while traversing the two impact programs and flight loop.</summary>
         private ushort cursor = WallImpact;
+
+        /// <summary>Counts visited mechanics operands in <c>mechanics</c> and visited pose-duration operands in <c>presentation</c>.</summary>
         private int mechanics, presentation;
+
+        /// <summary>Captured address/value pair, or the default value when the requested ordinal is not encountered.</summary>
         internal InstructionMechanicsWord Result { get; private set; }
+
+        /// <summary>Advances past the inline one-byte operand between instruction words.</summary>
         internal void SkipByte() => cursor++;
+
+        /// <summary>Counts a two-byte operand and captures its address and value when it matches the requested mechanics ordinal.</summary>
         internal void Word(ushort value)
         {
             if (!visual && mechanics == requested) Result = new(cursor, value);
             mechanics++; cursor += sizeof(ushort);
         }
+        /// <summary>Counts a pose-duration word and captures its address when visual selection is requested.</summary>
         internal void Pose(ushort duration)
         {
             Word(duration);
@@ -84,6 +104,7 @@ internal abstract class GoldenTorizoEyeBeamInstructionProgramDefinitions
             presentation++; cursor += sizeof(ushort);
         }
     }
+    /// <summary>Looks up a compiled mechanics value by bank offset and rejects addresses not present in the program.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

@@ -37,8 +37,11 @@ public enum ElevatorFrameEvent
 /// </summary>
 public sealed class ElevatorEnemyState
 {
+    /// <summary>Room actor slot whose shared parameter and variable words back this elevator's private state.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a typed view over the enemy words belonging to one elevator actor.</summary>
+    /// <param name="slot">The room slot initialized as an elevator; its parameter and variable words remain the storage.</param>
     internal ElevatorEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Enemy variable A, captured before an arriving actor is moved to parameter 2.</summary>
@@ -58,14 +61,25 @@ public sealed class ElevatorEnemyState
 /// <summary>Literal translation of the ordinary elevator actor at $A3:94E6-$A3:962E.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Enemy definition pointer <c>$D73F</c>, selecting the ordinary elevator actor implemented at <c>$A3:94E6</c>.</summary>
     internal const ushort ElevatorDefinition = 0xd73f;
 
+    /// <summary>Native fallback spritemap <c>$804D</c>, used because the elevator's instruction program drives its visible animation.</summary>
     private const ushort ElevatorNothingSpritemap = 0x804d;
+
+    /// <summary>Elevator travel velocity in 16.16 pixels per enemy update: one and one-half pixels.</summary>
     private const int ElevatorSpeedFixed = 0x00018000;
+
+    /// <summary>Departure sound selector <c>$32</c> from sound library one.</summary>
     private const ushort ElevatorDepartureSoundLibrary1 = 0x0032;
+
+    /// <summary>Departure sound selector <c>$0B</c> from sound library three.</summary>
     private const ushort ElevatorDepartureSoundLibrary3 = 0x000b;
+
+    /// <summary>Arrival-stop sound selector <c>$25</c> from sound library three.</summary>
     private const ushort ElevatorArrivalSoundLibrary3 = 0x0025;
 
+    /// <summary>Per-room-slot state views for initialized elevator actors; null entries identify slots that are not active elevators.</summary>
     private readonly ElevatorEnemyState?[] _elevatorStates =
         new ElevatorEnemyState?[MaximumEnemyCount];
 
@@ -98,6 +112,7 @@ public sealed partial class RoomEnemySystem
 
     // Slot of an arriving elevator whose initializer placed Samus during this room load.
     // The door loader consumes it within the same update, so it is never captured.
+    /// <summary>Slot index reported to the door loader for the elevator initializer that placed Samus in the arriving room.</summary>
     [NonSerialized]
     private int? _arrivalPlacementSlot;
 
@@ -160,6 +175,11 @@ public sealed partial class RoomEnemySystem
             ElevatorFlags = 0;
     }
 
+    /// <summary>
+    /// Drops room-local elevator actor state and transition bookkeeping when a room is
+    /// initialized. Global travel status, flags, and direction intentionally survive so
+    /// the destination elevator can continue the ride.
+    /// </summary>
     private void ResetElevatorRoomActors()
     {
         // Do not clear flags/status/direction here. Unlike actor-private state, these words
@@ -171,6 +191,7 @@ public sealed partial class RoomEnemySystem
         BeginElevatorFrame();
     }
 
+    /// <summary>Clears elevator events and sound/projectile witnesses before the current enemy actors are processed.</summary>
     private void BeginElevatorFrame()
     {
         LastElevatorEvent = ElevatorFrameEvent.None;
@@ -180,6 +201,10 @@ public sealed partial class RoomEnemySystem
         MotherBrainDeletedHdmaObjects = false;
     }
 
+    /// <summary>Gets the typed state for an elevator slot, failing if its initializer has not registered that slot.</summary>
+    /// <param name="slot">The room actor slot whose elevator state is required.</param>
+    /// <returns>The state view backed by the slot's parameter and variable words.</returns>
+    /// <exception cref="InvalidOperationException">The slot has not been initialized as an elevator.</exception>
     private ElevatorEnemyState RequireElevatorState(RoomEnemySlot slot) =>
         _elevatorStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Elevator slot {slot.SlotIndex} was not initialized.");

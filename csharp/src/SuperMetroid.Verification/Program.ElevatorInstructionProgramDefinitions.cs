@@ -5,12 +5,20 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Loads the retail ROM and runs the elevator instruction-program verification suite.
+    /// </summary>
     private static void VerifyElevatorInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyElevatorInstructionProgramDefinitions), () => VerifyElevatorInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>
+    /// Verifies the compiled elevator mechanics and selectors through both table checks
+    /// and the production instruction-processing path.
+    /// </summary>
+    /// <param name="rom">The retail address space used to compare compiled words with cartridge data.</param>
     private static void VerifyElevatorInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -68,6 +76,11 @@ internal static partial class Program
             "mechanics and selector reads forbidden.");
     }
 
+    /// <summary>
+    /// Checks the four compiled mechanics words against their native addresses and rejects
+    /// reads from unowned words or bytes.
+    /// </summary>
+    /// <param name="rom">The retail address space containing the native elevator instruction data.</param>
     private static void VerifyElevatorMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0x94d6, 0x94da, 0x94de, 0x94e0];
@@ -95,6 +108,9 @@ internal static partial class Program
         foreach (int index in new[] { int.MinValue, -1, 4, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => ElevatorInstructionProgramDefinitionsTooling.MechanicsWord(index), "elevator mechanics bounds");
     }
+    /// <summary>
+    /// Checks that the two visual-selector operands occupy the expected native word addresses.
+    /// </summary>
     private static void VerifyElevatorPresentationMapping()
     {
         ushort[] expected = [0x94d8, 0x94dc];
@@ -106,6 +122,11 @@ internal static partial class Program
         foreach (int index in new[] { int.MinValue, -1, 2, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => ElevatorInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "elevator visual ordinal bounds");
     }
+    /// <summary>
+    /// Confirms that each compiled visual selector matches its native spritemap pointer
+    /// and that nearby unassigned operands are rejected.
+    /// </summary>
+    /// <param name="rom">The retail address space used to read native selector operands and spritemaps.</param>
     private static void VerifyElevatorVisualPointers(SuperMetroidAddressSpace rom)
     {
         foreach (ushort operand in new ushort[] { 0x94d8, 0x94dc })
@@ -125,6 +146,10 @@ internal static partial class Program
                 AssertEqual((ushort)0, missing, "elevator missing output cleared");
             }
     }
+    /// <summary>
+    /// Repeats compiled mechanics lookups to provide a warmed allocation probe and checksum.
+    /// </summary>
+    /// <returns>A checksum over the looked-up words that keeps the probe's reads observable.</returns>
     private static int ProbeElevatorInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -136,6 +161,12 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>
+    /// Reads a native elevator instruction word as a little-endian value from bank $A3.
+    /// </summary>
+    /// <param name="source">The address space that supplies the native instruction bytes.</param>
+    /// <param name="address">The bank-local address of the word's low byte.</param>
+    /// <returns>The two adjacent bytes combined into a 16-bit word.</returns>
     private static ushort ReadElevatorInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -143,14 +174,38 @@ internal static partial class Program
             source.ReadByte(0xa30000 | address) |
             source.ReadByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>
+    /// Wraps an address space to detect forbidden elevator mechanics reads and record
+    /// reads of compiled visual-selector words during production execution.
+    /// </summary>
+    /// <param name="source">The underlying address space used for permitted reads and all writes.</param>
     private sealed class ElevatorInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>
+        /// Gets the compiled visual-selector words whose bytes production execution requested.
+        /// </summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>
+        /// Gets the number of attempts to read a compiled mechanics byte before the guard rejected it.
+        /// </summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>
+        /// Routes cartridge reads through the guard's address-space read checks.
+        /// </summary>
+        /// <param name="address">The bus address to read.</param>
+        /// <returns>The byte returned by the guarded address space.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>
+        /// Rejects reads of compiled mechanics bytes, records visual-selector reads, and
+        /// delegates other reads to the wrapped address space.
+        /// </summary>
+        /// <param name="address">The bus address to inspect and read.</param>
+        /// <returns>The byte supplied by the wrapped address space when the read is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled elevator mechanics.</exception>
         public byte ReadByte(int address)
         {
             if (ElevatorInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -179,6 +234,11 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>
+        /// Forwards writes unchanged to the wrapped address space.
+        /// </summary>
+        /// <param name="address">The bus address to write.</param>
+        /// <param name="value">The byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

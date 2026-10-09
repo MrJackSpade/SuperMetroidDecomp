@@ -10,8 +10,11 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class FakeKraidEnemyState
 {
+    /// <summary>Room slot whose native variables back this debugger-facing view of Fake Kraid's state.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a state view bound to the actor slot selected during enemy initialization.</summary>
+    /// <param name="slot">The Fake Kraid slot whose variables and identity this view exposes.</param>
     internal FakeKraidEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Signed whole-pixel walk delta in native variable B.</summary>
@@ -75,11 +78,15 @@ public readonly record struct FakeKraidDropRequest();
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native enemy definition word used by Fake Kraid, also known as Mini-Kraid.</summary>
     internal const ushort FakeKraidDefinition = 0xe0ff;
 
+    /// <summary>Sound-effect word queued when a spit projectile is successfully spawned on screen.</summary>
     private const ushort FakeKraidSpitSound = 0x0016;
+    /// <summary>Sound-effect word queued when a spike projectile is successfully spawned on screen.</summary>
     private const ushort FakeKraidSpikeSound = 0x003f;
 
+    /// <summary>Per-slot movement, attack-timer, and projectile bookkeeping for initialized Fake Kraid actors.</summary>
     private readonly FakeKraidEnemyState?[] _fakeKraidStates =
         new FakeKraidEnemyState?[MaximumEnemyCount];
 
@@ -253,6 +260,12 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Allocates and initializes one spit projectile at the actor's mouth using the supplied launch velocity.</summary>
+    /// <param name="source">Fake Kraid actor providing the spawn position and visual attributes.</param>
+    /// <param name="xOffset">Horizontal offset from the actor's position, including the chosen firing direction.</param>
+    /// <param name="xVelocity">Projectile horizontal velocity in the game's fixed-point representation.</param>
+    /// <param name="yVelocity">Projectile vertical velocity in the game's fixed-point representation.</param>
+    /// <returns><see langword="true"/> if a projectile slot was available and initialized.</returns>
     private bool SpawnFakeKraidSpit(
         RoomEnemySlot source,
         short xOffset,
@@ -276,6 +289,11 @@ public sealed partial class RoomEnemySystem
         return true;
     }
 
+    /// <summary>Allocates a row-selected spike projectile whose direction follows Fake Kraid's current facing.</summary>
+    /// <param name="source">Fake Kraid actor providing the spawn position and visual attributes.</param>
+    /// <param name="state">Actor state supplying facing and receiving the successful-spawn count.</param>
+    /// <param name="row">Zero-based spike-clock row used to choose the projectile's vertical offset.</param>
+    /// <returns><see langword="true"/> if a projectile slot was available and initialized.</returns>
     private bool SpawnFakeKraidSpike(
         RoomEnemySlot source,
         FakeKraidEnemyState state,
@@ -333,9 +351,16 @@ public sealed partial class RoomEnemySystem
             projectile.Clear();
     }
 
+    /// <summary>Reads the shared random word through the enemy system's configured random-number source.</summary>
+    /// <returns>The current random word without advancing it in this wrapper.</returns>
     private ushort ReadFakeKraidRandomNumber() =>
         RequireRandomNumber();
 
+    /// <summary>Checks whether an actor origin falls inside the 256-by-256 camera window using wrapped signed distances.</summary>
+    /// <param name="slot">Actor slot providing the world-space origin.</param>
+    /// <param name="cameraX">World-space X coordinate at the left edge of the camera window.</param>
+    /// <param name="cameraY">World-space Y coordinate at the top edge of the camera window.</param>
+    /// <returns><see langword="true"/> when both coordinates are within the visible camera bounds.</returns>
     private static bool FakeKraidOriginIsOnScreen(
         RoomEnemySlot slot,
         ushort cameraX,
@@ -345,6 +370,9 @@ public sealed partial class RoomEnemySystem
         unchecked((short)(slot.YPosition - cameraY)) >= 0 &&
         unchecked((short)(cameraY + 256 - slot.YPosition)) >= 0;
 
+    /// <summary>Gets the per-slot state created by Fake Kraid initialization.</summary>
+    /// <param name="slot">The actor slot whose initialized state is required.</param>
+    /// <returns>The actor state, or throws if the slot has not been initialized as Fake Kraid.</returns>
     private FakeKraidEnemyState RequireFakeKraidState(RoomEnemySlot slot) =>
         _fakeKraidStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Fake Kraid state.");
@@ -364,6 +392,10 @@ public sealed partial class RoomEnemySystem
         SpawnFakeKraidDeathDrops(originX, originY, chancePointer);
     }
 
+    /// <summary>Requests the shared four-pickup scatter around the actor's saved death origin.</summary>
+    /// <param name="originX">World-space X position captured before the death routine clears the enemy slot.</param>
+    /// <param name="originY">World-space Y position captured before the death routine clears the enemy slot.</param>
+    /// <param name="chancePointer">Native item-drop chance-table pointer associated with the killed actor.</param>
     private void SpawnFakeKraidDeathDrops(ushort originX, ushort originY, ushort chancePointer)
     {
         LastFakeKraidDropRequest = new FakeKraidDropRequest();

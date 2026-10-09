@@ -18,13 +18,22 @@ internal sealed class IntroRinkaSystem
     // Native cinematic sprite slots: Mother Brain owns slot 0 and the text caret slot 15,
     // so the spawner and its Rinkas live in 1..14. $8B:938A spawns into the highest free
     // slot and $8B:93EF/$8B:9746 walk from the highest slot down.
+    /// <summary>Highest cinematic slot reserved for the intro Rinka spawner and its actors.</summary>
     private const int SpawnerSlot = 14;
+
+    /// <summary>First cinematic slot available to the intro Rinka actors; slot zero belongs to Mother Brain.</summary>
     private const int LowestSlot = 1;
 
+    /// <summary>Tracks actors by cinematic slot so spawns and descending update order match the native routines.</summary>
     private readonly IntroDiscoverySprite?[] slots = new IntroDiscoverySprite?[SpawnerSlot + 1];
+
+    /// <summary>The invisible actor whose instruction list schedules the four Rinkas.</summary>
     private readonly IntroDiscoverySprite spawner;
+
+    /// <summary>Indicates that Mother Brain's explosions occupy shared cinematic slots and prohibit new Rinka spawns.</summary>
     private bool spawnsForbidden;
 
+    /// <summary>Creates the invisible spawner in the highest slot available to the flashback actors.</summary>
     public IntroRinkaSystem()
     {
         // $8B:AEB8 spawns the invisible spawner while slots 1..14 are all free. Reusing the
@@ -88,6 +97,10 @@ internal sealed class IntroRinkaSystem
         }
     }
 
+    /// <summary>Dispatches spawner instructions that create the first or second pair of Rinkas.</summary>
+    /// <param name="opcode">The current native instruction opcode.</param>
+    /// <param name="next">The instruction address following the opcode.</param>
+    /// <returns>The next address for a recognized spawn instruction, or null to leave other opcodes to the caller.</returns>
     private ushort? HandleSpawnerInstruction(ushort opcode, ushort next)
     {
         switch (opcode)
@@ -107,6 +120,11 @@ internal sealed class IntroRinkaSystem
         }
     }
 
+    /// <summary>Selects the hit or miss movement routine when a Rinka's native start-moving instruction executes.</summary>
+    /// <param name="rinka">The actor whose parameter chooses whether it targets Samus.</param>
+    /// <param name="opcode">The current native instruction opcode.</param>
+    /// <param name="next">The instruction address following the opcode.</param>
+    /// <returns>The next address for the recognized start-moving instruction, or null for an unhandled opcode.</returns>
     private static ushort? HandleRinkaInstruction(
         IntroDiscoverySprite rinka,
         ushort opcode,
@@ -124,6 +142,9 @@ internal sealed class IntroRinkaSystem
         return next;
     }
 
+    /// <summary>Allocates and initializes one Rinka in the highest free intro cinematic slot.</summary>
+    /// <param name="parameter">The native actor parameter selecting this Rinka's movement and hit behavior.</param>
+    /// <exception cref="InvalidOperationException">Explosion actors have reserved the shared slots, or no intro slot is free.</exception>
     private void Spawn(int parameter)
     {
         if (spawnsForbidden)
@@ -152,6 +173,11 @@ internal sealed class IntroRinkaSystem
         slots[slot] = rinka;
     }
 
+    /// <summary>Applies the selected hit or miss movement routine and retires Rinkas when their native conditions are met.</summary>
+    /// <param name="rinka">The actor whose pre-instruction pointer selects its movement behavior.</param>
+    /// <param name="samus">Samus state used by the hit routine to detect contact and publish knockback.</param>
+    /// <param name="motherBrainExploding">Whether the exploding sequence should terminate a Rinka before or during its flight.</param>
+    /// <exception cref="InvalidDataException">The actor names a pre-instruction other than the supported no-op, hit, or miss routines.</exception>
     private static void RunPreInstruction(
         IntroDiscoverySprite rinka,
         SamusState samus,
@@ -198,6 +224,9 @@ internal sealed class IntroRinkaSystem
         }
     }
 
+    /// <summary>Advances the Rinka horizontally by the supplied whole-pixel delta plus one half pixel.</summary>
+    /// <param name="rinka">The actor whose fixed-point X position is advanced.</param>
+    /// <param name="wholeDelta">Whole pixels of horizontal movement to add alongside the half-pixel fraction.</param>
     private static void MoveHalfPixelX(IntroDiscoverySprite rinka, int wholeDelta)
     {
         uint subSum = (uint)rinka.XSubPosition + IntroRinkaDefinitions.HalfPixelFraction;
@@ -206,6 +235,8 @@ internal sealed class IntroRinkaSystem
         rinka.XPosition = unchecked((ushort)(rinka.XPosition + wholeDelta + carry));
     }
 
+    /// <summary>Advances the Rinka's fixed-point Y position by one half pixel.</summary>
+    /// <param name="rinka">The actor whose fixed-point Y position is advanced.</param>
     private static void MoveHalfPixelY(IntroDiscoverySprite rinka)
     {
         uint subSum = (uint)rinka.YSubPosition + IntroRinkaDefinitions.HalfPixelFraction;

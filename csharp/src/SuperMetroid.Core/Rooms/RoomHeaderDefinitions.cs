@@ -6,6 +6,17 @@ namespace SuperMetroid.Core.Rooms;
 /// Application-owned copy of the fixed eleven-byte metadata preceding a retail room's
 /// native state-selection program.
 /// </summary>
+/// <param name="Pointer">Bank-$8F offset where this room's native header begins.</param>
+/// <param name="RoomIndex">Room number within the area, as stored in the header.</param>
+/// <param name="AreaIndex">Area identifier used to interpret the room's map and runtime context.</param>
+/// <param name="MapX">Horizontal room-map coordinate in screens.</param>
+/// <param name="MapY">Vertical room-map coordinate in screens.</param>
+/// <param name="WidthInScreens">Room width measured in screens.</param>
+/// <param name="HeightInScreens">Room height measured in screens.</param>
+/// <param name="UpScroller">Vertical scroll threshold used when moving upward through the room.</param>
+/// <param name="DownScroller">Vertical scroll threshold used when moving downward through the room.</param>
+/// <param name="CreBitset">Header flags controlling the room's CRE graphics configuration.</param>
+/// <param name="DoorListPointer">Bank-$8F offset of the room's door list.</param>
 public sealed record RoomHeaderDefinition(
     ushort Pointer,
     byte RoomIndex,
@@ -44,6 +55,9 @@ public static class RoomHeaderDefinitions
         throw new ArgumentOutOfRangeException(nameof(roomPointer), roomPointer,
             "Pointer is not one of the 262 retail room headers.");
 
+    /// <summary>Looks up a retail room header by its exact bank-$8F identity.</summary>
+    /// <param name="roomPointer">Header offset to select; interior addresses do not identify a room.</param>
+    /// <returns>The compiled room configuration for a recognized retail header, or <see langword="null"/> otherwise.</returns>
     internal static RoomHeaderDefinition? Select(ushort roomPointer) => roomPointer switch
     {
         0x91F8 =>

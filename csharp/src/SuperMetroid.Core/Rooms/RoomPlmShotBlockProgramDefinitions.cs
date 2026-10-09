@@ -14,18 +14,34 @@ internal static class RoomPlmShotBlockProgramDefinitions
     /// <summary>The cartridge's library-two block-break sound operand, $84:CADF and peers.</summary>
     internal const byte BreakSoundId = 0x0a;
 
+    /// <summary>Derived control-flow facts used to resolve the mechanics and draw words of one native shot-block instruction list.</summary>
+    /// <param name="Start">First instruction address for the native PLM program.</param>
+    /// <param name="Respawns">Whether the broken block later respawns instead of being permanently removed.</param>
+    /// <param name="RestoresLevelWord">Whether the terminal command restores the PLM's level word before deletion.</param>
+    /// <param name="FirstDraw">Draw-list pointer used for the first break-animation frame.</param>
+    /// <param name="DrawStride">Address increment between successive shape frames in the draw list.</param>
+    /// <param name="RestoreDraw">Draw-list pointer used by the final restoration frame, when present.</param>
+    /// <param name="SoundOpcode">Native sound-queue opcode selected for this block's break sound.</param>
     private readonly record struct Program(ushort Start, bool Respawns, bool RestoresLevelWord,
         ushort FirstDraw, int DrawStride, ushort RestoreDraw = 0,
         ushort SoundOpcode = RoomPlmInstructionCodes.QueueSoundLibrary2Maximum1Direct)
     {
+        /// <summary>Number of timed draw frames emitted before the terminal command.</summary>
         internal int FrameCount => Respawns ? RestoresLevelWord ? 7 : 8 : 4;
+
+        /// <summary>Address immediately following all timed frame records for this program.</summary>
         internal ushort TerminalAddress => checked((ushort)(Start + 3 + 4 * FrameCount));
     }
 
+    /// <summary>Number of native shot-block programs enumerated by the address resolver.</summary>
     private const int ProgramCount = 13;
 
     // Enumeration preserves the public control-address order; named program roles
     // determine shape, restoration and sound routing instead of stored records.
+    /// <summary>Builds the derived mechanics and draw metadata for a program in native address order.</summary>
+    /// <param name="index">Zero-based index among ordinary, special-weapon, and enemy-breakable programs.</param>
+    /// <returns>The addresses, timing shape, restoration behavior, and sound routing for that program.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the enumerated program set.</exception>
     private static Program ProgramAt(int index)
     {
         ushort start = index switch
@@ -145,6 +161,10 @@ internal static class RoomPlmShotBlockProgramDefinitions
         return false;
     }
 
+    /// <summary>Resolves a byte operand stored after a program's sound opcode.</summary>
+    /// <param name="address">Address in the native instruction stream to inspect.</param>
+    /// <param name="value">Receives the sound selector when the address names one.</param>
+    /// <returns><see langword="true"/> if the address is a mechanics byte; otherwise <see langword="false"/>.</returns>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         for (int index = 0; index < ProgramCount; index++)

@@ -81,6 +81,8 @@ public enum PhantoonAiFunction : ushort
 /// </summary>
 public sealed class PhantoonEnemyState
 {
+    /// <summary>Creates the encounter state around the body slot that owns Phantoon's native function dispatch.</summary>
+    /// <param name="body">Physical enemy slot zero, whose words are shared or aliased by the other encounter parts.</param>
     internal PhantoonEnemyState(RoomEnemySlot body) => Body = body;
 
     /// <summary>Gets physical slot zero, the native $00 body owner of function dispatch, health, motion, and shared encounter words.</summary>
@@ -150,9 +152,11 @@ public sealed class PhantoonEnemyState
     /// owner, so the enemy publishes the exact authored request rather than editing terrain.
     /// </summary>
     public ushort? BossDoorPlmRequest { get; internal set; }
+    /// <summary>Lazily allocated scanline-wave state retained across Phantoon body updates.</summary>
     private PhantoonWaveHdmaState? _wave;
     /// <summary>Gets the encounter's lazily created bank-$88 wave owner, which advances scanline scroll mechanics separately from accepted-NMI display latching.</summary>
     public PhantoonWaveHdmaState Wave => _wave ??= new();
+    /// <summary>Lazily allocated transparency and display-latching state retained across body updates.</summary>
     private PhantoonBlendingState? _blending;
     /// <summary>Gets the encounter's lazily created bank-$88 blending owner, retaining live transparency control and separately latched blending/mosaic display state.</summary>
     public PhantoonBlendingState Blending => _blending ??= new();
@@ -168,23 +172,34 @@ public readonly record struct PhantoonFlameDropRequest();
 
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native slot-zero enemy definition pointer for Phantoon's body, used to validate encounter ownership.</summary>
     internal const ushort PhantoonBodyDefinition = 0xe4bf;
+    /// <summary>Native enemy definition pointer for the eye record attached to Phantoon's body.</summary>
     internal const ushort PhantoonEyeDefinition = 0xe4ff;
+    /// <summary>Native enemy definition pointer for Phantoon's tentacle record.</summary>
     internal const ushort PhantoonTentaclesDefinition = 0xe53f;
+    /// <summary>Native enemy definition pointer for Phantoon's mouth record.</summary>
     internal const ushort PhantoonMouthDefinition = 0xe57f;
 
+    /// <summary>Current encounter state, present while Phantoon's four physical enemy records are active.</summary>
     private PhantoonEnemyState? _phantoonState;
+    /// <summary>Flame-drop requests queued by projectile interactions for later pickup-system processing.</summary>
     private readonly List<PhantoonFlameDropRequest> _phantoonFlameDropRequests = new();
 
     /// <summary>Active four-slot encounter state when retail Phantoon occupies slot zero.</summary>
     public PhantoonEnemyState? Phantoon => _phantoonState;
 
+    /// <summary>Clears the encounter owner and pending flame-drop requests when room state is reset.</summary>
     private void ResetPhantoonRoomState()
     {
         _phantoonState = null;
         _phantoonFlameDropRequests.Clear();
     }
 
+    /// <summary>Returns the active Phantoon state or rejects an operation unless its body occupies native slot zero.</summary>
+    /// <param name="slot">The enemy slot whose attempted operation requires an active Phantoon encounter.</param>
+    /// <returns>The current encounter state.</returns>
+    /// <exception cref="InvalidOperationException">Phantoon's body is absent from slot zero.</exception>
     private PhantoonEnemyState RequirePhantoonState(RoomEnemySlot slot)
     {
         if (_phantoonState is null ||
@@ -196,6 +211,9 @@ public sealed partial class RoomEnemySystem
         return _phantoonState;
     }
 
+    /// <summary>Determines whether a native enemy definition pointer belongs to Phantoon's body or one of its three parts.</summary>
+    /// <param name="definition">Native enemy definition pointer to classify.</param>
+    /// <returns><see langword="true"/> for the body, eye, tentacles, or mouth definition.</returns>
     private static bool IsPhantoonPartDefinition(ushort definition) => definition is
         PhantoonBodyDefinition or PhantoonEyeDefinition or
         PhantoonTentaclesDefinition or PhantoonMouthDefinition;

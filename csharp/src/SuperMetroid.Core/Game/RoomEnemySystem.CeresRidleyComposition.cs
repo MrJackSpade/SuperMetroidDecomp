@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class RoomEnemySystem
 {
 
+    /// <summary>Speed-indexed wing-timer decrement values selected by the native animation update.</summary>
     private static readonly ushort[] CeresRidleyWingAnimationDeltas =
         [0x000c, 0x000e, 0x0010, 0x0012, 0x001c, 0x0020, 0x0028, 0x0030];
 
@@ -143,6 +144,13 @@ public sealed partial class RoomEnemySystem
             : (ushort)2;
     }
 
+    /// <summary>
+    /// Chooses a whip target from Samus or a nearby missile and installs a direction-appropriate
+    /// tail angle, subject to Ridley's facing and active-fight state.
+    /// </summary>
+    /// <param name="state">Ridley state receiving the target angle and whip speed.</param>
+    /// <param name="samus">Player position used as the default target; a missing player prevents aiming.</param>
+    /// <param name="additionalAngle">Extra angle adjustment requested by the native whip controller.</param>
     private void AimCeresRidleyTailWhip(
         RidleyEnemyState state,
         SamusState? samus,
@@ -203,6 +211,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Advances one tail segment's stagger, angular motion, whip propagation, and relative offset.</summary>
+    /// <param name="state">Ridley state containing the segment chain and its shared movement targets.</param>
+    /// <param name="index">Zero-based segment position in the tail chain.</param>
     private static void TickRidleyTailSegment(RidleyEnemyState state, int index)
     {
         RidleyTailSegment segment = state.TailSegments[index];
@@ -323,6 +334,8 @@ public sealed partial class RoomEnemySystem
             distanceInPixels * EnemyTrigonometryTables.SignedSine(unchecked((byte)(angle + 64))) >> 8));
     }
 
+    /// <summary>Ends a segment's active movement, clears its stagger, and reverses its direction bit.</summary>
+    /// <param name="segment">Tail segment whose whip or wave motion has reached its endpoint.</param>
     private static void DeactivateRidleyTailSegment(RidleyTailSegment segment)
     {
         segment.Active = false;
@@ -452,6 +465,10 @@ public sealed partial class RoomEnemySystem
         DrawCeresRidleyBabyAndDoor(oam, cameraX, cameraY);
     }
 
+    /// <summary>Draws the Baby Metroid's active frame and the scripted Ceres door overlay in room view.</summary>
+    /// <param name="oam">OAM buffer receiving the Baby and door sprite pieces.</param>
+    /// <param name="cameraX">Horizontal world coordinate of the camera origin.</param>
+    /// <param name="cameraY">Vertical world coordinate of the camera origin.</param>
     private void DrawCeresRidleyBabyAndDoor(
         OamBuffer oam,
         ushort cameraX,
@@ -505,6 +522,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Advances the Baby's draw instruction stream until it selects the frame spritemap for this draw.</summary>
+    /// <param name="state">Ridley state holding the Baby instruction cursor, timer, and selected map.</param>
+    /// <returns>The selected spritemap pointer; it remains zero until the instruction stream has selected a frame.</returns>
     private ushort AdvanceCeresBabyDrawInstruction(RidleyEnemyState state)
     {
         ushort cursor = state.BabyInstruction;
@@ -586,6 +606,7 @@ public sealed partial class RoomEnemySystem
             "Ceres Baby draw instruction list exceeded 64 commands without selecting a frame.");
     }
 
+    /// <summary>Creates the two native Mode 7 wall actors at the left and right bounds of the Ceres escape view.</summary>
     private void SpawnCeresRidleyMode7Walls()
     {
         // SpawnEnemy consumes the first two free native slots and initializes the literal
@@ -596,6 +617,9 @@ public sealed partial class RoomEnemySystem
         SpawnCeresRidleyMode7Wall(xPosition: 0x00f8, parameter1: 6);
     }
 
+    /// <summary>Initializes one Mode 7 wall in the next free enemy slot using its native population parameters.</summary>
+    /// <param name="xPosition">World-space horizontal position assigned to the wall actor.</param>
+    /// <param name="parameter1">Wall variant selector stored in the population record.</param>
     private void SpawnCeresRidleyMode7Wall(ushort xPosition, ushort parameter1)
     {
         int slotIndex = Array.FindIndex(_slots, slot => slot.EnemyDefinitionPointer == 0);
@@ -622,6 +646,13 @@ public sealed partial class RoomEnemySystem
         FirstFreeEnemyIndex = unchecked((ushort)((slotIndex + 1) * NativeSlotSize));
     }
 
+    /// <summary>Draws a Ridley tail or supplemental spritemap after converting its world origin to screen coordinates.</summary>
+    /// <param name="oam">OAM buffer receiving the spritemap pieces.</param>
+    /// <param name="paletteIndex">Palette selection passed through to the enemy spritemap renderer.</param>
+    /// <param name="segment">Tail segment supplying the world-space draw position.</param>
+    /// <param name="spritemap">Compiled spritemap pointer to render.</param>
+    /// <param name="cameraX">Horizontal world coordinate of the camera origin.</param>
+    /// <param name="cameraY">Vertical world coordinate of the camera origin.</param>
     private void DrawRidleyWorldSpritemap(
         OamBuffer oam,
         ushort paletteIndex,
@@ -644,6 +675,10 @@ public sealed partial class RoomEnemySystem
             originYIsOnScreen: screenY < 0x0100);
     }
 
+    /// <summary>Resolves eligible Samus overlap with Ridley's extended body hitboxes and applies native touch damage.</summary>
+    /// <param name="samus">Player state checked against the active extended spritemap hitboxes.</param>
+    /// <param name="controllerInput">Input word associated with the current enemy-contact pass.</param>
+    /// <returns><see langword="true"/> when body contact is resolved; otherwise, <see langword="false"/>.</returns>
     private bool ResolveRidleyBodySamusContact(SamusState samus, ushort controllerInput)
     {
         ArgumentNullException.ThrowIfNull(samus);
@@ -700,6 +735,9 @@ public sealed partial class RoomEnemySystem
         return true;
     }
 
+    /// <summary>Checks Samus against the solved tail tip and applies tail touch damage when their bounds overlap.</summary>
+    /// <param name="samus">Player state whose position, radii, and invincibility determine contact.</param>
+    /// <returns><see langword="true"/> when tail contact applies damage; otherwise, <see langword="false"/>.</returns>
     private bool ResolveRidleyTailSamusContact(SamusState samus)
     {
         RoomEnemySlot body = _slots[0];
@@ -768,6 +806,11 @@ public sealed partial class RoomEnemySystem
         return false;
     }
 
+    /// <summary>Applies suit-reduced contact damage and publishes the ordinary invincibility and knockback request.</summary>
+    /// <param name="samus">Player state whose health and hurt-response fields are updated.</param>
+    /// <param name="controllerInput">Input snapshot supplied by the normal enemy-contact path; this helper does not consume it.</param>
+    /// <param name="damageBeforeSuit">Enemy contact damage before Varia or Gravity reduction.</param>
+    /// <param name="damageSourceX">World X position used to choose the knockback direction.</param>
     private static void ApplyNormalEnemyTouchDamage(
         SamusState samus,
         ushort controllerInput,

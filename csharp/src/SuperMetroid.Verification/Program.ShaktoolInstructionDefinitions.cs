@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies Shaktool's orientation and collision selectors against native words and production handoffs.</summary>
+    /// <param name="rom">Cartridge address space used to read the native selector tables.</param>
     private static void VerifyShaktoolInstructionDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -74,12 +76,15 @@ internal static partial class Program
             "Shaktool instruction definitions: 22 native selectors and all orientation and collision-reversal production handoffs pass with source tables forbidden.");
     }
 
+    /// <summary>Loads the retail cartridge and runs the Shaktool instruction-program verification.</summary>
     private static void VerifyShaktoolInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyShaktoolInstructionProgramDefinitions), () => VerifyShaktoolInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks compiled Shaktool mechanics words and executes the reachable instruction programs with reads guarded.</summary>
+    /// <param name="rom">Retail cartridge address space used as the native instruction reference.</param>
     private static void VerifyShaktoolInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -165,6 +170,12 @@ internal static partial class Program
             "programs and 15 compiled spritemap selectors pass with mechanics bytes forbidden.");
     }
 
+    /// <summary>Runs a fixed number of reflected instruction-handler steps with the actor timer primed each time.</summary>
+    /// <param name="process">Room instruction dispatcher to invoke.</param>
+    /// <param name="enemies">Owning enemy system containing the Shaktool segment.</param>
+    /// <param name="segment">Segment whose instruction list and position are advanced.</param>
+    /// <param name="steps">Number of handler calls to perform.</param>
+    /// <returns>True if the segment's position changed during any step.</returns>
     private static bool RunForcedShaktoolInstructions(
         MethodInfo process,
         RoomEnemySystem enemies,
@@ -184,6 +195,8 @@ internal static partial class Program
         return moved;
     }
 
+    /// <summary>Repeats a compiled mechanics lookup to provide input for the warmed allocation measurement.</summary>
+    /// <returns>A checksum of the repeated instruction-word values.</returns>
     private static int ProbeShaktoolInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -195,11 +208,19 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads one little-endian instruction word from a cartridge address space.</summary>
+    /// <param name="bus">Cartridge address space containing the word bytes.</param>
+    /// <param name="address">Address of the low byte.</param>
+    /// <returns>The combined 16-bit instruction word.</returns>
     private static ushort ReadShaktoolInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Initializes the seven linked Shaktool enemy slots against the supplied source-reading guard.</summary>
+    /// <param name="rom">Address space installed for the enemy system's instruction reads.</param>
+    /// <param name="flags">Reflection binding flags used to access private initialization members.</param>
+    /// <returns>The enemy system containing the initialized Shaktool group.</returns>
     private static RoomEnemySystem CreateCompiledShaktoolGroup(
         ISnesAddressSpace rom,
         BindingFlags flags)
@@ -222,13 +243,24 @@ internal static partial class Program
         return enemies;
     }
 
+    /// <summary>Rejects runtime reads of compiled Shaktool mechanics and records presentation-word accesses.</summary>
+    /// <param name="source">Underlying address space used for permitted reads and writes.</param>
     private sealed class ShaktoolInstructionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation word addresses observed during runtime instruction execution.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of runtime reads rejected for targeting compiled mechanics bytes.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge reads through the Shaktool source guard.</summary>
+        /// <param name="address">Cartridge address requested by production code.</param>
+        /// <returns>The underlying byte when the request is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects migrated mechanics/selector reads, tracks presentation words, and forwards other reads.</summary>
+        /// <param name="address">CPU bus address requested by production code.</param>
+        /// <returns>The underlying byte when the request is permitted.</returns>
         public byte ReadByte(int address)
         {
             if (ShaktoolInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -261,6 +293,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write to the underlying address space.</summary>
+        /// <param name="address">CPU address receiving the byte.</param>
+        /// <param name="value">Byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

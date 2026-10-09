@@ -9,10 +9,22 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable BG3 tile references for the six cartridge room-FX pages.</summary>
 public sealed class RoomFxLayer3TilemapCatalog
 {
+    /// <summary>Non-stock compiled transfer bytes for lava, acid, and water; null selects each effect's calculated stock layout.</summary>
     private readonly byte[]? lava, acid, water;
+
+    /// <summary>Compiled spore-page transfer, retained because its authored layout is not generated from a stock liquid formula.</summary>
     private readonly RoomFxSporeTilemap spores;
+
+    /// <summary>Compiled rain and fog transfers, each represented by its atmosphere tilemap definition.</summary>
     private readonly RoomFxAtmosphereTilemap rain, fog;
 
+    /// <summary>Stores edited liquid transfers only when they differ from stock and prepares the authored spore and atmosphere pages.</summary>
+    /// <param name="lava">Compiled lava page bytes, or the stock page bytes used to detect the calculated-layout case.</param>
+    /// <param name="acid">Compiled acid page bytes, or the stock page bytes used to detect the calculated-layout case.</param>
+    /// <param name="water">Compiled water page bytes, or the stock page bytes used to detect the calculated-layout case.</param>
+    /// <param name="spores">Compiled spore page content.</param>
+    /// <param name="rain">Compiled rain page content.</param>
+    /// <param name="fog">Compiled fog page content.</param>
     private RoomFxLayer3TilemapCatalog(byte[] lava, byte[] acid, byte[] water,
         byte[] spores, byte[] rain, byte[] fog)
     {
@@ -94,6 +106,7 @@ public sealed class RoomFxLayer3TilemapCatalog
         _ => throw new InvalidDataException($"Room-FX BG3 tilemap {type} is not an authored page."),
     };
 
+    /// <summary>Strict JSON settings shared by room-FX tilemap loading and serialization.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -137,13 +150,22 @@ public static class RoomFxLayer3TilemapFormat
     /// </summary>
     public static IReadOnlyList<RoomFxType> Types { get; } = new CalculatedTypes();
 
+    /// <summary>Provides the six even native room-FX page identities by calculating each value from its ordinal.</summary>
     private sealed class CalculatedTypes : IReadOnlyList<RoomFxType>
     {
+        /// <summary>Number of authored BG3 effect pages.</summary>
         public int Count => 6;
+
+        /// <summary>Gets the native even room-FX identity at the requested page ordinal.</summary>
+        /// <param name="index">Zero-based page position from lava through fog.</param>
+        /// <returns>The corresponding native <see cref="RoomFxType"/> value.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">The index is outside the six-page range.</exception>
         public RoomFxType this[int index] => (uint)index < Count
             ? (RoomFxType)(2 * (index + 1))
             : throw new ArgumentOutOfRangeException(nameof(index));
 
+        /// <summary>Enumerates the native even room-FX page identities in transfer order.</summary>
+        /// <returns>An enumerator for lava, acid, water, spores, rain, and fog identities.</returns>
         public IEnumerator<RoomFxType> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];

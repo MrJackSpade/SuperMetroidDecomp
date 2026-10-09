@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares the compiled Skree and Metaree phase selectors with the cartridge and checks their handoffs.</summary>
+    /// <param name="rom">Cartridge address space containing the native selector words.</param>
     private static void VerifySkreeMetareeAnimationDefinitions(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 4; index++)
@@ -32,6 +34,7 @@ internal static partial class Program
             "Skree/Metaree animation definitions: eight native selectors, all eight install handoffs, and both live attack transitions per family pass with pointer tables forbidden.");
     }
 
+    /// <summary>Checks that both enemy install routines apply each requested phase's instruction list and reset its timers.</summary>
     private static void VerifyAllSkreeMetareeInstallHandoffs()
     {
         MethodInfo installMetaree = typeof(RoomEnemySystem).GetMethod(
@@ -74,6 +77,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Runs live Metaree initialization, idle, and preparation logic to verify preparation and dive handoffs.</summary>
+    /// <param name="rom">Cartridge address space wrapped to reject reads of migrated selector tables.</param>
     private static void VerifyLiveMetareeAnimationHandoffs(SuperMetroidAddressSpace rom)
     {
         var enemies = NewSkreeMetareeGuardedSystem(rom);
@@ -115,6 +120,8 @@ internal static partial class Program
             "live Metaree dive");
     }
 
+    /// <summary>Runs live Skree initialization and main logic to verify preparation and dive handoffs.</summary>
+    /// <param name="rom">Cartridge address space wrapped to reject reads of migrated selector tables.</param>
     private static void VerifyLiveSkreeAnimationHandoffs(SuperMetroidAddressSpace rom)
     {
         var enemies = NewSkreeMetareeGuardedSystem(rom);
@@ -154,6 +161,9 @@ internal static partial class Program
             "live Skree dive");
     }
 
+    /// <summary>Creates a room-enemy system whose address-space wrapper forbids migrated selector-table reads.</summary>
+    /// <param name="rom">Backing cartridge data for reads permitted by the guard.</param>
+    /// <returns>A room-enemy system configured with the guarded address space.</returns>
     private static RoomEnemySystem NewSkreeMetareeGuardedSystem(
         SuperMetroidAddressSpace rom)
     {
@@ -163,6 +173,8 @@ internal static partial class Program
         return enemies;
     }
 
+    /// <summary>Creates a slot with sentinel instruction and timer values so handoff updates are observable.</summary>
+    /// <returns>A fresh enemy slot initialized with the test's sentinel state.</returns>
     private static RoomEnemySlot NewSkreeMetareeAnimationSlot() => new(0)
     {
         CurrentInstruction = 0x7777,
@@ -170,12 +182,21 @@ internal static partial class Program
         Timer = 0x3333,
     };
 
+    /// <summary>Selects a valid phase different from the requested phase for handoff-state setup.</summary>
+    /// <param name="phase">Phase that the test will request from the install routine.</param>
+    /// <returns>An alternate valid phase used as the slot's initial installed value.</returns>
     private static SkreeMetareeAnimationPhase DifferentSkreeMetareePhase(
         SkreeMetareeAnimationPhase phase) =>
         phase == SkreeMetareeAnimationPhase.Idling
             ? SkreeMetareeAnimationPhase.PreparingAttack
             : SkreeMetareeAnimationPhase.Idling;
 
+    /// <summary>Checks the installed phase, instruction pointer, instruction timer, and cleared loop timer.</summary>
+    /// <param name="slot">Enemy slot updated by the handoff.</param>
+    /// <param name="installed">Phase reported as installed in the enemy state.</param>
+    /// <param name="expectedPhase">Phase requested by the behavior under test.</param>
+    /// <param name="expectedInstruction">Compiled instruction-list address expected in the slot.</param>
+    /// <param name="context">Description used to identify the failing handoff in assertions.</param>
     private static void AssertSkreeMetareeHandoff(
         RoomEnemySlot slot,
         SkreeMetareeAnimationPhase installed,
@@ -189,22 +210,37 @@ internal static partial class Program
         AssertEqual(0, slot.Timer, $"{context} loop timer");
     }
 
+    /// <summary>Reads one little-endian phase-selector word from the supplied cartridge address.</summary>
+    /// <param name="bus">Address space providing the selector bytes.</param>
+    /// <param name="address">Cartridge address of the low byte.</param>
+    /// <returns>The two bytes combined into a 16-bit instruction-list address.</returns>
     private static ushort ReadSkreeMetareeAnimationWord(
         SuperMetroidAddressSpace bus,
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Forwards address-space access except for reads of the migrated Skree and Metaree selector tables.</summary>
+    /// <param name="source">Backing address space for all reads outside those selector ranges and for writes.</param>
     private sealed class SkreeMetareeAnimationReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes import reads through the selector-table protection applied to ordinary reads.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The byte from the backing address space when it is outside the migrated selector tables.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects live reads of either migrated selector table and forwards other reads.</summary>
+        /// <param name="address">Address requested from the backing cartridge data.</param>
+        /// <returns>The backing byte when the address is outside the guarded selector ranges.</returns>
         public byte ReadByte(int address) =>
             address is >= 0xa3894e and < 0xa38956 or >= 0xa3c69c and < 0xa3c6a4
                 ? throw new InvalidOperationException(
                     $"Skree/Metaree attempted migrated selector read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards the write to the backing address space.</summary>
+        /// <param name="address">Address to update.</param>
+        /// <param name="value">Byte written to that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Instruction-list entry points exercised to cover each authored Work Robot program state.</summary>
     private static readonly ushort[] WorkRobotInstructionEntries =
     [
         WorkRobotInstructionProgramDefinitions.NoPowerNeutral,
@@ -31,12 +32,15 @@ internal static partial class Program
         WorkRobotInstructionProgramDefinitions.ApproachingFallLeft,
     ];
 
+    /// <summary>Loads the retail cartridge and runs the Work Robot instruction-program verification suite.</summary>
     private static void VerifyWorkRobotInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyWorkRobotInstructionProgramDefinitions), () => VerifyWorkRobotInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks compiled mechanics words and runs every Work Robot entry against the real instruction dispatcher.</summary>
+    /// <param name="rom">Cartridge address space used to verify native mechanics and visual selector words.</param>
     private static void VerifyWorkRobotInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -120,6 +124,10 @@ internal static partial class Program
             "entries, 18 callbacks, and 227 compiled visual selectors pass.");
     }
 
+    /// <summary>Creates a powered Work Robot enemy system with deterministic randomness and its private slot state seeded.</summary>
+    /// <param name="bus">Address space installed as the system's cartridge bus and guarded during execution.</param>
+    /// <param name="robot">Receives the initialized enemy slot used by the instruction-program fixture.</param>
+    /// <returns>The enemy system containing that configured slot.</returns>
     private static RoomEnemySystem CreateWorkRobotInstructionSystem(
         ISnesAddressSpace bus,
         out RoomEnemySlot robot)
@@ -143,6 +151,8 @@ internal static partial class Program
         return enemies;
     }
 
+    /// <summary>Builds a bounded room fixture with a solid floor for Work Robot instruction execution.</summary>
+    /// <returns>Room data sized for the fixture, with a horizontal collision row at block row twenty.</returns>
     private static RoomLevelData CreateWorkRobotInstructionRoom()
     {
         const int width = 64;
@@ -154,6 +164,8 @@ internal static partial class Program
             width, height, words, new byte[words.Length], new ushort[words.Length], new byte[8]);
     }
 
+    /// <summary>Consumes alternating compiled mechanics lookups for the warmed allocation measurement.</summary>
+    /// <returns>A checksum of the selected instruction words that keeps the lookup results observable.</returns>
     private static int ProbeWorkRobotInstructionAllocation()
     {
         int checksum = 0;
@@ -167,6 +179,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian word from bank $A8 at a 16-bit instruction address.</summary>
+    /// <param name="source">Cartridge address space containing the native program bytes.</param>
+    /// <param name="address">Bank-relative address of the low byte.</param>
+    /// <returns>The native word formed from the addressed byte and its successor.</returns>
     private static ushort ReadWorkRobotInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -174,15 +190,26 @@ internal static partial class Program
             source.ReadByte(0xa80000 | address) |
             source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Records presentation-selector reads and fails if execution reads mechanics bytes compiled into the port.</summary>
+    /// <param name="source">Underlying address space supplying permitted bytes and accepting writes.</param>
+    /// <param name="forbidPresentation">When true, presentation-selector reads throw instead of being recorded.</param>
     private sealed class WorkRobotInstructionReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation words observed during execution when selector reads are allowed.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        /// <summary>Number of attempts to read bytes that should be supplied by compiled mechanics definitions.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes importer reads through the same checks as ordinary address-space reads.</summary>
+        /// <param name="address">Cartridge byte address requested by the importer.</param>
+        /// <returns>The source byte when the guarded read is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, records or rejects selectors, and forwards other bytes.</summary>
+        /// <param name="address">Cartridge byte address requested during instruction execution.</param>
+        /// <returns>The source byte if the read is permitted.</returns>
         public byte ReadByte(int address)
         {
             if (WorkRobotInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -215,6 +242,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged; the fixture guard observes reads from instruction data.</summary>
+        /// <param name="address">Destination cartridge byte address.</param>
+        /// <param name="value">Byte written to the underlying address space.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

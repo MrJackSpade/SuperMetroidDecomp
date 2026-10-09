@@ -5,12 +5,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs the face-block instruction-program checks against the retail ROM loaded from the standard verification path.</summary>
     private static void VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions), () => VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks compiled face-block mechanics and verifies all three programs execute without reading their ROM-backed tables.</summary>
+    /// <param name="rom">Retail address space used to compare compiled mechanics and visual selectors with cartridge data.</param>
     private static void VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -132,6 +135,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Compares the ten compiled mechanics words against the retail ROM and checks byte ownership and invalid-address rejection.</summary>
+    /// <param name="rom">Retail address space containing the face-block instruction data.</param>
     private static void VerifyFaceBlockMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] expected = [0xe80c,0xe810,0xe814,0xe818,0xe81a,0xe81e,0xe822,0xe826,0xe828,0xe82c];
@@ -161,6 +166,7 @@ internal static partial class Program
         foreach (int index in new[] {int.MinValue,-1,10,int.MaxValue})
             AssertThrows<IndexOutOfRangeException>(() => BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.MechanicsWord(index), "face-block control ordinal bounds");
     }
+    /// <summary>Checks the seven presentation-word addresses and confirms they are classified separately from mechanics data.</summary>
     private static void VerifyFaceBlockPresentationMapping()
     {
         ushort[] expected = [0xe80e,0xe812,0xe816,0xe81c,0xe820,0xe824,0xe82a];
@@ -173,6 +179,8 @@ internal static partial class Program
         foreach (int index in new[] {int.MinValue,-1,7,int.MaxValue})
             AssertThrows<IndexOutOfRangeException>(() => BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "face-block operand ordinal bounds");
     }
+    /// <summary>Checks compiled visual selectors and exported frame metadata against the retail face-block spritemaps.</summary>
+    /// <param name="rom">Retail address space containing the face-block spritemap records.</param>
     private static void VerifyFaceBlockVisualMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0xe80e,0xe812,0xe816,0xe81c,0xe820,0xe824,0xe82a];
@@ -206,6 +214,8 @@ internal static partial class Program
         foreach (ushort address in new ushort[] {0,0x7fff,0xffff})
             AssertThrows<InvalidDataException>(() => BlueBrinstarFaceBlockVisualDefinitions.FrameAt(address), "face-block distant invalid operand");
     }
+    /// <summary>Warms and repeatedly reads the initial compiled mechanics word so the caller can measure lookup allocations.</summary>
+    /// <returns>A checksum that keeps the repeated lookup results observable.</returns>
     private static int ProbeBlueBrinstarFaceBlockInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -217,19 +227,35 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads one little-endian word from the face-block's banked ROM address space.</summary>
+    /// <param name="bus">Address space supplying the two consecutive bytes.</param>
+    /// <param name="address">Address of the low byte.</param>
+    /// <returns>The low byte followed by the high byte as a 16-bit value.</returns>
     private static ushort ReadBlueBrinstarFaceBlockWord(
         SuperMetroidAddressSpace bus,
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Address-space decorator that detects production reads of compiled mechanics and records presentation-word reads.</summary>
+    /// <param name="source">Underlying cartridge address space used for reads not rejected by the guard.</param>
     private sealed class BlueBrinstarFaceBlockProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation-word addresses touched through this guard while production programs execute.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of attempted reads of bytes whose mechanics values are already compiled into the program definitions.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge-import reads through the same mechanics-read guard as ordinary address-space reads.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The byte supplied by the guarded address-space read.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of compiled mechanics bytes, records presentation operands, and forwards other reads to the source.</summary>
+        /// <param name="address">Address requested by production code.</param>
+        /// <returns>The source byte when the request is allowed.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled face-block mechanics data.</exception>
         public byte ReadByte(int address)
         {
             if (BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(
@@ -262,6 +288,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged because this guard only monitors read access.</summary>
+        /// <param name="address">Address to write through to the source.</param>
+        /// <param name="value">Byte value forwarded to the source.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

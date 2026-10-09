@@ -1,6 +1,19 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One immutable bank-$83 room-FX record, with its native field identities preserved.</summary>
+/// <param name="Pointer">Bank-relative identity of this 16-byte room-FX record.</param>
+/// <param name="DoorPointer">Door selector used by the room-FX list lookup; zero denotes the default entry and FFFF terminates the list.</param>
+/// <param name="BaseYPosition">Native base liquid-surface Y word.</param>
+/// <param name="TargetYPosition">Native target liquid-surface Y word used by the room effect.</param>
+/// <param name="PackedYVelocity">Packed vertical-motion value associated with the liquid surface.</param>
+/// <param name="Timer">Native effect timer byte.</param>
+/// <param name="Type">Room-FX handler identity selected by this record.</param>
+/// <param name="DefaultLayerBlend">Default layer-blend control byte.</param>
+/// <param name="Layer3LayerBlend">Layer 3 blend control byte.</param>
+/// <param name="LiquidOptions">Liquid behavior options interpreted by Samus's physics routines.</param>
+/// <param name="PaletteFxBitset">Enabled palette-effect flags for the room effect.</param>
+/// <param name="AnimatedTileBitset">Enabled animated-tile flags for the room effect.</param>
+/// <param name="PaletteBlend">Palette-blend control byte retained from the native record.</param>
 public sealed record RoomFxRecordDefinition(
     ushort Pointer,
     ushort DoorPointer,

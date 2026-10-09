@@ -4,12 +4,20 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Runs the retail-ROM-backed checks for the compiled Metroid instruction programs and their runtime behavior.
+    /// </summary>
     private static void VerifyMetroidInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMetroidInstructionProgramDefinitions), () => VerifyMetroidInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>
+    /// Compares the compiled Metroid mechanics words with cartridge data and exercises both instruction loops,
+    /// initialization, sound callbacks, and the no-cartridge-read guarantee.
+    /// </summary>
+    /// <param name="rom">Address space containing the retail cartridge bytes used as the reference.</param>
     private static void VerifyMetroidInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -108,6 +116,11 @@ internal static partial class Program
             "loops and sound callbacks, and 25 compiled visual selectors pass.");
     }
 
+    /// <summary>
+    /// Invokes Metroid initialization on a prepared room slot and checks its initial program and allocated bodies.
+    /// </summary>
+    /// <param name="bus">Address space used by the enemy system during initialization.</param>
+    /// <param name="flags">Reflection flags that expose the system's private bus and initializer.</param>
     private static void VerifyMetroidInstructionInitializer(
         ISnesAddressSpace bus,
         BindingFlags flags)
@@ -132,6 +145,14 @@ internal static partial class Program
             "Metroid initializer allocates outer body B");
     }
 
+    /// <summary>
+    /// Creates a room enemy system with a Metroid slot positioned at a chosen instruction entry.
+    /// </summary>
+    /// <param name="bus">Address space wrapped by the read guard during instruction processing.</param>
+    /// <param name="flags">Reflection flags used to set the system's private bus and random callback.</param>
+    /// <param name="entry">Compiled instruction address from which the slot begins execution.</param>
+    /// <param name="nextRandom">Callback supplied to the system for Metroid behavior that requests randomness.</param>
+    /// <returns>The configured system and its active Metroid slot.</returns>
     private static (RoomEnemySystem Enemies, RoomEnemySlot Slot)
         NewMetroidInstructionSystem(
             ISnesAddressSpace bus,
@@ -151,6 +172,14 @@ internal static partial class Program
         return (enemies, slot);
     }
 
+    /// <summary>
+    /// Advances the reflected instruction processor a fixed number of calls, making each call eligible to execute.
+    /// </summary>
+    /// <param name="process">The room enemy instruction-processing method to invoke.</param>
+    /// <param name="enemies">System instance on which each processing call runs.</param>
+    /// <param name="arguments">Argument array passed unchanged to the reflected method.</param>
+    /// <param name="slot">Metroid slot whose timer is reset before each call.</param>
+    /// <param name="count">Number of processor calls to make.</param>
     private static void RunMetroidInstructionFrames(
         MethodInfo process,
         RoomEnemySystem enemies,
@@ -165,6 +194,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Repeatedly resolves the two Metroid mechanics entries so a warmed invocation can be checked for allocations.
+    /// </summary>
+    /// <returns>A checksum of the resolved words, ensuring the lookup results are consumed.</returns>
     private static int ProbeMetroidInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -178,6 +211,12 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>
+    /// Reads the little-endian word at a bank-$A3 offset from the retail address space.
+    /// </summary>
+    /// <param name="source">Cartridge address space containing the reference word.</param>
+    /// <param name="address">Offset of the word within bank $A3.</param>
+    /// <returns>The two adjacent cartridge bytes combined as a 16-bit value.</returns>
     private static ushort ReadMetroidInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -185,14 +224,36 @@ internal static partial class Program
             source.ReadByte(0xa30000 | address) |
             source.ReadByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>
+    /// Wraps the address space to fail if production execution reads compiled Metroid mechanics or presentation data.
+    /// </summary>
+    /// <param name="source">Underlying address space used for reads and writes that are permitted by the guard.</param>
     private sealed class MetroidInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>
+        /// Presentation-word offsets whose bytes production attempted to read before the guard rejected the access.
+        /// </summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>
+        /// Number of attempted reads rejected because they targeted compiled mechanics or presentation bytes.
+        /// </summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>
+        /// Routes the cartridge-import read through the same checks as ordinary address-space reads.
+        /// </summary>
+        /// <param name="address">SNES address requested by the importer.</param>
+        /// <returns>The byte returned by the wrapped address space when the address is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>
+        /// Rejects reads from compiled Metroid tables and delegates all other reads to the wrapped address space.
+        /// </summary>
+        /// <param name="address">SNES address requested by the caller.</param>
+        /// <returns>The wrapped address-space byte when the address is outside guarded tables.</returns>
+        /// <exception cref="InvalidOperationException">A compiled mechanics or presentation byte was requested.</exception>
         public byte ReadByte(int address)
         {
             if (MetroidInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -223,6 +284,11 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>
+        /// Forwards writes unchanged because this guard only observes prohibited table reads.
+        /// </summary>
+        /// <param name="address">SNES address to write.</param>
+        /// <param name="value">Byte stored at the requested address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

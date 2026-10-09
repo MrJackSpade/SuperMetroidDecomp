@@ -13,19 +13,34 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class IntroMotherBrainSpriteState
 {
+    /// <summary>Current cursor in the actor's bank-$8B cinematic instruction list.</summary>
     private ushort instructionPointer = IntroMotherBrainDefinitions.MotherBrain.InstructionList;
+
+    /// <summary>Frames remaining before the current spritemap instruction can advance.</summary>
     private ushort instructionTimer = 1;
+
+    /// <summary>Remaining frames in the eight-frame white/normal OBJ palette flash.</summary>
     private ushort hurtFlashTimer;
+
+    /// <summary>Elapsed frames since the explosion began, used to start the page-two instruction list.</summary>
     private ushort explodingTimer;
+
+    /// <summary>Whether the explosion pre-instruction has redirected this actor to page two.</summary>
     private bool pageTwoInstructionStarted;
+
+    /// <summary>Whether the page-two crossfade pre-instruction is controlling actor visibility and shake.</summary>
     private bool crossfadingToPageTwo;
 
+    /// <summary>Fixed horizontal screen coordinate assigned by the cinematic object definition.</summary>
     public static ushort XPosition => IntroMotherBrainDefinitions.MotherBrainOrigin.X;
 
+    /// <summary>Fixed vertical screen coordinate assigned by the cinematic object definition.</summary>
     public static ushort YPosition => IntroMotherBrainDefinitions.MotherBrainOrigin.Y;
 
+    /// <summary>OBJ palette selector bits used when drawing the actor's spritemap.</summary>
     public static ushort PaletteBits => IntroCinematicRomData.Objects.DiscoveryPalette.Raw;
 
+    /// <summary>Bank-$8C spritemap currently selected by the actor's instruction list.</summary>
     public ushort SpriteMapPointer { get; private set; }
 
     /// <summary>Number of missiles consumed by <c>$8B:B786</c>, from zero through four.</summary>
@@ -164,9 +179,15 @@ internal sealed class IntroMotherBrainSpriteState
         }
     }
 
+    /// <summary>Advances a bank-local instruction pointer with the 16-bit wrapping used by the SNES.</summary>
+    /// <param name="pointer">Current offset within the instruction bank.</param>
+    /// <param name="byteCount">Number of instruction bytes to skip.</param>
+    /// <returns>The wrapped 16-bit bank offset.</returns>
     private static ushort Add(ushort pointer, int byteCount) =>
         unchecked((ushort)(pointer + byteCount));
 
+    /// <summary>Applies the explosion and crossfade pre-instruction's alternating BG1 vertical-scroll offset.</summary>
+    /// <param name="cinematicFrameCounter">Frame counter whose parity selects the direction of the four-pixel step.</param>
     private void ApplyScreenShake(ushort cinematicFrameCounter)
     {
         // $8B:B877 adds four on even cinematic frames and subtracts four on odd frames.

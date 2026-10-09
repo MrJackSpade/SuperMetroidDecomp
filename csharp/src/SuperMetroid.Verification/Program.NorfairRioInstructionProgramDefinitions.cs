@@ -5,12 +5,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Loads the retail cartridge and runs the Norfair Rio instruction-definition verification suite.</summary>
     private static void VerifyNorfairRioInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyNorfairRioInstructionProgramDefinitions), () => VerifyNorfairRioInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares compiled Norfair Rio mechanics and executed programs with cartridge behavior.</summary>
+    /// <param name="rom">Cartridge address space used to check native instruction and presentation words.</param>
     private static void VerifyNorfairRioInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -127,6 +130,9 @@ internal static partial class Program
             "flame programs, eleven callbacks, and 34 compiled spritemap selectors pass.");
     }
 
+    /// <summary>Checks that parent and flame-follower parameters select their corresponding native program entries.</summary>
+    /// <param name="bus">Address space supplied to the enemy system during initialization.</param>
+    /// <param name="flags">Reflection flags used to access the system's private initializer and bus field.</param>
     private static void VerifyNorfairRioInitializerSelections(
         ISnesAddressSpace bus,
         BindingFlags flags)
@@ -155,6 +161,12 @@ internal static partial class Program
             "Norfair Rio follower initializer selects ascending flames");
     }
 
+    /// <summary>Builds a one-slot enemy system positioned at a chosen Norfair Rio instruction entry.</summary>
+    /// <param name="bus">Address space installed as the system's cartridge bus.</param>
+    /// <param name="flags">Reflection flags used to install the bus and seed the private per-slot state array.</param>
+    /// <param name="entry">Instruction address at which the slot begins execution.</param>
+    /// <param name="art">Optional artwork catalog made available to the enemy system.</param>
+    /// <returns>The configured system, its active slot, and the slot's Norfair Rio runtime state.</returns>
     private static (
         RoomEnemySystem Enemies,
         RoomEnemySlot Slot,
@@ -179,6 +191,12 @@ internal static partial class Program
         return (enemies, slot, state);
     }
 
+    /// <summary>Invokes the real instruction dispatcher a fixed number of times with the slot timer ready each time.</summary>
+    /// <param name="process">Reflected instruction-dispatch method for the enemy system.</param>
+    /// <param name="enemies">System instance that owns the slot and interpreter.</param>
+    /// <param name="arguments">Reflection argument array passed to the dispatcher.</param>
+    /// <param name="slot">Slot whose instruction timer is reset before each dispatch.</param>
+    /// <param name="count">Number of dispatcher calls to execute.</param>
     private static void RunNorfairRioInstructionFrames(
         MethodInfo process,
         RoomEnemySystem enemies,
@@ -193,6 +211,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Consumes repeated compiled mechanics lookups for the warmed allocation check.</summary>
+    /// <returns>A checksum of the selected instruction words so the lookups remain observable.</returns>
     private static int ProbeNorfairRioInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -206,6 +226,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian word from bank $A2 at a 16-bit instruction address.</summary>
+    /// <param name="source">Cartridge address space containing the native program bytes.</param>
+    /// <param name="address">Bank-relative address of the low byte.</param>
+    /// <returns>The native word formed from the addressed byte and its successor.</returns>
     private static ushort ReadNorfairRioInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -213,14 +237,25 @@ internal static partial class Program
             source.ReadByte(0xa20000 | address) |
             source.ReadByte(0xa20000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Tracks permitted Norfair Rio selector reads and throws if runtime execution reads compiled mechanics bytes.</summary>
+    /// <param name="source">Underlying address space used for reads and writes allowed by the guard.</param>
+    /// <param name="forbidPresentation">When true, selector reads also throw instead of being recorded.</param>
     private sealed class NorfairRioInstructionReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Bank-relative presentation words observed during execution when selector reads are permitted.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        /// <summary>Count of attempted reads from instruction bytes expected to be served by compiled definitions.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge-import reads through the guard's runtime read checks.</summary>
+        /// <param name="address">Cartridge byte address requested by the importer.</param>
+        /// <returns>The source byte if the guarded read is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, records or rejects presentation selectors, and forwards other bytes.</summary>
+        /// <param name="address">Cartridge byte address requested by the instruction dispatcher.</param>
+        /// <returns>The source byte when the read is permitted.</returns>
         public byte ReadByte(int address)
         {
             if (NorfairRioInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -253,6 +288,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged; this fixture guard observes instruction-data reads.</summary>
+        /// <param name="address">Destination cartridge byte address.</param>
+        /// <param name="value">Byte written to the underlying address space.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

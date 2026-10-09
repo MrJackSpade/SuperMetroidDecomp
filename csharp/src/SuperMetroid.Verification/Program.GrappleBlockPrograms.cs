@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks the complete native address set and values for Grapple-block mechanics operands.</summary>
     private static void VerifyGrappleBlockControlMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xcd6a,0xcd6e,0xcd71,0xcd75,0xcd79,0xcd7d,0xcd81,0xcd85,0xcd89,0xcd8d,0xcd8f,0xcd91,
@@ -20,6 +21,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Verifies that every compiled draw-pointer operand occupies its native ROM address and has its native value.</summary>
     private static void VerifyGrappleBlockDrawOperandMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xcd6c,0xcd73,0xcd77,0xcd7b,0xcd7f,0xcd83,0xcd87,0xcd8b,
@@ -33,6 +35,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks the two packed sound bytes against the native address space and rejects other addresses.</summary>
     private static void VerifyGrappleBlockSoundMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xcd70,0xcdaf];
@@ -45,6 +48,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Compares all five exported physical draw lists with their native geometry and tile words.</summary>
     private static void VerifyGrappleBlockPhysicalDrawMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0xa4f9,0xa4ff,0xa505,0xa50b,0xa511];
@@ -68,6 +72,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks stock and edited visual words, stable identity, and catalog validation for all Grapple frames.</summary>
     private static void VerifyGrappleBlockStockVisualMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0xa4f9,0xa4ff,0xa505,0xa50b,0xa511];
@@ -104,6 +109,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => new RoomPlmGrappleBlockVisualCatalog(entries),"Grapple rejects artwork collision bits");
     }
 
+    /// <summary>Runs Grapple-block mapping checks and compares both BTS programs against native execution over time.</summary>
     private static void VerifyGrappleBlockPrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -158,6 +164,7 @@ internal static partial class Program
         Console.WriteLine($"Grapple-block PLMs: 19 control words, 2 sound bytes, and 5 draw lists match ROM; both programs run with source reads forbidden.");
     }
 
+    /// <summary>Confirms an artwork override changes rendered tile data while preserving the physical collision word.</summary>
     private static void VerifyGrappleBlockVisualSeparation(
         SuperMetroidAddressSpace rom, HashSet<int> forbidden)
     {
@@ -220,6 +227,7 @@ internal static partial class Program
             "Grapple catalog rejects collision bits in editable data");
     }
 
+    /// <summary>Checks extraction, override loading, stock replacement, and rejection of corrupted Grapple artwork data.</summary>
     private static void VerifyGrappleBlockVisualInstallation(SuperMetroidAddressSpace rom)
     {
         string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
@@ -285,9 +293,14 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Bundles the synthetic level and systems needed to execute a Grapple-block PLM fixture.</summary>
+    /// <param name="Level">Room level whose collision and tile data are mutated by the PLM.</param>
+    /// <param name="Streamer">Background streamer observing updates generated from the level.</param>
+    /// <param name="Plms">PLM system containing the spawned Grapple-block program.</param>
     private sealed record GrappleBlockFixture(
         RoomLevelData Level, BackgroundTilemapStreamer Streamer, RoomPlmSystem Plms);
 
+    /// <summary>Creates a small test room, places a Grapple block at its sample cell, and returns its execution systems.</summary>
     private static GrappleBlockFixture NewGrappleBlockFixture(byte bts)
     {
         const int width = 8;

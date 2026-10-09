@@ -5,10 +5,13 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Loads the retail ROM and runs the Botwoon projectile instruction checks.</summary>
     private static void VerifyBotwoonProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyBotwoonProjectileInstructionProgramDefinitions), () => VerifyBotwoonProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Checks compiled controls, visual operands, and production projectile execution while rejecting runtime mechanics reads.</summary>
+    /// <param name="rom">Retail cartridge address space supplying the authored instruction and spritemap words.</param>
     private static void VerifyBotwoonProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -123,6 +126,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks the ordered list of seventeen used body/tail programs and rejects out-of-range ordinals.</summary>
     private static void VerifyBotwoonProjectileProgramEnumeration()
     {
         ushort[] programs = [0xe80f,0xe823,0xe837,0xe85f,0xe873,0xe887,0xe89b,0xe8af,
@@ -134,6 +138,8 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => BotwoonProjectileInstructionProgramDefinitions.BodyProgram(index), "Botwoon program ordinal domain");
     }
 
+    /// <summary>Compares compiled control words with ROM, verifies byte ownership, and rejects visual words and unused gaps as mechanics.</summary>
+    /// <param name="rom">Retail cartridge address space containing the native control words.</param>
     private static void VerifyBotwoonProjectileControlMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] looping = [0xe80f,0xe823,0xe837,0xe85f,0xe873,0xe887,0xe89b,0xe8af];
@@ -171,6 +177,8 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => BotwoonProjectileInstructionProgramDefinitionsTooling.MechanicsWord(index), "Botwoon control ordinal domain");
     }
 
+    /// <summary>Checks the presentation-operand address sequence and its complete membership and bounds behavior.</summary>
+    /// <param name="rom">Retail cartridge address space used by the follow-up visual-selector comparison.</param>
     private static void VerifyBotwoonProjectileOperandMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0xe811,0xe815,0xe819,0xe81d,0xe825,0xe829,0xe82d,0xe831,
@@ -190,6 +198,9 @@ internal static partial class Program
         Suite(nameof(VerifyBotwoonProjectileVisualMapping), () => VerifyBotwoonProjectileVisualMapping(rom, operands));
     }
 
+    /// <summary>Compares each compiled projectile selector with its ROM sprite pointer and verifies visible, hidden, and gap records.</summary>
+    /// <param name="rom">Retail cartridge address space containing operand and spritemap data.</param>
+    /// <param name="nativeOperands">Presentation addresses enumerated by the operand verification.</param>
     private static void VerifyBotwoonProjectileVisualMapping(SuperMetroidAddressSpace rom, ushort[] nativeOperands)
     {
         foreach (ushort operand in nativeOperands)
@@ -217,6 +228,8 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => EnemyProjectileSpritemapDefinitions.BotwoonProjectileFrameAt(address), "Botwoon projectile distant invalid visual");
     }
 
+    /// <summary>Exercises alternating body and spit mechanics lookups and accumulates their values to keep the work observable.</summary>
+    /// <returns>Checksum of the selected compiled mechanics words.</returns>
     private static int ProbeBotwoonProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -230,14 +243,25 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Wraps the cartridge bus to reject compiled mechanics reads and record accesses to compiled presentation words.</summary>
+    /// <param name="source">Underlying address space for allowed reads and delegated writes.</param>
     private sealed class BotwoonProjectileInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation-word addresses whose bytes were read through the guarded cartridge path.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        /// <summary>Number of attempted reads of bytes represented by compiled mechanics definitions.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge reads through the mechanics-read guard and presentation-access tracker.</summary>
+        /// <param name="address">Bus address requested by production code.</param>
+        /// <returns>The source byte when the request is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of compiled mechanics bytes and records reads of compiled presentation operands.</summary>
+        /// <param name="address">Bus address requested by production code.</param>
+        /// <returns>The underlying source byte for an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">The requested byte belongs to a compiled mechanics word.</exception>
         public byte ReadByte(int address)
         {
             if (BotwoonProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -266,6 +290,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the wrapped address space.</summary>
+        /// <param name="address">Bus address to write.</param>
+        /// <param name="value">Byte stored at the address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

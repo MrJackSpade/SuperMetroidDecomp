@@ -29,12 +29,21 @@ internal static class EnemyAuxiliaryColorDefinitions
     internal static readonly EnemyAuxiliaryPaletteDefinition GoldenTorizoBelly = new(
         EnemyAuxiliaryPalette.GoldenTorizoBelly, 0x848132, 8, 16, 16);
 
+    /// <summary>Provides the four auxiliary palette families in stable catalog order.</summary>
     internal static DefinitionSet All { get; } = new();
 
+    /// <summary>Read-only indexed view over the fixed auxiliary palette catalog.</summary>
     internal sealed class DefinitionSet : IReadOnlyList<EnemyAuxiliaryPaletteDefinition>
     {
+        /// <summary>Number of palette definitions exposed by this catalog.</summary>
         public int Count => 4;
+
+        /// <summary>Number of palette definitions, also available through <see cref="Count"/>.</summary>
         public int Length => Count;
+
+        /// <summary>Gets the palette definition at its catalog index.</summary>
+        /// <param name="index">Zero-based position in the order FaceBlock, DeadSidehopper, GoldenTorizoBody, GoldenTorizoBelly.</param>
+        /// <exception cref="IndexOutOfRangeException">The index is outside the four catalog entries.</exception>
         public EnemyAuxiliaryPaletteDefinition this[int index] => index switch
         {
             0 => FaceBlock,
@@ -43,6 +52,8 @@ internal static class EnemyAuxiliaryColorDefinitions
             3 => GoldenTorizoBelly,
             _ => throw new IndexOutOfRangeException(),
         };
+        /// <summary>Enumerates all four palette definitions in the same order used by the indexer.</summary>
+        /// <returns>An enumerator over the fixed catalog entries.</returns>
         public IEnumerator<EnemyAuxiliaryPaletteDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -51,6 +62,12 @@ internal static class EnemyAuxiliaryColorDefinitions
     }
 }
 
+/// <summary>Describes the cartridge source and row dimensions needed to import one auxiliary palette family.</summary>
+/// <param name="Id">Palette family identity used to select the corresponding native consumer.</param>
+/// <param name="SourceAddress">SNES address of the first native palette row.</param>
+/// <param name="FrameCount">Number of source rows or animation stages in the family.</param>
+/// <param name="ColorCount">Number of supplied RGB5 colors in each row.</param>
+/// <param name="NativeFrameStrideColors">Distance in colors between successive native rows, including any omitted color zero.</param>
 internal readonly record struct EnemyAuxiliaryPaletteDefinition(
     EnemyAuxiliaryPalette Id, int SourceAddress, int FrameCount, int ColorCount, int NativeFrameStrideColors);
 

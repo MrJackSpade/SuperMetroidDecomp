@@ -5,6 +5,9 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks that the seven drool spritemap operands resolve to their native visual selectors
+    /// and that the referenced sprite records and blank map retain their expected shape.</summary>
+    /// <param name="rom">Retail address space used as the independent source for expected instruction bytes.</param>
     private static void VerifyBombTorizoDroolVisualMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0xa46c,0xa470,0xa47c,0xa484,0xa492,0xa496,0xa49a];
@@ -32,6 +35,8 @@ internal static partial class Program
         foreach (ushort address in new ushort[] {0,0x7fff,0xffff})
             AssertThrows<InvalidDataException>(() => EnemyProjectileSpritemapDefinitions.BombTorizoDroolFrameAt(address), "drool distant invalid visual operand");
     }
+    /// <summary>Checks the compiled mechanics-word order and byte ownership, including rejection of visual operands and other banks.</summary>
+    /// <param name="rom">Retail address space containing the native mechanics operands.</param>
     private static void VerifyBombTorizoDroolMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] expected = [0xa46a,0xa46e,0xa472,0xa474,0xa476,0xa478,0xa47a,0xa47e,0xa480,
@@ -63,6 +68,7 @@ internal static partial class Program
         foreach (int index in new[] {int.MinValue,-1,19,int.MaxValue})
             AssertThrows<IndexOutOfRangeException>(() => BombTorizoDroolInstructionProgramDefinitionsTooling.MechanicsWord(index), "drool mechanics ordinal bounds");
     }
+    /// <summary>Checks every extracted drool spritemap operand address and rejects indices outside the frame sequence.</summary>
     private static void VerifyBombTorizoDroolPresentationMapping()
     {
         ushort[] expected = [0xa46c,0xa470,0xa47c,0xa484,0xa492,0xa496,0xa49a];
@@ -75,6 +81,8 @@ internal static partial class Program
         foreach (int index in new[] {int.MinValue,-1,7,int.MaxValue})
             AssertThrows<IndexOutOfRangeException>(() => BombTorizoDroolInstructionProgramDefinitions.PresentationWordAddress(index), "drool operand ordinal bounds");
     }
+    /// <summary>Compares low-health initial-list selection against the cartridge's shift-and-mask calculation for every RNG word.</summary>
+    /// <param name="rom">Retail address space containing the native initial-list selection table.</param>
     private static void VerifyBombTorizoDroolInitialSelection(SuperMetroidAddressSpace rom)
     {
         for (int random = 0; random <= ushort.MaxValue; random++)
@@ -86,10 +94,14 @@ internal static partial class Program
                 "Bomb Torizo drool native delay selection for all RNG words");
         }
     }
+    /// <summary>Loads the retail cartridge and starts the complete Bomb Torizo drool definition verification.</summary>
     private static void VerifyBombTorizoDroolInstructionProgramDefinitions() =>
         Suite(nameof(VerifyBombTorizoDroolInstructionProgramDefinitions), () => VerifyBombTorizoDroolInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Verifies the compiled drool data and production projectile timing, RNG use, priority changes,
+    /// impact lifetimes, and absence of reads from compiled mechanics bytes.</summary>
+    /// <param name="rom">Retail address space used for native reference values and permitted non-mechanics reads.</param>
     private static void VerifyBombTorizoDroolInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -267,6 +279,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Warms and repeatedly reads mechanics words to provide a stable allocation probe checksum.</summary>
+    /// <returns>Accumulated word values that keep each lookup result observable.</returns>
     private static int ProbeBombTorizoDroolInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -280,14 +294,25 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Address-space proxy that forbids reads of compiled mechanics bytes and records consumed presentation operands.</summary>
+    /// <param name="source">Underlying cartridge space used for reads that are not compiled mechanics bytes.</param>
     private sealed class BombTorizoDroolInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Distinct extracted spritemap operand addresses observed through this guard.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        /// <summary>Number of production attempts to read a byte owned by the compiled mechanics table.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes importer cartridge reads through mechanics-byte rejection and presentation tracking.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The underlying byte when the address is not a compiled mechanics byte.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, records presentation-word reads, and forwards other addresses.</summary>
+        /// <param name="address">Address requested from the wrapped cartridge space.</param>
+        /// <returns>The underlying byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to a compiled mechanics byte.</exception>
         public byte ReadByte(int address)
         {
             if (BombTorizoDroolInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -316,6 +341,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the wrapped address space without changing read tracking.</summary>
+        /// <param name="address">Address receiving the write.</param>
+        /// <param name="value">Byte stored at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

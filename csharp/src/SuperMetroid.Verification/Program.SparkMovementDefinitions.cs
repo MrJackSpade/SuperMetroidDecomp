@@ -5,6 +5,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks compiled Spark initialization values, instruction mechanics, and live presentation against the cartridge.</summary>
+    /// <param name="rom">Retail address space used as the reference for native table and program words.</param>
     private static void VerifySparkMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         const int instructionTable = 0xa8e682;
@@ -157,6 +159,8 @@ internal static partial class Program
             "pass with runtime ROM reads forbidden; 26 executed selectors match the cartridge.");
     }
 
+    /// <summary>Repeats a compiled mechanics lookup so the caller can measure warmed allocation behavior.</summary>
+    /// <returns>A checksum that keeps the lookup results observable.</returns>
     private static int ProbeSparkInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -168,6 +172,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads one little-endian instruction word from bank $A8.</summary>
+    /// <param name="source">Address space supplying the two instruction bytes.</param>
+    /// <param name="address">Bank-relative address of the word's low byte.</param>
+    /// <returns>The adjacent bytes combined into a 16-bit word.</returns>
     private static ushort ReadSparkProgramWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -175,25 +183,50 @@ internal static partial class Program
             source.ReadByte(0xa80000 | address) |
             source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Prevents Spark initialization from reading selector values that have been moved into compiled definitions.</summary>
+    /// <param name="source">Address space used for all reads outside the migrated selector table.</param>
     private sealed class SparkMovementReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes importer reads through the guard's selector-table check.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The source byte when the address is outside the forbidden selector table.</returns>
+        /// <exception cref="InvalidOperationException">The initializer attempts to read a migrated selector address.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the migrated selector table and forwards other addresses.</summary>
+        /// <param name="address">Absolute cartridge address to read.</param>
+        /// <returns>The underlying source byte for an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to the migrated Spark selector table.</exception>
         public byte ReadByte(int address) => address is >= 0xa8e682 and < 0xa8e690
             ? throw new InvalidOperationException(
                 $"Spark initializer attempted migrated selector read ${address:X6}.")
             : source.ReadByte(address);
 
+        /// <summary>Forwards a write to the wrapped address space.</summary>
+        /// <param name="address">Absolute cartridge address to update.</param>
+        /// <param name="value">Byte written to that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
+    /// <summary>Tracks presentation-word reads and rejects any production read of compiled Spark mechanics bytes.</summary>
+    /// <param name="source">Underlying address space for permitted cartridge accesses.</param>
     private sealed class SparkProgramReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation-word base addresses observed during production instruction execution.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of attempts to read mechanics bytes that should come from compiled definitions.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes importer reads through the same monitoring and rejection logic.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The underlying byte when the guarded read is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects mechanics reads, records presentation operands, and forwards other addresses.</summary>
+        /// <param name="address">Absolute cartridge address to read.</param>
+        /// <returns>The underlying source byte for a permitted address.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled Spark mechanics data.</exception>
         public byte ReadByte(int address)
         {
             if (SparkInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -224,6 +257,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write to the wrapped address space.</summary>
+        /// <param name="address">Absolute cartridge address to update.</param>
+        /// <param name="value">Byte written to that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

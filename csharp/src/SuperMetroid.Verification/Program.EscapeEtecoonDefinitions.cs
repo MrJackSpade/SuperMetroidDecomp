@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the three authored escape-Etecoon initialization roles against cartridge tables and production initialization.</summary>
+    /// <param name="rom">Address space containing the retail initialization tables used as the reference.</param>
     private static void VerifyEscapeEtecoonDefinitions(SuperMetroidAddressSpace rom)
     {
         const int xTable = 0xb3e718;
@@ -84,12 +86,15 @@ internal static partial class Program
             "Escape Etecoon definitions: fifteen native values and all six masked retail selectors pass with the authored tables forbidden during production initialization; malformed restored selectors fail explicitly.");
     }
 
+    /// <summary>Loads the retail ROM and runs the instruction-definition verification against it.</summary>
     private static void VerifyEscapeEtecoonInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyEscapeEtecoonInstructionProgramDefinitions), () => VerifyEscapeEtecoonInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks compiled mechanics words and drives live Etecoon instruction programs while forbidding migrated source reads.</summary>
+    /// <param name="rom">Retail address space used to compare native instruction and presentation operands.</param>
     private static void VerifyEscapeEtecoonInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -172,6 +177,10 @@ internal static partial class Program
             "programs and 30 installed native selectors pass with source reads forbidden.");
     }
 
+    /// <summary>Creates a room system with a guarded bus and initializes one escape Etecoon for instruction execution.</summary>
+    /// <param name="bus">Address space assigned to the system before initialization.</param>
+    /// <param name="flags">Reflection flags used to bind the system's private dependencies and initializer.</param>
+    /// <returns>The initialized system containing the test Etecoon in slot zero.</returns>
     private static RoomEnemySystem CreateEscapeEtecoonProgramSystem(
         ISnesAddressSpace bus,
         BindingFlags flags)
@@ -189,6 +198,13 @@ internal static partial class Program
         return enemies;
     }
 
+    /// <summary>Advances a fixed number of instruction ticks and records each installed presentation operand.</summary>
+    /// <param name="process">Reflected instruction-processing method to invoke for each tick.</param>
+    /// <param name="enemies">System that owns the Etecoon and instruction state.</param>
+    /// <param name="etecoon">Slot whose active instruction program is being stepped.</param>
+    /// <param name="steps">Number of forced instruction ticks to execute.</param>
+    /// <param name="rom">Retail address space used to verify the installed spritemap operand.</param>
+    /// <param name="selectedPresentation">Set receiving each observed presentation operand address.</param>
     private static void RunForcedEscapeEtecoonInstructions(
         MethodInfo process,
         RoomEnemySystem enemies,
@@ -210,11 +226,17 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Reads one little-endian instruction word from the Etecoon bank.</summary>
+    /// <param name="bus">Address space supplying the instruction bytes.</param>
+    /// <param name="address">Absolute address of the word's low byte.</param>
+    /// <returns>The two bytes combined as a 16-bit word.</returns>
     private static ushort ReadEscapeEtecoonInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Exercises repeated mechanics lookups so the caller can measure warmed allocations.</summary>
+    /// <returns>A checksum that keeps the lookup results observable.</returns>
     private static int ProbeEscapeEtecoonInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -226,14 +248,26 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Wraps a cartridge address space to observe visual-word reads and reject reads of compiled definition data.</summary>
+    /// <param name="source">Underlying address space used for permitted cartridge reads and writes.</param>
     private sealed class EscapeEtecoonDefinitionReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation-word base addresses observed while production installs Etecoon visuals.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of attempted reads from mechanics bytes that should be served by compiled definitions.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Forwards the import-source read through the guard's address-space checks.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The byte returned by the underlying source when the guarded access is allowed.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of migrated definition data and tracks presentation operands before forwarding other reads.</summary>
+        /// <param name="address">Absolute cartridge address to read.</param>
+        /// <returns>The underlying source byte if the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The requested address belongs to forbidden compiled or migrated definition data.</exception>
         public byte ReadByte(int address)
         {
             if (EscapeEtecoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -266,6 +300,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the wrapped cartridge address space.</summary>
+        /// <param name="address">Absolute cartridge address to update.</param>
+        /// <param name="value">Byte written to that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

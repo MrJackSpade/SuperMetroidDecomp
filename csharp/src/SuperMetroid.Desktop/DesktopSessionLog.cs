@@ -11,13 +11,21 @@ namespace SuperMetroid.Desktop;
 /// </summary>
 internal sealed class DesktopSessionLog : IDisposable
 {
+    /// <summary>Serializes journal access, console tee writes, checkpoints, and session finalization.</summary>
     private readonly object gate = new();
+    /// <summary>Console output writer restored when this logging session is disposed.</summary>
     private readonly TextWriter originalOutput;
+    /// <summary>Console error writer retained for restoration and reporting journal failures outside the tee.</summary>
     private readonly TextWriter originalError;
+    /// <summary>UTF-8 journal receiving the session's combined standard output and error stream.</summary>
     private readonly StreamWriter journal;
+    /// <summary>Stops further journal writes after an IO failure while allowing console output to continue.</summary>
     private bool journalFailed;
+    /// <summary>Marks finalization so writes and checkpoints no longer use the closed session journal.</summary>
     private bool disposed;
 
+    /// <summary>Creates a unique live log and archive path beneath the executable's logs directory.</summary>
+    /// <param name="executableDirectory">Directory containing the running desktop executable.</param>
     private DesktopSessionLog(string executableDirectory)
     {
         originalOutput = Console.Out;
@@ -67,6 +75,7 @@ internal sealed class DesktopSessionLog : IDisposable
         }
     }
 
+    /// <summary>Archives the completed session, restores the original console writers, and removes interim text only after successful publication.</summary>
     public void Dispose()
     {
         lock (gate)
@@ -103,6 +112,8 @@ internal sealed class DesktopSessionLog : IDisposable
         }
     }
 
+    /// <summary>Flushes the live journal and atomically publishes its contents as the session ZIP.</summary>
+    /// <returns><see langword="true"/> when the archive was published; otherwise <see langword="false"/> with the live log retained.</returns>
     private bool TryArchive()
     {
         string temporary = ArchivePath + ".tmp";
@@ -132,6 +143,9 @@ internal sealed class DesktopSessionLog : IDisposable
         }
     }
 
+    /// <summary>Writes text to the session journal and the original console under one ordering lock.</summary>
+    /// <param name="console">Original console stream that must continue receiving output.</param>
+    /// <param name="text">Characters emitted by the console writer.</param>
     internal void Write(TextWriter console, ReadOnlySpan<char> text)
     {
         lock (gate)
@@ -149,6 +163,8 @@ internal sealed class DesktopSessionLog : IDisposable
         }
     }
 
+    /// <summary>Flushes the journal and original console while preserving their serialized write order.</summary>
+    /// <param name="console">Original console stream whose buffered output must be flushed.</param>
     internal void Flush(TextWriter console)
     {
         lock (gate)
@@ -166,6 +182,8 @@ internal sealed class DesktopSessionLog : IDisposable
         }
     }
 
+    /// <summary>Reports a journal failure directly to the original error stream to avoid recursing through the tee.</summary>
+    /// <param name="error">IO or archive exception that prevented diagnostic logging from completing.</param>
     private void ReportLogFailure(Exception error)
     {
         // Bypass the tee: writing another error through a failed journal would recurse.

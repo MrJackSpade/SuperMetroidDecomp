@@ -7,14 +7,23 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Fixed-point movement magnitude used while Draygon chases Samus and carries her to the spiral center.</summary>
     private const ushort DraygonChaseSpeed = 2;
+    /// <summary>Horizontal room coordinate toward which Draygon carries Samus before the orbit begins.</summary>
     private const ushort DraygonSpiralTargetX = 0x0100;
+    /// <summary>Vertical room coordinate toward which Draygon carries Samus before the orbit begins.</summary>
     private const ushort DraygonSpiralTargetY = 0x0180;
+    /// <summary>Initial angle used to place the body around the expanding spiral center.</summary>
     private const ushort DraygonInitialSpiralAngle = 0x00c0;
+    /// <summary>Initial per-update angular increment, reduced as the spiral proceeds.</summary>
     private const ushort DraygonInitialSpiralAngleDelta = 0x0800;
+    /// <summary>Horizontal orbit radius at which the spiral phase transitions to its final tail whips.</summary>
     private const ushort DraygonMaximumSpiralRadius = 0x00a0;
+    /// <summary>Lowest spiral-center Y coordinate allowed before the final tail-whip phase begins.</summary>
     private const ushort DraygonMinimumSpiralCenterY = 0x0040;
+    /// <summary>Frame count for the incidental pause during the expanding spiral's tail-whip event.</summary>
     private const ushort DraygonTailWhipDuration = 0x0040;
+    /// <summary>Remaining tail-whip pause count at which the facing-specific whip instruction list is installed.</summary>
     private const ushort DraygonTailWhipStartFrame = 0x003f;
 
     /// <summary>
@@ -336,6 +345,12 @@ public sealed partial class RoomEnemySystem
             subtract: ((movementAngle + 0x80) & 0x80) != 0);
     }
 
+    /// <summary>Adds or subtracts an unsigned 16.16 movement magnitude from a split position.</summary>
+    /// <param name="position">Whole-number portion of the current coordinate.</param>
+    /// <param name="subposition">Fractional portion of the current coordinate.</param>
+    /// <param name="magnitude">Unsigned 16.16 distance to apply.</param>
+    /// <param name="subtract"><see langword="true"/> to move toward a lower coordinate; otherwise move higher.</param>
+    /// <returns>The updated coordinate split into its whole and fractional words.</returns>
     private static (ushort Position, ushort Subposition) AddDraygonAngleMagnitude(
         ushort position,
         ushort subposition,
@@ -351,10 +366,15 @@ public sealed partial class RoomEnemySystem
             unchecked((ushort)fixedPosition));
     }
 
+    /// <summary>Checks the grapple phases that interrupt Draygon's carry with an electrical shock response.</summary>
+    /// <param name="samus">Samus state whose grapple phase is inspected.</param>
+    /// <returns><see langword="true"/> for connected swinging, locked, or wall-grab phases.</returns>
     private static bool IsDraygonGrappleConnected(SamusState samus) =>
         samus.Grapple.Phase is GrapplePhase.ConnectedSwinging or
             GrapplePhase.ConnectedLocked or GrapplePhase.WallGrab;
 
+    /// <summary>Sets Draygon's flash timer and native AI shock bit after detecting an active grapple connection.</summary>
+    /// <param name="state">Draygon state whose body receives the shock response.</param>
     private static void MarkDraygonGrappleShock(DraygonEnemyState state)
     {
         RoomEnemySlot body = state.Body;
@@ -372,6 +392,10 @@ public sealed partial class RoomEnemySystem
         SamusReleasedByDraygonThisFrame = true;
     }
 
+    /// <summary>Requires the active Samus actor before Draygon performs carry-state updates.</summary>
+    /// <param name="samus">Optional active actor supplied to the enemy update.</param>
+    /// <returns>The active Samus state used by the grab sequence.</returns>
+    /// <exception cref="InvalidOperationException">The carry update has no active Samus actor.</exception>
     private static SamusState RequireDraygonGrabbedSamus(SamusState? samus)
     {
         if (samus is null)

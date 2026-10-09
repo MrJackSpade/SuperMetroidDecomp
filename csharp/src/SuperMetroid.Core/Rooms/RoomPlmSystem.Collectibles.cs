@@ -16,15 +16,24 @@ public sealed partial class RoomPlmSystem
 {
     // Instruction $8764 rotates through four $100-byte character allocations. Its table
     // offsets are words into TileTable at $7E:A000 and destinations are VRAM word addresses.
+    /// <summary>First TileTable word reserved for the rotating dynamic collectible block definitions.</summary>
     private const int DynamicBlockDefinitionFirstWord = 0x0470 / 2;
+    /// <summary>Byte offset in <see cref="SnesVram"/> corresponding to native VRAM word <c>$3E00</c>.</summary>
     private const int DynamicVramFirstByte = 0x3e00 * 2;
 
+    /// <summary>Pickup events emitted during the current PLM handler pass.</summary>
     private readonly List<CollectiblePickupEvent> _collectiblePickupEvents = new();
+    /// <summary>System state that owns persistent collected-item bits for this room.</summary>
     private Bank80SystemState? _collectibleSystem;
+    /// <summary>Room-owned Samus provider used when an item trigger is accepted.</summary>
     private Func<SamusState?>? _collectibleSamus;
+    /// <summary>Next of the four rotating dynamic graphics allocations to fill.</summary>
     private int _nextCollectibleGraphicsSlot;
+    /// <summary>Most recent pickup publication retained for the owning room update.</summary>
     private CollectiblePickupEvent? _lastCollectiblePickup;
+    /// <summary>One-shot request raised when an item begins its synchronous pickup message.</summary>
     private bool _collectibleFanfareRequested;
+    /// <summary>Defers the Chozo Speed Booster lava-motion write until its pickup message returns.</summary>
     private bool _pendingSpeedBoosterPickupContinuation;
 
     /// <summary>Whether the PLM handler is waiting for its synchronous pickup message.</summary>
@@ -64,6 +73,7 @@ public sealed partial class RoomPlmSystem
         return _tilemapUpdates;
     }
 
+    /// <summary>Applies the deferred Chozo Speed Booster lava velocity after its synchronous message completes.</summary>
     private void CompleteSpeedBoosterPickupContinuation()
     {
         if (!_pendingSpeedBoosterPickupContinuation)
@@ -160,8 +170,10 @@ public sealed partial class RoomPlmSystem
         return false;
     }
 
+    /// <summary>Starts a PLM handler pass with an empty list of newly completed pickups.</summary>
     private void BeginCollectibleFrame() => _collectiblePickupEvents.Clear();
 
+    /// <summary>Clears room-owned collectible callbacks, graphics rotation, event state, and suspended continuations.</summary>
     private void ResetCollectibleState()
     {
         _collectiblePickupEvents.Clear();
@@ -255,6 +267,11 @@ public sealed partial class RoomPlmSystem
         return false;
     }
 
+    /// <summary>Decodes a four-byte header-table entry into its zero-based permanent-item kind.</summary>
+    /// <param name="header">Header pointer read from a room PLM population record.</param>
+    /// <param name="firstHeader">First header in one of the exposed, Chozo-orb, or shot-block tables.</param>
+    /// <param name="kind">Receives the table ordinal when the header is aligned and in range.</param>
+    /// <returns>True only for one of the 21 four-byte records beginning at <paramref name="firstHeader"/>.</returns>
     private static bool TryDecodeCollectibleRange(
         ushort header,
         ushort firstHeader,
@@ -272,6 +289,13 @@ public sealed partial class RoomPlmSystem
         return false;
     }
 
+    /// <summary>Uploads a dynamic item's two frames and synchronizes its eight tile definitions in both room views.</summary>
+    /// <param name="level">Room data whose tile-definition words are updated.</param>
+    /// <param name="streamer">Camera streamer whose staging copy must match the live tile table.</param>
+    /// <param name="vram">Video memory receiving the item's character bytes.</param>
+    /// <param name="kind">Item identity used when no graphic was supplied by the constructed population.</param>
+    /// <param name="suppliedGraphic">Optional already-decoded artwork for this item kind.</param>
+    /// <returns>The rotating dynamic graphics slot assigned to this item.</returns>
     private int LoadDynamicCollectibleGraphics(
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
@@ -312,6 +336,15 @@ public sealed partial class RoomPlmSystem
         return graphicsSlot;
     }
 
+    /// <summary>Advances one active permanent-item PLM, processing triggers before outstanding animation timers.</summary>
+    /// <param name="bus">Cartridge address space used by the selected draw instructions.</param>
+    /// <param name="level">Room block data modified by collectible draws.</param>
+    /// <param name="streamer">Background streamer updated alongside the room tile definitions.</param>
+    /// <param name="slot">PLM slot whose collectible phase is advanced.</param>
+    /// <param name="layer1XPosition">Current horizontal camera position for native draw addressing.</param>
+    /// <param name="layer1YPosition">Current vertical camera position for native draw addressing.</param>
+    /// <param name="bg1XOffset">BG1 horizontal offset used when drawing the selected instruction.</param>
+    /// <returns>False when the slot has no collectible; true while the collectible phase handles the slot.</returns>
     private bool TryStepCollectible(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -537,10 +570,22 @@ public sealed partial class RoomPlmSystem
         }
     }
 
+    /// <summary>Selects the current animated draw record for a visible item and its assigned graphics slot.</summary>
+    /// <param name="item">Collectible state containing the item kind, animation phase, and dynamic-art slot.</param>
+    /// <returns>The instruction pointer for the current visible frame.</returns>
     private static ushort GetVisibleCollectibleDraw(CollectiblePlmState item) =>
         RoomPlmCollectibleDrawDefinitions.VisibleFrame(
             item.Kind, item.AnimationIndex, item.GraphicsSlot);
 
+    /// <summary>Executes one collectible draw instruction at the owning PLM block using the current camera offsets.</summary>
+    /// <param name="bus">Cartridge address space supplying the draw instruction data.</param>
+    /// <param name="level">Room block data receiving the draw.</param>
+    /// <param name="streamer">Background streamer kept in sync with the room tilemap.</param>
+    /// <param name="slot">PLM whose block index identifies the item's location.</param>
+    /// <param name="drawPointer">Bank-relative draw instruction address to execute.</param>
+    /// <param name="layer1XPosition">Current horizontal camera position.</param>
+    /// <param name="layer1YPosition">Current vertical camera position.</param>
+    /// <param name="bg1XOffset">Current BG1 horizontal offset.</param>
     private void DrawCollectible(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -560,6 +605,8 @@ public sealed partial class RoomPlmSystem
             layer1YPosition,
             bg1XOffset);
 
+    /// <summary>Applies persistence and inventory effects, publishes the pickup event, and suspends the item for its message.</summary>
+    /// <param name="slot">Triggered item slot whose state and room argument determine acquisition.</param>
     private void AcquireCollectible(PlmSlot slot)
     {
         CollectiblePlmState item = slot.Item
@@ -592,6 +639,14 @@ public sealed partial class RoomPlmSystem
         item.Phase = CollectiblePhase.AwaitingMessage;
     }
 
+    /// <summary>Resumes the item after its message, drawing the empty block and selecting the native cleanup or respawn phase.</summary>
+    /// <param name="bus">Cartridge address space used by the empty draw instruction.</param>
+    /// <param name="level">Room data receiving the post-pickup draw.</param>
+    /// <param name="streamer">Background streamer synchronized with the updated room tilemap.</param>
+    /// <param name="slot">Item slot whose suspended pickup message has returned.</param>
+    /// <param name="layer1XPosition">Current horizontal camera position.</param>
+    /// <param name="layer1YPosition">Current vertical camera position.</param>
+    /// <param name="bg1XOffset">Current BG1 horizontal offset.</param>
     private void FinishCollectiblePickup(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -627,6 +682,9 @@ public sealed partial class RoomPlmSystem
         item.Timer = 1;
     }
 
+    /// <summary>Applies the cartridge pickup effect to health, ammunition, equipment, or beam inventory.</summary>
+    /// <param name="samus">Player state whose inventory and capacity are changed.</param>
+    /// <param name="kind">Permanent item whose native effect is applied.</param>
     private static void ApplyCollectibleEffect(
         SamusState samus,
         InWorldCollectibleKind kind)
@@ -680,6 +738,9 @@ public sealed partial class RoomPlmSystem
         samus.EquippedBeams &= unchecked((ushort)~((beamMask >> 1) & 0x0004));
     }
 
+    /// <summary>Returns the equipment flag associated with an equipment item, or zero for tanks and beam items.</summary>
+    /// <param name="kind">Permanent item identity to map.</param>
+    /// <returns>The corresponding Samus equipment bit, or zero when the item is handled by another inventory path.</returns>
     private static ushort GetEquipmentMask(InWorldCollectibleKind kind) => kind switch
     {
         InWorldCollectibleKind.Bombs => (ushort)SamusEquipmentFlags.Bombs,
@@ -701,6 +762,9 @@ public sealed partial class RoomPlmSystem
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null),
     };
 
+    /// <summary>Returns the beam inventory bit corresponding to a beam pickup.</summary>
+    /// <param name="kind">Beam item identity to map.</param>
+    /// <returns>The matching Samus beam flag.</returns>
     private static ushort GetBeamMask(InWorldCollectibleKind kind) => kind switch
     {
         InWorldCollectibleKind.ChargeBeam => (ushort)SamusBeamFlags.Charge,
@@ -711,6 +775,9 @@ public sealed partial class RoomPlmSystem
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null),
     };
 
+    /// <summary>Maps a permanent item to the native synchronous pickup message shown for that item.</summary>
+    /// <param name="kind">Item whose pickup message is requested.</param>
+    /// <returns>The gameplay message identity for its pickup fanfare.</returns>
     private static GameplayMessageId GetMessageBoxIndex(InWorldCollectibleKind kind) => kind switch
     {
         InWorldCollectibleKind.EnergyTank => GameplayMessageIds.EnergyTank,
@@ -737,21 +804,36 @@ public sealed partial class RoomPlmSystem
         _ => throw new ArgumentOutOfRangeException(nameof(kind)),
     };
 
+    /// <summary>Mutable animation and pickup state retained while a permanent-item PLM occupies its slot.</summary>
+    /// <param name="kind">Permanent item identity decoded from the PLM header.</param>
+    /// <param name="presentation">Exposed, Chozo-orb, or shot-block behavior selected by the header table.</param>
+    /// <param name="graphicsSlot">Dynamic graphics allocation, or -1 when the item uses static artwork.</param>
+    /// <param name="phase">Initial item lifecycle phase established by setup and persistence state.</param>
     private sealed class CollectiblePlmState(
         InWorldCollectibleKind kind,
         CollectiblePresentation presentation,
         int graphicsSlot,
         CollectiblePhase phase)
     {
+        /// <summary>Permanent item identity used to select its effect, artwork, and pickup message.</summary>
         public InWorldCollectibleKind Kind { get; } = kind;
+        /// <summary>Presentation path that determines how the item is revealed and triggered.</summary>
         public CollectiblePresentation Presentation { get; } = presentation;
+        /// <summary>Rotating dynamic-art slot, or -1 for artwork already present in static VRAM.</summary>
         public int GraphicsSlot { get; } = graphicsSlot;
+        /// <summary>Current reveal, animation, acquisition-message, or cleanup stage.</summary>
         public CollectiblePhase Phase { get; set; } = phase;
+        /// <summary>Frames remaining before the current timed instruction phase advances.</summary>
         public int Timer { get; set; }
+        /// <summary>Index of the currently selected animation frame or phase-specific draw.</summary>
         public int AnimationIndex { get; set; }
+        /// <summary>Remaining paired-frame animation iterations for a visible shot-block item.</summary>
         public int VisibleFramePairsRemaining { get; set; }
+        /// <summary>Pending native trigger word set by Samus contact or a projectile collision.</summary>
         public bool Triggered { get; set; }
+        /// <summary>Whether the shot-block item was already collected when its reveal began.</summary>
         public bool WasCollectedBeforeReveal { get; set; }
+        /// <summary>Projectile type retained for the most recent trigger diagnostic.</summary>
         public SamusProjectileTypeWord LastTriggerProjectileType { get; set; }
     }
 }

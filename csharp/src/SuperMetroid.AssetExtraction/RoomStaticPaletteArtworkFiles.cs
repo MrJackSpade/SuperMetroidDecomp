@@ -98,6 +98,8 @@ public static class RoomStaticPaletteArtworkFiles
     /// <exception cref="InvalidDataException">Stock provenance, source coverage, hashes, or palette content are invalid.</exception>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
+    /// <summary>Builds the distinct stock palette source set for every room graphics set.</summary>
+    /// <returns>Expected palette sources keyed by source-derived filename.</returns>
     private static Dictionary<string, int> ExpectedSources()
     {
         var sources = new Dictionary<string, int>();
@@ -109,6 +111,7 @@ public static class RoomStaticPaletteArtworkFiles
         return sources;
     }
 
+    /// <summary>Camel-case JSON settings shared by static-palette manifest serialization and parsing.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -116,6 +119,10 @@ public static class RoomStaticPaletteArtworkFiles
         WriteIndented = true,
     };
 
+    /// <summary>Records cartridge provenance and stock palette JSON digests.</summary>
+    /// <param name="Version">Manifest schema version.</param>
+    /// <param name="SourceCartridgeSha256">SHA-256 identity of the extraction cartridge.</param>
+    /// <param name="Sha256">Stock palette-file digests keyed by source-derived filename.</param>
     private sealed record RoomPaletteFileManifest(
         int Version, string SourceCartridgeSha256, Dictionary<string, string> Sha256);
 }

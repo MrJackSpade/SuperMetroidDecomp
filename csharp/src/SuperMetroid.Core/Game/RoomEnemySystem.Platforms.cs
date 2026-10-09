@@ -39,16 +39,35 @@ public enum PlatformVerticalMovement : ushort
 /// </remarks>
 public sealed class PlatformEnemyState
 {
+    /// <summary>The enemy slot whose common variables hold this platform's native per-instance values.</summary>
     private readonly RoomEnemySlot _slot;
+    /// <summary>Per-slot WRAM mirror of the current two-entry vertical dispatcher index.</summary>
     private readonly ushort[] _yMovementFunctions;
+    /// <summary>Aliased per-slot scratch word: horizontal AI stores old X and sinking AI later replaces it with old Y.</summary>
     private readonly ushort[] _previousPositions;
+    /// <summary>Per-slot WRAM mirror of the current two-entry horizontal dispatcher index.</summary>
     private readonly ushort[] _xMovementFunctions;
+    /// <summary>Per-slot flag recording whether the vertical-motion instruction list is installed.</summary>
     private readonly ushort[] _verticallyMovingFlags;
+    /// <summary>Per-slot flag recording whether the vertically-still instruction list is installed.</summary>
     private readonly ushort[] _verticallyStillFlags;
+    /// <summary>Per-slot inclusive upper bound for the quadratic vertical-speed record index.</summary>
     private readonly ushort[] _maximumYSpeedTableIndexes;
+    /// <summary>Per-slot copy of the prior frame's vertical dispatcher, used to detect a phase change.</summary>
     private readonly ushort[] _previousYMovementFunctions;
+    /// <summary>Per-slot native flag word: zero for Tripper and $FFFF for Kamer.</summary>
     private readonly ushort[] _suspensorPlatformFlags;
 
+    /// <summary>Creates a typed view over one enemy slot and the shared arrays that mirror its platform WRAM.</summary>
+    /// <param name="slot">Enemy slot providing the six common per-enemy variables.</param>
+    /// <param name="yMovementFunctions">Per-slot vertical dispatcher words.</param>
+    /// <param name="previousPositions">Aliased pre-movement X/Y scratch words.</param>
+    /// <param name="xMovementFunctions">Per-slot horizontal dispatcher words.</param>
+    /// <param name="verticallyMovingFlags">Per-slot moving-art installation flags.</param>
+    /// <param name="verticallyStillFlags">Per-slot still-art installation flags.</param>
+    /// <param name="maximumYSpeedTableIndexes">Per-slot upper bounds for vertical acceleration.</param>
+    /// <param name="previousYMovementFunctions">Per-slot prior vertical dispatcher words.</param>
+    /// <param name="suspensorPlatformFlags">Per-slot native Tripper/Kamer identity words.</param>
     internal PlatformEnemyState(
         RoomEnemySlot slot,
         ushort[] yMovementFunctions,
@@ -186,23 +205,39 @@ public sealed class PlatformEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Population-definition word identifying the Tripper shared platform implementation.</summary>
     internal const ushort TripperDefinition = 0xd7ff;
+    /// <summary>Population-definition word identifying Kamer, the suspensor-platform variant.</summary>
     internal const ushort KamerDefinition = 0xd83f;
 
+    /// <summary>Bank-$A3 no-op touch callback used by platform instruction lists.</summary>
     internal const ushort PlatformNoOpTouchAi = EnemyAiCodePointers.BankA3.PlatformNoOpTouch;
+    /// <summary>Bank-$A3 shot callback used by Tripper's platform definition.</summary>
     internal const ushort TripperShotAi = EnemyAiCodePointers.BankA3.TripperShot;
 
+    /// <summary>Per-slot mirror of <c>Platform.YMovementFunctionIndex</c> at <c>$7E:7800,x</c>.</summary>
     private readonly ushort[] _platformYMovementFunctions = new ushort[MaximumEnemyCount];
+    /// <summary>Per-slot scratch word shared in sequence by horizontal and sinking movement.</summary>
     private readonly ushort[] _platformPreviousPositions = new ushort[MaximumEnemyCount];
+    /// <summary>Per-slot mirror of <c>Platform.XMovementFunctionIndex</c> at <c>$7E:7804,x</c>.</summary>
     private readonly ushort[] _platformXMovementFunctions = new ushort[MaximumEnemyCount];
+    /// <summary>Per-slot marker for the currently installed vertically-moving instruction list.</summary>
     private readonly ushort[] _platformVerticallyMovingFlags = new ushort[MaximumEnemyCount];
+    /// <summary>Per-slot marker for the currently installed vertically-still instruction list.</summary>
     private readonly ushort[] _platformVerticallyStillFlags = new ushort[MaximumEnemyCount];
+    /// <summary>Per-slot inclusive clamp for the quadratic vertical-speed table index.</summary>
     private readonly ushort[] _platformMaximumYSpeedTableIndexes = new ushort[MaximumEnemyCount];
+    /// <summary>Per-slot dispatcher value from the preceding actor update.</summary>
     private readonly ushort[] _platformPreviousYMovementFunctions = new ushort[MaximumEnemyCount];
+    /// <summary>Per-slot native identity flag, storing zero for Tripper or <c>$FFFF</c> for Kamer.</summary>
     private readonly ushort[] _platformSuspensorPlatformFlags = new ushort[MaximumEnemyCount];
+    /// <summary>Typed state views for active platform slots; uninitialized slots remain null.</summary>
     private readonly PlatformEnemyState?[] _platformStates =
         new PlatformEnemyState?[MaximumEnemyCount];
 
+    /// <summary>Tests whether a population definition uses the shared Tripper/Kamer update path.</summary>
+    /// <param name="definition">Native enemy-definition pointer from a room population record.</param>
+    /// <returns>True for Tripper or Kamer definitions.</returns>
     private static bool IsPlatformDefinition(ushort definition) =>
         definition is TripperDefinition or KamerDefinition;
 
@@ -306,6 +341,10 @@ public sealed partial class RoomEnemySystem
         return yRemainder <= slot.YRadius;
     }
 
+    /// <summary>Applies the selected signed horizontal speed and reverses direction when room collision blocks motion.</summary>
+    /// <param name="slot">Platform enemy slot whose position and instruction state are updated.</param>
+    /// <param name="state">Typed state for the same slot, including the native direction index.</param>
+    /// <param name="level">Room collision data used by the platform movement routine.</param>
     private void MovePlatformHorizontally(
         RoomEnemySlot slot,
         PlatformEnemyState state,
@@ -332,6 +371,11 @@ public sealed partial class RoomEnemySystem
         InstallPlatformVerticallyStillForCurrentDirection(slot, state);
     }
 
+    /// <summary>Dispatches to the rising or rider-driven sinking update selected for this enemy frame.</summary>
+    /// <param name="slot">Platform enemy slot being moved.</param>
+    /// <param name="state">Current per-slot platform state and vertical dispatcher.</param>
+    /// <param name="samus">Active player state receiving accepted rider displacement while sinking.</param>
+    /// <param name="level">Room collision data used by vertical movement.</param>
     private void MovePlatformVertically(
         RoomEnemySlot slot,
         PlatformEnemyState state,
@@ -352,6 +396,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Raises the platform toward its target height, stopping at the target or the first blocking collision.</summary>
+    /// <param name="slot">Platform enemy slot whose Y position and instruction list may change.</param>
+    /// <param name="state">Per-slot speed, target-height, and art-installation state.</param>
+    /// <param name="level">Room collision data consulted for vertical movement.</param>
     private void RaisePlatform(
         RoomEnemySlot slot,
         PlatformEnemyState state,
@@ -378,6 +426,11 @@ public sealed partial class RoomEnemySystem
         SetPlatformVerticallyStillInstruction(slot, state);
     }
 
+    /// <summary>Moves a ridden platform downward and adds its accepted whole-pixel X/Y deltas to Samus's extra displacement.</summary>
+    /// <param name="slot">Platform enemy slot whose clipped movement determines rider displacement.</param>
+    /// <param name="state">Per-slot speed index and aliased pre-movement position storage.</param>
+    /// <param name="samus">Rider receiving the platform's accepted displacement.</param>
+    /// <param name="level">Room collision data used to clip the requested downward movement.</param>
     private void SinkPlatform(
         RoomEnemySlot slot,
         PlatformEnemyState state,
@@ -412,6 +465,8 @@ public sealed partial class RoomEnemySystem
             samus.Kinematics.ExtraYDisplacement + yDelta));
     }
 
+    /// <summary>Advances the quadratic vertical-speed record index and saturates it at the configured inclusive limit.</summary>
+    /// <param name="state">Platform state containing the current index and its maximum allowed index.</param>
     private static void IncrementAndClampPlatformYSpeed(PlatformEnemyState state)
     {
         state.YSpeedTableIndex = unchecked((ushort)(state.YSpeedTableIndex + 1));
@@ -422,6 +477,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Installs the direction-specific moving list once per phase and clears the still-art marker.</summary>
+    /// <param name="slot">Platform slot whose instruction cursor receives the selected list.</param>
+    /// <param name="state">Platform flags and current horizontal direction used to choose the list.</param>
     private static void SetPlatformVerticallyMovingInstruction(
         RoomEnemySlot slot,
         PlatformEnemyState state)
@@ -436,6 +494,9 @@ public sealed partial class RoomEnemySystem
         state.VerticallyStillArtInstalled = false;
     }
 
+    /// <summary>Installs the direction-specific still list once per phase and clears the moving-art marker.</summary>
+    /// <param name="slot">Platform slot whose instruction cursor receives the selected list.</param>
+    /// <param name="state">Platform flags and current horizontal direction used to choose the list.</param>
     private static void SetPlatformVerticallyStillInstruction(
         RoomEnemySlot slot,
         PlatformEnemyState state)
@@ -449,6 +510,9 @@ public sealed partial class RoomEnemySystem
         state.VerticallyMovingArtInstalled = false;
     }
 
+    /// <summary>Selects the moving animation for the platform identity and current horizontal direction.</summary>
+    /// <param name="slot">Platform slot receiving the selected instruction list.</param>
+    /// <param name="state">Platform identity and horizontal dispatcher used for selection.</param>
     private static void InstallPlatformVerticallyMovingForCurrentDirection(
         RoomEnemySlot slot,
         PlatformEnemyState state)
@@ -458,6 +522,9 @@ public sealed partial class RoomEnemySystem
         InstallPlatformInstruction(slot, instruction);
     }
 
+    /// <summary>Selects the still animation for the platform identity and current horizontal direction.</summary>
+    /// <param name="slot">Platform slot receiving the selected instruction list.</param>
+    /// <param name="state">Platform identity and horizontal dispatcher used for selection.</param>
     private static void InstallPlatformVerticallyStillForCurrentDirection(
         RoomEnemySlot slot,
         PlatformEnemyState state)
@@ -467,6 +534,9 @@ public sealed partial class RoomEnemySystem
         InstallPlatformInstruction(slot, instruction);
     }
 
+    /// <summary>Starts a selected platform instruction list with the native one-frame instruction and zero enemy timer.</summary>
+    /// <param name="slot">Enemy slot whose instruction pointer and timers are updated.</param>
+    /// <param name="instruction">Bank-relative instruction-list address to execute.</param>
     private static void InstallPlatformInstruction(RoomEnemySlot slot, ushort instruction)
     {
         slot.CurrentInstruction = instruction;
@@ -482,6 +552,10 @@ public sealed partial class RoomEnemySystem
         RequirePlatformState(slot).XMovement = movement;
     }
 
+    /// <summary>Gets the initialized typed state for a platform slot or rejects a call made before initialization.</summary>
+    /// <param name="slot">Enemy slot whose platform state is required.</param>
+    /// <returns>The state view registered for that slot.</returns>
+    /// <exception cref="InvalidOperationException">The slot has no initialized Tripper/Kamer state.</exception>
     private PlatformEnemyState RequirePlatformState(RoomEnemySlot slot) =>
         _platformStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Tripper/Kamer state.");

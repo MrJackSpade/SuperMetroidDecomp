@@ -77,8 +77,11 @@ public enum HorizontalShutterFunction : ushort
 /// </summary>
 public sealed class GrowingShutterEnemyState
 {
+    /// <summary>Common enemy slot whose variables store section origins and growth level.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a growth-state view over one shutter's common enemy variables.</summary>
+    /// <param name="slot">Enemy slot owned by the growing shutter.</param>
     internal GrowingShutterEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Enemy variable A's bank-$A2 dispatcher pointer; initialization selects a wait function and activation replaces it with a growth function.</summary>
@@ -109,6 +112,7 @@ public sealed class GrowingShutterEnemyState
     /// <summary>Extended word $7E:8800,x used to derive Samus's whole-pixel carry.</summary>
     public ushort PreviousYPosition { get; internal set; }
 
+    /// <summary>Returns the saved Y origin for the active section; level four is terminal.</summary>
     internal ushort OriginForLevel() => GrowthLevel switch
     {
         0 => GrowthLevel0OriginY,
@@ -127,8 +131,11 @@ public sealed class GrowingShutterEnemyState
 /// </summary>
 public sealed class VerticalShutterEnemyState
 {
+    /// <summary>Common enemy slot holding the vertical shutter's dispatcher and velocity words.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a movement-state view over one vertical shutter's common variables.</summary>
+    /// <param name="slot">Enemy slot whose configuration and motion this state represents.</param>
     internal VerticalShutterEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Enemy variable A's bank-$A2 dispatcher pointer, shared by shootable/destroyable shutters and the Kamer vertical platform.</summary>
@@ -186,8 +193,11 @@ public sealed class VerticalShutterEnemyState
 /// <summary>Typed state for the cartridge's complete, though retail-unused, horizontal shutter.</summary>
 public sealed class HorizontalShutterEnemyState
 {
+    /// <summary>Common enemy slot holding the horizontal shutter's dispatcher and velocity words.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a movement-state view over one horizontal shutter's common variables.</summary>
+    /// <param name="slot">Enemy slot whose configuration and motion this state represents.</param>
     internal HorizontalShutterEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Enemy variable A's bank-$A2 dispatcher pointer for the retail-unused horizontal shutter, retained across wait, movement, and endpoint-rest updates.</summary>
@@ -249,32 +259,52 @@ public sealed class HorizontalShutterEnemyState
 /// <summary>Shared identity, lifecycle, and fixed-point helpers for bank-$A2 shutters.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native enemy-definition pointer for the growing shutter.</summary>
     internal const ushort GrowingShutterDefinition = 0xd4ff;
+    /// <summary>Native enemy-definition pointer for the shootable vertical shutter.</summary>
     internal const ushort ShootableVerticalShutterDefinition = 0xd53f;
+    /// <summary>Native enemy-definition pointer for the retail-unused horizontal shutter.</summary>
     internal const ushort ShootableHorizontalShutterDefinition = 0xd57f;
+    /// <summary>Native enemy-definition pointer for the destroyable vertical shutter.</summary>
     internal const ushort DestroyableVerticalShutterDefinition = 0xd5bf;
+    /// <summary>Native enemy-definition pointer for the Kamer vertical platform.</summary>
     internal const ushort KamerVerticalPlatformDefinition = 0xd5ff;
 
+    /// <summary>Native touch callback shared by vertical shutter variants.</summary>
     internal const ushort VerticalShutterTouchAi = EnemyAiCodePointers.BankA2.VerticalShutterTouch;
+    /// <summary>Native shot callback for the shootable vertical shutter.</summary>
     internal const ushort ShootableVerticalShutterShotAi = EnemyAiCodePointers.BankA2.ShootableVerticalShutterShot;
+    /// <summary>Native shot callback for the destroyable vertical shutter.</summary>
     internal const ushort DestroyableVerticalShutterShotAi = EnemyAiCodePointers.BankA2.DestroyableVerticalShutterShot;
+    /// <summary>Native power-bomb callback shared by vertical shutter variants.</summary>
     internal const ushort VerticalShutterPowerBombAi = EnemyAiCodePointers.BankA2.VerticalShutterPowerBomb;
+    /// <summary>Native touch callback for the horizontal shutter.</summary>
     internal const ushort HorizontalShutterTouchAi = EnemyAiCodePointers.BankA2.HorizontalShutterTouch;
+    /// <summary>Native shot callback for the horizontal shutter.</summary>
     internal const ushort HorizontalShutterShotAi = EnemyAiCodePointers.BankA2.HorizontalShutterShot;
+    /// <summary>Native power-bomb callback for the horizontal shutter.</summary>
     internal const ushort HorizontalShutterPowerBombAi = EnemyAiCodePointers.BankA2.HorizontalShutterPowerBomb;
 
+    /// <summary>Library-two sound selected when an on-screen shutter activates.</summary>
     private const ushort ShutterActivationSound = 0x000e;
+    /// <summary>Endpoint rest value that selects the permanent inert dispatcher state.</summary>
     private const ushort PermanentStopRestTime = 0x0ff0;
 
+    /// <summary>Growing-shutter extension states indexed by enemy slot.</summary>
     private readonly GrowingShutterEnemyState?[] _growingShutterStates = new GrowingShutterEnemyState?[MaximumEnemyCount];
+    /// <summary>Vertical shutter and Kamer extension states indexed by enemy slot.</summary>
     internal readonly VerticalShutterEnemyState?[] _verticalShutterStates = new VerticalShutterEnemyState?[MaximumEnemyCount];
+    /// <summary>Horizontal shutter extension states indexed by enemy slot.</summary>
     private readonly HorizontalShutterEnemyState?[] _horizontalShutterStates = new HorizontalShutterEnemyState?[MaximumEnemyCount];
+    /// <summary>Camera X captured for shutter screen-window checks.</summary>
     private ushort _shutterCameraX;
+    /// <summary>Camera Y captured for shutter screen-window checks.</summary>
     private ushort _shutterCameraY;
 
     /// <summary>Last library-two shutter sound queued during the current enemy frame.</summary>
     public ushort? LastShutterSoundEffect { get; private set; }
 
+    /// <summary>Clears slot-indexed shutter state and captures the room camera origin.</summary>
     private void ResetShutterRoomState(ushort cameraX, ushort cameraY)
     {
         Array.Clear(_growingShutterStates);
@@ -285,6 +315,7 @@ public sealed partial class RoomEnemySystem
         LastShutterSoundEffect = null;
     }
 
+    /// <summary>Captures this frame's camera position and clears the prior sound request.</summary>
     private void BeginShutterFrame(ushort cameraX, ushort cameraY)
     {
         _shutterCameraX = cameraX;
@@ -292,6 +323,7 @@ public sealed partial class RoomEnemySystem
         LastShutterSoundEffect = null;
     }
 
+    /// <summary>Recognizes definitions routed through the vertical-shutter dispatcher.</summary>
     private static bool IsVerticalShutterDefinition(ushort definition) => definition is
         ShootableVerticalShutterDefinition or DestroyableVerticalShutterDefinition or
         KamerVerticalPlatformDefinition;
@@ -326,6 +358,7 @@ public sealed partial class RoomEnemySystem
             samus.HorizontalSpeed.ContactDamageIndex != 0;
     }
 
+    /// <summary>Tests wrapped absolute X distance with the native strict less-than threshold.</summary>
     private static bool IsSamusWithinShutterHorizontalDistance(
         RoomEnemySlot slot,
         SamusState samus,
@@ -350,6 +383,7 @@ public sealed partial class RoomEnemySystem
         unchecked((short)(slot.YPosition - cameraY)) >= 0 &&
         unchecked((short)(cameraY + 0x0100 - slot.YPosition)) >= 0;
 
+    /// <summary>Requests activation audio only when the shutter center is inside the native screen window.</summary>
     private void QueueShutterActivationSoundIfOnScreen(
         RoomEnemySlot slot,
         ushort cameraX,
@@ -359,14 +393,17 @@ public sealed partial class RoomEnemySystem
             LastShutterSoundEffect = ShutterActivationSound;
     }
 
+    /// <summary>Returns initialized growing-shutter state for the supplied enemy slot.</summary>
     private GrowingShutterEnemyState RequireGrowingShutterState(RoomEnemySlot slot) =>
         _growingShutterStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized growing-shutter state.");
 
+    /// <summary>Returns initialized vertical-shutter state for the supplied enemy slot.</summary>
     private VerticalShutterEnemyState RequireVerticalShutterState(RoomEnemySlot slot) =>
         _verticalShutterStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized vertical-shutter state.");
 
+    /// <summary>Returns initialized horizontal-shutter state for the supplied enemy slot.</summary>
     private HorizontalShutterEnemyState RequireHorizontalShutterState(RoomEnemySlot slot) =>
         _horizontalShutterStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized horizontal-shutter state.");

@@ -59,8 +59,11 @@ public enum NinjaSpacePirateFunction : ushort
 /// </summary>
 public sealed class NinjaSpacePirateEnemyState
 {
+    /// <summary>Enemy slot that owns the native variables projected by this debugger-facing state.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates the state view for a ninja Pirate's existing enemy record.</summary>
+    /// <param name="slot">Enemy slot whose variables A-F back the exposed state properties.</param>
     internal NinjaSpacePirateEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Gets the current bank-$B2 movement/decision function pointer.</summary>
@@ -124,24 +127,41 @@ public sealed class NinjaSpacePirateEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native enemy definition pointer for the grey ninja Space Pirate.</summary>
     internal const ushort GreyNinjaSpacePirateDefinition = 0xf4d3;
+    /// <summary>Native enemy definition pointer for the green ninja Space Pirate.</summary>
     internal const ushort GreenNinjaSpacePirateDefinition = 0xf513;
+    /// <summary>Native enemy definition pointer for the red ninja Space Pirate.</summary>
     internal const ushort RedNinjaSpacePirateDefinition = 0xf553;
+    /// <summary>Native enemy definition pointer for the gold ninja Space Pirate.</summary>
     internal const ushort GoldNinjaSpacePirateDefinition = 0xf593;
+    /// <summary>Native enemy definition pointer for the magenta ninja Space Pirate.</summary>
     internal const ushort MagentaNinjaSpacePirateDefinition = 0xf5d3;
+    /// <summary>Native enemy definition pointer for the silver ninja Space Pirate.</summary>
     internal const ushort SilverNinjaSpacePirateDefinition = 0xf613;
+    /// <summary>Initial 8.8 speed assigned to the vertical portion of a divekick.</summary>
     private const ushort NinjaPirateInitialDiveSpeed = 0x0600;
+    /// <summary>Horizontal distance from Samus at which an idle pirate activates.</summary>
     private const int NinjaPirateActivationDistance = 128;
+    /// <summary>Per-axis proximity threshold for projectile-triggered flinch behavior.</summary>
     private const int NinjaPirateFlinchDistance = 32;
+    /// <summary>Distance from the posts' midpoint that enables spin-jump decisions.</summary>
     private const int NinjaPirateMidpointTriggerDistance = 32;
+    /// <summary>Per-axis proximity threshold for a standing kick.</summary>
     private const int NinjaPirateKickDistance = 40;
+    /// <summary>Horizontal displacement per update during the collision-bearing dive.</summary>
     private const int NinjaPirateDiveHorizontalPixels = 5;
+    /// <summary>Horizontal displacement per update while walking back to a post.</summary>
     private const int NinjaPirateReturnWalkPixels = 2;
+    /// <summary>Vertical displacement per update during either half of a post-to-post spin jump.</summary>
     private const int NinjaPirateSpinVerticalPixels = 2;
 
+    /// <summary>Per-slot debugger state views for initialized ninja Space Pirates.</summary>
     private readonly NinjaSpacePirateEnemyState?[] _ninjaSpacePirateStates =
         new NinjaSpacePirateEnemyState?[MaximumEnemyCount];
 
+    /// <summary>Tests whether an enemy definition belongs to one of the six compiled ninja Pirate variants.</summary>
+    /// <param name="definition">Native enemy definition pointer.</param><returns>True for a supported ninja Space Pirate definition.</returns>
     internal static bool IsNinjaSpacePirateDefinition(ushort definition) => definition is
         GreyNinjaSpacePirateDefinition or
         GreenNinjaSpacePirateDefinition or
@@ -271,6 +291,8 @@ public sealed partial class RoomEnemySystem
             "Ninja Space Pirate decision AI requires the active Samus actor.");
     }
 
+    /// <summary>Waits for Samus to enter activation range, then installs the facing-specific active instruction list.</summary>
+    /// <param name="slot">Enemy slot whose function and instruction state are updated.</param><param name="state">Post positions and active-list state initialized for this pirate.</param><param name="samus">Current Samus position used by the activation-distance check.</param><param name="samusProjectiles">Optional projectile slots checked for a flinch while Samus remains out of range.</param>
     private static void RunNinjaPirateInitial(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -291,6 +313,8 @@ public sealed partial class RoomEnemySystem
         InstallNinjaPirateInstruction(slot, active);
     }
 
+    /// <summary>Runs active attack selection in native priority order: projectile flinch, standing kick, spin jump, then claw.</summary>
+    /// <param name="slot">Active enemy slot.</param><param name="state">Post geometry and movement state for the pirate.</param><param name="samus">Current Samus position and pose.</param><param name="samusProjectiles">Optional projectile set used by the flinch check.</param>
     private static void RunNinjaPirateActive(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -307,6 +331,9 @@ public sealed partial class RoomEnemySystem
         TryNinjaPirateClawAttack(slot, state, samus);
     }
 
+    /// <summary>Checks the highest occupied projectile slot and installs a facing flinch list when it is close on both axes.</summary>
+    /// <param name="slot">Pirate slot whose position determines projectile distance.</param><param name="samus">Samus position used to select the flinch facing.</param><param name="samusProjectiles">Projectile slots to inspect, or null when projectile checks are unavailable.</param>
+    /// <returns>True when a nearby projectile caused the flinch list to be installed.</returns>
     private static bool TryNinjaPirateProjectileFlinch(
         RoomEnemySlot slot,
         SamusState samus,
@@ -345,6 +372,9 @@ public sealed partial class RoomEnemySystem
         return true;
     }
 
+    /// <summary>Installs the appropriate standing-kick list when Samus is within the native horizontal and vertical thresholds.</summary>
+    /// <param name="slot">Pirate slot whose position determines range and facing.</param><param name="samus">Actor position tested against the pirate.</param>
+    /// <returns>True when a kick instruction list was installed.</returns>
     private static bool TryNinjaPirateStandingKick(RoomEnemySlot slot, SamusState samus)
     {
         if (Math.Abs(unchecked((short)(samus.XPosition - slot.XPosition))) >=
@@ -363,6 +393,9 @@ public sealed partial class RoomEnemySystem
         return true;
     }
 
+    /// <summary>Starts a post-to-post spin jump when Samus is close to the midpoint between the adjusted posts.</summary>
+    /// <param name="slot">Pirate slot whose current post selects the jump direction.</param><param name="state">Adjusted post positions and midpoint.</param><param name="samus">Actor position checked against the midpoint trigger.</param>
+    /// <returns>True when a spin-jump instruction list was installed.</returns>
     private static bool TryNinjaPirateSpinJump(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -382,6 +415,8 @@ public sealed partial class RoomEnemySystem
         return true;
     }
 
+    /// <summary>Periodically throws a claw toward Samus when the pirate faces her from its current post.</summary>
+    /// <param name="slot">Pirate slot supplying position, facing, and the native frame cadence.</param><param name="state">State receiving the successful claw-spawn diagnostic count.</param><param name="samus">Target position used to decide whether the actor is facing Samus.</param>
     private static void TryNinjaPirateClawAttack(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -407,6 +442,8 @@ public sealed partial class RoomEnemySystem
             NinjaSpacePirateInstructionProgramDefinitions.ClawAttackRight);
     }
 
+    /// <summary>Checks interruption attacks, then uses the native random retry and midpoint gate to begin a divekick jump.</summary>
+    /// <param name="slot">Pirate slot selecting the direction of return travel.</param><param name="state">Post geometry and dive state.</param><param name="samus">Current actor position.</param><param name="samusProjectiles">Optional projectile source for flinch priority.</param>
     private void RunNinjaPirateReadyToDivekick(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -440,6 +477,8 @@ public sealed partial class RoomEnemySystem
                 : NinjaSpacePirateInstructionProgramDefinitions.DivekickLeftJump);
     }
 
+    /// <summary>Advances one spin-jump update and installs the landing list after speed returns to zero.</summary>
+    /// <param name="slot">Enemy slot whose room position advances.</param><param name="state">Speed, midpoint, and adjusted post coordinates.</param><param name="movingRight">Selects horizontal direction across the posts.</param><param name="rising">Selects ascent and midpoint crossing versus descent and landing.</param>
     private void StepNinjaPirateSpinJump(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -480,6 +519,8 @@ public sealed partial class RoomEnemySystem
         SpawnNinjaPirateLandingDust(slot, state);
     }
 
+    /// <summary>Sets the initial vertical dive speed and computes a target halfway from the chosen post to the midpoint.</summary>
+    /// <param name="state">State receiving speed and target X.</param><param name="movingRight">Chooses the left-to-midpoint or midpoint-to-right target interval.</param>
     private static void InitializeNinjaPirateDive(
         NinjaSpacePirateEnemyState state,
         bool movingRight)
@@ -492,6 +533,8 @@ public sealed partial class RoomEnemySystem
                 ((ushort)(state.RightPostX - state.PostsMidpointX) >> 1)));
     }
 
+    /// <summary>Raises the pirate while reducing jump speed, then switches to the collision-bearing dive at the jump apex.</summary>
+    /// <param name="slot">Enemy slot whose Y position and instruction list are changed.</param><param name="state">Dive speed and function state.</param><param name="movingRight">Selects which directional dive follows the jump.</param>
     private static void StepNinjaPirateDiveJump(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -513,6 +556,8 @@ public sealed partial class RoomEnemySystem
         state.Speed = NinjaPirateInitialDiveSpeed;
     }
 
+    /// <summary>Advances the horizontal and collision-aware vertical dive until landing starts the walk back to its post.</summary>
+    /// <param name="slot">Enemy slot being moved.</param><param name="state">Dive speed, baseline Y, and movement state.</param><param name="level">Room collision layer used to detect landing.</param><param name="movingRight">Selects horizontal dive and return direction.</param>
     private void StepNinjaPirateDive(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -555,6 +600,8 @@ public sealed partial class RoomEnemySystem
         SpawnNinjaPirateLandingDust(slot, state);
     }
 
+    /// <summary>Walks the landed pirate toward its authored post, clamps at the post, and restores the landing animation.</summary>
+    /// <param name="slot">Enemy slot whose X position advances.</param><param name="state">Adjusted post coordinates.</param><param name="movingRight">Selects the destination post and walking direction.</param>
     private static void StepNinjaPirateWalkToPost(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -577,6 +624,8 @@ public sealed partial class RoomEnemySystem
         state.Function = NinjaSpacePirateFunction.NoOperation;
     }
 
+    /// <summary>Requests the two dust sprites placed on either side of the pirate's feet after landing.</summary>
+    /// <param name="slot">Landed pirate position anchoring the effects.</param><param name="state">State whose diagnostic count tracks successfully allocated dust objects.</param>
     private void SpawnNinjaPirateLandingDust(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state)
@@ -600,6 +649,8 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Allocates and initializes one native claw projectile using the requested throw direction and spawn offsets.</summary>
+    /// <param name="source">Pirate slot supplying position, palette, and VRAM tile selection.</param><param name="state">State whose spawn count increments when allocation succeeds.</param><param name="direction">Native direction parameter for the claw actor.</param><param name="xOffset">Signed horizontal spawn offset encoded as a word.</param><param name="yOffset">Signed vertical spawn offset encoded as a word.</param>
     private void SpawnNinjaPirateClaw(
         RoomEnemySlot source,
         NinjaSpacePirateEnemyState state,
@@ -735,6 +786,8 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Installs an animation instruction list and arms its first instruction for the next update.</summary>
+    /// <param name="slot">Enemy slot receiving the instruction pointer and timer.</param><param name="instructionPointer">Bank-relative instruction-list address.</param>
     private static void InstallNinjaPirateInstruction(
         RoomEnemySlot slot,
         ushort instructionPointer)
@@ -743,6 +796,9 @@ public sealed partial class RoomEnemySystem
         slot.InstructionTimer = 1;
     }
 
+    /// <summary>Returns the initialized state view for this enemy slot or reports an invalid lifecycle call.</summary>
+    /// <param name="slot">Enemy slot whose ninja Pirate state is required.</param><returns>The state stored at the slot's index.</returns>
+    /// <exception cref="InvalidOperationException">The slot has not been initialized as a ninja Space Pirate.</exception>
     private NinjaSpacePirateEnemyState RequireNinjaSpacePirateState(RoomEnemySlot slot) =>
         _ninjaSpacePirateStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized ninja Space Pirate state.");

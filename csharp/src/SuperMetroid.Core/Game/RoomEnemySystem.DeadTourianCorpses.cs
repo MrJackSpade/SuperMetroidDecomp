@@ -15,8 +15,10 @@ public sealed partial class RoomEnemySystem
     /// <summary>$A0:EE7F, EnemyHeaders_CorpseSkree: dead Skree header initialized by $A9:D89F, with parameter-1 variants 0, 2, and 4 sharing the corpse-rotting engine.</summary>
     public const ushort DeadSkreeDefinition = 0xee7f;
 
+    /// <summary>Bank-$A9 dispatcher value used after every corpse row has finished rotting.</summary>
     private const ushort DeadTourianCorpseNoOperationFunction = 0xda63;
 
+    /// <summary>Zoomer-specific callbacks and tile-layout variants for the shared corpse engine.</summary>
     private static readonly DeadTourianCorpseProfile DeadZoomerProfile = new(
         DeadTourianCorpseSpecies.Zoomer,
         WaitFunction: 0xda69,
@@ -26,6 +28,7 @@ public sealed partial class RoomEnemySystem
         PowerBombFunction: 0xdced,
         Variants: CorpseLayout(columns: 3, rows: 2, workBufferOffset: 0x0940, sheetSources: SheetRun(0x0a60, 0x0060, 3)));
 
+    /// <summary>Ripper-specific callbacks and tile-layout variants for the shared corpse engine.</summary>
     private static readonly DeadTourianCorpseProfile DeadRipperProfile = new(
         DeadTourianCorpseSpecies.Ripper,
         WaitFunction: 0xda73,
@@ -35,6 +38,7 @@ public sealed partial class RoomEnemySystem
         PowerBombFunction: 0xdcfd,
         Variants: CorpseLayout(columns: 3, rows: 2, workBufferOffset: 0x0b80, sheetSources: SheetRun(0x0a00, 0x0180, 2)));
 
+    /// <summary>Skree-specific callbacks and tile-layout variants for the shared corpse engine.</summary>
     private static readonly DeadTourianCorpseProfile DeadSkreeProfile = new(
         DeadTourianCorpseSpecies.Skree,
         WaitFunction: 0xda6e,
@@ -80,15 +84,19 @@ public sealed partial class RoomEnemySystem
         return sources;
     }
 
+    /// <summary>Initialized corpse state indexed by physical enemy slot.</summary>
     private readonly DeadTourianCorpseEnemyState?[] _deadTourianCorpseStates =
         new DeadTourianCorpseEnemyState?[MaximumEnemyCount];
 
+    /// <summary>Clears per-slot corpse state when the room changes.</summary>
     private void ResetDeadTourianCorpseRoomState() =>
         Array.Clear(_deadTourianCorpseStates);
 
+    /// <summary>Tests whether a native definition pointer belongs to the three corpse families.</summary>
     private static bool IsDeadTourianCorpseDefinition(ushort definitionPointer) =>
         definitionPointer is DeadZoomerDefinition or DeadRipperDefinition or DeadSkreeDefinition;
 
+    /// <summary>Resolves the species-specific callback and variant metadata for a corpse header.</summary>
     private static DeadTourianCorpseProfile ProfileForDeadTourianCorpse(ushort definitionPointer) =>
         definitionPointer switch
         {
@@ -98,6 +106,7 @@ public sealed partial class RoomEnemySystem
             _ => throw new ArgumentOutOfRangeException(nameof(definitionPointer)),
         };
 
+    /// <summary>Checks whether the slot's touch callback uses the shared corpse rot handler.</summary>
     private static bool HasDeadTourianCorpseTouchOrShotCallback(RoomEnemySlot slot)
     {
         if (!IsDeadTourianCorpseDefinition(slot.EnemyDefinitionPointer))
@@ -106,6 +115,7 @@ public sealed partial class RoomEnemySystem
             ProfileForDeadTourianCorpse(slot.EnemyDefinitionPointer).TouchAndShotFunction;
     }
 
+    /// <summary>Checks whether the slot's shot callback uses the shared corpse rot handler.</summary>
     private static bool HasDeadTourianCorpseShotCallback(RoomEnemySlot slot)
     {
         if (!IsDeadTourianCorpseDefinition(slot.EnemyDefinitionPointer))
@@ -114,6 +124,7 @@ public sealed partial class RoomEnemySystem
             ProfileForDeadTourianCorpse(slot.EnemyDefinitionPointer).TouchAndShotFunction;
     }
 
+    /// <summary>Checks whether the slot has its species-specific corpse power-bomb callback.</summary>
     private static bool HasDeadTourianCorpsePowerBombCallback(RoomEnemySlot slot)
     {
         if (!IsDeadTourianCorpseDefinition(slot.EnemyDefinitionPointer))
@@ -229,6 +240,7 @@ public sealed partial class RoomEnemySystem
             TriggerDeadTourianCorpseRotting(slot);
     }
 
+    /// <summary>Advances the shared row scheduler, performs pixel-row work, and queues tile transfers.</summary>
     private void RunDeadTourianCorpseRotting(
         RoomEnemySlot slot,
         DeadTourianCorpseEnemyState state)
@@ -248,6 +260,7 @@ public sealed partial class RoomEnemySystem
         AppendDeadMonsterVramTransfers(state.VramTablePointer);
     }
 
+    /// <summary>Copies the selected corpse's authored tile-sheet rows into the shared work buffer.</summary>
     private void InitializeDeadTourianCorpseGraphics(DeadTourianCorpseVariant variant,
         ReadOnlySpan<byte> installedTiles)
     {
@@ -263,6 +276,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Copies one rotated pixel row downward and optionally clears its source bitplanes.</summary>
     private void CopyOrMoveDeadTourianCorpsePixelRow(
         DeadTourianCorpseEnemyState state,
         ushort yOffset,
@@ -293,6 +307,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Records completed-row effects, spawning dust and periodically requesting crumble audio.</summary>
     private void FinishDeadTourianCorpseRow(
         RoomEnemySlot slot,
         DeadTourianCorpseEnemyState state,
@@ -310,6 +325,7 @@ public sealed partial class RoomEnemySystem
             LastDeadSidehopperSoundEffect = 0x0010;
     }
 
+    /// <summary>Appends the selected terminated DMA list to this frame's VRAM transfer queue.</summary>
     private void AppendDeadMonsterVramTransfers(ushort vramTablePointer)
     {
         foreach (DeadMonsterVramTransferDefinition record in
@@ -318,6 +334,7 @@ public sealed partial class RoomEnemySystem
                 record.SizeInBytes, record.SourceAddress, record.EncodedVramDestination));
     }
 
+    /// <summary>Returns initialized corpse state only when it belongs to the supplied enemy slot.</summary>
     private DeadTourianCorpseEnemyState RequireDeadTourianCorpseState(RoomEnemySlot slot)
     {
         DeadTourianCorpseEnemyState state = _deadTourianCorpseStates[slot.SlotIndex] ??
@@ -328,6 +345,14 @@ public sealed partial class RoomEnemySystem
         return state;
     }
 
+    /// <summary>Species-level callback addresses and the available visual variants.</summary>
+    /// <param name="Species">Corpse family selected by the enemy definition.</param>
+    /// <param name="WaitFunction">Native function that waits for solid Samus collision.</param>
+    /// <param name="PreRotFunction">Native delay state entered after the initial collision.</param>
+    /// <param name="RottingFunction">Native function dispatched while the corpse rows decompose.</param>
+    /// <param name="TouchAndShotFunction">Shared native touch and projectile callback address.</param>
+    /// <param name="PowerBombFunction">Species-specific native power-bomb reaction address.</param>
+    /// <param name="Variants">Tile layouts and source graphics for each supported parameter variant.</param>
     internal sealed record DeadTourianCorpseProfile(
         DeadTourianCorpseSpecies Species,
         ushort WaitFunction,
@@ -337,11 +362,19 @@ public sealed partial class RoomEnemySystem
         ushort PowerBombFunction,
         DeadTourianCorpseVariant[] Variants);
 
+    /// <summary>Tile dimensions and graphics placement for one corpse parameter variant.</summary>
+    /// <param name="MaximumY">Exclusive pixel-row bound used by the rotting scheduler.</param>
+    /// <param name="ColumnWordOffsets">Work-buffer word offsets for each tile column.</param>
+    /// <param name="InitialGraphicsCopies">Authored sheet-to-work-buffer copies for initial corpse art.</param>
     internal sealed record DeadTourianCorpseVariant(
         ushort MaximumY,
         ushort[] ColumnWordOffsets,
         DeadTourianCorpseGraphicsCopy[] InitialGraphicsCopies);
 
+    /// <summary>One contiguous graphics row copied from the installed sheet to corpse work memory.</summary>
+    /// <param name="SourceOffset">Byte offset in the installed tile sheet.</param>
+    /// <param name="DestinationOffset">Byte offset in the shared dead-monster work buffer.</param>
+    /// <param name="Length">Number of bytes copied for this row.</param>
     internal readonly record struct DeadTourianCorpseGraphicsCopy(
         int SourceOffset,
         int DestinationOffset,
@@ -362,6 +395,23 @@ public enum DeadTourianCorpseSpecies
 /// <summary>Typed extended state for one dead Zoomer, Ripper, or Skree.</summary>
 public sealed class DeadTourianCorpseEnemyState
 {
+    /// <summary>Creates the decoded state for one corpse slot and its selected native variant.</summary>
+    /// <param name="slot">Enemy slot whose common variables control the corpse lifecycle.</param>
+    /// <param name="species">Corpse family selecting callback and graphics metadata.</param>
+    /// <param name="variantIndex">Zero-based corpse variant selected by parameter one.</param>
+    /// <param name="configurationPointer">Native initialization-record pointer.</param>
+    /// <param name="tablePointer">WRAM pointer to the mutable four-byte rotting entries.</param>
+    /// <param name="vramTablePointer">Native DMA-list pointer queued during each rotting update.</param>
+    /// <param name="copyFunction">Native nondestructive pixel-row copy function identity.</param>
+    /// <param name="moveFunction">Native destructive pixel-row move function identity.</param>
+    /// <param name="rotationTablePointer">Native tile-row rotation table pointer.</param>
+    /// <param name="finishFunction">Native completed-row callback identity.</param>
+    /// <param name="entryCount">Number of row entries in the rotting table.</param>
+    /// <param name="yLimit">Exclusive row-height boundary used by completion checks.</param>
+    /// <param name="lateMoveEntryIndex">First entry using destructive moves during final delays.</param>
+    /// <param name="wrapOffset">Work-buffer displacement for rows crossing tile boundaries.</param>
+    /// <param name="profile">Species callbacks and available variants.</param>
+    /// <param name="variant">Tile layout and initial graphics copies for the selected variant.</param>
     internal DeadTourianCorpseEnemyState(
         RoomEnemySlot slot,
         DeadTourianCorpseSpecies species,
@@ -443,6 +493,8 @@ public sealed class DeadTourianCorpseEnemyState
 
     // Callback profiles remain assembly-internal. Public debugger state exposes only the
     // stable ROM-derived words above; actor code keeps typed access without parallel maps.
+    /// <summary>Species-level callback metadata retained for shared dispatcher decisions.</summary>
     internal RoomEnemySystem.DeadTourianCorpseProfile Profile { get; }
+    /// <summary>Selected tile layout used by pixel-row work and body-buffer addressing.</summary>
     internal RoomEnemySystem.DeadTourianCorpseVariant Variant { get; }
 }

@@ -64,8 +64,11 @@ public enum PipeBugEnemyFunction : ushort
 /// </summary>
 public sealed class PipeBugEnemyState
 {
+    /// <summary>Physical enemy slot whose native variables back this typed Pipe Bug state.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates the species-aware state view and captures the slot's initial definition identity.</summary>
+    /// <param name="slot">Initialized physical enemy record owned by a Pipe Bug species.</param>
     internal PipeBugEnemyState(RoomEnemySlot slot)
     {
         _slot = slot;
@@ -157,26 +160,41 @@ public sealed class PipeBugEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Vertical distance from the Brinstar pipe origin to the raised emergence position.</summary>
     private const ushort BrinstarPipeBugEmergenceHeight = 16;
+    /// <summary>Horizontal radius of the Brinstar emergence trigger around Samus.</summary>
     private const ushort BrinstarPipeBugTriggerWidth = 64;
+    /// <summary>Vertical top of the Brinstar emergence trigger region relative to Samus.</summary>
     private const ushort BrinstarPipeBugTriggerTop = 96;
+    /// <summary>Authored hidden delay before a Brinstar Pipe Bug can rearm.</summary>
     private const ushort BrinstarPipeBugRespawnFrames = 48;
 
+    /// <summary>Number of consecutive physical enemy slots in a synchronized Norfair group.</summary>
     private const int NorfairFormationSize = 5;
 
+    /// <summary>Maximum horizontal distance at which a yellow Pipe Bug notices Samus.</summary>
     private const ushort YellowPipeBugTriggerDistance = 192;
+    /// <summary>Vertical distance limit for triggering a yellow Pipe Bug.</summary>
     private const ushort YellowPipeBugTriggerHeight = 48;
+    /// <summary>Updates a yellow Pipe Bug waits after emergence before starting straight flight.</summary>
     private const ushort YellowPipeBugEmergenceDelayFrames = 24;
+    /// <summary>Horizontal distance past Samus that starts the yellow Pipe Bug arc.</summary>
     private const ushort YellowPipeBugArcTriggerDistance = 48;
+    /// <summary>Initial quadratic-speed table counter for the yellow Pipe Bug arc.</summary>
     private const ushort YellowPipeBugArcCounterStart = 40;
 
+    /// <summary>Typed per-slot ownership retained while Pipe Bug actors or their formation are active.</summary>
     private readonly PipeBugEnemyState?[] _pipeBugStates =
         new PipeBugEnemyState?[MaximumEnemyCount];
 
+    /// <summary>Identifies either header variant that uses the Brinstar Pipe Bug state machine.</summary>
+    /// <param name="definition">Enemy definition pointer captured from the room header.</param>
+    /// <returns><see langword="true"/> for normal or strong Brinstar Pipe Bugs.</returns>
     private static bool IsBrinstarPipeBugDefinition(ushort definition) =>
         definition is PipeBugDefinitions.BrinstarEnemyDefinition or
             PipeBugDefinitions.StrongBrinstarEnemyDefinition;
 
+    /// <summary>Discards typed Pipe Bug slot owners when the room enemy pool is replaced.</summary>
     private void ResetPipeBugRoomState() => Array.Clear(_pipeBugStates);
 
     /// <summary>Ports <c>BrinstarPipeBug_Init</c> at $B3:883B.</summary>
@@ -347,6 +365,12 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Waits for the Brinstar bug's origin and Samus to enter the authored emergence region.</summary>
+    /// <param name="slot">Physical enemy record being updated.</param>
+    /// <param name="state">Pipe Bug variables retaining spawn and emergence positions.</param>
+    /// <param name="samus">Active player state used for trigger distance checks.</param>
+    /// <param name="cameraX">Horizontal camera position for center-on-screen detection.</param>
+    /// <param name="cameraY">Vertical camera position for center-on-screen detection.</param>
     private static void RunBrinstarPipeBugWaiting(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -373,6 +397,10 @@ public sealed partial class RoomEnemySystem
         SelectBrinstarPipeBugAnimation(slot, state);
     }
 
+    /// <summary>Raises a triggered Brinstar bug, selects its animation, and begins horizontal flight.</summary>
+    /// <param name="slot">Physical enemy record whose position and instruction are updated.</param>
+    /// <param name="state">Pipe Bug variables containing its emergence target and animation.</param>
+    /// <param name="samus">Active player state used to choose the flight direction.</param>
     private static void RunBrinstarPipeBugEmergence(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -395,6 +423,11 @@ public sealed partial class RoomEnemySystem
         state.Function = PipeBugEnemyFunction.BrinstarFlyHorizontally;
     }
 
+    /// <summary>Moves an emerged Brinstar bug horizontally and rearms it after it leaves the screen.</summary>
+    /// <param name="slot">Physical enemy record whose position is advanced.</param>
+    /// <param name="state">Pipe Bug variables containing spawn position and flight state.</param>
+    /// <param name="cameraX">Horizontal camera position for the off-screen reset.</param>
+    /// <param name="cameraY">Vertical camera position for the off-screen reset.</param>
     private static void RunBrinstarPipeBugFlight(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -420,6 +453,9 @@ public sealed partial class RoomEnemySystem
         state.Function = PipeBugEnemyFunction.BrinstarRespawnDelay;
     }
 
+    /// <summary>Selects the Brinstar bug's compiled instruction list from its strength and animation state.</summary>
+    /// <param name="slot">Physical enemy record receiving the selected list.</param>
+    /// <param name="state">State carrying the requested animation selector.</param>
     private static void SelectBrinstarPipeBugAnimation(
         RoomEnemySlot slot,
         PipeBugEnemyState state)
@@ -434,6 +470,9 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Waits until the complete five-slot Norfair formation is ready, then assigns stagger roles.</summary>
+    /// <param name="slot">Formation member currently receiving the update.</param>
+    /// <param name="state">Typed state for that formation member.</param>
     private void RunNorfairPipeBugFormationWait(RoomEnemySlot slot, PipeBugEnemyState state)
     {
         // Only the first record has a nonzero low parameter byte. It is the formation
@@ -449,6 +488,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Waits for Samus to enter the Norfair formation trigger before starting the leader rise.</summary>
+    /// <param name="leader">Formation leader enemy record.</param>
+    /// <param name="leaderState">Leader state containing formation timing.</param>
+    /// <param name="samus">Active player state used for the trigger check.</param>
     private void RunNorfairPipeBugSamusWait(
         RoomEnemySlot leader,
         PipeBugEnemyState leaderState,
@@ -485,6 +528,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Raises a Norfair member until it passes Samus, then installs its assigned stagger function.</summary>
+    /// <param name="slot">Formation member whose vertical motion is advanced.</param>
+    /// <param name="state">Member state containing its post-rise function.</param>
+    /// <param name="samus">Active player state defining the rise endpoint and flight direction.</param>
     private static void RunNorfairPipeBugRise(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -504,6 +551,10 @@ public sealed partial class RoomEnemySystem
                 : NorfairPipeBugInstructionProgramDefinitions.RisingLeft);
     }
 
+    /// <summary>Moves a formation member to its signed vertical offset from its emergence height.</summary>
+    /// <param name="slot">Member record receiving vertical displacement.</param>
+    /// <param name="state">Member state containing the emergence origin and stagger counter.</param>
+    /// <param name="signedOffset">Target displacement; negative moves upward and positive downward.</param>
     private static void RunNorfairPipeBugVerticalStagger(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -527,6 +578,10 @@ public sealed partial class RoomEnemySystem
         state.Function = PipeBugEnemyFunction.NorfairWaitForStagger;
     }
 
+    /// <summary>Waits for a member's assigned formation counter, then releases it toward Samus.</summary>
+    /// <param name="slot">Member record whose flight instruction and function will be selected.</param>
+    /// <param name="state">Member state containing its stagger target.</param>
+    /// <param name="samus">Active player state used to select left or right flight.</param>
     private static void RunNorfairPipeBugStaggerWait(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -569,6 +624,10 @@ public sealed partial class RoomEnemySystem
         slot.YPosition = state.SpawnY;
     }
 
+    /// <summary>Returns the five consecutive initialized Norfair records owned by the leader.</summary>
+    /// <param name="leader">First physical slot in the formation.</param>
+    /// <returns>Formation slots in their native leader, upper, and lower order.</returns>
+    /// <exception cref="InvalidDataException">The formation exceeds the pool or a slot was initialized as another species.</exception>
     private RoomEnemySlot[] RequireNorfairPipeBugFormation(RoomEnemySlot leader)
     {
         if (leader.SlotIndex + NorfairFormationSize > MaximumEnemyCount)
@@ -594,6 +653,10 @@ public sealed partial class RoomEnemySystem
         return formation;
     }
 
+    /// <summary>Reveals a yellow Pipe Bug when Samus enters its direction-sensitive trigger region.</summary>
+    /// <param name="slot">Physical enemy record controlled by the yellow bug.</param>
+    /// <param name="state">State receiving the emergence delay and next function.</param>
+    /// <param name="samus">Active player position tested against the trigger bounds.</param>
     private static void RunYellowPipeBugWaiting(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -614,6 +677,9 @@ public sealed partial class RoomEnemySystem
         state.Function = PipeBugEnemyFunction.YellowEmergenceDelay;
     }
 
+    /// <summary>Counts down the reveal delay and installs the corresponding straight-flight instruction list.</summary>
+    /// <param name="slot">Physical enemy record receiving the list and interpreter timers.</param>
+    /// <param name="state">State containing the remaining emergence delay.</param>
     private static void RunYellowPipeBugDelay(RoomEnemySlot slot, PipeBugEnemyState state)
     {
         state.EmergenceDelay = unchecked((ushort)(state.EmergenceDelay - 1));
@@ -633,6 +699,13 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Advances straight flight, resetting off-screen bugs or switching to the authored arc.</summary>
+    /// <param name="slot">Physical enemy record whose horizontal position is advanced.</param>
+    /// <param name="state">State containing velocities and one-shot arc progress.</param>
+    /// <param name="samus">Active player position used to detect when the bug has passed.</param>
+    /// <param name="cameraX">Horizontal camera position for the off-screen reset.</param>
+    /// <param name="cameraY">Vertical camera position for the off-screen reset.</param>
+    /// <param name="movingLeft">Selects the leftward or rightward native flight path.</param>
     private static void RunYellowPipeBugStraightFlight(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -667,6 +740,12 @@ public sealed partial class RoomEnemySystem
                 : YellowPipeBugInstructionProgramDefinitions.ArcingRight);
     }
 
+    /// <summary>Runs the yellow bug's rise-and-return arc and resumes straight flight at spawn height.</summary>
+    /// <param name="slot">Physical enemy record whose fixed-point position is updated.</param>
+    /// <param name="state">Arc counters, origin, velocities, and current phase.</param>
+    /// <param name="cameraX">Horizontal camera position for the off-screen reset.</param>
+    /// <param name="cameraY">Vertical camera position for the off-screen reset.</param>
+    /// <param name="movingLeft">Selects the horizontal velocity and return-height comparison.</param>
     private static void RunYellowPipeBugArc(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -714,6 +793,12 @@ public sealed partial class RoomEnemySystem
                 : YellowPipeBugInstructionProgramDefinitions.FlyingRight);
     }
 
+    /// <summary>Restores an off-screen yellow bug to its hidden spawn state and original flight list.</summary>
+    /// <param name="slot">Physical enemy record tested and reset in place.</param>
+    /// <param name="state">State receiving the waiting function and cleared arc completion flag.</param>
+    /// <param name="cameraX">Horizontal camera position used by center visibility logic.</param>
+    /// <param name="cameraY">Vertical camera position used by center visibility logic.</param>
+    /// <returns><see langword="true"/> when the bug was reset and should not continue this update.</returns>
     private static bool ResetYellowPipeBugIfOffScreen(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -738,6 +823,10 @@ public sealed partial class RoomEnemySystem
         return true;
     }
 
+    /// <summary>Adds the saved signed 16.16 horizontal speed for the selected flight direction.</summary>
+    /// <param name="slot">Enemy record whose X position and subposition advance.</param>
+    /// <param name="state">State containing positive and negative velocity words.</param>
+    /// <param name="movingLeft">Uses the negative velocity when true.</param>
     private static void AddYellowPipeBugHorizontalVelocity(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -750,6 +839,10 @@ public sealed partial class RoomEnemySystem
         AddPipeBugFixedVelocity(slot, horizontal: true, whole, fraction);
     }
 
+    /// <summary>Loads one common linear-speed table entry and applies it on the selected axis.</summary>
+    /// <param name="slot">Enemy record receiving the position update.</param>
+    /// <param name="horizontal">Selects X when true and Y otherwise.</param>
+    /// <param name="byteOffset">Byte offset of the signed whole/fraction speed pair in the table.</param>
     private static void AddPipeBugLinearVelocity(
         RoomEnemySlot slot,
         bool horizontal,
@@ -759,6 +852,11 @@ public sealed partial class RoomEnemySystem
         AddPipeBugFixedVelocity(slot, horizontal, unchecked((ushort)whole), fraction);
     }
 
+    /// <summary>Adds a signed whole word and unsigned fractional word to one enemy position.</summary>
+    /// <param name="slot">Enemy record receiving the updated position and subposition.</param>
+    /// <param name="horizontal">Selects X when true and Y otherwise.</param>
+    /// <param name="whole">Signed velocity word represented as its two's-complement bits.</param>
+    /// <param name="fraction">Fractional velocity word whose carry increments the whole position.</param>
     private static void AddPipeBugFixedVelocity(
         RoomEnemySlot slot,
         bool horizontal,
@@ -782,6 +880,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Adds a signed 16.16 displacement to one enemy coordinate with native wraparound.</summary>
+    /// <param name="slot">Enemy record receiving the updated coordinate.</param>
+    /// <param name="horizontal">Selects X when true and Y otherwise.</param>
+    /// <param name="displacement">Signed fixed-point delta represented by its 32-bit bits.</param>
     private static void AddPipeBugDisplacement(
         RoomEnemySlot slot,
         bool horizontal,
@@ -803,6 +905,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Creates and registers the typed state owner for a physical enemy slot.</summary>
+    /// <param name="slot">Initialized slot belonging to a Pipe Bug definition.</param>
+    /// <returns>The new state projection stored at the slot's index.</returns>
     private PipeBugEnemyState CreatePipeBugState(RoomEnemySlot slot)
     {
         var state = new PipeBugEnemyState(slot);
@@ -810,10 +915,16 @@ public sealed partial class RoomEnemySystem
         return state;
     }
 
+    /// <summary>Returns a slot's registered Pipe Bug owner or fails if initialization did not create one.</summary>
+    /// <param name="slot">Physical enemy slot whose typed owner is required.</param>
+    /// <returns>The state projection associated with the slot.</returns>
     private PipeBugEnemyState RequirePipeBugState(RoomEnemySlot slot) =>
         _pipeBugStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Pipe Bug state.");
 
+    /// <summary>Installs an enemy instruction pointer and resets its interpreter timing fields.</summary>
+    /// <param name="slot">Enemy record whose instruction state is replaced.</param>
+    /// <param name="instruction">Compiled instruction-list pointer to begin executing.</param>
     private static void InstallPipeBugInstruction(RoomEnemySlot slot, ushort instruction)
     {
         slot.CurrentInstruction = instruction;
@@ -821,6 +932,9 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Rejects Pipe Bug updates when the active Samus actor is unavailable.</summary>
+    /// <param name="samus">Active player state required by the species behavior.</param>
+    /// <exception cref="InvalidOperationException">No active Samus actor was supplied.</exception>
     private static void RequirePipeBugSamus(SamusState? samus)
     {
         if (samus is null)

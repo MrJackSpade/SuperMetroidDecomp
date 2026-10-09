@@ -8,15 +8,24 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable three-color room-FX blends selected by native FX records.</summary>
 public sealed class RoomFxPaletteBlendCatalog
 {
+    /// <summary>Compiled three-color inks for the native lava/acid selector.</summary>
     private readonly RoomFxBlendColors lava;
+    /// <summary>Compiled three-color inks used while Landing Site rain is active.</summary>
     private readonly RoomFxBlendColors landingSiteRain;
+    /// <summary>Compiled three-color inks for the first Maridia water selector.</summary>
     private readonly RoomFxBlendColors maridiaWaterA;
+    /// <summary>Compiled three-color inks shared by native water and acid rooms.</summary>
     private readonly RoomFxBlendColors waterAndAcid;
+    /// <summary>Compiled three-color inks used by fog and related room states.</summary>
     private readonly RoomFxBlendColors fog;
+    /// <summary>Compiled three-color inks for the western Maridia water selector.</summary>
     private readonly RoomFxBlendColors maridiaWaterB;
+    /// <summary>Compiled three-color inks for the central Maridia water selector.</summary>
     private readonly RoomFxBlendColors maridiaWaterC;
+    /// <summary>Compiled three-color inks for the eastern Maridia water selector.</summary>
     private readonly RoomFxBlendColors maridiaWaterD;
 
+    /// <summary>Builds the immutable runtime catalog from validated blends and the two fixed-color haze tints.</summary>
     private RoomFxPaletteBlendCatalog(RoomFxBlendColors lava, RoomFxBlendColors landingSiteRain,
         RoomFxBlendColors maridiaWaterA, RoomFxBlendColors waterAndAcid, RoomFxBlendColors fog,
         RoomFxBlendColors maridiaWaterB, RoomFxBlendColors maridiaWaterC, RoomFxBlendColors maridiaWaterD,
@@ -40,6 +49,7 @@ public sealed class RoomFxPaletteBlendCatalog
     /// <summary>Cosmetic fixed-color tint selected after Ceres Ridley is defeated.</summary>
     public PaletteRgb5 CeresHazeRed { get; }
 
+    /// <summary>Enforces camel-case JSON keys, rejects unmapped document members, and emits readable JSON.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -112,6 +122,10 @@ public sealed class RoomFxPaletteBlendCatalog
     }
 
     /// <summary>Applies the native three-color write, or clears only color 27 for selection zero.</summary>
+    /// <summary>Writes the selected blend to BG3 palette colors 25–27, or clears only color 27 for selector zero.</summary>
+    /// <param name="cgram">CGRAM destination receiving the native blend writes.</param>
+    /// <param name="selection">Native room-FX selector, or zero to clear the third blend color.</param>
+    /// <exception cref="InvalidDataException">The selector is neither zero nor one of the eight authored blend selections.</exception>
     public void Apply(SnesCgram cgram, byte selection)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -158,10 +172,14 @@ public sealed class RoomFxPaletteBlendCatalog
 /// </remarks>
 internal sealed class RoomFxBlendColors
 {
+    /// <summary>Primary ink with calculated channels filled from the selector and explicit edits retained.</summary>
     private readonly RoomFxPairColor primary;
+    /// <summary>Secondary ink with calculated channels filled from the selector and explicit edits retained.</summary>
     private readonly RoomFxPairColor secondary;
+    /// <summary>Optional third ink when its supplied value differs from the catalog's calculated value.</summary>
     private readonly RoomFxThirdColor? thirdOverride;
 
+    /// <summary>Separates the three supplied RGB555 words into calculated channels and user overrides.</summary>
     public RoomFxBlendColors(byte selection, ushort primary, ushort secondary, ushort third)
     {
         this.primary = new(selection, primary, true);
@@ -169,6 +187,8 @@ internal sealed class RoomFxBlendColors
         thirdOverride = RoomFxPaletteBlendDefinitions.CalculatedThirdColor(selection) == third ? null : new(selection, third);
     }
 
+    /// <summary>Writes the resolved primary, secondary, and third inks to the three consecutive BG3 blend slots.</summary>
+    /// <param name="cgram">CGRAM destination receiving the three palette words.</param>
     public void Apply(SnesCgram cgram)
     {
         cgram.SetColor(RoomFxRomData.Layer3.PaletteBlendDestinationIndex, primary.CreateColor());
@@ -179,12 +199,18 @@ internal sealed class RoomFxBlendColors
 /// <summary>One of the first two blend colors, separating shared tint rules from edits.</summary>
 internal sealed class RoomFxPairColor
 {
+    /// <summary>Native selector whose shared color relationships determine unedited channels.</summary>
     private readonly byte selection;
+    /// <summary>Chooses the primary or secondary channel relationship for this ink.</summary>
     private readonly bool isPrimary;
+    /// <summary>Explicit red channel retained when it differs from the selector's calculated value.</summary>
     private readonly int? redOverride;
+    /// <summary>Explicit green channel retained when it differs from the selector's calculated value.</summary>
     private readonly int? greenOverride;
+    /// <summary>Explicit blue channel retained when it differs from the selector's calculated value.</summary>
     private readonly int? blueOverride;
 
+    /// <summary>Extracts the supplied RGB555 channels and records only values that override selector-derived colors.</summary>
     public RoomFxPairColor(byte selection, ushort color, bool isPrimary)
     {
         this.selection = selection;
@@ -195,6 +221,7 @@ internal sealed class RoomFxPairColor
         blueOverride = RoomFxPaletteBlendDefinitions.CalculatedPairBlue(selection, red, green, isPrimary) == blue ? null : blue;
     }
 
+    /// <summary>Resolves calculated and overridden channels into one packed RGB555 palette word.</summary>
     public ushort CreateColor()
     {
         int red = redOverride ?? RoomFxPaletteBlendDefinitions.CalculatedPairRed(selection, isPrimary)!.Value;
@@ -206,11 +233,16 @@ internal sealed class RoomFxPairColor
 /// <summary>Independent third-color red and calculated weather green/blue, preserving edits.</summary>
 internal sealed class RoomFxThirdColor
 {
+    /// <summary>Native selector used to derive weather-related third-color channels.</summary>
     private readonly byte selection;
+    /// <summary>Independent red channel, which is not derived from the room selector.</summary>
     private readonly int red;
+    /// <summary>Explicit green channel retained when it differs from a calculated weather tint.</summary>
     private readonly int? greenOverride;
+    /// <summary>Explicit blue channel retained when it differs from a calculated weather tint.</summary>
     private readonly int? blueOverride;
 
+    /// <summary>Preserves the independent red value and records any green or blue edits to calculated weather channels.</summary>
     public RoomFxThirdColor(byte selection, ushort color)
     {
         this.selection = selection;
@@ -221,6 +253,7 @@ internal sealed class RoomFxThirdColor
         blueOverride = RoomFxPaletteBlendDefinitions.CalculatedThirdBlue(selection, color & 31) == blue ? null : blue;
     }
 
+    /// <summary>Packs the independent red and resolved green/blue channels into an RGB555 palette word.</summary>
     public ushort CreateColor() => (ushort)(red |
         (greenOverride ?? RoomFxPaletteBlendDefinitions.CalculatedThirdGreen(selection)!.Value) << 5 |
         (blueOverride ?? RoomFxPaletteBlendDefinitions.CalculatedThirdBlue(selection, red)!.Value) << 10);
@@ -309,6 +342,7 @@ public static class RoomFxPaletteBlendDefinitions
         return $"blend-{id:X2}";
     }
 
+    /// <summary>Rejects selectors that do not identify one of the eight native room-FX blend resources.</summary>
     private static void ValidateSelector(byte id)
     {
         if (id is not (Lava or LandingSiteRain or MaridiaWaterA or WaterAndAcid or Fog or MaridiaWaterB or MaridiaWaterC or MaridiaWaterD))

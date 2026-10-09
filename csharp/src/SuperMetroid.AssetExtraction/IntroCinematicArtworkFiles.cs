@@ -11,6 +11,7 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Installs opening-scene PNGs and tilemap JSON separately from player overrides.</summary>
 public static class IntroCinematicArtworkFiles
 {
+    /// <summary>Manifest schema version for the complete stock opening and Ceres artwork set.</summary>
     private const int FormatVersion = 20;
 
     /// <summary>Creates the stock opening-cinematic, Ceres-flight, and destruction-scene PNG and JSON resources with their provenance manifest.</summary>
@@ -674,6 +675,8 @@ public static class IntroCinematicArtworkFiles
         }
     }
 
+    /// <summary>Lists every stock artwork resource whose names and hashes belong in the manifest.</summary>
+    /// <returns>The full resource filename set, including indexed background pages.</returns>
     private static string[] AllFileNames() =>
     [
         IntroCinematicArtworkFormat.BackgroundFileName,
@@ -713,6 +716,7 @@ public static class IntroCinematicArtworkFiles
     /// <exception cref="InvalidDataException">The manifest, provenance, coverage, hash, or a compiled artwork resource is invalid.</exception>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
+    /// <summary>Serializer settings shared by the stock-artwork provenance manifest.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -720,6 +724,10 @@ public static class IntroCinematicArtworkFiles
         WriteIndented = true,
     };
 
+    /// <summary>Records the source cartridge and stock-file digests for installed intro artwork.</summary>
+    /// <param name="Version">Manifest schema version.</param>
+    /// <param name="SourceCartridgeSha256">SHA-256 identity of the cartridge used for extraction.</param>
+    /// <param name="StockSha256">SHA-256 digest for each generated stock resource, keyed by filename.</param>
     private sealed record IntroCinematicArtworkManifest(
         int Version, string SourceCartridgeSha256, Dictionary<string, string> StockSha256);
 }

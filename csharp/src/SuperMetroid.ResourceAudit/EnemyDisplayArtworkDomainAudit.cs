@@ -7,6 +7,9 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Checks sparse bank/pointer pairs rather than treating either dimension as contiguous.</summary>
 internal static class EnemyDisplayArtworkDomainAudit
 {
+    /// <summary>Rejects sparse bank/pointer pairs not present in the reviewed enemy frame domains.</summary>
+    /// <param name="operation">Semantic invocation of an enemy display provider.</param>
+    /// <returns>A diagnostic for an unowned pair, or null when the pair is valid or unrelated.</returns>
     internal static string? InvalidConstants(IInvocationOperation operation)
     {
         string type = operation.TargetMethod.ContainingType.ToDisplayString();

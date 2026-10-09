@@ -14,6 +14,7 @@ public static class RoomBackgroundTilemapArtworkFiles
     /// <summary>Stock manifest filename recording every library-background source address, native transfer length, and JSON hash.</summary>
     public const string ManifestFileName = "room-backgrounds.json";
     /// <summary>Schema version accepted for room-background stock manifests.</summary>
+    /// <summary>Schema version accepted for stock room-background manifests.</summary>
     private const int FormatVersion = 1;
 
     /// <summary>Creates one editable tilemap JSON file per retail compressed library-background source and records its provenance.</summary>

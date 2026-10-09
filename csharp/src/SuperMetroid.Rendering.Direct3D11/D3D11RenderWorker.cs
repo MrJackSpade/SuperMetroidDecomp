@@ -8,27 +8,49 @@ namespace SuperMetroid.Rendering.Direct3D11;
 /// never synchronously block its message pump while DXGI may be interacting with the window.</remarks>
 public sealed class D3D11RenderWorker
 {
+    /// <summary>Latest-frame mailbox shared with publishers; pending visual packets replace older pending packets.</summary>
     private readonly LatestRenderFrameMailbox mailbox;
+    /// <summary>Generation boundary that prevents a frame from being presented across load/reset transitions.</summary>
     private readonly RenderPresentationGate gate;
+    /// <summary>Signal that wakes the owner thread for publication, resize, or shutdown work.</summary>
     private readonly AutoResetEvent wake = new(false);
+    /// <summary>Protects lifecycle state and the pending resize request.</summary>
     private readonly object lifecycle = new();
+    /// <summary>Completes when initial device resources are ready or startup fails.</summary>
     private readonly TaskCompletionSource<string> ready = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    /// <summary>Completes when owner-thread resources are released, or faults on an unrecoverable failure.</summary>
     private readonly TaskCompletionSource completion = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    /// <summary>Captured owner-thread failure rethrown by public caller-side operations.</summary>
     private ExceptionDispatchInfo? fault;
+    /// <summary>Whether shutdown has been requested or the owner thread has exited.</summary>
     private bool stopping;
+    /// <summary>Most recent client-size request waiting for owner-thread processing.</summary>
     private (int Width, int Height)? resize;
+    /// <summary>Cumulative successful presentations, occlusion results, and stale-generation results.</summary>
     private long presented, occluded, stale;
+    /// <summary>Highest packet sequence consumed by the render owner.</summary>
     private long lastConsumedSequence;
+    /// <summary>Number of render attempts that reused retained artwork instead of consuming a new packet.</summary>
     private long retainedRedraws;
+    /// <summary>Last client size successfully drawn, packed as width in the high word and height in the low word.</summary>
     private long lastDrawnSize;
+    /// <summary>Whether zero-sized client dimensions currently suspend presentation.</summary>
     private bool surfaceSuspended;
+    /// <summary>Successful device/resource recreations after initial startup.</summary>
     private long deviceRecoveries;
+    /// <summary>Diagnostic details from the most recent device-loss exception.</summary>
     private D3D11DeviceLossDiagnostic? lastDeviceLoss;
+    /// <summary>Bounded timing history for CPU-side frame composition and upload submission.</summary>
     private readonly RenderTimingWindow cpuCompositionTiming;
+    /// <summary>Bounded timing history for the CPU presentation call.</summary>
     private readonly RenderTimingWindow cpuPresentationTiming;
+    /// <summary>Bounded GPU timing history for composition only.</summary>
     private readonly RenderTimingWindow gpuCompositionTiming;
+    /// <summary>Bounded GPU timing history for the full composition/display interval.</summary>
     private readonly RenderTimingWindow gpuFrameTiming;
+    /// <summary>Bounded timing history for CPU upload calls made while submitting a frame.</summary>
     private readonly RenderTimingWindow cpuUploadTiming;
+    /// <summary>Cumulative upload bytes and calls recorded after render/presentation attempts.</summary>
     private long submittedUploadBytes, submittedUploadCalls;
     /// <summary>Thread-safe cumulative UpdateSubresource byte count for completed render/presentation attempts, including composition and display uploads; retained redraws count and this is not GPU memory residency.</summary>
     public long SubmittedUploadBytes => Interlocked.Read(ref submittedUploadBytes);
@@ -40,7 +62,9 @@ public sealed class D3D11RenderWorker
     /// <returns>Independently sampled thread-safe timing histories without waiting for the render owner or GPU.</returns>
     public RenderWorkerTimings CaptureTimings() => new(cpuCompositionTiming.Snapshot(),
         cpuPresentationTiming.Snapshot(), gpuCompositionTiming.Snapshot(), gpuFrameTiming.Snapshot());
+    /// <summary>Latest valid asynchronous GPU composition duration, or NaN before a valid sample arrives.</summary>
     private double gpuCompositionMilliseconds = double.NaN;
+    /// <summary>Counts of accepted, rejected, and unavailable GPU timestamp samples.</summary>
     private long validGpuTimingSamples, invalidGpuTimingSamples, skippedGpuTimingSamples;
     /// <summary>Thread-safe count of completed timestamp samples rejected for a disjoint/zero-frequency clock or inconsistent ordering; they do not enter the timing distributions.</summary>
     public long InvalidGpuTimingSamples => Interlocked.Read(ref invalidGpuTimingSamples);
@@ -48,6 +72,7 @@ public sealed class D3D11RenderWorker
     public long SkippedGpuTimingSamples => Interlocked.Read(ref skippedGpuTimingSamples);
     /// <summary>Thread-safe count of successful device/resource recreations after startup, excluding failed recovery attempts and the initial device.</summary>
     public long DeviceRecoveries => Interlocked.Read(ref deviceRecoveries);
+    /// <summary>Optional verification hook invoked on the owner thread immediately before composition.</summary>
     private readonly Action? beforeRenderForVerification;
 
     /// <summary>Initial startup task returning the actual device's diagnostic description once renderer/swapchain/timer resources are ready; startup failure faults the task, and later recovery does not replace its result.</summary>
@@ -71,6 +96,15 @@ public sealed class D3D11RenderWorker
         int timingCapacity = RenderTelemetryLimits.DefaultHistoryCapacity)
         : this(window, width, height, generation, kind, null, timingCapacity) { }
 
+    /// <summary>Creates a worker with an optional owner-thread hook used by rendering verification.</summary>
+    /// <param name="window">Existing HWND retained until asynchronous shutdown completes.</param>
+    /// <param name="width">Initial client width in pixels.</param>
+    /// <param name="height">Initial client height in pixels.</param>
+    /// <param name="generation">Initial load/reset generation shared with published frames.</param>
+    /// <param name="kind">Explicit hardware or WARP renderer selection.</param>
+    /// <param name="beforeRenderForVerification">Optional callback invoked immediately before frame composition.</param>
+    /// <param name="timingCapacity">Number of recent timing samples retained in each history.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Timing capacity is zero or exceeds the shared history limit.</exception>
     internal D3D11RenderWorker(nint window, int width, int height, long generation, D3D11DeviceKind kind,
         Action? beforeRenderForVerification, int timingCapacity = RenderTelemetryLimits.DefaultHistoryCapacity)
     {
@@ -151,12 +185,18 @@ public sealed class D3D11RenderWorker
         return completion.Task;
     }
 
+    /// <summary>Rejects caller operations after shutdown starts and rethrows any stored worker failure.</summary>
     private void VerifyRunning()
     {
         ThrowIfFaulted();
         if (stopping) throw new InvalidOperationException("GPU worker is stopping.");
     }
 
+    /// <summary>Owns the render thread's recovery loop and completes startup/shutdown tasks.</summary>
+    /// <param name="window">HWND used to create the swapchain.</param>
+    /// <param name="width">Initial client width, updated by resize requests.</param>
+    /// <param name="height">Initial client height, updated by resize requests.</param>
+    /// <param name="kind">Renderer backend to retain across recovery attempts.</param>
     private void Run(nint window, int width, int height, D3D11DeviceKind kind)
     {
         try
@@ -197,6 +237,14 @@ public sealed class D3D11RenderWorker
         }
     }
 
+    /// <summary>Creates device-scoped resources and consumes frames until shutdown or device loss.</summary>
+    /// <param name="window">HWND that owns the swapchain.</param>
+    /// <param name="width">Current client width, updated after successful resize.</param>
+    /// <param name="height">Current client height, updated after successful resize.</param>
+    /// <param name="kind">Explicit backend used for device creation and diagnostics.</param>
+    /// <param name="retained">Latest CPU frame kept for redraw after resize or occlusion.</param>
+    /// <param name="suspended">Whether zero client dimensions currently prevent presentation.</param>
+    /// <param name="consecutiveLosses">Recovery attempts carried across recreated devices.</param>
     private void RunDevice(nint window, ref int width, ref int height, D3D11DeviceKind kind,
         ref RenderFrameSnapshot? retained, ref bool suspended, ref int consecutiveLosses)
     {

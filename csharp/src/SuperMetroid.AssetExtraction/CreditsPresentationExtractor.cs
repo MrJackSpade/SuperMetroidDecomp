@@ -39,6 +39,9 @@ public static class CreditsPresentationExtractor
         return output.ToArray();
     }
 
+    /// <summary>Interprets the bounded cartridge row program and resolves its tilemap row references.</summary>
+    /// <param name="bus">Cartridge source containing credits instructions and compressed tilemap data.</param>
+    /// <returns>Compiled native rows in their displayed order.</returns>
     internal static ushort[][] ReadNativeRows(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -103,6 +106,11 @@ public static class CreditsPresentationExtractor
         throw new InvalidDataException("Native credits did not terminate within the bounded operation count.");
     }
 
+    /// <summary>Decodes one authored credits line from its top row and optional large-font lower row.</summary>
+    /// <param name="rows">Native tilemap rows produced by <see cref="ReadNativeRows"/>.</param>
+    /// <param name="rowIndex">Index of the line's first row; advanced past all rows consumed.</param>
+    /// <param name="definition">Line identity, font style, and layout metadata.</param>
+    /// <returns>Editable text with its native column and palette selection.</returns>
     private static CreditsLineDocument DecodeLine(
         ushort[][] rows, ref int rowIndex, CreditsLineDefinition definition)
     {
@@ -155,6 +163,11 @@ public static class CreditsPresentationExtractor
         };
     }
 
+    /// <summary>Rejects content outside the decoded horizontal bounds of a credits line.</summary>
+    /// <param name="top">Top tilemap row for the line.</param>
+    /// <param name="bottom">Optional lower row for a large-font line.</param>
+    /// <param name="column">Column that must be blank in every supplied row.</param>
+    /// <param name="identity">Line identifier used in validation errors.</param>
     private static void RequireBlankColumn(
         ushort[] top, ushort[]? bottom, int column, string identity)
     {
@@ -165,6 +178,11 @@ public static class CreditsPresentationExtractor
         }
     }
 
+    /// <summary>Verifies the required blank vertical gap in the compiled credits tilemap.</summary>
+    /// <param name="rows">All decoded native credits rows.</param>
+    /// <param name="start">First row in the gap.</param>
+    /// <param name="count">Number of rows required to be blank.</param>
+    /// <param name="identity">Adjacent line or gap identity used in validation errors.</param>
     private static void RequireBlankRows(ushort[][] rows, int start, int count, string identity)
     {
         if (start + count > rows.Length)
@@ -177,14 +195,25 @@ public static class CreditsPresentationExtractor
         }
     }
 
+    /// <summary>Determines whether a credits tilemap word uses the catalogued blank tile.</summary>
+    /// <param name="word">Raw tilemap word.</param>
+    /// <returns><see langword="true"/> when the tile-number bits identify the blank cell.</returns>
     private static bool IsBlank(ushort word) =>
         (word & 0x03ff) == CreditsPresentationDefinitions.BlankWord;
 
+    /// <summary>Reads one little-endian instruction word from the credits program bank.</summary>
+    /// <param name="bus">Cartridge source containing the native program.</param>
+    /// <param name="pointer">Bank-relative instruction pointer.</param>
+    /// <returns>The instruction or operand at that pointer.</returns>
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
         RomDataReader.ReadWordFixedBank(
             CartridgeImportSource.Require(bus),
             new SnesAddress(CreditsPresentationDefinitions.Native.InstructionBank, pointer));
 
+    /// <summary>Advances a native 16-bit credits program pointer with address-width wraparound.</summary>
+    /// <param name="pointer">Current bank-relative pointer.</param>
+    /// <param name="bytes">Byte displacement to add.</param>
+    /// <returns>The wrapped 16-bit pointer.</returns>
     private static ushort Add(ushort pointer, int bytes) =>
         unchecked((ushort)(pointer + bytes));
 }

@@ -5,6 +5,8 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms each specifically identified friendly-animal artwork omission.</summary>
 internal static class FriendlyAnimalResourceChecks
 {
+    /// <summary>Checks the native composition slices for the selected friendly-animal family.</summary>
+    /// <param name="family">One of the four supported normal or escape animal families.</param>
     public static void Run(string family)
     {
         int previousCount = EnemySpritemapDefinitions.PreFriendlyAnimalFrameCount;

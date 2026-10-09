@@ -50,9 +50,12 @@ public enum KiHunterWingFunction : ushort
 /// </summary>
 public sealed class KiHunterEnemyState
 {
+    /// <summary>Native enemy record whose variable words back this Ki-Hunter's state.</summary>
     private readonly RoomEnemySlot _slot;
+    /// <summary>Initializer-established body/wing role, retained after native deletion clears the definition word.</summary>
     private readonly bool _isWing;
 
+    /// <summary>Creates state bound to a native enemy slot and captures whether it is the attached wing record.</summary>
     internal KiHunterEnemyState(RoomEnemySlot slot)
     {
         _slot = slot;
@@ -172,34 +175,50 @@ public sealed class KiHunterEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native definition word for the standard Ki-Hunter body.</summary>
     internal const ushort KiHunterDefinition = 0xeabf;
+    /// <summary>Native definition word for the standard Ki-Hunter's adjacent wing record.</summary>
     internal const ushort KiHunterWingsDefinition = 0xeaff;
+    /// <summary>Native definition word for the red Ki-Hunter body.</summary>
     internal const ushort RedKiHunterDefinition = 0xeb3f;
+    /// <summary>Native definition word for the red Ki-Hunter's adjacent wing record.</summary>
     internal const ushort RedKiHunterWingsDefinition = 0xeb7f;
+    /// <summary>Native definition word for the gold Ki-Hunter body.</summary>
     internal const ushort GoldKiHunterDefinition = 0xebbf;
+    /// <summary>Native definition word for the gold Ki-Hunter's adjacent wing record.</summary>
     internal const ushort GoldKiHunterWingsDefinition = 0xebff;
+    /// <summary>Native bank-$A8 AI pointer used by the acid projectile spawned from a spit instruction.</summary>
     internal const ushort KiHunterShotAi = EnemyAiCodePointers.BankA8.KiHunterShot;
 
+    /// <summary>Bank-$A8 spritemap used to hide a detached wing while its custom orbit motion runs.</summary>
     private const ushort EmptyA8Spritemap = 0x804d;
+    /// <summary>Ground recovery delay before the body selects its next grounded action.</summary>
     private const ushort KiHunterGroundWaitFrames = 12;
+    /// <summary>Delay after an acid spit before the ground AI chooses another action.</summary>
     private const ushort KiHunterSpitWaitFrames = 24;
+    /// <summary>Horizontal distance threshold for choosing acid spit instead of another ground jump.</summary>
     private const ushort KiHunterGroundAttackDistance = 96;
 
+    /// <summary>Per-slot extended state for initialized Ki-Hunter bodies and wings.</summary>
     private readonly KiHunterEnemyState?[] _kiHunterStates =
         new KiHunterEnemyState?[MaximumEnemyCount];
 
     /// <summary>Last library-two sound queued by an acid-spit instruction this frame.</summary>
     public ushort? LastKiHunterSoundEffect { get; private set; }
 
+    /// <summary>Tests whether a native definition word identifies one of the three Ki-Hunter body variants.</summary>
     internal static bool IsKiHunterBodyDefinition(ushort definition) =>
         definition is KiHunterDefinition or RedKiHunterDefinition or GoldKiHunterDefinition;
 
+    /// <summary>Tests whether a native definition word identifies one of the three matching wing variants.</summary>
     internal static bool IsKiHunterWingDefinition(ushort definition) =>
         definition is KiHunterWingsDefinition or RedKiHunterWingsDefinition or GoldKiHunterWingsDefinition;
 
+    /// <summary>Tests whether a native definition word belongs to either half of a Ki-Hunter pair.</summary>
     private static bool IsKiHunterDefinition(ushort definition) =>
         IsKiHunterBodyDefinition(definition) || IsKiHunterWingDefinition(definition);
 
+    /// <summary>Clears slot-bound Ki-Hunter state and the per-frame sound report when room state is reset.</summary>
     private void ResetKiHunterRoomState()
     {
         Array.Clear(_kiHunterStates);
@@ -450,6 +469,7 @@ public sealed partial class RoomEnemySystem
             StartKiHunterSwoopRecovery(state);
     }
 
+    /// <summary>Switches the body to its post-swoop escape leg with the native upward recovery velocity.</summary>
     private static void StartKiHunterSwoopRecovery(KiHunterEnemyState state)
     {
         state.Function = KiHunterEnemyFunction.RecoveringFromSwoop;
@@ -754,6 +774,7 @@ public sealed partial class RoomEnemySystem
         wings.Properties = wings.Properties.With(EnemyProperties.ProcessOffScreen);
     }
 
+    /// <summary>Finds the wrapped quadratic-speed index where detached-wing accumulated speed reaches its reset threshold.</summary>
     private static void CalculateKiHunterDetachedSpeedReset(KiHunterEnemyState state)
     {
         state.DetachedSpeedReset = 0;
@@ -769,6 +790,7 @@ public sealed partial class RoomEnemySystem
         while (unchecked((short)(state.DetachedSpeedAccumulator - 0x2000)) < 0);
     }
 
+    /// <summary>Starts the detached wing's non-colliding orbit arc around its current position.</summary>
     private static void BeginDetachedKiHunterWingOrbit(
         RoomEnemySlot wings,
         KiHunterEnemyState state)
@@ -780,6 +802,7 @@ public sealed partial class RoomEnemySystem
         state.OrbitCenterY = wings.YPosition;
     }
 
+    /// <summary>Starts the detached wing's collision-bearing falling arc around its current position.</summary>
     private static void BeginDetachedKiHunterWingCollisionArc(
         RoomEnemySlot wings,
         KiHunterEnemyState state)
@@ -791,6 +814,7 @@ public sealed partial class RoomEnemySystem
         state.OrbitCenterY = wings.YPosition;
     }
 
+    /// <summary>Reads the native angle increment from the selected half of the detached-wing quadratic-speed table.</summary>
     private static ushort ReadKiHunterQuadraticAngleDelta(ushort speedIndex, bool negativeHalf)
     {
         int index = unchecked((byte)(speedIndex >> 8));
@@ -800,6 +824,7 @@ public sealed partial class RoomEnemySystem
         return EnemyQuadraticSpeedDefinitions.ReadWord(index * 8 + (negativeHalf ? 5 : 1));
     }
 
+    /// <summary>Steps the detached-wing speed-table index backward, wrapping to the native terminal index.</summary>
     private static void DecrementKiHunterDetachedSpeedIndex(KiHunterEnemyState state)
     {
         short next = unchecked((short)(state.TargetXOrSpeedIndex - 384));
@@ -823,12 +848,15 @@ public sealed partial class RoomEnemySystem
             : KiHunterInstructionProgramDefinitions.FlyingLeft;
     }
 
+    /// <summary>Instruction callback that hands the grounded body to its jumping movement state.</summary>
     private static void StartKiHunterGroundJumpFromInstruction(KiHunterEnemyState state) =>
         state.Function = KiHunterEnemyFunction.GroundJump;
 
+    /// <summary>Instruction callback that begins the grounded body's timed pause.</summary>
     private static void StartKiHunterGroundWaitFromInstruction(KiHunterEnemyState state) =>
         state.Function = KiHunterEnemyFunction.GroundWait;
 
+    /// <summary>Records and queues the spit sound, spawns the facing acid projectile, and starts the spit recovery timer.</summary>
     private void SpawnKiHunterAcidFromInstruction(RoomEnemySlot body, bool movingRight)
     {
         LastKiHunterSoundEffect = SoundEffectLibrary2Sounds.KiHunterAcidSpit.Value;
@@ -837,6 +865,7 @@ public sealed partial class RoomEnemySystem
         RequireKiHunterState(body).WaitTimer = KiHunterSpitWaitFrames;
     }
 
+    /// <summary>Changes body flight art and synchronizes wing art only while the wings still follow the body.</summary>
     private void SetKiHunterPairFacing(RoomEnemySlot body, bool movingRight)
     {
         InstallKiHunterInstruction(
@@ -908,6 +937,7 @@ public sealed partial class RoomEnemySystem
         return wings;
     }
 
+    /// <summary>Resolves the preceding body slot after validating that the supplied wing belongs to an adjacent pair.</summary>
     private RoomEnemySlot GetKiHunterBody(RoomEnemySlot wings)
     {
         if (!IsKiHunterWingDefinition(wings.EnemyDefinitionPointer) || wings.SlotIndex == 0)
@@ -917,6 +947,7 @@ public sealed partial class RoomEnemySystem
         return body;
     }
 
+    /// <summary>Creates slot-backed state, captures its body/wing role, and registers it by physical slot index.</summary>
     private KiHunterEnemyState CreateKiHunterState(RoomEnemySlot slot)
     {
         var state = new KiHunterEnemyState(slot);
@@ -924,10 +955,12 @@ public sealed partial class RoomEnemySystem
         return state;
     }
 
+    /// <summary>Returns previously initialized state for a slot or fails if it was not initialized as a Ki-Hunter.</summary>
     private KiHunterEnemyState RequireKiHunterState(RoomEnemySlot slot) =>
         _kiHunterStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Ki-Hunter state.");
 
+    /// <summary>Installs an instruction-list address and resets the native instruction and enemy timers for dispatch.</summary>
     private static void InstallKiHunterInstruction(RoomEnemySlot slot, ushort instruction)
     {
         slot.CurrentInstruction = instruction;
@@ -935,9 +968,11 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Combines unsigned whole and fractional words into the signed 16.16 displacement consumed by movement.</summary>
     private static int ComposeKiHunterFixed(ushort whole, ushort fraction) =>
         unchecked((int)(((uint)whole << 16) | fraction));
 
+    /// <summary>Adds two unsigned 16.16 values and returns the wrapped whole and fractional words.</summary>
     private static (ushort Whole, ushort Fraction) AddKiHunterFixed(
         ushort whole,
         ushort fraction,
@@ -950,6 +985,7 @@ public sealed partial class RoomEnemySystem
             unchecked((ushort)lowSum));
     }
 
+    /// <summary>Validates the actor, Samus, and collision data required by body-only world movement.</summary>
     private static void RequireKiHunterWorld(
         RoomEnemySlot actor,
         SamusState? samus,
@@ -961,12 +997,14 @@ public sealed partial class RoomEnemySystem
             throw new InvalidDataException("A Ki-Hunter wing entered body-only movement AI.");
     }
 
+    /// <summary>Rejects Ki-Hunter AI dispatch when no active Samus state is available.</summary>
     private static void RequireKiHunterSamus(SamusState? samus)
     {
         if (samus is null)
             throw new InvalidOperationException("Ki-Hunter AI requires the active Samus actor.");
     }
 
+    /// <summary>Rejects Ki-Hunter movement when room collision data is unavailable.</summary>
     private static void RequireKiHunterLevel(RoomLevelData? level)
     {
         if (level is null)

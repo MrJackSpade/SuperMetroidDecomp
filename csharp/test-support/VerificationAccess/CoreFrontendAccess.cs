@@ -36,12 +36,16 @@ internal static class CeresDestructionCinematicStateAccess
 {
     extension(CeresDestructionCinematicState self)
     {
+        /// <summary>Current cinematic Mode-7 zoom value, exposed for transform checks.</summary>
         internal ushort Zoom => PrivateState.Field<ushort>(self, "zoom");
 
+        /// <summary>Current horizontal Mode-7 background position used by the destruction scene.</summary>
         internal ushort BackgroundX => PrivateState.Field<ushort>(self, "backgroundX");
 
+        /// <summary>Current vertical Mode-7 background position used by the destruction scene.</summary>
         internal ushort BackgroundY => PrivateState.Field<ushort>(self, "backgroundY");
 
+        /// <summary>Number of actor slots currently occupied by active cinematic sprites.</summary>
         internal int ActiveActorCount => PrivateState.Field<List<IntroDiscoverySprite>>(self, "actors").Count;
 
         /// <summary>
@@ -73,8 +77,10 @@ internal static class CreditsObjectStateAccess
 {
     extension(CreditsObjectState self)
     {
+        /// <summary>Next destination row in the incremental staff-credit tilemap upload.</summary>
         internal int DestinationRow => PrivateState.Field<int>(self, "destinationRow");
 
+        /// <summary>Read-only view of the tile words assembled for the current credits display.</summary>
         internal ReadOnlySpan<ushort> Tilemap => PrivateState.Field<ushort[]>(self, "tilemap");
     }
 }
@@ -84,6 +90,7 @@ internal static class EndingRewardJumpAccess
 {
     extension(EndingRewardJump self)
     {
+        /// <summary>Current signed vertical velocity of the reward animation's jump.</summary>
         internal int VerticalVelocity => PrivateState.Field<int>(self, "velocity");
     }
 }
@@ -173,6 +180,7 @@ internal static class IntroBabyDiscoveryStateAccess
 {
     extension(IntroBabyDiscoveryState self)
     {
+        /// <summary>Number of egg particles whose sprite actors are still active.</summary>
         internal int ActiveEggParticleCount => PrivateState.Field<List<IntroEggParticle>>(self, "eggParticles").Count(particle => particle.IsActive);
     }
 }
@@ -182,6 +190,7 @@ internal static class IntroCinematicRomDataPaletteRegionsAccess
 {
     extension(IntroCinematicRomData.Palette.Regions self)
     {
+        /// <summary>Whether the installed palette-region collection contains no entries.</summary>
         internal bool IsEmpty => self.Count == 0;
     }
 }
@@ -191,6 +200,7 @@ internal static class IntroEggParticleAccess
 {
     extension(IntroEggParticle self)
     {
+        /// <summary>Whether this particle's underlying cinematic sprite remains active.</summary>
         internal bool IsActive => PrivateState.Field<IntroDiscoverySprite>(self, "sprite").IsActive;
     }
 }
@@ -200,6 +210,7 @@ internal static class IntroEggSlimeDropAccess
 {
     extension(IntroEggSlimeDrop self)
     {
+        /// <summary>Whether this slime drop's underlying cinematic sprite remains active.</summary>
         internal bool IsActive => PrivateState.Field<IntroDiscoverySprite>(self, "sprite").IsActive;
     }
 }
@@ -249,6 +260,7 @@ internal static class IntroRinkaSystemAccess
             }
         }
 
+        /// <summary>Number of currently active Rinka actors, excluding their spawner.</summary>
         internal int ActiveCount => self.LiveRinkas.Count(static rinka => rinka.IsActive);
 
         /// <summary>The live Rinka spawned with init parameter <paramref name="parameter"/>.</summary>
@@ -262,6 +274,7 @@ internal static class MapScrollControlsAccess
 {
     extension(MapScrollControls)
     {
+        /// <summary>Controller masks for the four supported map-scroll directions, in direction-index order.</summary>
         internal static ushort[] Buttons =>
             [.. Enumerable.Range(1, MapScrollControls.DirectionCount).Select(direction => MapScrollControls.ButtonFor((MapScrollDirection)direction))];
     }
@@ -327,8 +340,10 @@ internal static class SuperMetroidGameAccess
 {
     extension(SuperMetroidGame self)
     {
+        /// <summary>Content identity of the map presentation installed on the game session, if present.</summary>
         internal string? MapPresentationIdentity => PrivateState.Field<AreaMapPresentationCatalog?>(self, "mapPresentation")?.ContentIdentity;
 
+        /// <summary>Current dispatcher RNG word exposed for deterministic verification.</summary>
         internal ushort DispatcherRandomNumber => PrivateState.Property<Bank80SystemState>(self, "FrontendRandomOwner").RandomNumber;
 
         /// <summary>

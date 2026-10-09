@@ -117,6 +117,7 @@ public sealed class MaridiaElevatubeRoomMainState
         return movement;
     }
 
+    /// <summary>Rejects a setup callback whose room did not select the elevatube main routine.</summary>
     private void EnsureActive(ushort setupPointer)
     {
         if (IsActive)

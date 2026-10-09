@@ -22,6 +22,7 @@ public sealed class LagFreeDoorLoaderProgress : IDoorLoaderProgressSource
     /// <summary>Shared stateless progress source used by normal play.</summary>
     public static LagFreeDoorLoaderProgress Instance { get; } = new();
 
+    /// <summary>Constructs the shared stateless first-update completion policy.</summary>
     private LagFreeDoorLoaderProgress() { }
 
     /// <summary>Reports every enemy slot initialized in the first door-scroll update, intentionally eliminating only cartridge CPU-time lag.</summary>

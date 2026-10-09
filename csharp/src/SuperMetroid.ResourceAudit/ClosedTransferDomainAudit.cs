@@ -6,6 +6,9 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Transfer length constraints apply only after an owned legacy source is selected.</summary>
 internal static class ClosedTransferDomainAudit
 {
+    /// <summary>Finds invalid transfer lengths only for sources owned by the bounded catalogs.</summary>
+    /// <param name="operation">Semantic invocation of a provider lookup.</param>
+    /// <returns>A diagnostic message when an owned source has an invalid length; otherwise null.</returns>
     internal static string? InvalidConstants(IInvocationOperation operation)
     {
         if (operation.TargetMethod.Name != "TryResolve") return null;

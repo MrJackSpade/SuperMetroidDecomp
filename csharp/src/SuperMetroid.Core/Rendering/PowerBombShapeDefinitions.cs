@@ -8,6 +8,7 @@ public static class PowerBombShapeDefinitions
     // Rasterize the quarter ellipse on a 1,024-step circle before radius scaling.
     // Select the last angular sample below the next row boundary. Binary search
     // preserves that convention without retaining a generated sample cache.
+    /// <summary>Evaluates one row of the shared 192-row quarter-ellipse width basis.</summary>
     private static byte PreScaledBasis(int row)
     {
         if (row == 191) return 0;
@@ -24,6 +25,7 @@ public static class PowerBombShapeDefinitions
     // Domain 0..256 is established by the raster search. Exact endpoints avoid
     // integer-boundary drift. Twelve alternating terms on [0, pi/2] leave less
     // than 5.2e-21 remainder; 1e-19 also covers decimal and pi rounding.
+    /// <summary>Computes the unit quarter-wave sample used by the native shape raster search.</summary>
     private static decimal QuarterSine(int angle)
     {
         if (angle == 0) return 0;

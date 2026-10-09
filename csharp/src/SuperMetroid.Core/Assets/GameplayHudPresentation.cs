@@ -7,15 +7,26 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable three-row gameplay-HUD tilemap, visual patches and layout anchors.</summary>
 public sealed class GameplayHudPresentation
 {
+    /// <summary>Tilemap cells differing from the stock 32-by-3 mutable HUD template.</summary>
     private readonly Dictionary<int, ushort> templateOverrides;
+    /// <summary>BG3 top-row words that differ from the stock row supplied at DMA time.</summary>
     private readonly Dictionary<int, ushort> topRowOverrides;
+    /// <summary>Health glyph words retained only where the document edits the native digit.</summary>
     private readonly Dictionary<int, ushort> healthDigits;
+    /// <summary>Ammunition glyph words retained only where the document edits the native digit.</summary>
     private readonly Dictionary<int, ushort> ammoDigits;
+    /// <summary>Filled and empty AUTO-indicator cell words that differ from their stock definitions.</summary>
     private readonly Dictionary<int, ushort> autoReserveOverrides;
+    /// <summary>Document-provided AUTO-indicator locations differing from stock cell indices.</summary>
     private readonly Dictionary<int, int> autoAnchors;
+    /// <summary>Document-provided energy-tank locations differing from stock cell indices.</summary>
     private readonly Dictionary<int, int> energyTankAnchors;
+    /// <summary>Compiled item icons in native item-index order: missile, Super Missile, Power Bomb, grapple, and X-ray.</summary>
     private readonly CompiledIcon missile, superMissile, powerBomb, grapple, xray;
 
+    /// <summary>Compiles document cells and stores only artwork and anchor data that differs from stock definitions.</summary>
+    /// <param name="document">Validated JSON model supplying editable tilemap cells, digits, anchors, and icons.</param>
+    /// <param name="source">Original document bytes used to compute the presentation content identity.</param>
     private GameplayHudPresentation(GameplayHudPresentationDocument document, byte[] source)
     {
         ushort[] topRow = CompileCells(document.TopRow, GameplayHudDefinitions.TopRowCellCount,
@@ -242,6 +253,7 @@ public sealed class GameplayHudPresentation
         output.Write(bytes);
     }
 
+    /// <summary>Writes the requested number of leading decimal digits at a single-row tile anchor.</summary>
     private static void DrawDigits(Span<ushort> tiles, Dictionary<int, ushort> glyphs, int value, MapLabelPoint anchor, int count)
     {
         int divisor = count == 3 ? 100 : 10;
@@ -254,12 +266,14 @@ public sealed class GameplayHudPresentation
         }
     }
 
+    /// <summary>Returns the compiled icon associated with the native zero-based item index.</summary>
     private CompiledIcon Icon(int itemIndex) => itemIndex switch
     {
         0 => missile, 1 => superMissile, 2 => powerBomb, 3 => grapple, 4 => xray,
         _ => throw new ArgumentOutOfRangeException(nameof(itemIndex)),
     };
 
+    /// <summary>Rejects overlapping dynamic regions so updates cannot silently overwrite another HUD field.</summary>
     private void ValidateDistinctDynamicCells()
     {
         var owners = new Dictionary<int, string>();
@@ -284,6 +298,7 @@ public sealed class GameplayHudPresentation
         for (int x = 0; x < 5; x++) Own(MinimapCellIndex(x, y), "minimap");
     }
 
+    /// <summary>Stores only AUTO-indicator glyphs that differ from stock words in either reserve state.</summary>
     private static Dictionary<int, ushort> CompileAutoReserve(GameplayHudAutoReserveDocument document)
     {
         ushort[] full = CompileCells(document.ContainsEnergy, 6, "filled AUTO indicator");
@@ -298,6 +313,7 @@ public sealed class GameplayHudPresentation
         }
         return overrides;
     }
+    /// <summary>Compiles ten numeral cells and retains only words changed from the stock digit definitions.</summary>
     private static Dictionary<int, ushort> CompileDigitOverrides(GameplayHudCell[]? cells, string name)
     {
         ushort[] compiled = CompileCells(cells, 10, name);
@@ -306,6 +322,7 @@ public sealed class GameplayHudPresentation
             if (compiled[digit] != GameplayHudDefinitions.DigitWord(digit)) overrides.Add(digit, compiled[digit]);
         return overrides;
     }
+    /// <summary>Validates a fixed-size list of authored cells and converts each to a SNES tilemap word.</summary>
     private static ushort[] CompileCells(GameplayHudCell[]? cells, int count, string name)
     {
         if (cells is null || cells.Length != count)
@@ -316,6 +333,7 @@ public sealed class GameplayHudPresentation
         return result;
     }
 
+    /// <summary>Validates one cell's character coordinates and palette before packing its BG tile attributes.</summary>
     private static ushort CompileCell(GameplayHudCell? cell, string name)
     {
         if (cell is null || cell.TileColumn is < 0 or > 31 || cell.TileRow is < 0 or > 31 ||
@@ -326,12 +344,15 @@ public sealed class GameplayHudPresentation
             (cell.FlipY ? SnesTileFlipFlags.Vertical : 0)).Raw;
     }
 
+    /// <summary>Returns an edited energy-tank cell index or the cartridge-layout default.</summary>
     private int EnergyTankCell(int tank) => energyTankAnchors.TryGetValue(tank, out int cell)
         ? cell : GameplayHudDefinitions.EnergyTankByteOffset(tank) / sizeof(ushort);
 
+    /// <summary>Returns an edited AUTO-indicator cell index or the cartridge-layout default.</summary>
     private int AutoReserveCell(int index) => autoAnchors.TryGetValue(index, out int cell)
         ? cell : GameplayHudDefinitions.AutoReserveCellIndex(index);
 
+    /// <summary>Validates fixed-count one-cell anchors and retains only positions that differ from stock.</summary>
     private static Dictionary<int, int> CompileAnchors(MapLabelPoint[]? anchors, int count,
         string name, Func<int, int> defaultCell)
     {
@@ -345,6 +366,7 @@ public sealed class GameplayHudPresentation
         }
         return overrides;
     }
+    /// <summary>Requires a nonnegative tile anchor whose complete rectangle fits the mutable HUD tilemap.</summary>
     private static MapLabelPoint ValidateAnchor(MapLabelPoint? anchor, int width, int height, string name)
     {
         if (anchor is null || anchor.X < 0 || anchor.Y < 0 ||
@@ -353,31 +375,46 @@ public sealed class GameplayHudPresentation
         return anchor;
     }
 
+    /// <summary>Accepts only the three-bit BG palette range.</summary>
     private static int ValidatePalette(int palette, string name) => (uint)palette <= 7
         ? palette
         : throw new InvalidDataException($"Gameplay HUD {name} must be in range 0..7.");
 
+    /// <summary>Converts a tile coordinate to the linear row-major HUD cell index.</summary>
     private static int Index(MapLabelPoint point) => Index(point.X, point.Y);
+    /// <summary>Converts X and Y tile coordinates to a row-major index using the fixed HUD width.</summary>
     private static int Index(int x, int y) => y * GameplayHudDefinitions.Width + x;
+    /// <summary>Requires a mutable tile span with exactly the HUD's three-row cell count.</summary>
     private static void ValidateTilemap(Span<ushort> tiles)
     {
         if (tiles.Length != GameplayHudDefinitions.CellCount)
             throw new ArgumentException("Gameplay HUD requires exactly 96 mutable cells.", nameof(tiles));
     }
 
+    /// <summary>Compiled icon storing only authored cells and an anchor when they differ from stock.</summary>
     private sealed class CompiledIcon
     {
+        /// <summary>Native item identity used to select stock width and tile words.</summary>
         private readonly int item;
+        /// <summary>Optional authored anchor; null means use the stock HUD position.</summary>
         private readonly MapLabelPoint? anchorOverride;
+        /// <summary>Per-cell tile words differing from the native icon definition.</summary>
         private readonly Dictionary<int, ushort> edits = new();
+        /// <summary>Number of tile columns in this item's icon.</summary>
         internal int Width => GameplayHudDefinitions.IconWidth(item);
+        /// <summary>Fixed two-row height shared by item icons.</summary>
         internal const int Height = 2;
+        /// <summary>Authored icon anchor or the native item-specific position.</summary>
         internal MapLabelPoint Anchor => anchorOverride ?? StockAnchor(item);
+        /// <summary>Calculates the top-left tile coordinate from the native item's linear tile offset.</summary>
         private static MapLabelPoint StockAnchor(int item)
         {
             int index = GameplayHudDefinitions.ItemByteOffset(item) / sizeof(ushort);
             return new(index % GameplayHudDefinitions.Width, index / GameplayHudDefinitions.Width);
         }
+        /// <summary>Validates an authored icon and retains only cells and placement that override stock.</summary>
+        /// <param name="item">Native zero-based item icon index.</param>
+        /// <param name="document">Icon cells and anchor supplied by the presentation document.</param>
         internal CompiledIcon(int item, GameplayHudIconDocument? document)
         {
             this.item = item;
@@ -389,6 +426,7 @@ public sealed class GameplayHudPresentation
             for (int cell = 0; cell < cells.Length; cell++)
                 if (cells[cell] != GameplayHudDefinitions.IconWord(item, cell)) edits.Add(cell, cells[cell]);
         }
+        /// <summary>Returns an authored tile word when present, otherwise the native stock word.</summary>
         internal ushort Cell(int index) => edits.TryGetValue(index, out ushort edited)
             ? edited : GameplayHudDefinitions.IconWord(item, index);
     }

@@ -169,6 +169,9 @@ public sealed class CeresElevatorShaftRoomMainState
 }
 
 /// <summary>Debugger-visible result of one Ceres elevator shaft room-main call.</summary>
+/// <param name="Transform">Current Mode 7 transform emitted by the room main.</param>
+/// <param name="MatrixChanged">Whether this call changed the transform from its prior value.</param>
+/// <param name="DepartureRequestedThisFrame">Whether Samus entered the trigger and requested elevator departure.</param>
 public readonly record struct CeresElevatorShaftRoomMainResult(
     SamusMode7Transform Transform,
     bool MatrixChanged,

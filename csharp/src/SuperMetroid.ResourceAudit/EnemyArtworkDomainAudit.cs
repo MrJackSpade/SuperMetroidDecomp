@@ -6,6 +6,9 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Correlates known enemy DMA sources/definition IDs with their required native lengths.</summary>
 internal static class EnemyArtworkDomainAudit
 {
+    /// <summary>Checks that owned enemy-artwork sources use their declared complete transfer lengths.</summary>
+    /// <param name="operation">Semantic invocation of an enemy artwork provider.</param>
+    /// <returns>A diagnostic for an invalid owned-source request, or null when it is valid or unowned.</returns>
     internal static string? InvalidConstants(IInvocationOperation operation)
     {
         if (operation.TargetMethod.ContainingType.ToDisplayString() != typeof(EnemyTileArtworkCatalog).FullName) return null;

@@ -8,6 +8,12 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Typed custom programs whose frame fields bypass the common operand interpreter.</summary>
 internal static class EnemyVisualTypedProgramAudit
 {
+    /// <summary>Audits the typed Ceres and Kraid-head program records that bypass generic operand decoding.</summary>
+    /// <param name="root">Repository root used to verify reviewed source fingerprints.</param>
+    /// <param name="compilation">Compilation whose source syntax and symbols are inspected.</param>
+    /// <param name="exports">Installed identities used to validate emitted visual references.</param>
+    /// <param name="report">Audit report receiving references and consumer evidence.</param>
+    /// <param name="rows">Program rows receiving finite frame counts.</param>
     internal static void Inspect(string root, CSharpCompilation compilation, ResourceIndex exports,
         AuditReport report, List<EnemyVisualProgramAudit.ProgramRow> rows)
     {

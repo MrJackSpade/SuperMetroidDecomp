@@ -72,6 +72,7 @@ public sealed partial class SuperMetroidRuntime
                 nmiFrameCounter: NmiFrameCounter,
                 processingListPrepared: processingListPrepared,
                 samusPreviousPositionCheckpoint: samusPreviousPositionCheckpoint);
+            ApplyEnemyRequestedRoomEffects();
             if (Enemies.LastElevatorEvent == ElevatorFrameEvent.DepartureStarted)
             {
                 // MakeSamusFaceForward clears all pending pose requests after alpha

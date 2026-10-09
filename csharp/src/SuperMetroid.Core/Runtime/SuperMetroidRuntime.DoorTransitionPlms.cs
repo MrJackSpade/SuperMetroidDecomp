@@ -50,14 +50,6 @@ public sealed partial class SuperMetroidRuntime
                 "The PLM handler requires an active room, camera, and Samus.");
         }
 
-        ApplyPendingBotwoonWallPlm();
-        ApplyPendingSporeSpawnCeilingPlm();
-        ApplyPendingCrocomireArenaPlms();
-        ApplyPendingKraidPlms();
-        ApplyPendingMotherBrainPlms();
-        ApplyPendingShitroidWallPlms();
-        ApplyPendingChozoStatuePlms();
-
         IReadOnlyList<PlmTilemapUpdate> updates = Plms.Step(
             _addressSpace,
             LevelData,

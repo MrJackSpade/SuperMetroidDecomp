@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Compares production X-ray reveal lookup results with cartridge-decoded definitions for every type/BTS pair.</summary>
     private static void VerifyXrayRevealTable()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -28,6 +29,13 @@ internal static partial class Program
         Console.WriteLine("  X-ray reveal tables: all 4096 type/BTS definitions and operands match the cartridge; production lookup is ROM-independent.");
     }
 
+    /// <summary>
+    /// Traverses the native type and BTS tables, then decodes the selected reveal command and its metatile operands.
+    /// </summary>
+    /// <param name="bus">The cartridge address space containing the native reveal tables and command data.</param>
+    /// <param name="type">The room collision type whose reveal entry is being resolved.</param>
+    /// <param name="bts">The block type specific value matched exactly or through the native wildcard entry.</param>
+    /// <returns>The decoded command and operands, or <see langword="null"/> when no native entry matches.</returns>
     private static XrayRevealDefinition? ReadNativeXrayRevealDefinition(
         ISnesAddressSpace bus,
         RoomCollisionType type,
@@ -74,6 +82,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Reads one little-endian word from bank $91 after confirming its pointer remains within that bank.</summary>
+    /// <param name="bus">The cartridge address space used for the two byte reads.</param>
+    /// <param name="pointer">The bank-local address of the word's low byte.</param>
+    /// <returns>The assembled 16-bit word.</returns>
     private static ushort ReadNativeXrayRevealWord(ISnesAddressSpace bus, int pointer)
     {
         if (pointer < 0x8000 || pointer >= ushort.MaxValue)

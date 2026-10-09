@@ -3,11 +3,19 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks setup words for all 70 supported retail PLM headers against the native ROM and population table.</summary>
+    /// <param name="rom">The SNES address space containing the retail room-PLM data.</param>
     private static void VerifyRetailPlmHeaderSetups(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyRetailPlmHeaderField), () => VerifyRetailPlmHeaderField(rom, false));
+
+    /// <summary>Checks initial-instruction words for all 70 supported retail PLM headers against the native ROM and population table.</summary>
+    /// <param name="rom">The SNES address space containing the retail room-PLM data.</param>
     private static void VerifyRetailPlmHeaderInstructions(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyRetailPlmHeaderField), () => VerifyRetailPlmHeaderField(rom, true));
 
+    /// <summary>Verifies one field of every supported header, rejects unsupported selectors, and matches the catalog domain to native populations.</summary>
+    /// <param name="rom">The SNES address space used to read native header words and population records.</param>
+    /// <param name="instruction">Selects the initial-instruction word when true, or the setup word when false.</param>
     private static void VerifyRetailPlmHeaderField(SuperMetroidAddressSpace rom, bool instruction)
     {
         ushort[] headers = [0xb63b,0xb63f,0xb643,0xb647,0xb6d3,0xb6df,0xb6eb,0xb703,0xb70b,

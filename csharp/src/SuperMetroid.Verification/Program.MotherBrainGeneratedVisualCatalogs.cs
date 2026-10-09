@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Native bank-$A9 OAM frame pointers and names used to check Mother Brain's generated body catalog.</summary>
     private static readonly EnemyExtendedFrameDefinition[] OriginalMotherBrainFrames =
     [
         new(0xa9, 0x9fa0, "mother_brain_body_oam_standing"),
@@ -26,6 +27,8 @@ internal static partial class Program
 
     ];
 
+    /// <summary>Checks generated Mother Brain OAM identities, native component counts, ordering, and index bounds.</summary>
+    /// <param name="rom">The retail address space used to verify each native OAM record's component count.</param>
     private static void VerifyMotherBrainGeneratedOamCatalog(SuperMetroidAddressSpace rom)
     {
         AssertEqual(17, MotherBrainBodyVisualDefinitions.Frames.Length, "Mother Brain OAM count");
@@ -46,6 +49,8 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => MotherBrainBodyVisualDefinitions.Frame(17), "Mother Brain OAM past end");
     }
 
+    /// <summary>Checks Mother Brain's BG2 catalog excludes the dummy OAM frame and matches native extraction output.</summary>
+    /// <param name="rom">The retail address space used to extract the native BG2 frame streams.</param>
     private static void VerifyMotherBrainGeneratedBg2Catalog(SuperMetroidAddressSpace rom)
     {
         EnemyBg2FrameDefinition[] expected = OriginalMotherBrainFrames.Where(frame => frame.Pointer != 0xa320)

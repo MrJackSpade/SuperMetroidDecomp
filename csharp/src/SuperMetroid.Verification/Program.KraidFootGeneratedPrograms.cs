@@ -5,6 +5,8 @@ internal static partial class Program
 {
     // Independent decoder of the pinned A7:86E7-893C byte stream: duration/frame
     // pairs, no-operand callbacks, and the terminal $80ED goto with one operand.
+    /// <summary>Decodes the retail Kraid foot programs into mechanics words and interleaved presentation addresses.</summary>
+    /// <param name="rom">Retail address space supplying the original bank-$A7 instruction bytes.</param>
     private static (List<InstructionMechanicsWord> Mechanics, List<ushort> Presentation)
         ReadOriginalKraidFootPrograms(SuperMetroidAddressSpace rom)
     {
@@ -29,6 +31,8 @@ internal static partial class Program
         return (mechanics, presentation);
     }
 
+    /// <summary>Compares all generated Kraid foot mechanics words and byte ownership with an independent retail decode.</summary>
+    /// <param name="rom">Retail address space used as the reference instruction stream.</param>
     private static void VerifyKraidFootGeneratedMechanics(SuperMetroidAddressSpace rom)
     {
         var original = ReadOriginalKraidFootPrograms(rom).Mechanics;
@@ -54,6 +58,8 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => KraidFootInstructionProgramDefinitionsTooling.MechanicsWord(193), "mechanics index past end");
     }
 
+    /// <summary>Checks generated presentation operand addresses against the retail decode and keeps them out of mechanics reads.</summary>
+    /// <param name="rom">Retail address space used as the reference instruction stream.</param>
     private static void VerifyKraidFootGeneratedPresentation(SuperMetroidAddressSpace rom)
     {
         var original = ReadOriginalKraidFootPrograms(rom).Presentation;

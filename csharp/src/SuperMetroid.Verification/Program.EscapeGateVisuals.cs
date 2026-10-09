@@ -7,6 +7,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies escape-gate visual catalog copying, stock defaults, invalid data rejection, and downstream use.</summary>
+    /// <param name="rom">Retail address space used by the live-room and installation checks.</param>
     private static void VerifyEscapeGateVisuals(SuperMetroidAddressSpace rom)
     {
         RoomPlmEscapeGateVisualEntry[] entries =
@@ -55,6 +57,8 @@ internal static partial class Program
             "Escape-gate visuals: closed/closing edits preserve physical collision, installed overrides survive refresh, and invalid content fails loudly.");
     }
 
+    /// <summary>Checks that edited gate artwork changes rendered tiles while preserving physical collision and stream updates.</summary>
+    /// <param name="edited">Catalog containing the alternate closed and half-closed visual words.</param>
     private static void VerifyEscapeGateLiveVisual(
         RoomPlmEscapeGateVisualCatalog edited)
     {
@@ -134,6 +138,8 @@ internal static partial class Program
             "escape-gate visuals never reread compiled program or draw payloads");
     }
 
+    /// <summary>Verifies stock extraction, visual override loading, refresh persistence, and rejection of invalid installed data.</summary>
+    /// <param name="rom">Retail address space supplying the stock escape-gate artwork and manifest identity.</param>
     private static void VerifyEscapeGateVisualInstallation(SuperMetroidAddressSpace rom)
     {
         string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",

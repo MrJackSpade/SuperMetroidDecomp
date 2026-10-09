@@ -3,12 +3,20 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies that every Crocomire arena program control word is owned and reads its native value.</summary>
     private static void VerifyCrocomireProgramControls(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyCrocomireProgramField), () => VerifyCrocomireProgramField(rom, false));
 
+    /// <summary>Verifies that every Crocomire arena program draw word is owned and reads its native value.</summary>
     private static void VerifyCrocomireProgramDraws(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyCrocomireProgramField), () => VerifyCrocomireProgramField(rom, true));
 
+    /// <summary>
+    /// Checks the known Crocomire control and draw word addresses against the native program catalog and shared PLM reader.
+    /// Also verifies that unowned addresses are absent and that owned fields retain their original ROM values.
+    /// </summary>
+    /// <param name="rom">The SNES address space containing Crocomire's native program words.</param>
+    /// <param name="draw">When true, validates draw words; otherwise validates control words.</param>
     private static void VerifyCrocomireProgramField(ISnesAddressSpace rom, bool draw)
     {
         ushort[] controls = [0xafca, 0xafce, 0xafd0, 0xafd4, 0xafd6, 0xafda, 0xafdc, 0xafe0, 0xafe2, 0xafe6];

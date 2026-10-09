@@ -6,6 +6,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Checks compiled enemy-header coverage and field values against retail room, graphics, and auxiliary references.</summary>
     private static void VerifyCompiledEnemyDefinitions()
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -80,6 +81,8 @@ internal static partial class Program
             "cartridge parsing is isolated in the importer.");
     }
 
+    /// <summary>Checks all five compiled tube placements against native records and the production spawn path.</summary>
+    /// <param name="rom">Retail address space containing the authored falling-tube population records and enemy header.</param>
     private static void VerifyMotherBrainFallingTubePopulationDefinitions(
         ISnesAddressSpace rom)
     {
@@ -146,6 +149,10 @@ internal static partial class Program
             "spawns and one independent constructed placement pass.");
     }
 
+    /// <summary>Reads the complete native enemy header using its mixed-width field layout.</summary>
+    /// <param name="bus">Address space containing the enemy definition bank.</param>
+    /// <param name="pointer">Bank-relative address of the header's first word.</param>
+    /// <returns>The 33 decoded native fields, including the packed long-address value.</returns>
     private static RoomEnemyDefinition ReadNativeEnemyDefinition(
         ISnesAddressSpace bus, ushort pointer)
     {

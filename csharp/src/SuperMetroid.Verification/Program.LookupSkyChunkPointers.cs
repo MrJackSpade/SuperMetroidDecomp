@@ -4,12 +4,20 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks Land's native scrolling-sky pointer table and its camera-driven VRAM row transfers.</summary>
+    /// <param name="rom">Address space used as the source of the original pointer words.</param>
     private static void VerifyLandSkyChunkPointers(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySkyChunkPointers), () => VerifySkyChunkPointers(rom, 0x88ad9c, RoomMainCallback.ScrollingSkyLand));
 
+    /// <summary>Checks Ocean's native scrolling-sky pointer table and its camera-driven VRAM row transfers.</summary>
+    /// <param name="rom">Address space used as the source of the original pointer words.</param>
     private static void VerifyOceanSkyChunkPointers(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySkyChunkPointers), () => VerifySkyChunkPointers(rom, 0x88ada6, RoomMainCallback.ScrollingSkyOcean));
 
+    /// <summary>Validates native sky pointers, rejects unsupported table entries, and compares row-transfer sources across camera positions.</summary>
+    /// <param name="rom">Address space containing the original sky pointer table and chunk data.</param>
+    /// <param name="table">Bank-local address of the Land or Ocean pointer table.</param>
+    /// <param name="callback">Room callback selecting the corresponding scrolling-sky behavior.</param>
     private static void VerifySkyChunkPointers(SuperMetroidAddressSpace rom, int table, RoomMainCallback callback)
     {
         ushort Original(int index) => ReadVerificationWord(rom, 0x880000 | ((table + 2 * index) & 0xffff));

@@ -6,6 +6,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Compares all six retail linked-restore frame layouts with compiled stock and imported catalog words, including bounds and malformed-catalog rejection.</summary>
+    /// <param name="rom">Retail cartridge address space used to read the original frame programs.</param>
     private static void VerifyLinkedRestoreStockMapping(SuperMetroidAddressSpace rom)
     {
         (ushort Pointer, string Id)[] frames = [(0xa4c7,"bomb-horizontal"), (0xa4cf,"bomb-vertical"),
@@ -64,6 +66,8 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => new RoomPlmLinkedRestoreVisualCatalog(entries), "linked restore rejects collision bits in artwork");
     }
 
+    /// <summary>Verifies extraction and manifest validation of stock linked-restore visuals, installed overrides, and override survival when stock files are refreshed.</summary>
+    /// <param name="rom">Retail cartridge address space supplying stock linked-restore graphics.</param>
     private static void VerifyLinkedRestoreVisualInstallation(
         SuperMetroidAddressSpace rom)
     {
@@ -143,6 +147,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Confirms the selected bomb or crumble PLM uses editable restore artwork while preserving collision data and avoiding reads from forbidden compiled program bytes.</summary>
+    /// <param name="rom">Retail address space guarded during PLM execution.</param>
+    /// <param name="forbidden">Absolute cartridge addresses that execution must not read.</param>
+    /// <param name="bomb"><see langword="true"/> exercises a collision bomb block; otherwise exercises a Samus-contact crumble block.</param>
     private static void VerifyLinkedRestoreVisualSeparation(
         SuperMetroidAddressSpace rom, HashSet<int> forbidden, bool bomb)
     {

@@ -3,12 +3,19 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks that the six authored control words in the Speed Booster escape PLM match retail and have exact address ownership.</summary>
+    /// <param name="rom">Retail cartridge address space used to read the original PLM program words.</param>
     private static void VerifySpeedEscapeProgramControls(SuperMetroidAddressSpace rom) =>
         VerifySpeedEscapeProgramField(rom, false);
 
+    /// <summary>Checks that the three authored callback words in the Speed Booster escape PLM match retail and have exact address ownership.</summary>
+    /// <param name="rom">Retail cartridge address space used to read the original PLM program words.</param>
     private static void VerifySpeedEscapeProgramCallbacks(SuperMetroidAddressSpace rom) =>
         VerifySpeedEscapeProgramField(rom, true);
 
+    /// <summary>Compares the selected Speed Booster escape PLM word class against retail across every possible 16-bit bank address and verifies shared-reader agreement.</summary>
+    /// <param name="rom">Retail cartridge address space containing the original bank-$84 instruction list.</param>
+    /// <param name="callback"><see langword="true"/> selects callback operands; otherwise selects control-flow and timing words.</param>
     private static void VerifySpeedEscapeProgramField(SuperMetroidAddressSpace rom, bool callback)
     {
         ushort[] controls = [0xb88a,0xb88e,0xb890,0xb894,0xb896,0xb89a];

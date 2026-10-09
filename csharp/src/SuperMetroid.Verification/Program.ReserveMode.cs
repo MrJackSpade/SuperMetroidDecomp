@@ -5,6 +5,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks Reserve Mode's X-Ray freeze behavior and its Crystal Flash and stored-shine palette handoffs.</summary>
+    /// <param name="nativeTracePath">CSV trace of the two native X-Ray phase-five control cases.</param>
     private static void VerifyReserveMode(string nativeTracePath)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -105,6 +107,10 @@ internal static partial class Program
             "Reserve Mode: original phase-five freeze-word branch, greyout ownership, Crystal Flash and crouch-storage handoffs pass.");
     }
 
+    /// <summary>Creates a standing Samus fixture with X-Ray active and the requested reserve-energy state.</summary>
+    /// <param name="bus">Address space used to initialize Samus movement and X-Ray state.</param>
+    /// <param name="reserveEnergy">Reserve energy to set; zero selects ordinary X-Ray and nonzero enables Reserve Mode.</param>
+    /// <returns>Initialized Samus state with the X-Ray beam sequence active.</returns>
     private static SamusState CreateXrayReserveFixture(
         ISnesAddressSpace bus,
         ushort reserveEnergy)
@@ -131,6 +137,9 @@ internal static partial class Program
         return samus;
     }
 
+    /// <summary>Steps X-Ray setup and beam dispatch until its cleanup phase is ready.</summary>
+    /// <param name="bus">Address space used by the X-Ray beam state machine.</param>
+    /// <param name="samus">Samus instance whose X-Ray sequence is advanced without controller input.</param>
     private static void AdvanceXrayToFinish(ISnesAddressSpace bus, SamusState samus)
     {
         while (samus.Xray.SetupStage != 0)

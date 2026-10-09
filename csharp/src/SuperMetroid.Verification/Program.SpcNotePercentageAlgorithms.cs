@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares the effect-byte operand counts for all SPC effect opcodes with their original table and checks lookup bounds.</summary>
+    /// <param name="rom">The address space containing the original SPC reference table.</param>
     private static void VerifySpcEffectOperandSelection(SuperMetroidAddressSpace rom)
     {
         for (int opcode = 0xe0; opcode <= 0xfe; opcode++)
@@ -16,6 +18,8 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => SpcMusicTables.EffectByteLength(int.MaxValue), "Effect invalid maximum");
     }
 
+    /// <summary>Verifies that every note command selects its volume percentage from the low nibble.</summary>
+    /// <param name="rom">The address space containing the original SPC note-volume table.</param>
     private static void VerifySpcNoteVolumeAlgorithm(SuperMetroidAddressSpace rom)
     {
         // Every possible timing/volume command byte: the decoder uses its low nibble.
@@ -29,6 +33,8 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => SpcMusicTables.NoteVolume(16), "Volume upper bound");
     }
 
+    /// <summary>Verifies that note-command bits 4 through 6 select the native gate-off percentage.</summary>
+    /// <param name="rom">The address space containing the original SPC note-gate table.</param>
     private static void VerifySpcNoteGateAlgorithm(SuperMetroidAddressSpace rom)
     {
         // The high command bit is clear; bits4..6 select the gate fraction.

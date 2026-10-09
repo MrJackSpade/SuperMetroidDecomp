@@ -3,12 +3,19 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies that compiled Mother Brain mutation control words match the cartridge and shared reader.</summary>
+    /// <param name="rom">Retail address space supplying the original PLM instruction words.</param>
     private static void VerifyMotherBrainMutationProgramControls(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyMotherBrainMutationProgramField), () => VerifyMotherBrainMutationProgramField(rom, false));
 
+    /// <summary>Verifies that compiled Mother Brain mutation draw operands match the cartridge and shared reader.</summary>
+    /// <param name="rom">Retail address space supplying the original PLM draw operands.</param>
     private static void VerifyMotherBrainMutationProgramDraws(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyMotherBrainMutationProgramField), () => VerifyMotherBrainMutationProgramField(rom, true));
 
+    /// <summary>Checks address ownership for all mutation lists and compares the selected control or draw words with retail data.</summary>
+    /// <param name="rom">Retail address space used as the reference for each compiled word.</param>
+    /// <param name="draw"><see langword="true"/> to compare draw operands; otherwise compares control words.</param>
     private static void VerifyMotherBrainMutationProgramField(ISnesAddressSpace rom, bool draw)
     {
         // Independent original list starts, including the two unused row lists.

@@ -15,6 +15,7 @@ internal static class MapCrossViewAuditDefinitions
     /// <summary>Botwoon room, a left-page Maridia room at <c>$8F:D95E</c>.</summary>
     public const ushort BotwoonRoom = 0xd95e;
 
+    /// <summary>Room-header pointers covering left- and right-page samples across four map areas.</summary>
     public static readonly ushort[] RepresentativeRooms =
     [
         LandingSiteRoom,
@@ -31,6 +32,9 @@ internal static class MapCrossViewAuditDefinitions
 /// </summary>
 internal static class MapCrossViewAudit
 {
+    /// <summary>Compares HUD minimap cells and pause-map markers for every representative retail room.</summary>
+    /// <param name="romPath">Path to the retail ROM used to load room headers and map data.</param>
+    /// <returns>The process success code after all room and map-state comparisons pass.</returns>
     public static int Run(string romPath)
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -60,6 +64,11 @@ internal static class MapCrossViewAudit
         return 0;
     }
 
+    /// <summary>Compares one room's 5-by-3 HUD map window and pause marker at the same Samus coordinate.</summary>
+    /// <param name="bus">Retail address space supplying the room's map and gameplay data.</param>
+    /// <param name="room">Loaded room header whose map placement and dimensions define the comparison.</param>
+    /// <param name="hasAreaMap">Whether the fixture marks the room's area map as acquired.</param>
+    /// <returns>The number of HUD cells compared with the pause-map display.</returns>
     private static int VerifyRoom(
         SuperMetroidAddressSpace bus,
         CartridgeRoomHeader room,

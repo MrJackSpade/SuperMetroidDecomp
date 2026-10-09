@@ -5,6 +5,9 @@ internal static partial class Program
 {
     // Independent decoder of the pinned four arm instruction regions: duration/frame
     // pairs, no-operand callbacks, and the terminal $80ED goto with one operand.
+    /// <summary>Decodes Kraid's four native arm lists into mechanics words and presentation operand addresses.</summary>
+    /// <param name="rom">Cartridge address space containing the original instruction lists.</param>
+    /// <returns>The mechanics words and presentation operand addresses encountered in native order.</returns>
     private static (List<InstructionMechanicsWord> Mechanics, List<ushort> Presentation)
         ReadOriginalKraidArmPrograms(SuperMetroidAddressSpace rom)
     {
@@ -30,6 +33,8 @@ internal static partial class Program
         return (mechanics, presentation);
     }
 
+    /// <summary>Checks compiled Kraid arm mechanics words and byte ownership against the decoded cartridge lists.</summary>
+    /// <param name="rom">Cartridge address space supplying the original instruction words.</param>
     private static void VerifyKraidArmGeneratedMechanics(SuperMetroidAddressSpace rom)
     {
         var original = ReadOriginalKraidArmPrograms(rom).Mechanics;
@@ -56,6 +61,8 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => KraidArmInstructionProgramDefinitions.MechanicsWord(66), "mechanics index past end");
     }
 
+    /// <summary>Checks that compiled presentation slots match native frame operands and remain outside mechanics data.</summary>
+    /// <param name="rom">Cartridge address space used to decode the original arm lists.</param>
     private static void VerifyKraidArmGeneratedPresentation(SuperMetroidAddressSpace rom)
     {
         var original = ReadOriginalKraidArmPrograms(rom).Presentation;

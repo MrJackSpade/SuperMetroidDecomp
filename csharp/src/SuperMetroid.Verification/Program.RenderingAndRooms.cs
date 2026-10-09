@@ -365,6 +365,11 @@ static void VerifyHudStateAndBg3Rendering()
     Console.WriteLine("  HUD: inventory, live minimap coordinates/blink, WRAM upload, and BG3 pixels agree.");
 }
 
+/// <summary>Writes a native-shaped Mother Brain walking list with synthetic visual operands for movement-only fixtures.</summary>
+/// <param name="bus">The address space receiving the bank-$A9 instruction words.</param>
+/// <param name="listAddress">The list's bank-local start address.</param>
+/// <param name="duration">The timer value written for each visible walking frame.</param>
+/// <param name="forward">Selects the forward or backward walking command sequence.</param>
 static void SeedMotherBrainWalkProgram(
     TestAddressSpace bus,
     ushort listAddress,
@@ -391,6 +396,8 @@ static void SeedMotherBrainWalkProgram(
         WriteTestWord(bus, 0xa90000 | unchecked((ushort)(listAddress + index * 2)), words[index]);
 }
 
+/// <summary>Seeds the native crouch-fast command sequence at its instruction-list address in the test bus.</summary>
+/// <param name="bus">The address space that receives the compiled bank-$A9 words.</param>
 static void SeedMotherBrainCrouchFastProgram(TestAddressSpace bus)
 {
     ushort[] words =
@@ -1347,6 +1354,8 @@ static void VerifyPowerBombColorMathWindow()
     Console.WriteLine("  Power bomb: ROM curve bands, rendered-frame timing, and center-outward shapes agree.");
 }
 
+/// <summary>Creates a full-size gameplay image initialized to opaque black for compositing checks.</summary>
+/// <returns>A width-by-height RGBA frame with every pixel set to opaque black.</returns>
 static Rgba32[] CreateOpaqueBlackGameplayFrame()
 {
     var frame = new Rgba32[

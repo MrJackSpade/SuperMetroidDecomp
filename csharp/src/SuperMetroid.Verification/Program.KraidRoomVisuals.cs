@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies extracted Kraid room artwork, owner-specific edits, collision preservation, stock integrity, and strict catalog failures.</summary>
     private static void VerifyKraidRoomVisuals()
     {
         Suite(nameof(VerifyKraidRoomVisualSelection), () => VerifyKraidRoomVisualSelection());
@@ -104,6 +105,7 @@ internal static partial class Program
             "Kraid room visuals: ten native draws, live ceiling/spike edits, elevatube owner isolation, physical/timing separation, stock repair and strict failures pass.");
     }
 
+    /// <summary>Checks that Kraid visual overrides remain owned by Kraid while the Maridia elevatube keeps its own appearance and shared collision word.</summary>
     private static void VerifyKraidVisualOwnerIsolation(
         RoomPlmKraidVisualCatalog edited)
     {
@@ -152,6 +154,15 @@ internal static partial class Program
             "elevatube does not read migrated Kraid source data");
     }
 
+    /// <summary>Runs one room-mutation draw in a synthetic room and checks its physical block, streamed appearance, and source-read boundary.</summary>
+    /// <param name="header">Native PLM header that selects the Kraid room mutation.</param>
+    /// <param name="drawPointer">Kraid draw-list pointer whose selected block is being verified.</param>
+    /// <param name="blockOffset">Block offset within the draw list to place and inspect.</param>
+    /// <param name="physicalWord">Expected full level word retained for collision and physical room state.</param>
+    /// <param name="visualWord">Expected tile word emitted by the PLM into the streamed tilemap.</param>
+    /// <param name="kraid">Optional Kraid visual catalog; <see langword="null"/> checks the native fallback appearance.</param>
+    /// <param name="tube">The separate elevatube catalog used to verify visual-resource ownership boundaries.</param>
+    /// <param name="layer1X">Layer-one horizontal scroll used when the PLM redraws its block.</param>
     private static void VerifyKraidDraw(
         ushort header, ushort drawPointer, int blockOffset,
         ushort physicalWord, ushort visualWord,

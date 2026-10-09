@@ -3,6 +3,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Compares each physical spike slot's acceleration increment with the native $86:91C3 table
+    /// and confirms that slots outside the eighteen-entry table are rejected.
+    /// </summary>
+    /// <param name="rom">Address space containing the native Crocomire spike motion table.</param>
     private static void VerifyCrocomireSpikeAccelerationDelta(SuperMetroidAddressSpace rom)
     {
         for (int slot = 0; slot < 18; slot++)
@@ -16,6 +21,11 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => CrocomireSpikeMotionDefinitions.AccelerationDelta(18), "increment slot past end");
     }
 
+    /// <summary>
+    /// Compares each physical spike slot's acceleration limit with the native $86:91E7 table
+    /// and confirms that slots outside the eighteen-entry table are rejected.
+    /// </summary>
+    /// <param name="rom">Address space containing the native Crocomire spike motion table.</param>
     private static void VerifyCrocomireSpikeMaximumAcceleration(SuperMetroidAddressSpace rom)
     {
         for (int slot = 0; slot < 18; slot++)
@@ -29,6 +39,11 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => CrocomireSpikeMotionDefinitions.MaximumAcceleration(18), "acceleration limit slot past end");
     }
 
+    /// <summary>
+    /// Compares each physical spike slot's maximum-velocity low byte with the native $86:920B
+    /// table and confirms that slots outside the eighteen-entry table are rejected.
+    /// </summary>
+    /// <param name="rom">Address space containing the native Crocomire spike motion table.</param>
     private static void VerifyCrocomireSpikeMaximumVelocity(SuperMetroidAddressSpace rom)
     {
         for (int slot = 0; slot < 18; slot++)

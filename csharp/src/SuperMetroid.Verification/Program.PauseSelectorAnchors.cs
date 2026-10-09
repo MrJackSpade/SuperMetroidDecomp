@@ -5,6 +5,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks stock pause-selector anchor identities, native coordinates, override round-trips, and label identity admission.</summary>
+    /// <param name="rom">Address space used by the native selector and label extractors and coordinate oracle.</param>
     private static void VerifyPauseSelectorAnchors(ISnesAddressSpace rom)
     {
         // Original names from the preconversion definition table, kept only as the oracle.
@@ -48,6 +50,9 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Verifies label serialization accepts exactly the extracted identities and rejects missing, substituted, or extra keys.</summary>
+    /// <param name="rom">Address space used to extract the native pause equipment labels.</param>
+    /// <param name="names">Expected case-sensitive label keys derived from the selector identity catalog.</param>
     private static void VerifyPauseLabelIdentityAdmission(ISnesAddressSpace rom, string[] names)
     {
         byte[] source = PauseEquipmentLabelExtractor.Extract(rom);
@@ -73,6 +78,11 @@ internal static partial class Program
                 "label loader rejects missing, substituted, case-changed or extra identities");
     }
 
+    /// <summary>Checks one coordinate axis against native anchor geometry and verifies edited values survive serialization within bounds.</summary>
+    /// <param name="rom">Address space containing the native selector geometry tables.</param>
+    /// <param name="document">Extracted selector document whose authored anchors are varied for the round-trip checks.</param>
+    /// <param name="stock">Loaded stock selector used to compare default coordinates and edited results.</param>
+    /// <param name="horizontal"><see langword="true"/> checks X coordinates; <see langword="false"/> checks Y coordinates.</param>
     private static void VerifyPauseSelectorAnchorField(ISnesAddressSpace rom, PauseSelectorDocument document,
         PauseSelectorPresentation stock, bool horizontal)
     {

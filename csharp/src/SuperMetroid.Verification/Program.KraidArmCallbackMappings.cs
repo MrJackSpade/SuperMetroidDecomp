@@ -3,11 +3,20 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the native Kraid arm contact-callback words against the rectangle view.</summary>
     private static void VerifyKraidArmTouchCallbacks(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidArmCallbackField), () => VerifyKraidArmCallbackField(rom, false, KraidArmCollisionDefinitions.TouchCallback));
+    /// <summary>Verifies the native Kraid arm shot-callback words against the rectangle view.</summary>
     private static void VerifyKraidArmShotCallbacks(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidArmCallbackField), () => VerifyKraidArmCallbackField(rom, true, KraidArmCollisionDefinitions.ShotCallback));
 
+    /// <summary>
+    /// Compares each native arm hitbox callback word with both the supplied callback mapping and its exposed rectangle field.
+    /// Confirms the view preserves native ordering, materialization, and bounds behavior while covering all 24 records.
+    /// </summary>
+    /// <param name="rom">The address space containing the native Kraid arm frames and callback tables.</param>
+    /// <param name="shot">Selects shot callbacks when true, or contact callbacks when false.</param>
+    /// <param name="calculate">Maps a callback-record index to the expected callback word.</param>
     private static void VerifyKraidArmCallbackField(SuperMetroidAddressSpace rom, bool shot, Func<int, ushort> calculate)
     {
         var selectedLists = new SortedSet<ushort>();

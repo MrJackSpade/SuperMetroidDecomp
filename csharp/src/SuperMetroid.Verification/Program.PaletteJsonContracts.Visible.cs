@@ -68,6 +68,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Replaces every authored RGB5 component in a JSON palette node with its 31-minus-value inverse.</summary>
+    /// <param name="node">Palette object or array to edit recursively; null nodes are ignored.</param>
     private static void InvertPaletteContractColors(JsonNode? node)
     {
         if (node is JsonObject obj)
@@ -79,6 +81,9 @@ internal static partial class Program
         else if (node is JsonArray array) foreach (JsonNode? child in array) InvertPaletteContractColors(child);
     }
 
+    /// <summary>Asserts that changing palette colors leaves FX animation, requests, and every live slot field unchanged.</summary>
+    /// <param name="stock">FX system stepping with the original palette.</param>
+    /// <param name="edited">FX system stepping with the edited palette.</param>
     private static void AssertPaletteContractFxState(RoomPaletteFxSystem stock, RoomPaletteFxSystem edited)
     {
         AssertAnimationValues(stock, edited, "FX state and heat phase unchanged");
@@ -97,6 +102,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Renders the selected BG or OBJ color through the real software renderer and checks both exact raster colors.</summary>
+    /// <param name="stock">CGRAM containing the original palette used for the first render.</param>
+    /// <param name="edited">CGRAM containing the replacement palette used for the second render.</param>
+    /// <param name="color">CGRAM color index whose visible output is compared.</param>
     private static void AssertPaletteContractPixels(SnesCgram stock, SnesCgram edited, int color)
     {
         var vram = new SnesVram();

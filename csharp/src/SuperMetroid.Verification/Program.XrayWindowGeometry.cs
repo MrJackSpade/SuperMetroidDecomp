@@ -7,8 +7,10 @@ using SuperMetroid.Core.Input;
 internal static partial class Program
 {
     // Per-pixel reference raster, refilled for every scroll the interval check compares.
+    /// <summary>Reusable per-pixel color-math reference frame for X-ray window interval comparisons.</summary>
     private static readonly Rgba32[] xrayGeometryReference = new Rgba32[256 * 224];
 
+    /// <summary>Checks X-ray window geometry against the per-pixel renderer across poses, aim phases, and camera scrolls.</summary>
     private static void VerifyXrayWindowGeometry()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -26,6 +28,10 @@ internal static partial class Program
         }
         Console.WriteLine("  X-ray intervals: standing/crouching, both facings, widening, aim sweep and clipped origins match per-pixel reference.");
     }
+    /// <summary>Compares captured scanline window bounds with pixels left outside the X-ray color-math effect.</summary>
+    /// <param name="bus">The retail address space used by the scanline capture path.</param>
+    /// <param name="samus">The active X-ray state and pose whose window is being checked.</param>
+    /// <param name="reference">Scratch frame filled with the unaffected color before applying the pixel reference.</param>
     private static void VerifyXrayWindowGeometry(ISnesAddressSpace bus, SamusState samus, Rgba32[] reference)
     {
         if (samus.Xray.SetupStage != 0 || samus.Xray.BeamPhase is not (XrayBeamPhase.Widening or XrayBeamPhase.Full)) return;

@@ -9,8 +9,11 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class CeresDestructionActorLayout
 {
+    /// <summary>Stores nondefault selected placements; <see langword="null"/> represents the native default layout.</summary>
     private readonly CeresDestructionActorPlacement[]? placements;
 
+    /// <summary>Creates a layout, retaining storage only when at least one actor placement differs from native data.</summary>
+    /// <param name="placements">Validated placements in the cartridge's persistent-actor order.</param>
     private CeresDestructionActorLayout(CeresDestructionActorPlacement[] placements)
     {
         bool stock = true;

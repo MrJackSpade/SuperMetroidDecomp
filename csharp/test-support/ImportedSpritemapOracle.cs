@@ -7,6 +7,18 @@ using SuperMetroid.Core.Hardware;
 /// </summary>
 internal static class ImportedSpritemapOracle
 {
+    /// <summary>
+    /// Decodes a packed generic spritemap whose count is followed by five-byte sprite records,
+    /// applies the requested palette and origin placement, and appends parts until the low OAM
+    /// table is full. Record reads wrap within the spritemap's data bank.
+    /// </summary>
+    /// <param name="source">Import-only cartridge source containing the spritemap bytes.</param>
+    /// <param name="oam">Destination OAM buffer for the decoded sprite parts.</param>
+    /// <param name="address">Bus address of the packed spritemap count and records.</param>
+    /// <param name="originX">Horizontal origin added to each part's relative position.</param>
+    /// <param name="originY">Vertical origin added to each part's relative position.</param>
+    /// <param name="paletteBits">Object palette selector applied to every decoded part.</param>
+    /// <param name="originIsOnScreen">Selects on-screen or off-screen coordinate placement for the origin.</param>
     public static void DrawGeneric(IImportCartridgeSource source, OamBuffer oam,
         int address, ushort originX, ushort originY, ushort paletteBits,
         bool originIsOnScreen = true)
@@ -43,6 +55,17 @@ internal static class ImportedSpritemapOracle
         oam.AddEnemySpritemap(ReadEnemyParts(source, bank, spritemapPointer), originX, originY,
             paletteBits, baseTileIndex, clipVerticalWrap, originYIsOnScreen);
 
+    /// <summary>
+    /// Decodes a projectile spritemap from bank $8D and draws it with vertical-wrap clipping;
+    /// the graphics index supplies both the object palette bits and the base tile index.
+    /// </summary>
+    /// <param name="source">Import-only cartridge source containing the bank-$8D spritemap.</param>
+    /// <param name="oam">Destination OAM buffer for the projectile's sprite parts.</param>
+    /// <param name="bank8dSpritemapPointer">Bank-local pointer to the projectile spritemap.</param>
+    /// <param name="originX">Horizontal origin added to each part's relative position.</param>
+    /// <param name="originY">Vertical origin added to each part's relative position.</param>
+    /// <param name="graphicsIndex">Projectile graphics selector supplying palette bits and the base tile index.</param>
+    /// <param name="originYIsOnScreen">Whether the origin uses on-screen vertical coordinates.</param>
     public static void DrawEnemyProjectile(IImportCartridgeSource source, OamBuffer oam,
         ushort bank8dSpritemapPointer, ushort originX, ushort originY,
         ushort graphicsIndex, bool originYIsOnScreen) =>
@@ -50,6 +73,14 @@ internal static class ImportedSpritemapOracle
             new SnesObjAttributeWord(graphicsIndex).PaletteBits, unchecked((byte)graphicsIndex),
             clipVerticalWrap: true, originYIsOnScreen);
 
+    /// <summary>
+    /// Reads the count-prefixed, five-byte enemy sprite records at a bank-local pointer and
+    /// returns their relative positions and object attributes without drawing them.
+    /// </summary>
+    /// <param name="source">Import-only cartridge source containing the enemy spritemap.</param>
+    /// <param name="bank">Bank containing the spritemap pointer's data.</param>
+    /// <param name="pointer">Bank-local address of the count-prefixed spritemap.</param>
+    /// <returns>The decoded records in their original spritemap order.</returns>
     private static EnemySpritemapPart[] ReadEnemyParts(IImportCartridgeSource source,
         byte bank, ushort pointer)
     {

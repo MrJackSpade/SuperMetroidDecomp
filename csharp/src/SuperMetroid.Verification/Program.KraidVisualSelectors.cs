@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks both good and bad Kraid nail programs against their native OAM selector words and valid selector domain.</summary>
+    /// <param name="rom">Address space used to read the native Kraid nail selector values.</param>
     private static void VerifyKraidNailVisualSelectors(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0x8b0c, 0x8b10, 0x8b14, 0x8b18, 0x8b1c, 0x8b20, 0x8b24, 0x8b28];
@@ -11,6 +13,8 @@ internal static partial class Program
             VerifyKraidVisualSelectorDomain(rom, 0xa70000, enemy, operands);
     }
 
+    /// <summary>Checks Fake Kraid's listed animation operands against native selector values and rejects gaps in the program.</summary>
+    /// <param name="rom">Address space used to read the native Fake Kraid selector values.</param>
     private static void VerifyFakeKraidVisualSelectors(SuperMetroidAddressSpace rom)
     {
         ushort[] operands =
@@ -22,6 +26,11 @@ internal static partial class Program
         Suite(nameof(VerifyKraidVisualSelectorDomain), () => VerifyKraidVisualSelectorDomain(rom, 0xa60000, RoomEnemySystem.FakeKraidDefinition, operands));
     }
 
+    /// <summary>Validates a Kraid-family program's full visual-operand membership, decoded frames, and rejection of invalid selectors.</summary>
+    /// <param name="rom">Address space containing the native instruction words for the selected enemy.</param>
+    /// <param name="bank">Full bank base used to read native words and select the matching compiled instruction catalog.</param>
+    /// <param name="enemy">Enemy definition whose visual frame lookup is checked.</param>
+    /// <param name="operands">Native presentation operand addresses that are expected to be accepted.</param>
     private static void VerifyKraidVisualSelectorDomain(SuperMetroidAddressSpace rom, int bank,
         ushort enemy, ushort[] operands)
     {

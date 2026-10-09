@@ -6,13 +6,20 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Builds deterministic RGB5 colors within the valid five-bit range for palette-schema fixtures.</summary>
+    /// <param name="count">Number of color entries to generate.</param>
+    /// <param name="seed">Offset applied to each channel sequence to distinguish fixture rows.</param>
     private static PaletteRgb5[] PaletteContractColors(int count, int seed = 0) => Enumerable.Range(0, count)
         .Select(index => new PaletteRgb5 { Red = (index + seed) % 32, Green = (index * 3 + seed) % 32,
             Blue = (index * 7 + seed) % 32 }).ToArray();
 
+    /// <summary>Builds multiple deterministic RGB5 rows, using each row index as that row's color seed.</summary>
+    /// <param name="rows">Number of rows to generate.</param>
+    /// <param name="colors">Number of colors in each generated row.</param>
     private static PaletteRgb5[][] PaletteContractRows(int rows, int colors) => Enumerable.Range(0, rows)
         .Select(row => PaletteContractColors(colors, row)).ToArray();
 
+    /// <summary>Enumerates representative valid JSON documents and their loaders for the supported palette schemas.</summary>
     private static IEnumerable<PaletteJsonContract> PaletteJsonContracts()
     {
         yield return new("room static", PaletteContractDocument(new RoomStaticPaletteDocument

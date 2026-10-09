@@ -4,6 +4,7 @@ using Hardware = SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies render-packet round trips, version compatibility, malformed-packet rejection, and BG2 viewport serialization.</summary>
     private static void VerifyRenderPacketCodec()
     {
         var frame = new RenderFrameSnapshot(new(9876543210, 42, ushort.MaxValue),
@@ -88,6 +89,9 @@ internal static partial class Program
         Console.WriteLine("  Display fixture codec: stable round trip, identity, fades, truncation, signature/version and trailing-data rejection agree.");
     }
 
+    /// <summary>Serializes and deserializes a frame, then confirms identity and canonical packet contents survive the round trip.</summary>
+    /// <param name="frame">The render snapshot whose encoded state is checked.</param>
+    /// <returns>The decoded snapshot reconstructed from the serialized packet.</returns>
     private static RenderFrameSnapshot RoundTripRenderPacket(RenderFrameSnapshot frame)
     {
         byte[] bytes = RenderFrameSnapshotCodec.Serialize(frame);
@@ -98,6 +102,7 @@ internal static partial class Program
         return restored;
     }
 
+    /// <summary>Checks viewport packet rendering against a full BG2 render across scroll, transparency, and priority settings.</summary>
     private static void VerifyBg2ViewportPackets()
     {
         var random = new Random(321);

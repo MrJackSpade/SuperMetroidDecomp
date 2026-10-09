@@ -3,6 +3,9 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Walks the retail timed-frame lists and yields each object header, first frame, and terminal control address.</summary>
+    /// <param name="rom">Retail address space containing the object headers and animation instructions.</param>
+    /// <returns>Native frame-list boundaries for the seven original simple-animation objects.</returns>
     private static IEnumerable<(ushort Object, ushort First, ushort End)> OriginalSimpleAnimationLoops(SuperMetroidAddressSpace rom)
     {
         foreach (ushort header in new ushort[] { 0x8257, 0x8287, 0x828d, 0x82ab, 0x82c9, 0x82e7, 0x82fd })
@@ -19,6 +22,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks compiled frame counts, instruction cursors, artwork operands, and terminal loop targets.</summary>
+    /// <param name="rom">Retail address space used as the reference for each original animation list.</param>
     private static void VerifySimpleAnimationFrameCursors(SuperMetroidAddressSpace rom)
     {
         int total = 0;
@@ -50,6 +55,8 @@ internal static partial class Program
         AssertEqual(30, total, "Complete original timed-frame domain");
     }
 
+    /// <summary>Checks that indexed and enumerated frame durations preserve the native instruction words.</summary>
+    /// <param name="rom">Retail address space containing the original timed-frame duration words.</param>
     private static void VerifySimpleAnimationFrameDurations(SuperMetroidAddressSpace rom)
     {
         foreach (var original in OriginalSimpleAnimationLoops(rom))

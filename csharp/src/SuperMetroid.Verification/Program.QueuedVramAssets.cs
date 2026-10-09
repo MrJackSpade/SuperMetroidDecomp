@@ -4,6 +4,7 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    /// <summary>Checks queued VRAM asset transfers against native DMA behavior, queue ordering and capacity, and late-bound asset resolution after state restoration.</summary>
     private static void VerifyQueuedVramAssets()
     {
         foreach (ushort destination in new ushort[] { 0, 0x7fff, 0x8000, 0xffff })
@@ -64,8 +65,14 @@ internal static partial class Program
         Console.WriteLine("VRAM assets: native port/stride/wrap parity, mixed ordering, capacity, late-bound state restore and strict errors pass.");
     }
 
+    /// <summary>Supplies one in-memory asset payload to exercise late-bound VRAM queue entries.</summary>
+    /// <param name="bytes">Payload returned when the standard HUD tile asset is resolved.</param>
     private sealed class TestVramAssets(byte[] bytes) : IVramAssetProvider
     {
+        /// <summary>Resolves the test's standard HUD tile identifier to its supplied payload.</summary>
+        /// <param name="asset">Asset identifier requested by the queue drain.</param>
+        /// <returns>The test payload for <see cref="VramAssetId.StandardHudTiles"/>.</returns>
+        /// <exception cref="InvalidDataException">The queue requests an asset identifier this fixture does not provide.</exception>
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) => asset == VramAssetId.StandardHudTiles
             ? bytes : throw new InvalidDataException($"Unknown test asset {asset}.");
     }

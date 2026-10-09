@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks Spore Spawn ceiling stock extraction, editable visual frames, and separation from collision data.</summary>
     private static void VerifySporeSpawnCeilingVisuals()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -148,6 +149,9 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => new RoomPlmSporeSpawnCeilingVisualCatalog(entries), "Spore ceiling visual bits only");
     }
 
+    /// <summary>Checks that edited crumble or clear art redraws and streams without changing collision or timing.</summary>
+    /// <param name="edited">Visual catalog supplying the selected ceiling frame's replacement block words.</param>
+    /// <param name="clear"><see langword="true"/> selects the clear-ceiling PLM; otherwise selects the crumble animation.</param>
     private static void VerifySporeSpawnCeilingVisualSeparation(
         RoomPlmSporeSpawnCeilingVisualCatalog edited, bool clear)
     {

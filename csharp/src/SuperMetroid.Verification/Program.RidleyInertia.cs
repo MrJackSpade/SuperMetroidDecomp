@@ -4,6 +4,12 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Checks both native sixteen-byte inertia tables against the shared divisor definitions,
+    /// then compares the production Ceres and Norfair movement entry points with their native
+    /// arithmetic across every wrapped signed distance and representative velocity and boost values.
+    /// </summary>
+    /// <param name="rom">Address space containing the original Ceres and Norfair inertia tables.</param>
     private static void VerifyCompiledRidleyInertia(SuperMetroidAddressSpace rom)
     {
         var ceres = typeof(RoomEnemySystem).GetMethod("AccelerateRidleyToward", BindingFlags.Static | BindingFlags.NonPublic)!
@@ -44,6 +50,14 @@ internal static partial class Program
 
     // $A6:D62F/$D6A6: the carry left by `position - target` feeds the first ADC/SBC of
     // the velocity step, and each reversal step chains its own carry into the next.
+    /// <summary>
+    /// Computes Ceres Ridley's native target-seeking velocity update, including wrapped-distance
+    /// carry propagation, reversal steps, and the native velocity limits.
+    /// </summary>
+    /// <param name="initial">Unsigned 8.8 velocity before the native update.</param>
+    /// <param name="position">Current wrapped 16-bit position on the axis being updated.</param>
+    /// <param name="target">Target position on the same axis.</param>
+    /// <param name="divisor">Inertia-table divisor used to determine the acceleration step.</param>
     private static ushort ExpectedCeresNativeAcceleration(ushort initial, ushort position, ushort target, int divisor)
     {
         short distance = unchecked((short)(position - target));
@@ -77,6 +91,15 @@ internal static partial class Program
     // Model the native word arithmetic independently as wide intermediate values
     // and explicit carry terms. The movie-derived regression supplies independent
     // expected motion; this existing numeric contract covers wrapped inputs too.
+    /// <summary>
+    /// Computes Norfair Ridley's native target-seeking velocity update, including the reversal
+    /// boost, wrapped-word carry propagation, and native velocity limits.
+    /// </summary>
+    /// <param name="initial">Unsigned 8.8 velocity before the native update.</param>
+    /// <param name="position">Current wrapped 16-bit position on the axis being updated.</param>
+    /// <param name="target">Target position on the same axis.</param>
+    /// <param name="divisor">Inertia-table divisor used to determine the acceleration step.</param>
+    /// <param name="boost">Additional acceleration applied when reversing direction.</param>
     private static ushort ExpectedRidleyNativeAcceleration(ushort initial, ushort position, ushort target, int divisor, int boost)
     {
         short distance = unchecked((short)(position - target));

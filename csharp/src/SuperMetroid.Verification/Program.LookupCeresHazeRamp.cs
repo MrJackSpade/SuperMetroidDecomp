@@ -4,6 +4,10 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Reconstructs the native 224-line Ceres haze ramp from its descending fill table and HDMA bands.</summary>
+    /// <param name="rom">The retail address space containing the table operands and scanline bands.</param>
+    /// <param name="counter">The fade counter used to fill the native ramp table.</param>
+    /// <returns>The native haze intensity for each physical screen scanline.</returns>
     private static byte[] OriginalCeresHazeRamp(ISnesAddressSpace rom, int counter)
     {
         // Execute the original descending table-fill semantics using its LDX operand.
@@ -36,6 +40,8 @@ internal static partial class Program
         return rows;
     }
 
+    /// <summary>Compares every reachable native fade ramp with component resolution and rendered haze output.</summary>
+    /// <param name="rom">The retail address space used as the independent native ramp reference.</param>
     private static void VerifyCeresHazeNativeRamp(ISnesAddressSpace rom)
     {
         int fadeLimit = ReadVerificationWord(rom, 0x88de43);
@@ -69,6 +75,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks RGB5 haze tint scaling across every channel value, fade counter, and normal/dead Ceres mode.</summary>
+    /// <param name="rom">The retail address space used to reconstruct each native ramp intensity.</param>
     private static void VerifyCeresHazeTintScaling(ISnesAddressSpace rom)
     {
         int lastCounter = ReadVerificationWord(rom, 0x88de43);

@@ -5,6 +5,7 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    /// <summary>Checks Phantoon wave setup, phase progression, display latching, and debugger-state compatibility.</summary>
     private static void VerifyPhantoonWaveLifecycle()
     {
         var boss = new PhantoonEnemyState(new RoomEnemySlot(0))
@@ -55,6 +56,7 @@ internal static partial class Program
         Console.WriteLine("  Phantoon wave: original-CPU lifecycle, display latch, debugger round-trip and explicit legacy migration agree.");
     }
 
+    /// <summary>Compares fixed-point transition colors with captured native values at representative fade boundaries.</summary>
     private static void VerifyPhantoonFadeColors()
     {
         var calculate = typeof(RoomEnemySystem).GetMethod("CalculatePhantoonTransitionColor", BindingFlags.Static | BindingFlags.NonPublic)!;
@@ -70,6 +72,8 @@ internal static partial class Program
             "fast fade reaches target on first interpolated update");
     }
 
+    /// <summary>Checks blending setup, owner-priority rules, display latching, deletion, and serialized state.</summary>
+    /// <param name="boss">Phantoon state whose mouth and transparency flags drive the blending lifecycle.</param>
     private static void VerifyPhantoonBlendingLifecycle(PhantoonEnemyState boss)
     {
         var blend = boss.Blending;

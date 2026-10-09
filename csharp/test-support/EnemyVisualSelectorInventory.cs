@@ -7,6 +7,8 @@ using SuperMetroid.Core.Hardware;
 /// or BG2 command payload may coincidentally pass the shallow count check.
 /// Every family still needs a consumer and exact OAM parity test before extraction.
 /// </summary>
+/// <param name="Keyed">Resolved full banked operand addresses and the native spritemap pointers they contain.</param>
+/// <param name="Unresolved">Catalog names skipped because their mechanics or bank ownership could not be resolved.</param>
 internal sealed record EnemyVisualSelectorInventory(Dictionary<int, ushort> Keyed, List<string> Unresolved)
 {
     /// <summary>
@@ -86,6 +88,10 @@ internal sealed record EnemyVisualSelectorInventory(Dictionary<int, ushort> Keye
         return new(keyed, unresolved);
     }
 
+    /// <summary>Reads a little-endian word while keeping the high byte in the same bank as the low byte.</summary>
+    /// <param name="bus">Address space containing the cartridge bytes.</param>
+    /// <param name="address">Full banked address of the low byte.</param>
+    /// <returns>The word formed from the low byte and the following bank-local byte.</returns>
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) |
             bus.ReadByte((address & 0xff0000) |

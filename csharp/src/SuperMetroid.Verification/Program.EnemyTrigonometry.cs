@@ -5,6 +5,7 @@ using SuperMetroid.Core.Frontend;
 
 internal static partial class Program
 {
+    /// <summary>Checks compiled enemy trigonometry and related vector calculations against the pinned retail sine tables across their authored byte and word inputs.</summary>
     private static void VerifyCompiledEnemyTrigonometry()
     {
         Suite(nameof(VerifyRidleyPowerBombNeutralTail), () => VerifyRidleyPowerBombNeutralTail());
@@ -389,6 +390,9 @@ internal static partial class Program
         Console.WriteLine("Compiled enemy sine: 256 exact samples, 65,536 byte inputs including both Sbug vector phases, and 8,388,608 unsigned products (two wrapped offsets) pass without any production bus dependency.");
     }
 
+    /// <summary>Compares the compiled signed sine data and its production readers with cartridge words, optionally stopping before the exhaustive liquid-tide phase check.</summary>
+    /// <param name="rom">Retail address space supplying the pinned signed negative-cosine reference words.</param>
+    /// <param name="definitionsOnly">When <see langword="true"/>, skips the subsequent liquid-tide phase sweep.</param>
     private static void VerifyCompiledSignedTrigonometry(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         short Reference(int index)
@@ -448,6 +452,7 @@ internal static partial class Program
 
 }
 
+/// <summary>Pinned retail-ROM addresses for enemy and cinematic sine tables used as independent arithmetic references.</summary>
 internal static class EnemyMathReferenceData
 {
     /// <summary>Pinned $A0:B443-$B642 sign-extended 8.8 sine words.</summary>

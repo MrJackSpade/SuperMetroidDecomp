@@ -4,6 +4,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Builds deliberately altered enemy, extended-frame, and projectile artwork catalogs, including
+    /// display-sequence remaps, so animation isolation checks can detect visual data leaking into gameplay state.
+    /// </summary>
     private static EnemyTileArtworkCatalog CreateEditedEnemyAnimationArtwork()
     {
         var fixture = new EnemyIdentityFixture();
@@ -45,6 +49,11 @@ internal static partial class Program
             EnemyProjectileSpritemapCatalog.Load(fixture.Json(projectile)));
     }
 
+    /// <summary>
+    /// Creates a two-part replacement silhouette with distinct offsets and rendering attributes for an atlas tile.
+    /// </summary>
+    /// <param name="tile">The tile column assigned to both replacement parts.</param>
+    /// <returns>The authored parts used to make edited animation frames visibly distinct.</returns>
     private static SpriteVisualPart[] EditedAnimationParts(int tile) =>
     [
         new SpriteVisualPart
@@ -59,6 +68,12 @@ internal static partial class Program
         },
     ];
 
+    /// <summary>
+    /// Checks that an active actor's packed OAM matches the independently authored replacement visuals and remapped frame.
+    /// </summary>
+    /// <param name="edited">The fixture supplying the actor and edited artwork catalogs.</param>
+    /// <param name="drawn">The OAM buffer produced by the actual draw path.</param>
+    /// <param name="frame">The frame number included in assertion context.</param>
     private static void AssertEditedAnimationDraw(EnemyAnimationFixture edited, OamBuffer drawn, int frame)
     {
         RoomEnemySlot actor = edited.Actor;

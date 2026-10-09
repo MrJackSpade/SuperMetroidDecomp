@@ -9,6 +9,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks intro projectile, explosion, and trail draws against stock and edited host artwork bindings.</summary>
+    /// <param name="bus">Retail address space used to create the cinematic fixture and extract trail data.</param>
+    /// <param name="stock">Unmodified projectile composition catalog used for native OAM parity.</param>
+    /// <param name="edited">Composition catalog with changed appearance data for visible-binding checks.</param>
+    /// <param name="sprite">Native projectile spritemap selected for the draw comparison.</param>
     private static void VerifyIntroProjectileArtwork(ISnesAddressSpace bus, ProjectileSpriteCatalog stock, ProjectileSpriteCatalog edited, ushort sprite)
     {
         var intro = CreateRetailIntroFixture(bus);
@@ -70,6 +75,8 @@ internal static partial class Program
         Console.WriteLine("Intro projectile artwork: live/explosion/trail stock parity, visible edits, native timing and nonserialized state rebind pass.");
     }
 
+    /// <summary>Rebinds host draw dependencies needed by a restored intro without replacing its cinematic VRAM.</summary>
+    /// <param name="intro">Deserialized cinematic state whose projectile draw dependencies are prepared.</param>
     private static void BindRestoredIntroDrawFixture(IntroCinematicState intro)
     {
         // This fixture isolates projectile/trail rebinding. Supply the other draw
@@ -81,6 +88,12 @@ internal static partial class Program
         intro.ProjectileCompositions = RepositoryInstallation.Projectiles.Catalog;
         intro.ProjectileFrameBindings = RepositoryInstallation.Projectiles.FrameBindings;
     }
+    /// <summary>Checks stock trail-atlas parity and verifies edited pixels replace only their native VRAM targets.</summary>
+    /// <param name="bus">Retail address space used to extract the reference trail atlas.</param>
+    /// <param name="intro">Intro state whose trail draw path is inspected.</param>
+    /// <param name="game">Game instance used to serialize and restore the intro state.</param>
+    /// <param name="json">Extracted trail metadata paired with the stock atlas.</param>
+    /// <param name="draw">Prepares the intro draw state and returns its low OAM table.</param>
     private static void VerifyIntroTrailPng(ISnesAddressSpace bus, IntroCinematicState intro,
         SuperMetroidGame game, byte[] json, Func<IntroCinematicState, byte[]> draw)
     {

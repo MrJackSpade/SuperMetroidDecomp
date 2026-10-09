@@ -5,6 +5,8 @@ namespace SuperMetroid.Android;
 
 public sealed partial class MainActivity
 {
+    /// <summary>Opens Android's document picker for importing either a debugger state slot or a regular game save.</summary>
+    /// <param name="state">When true, selects a debugger state for the current slot; otherwise selects a regular save.</param>
     private void ChooseImport(bool state)
     {
         menuOpen = true;
@@ -29,6 +31,10 @@ public sealed partial class MainActivity
             .SetCancelable(false)!.Show();
     }
 
+    /// <summary>Copies a selected content document to temporary storage and imports it as a state or regular save.</summary>
+    /// <param name="uri">The content URI returned by Android's document picker.</param>
+    /// <param name="state">When true, imports into the selected debugger state slot; otherwise imports the regular save.</param>
+    /// <returns>The import operation's status message.</returns>
     private async Task<string> ImportDocument(global::Android.Net.Uri uri, bool state)
     {
         string temporary = Path.Combine(CacheDir!.AbsolutePath, $"import-{Guid.NewGuid():N}.tmp");

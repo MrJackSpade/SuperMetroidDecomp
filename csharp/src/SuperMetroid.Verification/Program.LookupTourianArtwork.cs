@@ -6,6 +6,12 @@ internal static partial class Program
 {
     // Decode the original instructions, not the replacement operand roster or offsets.
     // Widths follow bank_87.asm at revision 362be646929cf8e483f692b73a6561cfc2dc1d0d.
+    /// <summary>
+    /// Enumerates each native timed-frame operand and the source address stored at that operand
+    /// for the selected Tourian statue program.
+    /// </summary>
+    /// <param name="rom">Address space containing the original bank-$87 program and artwork pointers.</param>
+    /// <param name="header">Bank-local object-header pointer selecting the statue program.</param>
     private static IEnumerable<(ushort Operand, int Source)> OriginalTourianFrames(
         ISnesAddressSpace rom, ushort header)
     {
@@ -15,6 +21,12 @@ internal static partial class Program
                     0x870000 | ReadVerificationWord(rom, 0x870000 | (instruction.Cursor + 2)));
     }
 
+    /// <summary>
+    /// Walks the original statue instruction stream from its header until both delete opcodes
+    /// are encountered, yielding each instruction's cursor, opcode, and encoded width.
+    /// </summary>
+    /// <param name="rom">Address space containing the original bank-$87 instruction stream.</param>
+    /// <param name="header">Bank-local object-header pointer to the instruction stream.</param>
     private static IEnumerable<(ushort Cursor, ushort Code, int Width)> OriginalTourianInstructions(
         ISnesAddressSpace rom, ushort header)
     {
@@ -44,6 +56,12 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Checks all nine timed-frame source mappings for each of the four stock Tourian statues
+    /// against the original ROM, and verifies that unrelated operands and unknown definitions
+    /// are rejected.
+    /// </summary>
+    /// <param name="rom">Address space containing the original statue programs and source pointers.</param>
     private static void VerifyTourianStatueArtworkSources(ISnesAddressSpace rom)
     {
         int total = 0;

@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks retail Tourian access visuals through extraction, editable overrides, stock refresh, physical-data isolation, and manifest rejection.</summary>
     private static void VerifyTourianAccessVisuals()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -88,6 +89,9 @@ internal static partial class Program
             "Tourian access visuals: five native layouts, live crumble/clear edits, physical isolation, stock repair and strict failures pass.");
     }
 
+    /// <summary>Compares the five native crumble and clear layouts with stock, imported, and installed catalogs, including address bounds and malformed-entry rejection.</summary>
+    /// <param name="rom">Retail cartridge address space containing the original bank-$84 PLM draw programs.</param>
+    /// <param name="installed">Catalog loaded from the test installation after stock extraction and validation.</param>
     private static void VerifyTourianAccessStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmTourianAccessVisualCatalog installed)
     {
@@ -145,6 +149,10 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => new RoomPlmTourianAccessVisualCatalog(entries), "Tourian access visual bits only");
     }
 
+    /// <summary>Verifies that an edited crumble or clear block redraws from presentation data while the PLM retains its physical level word and avoids source-byte reads.</summary>
+    /// <param name="rom">Retail address space guarded during the PLM update.</param>
+    /// <param name="edited">Catalog supplying the customized frame used for the redraw.</param>
+    /// <param name="clear"><see langword="true"/> selects the six-row clear PLM; otherwise selects the crumble PLM.</param>
     private static void VerifyTourianAccessVisualSeparation(
         SuperMetroidAddressSpace rom,
         RoomPlmTourianAccessVisualCatalog edited,

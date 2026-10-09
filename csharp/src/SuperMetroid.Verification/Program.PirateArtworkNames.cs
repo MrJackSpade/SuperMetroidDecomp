@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 
 internal static partial class Program
 {
+    /// <summary>Checks the published artwork-key sequence for all walking Pirate poses.</summary>
     private static void VerifyWalkingPirateArtworkNames()
     {
         string[] expected = [
@@ -28,6 +29,7 @@ internal static partial class Program
         Suite(nameof(VerifyPirateArtworkNames), () => VerifyPirateArtworkNames(expected, PirateArtworkNameDefinitions.Walking));
     }
 
+    /// <summary>Checks the published artwork-key sequence for all wall-climbing Pirate poses.</summary>
     private static void VerifyWallPirateArtworkNames()
     {
         string[] expected = [
@@ -45,6 +47,9 @@ internal static partial class Program
     }
 
     // Original published keys, copied before removing their production lists.
+    /// <summary>Compares a Pirate pose's ordered published keys and verifies that out-of-range indices are rejected.</summary>
+    /// <param name="expected">The original ordered key names for the pose being checked.</param>
+    /// <param name="actual">The catalog lookup that returns a key by index.</param>
     private static void VerifyPirateArtworkNames(string[] expected, Func<int, string> actual)
     {
         for (int index = 0; index < expected.Length; index++)

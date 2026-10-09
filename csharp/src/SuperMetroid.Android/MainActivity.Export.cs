@@ -5,6 +5,7 @@ namespace SuperMetroid.Android;
 
 public sealed partial class MainActivity
 {
+    /// <summary>Prompts for a local ZIP destination for the selected slot and other private diagnostic files.</summary>
     private void ChooseDiagnosticExport()
     {
         menuOpen = true;
@@ -54,6 +55,9 @@ public sealed partial class MainActivity
     }
 #pragma warning restore CS0672, CS0618
 
+    /// <summary>Builds a temporary diagnostic archive for the selected slot and copies it to the picker-provided document.</summary>
+    /// <param name="uri">Content URI of the destination chosen in Android's document picker.</param>
+    /// <returns>A status message after the archive has been copied and flushed to the destination.</returns>
     private async Task<string> ExportDiagnostics(global::Android.Net.Uri uri)
     {
         string temporary = Path.Combine(CacheDir!.AbsolutePath, $"diagnostics-{Guid.NewGuid():N}.zip");

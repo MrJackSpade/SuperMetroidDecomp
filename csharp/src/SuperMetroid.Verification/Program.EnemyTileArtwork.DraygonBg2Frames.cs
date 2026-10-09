@@ -7,6 +7,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies installed Draygon BG2 frame data against native streams and checks rendered stock and edited artwork.</summary>
+    /// <param name="rom">Retail cartridge address space used as the native data reference.</param>
+    /// <param name="stockDirectory">Directory containing the installed stock BG2 frame asset.</param>
+    /// <param name="stock">Loaded artwork catalog whose frame writes are checked and rendered.</param>
     private static void VerifyInstalledDraygonBg2Frames(
         SuperMetroidAddressSpace rom, string stockDirectory,
         EnemyTileArtworkCatalog stock)
@@ -127,6 +131,8 @@ internal static partial class Program
             (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
     }
 
+    /// <summary>Compares compiled BG2 collision components and hitboxes with the cartridge and checks ROM-free live dispatch.</summary>
+    /// <param name="rom">Retail cartridge address space supplying native collision records.</param>
     private static void VerifyCompiledDraygonBg2Collision(
         SuperMetroidAddressSpace rom)
     {

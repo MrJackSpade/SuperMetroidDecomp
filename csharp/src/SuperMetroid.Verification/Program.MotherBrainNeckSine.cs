@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares every signed sine component and a full range of five-joint geometries with the ROM-backed reference.</summary>
+    /// <param name="rom">Cartridge address space containing the native signed sine table.</param>
     private static void VerifyMotherBrainNeckSine(SuperMetroidAddressSpace rom)
     {
         for (int angle = byte.MinValue; angle <= byte.MaxValue; angle++)
@@ -42,6 +44,13 @@ internal static partial class Program
             "Mother Brain neck sine: all 65,536 signed products and 256 complete five-joint geometries match an independent ROM-backed reference without a runtime bus.");
     }
 
+    /// <summary>Builds the five neck-joint positions using native sine-table components and cartridge word arithmetic.</summary>
+    /// <param name="rom">Cartridge address space supplying sine-table entries.</param>
+    /// <param name="bodyX">Horizontal body anchor used to derive the neck origin.</param>
+    /// <param name="bodyY">Vertical body anchor used to derive the neck origin.</param>
+    /// <param name="lowerAngle">Angle word for the lower neck segments.</param>
+    /// <param name="upperAngle">Angle word for the upper neck segments.</param>
+    /// <returns>The calculated positions of all five neck joints.</returns>
     private static MotherBrainNeckGeometry ReferenceMotherBrainNeckGeometry(
         SuperMetroidAddressSpace rom,
         ushort bodyX,
@@ -83,6 +92,11 @@ internal static partial class Program
             Upper(20));
     }
 
+    /// <summary>Calculates one signed neck-axis component from a native sine-table sample and signed distance.</summary>
+    /// <param name="rom">Cartridge address space containing the native signed sine table.</param>
+    /// <param name="angle">Byte index into the full-cycle sine table.</param>
+    /// <param name="distance">Signed 8-bit distance encoded in an unsigned word.</param>
+    /// <returns>The sine-scaled component after the native eight-bit shift and signed-word truncation.</returns>
     private static short ReferenceMotherBrainNeckComponent(
         SuperMetroidAddressSpace rom,
         byte angle,

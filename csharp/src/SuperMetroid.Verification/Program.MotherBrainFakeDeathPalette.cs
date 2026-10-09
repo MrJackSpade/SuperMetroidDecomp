@@ -5,6 +5,12 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies both Mother Brain fake-death grayscale fades against every native CGRAM palette frame,
+    /// including the zero-pointer terminator's preserved colors and phase transition.
+    /// </summary>
+    /// <param name="rom">The address space supplying the native grayscale palette pointer tables and colors.</param>
+    /// <param name="installed">The parsed palette presentation installed into the enemy system.</param>
     private static void VerifyMotherBrainFakeDeathPalette(
         ISnesAddressSpace rom, MotherBrainRainbowPalettePresentation installed)
     {
@@ -59,6 +65,12 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Creates an enemy system with the supplied fake-death palette and isolated CGRAM, while rejecting bus palette reads.
+    /// </summary>
+    /// <param name="colors">The palette presentation used by the fake-death fade routines.</param>
+    /// <param name="cgram">The CGRAM buffer that receives palette writes.</param>
+    /// <returns>An enemy system fixture whose palette path is independent of cartridge bus reads.</returns>
     private static RoomEnemySystem CreateFakeDeathPaletteEnemy(
         MotherBrainRainbowPalettePresentation colors, SnesCgram cgram)
     {
@@ -70,6 +82,10 @@ internal static partial class Program
         return enemies;
     }
 
+    /// <summary>Runs one fake-death fade step and captures its resulting CGRAM words, timer, and phase.</summary>
+    /// <param name="colors">The palette presentation consumed by the selected fade routine.</param>
+    /// <param name="toGrey">Selects the descent fade toward gray when true, or the ascent transition from gray when false.</param>
+    /// <returns>The copied CGRAM contents, resulting function timer, and resulting Mother Brain body phase.</returns>
     private static (ushort[] Colors, ushort FunctionTimer, MotherBrainBodyFunction Function)
         CaptureFakeDeathPaletteFrame(MotherBrainRainbowPalettePresentation colors, bool toGrey)
     {

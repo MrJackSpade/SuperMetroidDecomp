@@ -6,6 +6,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Checks dry and underwater spike-Shinespark timing, including the suit pause during Reserve recovery.</summary>
     private static void VerifySpikeShinesparkSuit()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -102,6 +103,11 @@ internal static partial class Program
             "Spike Shinespark Suit: dry one-frame window, command-zero freeze, and suitless underwater Reserve window.");
     }
 
+    /// <summary>Runs one underwater spike-contact and Reserve-recovery timing case, then returns Samus after post-recovery input.</summary>
+    /// <param name="bus">Retail address space used to construct the gameplay fixture.</param>
+    /// <param name="freezeAfter">Number of gameplay frames to run after establishing spike contact before starting recovery.</param>
+    /// <param name="launchAfter">Jump timing selector: zero presses during recovery at one reserve unit; a positive value selects that post-recovery frame.</param>
+    /// <returns>Samus state after the selected input timing has been applied.</returns>
     private static SamusState RunReserveSpikeSuitCase(
         SuperMetroidAddressSpace bus,
         int freezeAfter,
@@ -136,6 +142,10 @@ internal static partial class Program
         return samus;
     }
 
+    /// <summary>Builds the retail Ceres starting-room fixture used to test spike-contact Shinespark behavior.</summary>
+    /// <param name="bus">Retail address space supplying the room and gameplay data.</param>
+    /// <param name="underwater"><see langword="true"/> to configure water physics and the persistent spike-contact field.</param>
+    /// <returns>Initialized runtime with Samus in a Morph Ball pose on damaging spike air.</returns>
     private static SuperMetroidRuntime CreateSpikeSuitRuntime(
         SuperMetroidAddressSpace bus,
         bool underwater)

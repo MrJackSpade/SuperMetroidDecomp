@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies Phantoon's generated BG2 definitions, native extraction bytes, and loaded streams.</summary>
+    /// <param name="rom">The retail address space used to inspect and extract Phantoon's native frame data.</param>
     private static void VerifyPhantoonGeneratedBg2Catalog(SuperMetroidAddressSpace rom)
     {
         EnemyBg2FrameDefinition[] expected =
@@ -41,6 +43,8 @@ internal static partial class Program
             AssertTrue(loaded.TryGet(frame.Pointer, out var writes) && writes.Length > 0,
                 "Phantoon generated catalog loads native stream");
     }
+    /// <summary>Verifies Draygon's generated BG2 definitions, native extraction bytes, and loaded streams.</summary>
+    /// <param name="rom">The retail address space used to inspect and extract Draygon's native frame data.</param>
     private static void VerifyDraygonGeneratedBg2Catalog(SuperMetroidAddressSpace rom)
     {
         EnemyBg2FrameDefinition[] expected =
@@ -90,6 +94,16 @@ internal static partial class Program
             AssertTrue(loaded.TryGet(frame.Pointer, out var writes) && writes.Length > 0,
                 "Draygon generated catalog loads native stream");
     }
+    /// <summary>Checks a boss BG2 catalog against its native selectors and confirms extraction preserves the expected document.</summary>
+    /// <param name="rom">The retail address space containing the native component and stream records.</param>
+    /// <param name="bank">The bank used to resolve each frame's native records.</param>
+    /// <param name="family">The boss family name used in diagnostics and extraction metadata.</param>
+    /// <param name="expected">The ordered frame identities independently listed for this catalog.</param>
+    /// <param name="frames">The generated frame sequence under verification.</param>
+    /// <param name="isFrame">Predicate that identifies pointers owned by the generated catalog.</param>
+    /// <param name="frameAt">Indexed accessor used to verify published frame definitions and bounds.</param>
+    /// <param name="extract">Extractor for the generated catalog's JSON document.</param>
+    /// <returns>The verified JSON bytes generated from the native address space.</returns>
     private static byte[] VerifyGeneratedBg2Catalog(SuperMetroidAddressSpace rom, byte bank,
         string family, EnemyBg2FrameDefinition[] expected, EnemyBg2FrameDefinitionSequence frames,
         Func<ushort, bool> isFrame, Func<int, EnemyBg2FrameDefinition> frameAt, Func<byte[]> extract)

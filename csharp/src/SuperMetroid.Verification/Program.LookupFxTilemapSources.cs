@@ -4,9 +4,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Room-FX identities present in the original six-entry Layer 3 tilemap page table.</summary>
     private static readonly RoomFxType[] OriginalFxTilemapTypes =
         [RoomFxType.Lava, RoomFxType.Acid, RoomFxType.Water, RoomFxType.Spores, RoomFxType.Rain, RoomFxType.Fog];
 
+    /// <summary>Checks the compiled type list preserves the original page-table identities and order.</summary>
     private static void VerifyFxTilemapTypeEnumeration()
     {
         AssertEqual(OriginalFxTilemapTypes.Length, RoomFxLayer3TilemapFormat.Types.Count, "Original page type count");
@@ -18,6 +20,8 @@ internal static partial class Program
                 "Original read-only type list bounds");
     }
 
+    /// <summary>Compares compiled Layer 3 tilemap source addresses with cartridge pointers for every FX identity.</summary>
+    /// <param name="rom">Cartridge address space containing the native FX pointer table.</param>
     private static void VerifyFxTilemapSourceAddresses(ISnesAddressSpace rom)
     {
         var original = OriginalFxTilemapTypes.ToDictionary(type => type,

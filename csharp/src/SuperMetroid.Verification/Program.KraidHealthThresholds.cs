@@ -3,12 +3,32 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies Kraid's eight health thresholds against the native initializer and its
+    /// repeated right-shift-and-accumulate calculation.
+    /// </summary>
+    /// <param name="rom">Address space used to inspect the native initializer instructions.</param>
     private static void VerifyKraidHealthEighths(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidHealthFraction), () => VerifyKraidHealthFraction(rom, 0xa7aa05, 3, 8, (state, index) => state.HealthEighthThreshold(index)));
 
+    /// <summary>
+    /// Verifies Kraid's four health thresholds against the native initializer and its
+    /// repeated right-shift-and-accumulate calculation.
+    /// </summary>
+    /// <param name="rom">Address space used to inspect the native initializer instructions.</param>
     private static void VerifyKraidHealthQuarters(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidHealthFraction), () => VerifyKraidHealthFraction(rom, 0xa7aa26, 2, 4, (state, index) => state.HealthQuarterThreshold(index)));
 
+    /// <summary>
+    /// Checks the native shift instructions and compares each generated health fraction against
+    /// the shift-and-accumulate recurrence for every possible initial 16-bit health value; also
+    /// verifies that invalid threshold indices preserve the array bounds failure.
+    /// </summary>
+    /// <param name="rom">Address space containing the native initializer instructions.</param>
+    /// <param name="shiftAddress">Address of the first native accumulator right-shift instruction.</param>
+    /// <param name="shifts">Number of right shifts applied before accumulating the fraction.</param>
+    /// <param name="count">Number of cumulative thresholds produced by the recurrence.</param>
+    /// <param name="actual">Accessor that returns the implementation's threshold at a given index.</param>
     private static void VerifyKraidHealthFraction(SuperMetroidAddressSpace rom, int shiftAddress,
         int shifts, int count, Func<KraidEnemyState, int, ushort> actual)
     {

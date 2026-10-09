@@ -5,12 +5,16 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Runs the Samus and enemy square-slope table comparisons and collision-algorithm checks.</summary>
+    /// <param name="rom">Address space containing the native quadrant tables used as the verification oracle.</param>
     private static void VerifyCompiledSquareSlopes(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifySamusSquareSlopeAlgorithm), () => VerifySamusSquareSlopeAlgorithm(rom));
         Suite(nameof(VerifyEnemySquareSlopeAlgorithm), () => VerifyEnemySquareSlopeAlgorithm(rom));
     }
 
+    /// <summary>Checks Samus's twenty quadrant bytes and exhaustively compares real missile point reactions for each square orientation.</summary>
+    /// <param name="rom">Address space containing Samus's native square-quadrant table.</param>
     private static void VerifySamusSquareSlopeAlgorithm(SuperMetroidAddressSpace rom)
     {
         var native = new byte[20];
@@ -51,6 +55,8 @@ internal static partial class Program
         Console.WriteLine("Samus square-slope algorithm: 20 native bytes, bounds and 10240 real missile point cases in both axes pass without ROM reads.");
     }
 
+    /// <summary>Checks the compiled enemy quadrant bytes against both native enemy and projectile table copies.</summary>
+    /// <param name="rom">Address space containing the native enemy and enemy-projectile quadrant tables.</param>
     private static void VerifyEnemySquareSlopeAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 20; index++)

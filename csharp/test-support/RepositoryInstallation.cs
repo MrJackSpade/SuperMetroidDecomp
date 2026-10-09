@@ -14,6 +14,7 @@ using SuperMetroid.Core.Runtime;
 /// </summary>
 internal static partial class RepositoryInstallation
 {
+    /// <summary>Installs or reuses the repository ROM's extracted content under the ignored verification test-temp directory.</summary>
     private static readonly Lazy<GameInstallation> installation = new(() =>
     {
         string root = Path.GetFullPath("csharp/test-temp/verification-installed-content");
@@ -21,9 +22,11 @@ internal static partial class RepositoryInstallation
             GameAssetInstaller.Install(Path.GetFullPath("Super Metroid.smc"), root);
     });
 
+    /// <summary>Caches the action that binds installation-owned presentation catalogs to each newly created runtime.</summary>
     private static readonly Lazy<Action<SuperMetroidRuntime>> runtimeBindings =
         new(() => InstalledRuntimeBindings.Create(Installation));
 
+    /// <summary>Gets the process-shared installation, creating or reusing its extracted content on first access.</summary>
     internal static GameInstallation Installation => installation.Value;
 
     /// <summary>A gameplay runtime bound to the installation's presentation catalogs.</summary>

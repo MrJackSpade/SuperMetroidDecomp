@@ -288,8 +288,6 @@ public sealed class RidleyEnemyState
     public ushort GrabXOffset { get; internal set; }
     /// <summary>Gets Samus's signed whole-pixel Y displacement from the claw anchor; carry updates decay it toward zero.</summary>
     public ushort GrabYOffset { get; internal set; }
-    /// <summary>Gets the short Lower Norfair Power Bomb reaction countdown used to retain the dodge trigger across combat phases.</summary>
-    public ushort PowerBombReactionLatched { get; internal set; }
     /// <summary>Gets the Lower Norfair hit-pressure accumulator, increased by shots and decayed during AI; its threshold can force a grabbed-Samus release.</summary>
     public ushort HurtMovementClamp { get; internal set; }
     /// <summary>Gets the number of zero-health Lower Norfair lunges completed before the authored death transition.</summary>

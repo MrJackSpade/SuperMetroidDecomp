@@ -764,7 +764,10 @@ public sealed partial class RoomEnemySystem
                         samus,
                         controllerInput,
                         level,
-                        samusProjectiles, cameraX, cameraY);
+                        samusProjectiles,
+                        sharedProjectiles ?? throw new InvalidOperationException(
+                            "Ridley's power-bomb check ($A6:BD2C) requires the shared projectile owner."),
+                        cameraX, cameraY);
                     ranActorAi = true;
                 }
                 if (!ranActorAi &&
@@ -1929,7 +1932,9 @@ public sealed partial class RoomEnemySystem
                     samus,
                     controllerInput,
                     level,
-                    samusProjectiles, cameraX, cameraY);
+                    samusProjectiles,
+                    sharedProjectiles,
+                    cameraX, cameraY);
                 return;
             case EnemyAiCodePointers.MainAI_RidleyExplosion when slot.EnemyDefinitionPointer == RidleyExplosionDefinitions.EnemyDefinition:
                 RunNorfairRidleyExplosionMain(slot);

@@ -10,22 +10,25 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>
+    /// <c>LungeIfPowerBombActiveAndNotHoldingSamus</c> at $A6:BD2C, run before the function on
+    /// every main and even hurt frame. It reads $0CEE, which is set as soon as a power bomb is
+    /// laid, so Ridley lunges in the same frame Samus lays one.
+    /// </summary>
     private static void PrepareNorfairRidleyCombatFrame(
         RoomEnemySlot body,
-        RidleyEnemyState state)
+        RidleyEnemyState state,
+        SamusBombProjectileSystem sharedProjectiles)
     {
-        if (state.PowerBombReactionLatched == 0)
+        if (unchecked((short)state.FightMode) <= 0 || state.FightMode == 2)
+            return;
+        if (sharedProjectiles.PowerBombExplosion.Flag == 0 || state.GrabState != 0)
             return;
 
-        state.PowerBombReactionLatched--;
-        if (state.FightMode > 0 && state.FightMode != 2 && state.GrabState == 0)
-        {
-            // $A6:BD2C interrupts the current action while a live power-bomb field is
-            // present. Function $B84D resets both tail control words before the lunge.
-            state.TailFunctionIndex = 1;
-            state.TailAngleDelta = 1;
-            state.Function = RidleyAiFunction.NorfairGrabApproach;
-        }
+        // Function $B84D resets both tail control words before the lunge.
+        state.TailFunctionIndex = 1;
+        state.TailAngleDelta = 1;
+        state.Function = RidleyAiFunction.NorfairGrabApproach;
     }
 
     /// <summary>
@@ -39,6 +42,7 @@ public sealed partial class RoomEnemySystem
         ushort controllerInput,
         RoomLevelData? level,
         SamusProjectileSystem? samusProjectiles,
+        SamusBombProjectileSystem sharedProjectiles,
         ushort cameraX,
         ushort cameraY)
     {
@@ -46,7 +50,7 @@ public sealed partial class RoomEnemySystem
         if ((body.FrameCounter & 1) == 0)
         {
             UpdateNorfairRidleyIntangibility(body, state, cameraX, cameraY);
-            PrepareNorfairRidleyCombatFrame(body, state);
+            PrepareNorfairRidleyCombatFrame(body, state, sharedProjectiles);
             RunNorfairRidleyFunction(body, state, samus, controllerInput, level);
             if (state.MovementAnimationEnabled != 0)
             {
@@ -68,36 +72,6 @@ public sealed partial class RoomEnemySystem
             UpdateNorfairRidleyGrabbedSamus(body, state, samus);
     }
 
-    /// <summary>
-    /// Completes <c>EnemyShot_Ridley</c> at $A6:DF8A after common no-death-check damage.
-    /// The real boss deliberately remains a live actor at zero health. His action selector
-    /// then chooses only lunges until he catches Samus and begins the authored death scene.
-    /// </summary>
-    private void ResolveNorfairRidleyShotAfterCommon(RoomEnemySlot body)
-    {
-        RidleyEnemyState state = RequireNorfairRidley(body);
-
-        // The collision pass runs after EnemyMain, while the native hurt palette is drawn
-        // from the frame that just ran. Publish that same state immediately for standalone
-        // consumers which inspect CGRAM before the next enemy dispatcher call.
-        UpdateRidleyHurtFlashPalettes(
-            body,
-            state,
-            unchecked((ushort)(body.FrameCounter - 1)));
-        UpdateNorfairRidleyHealthPalette(body, state);
-    }
-
-    /// <summary>
-    /// Completes <c>PowerBombReaction_Ridley</c> at $A6:DFB2. Common damage installs the
-    /// 48-frame invincibility/flash state; the live power-bomb flag also interrupts a normal
-    /// fight action with Ridley's lunge on the following enemy frame.
-    /// </summary>
-    private void ResolveNorfairRidleyPowerBombAfterCommon(RoomEnemySlot body)
-    {
-        RidleyEnemyState state = RequireNorfairRidley(body);
-        state.PowerBombReactionLatched = 2;
-        ResolveNorfairRidleyShotAfterCommon(body);
-    }
 
     /// <summary>
     /// Ports the collision-relevant portion of <c>HandleRidleySamusInteractionBit</c> at

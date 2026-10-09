@@ -1755,8 +1755,6 @@ public sealed partial class RoomEnemySystem
                     ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
                 if (isHorizontalShutter)
                     ReactHorizontalShutter(enemy);
-                if (isNorfairRidley)
-                    ResolveNorfairRidleyShotAfterCommon(enemy);
                 if (isDraygonBody)
                     ResolveDraygonReaction(enemy, samus);
 
@@ -2201,8 +2199,6 @@ public sealed partial class RoomEnemySystem
                                 ResolveSporeSpawnShotAfterCommon(enemy);
                             if (isDraygonBody)
                                 ResolveDraygonReaction(enemy, samus);
-                            if (isNorfairRidley)
-                                ResolveNorfairRidleyShotAfterCommon(enemy);
                             if (isBotwoon)
                                 ResolveBotwoonCombatAfterCommon(enemy);
                             if (isShaktool)
@@ -2643,8 +2639,6 @@ public sealed partial class RoomEnemySystem
                 ResolveKiHunterShotAfterCommon(enemy);
             if (isBotwoon)
                 ResolveBotwoonCombatAfterCommon(enemy);
-            if (isNorfairRidley)
-                ResolveNorfairRidleyPowerBombAfterCommon(enemy);
             if (isDraygonBody)
                 ResolveDraygonReaction(enemy, samus);
 

@@ -39,7 +39,9 @@ public sealed partial class BabyMetroidCutsceneState
     // Enemy header `$A0:ECBF` declares width/height `$24`. Despite the header macro's
     // friendly names, `$A0:8AFF/$8B05` copy those words directly into the enemy slot's
     // X/Y *radius* fields; there is no diameter-to-radius division anywhere in between.
+    /// <summary>Horizontal collision half-extent, 36 room pixels from the Baby's center, copied without halving from <c>EnemyHeaders_BabyMetroidCutscene</c> at $A0:ECBF.</summary>
     public const ushort XHitboxRadius = 0x0024;
+    /// <summary>Vertical collision half-extent, 36 room pixels from the Baby's center, copied without halving from <c>EnemyHeaders_BabyMetroidCutscene</c> at $A0:ECBF.</summary>
     public const ushort YHitboxRadius = 0x0024;
 
     // Shared bank-$86 component math indexes this 16-bit sign-extended table with an
@@ -867,11 +869,10 @@ public sealed partial class BabyMetroidCutsceneState
             backgroundPaletteTransfer);
     }
 
-    /// <summary>
-    /// Applies <c>$86:C381-$C3A8</c>'s Baby half of an onion-ring collision. The projectile
-    /// system owns explosion/deletion and the Mother Brain cry flag; the enemy slot owns
-    /// this flash timer and saturating health subtraction.
-    /// </summary>
+    // $86:C381-$C3A8's Baby half of an onion-ring collision is implemented in the
+    // other partial declaration: the projectile system owns explosion/deletion and
+    // the Mother Brain cry flag; the enemy slot owns the flash timer and saturating
+    // health subtraction.
 }
 
 /// <summary>

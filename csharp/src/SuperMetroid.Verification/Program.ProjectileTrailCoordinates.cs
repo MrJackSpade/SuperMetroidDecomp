@@ -23,7 +23,7 @@ internal static partial class Program
                 AssertThrows<InvalidDataException>(() => ProjectileTrailCoordinateDefinitions.ReadCompiledWord(rejectedAddress), "Trail pointer reader rejects gaps and unrelated upper-ROM words");
             }
         }
-        AssertEqual(3857, bytes, "174 pointer words, 870 four-coordinate records, 28 adjacent observations and the empty-family wrapped byte cover the reachable native region");
+        AssertEqual(4342, bytes, "174 pointer words, 870 four-coordinate records, 28 adjacent observations, 485 further reflected-list-start bytes and the empty-family wrapped byte cover the reachable native region");
         Suite(nameof(VerifyCoordinateSpawn), () => VerifyCoordinateSpawn(bus));
         AssertTrue(ProjectileTrailCoordinateDefinitions.TryReadByte(0x9bffff, out byte boundaryLow),
             "bank-end trail operand has a compiled low byte");
@@ -114,7 +114,58 @@ internal static partial class Program
             AssertEqual(1, actual.Left.InstructionTimer, "Compiled coordinates retain spawn timing");
             cases++;
         }
-        Console.WriteLine($"Trail spawn: {cases} beam/charged/SBA/missile direction/frame/origin cases preserve all four native positions without coordinate ROM reads.");
+        // $90:BE17 reflects a projectile onto the start of its new direction's list. A trail
+        // spawned before that list's first record reads the preceding word as its frame; the
+        // 13% movie's reflected charged beam reads Grapple swing data at $9B:C1FB this way.
+        foreach ((ushort type, int dataTable, int index) in ReflectableTrailTypes())
+        for (ushort direction = 0; direction < 10; direction++)
+        {
+            ushort data = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), dataTable + index * 2);
+            ushort listStart = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x930000 | unchecked((ushort)(data + 2 + direction * 2)));
+            ushort frame = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x930000 | unchecked((ushort)(listStart - 2)));
+            int family = (type & 0x20) != 0 ? 0x9ba4e3 : (type & 0x10) != 0 ? 0x9ba4cb : 0x9ba4b3;
+            ushort directions = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), family + (type & 15) * 2);
+            // An empty SBA family indexes bank-$9B WRAM; that live read is covered above.
+            if (directions < 0x8000) continue;
+            ushort offsets = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x9b0000 | unchecked((ushort)(directions + direction * 2)));
+            ushort y = unchecked((ushort)(offsets + frame * 4));
+            byte Read(ushort operand, ushort index) => (byte)(ReadNativeTrailOperandWord(bus, operand, index) >> 8);
+            ushort Position(byte offset) => unchecked((ushort)(0x0100 + (sbyte)offset - 4));
+            system.Reset();
+            var shot = new SamusProjectileSlot(0)
+            {
+                Type = type, Direction = direction, InstructionPointer = listStart, XPosition = 0x0100, YPosition = 0x0100,
+            };
+            (ushort, ushort, ushort, ushort) expected;
+            try { expected = (Position(Read(0, unchecked((ushort)(y - 1)))), Position(Read(0, y)), Position(Read(1, y)), Position(Read(2, y))); }
+            catch (InvalidOperationException)
+            {
+                // Hardware the native reference does not model must fail in production too.
+                AssertThrows<InvalidOperationException>(() => spawn(new TrailCoordinateGuard(bus), shot),
+                    $"reflected type ${type:X4} direction {direction} trail fails on unmodeled hardware");
+                cases++;
+                continue;
+            }
+            spawn(new TrailCoordinateGuard(bus), shot);
+            var actual = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
+            AssertEqual(expected, (actual.Left.XPosition, actual.Left.YPosition, actual.Right.XPosition, actual.Right.YPosition),
+                $"reflected type ${type:X4} direction {direction} trail reads the word before its list start");
+            cases++;
+        }
+        Console.WriteLine($"Trail spawn: {cases} beam/charged/SBA/missile direction/frame/origin and reflected list-start cases preserve all four native positions without coordinate ROM reads.");
+    }
+
+    /// <summary>Every projectile type $90:BE17 can reflect, with its bank-$93 data table and index.</summary>
+    private static IEnumerable<(ushort Type, int DataTable, int Index)> ReflectableTrailTypes()
+    {
+        for (ushort combination = 0; combination < 12; combination++)
+        {
+            yield return (combination, 0x9383c1, combination);
+            yield return ((ushort)(combination | 0x10), 0x9383d9, combination);
+            yield return ((ushort)(combination | 0x30), 0x9383d9, combination);
+        }
+        yield return (0x0100, 0x9383f1, 1);
+        yield return (0x0200, 0x9383f1, 2);
     }
 
     // Import-only reference for the actual $9B absolute-indexed operand. The

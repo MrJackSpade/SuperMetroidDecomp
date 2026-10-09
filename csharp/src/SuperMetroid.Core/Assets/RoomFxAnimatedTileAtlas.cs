@@ -6,8 +6,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable two-bit characters for simple room-FX and Wrecked Ship treadmill frames.</summary>
 public sealed class RoomFxAnimatedTileAtlas : IInstalledArtworkTransferSource
 {
+    /// <summary>Encoded planar bytes for the ordered room-FX, treadmill, statue, spore, and spike artwork strip.</summary>
     private readonly byte[] transfer;
 
+    /// <summary>Creates an atlas from planar bytes whose length matches the ordered segment manifest.</summary>
+    /// <param name="transfer">The complete encoded 2-bpp artwork strip.</param>
     private RoomFxAnimatedTileAtlas(byte[] transfer)
     {
         this.transfer = transfer;
@@ -159,6 +162,7 @@ public static class RoomFxAnimatedTileAtlasFormat
     /// </summary>
     public static IEnumerable<RoomFxAtlasSegment> Segments => EnumerateSegments();
 
+    /// <summary>Yields native artwork transfers in stable strip order, retaining historical offsets and shared statue windows.</summary>
     private static IEnumerable<RoomFxAtlasSegment> EnumerateSegments()
     {
         int total = 0;

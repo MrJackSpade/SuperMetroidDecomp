@@ -48,6 +48,11 @@ internal enum EndingGunshipPaletteInk
 /// a separate, narrowly documented nonsense disposition.</remarks>
 internal static class EndingGunshipPaletteColorDefinitions
 {
+    /// <summary>Maps an aligned color-word pointer in the sixteen-record reveal to its frame and color index.</summary>
+    /// <param name="pointer">Palette pointer to classify; record durations, waits, and odd byte addresses are not colors.</param>
+    /// <param name="frame">Receives the zero-based reveal frame when the pointer identifies a color word.</param>
+    /// <param name="color">Receives the zero-based color within that frame when the pointer identifies a color word.</param>
+    /// <returns><see langword="true"/> for one of the sixteen color words in a timed record; otherwise <see langword="false"/>.</returns>
     internal static bool TryCoordinates(ushort pointer, out int frame, out int color)
     {
         frame = color = 0;
@@ -90,10 +95,21 @@ internal static class EndingGunshipPaletteColorDefinitions
         return true;
     }
 
+    /// <summary>Resolves an interpolation endpoint from supplied palette edits, falling back to the calculated color rules.</summary>
+    /// <param name="frame">Reveal frame containing the endpoint.</param>
+    /// <param name="color">Color index within the endpoint frame.</param>
+    /// <param name="colors">Supplied native-pointer color values, which take precedence over calculation.</param>
+    /// <param name="value">Receives the endpoint color when either source can resolve it.</param>
+    /// <returns><see langword="true"/> when the endpoint is supplied or calculated; otherwise <see langword="false"/>.</returns>
     private static bool Endpoint(int frame, int color, IReadOnlyDictionary<ushort, ushort> colors, out ushort value)
     {
         ushort pointer = ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer(frame, color);
         return colors.TryGetValue(pointer, out value) || TryCalculatedColor(pointer, colors, out value);
     }
+    /// <summary>Packs red, green, and blue five-bit channels into the SNES BGR555 palette-word layout.</summary>
+    /// <param name="red">Five-bit red channel value.</param>
+    /// <param name="green">Five-bit green channel value.</param>
+    /// <param name="blue">Five-bit blue channel value.</param>
+    /// <returns>The packed 15-bit palette word.</returns>
     private static ushort Pack(int red, int green, int blue) => (ushort)(red | green << 5 | blue << 10);
 }

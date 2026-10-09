@@ -11,10 +11,14 @@ using SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class ShallowWaterJumpScenario
 {
+    /// <summary>CSV column names emitted by <see cref="Jump"/> for each captured takeoff frame.</summary>
     internal const string TraceHeader = "frame,pose,y,yspeed,ydir,radius,medium";
+    /// <summary>Number of held-jump simulation frames recorded for the shallow-water arc.</summary>
     internal const int JumpFrameCount = 60;
 
+    /// <summary>Runtime initialized with the shallow-water room and takeoff-ready Samus state.</summary>
     internal SuperMetroidRuntime Runtime { get; }
+    /// <summary>Samus instance owned by the initialized scenario runtime.</summary>
     internal SamusState Samus => Runtime.Samus!;
 
     /// <summary>Places Samus standing in the water and settles two frames, ready for takeoff.</summary>

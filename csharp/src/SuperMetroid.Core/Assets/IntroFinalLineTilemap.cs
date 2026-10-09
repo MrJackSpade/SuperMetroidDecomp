@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>The four-row Japanese subtitle staging map, as ordered editable BG tile references.</summary>
 public sealed class IntroFinalLineTilemap
 {
+    /// <summary>Stores loaded words only when they differ from the cartridge-derived default map.</summary>
     private readonly ushort[]? suppliedWords;
 
+    /// <summary>Retains a loaded map only when at least one word overrides the formula-derived default.</summary>
+    /// <param name="words">The validated tilemap words in native row-major order.</param>
     private IntroFinalLineTilemap(ushort[] words)
     {
         for (int index = 0; index < words.Length; index++)
@@ -31,6 +34,9 @@ public sealed class IntroFinalLineTilemap
         }
     }
 
+    /// <summary>Calculates the native BG3 word for a subtitle-map cell, including centered margins and glyph-half ordering.</summary>
+    /// <param name="index">The row-major cell index in the four-row, 32-column staging map.</param>
+    /// <returns>The BG tilemap word selected for that cell.</returns>
     private static ushort CalculateWord(int index)
     {
         int column = index % IntroFinalLineTilemapFormat.Columns;

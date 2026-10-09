@@ -10,6 +10,11 @@ using SuperMetroid.Core.Hardware;
 /// </summary>
 internal sealed class ReplayMovie
 {
+    /// <summary>Creates a replay source with verified movie bytes, initial SRAM, and per-frame inputs.</summary>
+    /// <param name="name">Short identity used in diagnostics.</param>
+    /// <param name="bytes">Complete encoded movie file.</param>
+    /// <param name="powerOnSaveRam">Cartridge SRAM state to install before replay begins.</param>
+    /// <param name="frameInputs">Controller words for each frame, including the trailing read word.</param>
     private ReplayMovie(string name, byte[] bytes, byte[] powerOnSaveRam, ushort[] frameInputs)
     {
         Name = name;
@@ -20,7 +25,9 @@ internal sealed class ReplayMovie
 
     /// <summary>Short label used in replay messages.</summary>
     public string Name { get; }
+    /// <summary>Exact encoded movie bytes whose hash was checked by <see cref="Load"/>.</summary>
     public byte[] Bytes { get; }
+    /// <summary>Cartridge SRAM image to restore before consuming the movie's input timeline.</summary>
     public byte[] PowerOnSaveRam { get; }
 
     /// <summary>
@@ -41,6 +48,10 @@ internal sealed class ReplayMovie
             : throw new InvalidDataException($"{name} is neither an SMV nor an lsnes movie.");
     }
 
+    /// <summary>Parses a one-controller reset-start SMV and extracts its inputs and embedded SRAM.</summary>
+    /// <param name="name">Short identity retained for replay diagnostics.</param>
+    /// <param name="movie">Complete SMV file bytes.</param>
+    /// <returns>Replay data with the source-frame controller words and trailing input word.</returns>
     private static ReplayMovie FromSmv(string name, byte[] movie)
     {
         const int FrameCountField = 0x10, ControllerCountField = 0x14, ControllerOffsetField = 0x1c;

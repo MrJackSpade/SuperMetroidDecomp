@@ -26,6 +26,11 @@ internal static class SamusSpritemapFrameDefinitions
     /// <summary>$92:8399/83AB and90C5/90D7 identify bubbles, diving splash and the two death-OAM sequence domains.</summary>
     private const int Bubbles = 0x186, Diving = 0x18f, DeathRight = 0x81c, DeathLeft = 0x825;
 
+    /// <summary>Resolves an allocated pose-half slot to its native OAM pointer or identifies a control/omitted slot.</summary>
+    /// <param name="index">Index in the combined upper- and lower-half pose allocation.</param>
+    /// <param name="definitions">Compiled spritemap records used to advance through variable-length allocation runs.</param>
+    /// <param name="pointer">Receives the resolved pointer, or zero for a control or intentionally omitted half.</param>
+    /// <returns><see langword="true"/> when the slot is a control/omitted entry or its native pointer can be resolved.</returns>
     internal static bool TryPointer(int index, IReadOnlyDictionary<ushort, SamusSpritemapDefinition> definitions, out ushort pointer)
     {
         if (IsControlOrOmittedHalf(index)) { pointer = 0; return true; }
@@ -120,6 +125,12 @@ internal static class SamusSpritemapFrameDefinitions
         int leaving = Phase(false, SamusPoseId.UnusedPoseDd);
         return leaving is 0 or 1 || Phase(false, SamusPoseId.UnusedPoseDe) is 0 or 1;
     }
+    /// <summary>Advances by ordinal through consecutive native spritemap records using their compiled part counts.</summary>
+    /// <param name="start">Pointer to the first record in the allocation run.</param>
+    /// <param name="ordinal">Zero-based record position to resolve from the run start.</param>
+    /// <param name="definitions">Definitions providing each preceding record's variable byte length.</param>
+    /// <param name="pointer">Receives the resulting pointer or the first pointer whose definition is unavailable.</param>
+    /// <returns><see langword="true"/> when every record needed to reach the ordinal is present.</returns>
     private static bool Advance(ushort start, int ordinal, IReadOnlyDictionary<ushort, SamusSpritemapDefinition> definitions, out ushort pointer)
     {
         pointer = start;
@@ -130,6 +141,10 @@ internal static class SamusSpritemapFrameDefinitions
         }
         return true;
     }
+    /// <summary>Maps a pose-half allocation slot to the selected artwork source, accounting for shared and reversed sequences.</summary>
+    /// <param name="index">Index in the complete Samus spritemap pointer allocation.</param>
+    /// <returns>The allocation index whose artwork supplies this slot, or the same index when it has no source alias.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the allocated spritemap pointers.</exception>
     internal static int SourceIndex(int index)
     {
         if ((uint)index >= SamusSpritemapArtworkCatalog.PointerCount) throw new ArgumentOutOfRangeException(nameof(index));

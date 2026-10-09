@@ -14,6 +14,9 @@ internal static class IntroRinkaInstructionDefinitions
     /// <summary>$8B:CE1B, exclusive end after the spawner's delete opcode.</summary>
     internal const ushort EndPointer = 0xce1b;
 
+    /// <summary>Compiles one 16-bit entry in the Rinka actor and spawner instruction programs.</summary>
+    /// <param name="word">Zero-based word offset from <see cref="StartPointer"/>.</param>
+    /// <returns>The native instruction operand or opcode word at that offset.</returns>
     private static ushort ProgramWord(int word)
     {
         if (word < 6)
@@ -39,6 +42,10 @@ internal static class IntroRinkaInstructionDefinitions
         };
     }
 
+    /// <summary>Reads one byte from the compiled instruction stream using its native address.</summary>
+    /// <param name="pointer">Address within the half-open range from <see cref="StartPointer"/> to <see cref="EndPointer"/>.</param>
+    /// <returns>The low or high byte of the compiled word containing the address.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The address is outside the compiled stream.</exception>
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer < StartPointer || pointer >= EndPointer)
@@ -47,6 +54,10 @@ internal static class IntroRinkaInstructionDefinitions
         return unchecked((byte)(ProgramWord(offset / 2) >> (8 * (offset & 1))));
     }
 
+    /// <summary>Reads one little-endian instruction word without crossing the compiled stream boundary.</summary>
+    /// <param name="pointer">Address of the first byte; both bytes must lie before <see cref="EndPointer"/>.</param>
+    /// <returns>The two consecutive compiled bytes combined as a native instruction word.</returns>
+    /// <exception cref="InvalidDataException">The address does not leave room for a complete word in the stream.</exception>
     internal static ushort ReadWord(ushort pointer)
     {
         if (pointer < StartPointer || pointer >= EndPointer - 1)

@@ -64,8 +64,11 @@ public sealed partial class EnemyTileArtworkCatalog
             content.AppendIdentity("AuxiliaryColors", AuxiliaryColors?.ContentIdentity);
         });
 
+    /// <summary>Installed tile sheets indexed by their bank-$B4 enemy graphics-set pointer.</summary>
     private readonly Dictionary<ushort, RoomCharacterAtlas> sheets;
+    /// <summary>Installed sixteen-color palettes indexed by the matching graphics-set pointer.</summary>
     private readonly Dictionary<ushort, EnemyPaletteSheet> palettes;
+    /// <summary>Ordinary enemy tile transfers indexed by native DMA source address and byte length.</summary>
     private readonly Dictionary<(int Source, int ByteCount), RoomCharacterAtlas> byDmaSource;
 
 

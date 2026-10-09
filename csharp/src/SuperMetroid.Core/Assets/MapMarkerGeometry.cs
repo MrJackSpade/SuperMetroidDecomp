@@ -20,6 +20,9 @@ internal static class MapMarkerGeometry
     /// <summary>The authored map title at82:CBFB; its wording is text content, not a numerical mapping.</summary>
     private const string WorldTitleText = "PLANET ZEBES";
 
+    /// <summary>Returns the number of ordered OBJ parts used by a supported world-map marker identifier.</summary>
+    /// <param name="id">Compiled map-sprite identifier whose composition is being measured.</param>
+    /// <returns>The part count, or zero when the identifier has no regular marker composition here.</returns>
     internal static int PartCount(ushort id) => id switch
     {
         MapSpriteDefinitions.ArrowRight or MapSpriteDefinitions.ArrowLeft or
@@ -35,6 +38,11 @@ internal static class MapMarkerGeometry
         _ => 0,
     };
 
+    /// <summary>Calculates one marker part's relative position, tile, priority, and flips in its native composition order.</summary>
+    /// <param name="id">Compiled map-sprite identifier selecting the marker layout.</param>
+    /// <param name="index">Zero-based part position below <see cref="PartCount(ushort)"/>.</param>
+    /// <returns>The compiled OBJ attributes and offsets for the selected part.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the selected marker's part range.</exception>
     internal static CompiledSpritePart Part(ushort id, int index)
     {
         if ((uint)index >= (uint)PartCount(id)) throw new ArgumentOutOfRangeException(nameof(index));
@@ -137,6 +145,10 @@ internal static class MapMarkerGeometry
         return upper + (top ? 0 : 16);
     }
 
+    /// <summary>Checks whether editable sprite-part data reproduces a supported marker's compiled geometry and OBJ attributes.</summary>
+    /// <param name="id">Compiled map-sprite identifier defining the expected composition.</param>
+    /// <param name="parts">Visual parts to compare in native draw order.</param>
+    /// <returns><see langword="true"/> when every part matches position, size, palette, priority, tile, and flips; otherwise, <see langword="false"/>.</returns>
     internal static bool Matches(ushort id, SpriteVisualPart[] parts)
     {
         int count = PartCount(id);

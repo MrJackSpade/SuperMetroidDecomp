@@ -25,9 +25,14 @@ public static class RoomFxSporeTilemapDefinitions
 /// </remarks>
 internal sealed class RoomFxSporeTilemap
 {
+    /// <summary>The low ten character-index bits retained for every cell in the extracted page.</summary>
     private readonly ushort[] characters;
+
+    /// <summary>Only cell attributes that differ from the calculated stock palette, priority, and flip bits.</summary>
     private readonly Dictionary<int, ushort>? customAttributes;
 
+    /// <summary>Separates character indices from stock attributes while preserving explicit attribute edits.</summary>
+    /// <param name="bytes">One complete Layer 3 tilemap page in little-endian tilemap-word order.</param>
     public RoomFxSporeTilemap(ReadOnlySpan<byte> bytes)
     {
         Ensure.LengthEqual(bytes, RoomFxLayer3TilemapFormat.PageByteCount);

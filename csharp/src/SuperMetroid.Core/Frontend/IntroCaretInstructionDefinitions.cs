@@ -15,6 +15,9 @@ internal static class IntroCaretInstructionDefinitions
     /// <summary>$8B:CC0F, exclusive end after the blank-frame blink loop.</summary>
     internal const ushort EndPointer = 0xcc0f;
 
+    /// <summary>Reconstructs one word of the visible or blinking caret program, including its duration, sprite map, and loop target.</summary>
+    /// <param name="word">Zero-based word offset across the two adjacent caret lists.</param>
+    /// <returns>The native instruction word stored at that offset.</returns>
     private static ushort ProgramWord(int word)
     {
         bool blink = word >= 4;
@@ -26,6 +29,10 @@ internal static class IntroCaretInstructionDefinitions
             : blink ? CinematicCodePointers.Lists.IntroTextCaretBlink : StartPointer;
     }
 
+    /// <summary>Reads one byte from the compiled caret lists, extracting the addressed half of its native instruction word.</summary>
+    /// <param name="pointer">Bank-$8B address within the caret program's inclusive start and exclusive end range.</param>
+    /// <returns>The byte stored at the requested address.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The address lies outside the compiled caret lists.</exception>
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer < StartPointer || pointer >= EndPointer)
@@ -34,6 +41,11 @@ internal static class IntroCaretInstructionDefinitions
         return unchecked((byte)(ProgramWord(offset / 2) >> (8 * (offset & 1))));
     }
 
+    /// <summary>Reads a little-endian instruction word when both bytes lie within the compiled caret lists.</summary>
+    /// <param name="pointer">Address of the word's low byte.</param>
+    /// <param name="word">Receives the decoded word, or zero when the address is outside the lists.</param>
+    /// <returns><see langword="true"/> when a complete word was read; otherwise <see langword="false"/>.</returns>
+    /// <exception cref="InvalidDataException">The address is the final byte, so reading a word would cross the program boundary.</exception>
     internal static bool TryReadWord(ushort pointer, out ushort word)
     {
         if (pointer < StartPointer || pointer >= EndPointer)

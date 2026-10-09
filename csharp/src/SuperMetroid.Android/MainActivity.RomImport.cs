@@ -7,6 +7,8 @@ namespace SuperMetroid.Android;
 
 public sealed partial class MainActivity
 {
+    /// <summary>Shows the ROM-selection screen and displays an optional import or startup error.</summary>
+    /// <param name="error">The message shown beneath the setup instructions, or <see langword="null"/> when no error is present.</param>
     private void ShowRomSetup(string? error = null)
     {
         if (destroyed) return;
@@ -44,6 +46,8 @@ public sealed partial class MainActivity
         choose.RequestFocus();
     }
 
+    /// <summary>Copies the selected document into app-private storage, installs its game assets, and starts the game when installation succeeds.</summary>
+    /// <param name="uri">The content URI returned by Android's document picker.</param>
     private async Task ImportRomDocument(global::Android.Net.Uri uri)
     {
         var status = new TextView(this) { Text = "Checking ROM…", TextSize = 18 };
@@ -69,6 +73,8 @@ public sealed partial class MainActivity
         }
     }
 
+    /// <summary>Creates the game view and session from an already-installed private game-data directory.</summary>
+    /// <param name="root">The app-private directory containing the installed ROM and extracted assets.</param>
     private void StartInstalledGame(string root)
     {
         if (destroyed || session is not null) return;

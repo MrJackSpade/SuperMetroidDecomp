@@ -9,8 +9,12 @@ namespace SuperMetroid.Core.Assets;
 /// shades and temporal fades are computed. Endpoint values remain supplied, not defaults.</summary>
 internal sealed class EndingLogoBackgroundPalette
 {
+    /// <summary>RGB5 grey endpoints for the ramp: <c>light</c> anchors slot one and <c>dark</c> anchors slot eight.</summary>
     private readonly int light, dark;
 
+    /// <summary>Creates the computed grey ramp from its two retained endpoint levels.</summary>
+    /// <param name="light">RGB5 channel level for slot one.</param>
+    /// <param name="dark">RGB5 channel level for slot eight.</param>
     private EndingLogoBackgroundPalette(int light, int dark)
     {
         this.light = light;

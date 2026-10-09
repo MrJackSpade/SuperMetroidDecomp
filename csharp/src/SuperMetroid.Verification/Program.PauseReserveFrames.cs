@@ -6,10 +6,13 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     // Preconversion sparse visual identities, independent of the production selector.
+    /// <summary>Returns the stock reserve-frame names paired with their native sparse visual IDs.</summary>
     private static (string Name, ushort Id)[] ReserveFrameOracle() =>
         [("Full", 0x1b), ("EndCap", 0x1f), ("Empty", 0x20), ("Fill1", 0x21), ("Fill2", 0x22),
          ("Fill3", 0x23), ("Fill4", 0x24), ("Fill5", 0x25), ("Fill6", 0x26), ("Fill7", 0x27)];
 
+    /// <summary>Verifies reserve-frame extraction, stock selection, editable compositions, and rejection of unsupported IDs.</summary>
+    /// <param name="rom">Cartridge address space used to check native frame and sprite data.</param>
     private static void VerifyPauseReserveFrameCases(ISnesAddressSpace rom)
     {
         byte[] bytes = PauseReserveTankExtractor.Extract(rom);
@@ -46,6 +49,9 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => stock.Draw(new OamBuffer(), 0, -1), "anchor error precedes unknown visual");
     }
 
+    /// <summary>Checks stock reserve-part geometry and attributes against native spritemaps, then confirms each editable field reaches OAM.</summary>
+    /// <param name="rom">Cartridge address space containing the reserve-frame spritemaps.</param>
+    /// <param name="document">Extracted reserve-frame document whose stock parts are compared and edited.</param>
     private static void VerifyPauseReserveStockParts(ISnesAddressSpace rom, PauseReserveTankDocument document)
     {
         foreach (var frame in ReserveFrameOracle())
@@ -83,6 +89,10 @@ internal static partial class Program
             }
         }
     }
+
+    /// <summary>Checks native reserve-frame identities and compares rendered output across OAM occupancy levels.</summary>
+    /// <param name="rom">Cartridge address space containing native reserve-frame call sites, identities, and anchor tables.</param>
+    /// <param name="presentation">Installed reserve-frame presentation used to draw each native selection.</param>
     private static void VerifyPauseReserveNativeFrames(ISnesAddressSpace rom, PauseReserveTankPresentation presentation)
     {
         foreach (var (site, identity) in new[] { (0x82b305, 0x1b), (0x82b37d, 0x20), (0x82b396, 0x1f) })

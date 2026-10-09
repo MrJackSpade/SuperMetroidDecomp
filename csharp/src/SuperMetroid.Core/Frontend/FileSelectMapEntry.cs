@@ -7,7 +7,9 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Initial palette preparation and centered area-map reveal from $81:A32A-$81:A725.</summary>
 public sealed class FileSelectMapEntry
 {
+    /// <summary>Transition tracking progress toward the installed file-select colors without restarting the fade.</summary>
     private readonly CartridgePaletteTransition palette;
+    /// <summary>Number of eight-pixel expansion updates applied to the centered area-map reveal.</summary>
     private int revealSteps;
 
     /// <summary>Gets the live 256-color memory used by the entry palette fade.</summary>
@@ -48,6 +50,8 @@ public sealed class FileSelectMapEntry
         palette.Step(Cgram);
     }
 
+    /// <summary>Rebinds the fade destination to current installed palettes while retaining its current interpolation state.</summary>
+    /// <param name="content">Current static palettes, or null when no replacement palette data is available.</param>
     internal void BindPalettes(MapStaticPalettes? content)
     {
         if (content is null) return;

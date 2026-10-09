@@ -9,10 +9,17 @@ public sealed class DraygonBg2FrameCatalog
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
     public string ContentIdentity => frames.ContentIdentity;
 
+    /// <summary>Validated Draygon visual writes indexed by the native instruction pointer that selects each frame.</summary>
     private readonly EnemyBg2FrameCatalog frames;
 
+    /// <summary>Wraps the validated BG2 frame definitions for use by Draygon's extended-frame renderer.</summary>
+    /// <param name="frames">Compiled named frames and their ordered tilemap writes.</param>
     private DraygonBg2FrameCatalog(EnemyBg2FrameCatalog frames) => this.frames = frames;
 
+    /// <summary>Looks up the ordered BG2 writes selected by a native Draygon frame pointer.</summary>
+    /// <param name="pointer">Native instruction pointer identifying the requested visual frame.</param>
+    /// <param name="writes">Receives the selected frame's tilemap writes, or an empty value when no frame matches.</param>
+    /// <returns><see langword="true"/> when the pointer identifies one of the catalogued Draygon frames.</returns>
     internal bool TryGet(ushort pointer, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes) =>
         frames.TryGet(pointer, out writes);
 

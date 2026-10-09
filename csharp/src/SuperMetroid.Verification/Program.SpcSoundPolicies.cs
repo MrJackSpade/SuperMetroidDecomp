@@ -4,10 +4,22 @@ using System.Reflection;
 
 internal static partial class Program
 {
+    /// <summary>Checks the first SPC sound library's 66 command policies and voice setup behavior against its native handlers.</summary>
     private static void VerifySpcSoundPolicy1(ISnesAddressSpace rom) => VerifySpcSoundPolicy(rom, 0, 66, 0x1f4d, 0x03a1, 0x04bb);
+
+    /// <summary>Checks the second SPC sound library's 127 command policies and voice setup behavior against its native handlers.</summary>
     private static void VerifySpcSoundPolicy2(ISnesAddressSpace rom) => VerifySpcSoundPolicy(rom, 1, 127, 0x31b1, 0x0441, 0x04bc);
+
+    /// <summary>Checks the third SPC sound library's 47 command policies and voice setup behavior against its native handlers.</summary>
     private static void VerifySpcSoundPolicy3(ISnesAddressSpace rom) => VerifySpcSoundPolicy(rom, 2, 47, 0x4776, 0x0479, 0x04bd);
 
+    /// <summary>Compares each command's manifest policy and runtime state changes with the corresponding native SPC handler.</summary>
+    /// <param name="rom">The address space containing the original SPC image.</param>
+    /// <param name="library">The sound-library index used by the production policy tables.</param>
+    /// <param name="count">The number of commands whose native dispatch entries are checked.</param>
+    /// <param name="dispatch">The SPC address of the command-handler dispatch table.</param>
+    /// <param name="voicesAddress">The SPC destination address used for the voice-setup write.</param>
+    /// <param name="priorityAddress">The SPC destination address used for the priority write.</param>
     private static void VerifySpcSoundPolicy(ISnesAddressSpace rom, int library, int count, int dispatch, int voicesAddress, int priorityAddress)
     {
         // Original SPC image is loaded from CF:6C08 + SPC address. These dispatch

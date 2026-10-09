@@ -666,6 +666,9 @@ internal static partial class Program
         Console.WriteLine("Samus body art: 253 poses, 1143 frames, 435 split DMAs, 1913 nonzero OAM indices and special draw offsets match retail; PNG/JSON overrides load.");
     }
 
+    /// <summary>Checks arm-cannon pointers, drawing bytes, direction selectors, tile sources, and production OAM/DMA parity against retail data.</summary>
+    /// <param name="bus">Retail address space supplying the independent native artwork values.</param>
+    /// <param name="body">Installed Samus body catalog containing the arm-cannon artwork to verify.</param>
     private static void VerifySamusArmCannonArtwork(ISnesAddressSpace bus,
         SamusBodyArtworkCatalog body)
     {
@@ -769,12 +772,23 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Adapts the installed death-tile atlas for address-based VRAM transfers in verification fixtures.</summary>
+    /// <param name="tiles">Atlas used to resolve the requested death-tile byte ranges.</param>
     private sealed class DeathTileAssetProvider(SamusDeathTileAtlas tiles) :
         IVramAssetProvider, IInstalledArtworkTransferSource
     {
+        /// <summary>Resolves an address range from the installed death-tile atlas.</summary>
+        /// <param name="sourceAddress">Source address identifying the requested atlas bytes.</param>
+        /// <param name="byteCount">Number of bytes requested from that address.</param>
+        /// <param name="data">Receives the resolved bytes when the atlas contains the complete range.</param>
+        /// <returns><see langword="true"/> when the atlas resolves the requested range; otherwise <see langword="false"/>.</returns>
         public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data) =>
             tiles.TryResolve(sourceAddress, byteCount, out data);
 
+        /// <summary>Rejects typed asset requests because this fixture only supplies legacy address-based death-tile transfers.</summary>
+        /// <param name="asset">Typed asset identifier requested by the transfer queue.</param>
+        /// <returns>No value; this provider does not resolve typed assets.</returns>
+        /// <exception cref="InvalidOperationException">The transfer queue requests an asset that is not part of the death-tile fixture.</exception>
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
             throw new InvalidOperationException($"Death-tile fixture did not queue typed asset {asset}.");
     }

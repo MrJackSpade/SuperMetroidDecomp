@@ -6,7 +6,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Displayed swing-frame selection only; physical body placement remains compiled separately.</summary>
 public sealed class GrappleSwingFrameCatalog
 {
+    /// <summary>Optional 256-entry override table; null retains the native angle-to-frame mapping.</summary>
     private readonly byte[]? frames;
+
+    /// <summary>Retains an override only when at least one displayed frame differs from the native selection.</summary>
+    /// <param name="frames">Validated displayed-frame indices, one for each high angle byte.</param>
     private GrappleSwingFrameCatalog(byte[] frames)
     {
         for (int angle = 0; angle < frames.Length; angle++)
@@ -18,6 +22,8 @@ public sealed class GrappleSwingFrameCatalog
     /// <returns>A displayed orientation frame index from 0 through 31, within the current facing's swing artwork.</returns>
     public byte Resolve(byte angle) => frames is null
         ? GrappleSwingFrameDefinitions.FrameForAngle(angle) : frames[angle];
+
+    /// <summary>Serializer settings shared by the editable swing-frame document reader and writer.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

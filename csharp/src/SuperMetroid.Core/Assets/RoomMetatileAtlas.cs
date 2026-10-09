@@ -12,8 +12,11 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class RoomMetatileAtlas
 {
+    /// <summary>Compiled native tilemap words for each 16x16 block, stored as four little-endian BG words in top-left, top-right, bottom-left, bottom-right order.</summary>
     private readonly byte[] blockDefinitions;
 
+    /// <summary>Wraps the already validated native block table produced by <see cref="Load"/>.</summary>
+    /// <param name="blockDefinitions">Compiled eight-byte definitions whose order matches the source document.</param>
     private RoomMetatileAtlas(byte[] blockDefinitions) => this.blockDefinitions = blockDefinitions;
 
     /// <summary>Compiled native block-table bytes: four little-endian BG tilemap words per block, ordered top-left, top-right, bottom-left, bottom-right.</summary>
@@ -82,6 +85,7 @@ public sealed class RoomMetatileAtlas
         json.Write(bytes);
     }
 
+    /// <summary>Shared JSON policy: camel-case names, case-insensitive input, rejection of unknown fields, and indented output.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

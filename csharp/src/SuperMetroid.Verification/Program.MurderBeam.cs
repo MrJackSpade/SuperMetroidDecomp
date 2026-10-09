@@ -171,6 +171,13 @@ internal static partial class Program
             "and Ice substitution match bounded cartridge evidence.");
     }
 
+    /// <summary>Advances both projectile systems until the beam charge reaches the native fully charged threshold.</summary>
+    /// <param name="bus">The address space used by the projectile and shared-bomb updates.</param>
+    /// <param name="level">The level data supplied to each projectile update.</param>
+    /// <param name="samus">Samus state whose beam charge is advanced.</param>
+    /// <param name="projectiles">The projectile system receiving the held-fire input.</param>
+    /// <param name="shared">The shared bomb-projectile system updated alongside the beam.</param>
+    /// <param name="shootAlreadyHeld">Whether the first update should omit a new press edge while keeping fire held.</param>
     private static void HoldCharge(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -199,6 +206,9 @@ internal static partial class Program
             projectiles.FlareCounter, "pre-pause beam charge reaches charged threshold");
     }
 
+    /// <summary>Confirms the unsupported right-facing Murder Beam callback fails explicitly instead of becoming a normal shot.</summary>
+    /// <param name="bus">The address space used during the projectile update.</param>
+    /// <param name="level">The level supplied to the projectile update.</param>
     private static void VerifyUnsafeMurderBeamDirection(
         ISnesAddressSpace bus,
         RoomLevelData level)
@@ -222,6 +232,9 @@ internal static partial class Program
         }, "unsafe right-facing Murder Beam does not silently become an ordinary projectile");
     }
 
+    /// <summary>Checks that missile auto-cancel and cooldown preserve the charged Murder Beam release path.</summary>
+    /// <param name="bus">The address space used for the missile and beam updates.</param>
+    /// <param name="level">The level supplied to each projectile update.</param>
     private static void VerifyMissileAutoCancelMurderBeam(
         ISnesAddressSpace bus,
         RoomLevelData level)
@@ -274,6 +287,9 @@ internal static partial class Program
             "missile auto-cancel alternative produces Murder Beam");
     }
 
+    /// <summary>Confirms an uncharged all-beams release with the unsupported Murder Beam callback is rejected.</summary>
+    /// <param name="bus">The address space used by the projectile update.</param>
+    /// <param name="level">The level supplied to the projectile update.</param>
     private static void VerifyUnsafeUnchargedMurderBeam(
         ISnesAddressSpace bus,
         RoomLevelData level)

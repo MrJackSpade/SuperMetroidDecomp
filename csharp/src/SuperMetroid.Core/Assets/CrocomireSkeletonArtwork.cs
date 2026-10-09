@@ -7,8 +7,11 @@ public sealed class CrocomireSkeletonArtwork
     public string ContentIdentity => SelectedPresentationHash.Create("enemy-crocomire-skeleton-v1",
         content => content.Append("tiles", atlas.Transfer.Span));
 
+    /// <summary>Decoded indexed character bytes backing the six native skeleton upload chunks.</summary>
     private readonly RoomCharacterAtlas atlas;
 
+    /// <summary>Stores the atlas whose bytes are exposed in the cartridge's upload cadence.</summary>
+    /// <param name="atlas">Decoded character data containing all six contiguous upload chunks.</param>
     private CrocomireSkeletonArtwork(RoomCharacterAtlas atlas) => this.atlas = atlas;
 
     /// <summary>Compiles the 256-by-24 indexed skeleton sheet into $0C00 bytes of four-bit characters, retaining the six ordered $0200-byte upload chunks represented by $A4:99CB/$99D9.</summary>
@@ -19,6 +22,10 @@ public sealed class CrocomireSkeletonArtwork
         new(RoomCharacterAtlas.Load(png,
             CrocomireSkeletonTransferDefinitions.TotalByteCount));
 
+    /// <summary>Returns one $0200-byte character upload chunk in native transfer order.</summary>
+    /// <param name="index">Zero-based upload position from zero through five.</param>
+    /// <returns>A read-only view of the selected chunk within the owned atlas data.</returns>
+    /// <exception cref="InvalidDataException">The index is the terminal sentinel or falls outside the six uploads.</exception>
     internal ReadOnlyMemory<byte> Chunk(int index)
     {
         if (!CrocomireSkeletonTransferDefinitions.TryGet(index, out _))

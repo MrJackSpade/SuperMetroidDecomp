@@ -1,6 +1,9 @@
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>One immutable eight-byte transfer record from <c>$8B:E45A</c>.</summary>
+/// <param name="Length">Number of bytes copied by this transfer from its source.</param>
+/// <param name="SourceAddress">Native source byte address for the subtitle, logo tiles, or logo map.</param>
+/// <param name="DestinationWord">Destination offset in VRAM words; callers convert it to a byte offset when uploading.</param>
 internal readonly record struct EndingPostShotUploadDefinition(
     ushort Length, int SourceAddress, ushort DestinationWord);
 

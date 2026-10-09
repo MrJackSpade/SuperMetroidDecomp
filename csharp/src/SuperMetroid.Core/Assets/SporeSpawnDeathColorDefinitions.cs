@@ -27,6 +27,10 @@ internal static class SporeSpawnDeathColorDefinitions
         0x26a9, 0x25e9, 0x1542, 0x26a9, 0x0082, 0x2771,
     ];
 
+    /// <summary>Returns the retained initial-room color used as the fade origin for one calculated level-palette column.</summary>
+    /// <param name="color">Palette column with an independently retained initial value.</param>
+    /// <returns>The initial BGR555 word for a supported fade column.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The column is constant or has no retained initial level color.</exception>
     internal static ushort InitialLevelColor(int color) => color switch
     {
         >= 1 and <= 6 => InitialRoomLevelColors[color - 1],
@@ -50,6 +54,10 @@ internal static class SporeSpawnDeathColorDefinitions
         value = Interpolate(InitialLevelColor(color), finalColor, frame + 1);
         return true;
     }
+    /// <summary>Returns the retained room-background color used as the fade origin for a calculated palette column.</summary>
+    /// <param name="color">Palette column with an independently retained initial value.</param>
+    /// <returns>The initial BGR555 word for a supported background fade column.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The column is held at the final color or has no retained initial background value.</exception>
     internal static ushort InitialBackgroundColor(int color) => color switch
     {
         >= 1 and <= 11 => InitialRoomBackgroundColors[color - 1],
@@ -68,6 +76,11 @@ internal static class SporeSpawnDeathColorDefinitions
         return Interpolate(InitialBackgroundColor(color), finalColor, frame + 1);
     }
 
+    /// <summary>Calculates one rounded BGR555 color in the seven-step transition from the initial room color to the final death color.</summary>
+    /// <param name="initial">Starting BGR555 palette word.</param>
+    /// <param name="finalColor">Ending BGR555 palette word.</param>
+    /// <param name="step">One-based interpolation step; the first stored fade row is step 1.</param>
+    /// <returns>The interpolated BGR555 palette word.</returns>
     private static ushort Interpolate(ushort initial, ushort finalColor, int step)
     {
         int intervals = SporeSpawnColorRomData.DeathSceneFrameCount;

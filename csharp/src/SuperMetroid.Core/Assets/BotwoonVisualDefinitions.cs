@@ -11,8 +11,12 @@ internal static class BotwoonVisualDefinitions
 {
     /// <summary>Botwoon's head instruction and OAM bank, $B3.</summary>
     internal const byte Bank = 0xb3;
+
+    /// <summary>Expected number of distinct nonempty head compositions selected by Botwoon's presentation operands.</summary>
     internal const int FrameCount = 16;
 
+    /// <summary>Builds the distinct head spritemap definitions referenced by compiled movement and spit selectors.</summary>
+    /// <returns>Definitions in first-selector order, excluding the shared empty spritemap used for the hidden pose.</returns>
     internal static EnemySpritemapDefinition[] Frames()
     {
         var frames = new List<EnemySpritemapDefinition>(FrameCount);
@@ -35,6 +39,10 @@ internal static class BotwoonVisualDefinitions
         return [.. frames];
     }
 
+    /// <summary>Resolves a compiled head presentation operand to its bank-local OAM spritemap pointer.</summary>
+    /// <param name="operandAddress">The bank-$B3 instruction address containing a Botwoon presentation selector.</param>
+    /// <returns>The selected head spritemap pointer, or the shared empty pointer for the hidden pose.</returns>
+    /// <exception cref="InvalidDataException">The address is not a compiled presentation operand.</exception>
     internal static ushort FrameAt(ushort operandAddress)
     {
         if (BotwoonInstructionProgramDefinitions.IsPresentationWord(operandAddress))

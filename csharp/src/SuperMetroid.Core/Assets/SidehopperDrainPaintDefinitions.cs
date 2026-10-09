@@ -16,6 +16,9 @@ internal static class SidehopperDrainPaintDefinitions
     /// <summary>$A9:EC8C is the seventh separately selected corpse-prefix image.</summary>
     private const int CorpseFrame = 6;
 
+    /// <summary>Checks the seven supplied 15-color frames against the compiled drain progression and corpse paint.</summary>
+    /// <param name="frames">Frame-major RGB5 colors to compare with the reviewed artwork sequence.</param>
+    /// <returns><see langword="true"/> when every color in each expected frame matches.</returns>
     internal static bool Matches(ushort[][] frames)
     {
         for (int frame = 0; frame <= CorpseFrame; frame++)
@@ -24,6 +27,11 @@ internal static class SidehopperDrainPaintDefinitions
         return true;
     }
 
+    /// <summary>Returns one RGB5 color from the drain progression or its final corpse frame.</summary>
+    /// <param name="frame">The sequence index, from the initial pose through the final corpse image.</param>
+    /// <param name="color">The palette slot in the 15-color RGB5 image.</param>
+    /// <returns>The interpolated drain color, or the corpse color for the final frame.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The frame or color index is outside the compiled sequence or palette.</exception>
     internal static ushort Color(int frame, int color)
     {
         if ((uint)frame > CorpseFrame || (uint)color >= 15) throw new ArgumentOutOfRangeException(nameof(frame));
@@ -35,6 +43,10 @@ internal static class SidehopperDrainPaintDefinitions
         return (ushort)result;
     }
 
+    /// <summary>Selects the reviewed final RGB5 value for a palette slot before temporal interpolation.</summary>
+    /// <param name="color">The palette slot whose drain endpoint is requested.</param>
+    /// <returns>The initial color, a reviewed shade, or the corresponding corpse-frame color.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The color slot has no defined drain endpoint.</exception>
     private static ushort Endpoint(int color) => color switch
     {
         0 => SidehopperInitialPaintDefinitions.Color(0),

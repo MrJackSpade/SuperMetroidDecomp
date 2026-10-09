@@ -9,11 +9,20 @@ using SuperMetroid.Core.Hardware;
 /// </summary>
 internal static class ReferenceBusReadExtensions
 {
+    /// <summary>Caches diagnostic byte-reader delegates without keeping address spaces alive after their callers release them.</summary>
     private static readonly ConditionalWeakTable<ISnesAddressSpace, Func<int, byte>> Readers = new();
 
+    /// <summary>Reads one byte through the reference reader associated with a diagnostic address space.</summary>
+    /// <param name="bus">Address space whose concrete diagnostic reader supplies the byte.</param>
+    /// <param name="address">CPU bus address to read.</param>
+    /// <returns>The byte returned by the address space's reference reader.</returns>
     internal static byte ReadByte(this ISnesAddressSpace bus, int address) =>
         Readers.GetValue(bus, CreateReader)(address);
 
+    /// <summary>Builds a reference reader using typed mapped reads or the legacy concrete <c>ReadByte(int)</c> method.</summary>
+    /// <param name="bus">Concrete diagnostic address space to adapt.</param>
+    /// <returns>A delegate that reads bytes from the supplied address space.</returns>
+    /// <exception cref="InvalidOperationException">The address space exposes no compatible legacy byte reader.</exception>
     private static Func<int, byte> CreateReader(ISnesAddressSpace bus)
     {
         // The production address space intentionally has no generic read method.
@@ -29,6 +38,11 @@ internal static class ReferenceBusReadExtensions
         return method.CreateDelegate<Func<int, byte>>(bus);
     }
 
+    /// <summary>Routes a mapped CPU bus read to the typed work RAM, save RAM, or cartridge accessor.</summary>
+    /// <param name="bus">Mapped diagnostic address space providing the typed memory reads.</param>
+    /// <param name="address">CPU bus address to classify and read.</param>
+    /// <returns>The byte from the selected memory region.</returns>
+    /// <exception cref="InvalidOperationException">The address is outside the runtime DMA source map.</exception>
     private static byte ReadMappedByte(SuperMetroidAddressSpace bus, int address) =>
         SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
         {

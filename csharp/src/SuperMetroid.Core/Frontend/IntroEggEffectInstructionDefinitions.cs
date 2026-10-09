@@ -17,6 +17,8 @@ internal static class IntroEggEffectInstructionDefinitions
     /// <summary>$8B:CE53, shared cinematic sprite delete list used by shell fragments.</summary>
     internal const ushort DeletePointer = CinematicCodePointers.Lists.Delete;
 
+    /// <summary>Produces one word of the compiled shell-loop or slime-impact instruction stream.</summary>
+    /// <param name="word">Zero-based word index in the generated program, including its impact and deletion sequence.</param>
     private static ushort ProgramWord(int word)
     {
         if (word < 28)
@@ -34,6 +36,11 @@ internal static class IntroEggEffectInstructionDefinitions
         if (impactWord == 8) return CinematicCodePointers.CinematicSpriteObject_Instruction_Delete;
         return (impactWord & 1) == 0 ? (ushort)10 : IntroEggEffectSpriteDefinitions.FramePointer(7 + impactWord / 2);
     }
+
+    /// <summary>Reads a byte from the compiled instruction lists or the shared sprite-delete opcode.</summary>
+    /// <param name="pointer">The instruction address to read, or <see cref="DeletePointer"/> for the shared delete word.</param>
+    /// <returns>The byte stored at the requested address.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The address is outside the compiled lists and is not the delete word.</exception>
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer == DeletePointer)
@@ -46,6 +53,10 @@ internal static class IntroEggEffectInstructionDefinitions
         return unchecked((byte)(ProgramWord(offset / 2) >> (8 * (offset & 1))));
     }
 
+    /// <summary>Reads an overlapping little-endian instruction word from the compiled lists or returns the shared delete opcode.</summary>
+    /// <param name="pointer">The starting instruction address.</param>
+    /// <returns>The two-byte instruction word at that address.</returns>
+    /// <exception cref="InvalidDataException">The word begins outside the compiled lists or would cross their exclusive end.</exception>
     internal static ushort ReadWord(ushort pointer)
     {
         if (pointer == DeletePointer)

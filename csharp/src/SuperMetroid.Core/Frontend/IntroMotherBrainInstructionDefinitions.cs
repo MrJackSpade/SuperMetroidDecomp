@@ -16,6 +16,9 @@ internal static class IntroMotherBrainInstructionDefinitions
     /// <summary>$8B:CB1F, first frame record after the page-two handoff callbacks.</summary>
     internal const ushort PageTwoLoopPointer = 0xcb1f;
 
+    /// <summary>Compiles a word in the intro actor's instruction lists, including the page-two handoff and loop.</summary>
+    /// <param name="word">The zero-based word index across the compiled instruction program.</param>
+    /// <returns>The native instruction or data word stored at that index.</returns>
     private static ushort ProgramWord(int word)
     {
         if (word is >= 10 and <= 12)
@@ -37,6 +40,10 @@ internal static class IntroMotherBrainInstructionDefinitions
             : pageTwo ? PageTwoLoopPointer : StartPointer;
     }
 
+    /// <summary>Reads one byte from the compiled bank-$8B instruction program.</summary>
+    /// <param name="pointer">The byte address within the program's half-open pointer range.</param>
+    /// <returns>The selected byte from the little-endian instruction stream.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The pointer lies outside the compiled program.</exception>
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer < StartPointer || pointer >= EndPointer)
@@ -45,6 +52,10 @@ internal static class IntroMotherBrainInstructionDefinitions
         return (byte)(ProgramWord(offset / 2) >> (8 * (offset & 1)));
     }
 
+    /// <summary>Reads a little-endian instruction word without allowing the read to cross the program boundary.</summary>
+    /// <param name="pointer">The address of the word's low byte.</param>
+    /// <returns>The two bytes combined as a native instruction word.</returns>
+    /// <exception cref="InvalidDataException">The two-byte read extends beyond the compiled program.</exception>
     internal static ushort ReadWord(ushort pointer)
     {
         if (pointer < StartPointer || pointer >= EndPointer - 1)

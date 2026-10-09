@@ -63,6 +63,9 @@ internal static class EndingRewardActorDefinitions
 }
 
 /// <summary>One native six-byte ending reward cinematic-object definition.</summary>
+/// <param name="Initialization">Bank-$8B routine that establishes the actor's starting position and OBJ palette.</param>
+/// <param name="PreInstruction">Bank-$8B pre-instruction routine invoked before the actor's animation instruction.</param>
+/// <param name="InstructionList">Bank-$8B animation instruction-list pointer for the actor's reward gesture.</param>
 internal readonly record struct EndingRewardActorDefinition(
     ushort Initialization,
     ushort PreInstruction,

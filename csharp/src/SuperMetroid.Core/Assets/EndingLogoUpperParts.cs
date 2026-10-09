@@ -7,7 +7,11 @@ namespace SuperMetroid.Core.Assets;
 /// native overlap order. The lower S uses the existing half-turn calculation.</summary>
 internal sealed class EndingLogoUpperParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>The number of packed sprite parts used to draw the upper S outline.</summary>
     public int Count => 14;
+
+    /// <summary>Gets an upper-S sprite part at its native overlap-order position.</summary>
+    /// <param name="index">The zero-based part position, from 0 through <see cref="Count"/> minus one.</param>
     public CompiledSpritePart this[int index]
     {
         get
@@ -59,6 +63,8 @@ internal sealed class EndingLogoUpperParts : IReadOnlyList<CompiledSpritePart>
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+
+    /// <summary>Enumerates the upper-S sprite parts in the order required to preserve their native overlaps.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];

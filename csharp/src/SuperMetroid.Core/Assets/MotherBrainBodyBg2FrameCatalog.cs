@@ -9,10 +9,17 @@ public sealed class MotherBrainBodyBg2FrameCatalog
 {
     /// <summary>Canonical selected BG2 content identity in native pose-pointer order, retaining each write's destination, command order, and tile-run boundaries independently of JSON formatting.</summary>
     public string ContentIdentity => frames.ContentIdentity;
+    /// <summary>Validated BG2 tilemap runs indexed by the native pointer for each Mother Brain body pose.</summary>
     private readonly EnemyBg2FrameCatalog frames;
 
+    /// <summary>Wraps the validated tilemap writes for the sixteen editable body poses.</summary>
+    /// <param name="frames">Validated BG2 frame catalog keyed by native pose pointers.</param>
     private MotherBrainBodyBg2FrameCatalog(EnemyBg2FrameCatalog frames) => this.frames = frames;
 
+    /// <summary>Looks up the ordered BG2 writes selected by a native body-pose pointer.</summary>
+    /// <param name="pointer">Native extended-frame pointer identifying the requested pose.</param>
+    /// <param name="writes">Receives the pose's ordered tilemap runs when the pointer is catalogued.</param>
+    /// <returns><see langword="true"/> when the pointer identifies one of the installed poses.</returns>
     internal bool TryGet(ushort pointer, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes) =>
         frames.TryGet(pointer, out writes);
 

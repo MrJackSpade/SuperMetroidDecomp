@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal static class ZebetitePulsePaintDefinitions
 {
+    /// <summary>Maximum value of one five-bit SNES palette channel.</summary>
     private const int ChannelMaximum = 31;
     /// <summary>$A6:FD87/$A2:BA73: warm-green bias2 on the saturated-red core.
     /// The neighboring darker facet uses half this green bias.</summary>
@@ -15,8 +16,12 @@ internal static class ZebetitePulsePaintDefinitions
     /// <summary>$A6:FD89/$A2:BA75: the darker facet begins at floor(3/4 of red31)=23.
     /// Three-quarter shade is the selected material contrast, not a health ratio.</summary>
     private const int DarkShadeNumerator = 3;
+    /// <summary>Divisor paired with <see cref="DarkShadeNumerator"/> to set the darker red facet to three quarters of full intensity.</summary>
     private const int DarkShadeDenominator = 4;
 
+    /// <summary>Calculates one of the two packed RGB5 paints along the selected symmetric barrier-core pulse.</summary>
+    /// <param name="frame">The zero-based pulse row, from zero through <see cref="ZebetiteColorFormat.FrameCount"/> minus one.</param>
+    /// <param name="color">Selects the bright red facet (0) or its darker adjacent facet (1).</param>
     internal static ushort Color(int frame, int color)
     {
         int intervals = ZebetiteColorFormat.FrameCount / 2;

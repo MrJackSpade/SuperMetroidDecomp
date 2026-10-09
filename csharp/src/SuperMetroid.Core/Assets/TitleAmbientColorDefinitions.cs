@@ -15,6 +15,12 @@ internal static class TitleAmbientColorDefinitions
     /// <summary>$8D:C872: dim green display paint reuses title palette slot19 ($8C:E20F).</summary>
     private const int DimGreenPaint = 19;
 
+    /// <summary>Calculates a title tube-light or display color for a recognized animated palette operand.</summary>
+    /// <param name="pointer">The native palette-word pointer being evaluated.</param>
+    /// <param name="initial">The title palette's initial RGB5 colors.</param>
+    /// <param name="supplied">Caller-provided edits to initial animated colors, keyed by their native pointers.</param>
+    /// <param name="color">Receives the calculated RGB5 color, or zero when the pointer is not handled here.</param>
+    /// <returns><see langword="true"/> when the pointer belongs to a supported tube-light or display animation.</returns>
     internal static bool TryCalculate(ushort pointer, ReadOnlySpan<ushort> initial,
         IReadOnlyDictionary<ushort, ushort> supplied, out ushort color)
     {
@@ -42,6 +48,10 @@ internal static class TitleAmbientColorDefinitions
         return false;
     }
 
+    /// <summary>Interpolates one RGB5 channel toward its three-unit dim endpoint using nearest-even rounding.</summary>
+    /// <param name="first">The channel intensity at the start of the dimming cycle.</param>
+    /// <param name="phase">The cycle step used to calculate the current intensity.</param>
+    /// <returns>The interpolated five-bit channel value.</returns>
     private static int Channel(int first, int phase)
     {
         int steps = Math.Min(TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.TubeDimmingSteps,
@@ -55,6 +65,12 @@ internal static class TitleAmbientColorDefinitions
             ? quotient + 1 : quotient;
     }
 
+    /// <summary>Maps an animated program's native word pointer to its frame and color indexes.</summary>
+    /// <param name="program">The compiled animation layout whose color operands are being searched.</param>
+    /// <param name="pointer">The native palette-word pointer to classify.</param>
+    /// <param name="frame">Receives the zero-based frame index calculated from the pointer.</param>
+    /// <param name="index">Receives the zero-based color index within that frame.</param>
+    /// <returns><see langword="true"/> only when the pointer is word-aligned and addresses a color operand rather than a frame duration.</returns>
     private static bool TryCoordinates(TitleScreenAmbientPaletteFxProgramDefinition program,
         ushort pointer, out int frame, out int index)
     {

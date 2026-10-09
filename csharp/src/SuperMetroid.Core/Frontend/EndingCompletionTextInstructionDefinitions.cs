@@ -41,6 +41,9 @@ internal static class EndingCompletionTextInstructionDefinitions
         };
     }
 
+    /// <summary>Returns the typewriter delay for the requested non-space letter: eight frames normally, or fifteen at the end of a line or before a space.</summary>
+    /// <param name="text">Displayed line whose character positions determine line breaks and word spacing.</param>
+    /// <param name="letter">Zero-based index among non-space letters.</param>
     private static ushort LetterDuration(string text, int letter)
     {
         for (int i = 0; i < text.Length; i++)
@@ -51,6 +54,13 @@ internal static class EndingCompletionTextInstructionDefinitions
         throw new InvalidDataException("Typewriter letter leaves its text.");
     }
 
+    /// <summary>Builds one instruction word in a typewritten line program, including per-letter delays, prefix sprites, callback, hold, and loop instructions.</summary>
+    /// <param name="word">Zero-based word offset in the compiled line.</param>
+    /// <param name="start">Native instruction address at which the line program begins.</param>
+    /// <param name="text">Line text used to determine visible letter and prefix-map operations.</param>
+    /// <param name="firstMap">Prefix-map identity for the line's first displayed letter.</param>
+    /// <param name="callback">Native operation invoked after the text has been drawn.</param>
+    /// <param name="holdDelay">Frame count to hold the completed line before its final redraw and loop.</param>
     private static ushort LineWord(int word, ushort start, string text, ushort firstMap, ushort callback, ushort holdDelay)
     {
         int letters = text.Count(character => character != ' ');
@@ -66,6 +76,8 @@ internal static class EndingCompletionTextInstructionDefinitions
         };
     }
 
+    /// <summary>Returns the generated instruction at a clear-time program offset, alternating text reveal operations with hour/minute digit spawns and the transition to credits.</summary>
+    /// <param name="word">Zero-based word offset from the clear-time program start.</param>
     private static ushort ClearTimeWord(int word)
     {
         const int letters = 9;

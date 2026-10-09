@@ -8,8 +8,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>The 128 base BG colors selected by one room graphics-set palette source.</summary>
 public sealed class RoomStaticPalette
 {
+    /// <summary>Stores the palette's 256-byte little-endian CGRAM transfer.</summary>
     private readonly byte[] nativeBytes;
 
+    /// <summary>Wraps the validated native CGRAM transfer produced from a palette document.</summary>
+    /// <param name="nativeBytes">The packed RGB5 colors in little-endian CGRAM order.</param>
     private RoomStaticPalette(byte[] nativeBytes) => this.nativeBytes = nativeBytes;
 
     /// <summary>Exact native-size CGRAM transfer after discarding the unused high color bit.</summary>
@@ -66,6 +69,7 @@ public sealed class RoomStaticPalette
         cgram.LoadBytes(nativeBytes);
     }
 
+    /// <summary>Applies the room-palette JSON naming, strict-member, and formatting conventions.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

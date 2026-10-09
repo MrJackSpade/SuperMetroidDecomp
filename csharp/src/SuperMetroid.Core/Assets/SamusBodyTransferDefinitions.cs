@@ -3,7 +3,10 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Native body-art allocations and transfer-row geometry, independent of chosen pixel content.</summary>
 internal static class SamusBodyTransferDefinitions
 {
+    /// <summary>Byte size of one planar 4-bpp 8-by-8 Samus OBJ tile.</summary>
     private const int TileBytes = 32;
+
+    /// <summary>Number of eight-pixel tiles across a sixteen-pixel-wide large OBJ block.</summary>
     private const int LargeObjTilesAcross = 16 / 8;
 
     /// <summary>$9E:8000, SamusTiles_Top_Set0_Entry0, packed general upper artwork.</summary>
@@ -59,6 +62,12 @@ internal static class SamusBodyTransferDefinitions
     /// <summary>$9F:EB00, SamusTiles_Bottom_SetA_Entry0, general lower artwork.</summary>
     private const int BottomA = 0x9feb00;
 
+    /// <summary>Resolves a selected upper- or lower-body tile group's position to its cartridge source address.</summary>
+    /// <param name="body">Artwork catalog providing the selected group's ordered payload lengths.</param>
+    /// <param name="upper"><see langword="true"/> to address an upper-body set; otherwise, a lower-body set.</param>
+    /// <param name="set">Set index within the selected upper- or lower-body groups.</param>
+    /// <param name="position">Zero-based tile position within that set.</param>
+    /// <returns>The SNES source address after summing preceding tile payloads; upper set 6 positions 12 and later use its relocated continuation.</returns>
     internal static int SourceAddress(SamusBodyArtworkCatalog body, bool upper, int set, int position)
     {
         int start = (upper, set) switch

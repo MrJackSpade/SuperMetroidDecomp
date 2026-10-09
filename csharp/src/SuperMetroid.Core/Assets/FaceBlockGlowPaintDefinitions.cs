@@ -19,6 +19,9 @@ internal static class FaceBlockGlowPaintDefinitions
     /// <summary>$A8:E7CC-E80B: four light depths followed by their reverse, including both repeated ends.</summary>
     private const int PeakDepth = 3;
 
+    /// <summary>Checks whether all eight four-color frames exactly match the reviewed glow paint.</summary>
+    /// <param name="frames">Ordered RGB5 words to compare against the authored intensity sequence.</param>
+    /// <returns><see langword="true"/> when every frame/color word matches the compiled definition.</returns>
     internal static bool Matches(ushort[][] frames)
     {
         for (int frame = 0; frame < 2 * (PeakDepth + 1); frame++)
@@ -27,6 +30,11 @@ internal static class FaceBlockGlowPaintDefinitions
         return true;
     }
 
+    /// <summary>Calculates one packed RGB5 color for the glow's rise-and-fall intensity cycle.</summary>
+    /// <param name="frame">Zero-based frame in the eight-step ascent and descent.</param>
+    /// <param name="color">Zero-based role within the four-color painted glow.</param>
+    /// <returns>The calculated SNES color word for that frame and role.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The frame or color index is outside the glow sequence.</exception>
     internal static ushort Color(int frame, int color)
     {
         if ((uint)frame >= 2 * (PeakDepth + 1) || (uint)color >= 4) throw new ArgumentOutOfRangeException(nameof(frame));
@@ -43,6 +51,12 @@ internal static class FaceBlockGlowPaintDefinitions
         };
     }
 
+    /// <summary>Rounds a linear integer interpolation between two channel endpoints to the nearest value.</summary>
+    /// <param name="first">Channel value at depth zero.</param>
+    /// <param name="last">Channel value at the final depth.</param>
+    /// <param name="depth">Current depth between the endpoints.</param>
+    /// <param name="intervals">Number of equal steps separating the endpoints.</param>
+    /// <returns>The rounded channel value at the requested depth.</returns>
     private static int Interpolate(int first, int last, int depth, int intervals) =>
         (first * (intervals - depth) + last * depth + intervals / 2) / intervals;
 }

@@ -5,8 +5,14 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Standard 2-bpp HUD/minimap artwork and the native clearing half of its queued transfer.</summary>
 public sealed class HudTileAtlas : IInstalledArtworkTransferSource
 {
+    /// <summary>Owned native-sized byte transfer containing planar HUD characters followed by the tilemap-clearing region.</summary>
     private readonly byte[] transfer;
+
+    /// <summary>Stores the compiled transfer used for initial uploads and character-only refreshes.</summary>
+    /// <param name="transfer">Owned bytes for the standard HUD upload, including its zero-filled clearing half.</param>
     private HudTileAtlas(byte[] transfer) => this.transfer = transfer;
+
+    /// <summary>Read-only view of the complete native transfer supplied to queued VRAM writes.</summary>
     internal ReadOnlyMemory<byte> Transfer => transfer;
 
     /// <summary>Resolves the complete native gameplay upload, including its clearing half, from current PNG content.</summary>

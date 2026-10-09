@@ -802,6 +802,18 @@ public static partial class SamusBlockCollision
     private static bool CanBreakCollisionBombBlock(SamusKinematicsState state, bool explicitAdmission) =>
         explicitAdmission || state.SamusOwner?.BreaksCollisionBombBlocks == true;
 
+    /// <summary>
+    /// Applies a non-square slope's vertical alignment only when the collision scan reaches
+    /// the slope beneath Samus's center column and the slope faces the travel direction.
+    /// </summary>
+    /// <param name="bus">Address space used to read the slope's alignment height.</param>
+    /// <param name="state">Samus's current position and collision radii.</param>
+    /// <param name="block">The non-square slope block being tested.</param>
+    /// <param name="blockX">Horizontal block coordinate used to reject neighboring scan cells.</param>
+    /// <param name="displacement">Proposed signed fixed-point vertical movement.</param>
+    /// <param name="targetCenter">Whole-pixel Y center after the proposed movement.</param>
+    /// <param name="reactsDownward">Whether this scan is moving downward.</param>
+    /// <returns>The clipped movement and whether this block stopped vertical movement.</returns>
     private static (int Displacement, bool Collided) ClipVerticalToNonSquareSlope(
         ISnesAddressSpace bus,
         SamusKinematicsState state,
@@ -986,6 +998,14 @@ public static partial class SamusBlockCollision
         return true;
     }
 
+    /// <summary>
+    /// Stops horizontal movement at the edge of a solid 16-pixel block and clears the
+    /// fractional position on the side from which Samus approached.
+    /// </summary>
+    /// <param name="state">Samus's position, radius, and subpixel coordinate.</param>
+    /// <param name="displacement">Proposed signed fixed-point horizontal movement.</param>
+    /// <param name="leadingBoundary">Whole-pixel leading edge at the proposed position.</param>
+    /// <returns>The movement remaining after contact with the block boundary.</returns>
     private static int ClipHorizontalToSolid(
         SamusKinematicsState state,
         int displacement,
@@ -1009,6 +1029,14 @@ public static partial class SamusBlockCollision
         }
     }
 
+    /// <summary>
+    /// Clips horizontal movement to the eight-pixel quadrant edge used by square slopes,
+    /// preserving the direction-specific fixed-point boundary convention.
+    /// </summary>
+    /// <param name="state">Samus's position, radius, and subpixel coordinate.</param>
+    /// <param name="displacement">Proposed signed fixed-point horizontal movement.</param>
+    /// <param name="leadingBoundary">Whole-pixel leading edge used by the slope scan.</param>
+    /// <returns>The movement remaining at the selected square-slope boundary.</returns>
     private static int ClipHorizontalToSquareSlope(
         SamusKinematicsState state,
         int displacement,
@@ -1032,6 +1060,14 @@ public static partial class SamusBlockCollision
         return rightWhole << 16;
     }
 
+    /// <summary>
+    /// Stops vertical movement at a solid 16-pixel block edge and clears the fractional
+    /// Y coordinate on the side from which Samus approached.
+    /// </summary>
+    /// <param name="state">Samus's position, radius, and subpixel coordinate.</param>
+    /// <param name="displacement">Proposed signed fixed-point vertical movement.</param>
+    /// <param name="leadingBoundary">Whole-pixel leading edge at the proposed position.</param>
+    /// <returns>The movement remaining after contact with the block boundary.</returns>
     private static int ClipVerticalToSolid(
         SamusKinematicsState state,
         int displacement,
@@ -1055,6 +1091,14 @@ public static partial class SamusBlockCollision
         }
     }
 
+    /// <summary>
+    /// Clips vertical movement to a square slope's eight-pixel edge. A downward clip also
+    /// marks the position as slope-adjusted so the grounding probe uses slope support rules.
+    /// </summary>
+    /// <param name="state">Samus's position, radius, subpixel coordinate, and support latch.</param>
+    /// <param name="displacement">Proposed signed fixed-point vertical movement.</param>
+    /// <param name="leadingBoundary">Whole-pixel leading edge used by the slope scan.</param>
+    /// <returns>The movement remaining at the selected square-slope boundary.</returns>
     private static int ClipVerticalToSquareSlope(
         SamusKinematicsState state,
         int displacement,
@@ -1082,6 +1126,12 @@ public static partial class SamusBlockCollision
         return downWhole << 16;
     }
 
+    /// <summary>
+    /// Returns the number of 16-pixel row steps from Samus's aligned top row through the
+    /// row containing the bottom of her collision box; callers include both endpoints.
+    /// </summary>
+    /// <param name="state">Samus's position and vertical collision radius.</param>
+    /// <returns>The inclusive row offset used by the horizontal collision scan.</returns>
     private static int GetVerticalBlockSpan(SamusKinematicsState state)
     {
         ushort alignedTop = unchecked((ushort)(state.YPosition - state.YRadius));
@@ -1089,6 +1139,12 @@ public static partial class SamusBlockCollision
         return unchecked((ushort)(state.YRadius + state.YPosition - 1 - alignedTop)) >> 4;
     }
 
+    /// <summary>
+    /// Returns the number of 16-pixel column steps from Samus's aligned left column through
+    /// the column containing the right edge of her collision box; callers include both ends.
+    /// </summary>
+    /// <param name="state">Samus's position and horizontal collision radius.</param>
+    /// <returns>The inclusive column offset used by the vertical collision scan.</returns>
     private static int GetHorizontalBlockSpan(SamusKinematicsState state)
     {
         ushort alignedLeft = unchecked((ushort)(state.XPosition - state.XRadius));
@@ -1096,6 +1152,14 @@ public static partial class SamusBlockCollision
         return unchecked((ushort)(state.XRadius + state.XPosition - 1 - alignedLeft)) >> 4;
     }
 
+    /// <summary>
+    /// Reads a room collision cell, treating out-of-room coordinates as prefilled solid
+    /// cells so movement scans cannot pass through the level boundary.
+    /// </summary>
+    /// <param name="level">Room collision data being scanned.</param>
+    /// <param name="blockX">Horizontal coordinate in 16-pixel collision cells.</param>
+    /// <param name="blockY">Vertical coordinate in 16-pixel collision cells.</param>
+    /// <returns>The stored cell or the level's synthetic solid boundary cell.</returns>
     private static RoomCollisionBlock GetRequiredBlock(RoomLevelData level, int blockX, int blockY)
         => level.GetCollisionBlockOrPrefilledSolid(blockX, blockY);
 
@@ -1144,6 +1208,9 @@ public static partial class SamusBlockCollision
 }
 
 /// <summary>Observable result of one bank-$94 room-block movement scan.</summary>
+/// <param name="AcceptedDisplacement">Signed fixed-point movement accepted after terrain and enemy collision handling.</param>
+/// <param name="Collided">Whether the scan reports terrain, solid-enemy, or qualifying sand contact.</param>
+/// <param name="EnemyCollision">The solid-enemy contact details, when an enemy participated in the scan.</param>
 public readonly record struct BlockMoveResult(
     int AcceptedDisplacement,
     bool Collided,

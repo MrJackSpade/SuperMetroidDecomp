@@ -23,8 +23,11 @@ public enum RioEnemyFunction : ushort
 /// </summary>
 public sealed class RioEnemyState
 {
+    /// <summary>Physical slot whose native variable words back this debugger-facing Rio state view.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a state view over one initialized Rio enemy slot.</summary>
+    /// <param name="slot">The enemy slot containing Rio's native AI variables.</param>
     internal RioEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Horizontal velocity retained while the hovering phase temporarily stops X.</summary>
@@ -73,20 +76,28 @@ public sealed class RioEnemyState
 /// <summary>Literal translation of Rio enemy AI $A2:BBC3-$BD6B.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Bank-local enemy definition pointer used to identify Rio during initialization and instruction dispatch.</summary>
     internal const ushort RioDefinition = 0xd27f;
 
+    /// <summary>Strict horizontal proximity threshold, in world pixels, that starts a Rio dive.</summary>
     private const ushort RioTriggerDistance = 0x00a0;
+
+    /// <summary>Library-two sound effect requested when the visible Rio dive begins.</summary>
     private const ushort RioDiveSound = 0x0065;
+
+    /// <summary>Amount subtracted from signed 8.8 vertical velocity on each gravity-driven AI update.</summary>
     private const ushort RioGravityStep = 24;
 
     // These are live ROM words, not friendly host tuning constants. The retail routine
     // reads them at $A2:BBBB/$A2:BBBF immediately before a dive begins.
 
+    /// <summary>Stores initialized Rio state views by enemy slot index for the current room.</summary>
     private readonly RioEnemyState?[] _rioStates = new RioEnemyState?[MaximumEnemyCount];
 
     /// <summary>Most recent library-two sound request produced by Rio during this frame.</summary>
     public ushort? LastRioSoundEffect { get; private set; }
 
+    /// <summary>Clears all per-slot Rio state and any pending dive sound when room state is reset.</summary>
     private void ResetRioRoomState()
     {
         Array.Clear(_rioStates);
@@ -293,6 +304,8 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Reverses Rio's signed vertical velocity and switches its AI to the upward bounce phase.</summary>
+    /// <param name="state">The Rio state whose velocity and function are updated.</param>
     private static void ReverseRioVerticalVelocityAndBounce(RioEnemyState state)
     {
         state.YVelocity = unchecked((ushort)-(short)state.YVelocity);
@@ -306,12 +319,19 @@ public sealed partial class RoomEnemySystem
     private static ushort ReadRioSignedSineCosineSample(byte angle) =>
         unchecked((ushort)EnemyTrigonometryTables.SignedSine(angle));
 
+    /// <summary>Requires room level data before executing a Rio movement phase that collides with the level.</summary>
+    /// <param name="level">The current room's level data, if available.</param>
+    /// <exception cref="InvalidOperationException">Rio movement was requested without current room level data.</exception>
     private static void RequireRioLevel(RoomLevelData? level)
     {
         if (level is null)
             throw new InvalidOperationException("Rio movement requires the current room level data.");
     }
 
+    /// <summary>Returns the initialized per-enemy Rio state associated with a physical slot.</summary>
+    /// <param name="slot">The enemy slot whose Rio state is required.</param>
+    /// <returns>The state view created for that slot during Rio initialization.</returns>
+    /// <exception cref="InvalidOperationException">The slot does not contain initialized Rio state.</exception>
     private RioEnemyState RequireRioState(RoomEnemySlot slot) =>
         _rioStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Rio state.");

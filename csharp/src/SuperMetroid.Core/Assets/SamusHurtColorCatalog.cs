@@ -17,12 +17,20 @@ public enum SamusHurtColorVariant
 public sealed class SamusHurtColorCatalog
 {
     // Only independent installed edits are stored; native shade samples all calculate.
+    /// <summary>Optional replacement payload for transparent slot zero in the hurt-flash palette.</summary>
     private readonly ushort? hurtZero;
+    /// <summary>Optional replacement payload for transparent slot zero in the cinematic restoration palette.</summary>
     private readonly ushort? introZero;
+    /// <summary>Independent red-channel levels retained for cinematic inks whose default level was edited.</summary>
     private readonly Dictionary<int, byte> introLevels;
+    /// <summary>Full cinematic colors retained when the shared level-to-RGB rule does not reproduce the supplied word.</summary>
     private readonly Dictionary<int, ushort> introOverrides;
+    /// <summary>Full hurt-flash colors retained when deriving them from the cinematic palette would lose supplied edits.</summary>
     private readonly Dictionary<int, ushort> hurtOverrides;
 
+    /// <summary>Compiles both supplied RGB5 rows into transparent-slot payloads and only the independent shade exceptions.</summary>
+    /// <param name="hurt">Packed sixteen-color hurt-flash row.</param>
+    /// <param name="intro">Packed sixteen-color cinematic restoration row.</param>
     private SamusHurtColorCatalog(ushort[] hurt, ushort[] intro)
     {
         hurtZero = hurt[0] == SamusHurtColorDefinitions.HurtTransparentWord ? null : hurt[0];
@@ -38,6 +46,7 @@ public sealed class SamusHurtColorCatalog
             .ToDictionary(index => index, index => hurt[index]);
     }
 
+    /// <summary>JSON settings used consistently for loading and writing this catalog's camel-case schema.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -97,9 +106,22 @@ public sealed class SamusHurtColorCatalog
             ? value : SamusHurtColorDefinitions.HurtFromIntro(Intro(index));
     }
 
+    /// <summary>Returns an authored cinematic red-channel level or the native-derived default for an opaque ink.</summary>
+    /// <param name="index">Zero-based color index whose cinematic level is requested.</param>
+    /// <returns>The retained level when edited, otherwise the calculated default level.</returns>
     private byte IntroLevel(int index) => introLevels.TryGetValue(index, out byte level) ? level : SamusHurtColorDefinitions.DefaultIntroLevel(index);
+
+    /// <summary>Resolves a cinematic palette entry from its transparent payload or shared level rule and overrides.</summary>
+    /// <param name="index">Zero-based color index within the cinematic OBJ palette.</param>
+    /// <returns>The packed RGB5 word for the requested entry.</returns>
     private ushort Intro(int index) => index == 0 ? introZero ?? SamusHurtColorDefinitions.IntroTransparentWord : introOverrides.TryGetValue(index, out ushort value)
         ? value : SamusHurtColorDefinitions.IntroFromLevel(IntroLevel(index));
+
+    /// <summary>Validates a JSON color row and packs each of its RGB5 components into a SNES color word.</summary>
+    /// <param name="source">Sixteen nullable RGB5 entries from one palette row.</param>
+    /// <param name="name">Palette label included in validation errors.</param>
+    /// <returns>Packed color words in the row's original index order.</returns>
+    /// <exception cref="InvalidDataException">The row has the wrong length, a null entry, or a channel outside the RGB5 range.</exception>
     private static ushort[] Compile(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != SamusHurtColorFormat.ColorsPerPalette)
@@ -116,6 +138,8 @@ public sealed class SamusHurtColorCatalog
         return colors;
     }
 
+    /// <summary>Rejects duplicate JSON property names before the palette document is deserialized.</summary>
+    /// <param name="value">Root element to inspect for duplicate properties.</param>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Samus hurt color property {name}."));

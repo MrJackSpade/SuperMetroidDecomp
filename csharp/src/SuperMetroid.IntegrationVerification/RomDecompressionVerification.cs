@@ -4,6 +4,8 @@ using SuperMetroid.Core.Rom;
 
 internal static class RomDecompressionVerification
 {
+    /// <summary>Verifies framed ROM decompression, exact typed-source read extents, fixed-bank bounds, and dense-stream allocation.</summary>
+    /// <returns>Zero when every decompression and address-boundary assertion succeeds.</returns>
     public static int Run()
     {
         // Four maximum-length literal runs full of terminator-valued payload bytes.
@@ -70,6 +72,8 @@ internal static class RomDecompressionVerification
         return 0;
     }
 
+    /// <summary>Requires a malformed or truncated decompression action to fail with invalid-data diagnostics.</summary>
+    /// <param name="action">Decompression operation expected to reject its input.</param>
     private static void Reject(Action action)
     {
         try { action(); }
@@ -77,6 +81,8 @@ internal static class RomDecompressionVerification
         throw new InvalidDataException("Malformed/truncated compressed stream was accepted.");
     }
 
+    /// <summary>Requires a fixed-bank import that crosses its permitted range to throw an argument-range error.</summary>
+    /// <param name="action">Import operation expected to reject the requested address range.</param>
     private static void RejectRange(Action action)
     {
         try { action(); }
@@ -84,13 +90,26 @@ internal static class RomDecompressionVerification
         throw new InvalidDataException("Fixed-bank cartridge import crossed into a mutable low window.");
     }
 
+    /// <summary>Sequential cartridge-source fixture that enforces exact reads while traversing a LoROM bank boundary.</summary>
+    /// <param name="bytes">Stream payload returned one byte at a time from the fixture's starting bus address.</param>
     private sealed class StreamBus(byte[] bytes) : ISnesAddressSpace, IImportCartridgeSource
     {
         // Deliberately cross xx:FFFF -> (xx+1):8000 inside the first literal run.
+        /// <summary>Starting LoROM address chosen so sequential reads cross from $94:FFFF to $95:8000.</summary>
         public const int Start = 0x94fffc;
+        /// <summary>Next LoROM bus address a valid sequential read must request.</summary>
         private SnesAddress next = SnesAddress.FromBusAddress(Start);
+        /// <summary>Number of payload bytes already returned to the reader.</summary>
         public int Reads { get; private set; }
+
+        /// <summary>Rejects untyped address-space reads so tests prove imports use the cartridge-source contract.</summary>
+        /// <param name="address">Address requested through the unsupported generic read path.</param>
+        /// <returns>This fixture never returns a byte from the generic path.</returns>
         public static byte ReadByte(int address) => throw new InvalidOperationException("Decompression must use the typed cartridge source.");
+
+        /// <summary>Returns the next fixture byte only when the reader follows the expected LoROM sequence.</summary>
+        /// <param name="address">Cartridge bus address requested by the decoder.</param>
+        /// <returns>The next compressed-stream byte.</returns>
         public byte ReadCartridgeByte(int address)
         {
             if (address != (int)next || Reads >= bytes.Length)
@@ -98,6 +117,9 @@ internal static class RomDecompressionVerification
             next = next.NextLoRomByte();
             return bytes[Reads++];
         }
+        /// <summary>Rejects writes because the decompression fixture represents an immutable ROM stream.</summary>
+        /// <param name="address">Destination address requested by the caller.</param>
+        /// <param name="value">Byte the caller attempted to write.</param>
         public void WriteByte(int address, byte value) => throw new NotSupportedException();
     }
 }

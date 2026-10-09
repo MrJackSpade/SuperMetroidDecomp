@@ -1,6 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One seven-byte transfer record consumed by the Ceres escape graphics dispatcher.</summary>
+/// <param name="Pointer">Native list pointer that identifies this transfer command.</param>
+/// <param name="ByteCount">Number of source bytes copied by the command.</param>
+/// <param name="SourceAddress">Cartridge address of the transfer's source data.</param>
+/// <param name="DestinationWord">VRAM destination expressed as a word address.</param>
 internal readonly record struct CeresEscapeVramTransferDefinition(
     ushort Pointer, ushort ByteCount, int SourceAddress, ushort DestinationWord);
 
@@ -43,9 +47,16 @@ internal static class CeresEscapeVramTransferDefinitions
     /// <summary>$0D00: first door background character word.</summary>
     private const ushort DoorDestination = 0x0d00;
 
+    /// <summary>Calculates the nineteen ordered transfer records from the native Ceres escape lists.</summary>
     private sealed class TransferRecords : IReadOnlyList<CeresEscapeVramTransferDefinition>
     {
+        /// <summary>Number of transfer commands covered by the compiled Ceres escape metadata.</summary>
         public int Count => 19;
+
+        /// <summary>Gets the transfer command at its position in native list order.</summary>
+        /// <param name="index">Zero-based ordinal among the nineteen transfer commands.</param>
+        /// <returns>The derived source, destination, size, and native list pointer for that command.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">The ordinal is outside the transfer list.</exception>
         public CeresEscapeVramTransferDefinition this[int index]
         {
             get
@@ -77,6 +88,8 @@ internal static class CeresEscapeVramTransferDefinitions
                     DoorSource + 0x200 * doorBlock, (ushort)(DoorDestination + 0x100 * doorBlock));
             }
         }
+        /// <summary>Enumerates all transfer commands in their native list order.</summary>
+        /// <returns>An iterator over the nineteen derived transfer records.</returns>
         public IEnumerator<CeresEscapeVramTransferDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
@@ -85,10 +98,19 @@ internal static class CeresEscapeVramTransferDefinitions
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
+    /// <summary>Read-only ordered view of all compiled Ceres escape transfer commands.</summary>
     internal static readonly IReadOnlyList<CeresEscapeVramTransferDefinition> Records = new TransferRecords();
+
+    /// <summary>Identifies native end markers that terminate one of the Ceres escape transfer lists.</summary>
+    /// <param name="pointer">List pointer word to check.</param>
+    /// <returns><see langword="true"/> when the word is a recognized terminator.</returns>
     internal static bool IsTerminator(ushort pointer) =>
         pointer is 0xc3d4 or 0xc4fc or 0xc536;
 
+    /// <summary>Looks up the compiled transfer record whose native command pointer matches the supplied word.</summary>
+    /// <param name="pointer">Native transfer-list pointer to search for.</param>
+    /// <param name="transfer">Receives the matching record, or the default value when no record matches.</param>
+    /// <returns><see langword="true"/> if a transfer command uses <paramref name="pointer"/>.</returns>
     internal static bool TryGet(ushort pointer,
         out CeresEscapeVramTransferDefinition transfer)
     {

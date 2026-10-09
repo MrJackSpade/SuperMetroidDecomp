@@ -6,12 +6,23 @@ internal static partial class Program
     /// <summary>Distinct authored poses let assertions detect using the physical frame by mistake.</summary>
     private sealed class BossDisplayDocuments
     {
+        /// <summary>Fixture JSON helper that serializes generated OAM and BG2 documents for catalog loading.</summary>
         private readonly EnemyIdentityFixture json = new();
+
+        /// <summary>Extended OAM document containing the fixture's distinct boss poses and optional display-frame remapping.</summary>
         internal EnemyExtendedFrameDocument Oam { get; }
+
+        /// <summary>Generated BG2 write document for Crocomire's frame family.</summary>
         internal EnemyBg2FrameDocument Crocomire { get; }
+
+        /// <summary>Generated BG2 write document for Phantoon's frame family.</summary>
         internal EnemyBg2FrameDocument Phantoon { get; }
+
+        /// <summary>Generated BG2 write document for Draygon's frame family.</summary>
         internal EnemyBg2FrameDocument Draygon { get; }
 
+        /// <summary>Creates distinct generated poses and BG2 writes, optionally changing them to identify selected edits.</summary>
+        /// <param name="edited">Whether to vary fixture tiles, offsets, flips, and display-frame selections from their baseline values.</param>
         internal BossDisplayDocuments(bool edited)
         {
             Oam = json.ExtendedDocument();
@@ -31,6 +42,10 @@ internal static partial class Program
             Draygon = Bg2(DraygonBg2FrameDefinitions.Frames, edited);
         }
 
+        /// <summary>Loads the generated documents into a verification catalog, optionally excluding extended OAM or one BG2 family.</summary>
+        /// <param name="extended">Whether the extended OAM document should be loaded.</param>
+        /// <param name="omitBg2Bank">Bank whose BG2 catalog should be omitted, or null to load all three families.</param>
+        /// <returns>A catalog backed only by the fixture's generated artwork documents.</returns>
         internal EnemyTileArtworkCatalog Build(bool extended = true, byte? omitBg2Bank = null) => EnemyTileArtworkCatalog.FromArtworkForVerification(
             new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(),
             extendedFrames: extended ? EnemyExtendedFrameCatalog.Load(json.Json(Oam)) : null,
@@ -38,9 +53,17 @@ internal static partial class Program
             phantoonBg2Frames: omitBg2Bank == PhantoonBg2FrameDefinitions.Bank ? null : PhantoonBg2FrameCatalog.Load(json.Json(Phantoon)),
             draygonBg2Frames: omitBg2Bank == DraygonBg2FrameDefinitions.Bank ? null : DraygonBg2FrameCatalog.Load(json.Json(Draygon)));
 
+        /// <summary>Resolves a native OAM frame through the fixture's display-frame selection map.</summary>
+        /// <param name="native">Native frame whose authored display selection is requested.</param>
+        /// <returns>The extended-frame definition named by the OAM document's display mapping.</returns>
         internal EnemyExtendedFrameDefinition Selected(EnemyExtendedFrameDefinition native) =>
             EnemyExtendedFrameDefinitions.Frames.ToArray().Single(frame => frame.Name == Oam.DisplayFrames![native.Name]);
 
+        /// <summary>Finds the fixture BG2 writes associated with a frame pointer in one of the three boss banks.</summary>
+        /// <param name="bank">Bank identifying Crocomire, Phantoon, or Draygon BG2 definitions.</param>
+        /// <param name="pointer">Native frame pointer whose fixture writes are requested.</param>
+        /// <returns>The selected frame's write records, or an empty array when the pointer is not in that family.</returns>
+        /// <exception cref="InvalidDataException">The bank is not one of the supported fixture families.</exception>
         internal EnemyBg2WriteDocument[] Writes(byte bank, ushort pointer)
         {
             (EnemyBg2FrameDocument Document, EnemyBg2FrameDefinition[] Definitions) family = bank switch
@@ -55,6 +78,8 @@ internal static partial class Program
             return [];
         }
 
+        /// <summary>Enumerates the boss identities and extended OAM frame groups used to generate the fixture document.</summary>
+        /// <returns>Crocomire, Phantoon, and Draygon definition/frame pairs in fixture construction order.</returns>
         internal static IEnumerable<(ushort Definition, EnemyExtendedFrameDefinition[] Frames)> Families()
         {
             EnemyExtendedFrameDefinition[] all = EnemyExtendedFrameDefinitions.Frames.ToArray();
@@ -66,6 +91,10 @@ internal static partial class Program
                 (frame.Name.StartsWith("draygon_oam_", StringComparison.Ordinal) || frame.Name.StartsWith("draygon_bg2_", StringComparison.Ordinal))).ToArray());
         }
 
+        /// <summary>Builds a BG2 document with three deterministic tile writes for every frame in a boss family.</summary>
+        /// <param name="definitions">Frame identities that determine document keys and per-frame tile values.</param>
+        /// <param name="edited">Whether the generated writes use the alternate tile and Y-offset values.</param>
+        /// <returns>A version-one document keyed by native frame names.</returns>
         private static EnemyBg2FrameDocument Bg2(EnemyBg2FrameDefinitionSequence definitions, bool edited) => new()
         {
             Version = 1,

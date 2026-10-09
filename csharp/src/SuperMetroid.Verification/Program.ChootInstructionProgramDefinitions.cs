@@ -5,12 +5,19 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Registers and runs the Choot instruction-program verification against the retail ROM.</summary>
     private static void VerifyChootInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyChootInstructionProgramDefinitions), () => VerifyChootInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>
+    /// Checks the compiled Choot mechanics words, executes the idle, jump, and fall programs
+    /// through production instruction processing, and guards against forbidden ROM reads.
+    /// </summary>
+    /// <param name="rom">Retail address space used to compare the source mechanics words.</param>
+    /// <param name="artwork">Optional installed artwork catalog used to exercise the ROM-free presentation path.</param>
     private static void VerifyChootInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
     {
@@ -112,6 +119,16 @@ internal static partial class Program
               "cartridge visual-selector reads.");
     }
 
+    /// <summary>
+    /// Advances one compiled Choot program through its timed instructions and verifies that
+    /// execution reaches the terminal sleep instruction at the expected address.
+    /// </summary>
+    /// <param name="enemies">Enemy system whose production instruction processor is invoked.</param>
+    /// <param name="process">Bound instruction-processing method for that enemy system.</param>
+    /// <param name="processArguments">Argument array passed through reflection to the processor.</param>
+    /// <param name="slot">Choot slot whose timer and instruction pointer drive the program.</param>
+    /// <param name="entry">Expected first instruction address.</param>
+    /// <param name="timedFrameCount">Number of timed instruction frames before the terminal sleep.</param>
     private static void RunChootInstructionProgram(
         RoomEnemySystem enemies,
         MethodInfo process,
@@ -133,6 +150,8 @@ internal static partial class Program
             "Choot program reaches terminal sleep");
     }
 
+    /// <summary>Warms repeated compiled mechanics lookups and returns a checksum to keep them observable.</summary>
+    /// <returns>The accumulated values read from the idle, jumping, and falling mechanics entries.</returns>
     private static int ProbeChootInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -149,18 +168,38 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads one little-endian 16-bit instruction word from the supplied address space.</summary>
+    /// <param name="bus">Address space containing the word's two bytes.</param>
+    /// <param name="address">Address of the low byte.</param>
+    /// <returns>The low byte followed by the high byte as a 16-bit value.</returns>
     private static ushort ReadChootInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>
+    /// Wraps cartridge access to record or reject Choot presentation reads and to fail if
+    /// production execution attempts to fetch mechanics bytes that should be compiled in.
+    /// </summary>
+    /// <param name="source">Underlying address space for reads and writes that are allowed.</param>
+    /// <param name="forbidPresentation">When true, visual-selector reads are counted and rejected.</param>
     private sealed class ChootInstructionProgramReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Visual-selector word addresses observed while presentation reads are allowed.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of compiled-mechanics or forbidden-presentation reads rejected by the guard.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes importer byte reads through the same checks used for address-space reads.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The byte returned by the wrapped address space if the access is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Checks Choot mechanics and presentation addresses before forwarding a byte read.</summary>
+        /// <param name="address">Address requested by production code.</param>
+        /// <returns>The byte from the wrapped address space when the access is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The read targets compiled mechanics data or forbidden presentation data.</exception>
         public byte ReadByte(int address)
         {
             if (ChootInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -196,6 +235,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged to the wrapped address space.</summary>
+        /// <param name="address">Address that receives the write.</param>
+        /// <param name="value">Byte written at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

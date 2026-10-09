@@ -9,6 +9,11 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Dispatches Kraid's current body function, including combat, BG2-head, eye-glow, growth, and death work.</summary>
+    /// <param name="body">The Kraid body slot whose native function and scratch variables control the dispatch.</param>
+    /// <param name="state">Per-fight state for the head stream, mouth, parts, and counters.</param>
+    /// <param name="vramWriteQueue">Optional queue used by body-growth and death functions that update VRAM.</param>
+    /// <param name="cameraX">Horizontal camera origin used by camera-dependent death processing.</param>
     private void RunKraidCombatFunction(
         RoomEnemySlot body,
         KraidEnemyState state,
@@ -91,6 +96,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Places Kraid's three head parts and starts the first-phase thinking delay.</summary>
+    /// <param name="body">Body slot whose thinking function and timer are initialized.</param>
+    /// <param name="state">Fight state supplying the authored thinking-delay value.</param>
     private void SetupKraidFirstPhaseThinking(RoomEnemySlot body, KraidEnemyState state)
     {
         body.VariableA = (ushort)KraidAiFunction.MainloopThinking;
@@ -100,6 +108,9 @@ public sealed partial class RoomEnemySystem
         state.ThinkingTimer = ReadKraidThinkingTimer();
     }
 
+    /// <summary>Places Kraid's head parts and starts the second-phase delay before his mouth reaction.</summary>
+    /// <param name="body">Body slot switched to second-phase thinking.</param>
+    /// <param name="state">Fight state supplying the authored thinking-delay value.</param>
     private void SetupKraidSecondPhaseThinking(RoomEnemySlot body, KraidEnemyState state)
     {
         body.VariableA = (ushort)KraidAiFunction.SecondPhaseThinking;
@@ -109,6 +120,9 @@ public sealed partial class RoomEnemySystem
         state.ThinkingTimer = ReadKraidThinkingTimer();
     }
 
+    /// <summary>Counts down second-phase thinking and enters the scripted mouth reaction when the timer expires.</summary>
+    /// <param name="body">Body slot receiving the next AI function and head-stream entry.</param>
+    /// <param name="state">Fight state containing the remaining thinking time.</param>
     private static void RunKraidSecondPhaseThinking(RoomEnemySlot body, KraidEnemyState state)
     {
         if (state.ThinkingTimer != 0 && --state.ThinkingTimer == 0)
@@ -119,6 +133,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Runs the mouth-open head sequence, returning to thinking at termination and spawning timed spit rocks.</summary>
+    /// <param name="body">Body slot carrying the head-instruction cursor and attack timer.</param>
+    /// <param name="state">Fight state supplying head frames and tracking mouth-triggered events.</param>
     private void RunKraidMouthOpenAttack(RoomEnemySlot body, KraidEnemyState state)
     {
         ushort result = ProcessKraidHeadInstruction(body, state);
@@ -159,6 +176,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Ticks the current head instruction timer and executes its command when the timer reaches zero.</summary>
+    /// <param name="body">Body slot containing the head-stream cursor and timer.</param>
+    /// <param name="state">Fight state updated by frame and sound commands.</param>
+    /// <returns>The remaining timer/result, zero when inactive, or <see cref="ushort.MaxValue"/> at stream termination.</returns>
     private ushort ProcessKraidHeadInstruction(RoomEnemySlot body, KraidEnemyState state)
     {
         ushort result = body.VariableC;
@@ -168,6 +189,10 @@ public sealed partial class RoomEnemySystem
         return result == 1 ? ExecuteKraidHeadInstruction(body, state) : result;
     }
 
+    /// <summary>Executes head-stream sound and frame commands until it selects a timed frame or reaches termination.</summary>
+    /// <param name="body">Body slot whose instruction cursor is advanced.</param>
+    /// <param name="state">Fight state receiving the selected tilemap and mouth-hitbox data.</param>
+    /// <returns>A frame-ready result or the termination sentinel consumed by the caller.</returns>
     private ushort ExecuteKraidHeadInstruction(RoomEnemySlot body, KraidEnemyState state)
     {
         for (int commandCount = 0; commandCount < 16; commandCount++)
@@ -208,6 +233,9 @@ public sealed partial class RoomEnemySystem
         throw new InvalidDataException("Kraid head instruction stream exceeded its command guard.");
     }
 
+    /// <summary>Completes the mouth reaction, restores first-phase thinking, and schedules the next eye glow when due.</summary>
+    /// <param name="body">Body slot receiving the next function and reaction timer.</param>
+    /// <param name="state">Fight state containing mouth-trigger flags and part callbacks.</param>
     private void RunKraidMouthOpenReaction(RoomEnemySlot body, KraidEnemyState state)
     {
         if (ProcessKraidHeadInstruction(body, state) != ushort.MaxValue)
@@ -229,6 +257,9 @@ public sealed partial class RoomEnemySystem
         state.MouthFlags = 0;
     }
 
+    /// <summary>Starts the eye-glow head sequence and immediately applies its first color-increase step.</summary>
+    /// <param name="body">Body slot whose function and head-stream state enter the glow sequence.</param>
+    /// <param name="state">Fight state used to process the associated head instruction.</param>
     private void InitializeKraidEyeGlow(RoomEnemySlot body, KraidEnemyState state)
     {
         body.VariableA = (ushort)KraidAiFunction.GlowEye;
@@ -237,6 +268,9 @@ public sealed partial class RoomEnemySystem
         GlowKraidEye(body, state);
     }
 
+    /// <summary>Advances the eye head sequence and raises the red and green channels of Kraid's three eye colors.</summary>
+    /// <param name="body">Body slot switched to eye unglow after all channels reach their bright limits.</param>
+    /// <param name="state">Fight state supplying head-stream timing.</param>
     private void GlowKraidEye(RoomEnemySlot body, KraidEnemyState state)
     {
         _ = ProcessKraidHeadInstruction(body, state);
@@ -271,6 +305,9 @@ public sealed partial class RoomEnemySystem
             body.VariableA = (ushort)KraidAiFunction.UnglowEye;
     }
 
+    /// <summary>Fades eye colors toward the health-selected palette row, then resumes the mouth reaction at the target.</summary>
+    /// <param name="body">Body slot receiving the mouth-reaction function when the fade completes.</param>
+    /// <param name="state">Fight state supplying health thresholds for the target eye palette.</param>
     private void UnglowKraidEye(RoomEnemySlot body, KraidEnemyState state)
     {
         int thresholdWordOffset = 14;

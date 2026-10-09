@@ -5,12 +5,16 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs the retail-ROM-backed checks for compiled HZoomer instructions and their four surface programs.</summary>
     private static void VerifyHZoomerInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyHZoomerInstructionProgramDefinitions), () => VerifyHZoomerInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares compiled HZoomer mechanics with cartridge data and exercises initialization and movement callbacks.</summary>
+    /// <param name="rom">Retail address space used as the reference for mechanics words and sprite selectors.</param>
+    /// <param name="artwork">Optional installed enemy artwork catalog passed to the fixture system.</param>
     private static void VerifyHZoomerInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
     {
@@ -93,6 +97,11 @@ internal static partial class Program
               "selector reads forbidden.");
     }
 
+    /// <summary>Advances the reflected HZoomer instruction processor a fixed number of eligible calls.</summary>
+    /// <param name="enemies">Room enemy system whose instruction handler is invoked.</param>
+    /// <param name="process">Reflected instruction-processing method.</param>
+    /// <param name="slot">HZoomer slot whose timer is reset before each call.</param>
+    /// <param name="callCount">Number of processor calls to make.</param>
     private static void ExecuteHZoomerProgram(
         RoomEnemySystem enemies,
         MethodInfo process,
@@ -108,6 +117,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Repeats compiled HZoomer mechanics lookups for the warmed allocation check.</summary>
+    /// <returns>A checksum that consumes the resolved instruction words.</returns>
     private static int ProbeHZoomerInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -121,6 +132,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian word from bank $A3 of the retail ROM.</summary>
+    /// <param name="source">Retail address space containing the reference bytes.</param>
+    /// <param name="address">Bank-local offset of the low byte.</param>
+    /// <returns>The adjacent bytes combined as a 16-bit value.</returns>
     private static ushort ReadHZoomerInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -128,15 +143,28 @@ internal static partial class Program
             source.ReadByte(0xa30000 | address) |
             source.ReadByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Rejects runtime reads of compiled HZoomer mechanics and optionally blocks compiled visual selectors.</summary>
+    /// <param name="source">Address space used to serve reads and writes permitted by the guard.</param>
+    /// <param name="forbidPresentation">Whether attempted presentation-word reads are rejected instead of recorded.</param>
     private sealed class HZoomerInstructionReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Distinct presentation-word offsets observed when selector reads are allowed.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of mechanics or denied presentation byte reads rejected by the guard.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge reads through the same checks as ordinary address-space reads.</summary>
+        /// <param name="address">SNES cartridge address requested by the caller.</param>
+        /// <returns>The underlying byte when the address is not blocked.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, then records or rejects presentation reads according to policy.</summary>
+        /// <param name="address">SNES address requested by the caller.</param>
+        /// <returns>The underlying byte when the address passes the guard.</returns>
+        /// <exception cref="InvalidOperationException">The address targets compiled mechanics or a forbidden presentation selector.</exception>
         public byte ReadByte(int address)
         {
             if (HZoomerInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -171,6 +199,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write unchanged; this verification wrapper restricts reads only.</summary>
+        /// <param name="address">SNES address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

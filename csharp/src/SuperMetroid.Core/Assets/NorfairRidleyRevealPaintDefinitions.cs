@@ -8,8 +8,11 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class NorfairRidleyRevealPaintDefinitions
 {
+    /// <summary>Number of ordered arena-reveal palette rows, each representing one fade intensity.</summary>
     private const int Rows = 15;
+    /// <summary>Number of theme-9 palette colors replaced by each reveal row.</summary>
     private const int Colors = 14;
+    /// <summary>Maximum component value representable by a five-bit RGB channel.</summary>
     private const int Maximum = (1 << 5) - 1;
 
     /// <summary>
@@ -33,8 +36,11 @@ internal sealed class NorfairRidleyRevealPaintDefinitions
     /// levels or grouping would invent different categorical artwork content.
     /// </summary>
     private const int CavernHighlightRed = 14, CavernRedStep = 5, CavernHighlightBlue = 2;
+    /// <summary>Authored row/color values that differ from the calculated fifteen-step fade.</summary>
     private readonly Dictionary<int, ushort> edits = [];
 
+    /// <summary>Retains only supplied palette entries that differ from their calculated reveal colors.</summary>
+    /// <param name="rows">Fifteen chronological rows of fourteen packed RGB5 colors each.</param>
     internal NorfairRidleyRevealPaintDefinitions(ushort[][] rows)
     {
         for (int row = 0; row < Rows; row++)
@@ -42,6 +48,11 @@ internal sealed class NorfairRidleyRevealPaintDefinitions
                 if (rows[row][color] != Calculate(row, color)) edits.Add(row * Colors + color, rows[row][color]);
     }
 
+    /// <summary>Returns the authored override or calculated fade color for one row and palette position.</summary>
+    /// <param name="row">Zero-based reveal row, from the first visible step through the final fade step.</param>
+    /// <param name="color">Zero-based color among the fourteen replaced palette entries.</param>
+    /// <returns>The selected packed RGB5 color.</returns>
+    /// <exception cref="IndexOutOfRangeException">Either index is outside its reveal table.</exception>
     internal ushort ColorAt(int row, int color)
     {
         ValidateRow(row);
@@ -49,11 +60,18 @@ internal sealed class NorfairRidleyRevealPaintDefinitions
         return edits.TryGetValue(row * Colors + color, out ushort edited) ? edited : Calculate(row, color);
     }
 
+    /// <summary>Rejects a reveal-row index outside the fifteen authored fade steps.</summary>
+    /// <param name="row">Zero-based row to validate.</param>
+    /// <exception cref="IndexOutOfRangeException">The row is outside the reveal table.</exception>
     internal static void ValidateRow(int row)
     {
         if ((uint)row >= Rows) throw new IndexOutOfRangeException();
     }
 
+    /// <summary>Scales a stock material endpoint by the intensity assigned to the requested reveal row.</summary>
+    /// <param name="row">Zero-based reveal step; its one-based value selects the fade intensity.</param>
+    /// <param name="color">Zero-based palette entry whose stock endpoint is scaled.</param>
+    /// <returns>The packed RGB5 color for that step.</returns>
     private static ushort Calculate(int row, int color) => CeresRidleyFadeColorDefinitions.Scale(Endpoint(color), row + 1);
 
     /// <summary>
@@ -77,10 +95,21 @@ internal sealed class NorfairRidleyRevealPaintDefinitions
         return Pack(Maximum, Maximum, Maximum);
     }
 
+    /// <summary>Composes a masonry/pillar shade from its red step and shared blue tint.</summary>
+    /// <param name="shade">Zero-based shade from the brightest to the darkest material level.</param>
+    /// <returns>The packed RGB5 masonry color.</returns>
     private static ushort Masonry(int shade) => Pack((3 - shade) * MasonryRedStep, 0,
         TrimBlue + (2 - shade) * MasonryBlueStep);
+    /// <summary>Composes a cavern shade by reducing red and blue from the selected edge highlight.</summary>
+    /// <param name="shade">Zero-based shade progression from the edge highlight.</param>
+    /// <returns>The packed RGB5 cavern color, with channels clipped to the RGB5 range.</returns>
     private static ushort Cavern(int shade) => Pack(CavernHighlightRed - CavernRedStep * shade, 0,
         CavernHighlightBlue - shade);
+    /// <summary>Packs red, green, and blue component values into the SNES RGB5 word layout.</summary>
+    /// <param name="red">Red channel value, clipped to five bits.</param>
+    /// <param name="green">Green channel value, placed in bits five through nine.</param>
+    /// <param name="blue">Blue channel value, clipped to five bits.</param>
+    /// <returns>The packed SNES color word.</returns>
     private static ushort Pack(int red, int green, int blue) => (ushort)(Math.Clamp(red, 0, Maximum)
         | green << 5 | Math.Clamp(blue, 0, Maximum) << 10);
 }

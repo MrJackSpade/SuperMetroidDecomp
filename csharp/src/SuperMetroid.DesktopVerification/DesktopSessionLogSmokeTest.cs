@@ -5,6 +5,8 @@ using SuperMetroid.Desktop;
 /// <summary>Confirms only the requested automatic console-to-ZIP lifecycle, without gameplay.</summary>
 internal static class DesktopSessionLogSmokeTest
 {
+    /// <summary>Exercises session-log capture, archive failure handling, and executable-relative startup logging.</summary>
+    /// <param name="gameAssemblyPath">Packaged desktop assembly launched by the startup-failure scenario.</param>
     internal static void Run(string gameAssemblyPath)
     {
         string root = Directory.CreateTempSubdirectory("SuperMetroid-session-log-").FullName;
@@ -27,6 +29,8 @@ internal static class DesktopSessionLogSmokeTest
         Console.WriteLine("PASS automatic session ZIP: stdout/stderr, nested fatal report before acknowledgment, concurrent writes, recoverable/report-worker output, normal close, IO failure preservation, executable-relative startup failure.");
     }
 
+    /// <summary>Checks live tee output, concurrent writes, fatal checkpoints, recoverable reports, and final ZIP publication.</summary>
+    /// <param name="root">Temporary fixture directory used as the session's executable location.</param>
     private static void VerifyLifecycle(string root)
     {
         using var output = new StringWriter();
@@ -92,6 +96,8 @@ internal static class DesktopSessionLogSmokeTest
         Require(!ReadArchive(archive).Contains("restored console marker"), "Disposed tee still captured console output.");
     }
 
+    /// <summary>Verifies a failed atomic archive publication preserves the live log and writes the failure exception to stderr.</summary>
+    /// <param name="root">Temporary fixture directory used to create the deliberately blocked archive path.</param>
     private static void VerifyArchiveFailure(string root)
     {
         using var output = new StringWriter();
@@ -112,6 +118,9 @@ internal static class DesktopSessionLogSmokeTest
             "Archive failure was silently swallowed or lacked its full exception.");
     }
 
+    /// <summary>Launches the packaged entry point with an invalid option and checks its fatal output is archived beside the executable.</summary>
+    /// <param name="root">Working directory assigned to the child process to distinguish it from the executable directory.</param>
+    /// <param name="gameAssemblyPath">Desktop assembly launched by the child process.</param>
     private static void VerifyGameEntry(string root, string gameAssemblyPath)
     {
         string executable = Path.GetDirectoryName(Path.GetFullPath(gameAssemblyPath))!;
@@ -157,6 +166,9 @@ internal static class DesktopSessionLogSmokeTest
             Directory.Delete(logs);
     }
 
+    /// <summary>Reads the sole <c>session.log</c> entry from a diagnostic ZIP, rejecting unexpected archive contents.</summary>
+    /// <param name="path">ZIP archive produced by the session-log fixture.</param>
+    /// <returns>The complete session log text.</returns>
     private static string ReadArchive(string path)
     {
         using ZipArchive zip = ZipFile.OpenRead(path);
@@ -166,21 +178,44 @@ internal static class DesktopSessionLogSmokeTest
         return reader.ReadToEnd();
     }
 
+    /// <summary>Creates a fixture exception with an inner exception to exercise full diagnostic serialization.</summary>
+    /// <returns>The caught outer exception, including its nested cause.</returns>
     private static Exception CaptureFailure()
     {
         try { throw new InvalidOperationException("fixture fatal", new InvalidDataException("fixture inner")); }
         catch (Exception error) { return error; }
     }
 
+    /// <summary>Fails the smoke check immediately when an expected logging property is absent.</summary>
+    /// <param name="condition">Whether the verified property holds.</param>
+    /// <param name="message">Failure detail included in the thrown exception.</param>
+    /// <exception cref="InvalidOperationException"><paramref name="condition"/> is false.</exception>
     private static void Require(bool condition, string message)
     {
         if (!condition) throw new InvalidOperationException(message);
     }
 
+    /// <summary>In-memory issue-client substitute that prevents the recoverable-report check from using a network service.</summary>
     private sealed class LocalIssueClient : IGitHubIssueClient
     {
+        /// <summary>Reports that the fixture fingerprint has no pre-existing issue.</summary>
+        /// <param name="repository">Repository name supplied by the reporter.</param>
+        /// <param name="fingerprint">Error fingerprint requested by the reporter.</param>
+        /// <returns>A completed lookup with no matching issue.</returns>
         public Task<string?> FindByFingerprintAsync(string repository, string fingerprint) => Task.FromResult<string?>(null);
+
+        /// <summary>Returns a stable fixture URL when the reporter creates its simulated issue.</summary>
+        /// <param name="repository">Repository name supplied by the reporter.</param>
+        /// <param name="title">Issue title generated by the reporter.</param>
+        /// <param name="body">Issue body generated by the reporter.</param>
+        /// <returns>A completed task containing the fixture issue URL.</returns>
         public Task<string> CreateAsync(string repository, string title, string body) => Task.FromResult("fixture-created-issue");
+
+        /// <summary>Accepts a simulated issue comment without performing external I/O.</summary>
+        /// <param name="repository">Repository name supplied by the reporter.</param>
+        /// <param name="issueUrl">Fixture issue URL receiving the comment.</param>
+        /// <param name="body">Comment text generated by the reporter.</param>
+        /// <returns>A completed task once the comment call is accepted.</returns>
         public Task CommentAsync(string repository, string issueUrl, string body) => Task.CompletedTask;
     }
 }

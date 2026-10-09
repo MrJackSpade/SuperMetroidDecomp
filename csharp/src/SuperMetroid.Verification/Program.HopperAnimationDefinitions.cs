@@ -5,6 +5,9 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies hopper animation selectors, compiled mechanics, and their production instruction-program effects.</summary>
+    /// <param name="rom">Retail address space used to compare native animation and mechanics words.</param>
+    /// <param name="artwork">Optional installed enemy artwork used when checking selector-free runtime execution.</param>
     private static void VerifyHopperAnimationDefinitions(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
     {
@@ -150,6 +153,11 @@ internal static partial class Program
               "Tourian alias execute with cartridge visual reads forbidden.");
     }
 
+    /// <summary>Confirms Tourian's Sidehopper definition executes the shared large-Sidehopper landed program.</summary>
+    /// <param name="rom">Retail address space for permitted runtime reads.</param>
+    /// <param name="flags">Reflection flags used to bind the private enemy initialization routine.</param>
+    /// <param name="process">Bound production instruction processor.</param>
+    /// <param name="artwork">Optional installed artwork attached to the enemy system.</param>
     private static void VerifyTourianSidehopperInstructionAlias(
         SuperMetroidAddressSpace rom,
         BindingFlags flags,
@@ -174,6 +182,11 @@ internal static partial class Program
             "Tourian Sidehopper shares compiled large-Sidehopper landed program");
     }
 
+    /// <summary>Invokes the production instruction processor the requested number of times with an expired timer.</summary>
+    /// <param name="enemies">Enemy system owning the instruction state and side effects.</param>
+    /// <param name="process">Bound production instruction-processing method.</param>
+    /// <param name="slot">Hopper enemy slot whose current program is advanced.</param>
+    /// <param name="callCount">Number of instruction calls to execute.</param>
     private static void ExecuteHopperInstructionProgram(
         RoomEnemySystem enemies,
         MethodInfo process,
@@ -189,6 +202,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Warms and repeatedly reads compiled mechanics words to provide a nonzero allocation-probe checksum.</summary>
+    /// <returns>The accumulated word values, consumed by the caller to keep the lookup loop observable.</returns>
     private static int ProbeHopperInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -202,17 +217,32 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads one little-endian native animation-selector word from the retail address space.</summary>
+    /// <param name="source">Cartridge address space containing the selector table.</param>
+    /// <param name="address">Address of the word's low byte.</param>
+    /// <returns>The combined 16-bit selector value.</returns>
     private static ushort ReadHopperAnimationWord(SuperMetroidAddressSpace source, int address) =>
         (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
 
+    /// <summary>Address-space proxy that records or rejects accesses to migrated hopper tables and compiled mechanics.</summary>
+    /// <param name="source">Underlying address space for permitted cartridge reads and writes.</param>
+    /// <param name="forbidPresentation">When true, treats presentation-selector reads as forbidden alongside mechanics reads.</param>
     private sealed class HopperAnimationReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation-word addresses read through the guard when observation is allowed.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        /// <summary>Number of attempted reads rejected because they access compiled mechanics or forbidden presentation data.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge imports through the same table-access checks as generic reads.</summary>
+        /// <param name="address">Cartridge address being imported.</param>
+        /// <returns>The permitted byte from the underlying address space.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Records observed presentation words and rejects accesses to migrated selector or mechanics data.</summary>
+        /// <param name="address">Address requested by production code.</param>
+        /// <returns>The byte from the source when the access is permitted.</returns>
         public byte ReadByte(int address)
         {
             if (address is >= 0xa3aac2 and < 0xa3aae2)
@@ -252,6 +282,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the wrapped cartridge address space.</summary>
+        /// <param name="address">Address receiving the write.</param>
+        /// <param name="value">Byte to write.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

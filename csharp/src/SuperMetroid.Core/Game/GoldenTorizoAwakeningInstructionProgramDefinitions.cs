@@ -21,7 +21,13 @@ internal abstract class GoldenTorizoAwakeningInstructionProgramDefinitions
         UploadInitialHold = 32, UploadLoopHold = 4, UploadLoopCount = 2,
         StandFirstHold = 32, StandSecondHold = 12, StandRemainingHold = 8,
         ColorHold = 4, ColorIterations = 16, HandoffHold = 16;
+    /// <summary>Number of interleaved presentation-selector words in the awakening program.</summary>
     public static int PresentationWordCount => 21;
+
+    /// <summary>Returns the native address of one presentation-selector word in the awakening program.</summary>
+    /// <param name="index">Zero-based presentation-word index.</param>
+    /// <returns>The bank-local address of the selected word.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside <see cref="PresentationWordCount"/>.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -80,26 +86,42 @@ internal abstract class GoldenTorizoAwakeningInstructionProgramDefinitions
         return layout.Result;
     }
 
+    /// <summary>Walks the awakening instruction stream while locating a requested mechanics or presentation word.</summary>
+    /// <param name="requested">The zero-based word ordinal selected for this layout pass.</param>
+    /// <param name="visual">Whether the pass selects interleaved presentation operands instead of mechanics words.</param>
     private ref struct Layout(int requested, bool visual)
     {
+        /// <summary>Gets the bank-local address reached after the instruction words and separately owned upload descriptors traversed so far.</summary>
         internal ushort Cursor { get; private set; } = Start;
+
+        /// <summary>Tracks mechanics-word and presentation-operand ordinals while walking the instruction stream.</summary>
         private int mechanics, presentation;
+
+        /// <summary>Gets the selected instruction address and value produced during this layout pass.</summary>
         internal InstructionMechanicsWord Result { get; private set; }
+
+        /// <summary>Accounts for one instruction word and records it when it matches the requested mechanics ordinal.</summary>
+        /// <param name="value">The native opcode, operand, timer, or branch word at the current cursor.</param>
         internal void Word(ushort value)
         {
             if (!visual && mechanics == requested) Result = new(Cursor, value);
             mechanics++; Cursor += sizeof(ushort);
         }
+        /// <summary>Accounts for a timed pose and exposes the following selector address to presentation-selection passes.</summary>
+        /// <param name="duration">The authored number of frames for the pose.</param>
         internal void Pose(ushort duration)
         {
             Word(duration);
             if (visual && presentation == requested) Result = new(Cursor, 0);
             presentation++; Cursor += sizeof(ushort);
         }
+        /// <summary>Emits the native function-in-Y opcode and its function pointer operand.</summary>
+        /// <param name="function">The bank-local function address installed by the instruction.</param>
         internal void Function(ushort function)
         {
             Word(TorizoInstructionCodes.Instruction_Torizo_FunctionInY); Word(function);
         }
+        /// <summary>Emits the VRAM-copy opcode and advances over its separately cataloged upload descriptor.</summary>
         internal void Upload()
         {
             Word(CommonEnemyInstructionCodes.CopyToVram);

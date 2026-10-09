@@ -7,6 +7,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Runs the fixture-backed checks for direct and indirect G-Mode gate timing, suspended subsystem behavior, and PLM-pool edge cases.</summary>
     private static void VerifyGModeGateGlitch()
     {
         string[] nativeRows = File.ReadAllLines(
@@ -36,6 +37,10 @@ internal static partial class Program
             "  G-Mode: native gate timing, direct/indirect ownership, sand overload, and default block collision pass.");
     }
 
+    /// <summary>Replays the native reactivation scenarios and checks when Samus passes the gate and when the gate begins opening.</summary>
+    /// <param name="reactivateFrame">Frame on which X-Ray is used to cancel direct G-Mode; negative fixture values leave it active.</param>
+    /// <param name="expectedPassedFrame">Native frame on which the projectile crosses the gate boundary.</param>
+    /// <param name="expectedOpenFrame">Native frame on which the gate PLM leaves its sleeping instruction.</param>
     private static void VerifyDirectGModeGateTiming(
         int reactivateFrame,
         int expectedPassedFrame,
@@ -132,6 +137,7 @@ internal static partial class Program
             $"reactivation frame {reactivateFrame} matches native switch timing");
     }
 
+    /// <summary>Checks that transitioning to indirect G-Mode removes the direct X-Ray actor and disabled gate projectile while retaining subsystem suspension.</summary>
     private static void VerifyIndirectGModeOmitsGateActor()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -158,6 +164,7 @@ internal static partial class Program
             "indirect room load retains independent PLM/enemy-projectile disable words");
     }
 
+    /// <summary>Fills the suspended PLM pool through repeated sand contacts and checks the cartridge's no-allocation behavior on overflow and after cancellation.</summary>
     private static void VerifyGModeSandOverload()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -227,6 +234,7 @@ internal static partial class Program
             "first restored PLM pass executes all forty transient sand delete lists");
     }
 
+    /// <summary>Checks blue-door opening behavior with an available PLM slot and verifies a full suspended pool leaves the door cap unchanged.</summary>
     private static void VerifyGModeBlueDoorAllocation()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -271,6 +279,7 @@ internal static partial class Program
             "dropped blue-door request leaves its shootable-solid cap untouched");
     }
 
+    /// <summary>Compares ordinary block contact with full-pool G-Mode contact to confirm allocation failure uses each block's native default collision.</summary>
     private static void VerifyGModeDefaultBlockCollision()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -360,6 +369,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks that a station touched during PLM suspension stays pending and input-locked until its handler resumes after G-Mode.</summary>
     private static void VerifyGModeStationSoftlock()
     {
         var bus = new TestAddressSpace();
@@ -416,6 +426,7 @@ internal static partial class Program
             "resumed station owns Samus until the full access sequence finishes");
     }
 
+    /// <summary>Checks that a collectible touched during PLM suspension is acquired by the first resumed handler even after Samus leaves the block.</summary>
     private static void VerifyGModeRemoteItemAcquisition()
     {
         var bus = new TestAddressSpace();
@@ -445,6 +456,7 @@ internal static partial class Program
             "remote acquisition publishes exactly one cartridge pickup event");
     }
 
+    /// <summary>Checks that a Power Bomb hit remains pending while the noob-tube PLM is suspended and arms its input callback on the first resumed pass.</summary>
     private static void VerifyGModeNoobTubeSuspension()
     {
         var bus = new TestAddressSpace();
@@ -506,6 +518,9 @@ internal static partial class Program
             "first post-G-Mode PLM pass consumes the Power Bomb and arms the input callback");
     }
 
+    /// <summary>Occupies every native PLM allocation slot with suspended quicksand reactions for full-pool G-Mode scenarios.</summary>
+    /// <param name="bus">Address space used to initialize each PLM reaction.</param>
+    /// <param name="plms">PLM system whose fixed-capacity pool is filled.</param>
     private static void FillSuspendedPlmPool(
         ISnesAddressSpace bus,
         RoomPlmSystem plms)
@@ -521,6 +536,9 @@ internal static partial class Program
             "G-Mode fixture occupies all forty native PLM slots");
     }
 
+    /// <summary>Configures Samus at zero health with X-Ray and reserve recovery, then advances the native setup into direct G-Mode.</summary>
+    /// <param name="bus">Address space used by X-Ray activation and Samus collision/animation initialization.</param>
+    /// <param name="samus">Samus state to place into the direct G-Mode setup.</param>
     private static void EnterDirectGMode(ISnesAddressSpace bus, SamusState samus)
     {
         samus.Pose = SamusPoseIds.FacingLeftNormalPose;

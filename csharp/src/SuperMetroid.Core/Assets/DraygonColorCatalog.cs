@@ -35,12 +35,27 @@ public sealed class DraygonColorCatalog
             }
         });
 
+    /// <summary>Selected opening RGB5 colors used when the intro palette is applied.</summary>
     private readonly DraygonIntroPaintDefinitions intro;
+
+    /// <summary>Selected normal-background colors, with stock values resolved from their native layout.</summary>
     private readonly DraygonMaterialPaintDefinitions background;
+
+    /// <summary>Selected normal-sprite colors, with stock values resolved from their native layout.</summary>
     private readonly DraygonMaterialPaintDefinitions sprite;
+
+    /// <summary>Only white-flash entries that differ from the cartridge's white-and-transparent stock row.</summary>
     private readonly Dictionary<int, ushort> whiteFlash = new();
+
+    /// <summary>Selected per-health-row RGB5 values used by Draygon's damage palette.</summary>
     private readonly DraygonHealthPaintDefinitions healthBands;
 
+    /// <summary>Creates the compiled color views and retains only flash overrides that differ from stock.</summary>
+    /// <param name="intro">Packed RGB5 values for the opening palette.</param>
+    /// <param name="background">Packed RGB5 values for normal background colors.</param>
+    /// <param name="sprite">Packed RGB5 values for normal sprite colors.</param>
+    /// <param name="whiteFlash">Packed RGB5 values for the hurt-flash row.</param>
+    /// <param name="healthBands">Packed color rows selected at the eight native health-table offsets.</param>
     private DraygonColorCatalog(ushort[] intro, ushort[] background, ushort[] sprite,
         ushort[] whiteFlash, ushort[][] healthBands)
     {
@@ -52,6 +67,7 @@ public sealed class DraygonColorCatalog
         this.healthBands = new(healthBands);
     }
 
+    /// <summary>Strict camel-case JSON settings shared by Draygon color document loading and serialization.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -156,16 +172,31 @@ public sealed class DraygonColorCatalog
         return bytes;
     }
 
+    /// <summary>Validates a zero-based index into Draygon's eight health-palette rows.</summary>
+    /// <param name="band">Health-row index to check.</param>
+    /// <returns>The same index when it names an authored row.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the authored health-band range.</exception>
     private static int CheckBand(int band) =>
         (uint)band < DraygonColorRomData.HealthBandCount
             ? band
             : throw new ArgumentOutOfRangeException(nameof(band));
 
+    /// <summary>Writes a contiguous run of resolved palette colors to its selected CGRAM destination.</summary>
+    /// <param name="cgram">CGRAM receiving the color words.</param>
+    /// <param name="count">Number of entries to resolve and write.</param>
+    /// <param name="destination">First CGRAM color index in the run.</param>
+    /// <param name="resolve">Function selecting the packed RGB5 word for each zero-based entry.</param>
     private static void ApplyCalculated(SnesCgram cgram, int count, int destination, Func<int, ushort> resolve)
     {
         ArgumentNullException.ThrowIfNull(cgram);
         for (int color = 0; color < count; color++) cgram.SetColor(destination + color, resolve(color));
     }
+    /// <summary>Validates RGB5 channel ranges and packs a named document color row into SNES CGRAM words.</summary>
+    /// <param name="source">Document colors to compile; it must contain exactly the requested number of entries.</param>
+    /// <param name="count">Required number of colors in the row.</param>
+    /// <param name="name">Row label included in validation errors.</param>
+    /// <returns>Packed 15-bit RGB color words in source order.</returns>
+    /// <exception cref="InvalidDataException">The row has the wrong length or contains a null color or channel outside 0 through 31.</exception>
     private static ushort[] Compile(PaletteRgb5[]? source, int count, string name)
     {
         if (source is null || source.Length != count)
@@ -183,6 +214,9 @@ public sealed class DraygonColorCatalog
         return compiled;
     }
 
+    /// <summary>Rejects duplicate JSON property names before deserializing the authored document.</summary>
+    /// <param name="value">Parsed JSON value whose nested objects are checked using ordinal property-name comparison.</param>
+    /// <exception cref="InvalidDataException">Any object contains a duplicate property name.</exception>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Draygon color property {name}."));

@@ -9,9 +9,16 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable label artwork and placement for the pause equipment page.</summary>
 public sealed class PauseEquipmentLabelPresentation
 {
+    /// <summary>Compiled label artwork and placements indexed by the schema's case-sensitive label keys.</summary>
     private readonly Dictionary<string, CompiledLabel> labels;
+    /// <summary>Nonzero blank-strip words that override the native all-zero tilemap cells.</summary>
     private readonly Dictionary<int, ushort> blankEdits;
 
+    /// <summary>Creates the immutable runtime view of validated labels and their selected blank-cell words.</summary>
+    /// <param name="labels">Compiled artwork and destinations keyed by label identifier.</param>
+    /// <param name="blankEdits">Cell values that differ from the native zero-filled blank strip.</param>
+    /// <param name="disabledPalette">Palette selector used for collected but unequipped items.</param>
+    /// <param name="contentIdentity">Hash of the exact source JSON used to produce this catalog.</param>
     private PauseEquipmentLabelPresentation(Dictionary<string, CompiledLabel> labels, Dictionary<int, ushort> blankEdits,
         int disabledPalette, string contentIdentity)
     {
@@ -26,6 +33,9 @@ public sealed class PauseEquipmentLabelPresentation
     /// <summary>Uppercase hexadecimal SHA-256 of the exact source JSON bytes, used by pause-menu rebinding to decide whether to rebuild inventory labels.</summary>
     public string ContentIdentity { get; }
 
+    /// <summary>Reports whether an equipment label occupies a tilemap cell that must remain synchronized with inventory state.</summary>
+    /// <param name="cell">Linear cell index in the pause equipment tilemap.</param>
+    /// <returns><see langword="true"/> when the cell belongs to a live label footprint.</returns>
     internal bool OwnsLiveCell(int cell)
     {
         foreach ((string key, CompiledLabel label) in labels)
@@ -197,6 +207,9 @@ public sealed class PauseEquipmentLabelPresentation
                 BinaryPrimitives.WriteUInt16LittleEndian(destination[(cell * sizeof(ushort))..], word);
     }
 
+    /// <summary>Requires a complete 32-by-32 tilemap before label operations write into it.</summary>
+    /// <param name="tilemap">Tilemap buffer to validate.</param>
+    /// <exception cref="ArgumentException">The buffer does not contain exactly one complete tilemap.</exception>
     private static void ValidateTilemap(Span<byte> tilemap)
     {
         if (tilemap.Length != PauseEquipmentLabelDefinitions.TilemapColumns *
@@ -204,6 +217,9 @@ public sealed class PauseEquipmentLabelPresentation
             throw new ArgumentException("Pause equipment labels require a complete 32x32 tilemap.", nameof(tilemap));
     }
 
+    /// <summary>Replaces each BG tile word's palette selector while retaining its other attribute bits.</summary>
+    /// <param name="bytes">Little-endian tile words to recolor.</param>
+    /// <param name="palette">Palette selector written to each tile word.</param>
     private static void Recolor(Span<byte> bytes, int palette)
     {
         for (int offset = 0; offset < bytes.Length; offset += sizeof(ushort))
@@ -213,11 +229,23 @@ public sealed class PauseEquipmentLabelPresentation
         }
     }
 
+    /// <summary>Stores sparse artwork edits and an optional placement override for one native label.</summary>
+    /// <param name="key">Label key used to obtain stock dimensions and fallback tile words.</param>
+    /// <param name="destinationEdit">Edited byte offset, or <see langword="null"/> to use the stock placement.</param>
+    /// <param name="edits">Tile words that differ from the native artwork for this label.</param>
     private sealed class CompiledLabel(string key, int? destinationEdit, Dictionary<int, ushort> edits)
     {
+        /// <summary>Gets the selected byte offset in the tilemap, falling back to the native label placement.</summary>
         internal int DestinationByte => destinationEdit ?? PauseEquipmentLabelDefinitions.StockDestinationByte(key);
+
+        /// <summary>Gets the number of tile words occupied by this label in the pause layout.</summary>
         internal int WordCount => PauseEquipmentLabelDefinitions.StockWordCount(key);
 
+        /// <summary>Compiles a label by retaining only tile words that differ from its native artwork.</summary>
+        /// <param name="key">Label key that identifies the native fallback artwork and placement.</param>
+        /// <param name="destination">Selected byte offset for the label in the tilemap.</param>
+        /// <param name="bytes">Little-endian tile words for the supplied artwork.</param>
+        /// <returns>A sparse compiled label whose unchanged values use the native definitions.</returns>
         internal static CompiledLabel Load(string key, int destination, ReadOnlySpan<byte> bytes)
         {
             var edits = new Dictionary<int, ushort>();
@@ -231,6 +259,8 @@ public sealed class PauseEquipmentLabelPresentation
             return new(key, changedDestination, edits);
         }
 
+        /// <summary>Writes selected tile words into the destination, filling unchanged positions from native artwork.</summary>
+        /// <param name="destination">Tilemap slice receiving the label's words.</param>
         internal void CopyTo(Span<byte> destination)
         {
             for (int cell = 0; cell < destination.Length / sizeof(ushort); cell++)

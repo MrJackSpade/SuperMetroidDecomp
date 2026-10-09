@@ -13,10 +13,21 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class GameOverPresentation
 {
+    /// <summary>Retains an edited 32-by-32 tilemap only when it differs from the compiled stock text layout.</summary>
     private readonly byte[]? tilemap;
+
+    /// <summary>Maps authored frame identities to the compiled Baby, egg, and missile-cursor sprite compositions.</summary>
     private readonly Dictionary<string, SpriteComposition> sprites;
+
+    /// <summary>Provides the four authored Baby palette phases used by the ending animation.</summary>
     private readonly GameOverBabyColorCatalog babyPalettes;
 
+    /// <summary>Creates the validated runtime presentation from compiled assets and selected document values.</summary>
+    /// <param name="tilemap">The serialized tilemap bytes, retained only when they differ from the calculated stock page.</param>
+    /// <param name="sprites">Validated sprite compositions keyed by their authored frame identities.</param>
+    /// <param name="babyPalettes">Validated colors for each Baby animation phase.</param>
+    /// <param name="document">The validated layout and palette-selector values copied into this presentation.</param>
+    /// <param name="contentIdentity">The uppercase SHA-256 identity of the loaded JSON bytes.</param>
     private GameOverPresentation(
         byte[] tilemap,
         Dictionary<string, SpriteComposition> sprites,
@@ -225,9 +236,16 @@ public sealed class GameOverPresentation
         output.Write(bytes);
     }
 
+    /// <summary>Encodes an OBJ palette index in the palette-bit position of a SNES object attribute word.</summary>
+    /// <param name="index">Palette selector from zero through seven.</param>
+    /// <returns>The encoded object palette bits.</returns>
     private static ushort PaletteBits(int index) =>
         SnesObjAttributeWord.Create(0, index, 0).PaletteBits;
 
+    /// <summary>Requires a layout point and validates both screen coordinates as byte-sized pixels.</summary>
+    /// <param name="point">The required authored point.</param>
+    /// <param name="name">The document field name used to identify validation errors.</param>
+    /// <exception cref="InvalidDataException">The point is missing or either coordinate is outside 0-255.</exception>
     private static void ValidatePoint(MapLabelPoint? point, string name)
     {
         if (point is null)
@@ -236,12 +254,20 @@ public sealed class GameOverPresentation
         ValidateCoordinate(point.Y, $"{name} Y");
     }
 
+    /// <summary>Validates one screen coordinate against the 8-bit pixel range.</summary>
+    /// <param name="value">The coordinate value to check.</param>
+    /// <param name="name">The field name included in a validation error.</param>
+    /// <exception cref="InvalidDataException">The coordinate is outside 0-255.</exception>
     private static void ValidateCoordinate(int value, string name)
     {
         if ((uint)value > byte.MaxValue)
             throw new InvalidDataException($"{name} must be 0..255.");
     }
 
+    /// <summary>Validates that an authored OBJ palette selector names one of the eight hardware palettes.</summary>
+    /// <param name="value">The palette selector to check.</param>
+    /// <param name="name">The field name included in a validation error.</param>
+    /// <exception cref="InvalidDataException">The selector is outside 0-7.</exception>
     private static void ValidatePaletteIndex(int value, string name)
     {
         if ((uint)value > 7)
@@ -295,12 +321,14 @@ public static class GameOverPresentationDefinitions
     /// <summary>Schema sprite identity of the egg composition, drawn at the Baby anchor.</summary>
     public const string EggFrame = "Egg";
 
+    /// <summary>Ordered identities required for the three Baby frames, egg composition, and four cursor frames.</summary>
     private static readonly string[] spriteNames =
     [
         "Baby.Closed", "Baby.Middle", "Baby.Open", EggFrame,
         "Cursor.0", "Cursor.1", "Cursor.2", "Cursor.3",
     ];
 
+    /// <summary>Ordered identities required for the idle and three crying Baby palette phases.</summary>
     private static readonly string[] paletteNames =
         ["Baby.Idle", "Baby.ClosedCry", "Baby.MiddleCry", "Baby.OpenCry"];
 
@@ -362,6 +390,10 @@ public static class GameOverPresentationDefinitions
         return GameOverRomData.BlankTile.Raw;
     }
 
+    /// <summary>Maps supported uppercase menu letters, spaces, and punctuation to the native small-font tile atlas.</summary>
+    /// <param name="letter">The character to encode in the small game-over font.</param>
+    /// <returns>The corresponding tile word or the native blank tile for a space.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The character is not supported by the small-font atlas.</exception>
     private static ushort SmallLetter(char letter) => letter switch
     {
         >= 'A' and <= 'Z' => (ushort)(SmallLetterA + letter - 'A'),

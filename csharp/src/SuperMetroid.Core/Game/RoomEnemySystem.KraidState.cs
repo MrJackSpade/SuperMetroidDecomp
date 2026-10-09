@@ -269,16 +269,26 @@ public sealed class KraidEnemyState
 
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native enemy-definition identifier for Kraid's body record.</summary>
     internal const ushort KraidDefinition = 0xe2bf;
+    /// <summary>Native enemy-definition identifier for Kraid's arm part.</summary>
     internal const ushort KraidArmDefinition = 0xe2ff;
+    /// <summary>Native enemy-definition identifier for the upper lint projectile part.</summary>
     internal const ushort KraidTopLintDefinition = 0xe33f;
+    /// <summary>Native enemy-definition identifier for the middle lint projectile part.</summary>
     internal const ushort KraidMiddleLintDefinition = 0xe37f;
+    /// <summary>Native enemy-definition identifier for the lower lint projectile part.</summary>
     internal const ushort KraidBottomLintDefinition = 0xe3bf;
+    /// <summary>Native enemy-definition identifier for Kraid's foot part.</summary>
     internal const ushort KraidFootDefinition = 0xe3ff;
+    /// <summary>Native enemy-definition identifier for the damageable fingernail projectile.</summary>
     internal const ushort KraidGoodNailDefinition = 0xe43f;
+    /// <summary>Native enemy-definition identifier for the nondamaging fingernail projectile.</summary>
     internal const ushort KraidBadNailDefinition = 0xe47f;
 
+    /// <summary>Shared encounter workspace initialized by Kraid's body and retained while its parts continue running.</summary>
     private KraidEnemyState? _kraidState;
+    /// <summary>Room mutations queued by Kraid's scripted behavior for publication by the room-enemy update.</summary>
     private readonly List<KraidPlmRequest> _kraidPlmRequests = [];
 
     /// <summary>Active typed state when the loaded room owns retail Kraid slot zero.</summary>
@@ -287,6 +297,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Hardcoded Kraid room mutations published during the current enemy frame.</summary>
     public IReadOnlyList<KraidPlmRequest> KraidPlmRequests => _kraidPlmRequests;
 
+    /// <summary>Clears Kraid's shared workspace and pending room mutations when the room state is reset.</summary>
     private void ResetKraidRoomState()
     {
         _kraidState = null;

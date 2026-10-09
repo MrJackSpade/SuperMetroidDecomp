@@ -5,14 +5,18 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Retail room-header offset whose Crocomire population supplies the integration fixture.</summary>
     private const ushort CrocomireInstructionAuditRoom = 0xa98d;
 
+    /// <summary>Runs the Crocomire instruction audit using the installed retail ROM as its reference.</summary>
     private static void VerifyCrocomireInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyCrocomireInstructionProgramDefinitions), () => VerifyCrocomireInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks compiled Crocomire mechanics against cartridge data and executes body selectors through the room interpreter.</summary>
+    /// <param name="rom">Retail address space used to load the fixture room and compare native instruction operands.</param>
     private static void VerifyCrocomireInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -126,6 +130,8 @@ internal static partial class Program
             "with runtime reads forbidden.");
     }
 
+    /// <summary>Repeats lookups of representative Crocomire mechanics words for the warmed allocation check.</summary>
+    /// <returns>A checksum that consumes the resolved words.</returns>
     private static int ProbeCrocomireInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -139,6 +145,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian word from bank $A4 of the retail ROM.</summary>
+    /// <param name="source">Retail address space containing the reference bytes.</param>
+    /// <param name="address">Bank-local offset of the word's low byte.</param>
+    /// <returns>The adjacent cartridge bytes combined as a 16-bit word.</returns>
     private static ushort ReadCrocomireInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -146,14 +156,26 @@ internal static partial class Program
             source.ReadByte(0xa40000 | address) |
             source.ReadByte(0xa40000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Rejects runtime reads from compiled Crocomire mechanics and records accesses to compiled presentation operands.</summary>
+    /// <param name="source">Underlying address space used for permitted reads and forwarded writes.</param>
     private sealed class CrocomireInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Distinct presentation-word offsets whose bytes were requested through this wrapper.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of attempted reads rejected for targeting a compiled mechanics byte.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge reads through the same mechanics and presentation checks as address-space reads.</summary>
+        /// <param name="address">SNES cartridge address requested by the caller.</param>
+        /// <returns>The underlying byte when the address is outside compiled mechanics.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, records presentation reads, and delegates other addresses.</summary>
+        /// <param name="address">SNES address requested by the caller.</param>
+        /// <returns>The byte supplied by the wrapped address space when permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address targets a compiled Crocomire mechanics byte.</exception>
         public byte ReadByte(int address)
         {
             if (CrocomireInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -184,6 +206,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write unchanged because this wrapper guards reads only.</summary>
+        /// <param name="address">SNES address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -3,6 +3,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Compares the managed Kraid draw-owner set with native room-PLM header identities.</summary>
+    /// <param name="rom">Retail address space containing the native PLM headers.</param>
     private static void VerifyKraidDrawOwnerClassification(SuperMetroidAddressSpace rom)
     {
         // Independent native header/list identities from bank_84.asm B7A3..B7C1.
@@ -24,6 +26,8 @@ internal static partial class Program
                 "Kraid visual owner classification across full header domain");
     }
 
+    /// <summary>Supplies the independently recorded Kraid draw pointers, horizontal run lengths, and visual IDs.</summary>
+    /// <returns>The expected native draw records in their cartridge order.</returns>
     private static (ushort Pointer, int Count, string Id)[] KraidDrawOracle() =>
     [
         (0x9367, 1, "crumble-first"), (0x936d, 1, "crumble-second"),
@@ -33,6 +37,7 @@ internal static partial class Program
         (0x939d, 15, "clear-ceiling"), (0x93bf, 22, "clear-spikes"),
     ];
 
+    /// <summary>Checks draw count, ordering, pointer lookup across the word domain, and ordinal bounds.</summary>
     private static void VerifyKraidDrawAddresses()
     {
         var expected = KraidDrawOracle();
@@ -56,6 +61,8 @@ internal static partial class Program
                 "Kraid draw ordinal bounds");
     }
 
+    /// <summary>Compares each exported draw run's extent and terminator with the native ROM record.</summary>
+    /// <param name="rom">Retail address space containing Kraid's bank-$84 draw records.</param>
     private static void VerifyKraidDrawShapes(SuperMetroidAddressSpace rom)
     {
         var exported = KraidRoomPlmDrawDefinitions.All.ToDictionary(draw => draw.Pointer);
@@ -76,6 +83,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Registers the focused checks for single-block, ceiling-clear, and spike-clear draw words.</summary>
+    /// <param name="rom">Retail address space used by each registered word comparison.</param>
     private static void VerifyKraidDrawWords(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidSingleDrawWords), () => VerifyKraidSingleDrawWords(rom));
@@ -83,15 +92,24 @@ internal static partial class Program
         Suite(nameof(VerifyKraidSpikeClearWords), () => VerifyKraidSpikeClearWords(rom));
     }
 
+    /// <summary>Verifies the eight single-block Kraid draw records against their native words.</summary>
+    /// <param name="rom">Retail address space containing the source draw words.</param>
     private static void VerifyKraidSingleDrawWords(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidDrawWordSet), () => VerifyKraidDrawWordSet(rom, KraidDrawOracle().Take(8)));
 
+    /// <summary>Verifies the multi-block ceiling-clear sequence against its native draw words.</summary>
+    /// <param name="rom">Retail address space containing the source draw words.</param>
     private static void VerifyKraidCeilingClearWords(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidDrawWordSet), () => VerifyKraidDrawWordSet(rom, KraidDrawOracle().Where(draw => draw.Pointer == 0x939d)));
 
+    /// <summary>Verifies the multi-block spike-clear sequence against its native draw words.</summary>
+    /// <param name="rom">Retail address space containing the source draw words.</param>
     private static void VerifyKraidSpikeClearWords(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidDrawWordSet), () => VerifyKraidDrawWordSet(rom, KraidDrawOracle().Where(draw => draw.Pointer == 0x93bf)));
 
+    /// <summary>Checks computed and exported physical/visual words for the selected draw records.</summary>
+    /// <param name="rom">Retail address space containing the expected draw words.</param>
+    /// <param name="definitions">Pointer and run-length entries whose word sequences are compared.</param>
     private static void VerifyKraidDrawWordSet(SuperMetroidAddressSpace rom,
         IEnumerable<(ushort Pointer, int Count, string Id)> definitions)
     {
@@ -111,6 +129,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks pointer-to-ID and ID-to-pointer mappings, including exact-case rejection of altered IDs.</summary>
     private static void VerifyKraidDrawVisualIds()
     {
         var expected = KraidDrawOracle();
@@ -135,6 +154,10 @@ internal static partial class Program
                     "Kraid unknown pointer has no visual ID");
     }
 
+    /// <summary>Reads one little-endian word from the bank-$84 address used by a Kraid draw record.</summary>
+    /// <param name="rom">Retail address space containing bank-$84 data.</param>
+    /// <param name="address">Bank-local address of the word's low byte.</param>
+    /// <returns>The low byte followed by the high byte as a 16-bit value.</returns>
     private static ushort KraidDrawRomWord(SuperMetroidAddressSpace rom, int address) =>
         (ushort)(rom.ReadByte(0x840000 | address) | rom.ReadByte(0x840000 | (address + 1)) << 8);
 }

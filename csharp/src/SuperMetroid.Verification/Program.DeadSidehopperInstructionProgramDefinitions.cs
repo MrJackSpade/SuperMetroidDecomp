@@ -4,12 +4,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Loads the retail ROM and verifies the compiled Dead sidehopper instruction programs against it.</summary>
     private static void VerifyDeadSidehopperInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyDeadSidehopperInstructionProgramDefinitions), () => VerifyDeadSidehopperInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares compiled mechanics to bank A9 and executes each production Dead sidehopper program.</summary>
+    /// <param name="rom">Retail address space containing the original Dead sidehopper mechanics and selectors.</param>
     private static void VerifyDeadSidehopperInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -115,6 +118,13 @@ internal static partial class Program
             "spritemap selectors pass with mechanics bytes forbidden.");
     }
 
+    /// <summary>Runs a selected instruction list through the production processor for its requested frame count.</summary>
+    /// <param name="enemies">Room enemy system whose instruction processor executes the program.</param>
+    /// <param name="process">Reflected production instruction-processing method.</param>
+    /// <param name="processArguments">Argument array passed to each processor invocation.</param>
+    /// <param name="corpse">Dead sidehopper slot whose instruction pointer and timer are advanced.</param>
+    /// <param name="program">Entry address installed before execution.</param>
+    /// <param name="frameCount">Number of program frames; one additional processor call consumes the terminal instruction.</param>
     private static void ExecuteDeadSidehopperProgram(
         RoomEnemySystem enemies,
         MethodInfo process,
@@ -131,6 +141,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Repeatedly reads representative mechanics words so warmed lookup allocation can be measured.</summary>
+    /// <returns>A checksum that keeps the repeated reads observable.</returns>
     private static int ProbeDeadSidehopperInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -144,6 +156,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian word from the Dead sidehopper's bank A9 instruction data.</summary>
+    /// <param name="source">Retail address space containing bank A9.</param>
+    /// <param name="address">Offset of the word's low byte within bank A9.</param>
+    /// <returns>The word formed from the addressed byte and its successor.</returns>
     private static ushort ReadDeadSidehopperInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -151,14 +167,25 @@ internal static partial class Program
             source.ReadByte(0xa90000 | address) |
             source.ReadByte(0xa90000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Guards production execution against reads of compiled mechanics and records presentation reads.</summary>
+    /// <param name="source">Address space receiving reads that pass the mechanics guard.</param>
     private sealed class DeadSidehopperInstructionReadGuard(
         ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets presentation-word offsets whose bytes production execution requested.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Gets the number of attempts to read bytes represented by compiled mechanics.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes a cartridge-byte request through the guard's mechanics check.</summary>
+        /// <param name="address">Cartridge bus address to read.</param>
+        /// <returns>The byte returned by the wrapped address space if allowed.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled-mechanics reads, records presentation reads, and forwards permitted bytes.</summary>
+        /// <param name="address">Bus address of the requested byte.</param>
+        /// <returns>The requested byte when the guard permits the read.</returns>
         public byte ReadByte(int address)
         {
             if (DeadSidehopperInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -189,6 +216,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Bus address receiving the write.</param>
+        /// <param name="value">Byte to store at <paramref name="address"/>.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

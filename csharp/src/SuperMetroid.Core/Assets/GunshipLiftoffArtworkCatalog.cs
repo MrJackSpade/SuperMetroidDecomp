@@ -3,12 +3,16 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>One fixed native takeoff upload; only its character pixels are editable.</summary>
+/// <param name="SourceAddress">SNES byte address of the transfer's native source region.</param>
+/// <param name="DestinationWord">Starting VRAM word address used by the native upload list.</param>
+/// <param name="Asset">Typed artwork identity associated with this transfer region.</param>
 internal readonly record struct GunshipLiftoffTransferDefinition(
     int SourceAddress, ushort DestinationWord, VramAssetId Asset);
 
 /// <summary>Compiled $A2:AC07/$A2:AC11 transfer pairs for the five gunship takeoff uploads.</summary>
 internal static class GunshipLiftoffTransferDefinitions
 {
+    /// <summary>Size in bytes of each native gunship takeoff character transfer.</summary>
     internal const ushort ByteCount = 0x0400;
     /// <summary>$94:C800, first gunship takeoff character chunk selected by $A2:AC07.</summary>
     private const int FirstSourceAddress = 0x94c800;
@@ -24,14 +28,25 @@ internal static class GunshipLiftoffTransferDefinitions
             VramAssetId.GunshipLiftoffFirstTiles + index);
     }
 
+    /// <summary>Indexed view of the five native source and VRAM destination pairs.</summary>
     internal static TransferSequence Frames => default;
 
     /// <summary>Calculated view over the five contiguous character transfers; no records are cached.</summary>
     internal readonly struct TransferSequence : IReadOnlyList<GunshipLiftoffTransferDefinition>
     {
+        /// <summary>Number of transfer pairs in the takeoff upload sequence.</summary>
         public int Count => 5;
+
+        /// <summary>Number of transfer pairs, matching <see cref="Count"/>.</summary>
         public int Length => Count;
+
+        /// <summary>Gets the native transfer pair at the requested sequence position.</summary>
+        /// <param name="index">Zero-based position from zero through four.</param>
+        /// <exception cref="IndexOutOfRangeException">The index is outside the five native transfer pairs.</exception>
         public GunshipLiftoffTransferDefinition this[int index] => Frame(index);
+
+        /// <summary>Enumerates the five transfer pairs in native upload order.</summary>
+        /// <returns>An enumerator that calculates each transfer as it is requested.</returns>
         public IEnumerator<GunshipLiftoffTransferDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
@@ -52,8 +67,13 @@ public sealed class GunshipLiftoffArtworkCatalog
                 content.Append("tiles", frame.Transfer.Span);
         });
 
+    /// <summary>Selected artwork frames, copied at construction and resolved by transfer index.</summary>
     private readonly RoomCharacterAtlas[] frames;
 
+    /// <summary>Creates a catalog from the five complete character atlases used by the takeoff uploads.</summary>
+    /// <param name="frames">Artwork frames in the same order as the native transfer sequence.</param>
+    /// <exception cref="ArgumentNullException">The frame array is <see langword="null"/>.</exception>
+    /// <exception cref="InvalidDataException">The array does not contain five frames of the required transfer size.</exception>
     internal GunshipLiftoffArtworkCatalog(RoomCharacterAtlas[] frames)
     {
         ArgumentNullException.ThrowIfNull(frames);

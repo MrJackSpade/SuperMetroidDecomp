@@ -31,14 +31,27 @@ public readonly record struct ManagedAudioRegressionSmokeTestResult(
 /// </summary>
 public static class ManagedAudioRegressionSmokeTest
 {
+    /// <summary>Expected digest of scenario identifiers and rendered interleaved PCM bytes.</summary>
     private const string ExpectedPcmSha256 =
         "06FE91966B29B05F2012C6A542864B5692B178A7B028C2A4A56F6D34E8F8D06C";
+
+    /// <summary>Expected digest of scenario identifiers and four-port audio acknowledgements.</summary>
     private const string ExpectedAcknowledgementSha256 =
         "DF414B59F7CA21C4BBAD7ABA9C379C8296DCA454B480BFCEFCB8B35123D851FD";
+
+    /// <summary>Frame count for each short music and sound-effect scenario.</summary>
     private const int ShortScenarioFrames = 120;
+
+    /// <summary>Frame count for the title music scenario.</summary>
     private const int TitleScenarioFrames = 600;
+
+    /// <summary>Frame count for the music stop, bank-change, pause, and resume sequence.</summary>
     private const int LifecycleScenarioFrames = 600;
+
+    /// <summary>Required number of distinct canonical waveforms in the installed audio catalog.</summary>
     private const int ExpectedCanonicalSampleCount = 112;
+
+    /// <summary>Required number of source-number mappings in the installed audio catalog.</summary>
     private const int ExpectedSourceAliasCount = 935;
 
     /// <summary>Loads installed audio assets, checks catalog dimensions, and compares the fixed music/SFX/lifecycle corpus against its pinned PCM and acknowledgement digests without a ROM or audio device.</summary>
@@ -146,6 +159,15 @@ public static class ManagedAudioRegressionSmokeTest
             acknowledgements);
     }
 
+    /// <summary>Renders one uploaded music bank for a fixed duration and appends its PCM and acknowledgement data to the corpus hashes.</summary>
+    /// <param name="name">Scenario identifier included in both digests.</param>
+    /// <param name="bank">Music upload selected for this run.</param>
+    /// <param name="frameCount">Number of audio frames to render.</param>
+    /// <param name="pcmHash">Incremental digest receiving the scenario name and PCM bytes.</param>
+    /// <param name="acknowledgementHash">Incremental digest receiving the scenario name and audio-port acknowledgements.</param>
+    /// <param name="scenarios">Aggregate scenario count updated after completion.</param>
+    /// <param name="frames">Aggregate rendered frame count updated by each frame.</param>
+    /// <param name="samples">Aggregate interleaved PCM sample count updated by each frame.</param>
     private static void RunMusicScenario(
         string name,
         AudioUploadAssetDefinition bank,
@@ -172,6 +194,15 @@ public static class ManagedAudioRegressionSmokeTest
         scenarios++;
     }
 
+    /// <summary>Renders a short SFX command sequence, optionally issuing cancellation commands halfway through.</summary>
+    /// <param name="name">Scenario identifier included in both digests.</param>
+    /// <param name="startCommands">Port writes issued at the beginning of the scenario.</param>
+    /// <param name="pcmHash">Incremental digest receiving rendered PCM bytes.</param>
+    /// <param name="acknowledgementHash">Incremental digest receiving audio-port acknowledgements.</param>
+    /// <param name="scenarios">Aggregate scenario count updated after completion.</param>
+    /// <param name="frames">Aggregate rendered frame count updated by each frame.</param>
+    /// <param name="samples">Aggregate interleaved PCM sample count updated by each frame.</param>
+    /// <param name="cancelHalfway">Whether to send each library's cancel-all command at the midpoint.</param>
     private static void RunSoundScenario(
         string name,
         IReadOnlyList<(byte Port, byte Command)> startCommands,
@@ -206,6 +237,12 @@ public static class ManagedAudioRegressionSmokeTest
         scenarios++;
     }
 
+    /// <summary>Hashes a fixed music sequence covering stop, bank replacement, pause, resume, and track changes.</summary>
+    /// <param name="pcmHash">Incremental digest receiving the scenario name and PCM bytes.</param>
+    /// <param name="acknowledgementHash">Incremental digest receiving the scenario name and audio-port acknowledgements.</param>
+    /// <param name="scenarios">Aggregate scenario count updated after completion.</param>
+    /// <param name="frames">Aggregate rendered frame count updated by each frame.</param>
+    /// <param name="samples">Aggregate interleaved PCM sample count updated by each frame.</param>
     private static void RunLifecycleScenario(
         IncrementalHash pcmHash,
         IncrementalHash acknowledgementHash,
@@ -259,6 +296,14 @@ public static class ManagedAudioRegressionSmokeTest
         scenarios++;
     }
 
+    /// <summary>Renders one command frame and appends its PCM and port acknowledgements in corpus order.</summary>
+    /// <param name="scenario">Scenario identifier prefixed to both digest streams.</param>
+    /// <param name="engine">Managed SPC audio engine used to render and report acknowledgements.</param>
+    /// <param name="commands">Cartridge audio commands submitted for this frame.</param>
+    /// <param name="pcmHash">Incremental digest receiving the interleaved PCM bytes.</param>
+    /// <param name="acknowledgementHash">Incremental digest receiving one byte per audio port.</param>
+    /// <param name="frames">Aggregate frame count incremented once.</param>
+    /// <param name="samples">Aggregate PCM sample count incremented by the returned sample length.</param>
     private static void HashFrame(
         string scenario,
         SpcAudioEngine engine,

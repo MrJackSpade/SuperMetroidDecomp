@@ -11,6 +11,7 @@ using SuperMetroid.Core.Runtime;
 /// <summary>Unpaced, room-local CPU baseline. Not a presentation, waveOut-underrun, or five-minute soak gate.</summary>
 internal static class SimulationProfile
 {
+    /// <summary>Measures unpaced simulation and audio work in gameplay and pause-menu scenes and writes the timing report.</summary>
     internal static void Run()
     {
         VerifyPublicationProfiler();
@@ -39,6 +40,10 @@ internal static class SimulationProfile
         Console.WriteLine($"Simulation timing baseline written to {path}");
     }
 
+    /// <summary>Captures a warmed 600-frame sample of simulation, managed audio, allocations, and render-publication timing.</summary>
+    /// <param name="room">The retail room loaded for the measured scene.</param>
+    /// <param name="paused">Whether to enter and measure the pause menu instead of active gameplay.</param>
+    /// <returns>An object containing per-frame timing distributions and audio sample counts for the selected scene.</returns>
     private static object Measure(ushort room, bool paused)
     {
         var game = RepositoryInstallation.CreateGame(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"),
@@ -104,7 +109,12 @@ internal static class SimulationProfile
             NonzeroPcmSamples = nonzeroPcmSamples };
     }
 
+    /// <summary>Reports whether the game is in either state used by the pause menu.</summary>
+    /// <param name="game">The runtime whose current state is inspected.</param>
+    /// <returns>True for either paused state; otherwise false.</returns>
     private static bool IsPaused(SuperMetroidGame game) => game.GameState is SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB;
+
+    /// <summary>Checks that render-publication profiling records work, resets cleanly, rejects nesting, and allocates nothing while disabled.</summary>
     private static void VerifyPublicationProfiler()
     {
         // Exclude the CLR's first thread-static/type initialization from steady-state recording.
@@ -125,15 +135,24 @@ internal static class SimulationProfile
         catch (InvalidOperationException) { nestedRejected = true; }
         if (!nestedRejected) throw new InvalidOperationException("Nested profiling would double count work.");
     }
+    /// <summary>Sorts measured samples and selects nearest-rank p50, p95, p99, and maximum values.</summary>
+    /// <param name="values">The sample values to order and summarize; the array is sorted in place.</param>
+    /// <returns>The requested percentile and maximum values.</returns>
     private static Timing Distribution(double[] values)
     {
         Array.Sort(values);
         return new(values[(int)Math.Ceiling(values.Length * .50) - 1], values[(int)Math.Ceiling(values.Length * .95) - 1],
             values[(int)Math.Ceiling(values.Length * .99) - 1], values[^1]);
     }
+    /// <summary>Summarizes a sample array with nearest-rank percentiles and its maximum, retaining the input samples' units.</summary>
+    /// <param name="P50">Nearest-rank 50th-percentile sample.</param>
+    /// <param name="P95">Nearest-rank 95th-percentile sample.</param>
+    /// <param name="P99">Nearest-rank 99th-percentile sample.</param>
+    /// <param name="Maximum">Largest sample in the set.</param>
     private readonly record struct Timing(double P50, double P95, double P99, double Maximum);
 }
 
+/// <summary>Names retail rooms selected for isolated simulation timing scenes.</summary>
 internal static class SimulationProfileRooms
 {
     /// <summary>Retail $8F:CEFB room header: Maridia glass tube, logical room $04/$01.</summary>

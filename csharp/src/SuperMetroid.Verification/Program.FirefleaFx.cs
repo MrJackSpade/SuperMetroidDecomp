@@ -5,6 +5,10 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Checks Fireflea palette flashing, death-darkness offsets, frozen-time behavior, effect teardown, and optionally the retail X-ray display capture.
+    /// </summary>
+    /// <param name="includeXrayCapture">Whether to run the longer retail-runtime capture that verifies the Fireflea X-ray compositor.</param>
     private static void VerifyFirefleaFx(bool includeXrayCapture = true)
     {
         var memory = new TestAddressSpace();
@@ -67,6 +71,10 @@ internal static partial class Program
         Console.WriteLine("  Fireflea FX: compiled native shades, ROM-read guard, initialization, flash cycles, all seven death offsets, COLDATA order and frozen-time retention agree.");
     }
 
+    /// <summary>
+    /// Compares each compiled Fireflea flash shade with the corresponding word in the cartridge table and checks invalid indices.
+    /// </summary>
+    /// <param name="rom">The cartridge address space containing the original flash-shade table.</param>
     private static void VerifyFirefleaFlashingAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (ushort i = 0; i < 12; i++)
@@ -76,6 +84,10 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.FlashingShade(ushort.MaxValue), "Flash invalid maximum");
     }
 
+    /// <summary>
+    /// Compares the compiled death-darkness offsets with cartridge words, including the final opcode-alias entry, and rejects unsupported offsets.
+    /// </summary>
+    /// <param name="rom">The cartridge address space used as the reference for the original darkness sequence.</param>
     private static void VerifyFirefleaDarknessAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (ushort offset = 0; offset <= 12; offset += 2)
@@ -85,11 +97,25 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.DarknessShade(14), "Darkness upper bound");
         AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.DarknessShade(ushort.MaxValue), "Darkness invalid maximum");
     }
+    /// <summary>
+    /// Wraps an address space for the Fireflea audit and fails if execution reads the migrated definition words from cartridge memory.
+    /// </summary>
+    /// <param name="source">The underlying address space to which all permitted reads and writes are forwarded.</param>
     private sealed class FirefleaFxDefinitionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>
+        /// Routes an importer cartridge read through the guard so accesses to the retired Fireflea definition range are rejected.
+        /// </summary>
+        /// <param name="address">The cartridge address to read.</param>
+        /// <returns>The byte stored at the address when it is outside the guarded definition range.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>
+        /// Forwards an address-space read unless it targets the Fireflea definition words now supplied by compiled data.
+        /// </summary>
+        /// <param name="address">The address to read from the wrapped memory.</param>
+        /// <returns>The byte stored at the requested address.</returns>
         public byte ReadByte(int address)
         {
             if (address is >= 0x88B058 and < 0x88B07E)
@@ -97,22 +123,46 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>
+        /// Passes a memory write to the wrapped address space without altering its value or destination.
+        /// </summary>
+        /// <param name="address">The address receiving the write.</param>
+        /// <param name="value">The byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
+        /// <summary>
+        /// Reads WRAM from the wrapped source, which must expose mutable-memory access for this audit.
+        /// </summary>
+        /// <param name="address">The work-RAM address to read.</param>
+        /// <returns>The byte stored at that work-RAM address.</returns>
         public byte ReadWorkRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Fireflea FX audit source must expose WRAM."))
                 .ReadWorkRamByte(address);
 
+        /// <summary>
+        /// Reads SRAM from the wrapped source, which must expose mutable-memory access for this audit.
+        /// </summary>
+        /// <param name="address">The save-RAM address to read.</param>
+        /// <returns>The byte stored at that save-RAM address.</returns>
         public byte ReadSaveRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Fireflea FX audit source must expose SRAM."))
                 .ReadSaveRamByte(address);
     }
 
+    /// <summary>
+    /// Reads the two consecutive cartridge bytes used for one Fireflea table entry as a little-endian word.
+    /// </summary>
+    /// <param name="bus">The cartridge address space containing the reference table.</param>
+    /// <param name="address">The address of the entry's low byte.</param>
+    /// <returns>The 16-bit value formed from the low byte followed by the high byte.</returns>
     private static ushort ReadFirefleaWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>
+    /// Exercises a retail Fireflea room to verify ordinary darkness, X-ray color preservation, and restoration after X-ray ends.
+    /// </summary>
     private static void VerifyFirefleaXrayCapture()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

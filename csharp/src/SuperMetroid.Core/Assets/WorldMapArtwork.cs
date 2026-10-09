@@ -7,14 +7,23 @@ public sealed class WorldMapArtwork
 {
     // Reviewed drawings, letter contours, ink roles and mechanical shading;
     // calculated geometry and independent supplied differences stay separate.
+    /// <summary>Foreground atlas pixel values that differ from their calculated or copied defaults.</summary>
     private readonly Dictionary<int, byte> foreground;
+    /// <summary>Per-tile authored glyph bits that supplement the calculated foreground font mask.</summary>
     private readonly Dictionary<int, ulong> fontFill = new();
     // Exact remaining BG3 font/icon contours and selected edge decisions, plus
     // independent supplied differences from the calculated primitive/outline view.
+    /// <summary>Background atlas pixel values that differ from calculated tile and digit defaults.</summary>
     private readonly Dictionary<int, byte> background;
+    /// <summary>Authored foreground-pixel footprints used to reconstruct outlined digit interiors.</summary>
     private readonly Dictionary<int, ulong> digitFill = new();
     // One delegate for the per-pixel font derivation, rather than one per pixel.
+    /// <summary>Cached callback for deriving a foreground glyph's 8-by-8 bit mask.</summary>
     private readonly Func<int, ulong> fontMask;
+
+    /// <summary>Builds sparse authored-difference maps from validated, row-major indexed atlas pixels.</summary>
+    /// <param name="foreground">4-bpp atlas pixels used to retain deviations from calculated foreground artwork.</param>
+    /// <param name="background">2-bpp atlas pixels used to retain deviations from calculated background artwork.</param>
     private WorldMapArtwork(byte[] foreground, byte[] background)
     {
         fontMask = FontMask;
@@ -89,11 +98,23 @@ public sealed class WorldMapArtwork
             SnesPlanarTileEncoder.Encode(pixels, WorldMapArtworkFormat.Width, WorldMapArtworkFormat.BackgroundHeight, 2));
     }
 
+    /// <summary>Maps a tile coordinate to its row-major pixel offset in the world-map atlas.</summary>
+    /// <param name="tile">Zero-based character index in the atlas.</param>
+    /// <param name="x">Pixel column within the 8-by-8 character.</param>
+    /// <param name="y">Pixel row within the 8-by-8 character.</param>
+    /// <returns>Linear pixel index for the requested character coordinate.</returns>
     private static int TilePixel(int tile, int x, int y) =>
         (tile / WorldMapArtworkFormat.TileColumns * 8 + y) * WorldMapArtworkFormat.Width +
         tile % WorldMapArtworkFormat.TileColumns * 8 + x;
+    /// <summary>Finds the 8-by-8 character containing a row-major atlas pixel.</summary>
+    /// <param name="index">Linear pixel index within the atlas.</param>
+    /// <returns>Zero-based character index in the atlas tile grid.</returns>
     private static int PixelTile(int index) => index / WorldMapArtworkFormat.Width / 8 *
         WorldMapArtworkFormat.TileColumns + index % WorldMapArtworkFormat.Width / 8;
+
+    /// <summary>Reconstructs a glyph footprint from retained fill bits or the glyph's source-tile relationship.</summary>
+    /// <param name="tile">Foreground font character whose 64-pixel mask is requested.</param>
+    /// <returns>One bit per pixel, set where the derived glyph uses its foreground face color.</returns>
     private ulong FontMask(int tile)
     {
         if (fontFill.TryGetValue(tile, out ulong mask)) return mask;
@@ -101,6 +122,9 @@ public sealed class WorldMapArtwork
         int sourceTile = source < 0 ? tile : PixelTile(source);
         return sourceTile == tile ? 0 : FontMask(sourceTile);
     }
+    /// <summary>Resolves one foreground atlas pixel from authored differences, source sharing, or calculated font geometry.</summary>
+    /// <param name="index">Row-major pixel index in the foreground atlas.</param>
+    /// <returns>The selected 4-bpp palette index for that pixel.</returns>
     private byte ForegroundPixel(int index)
     {
         if (foreground.TryGetValue(index, out byte value)) return value;
@@ -111,6 +135,10 @@ public sealed class WorldMapArtwork
             : throw new InvalidDataException("World foreground source pixel is unavailable.");
     }
 
+    /// <summary>Attempts to calculate a background pixel from outlined-digit geometry or the base tile artwork.</summary>
+    /// <param name="index">Row-major pixel index in the background atlas.</param>
+    /// <param name="value">Receives the calculated 2-bpp index when the pixel has a defined default.</param>
+    /// <returns><see langword="true"/> when the pixel can be reconstructed without an authored override.</returns>
     private bool TryBackgroundDefault(int index, out byte value)
     {
         int x = index % WorldMapArtworkFormat.Width, y = index / WorldMapArtworkFormat.Width;

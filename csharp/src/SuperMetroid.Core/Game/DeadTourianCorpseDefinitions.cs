@@ -22,6 +22,10 @@ internal static class DeadTourianCorpseDefinitions
     /// <summary>$A9:DC08, CorpseRotEntryFinishedHook_Normal: shared completion callback.</summary>
     private const ushort Finish = 0xdc08;
 
+    /// <summary>Calculates the native instruction, configuration, rotting, transfer, and movement addresses for one corpse variant.</summary>
+    /// <param name="species">Corpse family whose bank-$A9 tables define the variant.</param>
+    /// <param name="variantIndex">Zero-based variant within the selected species; the valid count depends on the species.</param>
+    /// <returns>The immutable set of native addresses and row-layout values used to initialize that corpse.</returns>
     internal static DeadTourianCorpseDefinition For(DeadTourianCorpseSpecies species,int variantIndex)
     {
         int first = species switch
@@ -51,6 +55,16 @@ internal static class DeadTourianCorpseDefinitions
     }
 }
 /// <summary>One immutable native dead-monster initialization record.</summary>
+/// <param name="InitialInstructionPointer">Entry address of the corpse's compiled instruction sequence.</param>
+/// <param name="ConfigurationPointer">Bank-$A9 address of this variant's sixteen-byte corpse configuration.</param>
+/// <param name="RottingTablePointer">WRAM offset for the variant's per-row rotting work area.</param>
+/// <param name="VramTransferPointer">Bank-$A9 address of the DMA transfer list for the corpse graphics.</param>
+/// <param name="CopyFunction">Instruction address of the native routine that copies the rotting rows.</param>
+/// <param name="MoveFunction">Instruction address of the native routine that shifts the corpse rows.</param>
+/// <param name="EntryCount">Number of rows in the variant's rotting work area.</param>
+/// <param name="RotationTablePointer">Bank-$A9 address of the row-offset table used while the corpse rotates.</param>
+/// <param name="FinishFunction">Shared callback address invoked when corpse rotation completes.</param>
+/// <param name="WrapOffset">Vertical offset applied when the moving corpse rows wrap around.</param>
 internal readonly record struct DeadTourianCorpseDefinition(
     ushort InitialInstructionPointer,
     ushort ConfigurationPointer,

@@ -54,8 +54,10 @@ public enum SamusProjectileDirection : byte
 }
 
 /// <summary>A lossless view over Samus's native equipped-beam word.</summary>
+/// <param name="Raw">The original 16-bit equipped-beam word, including configuration bits not currently named by the semantic view.</param>
 public readonly record struct SamusBeamLoadoutWord(ushort Raw)
 {
+    /// <summary>Mask for the low twelve bits used as the native defensive-table configuration index.</summary>
     private const ushort NativeConfigurationMask = 0x0fff;
 
     /// <summary>
@@ -81,12 +83,22 @@ public readonly record struct SamusBeamLoadoutWord(ushort Raw)
 }
 
 /// <summary>A lossless view over one native projectile type/family word.</summary>
+/// <param name="Raw">The untouched 16-bit projectile type word, preserving family, beam payload, and lifecycle bits.</param>
 public readonly record struct SamusProjectileTypeWord(ushort Raw)
 {
+    /// <summary>Mask selecting the low-nibble beam-combination table index.</summary>
     private const ushort BeamCombinationMask = 0x000f;
+
+    /// <summary>Marker bit in the low byte identifying a charged-beam projectile.</summary>
     private const ushort ChargedBeamMarker = 0x0010;
+
+    /// <summary>Mask selecting the projectile-family nibble in bits eight through eleven.</summary>
     private const ushort FamilyMask = 0x0f00;
+
+    /// <summary>High-byte marker set when the native projectile is live and eligible for collision processing.</summary>
     private const ushort LiveMarker = 0x8000;
+
+    /// <summary>Mask retaining the projectile payload bits copied when a word becomes a resident PLM trigger.</summary>
     private const ushort ResidentPlmPayloadMask = 0x1fff;
 
     /// <summary>Gets the low-nibble beam-combination table index.</summary>
@@ -137,9 +149,13 @@ public readonly record struct SamusProjectileTypeWord(ushort Raw)
 }
 
 /// <summary>A lossless view over one native projectile direction/lifecycle word.</summary>
+/// <param name="Raw">The original direction word, including direction, low-byte lifecycle, and unnamed high-byte state.</param>
 public readonly record struct SamusProjectileDirectionWord(ushort Raw)
 {
+    /// <summary>Mask selecting the low-nibble direction-table index.</summary>
     private const ushort DirectionMask = 0x000f;
+
+    /// <summary>Mask for low-byte lifecycle-transition bits that alter the ordinary movement path.</summary>
     private const ushort LowByteLifecycleMask = 0x00f0;
 
     /// <summary>

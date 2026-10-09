@@ -20,6 +20,8 @@ internal abstract class EnemyPickupInstructionProgramDefinitions
 
     /// <summary><c>InstList_EnemyProjectile_Pickup_PowerBombs</c> at $86:EDEB.</summary>
     internal const ushort PowerBombs = 0xedeb;
+
+    /// <summary>Total number of compiled frame spritemap operands across all five pickup animation programs.</summary>
     public static int PresentationWordCount => 16;
 
     /// <summary>
@@ -37,8 +39,16 @@ internal abstract class EnemyPickupInstructionProgramDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(program)),
     };
 
+    /// <summary>Describes one pickup animation's instruction-loop layout and timing policy.</summary>
+    /// <param name="Start">Bank-relative address of the first timed frame instruction.</param>
+    /// <param name="Frames">Number of timed frame entries before the loop-control commands.</param>
+    /// <param name="Duration">Menu ticks assigned to each timed frame entry.</param>
+    /// <param name="HasSleep">Whether the instruction list contains a trailing sleep command after its goto pair.</param>
     internal readonly record struct PickupLoop(ushort Start, int Frames, ushort Duration, bool HasSleep)
     {
+        /// <summary>Returns the mechanics word at a position in the timed-frame and loop-control portion of this program.</summary>
+        /// <param name="index">Zero-based entry index, with timed frames followed by goto and loop-target words and then any trailing sleep word.</param>
+        /// <returns>The instruction address and its encoded duration, pointer, or opcode value.</returns>
         internal InstructionMechanicsWord Word(int index)
         {
             if (index < Frames)
@@ -53,6 +63,10 @@ internal abstract class EnemyPickupInstructionProgramDefinitions
         }
     }
 
+    /// <summary>Maps a flattened index across all pickup frame entries to that frame's spritemap operand address.</summary>
+    /// <param name="index">Zero-based index across the five pickup programs' presentation operands.</param>
+    /// <returns>The bank-relative address of the selected frame's spritemap operand.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index does not identify one of the compiled presentation operands.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -67,11 +81,19 @@ internal abstract class EnemyPickupInstructionProgramDefinitions
         throw new IndexOutOfRangeException();
     }
 
+    /// <summary>Reports whether a supported enemy-death projectile kind references a word compiled from a pickup program.</summary>
+    /// <param name="kind">Projectile category whose instruction address is being checked.</param>
+    /// <param name="address">Bank-relative instruction word address.</param>
+    /// <returns>True only for the two enemy-death categories and an address owned by a compiled pickup loop.</returns>
     internal static bool Owns(RoomEnemyProjectileKind kind, ushort address) =>
         (kind is RoomEnemyProjectileKind.EnemyDeathPickup or
             RoomEnemyProjectileKind.EnemyDeathExplosion) &&
         TryRead(address, out _);
 
+    /// <summary>Reads a compiled pickup mechanics word, rejecting pointers outside the known instruction programs.</summary>
+    /// <param name="address">Bank-relative word address in the pickup instruction data.</param>
+    /// <returns>The compiled duration, control pointer, or opcode value at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not part of a compiled pickup mechanics program.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (TryRead(address, out ushort value))
@@ -80,6 +102,10 @@ internal abstract class EnemyPickupInstructionProgramDefinitions
             $"Enemy-pickup mechanics pointer $86:{address:X4} is not compiled.");
     }
 
+    /// <summary>Looks up a duration or loop-control value from the compiled pickup instruction programs.</summary>
+    /// <param name="address">Bank-relative word address to search.</param>
+    /// <param name="value">Receives the compiled word when the address is owned; receives zero when it is not.</param>
+    /// <returns>True when the address identifies a compiled mechanics word.</returns>
     internal static bool TryRead(ushort address, out ushort value)
     {
         for (int program = 0; program < 5; program++)

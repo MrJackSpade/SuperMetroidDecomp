@@ -11,16 +11,23 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Initial instruction entry for the independently animated arm actor.</summary>
     private const ushort KraidInitialArmInstruction =
         KraidArmInstructionProgramDefinitions.RisingOrSinking;
+
+    /// <summary>Initial instruction entry shared by Kraid's lint actors.</summary>
     private const ushort KraidInitialLintInstruction =
         KraidLintInstructionLists.InitialLint;
+
+    /// <summary>Initial instruction entry for the foot actor's native animation loop.</summary>
     private const ushort KraidInitialFootInstruction =
         KraidFootInstructionProgramDefinitions.Initial;
 
     /// <summary>Most recent Kraid-private sound request in the current enemy frame.</summary>
     public KraidSoundRequest? LastKraidSoundEffect { get; private set; }
 
+    /// <summary>Initializes Kraid's slot-zero body, arena state, palette, and either the live or defeated room setup.</summary>
+    /// <param name="body">Native body slot, which must be slot zero.</param>
     private void InitializeKraidBody(RoomEnemySlot body)
     {
         if (body.SlotIndex != 0)
@@ -76,6 +83,8 @@ public sealed partial class RoomEnemySystem
         EarthquakeType = 5;
     }
 
+    /// <summary>Installs the per-screen scroll thresholds for Kraid's initial or grown arena layout.</summary>
+    /// <param name="grown">Selects the post-growth thresholds when <see langword="true"/>.</param>
     private void ApplyKraidScrolls(bool grown)
     {
         for (int index = 0; index < KraidCameraDefinitions.ScreenCount; index++)
@@ -84,6 +93,8 @@ public sealed partial class RoomEnemySystem
                 : KraidCameraDefinitions.InitialScroll(index));
     }
 
+    /// <summary>Initializes Kraid's arm actor in slot one or marks it dead when the boss is defeated.</summary>
+    /// <param name="arm">Physical arm slot to configure.</param>
     private void InitializeKraidArm(RoomEnemySlot arm)
     {
         KraidEnemyState state = RequireKraidState(arm);
@@ -101,6 +112,9 @@ public sealed partial class RoomEnemySystem
         state.Parts[arm.SlotIndex].NextFunction = KraidAiFunction.NoOperation;
     }
 
+    /// <summary>Initializes one lint actor with its slot-specific offset and compiled instruction list.</summary>
+    /// <param name="lint">Physical lint slot to configure.</param>
+    /// <param name="expectedSlot">Native slot identity, used to select the lint's horizontal offset.</param>
     private void InitializeKraidLint(RoomEnemySlot lint, int expectedSlot)
     {
         _ = RequireKraidState(lint);
@@ -118,6 +132,8 @@ public sealed partial class RoomEnemySystem
         lint.VariableC = expectedSlot == 2 ? (ushort)0 : (ushort)0xfff0;
     }
 
+    /// <summary>Initializes Kraid's foot actor in slot five or marks it dead for a defeated boss.</summary>
+    /// <param name="foot">Physical foot slot to configure.</param>
     private void InitializeKraidFoot(RoomEnemySlot foot)
     {
         KraidEnemyState state = RequireKraidState(foot);
@@ -154,6 +170,11 @@ public sealed partial class RoomEnemySystem
         nail.VariableF = 64;
     }
 
+    /// <summary>Validates that a Kraid body part occupies the native physical slot assigned to it.</summary>
+    /// <param name="slot">Actor whose slot identity is checked.</param>
+    /// <param name="expectedSlot">Required native slot index.</param>
+    /// <param name="part">Part label included in the invalid-data diagnostic.</param>
+    /// <exception cref="InvalidDataException">The actor occupies a different slot from the required one.</exception>
     private static void EnsureKraidSlot(RoomEnemySlot slot, int expectedSlot, string part)
     {
         if (slot.SlotIndex != expectedSlot)
@@ -217,6 +238,9 @@ public sealed partial class RoomEnemySystem
         RunKraidCombatFunction(body, state, vramWriteQueue, cameraX);
     }
 
+    /// <summary>Advances Kraid's hurt-flash cadence and refreshes palettes when health or flash state changes.</summary>
+    /// <param name="body">Body slot supplying health for palette selection.</param>
+    /// <param name="state">Encounter state containing hurt timers and health thresholds.</param>
     private void RunKraidPaletteHandling(RoomEnemySlot body, KraidEnemyState state)
     {
         if (body.Health == 0)
@@ -236,6 +260,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Writes the health-band colors and hurt-flash colors into Kraid's two CGRAM palettes.</summary>
+    /// <param name="body">Body slot whose current health selects a palette band.</param>
+    /// <param name="state">Encounter state providing health thresholds and active hurt-frame selection.</param>
     private void UpdateKraidHealthPalettes(RoomEnemySlot body, KraidEnemyState state)
     {
         int thresholdWordOffset = 14;

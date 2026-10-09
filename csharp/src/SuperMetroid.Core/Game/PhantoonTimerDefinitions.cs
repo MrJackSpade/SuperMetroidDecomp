@@ -6,8 +6,27 @@ public static class PhantoonTimerDefinitions
     /// <summary>$A7:CE2B, InitAI_PhantoonBody: Japan/USA initial flame countdown is 120 frames. PAL uses 96.</summary>
     public const ushort InitialFlameDelayFrames = 120;
 
-    private enum DurationChoice { Short, Medium, Long }
-    internal enum TimerKind { Vulnerable, EyeClosed, RainHiding }
+    /// <summary>Relative tier converted to a phase-specific gameplay duration.</summary>
+    private enum DurationChoice
+    {
+        /// <summary>Shortest duration defined by the selected phase's scale.</summary>
+        Short,
+        /// <summary>Middle duration, scaled from the phase's shortest tier.</summary>
+        Medium,
+        /// <summary>Longest duration, twice the phase's medium tier.</summary>
+        Long
+    }
+
+    /// <summary>Phantoon phase whose native eight-bucket timer schedule is being viewed.</summary>
+    internal enum TimerKind
+    {
+        /// <summary>Open-eye period during which Phantoon can be damaged.</summary>
+        Vulnerable,
+        /// <summary>Closed-eye movement period that precedes the next open-eye opportunity.</summary>
+        EyeClosed,
+        /// <summary>Hidden waiting period selected after the flame-rain sequence.</summary>
+        RainHiding
+    }
 
     // Narrow approved nonsense retention: RNG/frame buckets have no temporal or
     // physical ordering. These exact permutations specify the random choice policy;
@@ -47,8 +66,14 @@ public static class PhantoonTimerDefinitions
     /// <summary>Allocation-free calculated view of one native eight-bucket Phantoon phase-timer table.</summary>
     public readonly struct Schedule : IReadOnlyList<ushort>
     {
+        /// <summary>Identifies which phase's bucket schedule this view calculates.</summary>
         private readonly TimerKind kind;
+
+        /// <summary>Creates a calculated view over one phase's native timer buckets.</summary>
+        /// <param name="kind">Phase schedule to expose through this value.</param>
         internal Schedule(TimerKind kind) => this.kind = kind;
+
+        /// <summary>Gets the authored short, medium, or long choice for each native bucket.</summary>
         private DurationChoice[] Choices => kind switch
         {
             TimerKind.Vulnerable => VulnerableChoices,

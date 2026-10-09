@@ -5,12 +5,18 @@ internal static class ColoredDoorPlmDrawDefinitions
 {
     /// <summary>Yellow left-facing closed cap at $84:A767.</summary>
     private const ushort YellowLeft = 0xa767;
+    /// <summary>Byte stride between consecutive twelve-byte colored-door draw records in the native table.</summary>
     internal const int DrawListBytes = 12;
 
     /// <summary>One of forty-eight twelve-byte records at $84:A767..A9A6.</summary>
+    /// <param name="Color">Door palette family: yellow, green, or red.</param>
+    /// <param name="Orientation">Facing or travel direction encoded by the record's place in the native table.</param>
+    /// <param name="Frame">Position of the cap within its four-frame draw sequence.</param>
     internal readonly record struct Draw(int Color, int Orientation, int Frame)
     {
+        /// <summary>Whether this orientation uses a vertically stacked pair of cap cells.</summary>
         internal bool Vertical => Orientation < 2;
+        /// <summary>Native PLM draw command combining traversal direction with the four-cell count.</summary>
         internal ushort DirectionAndCount => Vertical ? (ushort)0x8004 : (ushort)4;
 
         /// <summary>
@@ -34,6 +40,10 @@ internal static class ColoredDoorPlmDrawDefinitions
         }
     }
 
+    /// <summary>Maps an aligned pointer in the colored-door table to its palette, orientation, and frame indices.</summary>
+    /// <param name="pointer">Native draw-list pointer to classify.</param>
+    /// <param name="draw">Receives the decoded record when the pointer is owned by this table.</param>
+    /// <returns><see langword="true"/> when the pointer selects one of the forty-eight records.</returns>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         int offset = pointer - YellowLeft;
@@ -43,6 +53,7 @@ internal static class ColoredDoorPlmDrawDefinitions
         return owned;
     }
 
+    /// <summary>Enumerates all forty-eight calculated draw lists in native pointer order.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -56,6 +67,10 @@ internal static class ColoredDoorPlmDrawDefinitions
     }
 
     // Temporary import/export DTOs; the runtime calculates cells directly.
+    /// <summary>Builds the temporary draw-list representation for one pointer owned by the colored-door table.</summary>
+    /// <param name="pointer">Native draw-list pointer to resolve.</param>
+    /// <param name="list">Receives the four calculated cell words when the pointer is recognized.</param>
+    /// <returns><see langword="true"/> when a matching draw list was produced.</returns>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;
@@ -66,6 +81,10 @@ internal static class ColoredDoorPlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Creates the stable asset identifier for a colored-door palette, direction, and animation frame.</summary>
+    /// <param name="pointer">Native draw-list pointer whose visual identity is requested.</param>
+    /// <returns>An identifier such as <c>yellow-left-frame-0</c>.</returns>
+    /// <exception cref="InvalidDataException">The pointer does not identify a colored-door draw record.</exception>
     internal static string VisualId(ushort pointer)
     {
         if (!TryDescribe(pointer, out var draw))
@@ -75,6 +94,10 @@ internal static class ColoredDoorPlmDrawDefinitions
         return $"{color}-{direction}-frame-{draw.Frame}";
     }
 
+    /// <summary>Resolves an exact ordinal visual identifier to its calculated draw list.</summary>
+    /// <param name="id">Stable identifier produced by <see cref="VisualId"/>.</param>
+    /// <param name="list">Receives the matching draw list when the identifier is recognized.</param>
+    /// <returns><see langword="true"/> when one of the table's visual identifiers matches.</returns>
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         for (int index = 0; index < 48; index++)

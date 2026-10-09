@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the exclusive right edges of all four Botwoon hole rectangles against the native table and collision detector.</summary>
+    /// <param name="rom">Cartridge address space supplying the native hole-boundary words.</param>
     private static void VerifyBotwoonHoleRightBounds(SuperMetroidAddressSpace rom)
     {
         var detect = typeof(RoomEnemySystem).GetMethod("DetectBotwoonHole", BindingFlags.Static | BindingFlags.NonPublic)!
@@ -27,6 +29,8 @@ internal static partial class Program
                 AssertThrows<InvalidDataException>(() => BotwoonNavigationDefinitions.HoleForByteOffset((ushort)offset), "Botwoon hole bound domain");
     }
 
+    /// <summary>Checks that each Botwoon hole excludes its native bottom boundary in the production detector.</summary>
+    /// <param name="rom">Cartridge address space supplying the native hole-boundary words.</param>
     private static void VerifyBotwoonHoleBottomBounds(SuperMetroidAddressSpace rom)
     {
         var detect = typeof(RoomEnemySystem).GetMethod("DetectBotwoonHole", BindingFlags.Static | BindingFlags.NonPublic)!
@@ -47,6 +51,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Compares compiled path descriptors and their production installations with every native pointer, direction, and target.</summary>
+    /// <param name="rom">Cartridge address space containing Botwoon's path-choice records.</param>
     private static void VerifyBotwoonPathDescriptorMappings(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyBotwoonPathPointerMapping), () => VerifyBotwoonPathPointerMapping(rom));
@@ -76,6 +82,8 @@ internal static partial class Program
         Console.WriteLine("Botwoon path descriptors: all 32 pointer, direction and destination fields and production installations match native records; invalid offsets rejected.");
     }
 
+    /// <summary>Checks compiled movement-stream separators and every forward or reverse path pointer against bank-$B3.</summary>
+    /// <param name="rom">Cartridge address space used as the native path-data reference.</param>
     private static void VerifyBotwoonPathPointerMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] boundaries = [0xa058,0xa328,0xa6ba,0xaa22,0xadfc,0xb168,0xb554,0xb954,
@@ -92,6 +100,8 @@ internal static partial class Program
                 BotwoonNavigationDefinitions.PathForChoiceByteOffset((ushort)offset).PathPointer, "Botwoon native forward/reverse descriptor pointer");
     }
 
+    /// <summary>Checks the signed traversal direction stored in each native Botwoon path-choice descriptor.</summary>
+    /// <param name="rom">Cartridge address space containing the descriptor words.</param>
     private static void VerifyBotwoonPathDirectionMapping(SuperMetroidAddressSpace rom)
     {
         for (int offset = 0; offset < 256; offset += 8)
@@ -99,6 +109,8 @@ internal static partial class Program
                 BotwoonNavigationDefinitions.PathForChoiceByteOffset((ushort)offset).Direction, "Botwoon native traversal direction");
     }
 
+    /// <summary>Checks each path descriptor's target-hole byte offset, including repeated hidden choices.</summary>
+    /// <param name="rom">Cartridge address space containing the descriptor words.</param>
     private static void VerifyBotwoonPathDestinationMapping(SuperMetroidAddressSpace rom)
     {
         for (int offset = 0; offset < 256; offset += 8)
@@ -106,6 +118,8 @@ internal static partial class Program
                 BotwoonNavigationDefinitions.PathForChoiceByteOffset((ushort)offset).TargetHoleByteOffset, "Botwoon native destination including repeated hidden choice");
     }
 
+    /// <summary>Validates native hole, path, and signed movement definitions against the production Botwoon navigation routines.</summary>
+    /// <param name="rom">Cartridge address space used to compare the compiled navigation data with native tables.</param>
     private static void VerifyBotwoonNavigationDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyBotwoonHoleRightBounds), () => VerifyBotwoonHoleRightBounds(rom));
@@ -329,10 +343,18 @@ internal static partial class Program
             "targets and rectangle boundaries pass with fixed definition reads forbidden.");
     }
 
+    /// <summary>Address-space wrapper that rejects runtime reads from Botwoon's compiled hole, path, and movement tables.</summary>
+    /// <param name="source">Underlying address space used for reads outside the migrated definition ranges.</param>
     private sealed class BotwoonNavigationReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes importer reads through the same migrated-table checks as ordinary bus reads.</summary>
+        /// <param name="address">Cartridge byte address requested by the importer.</param>
+        /// <returns>The source byte when the address is outside the compiled ranges.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from compiled Botwoon definitions and forwards other cartridge data.</summary>
+        /// <param name="address">Cartridge byte address requested by the navigation code.</param>
+        /// <returns>The source byte when the read does not overlap a migrated table.</returns>
         public byte ReadByte(int address) =>
             address is >= 0xb3949b and < 0xb394bb or
                 >= 0xb3a058 and < 0xb3e150 or
@@ -341,6 +363,9 @@ internal static partial class Program
                     $"Botwoon attempted migrated navigation-definition read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards writes unchanged; the guard prevents reads from migrated navigation tables.</summary>
+        /// <param name="address">Destination byte address.</param>
+        /// <param name="value">Byte written to the underlying address space.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

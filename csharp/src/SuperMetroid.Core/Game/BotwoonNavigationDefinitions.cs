@@ -1,6 +1,8 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One rectangular Botwoon hole and its four-pixel inset movement target.</summary>
+/// <param name="Left">Left edge of the eight-pixel-wide hole hitbox.</param>
+/// <param name="Top">Top edge of the eight-pixel-tall hole hitbox.</param>
 internal readonly record struct BotwoonHoleDefinition(
     ushort Left,
     ushort Top)
@@ -14,12 +16,17 @@ internal readonly record struct BotwoonHoleDefinition(
 }
 
 /// <summary>One authored Botwoon movement stream, traversal direction, and destination hole.</summary>
+/// <param name="PathPointer">Bank-$B3 pointer to the first movement sample used by the native consumer.</param>
+/// <param name="Direction">Traversal selector: zero advances through the stream and negative one selects reverse traversal.</param>
+/// <param name="TargetHoleByteOffset">Eight-byte table offset identifying the destination hole.</param>
 internal readonly record struct BotwoonPathDescriptorDefinition(
     ushort PathPointer,
     short Direction,
     ushort TargetHoleByteOffset);
 
 /// <summary>One signed X/Y movement sample from Botwoon's authored path corpus.</summary>
+/// <param name="X">Signed horizontal movement component decoded from the packed sample.</param>
+/// <param name="Y">Signed vertical movement component decoded from the packed sample.</param>
 internal readonly record struct BotwoonMovementSample(sbyte X, sbyte Y);
 
 /// <summary>The four room holes selected by native eight-byte offsets.</summary>
@@ -92,6 +99,11 @@ internal static class BotwoonNavigationDefinitions
     // also has an earlier (-128, -16) terminator followed by padding; it does
     // not start a new stream. Reverse descriptors point to the end separator;
     // the existing consumer applies its native four-byte rewind.
+    /// <summary>Finds a movement stream's separator by its ordinal in the compiled sample corpus.</summary>
+    /// <param name="ordinal">Zero-based separator number to locate.</param>
+    /// <param name="afterSeparator">Whether to return the pointer immediately after the separator pair.</param>
+    /// <returns>The bank-local pointer at the selected boundary.</returns>
+    /// <exception cref="InvalidDataException">The requested separator does not exist in the movement corpus.</exception>
     private static ushort PathBoundary(int ordinal, bool afterSeparator)
     {
         for (int pointer = MovementDataStart; pointer < MovementDataEndExclusive; pointer += 2)
@@ -128,6 +140,10 @@ internal static class BotwoonNavigationDefinitions
             DecodeMovementComponent(packed & 0x0f));
     }
 
+    /// <summary>Maps a packed four-bit movement code to its authored signed component value.</summary>
+    /// <param name="code">Nibble from a compiled Botwoon movement sample.</param>
+    /// <returns>The signed movement amount or the minimum-value separator sentinel.</returns>
+    /// <exception cref="InvalidDataException">The nibble does not encode a supported movement value.</exception>
     private static sbyte DecodeMovementComponent(int code) => code switch
     {
         0 => sbyte.MinValue,

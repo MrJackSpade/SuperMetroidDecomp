@@ -2,6 +2,9 @@
 
 public static partial class RenderFrameSnapshotCodec
 {
+    /// <summary>Writes a layer kind followed by the payload defined for that kind in the render-packet format.</summary>
+    /// <param name="writer">Destination stream writer receiving the layer tag and payload.</param>
+    /// <param name="layer">Render layer whose variant determines the encoded fields.</param>
     private static void WriteLayer(BinaryWriter writer, RenderLayer layer)
     {
         switch (layer)
@@ -118,6 +121,12 @@ public static partial class RenderFrameSnapshotCodec
         }
     }
 
+    /// <summary>Reads a tagged layer payload using only fields supported by the packet version.</summary>
+    /// <param name="reader">Source stream positioned at the layer-kind byte.</param>
+    /// <param name="version">Render-packet version controlling optional layer fields.</param>
+    /// <param name="childScene">Whether this layer is nested in a windowed scene, where another windowed scene is disallowed.</param>
+    /// <returns>The decoded render-layer variant.</returns>
+    /// <exception cref="InvalidDataException">The kind is unknown, unavailable in this version, or has an invalid nested descriptor.</exception>
     private static RenderLayer ReadLayer(BinaryReader reader, ushort version, bool childScene = false) => (RenderPacketLayerKind)reader.ReadByte() switch
     {
         RenderPacketLayerKind.XrayGameplay when version >= RenderPacketFormat.XrayGameplayVersion => ReadXrayGameplay(reader, version),
@@ -153,6 +162,10 @@ public static partial class RenderFrameSnapshotCodec
         _ => throw new InvalidDataException("Unknown layer kind in display fixture."),
     };
 
+    /// <summary>Reads object-priority selection and, in supported packet versions, its optional fixed-color addition.</summary>
+    /// <param name="reader">Reader positioned after the object-priority kind tag.</param>
+    /// <param name="version">Packet version determining whether fixed-color data is present.</param>
+    /// <returns>The decoded object-priority layer.</returns>
     private static ObjPriorityRenderLayer ReadObjPriorityLayer(BinaryReader reader, ushort version)
     {
         byte priority = reader.ReadByte();
@@ -162,6 +175,11 @@ public static partial class RenderFrameSnapshotCodec
         return new(priority, color);
     }
 
+    /// <summary>Reads an object layer and its versioned optional fixed-color addition.</summary>
+    /// <param name="reader">Reader positioned after the object-layer kind tag.</param>
+    /// <param name="version">Packet version determining whether fixed-color data is present.</param>
+    /// <param name="add">Whether the decoded objects are added through the subscreen path.</param>
+    /// <returns>The decoded object layer.</returns>
     private static ObjRenderLayer ReadObjLayer(BinaryReader reader, ushort version, bool add)
     {
         FixedColorAddRenderLayer? fixedColor = null;
@@ -170,6 +188,11 @@ public static partial class RenderFrameSnapshotCodec
         return new(add, fixedColor);
     }
 
+    /// <summary>Reads the gameplay layer, scanline windows, color-math settings, and optional subscreens for X-ray rendering.</summary>
+    /// <param name="reader">Reader positioned after the X-ray gameplay kind tag.</param>
+    /// <param name="version">Packet version controlling combined and BG2 subscreen fields.</param>
+    /// <returns>The reconstructed X-ray gameplay layer.</returns>
+    /// <exception cref="InvalidDataException">The subscreen descriptor or its version-dependent combination is invalid.</exception>
     private static GameplayColorMathRenderLayer ReadXrayGameplay(BinaryReader reader, ushort version)
     {
         var gameplay = ReadGameplayLayer(reader, version);
@@ -192,6 +215,10 @@ public static partial class RenderFrameSnapshotCodec
         return new(gameplay, lines, reveal, control, addSubscreen, red, green, blue, sub, bg2);
     }
 
+    /// <summary>Reads scene bounds, PPU snapshot data, and child layers for a clipped windowed scene.</summary>
+    /// <param name="reader">Reader positioned after the windowed-scene kind tag.</param>
+    /// <param name="version">Packet version used when decoding nested layers.</param>
+    /// <returns>The windowed scene and its decoded scene payload.</returns>
     private static WindowedSceneRenderLayer ReadWindowedScene(BinaryReader reader, ushort version)
     {
         int left = reader.ReadInt32(), top = reader.ReadInt32(), right = reader.ReadInt32(), bottom = reader.ReadInt32();
@@ -202,6 +229,13 @@ public static partial class RenderFrameSnapshotCodec
         return new(new(memory, layers, obsel, brightness), left, top, right, bottom);
     }
 
+    /// <summary>Reads a BG subscreen layer, including optional coverage, object data, vertical scroll, and per-line scroll.</summary>
+    /// <param name="reader">Reader positioned after the subscreen kind tag.</param>
+    /// <param name="version">Packet version controlling optional subscreen fields.</param>
+    /// <param name="fourBpp">Whether coverage and tiles use the BG4 variant.</param>
+    /// <param name="scrolled">Whether this variant carries an additional vertical-scroll word.</param>
+    /// <returns>The decoded subscreen layer.</returns>
+    /// <exception cref="InvalidDataException">The optional coverage descriptor is not a BG4 layer.</exception>
     private static BgSubscreenAddRenderLayer ReadSubscreen(BinaryReader reader, ushort version, bool fourBpp = false, bool scrolled = false)
     {
         ushort map = reader.ReadUInt16(), characters = reader.ReadUInt16();
@@ -228,6 +262,9 @@ public static partial class RenderFrameSnapshotCodec
         return layer;
     }
 
+    /// <summary>Reads a BG2 color-math plane and its scanline scroll table.</summary>
+    /// <param name="reader">Reader positioned after the BG color-math kind tag.</param>
+    /// <returns>The reconstructed BG2 color-math layer.</returns>
     private static Bg2BppColorMathRenderLayer ReadBgColorMath(BinaryReader reader)
     {
         ushort map = reader.ReadUInt16(), characters = reader.ReadUInt16();
@@ -238,6 +275,10 @@ public static partial class RenderFrameSnapshotCodec
         return new(map, characters, height, firstLine, operation, lines);
     }
 
+    /// <summary>Reads a message-box tilemap after validating its row count against the gameplay layout.</summary>
+    /// <param name="reader">Reader positioned after the message-layer kind tag.</param>
+    /// <returns>The message box with its tilemap and corner radius.</returns>
+    /// <exception cref="InvalidDataException">The encoded row count is outside the supported layout.</exception>
     private static MessageBoxRenderLayer ReadMessageLayer(BinaryReader reader)
     {
         int rows = reader.ReadByte();
@@ -249,6 +290,9 @@ public static partial class RenderFrameSnapshotCodec
         return new(tiles, radius);
     }
 
+    /// <summary>Reads the per-scanline color-add window boundaries and RGB values.</summary>
+    /// <param name="reader">Reader positioned after the scanline-color kind tag.</param>
+    /// <returns>The color-add layer containing one window record per screen line.</returns>
     private static ScanlineColorAddRenderLayer ReadColorWindows(BinaryReader reader)
     {
         var windows = new ColorAddWindow[Hardware.SnesPpuLayout.ScreenHeightPixels];
@@ -257,6 +301,10 @@ public static partial class RenderFrameSnapshotCodec
         return new(windows);
     }
 
+    /// <summary>Decodes the packet's tile-priority selector into an unrestricted, low-only, or high-only setting.</summary>
+    /// <param name="reader">Reader positioned at the priority selector byte.</param>
+    /// <returns><see langword="null"/> for all priorities, otherwise <see langword="false"/> for low or <see langword="true"/> for high.</returns>
+    /// <exception cref="InvalidDataException">The selector byte is not a defined priority value.</exception>
     private static bool? ReadPriority(BinaryReader reader) => (RenderPacketPriority)reader.ReadByte() switch
     {
         RenderPacketPriority.All => null,

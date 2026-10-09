@@ -5,8 +5,13 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The mutually exclusive Mother Brain component owning a Samus-contact list.</summary>
 internal enum MotherBrainContactPart : byte
 {
+    /// <summary>Mother Brain's body component, tested at the body slot's position.</summary>
     Body,
+
+    /// <summary>The brain component, tested independently at the head slot's position.</summary>
     Brain,
+
+    /// <summary>A middle neck joint tested at that joint's solved position.</summary>
     Neck,
 }
 
@@ -14,6 +19,10 @@ internal enum MotherBrainContactPart : byte
 /// One asymmetric Mother Brain contact rectangle, expressed as signed distances from its
 /// component origin exactly as stored by the cartridge.
 /// </summary>
+/// <param name="Left">Signed horizontal extent from the origin to the rectangle's left edge.</param>
+/// <param name="Top">Signed vertical extent from the origin to the rectangle's top edge.</param>
+/// <param name="Right">Signed horizontal extent from the origin to the rectangle's right edge.</param>
+/// <param name="Bottom">Signed vertical extent from the origin to the rectangle's bottom edge.</param>
 internal readonly record struct MotherBrainContactHitbox(
     short Left,
     short Top,
@@ -37,10 +46,16 @@ internal static class MotherBrainContactHitboxDefinitions
 }
 
 /// <summary>Ordered physical regions of a component; no stored rectangle sequence.</summary>
+/// <param name="Part">Component whose fixed ordered contact regions this sequence exposes.</param>
 internal readonly record struct MotherBrainContactHitboxes(MotherBrainContactPart Part) : IReadOnlyList<MotherBrainContactHitbox>
 {
+    /// <summary>Gets the number of ordered rectangles used for this component's contact test.</summary>
     public int Count => Part == MotherBrainContactPart.Neck ? 1 : 2;
 
+    /// <summary>Gets a component's native contact rectangle by its collision-test order.</summary>
+    /// <param name="region">Zero-based rectangle index within the selected component.</param>
+    /// <returns>The stored rectangle at that position.</returns>
+    /// <exception cref="IndexOutOfRangeException">The component has no rectangle at <paramref name="region"/>.</exception>
     public MotherBrainContactHitbox this[int region] => (Part, region) switch
     {
         // Lower body first, then the narrower upper body. Native collision stops on its first hit.
@@ -53,6 +68,8 @@ internal readonly record struct MotherBrainContactHitboxes(MotherBrainContactPar
         _ => throw new IndexOutOfRangeException(),
     };
 
+    /// <summary>Iterates through the component's collision rectangles in native first-hit order.</summary>
+    /// <returns>An enumerator over the one neck rectangle or two body/brain rectangles.</returns>
     public IEnumerator<MotherBrainContactHitbox> GetEnumerator()
     {
         for (int region = 0; region < Count; region++) yield return this[region];

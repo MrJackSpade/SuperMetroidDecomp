@@ -8,11 +8,23 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class FirefleaEnemyState
 {
+    /// <summary>Room actor slot backing this Fireflea's common-record words and identifying its parallel extra-WRAM entries.</summary>
     private readonly RoomEnemySlot _slot;
+
+    /// <summary>Per-slot minimum-Y boundary words stored outside the cartridge's enemy record.</summary>
     private readonly ushort[] _minimumYPositions;
+
+    /// <summary>Per-slot maximum-Y boundary words stored outside the cartridge's enemy record.</summary>
     private readonly ushort[] _maximumYPositions;
+
+    /// <summary>Per-slot byte offsets into the linear enemy-speed table, stored in extra WRAM.</summary>
     private readonly ushort[] _speedTableIndexes;
 
+    /// <summary>Creates a typed view over one actor slot and the parallel arrays holding its extra-WRAM fields.</summary>
+    /// <param name="slot">Room slot whose common words store the Fireflea's native variables.</param>
+    /// <param name="minimumYPositions">System-owned per-slot minimum-Y storage.</param>
+    /// <param name="maximumYPositions">System-owned per-slot maximum-Y storage.</param>
+    /// <param name="speedTableIndexes">System-owned per-slot speed-table-offset storage.</param>
     internal FirefleaEnemyState(
         RoomEnemySlot slot,
         ushort[] minimumYPositions,
@@ -97,14 +109,22 @@ public sealed class FirefleaEnemyState
 /// <summary>Literal translation of Fireflea enemy <c>$D6BF</c> at <c>$A3:8C0F-$8EA4</c>.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Enemy definition pointer <c>$D6BF</c> for the Fireflea actor implemented in bank $A3.</summary>
     internal const ushort FirefleaDefinition = 0xd6bf;
 
+    /// <summary>Per-room-slot minimum-Y bounds for Fireflea actors that move vertically.</summary>
     private readonly ushort[] _firefleaMinimumYPositions =
         new ushort[MaximumEnemyCount];
+
+    /// <summary>Per-room-slot maximum-Y bounds for Fireflea actors that move vertically.</summary>
     private readonly ushort[] _firefleaMaximumYPositions =
         new ushort[MaximumEnemyCount];
+
+    /// <summary>Per-room-slot byte offsets selecting each Fireflea's signed fixed-point speed entry.</summary>
     private readonly ushort[] _firefleaSpeedTableIndexes =
         new ushort[MaximumEnemyCount];
+
+    /// <summary>Typed Fireflea state views indexed by enemy slot; null marks slots not initialized as Firefleas.</summary>
     private readonly FirefleaEnemyState?[] _firefleaStates =
         new FirefleaEnemyState?[MaximumEnemyCount];
 
@@ -232,6 +252,10 @@ public sealed partial class RoomEnemySystem
             FirefleaDarknessLevel = next;
     }
 
+    /// <summary>Returns the initialized Fireflea state associated with a room slot.</summary>
+    /// <param name="slot">Enemy slot whose Fireflea state is required.</param>
+    /// <returns>The typed view over that actor's common-slot and extra-WRAM fields.</returns>
+    /// <exception cref="InvalidOperationException">The slot has not been initialized as a Fireflea.</exception>
     private FirefleaEnemyState RequireFirefleaState(RoomEnemySlot slot) =>
         _firefleaStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Fireflea state.");

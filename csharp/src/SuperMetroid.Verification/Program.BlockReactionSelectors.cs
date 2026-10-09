@@ -3,6 +3,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Compares all four shared breakup draw sequences with their native bank-$84 operands and checks selector bounds.</summary>
+    /// <param name="rom">Retail address space containing the original breakup instruction lists.</param>
     private static void VerifySharedBreakAnimationSelection(SuperMetroidAddressSpace rom)
     {
         // Independent operands in the four original respawning bomb programs,
@@ -23,6 +25,8 @@ internal static partial class Program
                 "shared breakup rejects unknown shapes");
     }
 
+    /// <summary>Exhaustively checks the bombed-reveal draw-pointer domain and each native physical draw record.</summary>
+    /// <param name="rom">Retail address space containing the draw records and their terminal offsets.</param>
     private static void VerifyBombedRevealPhysicalDrawMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] nativePointers = [0xa49b,0xa4e7,0xa4ed];
@@ -48,6 +52,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks the complete bombed-reveal control-word domain against retail operands and the shared reader.</summary>
+    /// <param name="rom">Retail address space used to compare control words and durations.</param>
     private static void VerifyBombedRevealControlMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] controls = [0xc8ec,0xc8f0,0xc8f2,0xc8f6,0xc8f8,0xc8fc,0xc8fe,0xc902,0xc91c,0xc920,0xc922,0xc926];
@@ -68,6 +74,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Confirms each bombed-reveal draw operand matches its native instruction and shared word lookup.</summary>
+    /// <param name="rom">Retail address space containing the bank-$84 instruction operands.</param>
     private static void VerifyBombedRevealDrawMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0xc8ee,0xc8f4,0xc8fa,0xc900,0xc91e,0xc924];
@@ -80,6 +88,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Verifies all eight contact-crumble BTS header selections against retail data and checks invalid indices.</summary>
+    /// <param name="rom">Retail address space containing the contact-crumble header table.</param>
     private static void VerifyContactCrumbleHeaderSelection(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 8; index++)
@@ -93,22 +103,32 @@ internal static partial class Program
                 "contact crumble header int bounds");
     }
 
+    /// <summary>Checks the eight collision-bomb instruction lists selected by their native BTS table.</summary>
+    /// <param name="rom">Retail address space used to follow native header indirection.</param>
     private static void VerifyCollisionBombInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x94936b, 8,
             RoomPlmInstructionLists.CollisionBombByReactionIndex, "collision bomb"));
 
+    /// <summary>Checks the eight bomb-reaction instruction lists selected by their native BTS table.</summary>
+    /// <param name="rom">Retail address space used to follow native header indirection.</param>
     private static void VerifyReactionBombInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x94a012, 8,
             RoomPlmInstructionLists.ReactionBombByReactionIndex, "bomb reaction"));
 
+    /// <summary>Checks the four crumble-reveal instruction lists selected by the size index.</summary>
+    /// <param name="rom">Retail address space used to follow native header indirection.</param>
     private static void VerifyCrumbleRevealInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x949da4, 4,
             RoomPlmInstructionLists.CrumbleRevealBySize, "crumble reveal"));
 
+    /// <summary>Checks the eight contact-crumble instruction lists selected by their reaction-table index.</summary>
+    /// <param name="rom">Retail address space used to follow native header indirection.</param>
     private static void VerifyContactCrumbleInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x949139, 8,
             RoomPlmInstructionLists.ContactCrumbleByReactionIndex, "contact crumble"));
 
+    /// <summary>Checks the bounded 80-entry bomb-special selection, including adjacent area aliases.</summary>
+    /// <param name="rom">Retail address space used to compare each selected instruction list.</param>
     private static void VerifyBombSpecialInstructionSelection(SuperMetroidAddressSpace rom)
     {
         AssertEqual(80, BombSpecialBlockReactions.Count, "bounded native normal-BTS compatibility extent");
@@ -116,6 +136,12 @@ internal static partial class Program
             BombSpecialBlockReactions.InstructionListAt, "bomb special including adjacent area aliases"));
     }
 
+    /// <summary>Follows each retail header to its instruction pointer and compares the supplied selector over its supported domain.</summary>
+    /// <param name="rom">Retail address space containing the selector's native header table and instruction lists.</param>
+    /// <param name="nativeTable">Bus address of the table of header pointers.</param>
+    /// <param name="count">Number of supported reaction indices in the table.</param>
+    /// <param name="select">Production selector that returns the instruction-list pointer for an index.</param>
+    /// <param name="label">Name included in assertion messages for the selected block behavior.</param>
     private static void VerifyNativeBlockInstructionSelection(SuperMetroidAddressSpace rom,
         int nativeTable, int count, Func<int, ushort> select, string label)
     {

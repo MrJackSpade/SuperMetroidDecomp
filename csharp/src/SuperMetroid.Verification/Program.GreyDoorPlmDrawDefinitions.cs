@@ -7,6 +7,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks grey-door draw data, resident and Bomb Torizo lifecycle behavior, and editable BG2 visual installation.</summary>
+    /// <param name="rom">Retail address space supplying native PLM programs, draw payloads, and stock visual words.</param>
     private static void VerifyGreyDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyGreyDoorProgramDefinitions), () => VerifyGreyDoorProgramDefinitions(rom));
@@ -169,6 +171,15 @@ internal static partial class Program
             "  Grey doors: 420 ordinary and 117 Bomb Torizo program bytes, five close/unlock/open/reload paths, 20 physical draws, and editable visual blocks pass with source reads blocked.");
     }
 
+    /// <summary>Exercises Bomb Torizo's Bomb-gated close sequence, boss-unlock/open path, and persisted room reload.</summary>
+    /// <param name="guarded">Address space that rejects reads of compiled door programs and draw payloads.</param>
+    /// <param name="level">Room collision map receiving the door's physical blocks.</param>
+    /// <param name="streamer">Tilemap streamer used to publish PLM block changes.</param>
+    /// <param name="plms">Room PLM system containing the special grey door.</param>
+    /// <param name="system">Room state whose boss and opened-door bits drive the lifecycle.</param>
+    /// <param name="population">Room population pointer used to reconstruct the door after reopening the room.</param>
+    /// <param name="origin">Block index at which the door is installed.</param>
+    /// <param name="blockDefinitions">Block-definition bytes reused by the reopened room's collision map.</param>
     private static void VerifyBombTorizoGreyDoorLifecycle(
         GreyDoorDrawReadGuard guarded,
         RoomLevelData level,
@@ -241,6 +252,8 @@ internal static partial class Program
             "Bomb Torizo reload avoids both compiled program and draw sources");
     }
 
+    /// <summary>Validates the native mechanics dispatch for ordinary grey-door PLM programs.</summary>
+    /// <param name="rom">Retail address space containing the ordinary grey-door instructions.</param>
     private static void VerifyGreyDoorProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyGreyProgramControls), () => VerifyGreyProgramControls(rom));
@@ -251,6 +264,8 @@ internal static partial class Program
         Suite(nameof(VerifyGreyProgramCallback), () => VerifyGreyProgramCallback(rom));
     }
 
+    /// <summary>Validates the native mechanics dispatch for Bomb Torizo's special grey-door programs.</summary>
+    /// <param name="rom">Retail address space containing the Bomb Torizo grey-door instructions.</param>
     private static void VerifyBombTorizoGreyDoorProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -262,6 +277,10 @@ internal static partial class Program
         Suite(nameof(VerifyTorizoDoorCallback), () => VerifyTorizoDoorCallback(rom));
     }
 
+    /// <summary>Checks that an edited shared clear tile affects blue-door streaming while preserving physical collision data.</summary>
+    /// <param name="rom">Retail address space used by the guarded door-draw path.</param>
+    /// <param name="entries">Authored grey-door visual entries, including the shared clear frame being edited.</param>
+    /// <param name="lists">Native draw-list definitions whose payload reads the guard rejects.</param>
     private static void VerifySharedDoorClearVisual(
         SuperMetroidAddressSpace rom,
         RoomPlmGreyDoorVisualEntry[] entries,
@@ -304,6 +323,8 @@ internal static partial class Program
             "blue-door shared clear draw does not reread bank-$84 payload bytes");
     }
 
+    /// <summary>Checks extracted stock visuals, override selection, survival across stock replacement, and strict invalid-data failures.</summary>
+    /// <param name="rom">Retail address space from which the temporary installation's stock visuals are extracted.</param>
     private static void VerifyGreyDoorVisualInstallation(SuperMetroidAddressSpace rom)
     {
         string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
@@ -366,14 +387,25 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Rejects runtime reads of compiled grey-door instructions and their precompiled draw-list payloads.</summary>
+    /// <param name="source">Underlying address space for permitted reads and all writes.</param>
+    /// <param name="lists">Draw-list identities whose native payload ranges are forbidden during execution.</param>
     private sealed class GreyDoorDrawReadGuard(
         ISnesAddressSpace source,
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of read requests rejected because they target compiled instructions or draw data.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge-import reads through the same forbidden-range check as ordinary reads.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The byte returned by the guarded read.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled instruction and draw-payload reads, forwarding all other requests.</summary>
+        /// <param name="address">Address requested by the PLM system.</param>
+        /// <returns>The source byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to a compiled instruction or draw-list payload.</exception>
         public byte ReadByte(int address)
         {
             if (address >= 0x84be59 && address <= 0x84bffc)
@@ -403,6 +435,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged; the guard restricts reads only.</summary>
+        /// <param name="address">Address receiving the write.</param>
+        /// <param name="value">Byte value forwarded to the source.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

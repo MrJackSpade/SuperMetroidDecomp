@@ -7,6 +7,12 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Extracts the one-row item/status messages as editable UTF-8 titles.</summary>
 public static class GameplayMessageTitleExtractor
 {
+    /// <summary>Decodes the fifteen editable one-row item/status titles and preserves their common 32-cell border as raw tilemap words.</summary>
+    /// <param name="bus">Cartridge source for the bank-$85 message definitions, small title rows, and border artwork.</param>
+    /// <returns>A new UTF-8 JSON buffer containing versioned, message-name-keyed trimmed text, one BG palette selector per title, and the border cells.</returns>
+    /// <remarks>Requires small-message setup/draw routines, one-row source spans, transparent outer columns, and a uniform palette across each nineteen-cell title. No message timing or input behavior is exported.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="InvalidDataException">Native layout, transparency, palette consistency, or glyphs do not fit the editable title format.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

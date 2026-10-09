@@ -9,6 +9,12 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Splits station drawing positions from the cartridge's mixed drawing/discovery records.</summary>
 public static class MapStationLayoutExtractor
 {
+    /// <summary>Exports every missile, energy, and map station's drawing anchor while checking its native area-map discovery cell and record count.</summary>
+    /// <param name="bus">Import-capable cartridge source for bank-$82 per-area station-list pointers and mixed coordinate/discovery records.</param>
+    /// <returns>A new UTF-8 JSON buffer mapping compiled station identities to area-map pixel X/Y positions before scroll subtraction.</returns>
+    /// <remarks>Each native coordinate divided by eight must match the corresponding compiled discovery-cell coordinate. Drawing positions are exported; station kind, discovery rules, and list membership remain compiled.</remarks>
+    /// <exception cref="ArgumentException"><paramref name="bus"/> does not provide cartridge import access, including null.</exception>
+    /// <exception cref="InvalidDataException">Station records are missing/extra, discovery cells differ, or the generated layout fails format validation.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         var markers = new Dictionary<string, MapLabelPoint>();

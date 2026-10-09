@@ -8,6 +8,12 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Imports the visual portion of map arrow records without exporting controller masks.</summary>
 public static class MapArrowExtractor
 {
+    /// <summary>Exports the four map-scroll arrows' drawing anchors and cosmetic phase durations while verifying their fixed native spritemap bindings.</summary>
+    /// <param name="bus">Import-capable cartridge source for mixed arrow records, sprite-program tables, and byte-timed animation streams.</param>
+    /// <returns>A new UTF-8 JSON buffer keyed by direction, with screen-pixel X/Y anchors and positive update-tick durations.</returns>
+    /// <remarks>Y is normalized to native record Y minus one. Controller masks and animation shape operands are not exported; the shape must remain fixed through a bounded, $FF-terminated program.</remarks>
+    /// <exception cref="ArgumentException"><paramref name="bus"/> does not provide cartridge import access, including null.</exception>
+    /// <exception cref="InvalidDataException">An animation ID, spritemap binding, phase shape, termination, anchor, or duration is invalid.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         var arrows = new Dictionary<string, MapArrowEntry>();

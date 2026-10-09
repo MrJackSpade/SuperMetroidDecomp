@@ -8,6 +8,13 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Extracts only the four colors that the Magdollite draw hook actually cycles.</summary>
 public static class MagdollitePaletteCycleExtractor
 {
+    /// <summary>Exports OBJ-row colors nine through twelve from each of the four Magdollite palette rows at $A8:AC1C.</summary>
+    /// <param name="bus">Non-null import-capable cartridge source containing four sixteen-color source rows.</param>
+    /// <returns>A new UTF-8 JSON buffer with four ordered frames of four RGB5 colors, each channel in 0..31.</returns>
+    /// <remarks>The other twelve source colors and graphics-drawn-hook timing are not exported; only the hook's animated subset is replaceable here.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="ArgumentException"><paramref name="bus"/> lacks cartridge import access.</exception>
+    /// <exception cref="InvalidDataException">An imported color sets bit 15, which cannot be represented by RGB5 channels.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

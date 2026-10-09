@@ -9,6 +9,12 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Imports drawing coordinates while verifying the native save-index validity map.</summary>
 public static class MapSaveMarkerExtractor
 {
+    /// <summary>Exports drawing anchors for all usable area/save-index slots while checking the native unused-slot validity pattern.</summary>
+    /// <param name="bus">Import-capable cartridge source for bank-$82 save-point map pointer tables and four-byte X/Y records.</param>
+    /// <returns>A new UTF-8 JSON buffer keyed by compiled area/slot identities, with area-map pixel positions before scroll subtraction.</returns>
+    /// <remarks>Usable slots must have real coordinates; unusable slots must retain the $FFFE X sentinel. Output does not alter which slots are valid or any saved-state/load placement.</remarks>
+    /// <exception cref="ArgumentException"><paramref name="bus"/> does not provide cartridge import access, including null.</exception>
+    /// <exception cref="InvalidDataException">A usable marker is missing or an unused slot differs from its expected sentinel.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         var points = new Dictionary<string, MapLabelPoint>();

@@ -34,7 +34,7 @@ internal sealed class MenuSmallFontArtwork
         byte Source(int tile, int x, int y) => image.Pixels[(tile / 16 * 8 + y) * image.Width + tile % 16 * 8 + x];
     }
 
-    internal static bool Contains(int tile) => tile >= FirstTile && tile < FirstTile + TileCount;
+    internal static bool Contains(int tile) => tile is >= FirstTile and < (FirstTile + TileCount);
     internal byte Pixel(int tile, int x, int y)
     {
         if (!Contains(tile) || (uint)x >= 8 || (uint)y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));

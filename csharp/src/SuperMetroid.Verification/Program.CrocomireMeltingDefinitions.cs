@@ -171,7 +171,7 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
                 enemies, new CrocomireMeltingDefinitionReadGuard(rom, blockGraphics: true));
             typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
-            typeof(RoomEnemySystem).GetField("_crocomireDeath", flags)!.SetValue(enemies, death);
+            typeof(RoomEnemySystem).GetField("<CrocomireDeath>k__BackingField", flags)!.SetValue(enemies, death);
             var initialize = typeof(RoomEnemySystem).GetMethod(
                 "InitializeCrocomireMeltingGraphics", flags)!
                 .CreateDelegate<Action<CrocomireEnemyState>>(enemies);
@@ -245,7 +245,7 @@ internal static partial class Program
             enemies,
             new CrocomireMeltingDefinitionReadGuard(rom));
         typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, new SnesVram());
-        typeof(RoomEnemySystem).GetField("_crocomireDeath", flags)!.SetValue(enemies, death);
+        typeof(RoomEnemySystem).GetField("<CrocomireDeath>k__BackingField", flags)!.SetValue(enemies, death);
         var erase = typeof(RoomEnemySystem).GetMethod(
             "EraseNextCrocomireMeltingColumn",
             flags)!.CreateDelegate<Func<bool>>(enemies);
@@ -296,7 +296,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             enemies, new CrocomireMeltingDefinitionReadGuard(rom, blockGraphics: true));
         typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
-        typeof(RoomEnemySystem).GetField("_crocomireDeath", flags)!.SetValue(enemies, death);
+        typeof(RoomEnemySystem).GetField("<CrocomireDeath>k__BackingField", flags)!.SetValue(enemies, death);
         var initialize = typeof(RoomEnemySystem).GetMethod(
             "InitializeCrocomireMeltingGraphics", flags)!
             .CreateDelegate<Action<CrocomireEnemyState>>(enemies);
@@ -337,7 +337,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             enemies, new CrocomireMeltingDefinitionReadGuard(rom, blockGraphics: true));
         typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
-        typeof(RoomEnemySystem).GetField("_crocomireDeath", flags)!.SetValue(enemies, death);
+        typeof(RoomEnemySystem).GetField("<CrocomireDeath>k__BackingField", flags)!.SetValue(enemies, death);
         var initialize = typeof(RoomEnemySystem).GetMethod(
             "InitializeCrocomireMeltingTilemap", flags)!
             .CreateDelegate<Action<CrocomireEnemyState, int, ushort>>(enemies);
@@ -386,9 +386,9 @@ internal static partial class Program
                     $"Crocomire melting attempted migrated definition read ${address:X6}.");
             if (blockGraphics)
             {
-                if (address >= CrocomireMeltingArtworkAddresses.FirstTilemap &&
-                    address < CrocomireMeltingArtworkAddresses.SecondTilemap +
-                        (CrocomireMeltingArtworkFormat.TilemapCellCount + 1) * 2)
+                if (address is >= CrocomireMeltingArtworkAddresses.FirstTilemap and
+                    < (CrocomireMeltingArtworkAddresses.SecondTilemap +
+                        (CrocomireMeltingArtworkFormat.TilemapCellCount + 1) * 2))
                     throw new InvalidOperationException(
                         $"Crocomire melting attempted installed tilemap read ${address:X6}.");
                 foreach (CrocomireMeltingPass pass in CrocomireMeltingTransferDefinitions.Passes)

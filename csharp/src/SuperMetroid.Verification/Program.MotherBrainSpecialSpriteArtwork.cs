@@ -364,11 +364,10 @@ internal static partial class Program
         ISnesAddressSpace, ISnesMutableMemory
     {
         public byte ReadByte(int address) =>
-            address == MotherBrainCorpseRottingState.GraphicsBufferAddress ||
-            (address >= EscapeTimerTileRomData.FirstSourceAddress &&
-             address < EscapeTimerTileRomData.SecondSourceAddress +
-                 EscapeTimerTileAtlasFormat.SecondByteCount)
-                ? throw new InvalidOperationException(
+            address is MotherBrainCorpseRottingState.GraphicsBufferAddress or
+            >= EscapeTimerTileRomData.FirstSourceAddress and
+             < (EscapeTimerTileRomData.SecondSourceAddress +
+                 EscapeTimerTileAtlasFormat.SecondByteCount) ? throw new InvalidOperationException(
                     $"Mother Brain attempted a timer-art ROM read at ${address:X6}.")
                 : source.ReadByte(address);
 

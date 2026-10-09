@@ -45,7 +45,7 @@ internal static partial class Program
         foreach (var catalog in new[] {stock, installed, new RoomPlmDynamicCollectibleArtCatalog(entries.Reverse())})
             Compare(catalog, original);
         for (int raw = 0; raw <= byte.MaxValue; raw++)
-            if (raw < 4 || raw > 20)
+            if (raw is < 4 or > 20)
                 AssertThrows<InvalidDataException>(() => stock.Resolve((InWorldCollectibleKind)raw), "Dynamic stock rejected byte kind");
         entries[0].Tiles[0] ^= 1;
         entries[1].PaletteOffsets[0] = 7;

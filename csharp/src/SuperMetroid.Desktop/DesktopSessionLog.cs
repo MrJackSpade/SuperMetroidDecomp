@@ -11,7 +11,7 @@ namespace SuperMetroid.Desktop;
 /// </summary>
 internal sealed class DesktopSessionLog : IDisposable
 {
-    private readonly object gate = new();
+    private readonly Lock gate = new();
     private readonly TextWriter originalOutput;
     private readonly TextWriter originalError;
     private readonly StreamWriter journal;

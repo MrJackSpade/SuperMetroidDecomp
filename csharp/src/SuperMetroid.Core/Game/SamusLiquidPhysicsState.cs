@@ -409,10 +409,10 @@ public sealed partial class SamusLiquidPhysicsState
                 maximumQueued: 6);
         }
 
-        HandleLandingGraphics(bus, samus);
+        HandleLandingGraphics(samus);
     }
 
-    private void HandleLandingGraphics(ISnesAddressSpace bus, SamusState samus)
+    private void HandleLandingGraphics(SamusState samus)
     {
         // `$91:F0AA` is an eight-entry area jump table. Invalid area bytes would execute
         // unrelated bank-$91 data on hardware; fail loudly instead of manufacturing output.

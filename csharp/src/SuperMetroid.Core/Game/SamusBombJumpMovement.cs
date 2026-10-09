@@ -51,7 +51,7 @@ public static class SamusBombJumpMovement
             throw new InvalidOperationException("Bomb-jump main handler requires an active jump.");
 
         if (samus.BombJumpDirection == 0)
-            return End(samus, null, null);
+            return End(samus, null);
 
         byte direction = unchecked((byte)samus.BombJumpDirection);
         if (direction is < 1 or > 3)
@@ -110,7 +110,7 @@ public static class SamusBombJumpMovement
         // Native ends immediately once direction becomes down; it does not spend one
         // special-handler frame moving by a zero/negative vertical magnitude.
         if (samus.Kinematics.YDirection == 2)
-            return End(samus, horizontal, null);
+            return End(samus, null);
 
         (BlockMoveResult vertical, bool movedDown) = MoveUpWithGravity(
             bus,
@@ -122,7 +122,7 @@ public static class SamusBombJumpMovement
         // replaces the horizontal result, so a shaft wall alone must not cancel the
         // upward bomb arc or return control to ordinary Morph Ball movement early.
         if (vertical.Collided)
-            return End(samus, horizontal, vertical);
+            return End(samus, vertical);
 
         // At the apex the negated speed is non-negative, so `$90:915E` moves down; finding
         // no floor, `$90:E639` publishes the falling result for the pose pass.
@@ -164,7 +164,6 @@ public static class SamusBombJumpMovement
 
     private static BombJumpMovementResult End(
         SamusState samus,
-        BlockMoveResult? horizontal,
         BlockMoveResult? vertical)
     {
         samus.BombJumpDirection = 0;

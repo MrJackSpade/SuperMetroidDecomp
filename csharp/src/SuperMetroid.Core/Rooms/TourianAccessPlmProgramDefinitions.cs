@@ -25,7 +25,7 @@ internal static class TourianAccessPlmProgramDefinitions
             value = RoomPlmInstructionCodes.SetEightBitTimer;
             return true;
         }
-        if (address >= Crumble + 3 && address < Crumble + 19)
+        if (address is >= (Crumble + 3) and < (Crumble + 19))
         {
             int offset = address - Crumble - 3;
             if (offset % 4 == 0)

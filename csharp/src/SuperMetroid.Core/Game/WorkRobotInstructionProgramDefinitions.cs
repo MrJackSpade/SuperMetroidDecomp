@@ -274,16 +274,16 @@ internal abstract class WorkRobotInstructionProgramDefinitions
     private struct WordSelector(ushort address, ushort start)
     {
         private int remaining = (address - start) / 2;
-        private int selected = int.MinValue;
-        public readonly int Value => selected == int.MinValue
-            ? throw new InvalidOperationException("Work Robot semantic program shape is incomplete.") : selected;
+
+        public int Value { get => field == int.MinValue
+            ? throw new InvalidOperationException("Work Robot semantic program shape is incomplete.") : field; private set; } = int.MinValue;
         public void Command(ushort command) => Emit(command);
         public void Timed(ushort duration, int poses = 1)
         {
             for (int pose = 0; pose < poses; pose++) { Emit(duration); Emit(PresentationOperand); }
         }
         public void Goto(ushort target) { Emit(CommonEnemyInstructionCodes.Goto); Emit(target); }
-        private void Emit(int value) { if (remaining-- == 0) selected = value; }
+        private void Emit(int value) { if (remaining-- == 0) Value = value; }
     }
     private static InvalidDataException NotCompiled(ushort address) =>
         new($"Work Robot instruction mechanics pointer $A8:{address:X4} is not compiled.");

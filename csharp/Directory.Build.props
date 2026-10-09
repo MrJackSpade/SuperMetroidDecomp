@@ -4,6 +4,9 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- IDE-prefixed rules only run during a build with this set; without it the .editorconfig
+         quality gates (#142) reach Visual Studio instead of failing the build. -->
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <!-- LibraryImport source generators emit unsafe pointer stubs behind the managed API. -->
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <WarningsAsErrors>$(WarningsAsErrors);CS1591;CS1570;CS1572;CS1573;CS1574;CS1580;CS1584;CS1587;CS1658</WarningsAsErrors>

@@ -95,7 +95,7 @@ public static class TourianGlowPaletteFxProgramMechanicsDefinitions
             return true;
 
         int frameOffset = pointer - FirstFramePointer;
-        if (frameOffset >= 0 && frameOffset < FrameCount * FrameByteCount)
+        if (frameOffset is >= 0 and < (FrameCount * FrameByteCount))
         {
             int inFrame = frameOffset % FrameByteCount;
             value = inFrame switch

@@ -1051,23 +1051,23 @@ internal static partial class Program
                 throw new InvalidOperationException(
                     $"Cinematic reread character source ${address:X6}.");
             }
-            if (address >= CeresFlightRomData.Assets.Palette &&
-                address < CeresFlightRomData.Assets.Palette + SnesCgram.ByteCount)
+            if (address is >= CeresFlightRomData.Assets.Palette and
+                < (CeresFlightRomData.Assets.Palette + SnesCgram.ByteCount))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
                     $"Cinematic reread Ceres flight palette ${address:X6}.");
             }
-            if (address >= IntroCinematicRomData.Assets.Palette &&
-                address < IntroCinematicRomData.Assets.Palette + SnesCgram.ByteCount)
+            if (address is >= IntroCinematicRomData.Assets.Palette and
+                < (IntroCinematicRomData.Assets.Palette + SnesCgram.ByteCount))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(
                     $"Cinematic reread opening palette ${address:X6}.");
             }
-            if (address >= IntroCinematicRomData.Assets.FinalTextLine &&
-                address < IntroCinematicRomData.Assets.FinalTextLine +
-                    IntroFinalLineTilemapFormat.CellCount * sizeof(ushort))
+            if (address is >= IntroCinematicRomData.Assets.FinalTextLine and
+                < (IntroCinematicRomData.Assets.FinalTextLine +
+                    IntroFinalLineTilemapFormat.CellCount * sizeof(ushort)))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

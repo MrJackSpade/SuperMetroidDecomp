@@ -389,7 +389,7 @@ internal static class SpcMusicDefinitionCodec
     private static void ValidateTiming(string id, IReadOnlyList<byte> timing)
     {
         if (timing.Count > 2 || timing.Any(value =>
-                value == 0 || value >= SpcDriverData.Music.CommandMarker))
+                value is 0 or >= SpcDriverData.Music.CommandMarker))
             throw new InvalidDataException($"Music program '{id}' has an invalid timing prefix.");
     }
 

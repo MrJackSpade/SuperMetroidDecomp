@@ -17,7 +17,7 @@ public static partial class SnesGameplayFrameRenderer
                 ? XrayWindowRenderDefinitions.CrouchingEyeHeight : XrayWindowRenderDefinitions.StandingEyeHeight);
         int angle = samus.Xray.Angle.TableIndex;
         int width = samus.Xray.AngularWidth & 0xff;
-        XrayDirection a = ReadXrayDirection(bus, angle - width), b = ReadXrayDirection(bus, angle + width);
+        XrayDirection a = ReadXrayDirection(angle - width), b = ReadXrayDirection(angle + width);
         bool horizontal = width == 0 && (angle == SnesAngle.QuarterTurn.TableIndex || angle == SnesAngle.ThreeQuarterTurn.TableIndex);
         var lines = new XrayWindowLine[Height];
         Array.Fill(lines, new XrayWindowLine(1, 0));

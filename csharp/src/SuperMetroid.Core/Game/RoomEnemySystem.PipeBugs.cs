@@ -264,7 +264,7 @@ public sealed partial class RoomEnemySystem
                 RunBrinstarPipeBugEmergence(slot, state, samus!);
                 return;
             case PipeBugEnemyFunction.BrinstarFlyHorizontally:
-                RunBrinstarPipeBugFlight(slot, state, cameraX, cameraY);
+                RunBrinstarPipeBugFlight(slot, state, cameraX);
                 return;
             case PipeBugEnemyFunction.BrinstarRespawnDelay:
                 if (state.DelayOrCounter-- == 1)
@@ -398,8 +398,7 @@ public sealed partial class RoomEnemySystem
     private static void RunBrinstarPipeBugFlight(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
-        ushort cameraX,
-        ushort cameraY)
+        ushort cameraX)
     {
         slot.XPosition = unchecked((ushort)(slot.XPosition +
             ((state.VariableA & 0x8000) != 0 ? -2 : 2)));

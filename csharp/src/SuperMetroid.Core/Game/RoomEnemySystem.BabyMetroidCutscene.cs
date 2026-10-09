@@ -53,7 +53,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports Baby initialization <c>$A9:C710-$C776</c>.</summary>
     private void InitializeMotherBrainBabyMetroid(RoomEnemySlot slot)
     {
-        MotherBrainEnemyState state = _motherBrain ?? throw new InvalidDataException(
+        MotherBrainEnemyState state = MotherBrain ?? throw new InvalidDataException(
             "The cutscene Baby was initialized without Mother Brain's physical records.");
         if (state.RainbowBeamSequence is null)
         {
@@ -93,7 +93,7 @@ public sealed partial class RoomEnemySystem
         ushort cameraX,
         ushort cameraY)
     {
-        MotherBrainEnemyState state = _motherBrain ?? throw new InvalidOperationException(
+        MotherBrainEnemyState state = MotherBrain ?? throw new InvalidOperationException(
             "The cutscene Baby lost Mother Brain's encounter state.");
         BabyMetroidCutsceneState baby = state.BabyMetroid ??
             throw new InvalidOperationException("The physical Baby has no cutscene state.");

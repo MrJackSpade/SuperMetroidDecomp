@@ -14,7 +14,7 @@ internal static partial class Program
             samus.RefreshCollisionRadii(bus);
             var finish = typeof(SamusShinesparkState).GetMethod("FinishCrash",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
-            finish.Invoke(samus.Shinespark, [bus, samus, ShinesparkPhase.Diagonal, (ushort)5, null]);
+            finish.Invoke(samus.Shinespark, [samus, (ushort)5, null]);
             AssertEqual((ushort)35, samus.YPosition, "Movement queues standing alignment until after animation");
             SamusShinesparkState.ApplyCrashFinishPose(bus, samus);
             AssertEqual((ushort)19, samus.Kinematics.YRadius, "Standing alignment does not publish next-frame radius early");

@@ -103,7 +103,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case KraidAiFunction.GrowFadeInRoomBackground:
-                if (!AdvanceKraidRoomBackgroundFade(state, fadeToBlack: false))
+                if (!AdvanceKraidRoomBackgroundFade(fadeToBlack: false))
                     return;
                 FinishKraidGrowth(body, state);
                 return;
@@ -111,7 +111,6 @@ public sealed partial class RoomEnemySystem
     }
 
     private bool AdvanceKraidRoomBackgroundFade(
-        KraidEnemyState state,
         bool fadeToBlack)
     {
         ushort step = GradualColorChange.Numerator;

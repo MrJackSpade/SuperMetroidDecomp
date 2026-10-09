@@ -64,7 +64,7 @@ internal static partial class Program
         AssertEqual((ushort)399, samus.Health, "source4234 body entering overlap cannot damage before next contact pass");
         AssertTrue(body.XPosition < 139, "fixture advances body into collision boundary");
         body.SpritemapPointer = 0xe9e9;
-        runtime.Enemies.ResolveRidleySamusContact(samus, 0);
+        runtime.Enemies.ResolveRidleySamusContact(samus);
         AssertEqual((ushort)359, samus.Health, "next pre-AI body overlap remains damaging");
         Console.WriteLine("Ridley body contact: pre-movement boundary and subsequent damaging overlap pass.");
     }
@@ -387,7 +387,7 @@ internal static partial class Program
         projectile.YPosition = 0x54; projectile.YSubposition = 0xd900;
         projectile.XVelocity = 0xfb64; projectile.YVelocity = 0xfe1b;
         projectile.XRadius = 6; projectile.YRadius = 6;
-        var move = typeof(RoomEnemySystem).GetMethod("MoveProjectileAxis", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var move = typeof(RoomEnemySystem).GetMethod("MoveProjectileAxis", BindingFlags.Static | BindingFlags.NonPublic)!;
         AssertTrue(!(bool)move.Invoke(runtime.Enemies, [projectile, runtime.LevelData, true])!, "source1248 fireball crosses empty square-slope quadrant horizontally");
         AssertTrue(!(bool)move.Invoke(runtime.Enemies, [projectile, runtime.LevelData, false])!, "source1248 fireball clears terrain vertically");
         AssertEqual((ushort)0x44, projectile.XPosition, "native source1249 fireball X");
@@ -604,7 +604,7 @@ internal static partial class Program
             AssertEqual(sample.Turn ? (ushort)2 : (ushort)7, slot.InstructionTimer, "turn timer changes only when native condition is met");
             AssertEqual(sample.Turn ? (ushort)0 : (ushort)9, slot.Timer, "loop counter is preserved when no turn is needed");
         }
-        var hover = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyHover", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var hover = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyHover", BindingFlags.Static | BindingFlags.NonPublic)!;
         var hoverState = new RidleyEnemyState { FunctionTimer = 0, Function = RidleyAiFunction.NorfairHover };
         hover.Invoke(new RoomEnemySystem(), [new RoomEnemySlot(0), hoverState]);
         AssertEqual(ushort.MaxValue, hoverState.FunctionTimer, "native hover decrements zero before selecting next attack");

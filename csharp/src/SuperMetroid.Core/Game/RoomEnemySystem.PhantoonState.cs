@@ -150,12 +150,12 @@ public sealed class PhantoonEnemyState
     /// owner, so the enemy publishes the exact authored request rather than editing terrain.
     /// </summary>
     public ushort? BossDoorPlmRequest { get; internal set; }
-    private PhantoonWaveHdmaState? _wave;
+
     /// <summary>Gets the encounter's lazily created bank-$88 wave owner, which advances scanline scroll mechanics separately from accepted-NMI display latching.</summary>
-    public PhantoonWaveHdmaState Wave => _wave ??= new();
-    private PhantoonBlendingState? _blending;
+    public PhantoonWaveHdmaState Wave => field ??= new();
+
     /// <summary>Gets the encounter's lazily created bank-$88 blending owner, retaining live transparency control and separately latched blending/mosaic display state.</summary>
-    public PhantoonBlendingState Blending => _blending ??= new();
+    public PhantoonBlendingState Blending => field ??= new();
 }
 
 /// <summary>
@@ -172,28 +172,26 @@ public sealed partial class RoomEnemySystem
     internal const ushort PhantoonEyeDefinition = 0xe4ff;
     internal const ushort PhantoonTentaclesDefinition = 0xe53f;
     internal const ushort PhantoonMouthDefinition = 0xe57f;
-
-    private PhantoonEnemyState? _phantoonState;
     private readonly List<PhantoonFlameDropRequest> _phantoonFlameDropRequests = new();
 
     /// <summary>Active four-slot encounter state when retail Phantoon occupies slot zero.</summary>
-    public PhantoonEnemyState? Phantoon => _phantoonState;
+    public PhantoonEnemyState? Phantoon { get; private set; }
 
     private void ResetPhantoonRoomState()
     {
-        _phantoonState = null;
+        Phantoon = null;
         _phantoonFlameDropRequests.Clear();
     }
 
     private PhantoonEnemyState RequirePhantoonState(RoomEnemySlot slot)
     {
-        if (_phantoonState is null ||
+        if (Phantoon is null ||
             _slots[0].EnemyDefinitionPointer != PhantoonBodyDefinition)
         {
             throw new InvalidOperationException(
                 $"Enemy ${slot.EnemyDefinitionPointer:X4} requires Phantoon's retail body in slot zero.");
         }
-        return _phantoonState;
+        return Phantoon;
     }
 
     private static bool IsPhantoonPartDefinition(ushort definition) => definition is

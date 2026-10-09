@@ -39,7 +39,7 @@ public sealed partial class RoomEnemySystem
     {
         if ((CeresStatus & 1) == 0)
             return;
-        RidleyEnemyState state = _ridleyState ?? throw new InvalidOperationException(
+        RidleyEnemyState state = Ridley ?? throw new InvalidOperationException(
             "Ceres status one requires the Ceres Ridley getaway state.");
         if (state.Mode7Finished)
             return;

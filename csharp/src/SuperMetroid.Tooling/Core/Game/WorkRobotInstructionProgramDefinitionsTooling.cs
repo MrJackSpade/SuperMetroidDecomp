@@ -29,7 +29,7 @@ internal abstract class WorkRobotInstructionProgramDefinitionsTooling : IInstruc
     {
         if ((address & 0xff0000) != 0xa80000) return false;
         ushort bankAddress = (ushort)address;
-        if (bankAddress < WorkRobotInstructionProgramDefinitions.NoPowerNeutral || bankAddress >= WorkRobotInstructionProgramDefinitions.EndAddress) return false;
+        if (bankAddress is < WorkRobotInstructionProgramDefinitions.NoPowerNeutral or >= WorkRobotInstructionProgramDefinitions.EndAddress) return false;
         ushort wordAddress = (ushort)(bankAddress - ((bankAddress - WorkRobotInstructionProgramDefinitions.NoPowerNeutral) & 1));
         return WorkRobotInstructionProgramDefinitions.ProgramWord(wordAddress) != WorkRobotInstructionProgramDefinitions.PresentationOperand;
     }

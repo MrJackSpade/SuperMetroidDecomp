@@ -54,11 +54,11 @@ internal static partial class Program
                 { InstructionPointer = pointer, InstructionTimer = 1, Type = 0x0500, Damage = 30 };
             var shots = new SamusProjectileSystem { FrameBindings = stock };
             var bombs = new SamusBombProjectileSystem { FrameBindings = stock };
-            AssertTrue(nativeShot.InstructionTimer > 0 && nativeShot.InstructionTimer < 0x8000,
+            AssertTrue(nativeShot.InstructionTimer is > 0 and < 0x8000,
                 "native inventory contains timed records");
-            AssertEqual(false, shots.RunProjectileInstructionHandler(guard, installedShot),
+            AssertEqual(false, shots.RunProjectileInstructionHandler(installedShot),
                 "installed projectile timed record survives");
-            AssertEqual(false, (bool)runBomb.Invoke(bombs, [guard, installedBomb])!,
+            AssertEqual(false, (bool)runBomb.Invoke(bombs, [installedBomb])!,
                 "installed bomb timed record survives");
             AssertEqual(nativeShot.SpritemapPointer, installedShot.SpritemapPointer,
                 "installed projectile frame selects the native sprite");
@@ -102,7 +102,7 @@ internal static partial class Program
         var editedShot = new SamusProjectileSlot(0)
             { InstructionPointer = editedPointer, InstructionTimer = 1, Damage = 30 };
         new SamusProjectileSystem { FrameBindings = edited }
-            .RunProjectileInstructionHandler(guard, editedShot);
+            .RunProjectileInstructionHandler(editedShot);
         AssertEqual(replacement, editedShot.SpritemapPointer,
             "edited frame binding reaches the actual projectile instruction handler");
         AssertEqual(SamusProjectileInstructionDefinitions.ReadWord(

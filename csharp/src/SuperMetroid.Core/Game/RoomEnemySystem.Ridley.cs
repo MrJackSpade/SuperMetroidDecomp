@@ -51,7 +51,7 @@ public sealed partial class RoomEnemySystem
         slot.YPosition = 394;
         slot.Layer = 5;
 
-        _ridleyState = new RidleyEnemyState
+        Ridley = new RidleyEnemyState
         {
             Function = RidleyAiFunction.WaitForDoorTransition,
             FightMode = 0,
@@ -112,7 +112,7 @@ public sealed partial class RoomEnemySystem
             unchecked((short)state.HurtMovementClamp) - 4));
 
         UpdateNorfairRidleyIntangibility(slot, state, cameraX, cameraY);
-        PrepareNorfairRidleyCombatFrame(slot, state, sharedProjectiles ?? throw new InvalidOperationException(
+        PrepareNorfairRidleyCombatFrame(state, sharedProjectiles ?? throw new InvalidOperationException(
             "Ridley's power-bomb check ($A6:BD2C) requires the shared projectile owner."));
 
         RunNorfairRidleyFunction(slot, state, samus, controllerInput, level);
@@ -475,7 +475,7 @@ public sealed partial class RoomEnemySystem
         RunNorfairRidleyFunction(slot, state, samus, controllerInput, level);
     }
 
-    private void TickNorfairRidleyHover(RoomEnemySlot slot, RidleyEnemyState state)
+    private static void TickNorfairRidleyHover(RoomEnemySlot slot, RidleyEnemyState state)
     {
         if (TickRidleyFunctionTimer(state))
         {
@@ -894,9 +894,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static",
-        Justification = "Preserve the transitive diagnostic instance entry points during this table-only migration.")]
-    private int ReadRidleyHealthMovementDivisorIndex(RidleyEnemyState state) =>
+    private static int ReadRidleyHealthMovementDivisorIndex(RidleyEnemyState state) =>
         RidleyMovementTargets.HoverDivisorIndexes(Math.Min(state.HealthStage, (ushort)3));
 
     private bool SamusMovementUsesRidleyGrab(SamusState? samus)
@@ -1012,13 +1010,13 @@ public sealed partial class RoomEnemySystem
     {
         if (!IsRidleyDefinition(slot.EnemyDefinitionPointer) ||
             slot.SlotIndex != 0 ||
-            _ridleyState is null)
+            Ridley is null)
         {
             throw new InvalidOperationException(
                 $"Enemy slot {slot.SlotIndex} executed shared Ridley code without an " +
                 "$E13F/$E17F slot-zero state extension.");
         }
-        return _ridleyState;
+        return Ridley;
     }
 
     private RidleyEnemyState RequireNorfairRidley(RoomEnemySlot slot)

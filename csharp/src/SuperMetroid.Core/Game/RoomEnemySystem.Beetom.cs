@@ -580,8 +580,7 @@ public sealed partial class RoomEnemySystem
     private void ResolveBeetomTouch(
         RoomEnemySlot slot,
         BeetomEnemyState state,
-        SamusState samus,
-        ushort controllerInput)
+        SamusState samus)
     {
         if (!state.AttachedToSamus)
         {
@@ -597,7 +596,7 @@ public sealed partial class RoomEnemySystem
 
         if (samus.HorizontalSpeed.ContactDamageIndex != 0)
         {
-            ResolveNormalEnemyTouch(slot, samus, controllerInput);
+            ResolveNormalEnemyTouch(slot, samus);
             samus.InvincibilityTimer = 0;
             samus.KnockbackTimer = 0;
             return;

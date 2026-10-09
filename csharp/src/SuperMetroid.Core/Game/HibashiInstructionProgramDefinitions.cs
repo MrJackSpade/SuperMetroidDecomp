@@ -45,7 +45,7 @@ internal abstract class HibashiInstructionProgramDefinitions
         };
         if (value != 0) return true;
         int offset = address - GraphicsProgram - 2;
-        if (offset < 0 || offset >= 23 * 6) return false;
+        if (offset is < 0 or >= (23 * 6)) return false;
         int frame = offset / 6;
         if (offset % 6 == 0)
         {

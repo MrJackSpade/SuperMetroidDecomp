@@ -208,8 +208,8 @@ internal static class SnesGameplayFrameRendererAccess
             bool horizontalLine = angularWidth == 0 &&
                 (centerAngle == SnesAngle.QuarterTurn.TableIndex ||
                  centerAngle == SnesAngle.ThreeQuarterTurn.TableIndex);
-            object leftEdge = ((object)(PrivateState.InvokeStatic(typeof(SnesGameplayFrameRenderer), "ReadXrayDirection", (ISnesAddressSpace)(bus), (int)(leftEdgeAngle)))!);
-            object rightEdge = ((object)(PrivateState.InvokeStatic(typeof(SnesGameplayFrameRenderer), "ReadXrayDirection", (ISnesAddressSpace)(bus), (int)(rightEdgeAngle)))!);
+            object leftEdge = ((object)(PrivateState.InvokeStatic(typeof(SnesGameplayFrameRenderer), "ReadXrayDirection", (int)(leftEdgeAngle)))!);
+            object rightEdge = ((object)(PrivateState.InvokeStatic(typeof(SnesGameplayFrameRenderer), "ReadXrayDirection", (int)(rightEdgeAngle)))!);
 
             for (int screenY = SnesGameplayFrameRenderer.HudHeight; screenY < SnesGameplayFrameRenderer.Height; screenY++)
             {

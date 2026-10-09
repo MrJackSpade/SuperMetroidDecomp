@@ -24,7 +24,7 @@ public sealed partial class RoomEnemySystem
 
             case KraidAiFunction.DeathFadeOut:
                 _ = ProcessKraidHeadInstruction(body, state);
-                if (AdvanceKraidRoomBackgroundFade(state, fadeToBlack: true))
+                if (AdvanceKraidRoomBackgroundFade(fadeToBlack: true))
                 {
                     body.VariableA = (ushort)KraidAiFunction.DeathUpdateTopTilemap;
                     state.HurtFrameTimer = 1;
@@ -104,7 +104,7 @@ public sealed partial class RoomEnemySystem
                     vramWriteQueue);
                 return;
             case KraidAiFunction.DeathFadeInBackground:
-                if (!AdvanceKraidRoomBackgroundFade(state, fadeToBlack: false))
+                if (!AdvanceKraidRoomBackgroundFade(fadeToBlack: false))
                     return;
                 state.MusicRequest = MusicCommand.SelectTrack(3);
                 if (RequireAreaBossDefeated())

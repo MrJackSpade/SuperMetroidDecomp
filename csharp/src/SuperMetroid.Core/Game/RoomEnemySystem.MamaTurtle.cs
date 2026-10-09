@@ -220,7 +220,6 @@ public sealed partial class RoomEnemySystem
         MamaTurtleEnemyState state,
         SamusState? samus,
         RoomLevelData? level,
-        ushort controllerInput,
         byte nmiFrameCounter8)
     {
         if (samus is null)
@@ -239,28 +238,28 @@ public sealed partial class RoomEnemySystem
             case MamaTurtleAiFunction.LeavingShell:
                 RequireTurtleLevel(level);
                 RunMamaTurtleLeavingShell(
-                    slot, state, samus, level!, controllerInput, nmiFrameCounter8);
+                    slot, state, samus, level!, nmiFrameCounter8);
                 return;
             case MamaTurtleAiFunction.EnteringShell:
                 RunMamaTurtleEnteringShell(slot, state, samus);
                 return;
             case MamaTurtleAiFunction.RisingToHover:
                 RequireTurtleLevel(level);
-                RunMamaTurtleRisingToHover(slot, state, samus, level!, controllerInput);
+                RunMamaTurtleRisingToHover(slot, state, samus, level!);
                 return;
             case MamaTurtleAiFunction.Hovering:
                 RequireTurtleLevel(level);
-                RunMamaTurtleHovering(slot, state, samus, level!, controllerInput);
+                RunMamaTurtleHovering(slot, state, samus, level!);
                 return;
             case MamaTurtleAiFunction.RisingToPeak:
-                RunMamaTurtleRisingToPeak(slot, state, samus, controllerInput);
+                RunMamaTurtleRisingToPeak(slot, state, samus);
                 return;
             case MamaTurtleAiFunction.HoveringAtPeak:
-                RunMamaTurtleHoveringAtPeak(slot, state, samus, controllerInput);
+                RunMamaTurtleHoveringAtPeak(slot, state, samus);
                 return;
             case MamaTurtleAiFunction.Falling:
                 RequireTurtleLevel(level);
-                RunMamaTurtleFalling(slot, state, samus, level!, controllerInput);
+                RunMamaTurtleFalling(slot, state, samus, level!);
                 return;
             default:
                 throw new InvalidDataException(
@@ -336,10 +335,9 @@ public sealed partial class RoomEnemySystem
         MamaTurtleEnemyState state,
         SamusState samus,
         RoomLevelData level,
-        ushort controllerInput,
         byte nmiFrameCounter8)
     {
-        ResolveMamaTurtleExpandedContact(mama, samus, controllerInput);
+        ResolveMamaTurtleExpandedContact(mama, samus);
         if ((nmiFrameCounter8 & 1) != 0)
             return;
 
@@ -387,10 +385,9 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot mama,
         MamaTurtleEnemyState state,
         SamusState samus,
-        RoomLevelData level,
-        ushort controllerInput)
+        RoomLevelData level)
     {
-        ResolveMamaTurtleExpandedContact(mama, samus, controllerInput);
+        ResolveMamaTurtleExpandedContact(mama, samus);
         if (MoveEnemyVertically(level, mama, -1 << 16))
             return;
 
@@ -425,10 +422,9 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot mama,
         MamaTurtleEnemyState state,
         SamusState samus,
-        RoomLevelData level,
-        ushort controllerInput)
+        RoomLevelData level)
     {
-        ResolveMamaTurtleExpandedContact(mama, samus, controllerInput);
+        ResolveMamaTurtleExpandedContact(mama, samus);
         int displacement = ((int)(short)state.XVelocity << 16) | state.XSubVelocity;
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, mama, displacement))
         {
@@ -504,10 +500,9 @@ public sealed partial class RoomEnemySystem
     private void RunMamaTurtleRisingToPeak(
         RoomEnemySlot mama,
         MamaTurtleEnemyState state,
-        SamusState samus,
-        ushort controllerInput)
+        SamusState samus)
     {
-        ResolveMamaTurtleExpandedContact(mama, samus, controllerInput);
+        ResolveMamaTurtleExpandedContact(mama, samus);
         if (unchecked((short)(mama.YPosition - MamaTurtlePeakYPosition)) < 0)
         {
             state.FunctionTimer = MamaTurtlePeakPauseFrames;
@@ -534,10 +529,9 @@ public sealed partial class RoomEnemySystem
     private void RunMamaTurtleHoveringAtPeak(
         RoomEnemySlot mama,
         MamaTurtleEnemyState state,
-        SamusState samus,
-        ushort controllerInput)
+        SamusState samus)
     {
-        ResolveMamaTurtleExpandedContact(mama, samus, controllerInput);
+        ResolveMamaTurtleExpandedContact(mama, samus);
         state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
         if (state.FunctionTimer == 0)
             state.Function = MamaTurtleAiFunction.Falling;
@@ -548,10 +542,9 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot mama,
         MamaTurtleEnemyState state,
         SamusState samus,
-        RoomLevelData level,
-        ushort controllerInput)
+        RoomLevelData level)
     {
-        ResolveMamaTurtleExpandedContact(mama, samus, controllerInput);
+        ResolveMamaTurtleExpandedContact(mama, samus);
 
         // The original cap comparison accidentally omits X and reads slot-zero's extension.
         // The retail parent is slot zero, but retaining the explicit source documents the
@@ -796,12 +789,11 @@ public sealed partial class RoomEnemySystem
     private void ResolveMamaTurtleTouch(
         RoomEnemySlot mama,
         MamaTurtleEnemyState state,
-        SamusState samus,
-        ushort controllerInput)
+        SamusState samus)
     {
         if ((mama.Properties & MamaTurtleSolidProperty) != 0)
             return;
-        ResolveNormalEnemyTouch(mama, samus, controllerInput);
+        ResolveNormalEnemyTouch(mama, samus);
         state.Function = MamaTurtleAiFunction.Falling;
         state.YVelocity = 2;
     }
@@ -855,8 +847,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports Mama's expanded private damage box at <c>$A2:9315</c>.</summary>
     private void ResolveMamaTurtleExpandedContact(
         RoomEnemySlot mama,
-        SamusState samus,
-        ushort controllerInput)
+        SamusState samus)
     {
         // Four bounds deliberately come from physical slot zero because all four native
         // loads omit `,x`. The damage callback still runs for the current Mama slot.
@@ -887,7 +878,7 @@ public sealed partial class RoomEnemySystem
         if (unchecked((short)(samusBottom - top)) < 0 || samus.InvincibilityTimer != 0)
             return;
 
-        ResolveNormalEnemyTouch(mama, samus, controllerInput);
+        ResolveNormalEnemyTouch(mama, samus);
     }
 
     private MamaTurtleEnemyState RequireMamaTurtleParent(BabyTurtleEnemyState child)

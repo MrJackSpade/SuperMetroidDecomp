@@ -72,7 +72,7 @@ internal static class SamusProjectileRadiusDefinitions
                 x = 4 + 8 * phase; y = 8; break;
             case SamusProjectileInstructionDefinitions.FrameFamily.Wave:
                 if (diagonal)
-                    x = y = phase < 2 || phase > 14 ? 8 : 4 + 2 * (4 - Math.Abs(phase % 8 - 4));
+                    x = y = phase is < 2 or > 14 ? 8 : 4 + 2 * (4 - Math.Abs(phase % 8 - 4));
                 else
                 {
                     int across = 12 + 4 * Math.Max(0, 2 - Math.Abs(phase % 8 - 4));

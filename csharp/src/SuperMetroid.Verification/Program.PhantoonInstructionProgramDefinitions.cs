@@ -218,7 +218,7 @@ internal static partial class Program
             Tentacles = tentacles,
             Mouth = mouth,
         };
-        typeof(RoomEnemySystem).GetField("_phantoonState", flags)!.SetValue(enemies, state);
+        typeof(RoomEnemySystem).GetField("<Phantoon>k__BackingField", flags)!.SetValue(enemies, state);
         return enemies;
     }
 
@@ -237,7 +237,7 @@ internal static partial class Program
             ushort previousSprite = slot.SpritemapPointer;
             process.Invoke(
                 enemies,
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0]);
+                [slot, null, null, (ushort)0, (ushort)0, (ushort)0]);
             ushort record = unchecked((ushort)(slot.CurrentInstruction - 4));
             ushort nativeWord = (ushort)(rom.ReadByte(0xa70000 | record) |
                 rom.ReadByte(0xa70000 | unchecked((ushort)(record + 1))) << 8);

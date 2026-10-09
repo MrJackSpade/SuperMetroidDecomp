@@ -41,8 +41,8 @@ internal static class IntroBackgroundTilemapDefinitions
                 1 => column >= 9,
                 2 => column >= 7,
                 >= 3 and <= 7 => column is >= 1 and <= 5 or >= 7,
-                8 => column <= 5 || column >= 7,
-                9 => column <= 4 || column >= 8,
+                8 => column is <= 5 or >= 7,
+                9 => column is <= 4 or >= 8,
                 10 => true,
                 _ => column < 15,
             };

@@ -42,9 +42,9 @@ internal static class SamusProjectileCooldownDefinitions
                 return 0;
             return (byte)(charged ? 30 : combination == PlasmaIce ? 12 : 15);
         }
-        if (address >= SamusProjectileRomData.Beams.UnchargedCooldowns + 32 && address < NonBeamCooldowns)
+        if (address is >= (SamusProjectileRomData.Beams.UnchargedCooldowns + 32) and < NonBeamCooldowns)
             return 0;
-        if (address >= NonBeamCooldowns && address < SamusProjectileRomData.Beams.AutoFireCooldowns)
+        if (address is >= NonBeamCooldowns and < SamusProjectileRomData.Beams.AutoFireCooldowns)
             return (address - NonBeamCooldowns) switch
             {
                 Missile => 10,

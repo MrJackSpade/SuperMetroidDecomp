@@ -28,7 +28,7 @@ internal static partial class Program
             {
                 if (frame == 2048) throw new InvalidOperationException($"{id} typewriter did not terminate.");
                 comparedFrames++;
-                if (installed.Step(new ForbiddenEscapeTextBus(), installedVram)) break;
+                if (installed.Step(installedVram)) break;
             }
             AssertTrue(installed.GlyphsWritten > 0, $"{id} installed typewriter writes its glyphs");
         }
@@ -42,24 +42,24 @@ internal static partial class Program
         var editedState = new EscapeTypewriterState(
             edited.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterRomData.ZebesTileBase);
         var editedVram = new SnesVram();
-        editedState.Step(new ForbiddenEscapeTextBus(), editedVram);
-        editedState.Step(new ForbiddenEscapeTextBus(), editedVram);
+        editedState.Step(editedVram);
+        editedState.Step(editedVram);
         AssertEqual((ushort)(EscapeTypewriterRomData.ZebesTileBase + 'E' - 'A'),
             editedVram.ReadWord(0x4906), "edited UTF-8 escape text reaches live VRAM");
 
         var rebound = new EscapeTypewriterState(
             presentation.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterRomData.ZebesTileBase);
         var reboundVram = new SnesVram();
-        rebound.Step(new ForbiddenEscapeTextBus(), reboundVram);
+        rebound.Step(reboundVram);
         rebound.BindProgram(edited.Get(EscapeTypewriterProgramId.Zebes));
-        rebound.Step(new ForbiddenEscapeTextBus(), reboundVram);
+        rebound.Step(reboundVram);
         AssertEqual((ushort)(EscapeTypewriterRomData.ZebesTileBase + 'E' - 'A'),
             reboundVram.ReadWord(0x4906), "active escape typewriter accepts current replacement content");
 
         var saved = new EscapeTypewriterState(
             presentation.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterRomData.ZebesTileBase);
         var savedVram = new SnesVram();
-        saved.Step(new ForbiddenEscapeTextBus(), savedVram);
+        saved.Step(savedVram);
         using var snapshot = new MemoryStream();
         SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(snapshot, saved);
         snapshot.Position = 0;
@@ -68,10 +68,10 @@ internal static partial class Program
         AssertEqual(EscapeTypewriterProgramId.Zebes, restored.ProgramId,
             "debugger state retains compiled escape program identity");
         AssertThrows<InvalidOperationException>(() =>
-            restored.Step(new ForbiddenEscapeTextBus(), new SnesVram()),
+            restored.Step(new SnesVram()),
             "restored escape text fails loudly until host content is rebound");
         restored.BindProgram(presentation.Get(EscapeTypewriterProgramId.Zebes));
-        restored.Step(new ForbiddenEscapeTextBus(), savedVram);
+        restored.Step(savedVram);
         AssertEqual((ushort)(EscapeTypewriterRomData.ZebesTileBase + 'I' - 'A'),
             savedVram.ReadWord(0x4906), "restored escape text resumes at its saved character");
 
@@ -107,8 +107,8 @@ internal static partial class Program
             edited.EscapeTypewriter.Get(EscapeTypewriterProgramId.Zebes),
             EscapeTypewriterRomData.ZebesTileBase);
         var vram = new SnesVram();
-        state.Step(new ForbiddenEscapeTextBus(), vram);
-        state.Step(new ForbiddenEscapeTextBus(), vram);
+        state.Step(vram);
+        state.Step(vram);
         AssertEqual((ushort)(EscapeTypewriterRomData.ZebesTileBase + 'E' - 'A'),
             vram.ReadWord(0x4906), "catalog override changes installed escape text");
         AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,
@@ -120,15 +120,5 @@ internal static partial class Program
             "corrupt escape text override fails loudly");
         Console.WriteLine(
             "Escape typewriter catalog: deterministic stock, override selection/identity and corruption failure pass.");
-    }
-
-    private sealed class ForbiddenEscapeTextBus : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public static byte ReadByte(int address) => throw new InvalidOperationException(
-            $"Installed escape typewriter read cartridge address ${address:X6}.");
-        public void WriteByte(int address, byte value) => throw new InvalidOperationException(
-            $"Installed escape typewriter wrote cartridge address ${address:X6}.");
     }
 }

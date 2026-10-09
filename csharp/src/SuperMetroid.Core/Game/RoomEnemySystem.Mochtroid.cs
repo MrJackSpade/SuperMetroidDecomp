@@ -257,8 +257,7 @@ public sealed partial class RoomEnemySystem
     private void ResolveMochtroidTouch(
         RoomEnemySlot slot,
         MochtroidEnemyState state,
-        SamusState samus,
-        ushort controllerInput)
+        SamusState samus)
     {
         state.MovementMode = MochtroidMovementMode.TouchingSamus;
         SetMochtroidInstructionList(
@@ -303,7 +302,7 @@ public sealed partial class RoomEnemySystem
         {
             // A live Samus contact-damage mode takes common AI's enemy-damage branch. This
             // includes Speed Booster, shinespark, Screw Attack, and pseudo-Screw.
-            ResolveNormalEnemyTouch(slot, samus, controllerInput);
+            ResolveNormalEnemyTouch(slot, samus);
         }
 
         // Unlike every ordinary contact handler, Mochtroid immediately cancels the timers

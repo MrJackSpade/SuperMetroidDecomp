@@ -111,9 +111,9 @@ internal static partial class Program
             for (int frame = 0; frame < 200; frame++)
             {
                 ushort nativeCallback = 0, generatedCallback = 0;
-                native.Step(bus, (opcode, cursor) => { nativeCallback = opcode; return cursor; },
+                native.Step((opcode, cursor) => { nativeCallback = opcode; return cursor; },
                     pointer => (ushort)(bus.ReadByte(0x8b0000 | pointer) | bus.ReadByte(0x8b0000 | (pointer + 1)) << 8));
-                generated.Step(bus, (opcode, cursor) => { generatedCallback = opcode; return cursor; },
+                generated.Step((opcode, cursor) => { generatedCallback = opcode; return cursor; },
                     EndingLogoInstructionDefinitions.ReadWord);
                 AssertEqual(native.InstructionPointer, generated.InstructionPointer, "logo program cursor");
                 AssertEqual(native.SpriteMapPointer, generated.SpriteMapPointer, "logo program frame");
@@ -243,8 +243,8 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (address >= 0x8b0000 + EndingLogoInstructionDefinitions.Start &&
-                address < 0x8b0000 + EndingLogoInstructionDefinitions.End)
+            if (address is >= (0x8b0000 + EndingLogoInstructionDefinitions.Start) and
+                < (0x8b0000 + EndingLogoInstructionDefinitions.End))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

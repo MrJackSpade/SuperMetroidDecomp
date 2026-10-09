@@ -63,7 +63,7 @@ public static class RedBrinstarGlowPaletteFxProgramMechanicsDefinitions
         }
 
         int frameOffset = pointer - FirstFramePointer;
-        if (frameOffset >= 0 && frameOffset < FrameCount * FrameByteCount)
+        if (frameOffset is >= 0 and < (FrameCount * FrameByteCount))
         {
             int inFrame = frameOffset % FrameByteCount;
             if (inFrame == 0)

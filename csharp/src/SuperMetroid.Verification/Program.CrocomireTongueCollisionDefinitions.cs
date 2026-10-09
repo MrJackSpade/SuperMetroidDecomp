@@ -10,7 +10,7 @@ internal static partial class Program
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         MethodInfo selector = typeof(RoomEnemySystem).GetMethod(
-            "ReadEnemyVisualSelector", flags)!;
+            "ReadEnemyVisualSelector", BindingFlags.NonPublic | BindingFlags.Static)!;
         var denied = new CrocomireTongueNoReadBus();
         var enemies = new RoomEnemySystem { TileArtwork = stock };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, denied);

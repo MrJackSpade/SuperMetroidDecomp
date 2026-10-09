@@ -29,7 +29,7 @@ internal abstract class YellowPipeBugInstructionProgramDefinitionsTooling : IIns
         if ((address & 0xff0000) != 0xb30000)
             return false;
         int offset = unchecked((ushort)address) - YellowPipeBugInstructionProgramDefinitions.FlyingLeft;
-        if (offset < 0 || offset >= 80)
+        if (offset is < 0 or >= 80)
             return false;
         int local = offset % 20;
         return local >= 16 || (local & 3) < 2;

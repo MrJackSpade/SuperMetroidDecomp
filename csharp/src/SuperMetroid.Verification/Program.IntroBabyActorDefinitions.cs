@@ -178,10 +178,10 @@ internal static partial class Program
         for (ushort frame = 0; frame < 1024 &&
             (!delivery.PageFourRequested || !examination.PageFiveRequested); frame++)
         {
-            delivery.Step(guarded, frame, introCrossfadeTimer: 0x007f);
-            examination.Step(guarded, frame, introCrossfadeTimer: 0x007f);
-            nativeDelivery.Step(referenceBus, frame, introCrossfadeTimer: 0x007f);
-            nativeExamination.Step(referenceBus, frame, introCrossfadeTimer: 0x007f);
+            delivery.Step(frame, introCrossfadeTimer: 0x007f);
+            examination.Step(frame, introCrossfadeTimer: 0x007f);
+            nativeDelivery.Step(frame, introCrossfadeTimer: 0x007f);
+            nativeExamination.Step(frame, introCrossfadeTimer: 0x007f);
             AssertEqual(nativeDelivery.BackgroundX, delivery.BackgroundX,
                 $"scientist delivery camera X at frame {frame}");
             AssertEqual(nativeExamination.BackgroundY, examination.BackgroundY,
@@ -203,10 +203,10 @@ internal static partial class Program
             "delivered-baby production actor reaches page-four instruction");
         AssertTrue(examination.PageFiveRequested,
             "examined-baby production actor reaches page-five instruction");
-        delivery.Step(guarded, 0, introCrossfadeTimer: 0);
-        examination.Step(guarded, 0, introCrossfadeTimer: 0);
-        nativeDelivery.Step(referenceBus, 0, introCrossfadeTimer: 0);
-        nativeExamination.Step(referenceBus, 0, introCrossfadeTimer: 0);
+        delivery.Step(0, introCrossfadeTimer: 0);
+        examination.Step(0, introCrossfadeTimer: 0);
+        nativeDelivery.Step(0, introCrossfadeTimer: 0);
+        nativeExamination.Step(0, introCrossfadeTimer: 0);
         AssertEqual(nativeDeliveredBaby.IsActive, deliveredBaby.IsActive,
             "scientist delivery crossfade deletion matches ROM-backed actor");
         AssertEqual(nativeExaminedBaby.IsActive, examinedBaby.IsActive,

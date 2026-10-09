@@ -402,14 +402,14 @@ internal static class ProjectileTrailCoordinateDefinitions
     {
         pointer = 0;
         if ((address & 1) == 0) return false;
-        if (address >= BeamTrailOffsets_uncharged && address < BeamTrailOffsets_spazerSBA)
+        if (address is >= BeamTrailOffsets_uncharged and < BeamTrailOffsets_spazerSBA)
         {
             bool charged = address >= BeamTrailOffsets_charged;
             int start = charged ? BeamTrailOffsets_charged : BeamTrailOffsets_uncharged;
             pointer = unchecked((ushort)BeamFamily((SamusBeamFlags)((address - start) / 2), charged));
             return true;
         }
-        if (address >= BeamTrailOffsets_spazerSBA && address < UnchargedBeamTrails_Wave_WaveIce)
+        if (address is >= BeamTrailOffsets_spazerSBA and < UnchargedBeamTrails_Wave_WaveIce)
         {
             var beams = (SamusBeamFlags)((address - BeamTrailOffsets_spazerSBA) / 2);
             pointer = unchecked((ushort)(beams switch
@@ -420,10 +420,10 @@ internal static class ProjectileTrailCoordinateDefinitions
             }));
             return true;
         }
-        int block = address >= UnchargedBeamTrails_Wave_WaveIce && address < UnchargedBeamTrails_Default_0 ? UnchargedBeamTrails_Wave_WaveIce :
-            address >= ChargedBeamTrails_Default && address < ChargedBeamTrails_Default_0 ? ChargedBeamTrails_Default :
-            address >= SpazerSBATrail_WaveSpazer && address < SpazerSBATrail_WaveSpazer_0 ? SpazerSBATrail_WaveSpazer :
-            address >= UNSUED_SpazerSBATrail_Spazer_IceSpazer_9BB37B && address < UNSUED_SpazerSBATrail_Spazer_IceSpazer_0_9BB38F ? UNSUED_SpazerSBATrail_Spazer_IceSpazer_9BB37B : 0;
+        int block = address is >= UnchargedBeamTrails_Wave_WaveIce and < UnchargedBeamTrails_Default_0 ? UnchargedBeamTrails_Wave_WaveIce :
+            address is >= ChargedBeamTrails_Default and < ChargedBeamTrails_Default_0 ? ChargedBeamTrails_Default :
+            address is >= SpazerSBATrail_WaveSpazer and < SpazerSBATrail_WaveSpazer_0 ? SpazerSBATrail_WaveSpazer :
+            address is >= UNSUED_SpazerSBATrail_Spazer_IceSpazer_9BB37B and < UNSUED_SpazerSBATrail_Spazer_IceSpazer_0_9BB38F ? UNSUED_SpazerSBATrail_Spazer_IceSpazer_9BB37B : 0;
         if (block == 0) return false;
         int offset = address - block;
         int family = block + offset / 20 * 20;

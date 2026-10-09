@@ -90,7 +90,7 @@ internal static partial class SwapchainTests
             bool paused = false;
             for (int tick = 0; tick < 160; tick++)
             {
-                var actual = Step(tick == 10 || tick is >= 100 and <= 105 ? (ushort)SnesButton.Start : (ushort)0);
+                var actual = Step(tick is 10 or >= 100 and <= 105 ? (ushort)SnesButton.Start : (ushort)0);
                 worker.Publish(actual.Snapshot ?? throw new InvalidOperationException("Capture fell back to raster."));
                 paused |= actual.Frame.GameState is SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB;
                 if (tick % 40 == 39) CompareRuntimeGraphs($"room slice tick {tick}");

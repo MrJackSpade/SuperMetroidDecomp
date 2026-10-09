@@ -51,7 +51,6 @@ public enum KiHunterWingFunction : ushort
 public sealed class KiHunterEnemyState
 {
     private readonly RoomEnemySlot _slot;
-    private readonly bool _isWing;
 
     internal KiHunterEnemyState(RoomEnemySlot slot)
     {
@@ -59,11 +58,11 @@ public sealed class KiHunterEnemyState
         // The definition word is mutable native storage and is cleared during deletion.
         // Role is established by the initializer and must survive that later write because
         // body/wing callbacks continue using physical +/-$40 slot aliases.
-        _isWing = RoomEnemySystem.IsKiHunterWingDefinition(slot.EnemyDefinitionPointer);
+        IsWing = RoomEnemySystem.IsKiHunterWingDefinition(slot.EnemyDefinitionPointer);
     }
 
     /// <summary>Role fixed by the initializer, retained even if deletion clears the native definition word; body and wing callbacks still use adjacent physical slots.</summary>
-    public bool IsWing => _isWing;
+    public bool IsWing { get; }
 
     /// <summary>Native variable A: main-AI dispatcher.</summary>
     public KiHunterEnemyFunction Function

@@ -43,7 +43,7 @@ internal static partial class Program
                 }
             }
             if (frame == 48) font.AsSpan(0x1000, 0x400).CopyTo(expected.AsSpan(0x9000));
-            if (frame >= 49 && frame <= 52)
+            if (frame is >= 49 and <= 52)
             {
                 int offset = (frame - 49) * 0x800;
                 tiles.AsSpan(offset, 0x800).CopyTo(expected.AsSpan(0xc000 + offset));

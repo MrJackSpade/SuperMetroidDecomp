@@ -256,7 +256,7 @@ internal static class SamusSpritemapFrameDefinitions
             phase = index - Bottom(flash);
             if ((uint)phase < 14)
             {
-                if (phase == 3 || phase is >= 6 and <= 9) return Bottom(flash) + 2;
+                if (phase is 3 or >= 6 and <= 9) return Bottom(flash) + 2;
                 if (phase is 5 or 10 or 11) return Bottom(flash) + 4;
                 if (phase == 12) return Bottom(flash) + 1;
                 if (phase == 13) return Bottom(flash);
@@ -283,7 +283,7 @@ internal static class SamusSpritemapFrameDefinitions
             if (left)
             {
                 if (phase is >= 2 and <= 6) return Bottom(crouch) + 2;
-                if (phase is >= 8 and <= 11 || phase is 26 or 29) return Bottom(crouch) + 8;
+                if (phase is >= 8 and <= 11 or 26 or 29) return Bottom(crouch) + 8;
                 if (phase == 15) return Bottom(crouch) + 7;
                 if (phase is >= 19 and <= 23) return Bottom(crouch) + 14 + Math.Min(phase - 19, 23 - phase);
             }

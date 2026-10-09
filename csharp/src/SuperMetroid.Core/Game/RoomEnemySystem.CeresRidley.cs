@@ -20,7 +20,7 @@ public sealed partial class RoomEnemySystem
         ArgumentNullException.ThrowIfNull(projectiles);
         ArgumentNullException.ThrowIfNull(sharedProjectiles);
 
-        if (_ridleyState is null || CeresStatus != 0)
+        if (Ridley is null || CeresStatus != 0)
             return 0;
 
         RoomEnemySlot slot = _slots[0];
@@ -121,7 +121,7 @@ public sealed partial class RoomEnemySystem
         slot.YPosition = 0x00a9;
         CeresStatus = 0;
 
-        _ridleyState = new RidleyEnemyState
+        Ridley = new RidleyEnemyState
         {
             Function = RidleyAiFunction.WaitForDoorTransition,
             FightMode = 0,
@@ -1059,13 +1059,13 @@ public sealed partial class RoomEnemySystem
     {
         if (slot.EnemyDefinitionPointer != CeresRidleyDefinition ||
             slot.SlotIndex != 0 ||
-            _ridleyState is null)
+            Ridley is null)
         {
             throw new InvalidOperationException(
                 $"Enemy slot {slot.SlotIndex} executed a Ceres Ridley routine without " +
                 "the $E13F slot-zero state extension.");
         }
 
-        return _ridleyState;
+        return Ridley;
     }
 }

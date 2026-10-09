@@ -24,7 +24,7 @@ internal static partial class Program
             AssertEqual(expected[index], CrocomireBodyVisualDefinitions.FramePointer(index), "body native frame address order");
             AssertEqual(expected[index], CrocomireBodyVisualDefinitions.Frames[index], "body indexed sequence");
             ushort count = (ushort)(rom.ReadByte(0xa40000 | expected[index]) | rom.ReadByte(0xa40000 | (expected[index] + 1)) << 8);
-            AssertEqual((ushort)(index >= 42 ? 1 : index < 12 || index is >= 18 and < 24 ? 6 : 7), count,
+            AssertEqual((ushort)(index >= 42 ? 1 : index is < 12 or >= 18 and < 24 ? 6 : 7), count,
                 "native component count supporting each frame stride");
         }
         int enumerated = 0;

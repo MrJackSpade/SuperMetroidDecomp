@@ -72,11 +72,11 @@ internal abstract class ShaktoolProjectileInstructionProgramDefinitions
     private struct WordSelector(ushort address, ushort start)
     {
         private int remaining = (address - start) / 2;
-        private int selected = int.MinValue;
-        public readonly int Value => selected == int.MinValue
-            ? throw new InvalidOperationException("Shaktool projectile program shape is incomplete.") : selected;
+
+        public int Value { get => field == int.MinValue
+            ? throw new InvalidOperationException("Shaktool projectile program shape is incomplete.") : field; private set; } = int.MinValue;
         public void Command(ushort command) => Emit(command);
         public void Timed(ushort duration) { Emit(duration); Emit(PresentationOperand); }
-        private void Emit(int value) { if (remaining-- == 0) selected = value; }
+        private void Emit(int value) { if (remaining-- == 0) Value = value; }
     }
 }

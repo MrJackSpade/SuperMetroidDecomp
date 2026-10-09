@@ -23,7 +23,7 @@ internal static class BombTorizoHandPlmProgramDefinitions
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;
-        if (address < FirstAddress || address >= LastAddress) return false;
+        if (address is < FirstAddress or >= LastAddress) return false;
         TryReadMechanicsByte(address, out byte low);
         TryReadMechanicsByte((ushort)(address + 1), out byte high);
         value = (ushort)(low | high << 8);
@@ -40,7 +40,7 @@ internal static class BombTorizoHandPlmProgramDefinitions
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         value = 0;
-        if (address < FirstAddress || address > LastAddress) return false;
+        if (address is < FirstAddress or > LastAddress) return false;
         if (address is >= 0xd378 and <= 0xd37e)
         {
             int packed = address <= 0xd379 ? SuperMetroid.Core.Assets.TorizoInstructionTileRomData.ChozoDebrisByteCount :
@@ -51,7 +51,7 @@ internal static class BombTorizoHandPlmProgramDefinitions
         }
         ushort word;
         int byteInWord;
-        if (address >= DebrisRecords && address < Completion)
+        if (address is >= DebrisRecords and < Completion)
         {
             int offset = address - DebrisRecords;
             int fragment = offset / 8;

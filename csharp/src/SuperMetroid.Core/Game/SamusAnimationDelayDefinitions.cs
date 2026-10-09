@@ -673,7 +673,7 @@ internal static class SamusAnimationDelayDefinitions
     {
         ArgumentNullException.ThrowIfNull(bus);
         int address = 0x910000 | unchecked((ushort)(listPointer + byteIndex));
-        if (address >= DelayStreamsAddress && address < DelayStreamsEndExclusive)
+        if (address is >= DelayStreamsAddress and < DelayStreamsEndExclusive)
             return SamusAnimationDelayPrograms.ByteAt(address & ushort.MaxValue);
         // Invalid pose bytes $FD-$FF select $0302 through the native table overread.
         // Bank $91's lower half aliases mutable WRAM and must not be compiled.
@@ -688,13 +688,13 @@ internal static class SamusAnimationDelayDefinitions
     /// <summary>Read the bounded native table image for byte-for-byte verification.</summary>
     internal static byte ReadCompiledByte(int address)
     {
-        if (address >= PointerTableAddress && address < DelayStreamsAddress)
+        if (address is >= PointerTableAddress and < DelayStreamsAddress)
         {
             int byteIndex = address - PointerTableAddress;
             ushort pointer = PointerForPose((byte)(byteIndex / 2));
             return unchecked((byte)(pointer >> ((byteIndex & 1) * 8)));
         }
-        if (address >= DelayStreamsAddress && address < DelayStreamsEndExclusive)
+        if (address is >= DelayStreamsAddress and < DelayStreamsEndExclusive)
             return SamusAnimationDelayPrograms.ByteAt(address & ushort.MaxValue);
         throw new ArgumentOutOfRangeException(nameof(address), address,
             "Address is outside the compiled Samus animation definition catalog.");

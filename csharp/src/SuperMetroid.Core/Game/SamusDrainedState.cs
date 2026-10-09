@@ -17,14 +17,9 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusDrainedState
 {
-    [NonSerialized] private SamusHyperBeamColorCatalog? presentationColors;
-
     /// <summary>Host-owned Hyper Beam palette artwork, excluded from debugger-state serialization.</summary>
-    public SamusHyperBeamColorCatalog? PresentationColors
-    {
-        get => presentationColors;
-        set => presentationColors = value;
-    }
+    [field: NonSerialized]
+    public SamusHyperBeamColorCatalog? PresentationColors { get; set; }
 
     // Controller zero and command `$17` both call LoadSamusSuitPalette immediately. The
     // runtime's software-CGRAM pass occurs later in the same frame, so this one-shot latch
@@ -213,11 +208,11 @@ public sealed class SamusDrainedState
         // frames, and copies all sixteen colors before decrementing the shared timer.
         int paletteFrame = ChargePaletteIndex %
             SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteCount;
-        if (presentationColors is null)
+        if (PresentationColors is null)
             throw new InvalidOperationException("Drained Samus requires installed Hyper Beam colors.");
         for (int index = 0; index < SamusHyperBeamColorFormat.ColorsPerFrame; index++)
             cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + index,
-                presentationColors.Resolve(paletteFrame, index));
+                PresentationColors.Resolve(paletteFrame, index));
 
         NativeWordCounterStep timer = NativeWordCounter.Decrement(CommonPaletteTimer);
         CommonPaletteTimer = timer.Value;

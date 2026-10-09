@@ -32,18 +32,17 @@ internal static partial class Program
             Tentacles = enemies.Slots[2],
             Mouth = enemies.Slots[3],
         };
-        typeof(RoomEnemySystem).GetField("_phantoonState", flags)!.SetValue(enemies, state);
+        typeof(RoomEnemySystem).GetField("<Phantoon>k__BackingField", flags)!.SetValue(enemies, state);
         var process = typeof(RoomEnemySystem).GetMethod(
             "ProcessPhantoonInstructionFunction", flags)!
-            .CreateDelegate<Func<RoomEnemySlot, ushort, byte, bool>>(enemies);
+            .CreateDelegate<Func<RoomEnemySlot, ushort, bool>>(enemies);
 
         for (ushort call = 0; call < 6; call++)
         {
             ushort index = (ushort)(call % 3);
             AssertTrue(!process(
                     body,
-                    PhantoonInstructionCodes.PlayPhantoonMaterializationSFX,
-                    0),
+                    PhantoonInstructionCodes.PlayPhantoonMaterializationSFX),
                 $"Phantoon materialization callback {call} resumes instruction stream");
             AssertEqual(PhantoonSoundDefinitions.MaterializationSound(index),
                 state.LastMaterializationSound!.Value,

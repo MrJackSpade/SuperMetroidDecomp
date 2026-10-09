@@ -41,7 +41,7 @@ internal static class IntroRinkaInstructionDefinitions
 
     internal static byte ReadByte(ushort pointer)
     {
-        if (pointer < StartPointer || pointer >= EndPointer)
+        if (pointer is < StartPointer or >= EndPointer)
             throw new ArgumentOutOfRangeException(nameof(pointer));
         int offset = pointer - StartPointer;
         return unchecked((byte)(ProgramWord(offset / 2) >> (8 * (offset & 1))));
@@ -49,7 +49,7 @@ internal static class IntroRinkaInstructionDefinitions
 
     internal static ushort ReadWord(ushort pointer)
     {
-        if (pointer < StartPointer || pointer >= EndPointer - 1)
+        if (pointer is < StartPointer or >= (EndPointer - 1))
             throw new InvalidDataException(
                 $"Intro Rinka instruction read $8B:{pointer:X4} leaves its compiled programs.");
         return (ushort)(ReadByte(pointer) | ReadByte((ushort)(pointer + 1)) << 8);

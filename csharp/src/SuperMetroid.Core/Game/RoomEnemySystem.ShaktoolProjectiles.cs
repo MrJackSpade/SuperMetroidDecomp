@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class RoomEnemySystem
 {
     /// <summary>Ports front-circle pre-instruction <c>$86:BE03</c>.</summary>
-    private void RunShaktoolFrontCirclePreInstruction(
+    private static void RunShaktoolFrontCirclePreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {

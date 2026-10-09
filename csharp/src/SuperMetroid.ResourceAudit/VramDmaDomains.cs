@@ -38,8 +38,8 @@ internal static class VramDmaDomains
                 return Native(CeresEscapeVramTransferDefinitionsTooling.All.ToArray().Select(frame => (frame.SourceAddress, (int)frame.ByteCount)));
             case "ceres-japanese":
                 return Native(CeresEscapeVramTransferDefinitionsTooling.All.ToArray().Where(frame =>
-                    frame.Pointer >= CeresEscapeVramTransferDefinitions.JapaneseOverlay &&
-                    frame.Pointer < CeresEscapeVramTransferDefinitions.TimerSprites).Select(frame => (frame.SourceAddress, (int)frame.ByteCount)));
+                    frame.Pointer is >= CeresEscapeVramTransferDefinitions.JapaneseOverlay and
+                    < CeresEscapeVramTransferDefinitions.TimerSprites).Select(frame => (frame.SourceAddress, (int)frame.ByteCount)));
             case "corpse":
                 return Native(DeadMonsterRottingDefinitionsTooling.AllTransfers.Select(frame => (frame.SourceAddress, (int)frame.SizeInBytes)));
             case "dead-torizo":

@@ -67,7 +67,7 @@ internal static class RemainingEnemyColorClosedContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Assets/DachoraColorCatalog.cs", "421FFE9C6746E826459B380AEB07B32ED1B7D7D202C7A53506484CEBCB23C758"),
              new("csharp/src/SuperMetroid.Core/Game/DachoraColorRomData.cs", "C5A2F360C875E920B049A13DB5FB62E697B266E864BEF8A231FF045C6B28F8D9")]),
         new("SuperMetroid.Core.Assets.MotherBrainHealthPalettePresentation", "mother-brain-complete-health-colors", ["Apply"],
-            [new("csharp/src/SuperMetroid.Core/Assets/MotherBrainHealthPalettePresentation.cs", "088BE0C52836F6171311561D153692DAFCB9A7ACA711FA42BE1666C81E4C9295"),
+            [new("csharp/src/SuperMetroid.Core/Assets/MotherBrainHealthPalettePresentation.cs", "8C0B2C704A1E7C75FD2C5F26A64A8F1EEFB68241EF75541A13D9D4BB07928A2A"),
              new("csharp/src/SuperMetroid.Core/Assets/MotherBrainHealthPaintDefinitions.cs", "B4316A6F8D49A378F36435770B3AFA74338AF7D009D8E0B4E6140E3302655892"),
              new("csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowPaletteRomData.cs", "5093BEDF978F606D0E670F90DCFF088D0926FFE306C7A7168A72F2BB216403AA")]),
     ];

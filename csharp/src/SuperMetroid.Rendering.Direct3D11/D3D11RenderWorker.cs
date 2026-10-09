@@ -11,7 +11,7 @@ public sealed class D3D11RenderWorker
     private readonly LatestRenderFrameMailbox mailbox;
     private readonly RenderPresentationGate gate;
     private readonly AutoResetEvent wake = new(false);
-    private readonly object lifecycle = new();
+    private readonly Lock lifecycle = new();
     private readonly TaskCompletionSource<string> ready = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private readonly TaskCompletionSource completion = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private ExceptionDispatchInfo? fault;

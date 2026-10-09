@@ -7,8 +7,6 @@ namespace SuperMetroid.Core.Runtime;
 /// <summary>Shared cartridge shadow-register ownership and accepted-NMI publication.</summary>
 public sealed partial class SuperMetroidRuntime
 {
-    [NonSerialized]
-    private GameplayWindowRegisterCache? gameplayWindowRegisters;
 
     /// <summary>
     /// Window and screen-selection bytes uploaded by the most recent accepted NMI.
@@ -17,16 +15,17 @@ public sealed partial class SuperMetroidRuntime
     public GameplayWindowRegisterSnapshot DisplayedGameplayWindowRegisters =>
         GameplayWindowRegisters.Displayed;
 
+    [field: NonSerialized]
     private GameplayWindowRegisterCache GameplayWindowRegisters
     {
         get
         {
-            if (gameplayWindowRegisters is not null)
-                return gameplayWindowRegisters;
+            if (field is not null)
+                return field;
 
-            gameplayWindowRegisters = new GameplayWindowRegisterCache();
-            gameplayWindowRegisters.InitializeWindowAndScreenSelection();
-            return gameplayWindowRegisters;
+            field = new GameplayWindowRegisterCache();
+            field.InitializeWindowAndScreenSelection();
+            return field;
         }
     }
 

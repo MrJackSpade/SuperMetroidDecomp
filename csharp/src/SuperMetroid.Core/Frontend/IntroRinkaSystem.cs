@@ -58,7 +58,7 @@ internal sealed class IntroRinkaSystem
 
             if (ReferenceEquals(actor, spawner))
             {
-                spawner.Step(bus, HandleSpawnerInstruction,
+                spawner.Step(HandleSpawnerInstruction,
                     IntroRinkaInstructionDefinitions.ReadWord);
             }
             else
@@ -66,7 +66,7 @@ internal sealed class IntroRinkaSystem
                 RunPreInstruction(actor, samus, motherBrainExploding);
                 if (actor.IsActive)
                 {
-                    actor.Step(bus, (opcode, next) => HandleRinkaInstruction(actor, opcode, next),
+                    actor.Step((opcode, next) => HandleRinkaInstruction(actor, opcode, next),
                         IntroRinkaInstructionDefinitions.ReadWord);
                 }
             }
@@ -78,13 +78,13 @@ internal sealed class IntroRinkaSystem
     }
 
     /// <summary>Adds each visible Rinka in the native descending slot order.</summary>
-    public void Draw(ISnesAddressSpace bus, OamBuffer oam,
+    public void Draw(OamBuffer oam,
         IntroRinkaSpritePresentation? installedArt = null)
     {
         for (int slot = SpawnerSlot; slot >= LowestSlot; slot--)
         {
             if (slots[slot] is { } actor && !ReferenceEquals(actor, spawner))
-                actor.Draw(bus, oam, installedArt: installedArt);
+                actor.Draw(oam, installedArt: installedArt);
         }
     }
 

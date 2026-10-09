@@ -23,8 +23,8 @@ internal abstract class MotherBrainHandBeamInstructionProgramDefinitionsTooling 
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
         int bankAddress = (ushort)address;
-        if (bankAddress == MotherBrainHandBeamInstructionProgramDefinitions.TerminalDelete || bankAddress == MotherBrainHandBeamInstructionProgramDefinitions.TerminalDelete + 1) return true;
-        if (bankAddress < MotherBrainHandBeamInstructionProgramDefinitions.Initial || bankAddress >= MotherBrainHandBeamInstructionProgramDefinitions.TerminalDelete) return false;
+        if (bankAddress is MotherBrainHandBeamInstructionProgramDefinitions.TerminalDelete or (MotherBrainHandBeamInstructionProgramDefinitions.TerminalDelete + 1)) return true;
+        if (bankAddress is < MotherBrainHandBeamInstructionProgramDefinitions.Initial or >= MotherBrainHandBeamInstructionProgramDefinitions.TerminalDelete) return false;
         int offset = (bankAddress - MotherBrainHandBeamInstructionProgramDefinitions.Initial) % MotherBrainHandBeamInstructionProgramDefinitions.StageBytes;
         if (offset < sizeof(ushort)) return true;
         if (offset < MotherBrainHandBeamInstructionProgramDefinitions.FrameBytes) return false;

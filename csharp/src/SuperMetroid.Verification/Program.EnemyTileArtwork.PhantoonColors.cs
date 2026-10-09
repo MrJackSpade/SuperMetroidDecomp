@@ -90,7 +90,7 @@ internal static partial class Program
                 cgram.SetColor(PhantoonColorRomData.BodyDestination + color, 0);
             eye.VariableE = 1;
             eye.VariableF = 0;
-            fadeIn.Invoke(enemies, [body, state, (ushort)0, (byte)0]);
+            fadeIn.Invoke(enemies, [body, state, (ushort)0]);
             AssertBodyBand(band, $"Phantoon live materialization band {band}");
             AssertEqual((ushort)2, eye.VariableE,
                 $"Phantoon fade-in band {band} retains native numerator advance");
@@ -107,7 +107,7 @@ internal static partial class Program
         eye.VariableE = 1;
         eye.VariableF = 0;
         type.GetMethod("AdvancePhantoonFadeOut", flags)!
-            .Invoke(enemies, [state, (ushort)0, (byte)0]);
+            .Invoke(enemies, [state, (ushort)0]);
         for (int color = 0; color < PhantoonColorRomData.FadeOutCount; color++)
             AssertEqual(colors.ResolveFadeOut(color),
                 cgram.Colors[PhantoonColorRomData.BodyDestination + color],
@@ -183,10 +183,10 @@ internal static partial class Program
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address) =>
-            address >= PhantoonColorRomData.FadeOutSource &&
-            address < PhantoonColorRomData.HealthBandsSource +
+            address is >= PhantoonColorRomData.FadeOutSource and
+            < (PhantoonColorRomData.HealthBandsSource +
                 PhantoonColorRomData.HealthBandCount *
-                PhantoonColorRomData.HealthBandColorCount * sizeof(ushort)
+                PhantoonColorRomData.HealthBandColorCount * sizeof(ushort))
                 ? throw new InvalidOperationException(
                     $"Phantoon accessed migrated palette ROM ${address:X6}.")
                 : source.ReadByte(address);

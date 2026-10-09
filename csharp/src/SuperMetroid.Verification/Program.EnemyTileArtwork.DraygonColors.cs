@@ -186,13 +186,13 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            bool healthTable = address >= DraygonColorRomData.HealthBandsSource &&
-                address < DraygonColorRomData.HealthBandsSource +
+            bool healthTable = address is >= DraygonColorRomData.HealthBandsSource and
+                < (DraygonColorRomData.HealthBandsSource +
                     DraygonColorRomData.HealthBandCount *
-                    DraygonColorRomData.HealthBandColorCount * sizeof(ushort);
-            bool palettes = address >= DraygonColorRomData.SpriteSource &&
-                address < DraygonColorRomData.WhiteFlashSource +
-                    DraygonColorRomData.WhiteFlashCount * sizeof(ushort);
+                    DraygonColorRomData.HealthBandColorCount * sizeof(ushort));
+            bool palettes = address is >= DraygonColorRomData.SpriteSource and
+                < (DraygonColorRomData.WhiteFlashSource +
+                    DraygonColorRomData.WhiteFlashCount * sizeof(ushort));
             if (healthTable || palettes)
                 throw new InvalidOperationException(
                     $"Draygon accessed migrated palette ROM ${address:X6}.");

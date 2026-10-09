@@ -52,7 +52,7 @@ internal static partial class Program
             "real Powamp body initializer installs compiled slow program");
 
         object?[] bodyArguments =
-            [body, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            [body, null, null, (ushort)0, (ushort)0, (ushort)0];
         ExecutePowampInstructionCalls(rom, executedOperands, enemies, process, bodyArguments, body, 4);
         AssertEqual(unchecked((ushort)(PowampInstructionProgramDefinitions.BodySlow + 4)),
             body.CurrentInstruction,
@@ -65,7 +65,7 @@ internal static partial class Program
             "Powamp fast body loop completes its native goto and first repeated frame");
 
         object?[] balloonArguments =
-            [balloon, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            [balloon, null, null, (ushort)0, (ushort)0, (ushort)0];
         balloon.CurrentInstruction = PowampInstructionProgramDefinitions.BalloonInflate0;
         ExecutePowampInstructionCalls(rom, executedOperands, enemies, process, balloonArguments, balloon, 4);
         AssertEqual(unchecked((ushort)(PowampInstructionProgramDefinitions.BalloonInflate2 + 4)),

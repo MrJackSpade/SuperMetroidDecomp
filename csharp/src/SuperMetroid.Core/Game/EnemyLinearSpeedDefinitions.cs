@@ -25,7 +25,7 @@ public static class EnemyLinearSpeedDefinitions
     /// <summary>Reads a native byte-indexed whole/fraction pair, preserving unaligned byte assembly.</summary>
     public static (short Whole, ushort Fraction) Read(int byteOffset)
     {
-        if (byteOffset < 0 || byteOffset > RecordCount * RecordSize - 4)
+        if (byteOffset is < 0 or > (RecordCount * RecordSize - 4))
             throw new InvalidDataException($"Enemy linear-speed byte offset ${byteOffset:X} is outside the authored NTSC records.");
         return (unchecked((short)ReadWord(byteOffset)), ReadWord(byteOffset + 2));
     }

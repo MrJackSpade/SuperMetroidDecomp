@@ -183,9 +183,9 @@ internal static partial class Program
                 address < MotherBrainDeathRomData.CorpseFadeSource(
                     MotherBrainDeathRomData.CorpseFadeFrameCount - 1) +
                     MotherBrainDeathRomData.CorpseColorCount * sizeof(ushort);
-            bool door = address >= MotherBrainDeathRomData.DoorPalette &&
-                address < MotherBrainDeathRomData.DoorPalette +
-                    MotherBrainDeathRomData.BodyColorCount * sizeof(ushort);
+            bool door = address is >= MotherBrainDeathRomData.DoorPalette and
+                < (MotherBrainDeathRomData.DoorPalette +
+                    MotherBrainDeathRomData.BodyColorCount * sizeof(ushort));
             if (body || corpse || door)
             {
                 ForbiddenReadAttempts++;

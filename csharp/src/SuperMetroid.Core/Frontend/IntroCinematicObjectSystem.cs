@@ -36,9 +36,6 @@ internal sealed class IntroCinematicObjectSystem
     private ushort spriteInstructionPointer =
         CinematicCodePointers.Lists.IntroTextCaret;
     private ushort spriteInstructionTimer = 1;
-    private ushort spriteMapPointer;
-    private ushort caretX = IntroCinematicRomData.ObjectSystem.CaretLeftX;
-    private ushort caretY = IntroCinematicRomData.ObjectSystem.CaretFirstTextY;
     private bool typewriterSoundToggle;
     // Nullable for older debugger snapshots that predate text-glow state.
     private CinematicTextGlowSystem? textGlow;
@@ -80,13 +77,13 @@ internal sealed class IntroCinematicObjectSystem
     public bool IntroFinishRequested { get; private set; }
 
     /// <summary>The bank-$8C spritemap selected by the current sprite timing record.</summary>
-    public ushort SpriteMapPointer => spriteMapPointer;
+    public ushort SpriteMapPointer { get; private set; }
 
     /// <summary>Current native X coordinate of the persistent text caret object.</summary>
-    public ushort CaretX => caretX;
+    public ushort CaretX { get; private set; } = IntroCinematicRomData.ObjectSystem.CaretLeftX;
 
     /// <summary>Current native Y coordinate; $F8 deliberately hides it below the viewport.</summary>
-    public ushort CaretY => caretY;
+    public ushort CaretY { get; private set; } = IntroCinematicRomData.ObjectSystem.CaretFirstTextY;
 
     /// <summary>Reapply the active eye rectangle after restoring a state or changing art.</summary>
     public void BindEyeArtwork(IntroEyeTilemapPresentation? value)
@@ -109,8 +106,8 @@ internal sealed class IntroCinematicObjectSystem
     /// </summary>
     public void PlaceCaretOffScreen()
     {
-        caretX = IntroCinematicRomData.ObjectSystem.CaretLeftX;
-        caretY = IntroCinematicRomData.ObjectSystem.CaretInitialY;
+        CaretX = IntroCinematicRomData.ObjectSystem.CaretLeftX;
+        CaretY = IntroCinematicRomData.ObjectSystem.CaretInitialY;
     }
 
     /// <summary>
@@ -120,8 +117,7 @@ internal sealed class IntroCinematicObjectSystem
     public void StartEnglishPageOne()
     {
         StartNarration(
-            IntroNarrationPageId.Page1,
-            CinematicCodePointers.BackgroundLists.IntroTextPage1);
+            IntroNarrationPageId.Page1);
     }
 
     /// <summary>
@@ -130,8 +126,7 @@ internal sealed class IntroCinematicObjectSystem
     public void StartEnglishPageTwo()
     {
         StartNarration(
-            IntroNarrationPageId.Page2,
-            CinematicCodePointers.BackgroundLists.IntroTextPage2);
+            IntroNarrationPageId.Page2);
         PageTwoAwaitingInput = false;
         ResetCaret();
     }
@@ -142,8 +137,7 @@ internal sealed class IntroCinematicObjectSystem
     public void StartEnglishPageThree()
     {
         StartNarration(
-            IntroNarrationPageId.Page3,
-            CinematicCodePointers.BackgroundLists.IntroTextPage3);
+            IntroNarrationPageId.Page3);
         PageThreeAwaitingInput = false;
         ResetCaret();
     }
@@ -152,8 +146,7 @@ internal sealed class IntroCinematicObjectSystem
     public void StartEnglishPageFour()
     {
         StartNarration(
-            IntroNarrationPageId.Page4,
-            CinematicCodePointers.BackgroundLists.IntroTextPage4);
+            IntroNarrationPageId.Page4);
         PageFourAwaitingInput = false;
         ResetCaret();
     }
@@ -162,8 +155,7 @@ internal sealed class IntroCinematicObjectSystem
     public void StartEnglishPageFive()
     {
         StartNarration(
-            IntroNarrationPageId.Page5,
-            CinematicCodePointers.BackgroundLists.IntroTextPage5);
+            IntroNarrationPageId.Page5);
         PageFiveAwaitingInput = false;
         ResetCaret();
     }
@@ -177,8 +169,7 @@ internal sealed class IntroCinematicObjectSystem
             startIndex: IntroCinematicRomData.Text.GameplayBlankStartIndex,
             count: IntroCinematicRomData.Text.GameplayBlankWordCount);
         StartNarration(
-            IntroNarrationPageId.Page6,
-            CinematicCodePointers.BackgroundLists.IntroTextPage6);
+            IntroNarrationPageId.Page6);
         IntroFinishRequested = false;
         ResetCaret();
 
@@ -226,7 +217,7 @@ internal sealed class IntroCinematicObjectSystem
         }
     }
 
-    private void StartNarration(IntroNarrationPageId page, ushort nativePointer)
+    private void StartNarration(IntroNarrationPageId page)
     {
         textInstructionTimer = IntroNarrationDefinitions.InitialMarkerDelayFrames;
         narrationCharacterIndex = 0;
@@ -262,16 +253,16 @@ internal sealed class IntroCinematicObjectSystem
             (textGlow ??= new()).Spawn(character.Column, character.Row, 1, 1);
             if (next is { } following)
             {
-                caretX = unchecked((ushort)(following.Column *
+                CaretX = unchecked((ushort)(following.Column *
                     IntroCinematicRomData.ObjectSystem.CharacterPixelSize));
-                caretY = unchecked((ushort)(following.Row *
+                CaretY = unchecked((ushort)(following.Row *
                     IntroCinematicRomData.ObjectSystem.CharacterPixelSize -
                     IntroCinematicRomData.ObjectSystem.CharacterBaselineOffset));
             }
             else
             {
-                caretX = IntroCinematicRomData.ObjectSystem.CaretLeftX;
-                caretY = unchecked((ushort)((character.Row + 1) *
+                CaretX = IntroCinematicRomData.ObjectSystem.CaretLeftX;
+                CaretY = unchecked((ushort)((character.Row + 1) *
                     IntroCinematicRomData.ObjectSystem.CharacterPixelSize));
             }
 
@@ -347,7 +338,7 @@ internal sealed class IntroCinematicObjectSystem
             if ((instructionOrDuration & CinematicCodePointers.InstructionCommandBit) == 0)
             {
                 spriteInstructionTimer = instructionOrDuration;
-                spriteMapPointer = ReadBank8B(Add(
+                SpriteMapPointer = ReadBank8B(Add(
                     pointer,
                     IntroCinematicRomData.ObjectSystem.RecordDurationToPositionByteCount));
                 spriteInstructionPointer = Add(
@@ -366,7 +357,7 @@ internal sealed class IntroCinematicObjectSystem
                         IntroCinematicRomData.ObjectSystem.RecordDurationToPositionByteCount));
                     break;
                 case CinematicCodePointers.CinematicSpriteObject_Instruction_Delete:
-                    spriteMapPointer = 0;
+                    SpriteMapPointer = 0;
                     spriteInstructionPointer = 0;
                     return;
                 case CinematicCodePointers.CinematicSpriteObject_Instruction_Sleep:
@@ -396,7 +387,7 @@ internal sealed class IntroCinematicObjectSystem
                 ushort dataPointer = ReadBank8C(Add(
                     pointer,
                     IntroCinematicRomData.ObjectSystem.RecordDurationToDataPointerByteCount));
-                ProcessTileData(pointer, tilePosition, dataPointer);
+                ProcessTileData(tilePosition, dataPointer);
                 instructionPointer = Add(
                     pointer,
                     IntroCinematicRomData.ObjectSystem.BackgroundRecordByteCount);
@@ -483,7 +474,6 @@ internal sealed class IntroCinematicObjectSystem
     }
 
     private void ProcessTileData(
-        ushort instructionRecordPointer,
         ushort packedPosition,
         ushort dataPointer)
     {
@@ -527,8 +517,8 @@ internal sealed class IntroCinematicObjectSystem
     {
         // RestIntroTextCaret ($8B:ADEE) moves the persistent slot back from Y=$F8 before
         // restoring its non-blinking list. Position is state, not a renderer constant.
-        caretX = IntroCinematicRomData.ObjectSystem.CaretLeftX;
-        caretY = IntroCinematicRomData.ObjectSystem.CaretFirstTextY;
+        CaretX = IntroCinematicRomData.ObjectSystem.CaretLeftX;
+        CaretY = IntroCinematicRomData.ObjectSystem.CaretFirstTextY;
         spriteInstructionPointer = CinematicCodePointers.Lists.IntroTextCaret;
         spriteInstructionTimer = 1;
     }

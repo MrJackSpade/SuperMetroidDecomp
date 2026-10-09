@@ -107,26 +107,26 @@ public sealed class HudState
             "HUD initialization requires installed presentation assets.")).ApplyTemplate(_tiles);
 
         if (snapshot.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope))
-            AddTwoByTwoIcon(bus, itemIndex: 4, GameplayHudDefinitions.IconTableAddress + 36);
+            AddTwoByTwoIcon(itemIndex: 4);
         if (snapshot.EquippedItems.HasAny(SamusEquipmentFlags.GrappleBeam))
-            AddTwoByTwoIcon(bus, itemIndex: 3, GameplayHudDefinitions.IconTableAddress + 28);
+            AddTwoByTwoIcon(itemIndex: 3);
         if (snapshot.MaxMissiles != 0)
-            AddMissileIcon(bus);
+            AddMissileIcon();
         if (snapshot.MaxSuperMissiles != 0)
-            AddTwoByTwoIcon(bus, itemIndex: 1, GameplayHudDefinitions.IconTableAddress + 12);
+            AddTwoByTwoIcon(itemIndex: 1);
         if (snapshot.MaxPowerBombs != 0)
-            AddTwoByTwoIcon(bus, itemIndex: 2, GameplayHudDefinitions.IconTableAddress + 20);
+            AddTwoByTwoIcon(itemIndex: 2);
 
         if (snapshot.ReserveMode == 1)
-            DrawAutoReserve(bus, snapshot.ReserveHealth != 0);
+            DrawAutoReserve(snapshot.ReserveHealth != 0);
 
-        DrawHealth(bus, snapshot.Health, snapshot.MaxHealth);
+        DrawHealth(snapshot.Health, snapshot.MaxHealth);
         if (snapshot.MaxMissiles != 0)
-            DrawAmmo(bus, itemIndex: 0, snapshot.Missiles, byteOffset: 0x94);
+            DrawAmmo(itemIndex: 0, snapshot.Missiles);
         if (snapshot.MaxSuperMissiles != 0)
-            DrawAmmo(bus, itemIndex: 1, snapshot.SuperMissiles, byteOffset: 0x9c);
+            DrawAmmo(itemIndex: 1, snapshot.SuperMissiles);
         if (snapshot.MaxPowerBombs != 0)
-            DrawAmmo(bus, itemIndex: 2, snapshot.PowerBombs, byteOffset: 0xa2);
+            DrawAmmo(itemIndex: 2, snapshot.PowerBombs);
 
         ToggleItemHighlight(snapshot.SelectedItem,
             presentation?.SelectedPalette ?? GameplayHudDefinitions.SelectedPalette);
@@ -163,25 +163,25 @@ public sealed class HudState
         // the same guarded writers here before updating their counters. Each writer is
         // idempotent and preserves an already-installed icon and live minimap state.
         if ((samus.EquippedItems & (ushort)SamusEquipmentFlags.XrayScope) != 0)
-            AddTwoByTwoIcon(bus, itemIndex: 4, GameplayHudDefinitions.IconTableAddress + 36);
+            AddTwoByTwoIcon(itemIndex: 4);
         if ((samus.EquippedItems & (ushort)SamusEquipmentFlags.GrappleBeam) != 0)
-            AddTwoByTwoIcon(bus, itemIndex: 3, GameplayHudDefinitions.IconTableAddress + 28);
+            AddTwoByTwoIcon(itemIndex: 3);
         if (samus.MaxMissiles != 0)
-            AddMissileIcon(bus);
+            AddMissileIcon();
         if (samus.MaxSuperMissiles != 0)
-            AddTwoByTwoIcon(bus, itemIndex: 1, GameplayHudDefinitions.IconTableAddress + 12);
+            AddTwoByTwoIcon(itemIndex: 1);
         if (samus.MaxPowerBombs != 0)
-            AddTwoByTwoIcon(bus, itemIndex: 2, GameplayHudDefinitions.IconTableAddress + 20);
+            AddTwoByTwoIcon(itemIndex: 2);
 
-        DrawHealth(bus, samus.Health, samus.MaxHealth);
+        DrawHealth(samus.Health, samus.MaxHealth);
         if (samus.MaxMissiles != 0)
-            DrawAmmo(bus, itemIndex: 0, samus.Missiles, byteOffset: 0x94);
+            DrawAmmo(itemIndex: 0, samus.Missiles);
         if (samus.MaxSuperMissiles != 0)
-            DrawAmmo(bus, itemIndex: 1, samus.SuperMissiles, byteOffset: 0x9c);
+            DrawAmmo(itemIndex: 1, samus.SuperMissiles);
         if (samus.MaxPowerBombs != 0)
-            DrawAmmo(bus, itemIndex: 2, samus.PowerBombs, byteOffset: 0xa2);
+            DrawAmmo(itemIndex: 2, samus.PowerBombs);
         if (samus.ReserveTankMode == 1)
-            DrawAutoReserve(bus, samus.ReserveEnergy != 0);
+            DrawAutoReserve(samus.ReserveEnergy != 0);
 
         // `$80:9BD3-$9C20` changes the newly selected icon to palette four, restores the
         // old icon to palette five, then publishes sound $39. This belongs in the live HUD
@@ -325,13 +325,13 @@ public sealed class HudState
         queue.Enqueue(MutableByteCount, WorkRamAddress, VramDestination);
     }
 
-    private void DrawHealth(ISnesAddressSpace bus, ushort health, ushort maxHealth)
+    private void DrawHealth(ushort health, ushort maxHealth)
     {
         (presentation ?? throw new InvalidOperationException(
             "HUD energy requires installed presentation assets.")).ApplyEnergy(_tiles, health, maxHealth);
     }
 
-    private void DrawAutoReserve(ISnesAddressSpace bus, bool containsEnergy)
+    private void DrawAutoReserve(bool containsEnergy)
     {
         (presentation ?? throw new InvalidOperationException(
             "HUD reserve indicator requires installed presentation assets.")).ApplyAutoReserve(_tiles, containsEnergy);
@@ -345,13 +345,13 @@ public sealed class HudState
             "HUD reserve indicator requires installed presentation assets.")).ClearAutoReserve(_tiles);
     }
 
-    private void AddMissileIcon(ISnesAddressSpace bus)
+    private void AddMissileIcon()
     {
         (presentation ?? throw new InvalidOperationException(
             "HUD icons require installed presentation assets.")).TryApplyIcon(_tiles, itemIndex: 0);
     }
 
-    private void AddTwoByTwoIcon(ISnesAddressSpace bus, int itemIndex, int source)
+    private void AddTwoByTwoIcon(int itemIndex)
     {
         (presentation ?? throw new InvalidOperationException(
             "HUD icons require installed presentation assets.")).TryApplyIcon(_tiles, itemIndex);
@@ -363,7 +363,7 @@ public sealed class HudState
             "HUD selection requires installed presentation assets.")).ToggleItemHighlight(_tiles, selectedItem, paletteIndex);
     }
 
-    private void DrawAmmo(ISnesAddressSpace bus, int itemIndex, ushort value, int byteOffset)
+    private void DrawAmmo(int itemIndex, ushort value)
     {
         (presentation ?? throw new InvalidOperationException(
             "HUD ammunition requires installed presentation assets.")).ApplyAmmo(_tiles, itemIndex, value);

@@ -238,9 +238,9 @@ internal static partial class Program
         var shared = CreateBombFixture();
         ushort select = (ushort)SnesButton.Select;
         ushort cancel = (ushort)SnesButton.Y;
-        AssertTrue(samus.HandleHudSelection(
+        AssertTrue(SelectionChanged(samus,
                 unchecked((ushort)(select | cancel)),
-                select).Changed,
+                select),
             "held Item Cancel plus Select chooses Missiles for auto-cancel");
         AssertEqual((ushort)1, samus.AutoCancelHudItemIndex,
             "missile auto-cancel request retains the selected HUD index");

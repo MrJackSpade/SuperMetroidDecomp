@@ -36,7 +36,7 @@ internal static class ColoredDoorPlmProgramDefinitions
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;
-        if (address < YellowStart || address > RedEnd || address is YellowEnd or GreenEnd or RedEnd) return false;
+        if (address is < YellowStart or > RedEnd or YellowEnd or GreenEnd or RedEnd) return false;
         TryReadMechanicsByte(address, out byte low);
         TryReadMechanicsByte((ushort)(address + 1), out byte high);
         value = (ushort)(low | high << 8);
@@ -54,7 +54,7 @@ internal static class ColoredDoorPlmProgramDefinitions
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         value = 0;
-        if (address < YellowStart || address > RedEnd) return false;
+        if (address is < YellowStart or > RedEnd) return false;
         int color = address < GreenStart ? 0 : address < RedStart ? 1 : 2;
         int first;
         int orientation;

@@ -17,7 +17,7 @@ internal static class MotherBrainEscapeGatePlmProgramDefinitions
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;
-        if (address < FirstAddress || address >= LastAddress) return false;
+        if (address is < FirstAddress or >= LastAddress) return false;
         TryReadMechanicsByte(address, out byte low);
         TryReadMechanicsByte((ushort)(address + 1), out byte high);
         value = (ushort)(low | high << 8);
@@ -27,7 +27,7 @@ internal static class MotherBrainEscapeGatePlmProgramDefinitions
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         value = 0;
-        if (address < FirstAddress || address > LastAddress) return false;
+        if (address is < FirstAddress or > LastAddress) return false;
         ushort word = (address & ~1) switch
         {
             0xbb34 or 0xbb3a => 6,

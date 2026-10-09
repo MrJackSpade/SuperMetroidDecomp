@@ -22,10 +22,10 @@ internal static partial class Program
         var definition = EndingCreditsRomData.Sprites.ExplosionAfterglow;
         var afterglow = new IntroDiscoverySprite(definition.X, definition.Y,
             definition.Attributes.Raw, definition.InstructionPointer);
-        afterglow.Step(bus, instructionWord: EndingCartridgeInstructionWord(bus));
+        afterglow.Step(instructionWord: EndingCartridgeInstructionWord(bus));
         var expected = new OamBuffer();
         expected.BeginFrame();
-        afterglow.Draw(bus, expected, installedArt: RepositoryInstallation.Installation.LoadEndingObjectArt().ExplosionSprites);
+        afterglow.Draw(expected, installedArt: RepositoryInstallation.Installation.LoadEndingObjectArt().ExplosionSprites);
         expected.FinalizeFrame();
         // F2FA installs the afterglow at byte slot 6 (index 3); the starfields occupy
         // byte slots 2 and 0. The native descending draw must give the complete

@@ -123,8 +123,8 @@ internal static partial class Program
         public byte ReadCartridgeByte(int address) => ReadByte(address);
         // The scroll buffer itself is WRAM the previous room left; implicit grids keep it.
         public byte ReadWorkRamByte(int address) =>
-            address >= RoomScrollGrid.WorkRamAddress &&
-            address < RoomScrollGrid.WorkRamAddress + RoomScrollGrid.StorageByteCount
+            address is >= RoomScrollGrid.WorkRamAddress and
+            < (RoomScrollGrid.WorkRamAddress + RoomScrollGrid.StorageByteCount)
                 ? ((ISnesMutableMemory)source).ReadWorkRamByte(address)
                 : ReadByte(address);
         public byte ReadSaveRamByte(int address) => ReadByte(address);

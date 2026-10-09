@@ -36,7 +36,7 @@ internal abstract class DragonFireballInstructionProgramDefinitions
     {
         int offset = address - RisingLeft;
         value = 0;
-        if (offset < 0 || offset >= 48) return false;
+        if (offset is < 0 or >= 48) return false;
         int step = offset % 12;
         value = step switch
         {

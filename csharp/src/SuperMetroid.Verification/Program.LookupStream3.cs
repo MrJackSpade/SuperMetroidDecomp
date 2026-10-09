@@ -98,7 +98,7 @@ internal static partial class Program
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
             for (int frame = 0; frame < expected.Length; frame++)
             {
-                draw.Invoke(objects, [(ushort)0, (ushort)(17 | 13 << 8), (ushort)(0xd781 + frame * 16)]);
+                draw.Invoke(objects, [(ushort)(17 | 13 << 8), (ushort)(0xd781 + frame * 16)]);
                 for (int cell = 0; cell < 6; cell++)
                     AssertEqual(expected[frame][cell], vram.ReadWord(0x4800 + (13 + cell / 3) * 32 + 17 + cell % 3),
                         "actual eye patch draw preserves native and independently supplied cells");
@@ -1771,7 +1771,7 @@ internal static partial class Program
                 "revival endpoint body reuses reviewed health/drained paint calculations");
             AssertTrue(endpoint.GetType().GetField("backLegs", privateFields)!.GetValue(endpoint) is null,
                 "revival rear endpoint calculates from reviewed normal/half-shadow paint");
-            AssertTrue(endpoint.GetType().GetField("trailing", privateFields)!.GetValue(endpoint) is null,
+            AssertTrue(endpoint.GetType().GetField("<TrailingColor>k__BackingField", privateFields)!.GetValue(endpoint) is null,
                 "revival trailing endpoint shares its calculated rear highlight");
         }
         for (int frame = 0; frame < 8; frame++)
@@ -1846,7 +1846,7 @@ internal static partial class Program
             "stream 3 drain rear and trailing start share only matching rainbow content");
         AssertTrue(drainEnd.GetType().GetField("backLegs", privateFields)!.GetValue(drainEnd) is null,
             "stream 3 drained rear endpoint calculates from approved normal rear lighting");
-        AssertTrue(drainEnd.GetType().GetField("trailing", privateFields)!.GetValue(drainEnd) is null,
+        AssertTrue(drainEnd.GetType().GetField("<TrailingColor>k__BackingField", privateFields)!.GetValue(drainEnd) is null,
             "stream 3 drained trailing word reuses its rear highlight without a stored value");
         foreach (object frame in storedRainbow)
             AssertTrue(frame.GetType().GetField("backLegs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!

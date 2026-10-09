@@ -65,11 +65,6 @@ public sealed class MotherBrainRainbowBeamSamusMovement
 
         return CreateResult(
             before,
-            samus,
-            xVelocity: 0x1000,
-            yVelocity,
-            reachedWall,
-            reachedVerticalBoundary,
             nativeCarry: reachedWall);
     }
 
@@ -92,11 +87,6 @@ public sealed class MotherBrainRainbowBeamSamusMovement
 
         return CreateResult(
             before,
-            samus,
-            xVelocity: 0,
-            yVelocity,
-            reachedWall: false,
-            reachedVerticalBoundary,
             nativeCarry: reachedVerticalBoundary);
     }
 
@@ -134,11 +124,6 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         // carry is intentionally discarded by the following LDA/ADC sequence.
         return CreateResult(
             before,
-            samus,
-            CustomXVelocity,
-            CustomYVelocity,
-            reachedWall,
-            reachedVerticalBoundary,
             nativeCarry: reachedVerticalBoundary);
     }
 
@@ -236,11 +221,6 @@ public sealed class MotherBrainRainbowBeamSamusMovement
 
     private static MotherBrainForcedSamusMovementResult CreateResult(
         SamusCameraPoint before,
-        SamusState samus,
-        ushort xVelocity,
-        ushort yVelocity,
-        bool reachedWall,
-        bool reachedVerticalBoundary,
         bool nativeCarry) => new(
             before,
             nativeCarry);

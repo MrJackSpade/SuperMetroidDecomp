@@ -54,7 +54,7 @@ internal sealed partial class CeresDestructionCinematicState
             else
                 MoveExplosion(actor);
 
-            actor.Step(bus, instructionWord:
+            actor.Step(instructionWord:
                 CeresDestructionSpriteInstructionDefinitions.ReadWord);
             if (!actor.IsActive)
             {
@@ -205,7 +205,7 @@ internal sealed partial class CeresDestructionCinematicState
                 }
             }
 
-            actor.Step(bus, HandleZebesInstruction,
+            actor.Step(HandleZebesInstruction,
                 CeresDestructionSpriteInstructionDefinitions.ReadWord);
             if (!actor.IsActive)
                 actors.RemoveAt(index);

@@ -61,19 +61,19 @@ internal static class EscapeTimerGlyphDefinitions
         if (tile >= 22)
         {
             int labelX = (tile - 22) * 8 + pixel % 8, labelY = pixel / EscapeTimerTileAtlasFormat.Width;
-            bool inHeight = labelY >= ChosenLabelTop && labelY < ChosenLabelTop + ChosenLabelHeight;
+            bool inHeight = labelY is >= ChosenLabelTop and < (ChosenLabelTop + ChosenLabelHeight);
             if (labelX < ChosenLabelTWidth)
             {
                 int stemLeft = (ChosenLabelTWidth - ChosenLabelStemWidth) / 2;
                 fill = inHeight && (labelY == ChosenLabelTop || labelX >= stemLeft && labelX < stemLeft + ChosenLabelStemWidth);
                 return true;
             }
-            if (labelX >= ChosenLabelIOrigin && labelX < ChosenLabelIOrigin + ChosenLabelStemWidth)
+            if (labelX is >= ChosenLabelIOrigin and < (ChosenLabelIOrigin + ChosenLabelStemWidth))
             {
                 fill = inHeight;
                 return true;
             }
-            if (labelX >= ChosenLabelEOrigin && labelX < ChosenLabelEOrigin + ChosenLabelEWidth)
+            if (labelX is >= ChosenLabelEOrigin and < (ChosenLabelEOrigin + ChosenLabelEWidth))
             {
                 int localX = labelX - ChosenLabelEOrigin;
                 fill = inHeight && (localX < ChosenLabelStemWidth || labelY == ChosenLabelTop ||

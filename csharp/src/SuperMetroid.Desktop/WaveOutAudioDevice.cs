@@ -21,7 +21,7 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
     private readonly int volumePercent;
     private readonly PendingFrameQueue pendingFrames = new(
         WaveOutAudioPolicy.ManagedQueueCapacityFrames);
-    private readonly object deviceGate = new();
+    private readonly Lock deviceGate = new();
     private readonly Thread submissionWorker = null!;
     private nint device;
     private int nextSlot;

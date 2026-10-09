@@ -13,28 +13,27 @@ public sealed partial class RoomEnemySystem
     private const ushort PhantoonDeathWaveDelta = 0x0100;
     private const ushort PhantoonDeathWaveMaximum = 0xf000;
 
-    private void RunPhantoonFatalSwoop(
+    private static void RunPhantoonFatalSwoop(
         RoomEnemySlot body,
         PhantoonEnemyState state,
         SamusState samus)
     {
         PointPhantoonEyeAtSamus(body, state.Eye!, samus);
         MovePhantoonInSwoop(body, state, samus, fatal: true);
-        if (body.XPosition >= 96 && body.XPosition < 160)
+        if (body.XPosition is >= 96 and < 160)
             body.VariableF = (ushort)PhantoonAiFunction.DyingFadeInOut;
     }
 
     /// <summary>Alternates five fade-outs and five fade-ins at $A7:D948.</summary>
     private void RunPhantoonDyingFadeCycles(
         RoomEnemySlot body,
-        PhantoonEnemyState state,
-        byte nmiFrameCounter8)
+        PhantoonEnemyState state)
     {
         RoomEnemySlot eye = state.Eye!;
         if ((eye.VariableC & 1) != 0)
-            AdvancePhantoonFadeIn(body, state, denominator: 12, nmiFrameCounter8);
+            AdvancePhantoonFadeIn(body, state, denominator: 12);
         else
-            AdvancePhantoonFadeOut(state, denominator: 12, nmiFrameCounter8);
+            AdvancePhantoonFadeOut(state, denominator: 12);
 
         if (eye.VariableF == 0)
             return;
@@ -107,8 +106,7 @@ public sealed partial class RoomEnemySystem
 
     private void RunPhantoonWavyMosaicDeath(
         RoomEnemySlot body,
-        PhantoonEnemyState state,
-        byte nmiFrameCounter8)
+        PhantoonEnemyState state)
     {
         AdvancePhantoonWaveAmplitude(
             state.Mouth!,
@@ -135,7 +133,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        AdvancePhantoonFadeOut(state, denominator: 12, nmiFrameCounter8);
+        AdvancePhantoonFadeOut(state, denominator: 12);
         if (eye.VariableF != 0)
             body.VariableF = (ushort)PhantoonAiFunction.AlmostDead;
     }
@@ -162,8 +160,7 @@ public sealed partial class RoomEnemySystem
 
     private void ActivateWreckedShipAfterPhantoon(
         RoomEnemySlot body,
-        PhantoonEnemyState state,
-        byte nmiFrameCounter8)
+        PhantoonEnemyState state)
     {
         if (body.VariableE != 0)
         {

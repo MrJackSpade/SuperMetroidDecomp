@@ -96,9 +96,9 @@ internal static partial class Program
             var installedActor = new IntroDiscoverySprite(120, 72, 0x0800, list);
             for (int frame = 0; frame < 120; frame++)
             {
-                nativeActor.Step(bus, instructionWord: pointer => (ushort)(
+                nativeActor.Step(instructionWord: pointer => (ushort)(
                     bus.ReadByte(0x8b0000 | pointer) | bus.ReadByte(0x8b0000 | (pointer + 1)) << 8));
-                installedActor.Step(bus, instructionWord: EndingCloudInstructionDefinitions.ReadWord);
+                installedActor.Step(instructionWord: EndingCloudInstructionDefinitions.ReadWord);
                 AssertEqual(nativeActor.InstructionPointer, installedActor.InstructionPointer,
                     $"ending cloud {index} list cursor at frame {frame}");
                 AssertEqual(nativeActor.SpriteMapPointer, installedActor.SpriteMapPointer,
@@ -189,7 +189,7 @@ internal static partial class Program
                     $"ending cloud {definition.Name} at Y=${y:X4} preserves cartridge OAM");
             }
         }
-        Suite(nameof(VerifyEndingExplosionActorArtwork), () => VerifyEndingExplosionActorArtwork(installation, bus, stock));
+        Suite(nameof(VerifyEndingExplosionActorArtwork), () => VerifyEndingExplosionActorArtwork(bus, stock));
         Suite(nameof(VerifyEndingCompletionTextInstructions), () => VerifyEndingCompletionTextInstructions(bus));
         Suite(nameof(VerifyEndingCompletionTextSpriteArtwork), () => VerifyEndingCompletionTextSpriteArtwork(bus, stock));
         Suite(nameof(VerifyEndingRewardInstructions), () => VerifyEndingRewardInstructions(bus));

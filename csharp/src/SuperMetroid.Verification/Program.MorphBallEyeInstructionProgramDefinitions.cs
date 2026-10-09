@@ -91,7 +91,7 @@ internal static partial class Program
                 enemies,
                 MorphBallEyeInstructionProgramDefinitions.Active);
             object?[] arguments =
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+                [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
             for (int call = 0;
                  call < MorphBallEyeInstructionProgramDefinitions.ActiveFrameCount + 1;
                  call++)
@@ -110,7 +110,7 @@ internal static partial class Program
             var enemies = NewMorphBallEyeInstructionSystem(guard, flags);
             RoomEnemySlot slot = PrepareMorphBallEyeInstructionSlot(enemies, entry);
             object?[] arguments =
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+                [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
             for (int call = 0; call < frames + 1; call++)
             {
                 slot.InstructionTimer = 1;

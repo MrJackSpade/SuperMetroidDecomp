@@ -33,10 +33,10 @@ internal static partial class Program
             compiled.DelayFirstInstruction(delay);
             for (int frame = 0; frame < 256; frame++)
             {
-                native.Step(rom, instructionWord: pointer =>
+                native.Step(instructionWord: pointer =>
                     (ushort)(rom.ReadByte(0x8b0000 | pointer) |
                     rom.ReadByte(0x8b0000 | unchecked((ushort)(pointer + 1))) << 8));
-                compiled.Step(rom, instructionWord: CeresDestructionSpriteInstructionDefinitions.ReadWord);
+                compiled.Step(instructionWord: CeresDestructionSpriteInstructionDefinitions.ReadWord);
                 AssertEqual(native.InstructionPointer, compiled.InstructionPointer, "explosion instruction cursor");
                 AssertEqual(native.SpriteMapPointer, compiled.SpriteMapPointer, "explosion frame and blank interval");
                 AssertEqual(native.GeneralTimer, compiled.GeneralTimer, "explosion loop count");

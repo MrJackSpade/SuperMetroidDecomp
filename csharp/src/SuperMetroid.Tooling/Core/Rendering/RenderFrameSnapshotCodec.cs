@@ -105,7 +105,7 @@ public static partial class RenderFrameSnapshotCodec
             if (!ReadExact(reader, RenderPacketFormat.Signature.Length).AsSpan().SequenceEqual(RenderPacketFormat.Signature))
                 throw new InvalidDataException("Not an SMFRAME display fixture.");
             ushort version = reader.ReadUInt16();
-            if (version < RenderPacketFormat.FirstSupportedVersion || version > RenderPacketFormat.Version)
+            if (version is < RenderPacketFormat.FirstSupportedVersion or > RenderPacketFormat.Version)
                 throw new InvalidDataException($"Unsupported display fixture version {version}.");
             var identity = new RenderFrameIdentity(reader.ReadInt64(), reader.ReadInt64(), reader.ReadUInt16());
             byte[] fades = ReadExact(reader, ReadCount(reader));
@@ -184,7 +184,7 @@ public static partial class RenderFrameSnapshotCodec
     private static int ReadCount(BinaryReader reader)
     {
         int count = reader.ReadInt32();
-        if (count < 0 || count > RenderPacketFormat.MaximumOperations)
+        if (count is < 0 or > RenderPacketFormat.MaximumOperations)
             throw new InvalidDataException($"Invalid display operation count {count}.");
         return count;
     }

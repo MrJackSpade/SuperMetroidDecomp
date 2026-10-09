@@ -126,14 +126,14 @@ internal sealed partial class EndingCreditsState
 
             case EndingCreditsPhase.FadeInEscapeSceneA:
                 StepAtmosphericTransform(2);
-                StepEscapeClouds(sceneB: false);
+                StepEscapeClouds();
                 if (StepFastFadeIn())
                     Phase = EndingCreditsPhase.EscapeSceneA;
                 break;
 
             case EndingCreditsPhase.EscapeSceneA:
                 StepAtmosphericTransform(2);
-                StepEscapeClouds(sceneB: false);
+                StepEscapeClouds();
                 if (mode7Zoom >= EndingCreditsRomData.Motion.EscapeEndScale)
                 {
                     fadeCounter = 1;
@@ -143,21 +143,21 @@ internal sealed partial class EndingCreditsState
 
             case EndingCreditsPhase.FadeOutEscapeSceneA:
                 StepAtmosphericTransform(2);
-                StepEscapeClouds(sceneB: false);
+                StepEscapeClouds();
                 if (StepFastFadeOut())
                     SetupEscapeSceneB();
                 break;
 
             case EndingCreditsPhase.FadeInEscapeSceneB:
                 StepAtmosphericTransform(3);
-                StepEscapeClouds(sceneB: true);
+                StepEscapeClouds();
                 if (StepFastFadeIn())
                     Phase = EndingCreditsPhase.EscapeSceneB;
                 break;
 
             case EndingCreditsPhase.EscapeSceneB:
                 StepAtmosphericTransform(3);
-                StepEscapeClouds(sceneB: true);
+                StepEscapeClouds();
                 if (mode7Zoom >= EndingCreditsRomData.Motion.EscapeEndScale)
                 {
                     fadeCounter = 1;
@@ -167,7 +167,7 @@ internal sealed partial class EndingCreditsState
 
             case EndingCreditsPhase.FadeOutEscapeSceneB:
                 StepAtmosphericTransform(3);
-                StepEscapeClouds(sceneB: true);
+                StepEscapeClouds();
                 if (StepFastFadeOut())
                     SetupZebesExplosion();
                 break;
@@ -659,19 +659,15 @@ internal sealed partial class EndingCreditsState
             EndingCreditsRomData.Rendering.ObjectCharactersDestination,
             main.AsSpan(0, EndingCreditsRomData.Rendering.ExplosionObjectBytes));
         LoadObjectFragment(
-            EndingCreditsRomData.Assets.EndingObjectCharacters70,
             EndingCreditsRomData.Rendering.Fragment70Destination,
             EndingObjectFragmentId.Segment70);
         LoadObjectFragment(
-            EndingCreditsRomData.Assets.EndingObjectCharacters74,
             EndingCreditsRomData.Rendering.Fragment74Destination,
             EndingObjectFragmentId.Segment74);
         LoadObjectFragment(
-            EndingCreditsRomData.Assets.EndingObjectCharacters78,
             EndingCreditsRomData.Rendering.Fragment78Destination,
             EndingObjectFragmentId.Segment78);
         LoadObjectFragment(
-            EndingCreditsRomData.Assets.EndingObjectCharacters7C,
             EndingCreditsRomData.Rendering.Fragment7CDestination,
             EndingObjectFragmentId.Segment7C);
         ReadOnlyMemory<byte> font = ResolveEndingFont().Transfer;
@@ -682,7 +678,7 @@ internal sealed partial class EndingCreditsState
             font.Span[..EndingCreditsRomData.Rendering.ObjectFragmentLimit]);
     }
 
-    private void LoadObjectFragment(int sourceAddress, int destinationByte,
+    private void LoadObjectFragment(int destinationByte,
         EndingObjectFragmentId fragmentId)
     {
         byte[] fragment = (objectArtwork ?? throw new InvalidOperationException(
@@ -757,13 +753,13 @@ internal sealed partial class EndingCreditsState
             fragmentB.AsSpan(0, EndingCreditsRomData.Rendering.ObjectFragmentBytes));
     }
 
-    private void StepEscapeClouds(bool sceneB)
+    private void StepEscapeClouds()
     {
         foreach (EndingSprite wrapper in sprites)
         {
             IntroDiscoverySprite sprite = wrapper.Sprite;
             EndingCloudMotion.Step(wrapper, mode7Zoom);
-            sprite.Step(bus, instructionWord: objectArtwork is null
+            sprite.Step(instructionWord: objectArtwork is null
                 ? null : EndingCloudInstructionDefinitions.ReadWord);
         }
     }
@@ -795,14 +791,14 @@ internal sealed partial class EndingCreditsState
                 EndingSpriteRole.AnimalEscape => EndingAnimalEscapeDefinitions.ReadWord,
                 _ => null,
             };
-            wrapper.Sprite.Step(bus, (opcode, cursor) =>
-                HandleSpriteOpcode(wrapper, opcode, cursor),
+            wrapper.Sprite.Step((opcode, cursor) =>
+                HandleSpriteOpcode(opcode, cursor),
                 instructionWord: instructionWord);
         }
         sprites.RemoveAll(wrapper => !wrapper.Sprite.IsActive);
     }
 
-    private ushort? HandleSpriteOpcode(EndingSprite owner, ushort opcode, ushort cursor)
+    private ushort? HandleSpriteOpcode(ushort opcode, ushort cursor)
     {
         switch (opcode)
         {
@@ -1015,7 +1011,7 @@ internal sealed partial class EndingCreditsState
                 // Native cinematic dispatch precedes actors, so a newly spawned pod
                 // moves and selects its first animation frame on this same call.
                 StepEndingSpritePreInstruction(sprites[^1]);
-                pod.Step(bus, instructionWord: EndingAnimalEscapeDefinitions.ReadWord);
+                pod.Step(instructionWord: EndingAnimalEscapeDefinitions.ReadWord);
             }
         }
     }

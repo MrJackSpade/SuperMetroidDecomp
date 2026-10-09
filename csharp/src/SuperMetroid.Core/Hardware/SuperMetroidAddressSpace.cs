@@ -89,7 +89,7 @@ public class SuperMetroidAddressSpace : ISnesAddressSpace, ISnesMutableMemory
             $"CPU write ${bank:X2}:{offset:X4} is outside the runtime address map.");
     }
 
-    private static bool IsSystemBank(int bank) => bank <= 0x3f || bank is >= 0x80 and <= 0xbf;
+    private static bool IsSystemBank(int bank) => bank is <= 0x3f or >= 0x80 and <= 0xbf;
 
     private static bool IsSaveRamBank(int bank) => bank is >= 0x70 and <= 0x7d or >= 0xf0 and <= 0xff;
 

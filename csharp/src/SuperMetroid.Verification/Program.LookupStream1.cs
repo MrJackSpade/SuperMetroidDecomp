@@ -141,7 +141,7 @@ internal static partial class Program
             var enemies = CreateEscapeDachoraProgramSystem(guard, flags);
             var slot = enemies.Slots[0];
             slot.CurrentInstruction = program == 0 ? (ushort)0xe964 : program == 1 ? (ushort)0xe9d0 : (ushort)0xea34;
-            object?[] arguments = [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            object?[] arguments = [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
             int records = program == 2 ? 19 : 60, expectedX = slot.XPosition, calls = 0;
             for (int record = 0; record < records; record++)
             {
@@ -206,7 +206,7 @@ internal static partial class Program
             var slot = isBody ? body : balloon;
             slot.CurrentInstruction = root;
             slot.InstructionTimer = 1;
-            object?[] arguments = [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            object?[] arguments = [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
             int calls = 0;
             for (int pose = 0; pose < 3; pose++)
             {
@@ -259,7 +259,7 @@ internal static partial class Program
             int records = chasing ? 20 : 5, randomCalls = 0, calls = 0;
             var guard = new MetroidInstructionReadGuard(rom);
             var (enemies, slot) = NewMetroidInstructionSystem(guard, flags, root, () => { randomCalls++; return 5; });
-            object?[] arguments = [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            object?[] arguments = [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
             for (int record = 0; record < records; record++)
             {
                 ushort address = (ushort)(root + record * 4);
@@ -371,7 +371,7 @@ internal static partial class Program
                     labelX is 7 or 8 && labelY is >= 1 and <= 5 ||
                     labelX is >= 18 and <= 22 && (labelY is 1 or 5 ||
                         labelX is 18 or 19 && labelY is >= 2 and <= 4 || labelY == 3 && labelX <= 21);
-                return labelX <= 5 || labelX is 7 or 8 || labelX is >= 18 and <= 22;
+                return labelX is <= 5 or 7 or 8 or >= 18 and <= 22;
             }
             fill = x is 3 or 4 && y is >= 1 and <= 13 || x == 2 && y is 2 or 3 || x is >= 2 and <= 5 && y is 12 or 13;
             if (tile is 0 or 10)
@@ -403,7 +403,7 @@ internal static partial class Program
             if (tile is 7 or 17)
             {
                 fill = y is 1 or 2 && x is >= 1 and <= 6 || y is >= 10 and <= 13 && x is 2 or 3;
-                return y < 3 || y >= 10;
+                return y is < 3 or >= 10;
             }
             return tile is 0 or 1 or 2 or 8 or 10 or 11 or 12;
         }
@@ -511,9 +511,9 @@ internal static partial class Program
         int SourceStep(int index)
         {
             int address = 0xdb48 + index;
-            if (address >= 0xe888 && address < 0xe890) return index - 8;
-            if (address >= 0xe298 && address < 0xe2b8) return index - 36;
-            if (address >= 0xe2b8 && address < 0xe374)
+            if (address is >= 0xe888 and < 0xe890) return index - 8;
+            if (address is >= 0xe298 and < 0xe2b8) return index - 36;
+            if (address is >= 0xe2b8 and < 0xe374)
             {
                 int offset = address - 0xe2b8, phase = offset / 4, component = offset % 4, basis = phase;
                 if (component < 2 && phase is >= 13 and <= 20) basis = 13;
@@ -524,7 +524,7 @@ internal static partial class Program
                 }
                 if (basis != phase) return index - (phase - basis) * 4;
             }
-            if (address >= 0xe050 && address < 0xe260)
+            if (address is >= 0xe050 and < 0xe260)
             {
                 int start = address < 0xe158 ? 0xe050 : 0xe158, offset = address - start, phase = offset / 4;
                 if (offset % 4 >= 2 && phase < 64)
@@ -539,13 +539,13 @@ internal static partial class Program
                 int basis = phase is 0 or 1 ? 0 : phase == 4 ? 2 : phase;
                 return address - offset - 0xdb48 + basis * 4 + offset % 4;
             }
-            if (address >= 0xdce8 && address < 0xdd18 || address >= 0xe450 && address < 0xe4b0)
+            if (address is >= 0xdce8 and < 0xdd18 or >= 0xe450 and < 0xe4b0)
             {
                 int range = address < 0xdd18 ? 0xdce8 : 0xe450, offset = (address - range) % 24;
                 if (offset % 4 < 2) return address - offset - 0xdb48 + (offset / 4 % 3 == 0 ? 0 : 1) * 4 + offset % 4;
                 if (range == 0xe450) return 0xdd00 - 0xdb48 + offset;
             }
-            if (address >= 0xe890 && address < 0xe908)
+            if (address is >= 0xe890 and < 0xe908)
             {
                 int offset = (address - 0xe890) % 60, phase = offset / 4, component = offset % 4;
                 int basis = phase switch { 5 or 10 or 11 => 4, 6 => 2, 9 => 7, 12 => 1, _ => phase };
@@ -553,7 +553,7 @@ internal static partial class Program
                 if (phase == 13) basis = component < 2 ? 1 : 0;
                 if (basis != phase) return address - offset - 0xdb48 + basis * 4 + component;
             }
-            if (address >= 0xe938 && address < 0xe9f4)
+            if (address is >= 0xe938 and < 0xe9f4)
             {
                 bool left = address >= 0xe974;
                 int start = left ? 0xe974 : 0xe938, offset = address - start, phase = offset / 4, component = offset % 4;
@@ -570,13 +570,13 @@ internal static partial class Program
                 int offset = (address - 0xe9f4) % 24, phase = offset / 4;
                 return address - offset - 0xdb48 + (offset % 4 >= 2 ? 0 : phase == 3 ? 1 : phase) * 4 + offset % 4;
             }
-            if (address >= 0xe050 && address < 0xe260)
+            if (address is >= 0xe050 and < 0xe260)
             {
                 int start = address < 0xe158 ? 0xe050 : 0xe158, offset = address - start, phase = offset / 4;
                 if (offset % 4 < 2 && phase >= 32)
                     return start - 0xdb48 + (phase < 64 ? phase % 32 : 16) * 4 + offset % 4;
             }
-            if (address >= 0xe798 && address < 0xe828)
+            if (address is >= 0xe798 and < 0xe828)
             {
                 int pair = (address - 0xe798) / 24, offset = (address - 0xe798) % 24;
                 if (offset >= 12) return 0xe798 + pair * 24 + (2 - (offset - 12) / 4) * 4 + offset % 4 - 0xdb48;
@@ -597,24 +597,24 @@ internal static partial class Program
                     return 0xea24 - 0xdb48 + basis * 4 + component;
                 }
             }
-            if (address >= 0xe37c && address < 0xe430) return index - 188;
-            if (address >= 0xe530 && address < 0xe5f8)
+            if (address is >= 0xe37c and < 0xe430) return index - 188;
+            if (address is >= 0xe530 and < 0xe5f8)
             {
                 int list = (address - 0xe508) / 40, offset = (address - 0xe508) % 40;
                 int phase = offset / 4;
                 return 0xe508 - 0xdb48 + ((list % 2 == 1 && phase < 8) ? 7 - phase : phase) * 4 + offset % 4;
             }
-            if (address >= 0xe4c8 && address < 0xe4d8)
+            if (address is >= 0xe4c8 and < 0xe4d8)
             {
                 int offset = (address - 0xe4c8) % 8;
                 return 0xe4b8 - 0xdb48 + (address - 0xe4c8) / 8 * 8 + (1 - offset / 4) * 4 + offset % 4;
             }
-            if (address >= 0xe4f0 && address < 0xe508)
+            if (address is >= 0xe4f0 and < 0xe508)
             {
                 int offset = (address - 0xe4f0) % 12;
                 return 0xe4d8 - 0xdb48 + (address - 0xe4f0) / 12 * 12 + (2 - offset / 4) * 4 + offset % 4;
             }
-            if (address >= 0xe5f8 && address < 0xe798)
+            if (address is >= 0xe5f8 and < 0xe798)
             {
                 int list = address < 0xe6b8 ? (address - 0xe5f8) / 48 : 4 + (address - 0xe6b8) / 112;
                 int offset = address < 0xe6b8 ? (address - 0xe5f8) % 48 : (address - 0xe6b8) % 112;
@@ -630,7 +630,7 @@ internal static partial class Program
                     return wall - 0xdb48 + wallPhase * 4 + offset % 4;
                 }
             }
-            if (address >= 0xdb48 && address < 0xdb90)
+            if (address is >= 0xdb48 and < 0xdb90)
             {
                 int offset = (address - 0xdb48) % 36;
                 int phase = offset / 4;
@@ -651,8 +651,8 @@ internal static partial class Program
             if (address >= 0xdc70 && address < 0xdce8 && (address - 0xdc48) % 4 >= 2) return 0xdc48 - 0xdb48 + (address - 0xdc48) % 40;
             if (address >= 0xdf28 && address < 0xe018 && (address - 0xdf28) % 4 >= 2) return 0xdc48 - 0xdb48 + (address - 0xdf28) % 40;
             if (address >= 0xde18 && address < 0xde60 && (address - 0xde18) % 4 < 2) return address - 0xde18;
-            if (address >= 0xdd48 && address < 0xdd58) return 0xdd28 - 0xdb48 + address - 0xdd48;
-            if (address >= 0xdeb0 && address < 0xdec0) return 0xdd18 - 0xdb48 + address - 0xdeb0;
+            if (address is >= 0xdd48 and < 0xdd58) return 0xdd28 - 0xdb48 + address - 0xdd48;
+            if (address is >= 0xdeb0 and < 0xdec0) return 0xdd18 - 0xdb48 + address - 0xdeb0;
             return index;
         }
         int Source(int index)
@@ -2941,7 +2941,7 @@ internal static partial class Program
                         break;
                     }
                 }
-                AssertEqual(done, actual.Step(new ForbiddenEscapeTextBus(), actualVram), "escape text native completion");
+                AssertEqual(done, actual.Step(actualVram), "escape text native completion");
                 AssertEqual(destination, actual.Destination, "escape text native destination");
                 AssertEqual(delay, actual.Delay, "escape text native delay");
                 AssertEqual(timer, actual.DelayTimer, "escape text native countdown");
@@ -3135,7 +3135,7 @@ internal static partial class Program
                 ushort duration = Word(0x930000 | pointer);
                 ushort sprite = edited ? (ushort)0xa117 : Word(0x930000 | (pointer + 2));
                 var slot = new SamusProjectileSlot(0) { InstructionTimer = 1, InstructionPointer = pointer };
-                AssertTrue(!shots.RunProjectileInstructionHandler(guard, slot), "Actual native timed frame survives");
+                AssertTrue(!shots.RunProjectileInstructionHandler(slot), "Actual native timed frame survives");
                 AssertEqual(duration, slot.InstructionTimer, "Actual timer unchanged");
                 AssertEqual(sprite, slot.SpritemapPointer, "Independent installed artwork selection");
                 AssertEqual((ushort)rom.ReadByte(0x930000 | (pointer + 4)), slot.XRadius, "Actual X radius independent of art edit");
@@ -3145,7 +3145,7 @@ internal static partial class Program
                 interpreted++;
                 if (duration == 0) continue; // Existing bomb contract excludes zero-duration timed records.
                 var bomb = new SamusBombProjectileSlot(0) { InstructionTimer = 1, InstructionPointer = pointer, Type = 0x0500 };
-                AssertTrue(!(bool)runBomb.Invoke(bombs, [guard, bomb])!, "Actual bomb timed frame survives");
+                AssertTrue(!(bool)runBomb.Invoke(bombs, [bomb])!, "Actual bomb timed frame survives");
                 AssertEqual(duration, bomb.InstructionTimer, "Actual bomb timer unchanged");
                 AssertEqual(sprite, bomb.SpritemapPointer, "Independent bomb artwork selection");
                 AssertEqual((ushort)rom.ReadByte(0x930000 | (pointer + 4)), bomb.XRadius, "Actual bomb X radius");
@@ -3246,15 +3246,15 @@ internal static partial class Program
                     if (word == 0x822f) deleted = true;
                     else
                     {
-                        AssertTrue(word > 0 && word < 0x8000, "Native command reaches a timed frame");
+                        AssertTrue(word is > 0 and < 0x8000, "Native command reaches a timed frame");
                         looped = !visited.Add(pointer);
                         timer = word; sprite = Word(0x930000 | (pointer + 2));
                         x = rom.ReadByte(0x930000 | (pointer + 4)); y = rom.ReadByte(0x930000 | (pointer + 5));
                         trail = Word(0x930000 | (pointer + 6)); pointer += 8;
                     }
                 }
-                AssertEqual(deleted, shots.RunProjectileInstructionHandler(guard, slot), "Exact native projectile deletion tick");
-                AssertEqual(deleted, (bool)runBomb.Invoke(bombs, [guard, bomb])!, "Exact native bomb deletion tick");
+                AssertEqual(deleted, shots.RunProjectileInstructionHandler(slot), "Exact native projectile deletion tick");
+                AssertEqual(deleted, (bool)runBomb.Invoke(bombs, [bomb])!, "Exact native bomb deletion tick");
                 actualTicks++;
                 if (deleted)
                 {

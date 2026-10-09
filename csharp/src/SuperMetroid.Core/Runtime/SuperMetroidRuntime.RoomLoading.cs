@@ -904,8 +904,8 @@ public sealed partial class SuperMetroidRuntime
                 door.Pointer,
                 RoomBackgroundTilemapArt,
                 RoomSkyTilemapArt,
-                mapPresentation?.HudTiles,
-                roomCharacterArt);
+                MapPresentation?.HudTiles,
+                RoomCharacterArt);
             if (backgroundResult.Bg3CharacterBaseWord is ushort bg3CharacterBaseWord)
                 GameplayHudCharacterBaseWord = bg3CharacterBaseWord;
         }
@@ -1280,7 +1280,7 @@ public sealed partial class SuperMetroidRuntime
             // each frame would reset its delay and prevent the acid from moving.
             ushort record = unchecked((ushort)(ActiveRoom!.State.FxPointer +
                 state.FxEntry * RoomFxRomData.Record.ByteCount));
-            LayerBlendingDefaultConfig = RoomLayer3Fx.ApplyEntry(_addressSpace, Cgram,
+            LayerBlendingDefaultConfig = RoomLayer3Fx.ApplyEntry(Cgram,
                 record);
             state.FxEntry = 0;
         }
@@ -1478,7 +1478,7 @@ public sealed partial class SuperMetroidRuntime
             YPosition = 0,
         };
         BindSamusPalettePresentation();
-        SamusState.LoadPowerSuitPalette(_addressSpace, Cgram, mapPresentation?.SamusSuitColors);
+        SamusState.LoadPowerSuitPalette(_addressSpace, Cgram, MapPresentation?.SamusSuitColors);
         ApplyTesterInventory();
 
         // Fresh-game loading has one deliberately non-general palette write after copying

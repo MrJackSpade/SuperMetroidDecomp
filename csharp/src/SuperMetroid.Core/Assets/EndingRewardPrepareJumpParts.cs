@@ -32,7 +32,7 @@ internal sealed class EndingRewardPrepareJumpParts : IReadOnlyList<CompiledSprit
             else tile = 0x107 - 2 * (index - 18); // upper interior, right to left
             int x = 8 * (tile & 15) - 38;
             int y = 8 * (tile / 16 - 16) - 35;
-            bool large = index == 1 || index >= 8;
+            bool large = index is 1 or >= 8;
             return new(SnesSpritemapXWord.Create(x, large), unchecked((byte)y),
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }

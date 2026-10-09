@@ -57,7 +57,7 @@ internal static partial class Program
                     $"real dead {family.Species} variant {variantIndex} initializer program");
 
                 object?[] processArguments =
-                    [corpse, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+                    [corpse, null, null, (ushort)0, (ushort)0, (ushort)0];
                 for (int call = 0; call < 2; call++)
                 {
                     corpse.InstructionTimer = 1;

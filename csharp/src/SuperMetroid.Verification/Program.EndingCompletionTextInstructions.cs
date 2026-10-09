@@ -91,9 +91,9 @@ internal static partial class Program
             {
                 // The scene owns private callbacks; here both actor interpreters
                 // advance across the same callback without duplicating its effects.
-                native.Step(bus, (_, cursor) => cursor, pointer => (ushort)(
+                native.Step((_, cursor) => cursor, pointer => (ushort)(
                     bus.ReadByte(0x8b0000 | pointer) | bus.ReadByte(0x8b0000 | (pointer + 1)) << 8));
-                installed.Step(bus, (_, cursor) => cursor,
+                installed.Step((_, cursor) => cursor,
                     EndingCompletionTextInstructionDefinitions.ReadWord);
                 AssertEqual(native.InstructionPointer, installed.InstructionPointer,
                     $"completion actor ${start:X4} cursor at frame {frame}");

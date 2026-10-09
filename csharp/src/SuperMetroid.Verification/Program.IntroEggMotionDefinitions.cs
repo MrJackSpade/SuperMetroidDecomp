@@ -57,8 +57,8 @@ internal static partial class Program
                         motionFrame++;
                         if (unchecked((short)((y >> 16) - 0xa8)) >= 0) motion = false;
                     }
-                    if (actor is IntroEggParticle particle) particle.Step(guarded);
-                    else ((IntroEggSlimeDrop)actor).Step(guarded);
+                    if (actor is IntroEggParticle particle) particle.Step();
+                    else ((IntroEggSlimeDrop)actor).Step();
                     AssertEqual((ushort)(x >> 16), sprite.XPosition, "Egg actor whole X each frame");
                     AssertEqual((ushort)x, sprite.XSubPosition, "Egg actor fraction X each frame");
                     AssertEqual((ushort)(y >> 16), sprite.YPosition, "Egg actor whole Y each frame");

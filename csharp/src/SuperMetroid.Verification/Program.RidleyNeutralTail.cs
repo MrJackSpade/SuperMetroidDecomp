@@ -6,8 +6,7 @@ internal static partial class Program
     private static void VerifyRidleyPowerBombNeutralTail()
     {
         var prepare = typeof(RoomEnemySystem).GetMethod("PrepareNorfairRidleyCombatFrame", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusBombProjectileSystem>>();
-        var slot = new RoomEnemySystem().Slots[0];
+            .CreateDelegate<Action<RidleyEnemyState, SamusBombProjectileSystem>>();
         // $A6:BD2C reads $0CEE, which laying a power bomb arms at once.
         var armed = new SamusBombProjectileSystem();
         armed.PowerBombExplosion.Arm();
@@ -22,7 +21,7 @@ internal static partial class Program
                 TailFunctionIndex = 4, TailAngleDelta = (ushort)raw,
                 FeetDistanceIndex = (ushort)(ushort.MaxValue - raw),
             };
-            prepare(slot, state, armed);
+            prepare(state, armed);
             AssertEqual((ushort)1, state.TailFunctionIndex, "Power Bomb sets neutral tail function");
             AssertEqual((ushort)1, state.TailAngleDelta, "Power Bomb resets native tail angle delta");
             AssertEqual((ushort)(ushort.MaxValue - raw), state.FeetDistanceIndex, "Power Bomb preserves animated foot displacement");
@@ -40,7 +39,7 @@ internal static partial class Program
                 TailFunctionIndex = 4, TailAngleDelta = 8, FeetDistanceIndex = 4,
                 Function = RidleyAiFunction.NorfairHover,
             };
-            prepare(slot, state, flag ? armed : unarmed);
+            prepare(state, flag ? armed : unarmed);
             AssertEqual((ushort)4, state.TailFunctionIndex, "Inactive reaction preserves tail function");
             AssertEqual((ushort)8, state.TailAngleDelta, "Inactive reaction preserves angle delta");
             AssertEqual((ushort)4, state.FeetDistanceIndex, "Inactive reaction preserves feet");

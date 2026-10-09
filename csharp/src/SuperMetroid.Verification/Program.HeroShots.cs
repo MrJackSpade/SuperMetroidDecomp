@@ -67,7 +67,7 @@ internal static partial class Program
                 if (shot.PackedType.Family == SamusProjectileFamily.BeamExplosion)
                 {
                     impactFrame = frame;
-                    AssertTrue(vertical ? shot.YPosition >= 248 && shot.YPosition <= 288 : shot.XPosition >= 496 && shot.XPosition <= 520,
+                    AssertTrue(vertical ? shot.YPosition is >= 248 and <= 288 : shot.XPosition is >= 496 and <= 520,
                         "Surviving shot explodes at the remote solid column in world space");
                     break;
                 }

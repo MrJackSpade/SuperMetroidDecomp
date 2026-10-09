@@ -13,7 +13,6 @@ public sealed class MotherBrainRainbowPalettePresentation
     private readonly RevivalPaletteFade fromGrey;
     private readonly PaletteFade fakeDeathToGrey;
     private readonly PaletteFrame normal;
-    private readonly ushort beamInitial;
     private readonly BeamColors beamCycle;
 
     private MotherBrainRainbowPalettePresentation(PaletteFrame[] rainbow, PaletteFrame[] toGrey,
@@ -49,7 +48,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         this.fromGrey = new RevivalPaletteFade(fromGrey);
         this.fakeDeathToGrey = fakeDeathToGrey;
         this.normal = normal;
-        this.beamInitial = beamInitial;
+        BeamInitialColor = beamInitial;
         this.beamCycle = new BeamColors(beamCycle);
     }
 
@@ -106,7 +105,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         private static int Falling(int step) => 31 - 2 * step - (step >= 9 ? 1 : 0);
     }
     /// <summary>Fixed-color backdrop used on the beam's first active HDMA frame.</summary>
-    public ushort BeamInitialColor => beamInitial;
+    public ushort BeamInitialColor { get; }
 
     /// <summary>
     /// Resolves the native byte cursor. The signed terminator remains engine control,
@@ -293,13 +292,12 @@ public sealed class MotherBrainRainbowPalettePresentation
         private readonly bool drainedRear;
         private readonly bool normalRearSubset;
         private readonly PaletteFrame? rearSource;
-        private readonly ushort? trailing;
 
         public PaletteFrame(ushort[] body, ushort[] legs, ushort? trailingColor)
         {
             Body = new BodyColors(body);
             LegCount = legs.Length;
-            trailing = trailingColor;
+            TrailingColor = trailingColor;
             bool matchesRear = legs.Length == MotherBrainRainbowPaletteRomData.ColorCount;
             for (int color = 0; matchesRear && color < legs.Length; color++)
                 matchesRear = legs[color] == MotherBrainHealthPalettePresentation.StockBaseColor(true, color);
@@ -335,7 +333,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         public int LegCount { get; }
         public ushort? TrailingColor => rearSource is not null
             ? rearSource.Leg(MotherBrainDrainedPaletteRomData.TrailingRearSourceColor)
-            : drainedRear || normalRearSubset ? Leg(1) : trailing;
+            : drainedRear || normalRearSubset ? Leg(1) : field;
         public ushort Leg(int color) => rearSource is not null
             ? rearSource.Leg(color + MotherBrainDrainedPaletteRomData.RearSourceColor)
             : drainedRear ? HalfIntensity(MotherBrainHealthPalettePresentation.StockBaseColor(true,

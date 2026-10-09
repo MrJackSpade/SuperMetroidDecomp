@@ -16,7 +16,7 @@ public static partial class SnesGameplayFrameRenderer
         int originY = unchecked((short)(beam.WorldY - layer1Y));
         int angle = beam.Angle.TableIndex;
         int angularWidth = unchecked((byte)beam.AngularWidth);
-        ushort[] nativeWindows = EyeBeamWindowBuilder.Build(bus, originX, originY, angle, angularWidth);
+        ushort[] nativeWindows = EyeBeamWindowBuilder.Build(originX, originY, angle, angularWidth);
         var windows = new ColorAddWindow[Height];
         Array.Fill(windows, ColorAddWindow.Empty);
         byte red = ExpandFiveBit(beam.Red), green = ExpandFiveBit(beam.Green), blue = ExpandFiveBit(beam.Blue);

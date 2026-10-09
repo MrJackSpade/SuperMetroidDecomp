@@ -74,7 +74,7 @@ internal static partial class Program
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(0xa59f);
         var body=runtime.Enemies.Slots[0];
-        var state=(KraidEnemyState)typeof(RoomEnemySystem).GetField("_kraidState",flags)!.GetValue(runtime.Enemies)!;
+        var state=(KraidEnemyState)typeof(RoomEnemySystem).GetField("<Kraid>k__BackingField",flags)!.GetValue(runtime.Enemies)!;
         body.VariableA=(ushort)KraidAiFunction.MainAttackWithMouthOpen;
         body.VariableB=0x96f4;body.VariableC=64;
         state.CurrentHeadTilemap=0xa0c8;state.VulnerableMouthHitbox=0x97a0;state.InvulnerableMouthHitbox=0x97c0;

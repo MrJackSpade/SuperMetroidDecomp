@@ -131,7 +131,7 @@ internal static partial class Program
             .CreateDelegate<Action<RoomEnemySlot>>(enemies)(bull);
         MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
         object?[] arguments =
-            [bull, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            [bull, null, null, (ushort)0, (ushort)0, (ushort)0];
         for (int frame = 0; frame < 41; frame++)
             process.Invoke(enemies, arguments);
         AssertEqual(unchecked((ushort)(BullInstructionProgramDefinitions.Normal + 4)),
@@ -186,7 +186,7 @@ internal static partial class Program
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessInstructions", flags)!;
         object?[] arguments =
-            [puyo, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            [puyo, null, null, (ushort)0, (ushort)0, (ushort)0];
         foreach (ushort program in PuyoGroundedInstructionPrograms)
         {
             puyo.CurrentInstruction = program;
@@ -556,7 +556,7 @@ internal static partial class Program
         MethodInfo rioProcess = typeof(RoomEnemySystem).GetMethod(
             "ProcessInstructions", flags)!;
         object?[] rioArguments =
-            [rioSlot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            [rioSlot, null, null, (ushort)0, (ushort)0, (ushort)0];
         ExecuteRioProgram(installedRio, rioProcess, rioArguments, rioSlot,
             RioInstructionProgramDefinitions.Idle, callCount: 13);
         ExecuteRioProgram(installedRio, rioProcess, rioArguments, rioSlot,
@@ -601,7 +601,7 @@ internal static partial class Program
             (RoomEnemySystem enemies, RoomEnemySlot slot, _) =
                 NewLowerNorfairRioInstructionSystem(lowerRioGuard, flags, entry, stock);
             object?[] arguments =
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+                [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
             RunLowerNorfairRioInstructionFrames(
                 lowerRioProcess, enemies, arguments, slot, calls);
         }
@@ -641,7 +641,7 @@ internal static partial class Program
             (RoomEnemySystem enemies, RoomEnemySlot slot, _) =
                 NewNorfairRioInstructionSystem(norfairRioGuard, flags, entry, stock);
             object?[] arguments =
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+                [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
             RunNorfairRioInstructionFrames(
                 norfairRioProcess, enemies, arguments, slot, calls);
         }
@@ -3652,13 +3652,13 @@ internal static partial class Program
                     : definition is RoomEnemySystem.SbugDefinition or
                         RoomEnemySystem.Sbug2Definition
                         ? EnemySpritemapDefinitions.SbugBank
-                        : definition == RoomEnemySystem.ElevatorDefinition ||
-                          definition == RoomEnemySystem.SkulteraDefinition ||
-                          definition == RoomEnemySystem.WaverDefinition ||
-                          definition == RoomEnemySystem.FirefleaDefinition ||
-                          definition == RoomEnemySystem.ZoaDefinition ||
-                          definition == RoomEnemySystem.MetareeDefinition ||
-                          definition == RoomEnemySystem.SkreeDefinition
+                        : definition is RoomEnemySystem.ElevatorDefinition or
+                          RoomEnemySystem.SkulteraDefinition or
+                          RoomEnemySystem.WaverDefinition or
+                          RoomEnemySystem.FirefleaDefinition or
+                          RoomEnemySystem.ZoaDefinition or
+                          RoomEnemySystem.MetareeDefinition or
+                          RoomEnemySystem.SkreeDefinition
                             ? EnemySpritemapDefinitions.SkulteraBank
                         : EnemySpritemapDefinitions.BoyonBank };
             // The catalog-wide composition check includes families newer than the

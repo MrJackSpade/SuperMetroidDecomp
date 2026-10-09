@@ -39,12 +39,9 @@ public static class TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions
         new(TourianEscapeRedFlashPaletteOwner.Background,
             BackgroundDefinitionPointer, BackgroundProgramStart, 0x0070, 4, 4),
     ];
-    private static readonly IReadOnlyList<TourianEscapeRedFlashPaletteFxProgramDefinition>
-        ReadOnlyDefinitions = Array.AsReadOnly(Definitions);
 
     /// <summary>The shutter and background red-flash programs in definition order.</summary>
-    public static IReadOnlyList<TourianEscapeRedFlashPaletteFxProgramDefinition> All =>
-        ReadOnlyDefinitions;
+    public static IReadOnlyList<TourianEscapeRedFlashPaletteFxProgramDefinition> All { get; } = Array.AsReadOnly(Definitions);
 
     /// <summary>Resolves one compiled word-sized mechanic across both programs.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)

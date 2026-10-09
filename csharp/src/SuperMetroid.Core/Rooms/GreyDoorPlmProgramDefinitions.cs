@@ -27,7 +27,7 @@ internal static class GreyDoorPlmProgramDefinitions
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;
-        if (address < FirstAddress || address >= LastAddress) return false;
+        if (address is < FirstAddress or >= LastAddress) return false;
         TryReadMechanicsByte(address, out byte low);
         TryReadMechanicsByte((ushort)(address + 1), out byte high);
         value = (ushort)(low | high << 8);
@@ -44,7 +44,7 @@ internal static class GreyDoorPlmProgramDefinitions
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         value = 0;
-        if (address < FirstAddress || address > LastAddress) return false;
+        if (address is < FirstAddress or > LastAddress) return false;
         int orientation = (address - FirstAddress) / OrientationBytes;
         int local = (address - FirstAddress) % OrientationBytes;
         int first = FirstAddress + orientation * OrientationBytes;
@@ -80,7 +80,7 @@ internal static class GreyDoorPlmProgramDefinitions
         }
         else
         {
-            start = local < 10 || local is >= 82 and < 86 ? local & ~1 : ((local - 1) & ~1) + 1;
+            start = local is < 10 or >= 82 and < 86 ? local & ~1 : ((local - 1) & ~1) + 1;
             word = start switch
             {
                 0 or 4 => 2,

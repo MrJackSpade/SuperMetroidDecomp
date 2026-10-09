@@ -146,7 +146,7 @@ public sealed class SamusDraygonGrabbedState
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
-        EnsureActiveGrabbedPose(samus);
+        EnsureActiveGrabbedPose();
 
         SnesButton newlyPressed = SnesButtons.FromRaw(
             newlyPressedInput,
@@ -217,7 +217,7 @@ public sealed class SamusDraygonGrabbedState
         return published;
     }
 
-    private void EnsureActiveGrabbedPose(SamusState samus)
+    private void EnsureActiveGrabbedPose()
     {
         if (!IsActive)
         {

@@ -17,12 +17,10 @@ public sealed partial class RoomEnemySystem
     private const ushort MotherBrainFallingTubeDefinition =
         EnemyDefinitionPointers.MotherBrainFallingTube;
     private const ushort MotherBrainInitialHeadInstruction = 0x9c21;
-
-    private MotherBrainEnemyState? _motherBrain;
     private Action? _incrementMotherBrainGlassRoomArgument;
 
     /// <summary>The typed multipart encounter while Mother Brain's retail population is loaded.</summary>
-    public MotherBrainEnemyState? MotherBrain => _motherBrain;
+    public MotherBrainEnemyState? MotherBrain { get; private set; }
 
     private RoomCharacterAtlas MotherBrainCorpseArtwork =>
         TileArtwork?.MotherBrainCorpse ?? throw new InvalidDataException(
@@ -31,7 +29,7 @@ public sealed partial class RoomEnemySystem
     private static bool IsMotherBrainDefinition(ushort definition) =>
         definition is MotherBrainBodyDefinition or MotherBrainHeadDefinition;
 
-    private void ResetMotherBrainRoomState() => _motherBrain = null;
+    private void ResetMotherBrainRoomState() => MotherBrain = null;
 
     /// <summary>Ports <c>InitAI_MotherBrainBody</c> at <c>$A9:8687</c>.</summary>
     private void InitializeMotherBrainBody(RoomEnemySlot body)
@@ -62,7 +60,7 @@ public sealed partial class RoomEnemySystem
         // ranges used by glass shards and tube projectiles.
         LoadMotherBrainRoomEntryColors();
 
-        _motherBrain = new MotherBrainEnemyState(body)
+        MotherBrain = new MotherBrainEnemyState(body)
         {
             Form = 0,
             EnableUnpauseHook = false,
@@ -73,7 +71,7 @@ public sealed partial class RoomEnemySystem
             BackgroundTilemapPrepared = true,
             EnemyBg2TilemapSize = MotherBrainBg2Definitions.InitialTransferByteCount,
         };
-        _motherBrain.RecordInitialTurretRequests();
+        MotherBrain.RecordInitialTurretRequests();
         SpawnMotherBrainInitialTurrets();
     }
 
@@ -87,7 +85,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports <c>InitAI_MotherBrainHead</c> at <c>$A9:8705</c>.</summary>
     private void InitializeMotherBrainHead(RoomEnemySlot head)
     {
-        MotherBrainEnemyState state = _motherBrain ??
+        MotherBrainEnemyState state = MotherBrain ??
             throw new InvalidDataException("Mother Brain's head appeared before its body record.");
         if (head.SlotIndex != 1)
         {
@@ -355,7 +353,7 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private void DrawMotherBrainHook(OamBuffer oam, ushort cameraX, ushort cameraY)
     {
-        MotherBrainEnemyState? state = _motherBrain;
+        MotherBrainEnemyState? state = MotherBrain;
         RoomEnemySlot? head = state?.Head;
         if (state?.DrawBrain != true || head is null)
             return;
@@ -883,8 +881,9 @@ public sealed partial class RoomEnemySystem
                 return true;
             }
             case MotherBrainInstructionCodes.Instruction_MotherBrainHead_SpawnRainbowBeamChargingProj:
-                SpawnMotherBrainRainbowChargingProjectile(
-                    RequireCompleteMotherBrainState(slot));
+                // The spawn reads no encounter state, but the instruction still requires one.
+                _ = RequireCompleteMotherBrainState(slot);
+                SpawnMotherBrainRainbowChargingProjectile();
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstructionCodes.Instruction_MotherBrainHead_SetupEffectsForRainbowBeamCharge:
@@ -935,7 +934,7 @@ public sealed partial class RoomEnemySystem
 
     private MotherBrainEnemyState RequireCompleteMotherBrainState(RoomEnemySlot slot)
     {
-        MotherBrainEnemyState state = _motherBrain ??
+        MotherBrainEnemyState state = MotherBrain ??
             throw new InvalidDataException("Mother Brain record has no shared encounter state.");
         if (state.Head is null)
             throw new InvalidDataException("Mother Brain's body/head population is incomplete.");

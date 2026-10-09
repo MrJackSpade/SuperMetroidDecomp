@@ -408,7 +408,7 @@ public static partial class SamusGrappleMovement
             // Start minus the raw NO-RUN origin table, then Flare is independently rebuilt
             // from the raw no-run flare table. Graphics-Y correction does not participate.
             var origin = GrappleFiringDefinitions.Origin(grapple.FireDirection, running: false);
-            var flare = ReadFlareOrigin(bus, grapple, grapple.FireDirection, running: false);
+            var flare = ReadFlareOrigin(grapple, grapple.FireDirection, running: false);
             samus.XPosition = unchecked((ushort)(grapple.RopeStartX - origin.X));
             samus.YPosition = unchecked((ushort)(grapple.RopeStartY - origin.Y));
             grapple.BeamStartX = unchecked((ushort)(samus.XPosition + flare.X));
@@ -500,7 +500,7 @@ public static partial class SamusGrappleMovement
     {
         bool useRunOffsets = samus.ReadMovementKind(bus) == SamusMovementType.Running;
         var origin = GrappleFiringDefinitions.Origin(grapple.FireDirection, useRunOffsets);
-        var flare = ReadFlareOrigin(bus, grapple, grapple.FireDirection, useRunOffsets);
+        var flare = ReadFlareOrigin(grapple, grapple.FireDirection, useRunOffsets);
         sbyte graphicsYOffset = samus.ReadGraphicsYOffset(bus);
         byte physicalYOffset = SamusPoseProjectileOriginDefinitions.ReadYOffset(samus.Pose);
 
@@ -517,7 +517,7 @@ public static partial class SamusGrappleMovement
             graphicsYOffset));
     }
 
-    private static (short X, short Y) ReadFlareOrigin(ISnesAddressSpace bus, SamusGrappleState grapple, byte direction, bool running)
+    private static (short X, short Y) ReadFlareOrigin(SamusGrappleState grapple, byte direction, bool running)
     {
         var offset = (grapple.FlarePlacement ?? throw new InvalidOperationException(
             "Grapple flare requires installed placement definitions."))

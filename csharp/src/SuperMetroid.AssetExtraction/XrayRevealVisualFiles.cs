@@ -76,7 +76,7 @@ public static class XrayRevealVisualFiles
             {
                 ushort pointer = ReadAbsoluteWord(bus,
                     XrayOverlayRomData.ItemDrawPointers + slot * sizeof(ushort));
-                if (pointer < 0x8000 || pointer > ushort.MaxValue - 3)
+                if (pointer is < 0x8000 or > (ushort.MaxValue - 3))
                     throw new InvalidDataException($"X-ray item draw pointer ${pointer:X4} is invalid.");
                 return (ushort)(ReadAbsoluteWord(bus,
                     XrayOverlayRomData.ItemBank | (pointer + 2)) & 0x0fff);
@@ -275,7 +275,7 @@ public static class XrayRevealVisualFiles
 
     private static ushort ReadWord(ISnesAddressSpace bus, int pointer)
     {
-        if (pointer < 0x8000 || pointer >= ushort.MaxValue)
+        if (pointer is < 0x8000 or >= ushort.MaxValue)
             throw new InvalidDataException($"X-ray reveal table crossed bank $91 at ${pointer:X}.");
         return unchecked((ushort)(bus.ReadCartridgeByte(XrayRevealCodePointers.Bank | pointer) |
             bus.ReadCartridgeByte(XrayRevealCodePointers.Bank | (pointer + 1)) << 8));

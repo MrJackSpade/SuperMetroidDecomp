@@ -37,7 +37,7 @@ internal static partial class Program
         MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(
             "SpawnGoldenTorizoEyeBeam", flags)!;
         MethodInfo runMovement = typeof(RoomEnemySystem).GetMethod(
-            "RunGoldenTorizoEyeBeamPreInstruction", flags)!;
+            "RunGoldenTorizoEyeBeamPreInstruction", BindingFlags.NonPublic | BindingFlags.Static)!;
 
         foreach (bool facingRight in new[] { false, true })
         {

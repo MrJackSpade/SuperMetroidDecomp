@@ -464,7 +464,7 @@ public sealed partial class RoomEnemySystem
     /// <c>MetroidDeathItemDropRoutine</c> ($A0:B968) around the origin $A3:EF31/EF38
     /// recorded before <c>EnemyDeath</c> cleared the slot.
     /// </summary>
-    private void RequestMetroidDrops(ushort originX, ushort originY, MetroidEnemyState state)
+    private void RequestMetroidDrops(ushort originX, ushort originY)
     {
         for (int dropIndex = 0; dropIndex < MetroidSpecialDropCount; dropIndex++)
         {

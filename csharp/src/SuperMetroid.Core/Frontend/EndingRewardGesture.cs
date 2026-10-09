@@ -33,7 +33,7 @@ internal sealed class EndingRewardGesture
     {
         if (JumpRequested) throw new InvalidOperationException("Reward gesture handoff must be consumed before advancing again.");
         foreach (IntroDiscoverySprite actor in actors)
-            actor.Step(bus, HandleInstruction, instructionWord);
+            actor.Step(HandleInstruction, instructionWord);
         actors.RemoveAll(actor => !actor.IsActive);
     }
 
@@ -42,7 +42,7 @@ internal sealed class EndingRewardGesture
         var oam = destination ?? new OamBuffer();
         if (destination is null) oam.BeginFrame();
         foreach (IntroDiscoverySprite actor in actors)
-            actor.Draw(bus, oam, installedArt: installedArt);
+            actor.Draw(oam, installedArt: installedArt);
         if (destination is null) oam.FinalizeFrame();
         return oam;
     }

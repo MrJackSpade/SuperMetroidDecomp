@@ -114,7 +114,7 @@ public sealed partial class RoomEnemySystem
 
     private void RunPhantoonStartingFlameWaiting(RoomEnemyProjectileSlot flame)
     {
-        PhantoonEnemyState? state = _phantoonState;
+        PhantoonEnemyState? state = Phantoon;
         if (state is null || state.Body.VariableB == 0)
             return;
         flame.PreInstruction = PhantoonStartingFlameOrbitPreInstruction;
@@ -124,7 +124,7 @@ public sealed partial class RoomEnemySystem
 
     private void RunPhantoonStartingFlameOrbit(RoomEnemyProjectileSlot flame)
     {
-        if (_phantoonState is not { } state)
+        if (Phantoon is not { } state)
         {
             flame.Clear();
             return;
@@ -157,7 +157,7 @@ public sealed partial class RoomEnemySystem
             unchecked((byte)flame.YVelocity));
     }
 
-    private void RunPhantoonCasualFlameFalling(
+    private static void RunPhantoonCasualFlameFalling(
         RoomEnemyProjectileSlot flame,
         RoomLevelData level)
     {
@@ -197,7 +197,7 @@ public sealed partial class RoomEnemySystem
         flame.XVelocity = (nmiFrameCounter & 1) == 0 ? (ushort)0x0080 : (ushort)0xff80;
     }
 
-    private void RunPhantoonCasualFlameBouncing(
+    private static void RunPhantoonCasualFlameBouncing(
         RoomEnemyProjectileSlot flame,
         RoomLevelData level)
     {
@@ -228,7 +228,7 @@ public sealed partial class RoomEnemySystem
 
     private void RunPhantoonEnragedFlame(RoomEnemyProjectileSlot flame)
     {
-        if (_phantoonState is not { } state)
+        if (Phantoon is not { } state)
         {
             flame.Clear();
             return;
@@ -270,7 +270,7 @@ public sealed partial class RoomEnemySystem
 
     private void RunPhantoonSpiralFlame(RoomEnemyProjectileSlot flame)
     {
-        if (_phantoonState is not { } state)
+        if (Phantoon is not { } state)
         {
             flame.Clear();
             return;

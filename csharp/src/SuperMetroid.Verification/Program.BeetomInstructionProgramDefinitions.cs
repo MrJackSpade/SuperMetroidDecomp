@@ -46,7 +46,7 @@ internal static partial class Program
         initialize(slot, samus, 0);
         BeetomEnemyState state = enemies.BeetomStates[0]!;
         object?[] processArguments =
-            [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
 
         AssertEqual(BeetomInstructionProgramDefinitions.CrawlingLeft,
             slot.CurrentInstruction,

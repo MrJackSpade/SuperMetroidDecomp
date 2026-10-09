@@ -153,14 +153,13 @@ public sealed class SamusBombProjectileSystem
         var soundRequests = new List<SamusSoundRequest>();
         if (!samus.StationaryScriptControlLocked && SamusState.IsStableBallPose(samus.Pose))
         {
-            BombSpreadAdmission spread = HandleBombSpreadInput(bus, samus, controllerInput);
+            BombSpreadAdmission spread = HandleBombSpreadInput(samus, controllerInput);
             bombSpreadStarted = spread == BombSpreadAdmission.Spawned;
             beamChargeConsumed = spread is
                 BombSpreadAdmission.Spawned or BombSpreadAdmission.ChargeCancelled;
             if (spread == BombSpreadAdmission.NotApplicable)
             {
                 placedSlot = TryPlaceBomb(
-                    bus,
                     samus,
                     controllerInput,
                     controllerNewInput,
@@ -195,7 +194,6 @@ public sealed class SamusBombProjectileSystem
             // that earlier guard separately from sounds produced after the pre-instruction.
             bool soundSuppressedBeforePreInstruction = PowerBombExplosion.IsActive;
             bool slotExplosionStarted = RunBombPreInstruction(
-                bus,
                 level,
                 slot,
                 blockReactions,
@@ -235,7 +233,7 @@ public sealed class SamusBombProjectileSystem
                 continue;
             }
 
-            projectileDeleted |= RunProjectileInstructionHandler(bus, slot);
+            projectileDeleted |= RunProjectileInstructionHandler(slot);
         }
 
         // GameState_8 invokes $A0:9785 after frame-handler alpha (which placed/updated the
@@ -370,7 +368,6 @@ public sealed class SamusBombProjectileSystem
     }
 
     internal int? TryPlaceBomb(
-        ISnesAddressSpace bus,
         SamusState samus,
         ushort controllerInput,
         ushort controllerNewInput,
@@ -423,7 +420,7 @@ public sealed class SamusBombProjectileSystem
         slot.XPosition = samus.XPosition;
         slot.YPosition = samus.YPosition;
         slot.BombTimer = SamusBombSpreadRomData.InitialBombTimer;
-        InitializeBombFromRom(bus, slot);
+        InitializeBombFromRom(slot);
         CooldownTimer = placingPowerBomb
             ? SamusBombSpreadRomData.PowerBombCooldown
             : SamusBombSpreadRomData.NormalBombCooldown;
@@ -447,7 +444,6 @@ public sealed class SamusBombProjectileSystem
     }
 
     private BombSpreadAdmission HandleBombSpreadInput(
-        ISnesAddressSpace bus,
         SamusState samus,
         ushort controllerInput)
     {
@@ -483,11 +479,11 @@ public sealed class SamusBombProjectileSystem
             return BombSpreadAdmission.Charging;
         }
 
-        SpawnBombSpread(bus, samus);
+        SpawnBombSpread(samus);
         return BombSpreadAdmission.Spawned;
     }
 
-    private void SpawnBombSpread(ISnesAddressSpace bus, SamusState samus)
+    private void SpawnBombSpread(SamusState samus)
     {
         int verticalModifier =
             (samus.BombSpreadChargeTimeoutCounter >> 6) & 0x0003;
@@ -499,7 +495,7 @@ public sealed class SamusBombProjectileSystem
             slot.IsBombSpread = true;
             slot.XPosition = samus.XPosition;
             slot.YPosition = samus.YPosition;
-            InitializeBombFromRom(bus, slot);
+            InitializeBombFromRom(slot);
 
             BombSpreadLaunchDefinition launch = SamusBombSpreadLaunchDefinitions.ForSlot(index);
             slot.BombTimer = launch.FuseTimer;
@@ -557,7 +553,6 @@ public sealed class SamusBombProjectileSystem
     }
 
     private static void InitializeBombFromRom(
-        ISnesAddressSpace bus,
         SamusBombProjectileSlot slot)
     {
         // $93:80A6 reads the HIGH byte of type, masks its low nibble, and indexes the
@@ -576,7 +571,6 @@ public sealed class SamusBombProjectileSystem
     }
 
     private bool RunBombPreInstruction(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusBombProjectileSlot slot,
         List<BombBlockReaction> blockReactions,
@@ -642,7 +636,7 @@ public sealed class SamusBombProjectileSystem
         }
 
         if (slot.IsBombSpread && slot.BombTimer != 0)
-            MoveBombSpread(bus, level, slot, samusKinematics);
+            MoveBombSpread(level, slot, samusKinematics);
 
         if (typeFamily == SamusProjectileFamily.Bomb &&
             slot.BombTimer == 0 &&
@@ -682,7 +676,6 @@ public sealed class SamusBombProjectileSystem
     }
 
     private static void MoveBombSpread(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusBombProjectileSlot slot,
         SamusKinematicsState samus)
@@ -700,7 +693,7 @@ public sealed class SamusBombProjectileSystem
             slot.YSubposition,
             slot.BombSpreadYVelocity,
             slot.BombSpreadYSubvelocity);
-        if (BombSpreadCollides(bus, level, slot))
+        if (BombSpreadCollides(level, slot))
         {
             slot.YPosition = previousY;
             slot.YSubposition = previousYSub;
@@ -720,7 +713,7 @@ public sealed class SamusBombProjectileSystem
         ushort previousX = slot.XPosition;
         ushort previousXSub = slot.XSubposition;
         MoveBombSpreadHorizontally(slot);
-        if (!BombSpreadCollides(bus, level, slot))
+        if (!BombSpreadCollides(level, slot))
             return;
 
         slot.XPosition = previousX;
@@ -762,7 +755,6 @@ public sealed class SamusBombProjectileSystem
     }
 
     private static bool BombSpreadCollides(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusBombProjectileSlot slot)
     {
@@ -1088,7 +1080,6 @@ public sealed class SamusBombProjectileSystem
     }
 
     private bool RunProjectileInstructionHandler(
-        ISnesAddressSpace bus,
         SamusBombProjectileSlot slot)
     {
         // $93:81F2 is a wrapping 16-bit DEC. A legitimate initialized timer is always at

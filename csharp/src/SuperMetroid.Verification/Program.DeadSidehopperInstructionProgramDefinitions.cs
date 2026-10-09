@@ -43,7 +43,7 @@ internal static partial class Program
             "real Dead sidehopper initializer installs compiled alive-idle program");
 
         object?[] processArguments =
-            [corpse, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            [corpse, null, null, (ushort)0, (ushort)0, (ushort)0];
         ExecuteDeadSidehopperProgram(
             enemies,
             process,

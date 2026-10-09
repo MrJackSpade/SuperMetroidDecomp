@@ -404,9 +404,8 @@ public static class SamusKnockbackMovement
         // history record instead of assuming a hurt pose also covers the no-animation
         // path, where both radii ordinarily match and the alignment is a no-op.
         ushort previousRadius = SamusState.ReadPoseYRadius(
-            bus,
             unchecked((byte)samus.PoseHistory.PreviousPose));
-        ushort targetRadius = SamusState.ReadPoseYRadius(bus, samus.Pose);
+        ushort targetRadius = SamusState.ReadPoseYRadius(samus.Pose);
         samus.AlignBottomAfterPoseChange(previousRadius, targetRadius);
 
         // UpdateSamusPose jumps straight to command one without installing its own

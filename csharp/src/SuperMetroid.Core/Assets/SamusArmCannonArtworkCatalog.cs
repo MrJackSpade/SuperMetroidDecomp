@@ -711,7 +711,7 @@ public static class SamusArmCannonArtworkFormat
     /// <summary>Calculates named descriptor controls and adjacent cost aliases; coordinate geometry is resolved separately from body artwork.</summary>
     internal static bool TryStockDrawingByte(ushort address, out byte value)
     {
-        if (address >= AdjacentCostStart && address < DrawingDataEndExclusive)
+        if (address is >= AdjacentCostStart and < DrawingDataEndExclusive)
         {
             int offset = address - AdjacentCostStart;
             ushort cost = SamusComboMechanicsDefinitions.GetPowerBombCost(offset / sizeof(ushort));

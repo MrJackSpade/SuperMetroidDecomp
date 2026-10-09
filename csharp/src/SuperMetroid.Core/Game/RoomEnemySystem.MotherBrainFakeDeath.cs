@@ -525,8 +525,8 @@ public sealed partial class RoomEnemySystem
             : (ushort)0;
         EnemyCount = unchecked((ushort)Math.Max(EnemyCount, slotIndex + 1));
         FirstFreeEnemyIndex = unchecked((ushort)((slotIndex + 1) * NativeSlotSize));
-        if (_motherBrain is not null)
-            _motherBrain.SpawnedFallingTubeCount++;
+        if (MotherBrain is not null)
+            MotherBrain.SpawnedFallingTubeCount++;
     }
 
     /// <summary>Ports falling-tube initialization $A9:8B35.</summary>
@@ -588,7 +588,7 @@ public sealed partial class RoomEnemySystem
         // The brain follows the tube throughout its descent, including before hiding.
         if (tube.YPosition >= 0x00f4)
             tube.Properties = tube.Properties.With(EnemyProperties.Invisible);
-        MotherBrainEnemyState state = _motherBrain ??
+        MotherBrainEnemyState state = MotherBrain ??
             throw new InvalidOperationException("A falling main tube has no Mother Brain encounter state.");
         ushort headY = unchecked((ushort)(tube.YPosition - 56));
         state.Head!.YPosition = headY;
@@ -643,8 +643,8 @@ public sealed partial class RoomEnemySystem
         ushort y = tube.YPosition;
         tube.Properties = tube.Properties.With(EnemyProperties.Deleted);
         SpawnRoomGraphicsDustExplosion(x, y, animationIndex: 3);
-        if (_motherBrain is not null)
-            _motherBrain.LastSoundEffect = 0x24;
+        if (MotherBrain is not null)
+            MotherBrain.LastSoundEffect = SoundEffectLibrary2Sounds.SmallExplosion.Value;
     }
 
     private static void RequestMotherBrainRoomRows(

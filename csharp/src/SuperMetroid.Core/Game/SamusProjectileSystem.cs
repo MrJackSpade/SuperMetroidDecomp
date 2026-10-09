@@ -270,7 +270,7 @@ public sealed partial class SamusProjectileSystem
             ChargedShotGlowTimer = unchecked((ushort)(ChargedShotGlowTimer - 1));
             if (ChargedShotGlowTimer == 0)
             {
-                ushort normalPointer = LoadNormalSuitPalette(bus, cgram, samus);
+                ushort normalPointer = LoadNormalSuitPalette(cgram, samus);
                 LastBeamChargePaletteStep = new(
                     SamusBeamChargePaletteAction.RestoredNormalSuit);
                 return LastBeamChargePaletteStep;
@@ -304,7 +304,7 @@ public sealed partial class SamusProjectileSystem
             // `$91:D7C1` branches before DEC at `$D7CB`. Native explicitly zeroes the
             // already-`$8000` timer and returns carry so `$D717` performs the suit copy.
             ChargedShotGlowTimer = 0;
-            ushort normalPointer = LoadNormalSuitPalette(bus, cgram, samus);
+            ushort normalPointer = LoadNormalSuitPalette(cgram, samus);
             LastBeamChargePaletteStep = new(
                 SamusBeamChargePaletteAction.RestoredNormalSuit);
             return LastBeamChargePaletteStep;
@@ -453,7 +453,7 @@ public sealed partial class SamusProjectileSystem
 
             if (slot.PreInstruction == SamusProjectilePreInstruction.ShinesparkEcho)
             {
-                StepShinesparkEcho(bus, samus, slot, layer1X, layer1Y);
+                StepShinesparkEcho(samus, slot, layer1X, layer1Y);
                 projectileDeleted |= !slot.IsActive;
             }
             else if (slot.PreInstruction is SamusProjectilePreInstruction.IceCombo or
@@ -467,7 +467,7 @@ public sealed partial class SamusProjectileSystem
                 else if (slot.PreInstruction == SamusProjectilePreInstruction.WaveCombo)
                     comboSound = StepWaveCombo(bus, samus, slot, sharedProjectiles);
                 else if (slot.PreInstruction == SamusProjectilePreInstruction.PlasmaCombo)
-                    StepPlasmaCombo(bus, samus, slot, sharedProjectiles, layer1X, layer1Y);
+                    StepPlasmaCombo(samus, slot, sharedProjectiles, layer1X, layer1Y);
                 else comboSound = StepSpazerCombo(bus, samus, slot, sharedProjectiles, layer1Y);
                 projectileDeleted |= !slot.IsActive;
                 if (comboSound != 0)
@@ -494,7 +494,7 @@ public sealed partial class SamusProjectileSystem
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.HyperBeam)
             {
-                RunHyperBeamPreInstruction(bus, level, slot, layer1X, layer1Y, roomPlms);
+                RunHyperBeamPreInstruction(level, slot, layer1X, layer1Y, roomPlms);
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.Missile)
             {
@@ -565,7 +565,7 @@ public sealed partial class SamusProjectileSystem
             // Kill_Projectile replaces rather than clears a live beam. Consequently the
             // explosion's first bank-$93 record is selected in this same handler pass.
             if (slot.InstructionPointer != 0)
-                projectileDeleted |= RunProjectileInstructionHandler(bus, slot);
+                projectileDeleted |= RunProjectileInstructionHandler(slot);
         }
 
         LastFrameResult = new SamusProjectileFrameResult(
@@ -692,7 +692,7 @@ public sealed partial class SamusProjectileSystem
             // cull by world X. OAM retains the nine-bit X and lets the PPU clip it.
             // This also preserves sprite ordering/capacity when a combo orbits offscreen.
             if ((slot.SpritemapPointer & 0x8000) != 0)
-                DrawSlot(bus, oam, slot, layer1X, layer1Y, horizontalMargin: null, compositions);
+                DrawSlot(oam, slot, layer1X, layer1Y, horizontalMargin: null, compositions);
         }
     }
 
@@ -752,7 +752,7 @@ public sealed partial class SamusProjectileSystem
                     SamusProjectileFamily.MissileExplosion))
                 continue;
 
-            DrawSlot(bus, oam, slot, layer1X, layer1Y, horizontalMargin: 48, compositions);
+            DrawSlot(oam, slot, layer1X, layer1Y, horizontalMargin: 48, compositions);
         }
     }
 

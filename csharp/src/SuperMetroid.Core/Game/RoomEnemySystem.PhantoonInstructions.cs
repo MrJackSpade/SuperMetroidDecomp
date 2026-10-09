@@ -10,8 +10,7 @@ public sealed partial class RoomEnemySystem
     /// <returns>True when the callback installed another instruction list and interpretation must stop.</returns>
     private bool ProcessPhantoonInstructionFunction(
         RoomEnemySlot part,
-        ushort function,
-        byte nmiFrameCounter8)
+        ushort function)
     {
         PhantoonEnemyState state = RequireCompletePhantoonStateForPart(part);
         switch (function)
@@ -33,7 +32,7 @@ public sealed partial class RoomEnemySystem
                 return false;
 
             case PhantoonInstructionCodes.PickNewPhantoonPattern:
-                PickPhantoonSecondRoundPattern(state, nmiFrameCounter8);
+                PickPhantoonSecondRoundPattern(state);
                 return false;
 
             case PhantoonInstructionCodes.SpawnCasualFlame:
@@ -61,8 +60,7 @@ public sealed partial class RoomEnemySystem
     }
 
     private void PickPhantoonSecondRoundPattern(
-        PhantoonEnemyState state,
-        byte nmiFrameCounter8)
+        PhantoonEnemyState state)
     {
         RoomEnemySlot body = state.Body;
         RoomEnemySlot eye = state.Eye!;

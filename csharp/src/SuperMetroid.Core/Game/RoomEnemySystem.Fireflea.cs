@@ -198,10 +198,9 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private void ResolveFirefleaTouch(
         RoomEnemySlot slot,
-        SamusState samus,
-        ushort controllerInput)
+        SamusState samus)
     {
-        ResolveNormalEnemyTouch(slot, samus, controllerInput);
+        ResolveNormalEnemyTouch(slot, samus);
 
         // With ordinary contact, native A still contains the surviving health ($A0:A480).
         // EnemyDeath clamps values above four to the small explosion. Queue that real

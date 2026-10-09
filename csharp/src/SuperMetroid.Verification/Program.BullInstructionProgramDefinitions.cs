@@ -41,7 +41,7 @@ internal static partial class Program
             "Bull initializer program");
 
         object?[] processArguments =
-            [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
         for (int frame = 0; frame < 41; frame++)
             process.Invoke(enemies, processArguments);
         AssertEqual(unchecked((ushort)(BullInstructionProgramDefinitions.Normal + 4)),

@@ -47,7 +47,7 @@ internal static partial class Program
         {
             RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence(),
         };
-        typeof(RoomEnemySystem).GetField("_motherBrain", instanceFlags)!
+        typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", instanceFlags)!
             .SetValue(enemies, state);
 
         MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(

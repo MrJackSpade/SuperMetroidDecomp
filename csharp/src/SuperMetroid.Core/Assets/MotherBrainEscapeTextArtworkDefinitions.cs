@@ -56,5 +56,5 @@ public static class MotherBrainEscapeTextArtworkDefinitions
 
     /// <summary>Whether a native transfer begins in this installed visual source range.</summary>
     public static bool ContainsSource(uint sourceAddress) =>
-        sourceAddress >= SourceAddress && sourceAddress < SourceAddress + ByteCount;
+        sourceAddress is >= SourceAddress and < (SourceAddress + ByteCount);
 }

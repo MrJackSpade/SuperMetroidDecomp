@@ -16,12 +16,10 @@ internal sealed class CreditsObjectState
     [NonSerialized] private CreditsPresentation? presentation;
     private readonly ushort[] tilemap =
         new ushort[EndingCreditsRomData.Rendering.TilemapWords];
-    private ushort scrollWhole;
     private ushort scrollSubposition;
     private ushort previousCopiedScroll;
     private int destinationRow;
     private int sourceRow;
-    private bool enabled = true;
 
     public CreditsObjectState(CreditsPresentation presentation)
     {
@@ -29,9 +27,9 @@ internal sealed class CreditsObjectState
         Array.Fill(tilemap, EndingCreditsRomData.Rendering.BlankTile);
     }
 
-    public bool Enabled => enabled;
+    public bool Enabled { get; private set; } = true;
     public bool Finished { get; private set; }
-    public ushort VerticalScroll => scrollWhole;
+    public ushort VerticalScroll { get; private set; }
 
     public void BindPresentation(CreditsPresentation? value) => presentation = value;
 
@@ -42,25 +40,25 @@ internal sealed class CreditsObjectState
             return new CreditsObjectStepResult(false, Finished);
 
         // AddToHiLo($198F,$198D,$00008000): half a pixel per accepted frame.
-        uint fixedScroll = ((uint)scrollWhole << 16) | scrollSubposition;
+        uint fixedScroll = ((uint)VerticalScroll << 16) | scrollSubposition;
         fixedScroll = unchecked(
             fixedScroll + EndingCreditsRomData.Motion.CreditsScrollDelta16Point16);
-        scrollWhole = unchecked((ushort)(fixedScroll >> 16));
+        VerticalScroll = unchecked((ushort)(fixedScroll >> 16));
         scrollSubposition = unchecked((ushort)fixedScroll);
 
         // A new source row is interpreted whenever the scroll advances eight whole pixels,
         // i.e. every sixteen NTSC frames. The signed modular comparison is intentional.
-        if ((short)unchecked((ushort)(scrollWhole - previousCopiedScroll - 8)) < 0)
+        if ((short)unchecked((ushort)(VerticalScroll - previousCopiedScroll - 8)) < 0)
             return new CreditsObjectStepResult(false, Finished);
 
-        previousCopiedScroll = scrollWhole;
+        previousCopiedScroll = VerticalScroll;
         CreditsPresentation content = presentation ?? throw new InvalidOperationException(
             "Scrolling credits require installed ending-credits.json content.");
         bool copied;
         if (sourceRow >= content.RowCount)
         {
             Finished = true;
-            enabled = false;
+            Enabled = false;
             copied = false;
         }
         else

@@ -66,7 +66,7 @@ internal static partial class Program
                 slot.InstructionTimer = 1;
                 process.Invoke(
                     enemies,
-                    [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0]);
+                    [slot, null, null, (ushort)0, (ushort)0, (ushort)0]);
             }
             AssertEqual(unchecked((ushort)(KraidNailInstructionProgramDefinitions.Loop + 4)),
                 slot.CurrentInstruction,
@@ -107,7 +107,7 @@ internal static partial class Program
             var enemies = new RoomEnemySystem();
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            typeof(RoomEnemySystem).GetField("_kraidState", flags)!
+            typeof(RoomEnemySystem).GetField("<Kraid>k__BackingField", flags)!
                 .SetValue(enemies, new KraidEnemyState());
             typeof(RoomEnemySystem).GetField("_isAreaBossDefeated", flags)!
                 .SetValue(enemies, (Func<bool>)(() => false));

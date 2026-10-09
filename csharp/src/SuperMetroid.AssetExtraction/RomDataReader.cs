@@ -113,7 +113,7 @@ public static class RomDataReader
                 sourceAddress,
                 "Compressed ROM data must begin in an upper LoROM window.");
         }
-        if (maximumCompressedBytes <= 0 || maximumCompressedBytes > 0x8000)
+        if (maximumCompressedBytes is <= 0 or > 0x8000)
             throw new ArgumentOutOfRangeException(nameof(maximumCompressedBytes));
 
         // Walk command boundaries once; payload bytes (including $FF) are not headers.

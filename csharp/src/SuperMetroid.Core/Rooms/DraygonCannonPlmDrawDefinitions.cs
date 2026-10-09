@@ -76,13 +76,13 @@ internal static class DraygonCannonPlmDrawDefinitions
     {
         bool right, shield;
         int offset, stride;
-        if (pointer >= RightShieldA && pointer <= RightShieldB)
+        if (pointer is >= RightShieldA and <= RightShieldB)
         { right = true; shield = true; offset = pointer - RightShieldA; stride = 16; }
-        else if (pointer >= RightDamagedA && pointer <= RightDamagedD)
+        else if (pointer is >= RightDamagedA and <= RightDamagedD)
         { right = true; shield = false; offset = pointer - RightDamagedA; stride = 16; }
-        else if (pointer >= LeftShieldA && pointer <= LeftShieldB)
+        else if (pointer is >= LeftShieldA and <= LeftShieldB)
         { right = false; shield = true; offset = pointer - LeftShieldA; stride = 20; }
-        else if (pointer >= LeftDamagedA && pointer <= LeftDamagedD)
+        else if (pointer is >= LeftDamagedA and <= LeftDamagedD)
         { right = false; shield = false; offset = pointer - LeftDamagedA; stride = 20; }
         else { draw = default; return false; }
         bool owned = offset % stride == 0;

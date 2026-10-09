@@ -276,7 +276,7 @@ public sealed partial class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.CurveTowardMotherBrainHead:
-                UpdateSpeedAndAngle(bus, angleDelta: 0xfe80, targetAngle: 0xb000, targetSpeed: 0x0a00);
+                UpdateSpeedAndAngle(angleDelta: 0xfe80, targetAngle: 0xb000, targetSpeed: 0x0a00);
                 FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
                 if ((FunctionTimer & 0x8000) != 0)
                 {
@@ -286,7 +286,7 @@ public sealed partial class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.GetRightUpInMotherBrainsFace:
-                UpdateSpeedAndAngle(bus, angleDelta: 0xfa00, targetAngle: 0x8200, targetSpeed: 0x0e00);
+                UpdateSpeedAndAngle(angleDelta: 0xfa00, targetAngle: 0x8200, targetSpeed: 0x0e00);
                 brainCollision = CollidesWithRectangle(
                     head.X,
                     head.Y,

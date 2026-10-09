@@ -101,7 +101,7 @@ internal static class SamusBodyPlacementDefinitions
                 }
             }
             int offset = targetY - art.GraphicsYOffset((byte)target) - sourceY + join;
-            if (offset < sbyte.MinValue || offset > sbyte.MaxValue) return false;
+            if (offset is < sbyte.MinValue or > sbyte.MaxValue) return false;
             value = (sbyte)offset;
             return true;
         }
@@ -159,7 +159,7 @@ internal static class SamusBodyPlacementDefinitions
                 targetY -= art.GraphicsYOffset(standing);
             }
             int offset = targetY - sourceY;
-            if (offset < sbyte.MinValue || offset > sbyte.MaxValue) return false;
+            if (offset is < sbyte.MinValue or > sbyte.MaxValue) return false;
             value = (sbyte)offset;
             return true;
         }

@@ -22,6 +22,7 @@
     <Project Path="src/SuperMetroid.RenderVerification/SuperMetroid.RenderVerification.csproj" />
     <Project Path="src/SuperMetroid.DesktopVerification/SuperMetroid.DesktopVerification.csproj" />
     <Project Path="src/SuperMetroid.EnsureVerification/SuperMetroid.EnsureVerification.csproj" />
+    <Project Path="src/SuperMetroid.BuildPolicyVerification/SuperMetroid.BuildPolicyVerification.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />

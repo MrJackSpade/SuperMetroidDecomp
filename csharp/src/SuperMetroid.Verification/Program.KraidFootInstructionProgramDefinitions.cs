@@ -134,7 +134,7 @@ internal static partial class Program
             "_bus",
             BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(enemies, bus);
         typeof(RoomEnemySystem).GetField(
-            "_kraidState",
+            "<Kraid>k__BackingField",
             BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(
                 enemies,
                 new KraidEnemyState());
@@ -172,7 +172,7 @@ internal static partial class Program
         RoomEnemySlot foot)
     {
         ushort previousSprite = foot.SpritemapPointer;
-        process.Invoke(enemies, [foot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0]);
+        process.Invoke(enemies, [foot, null, null, (ushort)0, (ushort)0, (ushort)0]);
         ushort record = unchecked((ushort)(foot.CurrentInstruction - 4));
         if ((ReadKraidFootInstructionWord(rom, record) & 0x8000) == 0)
             VerifyExecutedEnemySelector(rom, foot, executedOperands);

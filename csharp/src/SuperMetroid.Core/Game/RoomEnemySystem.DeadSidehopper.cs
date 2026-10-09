@@ -384,12 +384,11 @@ public sealed partial class RoomEnemySystem
     private void ResolveDeadSidehopperTouch(
         RoomEnemySlot slot,
         DeadSidehopperEnemyState state,
-        SamusState samus,
-        ushort controllerInput)
+        SamusState samus)
     {
         if (state.PaletteStage < 8)
         {
-            ResolveNormalEnemyTouch(slot, samus, controllerInput);
+            ResolveNormalEnemyTouch(slot, samus);
             return;
         }
         TriggerDeadSidehopperRotting(slot, state);

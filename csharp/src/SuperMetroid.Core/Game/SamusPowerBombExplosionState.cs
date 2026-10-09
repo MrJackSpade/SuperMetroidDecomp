@@ -16,14 +16,9 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusPowerBombExplosionState
 {
-    [NonSerialized] private PowerBombFixedColorCatalog? presentationColors;
-
     /// <summary>Current host-owned explosion colors; excluded from debugger-state serialization.</summary>
-    public PowerBombFixedColorCatalog? PresentationColors
-    {
-        get => presentationColors;
-        set => presentationColors = value;
-    }
+    [field: NonSerialized]
+    public PowerBombFixedColorCatalog? PresentationColors { get; set; }
 
     /// <summary>WRAM $0CEE. Negative means an armed/executing power bomb.</summary>
     public ushort Flag { get; private set; }
@@ -196,26 +191,26 @@ public sealed class SamusPowerBombExplosionState
                 return false;
 
             case PowerBombExplosionPhase.PreExplosionWhite:
-                StepPreExplosionWhite(bus);
+                StepPreExplosionWhite();
                 return false;
 
             case PowerBombExplosionPhase.PreExplosionYellow:
-                StepPreExplosionYellow(bus);
+                StepPreExplosionYellow();
                 return false;
 
             case PowerBombExplosionPhase.ExplosionYellow:
-                StepExplosionYellow(bus);
+                StepExplosionYellow();
                 return false;
 
             case PowerBombExplosionPhase.ExplosionWhite:
-                StepExplosionWhite(bus);
+                StepExplosionWhite();
                 return false;
 
             case PowerBombExplosionPhase.Afterglow:
                 return StepAfterglow();
 
             case PowerBombExplosionPhase.CrystalFlashExplosion:
-                StepCrystalFlashExplosion(bus);
+                StepCrystalFlashExplosion();
                 return false;
 
             case PowerBombExplosionPhase.CrystalFlashAfterglow:
@@ -266,11 +261,10 @@ public sealed class SamusPowerBombExplosionState
             Phase = PowerBombExplosionPhase.Inactive;
     }
 
-    private void StepPreExplosionWhite(ISnesAddressSpace bus)
+    private void StepPreExplosionWhite()
     {
         RenderedPreExplosionRadius = PreExplosionRadius;
         ReadFixedColor(
-            bus,
             PowerBombFixedColorSequence.PreExplosion,
             ((PreExplosionRadius >> 8) >> 3) & 0x0f);
 
@@ -290,11 +284,10 @@ public sealed class SamusPowerBombExplosionState
         Phase = PowerBombExplosionPhase.PreExplosionYellow;
     }
 
-    private void StepPreExplosionYellow(ISnesAddressSpace bus)
+    private void StepPreExplosionYellow()
     {
         RenderedPreExplosionRadius = PreExplosionRadius;
         ReadFixedColor(
-            bus,
             PowerBombFixedColorSequence.PreExplosion,
             ((PreExplosionRadius >> 8) >> 3) & 0x0f);
 
@@ -327,11 +320,10 @@ public sealed class SamusPowerBombExplosionState
         Phase = PowerBombExplosionPhase.ExplosionYellow;
     }
 
-    private void StepExplosionYellow(ISnesAddressSpace bus)
+    private void StepExplosionYellow()
     {
         RenderedExplosionRadius = ExplosionRadius;
         ReadFixedColor(
-            bus,
             PowerBombFixedColorSequence.Explosion,
             (ExplosionRadius >> 8) >> 3);
 
@@ -350,11 +342,10 @@ public sealed class SamusPowerBombExplosionState
         Phase = PowerBombExplosionPhase.ExplosionWhite;
     }
 
-    private void StepExplosionWhite(ISnesAddressSpace bus)
+    private void StepExplosionWhite()
     {
         RenderedExplosionRadius = ExplosionRadius;
         ReadFixedColor(
-            bus,
             PowerBombFixedColorSequence.Explosion,
             (ExplosionRadius >> 8) >> 3);
 
@@ -416,13 +407,12 @@ public sealed class SamusPowerBombExplosionState
         return false;
     }
 
-    private void StepCrystalFlashExplosion(ISnesAddressSpace bus)
+    private void StepCrystalFlashExplosion()
     {
         // `$88:A552` is a deliberately shorter clone of the yellow Power Bomb expansion.
         // It uses the same curve and fixed-color table, but stops at radius `$20.00`.
         RenderedExplosionRadius = ExplosionRadius;
         ReadFixedColor(
-            bus,
             PowerBombFixedColorSequence.Explosion,
             (ExplosionRadius >> 8) >> 3);
 
@@ -495,11 +485,10 @@ public sealed class SamusPowerBombExplosionState
             SamusSpecialSequenceRomData.PowerBomb.AfterglowTimerReload);
     }
 
-    private void ReadFixedColor(ISnesAddressSpace bus,
-        PowerBombFixedColorSequence sequence, int colorIndex)
+    private void ReadFixedColor(PowerBombFixedColorSequence sequence, int colorIndex)
     {
         (FixedColorRed, FixedColorGreen, FixedColorBlue) =
-            (presentationColors ?? throw new InvalidOperationException(
+            (PresentationColors ?? throw new InvalidOperationException(
                 "Power Bomb color requires installed fixed-color definitions."))
             .Resolve(sequence, colorIndex);
     }

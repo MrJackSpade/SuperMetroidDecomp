@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class SamusProjectileSystem
 {
     /// <summary>Original $90:D793 Plasma ring update; phase is stored in the slot's native Y-speed word.</summary>
-    internal void StepPlasmaCombo(ISnesAddressSpace bus, SamusState samus,
+    internal void StepPlasmaCombo(SamusState samus,
         SamusProjectileSlot slot, SamusBombProjectileSystem shared, ushort cameraX, ushort cameraY)
     {
         if (slot.PreInstruction != SamusProjectilePreInstruction.PlasmaCombo)

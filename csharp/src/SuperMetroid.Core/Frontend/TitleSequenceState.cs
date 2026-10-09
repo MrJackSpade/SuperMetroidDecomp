@@ -36,8 +36,6 @@ public sealed class TitleSequenceState
     [NonSerialized] private TitleGradientPresentation? titleGradientPresentation;
     [NonSerialized] private TitlePalettePresentation? titlePalettePresentation;
     [NonSerialized] private TitleGraphicsPresentation? titleGraphicsPresentation;
-
-    private TitleSequencePhase phase;
     private int phaseTimer;
     private int sequenceEntry;
     private int sequenceEntryTimer;
@@ -119,7 +117,7 @@ public sealed class TitleSequenceState
     }
 
     /// <summary>Current native title sub-state, exposed as a stable debugger label.</summary>
-    public TitleSequencePhase Phase => phase;
+    public TitleSequencePhase Phase { get; private set; }
 
     /// <summary>True after the title's slow fade has handed control to file select.</summary>
     public bool FileSelectRequested { get; private set; }
@@ -143,7 +141,7 @@ public sealed class TitleSequenceState
             titleGraphicsPresentation);
         title.EnterImmediateTitleObjects();
         title.brightness = 0;
-        title.phase = TitleSequencePhase.TitleScreenFadeIn;
+        title.Phase = TitleSequencePhase.TitleScreenFadeIn;
         return title;
     }
 
@@ -162,7 +160,7 @@ public sealed class TitleSequenceState
         // EnterImmediateTitleObjects already overlaid these two cells before a saved
         // title-screen state was captured. Reapply the currently installed colors so
         // loading that state cannot pin the previous installation's glyph colors.
-        if (phase is TitleSequencePhase.TitleScreenFadeIn or
+        if (Phase is TitleSequencePhase.TitleScreenFadeIn or
             TitleSequencePhase.TitleScreen or TitleSequencePhase.TitleScreenFadeOut)
         {
             cgram.SetColor(TitleSequenceRomData.Palette.CopyrightWhiteIndex,
@@ -184,13 +182,13 @@ public sealed class TitleSequenceState
         // their INIDISP values are observable in native traces.
         bool confirmPressed =
             controller.NewlyPressedButtons.HasAny(TitleSequenceRomData.Timing.ConfirmButtons);
-        if (confirmPressed && phase < TitleSequencePhase.TitleScreenFadeIn)
+        if (confirmPressed && Phase < TitleSequencePhase.TitleScreenFadeIn)
         {
-            phase = TitleSequencePhase.SkipFadeOut;
+            Phase = TitleSequencePhase.SkipFadeOut;
             phaseTimer = 0;
         }
 
-        switch (phase)
+        switch (Phase)
         {
             case TitleSequencePhase.YearText:
             case TitleSequencePhase.NintendoText:
@@ -236,7 +234,7 @@ public sealed class TitleSequenceState
                     activeOriginX = TitleSequenceRomData.Sprites.LogoX;
                     activeOriginY = TitleSequenceRomData.Sprites.LogoY;
                     activeCharacterOffset = TitleSequenceRomData.Sprites.TitleCharacterOffset.Raw;
-                    phase = TitleSequencePhase.TitleLogoFade;
+                    Phase = TitleSequencePhase.TitleLogoFade;
                     phaseTimer = TitleSequenceRomData.Timing.LogoHoldFrames;
                 }
                 break;
@@ -247,7 +245,7 @@ public sealed class TitleSequenceState
                     // `$8B:A0E1` holds the copyright for 32 frames before arming the
                     // 900-frame demo countdown. The palette FX itself remains future work;
                     // its final cartridge palette is already the visible CGRAM source.
-                    phase = TitleSequencePhase.CopyrightFade;
+                    Phase = TitleSequencePhase.CopyrightFade;
                     phaseTimer = TitleSequenceRomData.Timing.CopyrightHoldFrames;
                 }
                 break;
@@ -269,7 +267,7 @@ public sealed class TitleSequenceState
                         MusicCommand.SelectTrack(TitleSequenceRomData.Music.ImmediateTitleTrack));
                     EnterImmediateTitleObjects();
                     rebuildConsolePaletteFxAfterStep = true;
-                    phase = TitleSequencePhase.TitleScreenFadeIn;
+                    Phase = TitleSequencePhase.TitleScreenFadeIn;
                 }
                 break;
 
@@ -286,12 +284,12 @@ public sealed class TitleSequenceState
                 if (--phaseTimer <= 0)
                 {
                     fadingToDemo = true;
-                    phase = TitleSequencePhase.TitleScreenFadeOut;
+                    Phase = TitleSequencePhase.TitleScreenFadeOut;
                     phaseTimer = TitleSequenceRomData.Timing.TitleFadeCadenceFrames;
                 }
                 else if (confirmPressed)
                 {
-                    phase = TitleSequencePhase.TitleScreenFadeOut;
+                    Phase = TitleSequencePhase.TitleScreenFadeOut;
                     phaseTimer = TitleSequenceRomData.Timing.TitleFadeCadenceFrames;
                 }
                 break;
@@ -429,7 +427,7 @@ public sealed class TitleSequenceState
                 activeOriginX, activeOriginY, activeCharacterOffset);
         }
 
-        if (phase is >= TitleSequencePhase.CopyrightFade and <= TitleSequencePhase.TitleScreenFadeOut)
+        if (Phase is >= TitleSequencePhase.CopyrightFade and <= TitleSequencePhase.TitleScreenFadeOut)
         {
             artwork.DrawSprite(TitleSequenceRomData.Sprites.NintendoCopyright, oam,
                 TitleSequenceRomData.Sprites.CopyrightX, TitleSequenceRomData.Sprites.CopyrightY,
@@ -464,25 +462,25 @@ public sealed class TitleSequenceState
             switch (durationOrCommand)
             {
                 case CinematicCodePointers.Instruction_TriggerTitleSequenceScene0:
-                    phase = TitleSequencePhase.SceneZeroPan;
+                    Phase = TitleSequencePhase.SceneZeroPan;
                     mode7BackgroundEnabled = true; // TM=$11 at `$8B:9CE3-$9CE5`.
                     ApplyScene(TitleSequenceRomData.Scenes.SceneZero);
                     return;
 
                 case CinematicCodePointers.Instruction_TriggerTitleSequenceScene1:
-                    phase = TitleSequencePhase.SceneOnePan;
+                    Phase = TitleSequencePhase.SceneOnePan;
                     mode7BackgroundEnabled = true; // TM=$11 at `$8B:9D5D-$9D61`.
                     ApplyScene(TitleSequenceRomData.Scenes.SceneOne);
                     return;
 
                 case CinematicCodePointers.Instruction_TriggerTitleSequenceScene2:
-                    phase = TitleSequencePhase.SceneTwoPan;
+                    Phase = TitleSequencePhase.SceneTwoPan;
                     mode7BackgroundEnabled = true; // TM=$11 at `$8B:9DD6-$9DDA`.
                     ApplyScene(TitleSequenceRomData.Scenes.SceneTwo);
                     return;
 
                 case CinematicCodePointers.Instruction_TriggerTitleSequenceScene3:
-                    phase = TitleSequencePhase.SceneThreeZoom;
+                    Phase = TitleSequencePhase.SceneThreeZoom;
                     gradientEnabled = true;
                     mode7BackgroundEnabled = true; // TM=$11 at `$8B:9E58-$9E5C`.
                     phaseTimer = 0;
@@ -503,7 +501,7 @@ public sealed class TitleSequenceState
 
     private void BeginTextSequence(TitleTextSequenceDefinition definition)
     {
-        phase = definition.Phase;
+        Phase = definition.Phase;
         sequenceEntry = definition.InstructionAddress;
         sequenceEntryTimer = 1;
         activeSpritemap = TitleSequenceRomData.Sprites.Blank;
@@ -544,7 +542,7 @@ public sealed class TitleSequenceState
     private void EnterTitleScreen()
     {
         EnterImmediateTitleObjects();
-        phase = TitleSequencePhase.TitleScreen;
+        Phase = TitleSequencePhase.TitleScreen;
         phaseTimer = TitleSequenceRomData.Timing.TitleScreenNtscFrames;
         brightness = TitleSequenceRomData.Timing.MaximumBrightness;
     }
@@ -615,7 +613,7 @@ public sealed class TitleSequenceState
 
     private void ApplyScene(TitleMode7SceneDefinition definition)
     {
-        phase = definition.Phase;
+        Phase = definition.Phase;
         mode7BackgroundEnabled = true;
         zoom = definition.Scale;
         mode7X = definition.HorizontalOffset;

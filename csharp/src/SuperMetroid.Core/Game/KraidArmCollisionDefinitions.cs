@@ -178,7 +178,7 @@ internal static class KraidArmCollisionDefinitions
             components = new(distance / GeneralFrameBytes % 10, 5);
             return true;
         }
-        if (pointer == FirstSingleComponentFrame || pointer == SecondSingleComponentFrame)
+        if (pointer is FirstSingleComponentFrame or SecondSingleComponentFrame)
         {
             components = new(pointer == FirstSingleComponentFrame ? 10 : 11, 1);
             return true;

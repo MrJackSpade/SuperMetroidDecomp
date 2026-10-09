@@ -137,9 +137,9 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            bool initial = address >= BabyMetroidCutsceneColorRomData.InitialSource &&
-                address < BabyMetroidCutsceneColorRomData.InitialSource +
-                    BabyMetroidCutsceneColorRomData.InitialColorCount * sizeof(ushort);
+            bool initial = address is >= BabyMetroidCutsceneColorRomData.InitialSource and
+                < (BabyMetroidCutsceneColorRomData.InitialSource +
+                    BabyMetroidCutsceneColorRomData.InitialColorCount * sizeof(ushort));
             bool fade = address >= BabyMetroidCutsceneColorRomData.FirstFadeSource &&
                 address < BabyMetroidCutsceneColorRomData.FadeSource(
                     BabyMetroidCutsceneColorRomData.FadeFrameCount) +

@@ -37,7 +37,7 @@ internal static partial class Program
         MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(
             "SpawnGoldenTorizoSuperMissile", flags)!;
         MethodInfo runFlight = typeof(RoomEnemySystem).GetMethod(
-            "RunGoldenTorizoSuperMissileFlight", flags)!;
+            "RunGoldenTorizoSuperMissileFlight", BindingFlags.NonPublic | BindingFlags.Static)!;
 
         foreach (bool facingRight in new[] { false, true })
         {

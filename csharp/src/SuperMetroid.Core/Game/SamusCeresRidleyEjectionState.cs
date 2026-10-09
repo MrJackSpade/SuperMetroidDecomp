@@ -131,8 +131,8 @@ public sealed class SamusCeresRidleyEjectionState
             samus.Kinematics.YSubspeed = 0;
             samus.Kinematics.YDirection = 0;
             samus.AlignBottomAfterPoseChange(
-                SamusState.ReadPoseYRadius(bus, (byte)samus.PoseHistory.PreviousPose),
-                SamusState.ReadPoseYRadius(bus, samus.Pose));
+                SamusState.ReadPoseYRadius((byte)samus.PoseHistory.PreviousPose),
+                SamusState.ReadPoseYRadius(samus.Pose));
             return new CeresRidleyEjectionResult();
         }
 

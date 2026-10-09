@@ -211,9 +211,9 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (address >= SamusVisorColorFormat.SourceAddress &&
-                address < SamusVisorColorFormat.SourceAddress +
-                    SamusVisorColorFormat.ColorCount * sizeof(ushort))
+            if (address is >= SamusVisorColorFormat.SourceAddress and
+                < (SamusVisorColorFormat.SourceAddress +
+                    SamusVisorColorFormat.ColorCount * sizeof(ushort)))
             {
                 ForbiddenReads++;
                 throw new InvalidOperationException($"Installed visor read native color ${address:X6}.");

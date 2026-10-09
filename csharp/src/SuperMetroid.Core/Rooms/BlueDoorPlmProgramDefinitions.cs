@@ -30,7 +30,7 @@ internal static class BlueDoorPlmProgramDefinitions
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;
-        if (address < FirstAddress || address >= LastAddress) return false;
+        if (address is < FirstAddress or >= LastAddress) return false;
         TryReadMechanicsByte(address, out byte low);
         TryReadMechanicsByte((ushort)(address + 1), out byte high);
         value = (ushort)(low | high << 8);
@@ -47,7 +47,7 @@ internal static class BlueDoorPlmProgramDefinitions
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         value = 0;
-        if (address < FirstAddress || address > LastAddress) return false;
+        if (address is < FirstAddress or > LastAddress) return false;
         int orientation = (address - FirstAddress) / OrientationBytes;
         int local = (address - FirstAddress) % OrientationBytes;
         int clear = ClearLeft + orientation * 12;
@@ -76,7 +76,7 @@ internal static class BlueDoorPlmProgramDefinitions
         }
         else
         {
-            start = local == 0 || local == 1 || local is 40 or 41 ? local & ~1 : ((local - 1) & ~1) + 1;
+            start = local is 0 or 1 or 40 or 41 ? local & ~1 : ((local - 1) & ~1) + 1;
             word = start switch
             {
                 0 or 29 => RoomPlmInstructionCodes.QueueSoundLibrary3Maximum6,

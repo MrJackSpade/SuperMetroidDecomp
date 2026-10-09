@@ -173,7 +173,7 @@ internal static partial class Program
     {
         bool moved = false;
         object?[] arguments =
-            [segment, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            [segment, null, null, (ushort)0, (ushort)0, (ushort)0];
         for (int step = 0; step < steps; step++)
         {
             (ushort X, ushort Y) before = (segment.XPosition, segment.YPosition);

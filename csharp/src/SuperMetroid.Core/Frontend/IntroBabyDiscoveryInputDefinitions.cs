@@ -60,12 +60,12 @@ internal static class IntroBabyDiscoveryInputDefinitions
     {
         int offset;
         ushort word;
-        if (pointer >= ListStart && pointer < ListEnd)
+        if (pointer is >= ListStart and < ListEnd)
         {
             offset = pointer - ListStart;
             word = ListWord(offset / 2);
         }
-        else if (pointer >= HeaderStart && pointer < HeaderEnd)
+        else if (pointer is >= HeaderStart and < HeaderEnd)
         {
             offset = pointer - HeaderStart;
             word = HeaderWord(offset / 2);
@@ -77,7 +77,7 @@ internal static class IntroBabyDiscoveryInputDefinitions
 
     internal static ushort ReadWord(ushort pointer)
     {
-        if (pointer >= ListStart && pointer < ListEnd - 1 || pointer >= HeaderStart && pointer < HeaderEnd - 1)
+        if (pointer is >= ListStart and < (ListEnd - 1) or >= HeaderStart and < (HeaderEnd - 1))
             return (ushort)(ReadByte(pointer) | ReadByte((ushort)(pointer + 1)) << 8);
         throw new InvalidDataException(
             $"SR388 discovery demo word $91:{pointer:X4} leaves its compiled program.");

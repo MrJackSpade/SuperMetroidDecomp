@@ -70,7 +70,7 @@ internal static class BombTorizoGreyDoorPlmProgramDefinitions
             word = offset % 4 < 2 ? (ushort)(frame == 0 ? 1 : 2) : (ushort)(ClosedDraw + frame * 12);
             start = 0xba5b + (offset / 2) * 2;
         }
-        else if (address >= Flash && address < 0xbab3)
+        else if (address is >= Flash and < 0xbab3)
         {
             int offset = address - Flash;
             bool blue = offset % 8 < 4;

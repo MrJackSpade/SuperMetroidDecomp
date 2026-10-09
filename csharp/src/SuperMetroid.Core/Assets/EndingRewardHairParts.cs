@@ -67,7 +67,7 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
                     else tile = 0x188 - 2 * (index - 7); // lower pair
                     originX = index < 5 ? -15 : -64;
                     originY = index < 5 ? -232 : -208;
-                    large = index == 4 || index >= 7;
+                    large = index is 4 or >= 7;
                     break;
                 case >= 1 and <= 3:
                     if (index < 2) tile = index == (stage == 2 ? 0 : 1)

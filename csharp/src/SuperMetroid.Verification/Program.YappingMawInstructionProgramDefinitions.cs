@@ -38,7 +38,7 @@ internal static partial class Program
             (RoomEnemySystem enemies, RoomEnemySlot slot, _) =
                 NewYappingMawInstructionSystem(guard, flags, entry);
             object?[] arguments =
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+                [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
             RunYappingMawInstructionFrames(process, enemies, arguments, slot, count: 5);
             AssertEqual(unchecked((ushort)(entry + 4)), slot.CurrentInstruction,
                 $"Yapping Maw attack direction {direction} completes its loop");
@@ -85,7 +85,7 @@ internal static partial class Program
             (RoomEnemySystem enemies, RoomEnemySlot slot, YappingMawEnemyState state) =
                 NewYappingMawInstructionSystem(guard, flags, entry);
             object?[] arguments =
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+                [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
             RunYappingMawInstructionFrames(process, enemies, arguments, slot, count: 1);
             AssertEqual(unchecked((ushort)x), state.HeldSamusXOffset,
                 $"Yapping Maw {name} callback X offset");

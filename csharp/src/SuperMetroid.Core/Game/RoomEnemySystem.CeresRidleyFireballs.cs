@@ -780,14 +780,14 @@ public sealed partial class RoomEnemySystem
 
         if (state.FacingDirection == 0)
         {
-            if (angle < 0x40 || angle >= 0xeb)
+            if (angle is < 0x40 or >= 0xeb)
                 angle = 0xeb;
             else if (angle < 0xb0)
                 angle = 0xb0;
         }
         else
         {
-            if (angle < 0x15 || angle >= 0xc0)
+            if (angle is < 0x15 or >= 0xc0)
                 angle = 0x15;
             else if (angle >= 0x50)
                 angle = 0x50;
@@ -1326,7 +1326,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private bool MoveProjectileAxis(
+    private static bool MoveProjectileAxis(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level,
         bool horizontal)
@@ -1409,7 +1409,7 @@ public sealed partial class RoomEnemySystem
         return false;
     }
 
-    private bool ProjectileAxisProbeHitsRoom(
+    private static bool ProjectileAxisProbeHitsRoom(
         RoomLevelData level,
         RoomEnemyProjectileSlot projectile,
         int blockX,
@@ -1768,7 +1768,7 @@ public sealed partial class RoomEnemySystem
                     break;
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_MotherBrainPurpleBreath_Inactive
                     when projectile.Kind == RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall:
-                    (_motherBrain ?? throw new InvalidOperationException(
+                    (MotherBrain ?? throw new InvalidOperationException(
                         "Mother Brain's small purple breath ran without its encounter state."))
                         .SmallPurpleBreathActive = false;
                     cursor = unchecked((ushort)(cursor + 2));

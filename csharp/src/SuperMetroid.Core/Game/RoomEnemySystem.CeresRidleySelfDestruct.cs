@@ -212,7 +212,7 @@ public sealed partial class RoomEnemySystem
     {
         var installed = state.CeresEscapeTypewriter ?? throw new InvalidDataException(
             "Ceres warning text requires installed typewriter artwork.");
-        bool completed = installed.Step(_bus!, _vram!);
+        bool completed = installed.Step(_vram!);
         state.CeresEscapeTextPointer = unchecked((ushort)installed.Pointer);
         state.CeresEscapeTextDestination = installed.Destination;
         state.CeresEscapeTextDelayTimer = installed.DelayTimer;

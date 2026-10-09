@@ -40,8 +40,8 @@ internal static class DraygonCannonPlmProgramDefinitions
 
     private static bool TryLocate(ushort address, out int start, out int offset)
     {
-        start = address >= RightStart && address <= RightEnd ? RightStart :
-            address >= LeftStart && address <= LeftEnd ? LeftStart : 0;
+        start = address is >= RightStart and <= RightEnd ? RightStart :
+            address is >= LeftStart and <= LeftEnd ? LeftStart : 0;
         offset = start == 0 ? 0 : address - start;
         return start != 0;
     }

@@ -40,7 +40,7 @@ public sealed class GitHubErrorReporter : IDisposable
     private readonly Channel<QueuedError> queue = Channel.CreateUnbounded<QueuedError>(
         new UnboundedChannelOptions { SingleReader = true, SingleWriter = false });
     private readonly Dictionary<string, int> sessionOccurrences = new(StringComparer.Ordinal);
-    private readonly object fingerprintLock = new();
+    private readonly Lock fingerprintLock = new();
     private readonly Task worker;
     private int disposed;
 

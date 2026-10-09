@@ -10,7 +10,7 @@ public sealed partial class RoomEnemySystem
         ushort projectileY,
         ushort callback)
     {
-        CrocomireEnemyState state = _crocomire ??
+        CrocomireEnemyState state = Crocomire ??
             throw new InvalidOperationException("Crocomire hitbox has no body owner.");
         RoomEnemySlot body = state.Body;
 

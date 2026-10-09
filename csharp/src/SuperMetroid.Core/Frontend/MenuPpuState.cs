@@ -22,10 +22,10 @@ internal sealed class MenuPpuState
         bool loadInitialBackground = true)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        BindWorldArtwork(bus, worldArtwork);
-        BindMapTiles(bus, mapTiles);
-        BindMapSprites(bus, sprites);
-        BindMapPalettes(bus, mapPalettes);
+        BindWorldArtwork(worldArtwork);
+        BindMapTiles(mapTiles);
+        BindMapSprites(sprites);
+        BindMapPalettes(mapPalettes);
         // Saved-map views do not consume this template: the world view excludes
         // BG2 from its layers, and room select installs its own complete frame.
         // Other menus still require the shared native initialization.
@@ -35,7 +35,7 @@ internal sealed class MenuPpuState
     }
 
     /// <summary>Refreshes the two world character regions only; retains tilemaps and ongoing palette state.</summary>
-    public void BindWorldArtwork(ISnesAddressSpace bus, WorldMapArtwork? worldArtwork)
+    public void BindWorldArtwork(WorldMapArtwork? worldArtwork)
     {
         (worldArtwork ?? throw new InvalidOperationException(
             "Menu PPU requires installed world-map artwork.")).LoadTo(Vram);
@@ -43,20 +43,20 @@ internal sealed class MenuPpuState
 
     public SnesVram Vram { get; } = new();
 
-    public void BindMapTiles(ISnesAddressSpace bus, MapTileAtlas? mapTiles)
+    public void BindMapTiles(MapTileAtlas? mapTiles)
     {
         (mapTiles ?? throw new InvalidOperationException(
             "Menu PPU requires installed map tiles.")).LoadTo(Vram, 0x6000);
     }
 
-    public void BindMapSprites(ISnesAddressSpace bus, MapSpriteCatalog? sprites)
+    public void BindMapSprites(MapSpriteCatalog? sprites)
     {
         (sprites ?? throw new InvalidOperationException(
             "Menu PPU requires installed sprite artwork."))
             .LoadArtworkTo(Vram, MapSpriteFormat.FileSelectDestination);
     }
 
-    public void BindMapPalettes(ISnesAddressSpace bus, MapStaticPalettes? mapPalettes)
+    public void BindMapPalettes(MapStaticPalettes? mapPalettes)
     {
         MapStaticPalettes palettes = mapPalettes ?? throw new InvalidOperationException(
             "Menu PPU requires installed palettes.");

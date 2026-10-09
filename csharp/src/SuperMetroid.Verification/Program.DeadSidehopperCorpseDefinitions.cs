@@ -118,8 +118,8 @@ internal static partial class Program
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address) =>
-            address is >= 0xa9dd68 and < 0xa9dd88 ||
-            address is >= 0xa9e242 and < 0xa9e244
+            address is >= 0xa9dd68 and < 0xa9dd88 or
+            >= 0xa9e242 and < 0xa9e244
                 ? throw new InvalidOperationException(
                     $"Dead sidehopper attempted migrated corpse metadata read ${address:X6}.")
                 : source.ReadByte(address);

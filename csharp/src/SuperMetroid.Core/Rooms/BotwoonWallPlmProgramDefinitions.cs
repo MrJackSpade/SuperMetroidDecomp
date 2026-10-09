@@ -19,7 +19,7 @@ internal static class BotwoonWallPlmProgramDefinitions
 
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
-        if (address >= Crumble + 8 && address < Crumble + 24)
+        if (address is >= (Crumble + 8) and < (Crumble + 24))
         {
             int offset = address - Crumble - 8;
             if (offset % 4 == 0)

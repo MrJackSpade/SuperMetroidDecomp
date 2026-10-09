@@ -29,7 +29,7 @@ internal static partial class Program
         for (int raw = 0; raw <= byte.MaxValue; raw++)
         {
             var behavior = (StationAccessBehavior)raw;
-            if (raw < 0x47 || raw > 0x4c)
+            if (raw is < 0x47 or > 0x4c)
             {
                 AssertThrows<InvalidDataException>(() => StationAccessPlmDefinitions.Resolve(behavior), "Station access full rejected BTS domain");
                 continue;

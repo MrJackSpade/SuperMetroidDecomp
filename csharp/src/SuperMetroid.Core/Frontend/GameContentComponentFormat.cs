@@ -52,7 +52,7 @@ public static class GameContentComponentFormat
         for (int index = 0; index < count; index++)
         {
             int length = reader.ReadInt32();
-            if (length <= 0 || length > MaximumNameByteCount)
+            if (length is <= 0 or > MaximumNameByteCount)
                 throw new InvalidDataException("Content identity has an invalid component-name length.");
             byte[] bytes = new byte[length];
             source.ReadExactly(bytes);

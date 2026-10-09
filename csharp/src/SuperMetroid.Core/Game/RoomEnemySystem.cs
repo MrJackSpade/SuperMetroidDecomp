@@ -61,7 +61,6 @@ public sealed partial class RoomEnemySystem
     public GradualColorChangeCounter GradualColorChange { get; private set; } = new();
     // Live dependency supplied by EnemyMain, shared by ordinary and custom touch callbacks.
     private SamusProjectileSystem? _samusProjectilesForEnemyFrame;
-    private RidleyEnemyState? _ridleyState;
     private SporeSpawnEnemyState? _sporeSpawn;
     private bool _processAllEnemies;
     private GunshipLoadScenario _gunshipLoadScenario;
@@ -79,28 +78,24 @@ public sealed partial class RoomEnemySystem
     [field: NonSerialized]
     public CeresRidleyMode7ColorCatalog? CeresRidleyMode7Colors { get; set; }
 
-    [NonSerialized] private EscapeTypewriterPresentation? escapeTypewriterPresentation;
     /// <summary>Current host-owned escape-warning text, rebound after debugger restoration.</summary>
-    public EscapeTypewriterPresentation? EscapeTypewriterPresentation
-    {
-        get => escapeTypewriterPresentation;
-        set
+    [field: NonSerialized]
+    public EscapeTypewriterPresentation? EscapeTypewriterPresentation { get; set
         {
-            escapeTypewriterPresentation = value;
-            EscapeTypewriterState? active = _motherBrain?.EscapeTypewriter;
+            field = value;
+            EscapeTypewriterState? active = MotherBrain?.EscapeTypewriter;
             if (active?.ProgramId == EscapeTypewriterProgramId.Zebes)
             {
                 if (value is null) active.UnbindProgram();
                 else active.BindProgram(value.Get(EscapeTypewriterProgramId.Zebes));
             }
-            EscapeTypewriterState? ceres = _ridleyState?.CeresEscapeTypewriter;
+            EscapeTypewriterState? ceres = Ridley?.CeresEscapeTypewriter;
             if (ceres?.ProgramId == EscapeTypewriterProgramId.Ceres)
             {
                 if (value is null) ceres.UnbindProgram();
                 else ceres.BindProgram(value.Get(EscapeTypewriterProgramId.Ceres));
             }
-        }
-    }
+        } }
 
     /// <summary>Creates all 32 stable physical slot objects without loading a room or binding memory, graphics, random-number, or gameplay services.</summary>
     public RoomEnemySystem()
@@ -188,7 +183,7 @@ public sealed partial class RoomEnemySystem
     /// object is both more accurate and considerably easier to inspect than aliasing dozens
     /// of unrelated generic slot words.
     /// </summary>
-    public RidleyEnemyState? Ridley => _ridleyState;
+    public RidleyEnemyState? Ridley { get; private set; }
 
     /// <summary>
     /// Compatibility view used by the existing Ceres debugger. It deliberately becomes
@@ -196,7 +191,7 @@ public sealed partial class RoomEnemySystem
     /// encounter assumptions to the real boss fight.
     /// </summary>
     public RidleyEnemyState? CeresRidley =>
-        _slots[0].EnemyDefinitionPointer == CeresRidleyDefinition ? _ridleyState : null;
+        _slots[0].EnemyDefinitionPointer == CeresRidleyDefinition ? Ridley : null;
 
     /// <summary>
     /// Native <c>ceres_status</c> word consumed by the Ceres door actor. Fresh station load
@@ -381,7 +376,7 @@ public sealed partial class RoomEnemySystem
         EarthquakeTimer = 0;
         EarthquakeType = 0;
         LastRoomShake = default;
-        _ridleyState = null;
+        Ridley = null;
         RidleyDeathDropRequested = false;
         _processAllEnemies = false;
         Array.Clear(_boyonStates);
@@ -518,8 +513,7 @@ public sealed partial class RoomEnemySystem
             level,
             samus,
             controllerInput,
-            cameraX,
-            cameraY);
+            cameraX);
     }
 
     /// <summary>
@@ -658,13 +652,13 @@ public sealed partial class RoomEnemySystem
         _kraidPlmRequests.Clear();
         LastSpacePirateSoundEffect = null;
         LastEnemyProjectileDudSoundEffect = null;
-        if (_ridleyState is not null)
+        if (Ridley is not null)
         {
             // These are one-shot publications made by Ridley's current AI call, matching
             // the global QueueMusic/QueueSfx calls in bank $A6. Clear them at the same
             // enemy-frame boundary as every other Last* request above.
-            _ridleyState.LastDeathSoundEffect = null;
-            _ridleyState.MusicRequest = null;
+            Ridley.LastDeathSoundEffect = null;
+            Ridley.MusicRequest = null;
         }
         LastBeetomSoundEffect = null;
         LastWorkRobotSoundEffect = null;
@@ -682,7 +676,7 @@ public sealed partial class RoomEnemySystem
         _deadTorizoFrameVramTransfers.Clear();
         BeginDeadSidehopperFrame();
         BeginShitroidFrame();
-        _motherBrain?.BeginFrame();
+        MotherBrain?.BeginFrame();
         BeginSporeSpawnFrame();
         LastRioSoundEffect = null;
         LastNorfairLavaJumpingEnemySoundEffect = null;
@@ -730,7 +724,7 @@ public sealed partial class RoomEnemySystem
                     continue;
                 ResolveOrdinarySamusContact(samus, controllerInput, level, nativeIndex);
                 if (IsRidleyDefinition(slot.EnemyDefinitionPointer))
-                    ResolveRidleyBodySamusContact(samus, controllerInput);
+                    ResolveRidleyBodySamusContact(samus);
                 if (slot.EnemyDefinitionPointer == 0)
                     continue;
             }
@@ -883,8 +877,7 @@ public sealed partial class RoomEnemySystem
                             level,
                             cameraX,
                             cameraY,
-                            controllerInput,
-                            enemyNmiFrameCounter8);
+                            controllerInput);
                 }
             }
 
@@ -1095,8 +1088,8 @@ public sealed partial class RoomEnemySystem
     /// </remarks>
     private ushort SelectCommonEnemyDrawPalette(RoomEnemySlot slot)
     {
-        if (IsRidleyDefinition(slot.EnemyDefinitionPointer) && _ridleyState is not null)
-            return _ridleyState.CommonDrawPaletteIndex;
+        if (IsRidleyDefinition(slot.EnemyDefinitionPointer) && Ridley is not null)
+            return Ridley.CommonDrawPaletteIndex;
 
         if (slot.FlashTimer != 0 && (_randomEnemyCounter & 2) != 0)
             return 0;
@@ -1181,8 +1174,7 @@ public sealed partial class RoomEnemySystem
         RoomLevelData? level,
         SamusState? samus,
         ushort controllerInput,
-        ushort cameraX,
-        ushort cameraY)
+        ushort cameraX)
     {
         ReadOnlySpan<RoomEnemyPopulationRecord> records = populationDefinition.Records.Span;
         for (int slotIndex = 0; slotIndex < records.Length; slotIndex++)
@@ -1200,7 +1192,7 @@ public sealed partial class RoomEnemySystem
             InitializeSlotFromDefinition(slot, population, definition);
             if (definition.BossId != 0)
                 BossId = definition.BossId;
-            RunInitializationAi(slot, level, samus, controllerInput, cameraX, cameraY);
+            RunInitializationAi(slot, level, samus, controllerInput, cameraX);
 
             // InitializeEnemies deliberately clears the init routine's immediate map.
             // Disable-Samus-collision actors receive the canonical empty map until their
@@ -1281,8 +1273,7 @@ public sealed partial class RoomEnemySystem
         RoomLevelData? level = null,
         SamusState? samus = null,
         ushort controllerInput = 0,
-        ushort cameraX = 0,
-        ushort cameraY = 0)
+        ushort cameraX = 0)
     {
         int address = (slot.Definition.Bank << 16) | slot.Definition.InitializationAiPointer;
         switch (address)
@@ -1393,7 +1384,7 @@ public sealed partial class RoomEnemySystem
                 InitializeNorfairRidleyExplosion(
                     slot,
                     _slots[0],
-                    _ridleyState ?? throw new InvalidOperationException(
+                    Ridley ?? throw new InvalidOperationException(
                         "A Ridley breakup actor has no shared Ridley owner."));
                 return;
             case EnemyAiCodePointers.InitAI_Boulder when slot.EnemyDefinitionPointer == BoulderDefinition:
@@ -1785,7 +1776,7 @@ public sealed partial class RoomEnemySystem
                 RunShitroidMain(slot, samus, cameraX, cameraY, sharedProjectiles);
                 return;
             case EnemyAiCodePointers.MainAI_Crocomire when slot.EnemyDefinitionPointer == CrocomireDefinition:
-                RunCrocomireMain(slot, samus, controllerInput, level, cameraX);
+                RunCrocomireMain(slot, samus, cameraX);
                 return;
             case EnemyAiCodePointers.MainAI_SporeSpawn when slot.EnemyDefinitionPointer == SporeSpawnDefinition:
                 RunSporeSpawnMain(slot, RequireSporeSpawnState(slot));
@@ -1816,7 +1807,6 @@ public sealed partial class RoomEnemySystem
                     RequireMamaTurtleState(slot),
                     samus,
                     level,
-                    controllerInput,
                     nmiFrameCounter8);
                 return;
             case EnemyAiCodePointers.MainAI_BabyTurtle when slot.EnemyDefinitionPointer == MamaTurtleEnemyDefinitionCatalog.BabyPointer:
@@ -2173,7 +2163,7 @@ public sealed partial class RoomEnemySystem
                 RunKraidNailMain(slot, level);
                 return;
             case EnemyAiCodePointers.MainAI_Phantoon when slot.EnemyDefinitionPointer == PhantoonBodyDefinition:
-                RunPhantoonMain(slot, samus, cameraX, cameraY, nmiFrameCounter8);
+                RunPhantoonMain(slot, samus, cameraX, cameraY);
                 return;
             case EnemyAiCodePointers.RTL_A7E011
                 when slot.EnemyDefinitionPointer is
@@ -2666,9 +2656,7 @@ public sealed partial class RoomEnemySystem
             $"Enemy sprite ${bank:X2}:{pointer:X4} requires an installed display composition.");
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static",
-        Justification = "The instance interpreter selector is a reflection seam for existing focused fixtures.")]
-    private ushort ReadEnemyVisualSelector(RoomEnemySlot slot, ushort operandAddress)
+    private static ushort ReadEnemyVisualSelector(RoomEnemySlot slot, ushort operandAddress)
     {
         if (slot.EnemyDefinitionPointer is MotherBrainBodyDefinition or MotherBrainHeadDefinition &&
             operandAddress == MotherBrainBodyInstructionProgramDefinitions.InitialDummyVisualOperand)
@@ -2707,8 +2695,7 @@ public sealed partial class RoomEnemySystem
         RoomLevelData? level,
         ushort cameraX,
         ushort cameraY,
-        ushort controllerInput,
-        byte nmiFrameCounter8)
+        ushort controllerInput)
     {
         ushort oldTimer = slot.InstructionTimer;
         slot.InstructionTimer = unchecked((ushort)(slot.InstructionTimer - 1));
@@ -2875,8 +2862,7 @@ public sealed partial class RoomEnemySystem
                         unchecked((ushort)(cursor + 2)));
                     bool stop = ProcessPhantoonInstructionFunction(
                         slot,
-                        function,
-                        nmiFrameCounter8);
+                        function);
                     if (stop)
                         return;
                     cursor = unchecked((ushort)(cursor + 4));
@@ -3213,7 +3199,7 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyInstructionCodePointers.Instruction_Alcoon_StartWalking when slot.EnemyDefinitionPointer == AlcoonDefinition:
-                    cursor = StartAlcoonWalking(slot, RequireAlcoonState(slot));
+                    cursor = StartAlcoonWalking(RequireAlcoonState(slot));
                     break;
                 case EnemyInstructionCodePointers.Instruction_Alcoon_DecrementStepCounter_MoveHorizontally when slot.EnemyDefinitionPointer == AlcoonDefinition:
                     cursor = MoveAlcoonHorizontally(
@@ -3718,11 +3704,7 @@ public sealed partial class RoomEnemySystem
     /// Resolves simulation-owned enemy instruction words from compiled definitions.
     /// Presentation selectors resolve separately to installed artwork identities.
     /// </summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage(
-        "Performance",
-        "CA1822:Mark members as static",
-        Justification = "The instance interpreter owns this dispatcher and tests replace it by reflection.")]
-    private ushort ReadEnemyInstructionMechanicsWord(RoomEnemySlot slot, ushort address)
+    private static ushort ReadEnemyInstructionMechanicsWord(RoomEnemySlot slot, ushort address)
     {
         if (slot.EnemyDefinitionPointer is BombTorizoDefinition or GoldenTorizoDefinition)
             return TorizoInstructionProgramDefinitions.ReadMechanicsWord(address);

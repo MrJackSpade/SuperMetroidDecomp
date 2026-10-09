@@ -19,7 +19,7 @@ internal static partial class Program
         FieldInfo busField = typeof(RoomEnemySystem).GetField(
             "_bus", BindingFlags.Instance | BindingFlags.NonPublic)!;
         FieldInfo motherBrainField = typeof(RoomEnemySystem).GetField(
-            "_motherBrain", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            "<MotherBrain>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var guarded = new MotherBrainDeathExplosionReadGuard(rom);
         for (ushort parameter = 0; parameter < 3; parameter++)
         {

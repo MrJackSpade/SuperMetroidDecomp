@@ -494,8 +494,8 @@ internal static class GameplayMessageIdsAccess
         /// </summary>
         internal static GameplayMessageId FromCartridge(byte value, string sourceContext)
         {
-            if ((value is < (byte)GameplayMessageId.EnergyTank or > (byte)GameplayMessageId.GravitySuit) &&
-                value != (byte)GameplayMessageId.GunshipSaveConfirmation)
+            if (                value is (< (byte)GameplayMessageId.EnergyTank or > (byte)GameplayMessageId.GravitySuit) and
+                not ((byte)GameplayMessageId.GunshipSaveConfirmation))
             {
                 throw new NotSupportedException(
                     $"Gameplay message ${value:X2} from {sourceContext} is not translated.");
@@ -1359,7 +1359,7 @@ internal static class RoomEnemySystemAccess
             ArgumentNullException.ThrowIfNull(bus);
             ArgumentNullException.ThrowIfNull(projectiles);
             ArgumentNullException.ThrowIfNull(sharedProjectiles);
-            var kraid = PrivateState.Field<KraidEnemyState?>(self, "_kraidState");
+            var kraid = PrivateState.Field<KraidEnemyState?>(self, "<Kraid>k__BackingField");
             RoomEnemySlot body = self.Slots[0];
             if (kraid is null || body.EnemyDefinitionPointer != RoomEnemySystem.KraidDefinition ||
                 body.Properties.HasAny(EnemyProperties.Deleted))
@@ -1588,7 +1588,6 @@ internal static class RoomEnemySystemAccess
         internal void StepEnemyProjectiles(
             RoomLevelData level,
             SamusState? samus,
-            ushort controllerInput = 0,
             ushort cameraX = 0,
             ushort cameraY = 0,
             byte? nmiFrameCounter8 = null,
@@ -1614,8 +1613,8 @@ internal static class RoomEnemySystemAccess
         }
 
         /// <summary>Standalone contact probe; runtime dispatches body before AI and tail during tail update.</summary>
-        internal bool ResolveRidleySamusContact(SamusState samus, ushort controllerInput) =>
-            (bool)PrivateState.Invoke(self, "ResolveRidleyBodySamusContact", samus, controllerInput)! ||
+        internal bool ResolveRidleySamusContact(SamusState samus) =>
+            (bool)PrivateState.Invoke(self, "ResolveRidleyBodySamusContact", samus)! ||
             (bool)PrivateState.Invoke(self, "ResolveRidleyTailSamusContact", samus)!;
     }
 }
@@ -2128,8 +2127,8 @@ internal static class SamusShinesparkStateAccess
         {
             ArgumentNullException.ThrowIfNull(bus);
             ArgumentNullException.ThrowIfNull(samus);
-            PrivateState.Invoke(self, "StepReleasedCrashEcho", (SamusState)(samus), (ushort)(layer1X), (ushort)(layer1Y), (byte)(3), PrivateState.Field<object>(self, "_firstReleasedCrashEcho"));
-            PrivateState.Invoke(self, "StepReleasedCrashEcho", (SamusState)(samus), (ushort)(layer1X), (ushort)(layer1Y), (byte)(4), PrivateState.Field<object>(self, "_secondReleasedCrashEcho"));
+            PrivateState.Invoke(self, "StepReleasedCrashEcho", (SamusState)(samus), (ushort)(layer1X), (ushort)(layer1Y), PrivateState.Field<object>(self, "_firstReleasedCrashEcho"));
+            PrivateState.Invoke(self, "StepReleasedCrashEcho", (SamusState)(samus), (ushort)(layer1X), (ushort)(layer1Y), PrivateState.Field<object>(self, "_secondReleasedCrashEcho"));
         }
     }
 }
@@ -2242,7 +2241,7 @@ internal static class ScrollBoundaryCameraAccess
     {
         internal static void RequireDistance(ushort pixelDistance)
         {
-            if (pixelDistance == 0 || pixelDistance >= 0x8000)
+            if (pixelDistance is 0 or >= 0x8000)
                 throw new ArgumentOutOfRangeException(nameof(pixelDistance));
         }
     }

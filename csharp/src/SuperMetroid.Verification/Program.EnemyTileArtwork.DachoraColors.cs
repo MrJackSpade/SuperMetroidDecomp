@@ -163,9 +163,9 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            bool colors = address >= DachoraColorRomData.DefaultSource &&
-                address < DachoraColorRomData.ShineSource +
-                    DachoraColorRomData.AnimatedFrameCount * DachoraColorRomData.FrameByteCount;
+            bool colors = address is >= DachoraColorRomData.DefaultSource and
+                < (DachoraColorRomData.ShineSource +
+                    DachoraColorRomData.AnimatedFrameCount * DachoraColorRomData.FrameByteCount);
             bool speedSelectors = address >= DachoraColorRomData.SpeedPointerTable &&
                 address < DachoraColorRomData.SpeedPointerTable +
                     DachoraColorRomData.AnimatedFrameCount * sizeof(ushort);

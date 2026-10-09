@@ -39,7 +39,7 @@ internal sealed class IntroMotherBrainExplosionSystem
     {
         ArgumentNullException.ThrowIfNull(bus);
         foreach (ExplosionActor actor in actors)
-            actor.Step(bus, introCrossfadeTimer);
+            actor.Step(introCrossfadeTimer);
     }
 
     /// <summary>Adds each visible spritemap in native actor order to cinematic OAM.</summary>
@@ -106,7 +106,7 @@ internal sealed class IntroMotherBrainExplosionSystem
                 instructionTimer: placement.StartTimer);
         }
 
-        public void Step(ISnesAddressSpace bus, ushort introCrossfadeTimer)
+        public void Step(ushort introCrossfadeTimer)
         {
             if (!IsActive)
                 return;

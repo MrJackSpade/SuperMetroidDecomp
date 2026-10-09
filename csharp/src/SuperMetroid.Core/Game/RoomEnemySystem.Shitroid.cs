@@ -229,17 +229,16 @@ public sealed partial class RoomEnemySystem
         _shitroid = state;
 
         CopyShitroidTargetPalette(state, ShitroidColorTarget.Sidehopper,
-            ShitroidColorRomData.SidehopperTarget, destinationColor: 0x90);
+            destinationColor: 0x90);
         CopyShitroidTargetPalette(state, ShitroidColorTarget.Shitroid,
-            ShitroidColorRomData.ShitroidTarget, destinationColor: 0xa0);
+            destinationColor: 0xa0);
         CopyShitroidTargetPalette(state, ShitroidColorTarget.DeadSidehopper,
-            ShitroidColorRomData.DeadSidehopperTarget, destinationColor: 0xf0);
+            destinationColor: 0xf0);
     }
 
     private void CopyShitroidTargetPalette(
         ShitroidEnemyState state,
         ShitroidColorTarget target,
-        int sourceAddress,
         int destinationColor)
     {
         for (int color = 0; color < ShitroidColorRomData.TargetColorCount; color++)
@@ -717,12 +716,12 @@ public sealed partial class RoomEnemySystem
         if (unchecked((short)slot.YPosition) < 0)
             return true;
         int screenY = unchecked((short)(slot.YPosition + 96 - _shitroidCameraY));
-        if (screenY < 0 || screenY >= 416)
+        if (screenY is < 0 or >= 416)
             return true;
         if (unchecked((short)slot.XPosition) < 0)
             return true;
         int screenX = unchecked((short)(slot.XPosition + 16 - _shitroidCameraX));
-        return screenX < 0 || screenX >= 288;
+        return screenX is < 0 or >= 288;
     }
 
     private static bool AccelerateShitroidExactly(

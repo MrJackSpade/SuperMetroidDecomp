@@ -98,19 +98,19 @@ internal static class SamusRunningCadenceDefinitions
             value = unchecked((byte)((ushort)OrdinaryDelays >> ((address - OrdinaryPointer) * 8)));
             return true;
         }
-        if (address >= OrdinaryDelays && address < BoostPointers)
+        if (address is >= OrdinaryDelays and < BoostPointers)
         {
             value = address == BoostPointers - 1 ? (byte)0xff : (byte)2;
             return true;
         }
-        if (address >= BoostPointers && address < BoostDelays)
+        if (address is >= BoostPointers and < BoostDelays)
         {
             int index = address - BoostPointers;
             ushort pointer = unchecked((ushort)(BoostDelays + (index / 2) * StreamLength));
             value = unchecked((byte)(pointer >> ((index & 1) * 8)));
             return true;
         }
-        if (address >= BoostDelays && address < ResetWords)
+        if (address is >= BoostDelays and < ResetWords)
         {
             int index = address - BoostDelays;
             int frame = index % StreamLength;
@@ -126,7 +126,7 @@ internal static class SamusRunningCadenceDefinitions
             };
             return true;
         }
-        if (address >= ResetWords && address < ResetWords + 10)
+        if (address is >= ResetWords and < (ResetWords + 10))
         {
             int index = address - ResetWords;
             value = (index & 1) != 0 ? (byte)0 : index < 8 ? (byte)1 : (byte)2;

@@ -40,7 +40,7 @@ internal static partial class Program
         GrowingShutterEnemyState state = enemies.GrowingShutterStates[0]!;
 
         object?[] processArguments =
-            [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
         for (int programIndex = 0;
              programIndex < GrowingShutterInstructionProgramDefinitions.ProgramCount;
              programIndex++)

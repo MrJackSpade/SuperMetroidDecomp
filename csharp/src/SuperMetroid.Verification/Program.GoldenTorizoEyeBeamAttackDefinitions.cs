@@ -15,8 +15,8 @@ internal static partial class Program
                 GoldenTorizoEyeBeamAttackInstructionProgramDefinitions.MechanicsWord(index);
             AssertTrue(addresses.Add(word.Address),
                 $"Golden Torizo eye-beam control $AA:{word.Address:X4} is unique");
-            AssertTrue(word.Address >= GoldenTorizoEyeBeamAttackInstructionProgramDefinitions.Start &&
-                       word.Address < GoldenTorizoEyeBeamAttackInstructionProgramDefinitions.End,
+            AssertTrue(word.Address is >= GoldenTorizoEyeBeamAttackInstructionProgramDefinitions.Start and
+                       < GoldenTorizoEyeBeamAttackInstructionProgramDefinitions.End,
                 $"Golden Torizo eye-beam control $AA:{word.Address:X4} is bounded");
             AssertEqual(ReadWord(word.Address), word.Value,
                 $"Golden Torizo eye-beam control $AA:{word.Address:X4}");

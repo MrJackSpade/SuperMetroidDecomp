@@ -151,10 +151,10 @@ internal static partial class Program
         public byte ReadByte(int address)
         {
             if (address is >= EnemyRomTablePointersTorizo.SuperMissileInstructionPointers and
-                    < EnemyRomTablePointersTorizo.SuperMissileInstructionPointers + 4 ||
-                address is >= EnemyRomTablePointersWorkRobotConstants.InitialInstructionListWords and
-                    < EnemyRomTablePointersWorkRobotConstants.InitialInstructionListWords + 8 ||
-                address is >= EnemyRomTablePointersTourianStatueConstants.InstructionListWords and
+                    < EnemyRomTablePointersTorizo.SuperMissileInstructionPointers + 4 or
+                >= EnemyRomTablePointersWorkRobotConstants.InitialInstructionListWords and
+                    < EnemyRomTablePointersWorkRobotConstants.InitialInstructionListWords + 8 or
+                >= EnemyRomTablePointersTourianStatueConstants.InstructionListWords and
                     < EnemyRomTablePointersTourianStatueConstants.InstructionListWords + 6)
                 throw new InvalidOperationException(
                     $"Enemy instruction selector still reads compiled ROM byte ${address:X6}.");

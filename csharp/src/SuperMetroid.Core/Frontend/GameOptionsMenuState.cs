@@ -82,10 +82,10 @@ public sealed class GameOptionsMenuState
     {
         mapPresentation = catalog ?? throw new InvalidOperationException(
             "Options menu requires installed presentation assets.");
-        ppu.BindWorldArtwork(bus, catalog.WorldArtwork);
-        ppu.BindMapTiles(bus, catalog.Tiles);
-        ppu.BindMapSprites(bus, catalog.Sprites);
-        ppu.BindMapPalettes(bus, catalog.Palettes);
+        ppu.BindWorldArtwork(catalog.WorldArtwork);
+        ppu.BindMapTiles(catalog.Tiles);
+        ppu.BindMapSprites(catalog.Sprites);
+        ppu.BindMapPalettes(catalog.Palettes);
         catalog.GameOptions.LoadBackground(ppu.Vram);
         Copy(catalog.GameOptions.CreatePage(GameOptionsPresentationDefinitions.PrimaryPage), primaryTilemap);
         Copy(catalog.GameOptions.CreatePage(GameOptionsPresentationDefinitions.ControllerEnglishPage), controllerEnglishTilemap);

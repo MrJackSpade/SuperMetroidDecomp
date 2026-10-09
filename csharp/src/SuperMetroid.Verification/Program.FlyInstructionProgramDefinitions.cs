@@ -46,7 +46,7 @@ internal static partial class Program
             MethodInfo process = typeof(RoomEnemySystem).GetMethod(
                 "ProcessInstructions", flags)!;
             object?[] arguments =
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+                [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
             for (int frame = 0; frame < 9; frame++)
                 process.Invoke(enemies, arguments);
             AssertEqual(unchecked((ushort)(FlyInstructionProgramDefinitions.Flight + 4)),

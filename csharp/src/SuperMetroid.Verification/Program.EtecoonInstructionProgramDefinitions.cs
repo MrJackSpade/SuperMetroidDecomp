@@ -137,7 +137,7 @@ internal static partial class Program
     {
         etecoon.CurrentInstruction = program;
         object?[] arguments =
-            [etecoon, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            [etecoon, null, null, (ushort)0, (ushort)0, (ushort)0];
         for (int call = 0; call < callCount; call++)
         {
             etecoon.InstructionTimer = 1;

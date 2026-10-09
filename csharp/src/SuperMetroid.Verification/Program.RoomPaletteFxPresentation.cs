@@ -808,7 +808,7 @@ internal static partial class Program
             {
                 int green = (int)Math.Round(startGreen * (1.0 - row / 4.0) + endGreen * row / 4.0, MidpointRounding.ToEven);
                 int blue = startBlue + green - startGreen;
-                bool accepted = blue >= 0 && blue < 32;
+                bool accepted = blue is >= 0 and < 32;
                 AssertEqual(accepted, HeatPaletteColorDefinitions.TryMixedRamp((ushort)(0xe470 + (2 * row - 1) * 34), endpoints, out ushort actual),
                     "Edited green/blue relation has exact RGB5 representability boundary");
                 AssertEqual(accepted ? (ushort)(green << 5 | blue << 10) : (ushort)0, actual,

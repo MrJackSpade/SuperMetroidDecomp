@@ -65,7 +65,6 @@ public sealed class DoorTransitionState
         CartridgeAudioState audio,
         ushort controllerInput,
         IDoorLoaderProgressSource loaderProgress,
-        Func<ushort>? queueEchoSound = null,
         Action? publishSoundWaitAudio = null)
     {
         ArgumentNullException.ThrowIfNull(runtime);

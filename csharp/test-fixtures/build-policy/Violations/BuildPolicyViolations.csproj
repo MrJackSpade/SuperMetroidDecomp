@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- #142 fixture: built by SuperMetroid.BuildPolicyVerification with the repository's
+       ordinary Directory.Build and .editorconfig settings, never with extra flags. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+</Project>

@@ -77,7 +77,7 @@ public sealed partial class RoomEnemySystem
         return true;
     }
 
-    private void RunKraidRockPreInstruction(
+    private static void RunKraidRockPreInstruction(
         RoomEnemyProjectileSlot rock,
         RoomLevelData level)
     {
@@ -95,7 +95,7 @@ public sealed partial class RoomEnemySystem
         rock.YVelocity = unchecked((ushort)(rock.YVelocity + 0x0040));
     }
 
-    private void RunKraidCeilingRockPreInstruction(
+    private static void RunKraidCeilingRockPreInstruction(
         RoomEnemyProjectileSlot rock,
         RoomLevelData level)
     {

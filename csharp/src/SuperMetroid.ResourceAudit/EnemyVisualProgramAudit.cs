@@ -61,7 +61,7 @@ internal static class EnemyVisualProgramAudit
             {
                 shape = "two-families";
                 foreach (bool metaree in new[] { false, true })
-                for (int i = 0; i < SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordCount(metaree); i++)
+                for (int i = 0; i < SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordCount(); i++)
                     addresses.Add(SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordAddress(metaree, i));
             }
             else if (type == typeof(CeresBabyInstructionProgramDefinitions))
@@ -143,7 +143,7 @@ internal static class EnemyVisualProgramAudit
         if (type == typeof(SkreeMetareeInstructionProgramDefinitions))
         {
             foreach (bool metaree in new[] { false, true })
-            for (int i = 0; i < SkreeMetareeInstructionProgramDefinitionsTooling.MechanicsWordCount(metaree); i++)
+            for (int i = 0; i < SkreeMetareeInstructionProgramDefinitionsTooling.MechanicsWordCount(); i++)
             {
                 var word = SkreeMetareeInstructionProgramDefinitions.MechanicsWord(metaree, i);
                 result.Add(word.Address, word.Value);
@@ -205,7 +205,7 @@ internal static class EnemyVisualProgramAudit
             pointer = DeadTourianCorpseVisualDefinitions.FrameAt(operand);
         else if (type == typeof(SkreeMetareeInstructionProgramDefinitions))
             pointer = EnemySpritemapDefinitions.SkreeMetareeFrameAt(
-                Enumerable.Range(0, SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordCount(true))
+                Enumerable.Range(0, SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordCount())
                     .Any(i => SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordAddress(true, i) == operand), operand);
         else if (!CompiledEnemyVisualSelectors.TryGet(bank, operand, out pointer))
         {

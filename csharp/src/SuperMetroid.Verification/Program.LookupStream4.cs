@@ -1276,7 +1276,7 @@ internal static partial class Program
         {
             object icon=typeof(GameplayHudPresentation).GetField(name,BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(stock)!;
             AssertEqual(0,((Dictionary<int,ushort>)icon.GetType().GetField("edits",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(icon)!).Count,"Stock icon has no stored cell overrides");
-            AssertEqual<object?>(null,icon.GetType().GetField("anchorOverride",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(icon),"Stock icon derives anchor");
+            AssertEqual<object?>(null,icon.GetType().GetField("<Anchor>k__BackingField",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(icon),"Stock icon derives anchor");
         }
         for(int edit=-1;edit<132;edit++)
         {
@@ -2437,7 +2437,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_bus",flags)!.SetValue(enemies,new ProjectileCompositionForbiddenBus());
         var slot = new RoomEnemySlot(0) { EnemyDefinitionPointer = DraygonEnemyDefinitionPointers.Body,
             Definition = default(RoomEnemyDefinition) with { Bank = 0xa5 } };
-        var read = typeof(RoomEnemySystem).GetMethod("ReadEnemyVisualSelector",flags)!.CreateDelegate<Func<RoomEnemySlot,ushort,ushort>>(enemies);
+        var read = typeof(RoomEnemySystem).GetMethod("ReadEnemyVisualSelector",BindingFlags.NonPublic | BindingFlags.Static)!.CreateDelegate<Func<RoomEnemySlot,ushort,ushort>>();
         for(int index=0;index<250;index++)
         {
             ushort address=DraygonInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
@@ -2840,7 +2840,7 @@ internal static partial class Program
                     for (int color = 0; color < 256; color++)
                         AssertEqual(color is >= 113 and < 127 ? Pack(document.Reveal[row][color - 113])
                             : color is >= 160 and < 192 ? Pack(document.Initial[color - 160])
-                            : color == 127 || color >= 241 ? (ushort)0 : (ushort)0x1234,
+                            : color is 127 or >= 241 ? (ushort)0 : (ushort)0x1234,
                             cgram.Colors[color], "Actual producer preserves full CGRAM, held rows and independent source edits");
                 }
                 AssertEqual(RidleyAiFunction.ClearVelocity, state.Function, "Native terminator handoff");

@@ -118,7 +118,7 @@ internal sealed partial class CeresDestructionCinematicState
         IEnumerable<IntroDiscoverySprite> drawActors = Phase <= CeresDestructionPhase.FadeOutCeres
             ? actors.OrderByDescending(actor => ceresActorSlots[actor]) : actors;
         foreach (IntroDiscoverySprite actor in drawActors)
-            actor.Draw(bus, oam, installedArt: spriteArtwork);
+            actor.Draw(oam, installedArt: spriteArtwork);
         oam.FinalizeFrame();
         return oam;
     }

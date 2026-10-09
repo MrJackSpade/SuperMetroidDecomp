@@ -77,7 +77,7 @@ internal static partial class Program
             baseline.SetProgram(program.Program); changed.SetProgram(program.Program);
             for (int frame = 0; frame < 150; frame++)
             {
-                baseline.Step(frame); changed.Step(frame); baseline.Draw(); changed.Draw();
+                baseline.Step(); changed.Step(); baseline.Draw(); changed.Draw();
                 AssertBossDisplayMechanics(baseline, changed, "boss instruction frame " + frame);
                 int index = frame / program.Duration % program.Count;
                 AssertTrue(CompiledEnemyVisualSelectors.TryGet(baseline.Actor.Definition.Bank,

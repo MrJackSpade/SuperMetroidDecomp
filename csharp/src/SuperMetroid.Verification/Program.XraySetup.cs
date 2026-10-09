@@ -78,7 +78,7 @@ internal static partial class Program
             runtime.XrayRevealVisuals);
         AssertTrue(!original.SequenceEqual(expected),
             "installed X-ray visual selection changes the actual room reveal map");
-        XrayRevealOverlays.Apply(bus, runtime.LevelData!, expected, runtime.Plms.Collectibles, runtime.System,
+        XrayRevealOverlays.Apply(runtime.LevelData!, expected, runtime.Plms.Collectibles, runtime.System,
             room.State.XrayPointer, scroll.Layer1XPosition, scroll.Layer1YPosition, runtime.XrayRevealVisuals);
         runtime.StepFrame(held);
         Suite(nameof(VerifySaved), () => VerifySaved(XraySetupMemory.SavedBg1, first, "stage-three read completes before stage-four build"));

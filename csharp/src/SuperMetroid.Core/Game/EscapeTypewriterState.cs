@@ -67,12 +67,11 @@ public sealed class EscapeTypewriterState
     public void UnbindProgram() => installedProgram = null;
 
     /// <summary>Advances the warning by one gameplay call, writing at most one glyph or consuming one space when the delay has expired.</summary>
-    /// <param name="bus">Compatibility address-space argument; installed-program interpretation performs no reads through it.</param>
     /// <param name="vram">VRAM receiving each non-space character's single tilemap word.</param>
     /// <returns>True once all lines have been consumed; false during countdowns and character processing, including the final character's call.</returns>
     /// <remarks>The timer reload uses the previous delay before first-start initialization, so the first two character calls are consecutive; later characters skip two intervening calls.</remarks>
     /// <exception cref="InvalidOperationException">An eligible call requires text, but no host program is bound after construction or restoration.</exception>
-    public bool Step(ISnesAddressSpace bus, SnesVram vram)
+    public bool Step(SnesVram vram)
     {
         ClickRequested = false;
         if (Completed) return true;

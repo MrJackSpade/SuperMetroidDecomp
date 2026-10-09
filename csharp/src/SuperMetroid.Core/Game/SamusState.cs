@@ -17,21 +17,19 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class SamusState
 {
 
-    private byte _pose = SamusPoseIds.FacingRightNormalPose;
-
     /// <summary>Current one-byte pose index, corresponding to WRAM <c>$0A1C</c>.</summary>
     public byte Pose
     {
-        get => _pose;
+        get;
         set
         {
-            _pose = value;
+            field = value;
             // Bank $94 reads the global pose word directly while resolving special
             // elevator doors. Mirror every pose write into the collision snapshot so the
             // low-level dispatcher can reproduce that test without owning Samus state.
             Kinematics.CollisionPose = value;
         }
-    }
+    } = SamusPoseIds.FacingRightNormalPose;
 
     /// <summary>Current animation-frame index, corresponding to WRAM <c>$0A96</c>.</summary>
     public ushort AnimationFrame { get; set; }
@@ -417,7 +415,7 @@ public sealed partial class SamusState
         Kinematics = new SamusKinematicsState(this);
         // The backing field supplies the retail standing-right default without invoking
         // the setter before property initializers have constructed Kinematics.
-        Kinematics.CollisionPose = _pose;
+        Kinematics.CollisionPose = Pose;
     }
 
     /// <summary>
@@ -475,7 +473,7 @@ public sealed partial class SamusState
         RoomPlmSystem? plms,
         out int centerAdjustment)
     {
-        ushort targetRadius = ReadPoseYRadius(bus, targetPose);
+        ushort targetRadius = ReadPoseYRadius(targetPose);
         if (targetRadius <= Kinematics.YRadius)
         {
             centerAdjustment = 0;
@@ -677,7 +675,7 @@ public sealed partial class SamusState
             return;
 
         Pose = fallbackPose;
-        ushort fallbackRadius = ReadPoseYRadius(bus, fallbackPose);
+        ushort fallbackRadius = ReadPoseYRadius(fallbackPose);
         // The collision fallback reads the prospective radius for center correction,
         // but leaves the live radius untouched until the next ordinary alpha phase.
         if (oldRadius < fallbackRadius)

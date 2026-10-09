@@ -31,7 +31,7 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetMethod("InitializeCeresSteam", flags)!
                 .Invoke(enemies, [slot]);
             object?[] arguments =
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+                [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
             for (int frame = 0; frame < 90; frame++)
             {
                 process.Invoke(enemies, arguments);

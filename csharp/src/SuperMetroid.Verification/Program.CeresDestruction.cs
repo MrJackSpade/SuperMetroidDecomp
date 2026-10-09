@@ -31,13 +31,13 @@ static void VerifyCeresDestructionCinematic()
     // to the list's decrement-and-goto opcode and must remain untouched.
     var delayedExplosion = new IntroDiscoverySprite(0, 0, 0, 0xccdb);
     delayedExplosion.DelayFirstInstruction(3);
-    delayedExplosion.Step(fixtureBus, instructionWord: ReadFixtureWord);
-    delayedExplosion.Step(fixtureBus, instructionWord: ReadFixtureWord);
+    delayedExplosion.Step(instructionWord: ReadFixtureWord);
+    delayedExplosion.Step(instructionWord: ReadFixtureWord);
     AssertEqual(0, delayedExplosion.SpriteMapPointer,
         "Ceres staggered explosion remains invisible before instruction delay");
     AssertEqual(0, delayedExplosion.GeneralTimer,
         "instruction delay does not overwrite cinematic goto timer");
-    delayedExplosion.Step(fixtureBus, instructionWord: ReadFixtureWord);
+    delayedExplosion.Step(instructionWord: ReadFixtureWord);
     AssertEqual(0, delayedExplosion.SpriteMapPointer,
         "fixture's first delayed explosion frame uses invisible map zero");
     AssertEqual(0xccdf, delayedExplosion.InstructionPointer,

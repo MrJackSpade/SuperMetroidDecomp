@@ -49,7 +49,7 @@ public sealed class RoomPaletteFxSystem
         bool areaMiniBossDefeated = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        Spawn(bus, definition, equippedItems, areaMiniBossDefeated);
+        Spawn(definition, equippedItems, areaMiniBossDefeated);
         if (!IsDefinitionActive(definition))
         {
             throw new InvalidOperationException(
@@ -99,7 +99,7 @@ public sealed class RoomPaletteFxSystem
                 continue;
 
             ushort definition = RoomPaletteFxDefinitions.GetAreaDefinition(areaIndex, bit);
-            Spawn(bus, definition, equippedItems, areaMiniBossDefeated);
+            Spawn(definition, equippedItems, areaMiniBossDefeated);
         }
     }
 
@@ -139,7 +139,6 @@ public sealed class RoomPaletteFxSystem
                 continue;
 
             RunPreInstruction(
-                bus,
                 slot,
                 slotIndex,
                 samusY,
@@ -157,12 +156,11 @@ public sealed class RoomPaletteFxSystem
             if (slot.InstructionTimer != 0)
                 continue;
 
-            ExecuteProgram(bus, cgram, colors, slot);
+            ExecuteProgram(cgram, colors, slot);
         }
     }
 
     private void Spawn(
-        ISnesAddressSpace bus,
         ushort definition,
         ushort equippedItems,
         bool areaMiniBossDefeated)
@@ -222,7 +220,6 @@ public sealed class RoomPaletteFxSystem
     }
 
     private void RunPreInstruction(
-        ISnesAddressSpace bus,
         PaletteFxSlot slot,
         int slotIndex,
         ushort samusY,
@@ -331,7 +328,6 @@ public sealed class RoomPaletteFxSystem
     }
 
     private void ExecuteProgram(
-        ISnesAddressSpace bus,
         SnesCgram cgram,
         IPaletteFxColorSource colors,
         PaletteFxSlot slot)
@@ -339,11 +335,11 @@ public sealed class RoomPaletteFxSystem
         ushort cursor = slot.InstructionPointer;
         for (int commandGuard = 0; commandGuard < 256; commandGuard++)
         {
-            ushort word = ReadBank8dWord(bus, cursor);
+            ushort word = ReadBank8dWord(cursor);
             if ((word & 0x8000) == 0)
             {
                 slot.InstructionTimer = word;
-                WritePaletteRecord(bus, cgram, colors, slot, unchecked((ushort)(cursor + 2)));
+                WritePaletteRecord(cgram, colors, slot, unchecked((ushort)(cursor + 2)));
                 return;
             }
 
@@ -354,7 +350,7 @@ public sealed class RoomPaletteFxSystem
                     return;
 
                 case PaletteFxInstructionCodes.SetPreInstruction:
-                    slot.PreInstruction = ReadBank8dWord(bus, unchecked((ushort)(cursor + 2)));
+                    slot.PreInstruction = ReadBank8dWord(unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
 
@@ -364,33 +360,32 @@ public sealed class RoomPaletteFxSystem
                     break;
 
                 case PaletteFxInstructionCodes.Goto:
-                    cursor = ReadBank8dWord(bus, unchecked((ushort)(cursor + 2)));
+                    cursor = ReadBank8dWord(unchecked((ushort)(cursor + 2)));
                     break;
 
                 case PaletteFxInstructionCodes.DecrementTimerAndGoto:
                     slot.Timer = unchecked((ushort)(slot.Timer - 1));
                     cursor = slot.Timer == 0
                         ? unchecked((ushort)(cursor + 4))
-                        : ReadBank8dWord(bus, unchecked((ushort)(cursor + 2)));
+                        : ReadBank8dWord(unchecked((ushort)(cursor + 2)));
                     break;
 
                 case PaletteFxInstructionCodes.SetTimer:
                     // The assembly writes only the low byte addressed by the physical
                     // object index. The high byte was cleared at spawn and remains intact.
                     slot.Timer = (ushort)((slot.Timer & 0xff00) |
-                        ReadBank8dByte(bus, unchecked((ushort)(cursor + 2))));
+                        ReadBank8dByte(unchecked((ushort)(cursor + 2))));
                     cursor = unchecked((ushort)(cursor + 3));
                     break;
 
                 case PaletteFxInstructionCodes.SetColorIndex:
-                    slot.ColorByteIndex = ReadBank8dWord(bus, unchecked((ushort)(cursor + 2)));
+                    slot.ColorByteIndex = ReadBank8dWord(unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
 
                 case PaletteFxInstructionCodes.QueueMusic:
                     musicRequests.Add(new PaletteFxMusicRequest(
                         MusicCommand.FromCartridge(ReadBank8dByte(
-                            bus,
                             unchecked((ushort)(cursor + 2)))),
                         MusicCommandDelay.EightFrames));
                     cursor = unchecked((ushort)(cursor + 3));
@@ -411,7 +406,7 @@ public sealed class RoomPaletteFxSystem
                     soundRequests.Add(new PaletteFxSoundRequest(
                         SoundEffectId.FromCartridge(
                             library,
-                            ReadBank8dByte(bus, unchecked((ushort)(cursor + 2)))),
+                            ReadBank8dByte(unchecked((ushort)(cursor + 2)))),
                         PaletteFxAudioQueueLimits.SoundEffects,
                         SoundSuppressed: audioPowerBomb?.IsActive == true));
                     cursor = unchecked((ushort)(cursor + 3));
@@ -422,7 +417,6 @@ public sealed class RoomPaletteFxSystem
                     // commands. Advancing by three is essential: advancing by four would
                     // parse the high byte of the following duration as an opcode.
                     samusInHeatPaletteIndex = ReadBank8dByte(
-                        bus,
                         unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 3));
                     break;
@@ -439,7 +433,6 @@ public sealed class RoomPaletteFxSystem
     }
 
     private static void WritePaletteRecord(
-        ISnesAddressSpace bus,
         SnesCgram cgram,
         IPaletteFxColorSource colors,
         PaletteFxSlot slot,
@@ -505,7 +498,7 @@ public sealed class RoomPaletteFxSystem
             $"Palette-FX object $8D:{slot.Id:X4} did not terminate its color record.");
     }
 
-    private static ushort ReadBank8dWord(ISnesAddressSpace bus, ushort pointer)
+    private static ushort ReadBank8dWord(ushort pointer)
     {
         if (RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
                 pointer,
@@ -530,7 +523,7 @@ public sealed class RoomPaletteFxSystem
             $"Palette-FX word $8D:{pointer:X4} has no compiled mechanics or installed color definition.");
     }
 
-    private static byte ReadBank8dByte(ISnesAddressSpace bus, ushort pointer)
+    private static byte ReadBank8dByte(ushort pointer)
     {
         if (RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsByte(
                 pointer,

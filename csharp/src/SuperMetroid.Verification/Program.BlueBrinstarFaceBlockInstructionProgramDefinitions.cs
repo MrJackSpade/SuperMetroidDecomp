@@ -124,7 +124,7 @@ internal static partial class Program
             AssertEqual(expectedProgram, slot.CurrentInstruction,
                 $"face-block {description} program selection");
             object?[] arguments =
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+                [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
                 process.Invoke(enemies, arguments);
             AssertEqual(terminal, slot.CurrentInstruction,

@@ -10,13 +10,10 @@ namespace SuperMetroid.Core.Game;
 public sealed class MotherBrainRainbowBeamHdmaState
 {
     private readonly ushort[] windows = new ushort[SnesPpuLayout.ScreenHeightPixels];
-    [NonSerialized] private MotherBrainRainbowPalettePresentation? presentationColors;
+
     /// <summary>Host-owned visual colors; the beam window and update cadence stay cartridge logic.</summary>
-    public MotherBrainRainbowPalettePresentation? PresentationColors
-    {
-        get => presentationColors;
-        set => presentationColors = value;
-    }
+    [field: NonSerialized]
+    public MotherBrainRainbowPalettePresentation? PresentationColors { get; set; }
     /// <summary>Whether the last simulation update enabled the rainbow-beam color-add layer; disabling leaves the previous color and windows stored but prevents rendering them.</summary>
     public bool Active { get; private set; }
     /// <summary>Current packed SNES RGB5 fixed-backdrop color for windowed addition, not a CGRAM entry; initialized on activation and advanced only by subsequent active updates.</summary>
@@ -49,24 +46,24 @@ public sealed class MotherBrainRainbowBeamHdmaState
         {
             Active = true;
             ColorCursor = 0;
-            Color = presentationColors?.BeamInitialColor ?? MotherBrainBeamRomData.InitialColor;
+            Color = PresentationColors?.BeamInitialColor ?? MotherBrainBeamRomData.InitialColor;
         }
         else
         {
-            ushort color = ReadColorWord(bus, ColorCursor);
+            ushort color = ReadColorWord(ColorCursor);
             if (unchecked((short)color) < 0)
             {
                 // The native reset frame repeats entry zero without incrementing.
                 ColorCursor = 0;
-                color = ReadColorWord(bus, 0);
+                color = ReadColorWord(0);
             }
             else ColorCursor += MotherBrainBeamRomData.ColorStride;
             Color = color;
         }
-        BuildWindows(bus, headX, headY, angle, angularWidth);
+        BuildWindows(headX, headY, angle, angularWidth);
     }
 
-    private void BuildWindows(ISnesAddressSpace bus, ushort headX, ushort headY,
+    private void BuildWindows(ushort headX, ushort headY,
         SnesAngle angle, ushort angularWidth)
     {
         int halfWidth = (angularWidth >> 8) / 2;
@@ -83,7 +80,7 @@ public sealed class MotherBrainRainbowBeamHdmaState
             throw new InvalidDataException($"Mother Brain beam quadrant pair {quadrant} selects a null native dispatcher.");
 
         int originY = headY + MotherBrainBeamRomData.MouthYOffset;
-        if (originY <= MotherBrainBeamRomData.FirstLine || originY >= MotherBrainBeamRomData.EndLine)
+        if (originY is <= MotherBrainBeamRomData.FirstLine or >= MotherBrainBeamRomData.EndLine)
             throw new InvalidDataException($"Mother Brain beam mouth Y={originY} is outside its native scanline work area.");
         // DE20 reads XPosition-1, then masks after adding: this is the low X byte,
         // not a camera-relative coordinate or the enemy header pointer in the C decompile.
@@ -93,8 +90,8 @@ public sealed class MotherBrainRainbowBeamHdmaState
         int count = originY - MotherBrainBeamRomData.FirstLine;
         if (right)
         {
-            FillRight(count + 1, -1, count, Tangent(bus, b));
-            FillRight(count + 2, 1, MotherBrainBeamRomData.EndLine - originY, Tangent(bus, a));
+            FillRight(count + 1, -1, count, Tangent(b));
+            FillRight(count + 2, 1, MotherBrainBeamRomData.EndLine - originY, Tangent(a));
         }
         else
         {
@@ -102,8 +99,8 @@ public sealed class MotherBrainRainbowBeamHdmaState
             int rightAngle = up ? a : b;
             bool leftNegative = leftAngle >= SnesAngle.HalfTurn.TableIndex;
             bool rightNegative = rightAngle >= SnesAngle.HalfTurn.TableIndex;
-            int leftStep = Tangent(bus, leftNegative ? -leftAngle : leftAngle) * (leftNegative ? -1 : 1);
-            int rightStep = Tangent(bus, rightNegative ? -rightAngle : rightAngle) * (rightNegative ? -1 : 1);
+            int leftStep = Tangent(leftNegative ? -leftAngle : leftAngle) * (leftNegative ? -1 : 1);
+            int rightStep = Tangent(rightNegative ? -rightAngle : rightAngle) * (rightNegative ? -1 : 1);
             int index = up ? count + 1 : count + 2;
             int length = up ? count : MotherBrainBeamRomData.EndLine - originY;
             int left = origin, rightEdge = origin;
@@ -143,10 +140,10 @@ public sealed class MotherBrainRainbowBeamHdmaState
         }
     }
 
-    private static int Tangent(ISnesAddressSpace bus, int angle) =>
+    private static int Tangent(int angle) =>
         AbsoluteTangentDefinitions.Sample(unchecked((byte)angle));
-    private ushort ReadColorWord(ISnesAddressSpace bus, int cursor) =>
-        (presentationColors ?? throw new InvalidOperationException(
+    private ushort ReadColorWord(int cursor) =>
+        (PresentationColors ?? throw new InvalidOperationException(
             "Mother Brain rainbow beam requires installed colors."))
             .BeamColorWord(cursor);
 }

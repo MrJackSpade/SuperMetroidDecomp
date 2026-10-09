@@ -76,7 +76,7 @@ internal static partial class Program
         MethodInfo advanceBrain = typeof(RoomEnemySystem).GetMethod(
             "AdvanceMotherBrainBrainInstructions", flags)!;
         FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus", flags)!;
-        FieldInfo motherBrainField = typeof(RoomEnemySystem).GetField("_motherBrain", flags)!;
+        FieldInfo motherBrainField = typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", flags)!;
         (RoomEnemySystem Enemies, MotherBrainEnemyState State) CreateBrain(ushort start)
         {
             var enemies = new RoomEnemySystem();

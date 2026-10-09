@@ -209,7 +209,7 @@ public sealed class DemoInputState
             NativeWordCounter.Decrement(InstructionTimer);
         InstructionTimer = instructionTimer.Value;
         if (instructionTimer.IsZero)
-            ProcessInstructionList(bus, specialInstruction, instructionWord);
+            ProcessInstructionList(specialInstruction, instructionWord);
 
         // $91:83D3 publishes the old demo words to the drawing-input history before it
         // replaces the live joypad words and remembers the newly produced pair.
@@ -220,7 +220,6 @@ public sealed class DemoInputState
     }
 
     private void ProcessInstructionList(
-        ISnesAddressSpace bus,
         Func<DemoInputState, ushort, ushort, DemoInputInstructionResult>? specialInstruction,
         Func<ushort, ushort>? instructionWord)
     {

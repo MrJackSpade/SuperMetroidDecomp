@@ -42,7 +42,7 @@ internal static partial class Program
             "real Dead Torizo initializer installs compiled stationary program");
 
         object?[] processArguments =
-            [corpse, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            [corpse, null, null, (ushort)0, (ushort)0, (ushort)0];
         corpse.InstructionTimer = 1;
         process.Invoke(enemies, processArguments);
         corpse.InstructionTimer = 1;

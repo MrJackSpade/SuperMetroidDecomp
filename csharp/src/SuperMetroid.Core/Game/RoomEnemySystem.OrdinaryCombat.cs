@@ -300,7 +300,7 @@ public sealed partial class RoomEnemySystem
 
             if (isKraidNail)
             {
-                ResolveNormalEnemyTouch(slot, samus, controllerInput);
+                ResolveNormalEnemyTouch(slot, samus);
                 // The callback passes the common routine's remaining-health accumulator
                 // to EnemyDeath; its bounded animation selector normalizes values >= 5.
                 if (slot.EnemyDefinitionPointer != 0)
@@ -323,7 +323,6 @@ public sealed partial class RoomEnemySystem
                 ResolveNormalEnemyTouch(
                     slot,
                     samus,
-                    controllerInput,
                     skipDeathAnimation: true);
                 return true;
             }
@@ -357,8 +356,7 @@ public sealed partial class RoomEnemySystem
                 ResolveDeadSidehopperTouch(
                     slot,
                     RequireDeadSidehopperState(slot),
-                    samus,
-                    controllerInput);
+                    samus);
                 return true;
             }
 
@@ -414,7 +412,6 @@ public sealed partial class RoomEnemySystem
                 ResolveNormalEnemyTouch(
                     slot,
                     samus,
-                    controllerInput,
                     skipDeathAnimation: true);
                 return true;
             }
@@ -437,7 +434,6 @@ public sealed partial class RoomEnemySystem
                 ResolveNormalEnemyTouch(
                     slot,
                     samus,
-                    controllerInput,
                     skipDeathAnimation: true);
                 ResolveDraygonReaction(slot, samus);
                 return true;
@@ -461,7 +457,6 @@ public sealed partial class RoomEnemySystem
                 ResolveNormalEnemyTouch(
                     slot,
                     samus,
-                    controllerInput,
                     skipDeathAnimation: true);
                 ResolveSporeSpawnDeathAfterCommon(slot);
                 return true;
@@ -484,7 +479,7 @@ public sealed partial class RoomEnemySystem
                 // Header damage is deliberately zero: contact still installs the common
                 // invincibility/knockback state, while Screw/Speed cannot destroy the vent.
                 slot.Health = CeresSteamIndestructibleHealth;
-                ResolveNormalEnemyTouch(slot, samus, controllerInput);
+                ResolveNormalEnemyTouch(slot, samus);
                 return true;
             }
 
@@ -504,10 +499,10 @@ public sealed partial class RoomEnemySystem
                         $"Crocomire hitbox touch AI $A4:{hitboxTouchAi:X4} is not translated.");
                 }
 
-                ResolveNormalEnemyTouch(slot, samus, controllerInput);
+                ResolveNormalEnemyTouch(slot, samus);
                 if (hitboxTouchAi == CrocomireClawTouchAi)
                 {
-                    CrocomireEnemyState crocomire = _crocomire ??
+                    CrocomireEnemyState crocomire = Crocomire ??
                         throw new InvalidOperationException("Crocomire claw has no body owner.");
                     crocomire.FightFlags |= 0x4000;
                     samus.Kinematics.ExtraXDisplacement = unchecked((ushort)-4);
@@ -535,7 +530,7 @@ public sealed partial class RoomEnemySystem
                 // asymmetric shove. $D38C frames execute only the shove, which is why the
                 // closed shell can carry/push Samus without inflicting the header's 100 HP.
                 if (hitboxTouchAi == MaridiaLargeSnailDamagingTouchAi)
-                    ResolveNormalEnemyTouch(slot, samus, controllerInput);
+                    ResolveNormalEnemyTouch(slot, samus);
                 ResolveMaridiaLargeSnailTouchAfterCommon(slot, samus);
                 return true;
             }
@@ -577,8 +572,7 @@ public sealed partial class RoomEnemySystem
                 ResolveMochtroidTouch(
                     slot,
                     RequireMochtroidState(slot),
-                    samus,
-                    controllerInput);
+                    samus);
             }
             else if (isMetroid)
             {
@@ -603,8 +597,7 @@ public sealed partial class RoomEnemySystem
                 ResolveBeetomTouch(
                     slot,
                     RequireBeetomState(slot),
-                    samus,
-                    controllerInput);
+                    samus);
             }
             else if (isPowamp)
             {
@@ -612,7 +605,7 @@ public sealed partial class RoomEnemySystem
                 // normally absent from the interactive list because population property
                 // $0400 excludes them, but retain the handler's literal guard here too.
                 if (slot.Parameter2 == 0)
-                    ResolvePowampTouch(slot, samus, controllerInput);
+                    ResolvePowampTouch(slot, samus);
             }
             else if (isWorkRobot)
             {
@@ -620,15 +613,14 @@ public sealed partial class RoomEnemySystem
             }
             else if (isFireflea)
             {
-                ResolveFirefleaTouch(slot, samus, controllerInput);
+                ResolveFirefleaTouch(slot, samus);
             }
             else if (isMamaTurtle)
             {
                 ResolveMamaTurtleTouch(
                     slot,
                     RequireMamaTurtleState(slot),
-                    samus,
-                    controllerInput);
+                    samus);
             }
             else if (isBabyTurtle)
             {
@@ -644,7 +636,6 @@ public sealed partial class RoomEnemySystem
                 ResolveNormalEnemyTouch(
                     slot,
                     samus,
-                    controllerInput,
                     skipDeathAnimation:
                         isRinka || isZebetite || isBotwoon || isTorizo || isFakeKraid);
                 if (isMagdollite)
@@ -1305,8 +1296,8 @@ public sealed partial class RoomEnemySystem
                 {
                     if (enemy.FrozenTimer != 0)
                     {
-                        if (family != SamusProjectileFamily.Missile &&
-                            family != SamusProjectileFamily.SuperMissile)
+                        if (family is not SamusProjectileFamily.Missile and
+                            not SamusProjectileFamily.SuperMissile)
                         {
                             // Frozen Metroid rejects every beam and bomb family. Bank-$A0
                             // has already accepted the overlap, so non-plasma shots retain
@@ -1354,7 +1345,7 @@ public sealed partial class RoomEnemySystem
                             MetroidEnemyState dyingMetroid = RequireMetroidState(enemy);
                             FinishMetroidDeath(enemy, samus);
                             StartGenericEnemyDeath(enemy, deathAnimation: 4);
-                            RequestMetroidDrops(dropOriginX, dropOriginY, dyingMetroid);
+                            RequestMetroidDrops(dropOriginX, dropOriginY);
                         }
 
                         hitCount++;
@@ -1714,7 +1705,7 @@ public sealed partial class RoomEnemySystem
                 }
                 if (isFakeKraid && enemy.EnemyDefinitionPointer != 0 &&
                     enemyHealthBefore != 0 && enemy.Health == 0)
-                    SpawnFakeKraidDeathDrops(enemy.XPosition, enemy.YPosition, enemy.Definition.ItemDropChancesPointer);
+                    SpawnFakeKraidDeathDrops(enemy.XPosition, enemy.YPosition);
                 if (isBabyTurtle)
                     ResolveBabyTurtleShotAfterCommon(RequireBabyTurtleState(enemy));
                 if (isKago)
@@ -2116,7 +2107,7 @@ public sealed partial class RoomEnemySystem
                                 // shared with the projectile path: a lethal hit begins the
                                 // authored death sequence, while sub-threshold damage feeds
                                 // the eye-close/rage accumulator instead of deleting a slot.
-                                PhantoonEnemyState phantoon = _phantoonState ??
+                                PhantoonEnemyState phantoon = Phantoon ??
                                     throw new InvalidOperationException(
                                         "Phantoon shot callback has no encounter state.");
                                 ushort appliedDamage = unchecked((ushort)(
@@ -3335,7 +3326,6 @@ public sealed partial class RoomEnemySystem
     private void ResolveNormalEnemyTouch(
         RoomEnemySlot enemy,
         SamusState samus,
-        ushort controllerInput,
         bool skipDeathAnimation = false)
     {
         ushort contactDamageIndex = samus.HorizontalSpeed.ContactDamageIndex;
@@ -3343,7 +3333,6 @@ public sealed partial class RoomEnemySystem
         {
             ApplyNormalEnemyTouchDamage(
                 samus,
-                controllerInput,
                 enemy.Definition.Damage,
                 enemy.XPosition);
             return;
@@ -3355,7 +3344,7 @@ public sealed partial class RoomEnemySystem
         {
             SamusProjectileSystem projectiles = _samusProjectilesForEnemyFrame
                 ?? throw new InvalidOperationException("Pseudo Screw enemy contact requires the live projectile owner.");
-            projectiles.ConsumePseudoScrewCharge(_bus!, _cgram!, samus);
+            projectiles.ConsumePseudoScrewCharge(_cgram!, samus);
         }
 
         ushort baseDamage = contactDamageIndex switch

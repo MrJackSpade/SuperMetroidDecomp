@@ -18,11 +18,11 @@ public sealed partial class SamusState
     {
         ArgumentNullException.ThrowIfNull(bus);
         Kinematics.XRadius = 5;
-        Kinematics.YRadius = ReadPoseYRadius(bus, Pose);
+        Kinematics.YRadius = ReadPoseYRadius(Pose);
     }
 
     /// <summary>Reads a prospective pose's radius without publishing it to live collision state.</summary>
-    public static ushort ReadPoseYRadius(ISnesAddressSpace bus, byte pose) =>
+    public static ushort ReadPoseYRadius(byte pose) =>
         SamusPoseCollisionDefinitions.ReadVerticalRadius(pose);
 
     /// <summary>Reads pose-definition byte zero, the direction consumed by camera tracking.</summary>

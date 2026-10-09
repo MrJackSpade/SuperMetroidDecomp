@@ -80,7 +80,7 @@ internal static partial class Program
         };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guarded);
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
-        typeof(RoomEnemySystem).GetField("_crocomireDeath", flags)!.SetValue(enemies, death);
+        typeof(RoomEnemySystem).GetField("<CrocomireDeath>k__BackingField", flags)!.SetValue(enemies, death);
         MethodInfo runRumble = typeof(RoomEnemySystem).GetMethod(
             "RunCrocomireWallRumble",
             flags)!;
@@ -182,10 +182,10 @@ internal static partial class Program
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address) =>
-            address is >= 0xa498ca and < 0xa4990a ||
-                address >= CrocomirePaletteRomData.FightBodySource &&
-                address < CrocomirePaletteRomData.WallSpikesSource +
-                    CrocomirePaletteRomData.WallSpikesCount * sizeof(ushort)
+            address is >= 0xa498ca and < 0xa4990a or
+                >= CrocomirePaletteRomData.FightBodySource and
+                < (CrocomirePaletteRomData.WallSpikesSource +
+                    CrocomirePaletteRomData.WallSpikesCount * sizeof(ushort))
                 ? throw new InvalidOperationException(
                     $"Crocomire rumble attempted migrated data read ${address:X6}.")
                 : source.ReadByte(address);

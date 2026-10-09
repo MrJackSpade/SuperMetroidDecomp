@@ -46,7 +46,7 @@ internal static partial class Program
         var state = new KraidEnemyState();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new SlopeHeightNoReadBus());
-        typeof(RoomEnemySystem).GetField("_kraidState", flags)!.SetValue(enemies, state);
+        typeof(RoomEnemySystem).GetField("<Kraid>k__BackingField", flags)!.SetValue(enemies, state);
         enemies.Slots[0].EnemyDefinitionPointer = RoomEnemySystem.KraidDefinition;
         ushort random = 0;
         typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(enemies, (Func<ushort>)(() => random));

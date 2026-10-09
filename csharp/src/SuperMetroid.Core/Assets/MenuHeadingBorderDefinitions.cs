@@ -107,7 +107,7 @@ internal sealed class MenuHeadingBorderDefinitions(string heading) : IReadOnlyLi
         {
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             var (column, row) = Position(index);
-            int tile = row == 0 || row == Rows - 1
+            int tile = row is 0 or (Rows - 1)
                 ? column == 0 ? CornerStrip + (row == 0 ? 0 : 3)
                 : column == Columns - 1 ? CornerStrip + (row == 0 ? 2 : 4) : CornerStrip + 1
                 : VerticalEdge;

@@ -31,7 +31,7 @@ internal static partial class Program
         expected.SetRandomNumber(game.DispatcherRandomNumber);
         for (int call = 1; call <= 11; call++)
         {
-            bool mainLoop = call == 1 || call > EndingCreditsRomData.SetupNmiWaits + 1;
+            bool mainLoop = call is 1 or > (EndingCreditsRomData.SetupNmiWaits + 1);
             if (mainLoop)
                 expected.NextRandom();
             game.Step(0);

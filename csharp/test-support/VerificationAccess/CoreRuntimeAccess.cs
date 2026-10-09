@@ -119,7 +119,7 @@ internal static class SuperMetroidRuntimeAccess
             });
             PrivateState.Invoke(self, "BindSamusPalettePresentation");
 
-            SamusState.LoadPowerSuitPalette(PrivateState.Field<ISnesAddressSpace>(self, "_addressSpace"), self.Cgram, PrivateState.Field<AreaMapPresentationCatalog?>(self, "mapPresentation")?.SamusSuitColors);
+            SamusState.LoadPowerSuitPalette(PrivateState.Field<ISnesAddressSpace>(self, "_addressSpace"), self.Cgram, PrivateState.Field<AreaMapPresentationCatalog?>(self, "<MapPresentation>k__BackingField")?.SamusSuitColors);
             self.Samus!.RefreshCollisionRadii(PrivateState.Field<ISnesAddressSpace>(self, "_addressSpace"));
             self.Samus.InitializeAnimation(PrivateState.Field<ISnesAddressSpace>(self, "_addressSpace"));
             if (self.LandingSiteEntry is not null)

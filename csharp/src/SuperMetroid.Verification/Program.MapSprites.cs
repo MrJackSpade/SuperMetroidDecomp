@@ -23,7 +23,7 @@ internal static partial class Program
                 SnesObjAttributeWord.Create(3, 2, 1, SnesTileFlipFlags.Horizontal), 0, (ushort)origin);
             int sum = origin + offset;
             int signedY = origin + unchecked((sbyte)offset);
-            bool hidden = signedY < -32 || signedY >= 224;
+            bool hidden = signedY is < -32 or >= 224;
             AssertEqual(hidden ? (byte)128 : (byte)255, installed.LowTable[0], "typed sprite X clipping");
             AssertEqual(hidden ? (byte)224 : (byte)sum, installed.LowTable[1], "typed sprite Y clipping");
             AssertEqual((byte)3, (byte)(installed.HighTable[0] & 3), "typed sprite preserves high X and large size");

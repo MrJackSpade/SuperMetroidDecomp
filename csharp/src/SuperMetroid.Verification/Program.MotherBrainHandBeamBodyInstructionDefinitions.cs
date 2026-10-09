@@ -10,9 +10,9 @@ internal static partial class Program
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         MethodInfo readMechanics = typeof(RoomEnemySystem).GetMethod(
-            "ReadEnemyInstructionMechanicsWord", flags)!;
+            "ReadEnemyInstructionMechanicsWord", BindingFlags.NonPublic | BindingFlags.Static)!;
         MethodInfo readVisual = typeof(RoomEnemySystem).GetMethod(
-            "ReadEnemyVisualSelector", flags)!;
+            "ReadEnemyVisualSelector", BindingFlags.NonPublic | BindingFlags.Static)!;
         FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus", flags)!;
         var enemies = new RoomEnemySystem();
         busField.SetValue(enemies, new MotherBrainHandBeamListReadGuard(rom));

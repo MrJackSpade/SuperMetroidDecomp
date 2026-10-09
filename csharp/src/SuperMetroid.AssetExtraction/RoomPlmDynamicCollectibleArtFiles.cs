@@ -32,8 +32,8 @@ public static class RoomPlmDynamicCollectibleArtFiles
     /// <summary>Stable PNG name for an item kind, independent of room placement.</summary>
     public static string FileName(InWorldCollectibleKind kind)
     {
-        if (kind < InWorldCollectibleKind.Bombs ||
-            kind > InWorldCollectibleKind.ReserveTank)
+        if (kind is < InWorldCollectibleKind.Bombs or
+            > InWorldCollectibleKind.ReserveTank)
             throw new ArgumentOutOfRangeException(nameof(kind));
         return $"item-{(int)kind:D2}-{kind.ToString().ToLowerInvariant()}.png";
     }

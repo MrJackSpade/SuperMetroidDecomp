@@ -34,7 +34,7 @@ internal static partial class Program
             "real elevator initializer installs compiled animation loop");
 
         object?[] arguments =
-            [elevator, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            [elevator, null, null, (ushort)0, (ushort)0, (ushort)0];
         for (int call = 0; call < 3; call++)
         {
             elevator.InstructionTimer = 1;

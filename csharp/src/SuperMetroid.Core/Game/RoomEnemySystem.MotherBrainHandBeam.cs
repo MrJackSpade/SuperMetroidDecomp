@@ -130,7 +130,7 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private void SpawnMotherBrainHandBeamFired(ushort parentParameter)
     {
-        MotherBrainEnemyState state = _motherBrain ?? throw new InvalidOperationException(
+        MotherBrainEnemyState state = MotherBrain ?? throw new InvalidOperationException(
             "Mother Brain hand-beam bytecode ran without its encounter state.");
         RoomEnemyProjectileSlot? beam = AllocateEnemyProjectile();
         if (beam is null)

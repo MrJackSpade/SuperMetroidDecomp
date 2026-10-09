@@ -89,7 +89,7 @@ internal static partial class Program
                 ? (ushort)EnemyProperties.IgnoreSamusCollision
                 : (ushort)0;
             object?[] arguments =
-                [programSlot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+                [programSlot, null, null, (ushort)0, (ushort)0, (ushort)0];
 
             for (int frame = 0; frame < frames; frame++)
             {

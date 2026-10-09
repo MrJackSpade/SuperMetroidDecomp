@@ -78,7 +78,7 @@ internal static partial class DraygonCollisionDefinitions
 
         bool right = pointer >= FirstRightBodyFrame;
         int phase = (pointer - (right ? FirstRightBodyFrame : FirstLeftBodyFrame)) / 10;
-        ushort hitboxes = phase < 8 || phase == 16
+        ushort hitboxes = phase is < 8 or 16
             ? right ? SecondBodyList : FirstBodyList : EmptyList;
         return new(true, hitboxes);
     }

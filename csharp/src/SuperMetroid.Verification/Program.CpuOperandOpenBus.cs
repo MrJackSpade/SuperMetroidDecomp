@@ -43,7 +43,6 @@ internal static partial class Program
     private sealed class OperandReadWitness : ISnesAddressSpace,
         ISnesMutableMemory, IImportCartridgeSource, ISnesCpuPeripheralSource
     {
-        public static byte ReadByte(int address) => 0xab;
         public byte ReadWorkRamByte(int address) => 0xab;
         public byte ReadSaveRamByte(int address) => 0xab;
         public byte ReadCartridgeByte(int address) => 0xab;

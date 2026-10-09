@@ -125,16 +125,16 @@ internal static partial class Program
 
             int relative = address -
                 HyperBeamPaletteFxProgramDefinitions.NativeFirstFrameTimerAddress;
-            if (relative < 0 ||
-                relative >= HyperBeamPaletteFxProgramDefinitions.FrameCount *
-                    HyperBeamPaletteFxProgramDefinitions.FrameByteCount)
+            if (relative is < 0 or
+                >= (HyperBeamPaletteFxProgramDefinitions.FrameCount *
+                    HyperBeamPaletteFxProgramDefinitions.FrameByteCount))
             {
                 return false;
             }
 
             int inFrame = relative % HyperBeamPaletteFxProgramDefinitions.FrameByteCount;
-            return inFrame < sizeof(ushort) ||
-                inFrame >= HyperBeamPaletteFxProgramDefinitions.FrameByteCount - sizeof(ushort);
+            return inFrame is < sizeof(ushort) or
+                >= (HyperBeamPaletteFxProgramDefinitions.FrameByteCount - sizeof(ushort));
         }
     }
 }

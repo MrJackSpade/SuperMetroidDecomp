@@ -163,7 +163,7 @@ public static class SamusAerialMovement
             controllerInput,
             movementType: SamusMovementType.NormalJumping,
             plms);
-        return FinishVerticalMovement(bus, level, samus, horizontalMove, nmiFrameCounter, plms: plms);
+        return FinishVerticalMovement(bus, level, samus, nmiFrameCounter, plms: plms);
     }
 
     /// <summary>
@@ -284,7 +284,6 @@ public static class SamusAerialMovement
             bus,
             level,
             samus,
-            horizontal,
             nmiFrameCounter,
             plms: plms);
         return verticalResult with
@@ -333,7 +332,7 @@ public static class SamusAerialMovement
             controllerInput,
             movementType: SamusMovementType.WallJumping,
             plms);
-        return FinishVerticalMovement(bus, level, samus, horizontal, nmiFrameCounter, plms: plms);
+        return FinishVerticalMovement(bus, level, samus, nmiFrameCounter, plms: plms);
     }
 
     /// <summary>
@@ -371,7 +370,7 @@ public static class SamusAerialMovement
             controllerInput,
             movementType: SamusMovementType.DamageBoost,
             plms);
-        return FinishVerticalMovement(bus, level, samus, horizontal, nmiFrameCounter, plms: plms);
+        return FinishVerticalMovement(bus, level, samus, nmiFrameCounter, plms: plms);
     }
 
     /// <summary>
@@ -439,7 +438,7 @@ public static class SamusAerialMovement
             result = new AerialMovementResult(false, false);
         }
         else
-            result = FinishVerticalMovement(bus, level, samus, horizontal, nmiFrameCounter,
+            result = FinishVerticalMovement(bus, level, samus, nmiFrameCounter,
                 plms: plms, deferCeilingResponse: true);
         // Turning clears the collision-to-pose request after movement. A floor
         // collision clamps position but does not reset accumulated falling speed
@@ -494,7 +493,7 @@ public static class SamusAerialMovement
             samus.Kinematics.YDirection = 2;
         }
 
-        AerialMovementResult result = FinishVerticalMovement(bus, level, samus, horizontal, nmiFrameCounter, plms: plms);
+        AerialMovementResult result = FinishVerticalMovement(bus, level, samus, nmiFrameCounter, plms: plms);
         // The movement wrapper selects fast-fall art after physics, before AnimateSamus.
         // Aimed falling poses have their own lists and do not enter this branch.
         if (samus.Pose is SamusPoseIds.FallingRightPose or SamusPoseIds.FallingLeftPose or
@@ -584,7 +583,6 @@ public static class SamusAerialMovement
             bus,
             level,
             samus,
-            horizontal,
             nmiFrameCounter,
             plms: plms);
         // `$90:94BF` reads the whole word: any downward pass, or a ceiling hit, ends the
@@ -644,7 +642,6 @@ public static class SamusAerialMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        BlockMoveResult horizontal,
         ushort nmiFrameCounter,
         bool canBreakBombBlocks = false,
         RoomPlmSystem? plms = null,

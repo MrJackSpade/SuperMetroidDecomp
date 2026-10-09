@@ -168,7 +168,7 @@ public sealed partial class RoomEnemySystem
 
     private void RunMotherBrainDeathExplosion(RoomEnemyProjectileSlot projectile)
     {
-        var body = _motherBrain?.Body ?? throw new InvalidOperationException("Body-relative death explosion has no Mother Brain owner.");
+        var body = MotherBrain?.Body ?? throw new InvalidOperationException("Body-relative death explosion has no Mother Brain owner.");
         projectile.XPosition = unchecked((ushort)(body.XPosition + projectile.XVelocity));
         projectile.YPosition = unchecked((ushort)(body.YPosition + projectile.YVelocity));
     }

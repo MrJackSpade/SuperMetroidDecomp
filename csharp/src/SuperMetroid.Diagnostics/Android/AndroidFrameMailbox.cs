@@ -9,7 +9,7 @@ namespace SuperMetroid.Android;
 /// </summary>
 internal sealed class AndroidFrameMailbox(int pixelCount, AndroidFrameHandoffTrace? trace = null)
 {
-    private readonly object gate = new();
+    private readonly Lock gate = new();
     private readonly Rgba32[] pending = new Rgba32[pixelCount];
     private bool available;
     private long sequence;

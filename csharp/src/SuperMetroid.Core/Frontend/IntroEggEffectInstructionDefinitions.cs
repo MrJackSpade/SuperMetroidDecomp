@@ -40,7 +40,7 @@ internal static class IntroEggEffectInstructionDefinitions
             return (byte)(CinematicCodePointers.CinematicSpriteObject_Instruction_Delete & 0xff);
         if (pointer == DeletePointer + 1)
             return (byte)(CinematicCodePointers.CinematicSpriteObject_Instruction_Delete >> 8);
-        if (pointer < StartPointer || pointer >= EndPointer)
+        if (pointer is < StartPointer or >= EndPointer)
             throw new ArgumentOutOfRangeException(nameof(pointer));
         int offset = pointer - StartPointer;
         return unchecked((byte)(ProgramWord(offset / 2) >> (8 * (offset & 1))));
@@ -50,7 +50,7 @@ internal static class IntroEggEffectInstructionDefinitions
     {
         if (pointer == DeletePointer)
             return CinematicCodePointers.CinematicSpriteObject_Instruction_Delete;
-        if (pointer < StartPointer || pointer >= EndPointer - 1)
+        if (pointer is < StartPointer or >= (EndPointer - 1))
             throw new InvalidDataException(
                 $"Intro egg effect read $8B:{pointer:X4} leaves its compiled lists.");
         return (ushort)(ReadByte(pointer) | ReadByte((ushort)(pointer + 1)) << 8);

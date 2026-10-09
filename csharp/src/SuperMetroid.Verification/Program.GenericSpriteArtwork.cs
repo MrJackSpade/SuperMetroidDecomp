@@ -52,7 +52,7 @@ internal static partial class Program
             titleCases++;
         }
         Set(title, "activeSpritemap", TitleSequenceRomData.Sprites.Blank);
-        Set(title, "phase", TitleSequencePhase.TitleScreen);
+        Set(title, "<Phase>k__BackingField", TitleSequencePhase.TitleScreen);
         Invoke(title, "PrepareRenderOam");
         expected.BeginFrame();
         DrawImportedSpritemap(reference, expected,
@@ -136,7 +136,7 @@ internal static partial class Program
                 actual.AddOffScreenSpritePart(SnesSpritemapXWord.Create(5, true), (byte)offset,
                     SnesObjAttributeWord.Create(3, 2, 1, SnesTileFlipFlags.Horizontal), 12, (ushort)origin);
             int signedY = origin + unchecked((sbyte)offset);
-            bool hide = signedY < -32 || signedY >= 224;
+            bool hide = signedY is < -32 or >= 224;
             if (!onScreen) hide = !hide;
             AssertEqual(hide ? 0x180 : 17, actual.GetEntry(0).X, "generic origin-wrap X parking");
             AssertEqual((byte)(hide ? 224 : origin + offset), actual.GetEntry(0).Y, "generic origin-wrap Y parking");

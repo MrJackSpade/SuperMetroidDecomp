@@ -74,7 +74,7 @@ internal static partial class Program
             .SetValue(enemies, (Action<int, RoomScrollState>)((_, _) => { }));
         RoomEnemySlot body = enemies.Slots[0];
         type.GetMethod("InitializeCrocomire", flags)!.Invoke(enemies, [body]);
-        CrocomireEnemyState state = (CrocomireEnemyState)type.GetField("_crocomire", flags)!
+        CrocomireEnemyState state = (CrocomireEnemyState)type.GetField("<Crocomire>k__BackingField", flags)!
             .GetValue(enemies)!;
         AssertEqual((ushort)0, state.DeathSequenceIndex,
             "installed Crocomire colors leave living fight phase unchanged");
@@ -167,9 +167,9 @@ internal static partial class Program
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address) =>
-            address >= CrocomirePaletteRomData.FightBodySource &&
-            address < CrocomirePaletteRomData.WallSpikesSource +
-                CrocomirePaletteRomData.WallSpikesCount * sizeof(ushort)
+            address is >= CrocomirePaletteRomData.FightBodySource and
+            < (CrocomirePaletteRomData.WallSpikesSource +
+                CrocomirePaletteRomData.WallSpikesCount * sizeof(ushort))
                 ? throw new InvalidOperationException(
                     $"Crocomire accessed migrated palette ROM ${address:X6}.")
                 : source.ReadByte(address);

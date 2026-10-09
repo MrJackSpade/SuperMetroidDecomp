@@ -123,10 +123,10 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (address >= BotwoonHealthPaletteDefinitions.NativePaletteAddress &&
-                address < BotwoonHealthPaletteDefinitions.NativePaletteAddress +
+            if (address is >= BotwoonHealthPaletteDefinitions.NativePaletteAddress and
+                < (BotwoonHealthPaletteDefinitions.NativePaletteAddress +
                     BotwoonHealthPaletteDefinitions.PaletteCount *
-                    BotwoonHealthPaletteDefinitions.ColorsPerPalette * sizeof(ushort))
+                    BotwoonHealthPaletteDefinitions.ColorsPerPalette * sizeof(ushort)))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

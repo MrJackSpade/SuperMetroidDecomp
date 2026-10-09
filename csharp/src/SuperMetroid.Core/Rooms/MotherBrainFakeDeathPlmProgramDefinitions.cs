@@ -41,8 +41,8 @@ internal static class MotherBrainFakeDeathPlmProgramDefinitions
     /// </summary>
     private static ushort DrawForProgram(int start)
     {
-        if (start >= RoomPlmInstructionLists.MotherBrainsBackgroundRow2 &&
-            start < RoomPlmInstructionLists.ClearMotherBrainCeilingBlock)
+        if (start is >= RoomPlmInstructionLists.MotherBrainsBackgroundRow2 and
+            < RoomPlmInstructionLists.ClearMotherBrainCeilingBlock)
             return (ushort)(MotherBrainFakeDeathPlmDrawDefinitions.BackgroundRow2 +
                 (start - RoomPlmInstructionLists.MotherBrainsBackgroundRow2) / ProgramByteLength * 30);
         return start switch

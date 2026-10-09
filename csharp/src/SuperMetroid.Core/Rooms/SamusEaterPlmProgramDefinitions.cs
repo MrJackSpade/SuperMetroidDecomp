@@ -33,7 +33,7 @@ internal static class SamusEaterPlmProgramDefinitions
 
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
-        if (address < FloorStart || address >= EndExclusive)
+        if (address is < FloorStart or >= EndExclusive)
         {
             value = 0;
             return false;

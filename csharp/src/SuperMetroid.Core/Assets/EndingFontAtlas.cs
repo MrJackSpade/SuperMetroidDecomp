@@ -85,8 +85,8 @@ public static class EndingFontAtlasFormat
     {
         if ((uint)pixel >= Width * Height) throw new ArgumentOutOfRangeException(nameof(pixel));
         int tile = pixel / Width / TileSize * TilesPerRow + pixel % Width / TileSize;
-        return tile >= EndingTextDefinitions.ResultLetterBase
-            && tile <= EndingTextDefinitions.ResultLetterBase + 'Z' - 'A';
+        return tile is >= EndingTextDefinitions.ResultLetterBase
+            and <= (EndingTextDefinitions.ResultLetterBase + 'Z' - 'A');
     }
 
     /// <summary>
@@ -113,12 +113,12 @@ public static class EndingFontAtlasFormat
         if ((uint)pixel >= Width * Height) throw new ArgumentOutOfRangeException(nameof(pixel));
         int tile = pixel / Width / TileSize * TilesPerRow + pixel % Width / TileSize;
         int topTile = tile - tile / TilesPerRow % EndingTextDefinitions.Native.LargeGlyphHeight * TilesPerRow;
-        bool large = topTile >= EndingTextDefinitions.LargeFirstGroupTopBase
-                && topTile < EndingTextDefinitions.LargeFirstGroupTopBase + EndingTextDefinitions.LargeSecondGroupFirstLetter
-            || topTile >= EndingTextDefinitions.LargeSecondGroupTopBase
-                && topTile <= EndingTextDefinitions.LargeSecondGroupTopBase + 'Z' - 'A' - EndingTextDefinitions.LargeSecondGroupFirstLetter
-            || topTile >= EndingTextDefinitions.CopyrightDigitTopBase
-                && topTile <= EndingTextDefinitions.CopyrightDigitTopBase + '9' - '0';
+        bool large = topTile is >= EndingTextDefinitions.LargeFirstGroupTopBase
+                and < (EndingTextDefinitions.LargeFirstGroupTopBase + EndingTextDefinitions.LargeSecondGroupFirstLetter)
+            or >= EndingTextDefinitions.LargeSecondGroupTopBase
+                and <= (EndingTextDefinitions.LargeSecondGroupTopBase + 'Z' - 'A' - EndingTextDefinitions.LargeSecondGroupFirstLetter)
+            or >= EndingTextDefinitions.CopyrightDigitTopBase
+                and <= (EndingTextDefinitions.CopyrightDigitTopBase + '9' - '0');
         origin = large ? topTile / TilesPerRow * TileSize * Width + topTile % TilesPerRow * TileSize : 0;
         return large;
     }

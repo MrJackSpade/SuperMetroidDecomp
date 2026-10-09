@@ -503,7 +503,7 @@ public sealed partial class RoomEnemySystem
         return (SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex ^ 1) & 0x80) != 0;
     }
 
-    private bool NonSquareVerticalSlopeIsSolid(
+    private static bool NonSquareVerticalSlopeIsSolid(
         RoomLevelData level,
         RoomEnemySlot slot,
         RoomCollisionBlock block,
@@ -543,7 +543,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>AlignEnemyYPositionWIthNonSquareSlope</c> at $A0:C8AD.</summary>
-    private void AlignEnemyYWithNonSquareSlope(RoomLevelData level, RoomEnemySlot slot) =>
+    private static void AlignEnemyYWithNonSquareSlope(RoomLevelData level, RoomEnemySlot slot) =>
         AlignEnemyYWithNonSquareSlopeAndReportAdjustment(level, slot);
 
     /// <summary>
@@ -551,7 +551,7 @@ public sealed partial class RoomEnemySystem
     /// the carry result returned by native $A0:C8AD. Yard is the first translated caller that
     /// consumes that carry to suppress corner-transition animation after a slope adjustment.
     /// </summary>
-    private bool AlignEnemyYWithNonSquareSlopeAndReportAdjustment(
+    private static bool AlignEnemyYWithNonSquareSlopeAndReportAdjustment(
         RoomLevelData level,
         RoomEnemySlot slot)
     {
@@ -570,7 +570,7 @@ public sealed partial class RoomEnemySystem
         return adjustedFloor || adjustedCeiling;
     }
 
-    private bool AlignAgainstSlopeAtPixel(
+    private static bool AlignAgainstSlopeAtPixel(
         RoomLevelData level,
         RoomEnemySlot slot,
         ushort x,
@@ -604,8 +604,6 @@ public sealed partial class RoomEnemySystem
         return true;
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static",
-        Justification = "Keep this table-only migration from changing the reflection-visible instance signatures of its many transitive diagnostic entry points.")]
-    private int ReadNonSquareSlopeHeight(RoomBlockBehavior bts, int xWithinBlock) =>
+    private static int ReadNonSquareSlopeHeight(RoomBlockBehavior bts, int xWithinBlock) =>
         SlopeHeightDefinitions.Read(bts.SlopeShape, xWithinBlock);
 }

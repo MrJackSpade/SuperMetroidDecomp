@@ -19,10 +19,9 @@ public static class PaletteFxHeatProgramMechanicsDefinitions
     private static readonly PaletteFxHeatProgramDefinition Power = new(PaletteFxHeatSuit.Power);
     private static readonly PaletteFxHeatProgramDefinition Varia = new(PaletteFxHeatSuit.Varia);
     private static readonly PaletteFxHeatProgramDefinition Gravity = new(PaletteFxHeatSuit.Gravity);
-    private static readonly IReadOnlyList<PaletteFxHeatProgramDefinition> Programs = new ProgramList();
 
     /// <summary>The Power, Varia, and Gravity programs in native selection order.</summary>
-    public static IReadOnlyList<PaletteFxHeatProgramDefinition> All => Programs;
+    public static IReadOnlyList<PaletteFxHeatProgramDefinition> All { get; } = new ProgramList();
 
     private sealed class ProgramList : IReadOnlyList<PaletteFxHeatProgramDefinition>
     {
@@ -57,12 +56,11 @@ public sealed class PaletteFxHeatProgramDefinition
 {
     /// <summary>Fifteen BGR555 colors follow every timed duration word.</summary>
     public const int ColorsPerFrame = 15;
-    private readonly IReadOnlyList<PaletteFxHeatProgramFrameDefinition> frames;
 
     internal PaletteFxHeatProgramDefinition(PaletteFxHeatSuit suit)
     {
         Suit = suit;
-        frames = new FrameList(suit);
+        Frames = new FrameList(suit);
     }
 
     /// <summary>The mutually exclusive suit palette represented by this program.</summary>
@@ -88,7 +86,7 @@ public sealed class PaletteFxHeatProgramDefinition
     }
 
     /// <summary>The sixteen timed records, calculated on access without stored rows.</summary>
-    public IReadOnlyList<PaletteFxHeatProgramFrameDefinition> Frames => frames;
+    public IReadOnlyList<PaletteFxHeatProgramFrameDefinition> Frames { get; }
 
     private sealed class FrameList(PaletteFxHeatSuit suit) : IReadOnlyList<PaletteFxHeatProgramFrameDefinition>
     {

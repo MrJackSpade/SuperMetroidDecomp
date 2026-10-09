@@ -85,17 +85,17 @@ internal static class IntroBabyDiscoveryInstructionDefinitions
     {
         ushort word;
         int offset;
-        if (pointer >= EggStart && pointer < EggEnd)
+        if (pointer is >= EggStart and < EggEnd)
         {
             offset = pointer - EggStart;
             word = EggWord(offset / 2);
         }
-        else if (pointer >= BabyStart && pointer < BabyEnd)
+        else if (pointer is >= BabyStart and < BabyEnd)
         {
             offset = pointer - BabyStart;
             word = BabyWord(offset / 2);
         }
-        else if (pointer == DeletePointer || pointer == DeletePointer + 1)
+        else if (pointer is DeletePointer or (DeletePointer + 1))
         {
             offset = pointer - DeletePointer;
             word = CinematicCodePointers.CinematicSpriteObject_Instruction_Delete;
@@ -106,8 +106,8 @@ internal static class IntroBabyDiscoveryInstructionDefinitions
 
     internal static ushort ReadWord(ushort pointer)
     {
-        if (pointer == DeletePointer || pointer >= EggStart && pointer < EggEnd - 1
-            || pointer >= BabyStart && pointer < BabyEnd - 1)
+        if (pointer is DeletePointer or >= EggStart and < (EggEnd - 1)
+            or >= BabyStart and < (BabyEnd - 1))
             return (ushort)(ReadByte(pointer) | ReadByte((ushort)(pointer + 1)) << 8);
         throw new InvalidDataException(
             $"Intro baby-discovery instruction read $8B:{pointer:X4} leaves its compiled lists.");

@@ -25,7 +25,7 @@ internal sealed class EndingLogoRelatedParts : IReadOnlyList<CompiledSpritePart>
         if (frame is 0 or 4) return supplied;
         SpriteComposition source = frame == 1 ? upper : completeRight;
         if (source.PartCount != (frame == 1 ? 14 : 25)) return supplied;
-        bool rotate = frame == 1 || frame >= 5;
+        bool rotate = frame is 1 or >= 5;
         int stage = frame == 1 ? -1 : (frame - 2) % 3;
         int offset = stage is 0 or 1 ? 7 : 0;
         int count = stage switch { -1 => 14, 0 => 12, 1 => 18, _ => 25 };

@@ -73,19 +73,19 @@ public sealed partial class RoomEnemySystem
         // append-only queue above. Clear those fields at EnemyMain's frame boundary just
         // as their native QueueSfx/QueueMusic calls are momentary publications. Doing the
         // reset here prevents a paused/frozen actor from replaying its previous request.
-        if (_kraidState is not null)
-            _kraidState.MusicRequest = null;
-        if (_draygon is not null)
+        if (Kraid is not null)
+            Kraid.MusicRequest = null;
+        if (Draygon is not null)
         {
-            _draygon.LastSoundLibrary2 = null;
-            _draygon.LastSoundLibrary3 = null;
-            _draygon.MusicRequest = null;
+            Draygon.LastSoundLibrary2 = null;
+            Draygon.LastSoundLibrary3 = null;
+            Draygon.MusicRequest = null;
         }
-        if (_phantoonState is not null)
+        if (Phantoon is not null)
         {
-            _phantoonState.LastMaterializationSound = null;
-            _phantoonState.LastCombatSoundEffect = null;
-            _phantoonState.MusicRequest = null;
+            Phantoon.LastMaterializationSound = null;
+            Phantoon.LastCombatSoundEffect = null;
+            Phantoon.MusicRequest = null;
         }
     }
 
@@ -170,22 +170,22 @@ public sealed partial class RoomEnemySystem
 
         if (LastKraidSoundEffect is { } kraidSound)
             QueueEnemySound(kraidSound.SoundEffect, maximumQueued: 6);
-        if (_ridleyState?.LastDeathSoundEffect is ushort ridleyDeath)
+        if (Ridley?.LastDeathSoundEffect is ushort ridleyDeath)
             QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, ridleyDeath), maximumQueued: 3);
-        if (_draygon?.LastSoundLibrary2 is ushort draygonLibrary2)
+        if (Draygon?.LastSoundLibrary2 is ushort draygonLibrary2)
             QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, draygonLibrary2), maximumQueued: 6);
-        if (_draygon?.LastSoundLibrary3 is ushort draygonLibrary3)
+        if (Draygon?.LastSoundLibrary3 is ushort draygonLibrary3)
             QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, draygonLibrary3), maximumQueued: 6);
-        if (_phantoonState?.LastMaterializationSound is ushort phantoonMaterialization)
+        if (Phantoon?.LastMaterializationSound is ushort phantoonMaterialization)
             QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, phantoonMaterialization), maximumQueued: 6);
-        if (_phantoonState?.LastCombatSoundEffect is ushort phantoonCombat)
+        if (Phantoon?.LastCombatSoundEffect is ushort phantoonCombat)
             QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, phantoonCombat), maximumQueued: 6);
 
-        if (_motherBrain?.LastSoundEffect is ushort motherBrainLibrary2)
+        if (MotherBrain?.LastSoundEffect is ushort motherBrainLibrary2)
             QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, motherBrainLibrary2), maximumQueued: 6);
-        if (_motherBrain?.LastSoundEffectLibrary1 is ushort motherBrainLibrary1)
+        if (MotherBrain?.LastSoundEffectLibrary1 is ushort motherBrainLibrary1)
             QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, motherBrainLibrary1), maximumQueued: 6);
-        if (_motherBrain?.LastSoundEffectLibrary3 is ushort motherBrainLibrary3)
+        if (MotherBrain?.LastSoundEffectLibrary3 is ushort motherBrainLibrary3)
         {
             // Explosion instruction $13 is QueueSfx3_Max3; the other translated library-
             // three Mother Brain instructions use Max6.
@@ -196,14 +196,14 @@ public sealed partial class RoomEnemySystem
         QueueLegacyMusic(LastBotwoonMusicRequest?.Command, LastBotwoonMusicRequest?.Delay);
         QueueLegacyMusic(LastBombTorizoMusicRequest?.Command, LastBombTorizoMusicRequest?.Delay);
         QueueLegacyMusic(LastCrocomireMusicRequest?.Command, LastCrocomireMusicRequest?.Delay);
-        QueueLegacyMusic(_kraidState?.MusicRequest, MusicCommandDelay.EightFrames);
-        QueueLegacyMusic(_draygon?.MusicRequest, MusicCommandDelay.EightFrames);
-        QueueLegacyMusic(_phantoonState?.MusicRequest, MusicCommandDelay.EightFrames);
-        QueueLegacyMusic(_ridleyState?.MusicRequest, MusicCommandDelay.EightFrames);
+        QueueLegacyMusic(Kraid?.MusicRequest, MusicCommandDelay.EightFrames);
+        QueueLegacyMusic(Draygon?.MusicRequest, MusicCommandDelay.EightFrames);
+        QueueLegacyMusic(Phantoon?.MusicRequest, MusicCommandDelay.EightFrames);
+        QueueLegacyMusic(Ridley?.MusicRequest, MusicCommandDelay.EightFrames);
         QueueLegacyMusic(LastShitroidMusicRequest?.Command, LastShitroidMusicRequest?.Delay);
-        if (_motherBrain is not null)
+        if (MotherBrain is not null)
         {
-            foreach (MotherBrainMusicRequest request in _motherBrain.MusicRequests)
+            foreach (MotherBrainMusicRequest request in MotherBrain.MusicRequests)
             {
                 _musicRequests.Add(new EnemyMusicRequest(request.Command, request.Delay));
             }

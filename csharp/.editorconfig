@@ -17,6 +17,8 @@ dotnet_diagnostic.IDE2003.severity = silent
 # These diagnostics describe code shapes the project intentionally treats as
 # build-breaking defects. Keeping the policy in this named data file makes the
 # rule apply uniformly to every C# project without duplicating MSBuild lists.
+# IDE0211 reports top-level statements only when they are not the preferred style.
+csharp_style_prefer_top_level_statements = false
 dotnet_diagnostic.IDE0211.severity = error
 dotnet_diagnostic.CA1512.severity = error
 dotnet_diagnostic.CA1822.severity = error

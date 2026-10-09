@@ -27,7 +27,7 @@ internal static partial class Program
             .CreateDelegate<Action<RoomEnemySlot>>(enemies);
         MethodInfo process = enemySystemType.GetMethod("ProcessInstructions", flags)!;
         object?[] processArguments =
-            [null, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            [null, null, null, (ushort)0, (ushort)0, (ushort)0];
 
         foreach (ushort definitionPointer in new ushort[]
                  {

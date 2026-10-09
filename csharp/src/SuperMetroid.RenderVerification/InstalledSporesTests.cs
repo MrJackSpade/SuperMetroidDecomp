@@ -104,7 +104,7 @@ internal static partial class InstalledSporesTests
                     tick++;
                 }
                 Require(capture == replacement.CaptureForDisplay(), "Presentation overrides changed scroll/capture mechanics.");
-                if (frame < 50 || frame is 510 or 511 or 512 or 1024 or 1049)
+                if (frame is < 50 or 510 or 511 or 512 or 1024 or 1049)
                 {
                     Require(Graph(baseline).AsSpan().SequenceEqual(Graph(replacement)), "Presentation edits changed serialized FX control state.");
                     var liquid = new SamusLiquidPhysicsState(); replacement.ApplyToSamusLiquidPhysics(liquid);

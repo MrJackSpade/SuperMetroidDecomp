@@ -90,7 +90,7 @@ internal static partial class Program
                     Angle = index == 6 ? unchecked((ushort)(tailDirection.Value << 4)) : (ushort)0,
                 })],
         };
-        typeof(RoomEnemySystem).GetField("_ridleyState", flags)!.SetValue(enemies, state);
+        typeof(RoomEnemySystem).GetField("<Ridley>k__BackingField", flags)!.SetValue(enemies, state);
         var oam = new OamBuffer();
         typeof(RoomEnemySystem).GetMethod("DrawRidleySupplementalSprites", flags)!
             .CreateDelegate<Action<OamBuffer, RoomEnemySlot, ushort, ushort>>(enemies)(

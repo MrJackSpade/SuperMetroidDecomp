@@ -20,9 +20,9 @@ namespace SuperMetroid.Core.Frontend;
 public sealed partial class SuperMetroidGame
 {
     private readonly ISnesAddressSpace bus;
-    private SuperMetroidGameOptions gameOptions;
+
     /// <summary>Current host options; interactive state restoration rebinds these to the active session.</summary>
-    public SuperMetroidGameOptions ConfiguredOptions => gameOptions;
+    public SuperMetroidGameOptions ConfiguredOptions { get; private set; }
     private readonly bool renderGameplayFrames;
     private readonly SuperMetroidSaveRam saveRam;
 
@@ -42,15 +42,11 @@ public sealed partial class SuperMetroidGame
     private readonly CeresDepartureState ceresDeparture = new();
     private readonly SamusReserveAutoRecoveryState reserveRecovery = new();
     private readonly DoorTransitionState doorTransition = new();
-    private Rgba32[] legacyPixels = CreateBlackFrame();
+
     // Software raster of a captured display, reused by every read of the frame below.
     [NonSerialized] private Rgba32[]? capturedDisplayRaster;
-    private Rgba32[] lastPixels
-    {
-        get => capturedDisplay is null ? legacyPixels : SoftwareFrameSnapshotRenderer.Render(capturedDisplay,
-            capturedDisplayRaster ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height]);
-        set { legacyPixels = value; capturedDisplay = null; }
-    }
+    private Rgba32[] lastPixels { get => capturedDisplay is null ? field : SoftwareFrameSnapshotRenderer.Render(capturedDisplay,
+                                      capturedDisplayRaster ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height]); set { field = value; capturedDisplay = null; } } = CreateBlackFrame();
     private int selectedSaveSlot;
     private bool loadingExistingSave;
     private SuperMetroidSaveSlot? spacetimeIntroRestartSlot;
@@ -96,7 +92,7 @@ public sealed partial class SuperMetroidGame
         bool renderGameplayFrames)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
-        this.gameOptions = gameOptions ?? new SuperMetroidGameOptions();
+        ConfiguredOptions = gameOptions ?? new SuperMetroidGameOptions();
         this.renderGameplayFrames = renderGameplayFrames;
         saveRam = new SuperMetroidSaveRam(bus, mapPresentation);
         selectedSaveSlot = saveRam.ReadSelectedSlot();
@@ -289,7 +285,7 @@ public sealed partial class SuperMetroidGame
                             // live. Retain that inventory for Ceres setup, but do not restore
                             // the corrupted progression planes into the fresh run.
                             spacetimeIntroRestartSlot = selectedSlot;
-                            if (gameOptions.SkipOpeningCinematic)
+                            if (ConfiguredOptions.SkipOpeningCinematic)
                             {
                                 intro = null;
                                 GameState = SuperMetroidGameState.SetUpNewGame;
@@ -328,7 +324,7 @@ public sealed partial class SuperMetroidGame
                             PublishBlack();
                         }
                     }
-                    else if (gameOptions.SkipOpeningCinematic)
+                    else if (ConfiguredOptions.SkipOpeningCinematic)
                     {
                         // This is the same dispatcher boundary reached by `$8B:C100` after
                         // the SPACE COLONY fade. Do not fake Start presses or build a host-
@@ -634,7 +630,7 @@ public sealed partial class SuperMetroidGame
                     pauseRoom.MapY,
                     audio,
                     runtime.Vram,
-                    gameOptions.MapReveal,
+                    ConfiguredOptions.MapReveal,
                     mapPresentation);
                 BeginPauseFade(0);
                 PublishMenu(pauseMenu);
@@ -870,7 +866,6 @@ public sealed partial class SuperMetroidGame
 
             case SuperMetroidGameState.LoadingNextRoomB:
                 doorTransition.Step(runtime!, audio, controllerInput, DoorLoaderProgress,
-                    queueEchoSound: () => gameplayAudio.QueueEcho(runtime!),
                     publishSoundWaitAudio: () => CollectDoorSoundWaitAudioRequests(runtime!));
                 PublishGameplay(runtime!);
                 if (doorTransition.Phase == DoorTransitionPhase.Complete)
@@ -918,8 +913,8 @@ public sealed partial class SuperMetroidGame
                     endingCredits = new EndingCreditsState(
                         bus,
                         audio,
-                        gameOptions.EndingTimeOverrideMinutes is { } endingMinutes ? (ushort)(endingMinutes / 60) : runtime.GameTime.Hours,
-                        gameOptions.EndingTimeOverrideMinutes is { } totalMinutes ? (ushort)(totalMinutes % 60) : runtime.GameTime.Minutes,
+                        ConfiguredOptions.EndingTimeOverrideMinutes is { } endingMinutes ? (ushort)(endingMinutes / 60) : runtime.GameTime.Hours,
+                        ConfiguredOptions.EndingTimeOverrideMinutes is { } totalMinutes ? (ushort)(totalMinutes % 60) : runtime.GameTime.Minutes,
                         new EndingInventorySnapshot(
                             endingSamus.MaxHealth,
                             endingSamus.MaxReserveEnergy,
@@ -1403,13 +1398,13 @@ public sealed partial class SuperMetroidGame
             RetainRuntimeNmiFrameCounters();
         runtime = new SuperMetroidRuntime(
             bus,
-            playerInvincibilityEnabled: !forAttractDemo && gameOptions.Invincibility,
-            infiniteAmmoEnabled: !forAttractDemo && gameOptions.InfiniteAmmo,
-            mapRevealMode: forAttractDemo ? MapRevealMode.None : gameOptions.MapReveal,
-            preventEscapeTimeout: !forAttractDemo && gameOptions.PreventEscapeTimeout,
+            playerInvincibilityEnabled: !forAttractDemo && ConfiguredOptions.Invincibility,
+            infiniteAmmoEnabled: !forAttractDemo && ConfiguredOptions.InfiniteAmmo,
+            mapRevealMode: forAttractDemo ? MapRevealMode.None : ConfiguredOptions.MapReveal,
+            preventEscapeTimeout: !forAttractDemo && ConfiguredOptions.PreventEscapeTimeout,
             initialPaletteArt: gameplayBasePalettes,
-            grantAllEquipment: !forAttractDemo && gameOptions.GrantAllEquipment,
-            unlockTourian: !forAttractDemo && gameOptions.UnlockTourian);
+            grantAllEquipment: !forAttractDemo && ConfiguredOptions.GrantAllEquipment,
+            unlockTourian: !forAttractDemo && ConfiguredOptions.UnlockTourian);
         // Runtime allocation is a managed ownership change, not Vector_RESET.
         // Publish before room initialization so random-consuming enemies see it too.
         runtime.System.SetRandomNumber(incomingRandom);
@@ -1477,7 +1472,7 @@ public sealed partial class SuperMetroidGame
     private void StartSavedCeresDestruction(SuperMetroidSaveSlot slot)
     {
         CreateGameplayRuntime();
-        runtime!.RestoreSavedPlayerState(slot, gameOptions.ResetBossesOnLoad);
+        runtime!.RestoreSavedPlayerState(slot, ConfiguredOptions.ResetBossesOnLoad);
         // Unlike an ongoing escape, a file-select resume has a fresh gameplay
         // owner. Construct its ordinary HUD now so the cinematic's later room
         // handoff retains initialized HUD state and standard graphics transfers.
@@ -1576,7 +1571,7 @@ public sealed partial class SuperMetroidGame
             {
                 // Room selection and actors must see the restored mirror, not a
                 // fresh runtime followed by an after-the-fact progression overwrite.
-                runtime.RestoreSavedPlayerState(slot, gameOptions.ResetBossesOnLoad);
+                runtime.RestoreSavedPlayerState(slot, ConfiguredOptions.ResetBossesOnLoad);
                 runtime.InitializeStartingCeresRoom();
                 runtime.InitializeCeresStartSamus();
                 slot.ApplyTo(runtime.Samus ?? throw new InvalidOperationException(
@@ -1588,7 +1583,7 @@ public sealed partial class SuperMetroidGame
                 return true;
             }
 
-            runtime.InitializeSavedGame(slot, gameOptions.ResetBossesOnLoad);
+            runtime.InitializeSavedGame(slot, ConfiguredOptions.ResetBossesOnLoad);
             // File selection loaded the saved options before the options menu ran.
             // InitializeSavedGame also serves direct diagnostic loads, so it restores
             // those fields itself. At this frontend boundary, the player's live edits

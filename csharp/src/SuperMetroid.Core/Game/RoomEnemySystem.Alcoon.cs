@@ -431,7 +431,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Implements Alcoon instruction <c>$A8:DF3F</c> and returns native Y.</summary>
-    private ushort StartAlcoonWalking(RoomEnemySlot slot, AlcoonEnemyState state)
+    private ushort StartAlcoonWalking(AlcoonEnemyState state)
     {
         state.Function = AlcoonEnemyFunction.WalkingAndFiring;
         Func<ushort> readRandomNumber = _readRandomNumber ??

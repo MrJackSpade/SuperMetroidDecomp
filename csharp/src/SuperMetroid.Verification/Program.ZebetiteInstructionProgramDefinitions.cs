@@ -67,7 +67,7 @@ internal static partial class Program
                 $"Zebetite program {programIndex} production health selection");
 
             object?[] arguments =
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+                [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
             process.Invoke(enemies, arguments);
             AssertEqual(expected.Presentation, unchecked((ushort)(slot.CurrentInstruction - 2)),
                 $"Zebetite program {programIndex} executed visual operand");

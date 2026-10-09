@@ -23,7 +23,7 @@ internal static partial class Program
         // not a breakable-block range failure or a fabricated terrain mutation.
         for (int bts = 0x11; bts <= 0x4e; bts++)
         {
-            if (bts > 0x3f && bts != 0x4e) continue;
+            if (bts is > 0x3f and not 0x4e) continue;
             var emptyLevel = CreateRoom(16, 16, new ushort[256], new byte[256], blockDefinitions: new byte[0x400 * 8]);
             var unusedPlms = new RoomPlmSystem();
             AssertTrue(unusedPlms.TrySpawnProjectileShotBlock(emptyLevel, 0, (byte)bts, 0, true),

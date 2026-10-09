@@ -10,7 +10,7 @@ internal static partial class Program
         for (int raw = 0; raw <= byte.MaxValue; raw++)
         {
             var kind = (InWorldCollectibleKind)raw;
-            if (raw < 4 || raw > 20)
+            if (raw is < 4 or > 20)
             {
                 AssertThrows<InvalidDataException>(() => RoomPlmDynamicCollectibleGraphicsDefinitions.Get(kind), "Dynamic graphics rejected byte kind");
                 AssertThrows<InvalidDataException>(() => RoomPlmDynamicCollectibleGraphicsDefinitions.PaletteOffset(kind,0), "Dynamic palette rejected byte kind");

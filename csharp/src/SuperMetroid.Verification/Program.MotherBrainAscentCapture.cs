@@ -12,7 +12,7 @@ internal static partial class Program
         AssertTrue(Layer().MainScreenLayersByLine.IsEmpty, "No ascent mask before the native state starts it");
         state.FunctionTimer = 0;
         typeof(RoomEnemySystem).GetMethod("PrepareMotherBrainForRising", flags)!
-            .Invoke(runtime.Enemies, [state, runtime.Samus, (byte)0]);
+            .Invoke(runtime.Enemies, [state]);
         AssertTrue(state.RisingHdmaActive, "Production rising setup activates HDMA");
         var captured = Layer();
         AssertEqual(192, captured.MainScreenLayersByLine.Length, "Capture owns each gameplay scanline");

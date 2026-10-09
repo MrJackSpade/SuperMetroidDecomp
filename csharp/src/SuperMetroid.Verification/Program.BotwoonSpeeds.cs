@@ -26,7 +26,7 @@ internal static partial class Program
         for (int health = 0; health <= 3000; health++)
         {
             head.Health = (ushort)health;
-            byte phase = health == 0 || health >= 1500 ? (byte)0 : health >= 750 ? (byte)1 : (byte)2;
+            byte phase = health is 0 or >= 1500 ? (byte)0 : health >= 750 ? (byte)1 : (byte)2;
             state.InsideHole = false;
             update(head, state);
             AssertEqual(phase, state.HealthPhase, "Botwoon real phase selection without bus");

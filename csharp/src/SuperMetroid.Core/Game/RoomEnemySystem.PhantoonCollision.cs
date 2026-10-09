@@ -28,7 +28,7 @@ public sealed partial class RoomEnemySystem
         ArgumentNullException.ThrowIfNull(sharedProjectiles);
         EnsureLoaded();
 
-        if (_phantoonState is not { } state)
+        if (Phantoon is not { } state)
             return 0;
 
         RoomEnemySlot body = state.Body;
@@ -52,8 +52,8 @@ public sealed partial class RoomEnemySystem
             SamusProjectileFamily family = projectile.PackedType.Family;
             // A0:9BE6..9BF6 excludes bombs and every family at/above beam
             // explosions. Lingering missile explosions must not reach shot AI.
-            if (family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb ||
-                family >= SamusProjectileFamily.BeamExplosion)
+            if (family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb or
+                >= SamusProjectileFamily.BeamExplosion)
                 continue;
 
             if (!body.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap))

@@ -180,7 +180,7 @@ internal static partial class Program
             programSlot.CurrentInstruction = entry;
             programSlot.InstructionTimer = 1;
             object?[] arguments =
-                [programSlot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+                [programSlot, null, null, (ushort)0, (ushort)0, (ushort)0];
 
             // The six eight-frame entries total 48 frames; the margin proves the terminal
             // goto restarts the production stream rather than merely reaching its target.

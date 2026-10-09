@@ -29,8 +29,8 @@ internal static partial class Program
         var template = new JsonArray();
         for (int cell = 0; cell < 128; cell++)
         {
-            bool transparent = cell < 32 && (cell < GameplayMessagePanelDefinitions.OuterLeftColumns ||
-                cell >= 32 - GameplayMessagePanelDefinitions.OuterRightColumns);
+            bool transparent = cell is < 32 and (< GameplayMessagePanelDefinitions.OuterLeftColumns or
+                >= (32 - GameplayMessagePanelDefinitions.OuterRightColumns));
             template.Add(Cell(transparent ? GameplayMessageTitleDefinitions.TransparentWord : 0x3801));
         }
         panels["panels"]![GameplayMessageIds.MissileTank.ToString()]!["template"] = template;

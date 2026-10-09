@@ -511,7 +511,7 @@ public sealed partial class RoomEnemySystem
         if (MoveEnemyVertically(level, torizo, displacement))
         {
             short velocity = unchecked((short)state.VerticalVelocity);
-            if (velocity >= 0 && velocity != 0x0100)
+            if (velocity is >= 0 and not 0x0100)
             {
                 EarthquakeType = 4;
                 EarthquakeTimer = 32;
@@ -624,7 +624,7 @@ public sealed partial class RoomEnemySystem
 
     private void MaybeSpawnBombTorizoLowHealthDrool(RoomEnemySlot torizo)
     {
-        if (torizo.Health == 0 || torizo.Health >= BombTorizoHeadExplosionHealth)
+        if (torizo.Health is 0 or >= BombTorizoHeadExplosionHealth)
             return;
         if (RequireRandomNumber() is ushort random &&
             (random & 0x8142) == 0)

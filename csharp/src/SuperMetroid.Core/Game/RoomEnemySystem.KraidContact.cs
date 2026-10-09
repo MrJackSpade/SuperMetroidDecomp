@@ -21,7 +21,7 @@ public sealed partial class RoomEnemySystem
         samus.Kinematics.ExtraXDisplacement = KraidContactDefinitions.ExtraX;
         samus.Kinematics.ExtraYDisplacement = KraidContactDefinitions.ExtraY;
         if (samus.InvincibilityTimer == 0)
-            ResolveNormalEnemyTouch(body, samus, 0);
+            ResolveNormalEnemyTouch(body, samus);
     }
 
     private void ResolveKraidLintContact(RoomEnemySlot lint, SamusState samus)
@@ -40,7 +40,7 @@ public sealed partial class RoomEnemySystem
             samus.Kinematics.ExtraXDisplacement));
         samus.Kinematics.ExtraXDisplacement = unchecked((short)(push - KraidContactDefinitions.LintPush)) < 0
             ? push : KraidContactDefinitions.LintPush;
-        ResolveNormalEnemyTouch(lint, samus, 0);
+        ResolveNormalEnemyTouch(lint, samus);
         lint.Properties = lint.Properties.With(EnemyProperties.IgnoreSamusCollision);
     }
 }

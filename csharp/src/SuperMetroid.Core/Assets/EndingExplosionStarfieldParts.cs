@@ -25,7 +25,7 @@ internal sealed class EndingExplosionStarfieldParts : IReadOnlyList<CompiledSpri
         {
             CompiledSpritePart part = supplied.Part(index);
             int tile = part.Attributes.TileNumber;
-            if (tile != 0xed && tile is not (>= 0xf8 and <= 0xfc)) return supplied;
+            if (tile is not 0xed and not (>= 0xf8 and <= 0xfc)) return supplied;
             stars[index] = new(part.X.SignedOffset, part.Y, tile);
         }
         return supplied.CalculateIfMatching(new EndingExplosionStarfieldParts(stars));

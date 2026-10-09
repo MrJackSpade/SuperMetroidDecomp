@@ -306,7 +306,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>EprojPreInit_MiniKraidSpit</c> at <c>$86:9E1E</c>.</summary>
-    private void RunFakeKraidSpitPreInstruction(
+    private static void RunFakeKraidSpitPreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
@@ -325,7 +325,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>EprojPreInstr_MiniKraidSpikes</c> at <c>$86:9E83</c>.</summary>
-    private void RunFakeKraidSpikePreInstruction(
+    private static void RunFakeKraidSpikePreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
@@ -361,10 +361,10 @@ public sealed partial class RoomEnemySystem
         ushort originY = slot.YPosition;
         ushort chancePointer = slot.Definition.ItemDropChancesPointer;
         StartGenericEnemyDeath(slot, deathAnimation: 3);
-        SpawnFakeKraidDeathDrops(originX, originY, chancePointer);
+        SpawnFakeKraidDeathDrops(originX, originY);
     }
 
-    private void SpawnFakeKraidDeathDrops(ushort originX, ushort originY, ushort chancePointer)
+    private void SpawnFakeKraidDeathDrops(ushort originX, ushort originY)
     {
         LastFakeKraidDropRequest = new FakeKraidDropRequest();
         SpawnEnemyDropScatterAround(

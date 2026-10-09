@@ -123,7 +123,7 @@ internal sealed class EndingPostShot
         ReadOnlySpan<byte> bytes;
         if (source == EndingPostShotDefinitions.SubtitleSource)
             bytes = font.AsSpan(EndingPostShotDefinitions.SubtitleFontOffset, length);
-        else if (source >= EndingPostShotDefinitions.LogoTileSource && source < EndingPostShotDefinitions.LogoMapSource)
+        else if (source is >= EndingPostShotDefinitions.LogoTileSource and < EndingPostShotDefinitions.LogoMapSource)
             bytes = tiles.AsSpan(source - EndingPostShotDefinitions.LogoTileSource, length);
         else if (source == EndingPostShotDefinitions.LogoMapSource)
             bytes = map.AsSpan(0, length);

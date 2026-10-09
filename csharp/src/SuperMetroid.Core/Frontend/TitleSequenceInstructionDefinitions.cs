@@ -22,7 +22,7 @@ internal static class TitleSequenceInstructionDefinitions
 
     internal static byte ReadByte(int address)
     {
-        if (address < StartAddress || address >= EndAddress)
+        if (address is < StartAddress or >= EndAddress)
             throw new InvalidDataException($"Title-card byte ${address:X6} leaves its compiled program.");
         int offset = address - StartAddress;
         return (byte)(WordAt(offset & ~1) >> ((offset & 1) * 8));
@@ -30,7 +30,7 @@ internal static class TitleSequenceInstructionDefinitions
 
     internal static ushort ReadWord(int address)
     {
-        if (address < StartAddress || address >= EndAddress - 1)
+        if (address is < StartAddress or >= (EndAddress - 1))
             throw new InvalidDataException($"Title-card word ${address:X6} leaves its compiled program.");
         return (ushort)(ReadByte(address) | ReadByte(address + 1) << 8);
     }

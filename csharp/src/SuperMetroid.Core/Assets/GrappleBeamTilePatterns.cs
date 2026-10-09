@@ -41,7 +41,7 @@ internal static class GrappleBeamTilePatterns
             bool filled = frame switch
             {
                 FilledDiamondFrame => diamondDistance <= SmallRadius,
-                HollowDiamondFrame => diamondDistance <= MiddleRadius && diamondDistance != 0,
+                HollowDiamondFrame => diamondDistance is <= MiddleRadius and not 0,
                 TippedSquareFrame => squareDistance == SmallRadius || (diamondDistance == MiddleRadius && (dx == 0 || dy == 0)),
                 _ => diamondDistance <= InnerRadius || (diamondDistance == OuterRadius && squareDistance <= ClipRadius),
             };

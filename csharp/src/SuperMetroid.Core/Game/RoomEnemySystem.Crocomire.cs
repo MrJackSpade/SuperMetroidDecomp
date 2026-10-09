@@ -56,55 +56,53 @@ public enum CrocomireFightFunction : ushort
 /// </summary>
 public sealed class CrocomireEnemyState
 {
-    private readonly RoomEnemySlot _body;
-
-    internal CrocomireEnemyState(RoomEnemySlot body) => _body = body;
+    internal CrocomireEnemyState(RoomEnemySlot body) => Body = body;
 
     /// <summary>Physical $DDBF body record owning the fight/death state words and room-pixel coordinates; BG2 body artwork follows this actor.</summary>
-    public RoomEnemySlot Body => _body;
+    public RoomEnemySlot Body { get; }
     /// <summary>Physical $DDFF tongue record, attached during initialization; bridge collapse sleeps and hides it, while later melting phases reuse its actor.</summary>
     public RoomEnemySlot? Tongue { get; internal set; }
 
     /// <summary>Native variable A: even byte offset into the bank-$A4 main/death dispatcher; zero runs the fight/bridge checks, two begins collapse, and $54 displays an already-defeated corpse.</summary>
     public ushort DeathSequenceIndex
     {
-        get => _body.VariableA;
-        internal set => _body.VariableA = value;
+        get => Body.VariableA;
+        internal set => Body.VariableA = value;
     }
 
     /// <summary>Native variable B: raw fight latches, including damage bit $0800 and a saturating low-nibble hit count; unused attack branches assign additional overlapping bit meanings.</summary>
     public ushort FightFlags
     {
-        get => _body.VariableB;
-        internal set => _body.VariableB = value;
+        get => Body.VariableB;
+        internal set => Body.VariableB = value;
     }
 
     /// <summary>Native variable C: even byte offset into the 21-word table at $A4:86B3, consumed when instruction $A4:86A6 runs rather than once per main-AI frame.</summary>
     public CrocomireFightFunction FightFunction
     {
-        get => (CrocomireFightFunction)_body.VariableC;
-        internal set => _body.VariableC = (ushort)value;
+        get => (CrocomireFightFunction)Body.VariableC;
+        internal set => Body.VariableC = (ushort)value;
     }
 
     /// <summary>Native variable D: queued backward-step count during combat; death reuses it as a frame countdown, rumble-table offset, or 8.8 vertical acceleration word.</summary>
     public ushort StepCounter
     {
-        get => _body.VariableD;
-        internal set => _body.VariableD = value;
+        get => Body.VariableD;
+        internal set => Body.VariableD = value;
     }
 
     /// <summary>Native variable E: shot/power-bomb reaction word initialized to ten; death reuses it for 8.8 vertical speed or the fractional low word of skeleton 16.16 motion.</summary>
     public ushort ReactionTimer
     {
-        get => _body.VariableE;
-        internal set => _body.VariableE = value;
+        get => Body.VariableE;
+        internal set => Body.VariableE = value;
     }
 
     /// <summary>Native variable F: even projectile parameter advancing by two through $12, or saved fight index in unused claw AI; death reuses it for subposition or the whole word paired with <see cref="ReactionTimer"/>.</summary>
     public ushort ProjectileCounter
     {
-        get => _body.VariableF;
-        internal set => _body.VariableF = value;
+        get => Body.VariableF;
+        internal set => Body.VariableF = value;
     }
 }
 
@@ -116,16 +114,14 @@ public sealed partial class RoomEnemySystem
 
     private const ushort CrocomireBridgeThreshold = 0x0640;
     private const ushort CrocomireSpikeWallThreshold = 0x0300;
-    private CrocomireEnemyState? _crocomire;
-    private CrocomireDeathState? _crocomireDeath;
     private readonly List<CrocomirePlmRequest> _crocomirePlmRequests = new();
     private ushort _crocomireCameraX;
 
     /// <summary>Debugger-visible Crocomire owner while the current room contains $DDBF.</summary>
-    public CrocomireEnemyState? Crocomire => _crocomire;
+    public CrocomireEnemyState? Crocomire { get; private set; }
 
     /// <summary>Typed WRAM extension used by Crocomire's bridge/melting/skeleton graph.</summary>
-    public CrocomireDeathState? CrocomireDeath => _crocomireDeath;
+    public CrocomireDeathState? CrocomireDeath { get; private set; }
 
     /// <summary>Hardcoded bank-$84 arena mutations published during the current frame.</summary>
     public IReadOnlyList<CrocomirePlmRequest> CrocomirePlmRequests => _crocomirePlmRequests;
@@ -150,8 +146,8 @@ public sealed partial class RoomEnemySystem
 
     private void ResetCrocomireRoomState()
     {
-        _crocomire = null;
-        _crocomireDeath = null;
+        Crocomire = null;
+        CrocomireDeath = null;
         _crocomirePlmRequests.Clear();
         _crocomireCameraX = 0;
         LastCrocomireSoundEffect = null;
@@ -167,8 +163,8 @@ public sealed partial class RoomEnemySystem
     {
         BossId = 6;
         var state = new CrocomireEnemyState(slot);
-        _crocomire = state;
-        _crocomireDeath = new CrocomireDeathState();
+        Crocomire = state;
+        CrocomireDeath = new CrocomireDeathState();
         ClearCrocomireBg2WorkingTilemap();
 
         if (RequireAreaMiniBossDefeated())
@@ -241,16 +237,14 @@ public sealed partial class RoomEnemySystem
                 "Crocomire initializer");
         slot.VariableA = 23;
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
-        if (_crocomire is not null)
-            _crocomire.Tongue = slot;
+        if (Crocomire is not null)
+            Crocomire.Tongue = slot;
     }
 
     /// <summary>Runs the live-fight phase of <c>MainAI_Crocomire</c> at $A4:8C04.</summary>
     private void RunCrocomireMain(
         RoomEnemySlot slot,
         SamusState? samus,
-        ushort controllerInput,
-        RoomLevelData? level,
         ushort cameraX)
     {
         CrocomireEnemyState state = RequireCrocomire(slot);
@@ -274,7 +268,7 @@ public sealed partial class RoomEnemySystem
             RunCrocomireDeathSequence(state, samus);
         }
 
-        HandleCrocomireInvisibleWall(slot, state, samus, controllerInput);
+        HandleCrocomireInvisibleWall(slot, state, samus);
         ApplyCrocomireHurtPalette(slot);
     }
 
@@ -321,8 +315,7 @@ public sealed partial class RoomEnemySystem
     private void HandleCrocomireInvisibleWall(
         RoomEnemySlot body,
         CrocomireEnemyState state,
-        SamusState? samus,
-        ushort controllerInput)
+        SamusState? samus)
     {
         if (samus is null || state.DeathSequenceIndex != 0)
             return;
@@ -331,7 +324,7 @@ public sealed partial class RoomEnemySystem
         if (unchecked((short)(leftEdge - samus.XPosition)) >= 0)
             return;
 
-        ResolveNormalEnemyTouch(body, samus, controllerInput);
+        ResolveNormalEnemyTouch(body, samus);
         samus.XPosition = leftEdge;
         samus.Kinematics.ExtraXDisplacement = unchecked((ushort)-4);
         samus.Kinematics.ExtraYDisplacement = 0xffff;
@@ -360,12 +353,12 @@ public sealed partial class RoomEnemySystem
     }
 
     private CrocomireEnemyState RequireCrocomire(RoomEnemySlot slot) =>
-        _crocomire is { } state && ReferenceEquals(state.Body, slot)
+        Crocomire is { } state && ReferenceEquals(state.Body, slot)
             ? state
             : throw new InvalidOperationException(
                 $"Enemy slot {slot.SlotIndex} has no initialized Crocomire body state.");
 
     private CrocomireDeathState RequireCrocomireDeath() =>
-        _crocomireDeath ?? throw new InvalidOperationException(
+        CrocomireDeath ?? throw new InvalidOperationException(
             "Crocomire death extension is not initialized for the current room.");
 }

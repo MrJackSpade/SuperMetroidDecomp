@@ -32,7 +32,7 @@ internal abstract class CrocomireTongueInstructionProgramDefinitionsTooling : II
     {
         if ((address & 0xff0000) != 0xa40000) return false;
         int bankAddress = address & 0xffff;
-        if (bankAddress == CrocomireTongueInstructionProgramDefinitions.Sleep || bankAddress == CrocomireTongueInstructionProgramDefinitions.Sleep + 1) return true;
+        if (bankAddress is CrocomireTongueInstructionProgramDefinitions.Sleep or (CrocomireTongueInstructionProgramDefinitions.Sleep + 1)) return true;
         int offset = bankAddress < CrocomireTongueInstructionProgramDefinitions.Melting ? bankAddress - CrocomireTongueInstructionProgramDefinitions.Fight : bankAddress - CrocomireTongueInstructionProgramDefinitions.Melting;
         int frameCount = bankAddress < CrocomireTongueInstructionProgramDefinitions.Melting ? 4 : 5;
         return offset >= 0 && offset < frameCount * 4 + 4 &&

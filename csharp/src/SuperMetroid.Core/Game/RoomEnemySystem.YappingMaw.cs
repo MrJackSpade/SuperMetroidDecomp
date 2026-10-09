@@ -225,7 +225,7 @@ public sealed partial class RoomEnemySystem
         switch (state.Function)
         {
             case YappingMawAiFunction.WaitingForSamus:
-                WaitForSamusWithYappingMaw(slot, state, samus);
+                WaitForSamusWithYappingMaw(state, samus);
                 break;
             case YappingMawAiFunction.BeginExtension:
                 BeginYappingMawExtension(slot, state);
@@ -265,7 +265,6 @@ public sealed partial class RoomEnemySystem
 
     /// <summary>Ports $A8:A235, including the deliberately approximate distance helper.</summary>
     private static void WaitForSamusWithYappingMaw(
-        RoomEnemySlot slot,
         YappingMawEnemyState state,
         SamusState samus)
     {

@@ -198,7 +198,7 @@ internal static partial class Program
         HashSet<ushort> selectedPresentation)
     {
         object?[] arguments =
-            [etecoon, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            [etecoon, null, null, (ushort)0, (ushort)0, (ushort)0];
         for (int step = 0; step < steps; step++)
         {
             etecoon.InstructionTimer = 1;

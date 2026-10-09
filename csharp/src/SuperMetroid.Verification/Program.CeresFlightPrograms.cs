@@ -44,8 +44,8 @@ internal static partial class Program
         var compiled = new IntroDiscoverySprite(0, 0, 0, start);
         for (int frame = 0; frame < 32; frame++)
         {
-            native.Step(rom, instructionWord: OriginalWord);
-            compiled.Step(rom, instructionWord: CeresFlightSpriteInstructionDefinitions.ReadWord);
+            native.Step(instructionWord: OriginalWord);
+            compiled.Step(instructionWord: CeresFlightSpriteInstructionDefinitions.ReadWord);
             AssertEqual(native.InstructionPointer, compiled.InstructionPointer, "flight loop cursor");
             AssertEqual(native.SpriteMapPointer, compiled.SpriteMapPointer, "flight loop visible frame");
             AssertEqual(native.IsActive, compiled.IsActive, "flight loop lifetime");

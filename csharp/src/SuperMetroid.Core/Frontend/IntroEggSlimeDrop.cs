@@ -29,7 +29,7 @@ internal sealed class IntroEggSlimeDrop
         sprite.PreInstructionPointerForDiscovery(definition.PreInstruction);
     }
 
-    public void Step(ISnesAddressSpace bus)
+    public void Step()
     {
         if (!sprite.IsActive)
             return;
@@ -63,12 +63,12 @@ internal sealed class IntroEggSlimeDrop
             }
         }
 
-        sprite.Step(bus, instructionWord: IntroEggEffectInstructionDefinitions.ReadWord);
+        sprite.Step(instructionWord: IntroEggEffectInstructionDefinitions.ReadWord);
     }
 
-    public void Draw(ISnesAddressSpace bus, OamBuffer oam,
+    public void Draw(OamBuffer oam,
         IntroEggEffectSpritePresentation? installedArt = null) =>
-        sprite.Draw(bus, oam, installedArt: installedArt);
+        sprite.Draw(oam, installedArt: installedArt);
 
     private void AddVelocity(bool horizontal, (ushort Whole, ushort Fraction) velocity)
     {

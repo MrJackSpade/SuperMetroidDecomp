@@ -94,7 +94,7 @@ internal static partial class Program
                 yard.InstructionTimer = 1;
                 process.Invoke(
                     enemies,
-                    [yard, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0]);
+                    [yard, null, null, (ushort)0, (ushort)0, (ushort)0]);
             }
         }
 

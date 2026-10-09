@@ -121,7 +121,7 @@ internal static partial class Program
         int steps)
     {
         object?[] arguments =
-            [dachora, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            [dachora, null, null, (ushort)0, (ushort)0, (ushort)0];
         for (int step = 0; step < steps; step++)
         {
             dachora.InstructionTimer = 1;

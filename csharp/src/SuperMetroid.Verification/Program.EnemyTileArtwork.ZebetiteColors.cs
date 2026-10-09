@@ -148,10 +148,10 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (address >= ZebetiteDefinitions.PaletteSource &&
-                address < ZebetiteDefinitions.PaletteSource +
+            if (address is >= ZebetiteDefinitions.PaletteSource and
+                < (ZebetiteDefinitions.PaletteSource +
                     ZebetiteColorFormat.FrameCount * ZebetiteColorFormat.ColorsPerFrame *
-                    sizeof(ushort))
+                    sizeof(ushort)))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

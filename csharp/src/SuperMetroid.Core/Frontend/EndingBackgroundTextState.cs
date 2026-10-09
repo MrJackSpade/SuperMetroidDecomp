@@ -27,7 +27,6 @@ internal sealed class EndingBackgroundTextState
     private int installedCharacterIndex;
     private bool installedInitialMarkerPending = true;
     private bool installedHoldStarted;
-    private bool installedCompleted;
 
     public EndingBackgroundTextState(
         ISnesAddressSpace bus,
@@ -56,7 +55,7 @@ internal sealed class EndingBackgroundTextState
             : null;
     }
 
-    public bool Completed => installedCompleted;
+    public bool Completed { get; private set; }
     public bool RequestedItemPercentageScroll { get; private set; }
 
     public void Step(SnesVram vram)
@@ -82,7 +81,7 @@ internal sealed class EndingBackgroundTextState
 
     private void StepInstalled(SnesVram vram)
     {
-        if (installedCompleted || instructionTimer-- != 1) return;
+        if (Completed || instructionTimer-- != 1) return;
         if (installedInitialMarkerPending)
         {
             installedInitialMarkerPending = false;
@@ -119,7 +118,7 @@ internal sealed class EndingBackgroundTextState
                 EndingCreditsRomData.Text.JapaneseSubtitleWords);
             RequestedItemPercentageScroll = true;
         }
-        installedCompleted = true;
+        Completed = true;
         Upload(vram);
     }
 

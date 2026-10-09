@@ -23,7 +23,7 @@ internal static partial class Program
             .ToArray();
         for (int index = 0; index < particles.Length; index++)
         {
-            particles[index].Step(guarded);
+            particles[index].Step();
             var sprite = (IntroDiscoverySprite)typeof(IntroEggParticle)
                 .GetField("sprite", BindingFlags.Instance | BindingFlags.NonPublic)!
                 .GetValue(particles[index])!;
@@ -32,7 +32,7 @@ internal static partial class Program
         }
         for (int frame = 0; frame < 128 && particles.Any(static actor => actor.IsActive); frame++)
             foreach (IntroEggParticle particle in particles)
-                particle.Step(guarded);
+                particle.Step();
         AssertTrue(particles.All(static actor => !actor.IsActive),
             "all six production egg particles complete their physical lifetime");
 
@@ -41,7 +41,7 @@ internal static partial class Program
             .ToArray();
         for (int frame = 0; frame < 192 && slimeDrops.Any(static actor => actor.IsActive); frame++)
             foreach (IntroEggSlimeDrop slimeDrop in slimeDrops)
-                slimeDrop.Step(guarded);
+                slimeDrop.Step();
         AssertTrue(slimeDrops.All(static actor => !actor.IsActive),
             "all four production slime drops complete motion and puddle animation");
 
@@ -51,11 +51,11 @@ internal static partial class Program
             .GetValue(impact)!;
         for (int frame = 0; frame < 40; frame++)
         {
-            impact.Step(guarded);
+            impact.Step();
             AssertEqual((ushort)(0x8faf + frame / 10 * 7), impactSprite.SpriteMapPointer,
                 $"intro slime impact frame {frame} selects native puddle art");
         }
-        impact.Step(guarded);
+        impact.Step();
         AssertTrue(!impact.IsActive, "intro slime impact deletes after its four ten-frame records");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "intro egg effects never reread compiled actor definitions or instruction lists");

@@ -132,19 +132,19 @@ internal sealed class IntroBabyDiscoveryState
             // $8B:A914: page three's text hides Samus.
             SamusDisplay = IntroSamusDisplay.Hidden;
         }
-        egg.Step(bus, HandleEggInstruction,
+        egg.Step(HandleEggInstruction,
             IntroBabyDiscoveryInstructionDefinitions.ReadWord);
 
         // The baby slot follows the egg slot in the native descending actor traversal, so
         // it observes the egg's freshly advanced list pointer in this same frame.
         StepConfusedBaby(introCrossfadeTimer);
-        confusedBaby.Step(bus, HandleConfusedBabyInstruction,
+        confusedBaby.Step(HandleConfusedBabyInstruction,
             IntroBabyDiscoveryInstructionDefinitions.ReadWord);
 
         foreach (IntroEggParticle particle in eggParticles)
-            particle.Step(bus);
+            particle.Step();
         foreach (IntroEggSlimeDrop slimeDrop in slimeDrops)
-            slimeDrop.Step(bus);
+            slimeDrop.Step();
     }
 
     public void DrawActors(OamBuffer oam,
@@ -153,12 +153,12 @@ internal sealed class IntroBabyDiscoveryState
     {
         // IntroSamusDisplayFlag=+1 makes cinematic objects enter OAM before Samus. The egg
         // was spawned before the confused-baby object and retains its own list and timer.
-        egg.Draw(bus, oam, installedArt: actorArt);
-        confusedBaby.Draw(bus, oam, installedArt: actorArt);
+        egg.Draw(oam, installedArt: actorArt);
+        confusedBaby.Draw(oam, installedArt: actorArt);
         foreach (IntroEggParticle particle in eggParticles)
-            particle.Draw(bus, oam, eggEffectArt);
+            particle.Draw(oam, eggEffectArt);
         foreach (IntroEggSlimeDrop slimeDrop in slimeDrops)
-            slimeDrop.Draw(bus, oam, eggEffectArt);
+            slimeDrop.Draw(oam, eggEffectArt);
     }
 
     private void RunDemoPreInstruction(ushort pointer, ushort introCrossfadeTimer)

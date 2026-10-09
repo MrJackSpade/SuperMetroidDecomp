@@ -42,7 +42,7 @@ internal static partial class Program
             "real Rio initializer installs compiled idle program");
 
         object?[] processArguments =
-            [rio, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            [rio, null, null, (ushort)0, (ushort)0, (ushort)0];
         ExecuteRioProgram(
             enemies,
             process,

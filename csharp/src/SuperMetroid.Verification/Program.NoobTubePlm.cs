@@ -375,8 +375,8 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if ((address >= 0x84d4d4 && address <= 0x84d518) ||
-                (address >= 0x84d521 && address <= 0x84d524))
+            if (address is >= 0x84d4d4 and <= 0x84d518 or
+                >= 0x84d521 and <= 0x84d524)
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

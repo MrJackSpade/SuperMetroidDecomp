@@ -196,7 +196,7 @@ internal static partial class ProductionMagicNumberAudit
             {
                 string literal = match.Value;
                 ulong value = ParseHexLiteral(literal);
-                MagicNumberCategory? category = Classify(code, literal, value);
+                MagicNumberCategory? category = Classify(code, value);
                 if (category is null || HasReviewedInlineExemption(originalLine, category.Value))
                     continue;
 
@@ -210,7 +210,7 @@ internal static partial class ProductionMagicNumberAudit
         }
     }
 
-    private static MagicNumberCategory? Classify(string code, string literal, ulong value)
+    private static MagicNumberCategory? Classify(string code, ulong value)
     {
         string lower = code.ToLowerInvariant();
 

@@ -13,7 +13,7 @@ internal static partial class Program
         var level = new RoomLevelData(4, 4, words, bts, new ushort[16], new byte[8]);
         var samus = new SamusState { XPosition = 24, YPosition = 40 };
         samus.Kinematics.YRadius = 8;
-        SamusInsideBlockReactions.PrepareFrame(bus, level, samus, AreaId.Crateria);
+        SamusInsideBlockReactions.PrepareFrame(level, samus, AreaId.Crateria);
         AssertEqual(2 << 16, samus.Kinematics.ExtraXFixed, "treadmill inside reaction publishes carry");
         SamusGroundedMovement.StepStandingRight(bus, level, samus, 0, controllerInput: 0);
         AssertEqual((ushort)26, samus.XPosition, "standing movement consumes treadmill carry");
@@ -34,7 +34,7 @@ internal static partial class Program
             samus.HorizontalSpeed.SelectEnvironmentSpeedTable(SamusLiquidPhysicsState.Water);
             bool admitted = behavior >= 10 || (verticalSpeed == 0 && (area != AreaId.WreckedShip || powered));
             int expected = admitted ? ((behavior & 1) == 0 ? 2 : -2) << 16 : 0x71234;
-            SamusInsideBlockReactions.PrepareFrame(bus, level, samus, area, powered);
+            SamusInsideBlockReactions.PrepareFrame(level, samus, area, powered);
             AssertEqual(expected, body.ExtraXFixed, $"conveyor BTS {behavior}, area {area}, power {powered}, Y {verticalSpeed}");
             AssertEqual(SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable,
                 samus.HorizontalSpeed.ActiveSpeedTableBaseAddress, "conveyor inside handler restores normal speed pointer");
@@ -50,7 +50,7 @@ internal static partial class Program
         level.SetBehavior(9, 8);
         samus = new SamusState { XPosition = 27, YPosition = 40 };
         samus.Kinematics.YRadius = 8;
-        SamusInsideBlockReactions.PrepareFrame(bus, level, samus, AreaId.Crateria);
+        SamusInsideBlockReactions.PrepareFrame(level, samus, AreaId.Crateria);
         SamusGroundedMovement.StepStandingRight(bus, level, samus, 0, controllerInput: 0);
         AssertEqual((ushort)27, samus.XPosition, "conveyor carry clips at solid wall");
         Console.WriteLine($"  Conveyors: {cases} direction/power/vertical-speed cases, actual carry and wall clipping agree.");

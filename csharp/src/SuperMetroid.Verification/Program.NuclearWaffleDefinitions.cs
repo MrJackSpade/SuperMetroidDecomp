@@ -98,7 +98,7 @@ internal static partial class Program
         programSlot.InstructionTimer = 1;
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         object?[] arguments =
-            [programSlot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            [programSlot, null, null, (ushort)0, (ushort)0, (ushort)0];
 
         // Twelve three-frame entries total 36 frames; the margin proves the terminal goto
         // restarts the production stream rather than merely reaching its target.

@@ -11,6 +11,6 @@ public sealed partial class SuperMetroidGame
     {
         ArgumentNullException.ThrowIfNull(hostOptions);
         runtime?.ApplyHostOptions(hostOptions);
-        gameOptions = hostOptions;
+        ConfiguredOptions = hostOptions;
     }
 }

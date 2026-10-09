@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class SamusProjectileSystem
 {
     internal bool RunProjectileInstructionHandler(
-        ISnesAddressSpace bus,
         SamusProjectileSlot slot)
     {
         slot.InstructionTimer = unchecked((ushort)(slot.InstructionTimer - 1));
@@ -70,7 +69,6 @@ public sealed partial class SamusProjectileSystem
     }
 
     private static void DrawSlot(
-        ISnesAddressSpace bus,
         OamBuffer oam,
         SamusProjectileSlot slot,
         ushort layer1X,
@@ -200,7 +198,6 @@ public sealed partial class SamusProjectileSystem
     }
 
     private static ushort LoadNormalSuitPalette(
-        ISnesAddressSpace bus,
         SnesCgram cgram,
         SamusState samus)
     {

@@ -83,7 +83,7 @@ internal sealed class EndingRewardSuitlessStandingParts(bool armsStraight) : IRe
                     else if (index == 20) tile = EndingRewardSuitlessStandingAtlas.RightShoulder;
                     else tile = 0xc1 - 32 * (index - 21);
                     x = -16 + 8 * (tile & 15); y = -40 + 8 * (tile / 16);
-                    large = index == 10 || index is >= 13 and < 17 or >= 20;
+                    large = index is 10 or >= 13 and < 17 or >= 20;
                 }
             }
             return new(SnesSpritemapXWord.Create(x, large), unchecked((byte)y),

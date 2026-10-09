@@ -9,7 +9,7 @@ namespace SuperMetroid.Android;
 /// </summary>
 internal sealed class AndroidResumeTrace(int capacity = 300)
 {
-    private readonly object gate = new();
+    private readonly Lock gate = new();
     private readonly List<string> events = new();
     public void Record(string kind, string fields)
     {

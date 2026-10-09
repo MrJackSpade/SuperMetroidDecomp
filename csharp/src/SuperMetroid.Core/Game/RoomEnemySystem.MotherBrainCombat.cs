@@ -132,7 +132,7 @@ public sealed partial class RoomEnemySystem
         SamusProjectileTypeWord projectileType,
         ushort projectileDamage)
     {
-        MotherBrainEnemyState state = _motherBrain ?? throw new InvalidOperationException(
+        MotherBrainEnemyState state = MotherBrain ?? throw new InvalidOperationException(
             "Mother Brain head shot AI ran without its multipart encounter state.");
         if (!ReferenceEquals(state.Head, head))
         {
@@ -147,7 +147,6 @@ public sealed partial class RoomEnemySystem
                 head,
                 projectile,
                 projectiles,
-                family,
                 projectileType,
                 projectileDamage);
             return;
@@ -209,7 +208,6 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot head,
         SamusProjectileSlot projectile,
         SamusProjectileSystem projectiles,
-        SamusProjectileFamily family,
         SamusProjectileTypeWord projectileType,
         ushort projectileDamage)
     {
@@ -294,7 +292,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot head,
         SamusBombProjectileSlot bomb)
     {
-        MotherBrainEnemyState state = _motherBrain ?? throw new InvalidOperationException(
+        MotherBrainEnemyState state = MotherBrain ?? throw new InvalidOperationException(
             "Mother Brain head normal-bomb AI ran without its multipart encounter state.");
         if (!ReferenceEquals(state.Head, head))
         {

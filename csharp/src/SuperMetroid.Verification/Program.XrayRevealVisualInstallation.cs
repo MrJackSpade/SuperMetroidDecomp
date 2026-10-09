@@ -117,12 +117,12 @@ internal static partial class Program
             new ushort[1024], definitions);
         var noRomVisualData = new TestAddressSpace();
         ushort[] itemMap = new ushort[XrayTilemapLayout.BufferWords];
-        XrayRevealOverlays.Apply(noRomVisualData, overlayLevel, itemMap, [item],
+        XrayRevealOverlays.Apply(overlayLevel, itemMap, [item],
             new Bank80SystemState(), 0, 16, 16, edited);
         AssertEqual(((editedItem & 0x03ff) * 4) + ((editedItem & 0x0800) != 0 ? 2 : 0),
             itemMap[0], "edited item art renders without a visual ROM read");
         ushort[] roomMap = new ushort[XrayTilemapLayout.BufferWords];
-        XrayRevealOverlays.Apply(noRomVisualData, overlayLevel, roomMap, [],
+        XrayRevealOverlays.Apply(overlayLevel, roomMap, [],
             new Bank80SystemState(), roomPointer, 16, 16, edited);
         AssertEqual(((editedRoomWord & 0x03ff) * 4) +
             ((editedRoomWord & 0x0800) != 0 ? 2 : 0), roomMap[0],

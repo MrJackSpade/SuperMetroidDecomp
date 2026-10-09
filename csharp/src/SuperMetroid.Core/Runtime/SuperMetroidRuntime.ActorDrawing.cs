@@ -62,10 +62,10 @@ public sealed partial class SuperMetroidRuntime
             // and drained palettes retain their native same-frame priority.
             if (!deathOwnsSamus)
                 Samus.HorizontalSpeed.ApplyPendingNormalSuitPaletteRestore(
-                    _addressSpace, Cgram, Samus.EquippedItems, mapPresentation?.SamusSuitColors);
+                    _addressSpace, Cgram, Samus.EquippedItems, MapPresentation?.SamusSuitColors);
             bool drainedOwnsSamusPalette = !deathOwnsSamus &&
                 Samus.Drained.UpdatePalette(_addressSpace, Cgram, Samus.EquippedItems,
-                    mapPresentation?.SamusSuitColors);
+                    MapPresentation?.SamusSuitColors);
             LastHurtFlashPaletteStep = default;
             LastVisorPaletteStep = default;
             bool chargeGlowRestoredNormalPalette = false;
@@ -101,8 +101,8 @@ public sealed partial class SuperMetroidRuntime
                         Samus.Xray.SpecialPaletteKind == SamusSpecialPaletteType.Xray,
                     bottomBoundarySubmerged:
                         Samus.LiquidPhysics.IsBottomBoundarySubmerged(Samus),
-                    suitColors: mapPresentation?.SamusSuitColors,
-                    cycleColors: mapPresentation?.SamusFullBodyCycleColors);
+                    suitColors: MapPresentation?.SamusSuitColors,
+                    cycleColors: MapPresentation?.SamusFullBodyCycleColors);
             }
             // Palette handlers one and six run at the same `$91:D6F7` dispatch point. They
             // execute only when charge handling returned carry clear.
@@ -112,8 +112,8 @@ public sealed partial class SuperMetroidRuntime
                     _addressSpace,
                     Cgram,
                     Samus.EquippedItems,
-                    mapPresentation?.SamusSuitColors,
-                    mapPresentation?.SamusFullBodyCycleColors);
+                    MapPresentation?.SamusSuitColors,
+                    MapPresentation?.SamusFullBodyCycleColors);
             }
             // Handler seven owns all sixteen colors of sprite palette six during Crystal
             // Flash. It is mutually exclusive with shinespark/X-ray special handlers but
@@ -125,7 +125,7 @@ public sealed partial class SuperMetroidRuntime
                     Cgram,
                     Samus,
                     BeamArtwork?.Palettes,
-                    mapPresentation?.CrystalFlashColors);
+                    MapPresentation?.CrystalFlashColors);
             }
             // Handler eight changes only visor color four while active; `$FFFF` teardown
             // restores the complete ROM-selected Power/Varia/Gravity suit palette once.
@@ -135,7 +135,7 @@ public sealed partial class SuperMetroidRuntime
                     _addressSpace,
                     Cgram,
                     Samus.EquippedItems,
-                    mapPresentation?.SamusSuitColors);
+                    MapPresentation?.SamusSuitColors);
             }
             // `$91:D8A5` runs after every charge and special-palette family. A Metroid's
             // nonnegative super-special flag takes the alternating boost/normal branch and
@@ -151,7 +151,7 @@ public sealed partial class SuperMetroidRuntime
                     Cgram,
                     Samus,
                     Controller1.Current,
-                    mapPresentation?.SamusHurtColors);
+                    MapPresentation?.SamusHurtColors);
             }
 
         }
@@ -282,8 +282,8 @@ public sealed partial class SuperMetroidRuntime
                 // Drawing modes one and two differ only in OAM priority: one appends the
                 // cannon before the body, while two appends it after. Mode zero suppresses
                 // the independent object even if a HUD-driven cover frame remains nonzero.
-                if (Samus.ArmCannon.EffectiveDrawingMode != 0 &&
-                    Samus.ArmCannon.EffectiveDrawingMode != 2)
+                if (Samus.ArmCannon.EffectiveDrawingMode is not 0 and
+                    not 2)
                 {
                     LastArmCannonDraw = Samus.ArmCannon.Draw(
                         _addressSpace,

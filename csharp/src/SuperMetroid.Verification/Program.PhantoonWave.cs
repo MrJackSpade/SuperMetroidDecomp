@@ -46,10 +46,10 @@ internal static partial class Program
         AssertTrue(wave.DisplayedScrolls is null, "deleted wave stops on next display latch");
         var fields = typeof(PhantoonEnemyState).GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
             .OrderBy(field => field.MetadataToken).ToArray();
-        var legacy = DebuggerStateFieldMigrations.WithoutIntroductions(typeof(PhantoonEnemyState), fields, "_wave", "_blending");
-        AssertTrue(legacy.SequenceEqual(fields.Where(field => field.Name is not ("_wave" or "_blending"))), "legacy migration preserves every prior field identity/order");
-        var waveEra = DebuggerStateFieldMigrations.WithoutIntroductions(typeof(PhantoonEnemyState), fields, "_blending");
-        AssertTrue(waveEra.SequenceEqual(fields.Where(field => field.Name != "_blending")), "wave-era migration preserves recorded wave history");
+        var legacy = DebuggerStateFieldMigrations.WithoutIntroductions(typeof(PhantoonEnemyState), fields, "<Wave>k__BackingField", "<Blending>k__BackingField");
+        AssertTrue(legacy.SequenceEqual(fields.Where(field => field.Name is not ("<Wave>k__BackingField" or "<Blending>k__BackingField"))), "legacy migration preserves every prior field identity/order");
+        var waveEra = DebuggerStateFieldMigrations.WithoutIntroductions(typeof(PhantoonEnemyState), fields, "<Blending>k__BackingField");
+        AssertTrue(waveEra.SequenceEqual(fields.Where(field => field.Name != "<Blending>k__BackingField")), "wave-era migration preserves recorded wave history");
         Suite(nameof(VerifyPhantoonBlendingLifecycle), () => VerifyPhantoonBlendingLifecycle(boss));
         Suite(nameof(VerifyPhantoonFadeColors), () => VerifyPhantoonFadeColors());
         Console.WriteLine("  Phantoon wave: original-CPU lifecycle, display latch, debugger round-trip and explicit legacy migration agree.");

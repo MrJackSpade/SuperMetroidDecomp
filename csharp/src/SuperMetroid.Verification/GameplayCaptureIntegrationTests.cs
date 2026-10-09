@@ -109,7 +109,7 @@ internal static partial class Program
         for (int tick = 0; tick < 180; tick++)
         {
             if (fadeFrames.ContainsKey(legacy.GameState)) fadeFrames[legacy.GameState]++;
-            ushort input = tick == 10 || tick is >= 100 and <= 105 ? (ushort)SnesButton.Start : (ushort)0;
+            ushort input = tick is 10 or >= 100 and <= 105 ? (ushort)SnesButton.Start : (ushort)0;
             FrontendFrame reference = legacy.Step(input);
             CapturedFrontendFrame actual = packets.StepCaptured(input, ++sequence, 1);
             Compare(reference, actual);

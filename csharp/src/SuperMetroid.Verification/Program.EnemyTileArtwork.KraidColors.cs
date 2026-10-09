@@ -194,7 +194,7 @@ internal static partial class Program
             case KraidPaletteConsumer.BackdropFade:
                 enemies.GradualColorChange.Numerator = 13;
                 _ = typeof(RoomEnemySystem).GetMethod("AdvanceKraidRoomBackgroundFade", flags)!
-                    .CreateDelegate<Func<KraidEnemyState, bool, bool>>(enemies)(state, false);
+                    .CreateDelegate<Func<bool, bool>>(enemies)(false);
                 break;
             case KraidPaletteConsumer.HealthNormal:
             case KraidPaletteConsumer.HealthFlash:

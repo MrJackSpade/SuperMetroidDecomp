@@ -18,10 +18,7 @@ public sealed class ExtractedAudioAssetCatalog
     private readonly IReadOnlyDictionary<int, IReadOnlyList<AudioInstrumentMetadata>>
         instrumentBanks;
     private readonly IReadOnlyDictionary<int, AudioBankMetadata> musicBanks;
-    private readonly IReadOnlyList<AudioSoundProgramMetadata> soundPrograms;
-    private readonly IReadOnlyList<AudioSoundLibraryMetadata> soundLibraries;
     private readonly int canonicalSampleCount;
-    private readonly string contentIdentity;
 
     private ExtractedAudioAssetCatalog(
         IReadOnlyDictionary<int, byte[]> streams,
@@ -37,10 +34,10 @@ public sealed class ExtractedAudioAssetCatalog
         this.sampleBanks = sampleBanks;
         this.instrumentBanks = instrumentBanks;
         this.musicBanks = musicBanks;
-        this.soundPrograms = soundPrograms;
-        this.soundLibraries = soundLibraries;
+        SoundPrograms = soundPrograms;
+        SoundLibraries = soundLibraries;
         this.canonicalSampleCount = canonicalSampleCount;
-        this.contentIdentity = contentIdentity;
+        ContentIdentity = contentIdentity;
     }
 
     /// <summary>
@@ -48,7 +45,7 @@ public sealed class ExtractedAudioAssetCatalog
     /// every upload/WAV hash plus all editable routing, instrument, music, and SFX definitions,
     /// so formatting-only changes do not alter this value while any audible edit does.
     /// </summary>
-    public string ContentIdentity => contentIdentity;
+    public string ContentIdentity { get; }
 
     /// <summary>Loads and validates every stream named by an extracted manifest.</summary>
     /// <param name="audioDirectory">Audio root containing the manifest and all of its relative upload/WAV files; referenced paths must remain beneath this root.</param>
@@ -268,10 +265,10 @@ public sealed class ExtractedAudioAssetCatalog
                 $"Audio command references unmapped music bank address ${snesAddress:X6}.");
 
     /// <summary>Decoded, address-stable authored SFX channel programs.</summary>
-    public IReadOnlyList<AudioSoundProgramMetadata> SoundPrograms => soundPrograms;
+    public IReadOnlyList<AudioSoundProgramMetadata> SoundPrograms { get; }
 
     /// <summary>Stable SFX command IDs and their compiled routing/allocation metadata.</summary>
-    public IReadOnlyList<AudioSoundLibraryMetadata> SoundLibraries => soundLibraries;
+    public IReadOnlyList<AudioSoundLibraryMetadata> SoundLibraries { get; }
 
     private static System.Collections.ObjectModel.ReadOnlyCollection<AudioInstrumentMetadata>
         ValidateInstruments(

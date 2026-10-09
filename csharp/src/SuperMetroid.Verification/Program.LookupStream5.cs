@@ -145,16 +145,16 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(system,
                 (Func<ushort>)(() => (ushort)(++randomCalls == 1 ? bucket : nextPattern)));
             var fade = typeof(RoomEnemySystem).GetMethod("RunPhantoonFlameRainFadeOut", flags)!
-                .CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState, byte>>(system);
+                .CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState>>(system);
             var tick = typeof(RoomEnemySystem).GetMethod("RunPhantoonHiddenFlameRain", flags)!
                 .CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState>>(system);
             body.XPosition = 111; body.YPosition = 99; body.VariableA = 42; body.VariableE = 17;
             body.VariableF = (ushort)PhantoonAiFunction.FadeOutDuringFlameRain;
-            fade(body, state, 1); // Odd NMI leaves the independent fade incomplete.
+            fade(body, state); // The eye's independent fade has not completed yet.
             AssertEqual(0, randomCalls, "Incomplete fade does not choose hidden delay");
             AssertEqual((ushort)17, body.VariableE, "Incomplete fade preserves prior countdown");
             eye.VariableF = 1;
-            fade(body, state, 0);
+            fade(body, state);
             ushort duration = ReadVerificationWord(rom, 0xa7cd63 + bucket * 2);
             AssertEqual(duration, body.VariableE, "Completed fade selects exact native hidden duration");
             AssertEqual((ushort)PhantoonAiFunction.SpawnFlameRain, body.VariableF, "Completed fade starts hidden waiting phase");
@@ -204,11 +204,11 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(system,
                 (Func<ushort>)(() => { randomCalls++; return (ushort)(reversed ? 1 : 0); }));
             var begin = typeof(RoomEnemySystem).GetMethod("RunPhantoonPickFirstRoundPattern", flags)!
-                .CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState, byte>>(system);
+                .CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState>>(system);
             var tick = typeof(RoomEnemySystem).GetMethod("RunPhantoonFirstRoundFigureEight", flags)!
                 .CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState>>(system);
             body.XPosition = 128; body.YPosition = 96; body.VariableE = 1; body.Parameter2 = 1;
-            begin(body, state, (byte)(bucket * 2));
+            begin(body, state);
             ushort duration = ReadVerificationWord(rom, 0xa7cd53 + bucket * 2);
             AssertEqual(duration, eye.VariableA, "Native first-round closed-eye duration");
             AssertEqual((ushort)(reversed ? 1 : 0), eye.VariableC, "Direction selection remains independent of duration bucket");
@@ -347,7 +347,7 @@ internal static partial class Program
             var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = tentacles, Mouth = system.Slots[3] };
             typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(system, (Func<ushort>)(() => (ushort)bucket));
             var open = typeof(RoomEnemySystem).GetMethod("BeginPhantoonEyeTracking", flags)!.CreateDelegate<Action<PhantoonEnemyState>>(system);
-            var tick = typeof(RoomEnemySystem).GetMethod("RunPhantoonEyeTracking", flags)!.CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState, SamusState>>(system);
+            var tick = typeof(RoomEnemySystem).GetMethod("RunPhantoonEyeTracking", BindingFlags.NonPublic | BindingFlags.Static)!.CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState, SamusState>>();
             body.XPosition = 128; body.YPosition = 96;
             open(state);
             ushort duration = ReadVerificationWord(rom, 0xa7cd41 + bucket * 2);
@@ -1443,8 +1443,8 @@ internal static partial class Program
         }
         var eyeEnemies = new RoomEnemySystem();
         busField.SetValue(eyeEnemies, new PhantoonPatternReadGuard(rom));
-        var pointEye = typeof(RoomEnemySystem).GetMethod("PointPhantoonEyeAtSamus", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, RoomEnemySlot, SamusState>>(eyeEnemies);
+        var pointEye = typeof(RoomEnemySystem).GetMethod("PointPhantoonEyeAtSamus", BindingFlags.NonPublic | BindingFlags.Static)!
+            .CreateDelegate<Action<RoomEnemySlot, RoomEnemySlot, SamusState>>();
         RoomEnemySlot eyeBody = eyeEnemies.Slots[0];
         RoomEnemySlot trackingEye = eyeEnemies.Slots[1];
         eyeBody.XPosition = 0x4000;
@@ -1795,7 +1795,7 @@ internal static partial class Program
         };
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new CeresDoorQuakeReadGuard(rom));
-        typeof(RoomEnemySystem).GetField("_ridleyState", flags)!.SetValue(enemies, new RidleyEnemyState { MovementAnimationEnabled = 0 });
+        typeof(RoomEnemySystem).GetField("<Ridley>k__BackingField", flags)!.SetValue(enemies, new RidleyEnemyState { MovementAnimationEnabled = 0 });
         enemies.Slots[0].EnemyDefinitionPointer = EnemyDefinitionPointers.CeresRidley;
         var door = enemies.Slots[1];
         door.EnemyDefinitionPointer = CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer;

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms;
 public static class XrayRevealOverlays
 {
     /// <summary>Applies $84:831A in descending PLM slot order, then room-authored record order.</summary>
-    public static void Apply(ISnesAddressSpace bus, RoomLevelData level, Span<ushort> tilemap,
+    public static void Apply(RoomLevelData level, Span<ushort> tilemap,
         IReadOnlyList<CollectiblePlmSnapshot> items, Bank80SystemState system,
         ushort specialPointer, ushort layer1X, ushort layer1Y,
         XrayRevealVisualCatalog? visuals = null)

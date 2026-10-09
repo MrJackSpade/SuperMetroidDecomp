@@ -62,7 +62,7 @@ public sealed partial class SamusProjectileSystem
         };
 
         if (collided)
-            KillBeamOnBlockCollision(bus, slot, powerBomb);
+            KillBeamOnBlockCollision(slot, powerBomb);
 
         // $90:AF00 checks the movement window after the direction handler even
         // when collision changed the beam into an explosion. KillBeam moves its
@@ -101,11 +101,10 @@ public sealed partial class SamusProjectileSystem
             SpawnTrail(bus, slot);
         }
 
-        RunWaveBeamShared(bus, level, slot, layer1X, layer1Y, roomPlms);
+        RunWaveBeamShared(level, slot, layer1X, layer1Y, roomPlms);
     }
 
     private void RunHyperBeamPreInstruction(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusProjectileSlot slot,
         ushort layer1X,
@@ -121,11 +120,10 @@ public sealed partial class SamusProjectileSystem
         // `$90:B159` falls directly into the shared Wave movement. Hyper deliberately has
         // no projectile-trail timer or SpawnProjectileTrail call; its long beam spritemap
         // and the separately counting muzzle flare provide the complete native presentation.
-        RunWaveBeamShared(bus, level, slot, layer1X, layer1Y, roomPlms);
+        RunWaveBeamShared(level, slot, layer1X, layer1Y, roomPlms);
     }
 
     private void RunWaveBeamShared(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusProjectileSlot slot,
         ushort layer1X,
@@ -219,16 +217,16 @@ public sealed partial class SamusProjectileSystem
 
         bool collided = direction switch
         {
-            0 or 4 or 5 or 9 => MoveMissileVertically(bus, level, slot, roomPlms),
-            2 or 7 => MoveMissileHorizontally(bus, level, slot, roomPlms),
+            0 or 4 or 5 or 9 => MoveMissileVertically(level, slot, roomPlms),
+            2 or 7 => MoveMissileHorizontally(level, slot, roomPlms),
             1 or 3 or 6 or 8 =>
-                MoveMissileHorizontally(bus, level, slot, roomPlms) ||
-                MoveMissileVertically(bus, level, slot, roomPlms),
+                MoveMissileHorizontally(level, slot, roomPlms) ||
+                MoveMissileVertically(level, slot, roomPlms),
             _ => throw new InvalidDataException(
                 $"Missile slot contains invalid direction ${direction:X2}."),
         };
         if (collided)
-            KillMissile(bus, slot, sharedProjectiles);
+            KillMissile(slot, sharedProjectiles);
 
         // The native missile direction handler may create an explosion just
         // beyond the retention boundary. Its caller still runs the offscreen
@@ -290,19 +288,19 @@ public sealed partial class SamusProjectileSystem
         bool collided = false;
         if (direction is 2 or 7 or 1 or 3 or 6 or 8)
         {
-            collided = MoveMissileHorizontally(bus, level, slot, roomPlms);
+            collided = MoveMissileHorizontally(level, slot, roomPlms);
             if (collided)
-                KillMissile(bus, slot, sharedProjectiles);
+                KillMissile(slot, sharedProjectiles);
             UpdateSuperMissileLinkAxis(
-                bus, level, slot, vertical: false, sharedProjectiles, roomPlms);
+                level, slot, vertical: false, sharedProjectiles, roomPlms);
         }
         if (!collided && direction is 0 or 4 or 5 or 9 or 1 or 3 or 6 or 8)
         {
-            collided = MoveMissileVertically(bus, level, slot, roomPlms);
+            collided = MoveMissileVertically(level, slot, roomPlms);
             if (collided)
-                KillMissile(bus, slot, sharedProjectiles);
+                KillMissile(slot, sharedProjectiles);
             UpdateSuperMissileLinkAxis(
-                bus, level, slot, vertical: true, sharedProjectiles, roomPlms);
+                level, slot, vertical: true, sharedProjectiles, roomPlms);
         }
 
         if (DeleteIfOutsideMovementWindow(slot, layer1X, layer1Y))
@@ -384,7 +382,6 @@ public sealed partial class SamusProjectileSystem
     }
 
     private void UpdateSuperMissileLinkAxis(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusProjectileSlot owner,
         bool vertical,
@@ -432,12 +429,11 @@ public sealed partial class SamusProjectileSystem
         else
             link.XPosition = linkPosition;
         if (MissilePointReaction(
-                bus,
                 level,
                 link,
                 horizontalMovement: !vertical,
                 roomPlms: roomPlms))
-            KillMissile(bus, link, sharedProjectiles);
+            KillMissile(link, sharedProjectiles);
         if (ownerExploded)
             ClearProjectile(link);
     }
@@ -453,7 +449,6 @@ public sealed partial class SamusProjectileSystem
     }
 
     private static bool MoveMissileHorizontally(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusProjectileSlot slot,
         RoomPlmSystem? roomPlms)
@@ -470,11 +465,10 @@ public sealed partial class SamusProjectileSystem
         if ((slot.XPosition >> 8) >= roomWidthInScreens)
             return false;
         return MissilePointReaction(
-            bus, level, slot, horizontalMovement: true, roomPlms: roomPlms);
+            level, slot, horizontalMovement: true, roomPlms: roomPlms);
     }
 
     private static bool MoveMissileVertically(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusProjectileSlot slot,
         RoomPlmSystem? roomPlms)
@@ -488,11 +482,10 @@ public sealed partial class SamusProjectileSystem
         if ((slot.YPosition >> 8) >= roomHeightInScreens)
             return false;
         return MissilePointReaction(
-            bus, level, slot, horizontalMovement: false, roomPlms: roomPlms);
+            level, slot, horizontalMovement: false, roomPlms: roomPlms);
     }
 
     private static bool MissilePointReaction(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusProjectileSlot slot,
         bool horizontalMovement,
@@ -557,7 +550,7 @@ public sealed partial class SamusProjectileSystem
             // the remaining 27 pixel-height definitions. Both paths use the missile center;
             // the direction only changes which half of a square definition is sampled.
             RoomCollisionType.Slope =>
-                MissileSlopePointReaction(bus, block, slot, horizontalMovement),
+                MissileSlopePointReaction(block, slot, horizontalMovement),
 
             // CollisionType is the high nibble of a room word, so the cases above are
             // exhaustive after extension redispatch. Preserve an explicit corruption guard
@@ -568,7 +561,6 @@ public sealed partial class SamusProjectileSystem
     }
 
     private static bool MissileSlopePointReaction(
-        ISnesAddressSpace bus,
         RoomCollisionBlock block,
         SamusProjectileSlot slot,
         bool horizontalMovement)

@@ -14,7 +14,7 @@ internal static partial class Program
         internal RoomEnemySlot Body => Inner.Actor;
         internal MotherBrainEnemyState State { get; }
         internal List<(ushort X, ushort Y)> ScrollCalls { get; } = [];
-        private readonly Action<RoomEnemySlot, SamusState?, RoomLevelData?, ushort, ushort, ushort, byte> instructions;
+        private readonly Action<RoomEnemySlot, SamusState?, RoomLevelData?, ushort, ushort, ushort> instructions;
 
         internal MotherBrainPresentationFixture(EnemyTileArtworkCatalog artwork)
         {
@@ -27,13 +27,13 @@ internal static partial class Program
             Body.XPosition = Body.YPosition = 128;
             Body.PaletteIndex = Body.VramTilesIndex = 0;
             State = new MotherBrainEnemyState(Body) { Head = Inner.Enemies.Slots[1], Form = 3 };
-            typeof(RoomEnemySystem).GetField("_motherBrain", Private)!.SetValue(Inner.Enemies, State);
+            typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", Private)!.SetValue(Inner.Enemies, State);
             typeof(RoomEnemySystem).GetField("_setMotherBrainBg2Scroll", Private)!.SetValue(Inner.Enemies,
                 (Action<ushort, ushort>)((x, y) => ScrollCalls.Add((x, y))));
             var queues = (List<ushort>[])typeof(RoomEnemySystem).GetField("_drawQueues", Private)!.GetValue(Inner.Enemies)!;
             queues[0].Add(Body.NativeIndex);
             instructions = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", Private)!
-                .CreateDelegate<Action<RoomEnemySlot, SamusState?, RoomLevelData?, ushort, ushort, ushort, byte>>(Inner.Enemies);
+                .CreateDelegate<Action<RoomEnemySlot, SamusState?, RoomLevelData?, ushort, ushort, ushort>>(Inner.Enemies);
         }
 
         internal void SetFrame(ushort frame, bool fresh)
@@ -48,7 +48,7 @@ internal static partial class Program
             Body.CurrentInstruction = pointer; Body.InstructionTimer = 1; Body.Timer = 0;
         }
 
-        internal void Step(int frame) => instructions(Body, Inner.Samus, Inner.Level, 0, 0, 0, unchecked((byte)frame));
+        internal void Step() => instructions(Body, Inner.Samus, Inner.Level, 0, 0, 0);
         internal OamBuffer Draw() => Inner.Draw();
         internal void ClearBg2() => Inner.Vram.ExecuteWordTransfer(
             new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight], EnemyBg2FrameLayout.VramBase, 1);

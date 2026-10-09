@@ -39,6 +39,14 @@ namespace SuperMetroid.Core.Frontend
     internal static class CinematicCodePointersIndirectData
     {
         public const ushort IntroTextSpace = 0xd67d;
+        // The six intro story-page background lists. The port draws pages from the installed
+        // narration presentation, so only this pinned-ROM catalog still names them.
+        public const ushort IntroTextPage1 = 0xc383;
+        public const ushort IntroTextPage2 = 0xc797;
+        public const ushort IntroTextPage3 = 0xcb45;
+        public const ushort IntroTextPage4 = 0xce33;
+        public const ushort IntroTextPage5 = 0xd15d;
+        public const ushort IntroTextPage6 = 0xd511;
     }
 }
 

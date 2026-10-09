@@ -114,8 +114,8 @@ internal static partial class Program
             draw(pair.Item2);
             for (int i = 0; i < native.Length; i++)
             {
-                bool changedByte = i == ProjectileTrailAtlasDefinitions.IceWaveDestinationWord * 2 ||
-                    i == ProjectileTrailAtlasDefinitions.MissileDestinationWord * 2;
+                bool changedByte = i is (ProjectileTrailAtlasDefinitions.IceWaveDestinationWord * 2) or
+                    (ProjectileTrailAtlasDefinitions.MissileDestinationWord * 2);
                 AssertEqual((byte)(native[i] ^ (changedByte ? 0x80 : 0)), actual.Bytes[i], "Intro and restored intro replace exactly the two edited trail pixels");
             }
             // Binding no replacement retains native/debug behavior without inventing

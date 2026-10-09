@@ -20,15 +20,12 @@ public sealed partial class IntroCinematicState
 {
     // Final frame, reused by every render: a returned frame is valid until this scene renders again.
     [NonSerialized] private Rgba32[]? frameBuffer;
-
-    /// <summary>Current host appearance; snapshots retain simulation state, not external overrides.</summary>
-    [NonSerialized] private ProjectileTrailCatalog? trailArtwork;
     [NonSerialized] private bool trailArtworkRefreshPending;
     /// <summary>Gets or sets the host-owned projectile-trail artwork used by flashbacks.</summary>
-    public ProjectileTrailCatalog? TrailArtwork
+    [field: NonSerialized]     public ProjectileTrailCatalog? TrailArtwork
     {
-        get => trailArtwork;
-        set { trailArtwork = value; trailArtworkRefreshPending = value?.Tiles is not null; }
+        get;
+        set { field = value; trailArtworkRefreshPending = value?.Tiles is not null; }
     }
     /// <summary>Current timed-projectile composition selected by the host.</summary>
     [field: NonSerialized]
@@ -39,7 +36,7 @@ public sealed partial class IntroCinematicState
         get => flashbackProjectiles.FrameBindings;
         set => flashbackProjectiles.FrameBindings = value;
     }
-    [NonSerialized] private IntroNarrationPresentation? narrationPresentation;
+
     [NonSerialized] private IntroFontAtlas? introFont;
     [NonSerialized] private IntroCinematicArtworkCatalog? characterArtwork;
     [NonSerialized] private BeamTileCatalog? beamArtwork;
@@ -55,12 +52,12 @@ public sealed partial class IntroCinematicState
         babyDiscovery?.Samus.TileTransfers.BindArtwork(value);
     }
     /// <summary>Current host-owned narration content; debugger states retain only playback state.</summary>
-    public IntroNarrationPresentation? NarrationPresentation
+    [field: NonSerialized]     public IntroNarrationPresentation? NarrationPresentation
     {
-        get => narrationPresentation;
+        get;
         set
         {
-            narrationPresentation = value;
+            field = value;
             objects?.BindNarration(value);
         }
     }
@@ -93,8 +90,8 @@ public sealed partial class IntroCinematicState
             baseline.Colors.CopyTo(introPalette);
             if (Phase is IntroCinematicPhase.Initial or IntroCinematicPhase.WaitForInitialMusicQueue)
                 value.Palette.LoadTo(cgram);
-            if (Phase >= IntroCinematicPhase.WaitForPageOneMusicQueue &&
-                Phase < IntroCinematicPhase.CeresFlight)
+            if (Phase is >= IntroCinematicPhase.WaitForPageOneMusicQueue and
+                < IntroCinematicPhase.CeresFlight)
             {
                 // The divider occupies only rows 24-27. Preserve live typewriter
                 // words and caret state in every other row on debugger rebind.
@@ -267,8 +264,8 @@ public sealed partial class IntroCinematicState
     /// enum precede it in time even though they follow it numerically.
     /// </summary>
     private bool InitialNarrationCardResident =>
-        Phase is IntroCinematicPhase.Initial or IntroCinematicPhase.SetupPageOne ||
-        Phase < IntroCinematicPhase.WaitForPageOneMusicQueue;
+        Phase is IntroCinematicPhase.Initial or IntroCinematicPhase.SetupPageOne or
+        < IntroCinematicPhase.WaitForPageOneMusicQueue;
 
     /// <summary>Gets the current opening-cinematic state-machine phase.</summary>
     public IntroCinematicPhase Phase { get; private set; }
@@ -595,7 +592,7 @@ public sealed partial class IntroCinematicState
         // Handle_CinematicSpriteObjects ($8B:93EF) runs after the cinematic function, so the
         // actors a scene setup spawns take their first step in that same dispatch.
         babyDiscovery?.Step(nmiFrameCounter, crossfadeCounter);
-        scientistCutscene?.Step(bus, crossfadeCounter, introCrossfadeCounter);
+        scientistCutscene?.Step(crossfadeCounter, introCrossfadeCounter);
     }
 
     /// <summary>Renders the current cinematic phase into the reusable 256-by-224 RGBA frame buffer.</summary>
@@ -1174,7 +1171,7 @@ public sealed partial class IntroCinematicState
         // compressed cinematic sheet starts later and must not be replaced.
         if (trailArtworkRefreshPending)
         {
-            trailArtwork!.Tiles!.LoadTo(vram);
+            TrailArtwork!.Tiles!.LoadTo(vram);
             trailArtworkRefreshPending = false;
         }
         var oam = new OamBuffer();
@@ -1188,7 +1185,7 @@ public sealed partial class IntroCinematicState
             flashbackProjectiles.HandleTrailsAndDraw(bus, oam, 0, 0, timeIsFrozen: false, TrailArtwork);
             flashbackProjectiles.DrawExplosions(bus, oam, 0, 0, ProjectileCompositions);
         }
-        flashbackRinkas?.Draw(bus, oam, characterArtwork?.RinkaSprites);
+        flashbackRinkas?.Draw(oam, characterArtwork?.RinkaSprites);
         flashbackMotherBrainExplosions?.Draw(oam,
             (characterArtwork ?? throw new InvalidOperationException(
                 "Intro Mother Brain explosions require installed character artwork.")).MotherBrainExplosionSprites);
@@ -1272,7 +1269,7 @@ public sealed partial class IntroCinematicState
     {
         var oam = new OamBuffer();
         oam.BeginFrame();
-        scientistCutscene!.Draw(bus, oam, characterArtwork?.ScientistSprites);
+        scientistCutscene!.Draw(oam, characterArtwork?.ScientistSprites);
         oam.FinalizeFrame();
         return oam;
     }
@@ -1490,7 +1487,7 @@ public sealed partial class IntroCinematicState
             vram,
             textTilemap,
             audio,
-            narrationPresentation,
+            NarrationPresentation,
             characterArtwork?.EyeFrames);
         audio?.QueueMusicDelayed8(MusicCommand.Stop);
         audio?.QueueMusicDelayed8(

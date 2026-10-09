@@ -24,7 +24,7 @@ internal static partial class Program
                 $"Samus square quadrant rejects {invalid}");
 
         var missile = typeof(SamusProjectileSystem).GetMethod("MissileSlopePointReaction", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Func<ISnesAddressSpace, RoomCollisionBlock, SamusProjectileSlot, bool, bool>>();
+            .CreateDelegate<Func<RoomCollisionBlock, SamusProjectileSlot, bool, bool>>();
         var bus = new SlopeHeightNoReadBus();
         var projectile = new SamusProjectileSlot(0);
         int cases = 0;
@@ -42,8 +42,8 @@ internal static partial class Program
                 bool expected = native[shape * 4 + row / 8 * 2 + column / 8] != 0;
                 projectile.XPosition = x;
                 projectile.YPosition = y;
-                AssertEqual(expected, missile(bus, block, projectile, true), "Actual horizontal missile square quadrant");
-                AssertEqual(expected, missile(bus, block, projectile, false), "Actual vertical missile square quadrant");
+                AssertEqual(expected, missile(block, projectile, true), "Actual horizontal missile square quadrant");
+                AssertEqual(expected, missile(block, projectile, false), "Actual vertical missile square quadrant");
                 cases++;
             }
         }

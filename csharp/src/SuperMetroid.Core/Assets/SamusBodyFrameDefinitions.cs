@@ -60,7 +60,7 @@ internal static class SamusBodyFrameDefinitions
             if ((uint)offset >= GrappleSwingFrameDefinitions.FrameCount * 4 || offset % 4 >= 2) continue;
             int phase = offset / 4;
             value = (byte)(offset % 4 == 0
-                ? left ? phase < 8 || phase >= 24 ? GrappleLeftOuterSet : GrappleLeftMiddleSet : phase <= 8 || phase > 24 ? GrappleRightOuterSet : GrappleRightMiddleSet
+                ? left ? phase is < 8 or >= 24 ? GrappleLeftOuterSet : GrappleLeftMiddleSet : phase is <= 8 or > 24 ? GrappleRightOuterSet : GrappleRightMiddleSet
                 : left ? phase < 8 ? phase + 8 : phase < 24 ? phase - 8 : phase - 24
                     : phase <= 8 ? 8 - phase : phase <= 24 ? 24 - phase : 40 - phase);
             return true;
@@ -140,7 +140,7 @@ internal static class SamusBodyFrameDefinitions
             if ((uint)offset >= 24) continue;
             if (offset % 4 < 2)
                 return start - SamusBodyArtworkCatalog.FirstFrameOffset + (offset / 4 % 3 == 0 ? 0 : 1) * 4 + offset % 4;
-            if (pose != SamusPoseId.MoonwalkFacingLeftPose && pose != SamusPoseId.MoonwalkFacingRightPose)
+            if (pose is not SamusPoseId.MoonwalkFacingLeftPose and not SamusPoseId.MoonwalkFacingRightPose)
                 return SamusBodyPoseDefinitions.DefaultFrameList((byte)SamusPoseId.MoonwalkFacingRightPose) - SamusBodyArtworkCatalog.FirstFrameOffset + offset;
         }
         foreach (bool left in (ReadOnlySpan<bool>)[ false, true ])

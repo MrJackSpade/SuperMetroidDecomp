@@ -109,7 +109,7 @@ public sealed partial class RoomEnemySystem
     private void RunMotherBrainAttachedDroolPreInstruction(
         RoomEnemyProjectileSlot drool)
     {
-        MotherBrainEnemyState state = _motherBrain ?? throw new InvalidOperationException(
+        MotherBrainEnemyState state = MotherBrain ?? throw new InvalidOperationException(
             "Mother Brain drool ran without its multipart encounter state.");
         RoomEnemySlot head = state.Head ?? throw new InvalidDataException(
             "Mother Brain drool requires the linked head record.");
@@ -157,7 +157,7 @@ public sealed partial class RoomEnemySystem
         SamusState? samus,
         ushort cameraX)
     {
-        MotherBrainEnemyState state = _motherBrain ?? throw new InvalidOperationException(
+        MotherBrainEnemyState state = MotherBrain ?? throw new InvalidOperationException(
             "Mother Brain onion ring ran without its multipart encounter state.");
 
         if (ring.Variable0 != 0)

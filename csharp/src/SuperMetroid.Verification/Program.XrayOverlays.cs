@@ -34,12 +34,12 @@ internal static partial class Program
             new CollectiblePlmSnapshot(RoomPlmHeaders.ExposedEnergyTank, 33, 2, InWorldCollectibleKind.EnergyTank, -1),
         };
         var map = new ushort[XrayTilemapLayout.BufferWords];
-        XrayRevealOverlays.Apply(bus, level, map, items, system, 0, 16, 16, visuals);
+        XrayRevealOverlays.Apply(level, map, items, system, 0, 16, 16, visuals);
         AssertEqual(8, map[0], "descending item slot order leaves the lower physical slot's reveal last");
         system.SetCollectedItemBit(1);
-        XrayRevealOverlays.Apply(bus, level, map, items, system, 0, 16, 16, visuals);
+        XrayRevealOverlays.Apply(level, map, items, system, 0, 16, 16, visuals);
         AssertEqual(20, map[0], "collected items do not obscure another live reveal");
-        XrayRevealOverlays.Apply(bus, level, map, items, system, 0x9000, 16, 16, visuals);
+        XrayRevealOverlays.Apply(level, map, items, system, 0x9000, 16, 16, visuals);
         AssertEqual(38, map[0], "special-room override follows item writes and selects the flipped bottom-left tile");
         AssertEqual(39, map[1], "vertical flip preserves tile-word bits");
         AssertEqual(36, map[32], "vertical flip places original top row below");
@@ -47,7 +47,7 @@ internal static partial class Program
         Array.Clear(map);
         items[0] = items[0] with { RoomArgument = ushort.MaxValue };
         system.SetCollectedItemBit(2);
-        XrayRevealOverlays.Apply(bus, level, map, items, system, 0, 16, 16, visuals);
+        XrayRevealOverlays.Apply(level, map, items, system, 0, 16, 16, visuals);
         AssertTrue(map.All(word => word == 0), "negative item arguments and collected items leave the tilemap unchanged");
         Console.WriteLine("  X-ray overlays: item graphics slots, collection gates, slot order, room override, vertical flip and viewport bounds agree.");
     }

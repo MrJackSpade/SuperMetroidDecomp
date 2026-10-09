@@ -28,7 +28,7 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
             typeof(RoomEnemySystem).GetField("_isAreaTorizoDefeated", flags)!.SetValue(enemies, (Func<bool>)(() => defeated));
             var initialize = typeof(RoomEnemySystem).GetMethod("RunInitializationAi", flags)!
-                .CreateDelegate<Action<RoomEnemySlot, RoomLevelData?, SamusState?, ushort, ushort, ushort>>(enemies);
+                .CreateDelegate<Action<RoomEnemySlot, RoomLevelData?, SamusState?, ushort, ushort>>(enemies);
             var actor = enemies.Slots[0];
             actor.EnemyDefinitionPointer = header;
             actor.Definition = RoomEnemyDefinitionCatalog.Get(header);
@@ -40,7 +40,7 @@ internal static partial class Program
                 EquippedBeams = 0, CollectedBeams = 0, ReserveTankMode = 2, ReserveMissiles = 7,
             };
             ushort[] before = Snapshot(samus);
-            initialize(actor, null, samus, held, 0, 0);
+            initialize(actor, null, samus, held, 0);
             ushort[] expected = grants
                 ? [native[0], native[0], native[1], native[1], native[2], native[2],
                    native[3], native[3], native[4], native[4], native[5], native[5], native[6], native[6]]

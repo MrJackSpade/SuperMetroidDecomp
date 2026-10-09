@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Invalid-beam callbacks reached by cartridge table overreads.</summary>
 public sealed partial class SamusProjectileSystem
 {
-    [NonSerialized]
-    private GameplayWindowRegisterCache? chainsawWindowRegisters;
 
     /// <summary>
     /// Connects the split projectile translation to the runtime's single cached-register
@@ -16,24 +14,27 @@ public sealed partial class SamusProjectileSystem
     /// Chainsaw store invisible to the actual displayed frame.
     /// </summary>
     internal void BindGameplayWindowRegisters(GameplayWindowRegisterCache registers) =>
-        chainsawWindowRegisters = registers ?? throw new ArgumentNullException(nameof(registers));
+        ChainsawWindowRegisters = registers ?? throw new ArgumentNullException(nameof(registers));
 
     /// <summary>
     /// Literal cached PPU-register owner corrupted by the misaligned Chainsaw callback.
     /// The cache is presentation hardware, not durable gameplay state; a restored debugger
     /// state begins from the ordinary layer-blending defaults until producers rewrite it.
     /// </summary>
+    [field: NonSerialized]
     public GameplayWindowRegisterCache ChainsawWindowRegisters
     {
         get
         {
-            if (chainsawWindowRegisters is not null)
-                return chainsawWindowRegisters;
+            if (field is not null)
+                return field;
 
-            chainsawWindowRegisters = new GameplayWindowRegisterCache();
-            chainsawWindowRegisters.InitializeWindowAndScreenSelection();
-            return chainsawWindowRegisters;
+            field = new GameplayWindowRegisterCache();
+            field.InitializeWindowAndScreenSelection();
+            return field;
         }
+
+        private set;
     }
 
     /// <summary>

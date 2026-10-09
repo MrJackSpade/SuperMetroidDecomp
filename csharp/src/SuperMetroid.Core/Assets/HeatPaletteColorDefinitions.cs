@@ -54,9 +54,9 @@ internal static class HeatPaletteColorDefinitions
     {
         int first;
         int loading;
-        if (pointer >= 0xe468 && pointer < 0xe486) { first = 0xe468; loading = 0xdb6d; }
-        else if (pointer >= 0xe694 && pointer < 0xe6b2) { first = 0xe694; loading = 0xdcd3; }
-        else if (pointer >= 0xe8c0 && pointer < 0xe8de) { first = 0xe8c0; loading = 0xde39; }
+        if (pointer is >= 0xe468 and < 0xe486) { first = 0xe468; loading = 0xdb6d; }
+        else if (pointer is >= 0xe694 and < 0xe6b2) { first = 0xe694; loading = 0xdcd3; }
+        else if (pointer is >= 0xe8c0 and < 0xe8de) { first = 0xe8c0; loading = 0xde39; }
         else { source = 0; return false; }
         if (((pointer - first) & 1) != 0) { source = 0; return false; }
         source = (ushort)(loading + pointer - first);

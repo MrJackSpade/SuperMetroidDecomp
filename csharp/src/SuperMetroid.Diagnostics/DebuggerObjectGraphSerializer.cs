@@ -76,7 +76,7 @@ internal static class DebuggerObjectGraphSerializer
             }
             if (value is Delegate callback)
             {
-                WriteDelegate(callback, type);
+                WriteDelegate(callback);
                 return;
             }
 
@@ -162,7 +162,7 @@ internal static class DebuggerObjectGraphSerializer
             }
         }
 
-        private void WriteDelegate(Delegate callback, Type type)
+        private void WriteDelegate(Delegate callback)
         {
             writer.Write((byte)PayloadKind.Delegate);
             Delegate[] calls = callback.GetInvocationList();

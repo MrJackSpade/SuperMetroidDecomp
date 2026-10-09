@@ -27,7 +27,7 @@ public static class EnemyQuadraticSpeedDefinitions
     /// <summary>Reads a native word, including odd-byte windows used by initial hop estimates.</summary>
     public static ushort ReadWord(int byteOffset)
     {
-        if (byteOffset < 0 || byteOffset > RecordCount * RecordSize - 2)
+        if (byteOffset is < 0 or > (RecordCount * RecordSize - 2))
             throw new InvalidDataException($"Enemy quadratic-speed word offset ${byteOffset:X} is outside the authored NTSC records.");
         return (ushort)(ReadByte(byteOffset) | ReadByte(byteOffset + 1) << 8);
     }

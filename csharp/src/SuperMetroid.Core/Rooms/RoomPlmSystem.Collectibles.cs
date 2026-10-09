@@ -283,7 +283,7 @@ public sealed partial class RoomPlmSystem
         // constructed population may supply an explicitly decoded graphic; neither
         // source grants the handler a bank-$84/$89 reader.
         RoomPlmDynamicCollectibleGraphic definition = suppliedGraphic ??
-            dynamicCollectibleArt?.Resolve(kind) ??
+            DynamicCollectibleArt?.Resolve(kind) ??
             RoomPlmDynamicCollectibleGraphicsDefinitions.Get(kind);
         ReadOnlyMemory<byte> graphics = definition.Tiles;
         ReadOnlyMemory<byte> paletteOffsets = definition.PaletteOffsets;

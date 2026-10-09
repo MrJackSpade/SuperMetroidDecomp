@@ -31,8 +31,6 @@ public static class TorizoBellyPaletteFxProgramMechanicsDefinitions
     private const ushort BombProgram = 0xe2e9;
     /// <summary>Golden Torizo belly setup program at $8D:E331.</summary>
     private const ushort GoldenProgram = 0xe331;
-    private static readonly IReadOnlyList<TorizoBellyPaletteFxProgramDefinition> Definitions =
-        new ProgramDefinitions();
 
     private sealed class ProgramDefinitions : IReadOnlyList<TorizoBellyPaletteFxProgramDefinition>
     {
@@ -69,13 +67,12 @@ public static class TorizoBellyPaletteFxProgramMechanicsDefinitions
     public const ushort ColorByteIndex = 0x0132;
 
     /// <summary>The Bomb and Golden Torizo programs in palette-definition order.</summary>
-    public static IReadOnlyList<TorizoBellyPaletteFxProgramDefinition> All =>
-        Definitions;
+    public static IReadOnlyList<TorizoBellyPaletteFxProgramDefinition> All { get; } = new ProgramDefinitions();
 
     /// <summary>Resolves one compiled mechanics word across both Torizo programs.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
-        foreach (TorizoBellyPaletteFxProgramDefinition definition in Definitions)
+        foreach (TorizoBellyPaletteFxProgramDefinition definition in All)
         {
             if (definition.TryReadMechanicsWord(pointer, out value))
                 return true;

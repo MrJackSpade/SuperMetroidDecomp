@@ -20,7 +20,7 @@ public sealed record MessageBoxRenderLayer : RenderLayer
         if (tilemap.Length % width != 0 || tilemap.Length / width < GameplayMessageRomData.Layout.MinimumRows
             || tilemap.Length / width > GameplayMessageRomData.Layout.MaximumRows)
             throw new ArgumentException("Message tilemap must contain three through six complete rows.", nameof(tilemap));
-        if (radiusPixels < 0 || radiusPixels > GameplayMessageRomData.Timing.MaximumRadiusPixels)
+        if (radiusPixels is < 0 or > GameplayMessageRomData.Timing.MaximumRadiusPixels)
             throw new ArgumentOutOfRangeException(nameof(radiusPixels));
         this.tilemap = tilemap.ToArray();
         RadiusPixels = radiusPixels;

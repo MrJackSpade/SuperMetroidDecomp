@@ -33,14 +33,14 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(
             enemies,
             (Func<ushort>)(() => 0x1234));
-        typeof(RoomEnemySystem).GetField("_crocomireDeath", flags)!.SetValue(enemies, death);
+        typeof(RoomEnemySystem).GetField("<CrocomireDeath>k__BackingField", flags)!.SetValue(enemies, death);
         var spawn = typeof(RoomEnemySystem).GetMethod(
             "SpawnNextCrocomireBridgeFragment", flags)!
-            .CreateDelegate<Action<CrocomireEnemyState>>(enemies);
+            .CreateDelegate<Action>(enemies);
 
         for (ushort fragment = 0; fragment < 11; fragment++)
         {
-            spawn(state);
+            spawn();
             RoomEnemyProjectileSlot projectile = enemies.EnemyProjectiles[17 - fragment];
             AssertEqual(RoomEnemyProjectileKind.CrocomireBridgeCrumbling, projectile.Kind,
                 $"Crocomire bridge fragment {fragment} kind");
@@ -56,7 +56,7 @@ internal static partial class Program
         }
 
         int activeBeforeCutoff = enemies.ActiveEnemyProjectileCount;
-        spawn(state);
+        spawn();
         AssertEqual(activeBeforeCutoff, enemies.ActiveEnemyProjectileCount,
             "Crocomire bridge fragment cursor 22 stops spawning");
         AssertEqual((ushort)22, death.BridgeFragmentCursor,

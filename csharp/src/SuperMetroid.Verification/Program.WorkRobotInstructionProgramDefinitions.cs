@@ -85,7 +85,7 @@ internal static partial class Program
                 enemies.WorkRobotStates[0]!.LaserCooldown = ushort.MaxValue;
                 process.Invoke(
                     enemies,
-                    [robot, null, level, (ushort)384, (ushort)192, (ushort)0, (byte)0]);
+                    [robot, null, level, (ushort)384, (ushort)192, (ushort)0]);
             }
         }
 

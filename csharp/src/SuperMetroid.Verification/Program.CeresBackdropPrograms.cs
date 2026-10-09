@@ -33,8 +33,8 @@ internal static partial class Program
         {
             nativeCalls.Clear();
             compiledCalls.Clear();
-            native.Step(rom, (opcode, cursor) => { nativeCalls.Add((opcode, cursor)); return cursor; }, OriginalWord);
-            compiled.Step(rom, (opcode, cursor) => { compiledCalls.Add((opcode, cursor)); return cursor; }, CeresDestructionSpriteInstructionDefinitions.ReadWord);
+            native.Step((opcode, cursor) => { nativeCalls.Add((opcode, cursor)); return cursor; }, OriginalWord);
+            compiled.Step((opcode, cursor) => { compiledCalls.Add((opcode, cursor)); return cursor; }, CeresDestructionSpriteInstructionDefinitions.ReadWord);
             AssertEqual(native.InstructionPointer, compiled.InstructionPointer, "backdrop cursor each frame");
             AssertEqual(native.SpriteMapPointer, compiled.SpriteMapPointer, "backdrop visibility each frame");
             AssertEqual(native.IsActive, compiled.IsActive, "backdrop lifetime each frame");

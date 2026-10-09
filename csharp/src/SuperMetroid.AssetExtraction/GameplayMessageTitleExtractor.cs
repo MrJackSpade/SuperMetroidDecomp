@@ -38,9 +38,9 @@ public static class GameplayMessageTitleExtractor
             for (int column = 0; column < GameplayMessageRomData.Layout.TilemapWidth; column++)
             {
                 ushort word = ReadWord(bus, content + column * sizeof(ushort));
-                if (column < GameplayMessageTitleDefinitions.OuterLeftColumns ||
-                    column >= GameplayMessageRomData.Layout.TilemapWidth -
-                        GameplayMessageTitleDefinitions.OuterRightColumns)
+                if (column is < GameplayMessageTitleDefinitions.OuterLeftColumns or
+                    >= (GameplayMessageRomData.Layout.TilemapWidth -
+                        GameplayMessageTitleDefinitions.OuterRightColumns))
                 {
                     if (word != GameplayMessageTitleDefinitions.TransparentWord)
                         throw new InvalidDataException(

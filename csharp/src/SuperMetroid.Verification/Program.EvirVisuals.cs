@@ -69,7 +69,7 @@ internal static partial class Program
             PrepareEvirInstructionSlot(slot, definition,
                 unchecked((ushort)(operand - 2)));
             object?[] arguments =
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+                [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
             process.Invoke(enemies, arguments);
             AssertEqual(EvirVisualDefinitions.FrameAt(operand), slot.SpritemapPointer,
                 $"installed Evir program {index} selects its native visual frame");

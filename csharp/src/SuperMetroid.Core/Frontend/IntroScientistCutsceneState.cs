@@ -54,7 +54,6 @@ internal sealed class IntroScientistCutsceneState
         new(ScientistSceneKind.Examination, audio, instructionWord);
 
     public void Step(
-        ISnesAddressSpace bus,
         ushort cinematicFunctionTimer,
         ushort introCrossfadeTimer)
     {
@@ -87,12 +86,12 @@ internal sealed class IntroScientistCutsceneState
             }
         }
 
-        baby.Step(bus, HandleInstruction, instructionWord);
+        baby.Step(HandleInstruction, instructionWord);
     }
 
-    public void Draw(ISnesAddressSpace bus, OamBuffer oam,
+    public void Draw(OamBuffer oam,
         IntroScientistSpritePresentation? installedArt = null) =>
-        baby.Draw(bus, oam, installedArt: installedArt);
+        baby.Draw(oam, installedArt: installedArt);
 
     private ushort? HandleInstruction(ushort opcode, ushort argumentPointer)
     {

@@ -238,10 +238,10 @@ internal static partial class Program
         FieldInfo[] preSpikeFields = fields
             .Where(field => !laterRuntimeFields.Contains(field.Name))
             .ToArray();
-        AssertTrue(LegacyLayout(typeof(SuperMetroidRuntime), fields, preSpikeFields.Where(field => field.Name != "_roomSpikes"))
-            .SequenceEqual(preSpikeFields.Where(field => field.Name != "_roomSpikes")),
+        AssertTrue(LegacyLayout(typeof(SuperMetroidRuntime), fields, preSpikeFields.Where(field => field.Name != "<RoomSpikes>k__BackingField"))
+            .SequenceEqual(preSpikeFields.Where(field => field.Name != "<RoomSpikes>k__BackingField")),
             "Legacy runtime layout omits only the new spike owner");
-        typeof(SuperMetroidRuntime).GetField("_roomSpikes", BindingFlags.Instance | BindingFlags.NonPublic)!
+        typeof(SuperMetroidRuntime).GetField("<RoomSpikes>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!
             .SetValue(runtime, null);
         var restarted = new VramWriteQueue();
         runtime.RoomSpikes.Step(bus, runtime.Vram, restarted);

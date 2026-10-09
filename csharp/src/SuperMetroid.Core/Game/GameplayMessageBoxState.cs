@@ -44,10 +44,10 @@ public sealed class GameplayMessageBoxState
     /// one frame, without the audio handlers, before the redrawn row uploads and $37 queues.
     /// </summary>
     private bool _selectionRedrawWaitPending;
-    [NonSerialized] private MessageBoxFrameAudio _lastFrameAudio;
 
     /// <summary>The bank-$85 audio and HDMA-object calls made by the frame <see cref="Step"/> just ran.</summary>
-    public MessageBoxFrameAudio LastFrameAudio => _lastFrameAudio;
+    [field: NonSerialized]
+    public MessageBoxFrameAudio LastFrameAudio { get; private set; }
     private ushort _shootBinding = (ushort)SnesButton.X;
     private ushort _runBinding = (ushort)SnesButton.B;
 
@@ -153,8 +153,8 @@ public sealed class GameplayMessageBoxState
     {
         ArgumentNullException.ThrowIfNull(bus);
         byte rawMessageId = (byte)messageId;
-        if ((messageId is < GameplayMessageId.EnergyTank or > GameplayMessageId.GravitySuit) &&
-            messageId != GameplayMessageId.GunshipSaveConfirmation)
+        if (messageId is (< GameplayMessageId.EnergyTank or > GameplayMessageId.GravitySuit) and
+            not GameplayMessageId.GunshipSaveConfirmation)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(messageId),
@@ -219,24 +219,24 @@ public sealed class GameplayMessageBoxState
     {
         ConfirmationSelectionChangedThisFrame = false;
         // Each routine calls HandleMusicQueue and HandleSounds after its lag wait returns.
-        _lastFrameAudio = MessageBoxFrameAudio.MusicAndSounds;
+        LastFrameAudio = MessageBoxFrameAudio.MusicAndSounds;
 
         switch (Phase)
         {
             case GameplayMessageBoxPhase.Inactive:
-                _lastFrameAudio = default;
+                LastFrameAudio = default;
                 return;
 
             case GameplayMessageBoxPhase.Preparing:
                 // Initialise_PPU_for_MessageBoxes waits twice before its audio calls.
                 if (_lagFramesRemaining == GameplayMessageRomData.Timing.PreOpenLagFrames - 1)
-                    _lastFrameAudio = default;
+                    LastFrameAudio = default;
                 if (--_lagFramesRemaining == 0)
                     Phase = GameplayMessageBoxPhase.Opening;
                 return;
 
             case GameplayMessageBoxPhase.Restoring:
-                _lastFrameAudio = _lagFramesRemaining switch
+                LastFrameAudio = _lagFramesRemaining switch
                 {
                     // Restore_PPU's first wait; its second ends in $88:84B9 (HDMA objects
                     // and music), then HandleSounds.
@@ -297,7 +297,7 @@ public sealed class GameplayMessageBoxState
                         // delays the next ReadControllerInput by one frame. The selection
                         // sound ($85:84EC) is queued after this wait.
                         _selectionRedrawWaitPending = false;
-                        _lastFrameAudio = default;
+                        LastFrameAudio = default;
                         ConfirmationSelectionChangedThisFrame = true;
                         return;
                     }

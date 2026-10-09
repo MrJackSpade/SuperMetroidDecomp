@@ -30,7 +30,7 @@ internal static class IntroFontGlyphDefinitions
     private static int Pixel(int glyph, int x, int y)
     {
         if (glyph == Period + 2) return x == 0 ? 0 : Pixel(Period, x - 1, y);
-        int background = glyph == SubtitleBlank || glyph is >= 0x5a and <= 0x5f or >= 0x70 ? 2 : 0;
+        int background = glyph is SubtitleBlank or >= 0x5a and <= 0x5f or >= 0x70 ? 2 : 0;
         UInt128 stroke = Stroke(glyph);
         int height = glyph < 48 ? 8 : 16;
         bool Filled(int px, int py) => (uint)px < 8 && (uint)py < height &&

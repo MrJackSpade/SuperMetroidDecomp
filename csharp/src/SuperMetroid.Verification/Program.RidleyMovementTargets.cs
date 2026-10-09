@@ -29,8 +29,8 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_bus", instance)!.SetValue(enemies, new SlopeHeightNoReadBus());
         var beginCarry = typeof(RoomEnemySystem).GetMethod("BeginNorfairRidleyCarry", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState>>();
-        var readDivisor = typeof(RoomEnemySystem).GetMethod("ReadRidleyHealthMovementDivisorIndex", instance)!
-            .CreateDelegate<Func<RidleyEnemyState, int>>(enemies);
+        var readDivisor = typeof(RoomEnemySystem).GetMethod("ReadRidleyHealthMovementDivisorIndex", BindingFlags.NonPublic | BindingFlags.Static)!
+            .CreateDelegate<Func<RidleyEnemyState, int>>();
         var pogo = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyPogo", instance)!
             .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?, bool>>(enemies);
         var moveSide = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyGroundAttackMoveToSide", instance)!

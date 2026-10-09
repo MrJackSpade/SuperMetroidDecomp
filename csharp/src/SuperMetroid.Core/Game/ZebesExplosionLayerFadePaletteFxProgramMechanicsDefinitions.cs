@@ -53,12 +53,9 @@ public static class ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions
             colorByteIndex: 0x00a2,
             frameDuration: 14),
     ];
-    private static readonly IReadOnlyList<ZebesExplosionLayerFadePaletteFxProgramDefinition>
-        ReadOnlyDefinitions = Array.AsReadOnly(Definitions);
 
     /// <summary>The crust and grey-cloud programs in definition order.</summary>
-    public static IReadOnlyList<ZebesExplosionLayerFadePaletteFxProgramDefinition> All =>
-        ReadOnlyDefinitions;
+    public static IReadOnlyList<ZebesExplosionLayerFadePaletteFxProgramDefinition> All { get; } = Array.AsReadOnly(Definitions);
 
     /// <summary>Resolves one compiled mechanics word across both programs.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)

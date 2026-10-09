@@ -119,7 +119,6 @@ public sealed partial class BabyMetroidCutsceneState
     }
 
     private void UpdateSpeedAndAngle(
-        ISnesAddressSpace bus,
         ushort angleDelta,
         ushort targetAngle,
         ushort targetSpeed)
@@ -222,12 +221,12 @@ public sealed partial class BabyMetroidCutsceneState
         if (unchecked((short)YPosition) < 0)
             return true;
         short relativeY = unchecked((short)(YPosition + 0x0060 - layer1Y));
-        if (relativeY < 0 || relativeY >= 0x01a0)
+        if (relativeY is < 0 or >= 0x01a0)
             return true;
         if (unchecked((short)XPosition) < 0)
             return true;
         short relativeX = unchecked((short)(XPosition + 0x0010 - layer1X));
-        return relativeX < 0 || relativeX >= 0x0120;
+        return relativeX is < 0 or >= 0x0120;
     }
 
     private bool AccelerateTowardsPoint(ushort targetX, ushort targetY, ushort acceleration)

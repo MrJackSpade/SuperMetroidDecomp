@@ -364,7 +364,7 @@ static void VerifySamusAimedAerialMovement()
     AssertEqual(10, compactFall.Kinematics.YRadius, "compact landing keeps the compact radius this frame");
     AssertEqual(
         compactBottom,
-        unchecked((ushort)(compactFall.YPosition + SamusState.ReadPoseYRadius(bus, compactFall.Pose))),
+        unchecked((ushort)(compactFall.YPosition + SamusState.ReadPoseYRadius(compactFall.Pose))),
         "compact landing preserves floor boundary");
     compactFall.RefreshCollisionRadii(bus);
     AssertEqual(21, compactFall.Kinematics.YRadius, "the next alpha publishes the landing radius");
@@ -406,7 +406,7 @@ static void VerifySamusAimedAerialMovement()
     AssertEqual(0x00b3, capturedCompactLanding.YPosition,
         "captured half-platform landing shifts center up eleven pixels");
     AssertEqual(0x00c8, unchecked((ushort)(capturedCompactLanding.YPosition +
-            SamusState.ReadPoseYRadius(bus, capturedCompactLanding.Pose))),
+            SamusState.ReadPoseYRadius(capturedCompactLanding.Pose))),
         "captured half-platform landing retains feet on surface");
 
     // The mirrored definitions carry direction four and shot direction five. Exercise the
@@ -455,7 +455,7 @@ static void VerifySamusAimedAerialMovement()
     AssertEqual(0xa5, compactLeftLanding.Pose, "shot direction five selects A5 landing");
     AssertEqual(
         compactLeftBottom,
-        unchecked((ushort)(compactLeftLanding.YPosition + SamusState.ReadPoseYRadius(bus, compactLeftLanding.Pose))),
+        unchecked((ushort)(compactLeftLanding.YPosition + SamusState.ReadPoseYRadius(compactLeftLanding.Pose))),
         "mirrored compact landing preserves floor boundary");
 
     // Put radius-ten `$17` between a row-nine ceiling and row-twelve floor. The body itself

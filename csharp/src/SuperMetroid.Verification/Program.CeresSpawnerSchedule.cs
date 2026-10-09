@@ -37,7 +37,7 @@ internal static partial class Program
                         }
                     }
                 }
-                native.Step(rom, (opcode, cursor) =>
+                native.Step((opcode, cursor) =>
                 {
                     expected = opcode switch
                     {

@@ -39,8 +39,7 @@ internal static partial class Program
         shot.XRadius = shot.YRadius = 8;
         typeof(RoomEnemySystem).GetMethod("ResolveMotherBrainLaterFormHeadShot", flags)!.Invoke(
             runtime.Enemies,
-            [state, head, shot, runtime.Projectiles, SamusProjectileFamily.Missile,
-             new SamusProjectileTypeWord(0x8100), (ushort)100]);
+            [state, head, shot, runtime.Projectiles, new SamusProjectileTypeWord(0x8100), (ushort)100]);
         AssertEqual((ushort)0, sequence.Phase3WalkCounter, "a missile zeroes the sequence-owned walk counter");
         AssertEqual((ushort)0, state.WalkCounter, "the encounter projection publishes the reset");
         Console.WriteLine("Mother Brain missile walk reset: the reaction reaches the counter's owner.");

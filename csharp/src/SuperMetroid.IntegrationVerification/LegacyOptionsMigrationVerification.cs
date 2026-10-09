@@ -91,7 +91,7 @@ internal static class LegacyOptionsMigrationVerification
     private static void VerifyRuntimeMigration()
     {
         var type = typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime);
-        string[] missing = ["_tourianStatues", "_escapeDiagonalFrames",
+        string[] missing = ["<TourianStatues>k__BackingField", "_escapeDiagonalFrames",
             "<PreventEscapeTimeout>k__BackingField", "<RoomTreadmills>k__BackingField"];
         var restored = (SuperMetroid.Core.Runtime.SuperMetroidRuntime)RuntimeHelpers.GetUninitializedObject(type);
         DebuggerStateFieldMigrations.InitializeOmitted(restored, DebuggerStateFieldMigrations.ResolveOmissions(type, missing));
@@ -129,7 +129,7 @@ internal static class LegacyOptionsMigrationVerification
         var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
         string[] added = ["<AutoJumpTimer>k__BackingField", "<PreviousDrawHeldInput>k__BackingField", "<AutoJumpInputPending>k__BackingField"];
         _ = DebuggerStateFieldMigrations.ResolveOmissions(type, added);
-        _ = DebuggerStateFieldMigrations.ResolveOmissions(type, [.. added, "<PreviousDrawNewInput>k__BackingField", "_poseHistory"]);
+        _ = DebuggerStateFieldMigrations.ResolveOmissions(type, [.. added, "<PreviousDrawNewInput>k__BackingField", "<PoseHistory>k__BackingField"]);
         Reject(type, added[..2], "two of the three auto-jump fields");
         var samus = new SuperMetroid.Core.Game.SamusState();
         var legacy = (SuperMetroid.Core.Game.SamusState)RuntimeHelpers.GetUninitializedObject(type);

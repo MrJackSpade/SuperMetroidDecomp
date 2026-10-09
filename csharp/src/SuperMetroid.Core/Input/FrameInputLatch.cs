@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Input;
 /// </summary>
 public sealed class FrameInputLatch
 {
-    private readonly object gate = new();
+    private readonly Lock gate = new();
     private readonly Dictionary<int, SnesButton> sources = [];
     private SnesButton held;
     private SnesButton pressed;

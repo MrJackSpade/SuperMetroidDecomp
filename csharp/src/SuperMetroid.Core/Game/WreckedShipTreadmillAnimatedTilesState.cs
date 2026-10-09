@@ -125,7 +125,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         ushort cursor = _instructionPointer;
         for (int guard = 0; guard < 64; guard++)
         {
-            ushort word = ReadMechanicsWord(bus, cursor);
+            ushort word = ReadMechanicsWord(cursor);
             if ((word & 0x8000) == 0)
             {
                 if (word == 0)
@@ -154,7 +154,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
                     return;
 
                 case AnimatedTileInstructionCodes.Goto:
-                    cursor = ReadMechanicsWord(bus, unchecked((ushort)(cursor + 2)));
+                    cursor = ReadMechanicsWord(unchecked((ushort)(cursor + 2)));
                     break;
 
                 case AnimatedTileInstructionCodes.WaitUntilAreaBossIsDead:
@@ -178,7 +178,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
             $"instructions at $87:{cursor:X4}.");
     }
 
-    private ushort ReadMechanicsWord(ISnesAddressSpace bus, ushort pointer)
+    private ushort ReadMechanicsWord(ushort pointer)
     {
         if (_compiledMechanics is null)
             throw new InvalidOperationException("Wrecked Ship treadmill requires compiled animation mechanics.");

@@ -24,7 +24,7 @@ internal static class PauseClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/PauseWireframeDefinitions.cs", "8A1A1C78A73DD86445BE1F06AA4BDBE44D1A5F4CA9DF3916BDB9414ED245D3F4"),
              new("csharp/src/SuperMetroid.Core/Assets/PauseTileGrid.cs", "11692E4C29574E1E271A9909DE1D2B7C610CFBC09DF70D2E3ACAB84D6510C92D")]),
         new("SuperMetroid.Core.Assets.PauseEquipmentLabelPresentation", "pause-label-complete-category-item-domain", ["ApplyInventory", "ApplyLabel", "OwnsLiveCell"],
-            [new("csharp/src/SuperMetroid.Core/Assets/PauseEquipmentLabelPresentation.cs", "C3EB77C021FA1E5F63C998FE437A13BE7CA29B7B046E7C6D18573321B9E37A60"),
+            [new("csharp/src/SuperMetroid.Core/Assets/PauseEquipmentLabelPresentation.cs", "F83EAD5DCF709D5A8E264C8414022B04134025C7A9E44E346997D13171B844B5"),
              new("csharp/src/SuperMetroid.Core/Assets/PauseEquipmentLabelDefinitions.cs", "B4DBBAEF840C54C2B1AAA679183B2E1E38E55A49970479D1D1A6C2ADB067B532"),
              new("csharp/src/SuperMetroid.Core/Assets/PauseSelectorDefinitions.cs", "8AD8DC65936856C9F9659DBB12FA0B8802CD0F9942C7539F0E4607BF7E014010"),
              new("csharp/src/SuperMetroid.Core/Frontend/PauseMenuDefinitions.cs", "8DA0EB3ACAC6D10737322F7DF139EB50153CBF7B7804FE8EF93711661911FD01"),

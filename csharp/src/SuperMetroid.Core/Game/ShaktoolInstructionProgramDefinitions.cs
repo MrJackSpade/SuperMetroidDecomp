@@ -64,7 +64,7 @@ internal abstract class ShaktoolInstructionProgramDefinitions
     private const ushort HeadFallthroughTicks = 1;
     internal static bool IsPresentationWord(ushort address)
     {
-        if (address >= SawHandPrimaryPiece && address < ArmPieceAttackBack)
+        if (address is >= SawHandPrimaryPiece and < ArmPieceAttackBack)
         {
             int offset = (address - SawHandPrimaryPiece) % 16;
             return offset < 12 && (offset & 3) == 2;
@@ -167,13 +167,13 @@ internal abstract class ShaktoolInstructionProgramDefinitions
     private struct WordSelector(ushort address, ushort start)
     {
         private int remaining = (address - start) / 2;
-        private int selected = int.MinValue;
-        public readonly int Value => selected == int.MinValue
-            ? throw new InvalidOperationException("Shaktool semantic program shape is incomplete.") : selected;
+
+        public int Value { get => field == int.MinValue
+            ? throw new InvalidOperationException("Shaktool semantic program shape is incomplete.") : field; private set; } = int.MinValue;
         public void Command(ushort command) => Emit(command);
         public void Timed(ushort duration) { Emit(duration); Emit(PresentationOperand); }
         public void Wait(ushort duration) { Emit(CommonEnemyInstructionCodes.WaitFrames); Emit(duration); }
         public void Goto(ushort target) { Emit(CommonEnemyInstructionCodes.Goto); Emit(target); }
-        private void Emit(int value) { if (remaining-- == 0) selected = value; }
+        private void Emit(int value) { if (remaining-- == 0) Value = value; }
     }
 }

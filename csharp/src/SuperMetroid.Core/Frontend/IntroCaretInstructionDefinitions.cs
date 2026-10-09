@@ -28,7 +28,7 @@ internal static class IntroCaretInstructionDefinitions
 
     internal static byte ReadByte(ushort pointer)
     {
-        if (pointer < StartPointer || pointer >= EndPointer)
+        if (pointer is < StartPointer or >= EndPointer)
             throw new ArgumentOutOfRangeException(nameof(pointer));
         int offset = pointer - StartPointer;
         return unchecked((byte)(ProgramWord(offset / 2) >> (8 * (offset & 1))));
@@ -36,7 +36,7 @@ internal static class IntroCaretInstructionDefinitions
 
     internal static bool TryReadWord(ushort pointer, out ushort word)
     {
-        if (pointer < StartPointer || pointer >= EndPointer)
+        if (pointer is < StartPointer or >= EndPointer)
         {
             word = 0;
             return false;

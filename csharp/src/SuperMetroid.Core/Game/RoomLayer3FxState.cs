@@ -17,30 +17,18 @@ namespace SuperMetroid.Core.Game;
 public sealed class RoomLayer3FxState
 {
     private readonly RoomFxAnimatedTilesState animatedTiles = new();
-    [NonSerialized] private RoomFxAnimatedTileAtlas? animatedTileArtwork;
-    [NonSerialized] private RoomFxLayer3TilemapCatalog? layer3Tilemaps;
-    [NonSerialized] private RoomFxPaletteBlendCatalog? paletteBlendColors;
 
     /// <summary>Current host-owned liquid/rain frame art; never stored in debugger state.</summary>
-    public RoomFxAnimatedTileAtlas? AnimatedTileArtwork
-    {
-        get => animatedTileArtwork;
-        set => animatedTileArtwork = value;
-    }
+    [field: NonSerialized]
+    public RoomFxAnimatedTileAtlas? AnimatedTileArtwork { get; set; }
 
     /// <summary>Current host-owned BG3 effect tilemaps; never stored in debugger state.</summary>
-    public RoomFxLayer3TilemapCatalog? Layer3Tilemaps
-    {
-        get => layer3Tilemaps;
-        set => layer3Tilemaps = value;
-    }
+    [field: NonSerialized]
+    public RoomFxLayer3TilemapCatalog? Layer3Tilemaps { get; set; }
 
     /// <summary>Current host-owned room-FX blend colors; never stored in debugger state.</summary>
-    public RoomFxPaletteBlendCatalog? PaletteBlendColors
-    {
-        get => paletteBlendColors;
-        set => paletteBlendColors = value;
-    }
+    [field: NonSerialized]
+    public RoomFxPaletteBlendCatalog? PaletteBlendColors { get; set; }
     private ushort verticalAccumulator;
     private ushort horizontalAccumulator;
     private ushort horizontalVelocity;
@@ -181,14 +169,14 @@ public sealed class RoomLayer3FxState
             definition.Layer3LayerBlend,
             $"bank-$83 FX record ${record:X4}");
         animatedTiles.Load(bus, Type);
-        ApplyPaletteBlend(bus, cgram, definition.PaletteBlend);
+        ApplyPaletteBlend(cgram, definition.PaletteBlend);
 
         if (Type == RoomFxType.Fireflea)
             FirefleaRoomFx.Initialize(bus);
         if (!IsRenderable)
             return;
 
-        vram.ExecuteQueuedAssetWrite((layer3Tilemaps ?? throw new InvalidOperationException(
+        vram.ExecuteQueuedAssetWrite((Layer3Tilemaps ?? throw new InvalidOperationException(
                 "Renderable room FX requires installed layer-3 tilemaps."))
             .Resolve(Type).Span, RoomFxRomData.Layer3.TilemapDestinationWord);
 
@@ -317,20 +305,20 @@ public sealed class RoomLayer3FxState
         // The shared bank-$87 handler runs independently of the bank-$88 HDMA
         // pre-instruction. In particular, lava/acid need this transfer before their BG3
         // tilemap can name anything other than stale standard-HUD characters.
-        animatedTiles.Step(bus, vram, artwork: animatedTileArtwork);
+        animatedTiles.Step(bus, vram, artwork: AnimatedTileArtwork);
 
         if (liquidHdmaObjectsDeleted && MovesLiquidInHdmaPass)
             return;
 
         if (Type is RoomFxType.Lava or RoomFxType.Acid)
         {
-            StepLavaAcid(bus, cameraX, cameraY, randomNumber, mainGameLoopCarry, liquidMotionAlreadyAdvanced);
+            StepLavaAcid(cameraX, cameraY, randomNumber, mainGameLoopCarry, liquidMotionAlreadyAdvanced);
             return;
         }
 
         if (RoomFxTypes.UsesWater(Type))
         {
-            StepWater(bus, cameraX, cameraY, randomNumber, mainGameLoopCarry, liquidMotionAlreadyAdvanced);
+            StepWater(cameraX, cameraY, randomNumber, mainGameLoopCarry, liquidMotionAlreadyAdvanced);
             return;
         }
 
@@ -454,7 +442,7 @@ public sealed class RoomLayer3FxState
     /// $89:AB02 LoadFxEntry reloads motion, blending and three colors, but does not restart
     /// HDMA, animated tiles, or the liquid's current motion phase as a room load would.
     /// </summary>
-    internal LayerBlendingConfiguration ApplyEntry(ISnesAddressSpace bus, SnesCgram cgram,
+    internal LayerBlendingConfiguration ApplyEntry(SnesCgram cgram,
         ushort record)
     {
         RoomFxRecordDefinition definition = RoomFxRecordDefinitions.Get(record);
@@ -465,14 +453,14 @@ public sealed class RoomLayer3FxState
         LiquidOptions = definition.LiquidOptions;
         LayerBlendConfiguration = LayerBlendingConfigurations.FromCartridge(
             definition.Layer3LayerBlend, "LoadFxEntry");
-        ApplyPaletteBlend(bus, cgram, definition.PaletteBlend);
+        ApplyPaletteBlend(cgram, definition.PaletteBlend);
         return LayerBlendingConfigurations.FromCartridge(
             definition.DefaultLayerBlend, "LoadFxEntry");
     }
 
-    private void ApplyPaletteBlend(ISnesAddressSpace bus, SnesCgram cgram, byte selection)
+    private void ApplyPaletteBlend(SnesCgram cgram, byte selection)
     {
-        (paletteBlendColors ?? throw new InvalidOperationException(
+        (PaletteBlendColors ?? throw new InvalidOperationException(
             "Room FX requires installed palette-blend colors.")).Apply(cgram, selection);
     }
 
@@ -492,7 +480,6 @@ public sealed class RoomLayer3FxState
     /// room has zero velocity and therefore exercises the cartridge's normal static branch.
     /// </summary>
     private void StepWater(
-        ISnesAddressSpace bus,
         ushort cameraX,
         ushort cameraY,
         ushort randomNumber,
@@ -546,7 +533,6 @@ public sealed class RoomLayer3FxState
     /// waveforms rotates at the cadence selected by the record's liquid-options byte.
     /// </summary>
     private void StepLavaAcid(
-        ISnesAddressSpace bus,
         ushort cameraX,
         ushort cameraY,
         ushort randomNumber,

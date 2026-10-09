@@ -26,29 +26,17 @@ public sealed partial class SamusState
     /// <summary>The exact pending bank-$92 definitions consumed by accepted NMI.</summary>
     public SamusTileTransferState TileTransfers { get; } = new();
 
-    [NonSerialized] private SamusSuitColorCatalog? suitColors;
     /// <summary>Host-bound normal suit colors; excluded from debugger-state graphs.</summary>
-    public SamusSuitColorCatalog? SuitColors
-    {
-        get => suitColors;
-        set => suitColors = value;
-    }
+    [field: NonSerialized]
+    public SamusSuitColorCatalog? SuitColors { get; set; }
 
-    [NonSerialized] private SamusFullBodyCycleColorCatalog? fullBodyCycleColors;
     /// <summary>Host-bound animation colors; excluded from debugger-state graphs.</summary>
-    public SamusFullBodyCycleColorCatalog? FullBodyCycleColors
-    {
-        get => fullBodyCycleColors;
-        set => fullBodyCycleColors = value;
-    }
+    [field: NonSerialized]
+    public SamusFullBodyCycleColorCatalog? FullBodyCycleColors { get; set; }
 
-    [NonSerialized] private SamusChargeColorCatalog? chargeColors;
     /// <summary>Host-bound charge and Hyper-shot body colors; not serialized.</summary>
-    public SamusChargeColorCatalog? ChargeColors
-    {
-        get => chargeColors;
-        set => chargeColors = value;
-    }
+    [field: NonSerialized]
+    public SamusChargeColorCatalog? ChargeColors { get; set; }
 
     /// <summary>
     /// Copies <c>SamusPalettes_PowerSuit</c> at <c>$9B:9400</c> to palette-buffer/CGRAM
@@ -74,7 +62,7 @@ public sealed partial class SamusState
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
 
-        SamusNormalSuitPalette.Load(cgram, EquippedItems, suitColors);
+        SamusNormalSuitPalette.Load(cgram, EquippedItems, SuitColors);
     }
 
     /// <summary>
@@ -189,7 +177,7 @@ public sealed partial class SamusState
         Func<ushort>? queueEchoSound = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        EnsureAnimationInitialized(bus);
+        EnsureAnimationInitialized();
 
         // `$90:8000` dispatches the active room-FX animation handler before touching the
         // frame timer. This also updates remembered `$0AD2`, which the next Space Jump gate
@@ -230,7 +218,7 @@ public sealed partial class SamusState
     internal void AnimateDeathFrame(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        EnsureAnimationInitialized(bus);
+        EnsureAnimationInitialized();
         AnimationFrameTimer = unchecked((ushort)(AnimationFrameTimer - 1));
         if (AnimationFrameTimer != 0 && (AnimationFrameTimer & 0x8000) == 0)
             return;
@@ -463,7 +451,7 @@ public sealed partial class SamusState
         AnimationFrameTimer = unchecked((ushort)(AnimationFrameBuffer + selectedDelay));
     }
 
-    private void EnsureAnimationInitialized(ISnesAddressSpace bus)
+    private void EnsureAnimationInitialized()
     {
         int expectedList = ResolveAnimationDelayList();
         if (AnimationDelayListAddress != expectedList)
@@ -870,7 +858,7 @@ public sealed partial class SamusState
 
         // The original accepts screen Y 0..247. Horizontal clipping remains OAM/PPU work,
         // exactly as it is for the current Samus body.
-        if (screenY < 0 || screenY >= 248)
+        if (screenY is < 0 or >= 248)
             return;
 
         var spritemaps = TileTransfers.Artwork?.Spritemaps ?? throw new InvalidOperationException(

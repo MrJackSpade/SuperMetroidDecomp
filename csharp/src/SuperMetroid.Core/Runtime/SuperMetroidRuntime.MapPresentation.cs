@@ -4,17 +4,15 @@ namespace SuperMetroid.Core.Runtime;
 
 public sealed partial class SuperMetroidRuntime
 {
-    /// <summary>External map content supplied by the host; never serialized into a debugger snapshot.</summary>
-    [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
     [NonSerialized] private bool hudArtworkRefreshPending;
     /// <summary>Gets or binds the host-owned presentation catalog used by maps, HUD, messages, room effects, Samus/enemy colors, and named VRAM assets.</summary>
     /// <remarks>Binding nonnull artwork schedules an initialized HUD refresh and rebinds compiled bus-source identities; assigning null removes presentation owners without rewriting already published VRAM.</remarks>
-    public AreaMapPresentationCatalog? MapPresentation
+    [field: NonSerialized]     public AreaMapPresentationCatalog? MapPresentation
     {
-        get => mapPresentation;
+        get;
         set
         {
-            mapPresentation = value;
+            field = value;
             Hud.BindPresentation(value?.GameplayHud, Samus);
             MessageBox.BindPresentation(value?.GameplayMessageTitles, value?.GameplayMessagePanels,
                 value?.GameplayMessageNotices);
@@ -53,15 +51,15 @@ public sealed partial class SuperMetroidRuntime
     {
         if (Samus is null)
             return;
-        Samus.VisorPalette.PresentationColors = mapPresentation?.SamusVisorColors;
-        Samus.Xray.PresentationColors = mapPresentation?.SamusVisorColors;
-        Samus.Drained.PresentationColors = mapPresentation?.SamusHyperBeamColors;
-        Samus.SuitColors = mapPresentation?.SamusSuitColors;
-        Samus.FullBodyCycleColors = mapPresentation?.SamusFullBodyCycleColors;
-        Samus.ChargeColors = mapPresentation?.SamusChargeColors;
+        Samus.VisorPalette.PresentationColors = MapPresentation?.SamusVisorColors;
+        Samus.Xray.PresentationColors = MapPresentation?.SamusVisorColors;
+        Samus.Drained.PresentationColors = MapPresentation?.SamusHyperBeamColors;
+        Samus.SuitColors = MapPresentation?.SamusSuitColors;
+        Samus.FullBodyCycleColors = MapPresentation?.SamusFullBodyCycleColors;
+        Samus.ChargeColors = MapPresentation?.SamusChargeColors;
         // All Samus constructors call this rebind before priming the first visual DMA.
-        Samus.TileTransfers.BindArtwork(samusBodyArt);
-        Samus.ArmCannon.Artwork = samusBodyArt?.ArmCannon;
+        Samus.TileTransfers.BindArtwork(SamusBodyArt);
+        Samus.ArmCannon.Artwork = SamusBodyArt?.ArmCannon;
     }
 
     private void PublishReboundHudArtwork()
@@ -74,7 +72,7 @@ public sealed partial class SuperMetroidRuntime
         // his private BG2 tilemap occupies the ordinary $4000 HUD character
         // address. A restored-state art rebind must honor the *current* PPU
         // character base, or the next NMI paints HUD pixels across Kraid.
-        mapPresentation!.HudTiles.LoadCharactersTo(Vram,
+        MapPresentation!.HudTiles.LoadCharactersTo(Vram,
             GameplayHudCharacterBaseWord * sizeof(ushort));
         hudArtworkRefreshPending = false;
     }

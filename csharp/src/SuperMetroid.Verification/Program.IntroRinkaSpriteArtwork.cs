@@ -72,7 +72,7 @@ internal static partial class Program
             "intro Rinka first two-wave actors exist for installed artwork test");
         var stockOam = new OamBuffer();
         stockOam.BeginFrame();
-        rinkas.Draw(guarded, stockOam, stock.RinkaSprites);
+        rinkas.Draw(stockOam, stock.RinkaSprites);
         stockOam.FinalizeFrame();
         var nativeLiveOam = new OamBuffer();
         nativeLiveOam.BeginFrame();
@@ -84,7 +84,7 @@ internal static partial class Program
             "installed intro Rinkas preserve native live-actor OAM placement and attributes");
         var editedOam = new OamBuffer();
         editedOam.BeginFrame();
-        rinkas.Draw(guarded, editedOam, edited.RinkaSprites);
+        rinkas.Draw(editedOam, edited.RinkaSprites);
         editedOam.FinalizeFrame();
         AssertTrue(!stockOam.LowTable.SequenceEqual(editedOam.LowTable) &&
                 stockOam.HighTable.SequenceEqual(editedOam.HighTable),

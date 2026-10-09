@@ -75,7 +75,7 @@ internal static class PausePresentationContractChecks
         Require(after.Classifications.Count == 16 && after.UnresolvedCount == 10 && after.MissingCount == 0 &&
             after.Consumers.Count == 26, "complete resources qualify, while wrong area/kind/tuple/overrun/anchor/phase/identity constants still fail");
         Require(after.Findings.Count(item => item.Owner == "PauseEquipmentLabelPresentation.ApplyLabel") == 3 &&
-            after.Findings.Count(item => item.Owner == "PauseSelectorPresentation.Anchor" || item.Owner == "PauseSelectorPresentation.Draw") == 2,
+            after.Findings.Count(item => item.Owner is "PauseSelectorPresentation.Anchor" or "PauseSelectorPresentation.Draw") == 2,
             "Boots and Reserve must not borrow larger categories; only Plasma may extend a beam label to nine words");
 
         const string labelPath = "csharp/src/SuperMetroid.Core/Assets/PauseEquipmentLabelDefinitions.cs";

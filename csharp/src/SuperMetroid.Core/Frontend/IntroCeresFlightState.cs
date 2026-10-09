@@ -166,7 +166,7 @@ internal sealed class IntroCeresFlightState
             IntroCeresFlightPhase.FadeOut)
             StepRearViewActors();
         else if (Phase is not (IntroCeresFlightPhase.StartGameAtCeres or IntroCeresFlightPhase.Finished))
-            stars.Step(bus, instructionWord: CeresFlightSpriteInstructionDefinitions.ReadWord);
+            stars.Step(instructionWord: CeresFlightSpriteInstructionDefinitions.ReadWord);
     }
 
     public Rgba32[] Render()
@@ -260,8 +260,8 @@ internal sealed class IntroCeresFlightState
         oam.BeginFrame();
         if (Phase is IntroCeresFlightPhase.FlyingTowardCeres or IntroCeresFlightPhase.SpaceColonyTitle or IntroCeresFlightPhase.FadeOut)
             foreach (IntroDiscoverySprite actor in rearViewActors)
-                actor.Draw(bus, oam, installedArt: spriteArtwork);
-        else stars.Draw(bus, oam, installedArt: spriteArtwork);
+                actor.Draw(oam, installedArt: spriteArtwork);
+        else stars.Draw(oam, installedArt: spriteArtwork);
         oam.FinalizeFrame();
         return oam;
     }
@@ -447,7 +447,7 @@ internal sealed class IntroCeresFlightState
                 AddWrappedX(actor, unchecked((ushort)definition.HorizontalDelta));
             else
                 AddSignedX(actor, definition.HorizontalDelta);
-            actor.Step(bus, instructionWord: CeresFlightSpriteInstructionDefinitions.ReadWord);
+            actor.Step(instructionWord: CeresFlightSpriteInstructionDefinitions.ReadWord);
         }
     }
 

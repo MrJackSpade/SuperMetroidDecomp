@@ -14,37 +14,37 @@ internal static class SamusPoseInputRulesLate
         SpringBallFallingLeftPoseList => MatchSpringBallFallingLeftPoseList(held, newlyPressed),
         SpringBallJumpRightPoseList => MatchSpringBallJumpRightPoseList(held, newlyPressed),
         SpringBallJumpLeftPoseList => MatchSpringBallJumpLeftPoseList(held, newlyPressed),
-        UnusedPose63List => MatchUnusedPose63List(held, newlyPressed),
-        UnusedPose64List => MatchUnusedPose64List(held, newlyPressed),
-        UnusedPose65List => MatchUnusedPose65List(held, newlyPressed),
-        UnusedPose66List => MatchUnusedPose66List(held, newlyPressed),
+        UnusedPose63List => MatchUnusedPose63List(held),
+        UnusedPose64List => MatchUnusedPose64List(held),
+        UnusedPose65List => MatchUnusedPose65List(held),
+        UnusedPose66List => MatchUnusedPose66List(held),
         WallJumpRightPoseList => MatchWallJumpRightPoseList(held, newlyPressed),
         WallJumpLeftPoseList => MatchWallJumpLeftPoseList(held, newlyPressed),
         RanIntoWallRightPoseList => MatchRanIntoWallRightPoseList(held, newlyPressed),
         RanIntoWallLeftPoseList => MatchRanIntoWallLeftPoseList(held, newlyPressed),
-        NormalJumpGunExtendedRightPoseList => MatchNormalJumpGunExtendedRightPoseList(held, newlyPressed),
-        NormalJumpGunExtendedLeftPoseList => MatchNormalJumpGunExtendedLeftPoseList(held, newlyPressed),
+        NormalJumpGunExtendedRightPoseList => MatchNormalJumpGunExtendedRightPoseList(held),
+        NormalJumpGunExtendedLeftPoseList => MatchNormalJumpGunExtendedLeftPoseList(held),
         NormalJumpAimDownRightPoseList => MatchNormalJumpAimDownRightPoseList(held, newlyPressed),
         NormalJumpAimDownLeftPoseList => MatchNormalJumpAimDownLeftPoseList(held, newlyPressed),
-        UnmorphingTransitionRightPoseList => MatchUnmorphingTransitionRightPoseList(held, newlyPressed),
-        UnmorphingTransitionLeftPoseList => MatchUnmorphingTransitionLeftPoseList(held, newlyPressed),
+        UnmorphingTransitionRightPoseList => MatchUnmorphingTransitionRightPoseList(held),
+        UnmorphingTransitionLeftPoseList => MatchUnmorphingTransitionLeftPoseList(held),
         TurningRightToLeftPoseList => MatchTurningRightToLeftPoseList(held, newlyPressed),
         TurningLeftToRightPoseList => MatchTurningLeftToRightPoseList(held, newlyPressed),
         TurningRightToLeftAimUpPoseList => MatchTurningRightToLeftAimUpPoseList(held, newlyPressed),
         TurningLeftToRightAimUpPoseList => MatchTurningLeftToRightAimUpPoseList(held, newlyPressed),
         TurningRightToLeftAimDiagonalDownPoseList => MatchTurningRightToLeftAimDiagonalDownPoseList(held, newlyPressed),
         TurningLeftToRightAimDiagonalDownPoseList => MatchTurningLeftToRightAimDiagonalDownPoseList(held, newlyPressed),
-        ShinesparkWindupRightPoseList => MatchShinesparkWindupRightPoseList(held, newlyPressed),
-        ShinesparkWindupLeftPoseList => MatchShinesparkWindupLeftPoseList(held, newlyPressed),
+        ShinesparkWindupRightPoseList => MatchShinesparkWindupRightPoseList(held),
+        ShinesparkWindupLeftPoseList => MatchShinesparkWindupLeftPoseList(held),
         FallingAimDownRightPoseList => MatchFallingAimDownRightPoseList(held, newlyPressed),
         FallingAimDownLeftPoseList => MatchFallingAimDownLeftPoseList(held, newlyPressed),
-        UnusedPoseDfList => MatchUnusedPoseDfList(held, newlyPressed),
-        DraygonGrabbedNeutralLeftPoseList => MatchDraygonGrabbedNeutralLeftPoseList(held, newlyPressed),
-        DraygonGrabbedNeutralRightPoseList => MatchDraygonGrabbedNeutralRightPoseList(held, newlyPressed),
+        UnusedPoseDfList => MatchUnusedPoseDfList(newlyPressed),
+        DraygonGrabbedNeutralLeftPoseList => MatchDraygonGrabbedNeutralLeftPoseList(held),
+        DraygonGrabbedNeutralRightPoseList => MatchDraygonGrabbedNeutralRightPoseList(held),
         MovingRightGunExtendedPoseList => MatchMovingRightGunExtendedPoseList(held, newlyPressed),
         MovingLeftGunExtendedPoseList => MatchMovingLeftGunExtendedPoseList(held, newlyPressed),
-        FallingGunExtendedRightPoseList => MatchFallingGunExtendedRightPoseList(held, newlyPressed),
-        FallingGunExtendedLeftPoseList => MatchFallingGunExtendedLeftPoseList(held, newlyPressed),
+        FallingGunExtendedRightPoseList => MatchFallingGunExtendedRightPoseList(held),
+        FallingGunExtendedLeftPoseList => MatchFallingGunExtendedLeftPoseList(held),
         MoonwalkTurnJumpLeftPoseList => MatchMoonwalkTurnJumpLeftPoseList(held, newlyPressed),
         MoonwalkTurnJumpRightPoseList => MatchMoonwalkTurnJumpRightPoseList(held, newlyPressed),
         MoonwalkTurnJumpAimUpLeftPoseList => MatchMoonwalkTurnJumpAimUpLeftPoseList(held, newlyPressed),
@@ -58,13 +58,13 @@ internal static class SamusPoseInputRulesLate
     private static SamusPoseInputMatch MatchSpringBallGroundRightPoseList(ushort held, ushort newlyPressed)
     {
         if (Has(newlyPressed, Up))
-            return Accept(0, Up, None, SamusPoseId.UnmorphingTransitionRightPose);
+            return Accept(SamusPoseId.UnmorphingTransitionRightPose);
         if (Has(newlyPressed, Jump))
-            return Accept(1, Jump, None, SamusPoseId.SpringBallJumpRightPose);
+            return Accept(SamusPoseId.SpringBallJumpRightPose);
         if (Has(held, Right))
-            return Accept(2, None, Right, SamusPoseId.SpringBallMovingRightPose);
+            return Accept(SamusPoseId.SpringBallMovingRightPose);
         if (Has(held, Left))
-            return Accept(3, None, Left, SamusPoseId.SpringBallMovingLeftPose);
+            return Accept(SamusPoseId.SpringBallMovingLeftPose);
         return new(null, HasConditions: true);
     }
 
@@ -72,13 +72,13 @@ internal static class SamusPoseInputRulesLate
     private static SamusPoseInputMatch MatchSpringBallGroundLeftPoseList(ushort held, ushort newlyPressed)
     {
         if (Has(newlyPressed, Up))
-            return Accept(0, Up, None, SamusPoseId.UnmorphingTransitionLeftPose);
+            return Accept(SamusPoseId.UnmorphingTransitionLeftPose);
         if (Has(newlyPressed, Jump))
-            return Accept(1, Jump, None, SamusPoseId.SpringBallJumpLeftPose);
+            return Accept(SamusPoseId.SpringBallJumpLeftPose);
         if (Has(held, Right))
-            return Accept(2, None, Right, SamusPoseId.SpringBallMovingRightPose);
+            return Accept(SamusPoseId.SpringBallMovingRightPose);
         if (Has(held, Left))
-            return Accept(3, None, Left, SamusPoseId.SpringBallMovingLeftPose);
+            return Accept(SamusPoseId.SpringBallMovingLeftPose);
         return new(null, HasConditions: true);
     }
 
@@ -86,11 +86,11 @@ internal static class SamusPoseInputRulesLate
     private static SamusPoseInputMatch MatchSpringBallFallingRightPoseList(ushort held, ushort newlyPressed)
     {
         if (Has(newlyPressed, Up))
-            return Accept(0, Up, None, SamusPoseId.UnmorphingTransitionRightPose);
+            return Accept(SamusPoseId.UnmorphingTransitionRightPose);
         if (Has(held, Left))
-            return Accept(1, None, Left, SamusPoseId.SpringBallFallingLeftPose);
+            return Accept(SamusPoseId.SpringBallFallingLeftPose);
         if (Has(held, Right))
-            return Accept(2, None, Right, SamusPoseId.SpringBallFallingRightPose);
+            return Accept(SamusPoseId.SpringBallFallingRightPose);
         return new(null, HasConditions: true);
     }
 
@@ -98,11 +98,11 @@ internal static class SamusPoseInputRulesLate
     private static SamusPoseInputMatch MatchSpringBallFallingLeftPoseList(ushort held, ushort newlyPressed)
     {
         if (Has(newlyPressed, Up))
-            return Accept(0, Up, None, SamusPoseId.UnmorphingTransitionLeftPose);
+            return Accept(SamusPoseId.UnmorphingTransitionLeftPose);
         if (Has(held, Right))
-            return Accept(1, None, Right, SamusPoseId.SpringBallFallingRightPose);
+            return Accept(SamusPoseId.SpringBallFallingRightPose);
         if (Has(held, Left))
-            return Accept(2, None, Left, SamusPoseId.SpringBallFallingLeftPose);
+            return Accept(SamusPoseId.SpringBallFallingLeftPose);
         return new(null, HasConditions: true);
     }
 
@@ -110,11 +110,11 @@ internal static class SamusPoseInputRulesLate
     private static SamusPoseInputMatch MatchSpringBallJumpRightPoseList(ushort held, ushort newlyPressed)
     {
         if (Has(newlyPressed, Up))
-            return Accept(0, Up, None, SamusPoseId.UnmorphingTransitionRightPose);
+            return Accept(SamusPoseId.UnmorphingTransitionRightPose);
         if (Has(held, Right))
-            return Accept(1, None, Right, SamusPoseId.SpringBallJumpRightPose);
+            return Accept(SamusPoseId.SpringBallJumpRightPose);
         if (Has(held, Left))
-            return Accept(2, None, Left, SamusPoseId.SpringBallJumpLeftPose);
+            return Accept(SamusPoseId.SpringBallJumpLeftPose);
         return new(null, HasConditions: true);
     }
 
@@ -122,63 +122,63 @@ internal static class SamusPoseInputRulesLate
     private static SamusPoseInputMatch MatchSpringBallJumpLeftPoseList(ushort held, ushort newlyPressed)
     {
         if (Has(newlyPressed, Up))
-            return Accept(0, Up, None, SamusPoseId.UnmorphingTransitionLeftPose);
+            return Accept(SamusPoseId.UnmorphingTransitionLeftPose);
         if (Has(held, Right))
-            return Accept(1, None, Right, SamusPoseId.SpringBallJumpRightPose);
+            return Accept(SamusPoseId.SpringBallJumpRightPose);
         if (Has(held, Left))
-            return Accept(2, None, Left, SamusPoseId.SpringBallJumpLeftPose);
+            return Accept(SamusPoseId.SpringBallJumpLeftPose);
         return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A990 UNUSED_TransitionTable_63_91A990: native priority order.</summary>
-    private static SamusPoseInputMatch MatchUnusedPose63List(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchUnusedPose63List(ushort held)
     {
         if (Has(held, Jump | Left))
-            return Accept(0, None, Jump | Left, SamusPoseId.UnusedPose66);
+            return Accept(SamusPoseId.UnusedPose66);
         return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A998 UNUSED_TransitionTable_64_91A998: native priority order.</summary>
-    private static SamusPoseInputMatch MatchUnusedPose64List(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchUnusedPose64List(ushort held)
     {
         if (Has(held, Jump | Right))
-            return Accept(0, None, Jump | Right, SamusPoseId.UnusedPose65);
+            return Accept(SamusPoseId.UnusedPose65);
         return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A9A0 UNUSED_TransitionTable_65_91A9A0: native priority order.</summary>
-    private static SamusPoseInputMatch MatchUnusedPose65List(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchUnusedPose65List(ushort held)
     {
         if (Has(held, Jump | Right))
-            return Accept(0, None, Jump | Right, SamusPoseId.UnusedPose65);
+            return Accept(SamusPoseId.UnusedPose65);
         if (Has(held, AimUp))
-            return Accept(1, None, AimUp, SamusPoseId.NormalJumpAimDiagonalUpRightPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalUpRightPose);
         if (Has(held, AimDown))
-            return Accept(2, None, AimDown, SamusPoseId.NormalJumpAimDiagonalDownRightPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalDownRightPose);
         if (Has(held, Shoot))
-            return Accept(3, None, Shoot, SamusPoseId.NormalJumpGunExtendedRightPose);
+            return Accept(SamusPoseId.NormalJumpGunExtendedRightPose);
         if (Has(held, Jump))
-            return Accept(4, None, Jump, SamusPoseId.UnusedPose65);
+            return Accept(SamusPoseId.UnusedPose65);
         if (Has(held, Right))
-            return Accept(5, None, Right, SamusPoseId.UnusedPose65);
+            return Accept(SamusPoseId.UnusedPose65);
         return new(null, HasConditions: true);
     }
 
     /// <summary>$91:A9C6 UNUSED_TransitionTable_66_91A9C6: native priority order.</summary>
-    private static SamusPoseInputMatch MatchUnusedPose66List(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchUnusedPose66List(ushort held)
     {
         if (Has(held, Jump | Left))
-            return Accept(0, None, Jump | Left, SamusPoseId.UnusedPose66);
+            return Accept(SamusPoseId.UnusedPose66);
         if (Has(held, AimUp))
-            return Accept(1, None, AimUp, SamusPoseId.NormalJumpAimDiagonalUpLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalUpLeftPose);
         if (Has(held, AimDown))
-            return Accept(2, None, AimDown, SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
         if (Has(held, Shoot))
-            return Accept(3, None, Shoot, SamusPoseId.NormalJumpGunExtendedLeftPose);
+            return Accept(SamusPoseId.NormalJumpGunExtendedLeftPose);
         if (Has(held, Jump))
-            return Accept(4, None, Jump, SamusPoseId.UnusedPose66);
+            return Accept(SamusPoseId.UnusedPose66);
         if (Has(held, Left))
-            return Accept(5, None, Left, SamusPoseId.UnusedPose66);
+            return Accept(SamusPoseId.UnusedPose66);
         return new(null, HasConditions: true);
     }
 
@@ -186,17 +186,17 @@ internal static class SamusPoseInputRulesLate
     private static SamusPoseInputMatch MatchWallJumpRightPoseList(ushort held, ushort newlyPressed)
     {
         if (Has(newlyPressed, Down))
-            return Accept(0, Down, None, SamusPoseId.MorphingTransitionRightPose);
+            return Accept(SamusPoseId.MorphingTransitionRightPose);
         if (Has(held, Left))
-            return Accept(1, None, Left, SamusPoseId.SpinJumpLeftPose);
+            return Accept(SamusPoseId.SpinJumpLeftPose);
         if (Has(held, AimUp))
-            return Accept(2, None, AimUp, SamusPoseId.NormalJumpAimDiagonalUpRightPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalUpRightPose);
         if (Has(held, AimDown))
-            return Accept(3, None, AimDown, SamusPoseId.NormalJumpAimDiagonalDownRightPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalDownRightPose);
         if (Has(held, Shoot))
-            return Accept(4, None, Shoot, SamusPoseId.NormalJumpGunExtendedRightPose);
+            return Accept(SamusPoseId.NormalJumpGunExtendedRightPose);
         if (Has(held, Jump))
-            return Accept(5, None, Jump, SamusPoseId.WallJumpRightPose);
+            return Accept(SamusPoseId.WallJumpRightPose);
         return new(null, HasConditions: true);
     }
 
@@ -204,17 +204,17 @@ internal static class SamusPoseInputRulesLate
     private static SamusPoseInputMatch MatchWallJumpLeftPoseList(ushort held, ushort newlyPressed)
     {
         if (Has(newlyPressed, Down))
-            return Accept(0, Down, None, SamusPoseId.MorphingTransitionLeftPose);
+            return Accept(SamusPoseId.MorphingTransitionLeftPose);
         if (Has(held, Right))
-            return Accept(1, None, Right, SamusPoseId.SpinJumpRightPose);
+            return Accept(SamusPoseId.SpinJumpRightPose);
         if (Has(held, AimUp))
-            return Accept(2, None, AimUp, SamusPoseId.NormalJumpAimDiagonalUpLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalUpLeftPose);
         if (Has(held, AimDown))
-            return Accept(3, None, AimDown, SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
         if (Has(held, Shoot))
-            return Accept(4, None, Shoot, SamusPoseId.NormalJumpGunExtendedLeftPose);
+            return Accept(SamusPoseId.NormalJumpGunExtendedLeftPose);
         if (Has(held, Jump))
-            return Accept(5, None, Jump, SamusPoseId.WallJumpLeftPose);
+            return Accept(SamusPoseId.WallJumpLeftPose);
         return new(null, HasConditions: true);
     }
 
@@ -222,27 +222,27 @@ internal static class SamusPoseInputRulesLate
     private static SamusPoseInputMatch MatchRanIntoWallRightPoseList(ushort held, ushort newlyPressed)
     {
         if (Has(newlyPressed, Jump))
-            return Accept(0, Jump, None, SamusPoseId.NeutralJumpTransitionRightPose);
+            return Accept(SamusPoseId.NeutralJumpTransitionRightPose);
         if (Has(held, Right | Up))
-            return Accept(1, None, Right | Up, SamusPoseId.RunningAimDiagonalUpRightPose);
+            return Accept(SamusPoseId.RunningAimDiagonalUpRightPose);
         if (Has(held, Right | Down))
-            return Accept(2, None, Right | Down, SamusPoseId.RunningAimDiagonalDownRightPose);
+            return Accept(SamusPoseId.RunningAimDiagonalDownRightPose);
         if (Has(newlyPressed, Down))
-            return Accept(3, Down, None, SamusPoseId.CrouchingTransitionRightPose);
+            return Accept(SamusPoseId.CrouchingTransitionRightPose);
         if (Has(held, AimDown | Left))
-            return Accept(4, None, AimDown | Left, SamusPoseId.MoonwalkAimDownRightPose);
+            return Accept(SamusPoseId.MoonwalkAimDownRightPose);
         if (Has(held, AimUp | Left))
-            return Accept(5, None, AimUp | Left, SamusPoseId.MoonwalkAimUpRightPose);
+            return Accept(SamusPoseId.MoonwalkAimUpRightPose);
         if (Has(held, Up))
-            return Accept(6, None, Up, SamusPoseId.StandingAimUpRightPose);
+            return Accept(SamusPoseId.StandingAimUpRightPose);
         if (Has(held, AimUp))
-            return Accept(7, None, AimUp, SamusPoseId.StandingAimDiagonalUpRightPose);
+            return Accept(SamusPoseId.StandingAimDiagonalUpRightPose);
         if (Has(held, AimDown))
-            return Accept(8, None, AimDown, SamusPoseId.StandingAimDiagonalDownRightPose);
+            return Accept(SamusPoseId.StandingAimDiagonalDownRightPose);
         if (Has(held, Left))
-            return Accept(9, None, Left, SamusPoseId.TurningRightToLeftPose);
+            return Accept(SamusPoseId.TurningRightToLeftPose);
         if (Has(held, Right))
-            return Accept(10, None, Right, SamusPoseId.MovingRightNormalPose);
+            return Accept(SamusPoseId.MovingRightNormalPose);
         return new(null, HasConditions: true);
     }
 
@@ -250,119 +250,119 @@ internal static class SamusPoseInputRulesLate
     private static SamusPoseInputMatch MatchRanIntoWallLeftPoseList(ushort held, ushort newlyPressed)
     {
         if (Has(newlyPressed, Jump))
-            return Accept(0, Jump, None, SamusPoseId.NeutralJumpTransitionLeftPose);
+            return Accept(SamusPoseId.NeutralJumpTransitionLeftPose);
         if (Has(held, Left | Up))
-            return Accept(1, None, Left | Up, SamusPoseId.RunningAimDiagonalUpLeftPose);
+            return Accept(SamusPoseId.RunningAimDiagonalUpLeftPose);
         if (Has(held, Left | Down))
-            return Accept(2, None, Left | Down, SamusPoseId.RunningAimDiagonalDownLeftPose);
+            return Accept(SamusPoseId.RunningAimDiagonalDownLeftPose);
         if (Has(newlyPressed, Down))
-            return Accept(3, Down, None, SamusPoseId.CrouchingTransitionLeftPose);
+            return Accept(SamusPoseId.CrouchingTransitionLeftPose);
         if (Has(held, AimDown | Right))
-            return Accept(4, None, AimDown | Right, SamusPoseId.MoonwalkAimDownLeftPose);
+            return Accept(SamusPoseId.MoonwalkAimDownLeftPose);
         if (Has(held, AimUp | Right))
-            return Accept(5, None, AimUp | Right, SamusPoseId.MoonwalkAimUpLeftPose);
+            return Accept(SamusPoseId.MoonwalkAimUpLeftPose);
         if (Has(held, Up))
-            return Accept(6, None, Up, SamusPoseId.StandingAimUpLeftPose);
+            return Accept(SamusPoseId.StandingAimUpLeftPose);
         if (Has(held, AimUp))
-            return Accept(7, None, AimUp, SamusPoseId.StandingAimDiagonalUpLeftPose);
+            return Accept(SamusPoseId.StandingAimDiagonalUpLeftPose);
         if (Has(held, AimDown))
-            return Accept(8, None, AimDown, SamusPoseId.StandingAimDiagonalDownLeftPose);
+            return Accept(SamusPoseId.StandingAimDiagonalDownLeftPose);
         if (Has(held, Right))
-            return Accept(9, None, Right, SamusPoseId.TurningLeftToRightPose);
+            return Accept(SamusPoseId.TurningLeftToRightPose);
         if (Has(held, Left))
-            return Accept(10, None, Left, SamusPoseId.MovingLeftNormalPose);
+            return Accept(SamusPoseId.MovingLeftNormalPose);
         return new(null, HasConditions: true);
     }
 
     /// <summary>$91:AAC0 TransitionTable_13_FaceRight_NormalJump_NotMoving_GunExtend: native priority order.</summary>
-    private static SamusPoseInputMatch MatchNormalJumpGunExtendedRightPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchNormalJumpGunExtendedRightPoseList(ushort held)
     {
         if (Has(held, Jump | Right | Up))
-            return Accept(0, None, Jump | Right | Up, SamusPoseId.NormalJumpAimDiagonalUpRightPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalUpRightPose);
         if (Has(held, Jump | Right | Down))
-            return Accept(1, None, Jump | Right | Down, SamusPoseId.NormalJumpAimDiagonalDownRightPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalDownRightPose);
         if (Has(held, AimUp | Jump | Right))
-            return Accept(2, None, AimUp | Jump | Right, SamusPoseId.NormalJumpAimDiagonalUpRightPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalUpRightPose);
         if (Has(held, AimDown | Jump | Right))
-            return Accept(3, None, AimDown | Jump | Right, SamusPoseId.NormalJumpAimDiagonalDownRightPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalDownRightPose);
         if (Has(held, Right | Up))
-            return Accept(4, None, Right | Up, SamusPoseId.NormalJumpAimDiagonalUpRightPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalUpRightPose);
         if (Has(held, Right | Down))
-            return Accept(5, None, Right | Down, SamusPoseId.NormalJumpAimDiagonalDownRightPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalDownRightPose);
         if (Has(held, Jump | Left))
-            return Accept(6, None, Jump | Left, SamusPoseId.TurningRightToLeftJumpPose);
+            return Accept(SamusPoseId.TurningRightToLeftJumpPose);
         if (Has(held, Jump | Up))
-            return Accept(7, None, Jump | Up, SamusPoseId.NormalJumpAimUpRightPose);
+            return Accept(SamusPoseId.NormalJumpAimUpRightPose);
         if (Has(held, Jump | Down))
-            return Accept(8, None, Jump | Down, SamusPoseId.NormalJumpAimDownRightPose);
+            return Accept(SamusPoseId.NormalJumpAimDownRightPose);
         if (Has(held, AimUp | Jump))
-            return Accept(9, None, AimUp | Jump, SamusPoseId.NormalJumpAimDiagonalUpRightPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalUpRightPose);
         if (Has(held, AimDown | Jump))
-            return Accept(10, None, AimDown | Jump, SamusPoseId.NormalJumpAimDiagonalDownRightPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalDownRightPose);
         if (Has(held, Jump | Right))
-            return Accept(11, None, Jump | Right, SamusPoseId.NormalJumpForwardRightPose);
+            return Accept(SamusPoseId.NormalJumpForwardRightPose);
         if (Has(held, Shoot | Jump))
-            return Accept(12, None, Shoot | Jump, SamusPoseId.NormalJumpGunExtendedRightPose);
+            return Accept(SamusPoseId.NormalJumpGunExtendedRightPose);
         if (Has(held, Left))
-            return Accept(13, None, Left, SamusPoseId.TurningRightToLeftJumpPose);
+            return Accept(SamusPoseId.TurningRightToLeftJumpPose);
         if (Has(held, Up))
-            return Accept(14, None, Up, SamusPoseId.NormalJumpAimUpRightPose);
+            return Accept(SamusPoseId.NormalJumpAimUpRightPose);
         if (Has(held, Down))
-            return Accept(15, None, Down, SamusPoseId.NormalJumpAimDownRightPose);
+            return Accept(SamusPoseId.NormalJumpAimDownRightPose);
         if (Has(held, AimUp))
-            return Accept(16, None, AimUp, SamusPoseId.NormalJumpAimDiagonalUpRightPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalUpRightPose);
         if (Has(held, AimDown))
-            return Accept(17, None, AimDown, SamusPoseId.NormalJumpAimDiagonalDownRightPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalDownRightPose);
         if (Has(held, Right))
-            return Accept(18, None, Right, SamusPoseId.NormalJumpForwardRightPose);
+            return Accept(SamusPoseId.NormalJumpForwardRightPose);
         if (Has(held, Shoot))
-            return Accept(19, None, Shoot, SamusPoseId.NormalJumpGunExtendedRightPose);
+            return Accept(SamusPoseId.NormalJumpGunExtendedRightPose);
         return new(null, HasConditions: true);
     }
 
     /// <summary>$91:AB3A TransitionTable_14_FacingLeft_NormalJump_NotMoving_GunExtend: native priority order.</summary>
-    private static SamusPoseInputMatch MatchNormalJumpGunExtendedLeftPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchNormalJumpGunExtendedLeftPoseList(ushort held)
     {
         if (Has(held, Jump | Left | Up))
-            return Accept(0, None, Jump | Left | Up, SamusPoseId.NormalJumpAimDiagonalUpLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalUpLeftPose);
         if (Has(held, Jump | Left | Down))
-            return Accept(1, None, Jump | Left | Down, SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
         if (Has(held, AimUp | Jump | Left))
-            return Accept(2, None, AimUp | Jump | Left, SamusPoseId.NormalJumpAimDiagonalUpLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalUpLeftPose);
         if (Has(held, AimDown | Jump | Left))
-            return Accept(3, None, AimDown | Jump | Left, SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
         if (Has(held, Left | Up))
-            return Accept(4, None, Left | Up, SamusPoseId.NormalJumpAimDiagonalUpLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalUpLeftPose);
         if (Has(held, Left | Down))
-            return Accept(5, None, Left | Down, SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
         if (Has(held, Jump | Right))
-            return Accept(6, None, Jump | Right, SamusPoseId.TurningLeftToRightJumpPose);
+            return Accept(SamusPoseId.TurningLeftToRightJumpPose);
         if (Has(held, Jump | Up))
-            return Accept(7, None, Jump | Up, SamusPoseId.NormalJumpAimUpLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimUpLeftPose);
         if (Has(held, Jump | Down))
-            return Accept(8, None, Jump | Down, SamusPoseId.NormalJumpAimDownLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDownLeftPose);
         if (Has(held, AimUp | Jump))
-            return Accept(9, None, AimUp | Jump, SamusPoseId.NormalJumpAimDiagonalUpLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalUpLeftPose);
         if (Has(held, AimDown | Jump))
-            return Accept(10, None, AimDown | Jump, SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
         if (Has(held, Jump | Left))
-            return Accept(11, None, Jump | Left, SamusPoseId.NormalJumpForwardLeftPose);
+            return Accept(SamusPoseId.NormalJumpForwardLeftPose);
         if (Has(held, Shoot | Jump))
-            return Accept(12, None, Shoot | Jump, SamusPoseId.NormalJumpGunExtendedLeftPose);
+            return Accept(SamusPoseId.NormalJumpGunExtendedLeftPose);
         if (Has(held, Right))
-            return Accept(13, None, Right, SamusPoseId.TurningLeftToRightJumpPose);
+            return Accept(SamusPoseId.TurningLeftToRightJumpPose);
         if (Has(held, Up))
-            return Accept(14, None, Up, SamusPoseId.NormalJumpAimUpLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimUpLeftPose);
         if (Has(held, Down))
-            return Accept(15, None, Down, SamusPoseId.NormalJumpAimDownLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDownLeftPose);
         if (Has(held, AimUp))
-            return Accept(16, None, AimUp, SamusPoseId.NormalJumpAimDiagonalUpLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalUpLeftPose);
         if (Has(held, AimDown))
-            return Accept(17, None, AimDown, SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
         if (Has(held, Left))
-            return Accept(18, None, Left, SamusPoseId.NormalJumpForwardLeftPose);
+            return Accept(SamusPoseId.NormalJumpForwardLeftPose);
         if (Has(held, Shoot))
-            return Accept(19, None, Shoot, SamusPoseId.NormalJumpGunExtendedLeftPose);
+            return Accept(SamusPoseId.NormalJumpGunExtendedLeftPose);
         return new(null, HasConditions: true);
     }
 
@@ -370,51 +370,51 @@ internal static class SamusPoseInputRulesLate
     private static SamusPoseInputMatch MatchNormalJumpAimDownRightPoseList(ushort held, ushort newlyPressed)
     {
         if (Has(newlyPressed, Down))
-            return Accept(0, Down, None, SamusPoseId.MorphingTransitionRightPose);
+            return Accept(SamusPoseId.MorphingTransitionRightPose);
         if (Has(held, Jump | Right | Up))
-            return Accept(1, None, Jump | Right | Up, SamusPoseId.NormalJumpAimDiagonalUpRightPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalUpRightPose);
         if (Has(held, Jump | Right | Down))
-            return Accept(2, None, Jump | Right | Down, SamusPoseId.NormalJumpAimDiagonalDownRightPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalDownRightPose);
         if (Has(held, AimUp | Jump | Right))
-            return Accept(3, None, AimUp | Jump | Right, SamusPoseId.NormalJumpAimDiagonalUpRightPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalUpRightPose);
         if (Has(held, AimDown | Jump | Right))
-            return Accept(4, None, AimDown | Jump | Right, SamusPoseId.NormalJumpAimDiagonalDownRightPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalDownRightPose);
         if (Has(held, Shoot | Jump | Right))
-            return Accept(5, None, Shoot | Jump | Right, SamusPoseId.NormalJumpGunExtendedRightPose);
+            return Accept(SamusPoseId.NormalJumpGunExtendedRightPose);
         if (Has(held, Right | Up))
-            return Accept(6, None, Right | Up, SamusPoseId.NormalJumpAimDiagonalUpRightPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalUpRightPose);
         if (Has(held, Right | Down))
-            return Accept(7, None, Right | Down, SamusPoseId.NormalJumpAimDiagonalDownRightPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalDownRightPose);
         if (Has(held, Jump | Left))
-            return Accept(8, None, Jump | Left, SamusPoseId.TurningRightToLeftJumpPose);
+            return Accept(SamusPoseId.TurningRightToLeftJumpPose);
         if (Has(held, Jump | Up))
-            return Accept(9, None, Jump | Up, SamusPoseId.NormalJumpAimUpRightPose);
+            return Accept(SamusPoseId.NormalJumpAimUpRightPose);
         if (Has(held, Jump | Down))
-            return Accept(10, None, Jump | Down, SamusPoseId.NormalJumpAimDownRightPose);
+            return Accept(SamusPoseId.NormalJumpAimDownRightPose);
         if (Has(held, AimUp | Jump))
-            return Accept(11, None, AimUp | Jump, SamusPoseId.NormalJumpAimDiagonalUpRightPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalUpRightPose);
         if (Has(held, AimDown | Jump))
-            return Accept(12, None, AimDown | Jump, SamusPoseId.NormalJumpAimDiagonalDownRightPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalDownRightPose);
         if (Has(held, Jump | Right))
-            return Accept(13, None, Jump | Right, SamusPoseId.NormalJumpForwardRightPose);
+            return Accept(SamusPoseId.NormalJumpForwardRightPose);
         if (Has(held, Shoot | Jump))
-            return Accept(14, None, Shoot | Jump, SamusPoseId.NormalJumpGunExtendedRightPose);
+            return Accept(SamusPoseId.NormalJumpGunExtendedRightPose);
         if (Has(held, Left))
-            return Accept(15, None, Left, SamusPoseId.TurningRightToLeftJumpPose);
+            return Accept(SamusPoseId.TurningRightToLeftJumpPose);
         if (Has(held, Up))
-            return Accept(16, None, Up, SamusPoseId.NormalJumpAimUpRightPose);
+            return Accept(SamusPoseId.NormalJumpAimUpRightPose);
         if (Has(held, Down))
-            return Accept(17, None, Down, SamusPoseId.NormalJumpAimDownRightPose);
+            return Accept(SamusPoseId.NormalJumpAimDownRightPose);
         if (Has(held, AimUp))
-            return Accept(18, None, AimUp, SamusPoseId.NormalJumpAimDiagonalUpRightPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalUpRightPose);
         if (Has(held, AimDown))
-            return Accept(19, None, AimDown, SamusPoseId.NormalJumpAimDiagonalDownRightPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalDownRightPose);
         if (Has(held, Right))
-            return Accept(20, None, Right, SamusPoseId.NormalJumpForwardRightPose);
+            return Accept(SamusPoseId.NormalJumpForwardRightPose);
         if (Has(held, Jump))
-            return Accept(21, None, Jump, SamusPoseId.NormalJumpAimDownRightPose);
+            return Accept(SamusPoseId.NormalJumpAimDownRightPose);
         if (Has(held, Shoot))
-            return Accept(22, None, Shoot, SamusPoseId.NormalJumpGunExtendedRightPose);
+            return Accept(SamusPoseId.NormalJumpGunExtendedRightPose);
         return new(null, HasConditions: true);
     }
 
@@ -422,75 +422,75 @@ internal static class SamusPoseInputRulesLate
     private static SamusPoseInputMatch MatchNormalJumpAimDownLeftPoseList(ushort held, ushort newlyPressed)
     {
         if (Has(newlyPressed, Down))
-            return Accept(0, Down, None, SamusPoseId.MorphingTransitionLeftPose);
+            return Accept(SamusPoseId.MorphingTransitionLeftPose);
         if (Has(held, Jump | Left | Up))
-            return Accept(1, None, Jump | Left | Up, SamusPoseId.NormalJumpAimDiagonalUpLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalUpLeftPose);
         if (Has(held, Jump | Left | Down))
-            return Accept(2, None, Jump | Left | Down, SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
         if (Has(held, AimUp | Jump | Left))
-            return Accept(3, None, AimUp | Jump | Left, SamusPoseId.NormalJumpAimDiagonalUpLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalUpLeftPose);
         if (Has(held, AimDown | Jump | Left))
-            return Accept(4, None, AimDown | Jump | Left, SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
         if (Has(held, AimDown | Jump | Left))
-            return Accept(5, None, AimDown | Jump | Left, SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
         if (Has(held, Left | Up))
-            return Accept(6, None, Left | Up, SamusPoseId.NormalJumpAimDiagonalUpLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalUpLeftPose);
         if (Has(held, Left | Down))
-            return Accept(7, None, Left | Down, SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
         if (Has(held, Jump | Right))
-            return Accept(8, None, Jump | Right, SamusPoseId.TurningLeftToRightJumpPose);
+            return Accept(SamusPoseId.TurningLeftToRightJumpPose);
         if (Has(held, Jump | Up))
-            return Accept(9, None, Jump | Up, SamusPoseId.NormalJumpAimUpLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimUpLeftPose);
         if (Has(held, Jump | Down))
-            return Accept(10, None, Jump | Down, SamusPoseId.NormalJumpAimDownLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDownLeftPose);
         if (Has(held, AimUp | Jump))
-            return Accept(11, None, AimUp | Jump, SamusPoseId.NormalJumpAimDiagonalUpLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalUpLeftPose);
         if (Has(held, AimDown | Jump))
-            return Accept(12, None, AimDown | Jump, SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
         if (Has(held, Jump | Left))
-            return Accept(13, None, Jump | Left, SamusPoseId.NormalJumpForwardLeftPose);
+            return Accept(SamusPoseId.NormalJumpForwardLeftPose);
         if (Has(held, Shoot | Jump))
-            return Accept(14, None, Shoot | Jump, SamusPoseId.NormalJumpGunExtendedLeftPose);
+            return Accept(SamusPoseId.NormalJumpGunExtendedLeftPose);
         if (Has(held, Right))
-            return Accept(15, None, Right, SamusPoseId.TurningLeftToRightJumpPose);
+            return Accept(SamusPoseId.TurningLeftToRightJumpPose);
         if (Has(held, Up))
-            return Accept(16, None, Up, SamusPoseId.NormalJumpAimUpLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimUpLeftPose);
         if (Has(held, Down))
-            return Accept(17, None, Down, SamusPoseId.NormalJumpAimDownLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDownLeftPose);
         if (Has(held, AimUp))
-            return Accept(18, None, AimUp, SamusPoseId.NormalJumpAimDiagonalUpLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalUpLeftPose);
         if (Has(held, AimDown))
-            return Accept(19, None, AimDown, SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDiagonalDownLeftPose);
         if (Has(held, Left))
-            return Accept(20, None, Left, SamusPoseId.NormalJumpForwardLeftPose);
+            return Accept(SamusPoseId.NormalJumpForwardLeftPose);
         if (Has(held, Jump))
-            return Accept(21, None, Jump, SamusPoseId.NormalJumpAimDownLeftPose);
+            return Accept(SamusPoseId.NormalJumpAimDownLeftPose);
         if (Has(held, Shoot))
-            return Accept(22, None, Shoot, SamusPoseId.NormalJumpGunExtendedLeftPose);
+            return Accept(SamusPoseId.NormalJumpGunExtendedLeftPose);
         return new(null, HasConditions: true);
     }
 
     /// <summary>$91:ACCC TransitionTable_3D_FacingRight_Unmorphing: native priority order.</summary>
-    private static SamusPoseInputMatch MatchUnmorphingTransitionRightPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchUnmorphingTransitionRightPoseList(ushort held)
     {
         if (Has(held, Shoot | Right))
-            return Accept(0, None, Shoot | Right, SamusPoseId.FallingGunExtendedRightPose);
+            return Accept(SamusPoseId.FallingGunExtendedRightPose);
         if (Has(held, Shoot | Up))
-            return Accept(1, None, Shoot | Up, SamusPoseId.FallingAimUpRightPose);
+            return Accept(SamusPoseId.FallingAimUpRightPose);
         if (Has(held, Shoot | Down))
-            return Accept(2, None, Shoot | Down, SamusPoseId.FallingAimDownRightPose);
+            return Accept(SamusPoseId.FallingAimDownRightPose);
         return new(null, HasConditions: true);
     }
 
     /// <summary>$91:ACE0 TransitionTable_3E_FacingLeft_Unmorphing: native priority order.</summary>
-    private static SamusPoseInputMatch MatchUnmorphingTransitionLeftPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchUnmorphingTransitionLeftPoseList(ushort held)
     {
         if (Has(held, Shoot | Left))
-            return Accept(0, None, Shoot | Left, SamusPoseId.FallingGunExtendedLeftPose);
+            return Accept(SamusPoseId.FallingGunExtendedLeftPose);
         if (Has(held, Shoot | Up))
-            return Accept(1, None, Shoot | Up, SamusPoseId.FallingAimUpLeftPose);
+            return Accept(SamusPoseId.FallingAimUpLeftPose);
         if (Has(held, Shoot | Down))
-            return Accept(2, None, Shoot | Down, SamusPoseId.FallingAimDownLeftPose);
+            return Accept(SamusPoseId.FallingAimDownLeftPose);
         return new(null, HasConditions: true);
     }
 
@@ -498,11 +498,11 @@ internal static class SamusPoseInputRulesLate
     private static SamusPoseInputMatch MatchTurningRightToLeftPoseList(ushort held, ushort newlyPressed)
     {
         if (Has(held, Jump | Left))
-            return Accept(0, None, Jump | Left, SamusPoseId.SpinJumpLeftPose);
+            return Accept(SamusPoseId.SpinJumpLeftPose);
         if (Has(newlyPressed, Jump))
-            return Accept(1, Jump, None, SamusPoseId.NeutralJumpTransitionLeftPose);
+            return Accept(SamusPoseId.NeutralJumpTransitionLeftPose);
         if (Has(held, Left))
-            return Accept(2, None, Left, SamusPoseId.TurningRightToLeftPose);
+            return Accept(SamusPoseId.TurningRightToLeftPose);
         return new(null, HasConditions: true);
     }
 
@@ -510,11 +510,11 @@ internal static class SamusPoseInputRulesLate
     private static SamusPoseInputMatch MatchTurningLeftToRightPoseList(ushort held, ushort newlyPressed)
     {
         if (Has(held, Jump | Right))
-            return Accept(0, None, Jump | Right, SamusPoseId.SpinJumpRightPose);
+            return Accept(SamusPoseId.SpinJumpRightPose);
         if (Has(newlyPressed, Jump))
-            return Accept(1, Jump, None, SamusPoseId.NeutralJumpTransitionRightPose);
+            return Accept(SamusPoseId.NeutralJumpTransitionRightPose);
         if (Has(held, Right))
-            return Accept(2, None, Right, SamusPoseId.TurningLeftToRightPose);
+            return Accept(SamusPoseId.TurningLeftToRightPose);
         return new(null, HasConditions: true);
     }
 
@@ -522,11 +522,11 @@ internal static class SamusPoseInputRulesLate
     private static SamusPoseInputMatch MatchTurningRightToLeftAimUpPoseList(ushort held, ushort newlyPressed)
     {
         if (Has(newlyPressed, Jump) && Has(held, Left))
-            return Accept(0, Jump, Left, SamusPoseId.SpinJumpLeftPose);
+            return Accept(SamusPoseId.SpinJumpLeftPose);
         if (Has(newlyPressed, Jump))
-            return Accept(1, Jump, None, SamusPoseId.NeutralJumpTransitionLeftPose);
+            return Accept(SamusPoseId.NeutralJumpTransitionLeftPose);
         if (Has(held, Left))
-            return Accept(2, None, Left, SamusPoseId.TurningRightToLeftAimUpPose);
+            return Accept(SamusPoseId.TurningRightToLeftAimUpPose);
         return new(null, HasConditions: true);
     }
 
@@ -534,11 +534,11 @@ internal static class SamusPoseInputRulesLate
     private static SamusPoseInputMatch MatchTurningLeftToRightAimUpPoseList(ushort held, ushort newlyPressed)
     {
         if (Has(newlyPressed, Jump) && Has(held, Right))
-            return Accept(0, Jump, Right, SamusPoseId.SpinJumpRightPose);
+            return Accept(SamusPoseId.SpinJumpRightPose);
         if (Has(newlyPressed, Jump))
-            return Accept(1, Jump, None, SamusPoseId.NeutralJumpTransitionRightPose);
+            return Accept(SamusPoseId.NeutralJumpTransitionRightPose);
         if (Has(held, Right))
-            return Accept(2, None, Right, SamusPoseId.TurningLeftToRightAimUpPose);
+            return Accept(SamusPoseId.TurningLeftToRightAimUpPose);
         return new(null, HasConditions: true);
     }
 
@@ -546,11 +546,11 @@ internal static class SamusPoseInputRulesLate
     private static SamusPoseInputMatch MatchTurningRightToLeftAimDiagonalDownPoseList(ushort held, ushort newlyPressed)
     {
         if (Has(newlyPressed, Jump) && Has(held, Left))
-            return Accept(0, Jump, Left, SamusPoseId.SpinJumpLeftPose);
+            return Accept(SamusPoseId.SpinJumpLeftPose);
         if (Has(newlyPressed, Jump))
-            return Accept(1, Jump, None, SamusPoseId.NeutralJumpTransitionLeftPose);
+            return Accept(SamusPoseId.NeutralJumpTransitionLeftPose);
         if (Has(held, Left))
-            return Accept(2, None, Left, SamusPoseId.TurningRightToLeftAimDiagonalDownPose);
+            return Accept(SamusPoseId.TurningRightToLeftAimDiagonalDownPose);
         return new(null, HasConditions: true);
     }
 
@@ -558,35 +558,35 @@ internal static class SamusPoseInputRulesLate
     private static SamusPoseInputMatch MatchTurningLeftToRightAimDiagonalDownPoseList(ushort held, ushort newlyPressed)
     {
         if (Has(newlyPressed, Jump) && Has(held, Right))
-            return Accept(0, Jump, Right, SamusPoseId.SpinJumpRightPose);
+            return Accept(SamusPoseId.SpinJumpRightPose);
         if (Has(newlyPressed, Jump))
-            return Accept(1, Jump, None, SamusPoseId.NeutralJumpTransitionRightPose);
+            return Accept(SamusPoseId.NeutralJumpTransitionRightPose);
         if (Has(held, Right))
-            return Accept(2, None, Right, SamusPoseId.TurningLeftToRightAimDiagonalDownPose);
+            return Accept(SamusPoseId.TurningLeftToRightAimDiagonalDownPose);
         return new(null, HasConditions: true);
     }
 
     /// <summary>$91:AD6C TransitionTable_C7_FacingRight_VerticalShinesparkWindup: native priority order.</summary>
-    private static SamusPoseInputMatch MatchShinesparkWindupRightPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchShinesparkWindupRightPoseList(ushort held)
     {
         if (Has(held, Jump | Up))
-            return Accept(0, None, Jump | Up, SamusPoseId.ShinesparkVerticalRightPose);
+            return Accept(SamusPoseId.ShinesparkVerticalRightPose);
         if (Has(held, AimUp | Jump))
-            return Accept(1, None, AimUp | Jump, SamusPoseId.ShinesparkDiagonalRightPose);
+            return Accept(SamusPoseId.ShinesparkDiagonalRightPose);
         if (Has(held, Jump | Right))
-            return Accept(2, None, Jump | Right, SamusPoseId.ShinesparkHorizontalRightPose);
+            return Accept(SamusPoseId.ShinesparkHorizontalRightPose);
         return new(null, HasConditions: true);
     }
 
     /// <summary>$91:AD80 TransitionTable_C8_FacingLeft_VerticalShinesparkWindup: native priority order.</summary>
-    private static SamusPoseInputMatch MatchShinesparkWindupLeftPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchShinesparkWindupLeftPoseList(ushort held)
     {
         if (Has(held, Jump | Up))
-            return Accept(0, None, Jump | Up, SamusPoseId.ShinesparkVerticalLeftPose);
+            return Accept(SamusPoseId.ShinesparkVerticalLeftPose);
         if (Has(held, AimUp | Jump))
-            return Accept(1, None, AimUp | Jump, SamusPoseId.ShinesparkDiagonalLeftPose);
+            return Accept(SamusPoseId.ShinesparkDiagonalLeftPose);
         if (Has(held, Jump | Left))
-            return Accept(2, None, Jump | Left, SamusPoseId.ShinesparkHorizontalLeftPose);
+            return Accept(SamusPoseId.ShinesparkHorizontalLeftPose);
         return new(null, HasConditions: true);
     }
 
@@ -594,25 +594,25 @@ internal static class SamusPoseInputRulesLate
     private static SamusPoseInputMatch MatchFallingAimDownRightPoseList(ushort held, ushort newlyPressed)
     {
         if (Has(newlyPressed, Down))
-            return Accept(0, Down, None, SamusPoseId.MorphingTransitionRightPose);
+            return Accept(SamusPoseId.MorphingTransitionRightPose);
         if (Has(held, Right | Up))
-            return Accept(1, None, Right | Up, SamusPoseId.FallingAimDiagonalUpRightPose);
+            return Accept(SamusPoseId.FallingAimDiagonalUpRightPose);
         if (Has(held, Right | Down))
-            return Accept(2, None, Right | Down, SamusPoseId.FallingAimDiagonalDownRightPose);
+            return Accept(SamusPoseId.FallingAimDiagonalDownRightPose);
         if (Has(held, Up))
-            return Accept(3, None, Up, SamusPoseId.FallingAimUpRightPose);
+            return Accept(SamusPoseId.FallingAimUpRightPose);
         if (Has(held, Down))
-            return Accept(4, None, Down, SamusPoseId.FallingAimDownRightPose);
+            return Accept(SamusPoseId.FallingAimDownRightPose);
         if (Has(held, Left))
-            return Accept(5, None, Left, SamusPoseId.TurningRightToLeftFallingPose);
+            return Accept(SamusPoseId.TurningRightToLeftFallingPose);
         if (Has(held, AimUp))
-            return Accept(6, None, AimUp, SamusPoseId.FallingAimDiagonalUpRightPose);
+            return Accept(SamusPoseId.FallingAimDiagonalUpRightPose);
         if (Has(held, AimDown))
-            return Accept(7, None, AimDown, SamusPoseId.FallingAimDiagonalDownRightPose);
+            return Accept(SamusPoseId.FallingAimDiagonalDownRightPose);
         if (Has(held, Shoot))
-            return Accept(8, None, Shoot, SamusPoseId.FallingGunExtendedRightPose);
+            return Accept(SamusPoseId.FallingGunExtendedRightPose);
         if (Has(held, Right))
-            return Accept(9, None, Right, SamusPoseId.FallingRightPose);
+            return Accept(SamusPoseId.FallingRightPose);
         return new(null, HasConditions: true);
     }
 
@@ -620,85 +620,85 @@ internal static class SamusPoseInputRulesLate
     private static SamusPoseInputMatch MatchFallingAimDownLeftPoseList(ushort held, ushort newlyPressed)
     {
         if (Has(newlyPressed, Down))
-            return Accept(0, Down, None, SamusPoseId.MorphingTransitionLeftPose);
+            return Accept(SamusPoseId.MorphingTransitionLeftPose);
         if (Has(held, Left | Up))
-            return Accept(1, None, Left | Up, SamusPoseId.FallingAimDiagonalUpLeftPose);
+            return Accept(SamusPoseId.FallingAimDiagonalUpLeftPose);
         if (Has(held, Left | Down))
-            return Accept(2, None, Left | Down, SamusPoseId.FallingAimDiagonalDownLeftPose);
+            return Accept(SamusPoseId.FallingAimDiagonalDownLeftPose);
         if (Has(held, Up))
-            return Accept(3, None, Up, SamusPoseId.FallingAimUpLeftPose);
+            return Accept(SamusPoseId.FallingAimUpLeftPose);
         if (Has(held, Down))
-            return Accept(4, None, Down, SamusPoseId.FallingAimDownLeftPose);
+            return Accept(SamusPoseId.FallingAimDownLeftPose);
         if (Has(held, Right))
-            return Accept(5, None, Right, SamusPoseId.TurningLeftToRightFallingPose);
+            return Accept(SamusPoseId.TurningLeftToRightFallingPose);
         if (Has(held, AimUp))
-            return Accept(6, None, AimUp, SamusPoseId.FallingAimDiagonalUpLeftPose);
+            return Accept(SamusPoseId.FallingAimDiagonalUpLeftPose);
         if (Has(held, AimDown))
-            return Accept(7, None, AimDown, SamusPoseId.FallingAimDiagonalDownLeftPose);
+            return Accept(SamusPoseId.FallingAimDiagonalDownLeftPose);
         if (Has(held, Shoot))
-            return Accept(8, None, Shoot, SamusPoseId.FallingGunExtendedLeftPose);
+            return Accept(SamusPoseId.FallingGunExtendedLeftPose);
         if (Has(held, Left))
-            return Accept(9, None, Left, SamusPoseId.FallingLeftPose);
+            return Accept(SamusPoseId.FallingLeftPose);
         return new(null, HasConditions: true);
     }
 
     /// <summary>$91:AE10 UNUSED_TransitionTable_DF_91AE10: native priority order.</summary>
-    private static SamusPoseInputMatch MatchUnusedPoseDfList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchUnusedPoseDfList(ushort newlyPressed)
     {
         if (Has(newlyPressed, Up))
-            return Accept(0, Up, None, SamusPoseId.UnusedPoseDe);
+            return Accept(SamusPoseId.UnusedPoseDe);
         return new(null, HasConditions: true);
     }
 
     /// <summary>$91:AE18 TransitionTable_BA_BB_BC_BD_BE_FacingLeft_GrabbedByDraygon: native priority order.</summary>
-    private static SamusPoseInputMatch MatchDraygonGrabbedNeutralLeftPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchDraygonGrabbedNeutralLeftPoseList(ushort held)
     {
         if (Has(held, Shoot | Left | Up))
-            return Accept(0, None, Shoot | Left | Up, SamusPoseId.DraygonGrabbedAimUpLeftPose);
+            return Accept(SamusPoseId.DraygonGrabbedAimUpLeftPose);
         if (Has(held, Shoot | Left | Down))
-            return Accept(1, None, Shoot | Left | Down, SamusPoseId.DraygonGrabbedAimDownLeftPose);
+            return Accept(SamusPoseId.DraygonGrabbedAimDownLeftPose);
         if (Has(held, Shoot | Left))
-            return Accept(2, None, Shoot | Left, SamusPoseId.DraygonGrabbedFiringLeftPose);
+            return Accept(SamusPoseId.DraygonGrabbedFiringLeftPose);
         if (Has(held, AimUp))
-            return Accept(3, None, AimUp, SamusPoseId.DraygonGrabbedAimUpLeftPose);
+            return Accept(SamusPoseId.DraygonGrabbedAimUpLeftPose);
         if (Has(held, AimDown))
-            return Accept(4, None, AimDown, SamusPoseId.DraygonGrabbedAimDownLeftPose);
+            return Accept(SamusPoseId.DraygonGrabbedAimDownLeftPose);
         if (Has(held, Shoot))
-            return Accept(5, None, Shoot, SamusPoseId.DraygonGrabbedFiringLeftPose);
+            return Accept(SamusPoseId.DraygonGrabbedFiringLeftPose);
         if (Has(held, Left))
-            return Accept(6, None, Left, SamusPoseId.DraygonGrabbedMovingLeftPose);
+            return Accept(SamusPoseId.DraygonGrabbedMovingLeftPose);
         if (Has(held, Right))
-            return Accept(7, None, Right, SamusPoseId.DraygonGrabbedMovingLeftPose);
+            return Accept(SamusPoseId.DraygonGrabbedMovingLeftPose);
         if (Has(held, Up))
-            return Accept(8, None, Up, SamusPoseId.DraygonGrabbedMovingLeftPose);
+            return Accept(SamusPoseId.DraygonGrabbedMovingLeftPose);
         if (Has(held, Down))
-            return Accept(9, None, Down, SamusPoseId.DraygonGrabbedMovingLeftPose);
+            return Accept(SamusPoseId.DraygonGrabbedMovingLeftPose);
         return new(null, HasConditions: true);
     }
 
     /// <summary>$91:AE56 TransitionTable_EC_ED_EE_EF_F0_FacingRight_GrabbedByDraygon: native priority order.</summary>
-    private static SamusPoseInputMatch MatchDraygonGrabbedNeutralRightPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchDraygonGrabbedNeutralRightPoseList(ushort held)
     {
         if (Has(held, Shoot | Right | Up))
-            return Accept(0, None, Shoot | Right | Up, SamusPoseId.DraygonGrabbedAimUpRightPose);
+            return Accept(SamusPoseId.DraygonGrabbedAimUpRightPose);
         if (Has(held, Shoot | Right | Down))
-            return Accept(1, None, Shoot | Right | Down, SamusPoseId.DraygonGrabbedAimDownRightPose);
+            return Accept(SamusPoseId.DraygonGrabbedAimDownRightPose);
         if (Has(held, Shoot | Right))
-            return Accept(2, None, Shoot | Right, SamusPoseId.DraygonGrabbedFiringRightPose);
+            return Accept(SamusPoseId.DraygonGrabbedFiringRightPose);
         if (Has(held, AimUp))
-            return Accept(3, None, AimUp, SamusPoseId.DraygonGrabbedAimUpRightPose);
+            return Accept(SamusPoseId.DraygonGrabbedAimUpRightPose);
         if (Has(held, AimDown))
-            return Accept(4, None, AimDown, SamusPoseId.DraygonGrabbedAimDownRightPose);
+            return Accept(SamusPoseId.DraygonGrabbedAimDownRightPose);
         if (Has(held, Shoot))
-            return Accept(5, None, Shoot, SamusPoseId.DraygonGrabbedFiringRightPose);
+            return Accept(SamusPoseId.DraygonGrabbedFiringRightPose);
         if (Has(held, Left))
-            return Accept(6, None, Left, SamusPoseId.DraygonGrabbedMovingRightPose);
+            return Accept(SamusPoseId.DraygonGrabbedMovingRightPose);
         if (Has(held, Right))
-            return Accept(7, None, Right, SamusPoseId.DraygonGrabbedMovingRightPose);
+            return Accept(SamusPoseId.DraygonGrabbedMovingRightPose);
         if (Has(held, Up))
-            return Accept(8, None, Up, SamusPoseId.DraygonGrabbedMovingRightPose);
+            return Accept(SamusPoseId.DraygonGrabbedMovingRightPose);
         if (Has(held, Down))
-            return Accept(9, None, Down, SamusPoseId.DraygonGrabbedMovingRightPose);
+            return Accept(SamusPoseId.DraygonGrabbedMovingRightPose);
         return new(null, HasConditions: true);
     }
 
@@ -706,29 +706,29 @@ internal static class SamusPoseInputRulesLate
     private static SamusPoseInputMatch MatchMovingRightGunExtendedPoseList(ushort held, ushort newlyPressed)
     {
         if (Has(newlyPressed, Down))
-            return Accept(0, Down, None, SamusPoseId.CrouchingTransitionRightPose);
+            return Accept(SamusPoseId.CrouchingTransitionRightPose);
         if (Has(newlyPressed, Jump))
-            return Accept(1, Jump, None, SamusPoseId.SpinJumpRightPose);
+            return Accept(SamusPoseId.SpinJumpRightPose);
         if (Has(held, AimUp | Right))
-            return Accept(2, None, AimUp | Right, SamusPoseId.RunningAimDiagonalUpRightPose);
+            return Accept(SamusPoseId.RunningAimDiagonalUpRightPose);
         if (Has(held, AimDown | Right))
-            return Accept(3, None, AimDown | Right, SamusPoseId.RunningAimDiagonalDownRightPose);
+            return Accept(SamusPoseId.RunningAimDiagonalDownRightPose);
         if (Has(held, Right | Up))
-            return Accept(4, None, Right | Up, SamusPoseId.RunningAimDiagonalUpRightPose);
+            return Accept(SamusPoseId.RunningAimDiagonalUpRightPose);
         if (Has(held, Right | Down))
-            return Accept(5, None, Right | Down, SamusPoseId.RunningAimDiagonalDownRightPose);
+            return Accept(SamusPoseId.RunningAimDiagonalDownRightPose);
         if (Has(held, Shoot | Right))
-            return Accept(6, None, Shoot | Right, SamusPoseId.MovingRightGunExtendedPose);
+            return Accept(SamusPoseId.MovingRightGunExtendedPose);
         if (Has(held, Right))
-            return Accept(7, None, Right, SamusPoseId.MovingRightGunExtendedPose);
+            return Accept(SamusPoseId.MovingRightGunExtendedPose);
         if (Has(held, Left))
-            return Accept(8, None, Left, SamusPoseId.TurningRightToLeftPose);
+            return Accept(SamusPoseId.TurningRightToLeftPose);
         if (Has(held, Up))
-            return Accept(9, None, Up, SamusPoseId.StandingAimUpRightPose);
+            return Accept(SamusPoseId.StandingAimUpRightPose);
         if (Has(held, AimUp))
-            return Accept(10, None, AimUp, SamusPoseId.StandingAimDiagonalUpRightPose);
+            return Accept(SamusPoseId.StandingAimDiagonalUpRightPose);
         if (Has(held, AimDown))
-            return Accept(11, None, AimDown, SamusPoseId.StandingAimDiagonalDownRightPose);
+            return Accept(SamusPoseId.StandingAimDiagonalDownRightPose);
         return new(null, HasConditions: true);
     }
 
@@ -736,77 +736,77 @@ internal static class SamusPoseInputRulesLate
     private static SamusPoseInputMatch MatchMovingLeftGunExtendedPoseList(ushort held, ushort newlyPressed)
     {
         if (Has(newlyPressed, Down))
-            return Accept(0, Down, None, SamusPoseId.CrouchingTransitionLeftPose);
+            return Accept(SamusPoseId.CrouchingTransitionLeftPose);
         if (Has(newlyPressed, Jump))
-            return Accept(1, Jump, None, SamusPoseId.SpinJumpLeftPose);
+            return Accept(SamusPoseId.SpinJumpLeftPose);
         if (Has(held, AimUp | Left))
-            return Accept(2, None, AimUp | Left, SamusPoseId.RunningAimDiagonalUpLeftPose);
+            return Accept(SamusPoseId.RunningAimDiagonalUpLeftPose);
         if (Has(held, AimDown | Left))
-            return Accept(3, None, AimDown | Left, SamusPoseId.RunningAimDiagonalDownLeftPose);
+            return Accept(SamusPoseId.RunningAimDiagonalDownLeftPose);
         if (Has(held, Left | Up))
-            return Accept(4, None, Left | Up, SamusPoseId.RunningAimDiagonalUpLeftPose);
+            return Accept(SamusPoseId.RunningAimDiagonalUpLeftPose);
         if (Has(held, Left | Down))
-            return Accept(5, None, Left | Down, SamusPoseId.RunningAimDiagonalDownLeftPose);
+            return Accept(SamusPoseId.RunningAimDiagonalDownLeftPose);
         if (Has(held, Shoot | Left))
-            return Accept(6, None, Shoot | Left, SamusPoseId.MovingLeftGunExtendedPose);
+            return Accept(SamusPoseId.MovingLeftGunExtendedPose);
         if (Has(held, Left))
-            return Accept(7, None, Left, SamusPoseId.MovingLeftGunExtendedPose);
+            return Accept(SamusPoseId.MovingLeftGunExtendedPose);
         if (Has(held, Right))
-            return Accept(8, None, Right, SamusPoseId.TurningLeftToRightPose);
+            return Accept(SamusPoseId.TurningLeftToRightPose);
         if (Has(held, Up))
-            return Accept(9, None, Up, SamusPoseId.StandingAimUpLeftPose);
+            return Accept(SamusPoseId.StandingAimUpLeftPose);
         if (Has(held, AimUp))
-            return Accept(10, None, AimUp, SamusPoseId.StandingAimDiagonalUpLeftPose);
+            return Accept(SamusPoseId.StandingAimDiagonalUpLeftPose);
         if (Has(held, AimDown))
-            return Accept(11, None, AimDown, SamusPoseId.StandingAimDiagonalDownLeftPose);
+            return Accept(SamusPoseId.StandingAimDiagonalDownLeftPose);
         return new(null, HasConditions: true);
     }
 
     /// <summary>$91:AF28 TransitionTable_67_FacingRight_Falling_GunExtended: native priority order.</summary>
-    private static SamusPoseInputMatch MatchFallingGunExtendedRightPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchFallingGunExtendedRightPoseList(ushort held)
     {
         if (Has(held, Right | Up))
-            return Accept(0, None, Right | Up, SamusPoseId.FallingAimDiagonalUpRightPose);
+            return Accept(SamusPoseId.FallingAimDiagonalUpRightPose);
         if (Has(held, Right | Down))
-            return Accept(1, None, Right | Down, SamusPoseId.FallingAimDiagonalDownRightPose);
+            return Accept(SamusPoseId.FallingAimDiagonalDownRightPose);
         if (Has(held, Up))
-            return Accept(2, None, Up, SamusPoseId.FallingAimUpRightPose);
+            return Accept(SamusPoseId.FallingAimUpRightPose);
         if (Has(held, Down))
-            return Accept(3, None, Down, SamusPoseId.FallingAimDownRightPose);
+            return Accept(SamusPoseId.FallingAimDownRightPose);
         if (Has(held, Left))
-            return Accept(4, None, Left, SamusPoseId.TurningRightToLeftFallingPose);
+            return Accept(SamusPoseId.TurningRightToLeftFallingPose);
         if (Has(held, AimUp))
-            return Accept(5, None, AimUp, SamusPoseId.FallingAimDiagonalUpRightPose);
+            return Accept(SamusPoseId.FallingAimDiagonalUpRightPose);
         if (Has(held, AimDown))
-            return Accept(6, None, AimDown, SamusPoseId.FallingAimDiagonalDownRightPose);
+            return Accept(SamusPoseId.FallingAimDiagonalDownRightPose);
         if (Has(held, Shoot))
-            return Accept(7, None, Shoot, SamusPoseId.FallingGunExtendedRightPose);
+            return Accept(SamusPoseId.FallingGunExtendedRightPose);
         if (Has(held, Right))
-            return Accept(8, None, Right, SamusPoseId.FallingGunExtendedRightPose);
+            return Accept(SamusPoseId.FallingGunExtendedRightPose);
         return new(null, HasConditions: true);
     }
 
     /// <summary>$91:AF60 TransitionTable_68_FacingLeft_Falling_GunExtended: native priority order.</summary>
-    private static SamusPoseInputMatch MatchFallingGunExtendedLeftPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchFallingGunExtendedLeftPoseList(ushort held)
     {
         if (Has(held, Left | Up))
-            return Accept(0, None, Left | Up, SamusPoseId.FallingAimDiagonalUpLeftPose);
+            return Accept(SamusPoseId.FallingAimDiagonalUpLeftPose);
         if (Has(held, Left | Down))
-            return Accept(1, None, Left | Down, SamusPoseId.FallingAimDiagonalDownLeftPose);
+            return Accept(SamusPoseId.FallingAimDiagonalDownLeftPose);
         if (Has(held, Up))
-            return Accept(2, None, Up, SamusPoseId.FallingAimUpLeftPose);
+            return Accept(SamusPoseId.FallingAimUpLeftPose);
         if (Has(held, Down))
-            return Accept(3, None, Down, SamusPoseId.FallingAimDownLeftPose);
+            return Accept(SamusPoseId.FallingAimDownLeftPose);
         if (Has(held, Right))
-            return Accept(4, None, Right, SamusPoseId.TurningLeftToRightFallingPose);
+            return Accept(SamusPoseId.TurningLeftToRightFallingPose);
         if (Has(held, AimUp))
-            return Accept(5, None, AimUp, SamusPoseId.FallingAimDiagonalUpLeftPose);
+            return Accept(SamusPoseId.FallingAimDiagonalUpLeftPose);
         if (Has(held, AimDown))
-            return Accept(6, None, AimDown, SamusPoseId.FallingAimDiagonalDownLeftPose);
+            return Accept(SamusPoseId.FallingAimDiagonalDownLeftPose);
         if (Has(held, Shoot))
-            return Accept(7, None, Shoot, SamusPoseId.FallingGunExtendedLeftPose);
+            return Accept(SamusPoseId.FallingGunExtendedLeftPose);
         if (Has(held, Left))
-            return Accept(8, None, Left, SamusPoseId.FallingGunExtendedLeftPose);
+            return Accept(SamusPoseId.FallingGunExtendedLeftPose);
         return new(null, HasConditions: true);
     }
 
@@ -814,11 +814,11 @@ internal static class SamusPoseInputRulesLate
     private static SamusPoseInputMatch MatchMoonwalkTurnJumpLeftPoseList(ushort held, ushort newlyPressed)
     {
         if (Has(held, Jump | Left))
-            return Accept(0, None, Jump | Left, SamusPoseId.SpinJumpLeftPose);
+            return Accept(SamusPoseId.SpinJumpLeftPose);
         if (Has(newlyPressed, Jump))
-            return Accept(1, Jump, None, SamusPoseId.NeutralJumpTransitionLeftPose);
+            return Accept(SamusPoseId.NeutralJumpTransitionLeftPose);
         if (Has(held, Left))
-            return Accept(2, None, Left, SamusPoseId.MoonwalkTurnJumpLeftPose);
+            return Accept(SamusPoseId.MoonwalkTurnJumpLeftPose);
         return new(null, HasConditions: true);
     }
 
@@ -826,11 +826,11 @@ internal static class SamusPoseInputRulesLate
     private static SamusPoseInputMatch MatchMoonwalkTurnJumpRightPoseList(ushort held, ushort newlyPressed)
     {
         if (Has(held, Jump | Right))
-            return Accept(0, None, Jump | Right, SamusPoseId.SpinJumpRightPose);
+            return Accept(SamusPoseId.SpinJumpRightPose);
         if (Has(newlyPressed, Jump))
-            return Accept(1, Jump, None, SamusPoseId.NeutralJumpTransitionRightPose);
+            return Accept(SamusPoseId.NeutralJumpTransitionRightPose);
         if (Has(held, Right))
-            return Accept(2, None, Right, SamusPoseId.MoonwalkTurnJumpRightPose);
+            return Accept(SamusPoseId.MoonwalkTurnJumpRightPose);
         return new(null, HasConditions: true);
     }
 
@@ -838,11 +838,11 @@ internal static class SamusPoseInputRulesLate
     private static SamusPoseInputMatch MatchMoonwalkTurnJumpAimUpLeftPoseList(ushort held, ushort newlyPressed)
     {
         if (Has(newlyPressed, Jump) && Has(held, Left))
-            return Accept(0, Jump, Left, SamusPoseId.SpinJumpLeftPose);
+            return Accept(SamusPoseId.SpinJumpLeftPose);
         if (Has(newlyPressed, Jump))
-            return Accept(1, Jump, None, SamusPoseId.NeutralJumpTransitionLeftPose);
+            return Accept(SamusPoseId.NeutralJumpTransitionLeftPose);
         if (Has(held, Left))
-            return Accept(2, None, Left, SamusPoseId.MoonwalkTurnJumpAimUpLeftPose);
+            return Accept(SamusPoseId.MoonwalkTurnJumpAimUpLeftPose);
         return new(null, HasConditions: true);
     }
 
@@ -850,11 +850,11 @@ internal static class SamusPoseInputRulesLate
     private static SamusPoseInputMatch MatchMoonwalkTurnJumpAimUpRightPoseList(ushort held, ushort newlyPressed)
     {
         if (Has(newlyPressed, Jump) && Has(held, Right))
-            return Accept(0, Jump, Right, SamusPoseId.SpinJumpRightPose);
+            return Accept(SamusPoseId.SpinJumpRightPose);
         if (Has(newlyPressed, Jump))
-            return Accept(1, Jump, None, SamusPoseId.NeutralJumpTransitionRightPose);
+            return Accept(SamusPoseId.NeutralJumpTransitionRightPose);
         if (Has(held, Right))
-            return Accept(2, None, Right, SamusPoseId.MoonwalkTurnJumpAimUpRightPose);
+            return Accept(SamusPoseId.MoonwalkTurnJumpAimUpRightPose);
         return new(null, HasConditions: true);
     }
 
@@ -862,11 +862,11 @@ internal static class SamusPoseInputRulesLate
     private static SamusPoseInputMatch MatchMoonwalkTurnJumpAimDownLeftPoseList(ushort held, ushort newlyPressed)
     {
         if (Has(newlyPressed, Jump) && Has(held, Left))
-            return Accept(0, Jump, Left, SamusPoseId.SpinJumpLeftPose);
+            return Accept(SamusPoseId.SpinJumpLeftPose);
         if (Has(newlyPressed, Jump))
-            return Accept(1, Jump, None, SamusPoseId.NeutralJumpTransitionLeftPose);
+            return Accept(SamusPoseId.NeutralJumpTransitionLeftPose);
         if (Has(held, Left))
-            return Accept(2, None, Left, SamusPoseId.MoonwalkTurnJumpAimDownLeftPose);
+            return Accept(SamusPoseId.MoonwalkTurnJumpAimDownLeftPose);
         return new(null, HasConditions: true);
     }
 
@@ -874,11 +874,11 @@ internal static class SamusPoseInputRulesLate
     private static SamusPoseInputMatch MatchMoonwalkTurnJumpAimDownRightPoseList(ushort held, ushort newlyPressed)
     {
         if (Has(newlyPressed, Jump) && Has(held, Right))
-            return Accept(0, Jump, Right, SamusPoseId.SpinJumpRightPose);
+            return Accept(SamusPoseId.SpinJumpRightPose);
         if (Has(newlyPressed, Jump))
-            return Accept(1, Jump, None, SamusPoseId.NeutralJumpTransitionRightPose);
+            return Accept(SamusPoseId.NeutralJumpTransitionRightPose);
         if (Has(held, Right))
-            return Accept(2, None, Right, SamusPoseId.MoonwalkTurnJumpAimDownRightPose);
+            return Accept(SamusPoseId.MoonwalkTurnJumpAimDownRightPose);
         return new(null, HasConditions: true);
     }
 }

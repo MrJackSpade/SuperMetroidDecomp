@@ -48,7 +48,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>PreInstruction_EnemyProjectile_PowampSpike</c> at $86:D263.</summary>
-    private void RunPowampSpikePreInstruction(
+    private static void RunPowampSpikePreInstruction(
         RoomEnemyProjectileSlot spike,
         RoomLevelData level)
     {

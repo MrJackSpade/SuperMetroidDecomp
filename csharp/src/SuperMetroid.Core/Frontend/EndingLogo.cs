@@ -62,7 +62,7 @@ internal sealed class EndingLogo
         for (int i = 0; i < actors.Length; i++)
         {
             if (i < 2 && !settled[i]) MoveHalf(i);
-            actors[i].Step(bus, Instruction, instructionWord);
+            actors[i].Step(Instruction, instructionWord);
         }
     }
 
@@ -95,7 +95,7 @@ internal sealed class EndingLogo
         if (destination is null) oam.BeginFrame();
         if (!Completed)
             foreach (var actor in actors)
-                actor.Draw(bus, oam, EndingLogoDefinitions.Camera,
+                actor.Draw(oam, EndingLogoDefinitions.Camera,
                     EndingLogoDefinitions.Camera, installedArt);
         if (destination is null) oam.FinalizeFrame();
         return oam;

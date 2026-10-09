@@ -54,7 +54,7 @@ public sealed partial class SamusProjectileSystem
                     break;
                 case 2:
                     if (unchecked((short)(slot.YPosition - cameraY - 16)) < 0)
-                        BeginSpazerFall(bus, slot);
+                        BeginSpazerFall(slot);
                     else
                     {
                         AdvanceSpazerAngle(slot);
@@ -72,12 +72,12 @@ public sealed partial class SamusProjectileSystem
                     break;
                 case 4:
                     if (unchecked((short)(slot.YPosition - cameraY - 16)) < 0)
-                        BeginSpazerFall(bus, slot);
+                        BeginSpazerFall(slot);
                     else
                     {
                         AdvanceSpazerAngle(slot);
                         slot.XVelocity = unchecked((short)(slot.XVelocity + 5));
-                        if (slot.XVelocity >= 96) BeginSpazerFall(bus, slot);
+                        if (slot.XVelocity >= 96) BeginSpazerFall(slot);
                     }
                     break;
                 default: throw new InvalidDataException("Spazer reached an invalid native phase.");
@@ -91,7 +91,7 @@ public sealed partial class SamusProjectileSystem
     private static void AdvanceSpazerAngle(SamusProjectileSlot slot) =>
         slot.Variable = unchecked((byte)(slot.Variable + slot.YVelocity));
 
-    private static void BeginSpazerFall(ISnesAddressSpace bus, SamusProjectileSlot slot)
+    private static void BeginSpazerFall(SamusProjectileSlot slot)
     {
         slot.XPosition = unchecked((ushort)(slot.XPosition + (slot.SlotIndex < 2 ? 16 : -16)));
         slot.Direction = 5;
@@ -100,7 +100,7 @@ public sealed partial class SamusProjectileSystem
         if (slot.SlotIndex < 2)
         {
             slot.Type = SamusComboRomData.SpazerTrailType;
-            InitializeComboData(bus, slot, ordinary: false, echo: true);
+            InitializeComboData(slot, ordinary: false, echo: true);
         }
     }
 }

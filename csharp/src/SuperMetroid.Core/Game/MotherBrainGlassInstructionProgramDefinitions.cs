@@ -86,7 +86,7 @@ internal abstract class MotherBrainGlassInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - ShardGroup0;
-        if (offset >= 0 && offset < 8 * 36)
+        if (offset is >= 0 and < (8 * 36))
         {
             int local = offset % 36;
             if (local < 32 && local % 4 == 0)

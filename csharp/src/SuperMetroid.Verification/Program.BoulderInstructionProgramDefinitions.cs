@@ -157,7 +157,7 @@ internal static partial class Program
             AssertEqual(expectedProgram, slot.CurrentInstruction,
                 $"Boulder {description} initializer program selection");
             object?[] arguments =
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+                [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
 
             // Eight eight-frame entries consume 64 actor frames. The margin crosses the
             // terminal goto and proves the production stream restarted its first frame.

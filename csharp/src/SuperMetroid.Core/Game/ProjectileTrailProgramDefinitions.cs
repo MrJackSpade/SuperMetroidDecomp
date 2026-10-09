@@ -20,11 +20,11 @@ public static class ProjectileTrailProgramDefinitions
         word = 0;
         if ((address & ~0xffff) != SamusProjectileRomData.Banks.Movement) return false;
         ushort pointer = (ushort)address;
-        if (pointer == ProjectileTrailDefinitions.Empty ||
-            pointer == ProjectileTrailDefinitions.LeftIce + IceTerminatorOffset ||
-            pointer == ProjectileTrailDefinitions.RightIce + IceTerminatorOffset ||
-            pointer == ProjectileTrailDefinitions.Wave + ShortTerminatorOffset ||
-            pointer == ProjectileTrailDefinitions.Missile + ShortTerminatorOffset) return true;
+        if (pointer is ProjectileTrailDefinitions.Empty or
+            (ProjectileTrailDefinitions.LeftIce + IceTerminatorOffset) or
+            (ProjectileTrailDefinitions.RightIce + IceTerminatorOffset) or
+            (ProjectileTrailDefinitions.Wave + ShortTerminatorOffset) or
+            (ProjectileTrailDefinitions.Missile + ShortTerminatorOffset)) return true;
         if (IsIceFallCommand(pointer - ProjectileTrailDefinitions.LeftIce))
         { word = SamusProjectileRomData.Trails.MoveLeftDown; return true; }
         if (IsIceFallCommand(pointer - ProjectileTrailDefinitions.RightIce))
@@ -32,9 +32,9 @@ public static class ProjectileTrailProgramDefinitions
         foreach (ushort frame in ProjectileTrailVisualDefinitions.Frames)
         {
             if (pointer != frame) continue;
-            bool longHold = pointer == ProjectileTrailDefinitions.LeftIce + IceTerminatorOffset - 4 ||
-                pointer == ProjectileTrailDefinitions.RightIce + IceTerminatorOffset - 4 ||
-                pointer >= ProjectileTrailDefinitions.Wave;
+            bool longHold = pointer is (ProjectileTrailDefinitions.LeftIce + IceTerminatorOffset - 4) or
+                (ProjectileTrailDefinitions.RightIce + IceTerminatorOffset - 4) or
+                >= ProjectileTrailDefinitions.Wave;
             word = (ushort)(longHold ? 4 : 1);
             return true;
         }

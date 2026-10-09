@@ -130,7 +130,7 @@ public static class SnesBgTilemapRenderer
     {
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(cgram);
-        if (rowCount <= 0 || rowCount > 32)
+        if (rowCount is <= 0 or > 32)
             throw new ArgumentOutOfRangeException(nameof(rowCount));
 
         const int width = 32 * 8;

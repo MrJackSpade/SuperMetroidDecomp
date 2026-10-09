@@ -47,7 +47,7 @@ internal static partial class Program
             AssertEqual(0, bus.ForbiddenReads, $"room-FX blend {id:X2} load does not read bank-$89");
 
             ushort reloadRecord = SelectCompiledBlendRecord(id).Pointer;
-            _ = state.ApplyEntry(bus, cgram, reloadRecord);
+            _ = state.ApplyEntry(cgram, reloadRecord);
             for (int index = 0; index < compiled.Length; index++)
                 AssertEqual(compiled[index], cgram.Colors[RoomFxRomData.Layer3.PaletteBlendDestinationIndex + index],
                     $"room-FX blend {id:X2} installed FX-entry color {index}");

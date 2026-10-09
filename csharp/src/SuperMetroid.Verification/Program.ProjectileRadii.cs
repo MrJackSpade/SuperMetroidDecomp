@@ -131,7 +131,7 @@ internal static partial class Program
                     ? (nativeSprite == replacementSprites[0] ? replacementSprites[1] : replacementSprites[0])
                     : nativeSprite;
                 var slot = new SamusProjectileSlot(0) { InstructionTimer = 1, InstructionPointer = pointer, Damage = 30 };
-                AssertEqual(false, projectiles.RunProjectileInstructionHandler(guard, slot), "Timed projectile record survives");
+                AssertEqual(false, projectiles.RunProjectileInstructionHandler(slot), "Timed projectile record survives");
                 AssertEqual(duration, slot.InstructionTimer, "Frame duration unchanged");
                 AssertEqual(expectedSprite, slot.SpritemapPointer, "Artwork reference changes independently");
                 AssertEqual((ushort)rom.ReadByte(address), slot.XRadius, "Published collision X independent of artwork");
@@ -143,7 +143,7 @@ internal static partial class Program
                 // existing contract instead of treating arbitrary beam records as bombs.
                 if (duration == 0) continue;
                 var bomb = new SamusBombProjectileSlot(0) { InstructionTimer = 1, InstructionPointer = pointer, Type = 0x0500 };
-                AssertEqual(false, (bool)runBomb.Invoke(bombs, new object[] { guard, bomb })!, "Bomb timed record survives");
+                AssertEqual(false, (bool)runBomb.Invoke(bombs, new object[] { bomb })!, "Bomb timed record survives");
                 AssertEqual(duration, bomb.InstructionTimer, "Bomb duration unchanged");
                 AssertEqual(expectedSprite, bomb.SpritemapPointer, "Bomb artwork reference changes independently");
                 AssertEqual((ushort)rom.ReadByte(address), bomb.XRadius, "Bomb physical X independent of artwork");

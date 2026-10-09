@@ -28,7 +28,7 @@ internal static partial class Program
         ushort killsBefore = runtime.Enemies.EnemiesKilled;
 
         typeof(RoomEnemySystem).GetMethod("ResolveFirefleaTouch", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .Invoke(runtime.Enemies, [fireflea, samus, (ushort)0]);
+            .Invoke(runtime.Enemies, [fireflea, samus]);
 
         var explosions = runtime.Enemies.EnemyProjectiles
             .Where(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion).ToArray();

@@ -23,7 +23,7 @@ internal static partial class Program
             samus.HorizontalSpeed.BaseSpeed = 4;
             samus.HorizontalSpeed.BaseSubspeed = 0xffff;
             samus.HorizontalSpeed.HasRunningMomentum = true;
-            SamusInsideBlockReactions.PrepareFrame(bus, level, samus, AreaId.Maridia);
+            SamusInsideBlockReactions.PrepareFrame(level, samus, AreaId.Maridia);
             AssertEqual(direction is 0 or 3 ? (suit == 0 ? 0x12000 : 0x10000) : 0x20000,
                 body.ExtraYFixed, "quicksand per-direction/suit displacement");
             AssertEqual(direction is 0 or 3 ? 0u : direction == 1 ? (suit == 0 ? 0x28000u : 0x38000u) : 0x50000u,
@@ -46,7 +46,7 @@ internal static partial class Program
             samus.Kinematics.YSpeed = 4;
             samus.Kinematics.YSubacceleration = 0x1c00;
             var sand = Room((byte)(0x83 + kind));
-            SamusInsideBlockReactions.PrepareFrame(bus, sand, samus, AreaId.Maridia);
+            SamusInsideBlockReactions.PrepareFrame(sand, samus, AreaId.Maridia);
             AssertEqual(kind == 0 ? 0x12000 : kind == 1 ? 0x14000 : 0x1c000,
                 samus.Kinematics.ExtraYFixed, "submerging and sandfall forces");
             SamusBlockCollision.MoveHorizontal(bus, sand, samus.Kinematics, 1 << 16);
@@ -92,7 +92,7 @@ internal static partial class Program
             body.YDirection = direction;
             body.YSpeed = 5;
             SamusInsideBlockReactions.PrepareFrame(
-                guarded, level, samus, AreaId.Maridia);
+                level, samus, AreaId.Maridia);
             QuicksandSurfacePhysics physics =
                 QuicksandDefinitions.SurfacePhysics(suit != 0);
             AssertEqual(
@@ -114,7 +114,6 @@ internal static partial class Program
             };
             int displacement = 0x28000;
             bool collided = SamusInsideBlockReactions.ReactCollision(
-                guarded,
                 body,
                 new RoomCollisionBlock(0, 0x3000, unchecked((byte)(0x80 + index))),
                 vertical: true,

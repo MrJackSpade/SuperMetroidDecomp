@@ -24,7 +24,7 @@ internal sealed class PlmProgramSource
     {
         this.report = report;
         types = typeof(RoomPlmSystem).Assembly.GetTypes()
-            .Where(type => type.Namespace == "SuperMetroid.Core.Rooms" || type.Namespace == "SuperMetroid.Core.Game")
+            .Where(type => type.Namespace is "SuperMetroid.Core.Rooms" or "SuperMetroid.Core.Game")
             .GroupBy(type => type.Name).Where(group => group.Count() == 1)
             .ToDictionary(group => group.Key, group => group.Single());
         string core = Path.Combine(root, "csharp/src/SuperMetroid.Core");

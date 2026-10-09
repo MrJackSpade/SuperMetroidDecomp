@@ -10,15 +10,15 @@ internal static partial class Program
         int Native(int index) => rom.ReadByte(0x91c9d4 + index * 2) | rom.ReadByte(0x91c9d5 + index * 2) << 8;
         var guard = new TangentReadGuard(rom);
         var eye = typeof(EyeBeamWindowBuilder).GetMethod("Tangent", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Func<ISnesAddressSpace, int, int>>();
+            .CreateDelegate<Func<int, int>>();
         var mother = typeof(MotherBrainRainbowBeamHdmaState).GetMethod("Tangent", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Func<ISnesAddressSpace, int, int>>();
+            .CreateDelegate<Func<int, int>>();
         for (int index = 0; index <= 128; index++)
         {
             AssertEqual((ushort)Native(index), AbsoluteTangentDefinitions.Sample(index), "All native tangent words including endpoint");
-            AssertEqual(Native(index), eye(guard, index), "Eye actual tangent reader without ROM");
-            AssertEqual(Native(index), mother(guard, index), "Mother Brain actual tangent reader without ROM");
-            AssertEqual(Native(index), mother(guard, index - 256), "Mother Brain caller byte wrap");
+            AssertEqual(Native(index), eye(index), "Eye actual tangent reader without ROM");
+            AssertEqual(Native(index), mother(index), "Mother Brain actual tangent reader without ROM");
+            AssertEqual(Native(index), mother(index - 256), "Mother Brain caller byte wrap");
         }
         if (definitionsOnly)
         {
@@ -36,17 +36,17 @@ internal static partial class Program
             {
                 int tangent = Native(wrapped & 127);
                 x = wrapped < 128 ? tangent : -tangent;
-                y = wrapped < 64 || wrapped >= 192 ? -256 : 256;
+                y = wrapped is < 64 or >= 192 ? -256 : 256;
             }
-            object actual = direction.Invoke(null, [guard, angle])!;
+            object actual = direction.Invoke(null, [angle])!;
             AssertEqual(x, (int)actual.GetType().GetProperty("X")!.GetValue(actual)!, "X-ray wrapped/cardinal X direction");
             AssertEqual(y, (int)actual.GetType().GetProperty("Y")!.GetValue(actual)!, "X-ray wrapped/cardinal Y direction");
         }
         // Production window builders must run without tangent-table reads, including inclusive angle 256.
         for (int angle = 0; angle < 256; angle++)
         {
-            _ = EyeBeamWindowBuilder.Build(guard, 100, 100, angle, 0);
-            _ = EyeBeamWindowBuilder.Build(guard, -16, 100, angle, 1);
+            _ = EyeBeamWindowBuilder.Build(100, 100, angle, 0);
+            _ = EyeBeamWindowBuilder.Build(-16, 100, angle, 1);
         }
         var beam = new MotherBrainRainbowBeamHdmaState
         {

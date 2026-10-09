@@ -13,7 +13,7 @@ internal static partial class Program
             ushort command = Word(a);
             if (command == 0x822f) return ticks;
             if (command == 0x8239) { pointer = Word(a + 2); continue; }
-            AssertTrue(command > 0 && command < 0x8000, "Finite native explosion frame");
+            AssertTrue(command is > 0 and < 0x8000, "Finite native explosion frame");
             ticks += command;
             pointer += 8;
         }
@@ -34,7 +34,7 @@ internal static partial class Program
                 ushort command = Word(0x930000 | entry);
                 if (command == 0x822f) break;
                 if (command == 0x8239) { entry = Word(0x930000 | (entry + 2)); continue; }
-                AssertTrue(command > 0 && command < 0x8000, "Native fixture program reaches a timed record");
+                AssertTrue(command is > 0 and < 0x8000, "Native fixture program reaches a timed record");
                 WriteTestWord(bus, 0x930000 | (entry + 2), map);
                 entry += 8;
             }

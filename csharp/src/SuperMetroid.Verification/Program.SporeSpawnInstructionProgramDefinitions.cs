@@ -162,7 +162,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_sporeSpawn", flags)!.SetValue(enemies, state);
 
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
-        object?[] arguments = [body, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+        object?[] arguments = [body, null, null, (ushort)0, (ushort)0, (ushort)0];
         for (int frame = 0; frame < frames; frame++)
         {
             process.Invoke(enemies, arguments);

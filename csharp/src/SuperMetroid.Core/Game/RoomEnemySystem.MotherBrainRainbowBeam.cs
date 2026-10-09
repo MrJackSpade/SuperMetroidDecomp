@@ -62,7 +62,7 @@ public sealed partial class RoomEnemySystem
             MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSpawnTimeBombSetSubtitle)
         {
             var text = state.EscapeTypewriter ?? throw new InvalidOperationException("Mother Brain escape text was not initialized.");
-            typewriterFinished = text.Step(_bus!, _vram!);
+            typewriterFinished = text.Step(_vram!);
             if (text.ClickRequested) state.LastSoundEffectLibrary3 = EscapeTypewriterRomData.ZebesClick;
         }
         MotherBrainRainbowBeamAttackStepResult step = sequence.Step(
@@ -201,7 +201,7 @@ public sealed partial class RoomEnemySystem
         // $A9:D1E4 runs after body AI. Its health handler is enabled during revival,
         // but $AD:E3D5 waits until the corpse-state word reaches final-combat state 2.
         if (sequence.HealthBasedPaletteHandlingEnabled && sequence.Phase2CorpseState >= 2)
-            MotherBrainHealthPalette.Apply(_bus!, _cgram!, state.Head!.Health, MotherBrainHealthColors);
+            MotherBrainHealthPalette.Apply(_cgram!, state.Head!.Health, MotherBrainHealthColors);
         ApplyLiveMotherBrainDeath(state, sequence, current);
         state.LastRainbowBeamExplosion = current.Explosion;
         if (current.SoundQueued)
@@ -271,7 +271,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports `$86:C80A-$C828`, including the initializer's same-call pin.</summary>
-    private void SpawnMotherBrainRainbowChargingProjectile(MotherBrainEnemyState state)
+    private void SpawnMotherBrainRainbowChargingProjectile()
     {
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
         if (projectile is null)
@@ -292,7 +292,7 @@ public sealed partial class RoomEnemySystem
     private void RunMotherBrainRainbowChargingPreInstruction(
         RoomEnemyProjectileSlot projectile)
     {
-        RoomEnemySlot head = _motherBrain?.Head ?? throw new InvalidOperationException(
+        RoomEnemySlot head = MotherBrain?.Head ?? throw new InvalidOperationException(
             "Mother Brain rainbow charge ran without the physical head slot.");
         projectile.XPosition = head.XPosition;
         projectile.YPosition = head.YPosition;

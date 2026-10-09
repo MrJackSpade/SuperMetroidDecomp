@@ -43,9 +43,9 @@ internal static partial class Program
             samus.TopSpritemapIndex == GrappleWallGrabGraphicsReference.TopSpritemap &&
             samus.BottomSpritemapIndex == GrappleWallGrabGraphicsReference.BottomSpritemap,
             "Freed rope must fully retract and visibly enter the ROM wall-grab sprite at the captured anchor.");
-        VerifyGrappleWallGrabDma(loaded.AddressSpace, runtime.Vram,
+        VerifyGrappleWallGrabDma(runtime.Vram,
             GrappleWallGrabGraphicsReference.TopDma, SamusRenderingRomData.TileTransfers.TopDestinations);
-        VerifyGrappleWallGrabDma(loaded.AddressSpace, runtime.Vram,
+        VerifyGrappleWallGrabDma(runtime.Vram,
             GrappleWallGrabGraphicsReference.BottomDma, SamusRenderingRomData.TileTransfers.BottomDestinations);
         loaded.Game.Step(0);
         Check(grapple.Phase == GrapplePhase.WallGrabRelease, "Releasing Shoot must open the wall-jump window.");

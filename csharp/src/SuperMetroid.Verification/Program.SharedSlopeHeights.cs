@@ -25,12 +25,12 @@ internal static partial class Program
         var forbidden = new SlopeHeightNoReadBus();
         var enemies = new RoomEnemySystem();
         var enemy = enemies.Slots[0];
-        var align = typeof(RoomEnemySystem).GetMethod("AlignAgainstSlopeAtPixel", BindingFlags.NonPublic | BindingFlags.Instance)!
-            .CreateDelegate<Func<RoomLevelData, RoomEnemySlot, ushort, ushort, bool, bool>>(enemies);
+        var align = typeof(RoomEnemySystem).GetMethod("AlignAgainstSlopeAtPixel", BindingFlags.NonPublic | BindingFlags.Static)!
+            .CreateDelegate<Func<RoomLevelData, RoomEnemySlot, ushort, ushort, bool, bool>>();
         var missile = typeof(SamusProjectileSystem).GetMethod("MissileSlopePointReaction", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Func<ISnesAddressSpace, RoomCollisionBlock, SamusProjectileSlot, bool, bool>>();
+            .CreateDelegate<Func<RoomCollisionBlock, SamusProjectileSlot, bool, bool>>();
         var bomb = typeof(SamusBombProjectileSystem).GetMethod("BombSpreadCollides", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Func<ISnesAddressSpace, RoomLevelData, SamusBombProjectileSlot, bool>>();
+            .CreateDelegate<Func<RoomLevelData, SamusBombProjectileSlot, bool>>();
         var projectile = new SamusProjectileSlot(0);
         var spread = new SamusBombProjectileSlot(0);
         int collisionCases = 0;
@@ -52,9 +52,9 @@ internal static partial class Program
                     bool solid = height <= edge;
                     projectile.XPosition = spread.XPosition = x;
                     projectile.YPosition = spread.YPosition = y;
-                    AssertEqual(solid, missile(forbidden, block, projectile, true), "Missile horizontal slope point collision");
-                    AssertEqual(solid, missile(forbidden, block, projectile, false), "Missile vertical slope point collision");
-                    AssertEqual(solid, bomb(forbidden, level, spread), "Bomb spread real slope collision");
+                    AssertEqual(solid, missile(block, projectile, true), "Missile horizontal slope point collision");
+                    AssertEqual(solid, missile(block, projectile, false), "Missile vertical slope point collision");
+                    AssertEqual(solid, bomb(level, spread), "Bomb spread real slope collision");
                     enemy.YPosition = 128;
                     enemy.YSubposition = 0x1234;
                     int adjustment = height - edge - 1;

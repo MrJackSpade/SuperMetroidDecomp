@@ -23,7 +23,7 @@ internal abstract class MochtroidInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - FreeFlight;
-        if (offset >= 0 && offset < 40)
+        if (offset is >= 0 and < 40)
         {
             int program = offset / 20;
             int local = offset % 20;

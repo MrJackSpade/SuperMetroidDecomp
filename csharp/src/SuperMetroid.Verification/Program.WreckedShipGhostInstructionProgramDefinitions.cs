@@ -44,7 +44,7 @@ internal static partial class Program
             "real Wrecked Ship ghost initializer installs compiled floating program");
 
         object?[] processArguments =
-            [ghost, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            [ghost, null, null, (ushort)0, (ushort)0, (ushort)0];
         for (int call = 0; call < 4; call++)
         {
             ghost.InstructionTimer = 1;

@@ -64,7 +64,6 @@ public static partial class SamusGrappleMovement
     }
 
     private static bool ApplyRopeLengthDelta(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
         SamusGrappleState grapple)
@@ -225,7 +224,6 @@ public static partial class SamusGrappleMovement
     }
 
     private static GrappleSwingCollisionResult AdvanceAngleWithTerrainCollision(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
         SamusGrappleState grapple)
@@ -254,7 +252,6 @@ public static partial class SamusGrappleMovement
         {
             byte candidateAngleByte = unchecked((byte)(lastSafeAngleByte + byteDirection));
             GrappleSwingCollisionResult collision = ProbeSwingingBody(
-                bus,
                 level,
                 samus,
                 grapple,
@@ -315,7 +312,6 @@ public static partial class SamusGrappleMovement
     }
 
     private static GrappleSwingCollisionResult ProbeSwingingBody(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
         SamusGrappleState grapple,

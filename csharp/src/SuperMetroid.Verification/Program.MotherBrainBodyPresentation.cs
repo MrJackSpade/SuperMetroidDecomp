@@ -59,7 +59,7 @@ internal static partial class Program
             baseline.SetProgram(program); replacement.SetProgram(program);
             for (int frame = 0; frame < 100; frame++, steps++)
             {
-                baseline.Step(frame); replacement.Step(frame);
+                baseline.Step(); replacement.Step();
                 baseline.Draw(); replacement.Draw();
                 AssertEnemyAnimationMechanics(baseline.Inner, replacement.Inner, steps);
                 AssertAnimationValues(baseline.State, replacement.State, "Mother Brain instruction state");

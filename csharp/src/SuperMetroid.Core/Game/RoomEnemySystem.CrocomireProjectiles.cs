@@ -52,7 +52,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>sub_8690B3</c>: delete on the first horizontal/vertical wall hit.</summary>
-    private void RunCrocomireProjectileFlight(
+    private static void RunCrocomireProjectileFlight(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
@@ -74,7 +74,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>Crocomire_Func_52</c> and initializer $86:9286.</summary>
-    private void SpawnNextCrocomireBridgeFragment(CrocomireEnemyState state)
+    private void SpawnNextCrocomireBridgeFragment()
     {
         CrocomireDeathState death = RequireCrocomireDeath();
         ushort cursor = death.BridgeFragmentCursor;
@@ -114,7 +114,7 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private void SpawnCrocomireSpikeWallPieces()
     {
-        CrocomireEnemyState state = _crocomire ??
+        CrocomireEnemyState state = Crocomire ??
             throw new InvalidOperationException("Crocomire spike wall spawned without an owner.");
         ushort graphicsIndex = unchecked((ushort)(
             state.Body.VramTilesIndex | state.Body.PaletteIndex));
@@ -208,7 +208,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports bridge-fragment vertical collision and gravity at $86:92BA.</summary>
-    private void RunCrocomireBridgeFragment(
+    private static void RunCrocomireBridgeFragment(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {

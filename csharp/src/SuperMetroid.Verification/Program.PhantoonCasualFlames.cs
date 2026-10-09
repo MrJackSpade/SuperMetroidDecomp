@@ -19,7 +19,7 @@ internal static partial class Program
         var body = enemies.Slots[0];
         var mouth = enemies.Slots[3];
         var step = typeof(RoomEnemySystem).GetMethod("StepPhantoonCasualFlameSchedule", BindingFlags.NonPublic | BindingFlags.Instance)!
-            .CreateDelegate<Action<RoomEnemySlot, RoomEnemySlot>>(enemies);
+            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
         ushort random = 0;
         int calls = 0;
         typeof(RoomEnemySystem).GetField("_nextRandom", BindingFlags.NonPublic | BindingFlags.Instance)!
@@ -31,7 +31,7 @@ internal static partial class Program
             mouth.VariableB = 0;
             mouth.VariableC = 0xffff;
             int before = calls;
-            step(body, mouth);
+            step(mouth);
             int pointer = 0xa70000 | Word(0xa7ccfd + (raw & 3) * 2);
             AssertEqual((ushort)(raw & 3), mouth.VariableA, "Actual casual RNG pattern selector");
             AssertEqual(Word(pointer), mouth.VariableC, "Actual casual initial remaining count");
@@ -73,7 +73,7 @@ internal static partial class Program
                         timer = Word(pointer + (count + 1) * 2);
                     }
                 }
-                step(body, mouth);
+                step(mouth);
                 AssertEqual(timer, mouth.VariableB, "Actual casual frame timer");
                 AssertEqual(count, mouth.VariableC, "Actual casual frame remaining count");
                 AssertEqual(draw ? PhantoonInstructionProgramDefinitions.MouthFollowUp : (ushort)0, mouth.CurrentInstruction, "Exact casual mouth animation trigger frame");

@@ -74,7 +74,7 @@ internal static partial class Program
             (RoomEnemySystem enemies, RoomEnemySlot slot, NorfairRioEnemyState state) =
                 NewNorfairRioInstructionSystem(guard, flags, entry);
             object?[] arguments =
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+                [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
             RunNorfairRioInstructionFrames(
                 process,
                 enemies,

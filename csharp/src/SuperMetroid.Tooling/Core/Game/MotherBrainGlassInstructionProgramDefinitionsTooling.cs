@@ -26,7 +26,7 @@ internal abstract class MotherBrainGlassInstructionProgramDefinitionsTooling : I
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
         int offset = (ushort)address - MotherBrainGlassInstructionProgramDefinitions.ShardGroup0;
-        if (offset >= 0 && offset < 8 * 36)
+        if (offset is >= 0 and < (8 * 36))
         {
             int local = offset % 36;
             return local >= 32 || local % 4 < 2;

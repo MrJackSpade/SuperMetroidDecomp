@@ -173,7 +173,7 @@ internal static partial class Program
             BabyXPosition = 100,
             BabyYPosition = 80,
         };
-        typeof(RoomEnemySystem).GetField("_ridleyState", flags)!.SetValue(enemies, baby);
+        typeof(RoomEnemySystem).GetField("<Ridley>k__BackingField", flags)!.SetValue(enemies, baby);
         var nativeBaby = new OamBuffer();
         nativeBaby.BeginFrame();
         DrawImportedEnemySpritemap(rom, nativeBaby, CeresBabyInstructionProgramDefinitions.Bank,

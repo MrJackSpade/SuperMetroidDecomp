@@ -108,14 +108,13 @@ public static class SamusLoadingSuitPaletteFxProgramMechanicsDefinitions
     /// <summary>Native Gravity-suit definition $8D:E1FC selects program $DE2E.</summary>
     private static readonly SamusLoadingSuitPaletteFxProgramDefinition Gravity =
         new(SamusLoadingSuitPaletteFxProgramOwner.GravitySuit, 0xe1fc, 0xde2e);
-    private static readonly IReadOnlyList<SamusLoadingSuitPaletteFxProgramDefinition> Programs = new ProgramList();
 
     /// <summary>The power, Varia, and gravity programs in definition order.</summary>
     /// <remarks>Named program identities replace the former indexed descriptor array.
     /// The view preserves original order/count/index rejection; runtime mechanics
     /// dispatches directly to the same three named owners without enumeration.
     /// Native header words and all program ownership are independently checked for1165.</remarks>
-    public static IReadOnlyList<SamusLoadingSuitPaletteFxProgramDefinition> All => Programs;
+    public static IReadOnlyList<SamusLoadingSuitPaletteFxProgramDefinition> All { get; } = new ProgramList();
 
     private sealed class ProgramList : IReadOnlyList<SamusLoadingSuitPaletteFxProgramDefinition>
     {

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Game;
 public static class SamusInsideBlockReactions
 {
     /// <summary>Samples bottom, center, and top in native order ($94:9B60).</summary>
-    public static void PrepareFrame(ISnesAddressSpace bus, RoomLevelData level, SamusState samus,
+    public static void PrepareFrame(RoomLevelData level, SamusState samus,
         AreaId area, bool areaBossDefeated = false, RoomPlmSystem? plms = null)
     {
         var body = samus.Kinematics;
@@ -132,7 +132,7 @@ public static class SamusInsideBlockReactions
     /// separate from carry: native downward movement grounds on sand without discarding
     /// its accepted sinking displacement. Pose-clearance probes consume carry only.
     /// </summary>
-    public static bool ReactCollision(ISnesAddressSpace bus, SamusKinematicsState body,
+    public static bool ReactCollision(SamusKinematicsState body,
         RoomCollisionBlock block, bool vertical, ref int displacement, out bool surfaceContact,
         SamusCollisionDirection? blockReactionDirection = null,
         RoomPlmSystem? plms = null)

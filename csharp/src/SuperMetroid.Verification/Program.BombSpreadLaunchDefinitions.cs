@@ -14,7 +14,7 @@ internal static partial class Program
         for(int i=0;i<reference.Length;i++)
             AssertEqual(reference[i],SamusBombSpreadLaunchDefinitions.ForSlot(i),"All native Bomb Spread launch words");
         var spawn=typeof(SamusBombProjectileSystem).GetMethod("SpawnBombSpread",BindingFlags.Instance|BindingFlags.NonPublic)!
-            .CreateDelegate<Action<SamusBombProjectileSystem,ISnesAddressSpace,SamusState>>();
+            .CreateDelegate<Action<SamusBombProjectileSystem,SamusState>>();
         var guarded=new BombSpreadLaunchReadGuard(rom);
         var bombs=new SamusBombProjectileSystem();
         var samus=new SamusState();
@@ -23,7 +23,7 @@ internal static partial class Program
             samus.BombSpreadChargeTimeoutCounter=(ushort)hold;
             samus.ProjectileFlareCounter=SamusBombSpreadRomData.RequiredChargeFrames;
             samus.XPosition=(ushort)hold; samus.YPosition=unchecked((ushort)~hold);
-            spawn(bombs,guarded,samus);
+            spawn(bombs,samus);
             for(int i=0;i<reference.Length;i++)
             {
                 var slot=bombs.Slots[i]; var expected=reference[i];

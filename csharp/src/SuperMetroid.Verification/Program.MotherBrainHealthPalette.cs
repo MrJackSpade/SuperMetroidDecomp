@@ -11,7 +11,7 @@ internal static partial class Program
             { (36000, 0), (9000, 0), (8999, 1), (5400, 1), (5399, 2), (1800, 2), (1799, 3), (0, 3) })
         {
             var cgram = new SnesCgram();
-            MotherBrainHealthPalette.Apply(bus, cgram, health);
+            MotherBrainHealthPalette.Apply(cgram, health);
             VerifyCopy(0xade6a2, 65);
             VerifyCopy(0xade6a2, 145);
             VerifyCopy(0xade742, 177);

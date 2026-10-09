@@ -88,7 +88,7 @@ internal static partial class Program
         {
             var insideSamus = new SamusState { XPosition = 72, YPosition = centerY };
             insideSamus.Kinematics.YRadius = radius;
-            SamusInsideBlockReactions.PrepareFrame(bus, level, insideSamus, AreaId.Crateria, plms: plms);
+            SamusInsideBlockReactions.PrepareFrame(level, insideSamus, AreaId.Crateria, plms: plms);
             AssertEqual(shouldWake, plms.ScrollPlmTriggered(origin),
                 "inside scroll reaction admits only a separately visited center, not feet/head");
             plms.Step(bus, level, streamer, 0, 0, 0, scrolls);

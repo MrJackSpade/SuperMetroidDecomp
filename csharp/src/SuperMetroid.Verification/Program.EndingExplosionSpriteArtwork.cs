@@ -160,9 +160,9 @@ internal static partial class Program
                 // comparison advances their cursor identically without duplicating that scene.
                 var nativeCallbacks = new List<ushort>();
                 var generatedCallbacks = new List<ushort>();
-                native.Step(bus, (opcode, cursor) => { nativeCallbacks.Add(opcode); return cursor; }, pointer =>
+                native.Step((opcode, cursor) => { nativeCallbacks.Add(opcode); return cursor; }, pointer =>
                     (ushort)(bus.ReadByte(0x8b0000 | pointer) | bus.ReadByte(0x8b0000 | (pointer + 1)) << 8));
-                installed.Step(bus, (opcode, cursor) => { generatedCallbacks.Add(opcode); return cursor; },
+                installed.Step((opcode, cursor) => { generatedCallbacks.Add(opcode); return cursor; },
                     EndingExplosionInstructionDefinitions.ReadWord);
                 AssertTrue(nativeCallbacks.SequenceEqual(generatedCallbacks),
                     $"explosion actor ${start:X4} callback order/timing at frame {frame}");
@@ -184,7 +184,7 @@ internal static partial class Program
                 $"explosion frame {frame} has four OAM parts and a 22-byte record");
     }
 
-    private static void VerifyEndingExplosionActorArtwork(GameInstallation installation,
+    private static void VerifyEndingExplosionActorArtwork(
         ISnesAddressSpace bus, EndingObjectArtworkCatalog stock)
     {
         Suite(nameof(VerifyEndingExplosionPrograms), () => VerifyEndingExplosionPrograms(bus));

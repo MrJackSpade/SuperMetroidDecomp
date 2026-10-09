@@ -18,7 +18,7 @@ internal sealed class ControllerInputRecorder : IDisposable
     private const int FlushIntervalFrames = 120;
     private const string RecordingDirectoryName = "input-recordings";
 
-    private readonly object gate = new();
+    private readonly Lock gate = new();
     private readonly byte[] romSha256;
     private readonly byte[] initialSaveRam;
     private readonly SuperMetroidGameOptions gameOptions;

@@ -15,7 +15,7 @@ public static class PlaybackFrameBatchSmokeTest
         int time = 0;
         var observed = new List<ushort>();
         var result = PlaybackFrameBatch.Run(3,
-            () => time >= 10 && time < 30 ? (ushort)SnesButton.Left : (ushort)0,
+            () => time is >= 10 and < 30 ? (ushort)SnesButton.Left : (ushort)0,
             input =>
             {
                 observed.Add(input);

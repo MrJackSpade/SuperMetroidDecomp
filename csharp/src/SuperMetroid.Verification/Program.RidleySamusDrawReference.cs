@@ -79,7 +79,7 @@ internal static partial class Program
             {
                 if (frame >= 2) yOffset = -1;
             }
-            else if (pose >= SamusPoseIds.NormalLandingRightPose && pose <= SamusPoseIds.SpinLandingLeftPose)
+            else if (pose is >= SamusPoseIds.NormalLandingRightPose and <= SamusPoseIds.SpinLandingLeftPose)
                 yOffset = -R(RidleyMovieMemory.LandingDrawOffsets +
                     (pose - SamusPoseIds.NormalLandingRightPose) * 4 + frame);
         }
@@ -112,8 +112,8 @@ internal static partial class Program
                  pose is SamusPoseIds.CrouchingTransitionRightPose or SamusPoseIds.CrouchingTransitionLeftPose or
                     SamusPoseIds.StandingTransitionRightPose or SamusPoseIds.StandingTransitionLeftPose),
             SamusMovementType.Unused0D => frame == 0 || pose is not (SamusPoseIds.UnusedPose65 or SamusPoseIds.UnusedPose66),
-            SamusMovementType.WallJumping => frame < 3 || frame >= 13,
-            SamusMovementType.DamageBoost => frame < 2 || frame >= 9,
+            SamusMovementType.WallJumping => frame is < 3 or >= 13,
+            SamusMovementType.DamageBoost => frame is < 2 or >= 9,
             SamusMovementType.Special =>
                 pose is not (SamusPoseIds.ShinesparkVerticalRightPose or SamusPoseIds.ShinesparkVerticalLeftPose) &&
                 (frame >= 2 || pose is not (SamusPoseIds.DrainedCrouchingRightPose or SamusPoseIds.DrainedCrouchingLeftPose)),

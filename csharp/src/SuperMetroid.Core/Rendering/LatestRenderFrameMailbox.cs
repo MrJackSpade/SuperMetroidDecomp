@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Rendering;
 /// </remarks>
 public sealed class LatestRenderFrameMailbox
 {
-    private readonly object sync = new();
+    private readonly Lock sync = new();
     private RenderFrameSnapshot? pending;
     private long generation;
     private long lastSequence;

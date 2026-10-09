@@ -13,16 +13,14 @@ public sealed partial class RoomEnemySystem
     private const ushort DraygonTailDefinition = DraygonEnemyDefinitionPointers.Tail;
     private const ushort DraygonArmsDefinition = DraygonEnemyDefinitionPointers.Arms;
 
-    private DraygonEnemyState? _draygon;
-
     /// <summary>The typed encounter extension while the retail Draygon population is loaded.</summary>
-    public DraygonEnemyState? Draygon => _draygon;
+    public DraygonEnemyState? Draygon { get; private set; }
 
     private static bool IsDraygonDefinition(ushort definition) => definition is
         DraygonBodyDefinition or DraygonEyeDefinition or
         DraygonTailDefinition or DraygonArmsDefinition;
 
-    private void ResetDraygonRoomState() => _draygon = null;
+    private void ResetDraygonRoomState() => Draygon = null;
 
     /// <summary>Ports <c>InitAI_DraygonBody</c> at <c>$A5:8687</c>.</summary>
     private void InitializeDraygonBody(RoomEnemySlot body)
@@ -51,7 +49,7 @@ public sealed partial class RoomEnemySystem
         body.InstructionTimer = 1;
 
         _processAllEnemies = true;
-        _draygon = new DraygonEnemyState(body)
+        Draygon = new DraygonEnemyState(body)
         {
             Bg2TilemapSize = 0x0400,
             BackgroundTilemapPrepared = true,
@@ -59,13 +57,13 @@ public sealed partial class RoomEnemySystem
             MinimapDisabledAndBossTilesExplored = true,
             Function = DraygonAiFunction.IntroInitialDelay,
         };
-        _draygon.DisabledCannonWords.Add(DraygonCannonData.UnusedBottomDisabledWord);
+        Draygon.DisabledCannonWords.Add(DraygonCannonData.UnusedBottomDisabledWord);
     }
 
     /// <summary>Ports the independent initializers at <c>$A5:C46B/C599/C5AD</c>.</summary>
     private void InitializeDraygonPart(RoomEnemySlot part)
     {
-        DraygonEnemyState state = _draygon ??
+        DraygonEnemyState state = Draygon ??
             throw new InvalidDataException("Draygon part appeared before the body record.");
 
         part.InstructionTimer = 1;
@@ -827,7 +825,7 @@ public sealed partial class RoomEnemySystem
 
     private DraygonEnemyState RequireCompleteDraygonState(RoomEnemySlot body)
     {
-        DraygonEnemyState state = _draygon ??
+        DraygonEnemyState state = Draygon ??
             throw new InvalidDataException("Draygon body has no encounter state.");
         if (!ReferenceEquals(state.Body, body) || state.Eye is null ||
             state.Tail is null || state.Arms is null)
@@ -847,7 +845,7 @@ public sealed partial class RoomEnemySystem
         if (!IsDraygonDefinition(slot.EnemyDefinitionPointer))
             return false;
 
-        DraygonEnemyState state = _draygon ??
+        DraygonEnemyState state = Draygon ??
             throw new InvalidDataException("Draygon instruction ran without encounter state.");
         switch (instruction)
         {

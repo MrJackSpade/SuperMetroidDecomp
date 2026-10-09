@@ -25,7 +25,7 @@ internal static class EyeDoorPlmProgramDefinitions
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;
-        if (address < FirstAddress || address >= LastAddress) return false;
+        if (address is < FirstAddress or >= LastAddress) return false;
         value = (ushort)(ByteAt(address) | ByteAt(address + 1) << 8);
         return true;
     }
@@ -33,7 +33,7 @@ internal static class EyeDoorPlmProgramDefinitions
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         value = 0;
-        if (address < FirstAddress || address > LastAddress) return false;
+        if (address is < FirstAddress or > LastAddress) return false;
         value = ByteAt(address);
         return true;
     }

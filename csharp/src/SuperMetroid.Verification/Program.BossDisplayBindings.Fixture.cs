@@ -14,7 +14,7 @@ internal static partial class Program
         internal SnesVram Vram { get; } = new();
         internal RoomEnemySystem Enemies { get; }
         internal RoomEnemySlot Actor => Enemies.Slots[0];
-        private readonly Action<RoomEnemySlot, SamusState?, RoomLevelData?, ushort, ushort, ushort, byte> instructions;
+        private readonly Action<RoomEnemySlot, SamusState?, RoomLevelData?, ushort, ushort, ushort> instructions;
         private readonly HitboxQuery hitbox;
         private delegate bool HitboxQuery(RoomEnemySlot actor, ushort x, ushort y,
             ushort radiusX, ushort radiusY, bool shot, out ushort callback);
@@ -33,7 +33,7 @@ internal static partial class Program
             var queues = (List<ushort>[])typeof(RoomEnemySystem).GetField("_drawQueues", Private)!.GetValue(Enemies)!;
             queues[0].Add(Actor.NativeIndex);
             instructions = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", Private)!
-                .CreateDelegate<Action<RoomEnemySlot, SamusState?, RoomLevelData?, ushort, ushort, ushort, byte>>(Enemies);
+                .CreateDelegate<Action<RoomEnemySlot, SamusState?, RoomLevelData?, ushort, ushort, ushort>>(Enemies);
             hitbox = typeof(RoomEnemySystem).GetMethod("TryFindExtendedHitboxCallback", Private)!
                 .CreateDelegate<HitboxQuery>(Enemies);
         }
@@ -54,7 +54,7 @@ internal static partial class Program
 
         internal void SetProgram(ushort pointer)
         { Actor.CurrentInstruction = pointer; Actor.InstructionTimer = 1; Actor.Timer = 0; }
-        internal void Step(int frame) => instructions(Actor, null, null, 0, 0, 0, unchecked((byte)frame));
+        internal void Step() => instructions(Actor, null, null, 0, 0, 0);
         internal (bool Hit, ushort Callback) Hitbox(ushort x, ushort y, bool shot)
         { bool hit = hitbox(Actor, x, y, 2, 2, shot, out ushort callback); return (hit, callback); }
         internal void ClearBg2() => Vram.ExecuteWordTransfer(

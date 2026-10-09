@@ -218,9 +218,9 @@ internal static partial class Program
 
         private void CheckRead(int address)
         {
-            if (address >= RoomSkyTilemapFormat.FirstSourceAddress &&
-                address < RoomSkyTilemapFormat.FirstSourceAddress +
-                    RoomSkyTilemapFormat.TotalByteCount)
+            if (address is >= RoomSkyTilemapFormat.FirstSourceAddress and
+                < (RoomSkyTilemapFormat.FirstSourceAddress +
+                    RoomSkyTilemapFormat.TotalByteCount))
                 throw new InvalidOperationException(
                     $"Scrolling sky reread installed visual source ${address:X6}.");
             if (blockLandingList &&

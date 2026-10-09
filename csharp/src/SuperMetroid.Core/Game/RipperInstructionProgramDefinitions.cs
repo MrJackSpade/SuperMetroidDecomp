@@ -59,7 +59,7 @@ internal abstract class RipperInstructionProgramDefinitions
         {
             ushort start = ProgramStart(program);
             int offset = address - start;
-            if (offset < 0 || offset >= 20)
+            if (offset is < 0 or >= 20)
                 continue;
             if (offset < 16 && (offset & 3) == 0)
             {

@@ -173,9 +173,9 @@ internal static partial class Program
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address) =>
-            address is >= 0x86be89 and < 0x86bf59 ||
-            address is >= 0x86bf9f and < 0x86bfdf ||
-            address is >= 0x86c040 and < 0x86c050
+            address is >= 0x86be89 and < 0x86bf59 or
+            >= 0x86bf9f and < 0x86bfdf or
+            >= 0x86c040 and < 0x86c050
                 ? throw new InvalidOperationException(
                     $"Mother Brain turret attempted migrated table read ${address:X6}.")
                 : source.ReadByte(address);

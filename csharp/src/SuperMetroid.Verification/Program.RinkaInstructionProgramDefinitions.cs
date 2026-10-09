@@ -127,7 +127,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
 
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
-        object?[] arguments = [rinka, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+        object?[] arguments = [rinka, null, null, (ushort)0, (ushort)0, (ushort)0];
 
         // One complete list is 127 timer frames plus zero-time callback/goto dispatch. The
         // margin proves that the native terminal goto loops rather than merely reaching it.

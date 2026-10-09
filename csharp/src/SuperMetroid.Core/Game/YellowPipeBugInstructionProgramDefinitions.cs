@@ -15,7 +15,7 @@ internal abstract class YellowPipeBugInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - FlyingLeft;
-        if (offset >= 0 && offset < 80)
+        if (offset is >= 0 and < 80)
         {
             int program = offset / 20;
             int local = offset % 20;

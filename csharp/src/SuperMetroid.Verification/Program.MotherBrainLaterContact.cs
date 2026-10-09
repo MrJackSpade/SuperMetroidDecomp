@@ -19,7 +19,7 @@ internal static partial class Program
         state.Head.XPosition = state.Head.YPosition = 500;
         state.NeckSegment1 = new(250, 80);
         state.NeckSegment2 = state.NeckSegment3 = new(500, 500);
-        typeof(RoomEnemySystem).GetField("_motherBrain", flags)!.SetValue(enemies, state);
+        typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", flags)!.SetValue(enemies, state);
         var main = typeof(RoomEnemySystem).GetMethod("RunMotherBrainBodyMain", flags)!
             .CreateDelegate<Action<RoomEnemySlot, SamusState?, byte, SamusBombProjectileSystem?>>(enemies);
         foreach (string contact in new[] { "body", "neck", "no-damage side", "post-dispatch position" })

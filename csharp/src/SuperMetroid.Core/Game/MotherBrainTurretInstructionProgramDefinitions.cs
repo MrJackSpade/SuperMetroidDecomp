@@ -47,7 +47,7 @@ internal abstract class MotherBrainTurretInstructionProgramDefinitions
     internal static bool TryRead(ushort address, out ushort value)
     {
         int poseOffset = address - TurretLeft;
-        if (poseOffset < 0 || poseOffset >= 48)
+        if (poseOffset is < 0 or >= 48)
             poseOffset = address - BulletLeft;
         if (poseOffset >= 0 && poseOffset < 48 && poseOffset % 6 is 0 or 4)
         {

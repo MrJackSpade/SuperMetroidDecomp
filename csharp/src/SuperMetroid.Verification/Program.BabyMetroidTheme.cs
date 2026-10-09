@@ -11,7 +11,7 @@ internal static partial class Program
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();
         var state = new MotherBrainEnemyState(enemies.Slots[0]);
-        typeof(RoomEnemySystem).GetField("_motherBrain", flags)!.SetValue(enemies, state);
+        typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", flags)!.SetValue(enemies, state);
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
         var baby = new BabyMetroidCutsceneState();
         typeof(BabyMetroidCutsceneState).GetProperty(nameof(baby.Phase))!.SetValue(baby, BabyMetroidCutscenePhase.FinalCharge);

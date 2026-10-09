@@ -66,8 +66,8 @@ internal static partial class Program
         }
         var eyeEnemies = new RoomEnemySystem();
         busField.SetValue(eyeEnemies, new PhantoonPatternReadGuard(rom));
-        var pointEye = typeof(RoomEnemySystem).GetMethod("PointPhantoonEyeAtSamus", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, RoomEnemySlot, SamusState>>(eyeEnemies);
+        var pointEye = typeof(RoomEnemySystem).GetMethod("PointPhantoonEyeAtSamus", BindingFlags.NonPublic | BindingFlags.Static)!
+            .CreateDelegate<Action<RoomEnemySlot, RoomEnemySlot, SamusState>>();
         RoomEnemySlot eyeBody = eyeEnemies.Slots[0];
         RoomEnemySlot trackingEye = eyeEnemies.Slots[1];
         eyeBody.XPosition = 0x4000;

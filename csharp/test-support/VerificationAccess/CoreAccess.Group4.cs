@@ -93,7 +93,7 @@ internal static partial class CoreAccess
     {
         /// <summary>Cached gameplay TS byte the last accepted NMI uploaded with the window registers.</summary>
         internal byte CachedGameplaySubscreen =>
-            (PrivateState.Field<GameplayWindowRegisterCache?>(self, "gameplayWindowRegisters")
+            (PrivateState.Field<GameplayWindowRegisterCache?>(self, "<GameplayWindowRegisters>k__BackingField")
                 ?? throw new InvalidOperationException("Runtime has no gameplay window register cache."))
             .ReadByte(GameplayWindowRegisterAddresses.Subscreen);
     }

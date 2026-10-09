@@ -46,7 +46,7 @@ internal static class DebuggerStateFieldMigrations
 
         // Runtime additions: statue owner (5ff0476a), timeout option (fc59514a), escape quake
         // (a74aa6d1), treadmill owner (e361a6b1), Ceres haze ownership (4f3e4bec).
-        new(typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime).FullName!, ["_tourianStatues"],
+        new(typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime).FullName!, ["<TourianStatues>k__BackingField"],
             "Older debugger state predates the statue sequence; it initializes on room entry."),
         new(typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime).FullName!, ["<PreventEscapeTimeout>k__BackingField"],
             "Legacy runtime lacks the escape-timeout option; restoring it disabled."),
@@ -61,7 +61,7 @@ internal static class DebuggerStateFieldMigrations
         new(typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime).FullName!,
             ["testerInventoryRecipient", "<GrantAllEquipmentEnabled>k__BackingField", "<UnlockTourianEnabled>k__BackingField"],
             "Older runtime predates inventory/Tourian tester policy; restoring disabled options and no inventory recipient."),
-        new(typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime).FullName!, ["_roomSpikes"],
+        new(typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime).FullName!, ["<RoomSpikes>k__BackingField"],
             "Older runtime has no horizontal-spike animation; restarting the selected room's spike loop at frame zero."),
         // The door-scrolling IRQ request is set only while a door scroll runs; builds
         // that did not model it never deferred NMI, which false reproduces.
@@ -86,7 +86,7 @@ internal static class DebuggerStateFieldMigrations
             "Older Samus state lacks pose/camera correction accumulators; restoring no pending correction."),
         new(typeof(SamusState).FullName!, ["<BombJumpPoseInputLocked>k__BackingField"],
             "Older Samus state lacks the bomb-jump pose lock; restoring it unlocked."),
-        new(typeof(SamusState).FullName!, ["_healthWarning"],
+        new(typeof(SamusState).FullName!, ["<HealthWarning>k__BackingField"],
             "Older Samus state lacks the low-health warning latch; it starts inactive until the next admitted native health check."),
         // #342 adds the previously unmodeled WRAM $0E00 latch. Neutral zero avoids inventing a
         // Fire press; the next normal draw/script update populates the native latch.
@@ -96,7 +96,7 @@ internal static class DebuggerStateFieldMigrations
             "Older Samus state lacks auto-jump history; restoring neutral history and ordinary input handling."),
         new(typeof(SamusState).FullName!, ["<ShinesparkPoseInputLocked>k__BackingField", "<CrystalFlashPoseInputLocked>k__BackingField"],
             "Older Samus state lacks special-movement pose locks; restoring both inactive."),
-        new(typeof(SamusState).FullName!, ["_poseHistory"],
+        new(typeof(SamusState).FullName!, ["<PoseHistory>k__BackingField"],
             "Older Samus state has no transition pose history; the unavailable history restores as zero until subsequent transitions populate it."),
         new(typeof(SamusState).FullName!, ["<StationaryScriptControlLocked>k__BackingField"],
             "Older Samus state lacks stationary script-handler ownership; retaining its saved input lock, with animation ownership unknown until the next script command."),
@@ -298,9 +298,9 @@ internal static class DebuggerStateFieldMigrations
 
         new(typeof(PhantoonBlendingState).FullName!, ["<DisplayedMosaic>k__BackingField"],
             "Legacy Phantoon display state lacks MOSAIC history; restores ungrouped until the next accepted NMI."),
-        new(typeof(PhantoonEnemyState).FullName!, ["_blending"],
+        new(typeof(PhantoonEnemyState).FullName!, ["<Blending>k__BackingField"],
             "Legacy Phantoon state lacks blend HDMA history; setup restarts."),
-        new(typeof(PhantoonEnemyState).FullName!, ["_wave"],
+        new(typeof(PhantoonEnemyState).FullName!, ["<Wave>k__BackingField"],
             "Legacy Phantoon state lacks wave history; it restores inactive until its next native spawn."),
 
         new(typeof(SuperMetroid.Core.Rendering.OrdinaryGameplayRegisters).FullName!, ["<Bg2Mosaic>k__BackingField"],

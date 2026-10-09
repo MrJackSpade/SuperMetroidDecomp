@@ -88,7 +88,7 @@ public static partial class SamusGrappleMovement
         // no-run origin and flare tables without a pose-number exception.
         bool useRunOffsets = samus.ReadMovementKind(bus) == SamusMovementType.Running;
         var origin = GrappleFiringDefinitions.Origin(direction, useRunOffsets);
-        var flare = ReadFlareOrigin(bus, grapple, direction, useRunOffsets);
+        var flare = ReadFlareOrigin(grapple, direction, useRunOffsets);
         sbyte graphicsYOffset = movingHeld ? SamusGrappleRomData.Firing.DraygonMovingGraphicsYOffset : samus.ReadGraphicsYOffset(bus);
         int physicalYOffset = movingHeld ? SamusGrappleRomData.Firing.DraygonMovingGraphicsYOffset :
             SamusPoseProjectileOriginDefinitions.ReadYOffset(samus.Pose);
@@ -483,12 +483,11 @@ public static partial class SamusGrappleMovement
         }
 
         ApplyRopeAndDirectionInput(grapple, controllerInput, newlyPressedInput);
-        bool ropeLengthBlocked = ApplyRopeLengthDelta(bus, level, samus, grapple);
+        bool ropeLengthBlocked = ApplyRopeLengthDelta(level, samus, grapple);
         CalculateGravity(grapple);
         IntegrateAngularVelocity(grapple);
         ApplyJumpImpulse(grapple, newlyPressedInput);
         GrappleSwingCollisionResult terrain = AdvanceAngleWithTerrainCollision(
-            bus,
             level,
             samus,
             grapple);

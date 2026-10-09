@@ -47,11 +47,11 @@ internal static partial class Program
                 // Do not reuse EndingCloudMotion as the expected-motion oracle.
                 if (frame != 0)
                     actor.Sprite.YPosition = unchecked((ushort)(actor.Sprite.YPosition + (index < 2 ? 1 : -1)));
-                actor.Sprite.Step(bus, instructionWord: EndingCartridgeInstructionWord(bus));
+                actor.Sprite.Step(instructionWord: EndingCartridgeInstructionWord(bus));
             }
             var oam = new OamBuffer();
             oam.BeginFrame();
-            foreach (var actor in actors) actor.Sprite.Draw(bus, oam, installedArt: cloudSprites);
+            foreach (var actor in actors) actor.Sprite.Draw(oam, installedArt: cloudSprites);
             oam.FinalizeFrame();
             var actual = ending.CaptureRenderSnapshot();
             byte[] oamBytes = [.. oam.LowTable.ToArray(), .. oam.HighTable.ToArray()];

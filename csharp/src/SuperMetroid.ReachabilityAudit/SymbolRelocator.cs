@@ -57,7 +57,7 @@ internal static class SymbolRelocator
                     continue;
                 if (node is VariableDeclaratorSyntax { Parent: VariableDeclarationSyntax { Variables.Count: > 1 } })
                     manual.Add($"MANUAL {symbol.Kind} {symbol.ToDisplayString()} (shared declaration, {Location(identity, node)})");
-                else if (Classify(symbol, node, model) is { } placement)
+                else if (Classify(symbol, node) is { } placement)
                     found.Add(new(symbol, DeclarationNode(node), tree, model, placement));
                 else
                     manual.Add($"MANUAL {symbol.Kind} {symbol.ToDisplayString()} ({Location(identity, node)})");
@@ -300,7 +300,7 @@ internal static class SymbolRelocator
             $"{promotions.Count} members made internal; {manual.Count} left for manual relocation.");
     }
 
-    private static Placement? Classify(ISymbol symbol, SyntaxNode node, SemanticModel model)
+    private static Placement? Classify(ISymbol symbol, SyntaxNode node)
     {
         if (symbol is INamedTypeSymbol type)
             return type.ContainingType is { IsGenericType: true } ? null : Placement.WholeType;

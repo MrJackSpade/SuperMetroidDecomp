@@ -1022,7 +1022,7 @@ public static partial class SnesGameplayFrameRenderer
     private static byte SaturatingSubtract(byte left, byte right) =>
         (byte)Math.Max(byte.MinValue, left - right);
 
-    private static XrayDirection ReadXrayDirection(ISnesAddressSpace bus, int angle)
+    private static XrayDirection ReadXrayDirection(int angle)
     {
         int wrappedAngle = SnesAngle.NormalizeTableIndex(angle).TableIndex;
 

@@ -26,7 +26,7 @@ internal static partial class Program
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetMethod("ResolveNormalEnemyTouch", flags)!
-            .Invoke(runtime.Enemies, [sciser, samus, (ushort)0, false]);
+            .Invoke(runtime.Enemies, [sciser, samus, false]);
 
         AssertTrue(sciser.Health < healthBefore, "the speed booster damages the Sciser");
         EnemySoundRequest request = runtime.Enemies.SoundRequests.Single();

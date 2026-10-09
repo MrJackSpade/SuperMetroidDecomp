@@ -181,7 +181,7 @@ public sealed partial class RoomEnemySystem
         {
             // Facing-left Ridley cannot aim through his own body. Angles inside the
             // forbidden forward interval clamp to $E8 before bank-$3F expansion.
-            if (targetByte >= 0x18 && targetByte < 0xe8)
+            if (targetByte is >= 0x18 and < 0xe8)
                 targetByte = 0xe8;
             ushort target = unchecked((ushort)(0x3f00 + targetByte - additional));
             if (target < root.Angle)
@@ -192,7 +192,7 @@ public sealed partial class RoomEnemySystem
         }
         else
         {
-            if (targetByte >= 0x18 && targetByte < 0xe8)
+            if (targetByte is >= 0x18 and < 0xe8)
                 targetByte = 0x18;
             ushort target = unchecked((ushort)(0x4000 + targetByte + additional));
             if (target >= root.Angle)
@@ -424,9 +424,9 @@ public sealed partial class RoomEnemySystem
         EnsureLoaded();
         // The shared Ridley state also exists in Lower Norfair. Only Ceres
         // Ridley's initializer installs this private Baby/door draw path.
-        if (_ridleyState is null ||
+        if (Ridley is null ||
             _slots[0].EnemyDefinitionPointer != CeresRidleyDefinition ||
-            _ridleyState.MovementAnimationEnabled != 0)
+            Ridley.MovementAnimationEnabled != 0)
             return;
 
         DrawCeresRidleyBabyAndDoor(oam, cameraX, cameraY);
@@ -444,9 +444,9 @@ public sealed partial class RoomEnemySystem
     {
         ArgumentNullException.ThrowIfNull(oam);
         EnsureLoaded();
-        if (_ridleyState is null ||
+        if (Ridley is null ||
             _slots[0].EnemyDefinitionPointer != CeresRidleyDefinition ||
-            _ridleyState.MovementAnimationEnabled == 0)
+            Ridley.MovementAnimationEnabled == 0)
             return;
 
         DrawCeresRidleyBabyAndDoor(oam, cameraX, cameraY);
@@ -457,7 +457,7 @@ public sealed partial class RoomEnemySystem
         ushort cameraX,
         ushort cameraY)
     {
-        RidleyEnemyState state = _ridleyState
+        RidleyEnemyState state = Ridley
             ?? throw new InvalidOperationException("Ceres Ridley Baby draw requires active state.");
 
         if (CeresStatus == 0)
@@ -644,7 +644,7 @@ public sealed partial class RoomEnemySystem
             originYIsOnScreen: screenY < 0x0100);
     }
 
-    private bool ResolveRidleyBodySamusContact(SamusState samus, ushort controllerInput)
+    private bool ResolveRidleyBodySamusContact(SamusState samus)
     {
         ArgumentNullException.ThrowIfNull(samus);
         EnsureLoaded();
@@ -653,7 +653,7 @@ public sealed partial class RoomEnemySystem
         // word. The extra host guard previously made a stale/ongoing aerial knockback
         // suppress every later Ridley overlap even after invincibility had expired.
         RoomEnemySlot slot = _slots[0];
-        if (_ridleyState is null ||
+        if (Ridley is null ||
             !IsRidleyDefinition(slot.EnemyDefinitionPointer) ||
             slot.EnemyDefinitionPointer == CeresRidleyDefinition && CeresStatus != 0 ||
             samus.InvincibilityTimer != 0)
@@ -695,7 +695,6 @@ public sealed partial class RoomEnemySystem
         ResolveNormalEnemyTouch(
             slot,
             samus,
-            controllerInput,
             skipDeathAnimation: true);
         return true;
     }
@@ -703,7 +702,7 @@ public sealed partial class RoomEnemySystem
     private bool ResolveRidleyTailSamusContact(SamusState samus)
     {
         RoomEnemySlot body = _slots[0];
-        RidleyEnemyState? state = _ridleyState;
+        RidleyEnemyState? state = Ridley;
         // $A6:CAF5 checks the newly solved tail, independently of the earlier
         // extended-body contact pass, and never damages Samus while carrying her.
         if (state is null || state.GrabState != 0 || samus.InvincibilityTimer != 0 ||
@@ -715,7 +714,7 @@ public sealed partial class RoomEnemySystem
         int dy = Math.Abs(unchecked((short)(samus.YPosition - tip.YPosition)));
         if (dx >= samus.Kinematics.XRadius + 14 || dy >= samus.Kinematics.YRadius + 14)
             return false;
-        ApplyNormalEnemyTouchDamage(samus, 0, state.TailDamage, tip.XPosition);
+        ApplyNormalEnemyTouchDamage(samus, state.TailDamage, tip.XPosition);
         return true;
     }
 
@@ -770,7 +769,6 @@ public sealed partial class RoomEnemySystem
 
     private static void ApplyNormalEnemyTouchDamage(
         SamusState samus,
-        ushort controllerInput,
         ushort damageBeforeSuit,
         ushort damageSourceX)
     {

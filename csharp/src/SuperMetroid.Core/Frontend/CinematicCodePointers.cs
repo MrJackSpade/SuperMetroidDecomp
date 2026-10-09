@@ -169,12 +169,6 @@ internal static class CinematicCodePointers
     /// <summary>Named bank-$8C background-object lists consumed by translated intro scenes.</summary>
     public static class BackgroundLists
     {
-        public const ushort IntroTextPage1 = 0xc383;
-        public const ushort IntroTextPage2 = 0xc797;
-        public const ushort IntroTextPage3 = 0xcb45;
-        public const ushort IntroTextPage4 = 0xce33;
-        public const ushort IntroTextPage5 = 0xd15d;
-        public const ushort IntroTextPage6 = 0xd511;
         public const ushort SamusBlinking = 0xd5df;
         public const ushort SamusBlinkingPage6 = 0xd613;
     }

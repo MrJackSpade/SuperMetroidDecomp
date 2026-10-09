@@ -2168,7 +2168,7 @@ internal static partial class Program
             AssertTrue(!remaining.Contains(pointer), "Stock compass selector is absent from stored residuals");
             var shot = new SamusProjectileSlot(0) { InstructionPointer = pointer, InstructionTimer = 1 };
             var system = new SamusProjectileSystem { FrameBindings = stock };
-            _ = system.RunProjectileInstructionHandler(rom, shot);
+            _ = system.RunProjectileInstructionHandler(shot);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), shot.SpritemapPointer, "Actual projectile handler selects calculated compass pose");
             string key = ProjectileFrameBindingFormat.FrameName(pointer);
             string original = document.Frames[key];
@@ -2176,7 +2176,7 @@ internal static partial class Program
             var edited = ProjectileFrameBindingCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
             var editedShot = new SamusProjectileSlot(0) { InstructionPointer = pointer, InstructionTimer = 1 };
             system.FrameBindings = edited;
-            _ = system.RunProjectileInstructionHandler(rom, editedShot);
+            _ = system.RunProjectileInstructionHandler(editedShot);
             AssertEqual(ProjectileSpriteDefinitions.NativePointers[0], editedShot.SpritemapPointer, "Independent direction edit overrides calculation in actual handler");
             AssertEqual(shot.InstructionTimer, editedShot.InstructionTimer, "Visual edit preserves duration");
             AssertEqual(shot.InstructionPointer, editedShot.InstructionPointer, "Visual edit preserves control flow");
@@ -2189,22 +2189,22 @@ internal static partial class Program
         int checkedCappedSweep = 0;
         foreach (ushort pointer in SamusProjectileRadiusDefinitions.TimedRecordPointers)
         {
-            if (!(pointer >= 0x873b && pointer < 0x8973) &&
-                !(pointer >= 0x8e77 && pointer < 0x8f17) &&
-                !(pointer >= 0x912f && pointer < 0x914f) &&
-                !(pointer >= 0xa007 && pointer < 0xa113) &&
-                !(pointer >= 0x9ebb && pointer < 0xa007) &&
-                !(pointer >= 0x8f17 && pointer < 0x912f) &&
-                !(pointer >= 0x9153 && pointer < 0x936b) && !(pointer >= 0x8977 && pointer < 0x8e77) && !(pointer >= 0x936b && pointer < 0x9ebb) && !(pointer >= 0xa119 && pointer < 0xa19d)) continue;
-            if ((pointer >= 0x8f8f && pointer <= 0x8f97) ||
-                (pointer >= 0x9097 && pointer <= 0x909f) ||
-                (pointer >= 0x91cb && pointer <= 0x91d3) ||
-                (pointer >= 0x92d3 && pointer <= 0x92db))
+            if (pointer is not (>= 0x873b and < 0x8973) and
+                not (>= 0x8e77 and < 0x8f17) and
+                not (>= 0x912f and < 0x914f) and
+                not (>= 0xa007 and < 0xa113) and
+                not (>= 0x9ebb and < 0xa007) and
+                not (>= 0x8f17 and < 0x912f) and
+                not (>= 0x9153 and < 0x936b) and not (>= 0x8977 and < 0x8e77) and not (>= 0x936b and < 0x9ebb) and not (>= 0xa119 and < 0xa19d)) continue;
+            if (pointer is >= 0x8f8f and <= 0x8f97 or
+                >= 0x9097 and <= 0x909f or
+                >= 0x91cb and <= 0x91d3 or
+                >= 0x92d3 and <= 0x92db)
             {
                 AssertTrue(!remaining.Contains(pointer), "Reversed axial end-pair operands calculate while parity policy remains required");
                 checkedAxialEndPairs++;
             }
-            if (pointer >= 0x8bfb && pointer < 0x8c4f)
+            if (pointer is >= 0x8bfb and < 0x8c4f)
             {
                 AssertTrue(!remaining.Contains(pointer), "Capped sweep operands calculate while plateau policy remains required");
                 checkedCappedSweep++;
@@ -2212,7 +2212,7 @@ internal static partial class Program
             AssertTrue(!remaining.Contains(pointer), "Calculated Wave/Ice selector is absent from stored residuals");
             var shot = new SamusProjectileSlot(0) { InstructionPointer = pointer, InstructionTimer = 1 };
             var system = new SamusProjectileSystem { FrameBindings = stock };
-            _ = system.RunProjectileInstructionHandler(rom, shot);
+            _ = system.RunProjectileInstructionHandler(shot);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), shot.SpritemapPointer, "Actual handler uses native Wave/Ice traversal pose");
             string key = ProjectileFrameBindingFormat.FrameName(pointer);
             string original = document.Frames[key];
@@ -2222,7 +2222,7 @@ internal static partial class Program
             var edited = ProjectileFrameBindingCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
             system.FrameBindings = edited;
             var editedShot = new SamusProjectileSlot(0) { InstructionPointer = pointer, InstructionTimer = 1 };
-            _ = system.RunProjectileInstructionHandler(rom, editedShot);
+            _ = system.RunProjectileInstructionHandler(editedShot);
             AssertEqual(replacement, editedShot.SpritemapPointer, "Every Wave/Ice supplied edit takes precedence");
             AssertEqual(shot.InstructionTimer, editedShot.InstructionTimer, "Wave/Ice visual edit preserves duration");
             AssertEqual(shot.InstructionPointer, editedShot.InstructionPointer, "Wave/Ice visual edit preserves flow");
@@ -2239,10 +2239,10 @@ internal static partial class Program
         int checkedBombs = 0;
         foreach (ushort pointer in SamusProjectileRadiusDefinitions.TimedRecordPointers)
         {
-            if (pointer < 0x9f87 || pointer >= 0xa007) continue;
+            if (pointer is < 0x9f87 or >= 0xa007) continue;
             var bomb = new SamusBombProjectileSlot(0) { InstructionPointer = pointer, InstructionTimer = 1, Type = 0x0500 };
             var bombs = new SamusBombProjectileSystem { FrameBindings = stock };
-            _ = runBomb.Invoke(bombs, [rom, bomb]);
+            _ = runBomb.Invoke(bombs, [bomb]);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), bomb.SpritemapPointer, "Actual bomb handler uses sequential normal/fast pose");
             checkedBombs++;
         }

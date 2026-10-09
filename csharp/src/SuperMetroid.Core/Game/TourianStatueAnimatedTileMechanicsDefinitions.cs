@@ -109,8 +109,6 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
 /// <summary>One Tourian boss statue's complete mechanics program.</summary>
 public sealed class TourianStatueAnimatedTileProgramDefinition
 {
-    private readonly IReadOnlyList<ushort> sourceOperandPointers;
-
     internal TourianStatueAnimatedTileProgramDefinition(
         ushort objectPointer,
         ushort programStart,
@@ -137,7 +135,7 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
         UnlockEffectParameter = unlockEffectParameter;
         PaletteFxDefinition = paletteFxDefinition;
         TargetPaletteByteIndex = targetPaletteByteIndex;
-        sourceOperandPointers = new CalculatedSourceOperands(programStart);
+        SourceOperandPointers = new CalculatedSourceOperands(programStart);
     }
 
     /// <summary>The animated-tile object header address in bank $87.</summary>
@@ -169,7 +167,7 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
     /// release frames, then the eye-glow and soul waits. Positions are calculated
     /// from the shared instruction layout, with ushort wrapping and list bounds.
     /// </summary>
-    public IReadOnlyList<ushort> SourceOperandPointers => sourceOperandPointers;
+    public IReadOnlyList<ushort> SourceOperandPointers { get; }
 
     private sealed class CalculatedSourceOperands(ushort programStart) : IReadOnlyList<ushort>
     {

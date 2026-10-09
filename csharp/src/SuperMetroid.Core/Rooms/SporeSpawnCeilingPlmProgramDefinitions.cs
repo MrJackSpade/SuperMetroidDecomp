@@ -18,7 +18,7 @@ internal static class SporeSpawnCeilingPlmProgramDefinitions
 
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
-        if (address >= Crumble + 3 && address < Clear)
+        if (address is >= (Crumble + 3) and < Clear)
         {
             int offset = address - Crumble - 3;
             if (offset % 4 == 0)

@@ -6,7 +6,7 @@ namespace SuperMetroid.Android;
 /// </summary>
 internal sealed class AndroidSessionCommands
 {
-    private readonly object gate = new();
+    private readonly Lock gate = new();
     private readonly Queue<(Func<AndroidSessionData, string> Action, TaskCompletionSource<string> Result)> pending = new();
     private Exception? stopped;
 

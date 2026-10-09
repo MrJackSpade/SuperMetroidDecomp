@@ -29,8 +29,8 @@ public sealed partial class RoomEnemySystem
                 $"Kraid body requires native slot zero, not slot {body.SlotIndex}.");
         }
 
-        _kraidState = new KraidEnemyState();
-        KraidEnemyState state = _kraidState;
+        Kraid = new KraidEnemyState();
+        KraidEnemyState state = Kraid;
         if (RequireAreaBossDefeated())
         {
             // `$A7:A959` installs the dead-room BG palette before the shared part initializer

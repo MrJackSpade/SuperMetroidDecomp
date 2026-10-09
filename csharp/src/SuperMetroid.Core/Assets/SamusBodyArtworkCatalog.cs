@@ -295,7 +295,7 @@ public sealed partial class SamusBodyArtworkCatalog
         // next definition group; resolve the physical address, not a C# jagged index.
         int address = SamusBodyDefinitionLayout.BankBase | unchecked((ushort)(SetPointer(upperHalf, set) +
             position * SamusRenderingRomData.TileTransfers.DefinitionByteCount));
-        return DefinitionAt(upperHalf, address);
+        return DefinitionAt(address);
     }
 
     /// <summary>Returns the SNES address selected by a native body set and position.</summary>
@@ -307,7 +307,7 @@ public sealed partial class SamusBodyArtworkCatalog
     }
 
     /// <summary>Resolve a saved native definition pointer after a debugger-state rebind.</summary>
-    public SamusBodyTileDefinition DefinitionAt(bool upperHalf, int nativeAddress)
+    public SamusBodyTileDefinition DefinitionAt(int nativeAddress)
     {
         if (!definitionsByAddress.TryGetValue(nativeAddress, out SamusBodyTileDefinition? definition))
             throw new InvalidDataException($"Samus body definition ${nativeAddress:X6} is absent from installed art.");
@@ -369,7 +369,6 @@ public sealed class SamusBodyTileDefinition
     // The body's pointers and frames are fixed once it is bound, so the calculated first
     // transfer size is resolved at binding instead of rescanning every pose on each read.
     private readonly ushort? calculatedFirstSize;
-    private readonly ushort standaloneSecondSize;
     private readonly SamusBodyArtworkCatalog? body;
     private readonly bool upper;
     private readonly int set;
@@ -386,7 +385,7 @@ public sealed class SamusBodyTileDefinition
         ArgumentNullException.ThrowIfNull(planar);
         sourceAddressOverride = sourceAddress;
         firstSizeOverride = firstSize;
-        standaloneSecondSize = secondSize;
+        SecondSize = secondSize;
         standalonePlanar = (byte[])planar.Clone();
         PayloadLength = planar.Length;
     }
@@ -453,7 +452,7 @@ public sealed class SamusBodyTileDefinition
     public ushort FirstSize => firstSizeOverride ?? calculatedFirstSize ??
         throw new InvalidDataException("Installed body composition no longer supplies its transfer row.");
     /// <summary>Gets the byte count of the optional second VRAM transfer.</summary>
-    public ushort SecondSize => body is null ? standaloneSecondSize : (ushort)(PayloadLength - FirstSize);
+    public ushort SecondSize => body is null ? field : (ushort)(PayloadLength - FirstSize);
     /// <summary>Canonical planar snapshot; native padding and shared angle patches calculate.</summary>
     public ReadOnlyMemory<byte> Planar
     {

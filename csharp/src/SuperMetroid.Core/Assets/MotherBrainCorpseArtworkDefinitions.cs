@@ -94,5 +94,5 @@ public static class MotherBrainCorpseArtworkDefinitions
 
     /// <summary>Whether a native transfer begins in this installed corpse source sheet.</summary>
     public static bool ContainsSource(uint sourceAddress) =>
-        sourceAddress >= SourceAddress && sourceAddress < SourceAddress + ByteCount;
+        sourceAddress is >= SourceAddress and < (SourceAddress + ByteCount);
 }

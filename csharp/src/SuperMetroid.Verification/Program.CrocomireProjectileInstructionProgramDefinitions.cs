@@ -57,13 +57,13 @@ internal static partial class Program
 
         RoomEnemySystem bridgeSystem = NewSystem();
         var bridgeState = new CrocomireEnemyState(bridgeSystem.Slots[0]);
-        typeof(RoomEnemySystem).GetField("_crocomire", flags)!
+        typeof(RoomEnemySystem).GetField("<Crocomire>k__BackingField", flags)!
             .SetValue(bridgeSystem, bridgeState);
-        typeof(RoomEnemySystem).GetField("_crocomireDeath", flags)!
+        typeof(RoomEnemySystem).GetField("<CrocomireDeath>k__BackingField", flags)!
             .SetValue(bridgeSystem, new CrocomireDeathState());
         MethodInfo spawnBridge = typeof(RoomEnemySystem).GetMethod(
             "SpawnNextCrocomireBridgeFragment", flags)!;
-        spawnBridge.Invoke(bridgeSystem, [bridgeState]);
+        spawnBridge.Invoke(bridgeSystem, []);
         RoomEnemyProjectileSlot bridge = bridgeSystem.EnemyProjectiles.Single(
             projectile => projectile.Kind ==
                 RoomEnemyProjectileKind.CrocomireBridgeCrumbling);
@@ -80,7 +80,7 @@ internal static partial class Program
         RoomEnemySlot spikeOwner = spikeSystem.Slots[0];
         spikeOwner.VramTilesIndex = 0x0200;
         spikeOwner.PaletteIndex = 0x0c00;
-        typeof(RoomEnemySystem).GetField("_crocomire", flags)!
+        typeof(RoomEnemySystem).GetField("<Crocomire>k__BackingField", flags)!
             .SetValue(spikeSystem, new CrocomireEnemyState(spikeOwner));
         MethodInfo spawnSpikes = typeof(RoomEnemySystem).GetMethod(
             "SpawnCrocomireSpikeWallPieces", flags)!;

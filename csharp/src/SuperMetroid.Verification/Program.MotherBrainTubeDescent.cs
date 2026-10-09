@@ -12,7 +12,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem { MotherBrainRoomColors = RepositoryInstallation.Maps.MotherBrainRoomColors };
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
         var state = new MotherBrainEnemyState(enemies.Slots[0]) { Head = enemies.Slots[1] };
-        typeof(RoomEnemySystem).GetField("_motherBrain", flags)!.SetValue(enemies, state);
+        typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", flags)!.SetValue(enemies, state);
         var tube = enemies.Slots[2];
         tube.Parameter1 = 8;
         tube.Parameter2 = 0;

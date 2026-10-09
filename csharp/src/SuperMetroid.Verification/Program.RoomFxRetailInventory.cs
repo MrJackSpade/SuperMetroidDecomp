@@ -546,7 +546,7 @@ internal static partial class Program
                 bus,
                 cursor,
                 RoomFxRomDataRecordTooling.DoorPointerOffset);
-            if (doorPointer == 0 || doorPointer == RoomFxRomData.Record.TerminatorDoorPointer)
+            if (doorPointer is 0 or RoomFxRomData.Record.TerminatorDoorPointer)
                 yield break;
             yield return doorPointer;
             cursor = unchecked((ushort)(cursor + RoomFxRomData.Record.ByteCount));
@@ -615,8 +615,8 @@ internal static partial class Program
         RoomLayer3FxRenderSnapshot finalSnapshot = fx.CaptureForDisplay()
             ?? throw new InvalidDataException(
                 $"Room {definition.Room} rising lava published no final snapshot.");
-        AssertTrue(finalSnapshot.WaterSurfaceScreenY >= SnesGameplayFrameRenderer.HudHeight &&
-                finalSnapshot.WaterSurfaceScreenY < SnesGameplayFrameRenderer.Height,
+        AssertTrue(finalSnapshot.WaterSurfaceScreenY is >= SnesGameplayFrameRenderer.HudHeight and
+                < SnesGameplayFrameRenderer.Height,
             $"room {definition.Room} risen lava enters the gameplay viewport");
         var frame = new Rgba32[
             SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];

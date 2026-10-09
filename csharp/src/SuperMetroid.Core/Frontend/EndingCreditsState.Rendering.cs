@@ -85,7 +85,7 @@ internal sealed partial class EndingCreditsState
     private bool ExplosionWhiteout => Phase is EndingCreditsPhase.WaitForPlanetEscapeMusic
         or EndingCreditsPhase.WaitForPlanetEscapeMusicQueue;
     // Func120 selects Mode 7: priority-zero OBJ is behind BG1, the ship itself.
-    private bool UsesFlyawayMode7Priority => Phase >= EndingCreditsPhase.PlanetEscapeFast && Phase < EndingCreditsPhase.Credits;
+    private bool UsesFlyawayMode7Priority => Phase is >= EndingCreditsPhase.PlanetEscapeFast and < EndingCreditsPhase.Credits;
     private bool EndingObjectsEnabled => !ExplosionWhiteout && Phase is not
         (EndingCreditsPhase.PostCreditsCopyright or EndingCreditsPhase.PostCreditsWaitingSamus or EndingCreditsPhase.PostCreditsBlank);
 
@@ -131,8 +131,8 @@ internal sealed partial class EndingCreditsState
         && Phase != EndingCreditsPhase.PostCreditsGesture
         && Phase != EndingCreditsPhase.PostCreditsJump
         && !(Phase == EndingCreditsPhase.PostCreditsReward && EndingReward == EndingReward.Armored);
-    private bool UsesWaitingBackground => Phase < EndingCreditsPhase.PostCreditsWaitingSamus
-        || Phase == EndingCreditsPhase.PostCreditsReward;
+    private bool UsesWaitingBackground => Phase is < EndingCreditsPhase.PostCreditsWaitingSamus
+        or EndingCreditsPhase.PostCreditsReward;
     // E1D2/E2DD: TM=BG2, TS=OBJ, CGADSUB=$22 adds OBJ to BG2 and backdrop.
     private bool RewardSubscreenAddition => ExplosionCrossfadeActive
         || Phase == EndingCreditsPhase.PostCreditsShootingStars
@@ -167,7 +167,7 @@ internal sealed partial class EndingCreditsState
                     EndingSpriteRole.AnimalEscape => EndingAnimalEscapeDefinitions.Presentation,
                     _ => null,
                 };
-                wrapper.Sprite.Draw(bus, oam, installedArt: spriteArt);
+                wrapper.Sprite.Draw(oam, installedArt: spriteArt);
             }
         }
         if (Phase >= EndingCreditsPhase.PostCreditsBlank) shootingStars?.Draw(oam);

@@ -38,7 +38,7 @@ internal static partial class Program
         var guard = new DraygonInstructionReadGuard();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
         MethodInfo readMechanics = typeof(RoomEnemySystem).GetMethod(
-            "ReadEnemyInstructionMechanicsWord", instanceFlags)!;
+            "ReadEnemyInstructionMechanicsWord", BindingFlags.NonPublic | BindingFlags.Static)!;
         foreach (ushort enemyDefinition in definitions)
         {
             var slot = new RoomEnemySlot(0)
@@ -76,7 +76,7 @@ internal static partial class Program
             Arms = arms,
             RoomLoadingIrqCommand = 0,
         };
-        typeof(RoomEnemySystem).GetField("_draygon", instanceFlags)!.SetValue(enemies, state);
+        typeof(RoomEnemySystem).GetField("<Draygon>k__BackingField", instanceFlags)!.SetValue(enemies, state);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "TryProcessDraygonInstruction", instanceFlags)!;
 

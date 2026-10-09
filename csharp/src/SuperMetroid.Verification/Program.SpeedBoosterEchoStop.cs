@@ -115,7 +115,7 @@ internal static partial class Program
         samus.LiquidPhysics.BeginFrameSoundRequests();
         var sand = new RoomLevelData(4, 4, Enumerable.Repeat((ushort)0x3000, 16).ToArray(),
             Enumerable.Repeat((byte)0x80, 16).ToArray(), new ushort[16], new byte[8]);
-        SamusInsideBlockReactions.PrepareFrame(bus, sand, samus, AreaId.Maridia);
+        SamusInsideBlockReactions.PrepareFrame(sand, samus, AreaId.Maridia);
         AssertEqual((ushort)0, speed.EchoSoundFlag, "quicksand clears the native persistent flag");
         AssertTrue(speed.EchoSoundRequested, "quicksand does not retract a previously published start command");
         SamusPostDrawAudio.Step(bus, samus, SamusMovementType.Standing, 0);

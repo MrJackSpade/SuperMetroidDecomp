@@ -143,9 +143,9 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (address >= SamusHurtColorFormat.HurtSourceAddress &&
-                address < SamusHurtColorFormat.IntroSourceAddress +
-                    SamusHurtColorFormat.ColorsPerPalette * sizeof(ushort))
+            if (address is >= SamusHurtColorFormat.HurtSourceAddress and
+                < (SamusHurtColorFormat.IntroSourceAddress +
+                    SamusHurtColorFormat.ColorsPerPalette * sizeof(ushort)))
             {
                 ForbiddenReads++;
                 throw new InvalidOperationException($"Installed hurt handler read native artwork ${address:X6}.");

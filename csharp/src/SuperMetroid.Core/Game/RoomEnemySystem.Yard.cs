@@ -484,7 +484,7 @@ public sealed partial class RoomEnemySystem
         if (MoveEnemyVertically(level, slot, yDisplacement))
         {
             short wholeY = unchecked((short)state.AirborneYVelocity);
-            if (wholeY >= 0 && wholeY < 3)
+            if (wholeY is >= 0 and < 3)
             {
                 LandYard(slot, state, samus);
                 return;
@@ -655,7 +655,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        ResolveNormalEnemyTouch(slot, samus, controllerInput);
+        ResolveNormalEnemyTouch(slot, samus);
         slot.Parameter1 = state.IdleCrawlingSpeedIndex;
         if (state.Behavior != 0)
             TurnYardAround(slot, state);

@@ -21,7 +21,7 @@ internal sealed class CartridgePaletteTransition
         ArgumentNullException.ThrowIfNull(numerator);
         if (target.Length != SnesCgram.ColorCount)
             throw new ArgumentException("A global palette transition requires 256 target colors.", nameof(target));
-        if (denominator <= 0 || denominator > ushort.MaxValue - 1)
+        if (denominator is <= 0 or > (ushort.MaxValue - 1))
             throw new ArgumentOutOfRangeException(nameof(denominator));
         this.target = target.ToArray();
         this.denominator = denominator;

@@ -20,7 +20,7 @@ internal static partial class Program
             {
                 int address = speed.ResolveEntryAddress((SamusMovementType)movement);
                 SpeedTableEntry expected = Read(address);
-                bool authored = address >= 0x909f55 && address < 0x90a32d;
+                bool authored = address is >= 0x909f55 and < 0x90a32d;
                 AssertEqual(authored, SamusHorizontalMotionDefinitions.TryResolveIndexed(address, out var entry), "Native authored/overread boundary");
                 if (authored)
                 {

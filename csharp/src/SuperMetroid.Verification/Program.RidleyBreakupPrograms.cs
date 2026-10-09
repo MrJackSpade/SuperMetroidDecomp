@@ -17,7 +17,7 @@ internal static partial class Program
         var death = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyDeathExplosions", flags)!
             .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?>>(enemies);
         var process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, SamusState?, RoomLevelData?, ushort, ushort, ushort, byte>>(enemies);
+            .CreateDelegate<Action<RoomEnemySlot, SamusState?, RoomLevelData?, ushort, ushort, ushort>>(enemies);
         var body = enemies.Slots[0];
         body.EnemyDefinitionPointer = RoomEnemySystem.NorfairRidleyDefinition;
         var state = new RidleyEnemyState
@@ -35,9 +35,9 @@ internal static partial class Program
         {
             AssertEqual(CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap, fragment.SpritemapPointer,
                 "native breakup spawn installs empty frame before instruction processing");
-            process(fragment, null, null, 0, 0, 0, 0);
-            AssertTrue(fragment.SpritemapPointer != CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap &&
-                fragment.SpritemapPointer != 0, "first breakup instruction replaces empty frame");
+            process(fragment, null, null, 0, 0, 0);
+            AssertTrue(fragment.SpritemapPointer is not CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap and
+                not 0, "first breakup instruction replaces empty frame");
         }
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] stockBytes = EnemySpritemapFiles.Extract(rom);
@@ -75,9 +75,9 @@ internal static partial class Program
             var fragment = fragments[0];
             fragment.CurrentInstruction = start;
             fragment.InstructionTimer = 1;
-            process(fragment, null, null, 0, 0, 0, 0);
+            process(fragment, null, null, 0, 0, 0);
             AssertEqual(expectedPointer, fragment.SpritemapPointer, "breakup selects native sprite");
-            process(fragment, null, null, 0, 0, 0, 0);
+            process(fragment, null, null, 0, 0, 0);
             AssertEqual((ushort)(start + 4), fragment.CurrentInstruction, "breakup sleeps after its one frame");
             var actual = new OamBuffer();
             draw.Invoke(enemies, [actual, (byte)0xa6, expectedPointer, (ushort)128, (ushort)112, (ushort)0x0e00, (ushort)0, false, true]);

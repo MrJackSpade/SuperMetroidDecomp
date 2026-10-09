@@ -39,8 +39,8 @@ internal static partial class Program
         if (field == "Control")
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {
-                bool byteOwned = raw >= 0xd81e && raw <= 0xda8b;
-                bool wordOwned = raw >= 0xd81e && raw < 0xda8b;
+                bool byteOwned = raw is >= 0xd81e and <= 0xda8b;
+                bool wordOwned = raw is >= 0xd81e and < 0xda8b;
                 AssertEqual(byteOwned,EyeDoorPlmProgramDefinitions.TryReadMechanicsByte((ushort)raw,out byte b),"Eye door full byte domain");
                 AssertEqual(wordOwned,EyeDoorPlmProgramDefinitions.TryReadMechanicsWord((ushort)raw,out ushort w),"Eye door full word domain");
                 if (!byteOwned) AssertEqual((byte)0,b,"Eye door rejected byte output");

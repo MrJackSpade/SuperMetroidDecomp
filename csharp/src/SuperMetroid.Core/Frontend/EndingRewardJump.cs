@@ -38,7 +38,7 @@ internal sealed class EndingRewardJump
                 Move(head);
                 if (unchecked((short)head.YPosition) < EndingRewardJumpDefinitions.SheetSwitchY) head.Delete();
             }
-            head.Step(bus, Instruction, instructionWord);
+            head.Step(Instruction, instructionWord);
         }
         if (body.PreInstructionPointer == EndingRewardJumpDefinitions.BodyFlight)
         {
@@ -62,15 +62,15 @@ internal sealed class EndingRewardJump
                 body.PreInstructionPointerForDiscovery(0);
             }
         }
-        body.Step(bus, Instruction, instructionWord);
+        body.Step(Instruction, instructionWord);
     }
 
     public OamBuffer Draw(EndingRewardSpritePresentation? installedArt = null, OamBuffer? destination = null)
     {
         var oam = destination ?? new OamBuffer();
         if (destination is null) oam.BeginFrame();
-        head?.Draw(bus, oam, installedArt: installedArt);
-        body.Draw(bus, oam, installedArt: installedArt);
+        head?.Draw(oam, installedArt: installedArt);
+        body.Draw(oam, installedArt: installedArt);
         if (destination is null) oam.FinalizeFrame();
         return oam;
     }

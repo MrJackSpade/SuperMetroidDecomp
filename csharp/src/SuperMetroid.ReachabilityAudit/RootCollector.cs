@@ -40,7 +40,9 @@ internal sealed class RootCollector(SymbolIdentity identity, ReachabilityGraph g
             }
             foreach (var staticConstructor in type.StaticConstructors)
                 graph.ImpliedByType(typeKey, identity.Key(staticConstructor));
-            if (type.GetAttributes().Any(a => a.AttributeClass?.Name == "StructLayoutAttribute"))
+            // An explicit layout, or an inline array's element field, is storage the type's
+            // users read through memory rather than by name.
+            if (type.GetAttributes().Any(a => a.AttributeClass?.Name is "StructLayoutAttribute" or "InlineArrayAttribute"))
                 foreach (var field in type.GetMembers().OfType<IFieldSymbol>())
                     graph.ImpliedByType(typeKey, identity.Key(field));
             if (HasReflectionMarker(type))

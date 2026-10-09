@@ -19,7 +19,7 @@ internal static partial class Program
         head.SpritemapPointer = 1;
         head.Health = 18000;
         var state = new MotherBrainEnemyState(enemies.Slots[0]) { Head = head, Form = 2, WalkCounter = 0x1000 };
-        typeof(RoomEnemySystem).GetField("_motherBrain", flags)!.SetValue(enemies, state);
+        typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", flags)!.SetValue(enemies, state);
         ((List<ushort>)typeof(RoomEnemySystem).GetField("_interactiveEnemyIndexes", flags)!.GetValue(enemies)!).Add(head.NativeIndex);
         var samus = new SamusState();
         var installation = RepositoryInstallation.Installation;

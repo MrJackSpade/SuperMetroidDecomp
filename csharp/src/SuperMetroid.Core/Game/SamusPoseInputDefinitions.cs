@@ -4,8 +4,6 @@ namespace SuperMetroid.Core.Game;
 [Flags]
 internal enum CanonicalPoseButtons : ushort
 {
-    /// <summary>$91:9EE2 TransitionTable input bits: no required buttons.</summary>
-    None = 0,
     /// <summary>$91:9EE2 TransitionTable input bits: canonical aim diagonally up.</summary>
     AimUp = 0x0010,
     /// <summary>$91:9EE2 TransitionTable input bits: canonical aim diagonally down.</summary>
@@ -376,7 +374,6 @@ internal static class SamusPoseInputDefinitions
     internal static bool Has(ushort input, CanonicalPoseButtons required) =>
         (input & (ushort)required) == (ushort)required;
 
-    internal static SamusPoseInputMatch Accept(int index, CanonicalPoseButtons newlyPressed,
-        CanonicalPoseButtons held, SamusPoseId target) =>
+    internal static SamusPoseInputMatch Accept(SamusPoseId target) =>
         new(new((ushort)target), HasConditions: true);
 }

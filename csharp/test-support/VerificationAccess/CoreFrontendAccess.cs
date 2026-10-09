@@ -26,7 +26,7 @@ internal static class CeresDepartureStateAccess
         /// <summary>Applies the current master-brightness nibble to a software-rendered frame.</summary>
         internal void ApplyBrightness(Span<Rgba32> pixels)
         {
-            MasterBrightnessFilter.Apply(pixels, PrivateState.Field<byte>(self, "brightness"));
+            MasterBrightnessFilter.Apply(pixels, PrivateState.Field<byte>(self, "<Brightness>k__BackingField"));
         }
     }
 }
@@ -375,6 +375,6 @@ internal static class TitleSequenceStateAccess
         /// NTSC demo countdown. Retail initializes this to $0384 (900 frames); PAL uses $02D0
         /// so both revisions hold the title for approximately fifteen seconds.
         /// </summary>
-        internal int TitleScreenFramesRemaining => PrivateState.Field<TitleSequencePhase>(self, "phase") == TitleSequencePhase.TitleScreen ? PrivateState.Field<int>(self, "phaseTimer") : 0;
+        internal int TitleScreenFramesRemaining => PrivateState.Field<TitleSequencePhase>(self, "<Phase>k__BackingField") == TitleSequencePhase.TitleScreen ? PrivateState.Field<int>(self, "phaseTimer") : 0;
     }
 }

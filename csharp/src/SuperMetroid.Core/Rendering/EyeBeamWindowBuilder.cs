@@ -11,7 +11,7 @@ internal static class EyeBeamWindowBuilder
     /// particular, a zero-width diagonal is a ray, not an infinite line, and the
     /// integer endpoints are accumulated before each row is written.
     /// </summary>
-    internal static ushort[] Build(ISnesAddressSpace bus, int x, int y, int angle, int width)
+    internal static ushort[] Build(int x, int y, int angle, int width)
     {
         var rows = new ushort[EyeWindowRenderDefinitions.TableRows];
         Array.Fill(rows, EyeWindowRenderDefinitions.EmptyWindow);
@@ -24,9 +24,9 @@ internal static class EyeBeamWindowBuilder
         int b = angle + width;
         // The native upper edge retains the inclusive final tangent-table entry.
         if (b > turn) b -= turn;
-        int ta = Tangent(bus, a < half ? a : a - half);
-        int tb = Tangent(bus, b < half ? b : b - half);
-        bool offScreen = x < 0 || x >= SnesGameplayFrameRenderer.Width;
+        int ta = Tangent(a < half ? a : a - half);
+        int tb = Tangent(b < half ? b : b - half);
+        bool offScreen = x is < 0 or >= SnesGameplayFrameRenderer.Width;
         int origin = unchecked((ushort)(x << 8));
         int apex = y - EyeWindowRenderDefinitions.ApexYOffset;
         int up = offScreen ? apex : apex - 1;
@@ -90,7 +90,7 @@ internal static class EyeBeamWindowBuilder
         return rows;
     }
 
-    private static int Tangent(ISnesAddressSpace bus, int index)
+    private static int Tangent(int index)
     {
         return AbsoluteTangentDefinitions.Sample(index);
     }
@@ -144,8 +144,8 @@ internal static class EyeBeamWindowBuilder
         {
             left += leftStep;
             right += rightStep;
-            bool leftOutside = left < 0 || left > ushort.MaxValue;
-            bool rightOutside = right < 0 || right > ushort.MaxValue;
+            bool leftOutside = left is < 0 or > ushort.MaxValue;
+            bool rightOutside = right is < 0 or > ushort.MaxValue;
             ushort window = (right < 0 && rightStep >= 0) || (left > ushort.MaxValue && leftStep <= 0) ? EyeWindowRenderDefinitions.EmptyWindow :
                 (ushort)((Math.Clamp(left, 0, ushort.MaxValue) >> 8) |
                          (Math.Clamp(right, 0, ushort.MaxValue) & EyeWindowRenderDefinitions.FullRightEdge));

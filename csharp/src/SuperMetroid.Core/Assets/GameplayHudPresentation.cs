@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
@@ -368,11 +369,12 @@ public sealed class GameplayHudPresentation
     private sealed class CompiledIcon
     {
         private readonly int item;
-        private readonly MapLabelPoint? anchorOverride;
         private readonly Dictionary<int, ushort> edits = new();
         internal int Width => GameplayHudDefinitions.IconWidth(item);
         internal const int Height = 2;
-        internal MapLabelPoint Anchor => anchorOverride ?? StockAnchor(item);
+
+        [AllowNull]
+        internal MapLabelPoint Anchor => field ?? StockAnchor(item);
         private static MapLabelPoint StockAnchor(int item)
         {
             int index = GameplayHudDefinitions.ItemByteOffset(item) / sizeof(ushort);
@@ -384,7 +386,7 @@ public sealed class GameplayHudPresentation
             string name = GameplayHudDefinitions.IconName(item);
             if (document is null) throw new InvalidDataException($"Gameplay HUD icon {name} is null.");
             MapLabelPoint anchor = ValidateAnchor(document.Anchor, Width, Height, $"{name} icon");
-            anchorOverride = anchor == StockAnchor(item) ? null : anchor;
+            Anchor = anchor == StockAnchor(item) ? null : anchor;
             ushort[] cells = CompileCells(document.Cells, Width * Height, $"{name} icon");
             for (int cell = 0; cell < cells.Length; cell++)
                 if (cells[cell] != GameplayHudDefinitions.IconWord(item, cell)) edits.Add(cell, cells[cell]);

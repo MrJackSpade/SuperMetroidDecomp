@@ -18,7 +18,6 @@ public sealed class SamusShinesparkState
     [NonSerialized] private SamusPowerBombExplosionState? _audioPowerBomb;
     [NonSerialized] private SamusProjectileSystem? _projectiles;
     [NonSerialized] private bool _chargeCancellationSoundRequested;
-    [NonSerialized] private bool _chargeCancellationSoundSuppressed;
 
     /// <summary>
     /// Rebinds the live projectile and sound owners before movement/palette production,
@@ -150,7 +149,8 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>Producer-time Power Bomb guard for the pending charge-cancellation call.</summary>
-    public bool ChargeCancellationSoundSuppressed => _chargeCancellationSoundSuppressed;
+    [field: NonSerialized]
+    public bool ChargeCancellationSoundSuppressed { get; private set; }
 
     /// <summary>High byte of native `$0AAE` while the two crash echoes orbit Samus.</summary>
     public byte CrashSubphase { get; private set; }
@@ -276,7 +276,7 @@ public sealed class SamusShinesparkState
             if (cancelledCharge >= SamusProjectileRomData.Beams.ChargeSoundStartCounter)
             {
                 _chargeCancellationSoundRequested = true;
-                _chargeCancellationSoundSuppressed = _audioPowerBomb?.IsActive == true;
+                ChargeCancellationSoundSuppressed = _audioPowerBomb?.IsActive == true;
             }
         }
 
@@ -414,12 +414,11 @@ timedOut,                 PendingLaunchPose: pendingLaunchPose);
             ShinesparkPhase.Vertical or ShinesparkPhase.Diagonal))
         {
             if (Phase == ShinesparkPhase.Crash)
-                return StepCrashOrbit(samus, phaseAtStart);
+                return StepCrashOrbit(samus);
             if (Phase == ShinesparkPhase.CrashEchoCircle)
-                return StepCrashEchoCircle(phaseAtStart);
+                return StepCrashEchoCircle();
             if (Phase == ShinesparkPhase.CrashFinish)
-                return FinishCrash(bus, samus, phaseAtStart,
-                    projectiles?.ProjectileCounter ?? projectileCounter, projectiles);
+                return FinishCrash(samus, projectiles?.ProjectileCounter ?? projectileCounter, projectiles);
 
             // Stored/inactive states are not installed special movement handlers. Returning
             // an empty snapshot is defensive; runtime normally never dispatches them here.
@@ -576,8 +575,7 @@ false);
 
     /// <summary>Ports `$90:D346-$D3F2`, including the three overloaded-index substates.</summary>
     private ShinesparkMovementResult StepCrashOrbit(
-        SamusState samus,
-        ShinesparkPhase phaseAtStart)
+        SamusState samus)
     {
         ShineTimer = 15;
         switch (CrashSubphase)
@@ -637,7 +635,7 @@ false);
     }
 
     /// <summary>Ports the 30-frame center echo hold at `$90:D3F3`.</summary>
-    private ShinesparkMovementResult StepCrashEchoCircle(ShinesparkPhase phaseAtStart)
+    private ShinesparkMovementResult StepCrashEchoCircle()
     {
         ShineTimer = 15;
         NativeWordCounterStep timer = NativeWordCounter.Decrement(StartStopTimer);
@@ -653,9 +651,7 @@ false);
     /// and four when capacity permits, restore standing, and expire palette handler six.
     /// </summary>
     private ShinesparkMovementResult FinishCrash(
-        ISnesAddressSpace bus,
         SamusState samus,
-        ShinesparkPhase phaseAtStart,
         ushort projectileCounter,
         SamusProjectileSystem? projectiles)
     {
@@ -677,14 +673,14 @@ false);
                     departureAngles.First,
                     samus.XPosition,
                     samus.YPosition);
-                projectiles?.InitializeShinesparkEcho(bus, 3, departureAngles.First);
+                projectiles?.InitializeShinesparkEcho(3, departureAngles.First);
             }
 
             _secondReleasedCrashEcho.Initialize(
                 departureAngles.Second,
                 samus.XPosition,
                 samus.YPosition);
-            projectiles?.InitializeShinesparkEcho(bus, 4, departureAngles.Second);
+            projectiles?.InitializeShinesparkEcho(4, departureAngles.Second);
         }
 
         ShineTimer = 1;
@@ -710,7 +706,7 @@ false,             CrashSequenceFinished: true);
         // The native transitional-pose handler restores normal movement and
         // aligns the standing body's bottom with the old crash body. Alpha alone
         // publishes the new live radius on the following frame.
-        samus.AlignBottomAfterPoseChange(previousRadius, SamusState.ReadPoseYRadius(bus, standingPose));
+        samus.AlignBottomAfterPoseChange(previousRadius, SamusState.ReadPoseYRadius(standingPose));
         samus.InitializeAnimation(bus, initialFrame: 0);
     }
 
@@ -730,7 +726,7 @@ false,             CrashSequenceFinished: true);
         echo.Radius = unchecked((ushort)projectile.XVelocity);
         echo.Angle = SnesAngle.FromTableIndex(unchecked((byte)projectile.Variable));
         if (!StepReleasedCrashEcho(samus, layer1X, layer1Y,
-            (byte)projectile.SlotIndex, echo, projectileOwnsSlot: true)) return false;
+            echo, projectileOwnsSlot: true)) return false;
         projectile.XVelocity = unchecked((short)echo.Radius);
         projectile.XPosition = echo.XPosition;
         projectile.YPosition = echo.YPosition;
@@ -741,7 +737,6 @@ false,             CrashSequenceFinished: true);
         SamusState samus,
         ushort layer1X,
         ushort layer1Y,
-        byte nativeSlot,
         ReleasedEchoSlot slot,
         bool projectileOwnsSlot = false)
     {
@@ -760,7 +755,7 @@ false,             CrashSequenceFinished: true);
         // cleared result is identical either way, but retaining the branch order makes a
         // debugger trace line up with `$90:D4F2-$D51E` instruction for instruction.
         short screenX = unchecked((short)(slot.XPosition - layer1X));
-        if (screenX < 0 || screenX >= 256)
+        if (screenX is < 0 or >= 256)
         {
             LastReleasedCrashEchoClear = new();
             slot.Clear();
@@ -769,7 +764,7 @@ false,             CrashSequenceFinished: true);
 
         slot.YPosition = unchecked((ushort)(samus.YPosition + offsetY));
         short screenY = unchecked((short)(slot.YPosition - layer1Y));
-        if (screenY < 0 || screenY >= 256)
+        if (screenY is < 0 or >= 256)
         {
             LastReleasedCrashEchoClear = new();
             slot.Clear();

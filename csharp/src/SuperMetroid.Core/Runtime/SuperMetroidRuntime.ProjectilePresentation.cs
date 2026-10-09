@@ -14,9 +14,9 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IInstalled
             return true;
         if (MapPresentation?.EscapeTimerTiles.TryResolve(sourceAddress, byteCount, out data) == true)
             return true;
-        if (beamArtwork?.TryResolve(sourceAddress, byteCount, out data) == true)
+        if (BeamArtwork?.TryResolve(sourceAddress, byteCount, out data) == true)
             return true;
-        if (grappleArtwork?.TryResolve(sourceAddress, byteCount, out data) == true)
+        if (GrappleArtwork?.TryResolve(sourceAddress, byteCount, out data) == true)
             return true;
         if (MapPresentation is not null &&
             sourceAddress == GameplayHudDefinitions.TopRowAddress &&
@@ -48,21 +48,20 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IInstalled
         data = default;
         return false;
     }
+
     // Host content is rebound after restoring a graph; saved state must not freeze
     // an old user override into the simulation. Only composition emission uses this.
-    [NonSerialized] private ProjectileSpriteCatalog? projectileCompositions;
     /// <summary>Complete installed standard OBJ sheet used by the queued gameplay DMA.</summary>
     [field: NonSerialized]
     public RoomCharacterAtlas? StandardObjectArt { get; set; }
-    [NonSerialized] private ProjectileFrameBindingCatalog? projectileFrameBindings;
 
     /// <summary>Rebinds authored visual frame choices to both native projectile slot owners.</summary>
-    public ProjectileFrameBindingCatalog? ProjectileFrameBindings
+    [field: NonSerialized]     public ProjectileFrameBindingCatalog? ProjectileFrameBindings
     {
-        get => projectileFrameBindings;
+        get;
         set
         {
-            projectileFrameBindings = value;
+            field = value;
             Projectiles.FrameBindings = value;
             BombProjectiles.FrameBindings = value;
         }
@@ -73,37 +72,37 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IInstalled
     /// <summary>Installed charge-flare OAM compositions selected independently of timing and damage.</summary>
     [field: NonSerialized]
     public ChargeFlareSpriteCatalog? ChargeFlareCompositions { get; set; }
-    [NonSerialized] private GrappleTileAtlas? grappleArtwork;
+
     /// <summary>Current Grapple artwork and visual definitions. Rebinding legacy pending transfers preserves their NMI order and destination.</summary>
-    public GrappleTileAtlas? GrappleArtwork
+    [field: NonSerialized]     public GrappleTileAtlas? GrappleArtwork
     {
-        get => grappleArtwork;
-        set { grappleArtwork = value; value?.RebindPendingWrites(VramWrites); BindGrapplePresentation(); }
+        get;
+        set { field = value; value?.RebindPendingWrites(VramWrites); BindGrapplePresentation(); }
     }
     private void BindGrapplePresentation()
     {
         if (Samus is not null)
         {
-            Samus.Grapple.FlarePlacement = grappleArtwork?.FlarePlacement;
-            Samus.Grapple.SwingFrames = grappleArtwork?.SwingFrames;
+            Samus.Grapple.FlarePlacement = GrappleArtwork?.FlarePlacement;
+            Samus.Grapple.SwingFrames = GrappleArtwork?.SwingFrames;
         }
     }
-    [NonSerialized] private ProjectileTrailCatalog? trailArtwork;
+
     [NonSerialized] private bool trailArtworkRefreshPending;
     /// <summary>Current projectile-trail tiles and visual compositions; rebinding refreshes installed tiles at the next display boundary.</summary>
-    public ProjectileTrailCatalog? TrailArtwork
+    [field: NonSerialized]     public ProjectileTrailCatalog? TrailArtwork
     {
-        get => trailArtwork;
-        set { trailArtwork = value; trailArtworkRefreshPending = value?.Tiles is not null; }
+        get;
+        set { field = value; trailArtworkRefreshPending = value?.Tiles is not null; }
     }
-    [NonSerialized] private BeamTileCatalog? beamArtwork;
+
     [NonSerialized] private bool beamArtworkRefreshPending;
 
     /// <summary>Current beam tiles. Rebinding changes the next accepted display, not the retained frame.</summary>
-    public BeamTileCatalog? BeamArtwork
+    [field: NonSerialized]     public BeamTileCatalog? BeamArtwork
     {
-        get => beamArtwork;
-        set { beamArtwork = value; beamArtworkRefreshPending = value is not null; }
+        get;
+        set { field = value; beamArtworkRefreshPending = value is not null; }
     }
 
     ReadOnlyMemory<byte> IVramAssetProvider.Resolve(VramAssetId asset) =>
@@ -117,22 +116,22 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IInstalled
             : asset is VramAssetId.GrapplePointFirstTiles or VramAssetId.GrapplePointSecondTiles or
             VramAssetId.GrapplePointThirdTiles or VramAssetId.GrapplePointFourthTiles or
             VramAssetId.GrappleHorizontalSegmentTiles or VramAssetId.GrappleDiagonalSegmentTiles or VramAssetId.GrappleVerticalSegmentTiles
-            ? (grappleArtwork ?? throw new InvalidOperationException("Grapple artwork is not bound.")).Resolve(asset)
+            ? (GrappleArtwork ?? throw new InvalidOperationException("Grapple artwork is not bound.")).Resolve(asset)
             : asset is VramAssetId.ProjectileIceWaveTrailTiles or VramAssetId.ProjectileMissileTrailTiles
-            ? (trailArtwork?.Tiles ?? throw new InvalidOperationException("Trail artwork is not bound.")).Resolve(asset)
+            ? (TrailArtwork?.Tiles ?? throw new InvalidOperationException("Trail artwork is not bound.")).Resolve(asset)
             : asset is VramAssetId.StandardHudTiles or
                 VramAssetId.KraidBg3RestoreQuarter0 or VramAssetId.KraidBg3RestoreQuarter1 or
                 VramAssetId.KraidBg3RestoreQuarter2 or VramAssetId.KraidBg3RestoreQuarter3 or
                 VramAssetId.EscapeTimerFirstTiles or VramAssetId.EscapeTimerSecondTiles
             ? (MapPresentation ?? throw new InvalidOperationException("Map presentation artwork is not bound.")).Resolve(asset)
-            : (beamArtwork ?? throw new InvalidOperationException("Beam artwork is not bound.")).Resolve(asset);
+            : (BeamArtwork ?? throw new InvalidOperationException("Beam artwork is not bound.")).Resolve(asset);
 
     private void PublishReboundTrailArtwork()
     {
         if (!trailArtworkRefreshPending) return;
         // A restored legacy queue can still contain the standard OBJ upload. Publish
         // current host art only after that queue drains, and only on accepted NMIs.
-        trailArtwork!.Tiles!.LoadTo(Vram);
+        TrailArtwork!.Tiles!.LoadTo(Vram);
         trailArtworkRefreshPending = false;
     }
 
@@ -143,21 +142,18 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IInstalled
         // Do not reinterpret invalid combination overreads as a legal replacement.
         if (selection < BeamTileAtlasDefinitions.SelectionCount)
         {
-            Vram.ExecuteQueuedAssetWrite(beamArtwork!.Resolve(BeamTileCatalog.AssetFor(selection)).Span,
+            Vram.ExecuteQueuedAssetWrite(BeamArtwork!.Resolve(BeamTileCatalog.AssetFor(selection)).Span,
                 BeamTileAtlasDefinitions.DestinationWord);
             // An in-flight effect owns these colors across frames. Its own completion
             // restores the selected normal palette; host rebind must not erase its phase.
             if (Samus.CrystalFlash.SpecialPaletteKind != Game.SamusSpecialPaletteType.CrystalFlash &&
                 !Samus.Drained.HyperBeamPaletteFx.IsActive)
-                beamArtwork.Palettes?.LoadTo(Cgram, selection);
+                BeamArtwork.Palettes?.LoadTo(Cgram, selection);
         }
         beamArtworkRefreshPending = false;
     }
 
     /// <summary>Current external timed-projectile composition catalog, independent of mechanics.</summary>
-    public ProjectileSpriteCatalog? ProjectileCompositions
-    {
-        get => projectileCompositions;
-        set => projectileCompositions = value;
-    }
+    [field: NonSerialized]
+    public ProjectileSpriteCatalog? ProjectileCompositions { get; set; }
 }

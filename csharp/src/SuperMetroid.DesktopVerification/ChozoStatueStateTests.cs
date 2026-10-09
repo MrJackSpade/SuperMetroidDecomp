@@ -51,9 +51,9 @@ internal static partial class Program
             // Compare the physical position on every carried frame with the native
             // hand-offset tables, not merely the final control-release flag.
             ushort expectedX = unchecked((ushort)(statue.XPosition +
-                (short)ReadChozoWord(loaded.AddressSpace, 0xaae670 + offset)));
+                (short)ReadChozoWord(0xaae670 + offset)));
             ushort expectedY = unchecked((ushort)(statue.YPosition +
-                (short)ReadChozoWord(loaded.AddressSpace, 0xaae6b0 + offset)));
+                (short)ReadChozoWord(0xaae6b0 + offset)));
             if (!runtime.GroundedSamusMovementEnabled &&
                 (samus.XPosition != expectedX || samus.YPosition != expectedY))
                 throw new InvalidDataException($"Chozo hand alignment failed on frame {frame}.");
@@ -74,7 +74,7 @@ internal static partial class Program
         Console.WriteLine($"Verified hand collision, per-frame carry alignment, slope restoration and {soundFrames} sound frames.");
     }
 
-    private static ushort ReadChozoWord(SuperMetroid.Core.Hardware.SuperMetroidAddressSpace bus, int address)
+    private static ushort ReadChozoWord(int address)
     {
         var reference = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));

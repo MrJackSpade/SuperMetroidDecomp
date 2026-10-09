@@ -32,8 +32,8 @@ internal static partial class Program
             Effect.MutableBg2ScrollByScanline.Fill(19);
             Bind("_bus", Memory);
             Bind("_vram", Vram);
-            Bind("_crocomire", Actor);
-            Bind("_crocomireDeath", Effect);
+            Bind("<Crocomire>k__BackingField", Actor);
+            Bind("<CrocomireDeath>k__BackingField", Effect);
             Bind("_readRandomNumber", (Func<ushort>)(() => 0x1234));
         }
 

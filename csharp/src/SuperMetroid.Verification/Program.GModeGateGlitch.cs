@@ -186,7 +186,6 @@ internal static partial class Program
             samus.HorizontalSpeed.BaseSpeed = 4;
             samus.HorizontalSpeed.HasRunningMomentum = true;
             SamusInsideBlockReactions.PrepareFrame(
-                bus,
                 level,
                 samus,
                 AreaId.Maridia,
@@ -204,7 +203,6 @@ internal static partial class Program
         samus.HorizontalSpeed.BaseSpeed = 4;
         samus.HorizontalSpeed.HasRunningMomentum = true;
         SamusInsideBlockReactions.PrepareFrame(
-            bus,
             level,
             samus,
             AreaId.Maridia,
@@ -259,7 +257,7 @@ internal static partial class Program
 
         RoomLevelData fullLevel = DoorRoom();
         var fullPlms = new RoomPlmSystem();
-        FillSuspendedPlmPool(bus, fullPlms);
+        FillSuspendedPlmPool(fullPlms);
         AssertTrue(!fullPlms.TrySpawnBlueDoorOpening(
                 fullLevel,
                 doorIndex,
@@ -342,7 +340,7 @@ internal static partial class Program
 
             RoomLevelData level = CreateLevel();
             var plms = new RoomPlmSystem();
-            FillSuspendedPlmPool(bus, plms);
+            FillSuspendedPlmPool(plms);
             SamusState samus = CreateSamus();
 
             BlockMoveResult result = SamusBlockCollision.MoveVertical(
@@ -507,7 +505,6 @@ internal static partial class Program
     }
 
     private static void FillSuspendedPlmPool(
-        ISnesAddressSpace bus,
         RoomPlmSystem plms)
     {
         for (int slot = 0; slot < 40; slot++)

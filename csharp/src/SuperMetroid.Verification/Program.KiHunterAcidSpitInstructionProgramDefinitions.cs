@@ -38,7 +38,7 @@ internal static partial class Program
         MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(
             "SpawnKiHunterAcidSpit", flags)!;
         MethodInfo move = typeof(RoomEnemySystem).GetMethod(
-            "RunKiHunterAcidMovement", flags)!;
+            "RunKiHunterAcidMovement", BindingFlags.NonPublic | BindingFlags.Static)!;
 
         var body = new RoomEnemySlot(0)
         {

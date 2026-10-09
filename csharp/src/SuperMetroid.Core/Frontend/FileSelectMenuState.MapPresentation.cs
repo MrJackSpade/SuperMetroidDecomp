@@ -11,10 +11,10 @@ public sealed partial class FileSelectMenuState
             throw new InvalidOperationException("File-select requires installed map presentation assets.");
         mapPresentation = catalog;
         saveRam.BindMapPresentation(catalog);
-        ppu.BindWorldArtwork(bus, catalog.WorldArtwork);
-        ppu.BindMapTiles(bus, catalog.Tiles);
-        ppu.BindMapSprites(bus, catalog.Sprites);
-        ppu.BindMapPalettes(bus, catalog.Palettes);
+        ppu.BindWorldArtwork(catalog.WorldArtwork);
+        ppu.BindMapTiles(catalog.Tiles);
+        ppu.BindMapSprites(catalog.Sprites);
+        ppu.BindMapPalettes(catalog.Palettes);
         catalog.FileSelect.LoadBackground(ppu.Vram);
         RebuildInstalledPresentationPage();
         UploadBg1Tilemap();

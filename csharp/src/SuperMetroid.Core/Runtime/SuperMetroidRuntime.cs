@@ -447,21 +447,19 @@ public sealed partial class SuperMetroidRuntime
     /// <summary>Ceiling and falling-sand character animation selected by the current room FX record.</summary>
     public RoomSandAnimatedTilesState SandAnimatedTiles { get; } = new();
 
-    private RoomSpikeAnimatedTilesState? _roomSpikes;
-
     /// <summary>FX-selected horizontal spikes; older debugger states restart the absent owner at frame zero.</summary>
     public RoomSpikeAnimatedTilesState RoomSpikes
     {
         get
         {
-            if (_roomSpikes is null)
+            if (field is null)
             {
-                _roomSpikes = new();
+                field = new();
                 if (ActiveRoom is { } room)
-                    _roomSpikes.LoadRoom(_addressSpace, room.State.FxPointer,
+                    field.LoadRoom(_addressSpace, room.State.FxPointer,
                         ActiveDoor?.Pointer ?? 0, room.AreaIndex);
             }
-            return _roomSpikes;
+            return field;
         }
     }
 
@@ -781,7 +779,7 @@ public sealed partial class SuperMetroidRuntime
         {
             // Native cancellation, drop, wall-jump and swing-release tails all
             // reload the equipped beam palette before returning to inactive.
-            (beamArtwork?.Palettes ?? throw new InvalidOperationException(
+            (BeamArtwork?.Palettes ?? throw new InvalidOperationException(
                 "Grapple cleanup requires installed beam artwork."))
                 .LoadTo(Cgram, Samus.EquippedBeams & SamusGrappleRomData.Palettes.EquippedSelectionMask);
         }
@@ -797,7 +795,7 @@ public sealed partial class SuperMetroidRuntime
     private void LoadGrapplePalette()
     {
         // Both ordinary HUD firing and debug entry select the installed native palette.
-        (beamArtwork?.Palettes ?? throw new InvalidOperationException(
+        (BeamArtwork?.Palettes ?? throw new InvalidOperationException(
             "Grapple palette requires installed beam artwork."))
             .LoadTo(Cgram, SamusGrappleRomData.Palettes.FiringSelection);
         Cgram.SetColor(SamusGrappleRomData.Palettes.FlareColorIndex, SamusGrappleRomData.Palettes.FlareColor);
@@ -1219,7 +1217,7 @@ public sealed partial class SuperMetroidRuntime
             RoomPaletteFx.Step(
                 _addressSpace,
                 Cgram,
-                mapPresentation?.RoomPaletteFx ?? throw new InvalidOperationException(
+                MapPresentation?.RoomPaletteFx ?? throw new InvalidOperationException(
                     "Gameplay palette FX requires installed map presentation colors."),
                 Samus?.YPosition ?? 0,
                 Samus?.EquippedItems ?? 0,
@@ -1233,7 +1231,7 @@ public sealed partial class SuperMetroidRuntime
         LastHyperBeamPaletteFxStep = Samus?.Drained.HyperBeamPaletteFx.Step(
             _addressSpace,
             Cgram,
-            beamArtwork?.HyperBeamFxColors);
+            BeamArtwork?.HyperBeamFxColors);
 
         // The bank-$82 main loop clears high OAM and resets its stack before dispatching
         // game state, then finalizes unused entries afterward. Samus is emitted before the
@@ -1408,7 +1406,7 @@ public sealed partial class SuperMetroidRuntime
                 }
 
                 if (!TimeIsFrozen && !AlphaInputLocked() && ActiveRoom is { } insideRoom)
-                    SamusInsideBlockReactions.PrepareFrame(_addressSpace, LevelData, Samus, insideRoom.AreaIndex,
+                    SamusInsideBlockReactions.PrepareFrame(LevelData, Samus, insideRoom.AreaIndex,
                         System.HasAnyBossBits(insideRoom.AreaIndex, BossBits.AreaBoss), Plms);
 
                 // Alpha order is cooldown -> movement-type HUD projectile producer ->
@@ -3520,7 +3518,7 @@ Landed: true, HitCeiling: false);
             // Producers up to PLM_Handler queued their sounds before DisplayMessageBox's
             // entry cancel; the frontend publishes this frame's requests at that boundary.
             CompletedGameplayAudioPublication++;
-            return Snapshot(escapeTimerExpired: false, infiniteAmmoGuard);
+            return Snapshot(infiniteAmmoGuard);
         }
         return FinishGameplayFrame(
             frameTail,
@@ -3798,7 +3796,7 @@ Landed: true, HitCeiling: false);
         // A resumed tail's frame already published its audio when it suspended.
         if (!resumedAfterMessageBox)
             CompletedGameplayAudioPublication++;
-        return Snapshot(escapeTimerExpired, infiniteAmmoGuard);
+        return Snapshot(infiniteAmmoGuard);
     }
 
     /// <summary>
@@ -4035,7 +4033,7 @@ Landed: true, HitCeiling: false);
         if (MessageBox.ConfirmationSelectionChangedThisFrame)
             MessageBoxSelectionSoundRequestedThisFrame = true;
         if (MessageBox.IsActive)
-            return Snapshot(escapeTimerExpired: false, infiniteAmmoGuard);
+            return Snapshot(infiniteAmmoGuard);
 
         ResolveClosedMessageBox();
         // The native PLM_Handler returns once the box and its item routine finish; the
@@ -4052,7 +4050,7 @@ Landed: true, HitCeiling: false);
                 infiniteAmmoGuard,
                 resumedAfterMessageBox: true);
         }
-        return Snapshot(escapeTimerExpired: false, infiniteAmmoGuard);
+        return Snapshot(infiniteAmmoGuard);
     }
 
     /// <summary>Applies the effects that follow a message box closing.</summary>
@@ -4156,7 +4154,6 @@ Landed: true, HitCeiling: false);
     }
 
     private RuntimeFrameResult Snapshot(
-        bool escapeTimerExpired,
         HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
     {
         // Every translated producer gets to apply its normal amount of damage first. The

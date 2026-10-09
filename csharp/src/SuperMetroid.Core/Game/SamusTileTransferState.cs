@@ -15,12 +15,12 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusTileTransferState
 {
-    [NonSerialized] private SamusBodyArtworkCatalog? artwork;
     /// <summary>Currently bound external visual presentation; never part of save state.</summary>
-    public SamusBodyArtworkCatalog? Artwork => artwork;
+    [field: NonSerialized]
+    public SamusBodyArtworkCatalog? Artwork { get; private set; }
 
     /// <summary>Rebind installed visual data without replacing pending native DMA state.</summary>
-    public void BindArtwork(SamusBodyArtworkCatalog? value) => artwork = value;
+    public void BindArtwork(SamusBodyArtworkCatalog? value) => Artwork = value;
 
     /// <summary>Bank-$92 address of the selected seven-byte top-half DMA definition.</summary>
     public int TopDefinitionAddress { get; private set; }
@@ -41,7 +41,7 @@ public sealed class SamusTileTransferState
     {
         ArgumentNullException.ThrowIfNull(bus);
 
-        SamusBodyArtworkCatalog installed = artwork ?? throw new InvalidOperationException(
+        SamusBodyArtworkCatalog installed = Artwork ?? throw new InvalidOperationException(
             "Samus tile transfer requires installed body artwork.");
         SamusBodyFrameSelection frame = installed.Frame(pose, animationFrame);
         TopDefinitionAddress = installed.DefinitionAddress(true, frame.TopSet, frame.TopPosition);
@@ -65,13 +65,13 @@ public sealed class SamusTileTransferState
         // Samus has a dedicated DMA path instead of using the ordinary seven-byte VRAM
         // queue. The four destinations form two interleaved character regions selected by
         // the pose spritemaps' tile numbers under gameplay OBSEL=$03.
-        SamusBodyArtworkCatalog installed = artwork ?? throw new InvalidOperationException(
+        SamusBodyArtworkCatalog installed = Artwork ?? throw new InvalidOperationException(
             "Samus tile transfer requires installed body artwork.");
         if (TopTransferEnabled)
-            ExecuteInstalledDefinition(vram, installed.DefinitionAt(true, TopDefinitionAddress),
+            ExecuteInstalledDefinition(vram, installed.DefinitionAt(TopDefinitionAddress),
                 SamusRenderingRomData.TileTransfers.TopDestinations);
         if (BottomTransferEnabled)
-            ExecuteInstalledDefinition(vram, installed.DefinitionAt(false, BottomDefinitionAddress),
+            ExecuteInstalledDefinition(vram, installed.DefinitionAt(BottomDefinitionAddress),
                 SamusRenderingRomData.TileTransfers.BottomDestinations);
 
         // These flags are intentionally not cleared. The original NMI routine leaves them

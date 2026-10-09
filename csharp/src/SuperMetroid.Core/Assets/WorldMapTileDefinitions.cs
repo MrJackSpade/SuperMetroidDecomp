@@ -18,8 +18,8 @@ internal static class WorldMapTileDefinitions
     internal const byte ForegroundFontFace = 14, ForegroundFontShadow = 13;
 
     /// <summary>Native Latin and Japanese glyph cells; paired tall glyphs keep their own upper/lower boundaries.</summary>
-    internal static bool IsForegroundFontTile(int tile) => tile is not (0x16e or 0x16f) &&
-        (tile is >= 0 and <= 0x8f or >= 0xd0 and <= 0x12f or >= 0x160 and <= 0x19f
+    internal static bool IsForegroundFontTile(int tile) => tile is not (0x16e or 0x16f) and
+        (>= 0 and <= 0x8f or >= 0xd0 and <= 0x12f or >= 0x160 and <= 0x19f
         or >= 0x9d and <= 0x9f or >= 0xa5 and <= 0xaa or >= 0xad and <= 0xaf or 0xc8 or 0xcc);
 
     /// <summary>One-pixel southeast cast shadow of the selected glyph silhouette; differing bevels remain supplied.</summary>
@@ -108,7 +108,7 @@ internal static class WorldMapTileDefinitions
             case 0x11:
                 // Down arrow: central two-pixel stem and a narrowing lower head.
                 int inset = y - Side / 2;
-                bool arrow = y >= 1 && (y < 5 ? x >= 3 && x <= 4 : x >= inset && x < Side - inset);
+                bool arrow = y >= 1 && (y < 5 ? x is >= 3 and <= 4 : x >= inset && x < Side - inset);
                 value = arrow ? Edge : Outside; return true;
             case 0x12:
                 value = x == 0 && y % 2 == 0 || y == Side - 1 && x >= 2 && x % 2 == 0 ? Edge : Outside;

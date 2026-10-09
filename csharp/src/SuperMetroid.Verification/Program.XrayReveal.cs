@@ -76,7 +76,7 @@ internal static partial class Program
 
     private static ushort ReadNativeXrayRevealWord(ISnesAddressSpace bus, int pointer)
     {
-        if (pointer < 0x8000 || pointer >= ushort.MaxValue)
+        if (pointer is < 0x8000 or >= ushort.MaxValue)
             throw new InvalidDataException(
                 $"Native X-ray reveal table crossed bank $91 at ${pointer:X}.");
         return unchecked((ushort)(

@@ -65,7 +65,7 @@ public sealed partial class RoomEnemySystem
         ushort cameraX,
         ushort cameraY)
     {
-        MotherBrainEnemyState state = _motherBrain ??
+        MotherBrainEnemyState state = MotherBrain ??
             throw new InvalidDataException("A Mother Brain turret has no owning encounter state.");
         bool onScreen = MotherBrainTurretIsOnScreen(turret, cameraX, cameraY);
 

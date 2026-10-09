@@ -3,7 +3,7 @@ namespace SuperMetroid.Rendering.Direct3D11;
 /// <summary>Bounded rolling timings. Recording never allocates; readers sort their own copy outside the lock.</summary>
 internal sealed class RenderTimingWindow
 {
-    private readonly object sync = new();
+    private readonly Lock sync = new();
     private readonly double[] samples;
     private readonly int warmup;
     private int count, next;

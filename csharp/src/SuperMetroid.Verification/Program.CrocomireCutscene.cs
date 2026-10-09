@@ -86,29 +86,29 @@ internal static partial class Program
         body.XPosition = 1480;
         body.YPosition = 144;
         var state = new CrocomireEnemyState(body);
-        typeof(RoomEnemySystem).GetField("_crocomire", flags)!.SetValue(enemies, state);
-        typeof(RoomEnemySystem).GetField("_crocomireDeath", flags)!.SetValue(enemies, new CrocomireDeathState());
+        typeof(RoomEnemySystem).GetField("<Crocomire>k__BackingField", flags)!.SetValue(enemies, state);
+        typeof(RoomEnemySystem).GetField("<CrocomireDeath>k__BackingField", flags)!.SetValue(enemies, new CrocomireDeathState());
         typeof(RoomEnemySystem).GetField("_setRoomScrollState", flags)!.SetValue(enemies, (Action<int, RoomScrollState>)scrolls.SetStorage);
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new CrocomireTongueNoReadBus());
         typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(enemies, (Func<ushort>)(() => 1));
         var run = typeof(RoomEnemySystem).GetMethod("RunCrocomireMain", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, SamusState?, ushort, RoomLevelData?, ushort>>(enemies);
+            .CreateDelegate<Action<RoomEnemySlot, SamusState?, ushort>>(enemies);
         var samus = new SamusState { XPosition = 1312, YPosition = 128 };
-        run(body, samus, 0, null, 1280);
+        run(body, samus, 1280);
         camera.SetPosition(1280, 0);
         camera.MoveLeft(1);
         AssertEqual((ushort)1280, camera.XPosition, "melting cutscene camera cannot show left of screen five");
         AssertEqual(RoomScrollState.RedBoundary, scrolls.ReadNativeState(4), "bridge threshold locks screen four");
         AssertEqual(RoomScrollState.Blue, scrolls.ReadNativeState(5), "screen five remains visible");
         samus.XPosition = 1311;
-        run(body, samus, 0, null, 1280);
+        run(body, samus, 1280);
         camera.SetPosition(1280, 0);
         camera.MoveLeft(1);
         AssertEqual((ushort)1279, camera.XPosition, "before threshold camera remains free to move left");
         samus.XPosition = 1312;
         body.XPosition = 1600;
-        run(body, samus, 0, null, 1280);
+        run(body, samus, 1280);
         AssertEqual(CrocomireDeathPhases.CrumbleBridgeAndSink, state.DeathSequenceIndex, "real bridge collapse begins");
         camera.SetPosition(1280, 0);
         camera.MoveLeft(1);
@@ -123,7 +123,7 @@ internal static partial class Program
         state.DeathSequenceIndex = CrocomireDeathPhases.WaitForSamusAtWall;
         body.XPosition = 480;
         samus.XPosition = 639;
-        run(body, samus, 0, null, 544);
+        run(body, samus, 544);
         AssertEqual(CrocomireDeathPhases.RumbleHiddenWall, state.DeathSequenceIndex, "left cutscene starts at native Samus threshold");
         AssertEqual(RoomScrollState.RedBoundary, scrolls.ReadNativeState(1), "left cutscene retains red screen one");
         AssertEqual(RoomScrollState.Blue, scrolls.ReadNativeState(2), "left cutscene retains visible screen two");
@@ -146,7 +146,7 @@ internal static partial class Program
             AssertEqual((ushort)512, camera.XPosition, "rightward target near holding wall stays within screen two");
         }
         state.DeathSequenceIndex = CrocomireDeathPhases.ClearWallAndOpenScrolls;
-        run(body, samus, 0, null, 512);
+        run(body, samus, 512);
         camera.MoveLeft(1);
         AssertEqual((ushort)511, camera.XPosition, "left camera unlocks at the native completion phase");
         Console.WriteLine("Left skeleton cutscene: existing code locks X=512 for both directions and unlocks at completion; reported overrun not reproduced.");

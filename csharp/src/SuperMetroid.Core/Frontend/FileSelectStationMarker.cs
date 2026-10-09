@@ -62,7 +62,7 @@ public sealed class FileSelectStationMarker
     }
 
     /// <summary>Appends the current marker without advancing time; repainting cannot speed up the animation.</summary>
-    public void Draw(ISnesAddressSpace bus, OamBuffer oam, ushort horizontalScroll, ushort verticalScroll, SuperMetroid.Core.Assets.MapSpriteCatalog? sprites = null)
+    public void Draw(OamBuffer oam, ushort horizontalScroll, ushort verticalScroll, SuperMetroid.Core.Assets.MapSpriteCatalog? sprites = null)
     {
         ushort x = unchecked((ushort)(MapX - horizontalScroll));
         ushort y = unchecked((ushort)(MapY - verticalScroll));

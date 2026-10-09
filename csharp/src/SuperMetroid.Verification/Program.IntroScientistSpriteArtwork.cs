@@ -78,7 +78,7 @@ internal static partial class Program
                 "scientist sprite probe reached the lit delivery scene");
             var scientist = (IntroScientistCutsceneState)typeof(IntroCinematicState)
                 .GetField("scientistCutscene", flags)!.GetValue(state)!;
-            scientist.Step(guarded, 0, introCrossfadeTimer: 0x007f);
+            scientist.Step(0, introCrossfadeTimer: 0x007f);
         }
         var render = typeof(IntroCinematicState).GetMethod("RenderScientistCutscene", flags)!;
         Rgba32[] stockPixels = (Rgba32[])render.Invoke(stockState, null)!;
@@ -90,10 +90,10 @@ internal static partial class Program
             "restored scientist scene rebinds selected baby artwork");
 
         var examination = IntroScientistCutsceneState.CreateExamination();
-        examination.Step(guarded, 0, introCrossfadeTimer: 0x007f);
+        examination.Step(0, introCrossfadeTimer: 0x007f);
         var installedExamination = new OamBuffer();
         installedExamination.BeginFrame();
-        examination.Draw(guarded, installedExamination, stock.ScientistSprites);
+        examination.Draw(installedExamination, stock.ScientistSprites);
         installedExamination.FinalizeFrame();
         var nativeExamination = new OamBuffer();
         nativeExamination.BeginFrame();

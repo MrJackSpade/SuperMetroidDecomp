@@ -40,7 +40,7 @@ internal static partial class Program
                 LastRainbowBeamStep = request with { MotherBrainBossBitRequested = false, ZebesTimebombEventRequested = false },
             };
             const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
-            typeof(RoomEnemySystem).GetField("_motherBrain", flags)!.SetValue(runtime.Enemies, motherBrain);
+            typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", flags)!.SetValue(runtime.Enemies, motherBrain);
             typeof(SuperMetroidRuntime).GetMethod("ApplyPendingMotherBrainPlms", flags)!
                 .CreateDelegate<Action>(runtime)();
 

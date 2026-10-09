@@ -134,9 +134,9 @@ internal static partial class Program
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address) =>
-            address >= ChozoAndTubeColorRomData.TubeCracksSource &&
-            address < ChozoAndTubeColorRomData.LowerNorfairSource +
-                ChozoAndTubeColorRomData.ColorCount * sizeof(ushort)
+            address is >= ChozoAndTubeColorRomData.TubeCracksSource and
+            < (ChozoAndTubeColorRomData.LowerNorfairSource +
+                ChozoAndTubeColorRomData.ColorCount * sizeof(ushort))
                 ? throw new InvalidOperationException(
                     $"Chozo/tube accessed migrated palette ROM ${address:X6}.")
                 : source.ReadByte(address);

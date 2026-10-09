@@ -26,7 +26,7 @@ internal abstract class VerticalShutterInstructionProgramDefinitionsTooling : II
         if ((address & 0xff0000) != 0xa20000) return false;
         int bankAddress = unchecked((ushort)address);
         int plainOffset = bankAddress - VerticalShutterInstructionProgramDefinitions.Plain;
-        if ((uint)plainOffset < 6) return plainOffset < 2 || plainOffset >= 4;
+        if ((uint)plainOffset < 6) return plainOffset is < 2 or >= 4;
         int kamerOffset = bankAddress - VerticalShutterInstructionProgramDefinitions.KamerPlatform;
         return (uint)kamerOffset < 20 && (kamerOffset >= 16 || kamerOffset % 4 < 2);
     }

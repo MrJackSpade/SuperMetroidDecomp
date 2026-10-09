@@ -59,20 +59,20 @@ internal static partial class Program
             "_poseCollisionPreviousYPosition" and not "_poseAlignmentPreviousYDelta").ToArray();
         FieldInfo[] selected = LegacyLayout(typeof(SamusState), fields, legacy);
         AssertTrue(selected.SequenceEqual(legacy), "0.2.1 Samus layout omits only the four verified additions");
-        AssertTrue(selected.Any(field => field.Name == "_healthWarning") && selected.Any(field => field.Name == "_poseHistory"),
+        AssertTrue(selected.Any(field => field.Name == "<HealthWarning>k__BackingField") && selected.Any(field => field.Name == "<PoseHistory>k__BackingField"),
             "0.2.1 migration retains existing health and pose history rather than guessing from count");
-        FieldInfo[] preBombLockFields = legacy.Where(field => field.Name is not "_healthWarning" and not "_poseHistory"
+        FieldInfo[] preBombLockFields = legacy.Where(field => field.Name is not "<HealthWarning>k__BackingField" and not "<PoseHistory>k__BackingField"
             and not "<AutoJumpTimer>k__BackingField" and not "<PreviousDrawHeldInput>k__BackingField"
             and not "<AutoJumpInputPending>k__BackingField" and not "<BombJumpPoseInputLocked>k__BackingField").ToArray();
         AssertTrue(LegacyLayout(typeof(SamusState), fields, preBombLockFields).SequenceEqual(preBombLockFields), "b944f1b5 Samus layout retains the saved draw-input latch");
         FieldInfo[] earlyPlayerFields = published.Where(field => field.Name is not
             "<PreviousHealthForHurtCheck>k__BackingField" and not
             "_poseCollisionPreviousYPosition" and not "_poseAlignmentPreviousYDelta" and not
-            "<BombJumpPoseInputLocked>k__BackingField" and not "_healthWarning" and not
+            "<BombJumpPoseInputLocked>k__BackingField" and not "<HealthWarning>k__BackingField" and not
             "<PreviousDrawNewInput>k__BackingField" and not "<AutoJumpTimer>k__BackingField" and not
             "<PreviousDrawHeldInput>k__BackingField" and not "<AutoJumpInputPending>k__BackingField" and not
             "<ShinesparkPoseInputLocked>k__BackingField" and not "<CrystalFlashPoseInputLocked>k__BackingField" and not
-            "_poseHistory" and not "<StationaryScriptControlLocked>k__BackingField").ToArray();
+            "<PoseHistory>k__BackingField" and not "<StationaryScriptControlLocked>k__BackingField").ToArray();
         AssertTrue(LegacyLayout(typeof(SamusState), fields, earlyPlayerFields).SequenceEqual(earlyPlayerFields),
             "early player Samus layout restores exactly its twelve known transient omissions");
         var grappleResultFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod(

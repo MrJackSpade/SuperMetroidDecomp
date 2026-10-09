@@ -186,7 +186,7 @@ internal static partial class Program
     {
         snail.CurrentInstruction = program;
         object?[] arguments =
-            [snail, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            [snail, null, null, (ushort)0, (ushort)0, (ushort)0];
         for (int call = 0; call < callCount; call++)
         {
             snail.InstructionTimer = 1;

@@ -35,7 +35,7 @@ internal static partial class Program
         enemies.Slots[0].EnemyDefinitionPointer = EnemyDefinitionPointers.CeresRidley;
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guarded);
-        typeof(RoomEnemySystem).GetField("_ridleyState", flags)!.SetValue(
+        typeof(RoomEnemySystem).GetField("<Ridley>k__BackingField", flags)!.SetValue(
             enemies,
             new RidleyEnemyState { MovementAnimationEnabled = 0 });
         RoomEnemySlot door = enemies.Slots[1];

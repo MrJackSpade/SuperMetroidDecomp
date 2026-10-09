@@ -52,11 +52,11 @@ internal static class IntroScientistInstructionDefinitions
 
     internal static byte ReadByte(ushort pointer)
     {
-        if (pointer >= DeletePointer && pointer < DeletePointer + 2)
+        if (pointer is >= DeletePointer and < (DeletePointer + 2))
             return IntroBabyDiscoveryInstructionDefinitions.ReadByte(pointer);
-        if (pointer < DeliveryStart || pointer >= ExaminationEnd)
+        if (pointer is < DeliveryStart or >= ExaminationEnd)
             throw new InvalidDataException($"Intro scientist actor byte $8B:{pointer:X4} leaves its compiled lists.");
-        if (pointer >= IntroCaretInstructionDefinitions.StartPointer && pointer < IntroCaretInstructionDefinitions.EndPointer)
+        if (pointer is >= IntroCaretInstructionDefinitions.StartPointer and < IntroCaretInstructionDefinitions.EndPointer)
             return IntroCaretInstructionDefinitions.ReadByte(pointer);
         int offset;
         ushort word;
@@ -78,8 +78,8 @@ internal static class IntroScientistInstructionDefinitions
     {
         if (pointer == DeletePointer)
             return IntroBabyDiscoveryInstructionDefinitions.ReadWord(pointer);
-        if (!(pointer >= DeliveryStart && pointer < DeliveryEnd - 1) &&
-            !(pointer >= ExaminationStart && pointer < ExaminationEnd - 1))
+        if (pointer is not (>= DeliveryStart and < (DeliveryEnd - 1)) and
+            not (>= ExaminationStart and < (ExaminationEnd - 1)))
             throw new InvalidDataException($"Intro scientist actor word $8B:{pointer:X4} leaves its compiled lists.");
         return (ushort)(ReadByte(pointer) | ReadByte((ushort)(pointer + 1)) << 8);
     }

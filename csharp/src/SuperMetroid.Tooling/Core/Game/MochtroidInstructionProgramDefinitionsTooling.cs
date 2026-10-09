@@ -29,7 +29,7 @@ internal abstract class MochtroidInstructionProgramDefinitionsTooling : IInstruc
         if ((address & 0xff0000) != 0xa30000)
             return false;
         int offset = unchecked((ushort)address) - MochtroidInstructionProgramDefinitions.FreeFlight;
-        if (offset < 0 || offset >= 40)
+        if (offset is < 0 or >= 40)
             return false;
         int local = offset % 20;
         return local >= 16 || (local & 3) < 2;

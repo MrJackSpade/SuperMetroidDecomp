@@ -15,7 +15,7 @@ internal static partial class Program
         ushort Original(int index) => ReadVerificationWord(rom, 0x880000 | ((table + 2 * index) & 0xffff));
         for (int index = 0; index <= 256; index++)
         {
-            if (index < 9 || index == 255)
+            if (index is < 9 or 255)
                 AssertEqual(Original(index), ScrollingSkyChunkPointerDefinitions.Get(table, index),
                     "Sky original pointer including adjacent data/code");
             else

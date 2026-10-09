@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Input;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace SuperMetroid.Desktop;
@@ -64,16 +65,17 @@ internal sealed partial class WindowsGamepadInput
             WindowsMultimediaResult result = NativeMethods.JoyGetDeviceCapabilities(
                 deviceId,
                 ref capabilities,
-                (uint)Marshal.SizeOf<JoystickCapabilities>());
+                (uint)Unsafe.SizeOf<JoystickCapabilities>());
             if (result != WindowsMultimediaResult.NoError ||
                 !TryRead(deviceId, out JoystickPosition initialPosition))
                 continue;
 
             activeDeviceId = deviceId;
             activeCapabilities = capabilities;
-            DeviceName = string.IsNullOrWhiteSpace(capabilities.ProductName)
+            string productName = capabilities.ProductName.ToString();
+            DeviceName = string.IsNullOrWhiteSpace(productName)
                 ? $"Gamepad {deviceId + 1}"
-                : capabilities.ProductName.TrimEnd('\0');
+                : productName;
             LastSnapshot = CreateSnapshot(initialPosition, capabilities);
             Console.WriteLine(
                 $"Gamepad connected: {DeviceName} " +
@@ -168,14 +170,13 @@ internal sealed partial class WindowsGamepadInput
         return checked((short)normalized);
     }
 
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    [StructLayout(LayoutKind.Sequential)]
     private struct JoystickCapabilities
     {
         public ushort ManufacturerId;
         public ushort ProductId;
 
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
-        public string ProductName;
+        public FixedUtf16Name ProductName;
 
         public uint XMinimum;
         public uint XMaximum;
@@ -197,11 +198,40 @@ internal sealed partial class WindowsGamepadInput
         public uint AxisCount;
         public uint MaximumButtonCount;
 
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
-        public string RegistryKey;
+        public FixedUtf16Name RegistryKey;
 
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
-        public string OemVxD;
+        public FixedUtf16Path OemVxD;
+    }
+
+    /// <summary>JOYCAPSW's inline <c>WCHAR[MAXPNAMELEN]</c> field, kept blittable for LibraryImport.</summary>
+    [InlineArray(32)]
+    private struct FixedUtf16Name
+    {
+        private ushort first;
+
+        /// <summary>The text before the field's first NUL terminator.</summary>
+        public override readonly string ToString() => FixedUtf16.Read(this);
+    }
+
+    /// <summary>JOYCAPSW's inline <c>WCHAR[MAX_PATH]</c> field, kept blittable for LibraryImport.</summary>
+    [InlineArray(260)]
+    private struct FixedUtf16Path
+    {
+        private ushort first;
+
+        /// <summary>The text before the field's first NUL terminator.</summary>
+        public override readonly string ToString() => FixedUtf16.Read(this);
+    }
+
+    private static class FixedUtf16
+    {
+        // WCHAR units are stored as ushort: char is not blittable under runtime marshalling.
+        public static string Read(ReadOnlySpan<ushort> field)
+        {
+            ReadOnlySpan<char> text = MemoryMarshal.Cast<ushort, char>(field);
+            int length = text.IndexOf('\0');
+            return new string(length < 0 ? text : text[..length]);
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -227,17 +257,11 @@ internal sealed partial class WindowsGamepadInput
         [LibraryImport("winmm.dll", EntryPoint = "joyGetNumDevs")]
         public static partial uint JoyGetNumberOfDevices();
 
-        // LibraryImport cannot source-generate JOYCAPSW because WinMM embeds fixed UTF-16
-        // strings inside the structure. Keep this one runtime-marshalled declaration until
-        // the generator supports ByValTStr fields; the other imports remain generated.
-#pragma warning disable SYSLIB1054
-        [DllImport("winmm.dll", EntryPoint = "joyGetDevCapsW", ExactSpelling = true,
-            CharSet = CharSet.Unicode)]
-        public static extern WindowsMultimediaResult JoyGetDeviceCapabilities(
+        [LibraryImport("winmm.dll", EntryPoint = "joyGetDevCapsW")]
+        public static partial WindowsMultimediaResult JoyGetDeviceCapabilities(
             uint deviceId,
             ref JoystickCapabilities capabilities,
             uint capabilitiesByteCount);
-#pragma warning restore SYSLIB1054
 
         [LibraryImport("winmm.dll", EntryPoint = "joyGetPosEx")]
         public static partial WindowsMultimediaResult JoyGetPosition(

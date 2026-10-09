@@ -56,10 +56,10 @@ internal static partial class Program
 
         var guarded = new IntroArtworkSourceReadGuard(bus, blockIntroEggEffects: true);
         var fragment = new IntroEggParticle(index: 0);
-        fragment.Step(guarded);
+        fragment.Step();
         var stockOam = new OamBuffer();
         stockOam.BeginFrame();
-        fragment.Draw(guarded, stockOam, stock.EggEffectSprites);
+        fragment.Draw(stockOam, stock.EggEffectSprites);
         stockOam.FinalizeFrame();
         var nativeLiveOam = new OamBuffer();
         nativeLiveOam.BeginFrame();
@@ -71,7 +71,7 @@ internal static partial class Program
             "installed egg fragment preserves native live-actor OAM");
         var editedOam = new OamBuffer();
         editedOam.BeginFrame();
-        fragment.Draw(guarded, editedOam, edited.EggEffectSprites);
+        fragment.Draw(editedOam, edited.EggEffectSprites);
         editedOam.FinalizeFrame();
         AssertTrue(!stockOam.LowTable.SequenceEqual(editedOam.LowTable) &&
                 stockOam.HighTable.SequenceEqual(editedOam.HighTable) &&
@@ -81,10 +81,10 @@ internal static partial class Program
         var slime = new IntroEggSlimeDrop(0x0070, 0x00b8, index: 0);
         for (int frame = 0; frame < 31; frame++)
         {
-            slime.Step(guarded);
+            slime.Step();
             var slimeOam = new OamBuffer();
             slimeOam.BeginFrame();
-            slime.Draw(guarded, slimeOam, stock.EggEffectSprites);
+            slime.Draw(slimeOam, stock.EggEffectSprites);
             slimeOam.FinalizeFrame();
         }
 

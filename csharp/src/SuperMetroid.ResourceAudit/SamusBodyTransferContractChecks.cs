@@ -18,7 +18,7 @@ internal static class SamusBodyTransferContractChecks
         SamusBodyArtworkCatalog body = Body(shortFirstGroup: false);
         SamusBodyFrameSelection frame = body.Frame(0, 0);
         int address = body.DefinitionAddress(true, frame.TopSet, frame.TopPosition);
-        Require(ReferenceEquals(body.DefinitionAt(true, address), body.GetDefinition(true, 0, 0)),
+        Require(ReferenceEquals(body.DefinitionAt(address), body.GetDefinition(true, 0, 0)),
             "a published frame resolves an admitted physical definition");
         Require(ReferenceEquals(body.GetDefinition(true, 0, 2), body.GetDefinition(true, 1, 0)) &&
             ReferenceEquals(body.GetDefinition(true, SamusBodyArtworkCatalog.TopSetCount - 1, 1), body.GetDefinition(false, 0, 0)),

@@ -36,7 +36,7 @@ internal sealed class MenuShoulderHighlightArtwork
         int row = y + (tile is 0x43 or 0x51 ? 8 : 0);
         int column = x + (tile is 0x3d or 0x43 ? 8 : 0);
         if (row is 0 or 15 || column == 0) return 0;
-        if (row < 4 || row > 12) return 6;
+        if (row is < 4 or > 12) return 6;
         int distance = row - 8;
         return column < 3 + distance * distance / 4 ? (byte)6 : (byte)0;
     }

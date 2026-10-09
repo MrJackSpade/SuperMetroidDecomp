@@ -30,7 +30,7 @@ internal static partial class Program
             ushort input = frame < 3 ? (ushort)SnesButton.Left : frame < 20 ? (ushort)(loaded.Game.RuntimeForVerification!.ControllerBindings.Jump | (ushort)SnesButton.Left) : (ushort)SnesButton.Up;
             var next = loaded.Game.Step(input);
             var samus = loaded.Game.RuntimeForVerification!.Samus!;
-            if (frame < 4 || frame == 20) Console.WriteLine($"jump test {frame}: pose={samus.Pose:X2}, locked={samus.InputLocked}, phase={next.Phase}, input={input:X4}");
+            if (frame is < 4 or 20) Console.WriteLine($"jump test {frame}: pose={samus.Pose:X2}, locked={samus.InputLocked}, phase={next.Phase}, input={input:X4}");
             spun |= SamusState.IsSpinJumpPose(samus.Pose);
             stopped |= next.AudioCommands.Any(command => command.Kind == CartridgeAudioCommandKind.WritePort && command.Port == 1 && command.Value == 0x32);
             audio.RenderFrame(next.AudioCommands);

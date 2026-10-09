@@ -99,7 +99,6 @@ internal sealed class IntroDiscoverySprite
     /// the ROM-backed path until their own bounded lists have been migrated.
     /// </summary>
     public void Step(
-        ISnesAddressSpace bus,
         Func<ushort, ushort, ushort?>? specialInstruction = null,
         Func<ushort, ushort>? instructionWord = null)
     {
@@ -173,7 +172,7 @@ internal sealed class IntroDiscoverySprite
         }
     }
 
-    public void Draw(ISnesAddressSpace bus, OamBuffer oam, ushort cameraX = 0,
+    public void Draw(OamBuffer oam, ushort cameraX = 0,
         ushort cameraY = 0, IIntroCinematicSpritePresentation? installedArt = null)
     {
         if (!IsActive || SpriteMapPointer == 0)

@@ -16,7 +16,7 @@ internal static partial class Program
         // Isolate the exact shared damage producer in #383 from enemy hitbox selection.
         // The cartridge permits damage while a prior movement handler remains installed.
         var damage = typeof(RoomEnemySystem).GetMethod("ApplyNormalEnemyTouchDamage", BindingFlags.Static | BindingFlags.NonPublic)!;
-        damage.Invoke(null, new object[] { samus, (ushort)0, (ushort)20, samus.XPosition });
+        damage.Invoke(null, new object[] { samus, (ushort)20, samus.XPosition });
         if (samus.Health >= 500 || samus.InvincibilityTimer != 96 || samus.KnockbackTimer != 5 ||
             !samus.KnockbackActive || samus.KnockbackDirection != 1 || samus.Kinematics.YSpeed != speed)
             throw new InvalidOperationException("Enemy touch must publish damage/timers without restarting installed knockback.");

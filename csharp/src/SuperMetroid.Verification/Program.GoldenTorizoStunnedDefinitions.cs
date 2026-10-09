@@ -15,8 +15,8 @@ internal static partial class Program
                 GoldenTorizoStunnedInstructionProgramDefinitions.MechanicsWord(index);
             AssertTrue(addresses.Add(word.Address),
                 $"Golden Torizo stunned control $AA:{word.Address:X4} is unique");
-            AssertTrue(word.Address >= GoldenTorizoStunnedInstructionProgramDefinitions.Start &&
-                       word.Address < GoldenTorizoStunnedInstructionProgramDefinitions.End,
+            AssertTrue(word.Address is >= GoldenTorizoStunnedInstructionProgramDefinitions.Start and
+                       < GoldenTorizoStunnedInstructionProgramDefinitions.End,
                 $"Golden Torizo stunned control $AA:{word.Address:X4} is bounded");
             AssertEqual(ReadWord(word.Address), word.Value,
                 $"Golden Torizo stunned control $AA:{word.Address:X4}");

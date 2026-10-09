@@ -52,12 +52,9 @@ public static class ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions
             colorsPerFrame: 1,
             cycleFrames: 70),
     ];
-    private static readonly IReadOnlyList<ZebesExplosionAmbientPaletteFxProgramDefinition>
-        ReadOnlyDefinitions = Array.AsReadOnly(Definitions);
 
     /// <summary>The afterglow and lava programs in definition order.</summary>
-    public static IReadOnlyList<ZebesExplosionAmbientPaletteFxProgramDefinition> All =>
-        ReadOnlyDefinitions;
+    public static IReadOnlyList<ZebesExplosionAmbientPaletteFxProgramDefinition> All { get; } = Array.AsReadOnly(Definitions);
 
     /// <summary>Resolves one compiled mechanics word across both programs.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)

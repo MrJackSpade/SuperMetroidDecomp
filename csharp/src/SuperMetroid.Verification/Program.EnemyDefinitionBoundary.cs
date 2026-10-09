@@ -58,7 +58,7 @@ internal static partial class Program
         AssertEqual(564, TorizoInstructionProgramDefinitions.PresentationWordCount, "complete Torizo visual operand count");
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
-        MethodInfo read = typeof(RoomEnemySystem).GetMethod("ReadEnemyInstructionMechanicsWord", flags)!;
+        MethodInfo read = typeof(RoomEnemySystem).GetMethod("ReadEnemyInstructionMechanicsWord", BindingFlags.NonPublic | BindingFlags.Static)!;
         ushort previous = 0;
         for (int index = 0; index < TorizoInstructionProgramDefinitionsTooling.MechanicsWordCount; index++)
         {

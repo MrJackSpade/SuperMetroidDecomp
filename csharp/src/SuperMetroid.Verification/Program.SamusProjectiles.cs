@@ -1408,9 +1408,9 @@ static void VerifySamusPowerBeamProjectiles()
     // `$90:C4E7` wraps item one back to zero. This guards the playthrough report that missile
     // damage might survive deselection: a new beam must rebuild both packed family and damage
     // from `$93:83C1`, never inherit slot history from the missile which occupied slot zero.
-    AssertTrue(missileSamus.HandleHudSelection(
+    AssertTrue(SelectionChanged(missileSamus,
             (ushort)SnesButton.Select,
-            (ushort)SnesButton.Select).Changed,
+            (ushort)SnesButton.Select),
         "Select cycles the live HUD selection from missiles to beams");
     AssertEqual(0, missileSamus.SelectedHudItem,
         "Select wrap chooses the ordinary beam producer");

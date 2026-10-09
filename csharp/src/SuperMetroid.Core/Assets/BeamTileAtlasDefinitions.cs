@@ -210,7 +210,7 @@ public static class BeamTileAtlasDefinitions
         // profile rows, pattern periods, or independent source inks.
         if ((beams & (SamusBeamFlags.Spazer | SamusBeamFlags.Plasma)) != 0 && tile == LongBeamWideRibbonTile)
         {
-            if (y == WideRibbonBorderRow || y == Height - 1)
+            if (y is WideRibbonBorderRow or (Height - 1))
                 source = WideRibbonBorderRow * Width + tile * Height;
             else if (y == Height / 2)
                 source = y * Width + tile * Height + x % WideRibbonCenterPeriod;

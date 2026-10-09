@@ -144,13 +144,13 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            bool normal = address >= ShitroidColorRomData.NormalCycle &&
-                address < ShitroidColorRomData.NormalCycle +
+            bool normal = address is >= ShitroidColorRomData.NormalCycle and
+                < (ShitroidColorRomData.NormalCycle +
                     ShitroidColorRomData.NormalFrameCount *
-                    ShitroidColorRomData.NormalColorsPerFrame * sizeof(ushort);
-            bool targets = address >= ShitroidColorRomData.DeadSidehopperTarget &&
-                address < ShitroidColorRomData.ShitroidTarget +
-                    ShitroidColorRomData.TargetColorCount * sizeof(ushort);
+                    ShitroidColorRomData.NormalColorsPerFrame * sizeof(ushort));
+            bool targets = address is >= ShitroidColorRomData.DeadSidehopperTarget and
+                < (ShitroidColorRomData.ShitroidTarget +
+                    ShitroidColorRomData.TargetColorCount * sizeof(ushort));
             if (normal || targets)
             {
                 ForbiddenReadAttempts++;

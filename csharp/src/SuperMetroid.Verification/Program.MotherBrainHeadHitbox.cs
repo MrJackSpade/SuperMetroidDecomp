@@ -25,7 +25,7 @@ internal static partial class Program
         AssertEqual((ushort)0x9c21, state.BrainInstructionPointer, "the brain list starts at InstList_MotherBrainHead_Initial");
 
         typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!
-            .Invoke(runtime.Enemies, [head, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0]);
+            .Invoke(runtime.Enemies, [head, null, null, (ushort)0, (ushort)0, (ushort)0]);
         AssertEqual((ushort)0xa320, head.SpritemapPointer, "the head enemy carries the dummy list's hitbox frame");
 
         // The movie's frame: second form, head at ($7C,$58) when the beam at ($9E,$81) reaches

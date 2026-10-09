@@ -146,13 +146,13 @@ internal static partial class Program
                         int a = 0x930000 | pointer; ushort command = Word(a);
                         if (command == 0x822f) { deleted = true; break; }
                         if (command == 0x8239) { pointer = Word(a + 2); continue; }
-                        AssertTrue(command > 0 && command < 0x8000, "Reference timed record valid");
+                        AssertTrue(command is > 0 and < 0x8000, "Reference timed record valid");
                         timer = command; sprite = Word(a + 2); x = rom.ReadByte(a + 4); y = rom.ReadByte(a + 5);
                         trail = Word(a + 6); pointer = unchecked((ushort)(pointer + 8)); break;
                     }
                 }
-                AssertEqual(deleted, system.RunProjectileInstructionHandler(guard, slot), "Native delete/timed outcome");
-                AssertEqual(deleted, (bool)runBomb.Invoke(bombs, new object[] { guard, bomb })!, "Bomb native delete/timed outcome");
+                AssertEqual(deleted, system.RunProjectileInstructionHandler(slot), "Native delete/timed outcome");
+                AssertEqual(deleted, (bool)runBomb.Invoke(bombs, new object[] { bomb })!, "Bomb native delete/timed outcome");
                 frames++;
                 if (deleted)
                 {

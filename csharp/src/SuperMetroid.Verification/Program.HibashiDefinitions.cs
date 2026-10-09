@@ -94,9 +94,9 @@ internal static partial class Program
         initializeProgram(programHitbox);
 
         object?[] graphicsArguments =
-            [programGraphics, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            [programGraphics, null, null, (ushort)0, (ushort)0, (ushort)0];
         object?[] hitboxArguments =
-            [programHitbox, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            [programHitbox, null, null, (ushort)0, (ushort)0, (ushort)0];
 
         // The visible stream needs 59 actor frames through its final callback. The margin
         // proves both actors remain parked on their terminal sleep commands afterward.

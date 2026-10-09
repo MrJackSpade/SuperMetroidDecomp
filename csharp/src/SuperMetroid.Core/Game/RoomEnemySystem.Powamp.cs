@@ -385,10 +385,10 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports the body-only private tail of <c>EnemyTouch_Powamp</c>.</summary>
-    private void ResolvePowampTouch(RoomEnemySlot body, SamusState samus, ushort controllerInput)
+    private void ResolvePowampTouch(RoomEnemySlot body, SamusState samus)
     {
         ushort originalPalette = body.PaletteIndex;
-        ResolveNormalEnemyTouch(body, samus, controllerInput);
+        ResolveNormalEnemyTouch(body, samus);
         if (body.Health != 0)
             return;
 

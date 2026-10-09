@@ -34,7 +34,7 @@ internal static partial class Program
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
             "RunInitializationAi", flags)!;
         MethodInfo readMechanics = typeof(RoomEnemySystem).GetMethod(
-            "ReadEnemyInstructionMechanicsWord", flags)!;
+            "ReadEnemyInstructionMechanicsWord", BindingFlags.NonPublic | BindingFlags.Static)!;
         FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus", flags)!;
         FieldInfo vramField = typeof(RoomEnemySystem).GetField("_vram", flags)!;
         FieldInfo cgramField = typeof(RoomEnemySystem).GetField("_cgram", flags)!;
@@ -90,7 +90,7 @@ internal static partial class Program
                 {
                     initialize.Invoke(
                         enemies,
-                        [slot, null, new SamusState(), (ushort)0, (ushort)0, (ushort)0]);
+                        [slot, null, new SamusState(), (ushort)0, (ushort)0]);
                 }
                 catch (TargetInvocationException exception)
                     when (IsUntranslatedEnemyInitializer(

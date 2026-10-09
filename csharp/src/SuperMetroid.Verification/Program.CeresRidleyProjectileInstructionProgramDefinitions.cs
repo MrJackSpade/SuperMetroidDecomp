@@ -50,7 +50,7 @@ internal static partial class Program
         ridley.EnemyDefinitionPointer = ceresRidleyDefinition;
         ridley.XPosition = 128;
         ridley.YPosition = 96;
-        typeof(RoomEnemySystem).GetField("_ridleyState", instanceFlags)!.SetValue(
+        typeof(RoomEnemySystem).GetField("<Ridley>k__BackingField", instanceFlags)!.SetValue(
             fireballSystem,
             new RidleyEnemyState
             {

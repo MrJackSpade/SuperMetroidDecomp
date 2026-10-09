@@ -31,7 +31,7 @@ public sealed partial class RoomEnemySystem
                 $"Phantoon body requires native slot zero, not slot {body.SlotIndex}.");
         }
 
-        _phantoonState = new PhantoonEnemyState(body)
+        Phantoon = new PhantoonEnemyState(body)
         {
             Bg2TilemapSize = 0x0360,
             BackgroundTilemapPrepared = true,
@@ -87,7 +87,7 @@ public sealed partial class RoomEnemySystem
 
     private void InitializePhantoonPart(RoomEnemySlot part, ushort instruction)
     {
-        PhantoonEnemyState state = _phantoonState ??
+        PhantoonEnemyState state = Phantoon ??
             throw new InvalidOperationException("Phantoon body must initialize before its parts.");
         part.SpritemapPointer = 0xa5df; // Spritemap_Common_Nothing in bank $A7.
         part.InstructionTimer = 1;
@@ -111,8 +111,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot body,
         SamusState? samus,
         ushort cameraX,
-        ushort cameraY,
-        byte nmiFrameCounter8)
+        ushort cameraY)
     {
         PhantoonEnemyState state = RequireCompletePhantoonState(body);
         state.LastMaterializationSound = null;
@@ -130,10 +129,10 @@ public sealed partial class RoomEnemySystem
                 RunPhantoonStartingFlameOrbitWait(body, state);
                 break;
             case PhantoonAiFunction.WavyFadeIn:
-                RunPhantoonWavyFadeIn(body, state, nmiFrameCounter8);
+                RunPhantoonWavyFadeIn(body, state);
                 break;
             case PhantoonAiFunction.PickFirstRoundPattern:
-                RunPhantoonPickFirstRoundPattern(body, state, nmiFrameCounter8);
+                RunPhantoonPickFirstRoundPattern(body, state);
                 break;
             case PhantoonAiFunction.MoveInFigureEightThenOpenEye:
                 RunPhantoonFirstRoundFigureEight(body, state);
@@ -151,56 +150,55 @@ public sealed partial class RoomEnemySystem
                 RunPhantoonFadeOutWhileSwooping(
                     body,
                     state,
-                    RequirePhantoonSamus(samus),
-                    nmiFrameCounter8);
+                    RequirePhantoonSamus(samus));
                 break;
             case PhantoonAiFunction.WaitAfterFadeOut:
                 RunPhantoonHiddenWait(body);
                 break;
             case PhantoonAiFunction.PickNextAppearance:
-                PlacePhantoonForNextFigureEight(body, state, nmiFrameCounter8);
+                PlacePhantoonForNextFigureEight(body, state);
                 break;
             case PhantoonAiFunction.FadeInBeforeFigureEight:
-                RunPhantoonFadeInBeforeFigureEight(body, state, nmiFrameCounter8);
+                RunPhantoonFadeInBeforeFigureEight(body, state);
                 break;
             case PhantoonAiFunction.BecomeSolidAfterFlameRain:
                 BeginPhantoonFlameRainVulnerableWindow(body, state);
                 break;
             case PhantoonAiFunction.FadeInDuringFlameRain:
-                RunPhantoonFlameRainFadeIn(body, state, nmiFrameCounter8);
+                RunPhantoonFlameRainFadeIn(body, state);
                 break;
             case PhantoonAiFunction.TrackSamusDuringFlameRain:
                 RunPhantoonFlameRainVulnerableWindow(body, state);
                 break;
             case PhantoonAiFunction.FadeOutDuringFlameRain:
-                RunPhantoonFlameRainFadeOut(body, state, nmiFrameCounter8);
+                RunPhantoonFlameRainFadeOut(body, state);
                 break;
             case PhantoonAiFunction.SpawnFlameRain:
                 RunPhantoonHiddenFlameRain(body, state);
                 break;
             case PhantoonAiFunction.FadeOutBeforeFirstFlameRain:
-                RunPhantoonInitialFlameRain(body, state, nmiFrameCounter8);
+                RunPhantoonInitialFlameRain(body, state);
                 break;
             case PhantoonAiFunction.FadeOutBeforeRage:
-                RunPhantoonFadeOutBeforeRage(body, state, nmiFrameCounter8);
+                RunPhantoonFadeOutBeforeRage(body, state);
                 break;
             case PhantoonAiFunction.MoveToTopCenterForRage:
                 RunPhantoonRageHiddenWait(body, state);
                 break;
             case PhantoonAiFunction.FadeInForRage:
-                RunPhantoonRageFadeIn(body, state, nmiFrameCounter8);
+                RunPhantoonRageFadeIn(body, state);
                 break;
             case PhantoonAiFunction.Enraged:
                 RunPhantoonRage(body, state);
                 break;
             case PhantoonAiFunction.FadeOutAfterRage:
-                RunPhantoonRageFadeOut(body, state, nmiFrameCounter8);
+                RunPhantoonRageFadeOut(body, state);
                 break;
             case PhantoonAiFunction.FinishFatalSwoop:
                 RunPhantoonFatalSwoop(body, state, RequirePhantoonSamus(samus));
                 break;
             case PhantoonAiFunction.DyingFadeInOut:
-                RunPhantoonDyingFadeCycles(body, state, nmiFrameCounter8);
+                RunPhantoonDyingFadeCycles(body, state);
                 break;
             case PhantoonAiFunction.DyingExplosions:
                 RunPhantoonDyingExplosions(body, state);
@@ -209,13 +207,13 @@ public sealed partial class RoomEnemySystem
                 BeginPhantoonWavyMosaicDeath(body, state);
                 break;
             case PhantoonAiFunction.DyingFadeOut:
-                RunPhantoonWavyMosaicDeath(body, state, nmiFrameCounter8);
+                RunPhantoonWavyMosaicDeath(body, state);
                 break;
             case PhantoonAiFunction.AlmostDead:
                 ClearPhantoonDeathGraphics(body, state);
                 break;
             case PhantoonAiFunction.Dead:
-                ActivateWreckedShipAfterPhantoon(body, state, nmiFrameCounter8);
+                ActivateWreckedShipAfterPhantoon(body, state);
                 break;
             case PhantoonAiFunction.NoOperation:
                 break;
@@ -295,10 +293,9 @@ public sealed partial class RoomEnemySystem
 
     private void RunPhantoonWavyFadeIn(
         RoomEnemySlot body,
-        PhantoonEnemyState state,
-        byte nmiFrameCounter8)
+        PhantoonEnemyState state)
     {
-        AdvancePhantoonFadeIn(body, state, denominator: 12, nmiFrameCounter8);
+        AdvancePhantoonFadeIn(body, state, denominator: 12);
         if (AdvancePhantoonWaveAmplitude(
                 state.Mouth!,
                 PhantoonIntroAmplitudeDelta,
@@ -316,8 +313,7 @@ public sealed partial class RoomEnemySystem
 
     private void RunPhantoonPickFirstRoundPattern(
         RoomEnemySlot body,
-        PhantoonEnemyState state,
-        byte nmiFrameCounter8)
+        PhantoonEnemyState state)
     {
         if (!TickPhantoonFunctionTimer(body))
             return;
@@ -347,7 +343,7 @@ public sealed partial class RoomEnemySystem
         PhantoonEnemyState state)
     {
         StepPhantoonFigureEight(body, state.Eye!);
-        StepPhantoonCasualFlameSchedule(body, state.Mouth!);
+        StepPhantoonCasualFlameSchedule(state.Mouth!);
 
         state.Eye!.VariableA = unchecked((ushort)(state.Eye.VariableA - 1));
         // Native DEC/BEQ/BPL admits both zero and negative expiration. Waiting
@@ -498,7 +494,7 @@ public sealed partial class RoomEnemySystem
         body.VariableC = unchecked((ushort)(value >> 16));
     }
 
-    private void StepPhantoonCasualFlameSchedule(RoomEnemySlot body, RoomEnemySlot mouth)
+    private void StepPhantoonCasualFlameSchedule(RoomEnemySlot mouth)
     {
         mouth.VariableB = unchecked((ushort)(mouth.VariableB - 1));
         if (unchecked((short)mouth.VariableB) > 0)
@@ -528,8 +524,7 @@ public sealed partial class RoomEnemySystem
     private void AdvancePhantoonFadeIn(
         RoomEnemySlot body,
         PhantoonEnemyState state,
-        ushort denominator,
-        byte nmiFrameCounter8)
+        ushort denominator)
     {
         if ((_enemyFrameNmiFrameCounter & 1) != 0 || state.Eye!.VariableF != 0)
             return;

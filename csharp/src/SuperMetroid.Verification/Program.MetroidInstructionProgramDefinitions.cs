@@ -43,7 +43,7 @@ internal static partial class Program
                     return 5;
                 });
         object?[] chasingArguments =
-            [chasing, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            [chasing, null, null, (ushort)0, (ushort)0, (ushort)0];
         RunMetroidInstructionFrames(
             process,
             chasingEnemies,
@@ -67,7 +67,7 @@ internal static partial class Program
                 () => throw new InvalidOperationException(
                     "Draining Metroid animation must not advance the random generator."));
         object?[] drainingArguments =
-            [draining, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            [draining, null, null, (ushort)0, (ushort)0, (ushort)0];
         RunMetroidInstructionFrames(
             process,
             drainingEnemies,

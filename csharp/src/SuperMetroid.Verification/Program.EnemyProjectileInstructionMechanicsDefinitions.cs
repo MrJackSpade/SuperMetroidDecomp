@@ -213,12 +213,12 @@ internal static partial class Program
         {
             Head = motherBrainHead,
         };
-        typeof(RoomEnemySystem).GetField("_motherBrain", instanceFlags)!
+        typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", instanceFlags)!
             .SetValue(rainbowEnemies, motherBrainState);
         MethodInfo spawnRainbowMethod = typeof(RoomEnemySystem).GetMethod(
             "SpawnMotherBrainRainbowChargingProjectile",
             instanceFlags)!;
-        spawnRainbowMethod.Invoke(rainbowEnemies, [motherBrainState]);
+        spawnRainbowMethod.Invoke(rainbowEnemies, []);
         RoomEnemyProjectileSlot rainbow = rainbowEnemies.EnemyProjectiles.Single(
             projectile => projectile.Kind ==
                 RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging);
@@ -274,7 +274,7 @@ internal static partial class Program
                 XPosition = 0x0080,
                 YPosition = 0x0070,
             };
-            typeof(RoomEnemySystem).GetField("_motherBrain", instanceFlags)!
+            typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", instanceFlags)!
                 .SetValue(deathExplosionEnemies, new MotherBrainEnemyState(deathBody));
             spawnDeathExplosionMethod.Invoke(
                 deathExplosionEnemies,
@@ -307,7 +307,7 @@ internal static partial class Program
             YPosition = 0x0090,
         };
         var handBeamState = new MotherBrainEnemyState(handBeamBody);
-        typeof(RoomEnemySystem).GetField("_motherBrain", instanceFlags)!
+        typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", instanceFlags)!
             .SetValue(handBeamEnemies, handBeamState);
         var handBeamTarget = new SamusState
         {
@@ -373,7 +373,7 @@ internal static partial class Program
         {
             Head = ringHead,
         };
-        typeof(RoomEnemySystem).GetField("_motherBrain", instanceFlags)!
+        typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", instanceFlags)!
             .SetValue(ringEnemies, ringState);
         MethodInfo spawnRingMethod = typeof(RoomEnemySystem).GetMethod(
             "SpawnMotherBrainOnionRing",
@@ -484,7 +484,7 @@ internal static partial class Program
                 DroolGenerationEnabled = true,
                 NeckAngleDelta = neckAngleDelta,
             };
-            typeof(RoomEnemySystem).GetField("_motherBrain", instanceFlags)!
+            typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", instanceFlags)!
                 .SetValue(droolEnemies, state);
             MethodInfo spawnDroolMethod = typeof(RoomEnemySystem).GetMethod(
                 "SpawnMotherBrainDrool",

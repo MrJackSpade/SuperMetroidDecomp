@@ -121,8 +121,8 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (address is >= 0x86a28b and < 0x86a2a1 ||
-                address is >= 0x86a387 and < 0x86a3a3)
+            if (address is >= 0x86a28b and < 0x86a2a1 or
+                >= 0x86a387 and < 0x86a3a3)
             {
                 throw new InvalidOperationException(
                     $"Ceres arrival read compiled bank-$86 byte ${address:X6}.");

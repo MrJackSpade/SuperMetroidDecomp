@@ -48,7 +48,7 @@ internal static partial class Program
         for (int call = 0; call < 14; call++)
             Execute(TorizoInstructionCodes.Instruction_Torizo_AdvanceGradualColorChange);
         for (int i = 0; i < 256; i++)
-            AssertEqual((ushort)(i >= 144 && i < 176 ? 0 : 0x7fff), cgram.Colors[i], $"Masked fade color {i}");
+            AssertEqual((ushort)(i is >= 144 and < 176 ? 0 : 0x7fff), cgram.Colors[i], $"Masked fade color {i}");
         AssertEqual((ushort)0, enemies.EarthquakeTimer, "Completed fade does not create an earthquake");
         state.PaletteTransition = null;
         for (int i = 0; i < 256; i++) cgram.SetColor(i, 0x7fff);

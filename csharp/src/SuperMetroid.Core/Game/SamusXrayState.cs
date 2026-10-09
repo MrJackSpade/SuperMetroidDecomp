@@ -19,14 +19,9 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusXrayState
 {
-    [NonSerialized] private SamusVisorColorCatalog? presentationColors;
-
     /// <summary>Host-owned visor colors, excluded from debugger-state serialization.</summary>
-    public SamusVisorColorCatalog? PresentationColors
-    {
-        get => presentationColors;
-        set => presentationColors = value;
-    }
+    [field: NonSerialized]
+    public SamusVisorColorCatalog? PresentationColors { get; set; }
 
     /// <summary>True while the dedicated bank-$91 X-ray input/movement handlers are installed.</summary>
     public bool IsActive { get; private set; }
@@ -445,7 +440,7 @@ public sealed class SamusXrayState
             // Stages one through eight execute in order. After stage eight the instruction
             // list installs `$88:86EF`; state zero itself first runs on the following call.
             SetupStage = SetupStage >= 8 ? (byte)0 : unchecked((byte)(SetupStage + 1));
-            return SnapshotBeamStep(phaseAtStart, angleAtStart, widthAtStart, completed: false);
+            return SnapshotBeamStep(phaseAtStart, completed: false);
         }
 
         bool holdingDash = (controllerInput & dashBinding) != 0;
@@ -522,8 +517,6 @@ public sealed class SamusXrayState
 
         return SnapshotBeamStep(
             phaseAtStart,
-            angleAtStart,
-            widthAtStart,
             completed: !IsActive);
     }
 
@@ -568,8 +561,8 @@ public sealed class SamusXrayState
         CommonPaletteTimer = SamusXrayRomData.Palette.FrameDelay;
         // Keep the cartridge read for non-catalog offsets reachable through externally
         // edited debugger state; ordinary widening/cycling uses installed artwork.
-        if (presentationColors is null ||
-            !presentationColors.TryResolveByteOffset(SpecialPaletteFrame, out ushort visorColor))
+        if (PresentationColors is null ||
+            !PresentationColors.TryResolveByteOffset(SpecialPaletteFrame, out ushort visorColor))
             throw new InvalidDataException(
                 $"X-ray visor offset {SpecialPaletteFrame} has no installed color.");
         cgram.SetColor(SamusXrayRomData.Palette.VisorCgramIndex, visorColor);
@@ -734,8 +727,6 @@ public sealed class SamusXrayState
 
     private static XrayBeamStepResult SnapshotBeamStep(
         XrayBeamPhase phaseAtStart,
-        SnesAngle angleAtStart,
-        ushort widthAtStart,
         bool completed) => new(
             phaseAtStart,
             completed);

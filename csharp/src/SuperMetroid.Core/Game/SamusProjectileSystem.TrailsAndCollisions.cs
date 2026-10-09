@@ -158,7 +158,7 @@ public sealed partial class SamusProjectileSystem
             if (unchecked((short)(slot.XPosition - 0x0054)) >= 0)
                 return false;
 
-            KillMissile(bus, slot, sharedProjectiles);
+            KillMissile(slot, sharedProjectiles);
             return true;
         }
 
@@ -212,11 +212,11 @@ public sealed partial class SamusProjectileSystem
                     (slot.PackedType.BeamCombinationIndex & (int)SamusBeamFlags.Plasma) != 0)
                     return true;
                 // $A0:9A07 only marks the shot; enemy hits never reach Kill_Projectile's sound.
-                KillBeam(bus, slot);
+                KillBeam(slot);
                 return true;
             case SamusProjectileFamily.Missile:
             case SamusProjectileFamily.SuperMissile:
-                KillMissile(bus, slot, sharedProjectiles);
+                KillMissile(slot, sharedProjectiles);
                 return true;
             default:
                 // Existing explosion, bomb, and unknown family slots cannot repeatedly
@@ -412,7 +412,6 @@ public sealed partial class SamusProjectileSystem
     /// Runs the producer-owned collision call made before a new beam receives its speed.
     /// </summary>
     private bool RunInitialBeamCollision(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusProjectileSlot slot,
         RoomPlmSystem? roomPlms,
@@ -467,7 +466,7 @@ public sealed partial class SamusProjectileSystem
 
         if (!waveBeam && collided)
         {
-            KillBeamOnBlockCollision(bus, slot, powerBomb);
+            KillBeamOnBlockCollision(slot, powerBomb);
             return true;
         }
 
@@ -834,14 +833,14 @@ public sealed partial class SamusProjectileSystem
     /// $90:AE06 Kill_Projectile for a beam, as bank $94's block collision calls it: the
     /// explosion's library-two $0C queues ($93:80EF, no cinematic test) before the swap.
     /// </summary>
-    private void KillBeamOnBlockCollision(ISnesAddressSpace bus, SamusProjectileSlot slot,
+    private void KillBeamOnBlockCollision(SamusProjectileSlot slot,
         SamusPowerBombExplosionState powerBomb)
     {
         RequestBeamImpactSound(powerBomb);
-        KillBeam(bus, slot);
+        KillBeam(slot);
     }
 
-    private static void KillBeam(ISnesAddressSpace bus, SamusProjectileSlot slot)
+    private static void KillBeam(SamusProjectileSlot slot)
     {
         // `$90:AE3A` moves the explosion anchor to the leading edge before bank $93 swaps
         // the instruction list. Diagonals adjust both axes in their respective signs.
@@ -865,7 +864,6 @@ public sealed partial class SamusProjectileSystem
     }
 
     private void KillMissile(
-        ISnesAddressSpace bus,
         SamusProjectileSlot slot,
         SamusBombProjectileSystem sharedProjectiles)
     {

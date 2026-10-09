@@ -36,7 +36,7 @@ internal static partial class Program
         {
             ushort address = (ushort)raw;
             bool ownsByte = raw is >= 0xbffd and <= 0xc488;
-            bool ownsWord = raw is >= 0xbffd and <= 0xc488 && raw is not (0xc184 or 0xc300 or 0xc488);
+            bool ownsWord = raw is >= 0xbffd and <= 0xc488 and not (0xc184 or 0xc300 or 0xc488);
             AssertEqual(ownsByte, ColoredDoorPlmProgramDefinitions.TryReadMechanicsByte(address, out byte b), "Colored program full byte domain");
             AssertEqual(ownsWord, ColoredDoorPlmProgramDefinitions.TryReadMechanicsWord(address, out ushort w), "Colored program full word domain");
             if (!ownsByte) AssertEqual((byte)0, b, "Colored program rejected byte output");

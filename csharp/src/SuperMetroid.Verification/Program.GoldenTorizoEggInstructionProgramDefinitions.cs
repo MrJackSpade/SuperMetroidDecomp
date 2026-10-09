@@ -34,9 +34,9 @@ internal static partial class Program
         MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(
             "SpawnGoldenTorizoEgg", flags)!;
         MethodInfo runBounce = typeof(RoomEnemySystem).GetMethod(
-            "RunGoldenTorizoEggPreInstruction", flags)!;
+            "RunGoldenTorizoEggPreInstruction", BindingFlags.NonPublic | BindingFlags.Static)!;
         MethodInfo runFall = typeof(RoomEnemySystem).GetMethod(
-            "RunGoldenTorizoEggFall", flags)!;
+            "RunGoldenTorizoEggFall", BindingFlags.NonPublic | BindingFlags.Static)!;
         RoomLevelData emptyRoom = CreateEmptyRoom(32, 32);
         ushort[] floorWords = new ushort[32 * 32];
         for (int column = 0; column < 32; column++)

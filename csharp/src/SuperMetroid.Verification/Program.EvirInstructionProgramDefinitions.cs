@@ -57,7 +57,7 @@ internal static partial class Program
             RoomEnemySlot slot = enemies.Slots[0];
             PrepareEvirInstructionSlot(slot, definition, entry);
             object?[] arguments =
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+                [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
             for (int call = 0; call < frameCount + 1; call++)
             {
                 slot.InstructionTimer = 1;
@@ -75,7 +75,7 @@ internal static partial class Program
                 RoomEnemySystem.EvirProjectileDefinition,
                 EvirInstructionProgramDefinitions.ProjectileNormal);
             object?[] arguments =
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+                [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
             process.Invoke(enemies, arguments);
             process.Invoke(enemies, arguments);
             AssertEqual(unchecked((ushort)(
@@ -111,7 +111,7 @@ internal static partial class Program
                 InstalledInstructionList = EvirInstructionProgramDefinitions.BodyFacingLeft,
             };
             object?[] arguments =
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+                [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
             for (int call = 0; call < 10; call++)
             {
                 slot.InstructionTimer = 1;

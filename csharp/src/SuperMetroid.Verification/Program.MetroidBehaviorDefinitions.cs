@@ -103,7 +103,7 @@ internal static partial class Program
             slot.CurrentInstruction =
                 MetroidInstructionProgramDefinitions.ChasingSoundCallback;
 
-            process.Invoke(enemies, [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0]);
+            process.Invoke(enemies, [slot, null, null, (ushort)0, (ushort)0, (ushort)0]);
 
             AssertEqual(MetroidBehaviorDefinitions.RandomCrySoundEffect(random),
                 enemies.LastMetroidSoundEffectLibrary2 ?? ushort.MaxValue,
@@ -129,8 +129,8 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (address is >= 0xa3ea3f and < 0xa3ea4f ||
-                address is >= 0xa3ead6 and < 0xa3eae6)
+            if (address is >= 0xa3ea3f and < 0xa3ea4f or
+                >= 0xa3ead6 and < 0xa3eae6)
             {
                 throw new InvalidOperationException(
                     $"Metroid behavior attempted migrated table read ${address:X6}.");

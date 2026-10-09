@@ -58,7 +58,7 @@ public sealed partial class SamusProjectileSystem
                     slot.YPosition = unchecked((ushort)(samus.YPosition + (i is 0 or 3 ? 128 : -128)));
                 }
                 if (beam == 4 && i >= 2) slot.Type = SamusComboRomData.SpazerTrailType;
-                InitializeComboData(bus, slot, beam == 2, beam == 4 && i >= 2);
+                InitializeComboData(slot, beam == 2, beam == 4 && i >= 2);
             }
             ProjectileCounter = 4;
             shared.SetSharedCooldown(SamusProjectileCooldownDefinitions.ReadByte(SamusProjectileRomData.Beams.UnchargedCooldowns + (_slots[0].Type & 0x3f)));
@@ -70,7 +70,7 @@ public sealed partial class SamusProjectileSystem
         return activated;
     }
 
-    private static void InitializeComboData(ISnesAddressSpace bus, SamusProjectileSlot slot, bool ordinary, bool echo)
+    private static void InitializeComboData(SamusProjectileSlot slot, bool ordinary, bool echo)
     {
         int table = ordinary ? SamusProjectileRomData.Beams.ChargedDataPointers :
             echo ? SamusComboRomData.EchoDataPointers : SamusComboRomData.DataPointers;

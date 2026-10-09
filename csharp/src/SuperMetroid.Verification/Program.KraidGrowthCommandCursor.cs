@@ -24,7 +24,7 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, new SnesVram());
-        typeof(RoomEnemySystem).GetField("_kraidState", flags)!.SetValue(enemies, state);
+        typeof(RoomEnemySystem).GetField("<Kraid>k__BackingField", flags)!.SetValue(enemies, state);
         var execute = typeof(RoomEnemySystem).GetMethod("ExecuteKraidHeadInstruction", flags)!
             .CreateDelegate<Func<RoomEnemySlot, KraidEnemyState, ushort>>(enemies);
         var footMain = typeof(RoomEnemySystem).GetMethod("RunKraidFootMain", flags)!

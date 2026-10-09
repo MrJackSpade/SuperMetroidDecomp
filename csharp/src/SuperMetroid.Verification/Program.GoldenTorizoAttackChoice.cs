@@ -39,8 +39,8 @@ internal static partial class Program
             runtime.Projectiles,
             nmiFrameCounter8: 0x2d,
             nmiFrameCounter: 0xefd8);
-        AssertTrue(torizo.CurrentInstruction > sonicBoomsFacingLeft &&
-                torizo.CurrentInstruction < 0xcc57,
+        AssertTrue(torizo.CurrentInstruction is > sonicBoomsFacingLeft and
+                < 0xcc57,
             $"NMI_FrameCounter selects the sonic-boom list, not chozo orbs (${chozoOrbsFacingLeft:X4}); " +
             $"instruction ${torizo.CurrentInstruction:X4}");
         Console.WriteLine("Golden Torizo attack choice: the landing chooser adds NMI_FrameCounter, not the 8-bit counter.");

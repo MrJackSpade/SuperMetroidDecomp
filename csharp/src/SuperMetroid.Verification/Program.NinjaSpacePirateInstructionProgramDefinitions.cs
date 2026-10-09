@@ -109,7 +109,7 @@ internal static partial class Program
             slot.CurrentInstruction = unchecked((ushort)(address - 2));
             slot.InstructionTimer = 1;
             process.Invoke(enemies,
-                [slot, samus, null, (ushort)0, (ushort)0, (ushort)0, (byte)0]);
+                [slot, samus, null, (ushort)0, (ushort)0, (ushort)0]);
             AssertEqual(ReadNinjaPirateWord(rom, 0xb20000 | address),
                 slot.SpritemapPointer,
                 $"production execution selects ninja Pirate frame $B2:{address:X4}");
@@ -194,7 +194,7 @@ internal static partial class Program
         {
             MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
             object?[] arguments =
-                [slot, samus, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+                [slot, samus, null, (ushort)0, (ushort)0, (ushort)0];
             for (int frame = 0; frame < frames; frame++) process.Invoke(enemies, arguments);
         }
     }

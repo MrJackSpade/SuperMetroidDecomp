@@ -15,7 +15,7 @@ internal static class RoomArtworkClosedContractDefinitions
             [TilesetSources, new("csharp/src/SuperMetroid.Core/Assets/RoomStaticPaletteCatalog.cs", "3EC1FDFDF20B3B3AAA7EC7AD4F64403883739359D31D069ACF7E5C3E46572BB6")]),
         new("SuperMetroid.Core.Assets.RoomSkyTilemapCatalog", "room-complete-seven-page-sky-transfer-store", ["TryResolve"],
             [new("csharp/src/SuperMetroid.Core/Assets/RoomSkyTilemapCatalog.cs", "E3F623660F01CB63B35C26C82589FC4A3832460D29C7BAA9D6707B601C92A2F5"),
-             new("csharp/src/SuperMetroid.Core/Assets/RoomBackgroundTilemapAtlas.cs", "3555499032A6A3B2A2E603076176F39E6177645970E04CD6D021489855EC4335"),
+             new("csharp/src/SuperMetroid.Core/Assets/RoomBackgroundTilemapAtlas.cs", "07372EDBFD957309E68971A2EC5AB56DD343C02C3FFE408670925F6E7F0A6D41"),
              new("csharp/src/SuperMetroid.Core/Game/RoomFxRomData.cs", "AA01AC4CED546BD6E38C37778DBC9EDF179B42843D3B26C4651FD835B51E822D")]),
     ];
 }

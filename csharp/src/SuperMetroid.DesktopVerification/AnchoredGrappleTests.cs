@@ -54,9 +54,9 @@ internal static partial class Program
                 Check(samus.TileTransfers.TopDefinitionAddress == GrappleWallGrabGraphicsReference.TopDma &&
                     samus.TileTransfers.BottomDefinitionAddress == GrappleWallGrabGraphicsReference.BottomDma,
                     "Wall-grab tile definitions retain hanging/swing graphics.");
-                VerifyGrappleWallGrabDma(loaded.AddressSpace, runtime.Vram,
+                VerifyGrappleWallGrabDma(runtime.Vram,
                     GrappleWallGrabGraphicsReference.TopDma, SamusRenderingRomData.TileTransfers.TopDestinations);
-                VerifyGrappleWallGrabDma(loaded.AddressSpace, runtime.Vram,
+                VerifyGrappleWallGrabDma(runtime.Vram,
                     GrappleWallGrabGraphicsReference.BottomDma, SamusRenderingRomData.TileTransfers.BottomDestinations);
             }
             if (grabbedFrames is >= 1 and <= 5)
@@ -87,8 +87,7 @@ internal static partial class Program
         throw new InvalidDataException("Player-room sequence never reached a completed grapple wall jump.");
     }
 
-    private static void VerifyGrappleWallGrabDma(SuperMetroid.Core.Hardware.SuperMetroidAddressSpace bus,
-        SuperMetroid.Core.Hardware.SnesVram vram, int definition,
+    private static void VerifyGrappleWallGrabDma(SuperMetroid.Core.Hardware.SnesVram vram, int definition,
         SamusRenderingRomData.TileTransfers.SplitVramDestinations destinations)
     {
         // The preserved state is RAM-only; cartridge reference bytes live in this

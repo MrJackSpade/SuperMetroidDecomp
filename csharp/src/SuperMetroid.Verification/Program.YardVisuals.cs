@@ -49,7 +49,7 @@ internal static partial class Program
             yard.CurrentInstruction = unchecked((ushort)(operand - 2));
             yard.InstructionTimer = 1;
             process.Invoke(enemies,
-                [yard, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0]);
+                [yard, null, null, (ushort)0, (ushort)0, (ushort)0]);
             AssertEqual(installedPointer, yard.SpritemapPointer,
                 $"installed Yard instruction {index} selects native frame");
         }

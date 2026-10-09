@@ -53,7 +53,7 @@ internal static partial class Program
             robot.CurrentInstruction = unchecked((ushort)(operand - 2));
             robot.InstructionTimer = 1;
             process.Invoke(enemies,
-                [robot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0]);
+                [robot, null, null, (ushort)0, (ushort)0, (ushort)0]);
             AssertEqual(installedPointer, robot.SpritemapPointer,
                 $"installed Work Robot instruction {index} selects native frame");
         }

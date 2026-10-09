@@ -138,7 +138,7 @@ public sealed class SporeSpawnColorCatalog
                 ? edit : Calculate(frame, color);
         }
 
-        private static bool IsCalculated(int color) => color == 0 || color >= FirstInterpolatedColor;
+        private static bool IsCalculated(int color) => color is 0 or >= FirstInterpolatedColor;
 
         private ushort Calculate(int frame, int color)
         {

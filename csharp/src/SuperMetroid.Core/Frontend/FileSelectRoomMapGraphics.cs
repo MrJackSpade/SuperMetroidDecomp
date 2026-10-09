@@ -67,17 +67,17 @@ public sealed partial class FileSelectRoomMapGraphics
         icons.BindLandmarks(catalog?.Landmarks);
         sprites = catalog?.Sprites;
         icons.BindSprites(sprites);
-        ppu.BindMapSprites(bus, sprites);
+        ppu.BindMapSprites(sprites);
         if (catalog is not null)
             for (int color = 0; color < SnesCgram.ColorCount; color++)
-                if (color < MapAnimationRomData.PaletteDestination || color >= MapAnimationRomData.PaletteDestination + MapPaletteCycleFormat.ColorCount)
+                if (color is < MapAnimationRomData.PaletteDestination or >= (MapAnimationRomData.PaletteDestination + MapPaletteCycleFormat.ColorCount))
                     Cgram.SetColor(color, catalog.Palettes.FileSelect[color]);
         (catalog ?? throw new InvalidOperationException(
             "Room-map graphics require installed map presentation assets."))
             .Tiles.LoadTo(Vram, FileSelectMapRomData.RoomCharacters * 2);
         var system = icons.MapSystem;
         var area = icons.MapArea;
-        ppu.BindWorldArtwork(bus, catalog?.WorldArtwork);
+        ppu.BindWorldArtwork(catalog?.WorldArtwork);
         LoadFrame(catalog?.Screens, area);
         MapTileWord hidden = system.HasAreaMap(area)
             ? MapTileWords.PauseBlank : MapTileWords.FileSelectUndownloadedBlank;
@@ -129,7 +129,7 @@ public sealed partial class FileSelectRoomMapGraphics
         var oam = new OamBuffer();
         oam.BeginFrame();
         icons.DrawBeforeMarker(oam, horizontalScroll, verticalScroll);
-        marker.Draw(bus, oam, horizontalScroll, verticalScroll, sprites);
+        marker.Draw(oam, horizontalScroll, verticalScroll, sprites);
         icons.DrawAfterMarker(oam, horizontalScroll, verticalScroll,
             animations is null ? null : () => animations.DrawArrows(oam, sprites));
         oam.FinalizeFrame();

@@ -88,8 +88,6 @@ public sealed class MotherBrainHealthPalettePresentation
         private readonly ushort highlight;
         private readonly ushort midtone;
         private readonly ushort shadow;
-        private readonly ushort outline;
-        private readonly ushort gray;
         private readonly ushort brown;
         private readonly bool backLeg;
         private readonly ushort[]? supplied;
@@ -106,8 +104,8 @@ public sealed class MotherBrainHealthPalettePresentation
             highlight = MotherBrainHealthPaintDefinitions.CortexHighlight;
             midtone = MotherBrainHealthPaintDefinitions.CortexMidtone;
             shadow = MotherBrainHealthPaintDefinitions.CortexShadow;
-            outline = MotherBrainHealthPaintDefinitions.Outline;
-            gray = MotherBrainHealthPaintDefinitions.PlateHighlight;
+            Outline = MotherBrainHealthPaintDefinitions.Outline;
+            Gray = MotherBrainHealthPaintDefinitions.PlateHighlight;
             brown = MotherBrainHealthPaintDefinitions.TissueHighlight;
         }
 
@@ -127,8 +125,8 @@ public sealed class MotherBrainHealthPalettePresentation
             highlight = backLeg ? (ushort)0 : colors[0];
             midtone = backLeg ? (ushort)0 : colors[1];
             shadow = backLeg ? (ushort)0 : colors[2];
-            outline = front is null ? colors[3] : (ushort)0;
-            gray = front is null ? colors[4] : (ushort)0;
+            Outline = front is null ? colors[3] : (ushort)0;
+            Gray = front is null ? colors[4] : (ushort)0;
             brown = backLeg ? (ushort)0 : colors[8];
             for (int color = 0; color < colors.Length; color++)
                 if (Calculate(color) != colors[color])
@@ -155,7 +153,7 @@ public sealed class MotherBrainHealthPalettePresentation
         {
             get
             {
-                if (front is null) return outline;
+                if (front is null) return field;
                 ushort lit = front.Color(3);
                 int green = Math.Min(31, (lit >> 5 & 31) + 1);
                 return (ushort)((lit & ~(31 << 5)) | green << 5);
@@ -167,7 +165,7 @@ public sealed class MotherBrainHealthPalettePresentation
         {
             get
             {
-                if (front is null) return gray;
+                if (front is null) return field;
                 ushort lit = front.Color(4);
                 return (ushort)(((lit & 31) + 1) / 2 |
                     (((lit >> 5 & 31) + 1) / 2) << 5 | ((lit >> 10 & 31) / 2) << 10);

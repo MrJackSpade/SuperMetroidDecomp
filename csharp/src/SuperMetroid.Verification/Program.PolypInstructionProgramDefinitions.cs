@@ -45,7 +45,7 @@ internal static partial class Program
             "real Polyp initializer installs compiled stationary program");
 
         object?[] processArguments =
-            [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
         slot.InstructionTimer = 1;
         process.Invoke(enemies, processArguments);
         AssertEqual(ReadPolypInstructionWord(rom,

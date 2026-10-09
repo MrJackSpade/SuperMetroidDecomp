@@ -16,14 +16,9 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusVisorPaletteState
 {
-    [NonSerialized] private SamusVisorColorCatalog? presentationColors;
-
     /// <summary>Host-owned visor artwork, excluded from debugger-state serialization.</summary>
-    public SamusVisorColorCatalog? PresentationColors
-    {
-        get => presentationColors;
-        set => presentationColors = value;
-    }
+    [field: NonSerialized]
+    public SamusVisorColorCatalog? PresentationColors { get; set; }
 
     /// <summary>
     /// Native word at WRAM <c>$0A72</c>: low byte is the countdown and high byte is an
@@ -83,8 +78,8 @@ public sealed class SamusVisorPaletteState
         byte sourceOffset = PaletteByteOffset;
         // An externally edited packed word can address bytes outside the six authored
         // colors. Preserve the native address-space read in that exceptional case.
-        if (presentationColors is null ||
-            !presentationColors.TryResolveByteOffset(sourceOffset, out ushort color))
+        if (PresentationColors is null ||
+            !PresentationColors.TryResolveByteOffset(sourceOffset, out ushort color))
             throw new InvalidDataException($"Visor palette offset {sourceOffset} has no installed color.");
         cgram.SetColor(
             SamusPaletteRomData.Common.SamusObjPaletteStart +

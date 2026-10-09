@@ -200,10 +200,10 @@ internal static partial class Program
 
         public byte ReadByte(int address)
         {
-            if (address >= SporeSpawnColorRomData.SporeSource &&
-                address < SporeSpawnColorRomData.DeathBackgroundSource +
+            if (address is >= SporeSpawnColorRomData.SporeSource and
+                < (SporeSpawnColorRomData.DeathBackgroundSource +
                     SporeSpawnColorRomData.DeathSceneFrameCount *
-                    SporeSpawnColorRomData.FrameByteCount)
+                    SporeSpawnColorRomData.FrameByteCount))
             {
                 ForbiddenReadAttempts++;
                 throw new InvalidOperationException(

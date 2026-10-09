@@ -42,7 +42,7 @@ public sealed class GrappleSwingFrameCatalog
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid Grapple swing-frame JSON.", error); }
         if (document.Version != GrappleSwingFrameDefinitions.Version || document.Frames is null || document.Frames.Length != GrappleSwingFrameDefinitions.AngleCount ||
-            document.Frames.Any(frame => frame < 0 || frame >= GrappleSwingFrameDefinitions.FrameCount))
+            document.Frames.Any(frame => frame is < 0 or >= GrappleSwingFrameDefinitions.FrameCount))
             throw new InvalidDataException("Grapple swing frames require version 1 and 256 frame indices in 0..31.");
         return new(document.Frames.Select(frame => (byte)frame).ToArray());
     }

@@ -62,8 +62,8 @@ internal sealed class MapObjectTileArtwork
         }
     }
 
-    private static bool IsReserve(int tile) => tile >= FirstReserveTile && tile < FirstReserveTile + ReserveTileCount;
-    private static bool IsHighlight(int tile) => tile >= FirstHighlightTile && tile < FirstHighlightTile + HighlightTileCount;
+    private static bool IsReserve(int tile) => tile is >= FirstReserveTile and < (FirstReserveTile + ReserveTileCount);
+    private static bool IsHighlight(int tile) => tile is >= FirstHighlightTile and < (FirstHighlightTile + HighlightTileCount);
 
     /// <summary>Border index12; left corner reuses cursor46 shifted right with colors1/2 exchanged.
     /// Source cursor edits are compensated by independent corner-pixel edits captured at import.</summary>

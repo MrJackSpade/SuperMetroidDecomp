@@ -16,7 +16,7 @@ internal abstract class CommonEnemyProjectileInstructionProgramDefinitionsToolin
             return false;
 
         ushort bankAddress = unchecked((ushort)address);
-        return bankAddress == CommonEnemyProjectileInstructionProgramDefinitions.Delete ||
-            bankAddress == unchecked((ushort)(CommonEnemyProjectileInstructionProgramDefinitions.Delete + 1));
+        return bankAddress is CommonEnemyProjectileInstructionProgramDefinitions.Delete or
+            ((ushort)(CommonEnemyProjectileInstructionProgramDefinitions.Delete + 1));
     }
 }

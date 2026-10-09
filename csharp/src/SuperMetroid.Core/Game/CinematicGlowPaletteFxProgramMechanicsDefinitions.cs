@@ -42,7 +42,6 @@ public static class CinematicGlowPaletteFxProgramMechanicsDefinitions
     /// <summary>$01FE: CGRAM byte destination of the cinematic gunship glow.</summary>
     private const ushort GunshipColorByte = 0x01fe;
 
-    private static readonly IReadOnlyList<CinematicGlowPaletteFxProgramDefinition> Definitions = new ProgramEntries();
     private sealed class ProgramEntries : IReadOnlyList<CinematicGlowPaletteFxProgramDefinition>
     {
         public int Count => 2;
@@ -67,13 +66,12 @@ public static class CinematicGlowPaletteFxProgramMechanicsDefinitions
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>The old-Mother-Brain and gunship glow programs in definition order.</summary>
-    public static IReadOnlyList<CinematicGlowPaletteFxProgramDefinition> All =>
-        Definitions;
+    public static IReadOnlyList<CinematicGlowPaletteFxProgramDefinition> All { get; } = new ProgramEntries();
 
     /// <summary>Resolves one compiled mechanics word across both programs.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
-        foreach (CinematicGlowPaletteFxProgramDefinition definition in Definitions)
+        foreach (CinematicGlowPaletteFxProgramDefinition definition in All)
         {
             if (definition.TryReadMechanicsWord(pointer, out value))
                 return true;

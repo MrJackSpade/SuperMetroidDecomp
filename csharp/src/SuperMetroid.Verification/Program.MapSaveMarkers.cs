@@ -162,7 +162,7 @@ internal static partial class Program
         byte[] Draw(FileSelectStationMarker marker)
         {
             var oam = new OamBuffer(); oam.BeginFrame();
-            marker.Draw(guard, oam, 24, 8, original.Sprites);
+            marker.Draw(oam, 24, 8, original.Sprites);
             oam.FinalizeFrame();
             return oam.LowTable.ToArray().Concat(oam.HighTable.ToArray()).ToArray();
         }

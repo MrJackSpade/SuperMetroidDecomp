@@ -242,7 +242,7 @@ public static partial class RenderFrameSnapshotCodec
     {
         int rows = reader.ReadByte();
         int radius = reader.ReadByte();
-        if (rows < Game.GameplayMessageRomData.Layout.MinimumRows || rows > Game.GameplayMessageRomData.Layout.MaximumRows)
+        if (rows is < Game.GameplayMessageRomData.Layout.MinimumRows or > Game.GameplayMessageRomData.Layout.MaximumRows)
             throw new InvalidDataException("Invalid message row count in display fixture.");
         var tiles = new ushort[rows * Game.GameplayMessageRomData.Layout.TilemapWidth];
         for (int i = 0; i < tiles.Length; i++) tiles[i] = reader.ReadUInt16();

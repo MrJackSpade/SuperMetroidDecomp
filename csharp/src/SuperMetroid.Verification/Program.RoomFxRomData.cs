@@ -99,7 +99,7 @@ internal static partial class Program
         foreach (ushort offset in original)
         {
             ushort target = ReadVerificationWord(rom, 0x88803e + offset);
-            AssertTrue(target >= 0x8074 && target <= 0x8156, "Native slot points into its blending routines");
+            AssertTrue(target is >= 0x8074 and <= 0x8156, "Native slot points into its blending routines");
         }
         for (int value = 0; value <= ushort.MaxValue; value++)
         {

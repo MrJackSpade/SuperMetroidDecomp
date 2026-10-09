@@ -41,13 +41,13 @@ public sealed partial class SamusProjectileSystem
     /// clear its visible flare and restore the normal suit palette. Unlike HUD
     /// cancellation, this does not rewrite the previous-charge sampling word.
     /// </summary>
-    public void ConsumePseudoScrewCharge(ISnesAddressSpace bus, SnesCgram cgram, SamusState samus)
+    public void ConsumePseudoScrewCharge(SnesCgram cgram, SamusState samus)
     {
         SamusChargePaletteIndex = 0;
         FlareCounter = 0;
         samus.ProjectileFlareCounter = 0;
         ClearFlareAnimationState();
-        LoadNormalSuitPalette(bus, cgram, samus);
+        LoadNormalSuitPalette(cgram, samus);
     }
 
     private void CancelCharge()
@@ -315,7 +315,6 @@ public sealed partial class SamusProjectileSystem
         // initial speed. This is what lets a muzzle already overlapping a door cap trigger
         // its bank-$94 shot reaction instead of moving its leading edge beyond the cap.
         bool initialImpact = RunInitialBeamCollision(
-            bus,
             level,
             slot,
             roomPlms,
@@ -398,7 +397,6 @@ public sealed partial class SamusProjectileSystem
         // shootable-block reactions but, like every Wave family, ignores solid carry and
         // survives to receive its normal movement state.
         _ = RunInitialBeamCollision(
-            bus,
             level,
             slot,
             roomPlms,

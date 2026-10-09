@@ -11,7 +11,7 @@ public sealed partial class RoomEnemySystem
         switch (state.DeathSequenceIndex)
         {
             case CrocomireDeathPhases.CrumbleBridgeAndSink:
-                SpawnNextCrocomireBridgeFragment(state);
+                SpawnNextCrocomireBridgeFragment();
                 RunCrocomireSinkingComposite(state, samus, tickAcidSound: true);
                 return;
             case CrocomireDeathPhases.FirstSubmergedPause:

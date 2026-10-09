@@ -41,7 +41,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemyProjectileSlot bomb,
         SamusBombProjectileSystem? samusBombs)
     {
-        MotherBrainEnemyState state = _motherBrain ?? throw new InvalidOperationException(
+        MotherBrainEnemyState state = MotherBrain ?? throw new InvalidOperationException(
             "Mother Brain bomb ran without its multipart encounter state.");
         if (TryDestroyMotherBrainBombWithSamusBomb(bomb, state, samusBombs))
             return;

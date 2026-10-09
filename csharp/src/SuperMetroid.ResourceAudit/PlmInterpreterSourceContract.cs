@@ -12,7 +12,8 @@ internal static class PlmInterpreterSourceContract
         ["TryIdentifyPermanentCollectible/3"] = "6A6300F5B6F6DA8B5D1080735D67D69F395CEC3CE759F5B4FAD3DF8448BD9212",
         ["DrawPlmInstruction/8"] = "73FCC41B9A16992DC0D0D6850B0C46C5B195C2FFE93B78CFFE0039813E2CFD09",
         // #1269 adds the compiled escape-passage and shaft-wall clear draws; no program reads.
-        ["DrawPlmInstruction/9"] = "860DFEC3F7FD370E1C5891C79F23F569EA0429E1A7DE7E23187CD44D44EE9986",
+        // #142 reads the installed visuals through auto-properties; no program reads.
+        ["DrawPlmInstruction/9"] = "17814EF9A596E88B3A3752E4D5137BD8F7C6187C9BDE5CDF743D933B60652A4E",
         ["ConvertEyeToBlueDoor/3"] = "C7280ECD02DA2D9EA7C5E36E10FBB3C2613829BE806663CA6E8DAD5E900BD929",
         // #1269 adds $84:BB25, a two-byte record with no operands (PlmInstructionFormats).
         ["ExecuteInstructionStream/9"] = "3806E413E6018A448104D24BD2659AA68D13301178E6D3C0C280E9A2702761CB",
@@ -37,7 +38,8 @@ internal static class PlmInterpreterSourceContract
         ["TryExecuteEyeDoorInstruction/4"] = "5B2F9ACE369601FC1F8BCBBD28E85D064F7048EA835A3C0FB64FE592C3BC81C9",
         ["TryExecuteMotherBrainGlassInstruction/3"] = "0D2B48AF9CCBAF2656929520850ACDB252B4098C40141846456F8C6B36F00515",
         ["TryExecuteNoobTubeInstruction/3"] = "7CF84A4E7392E1E439C51C2C28177DA7D00C452F7C234FBE01E4841A702D1783",
-        ["TryRunRoomPopulationSetup/11"] = "FDB4AC00475D5189549DFE4EC2B1E3E3E4F58BD86EABB30D5B75E28F25241E3B",
+        // #142 drops the unused Samus accessor; no program reads or operand widths change.
+        ["TryRunRoomPopulationSetup/10"] = "5354CA4CD75FCF135700EE448E668B1EF66C96D6B1CC9272D97166D5863E8F1A",
         // #1255 suspends before the existing Empty draw/delete continuation; no new program reads or operand widths;
         // #1269 releases an emptied Chozo slot without reading its program.
         ["TryStepCollectible/7"] = "E0E560003D363D333D84DF81E009EA6764A487CB0BAC8D58E4B30BB59E37AF28",

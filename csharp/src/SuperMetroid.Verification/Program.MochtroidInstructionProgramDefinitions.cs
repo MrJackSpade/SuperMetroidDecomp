@@ -100,7 +100,7 @@ internal static partial class Program
         int callCount)
     {
         object?[] arguments =
-            [mochtroid, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            [mochtroid, null, null, (ushort)0, (ushort)0, (ushort)0];
         for (int call = 0; call < callCount; call++)
         {
             mochtroid.InstructionTimer = 1;

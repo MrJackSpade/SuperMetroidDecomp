@@ -35,7 +35,7 @@ internal abstract class MotherBrainHandBeamInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (address == TerminalDelete) return EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete;
-        if (address >= Initial && address < TerminalDelete)
+        if (address is >= Initial and < TerminalDelete)
         {
             int offset = (address - Initial) % StageBytes;
             if (offset == FrameBytes) return EnemyProjectileCodePointers.Instruction_EnemyProjectile_CallExternalFunctionInY;

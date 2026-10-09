@@ -3,13 +3,12 @@ using SuperMetroid.Core.Input;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One frame of <c>HandleSwitchingHudSelection</c> ($90:C4B5).</summary>
-/// <param name="Changed">The selected item index differs from the previous frame's.</param>
 /// <param name="ItemHandlerAccepted">
 /// A cancel or select edge ran the switch loop, whose switched-to handler ($90:C545-$C5C3)
 /// accepted the now-selected item. This holds even when the selection lands back on the
 /// same item, such as a cancel with nothing selected.
 /// </param>
-public readonly record struct HudSelectionOutcome(bool Changed, bool ItemHandlerAccepted);
+public readonly record struct HudSelectionOutcome(bool ItemHandlerAccepted);
 
 public sealed partial class SamusState
 {
@@ -30,7 +29,7 @@ public sealed partial class SamusState
     /// skip unavailable ammo/equipment. Y cancels to zero. Holding Y while pressing Select
     /// records the chosen item for native auto-cancel behavior.
     /// </remarks>
-    /// <returns>Whether the index changed and whether an item's switched-to handler ran.</returns>
+    /// <returns>Whether an item's switched-to handler ran.</returns>
     public HudSelectionOutcome HandleHudSelection(
         ushort controllerInput,
         ushort controllerNewInput,
@@ -65,8 +64,7 @@ public sealed partial class SamusState
                 : (ushort)0;
         }
 
-        bool changed = SelectedHudItem != previousSelection;
-        if (changed)
+        if (SelectedHudItem != previousSelection)
         {
             HudItemChangedThisFrame = 1;
         }
@@ -78,7 +76,7 @@ public sealed partial class SamusState
                 ? (ushort)2
                 : unchecked((ushort)(HudItemChangedThisFrame + 1));
         }
-        return new HudSelectionOutcome(changed, itemHandlerAccepted);
+        return new HudSelectionOutcome(itemHandlerAccepted);
     }
 
     private bool IsHudItemAvailable(ushort index) => index switch

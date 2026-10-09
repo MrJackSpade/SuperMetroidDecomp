@@ -15,17 +15,15 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed class CeresDepartureState
 {
-    private ushort holdFramesRemaining;
-    private byte brightness = 15;
 
     /// <summary>Current bank-$82 portion of the departure sequence.</summary>
     public CeresDeparturePhase Phase { get; private set; } = CeresDeparturePhase.Inactive;
 
     /// <summary>Live state-$20 countdown seeded to 60 by Samus code two.</summary>
-    public ushort HoldFramesRemaining => holdFramesRemaining;
+    public ushort HoldFramesRemaining { get; private set; }
 
     /// <summary>Low nibble of native INIDISP while state $21 fades out.</summary>
-    public byte Brightness => brightness;
+    public byte Brightness { get; private set; } = 15;
 
     /// <summary>Starts state $20 from the room main's one-frame request.</summary>
     /// <exception cref="InvalidOperationException">The departure has already begun or completed; a state instance admits the sequence only once.</exception>
@@ -34,8 +32,8 @@ public sealed class CeresDepartureState
         if (Phase != CeresDeparturePhase.Inactive)
             throw new InvalidOperationException("Ceres elevator departure was started twice.");
 
-        holdFramesRemaining = CeresElevatorShaftRoomMainState.DepartureHoldFrames;
-        brightness = 15;
+        HoldFramesRemaining = CeresElevatorShaftRoomMainState.DepartureHoldFrames;
+        Brightness = 15;
         Phase = CeresDeparturePhase.HoldingOnElevator;
     }
 
@@ -52,8 +50,8 @@ public sealed class CeresDepartureState
         // The native routine decrements after GameState_8 returns, then accepts both zero
         // and signed underflow. Begin() always seeds 60, so zero is the reachable result;
         // preserving the signed check documents and tests the actual 16-bit contract.
-        holdFramesRemaining = unchecked((ushort)(holdFramesRemaining - 1));
-        if (holdFramesRemaining != 0 && unchecked((short)holdFramesRemaining) >= 0)
+        HoldFramesRemaining = unchecked((ushort)(HoldFramesRemaining - 1));
+        if (HoldFramesRemaining != 0 && unchecked((short)HoldFramesRemaining) >= 0)
             return false;
 
         Phase = CeresDeparturePhase.FadingToBlack;
@@ -73,13 +71,13 @@ public sealed class CeresDepartureState
         // Room main explicitly sets both fade words to zero. HandleFadeOut therefore
         // changes INIDISP on every call. Brightness one becomes hardware forced blank
         // rather than a representable brightness zero, which is exposed here as Complete.
-        if (brightness > 1)
+        if (Brightness > 1)
         {
-            brightness--;
+            Brightness--;
             return false;
         }
 
-        brightness = 0;
+        Brightness = 0;
         Phase = CeresDeparturePhase.Complete;
         return true;
     }

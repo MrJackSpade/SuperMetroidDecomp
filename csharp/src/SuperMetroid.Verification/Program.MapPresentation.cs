@@ -117,14 +117,12 @@ internal static partial class Program
         private readonly RoomVisualLayoutCatalog visualLayouts;
         private readonly RoomBackgroundTilemapCatalog backgrounds;
         private readonly RoomSkyTilemapCatalog skies;
-        private readonly EnemyTileArtworkCatalog enemyTiles;
         private readonly BeamTileCatalog beamTiles;
-        private readonly SamusBodyArtworkCatalog samusBody;
         private readonly RoomPlmElevatorPlatformVisualCatalog elevatorPlatform;
 
         public GameplayBasePaletteCatalog InitialPalettes { get; }
-        public EnemyTileArtworkCatalog EnemyTiles => enemyTiles;
-        public SamusBodyArtworkCatalog SamusBody => samusBody;
+        public EnemyTileArtworkCatalog EnemyTiles { get; }
+        public SamusBodyArtworkCatalog SamusBody { get; }
 
         public MapPresentationInstalledRoomAssets(SuperMetroid.AssetExtraction.GameInstallation installation)
         {
@@ -136,9 +134,9 @@ internal static partial class Program
             visualLayouts = installation.LoadRoomVisualLayouts();
             backgrounds = installation.LoadRoomBackgroundTilemaps();
             skies = installation.LoadRoomSkyTilemaps();
-            enemyTiles = installation.LoadEnemyTiles();
+            EnemyTiles = installation.LoadEnemyTiles();
             beamTiles = installation.LoadProjectiles().BeamTiles;
-            samusBody = installation.LoadSamusBodyArt();
+            SamusBody = installation.LoadSamusBodyArt();
             elevatorPlatform = installation.LoadRoomPlmElevatorPlatformVisuals();
         }
 
@@ -151,9 +149,9 @@ internal static partial class Program
             runtime.RoomVisualLayouts = visualLayouts;
             runtime.RoomBackgroundTilemapArt = backgrounds;
             runtime.RoomSkyTilemapArt = skies;
-            runtime.Enemies.TileArtwork = enemyTiles;
+            runtime.Enemies.TileArtwork = EnemyTiles;
             runtime.BeamArtwork = beamTiles;
-            runtime.SamusBodyArt = samusBody;
+            runtime.SamusBodyArt = SamusBody;
             runtime.RoomPlmElevatorPlatformVisuals = elevatorPlatform;
         }
     }
@@ -606,8 +604,8 @@ internal static partial class Program
         {
             var native = new SnesCgram();
             var installed = new SnesCgram();
-            MotherBrainHealthPalette.Apply(bus, native, health, extracted);
-            MotherBrainHealthPalette.Apply(new ForbiddenMapBus(), installed, health,
+            MotherBrainHealthPalette.Apply(native, health, extracted);
+            MotherBrainHealthPalette.Apply(installed, health,
                 original.MotherBrainHealthPalette);
             AssertTrue(native.Colors.SequenceEqual(installed.Colors),
                 $"Mother Brain health {health} stock colors exactly match the native three-copy output");
@@ -639,9 +637,9 @@ internal static partial class Program
         };
         var output = new SnesCgram();
         var stockOutput = new SnesCgram();
-        MotherBrainHealthPalette.Apply(new ForbiddenMapBus(), stockOutput, 5399,
+        MotherBrainHealthPalette.Apply(stockOutput, 5399,
             original.MotherBrainHealthPalette);
-        MotherBrainHealthPalette.Apply(new ForbiddenMapBus(), output, 5399,
+        MotherBrainHealthPalette.Apply(output, 5399,
             runtime.Enemies.MotherBrainHealthColors);
         AssertTrue(output.Colors[MotherBrainRainbowPaletteRomData.BodyColor] !=
             stockOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor],
@@ -1373,9 +1371,9 @@ internal static partial class Program
                 (address >= SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteColors &&
                 address < SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteColors + SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteFrameCount * MapPaletteCycleFormat.ColorCount * 2))
                 throw new InvalidOperationException($"Live presentation read map palette-cycle ROM at {address:X6}.");
-            if (address >= HudTileAtlasFormat.SourceAddress && address < HudTileAtlasFormat.SourceAddress + HudTileAtlasFormat.TransferByteCount)
+            if (address is >= HudTileAtlasFormat.SourceAddress and < (HudTileAtlasFormat.SourceAddress + HudTileAtlasFormat.TransferByteCount))
                 throw new InvalidOperationException($"Live presentation read HUD atlas ROM at {address:X6}.");
-            if (address >= MapTileAtlasFormat.SourceAddress && address < MapTileAtlasFormat.SourceAddress + MapTileAtlasFormat.ByteCount)
+            if (address is >= MapTileAtlasFormat.SourceAddress and < (MapTileAtlasFormat.SourceAddress + MapTileAtlasFormat.ByteCount))
                 throw new InvalidOperationException($"Live presentation read map atlas ROM at {address:X6}.");
             if ((address >= AreaMapRomData.TilemapPointerTable && address < AreaMapRomData.TilemapPointerTable + AreaIds.RetailCount * 3) ||
                 (address >= AreaMapRomData.StationRevealMaskPointerTable && address < AreaMapRomData.StationRevealMaskPointerTable + AreaIds.RetailCount * 2) ||

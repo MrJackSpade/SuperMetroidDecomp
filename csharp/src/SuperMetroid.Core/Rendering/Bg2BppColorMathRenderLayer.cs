@@ -44,7 +44,7 @@ public sealed record Bg2BppColorMathRenderLayer : RenderLayer
         int firstScanline, ExpandedColorMathOperation operation, ReadOnlySpan<BackgroundLineScroll> scrolls)
     {
         if (mapHeightTiles is not (32 or 64)) throw new ArgumentOutOfRangeException(nameof(mapHeightTiles));
-        if (firstScanline < 0 || firstScanline > SnesPpuLayout.ScreenHeightPixels)
+        if (firstScanline is < 0 or > SnesPpuLayout.ScreenHeightPixels)
             throw new ArgumentOutOfRangeException(nameof(firstScanline));
         if (operation is not (ExpandedColorMathOperation.Add or ExpandedColorMathOperation.Subtract))
             throw new ArgumentOutOfRangeException(nameof(operation));

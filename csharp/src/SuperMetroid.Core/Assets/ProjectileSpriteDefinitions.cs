@@ -144,7 +144,7 @@ public static class ProjectileSpriteDefinitions
         const int cycleBytes = 16 * 8 + 4;
         int offset = pointer - programStart;
         sprite = default;
-        if (offset < 0 || offset >= 4 * cycleBytes) return false;
+        if (offset is < 0 or >= (4 * cycleBytes)) return false;
         int recordOffset = offset % cycleBytes;
         if (recordOffset >= 16 * 8 || recordOffset % 8 != 0) return false;
         int phase = recordOffset / 8;
@@ -576,7 +576,7 @@ public static class ProjectileSpriteDefinitions
         }
         int offset = instructionPointer - WaveProgramStart;
         const int cycleBytes = 16 * 8 + 4;
-        if (offset >= 0 && offset < 4 * cycleBytes)
+        if (offset is >= 0 and < (4 * cycleBytes))
         {
             int recordOffset = offset % cycleBytes;
             if (recordOffset < 16 * 8 && recordOffset % 8 == 0)
@@ -602,7 +602,7 @@ public static class ProjectileSpriteDefinitions
         }
         offset = instructionPointer - ChargedPowerProgramStart;
         const int chargedProgramBytes = 2 * 8 + 4;
-        if (offset >= 0 && offset < 8 * chargedProgramBytes)
+        if (offset is >= 0 and < (8 * chargedProgramBytes))
         {
             int recordOffset = offset % chargedProgramBytes;
             if (recordOffset < 2 * 8 && recordOffset % 8 == 0)

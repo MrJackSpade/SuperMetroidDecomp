@@ -159,7 +159,7 @@ internal static class SamusBodyPixelDefinitions
             {
                 1 or 2 or 7 or 8 => tile < 9,
                 3 or 9 => tile < 2,
-                4 => tile < 4 || tile is >= 7 and < 10,
+                4 => tile is < 4 or >= 7 and < 10,
                 5 or 10 or 11 => tile < 10,
                 _ => false,
             };

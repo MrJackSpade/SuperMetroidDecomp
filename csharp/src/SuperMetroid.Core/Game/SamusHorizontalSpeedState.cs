@@ -391,11 +391,11 @@ public sealed class SamusHorizontalSpeedState
                 // Carry clear at `$91:DA48` asks the outer palette dispatcher to copy
                 // the normal suit palette for frames 27 onward. Frames 1..26 cycle below.
                 // CGRAM is the desktop runtime's directly visible palette buffer.
-                LoadNormalSuitPalette(bus, cgram, equippedItems, suitColors);
+                LoadNormalSuitPalette(cgram, equippedItems, suitColors);
                 return true;
             }
 
-            CopyAndAdvanceScrewAttackPalette(bus, cgram, suitTableOffset, cycleColors);
+            CopyAndAdvanceScrewAttackPalette(cgram, suitTableOffset, cycleColors);
             return true;
         }
 
@@ -412,7 +412,7 @@ public sealed class SamusHorizontalSpeedState
                 return paletteCopied;
             }
 
-            CopyAndAdvanceScrewAttackPalette(bus, cgram, suitTableOffset, cycleColors);
+            CopyAndAdvanceScrewAttackPalette(cgram, suitTableOffset, cycleColors);
             return true;
         }
 
@@ -467,7 +467,6 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>Copies one of the six ROM-authored Screw Attack palettes and wraps its offset.</summary>
     private void CopyAndAdvanceScrewAttackPalette(
-        ISnesAddressSpace bus,
         SnesCgram cgram,
         ushort suitTableOffset,
         SamusFullBodyCycleColorCatalog? cycleColors)
@@ -487,7 +486,6 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>Loads the normal Power/Varia/Gravity palette selected by the native suit index.</summary>
     private static void LoadNormalSuitPalette(
-        ISnesAddressSpace bus,
         SnesCgram cgram,
         ushort equippedItems,
         SamusSuitColorCatalog? suitColors)

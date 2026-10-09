@@ -45,7 +45,7 @@ internal static partial class Program
         NorfairLavaJumpingEnemyState parentState =
             enemies.NorfairLavaJumpingEnemyStates[0]!;
         object?[] processArguments =
-            [parent, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            [parent, null, null, (ushort)0, (ushort)0, (ushort)0];
 
         RunNorfairLavaJumperProgram(
             enemies, process, processArguments, parent,

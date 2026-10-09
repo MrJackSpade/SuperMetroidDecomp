@@ -92,7 +92,7 @@ internal static partial class Program
                 if (shot.PackedType.Family == SamusProjectileFamily.BeamExplosion)
                 {
                     impact = frame;
-                    AssertTrue(shot.XPosition >= 856 && shot.XPosition <= 880,
+                    AssertTrue(shot.XPosition is >= 856 and <= 880,
                         "Controller-followed shot impacts the constructed world-space target");
                     break;
                 }

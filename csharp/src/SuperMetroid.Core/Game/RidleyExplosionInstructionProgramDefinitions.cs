@@ -11,7 +11,7 @@ internal abstract class RidleyExplosionInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - First;
-        if (offset >= 0 && offset < ProgramCount * 6)
+        if (offset is >= 0 and < (ProgramCount * 6))
         {
             if (offset % 6 == 0) return 1;
             if (offset % 6 == 4) return CommonEnemyInstructionCodes.Sleep;

@@ -149,7 +149,7 @@ public static class RoomBackgroundTilemapFormat
     /// <exception cref="InvalidDataException"><paramref name="byteCount"/> is not exactly one or two native page lengths.</exception>
     public static int ValidatePageCount(int byteCount)
     {
-        if (byteCount != BytesPerPage && byteCount != 2 * BytesPerPage)
+        if (byteCount is not BytesPerPage and not (2 * BytesPerPage))
             throw new InvalidDataException(
                 $"Room background tilemap must contain one or two native $0800-byte pages, got ${byteCount:X} bytes.");
         return byteCount / BytesPerPage;

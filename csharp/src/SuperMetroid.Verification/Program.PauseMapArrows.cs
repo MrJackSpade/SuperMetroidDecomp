@@ -19,8 +19,8 @@ internal static partial class Program
         Set("mapScroll", new PauseMapScroll(0, 512, 0, 256));
         var fields = typeof(PauseMenuState).GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
             .Where(field => !field.IsDefined(typeof(NonSerializedAttribute))).OrderBy(field => field.Name, StringComparer.Ordinal).ToArray();
-        AssertTrue(LegacyLayout(typeof(PauseMenuState), fields, fields.Where(field => field.Name != "mapArrows" && field.Name != "mapLabelsBeforeIcons"))
-            .SequenceEqual(fields.Where(field => field.Name != "mapArrows" && field.Name != "mapLabelsBeforeIcons")), "legacy pause fields retain their original serialized mapping");
+        AssertTrue(LegacyLayout(typeof(PauseMenuState), fields, fields.Where(field => field.Name is not "mapArrows" and not "mapLabelsBeforeIcons"))
+            .SequenceEqual(fields.Where(field => field.Name is not "mapArrows" and not "mapLabelsBeforeIcons")), "legacy pause fields retain their original serialized mapping");
         Set("mapArrows", null!);
         pause.BindMapPresentation(RetailPresentationFixture());
         var nativeColors = new SnesCgram();

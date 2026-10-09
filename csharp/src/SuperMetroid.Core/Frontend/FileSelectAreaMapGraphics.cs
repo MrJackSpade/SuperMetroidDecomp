@@ -95,7 +95,7 @@ public sealed partial class FileSelectAreaMapGraphics
     internal void BindScreens(MapScreenPresentation? content, WorldMapArtwork? artwork)
     {
         screens = content;
-        ppu.BindWorldArtwork(bus, artwork);
+        ppu.BindWorldArtwork(artwork);
         LoadForeground();
         LoadBackground(SelectedArea);
     }
@@ -105,7 +105,7 @@ public sealed partial class FileSelectAreaMapGraphics
         palettes = content;
         if (content is not null) LoadInstalledPalette(SelectedArea);
     }
-    internal void BindSprites(MapSpriteCatalog? content) { sprites = content; ppu.BindMapSprites(bus, content); }
+    internal void BindSprites(MapSpriteCatalog? content) { sprites = content; ppu.BindMapSprites(content); }
 
     private void LoadInstalledPalette(int selectedArea)
     {

@@ -9,13 +9,13 @@ internal static partial class Program
         // Check every room pointer and every boss word, not only named examples.
         for (int room = 0; room <= ushort.MaxValue; room++)
         {
-            bool excluded = room == 0xA66A || room == 0xCEFB;
+            bool excluded = room is 0xA66A or 0xCEFB;
             AssertEqual(excluded ? XrayRoomBlendMode.PreserveBackgrounds : XrayRoomBlendMode.RevealBlocks,
                 XrayRoomDisplayRules.Select((ushort)room, (RoomFxType)0, 0), "native room reveal admission");
         }
         for (int boss = 0; boss <= ushort.MaxValue; boss++)
         {
-            bool excluded = boss == 3 || boss == 6 || boss == 7 || boss == 8 || boss == 10;
+            bool excluded = boss is 3 or 6 or 7 or 8 or 10;
             AssertEqual(excluded ? XrayRoomBlendMode.PreserveBackgrounds : XrayRoomBlendMode.RevealBlocks,
                 XrayRoomDisplayRules.Select(0, (RoomFxType)0, (ushort)boss), "native boss reveal admission");
             AssertEqual(XrayRoomBlendMode.Fireflea,

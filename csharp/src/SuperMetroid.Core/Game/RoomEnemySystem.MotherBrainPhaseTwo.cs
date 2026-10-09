@@ -31,16 +31,16 @@ public sealed partial class RoomEnemySystem
         switch (state.Function)
         {
             case MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Brain:
-                SetupMotherBrainPhaseTwoBrain(state, samus);
+                SetupMotherBrainPhaseTwoBrain(state);
                 return;
             case MotherBrainBodyFunction.FakeDeathAscentPauseForSuspense:
-                PauseBeforeMotherBrainRises(state, samus);
+                PauseBeforeMotherBrainRises(state);
                 return;
             case MotherBrainBodyFunction.FakeDeathAscentPrepareForRising:
-                PrepareMotherBrainForRising(state, samus);
+                PrepareMotherBrainForRising(state);
                 return;
             case MotherBrainBodyFunction.FakeDeathAscentLoadLegTiles:
-                LoadMotherBrainLegTiles(state, samus);
+                LoadMotherBrainLegTiles(state);
                 return;
             case MotherBrainBodyFunction.FakeDeathAscentContinuePausing:
                 ContinueMotherBrainAscentPause(state);
@@ -58,10 +58,10 @@ public sealed partial class RoomEnemySystem
                 TransitionMotherBrainFromGray(state);
                 return;
             case MotherBrainBodyFunction.SecondPhaseStretchingShakeHead:
-                ShakeMotherBrainHeadMenacingly(state, samus);
+                ShakeMotherBrainHeadMenacingly(state);
                 return;
             case MotherBrainBodyFunction.SecondPhaseStretchingBringHeadUp:
-                BringMotherBrainHeadBackUp(state, samus);
+                BringMotherBrainHeadBackUp(state);
                 return;
             case MotherBrainBodyFunction.SecondPhaseStretchingFinish:
                 FinishMotherBrainStretching(state);
@@ -183,8 +183,7 @@ public sealed partial class RoomEnemySystem
     }
 
     private void SetupMotherBrainPhaseTwoBrain(
-        MotherBrainEnemyState state,
-        SamusState? samus)
+        MotherBrainEnemyState state)
     {
         // `$34` is the room's verified Mother Brain phase-two color-math configuration.
         state.LayerBlendingDefaultConfig = LayerBlendingConfiguration.MotherBrainPhaseTwo;
@@ -204,24 +203,22 @@ public sealed partial class RoomEnemySystem
 
         // `$8D49` falls directly into `$8D79`; the freshly written timer is observed as
         // $007F before another enemy slot can run.
-        PauseBeforeMotherBrainRises(state, samus);
+        PauseBeforeMotherBrainRises(state);
     }
 
     private void PauseBeforeMotherBrainRises(
-        MotherBrainEnemyState state,
-        SamusState? samus)
+        MotherBrainEnemyState state)
     {
         if (!DecrementMotherBrainTimerPastZero(state))
             return;
 
         state.Function = MotherBrainBodyFunction.FakeDeathAscentPrepareForRising;
         state.FunctionTimer = 0x0020;
-        PrepareMotherBrainForRising(state, samus);
+        PrepareMotherBrainForRising(state);
     }
 
     private void PrepareMotherBrainForRising(
-        MotherBrainEnemyState state,
-        SamusState? samus)
+        MotherBrainEnemyState state)
     {
         if (!DecrementMotherBrainTimerPastZero(state))
             return;
@@ -236,12 +233,11 @@ public sealed partial class RoomEnemySystem
         state.FunctionTimer = 0x0100;
 
         // The first $0200-byte transfer is queued on the same frame as HDMA creation.
-        LoadMotherBrainLegTiles(state, samus);
+        LoadMotherBrainLegTiles(state);
     }
 
     private void LoadMotherBrainLegTiles(
-        MotherBrainEnemyState state,
-        SamusState? samus)
+        MotherBrainEnemyState state)
     {
         if (!ProcessMotherBrainSpriteTileTransfer(state))
         {
@@ -384,8 +380,7 @@ public sealed partial class RoomEnemySystem
     }
 
     private static void ShakeMotherBrainHeadMenacingly(
-        MotherBrainEnemyState state,
-        SamusState? samus)
+        MotherBrainEnemyState state)
     {
         if (!DecrementMotherBrainTimerPastZero(state))
             return;
@@ -394,12 +389,11 @@ public sealed partial class RoomEnemySystem
         state.Function = MotherBrainBodyFunction.SecondPhaseStretchingBringHeadUp;
         state.NeckAngleDelta = 0x0040;
         state.FunctionTimer = 0x0100;
-        BringMotherBrainHeadBackUp(state, samus);
+        BringMotherBrainHeadBackUp(state);
     }
 
     private static void BringMotherBrainHeadBackUp(
-        MotherBrainEnemyState state,
-        SamusState? samus)
+        MotherBrainEnemyState state)
     {
         if (!DecrementMotherBrainTimerPastZero(state))
             return;
@@ -852,7 +846,7 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private void MoveMotherBrainBody(short xDisplacement, short yDisplacement)
     {
-        MotherBrainEnemyState state = _motherBrain ?? throw new InvalidOperationException(
+        MotherBrainEnemyState state = MotherBrain ?? throw new InvalidOperationException(
             "Mother Brain body bytecode ran without its multipart encounter state.");
         state.Body.XPosition = unchecked((ushort)(state.Body.XPosition + xDisplacement));
         state.Body.YPosition = unchecked((ushort)(state.Body.YPosition + yDisplacement));
@@ -870,7 +864,7 @@ public sealed partial class RoomEnemySystem
         short yDisplacement,
         short horizontalScrollBias)
     {
-        MotherBrainEnemyState state = _motherBrain ?? throw new InvalidOperationException(
+        MotherBrainEnemyState state = MotherBrain ?? throw new InvalidOperationException(
             "Mother Brain posture bytecode ran without its multipart encounter state.");
         state.Body.YPosition = unchecked((ushort)(state.Body.YPosition + yDisplacement));
         PublishMotherBrainBg2Scroll(
@@ -887,8 +881,8 @@ public sealed partial class RoomEnemySystem
 
         // Form three additionally queues library-three sound $16. Phase two normally never
         // reaches that branch, but retaining it here makes the shared gait opcode complete.
-        if (_motherBrain?.Form == 3)
-            _motherBrain.LastSoundEffectLibrary3 = 0x0016;
+        if (MotherBrain?.Form == 3)
+            MotherBrain.LastSoundEffectLibrary3 = SoundEffectLibrary3Sounds.MotherBrainFormThreeFootstep.Value;
     }
 
     private static void SetMotherBrainInstructionList(RoomEnemySlot slot, ushort pointer)

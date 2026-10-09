@@ -31,229 +31,121 @@ public sealed partial class RoomPlmSystem
     private readonly List<PlmSoundRequest> _soundRequests = new();
     private readonly List<PlmTilemapUpdate> _tilemapUpdates = new();
     private AreaId _activeAreaIndex = AreaId.Crateria;
-    [NonSerialized] private RoomPlmShotBlockVisualCatalog? shotBlockVisuals;
-    [NonSerialized] private RoomPlmGrappleBlockVisualCatalog? grappleBlockVisuals;
-    [NonSerialized] private RoomPlmStationVisualCatalog? stationVisuals;
-    [NonSerialized] private RoomPlmBlueDoorVisualCatalog? blueDoorVisuals;
-    [NonSerialized] private RoomPlmColoredDoorVisualCatalog? coloredDoorVisuals;
-    [NonSerialized] private RoomPlmGreyDoorVisualCatalog? greyDoorVisuals;
-    [NonSerialized] private RoomPlmEyeDoorVisualCatalog? eyeDoorVisuals;
-    [NonSerialized] private RoomPlmMotherBrainGlassVisualCatalog? motherBrainGlassVisuals;
-    [NonSerialized] private RoomPlmNoobTubeVisualCatalog? noobTubeVisuals;
-    [NonSerialized] private RoomPlmDownwardGateVisualCatalog? downwardGateVisuals;
-    [NonSerialized] private RoomPlmElevatorPlatformVisualCatalog? elevatorPlatformVisuals;
-    [NonSerialized] private RoomPlmEscapeGateVisualCatalog? escapeGateVisuals;
-    [NonSerialized] private RoomPlmBombTorizoHandVisualCatalog? bombTorizoHandVisuals;
-    [NonSerialized] private RoomPlmDraygonCannonVisualCatalog? draygonCannonVisuals;
-    [NonSerialized] private RoomPlmChozoStatueVisualCatalog? chozoStatueVisuals;
-    [NonSerialized] private RoomPlmLinkedRestoreVisualCatalog? linkedRestoreVisuals;
-    [NonSerialized] private RoomPlmTourianAccessVisualCatalog? tourianAccessVisuals;
-    [NonSerialized] private RoomPlmSpeedBoosterVisualCatalog? speedBoosterVisuals;
-    [NonSerialized] private RoomPlmMaridiaElevatubeVisualCatalog? maridiaElevatubeVisuals;
-    [NonSerialized] private RoomPlmSporeSpawnCeilingVisualCatalog? sporeSpawnCeilingVisuals;
-    [NonSerialized] private RoomPlmSamusEaterVisualCatalog? samusEaterVisuals;
-    [NonSerialized] private RoomPlmBotwoonWallVisualCatalog? botwoonWallVisuals;
-    [NonSerialized] private RoomPlmKraidVisualCatalog? kraidVisuals;
-    [NonSerialized] private RoomPlmCrocomireVisualCatalog? crocomireVisuals;
-    [NonSerialized] private RoomPlmMotherBrainFakeDeathVisualCatalog? motherBrainFakeDeathVisuals;
-    [NonSerialized] private RoomPlmCollectibleVisualCatalog? collectibleVisuals;
-    [NonSerialized] private RoomPlmDynamicCollectibleArtCatalog? dynamicCollectibleArt;
 
     /// <summary>Nonserialized visual-only shot-block selection; native collision words remain compiled.</summary>
-    public RoomPlmShotBlockVisualCatalog? ShotBlockVisuals
-    {
-        get => shotBlockVisuals;
-        set => shotBlockVisuals = value;
-    }
+    [field: NonSerialized]
+    public RoomPlmShotBlockVisualCatalog? ShotBlockVisuals { get; set; }
 
     /// <summary>Nonserialized Grapple-block art; the compiled full level words own collision.</summary>
-    public RoomPlmGrappleBlockVisualCatalog? GrappleBlockVisuals
-    {
-        get => grappleBlockVisuals;
-        set => grappleBlockVisuals = value;
-    }
+    [field: NonSerialized]
+    public RoomPlmGrappleBlockVisualCatalog? GrappleBlockVisuals { get; set; }
 
     /// <summary>Nonserialized station appearance; the compiled level words retain collision.</summary>
-    public RoomPlmStationVisualCatalog? StationVisuals
-    {
-        get => stationVisuals;
-        set => stationVisuals = value;
-    }
+    [field: NonSerialized]
+    public RoomPlmStationVisualCatalog? StationVisuals { get; set; }
 
     /// <summary>Visual-only blue-door cap frames supplied by installed content.</summary>
-    public RoomPlmBlueDoorVisualCatalog? BlueDoorVisuals
-    {
-        get => blueDoorVisuals;
-        set => blueDoorVisuals = value;
-    }
+    [field: NonSerialized]
+    public RoomPlmBlueDoorVisualCatalog? BlueDoorVisuals { get; set; }
 
     /// <summary>Visual-only colored-door cap frames supplied by installed content.</summary>
-    public RoomPlmColoredDoorVisualCatalog? ColoredDoorVisuals
-    {
-        get => coloredDoorVisuals;
-        set => coloredDoorVisuals = value;
-    }
+    [field: NonSerialized]
+    public RoomPlmColoredDoorVisualCatalog? ColoredDoorVisuals { get; set; }
 
     /// <summary>Visual-only grey caps and shared clear frames supplied by installed content.</summary>
-    public RoomPlmGreyDoorVisualCatalog? GreyDoorVisuals
-    {
-        get => greyDoorVisuals;
-        set => greyDoorVisuals = value;
-    }
+    [field: NonSerialized]
+    public RoomPlmGreyDoorVisualCatalog? GreyDoorVisuals { get; set; }
 
     /// <summary>Visual-only mirrored eye-door frames supplied by installed content.</summary>
-    public RoomPlmEyeDoorVisualCatalog? EyeDoorVisuals
-    {
-        get => eyeDoorVisuals;
-        set => eyeDoorVisuals = value;
-    }
+    [field: NonSerialized]
+    public RoomPlmEyeDoorVisualCatalog? EyeDoorVisuals { get; set; }
 
     /// <summary>Visual-only Mother Brain glass frames supplied by installed content.</summary>
-    public RoomPlmMotherBrainGlassVisualCatalog? MotherBrainGlassVisuals
-    {
-        get => motherBrainGlassVisuals;
-        set => motherBrainGlassVisuals = value;
-    }
+    [field: NonSerialized]
+    public RoomPlmMotherBrainGlassVisualCatalog? MotherBrainGlassVisuals { get; set; }
 
     /// <summary>Visual-only n00b-tube frames supplied by installed content.</summary>
-    public RoomPlmNoobTubeVisualCatalog? NoobTubeVisuals
-    {
-        get => noobTubeVisuals;
-        set => noobTubeVisuals = value;
-    }
+    [field: NonSerialized]
+    public RoomPlmNoobTubeVisualCatalog? NoobTubeVisuals { get; set; }
 
     /// <summary>Nonserialized gate-block appearance; compiled level words retain collision.</summary>
-    public RoomPlmDownwardGateVisualCatalog? DownwardGateVisuals
-    {
-        get => downwardGateVisuals;
-        set => downwardGateVisuals = value;
-    }
+    [field: NonSerialized]
+    public RoomPlmDownwardGateVisualCatalog? DownwardGateVisuals { get; set; }
 
     /// <summary>Visual-only elevator frames; platform collision and timing remain compiled.</summary>
-    public RoomPlmElevatorPlatformVisualCatalog? ElevatorPlatformVisuals
-    {
-        get => elevatorPlatformVisuals;
-        set => elevatorPlatformVisuals = value;
-    }
+    [field: NonSerialized]
+    public RoomPlmElevatorPlatformVisualCatalog? ElevatorPlatformVisuals { get; set; }
 
     /// <summary>Nonserialized Mother Brain escape-gate appearance; collision stays compiled.</summary>
-    public RoomPlmEscapeGateVisualCatalog? EscapeGateVisuals
-    {
-        get => escapeGateVisuals;
-        set => escapeGateVisuals = value;
-    }
+    [field: NonSerialized]
+    public RoomPlmEscapeGateVisualCatalog? EscapeGateVisuals { get; set; }
 
     /// <summary>Nonserialized Bomb Torizo hand art; physical draw words stay compiled.</summary>
-    public RoomPlmBombTorizoHandVisualCatalog? BombTorizoHandVisuals
-    {
-        get => bombTorizoHandVisuals;
-        set => bombTorizoHandVisuals = value;
-    }
+    [field: NonSerialized]
+    public RoomPlmBombTorizoHandVisualCatalog? BombTorizoHandVisuals { get; set; }
 
     /// <summary>Nonserialized Draygon cannon art; physical draw words stay compiled.</summary>
-    public RoomPlmDraygonCannonVisualCatalog? DraygonCannonVisuals
-    {
-        get => draygonCannonVisuals;
-        set => draygonCannonVisuals = value;
-    }
+    [field: NonSerialized]
+    public RoomPlmDraygonCannonVisualCatalog? DraygonCannonVisuals { get; set; }
 
     /// <summary>Nonserialized Chozo statue PLM art; physical draw words stay compiled.</summary>
-    public RoomPlmChozoStatueVisualCatalog? ChozoStatueVisuals
-    {
-        get => chozoStatueVisuals;
-        set => chozoStatueVisuals = value;
-    }
+    [field: NonSerialized]
+    public RoomPlmChozoStatueVisualCatalog? ChozoStatueVisuals { get; set; }
 
     /// <summary>Nonserialized linked-block restoration art; collision stays compiled.</summary>
-    public RoomPlmLinkedRestoreVisualCatalog? LinkedRestoreVisuals
-    {
-        get => linkedRestoreVisuals;
-        set => linkedRestoreVisuals = value;
-    }
+    [field: NonSerialized]
+    public RoomPlmLinkedRestoreVisualCatalog? LinkedRestoreVisuals { get; set; }
 
     /// <summary>Nonserialized Tourian access-floor art; physical level words stay compiled.</summary>
-    public RoomPlmTourianAccessVisualCatalog? TourianAccessVisuals
-    {
-        get => tourianAccessVisuals;
-        set => tourianAccessVisuals = value;
-    }
+    [field: NonSerialized]
+    public RoomPlmTourianAccessVisualCatalog? TourianAccessVisuals { get; set; }
 
     /// <summary>Gets or replaces nonserialized Speed Booster block reveal artwork; compiled level words still determine collision and breakability.</summary>
     /// <remarks>The catalog is shared by reference. Null uses the physical draw word's original visual fields.</remarks>
-    public RoomPlmSpeedBoosterVisualCatalog? SpeedBoosterVisuals
-    {
-        get => speedBoosterVisuals;
-        set => speedBoosterVisuals = value;
-    }
+    [field: NonSerialized]
+    public RoomPlmSpeedBoosterVisualCatalog? SpeedBoosterVisuals { get; set; }
 
     /// <summary>Gets or replaces nonserialized Maridia elevatube artwork for the shared $84:9367 draw, selected by PLM ownership rather than borrowing Kraid's appearance.</summary>
     /// <remarks>The catalog is shared by reference. Null preserves the physical word's original appearance; tube collision and motion remain compiled.</remarks>
-    public RoomPlmMaridiaElevatubeVisualCatalog? MaridiaElevatubeVisuals
-    {
-        get => maridiaElevatubeVisuals;
-        set => maridiaElevatubeVisuals = value;
-    }
+    [field: NonSerialized]
+    public RoomPlmMaridiaElevatubeVisualCatalog? MaridiaElevatubeVisuals { get; set; }
 
     /// <summary>Gets or replaces nonserialized artwork for the two-by-two Spore Spawn ceiling clear/crumble draws, without changing their physical words or sequence timing.</summary>
     /// <remarks>The catalog is shared by reference. Null retains each physical draw word's original visual fields.</remarks>
-    public RoomPlmSporeSpawnCeilingVisualCatalog? SporeSpawnCeilingVisuals
-    {
-        get => sporeSpawnCeilingVisuals;
-        set => sporeSpawnCeilingVisuals = value;
-    }
+    [field: NonSerialized]
+    public RoomPlmSporeSpawnCeilingVisualCatalog? SporeSpawnCeilingVisuals { get; set; }
 
     /// <summary>Replaceable plant tiles; the three-run collision layout stays compiled.</summary>
-    public RoomPlmSamusEaterVisualCatalog? SamusEaterVisuals
-    {
-        get => samusEaterVisuals;
-        set => samusEaterVisuals = value;
-    }
+    [field: NonSerialized]
+    public RoomPlmSamusEaterVisualCatalog? SamusEaterVisuals { get; set; }
 
     /// <summary>Gets or replaces nonserialized appearance for $84:930F's nine-block vertical Botwoon wall clear; its compiled air-block collision remains unchanged.</summary>
     /// <remarks>The catalog is shared by reference. Null uses the physical clear words' original visual fields.</remarks>
-    public RoomPlmBotwoonWallVisualCatalog? BotwoonWallVisuals
-    {
-        get => botwoonWallVisuals;
-        set => botwoonWallVisuals = value;
-    }
+    [field: NonSerialized]
+    public RoomPlmBotwoonWallVisualCatalog? BotwoonWallVisuals { get; set; }
 
     /// <summary>Gets or replaces nonserialized Kraid ceiling/spike PLM artwork, distinct from the boss's private BG2 body maps and from elevatube owners of the shared $84:9367 draw.</summary>
     /// <remarks>The catalog is shared by reference. Null retains physical draw appearance; block collision and mutation timing remain compiled.</remarks>
-    public RoomPlmKraidVisualCatalog? KraidVisuals
-    {
-        get => kraidVisuals;
-        set => kraidVisuals = value;
-    }
+    [field: NonSerialized]
+    public RoomPlmKraidVisualCatalog? KraidVisuals { get; set; }
 
     /// <summary>Gets or replaces nonserialized Crocomire arena bridge-clear/crumble and invisible-wall artwork; compiled draw runs still own block placement and collision.</summary>
     /// <remarks>The catalog is shared by reference. Null retains each physical draw word's original visual fields.</remarks>
-    public RoomPlmCrocomireVisualCatalog? CrocomireVisuals
-    {
-        get => crocomireVisuals;
-        set => crocomireVisuals = value;
-    }
+    [field: NonSerialized]
+    public RoomPlmCrocomireVisualCatalog? CrocomireVisuals { get; set; }
 
     /// <summary>Gets or replaces nonserialized Mother Brain fake-death room wall, door, and background-row artwork, separate from the boss's sprite and palette presentations.</summary>
     /// <remarks>The catalog is shared by reference. Null retains physical draw appearance; compiled run geometry, collision words, and PLM timing remain unchanged.</remarks>
-    public RoomPlmMotherBrainFakeDeathVisualCatalog? MotherBrainFakeDeathVisuals
-    {
-        get => motherBrainFakeDeathVisuals;
-        set => motherBrainFakeDeathVisuals = value;
-    }
+    [field: NonSerialized]
+    public RoomPlmMotherBrainFakeDeathVisualCatalog? MotherBrainFakeDeathVisuals { get; set; }
 
     /// <summary>Nonserialized collectible art; compiled level words retain collision.</summary>
-    public RoomPlmCollectibleVisualCatalog? CollectibleVisuals
-    {
-        get => collectibleVisuals;
-        set => collectibleVisuals = value;
-    }
+    [field: NonSerialized]
+    public RoomPlmCollectibleVisualCatalog? CollectibleVisuals { get; set; }
 
     /// <summary>Nonserialized item tile and palette art; physical pickup rules stay compiled.</summary>
-    public RoomPlmDynamicCollectibleArtCatalog? DynamicCollectibleArt
-    {
-        get => dynamicCollectibleArt;
-        set => dynamicCollectibleArt = value;
-    }
+    [field: NonSerialized]
+    public RoomPlmDynamicCollectibleArtCatalog? DynamicCollectibleArt { get; set; }
 
     /// <summary>Sound commands emitted during the most recent handler pass.</summary>
     public IReadOnlyList<PlmSoundRequest> SoundRequests => _soundRequests;
@@ -1650,7 +1542,7 @@ public sealed partial class RoomPlmSystem
                     originX + (compiled.Vertical ? 0 : block),
                     originY + (compiled.Vertical ? block : run),
                     compiled.WordAt(run, block), layer1XPosition, layer1YPosition, bg1XOffset,
-                    shotBlockVisuals?.GetWord(drawPointer, run, block));
+                    ShotBlockVisuals?.GetWord(drawPointer, run, block));
             return;
         }
         if (drawPointer == SpeedBoosterBlockPlmProgramDefinitions.BombRevealDraw)
@@ -1658,7 +1550,7 @@ public sealed partial class RoomPlmSystem
             DrawPlmWordAt(level, streamer, drawPointer, originX, originY,
                 SpeedBoosterBlockPlmDrawDefinitions.BombRevealWord,
                 layer1XPosition, layer1YPosition, bg1XOffset,
-                speedBoosterVisuals?.GetWord(drawPointer, 0, 0));
+                SpeedBoosterVisuals?.GetWord(drawPointer, 0, 0));
             return;
         }
         if (KraidRoomPlmDrawDefinitions.IsKraidOwner(headerPointer) &&
@@ -1669,7 +1561,7 @@ public sealed partial class RoomPlmSystem
             DrawKraidBlockInstruction(
                 level, streamer, ownedKraidDraw, originX, originY,
                 layer1XPosition, layer1YPosition, bg1XOffset,
-                kraidVisuals);
+                KraidVisuals);
             return;
         }
         if (drawPointer == MaridiaElevatubePlmDefinitions.DrawPointer)
@@ -1677,7 +1569,7 @@ public sealed partial class RoomPlmSystem
             DrawPlmWordAt(level, streamer, drawPointer, originX, originY,
                 MaridiaElevatubePlmDefinitions.PhysicalWord,
                 layer1XPosition, layer1YPosition, bg1XOffset,
-                maridiaElevatubeVisuals?.GetWord(drawPointer, 0, 0));
+                MaridiaElevatubeVisuals?.GetWord(drawPointer, 0, 0));
             return;
         }
         if (KraidRoomPlmDrawDefinitions.TryGet(drawPointer, out var kraidDraw))
@@ -1698,7 +1590,7 @@ public sealed partial class RoomPlmSystem
                     originY + (crocomireDraw.Wall ? block : 0),
                     crocomireDraw.WordAt(run, block),
                     layer1XPosition, layer1YPosition, bg1XOffset,
-                    crocomireVisuals?.GetWord(drawPointer, run, block));
+                    CrocomireVisuals?.GetWord(drawPointer, run, block));
             return;
         }
         if (MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeBackground(drawPointer, out var backgroundFakeDeath))
@@ -1706,7 +1598,7 @@ public sealed partial class RoomPlmSystem
             for (int column = 0; column < 13; column++)
                 DrawPlmWordAt(level, streamer, drawPointer, originX + column, originY,
                     backgroundFakeDeath.WordAt(column), layer1XPosition, layer1YPosition, bg1XOffset,
-                    motherBrainFakeDeathVisuals?.GetWord(drawPointer, 0, column));
+                    MotherBrainFakeDeathVisuals?.GetWord(drawPointer, 0, column));
             return;
         }
         if (MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeRegular(drawPointer, out var regularFakeDeath))
@@ -1719,7 +1611,7 @@ public sealed partial class RoomPlmSystem
                 DrawPlmWordAt(level, streamer, drawPointer,
                     x + (vertical ? 0 : block), originY + (vertical ? block : 0),
                     regularFakeDeath.WordAt(run, block), layer1XPosition, layer1YPosition, bg1XOffset,
-                    motherBrainFakeDeathVisuals?.GetWord(drawPointer, run, block));
+                    MotherBrainFakeDeathVisuals?.GetWord(drawPointer, run, block));
             }
             return;
         }
@@ -1731,7 +1623,7 @@ public sealed partial class RoomPlmSystem
                     originX + (run == 0 ? 0 : boundaryFakeDeath.NextX(0)),
                     originY + (run == 0 ? 0 : boundaryFakeDeath.NextY(0)) + block,
                     boundaryFakeDeath.WordAt(run, block), layer1XPosition, layer1YPosition, bg1XOffset,
-                    motherBrainFakeDeathVisuals?.GetWord(drawPointer, run, block));
+                    MotherBrainFakeDeathVisuals?.GetWord(drawPointer, run, block));
             return;
         }
         if (TourianAccessPlmDrawDefinitions.TryDescribe(drawPointer, out int tourianRows, out ushort tourianWord))
@@ -1740,7 +1632,7 @@ public sealed partial class RoomPlmSystem
             for (int column = 0; column < 4; column++)
                 DrawPlmWordAt(level, streamer, drawPointer, originX + column, originY + row,
                     tourianWord, layer1XPosition, layer1YPosition, bg1XOffset,
-                    tourianAccessVisuals?.GetWord(drawPointer, row, column));
+                    TourianAccessVisuals?.GetWord(drawPointer, row, column));
             return;
         }
         if (SporeSpawnCeilingPlmDrawDefinitions.TryGetWord(drawPointer, out ushort sporeCeilingWord))
@@ -1749,7 +1641,7 @@ public sealed partial class RoomPlmSystem
             for (int column = 0; column < 2; column++)
                 DrawPlmWordAt(level, streamer, drawPointer, originX + column, originY + row,
                     sporeCeilingWord, layer1XPosition, layer1YPosition, bg1XOffset,
-                    sporeSpawnCeilingVisuals?.GetWord(drawPointer, row, column));
+                    SporeSpawnCeilingVisuals?.GetWord(drawPointer, row, column));
             return;
         }
         if (SamusEaterPlmDrawDefinitions.TryDescribe(drawPointer, out var samusEater))
@@ -1760,7 +1652,7 @@ public sealed partial class RoomPlmSystem
                 for (int block = 0; block < SamusEaterPlmDrawDefinitions.Draw.Count(run); block++)
                     DrawPlmWordAt(level, streamer, drawPointer, plantX + block, plantY,
                         samusEater.WordAt(run, block), layer1XPosition, layer1YPosition, bg1XOffset,
-                        samusEaterVisuals?.GetWord(drawPointer, run, block));
+                        SamusEaterVisuals?.GetWord(drawPointer, run, block));
                 plantX = originX + SamusEaterPlmDrawDefinitions.Draw.NextX(run);
                 plantY = originY + samusEater.NextY(run);
             }
@@ -1772,7 +1664,7 @@ public sealed partial class RoomPlmSystem
                 DrawPlmWordAt(level, streamer, drawPointer, originX, originY + row,
                     BotwoonWallPlmDrawDefinitions.LevelWordAt(row),
                     layer1XPosition, layer1YPosition, bg1XOffset,
-                    botwoonWallVisuals?.GetWord(drawPointer, 0, row));
+                    BotwoonWallVisuals?.GetWord(drawPointer, 0, row));
             return;
         }
         if (RoomPlmBombBlockRestoreDrawDefinitions.TryDescribe(drawPointer, out var bombRestore))
@@ -1784,7 +1676,7 @@ public sealed partial class RoomPlmSystem
                     originY + (bombRestore.Vertical ? block : run),
                     bombRestore.WordAt(run, block),
                     layer1XPosition, layer1YPosition, bg1XOffset,
-                    linkedRestoreVisuals?.GetWord(drawPointer, run, block));
+                    LinkedRestoreVisuals?.GetWord(drawPointer, run, block));
             return;
         }
         if (RoomPlmContactCrumbleRestoreDrawDefinitions.TryDescribe(drawPointer, out var crumbleRestore))
@@ -1796,7 +1688,7 @@ public sealed partial class RoomPlmSystem
                     originY + (crumbleRestore.Vertical ? block : run),
                     crumbleRestore.WordAt(run, block),
                     layer1XPosition, layer1YPosition, bg1XOffset,
-                    linkedRestoreVisuals?.GetWord(drawPointer, run, block));
+                    LinkedRestoreVisuals?.GetWord(drawPointer, run, block));
             return;
         }
         if (BlueDoorPlmDrawDefinitions.TryDescribe(drawPointer, out var blueDoor))
@@ -1807,7 +1699,7 @@ public sealed partial class RoomPlmSystem
                 DrawPlmWordAt(level, streamer, drawPointer,
                     originX + (blueDoor.Vertical ? 0 : cell), originY + (blueDoor.Vertical ? cell : 0),
                     physical, layer1XPosition, layer1YPosition, bg1XOffset,
-                    blueDoorVisuals?.GetWord(drawPointer, cell) ?? new RoomLevelWord(physical).VisualWord);
+                    BlueDoorVisuals?.GetWord(drawPointer, cell) ?? new RoomLevelWord(physical).VisualWord);
             }
             return;
         }
@@ -1819,7 +1711,7 @@ public sealed partial class RoomPlmSystem
                 DrawPlmWordAt(level, streamer, drawPointer,
                     originX + (coloredDoor.Vertical ? 0 : cell), originY + (coloredDoor.Vertical ? cell : 0),
                     physical, layer1XPosition, layer1YPosition, bg1XOffset,
-                    coloredDoorVisuals?.GetWord(drawPointer, cell) ?? new RoomLevelWord(physical).VisualWord);
+                    ColoredDoorVisuals?.GetWord(drawPointer, cell) ?? new RoomLevelWord(physical).VisualWord);
             }
             return;
         }
@@ -1830,7 +1722,7 @@ public sealed partial class RoomPlmSystem
                     originX + (greyDoor.Vertical ? 0 : cell),
                     originY + (greyDoor.Vertical ? cell : 0), greyDoor.WordAt(cell),
                     layer1XPosition, layer1YPosition, bg1XOffset,
-                    greyDoorVisuals?.GetWord(drawPointer, cell) ?? new RoomLevelWord(greyDoor.WordAt(cell)).VisualWord);
+                    GreyDoorVisuals?.GetWord(drawPointer, cell) ?? new RoomLevelWord(greyDoor.WordAt(cell)).VisualWord);
             return;
         }
         if (EyeDoorPlmDrawDefinitions.TryDescribe(drawPointer, out var eyeDoor))
@@ -1840,7 +1732,7 @@ public sealed partial class RoomPlmSystem
                     originX + (eyeDoor.Vertical ? 0 : cell),
                     originY + (eyeDoor.Vertical ? cell : 0), eyeDoor.WordAt(cell),
                     layer1XPosition, layer1YPosition, bg1XOffset,
-                    eyeDoorVisuals?.GetWord(drawPointer, cell) ?? new RoomLevelWord(eyeDoor.WordAt(cell)).VisualWord);
+                    EyeDoorVisuals?.GetWord(drawPointer, cell) ?? new RoomLevelWord(eyeDoor.WordAt(cell)).VisualWord);
             return;
         }
         if (MotherBrainGlassPlmDrawDefinitions.TryDescribe(drawPointer, out var motherBrainGlass))
@@ -1852,7 +1744,7 @@ public sealed partial class RoomPlmSystem
                 for (int cell = 0; cell < motherBrainGlass.WordCount(run); cell++)
                 {
                     ushort physical = motherBrainGlass.WordAt(run, cell);
-                    ushort visual = motherBrainGlassVisuals?.GetWord(drawPointer, run, cell)
+                    ushort visual = MotherBrainGlassVisuals?.GetWord(drawPointer, run, cell)
                         ?? new RoomLevelWord(physical).VisualWord;
                     DrawPlmWordAt(level, streamer, drawPointer, glassX + (vertical ? 0 : cell),
                         glassY + (vertical ? cell : 0), physical,
@@ -1871,7 +1763,7 @@ public sealed partial class RoomPlmSystem
                 for (int cell = 0; cell < noobTube.WordCount(run); cell++)
                 {
                     ushort physical = noobTube.WordAt(run, cell);
-                    ushort visual = noobTubeVisuals?.GetWord(drawPointer, run, cell)
+                    ushort visual = NoobTubeVisuals?.GetWord(drawPointer, run, cell)
                         ?? new RoomLevelWord(physical).VisualWord;
                     DrawPlmWordAt(level, streamer, drawPointer, originX + cell, tubeY, physical,
                         layer1XPosition, layer1YPosition, bg1XOffset, visual);
@@ -1888,7 +1780,7 @@ public sealed partial class RoomPlmSystem
                 for (int cell = 0; cell < station.WordCount(run); cell++)
                 {
                     ushort physical = station.WordAt(run, cell);
-                    ushort visual = stationVisuals?.GetWord(drawPointer, run, cell)
+                    ushort visual = StationVisuals?.GetWord(drawPointer, run, cell)
                         ?? new RoomLevelWord(physical).VisualWord;
                     DrawPlmWordAt(level, streamer, drawPointer, stationX + cell, stationY, physical,
                         layer1XPosition, layer1YPosition, bg1XOffset, visual);
@@ -1906,7 +1798,7 @@ public sealed partial class RoomPlmSystem
                 for (int cell = 0; cell < elevator.WordCount(run); cell++)
                 {
                     ushort physical = elevator.WordAt(run, cell);
-                    ushort visual = elevatorPlatformVisuals?.GetWord(drawPointer, run, cell)
+                    ushort visual = ElevatorPlatformVisuals?.GetWord(drawPointer, run, cell)
                         ?? new RoomLevelWord(physical).VisualWord;
                     DrawPlmWordAt(level, streamer, drawPointer, elevatorX + cell, elevatorY, physical,
                         layer1XPosition, layer1YPosition, bg1XOffset, visual);
@@ -1924,7 +1816,7 @@ public sealed partial class RoomPlmSystem
                 for (int word = 0; word < gate.WordCount(run); word++)
                 {
                     ushort physical = gate.WordAt(run, word);
-                    ushort visual = downwardGateVisuals?.GetWord(drawPointer, run, word)
+                    ushort visual = DownwardGateVisuals?.GetWord(drawPointer, run, word)
                         ?? new RoomLevelWord(physical).VisualWord;
                     DrawPlmWordAt(level, streamer, drawPointer, gateX + (gate.Column ? 0 : word),
                         originY + (gate.Column ? word : 0), physical,
@@ -1939,7 +1831,7 @@ public sealed partial class RoomPlmSystem
             for (int row = 0; row < 4; row++)
             {
                 ushort physical = escapeGate.WordAt(row);
-                ushort visual = escapeGateVisuals?.GetWord(drawPointer, row)
+                ushort visual = EscapeGateVisuals?.GetWord(drawPointer, row)
                     ?? new RoomLevelWord(physical).VisualWord;
                 DrawPlmWordAt(level, streamer, drawPointer, originX, originY + row, physical,
                     layer1XPosition, layer1YPosition, bg1XOffset, visual);
@@ -1952,7 +1844,7 @@ public sealed partial class RoomPlmSystem
             for (int word = 0; word < bombTorizoHand.WordCount(run); word++)
             {
                 ushort physical = bombTorizoHand.WordAt(run, word);
-                ushort visual = bombTorizoHandVisuals?.GetWord(drawPointer, run, word)
+                ushort visual = BombTorizoHandVisuals?.GetWord(drawPointer, run, word)
                     ?? new RoomLevelWord(physical).VisualWord;
                 DrawPlmWordAt(level, streamer, drawPointer,
                     originX + bombTorizoHand.OriginX(run) + word, originY + bombTorizoHand.OriginY(run),
@@ -1968,7 +1860,7 @@ public sealed partial class RoomPlmSystem
                 for (int cell = 0; cell < draygonCannon.WordCount(run); cell++)
                 {
                     ushort physical = draygonCannon.WordAt(run, cell);
-                    ushort visual = draygonCannonVisuals?.GetWord(drawPointer, run, cell)
+                    ushort visual = DraygonCannonVisuals?.GetWord(drawPointer, run, cell)
                         ?? new RoomLevelWord(physical).VisualWord;
                     DrawPlmWordAt(level, streamer, drawPointer, cannonX + cell, cannonY, physical,
                         layer1XPosition, layer1YPosition, bg1XOffset, visual);
@@ -1986,7 +1878,7 @@ public sealed partial class RoomPlmSystem
                 for (int cell = 0; cell < chozoStatue.WordCount(run); cell++)
                 {
                     ushort physical = chozoStatue.WordAt(run, cell);
-                    ushort visual = chozoStatueVisuals?.GetWord(drawPointer, run, cell)
+                    ushort visual = ChozoStatueVisuals?.GetWord(drawPointer, run, cell)
                         ?? new RoomLevelWord(physical).VisualWord;
                     DrawPlmWordAt(level, streamer, drawPointer, chozoX + cell, chozoY, physical,
                         layer1XPosition, layer1YPosition, bg1XOffset, visual);
@@ -2000,7 +1892,7 @@ public sealed partial class RoomPlmSystem
         {
             DrawPlmWordAt(level, streamer, drawPointer, originX, originY,
                 collectible, layer1XPosition, layer1YPosition, bg1XOffset,
-                collectibleVisuals?.GetWord(drawPointer));
+                CollectibleVisuals?.GetWord(drawPointer));
             return;
         }
         if (RoomPlmGrappleBlockDrawDefinitions.TryGet(drawPointer, out var grapple))
@@ -2009,7 +1901,7 @@ public sealed partial class RoomPlmSystem
             // complete native word retains Grapple/air collision independently of art.
             DrawPlmWordAt(level, streamer, grapple.Pointer, originX, originY,
                 grapple.LevelWord, layer1XPosition, layer1YPosition, bg1XOffset,
-                grappleBlockVisuals?.GetWord(grapple.Pointer));
+                GrappleBlockVisuals?.GetWord(grapple.Pointer));
             return;
         }
 
@@ -2106,7 +1998,7 @@ public sealed partial class RoomPlmSystem
                 int x = entryX + (vertical ? 0 : offset);
                 int y = entryY + (vertical ? offset : 0);
                 ushort physicalWord = run.LevelWords.Span[offset];
-                ushort visualWord = (useShotBlockVisuals ? shotBlockVisuals : null)
+                ushort visualWord = (useShotBlockVisuals ? ShotBlockVisuals : null)
                     ?.GetWord(definition.Pointer, runIndex, offset)
                     ?? customVisuals?.GetWord(definition.Pointer, runIndex, offset)
                     ?? gateVisuals?.GetWord(definition.Pointer, runIndex, offset)

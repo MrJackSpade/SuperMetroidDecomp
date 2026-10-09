@@ -145,7 +145,7 @@ internal sealed class ClosedPresentationAudit
         SourceFingerprint.Of(text) == source.Fingerprint;
 
     internal bool TryInspect(InvocationExpressionSyntax call, SemanticModel semantic, IMethodSymbol method,
-        ResourceIndex exports, AuditReport report, string location, string arguments)
+        ResourceIndex exports, AuditReport report, string location)
     {
         if (!contracts.TryGetValue((method.ContainingType.ToDisplayString(), method.Name), out var reviewed)) return false;
         ClosedPresentationContract contract = reviewed.Contract;

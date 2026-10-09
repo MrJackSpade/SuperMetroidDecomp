@@ -3,7 +3,7 @@ namespace SuperMetroid.Desktop;
 /// <summary>Observes queue drains without changing PCM, buffering, or device pacing.</summary>
 internal sealed class WaveOutQueueHealth
 {
-    private readonly object sync = new();
+    private readonly Lock sync = new();
     private long observations, emptyObservations;
     private int minimum = int.MaxValue, maximum;
 

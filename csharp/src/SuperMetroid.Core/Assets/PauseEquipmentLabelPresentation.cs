@@ -88,7 +88,7 @@ public sealed class PauseEquipmentLabelPresentation
         ValidateTilemap(tilemap);
         string key = PauseEquipmentLabelDefinitions.Key(category, item);
         CompiledLabel label = labels[key];
-        if (wordCount < 0 || wordCount > PauseEquipmentLabelDefinitions.EquipmentWords)
+        if (wordCount is < 0 or > PauseEquipmentLabelDefinitions.EquipmentWords)
             throw new ArgumentOutOfRangeException(nameof(wordCount));
         Span<byte> destination = tilemap.Slice(label.DestinationByte, wordCount * sizeof(ushort));
         int ordinaryBytes = Math.Min(destination.Length, label.WordCount * sizeof(ushort));

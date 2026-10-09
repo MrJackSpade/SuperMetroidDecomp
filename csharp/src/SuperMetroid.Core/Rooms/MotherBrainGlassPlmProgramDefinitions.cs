@@ -32,7 +32,7 @@ internal static class MotherBrainGlassPlmProgramDefinitions
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;
-        if (address < FirstAddress || address >= LastAddress) return false;
+        if (address is < FirstAddress or >= LastAddress) return false;
         value = (ushort)(ByteAt(address) | ByteAt(address + 1) << 8);
         return true;
     }
@@ -40,7 +40,7 @@ internal static class MotherBrainGlassPlmProgramDefinitions
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         value = 0;
-        if (address < FirstAddress || address > LastAddress) return false;
+        if (address is < FirstAddress or > LastAddress) return false;
         value = ByteAt(address);
         return true;
     }
@@ -76,7 +76,7 @@ internal static class MotherBrainGlassPlmProgramDefinitions
         int start = Stages;
         for (int stage = 0; stage < 9; stage++)
         {
-            bool burst = stage == 2 || stage >= 5;
+            bool burst = stage is 2 or >= 5;
             int length = stage == 8 ? 44 : burst ? 34 : 10;
             if (address >= start + length) { start += length; continue; }
             int offset = address - start;

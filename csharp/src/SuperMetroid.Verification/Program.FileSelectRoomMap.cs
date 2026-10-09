@@ -59,7 +59,7 @@ internal static partial class Program
                     : word < 960
                         ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.RoomFrameFooter + (word - 799) * 2)
                         : (ushort)0x2801;
-                if (word >= 170 && word < 182)
+                if (word is >= 170 and < 182)
                     expected = (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x820000 | (label + (word - 170) * 2)) & 0xefff);
                 AssertEqual(expected, graphics.Vram.ReadWord((ushort)(0x5800 + word)), "native room-select frame and area label");
             }
@@ -485,11 +485,11 @@ internal static partial class Program
         {
             marker.Step();
             AssertEqual(expectedFrames[phase], marker.SpritemapId, "station marker exact animation cadence");
-            bool backing = phase < 3 || phase >= 7;
+            bool backing = phase is < 3 or >= 7;
             AssertEqual(backing, marker.ShowBacking, "station marker alternates backing at loop boundary");
             var oam = new OamBuffer();
             oam.BeginFrame();
-            marker.Draw(bus, oam, 24, 16, sprites);
+            marker.Draw(oam, 24, 16, sprites);
             oam.FinalizeFrame();
             AssertEqual(backing ? 2 : 1, oam.LastFinalizedSpriteCount, "marker backing OAM emission");
             AssertEqual(74, oam.LowTable[0], "marker subtracts horizontal scroll and sprite offset");
@@ -497,7 +497,7 @@ internal static partial class Program
             AssertEqual(0x3e, oam.LowTable[3], "marker retains sprite priority with palette seven");
             byte[] first = oam.LowTable.ToArray();
             oam.BeginFrame();
-            marker.Draw(bus, oam, 24, 16, sprites);
+            marker.Draw(oam, 24, 16, sprites);
             oam.FinalizeFrame();
             AssertTrue(first.SequenceEqual(oam.LowTable.ToArray()), "repainting station marker does not advance animation");
         }

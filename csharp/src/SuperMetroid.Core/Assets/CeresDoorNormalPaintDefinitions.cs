@@ -14,15 +14,14 @@ internal sealed class CeresDoorNormalPaintDefinitions
     private const int MaximumChannel = (1 << 5) - 1;
     private const int HighlightBlueTint = 14;
 
-    private readonly CeresDoorWarmTargetPaintDefinitions warm;
-    internal CeresDoorWarmTargetPaintDefinitions WarmTargets => warm;
+    internal CeresDoorWarmTargetPaintDefinitions WarmTargets { get; }
     private readonly Dictionary<int, int> paint = [];
     private readonly Dictionary<int, ushort> edits = [];
 
     internal CeresDoorNormalPaintDefinitions(ReadOnlySpan<ushort> colors)
     {
         if (colors.Length != 15) throw new ArgumentException("Normal door paint requires fifteen colors.", nameof(colors));
-        warm = new(colors.Slice(8, 6));
+        WarmTargets = new(colors.Slice(8, 6));
         for (int slot = 1; slot <= colors.Length; slot++)
             for (int channel = 0; channel < 3; channel++)
                 if (StoresPaint(slot, channel))
@@ -50,7 +49,7 @@ internal sealed class CeresDoorNormalPaintDefinitions
 
     private ushort Calculate(int slot)
     {
-        if (slot is >= 9 and <= 14) return warm.ColorAt(slot - 9);
+        if (slot is >= 9 and <= 14) return WarmTargets.ColorAt(slot - 9);
         int green = slot == 15 ? MaximumChannel : slot == 4 ? 0 : slot == 8 ? Seed(7, 1) : Seed(slot, 1);
         int blue = slot is 1 or 2 ? Math.Min(MaximumChannel, green + HighlightBlueTint) : Seed(slot, 2);
         return (ushort)(green << 5 | blue << 10);

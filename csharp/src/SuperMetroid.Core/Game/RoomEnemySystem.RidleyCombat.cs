@@ -16,7 +16,6 @@ public sealed partial class RoomEnemySystem
     /// laid, so Ridley lunges in the same frame Samus lays one.
     /// </summary>
     private static void PrepareNorfairRidleyCombatFrame(
-        RoomEnemySlot body,
         RidleyEnemyState state,
         SamusBombProjectileSystem sharedProjectiles)
     {
@@ -50,7 +49,7 @@ public sealed partial class RoomEnemySystem
         if ((body.FrameCounter & 1) == 0)
         {
             UpdateNorfairRidleyIntangibility(body, state, cameraX, cameraY);
-            PrepareNorfairRidleyCombatFrame(body, state, sharedProjectiles);
+            PrepareNorfairRidleyCombatFrame(state, sharedProjectiles);
             RunNorfairRidleyFunction(body, state, samus, controllerInput, level);
             if (state.MovementAnimationEnabled != 0)
             {

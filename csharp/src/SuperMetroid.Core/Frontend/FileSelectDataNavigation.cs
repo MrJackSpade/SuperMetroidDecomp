@@ -44,7 +44,7 @@ internal static class FileSelectDataNavigation
         int step = (pressed & SnesButton.Up) != 0 ? -1
             : (pressed & SnesButton.Down) != 0 ? 1 : 0;
         if (step == 0) return selected;
-        for (int next = selected + step; next >= 0 && next <= exit; next += step)
+        for (int next = selected + step; next is >= 0 and <= exit; next += step)
             if (Selectable(next)) return next;
         return selected;
 

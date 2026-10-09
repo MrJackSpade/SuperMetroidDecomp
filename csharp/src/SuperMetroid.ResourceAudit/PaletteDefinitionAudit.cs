@@ -139,8 +139,8 @@ internal static class PaletteDefinitionAudit
         public List<int> Reads { get; } = [];
         public byte ReadCartridgeByte(int cpuAddress)
         {
-            bool titleInitialColor = cpuAddress >= TitleSequenceRomData.Assets.PaletteAddress &&
-                cpuAddress < TitleSequenceRomData.Assets.PaletteAddress + SnesCgram.ByteCount;
+            bool titleInitialColor = cpuAddress is >= TitleSequenceRomData.Assets.PaletteAddress and
+                < (TitleSequenceRomData.Assets.PaletteAddress + SnesCgram.ByteCount);
             if ((cpuAddress >> 16) != ResourceBanks.ProjectileOamAndPaletteFx && !titleInitialColor)
                 throw new InvalidDataException("Palette audit unexpectedly requested non-color-bank data.");
             Reads.Add(cpuAddress);

@@ -16,7 +16,7 @@ public sealed partial class RoomEnemySystem
     private const ushort PhantoonEyeCenteredInstruction = PhantoonInstructionProgramDefinitions.EyeballCentered;
 
     /// <summary>Ports the eye-open vulnerable window at $A7:D60D.</summary>
-    private void RunPhantoonEyeTracking(
+    private static void RunPhantoonEyeTracking(
         RoomEnemySlot body,
         PhantoonEnemyState state,
         SamusState samus)
@@ -48,7 +48,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports the one-frame opaque-swoop setup at $A7:D65C.</summary>
-    private void BeginPhantoonVulnerableSwoop(
+    private static void BeginPhantoonVulnerableSwoop(
         RoomEnemySlot body,
         PhantoonEnemyState state,
         SamusState samus)
@@ -60,7 +60,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports the 360-frame opaque swoop at $A7:D678.</summary>
-    private void RunPhantoonSwoop(
+    private static void RunPhantoonSwoop(
         RoomEnemySlot body,
         PhantoonEnemyState state,
         SamusState samus)
@@ -83,11 +83,10 @@ public sealed partial class RoomEnemySystem
     private void RunPhantoonFadeOutWhileSwooping(
         RoomEnemySlot body,
         PhantoonEnemyState state,
-        SamusState samus,
-        byte nmiFrameCounter8)
+        SamusState samus)
     {
         MovePhantoonInSwoop(body, state, samus, fatal: false);
-        AdvancePhantoonFadeOut(state, denominator: 12, nmiFrameCounter8);
+        AdvancePhantoonFadeOut(state, denominator: 12);
         if (state.Eye!.VariableF == 0)
             return;
 
@@ -104,8 +103,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports the hidden left/right placement and round-two picker at $A7:D6E2.</summary>
     private void PlacePhantoonForNextFigureEight(
         RoomEnemySlot body,
-        PhantoonEnemyState state,
-        byte nmiFrameCounter8)
+        PhantoonEnemyState state)
     {
         if ((_nextRandom!() & 1) != 0)
         {
@@ -126,17 +124,16 @@ public sealed partial class RoomEnemySystem
         // The native call deliberately installs a pattern function which is immediately
         // overwritten with the fade-in function. Its timer, direction, and movement-side
         // effects remain live, so call the shared callback implementation in full.
-        PickPhantoonSecondRoundPattern(state, nmiFrameCounter8);
+        PickPhantoonSecondRoundPattern(state);
         body.VariableF = (ushort)PhantoonAiFunction.FadeInBeforeFigureEight;
         state.Eye.VariableF = 0;
     }
 
     private void RunPhantoonFadeInBeforeFigureEight(
         RoomEnemySlot body,
-        PhantoonEnemyState state,
-        byte nmiFrameCounter8)
+        PhantoonEnemyState state)
     {
-        AdvancePhantoonFadeIn(body, state, denominator: 12, nmiFrameCounter8);
+        AdvancePhantoonFadeIn(body, state, denominator: 12);
         if (state.Eye!.VariableF != 0)
             body.VariableF = (ushort)PhantoonAiFunction.MoveInFigureEightThenOpenEye;
     }
@@ -155,10 +152,9 @@ public sealed partial class RoomEnemySystem
 
     private void RunPhantoonFlameRainFadeIn(
         RoomEnemySlot body,
-        PhantoonEnemyState state,
-        byte nmiFrameCounter8)
+        PhantoonEnemyState state)
     {
-        AdvancePhantoonFadeIn(body, state, denominator: 1, nmiFrameCounter8);
+        AdvancePhantoonFadeIn(body, state, denominator: 1);
         if (state.Eye!.VariableF == 0)
             return;
 
@@ -193,10 +189,9 @@ public sealed partial class RoomEnemySystem
 
     private void RunPhantoonFlameRainFadeOut(
         RoomEnemySlot body,
-        PhantoonEnemyState state,
-        byte nmiFrameCounter8)
+        PhantoonEnemyState state)
     {
-        AdvancePhantoonFadeOut(state, denominator: 12, nmiFrameCounter8);
+        AdvancePhantoonFadeOut(state, denominator: 12);
         if (state.Eye!.VariableF == 0)
             return;
 
@@ -223,13 +218,12 @@ public sealed partial class RoomEnemySystem
 
     private void RunPhantoonInitialFlameRain(
         RoomEnemySlot body,
-        PhantoonEnemyState state,
-        byte nmiFrameCounter8)
+        PhantoonEnemyState state)
     {
-        AdvancePhantoonFadeOut(state, denominator: 12, nmiFrameCounter8);
+        AdvancePhantoonFadeOut(state, denominator: 12);
         RoomEnemySlot eye = state.Eye!;
         StepPhantoonFigureEight(body, eye);
-        StepPhantoonCasualFlameSchedule(body, state.Mouth!);
+        StepPhantoonCasualFlameSchedule(state.Mouth!);
         eye.VariableA = unchecked((ushort)(eye.VariableA - 1));
         // $A7:D836 DEC/BEQ/BPL: reaching zero expires the timer, as does underflow.
         if (unchecked((short)eye.VariableA) > 0)
@@ -242,10 +236,9 @@ public sealed partial class RoomEnemySystem
 
     private void RunPhantoonFadeOutBeforeRage(
         RoomEnemySlot body,
-        PhantoonEnemyState state,
-        byte nmiFrameCounter8)
+        PhantoonEnemyState state)
     {
-        AdvancePhantoonFadeOut(state, denominator: 12, nmiFrameCounter8);
+        AdvancePhantoonFadeOut(state, denominator: 12);
         if (state.Eye!.VariableF == 0)
             return;
         body.VariableF = (ushort)PhantoonAiFunction.MoveToTopCenterForRage;
@@ -266,10 +259,9 @@ public sealed partial class RoomEnemySystem
 
     private void RunPhantoonRageFadeIn(
         RoomEnemySlot body,
-        PhantoonEnemyState state,
-        byte nmiFrameCounter8)
+        PhantoonEnemyState state)
     {
-        AdvancePhantoonFadeIn(body, state, denominator: 12, nmiFrameCounter8);
+        AdvancePhantoonFadeIn(body, state, denominator: 12);
         if (state.Eye!.VariableF == 0)
             return;
         body.VariableF = (ushort)PhantoonAiFunction.Enraged;
@@ -311,10 +303,9 @@ public sealed partial class RoomEnemySystem
 
     private void RunPhantoonRageFadeOut(
         RoomEnemySlot body,
-        PhantoonEnemyState state,
-        byte nmiFrameCounter8)
+        PhantoonEnemyState state)
     {
-        AdvancePhantoonFadeOut(state, denominator: 12, nmiFrameCounter8);
+        AdvancePhantoonFadeOut(state, denominator: 12);
         if (state.Eye!.VariableF == 0)
             return;
         body.VariableF = (ushort)PhantoonAiFunction.WaitAfterFadeOut;
@@ -399,11 +390,7 @@ public sealed partial class RoomEnemySystem
             body.YPosition = 216;
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage(
-        "Performance",
-        "CA1822:Mark members as static",
-        Justification = "Retains instance ownership inside the native Phantoon phase dispatcher without forcing unrelated phase methods static.")]
-    private void PointPhantoonEyeAtSamus(
+    private static void PointPhantoonEyeAtSamus(
         RoomEnemySlot body,
         RoomEnemySlot eye,
         SamusState samus)
@@ -427,8 +414,7 @@ public sealed partial class RoomEnemySystem
 
     private void AdvancePhantoonFadeOut(
         PhantoonEnemyState state,
-        ushort denominator,
-        byte nmiFrameCounter8)
+        ushort denominator)
     {
         if ((_enemyFrameNmiFrameCounter & 1) != 0 || state.Eye!.VariableF != 0)
             return;

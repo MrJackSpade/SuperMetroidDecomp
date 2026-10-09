@@ -92,7 +92,7 @@ internal static class ConsumerAudit
         if (method.IsStatic || !IsResourceType(method.ContainingType)) return;
         string owner = method.ContainingType.Name + "." + method.Name;
         string arguments = string.Join(", ", call.ArgumentList.Arguments.Select(arg => arg.Expression.ToString()));
-        if (closedProviders?.TryInspect(call, semantic, method, exports, report, source, arguments) == true) return;
+        if (closedProviders?.TryInspect(call, semantic, method, exports, report, source) == true) return;
         string? domain = Domain(method.ContainingType.Name, method.Name);
         string? key = domain is null ? null : ConstantKey(domain, call, semantic);
         if (domain is null || key is null)

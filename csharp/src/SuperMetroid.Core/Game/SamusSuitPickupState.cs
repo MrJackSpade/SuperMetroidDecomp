@@ -170,7 +170,7 @@ public sealed class SamusSuitPickupState
                 StepUniformWidening();
                 break;
             case 2:
-                StepCurvedWidening(bus);
+                StepCurvedWidening();
                 break;
             case 3:
                 RevealSuit(bus, samus, cgram);
@@ -236,7 +236,7 @@ public sealed class SamusSuitPickupState
         }
     }
 
-    private void StepCurvedWidening(ISnesAddressSpace bus)
+    private void StepCurvedWidening()
     {
         AdvanceColorTowardWhite();
 

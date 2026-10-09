@@ -50,7 +50,7 @@ internal static partial class Program
         for (int frame = 0; frame < 120; frame++)
         {
             ushort input = runtime.ControllerBindings.Shoot;
-            if (frame is >= 70 and < 110 && frame != 75) input |= (ushort)SnesButton.Down;
+            if (frame is >= 70 and < 110 and not 75) input |= (ushort)SnesButton.Down;
             if (frame == 100)
             {
                 if (scenario != 3) input |= runtime.ControllerBindings.Jump;

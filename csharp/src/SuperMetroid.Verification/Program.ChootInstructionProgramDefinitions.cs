@@ -49,7 +49,7 @@ internal static partial class Program
         initialize(slot);
         ChootEnemyState state = enemies.ChootStates[0]!;
         object?[] processArguments =
-            [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
 
         RunChootInstructionProgram(
             enemies,

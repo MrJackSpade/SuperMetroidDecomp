@@ -52,11 +52,11 @@ public sealed class FileSelectMapIcons(Bank80SystemState system, AreaId area)
     public void DrawBeforeMarker(OamBuffer oam, ushort scrollX, ushort scrollY)
     {
         DrawBossMarkers(oam, scrollX, scrollY);
-        Simple(MapStationKind.Missile, FileSelectMapIconRomData.MissileLists, FileSelectMapIconRomData.Missile);
-        Simple(MapStationKind.Energy, FileSelectMapIconRomData.EnergyLists, FileSelectMapIconRomData.Energy);
-        Simple(MapStationKind.Map, FileSelectMapIconRomData.MapStationLists, FileSelectMapIconRomData.MapStation);
+        Simple(MapStationKind.Missile, FileSelectMapIconRomData.Missile);
+        Simple(MapStationKind.Energy, FileSelectMapIconRomData.Energy);
+        Simple(MapStationKind.Map, FileSelectMapIconRomData.MapStation);
 
-        void Simple(MapStationKind kind, int table, ushort id)
+        void Simple(MapStationKind kind, ushort id)
         {
             var layout = stations ?? throw new InvalidOperationException(
                 "Map station icons require installed station layout.");

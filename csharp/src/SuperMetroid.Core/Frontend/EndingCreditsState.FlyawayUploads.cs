@@ -58,6 +58,6 @@ internal sealed partial class EndingCreditsState
             vram.LoadMode7MapBytes(flyawayMap.AsSpan(offset, EndingCreditsRomData.Rendering.FlyawayUploadBytes), (ushort)offset);
     }
 
-    private bool EscapeBackgroundEnabled => Phase < EndingCreditsPhase.ZebesExplosionTileUpload
-        || Phase >= EndingCreditsPhase.PlanetEscapeFast;
+    private bool EscapeBackgroundEnabled => Phase is < EndingCreditsPhase.ZebesExplosionTileUpload
+        or >= EndingCreditsPhase.PlanetEscapeFast;
 }

@@ -26,7 +26,7 @@ internal static class IntroMotherBrainCollisionDefinitions
 
     private static ushort Block(int row, int column)
     {
-        if (row == CeilingRow || row == FloorRow) return Solid;
+        if (row is CeilingRow or FloorRow) return Solid;
         if (row > CeilingRow && row < FloorRow && column < LeftContourWidths[row - UpperTipRow])
             return Solid;
         int upperRadius = row - UpperTipRow;

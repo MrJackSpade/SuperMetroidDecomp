@@ -73,9 +73,9 @@ public sealed class GameOverMenuState
         if (string.Equals(previousIdentity, catalog.ContentIdentity, StringComparison.Ordinal))
             return;
 
-        ppu.BindMapTiles(bus, catalog.Tiles);
-        ppu.BindMapSprites(bus, catalog.Sprites);
-        ppu.BindMapPalettes(bus, catalog.Palettes);
+        ppu.BindMapTiles(catalog.Tiles);
+        ppu.BindMapSprites(catalog.Sprites);
+        ppu.BindMapPalettes(catalog.Palettes);
         catalog.GameOver.LoadTilemapTo(ppu.Vram, MenuPpuState.Bg1TilemapWord);
         if (babyInstructionPointer != 0)
         {

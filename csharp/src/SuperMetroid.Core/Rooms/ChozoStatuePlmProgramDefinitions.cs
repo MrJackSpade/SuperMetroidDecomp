@@ -46,13 +46,13 @@ internal static class ChozoStatuePlmProgramDefinitions
     private static bool TryLocate(ushort address, out int start, out int length)
     {
         start = 0; length = 0;
-        if (address >= CrumblePlugStart && address <= CrumblePlugEnd)
+        if (address is >= CrumblePlugStart and <= CrumblePlugEnd)
         { start = CrumblePlugStart; length = 18; }
-        else if (address >= LowerNorfairHandStart && address <= LowerNorfairHandEnd)
+        else if (address is >= LowerNorfairHandStart and <= LowerNorfairHandEnd)
         { start = LowerNorfairHandStart; length = 22; }
-        else if (address >= ClearSlopeStart && address <= ClearSlopeEnd)
+        else if (address is >= ClearSlopeStart and <= ClearSlopeEnd)
         { start = ClearSlopeStart; length = 8; }
-        else if (address >= BlockSlopeStart && address <= BlockSlopeEnd)
+        else if (address is >= BlockSlopeStart and <= BlockSlopeEnd)
         { start = BlockSlopeStart; length = 8; }
         return length != 0;
     }

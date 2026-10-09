@@ -75,8 +75,8 @@ public sealed class SamusArmCannonState
         if (CloseFlag != 0 || (transitionStarted = TryStartTransition(samus.SelectedHudItem)))
             AdvanceFrame();
 
-        ushort drawingData = PoseDrawingData(bus, samus.Pose);
-        DrawingMode = ReadDrawingByte(bus, unchecked((ushort)(drawingData + 1)));
+        ushort drawingData = PoseDrawingData(samus.Pose);
+        DrawingMode = ReadDrawingByte(unchecked((ushort)(drawingData + 1)));
         return new SamusArmCannonUpdateResult();
     }
 
@@ -103,12 +103,11 @@ public sealed class SamusArmCannonState
         if (Frame == 0 || (samus.InvincibilityTimer != 0 && (nmiFrameCounter & 1) != 0))
             return new SamusArmCannonDrawResult();
 
-        ushort drawingData = PoseDrawingData(bus, samus.Pose);
-        byte firstSelector = ReadDrawingByte(bus, drawingData);
+        ushort drawingData = PoseDrawingData(samus.Pose);
+        byte firstSelector = ReadDrawingByte(drawingData);
         bool frameDependentSelector = (firstSelector & 0x80) != 0;
         byte selector = frameDependentSelector && samus.AnimationFrame != 0
-            ? unchecked((byte)(ReadDrawingByte(bus,
-                unchecked((ushort)(drawingData + 2))) & 0x7f))
+            ? unchecked((byte)(ReadDrawingByte(unchecked((ushort)(drawingData + 2))) & 0x7f))
             : unchecked((byte)(firstSelector & 0x7f));
         if (selector >= SamusRenderingRomData.ArmCannon.DirectionCount)
             throw new InvalidDataException($"Arm-cannon direction selector {selector} is outside 0..9.");
@@ -116,9 +115,8 @@ public sealed class SamusArmCannonState
         ushort offsetsBase = unchecked((ushort)(drawingData +
             (frameDependentSelector ? 4 : 2)));
         ushort offsetAddress = unchecked((ushort)(offsetsBase + samus.AnimationFrame * 2));
-        sbyte xOffset = unchecked((sbyte)ReadDrawingByte(bus, offsetAddress));
-        sbyte yOffset = unchecked((sbyte)ReadDrawingByte(bus,
-            unchecked((ushort)(offsetAddress + 1))));
+        sbyte xOffset = unchecked((sbyte)ReadDrawingByte(offsetAddress));
+        sbyte yOffset = unchecked((sbyte)ReadDrawingByte(unchecked((ushort)(offsetAddress + 1))));
         sbyte graphicsYOffset = samus.ReadGraphicsYOffset(bus);
 
         short screenX = unchecked((short)(samus.XPosition + xOffset - layer1X));
@@ -166,11 +164,11 @@ public sealed class SamusArmCannonState
         return true;
     }
 
-    private ushort PoseDrawingData(ISnesAddressSpace bus, int pose) =>
+    private ushort PoseDrawingData(int pose) =>
         (Artwork ?? throw new InvalidOperationException(
             "Arm cannon requires installed drawing definitions.")).PoseDrawingData(pose);
 
-    private byte ReadDrawingByte(ISnesAddressSpace bus, ushort address) =>
+    private byte ReadDrawingByte(ushort address) =>
         (Artwork ?? throw new InvalidOperationException(
             "Arm cannon requires installed drawing definitions.")).ReadDrawingByte(address);
 

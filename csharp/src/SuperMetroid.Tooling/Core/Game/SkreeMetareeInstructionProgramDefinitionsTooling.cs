@@ -9,8 +9,8 @@ internal abstract class SkreeMetareeInstructionProgramDefinitionsTooling : IDecl
     /// <summary>Bank $A3, which holds both species' instruction programs.</summary>
     static int IDeclaredProgramBank.Bank => 0xa3;
     // Idle 10, preparation 16/8, dive 2 and stop 1 holds are authored animation cadence (reviewed under #1165).
-    internal static int MechanicsWordCount(bool metaree) => 20;
-    internal static int PresentationWordCount(bool metaree) => 11;
+    internal static int MechanicsWordCount() => 20;
+    internal static int PresentationWordCount() => 11;
     internal static ushort PresentationWordAddress(bool metaree, int index)
     {
         if ((uint)index >= 11) throw new IndexOutOfRangeException();

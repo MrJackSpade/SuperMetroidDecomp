@@ -264,6 +264,14 @@ public sealed partial class SuperMetroidRuntime
     }
 
     /// <summary>
+    /// The power-bomb gate in all three sound-queue routines (<c>$80:9072</c>,
+    /// <c>$80:90F4</c>, <c>$80:9176</c>): while the explosion status is negative every
+    /// request is dropped after the occupancy check, whoever makes it.
+    /// </summary>
+    public bool PowerBombExplosionSuppressesSounds =>
+        unchecked((short)PowerBombExplosionStatus) < 0;
+
+    /// <summary>
     /// Low-byte snapshot at WRAM <c>$0A11</c> used by X-ray stability and post-draw spin audio.
     /// The runtime updates it after each completed gameplay frame.
     /// </summary>

@@ -474,7 +474,7 @@ public sealed partial class SuperMetroidGame
                             runtime.NmiFrameCounter);
                         if (reserveStep.RefillSoundRequested)
                             audio.QueueSoundAndGetAccumulator(SoundEffectLibrary3Sounds.ReserveRefill, 3,
-                                soundSuppressed: unchecked((short)runtime.PowerBombExplosionStatus) < 0);
+                                soundSuppressed: runtime.PowerBombExplosionSuppressesSounds);
                         // $82:DC18-$DC24 clears the freeze and restores state eight
                         // BEFORE calling gameplay. Unfreezing after StepFrame lets
                         // Samus resume while projectiles/enemies remain a frame behind.
@@ -491,7 +491,7 @@ public sealed partial class SuperMetroidGame
                 // first; their native queue occupancy affects this final Max6 call.
                 CollectTranslatedAudioRequests(gameplayAudio);
                 runtime.Samus!.HealthWarning.Update(runtime.Samus.Health, audio,
-                    soundSuppressed: unchecked((short)runtime.PowerBombExplosionStatus) < 0);
+                    soundSuppressed: runtime.PowerBombExplosionSuppressesSounds);
                 break;
 
             case SuperMetroidGameState.DeathSequenceStart:
@@ -899,17 +899,23 @@ public sealed partial class SuperMetroidGame
                 SamusState doorSamus = runtime.Samus
                     ?? throw new InvalidOperationException("Door transition requires live Samus state.");
                 SamusMovementType doorMovementType = doorSamus.ReadMovementType(bus);
+                // A live power-bomb explosion drops all three requests inside the queue
+                // routines, so neither ring holds anything for $E29E to wait on.
+                bool doorSoundsSuppressed = runtime.PowerBombExplosionSuppressesSounds;
                 if (doorMovementType is
                     SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
                 {
-                    audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x32), maximumQueued: 15);
+                    audio.QueueSoundAndGetAccumulator(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x32),
+                        maximumQueued: 15, soundSuppressed: doorSoundsSuppressed);
                 }
                 else if ((controllerInput & (ushort)SnesButton.X) == 0 &&
                     runtime.Projectiles.FlareCounter < 16)
                 {
-                    audio.QueueSound(SoundEffectLibrary1Sounds.CancelAll, maximumQueued: 15);
+                    audio.QueueSoundAndGetAccumulator(SoundEffectLibrary1Sounds.CancelAll,
+                        maximumQueued: 15, soundSuppressed: doorSoundsSuppressed);
                 }
-                audio.QueueSound(SoundEffectLibrary2Sounds.CancelAll, maximumQueued: 15);
+                audio.QueueSoundAndGetAccumulator(SoundEffectLibrary2Sounds.CancelAll,
+                    maximumQueued: 15, soundSuppressed: doorSoundsSuppressed);
                 // $82:E279 follows both entry cancellation commands, not precedes them.
                 audio.DoorTransitionSoundsDisabled = true;
                 // State $09 calls state $0A synchronously for ordinary doors; state $0A
@@ -930,7 +936,7 @@ public sealed partial class SuperMetroidGame
                     // restored at the final fade boundary, not on each fade frame.
                     if (SamusSpinSoundCommand.Select(bus, runtime!.Samus!) is { } spinSound)
                         audio.QueueSoundAndGetAccumulator(spinSound, maximumQueued: 9,
-                            soundSuppressed: runtime.IsAttractDemo || (short)runtime.PowerBombExplosionStatus < 0);
+                            soundSuppressed: runtime.IsAttractDemo || runtime.PowerBombExplosionSuppressesSounds);
                     GameState = SuperMetroidGameState.MainGameplay;
                 }
                 break;

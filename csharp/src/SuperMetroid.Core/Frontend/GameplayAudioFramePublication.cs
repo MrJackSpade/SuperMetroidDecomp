@@ -65,8 +65,7 @@ internal sealed class GameplayAudioFramePublication(CartridgeAudioState audio)
         PublishPrefix(runtime);
         return audio.QueueSoundAndGetAccumulator(
             SoundEffectLibrary3Sounds.SpeedBoosterEcho, 6,
-            soundSuppressed: runtime.IsAttractDemo ||
-                unchecked((short)runtime.PowerBombExplosionStatus) < 0);
+            soundSuppressed: runtime.IsAttractDemo || runtime.PowerBombExplosionSuppressesSounds);
     }
 
     /// <summary>Publishes the admitted Samus beta health check after earlier prefix producers.</summary>
@@ -75,6 +74,6 @@ internal sealed class GameplayAudioFramePublication(CartridgeAudioState audio)
         PublishPrefix(runtime);
         if (runtime.Samus is not { } samus) throw new InvalidOperationException("Health check requires Samus.");
         samus.HealthWarning.Update(samus.Health, audio,
-            soundSuppressed: runtime.IsAttractDemo || unchecked((short)runtime.PowerBombExplosionStatus) < 0);
+            soundSuppressed: runtime.IsAttractDemo || runtime.PowerBombExplosionSuppressesSounds);
     }
 }

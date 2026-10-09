@@ -28,9 +28,13 @@ public sealed class SamusReserveAutoRecoveryState
         // gate alone leaves AnimateSamus running during the frozen recovery frames.
         // If X-Ray installed its own pair earlier in this state-eight frame, command
         // $1B replaces those handlers without deleting the independently running HDMA.
-        samus.Xray.RelinquishSamusControlForReserveRecovery();
+        // It leaves Mother Brain's rainbow-beam pair in place ($90:F414).
+        bool rainbowBeam = samus.RainbowBeamHandlersInstalled;
+        if (!rainbowBeam)
+            samus.Xray.RelinquishSamusControlForReserveRecovery();
         samus.Xray.FreezeSharedTimeForReserveRecovery();
-        samus.SetStationaryScriptControlLock(true);
+        if (!rainbowBeam)
+            samus.SetStationaryScriptControlLock(true);
         IsActive = true;
     }
 
@@ -79,8 +83,9 @@ public sealed class SamusReserveAutoRecoveryState
             // cleanup when it is zero, which is the cartridge's Reserve Mode glitch.
             samus.Xray.ClearSharedFreezeForReserveMode();
             // CallSomeSamusCode($10) restores the ordinary input/movement handlers unless
-            // a demo recorder owns them. This host never overlays demo playback here.
-            samus.SetStationaryScriptControlLock(false);
+            // Mother Brain's rainbow-beam pair holds them ($90:F2E3).
+            if (!samus.RainbowBeamHandlersInstalled)
+                samus.SetStationaryScriptControlLock(false);
             IsActive = false;
         }
 

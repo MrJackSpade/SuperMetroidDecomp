@@ -512,13 +512,13 @@ public sealed partial class SamusState
             level,
             displacement: unchecked(-radiusDifference << 16),
             scanLeftToRight: (nmiFrameCounter & 1) == 0,
-            plms, includeSolidEnemies: false);
+            targetPose, plms, includeSolidEnemies: false);
         BlockMoveResult downward = ProbeChangedPoseVertical(
             bus,
             level,
             displacement: radiusDifference << 16,
             scanLeftToRight: (nmiFrameCounter & 1) == 0,
-            plms, includeSolidEnemies: false);
+            targetPose, plms, includeSolidEnemies: false);
 
         if (upward.Collided && downward.Collided)
         {
@@ -546,7 +546,7 @@ public sealed partial class SamusState
                 bus, level,
                 displacement: centerAdjustment << 16,
                 scanLeftToRight: (nmiFrameCounter & 1) == 0,
-                plms: plms, includeSolidEnemies: false);
+                targetPose, plms: plms, includeSolidEnemies: false);
             if (opposite.Collided)
                 return LargerPoseCollisionOutcome.RetainSource;
             if (enemyUp.Collided)
@@ -565,7 +565,7 @@ public sealed partial class SamusState
                 bus, level,
                 displacement: centerAdjustment << 16,
                 scanLeftToRight: (nmiFrameCounter & 1) == 0,
-                plms: plms, includeSolidEnemies: false);
+                targetPose, plms: plms, includeSolidEnemies: false);
             if (opposite.Collided)
                 return LargerPoseCollisionOutcome.RetainSource;
             if (enemyDown.Collided)
@@ -613,12 +613,15 @@ public sealed partial class SamusState
     /// A single final-boundary scan therefore misses the floor, expands Samus downward, and
     /// lets her fall through the platform. Each probe uses a separate kinematics copy because
     /// the cartridge collision routine publishes a distance without moving live Samus.
+    /// The probe carries the pose being installed: `$91:F404` writes it to samus_pose
+    /// before calling `$91:FDAE`, so the elevator pseudo-door's below-$09 gate tests it.
     /// </remarks>
     private BlockMoveResult ProbeChangedPoseVertical(
         ISnesAddressSpace bus,
         RoomLevelData level,
         int displacement,
         bool scanLeftToRight,
+        byte targetPose,
         RoomPlmSystem? plms,
         bool includeSolidEnemies = true)
     {
@@ -639,6 +642,7 @@ public sealed partial class SamusState
         BlockMoveResult Probe(int amount)
         {
             SamusKinematicsState probe = Kinematics.CreateCollisionProbe();
+            probe.CollisionPose = targetPose;
             BlockMoveResult result = SamusBlockCollision.MoveVertical(
                 bus, level, probe, amount, scanLeftToRight,
                 includeSolidEnemies: includeSolidEnemies, plms: plms,

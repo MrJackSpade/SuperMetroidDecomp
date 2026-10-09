@@ -240,7 +240,7 @@ internal static partial class Program
         ushort cancel = (ushort)SnesButton.Y;
         AssertTrue(samus.HandleHudSelection(
                 unchecked((ushort)(select | cancel)),
-                select),
+                select).Changed,
             "held Item Cancel plus Select chooses Missiles for auto-cancel");
         AssertEqual((ushort)1, samus.AutoCancelHudItemIndex,
             "missile auto-cancel request retains the selected HUD index");

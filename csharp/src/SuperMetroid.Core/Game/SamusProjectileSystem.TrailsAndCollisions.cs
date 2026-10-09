@@ -27,10 +27,10 @@ public sealed partial class SamusProjectileSystem
 
         if (slot.PackedType.Family == SamusProjectileFamily.SuperMissile)
         {
-            // The multibox collision walker writes the same global quake as a normal Super
-            // Missile impact before dispatching the hitbox callback. This remains observable
-            // even when gold Ninja armor ignores a fresh, not-yet-linked Super Missile.
-            RequestSuperMissileEarthquake();
+            // The collision walkers write the enemy-hit quake before dispatching the enemy's
+            // shot callback. This remains observable even when gold Ninja armor ignores a
+            // fresh, not-yet-linked Super Missile.
+            RequestSuperMissileEarthquake(SamusProjectileRomData.NonBeam.SuperMissileEnemyHitEarthquakeType);
         }
 
         if (markCollisionState)
@@ -898,7 +898,7 @@ public sealed partial class SamusProjectileSystem
         {
             // The impact writes the shared room quake immediately; later native producers
             // can replace it before the frame's shake handler consumes the request.
-            RequestSuperMissileEarthquake();
+            RequestSuperMissileEarthquake(SamusProjectileRomData.NonBeam.SuperMissileEarthquakeType);
         }
 
         // Only cooldowns 21+ are shortened to 20. A normal missile begins at ten, so ordinary

@@ -714,7 +714,8 @@ static void VerifySamusKnockbackAndDamageBoost()
     SamusKnockbackMovement.ApplyDamageBoostPoseTransition(
         bus,
         samus,
-        SamusPoseIds.NeutralJumpRightPose);
+        SamusPoseIds.NeutralJumpRightPose,
+        (ushort)SnesButton.A);
     AssertEqual(SamusPoseIds.NeutralJumpRightPose, samus.Pose, "damage-boost neutral exit pose");
     AssertEqual(preservedYSpeed, samus.Kinematics.YSpeed, "damage-boost exit preserves whole Y speed");
     AssertEqual(preservedYSubspeed, samus.Kinematics.YSubspeed, "damage-boost exit preserves Y subspeed");

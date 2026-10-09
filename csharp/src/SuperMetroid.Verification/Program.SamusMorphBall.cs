@@ -333,7 +333,7 @@ static void VerifySamusMorphBallMovement()
             bus,
             floor,
             timeIsFrozen: true,
-            nmiFrameCounter: 0),
+            nmiFrameCounter: 0, controllerNewInput: 0),
         "frozen standing/crouching setup rejects bomb jump");
     AssertEqual(0, frozenCrouchBombJump.BombJumpDirection,
         "frozen setup clears complete published direction word");
@@ -353,7 +353,7 @@ static void VerifySamusMorphBallMovement()
             bus,
             floor,
             timeIsFrozen: false,
-            nmiFrameCounter: 1),
+            nmiFrameCounter: 1, controllerNewInput: 0),
         "unfrozen crouch follows humanoid bomb-jump setup");
     AssertEqual(SamusPoseIds.NormalJumpForwardLeftPose, crouchBombJump.Pose,
         "literal left pose direction selects bomb-jump body $52");
@@ -377,7 +377,7 @@ static void VerifySamusMorphBallMovement()
             bus,
             empty,
             timeIsFrozen: false,
-            nmiFrameCounter: 0),
+            nmiFrameCounter: 0, controllerNewInput: 0),
         "normal-jump movement type uses native carry-clear setup entry");
     AssertEqual(0, airborneBombRejection.BombJumpDirection,
         "carry-clear bomb-jump family consumes and clears published direction");
@@ -923,7 +923,7 @@ static void VerifySamusMorphBallMovement()
             bus,
             floor,
             timeIsFrozen: false,
-            nmiFrameCounter: 0),
+            nmiFrameCounter: 0, controllerNewInput: 0),
         "following alpha consumes published morphed bomb jump");
     AssertEqual(0x0802, bombProjectileSamus.BombJumpDirection,
         "morphed setup adds command-three bit on following frame");

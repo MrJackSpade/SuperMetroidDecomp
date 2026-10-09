@@ -81,6 +81,15 @@ public sealed class SamusShinesparkState
     internal void RelinquishMovementHandler() => Phase = ShinesparkPhase.Inactive;
 
     /// <summary>
+    /// Whether the spark's routine is installed in the single movement-handler word: $90:CFFA
+    /// installs windup, and launch and crash replace it in turn until the crash finishes.
+    /// </summary>
+    public bool OwnsMovementHandler => Phase is
+        ShinesparkPhase.Windup or ShinesparkPhase.Horizontal or ShinesparkPhase.Vertical or
+        ShinesparkPhase.Diagonal or ShinesparkPhase.Crash or ShinesparkPhase.CrashEchoCircle or
+        ShinesparkPhase.CrashFinish;
+
+    /// <summary>
     /// CrystalFlash ($90:D5A2) replaces both the movement pointer and shared special
     /// palette words. The new owner holds those words; do not resume this old owner
     /// after Flash finishes. Extra run speed and the boost counter are not cleared.
@@ -315,9 +324,9 @@ public sealed class SamusShinesparkState
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
-        if (Phase != ShinesparkPhase.Windup)
-            throw new InvalidOperationException("Directional shinespark launch requires windup.");
-
+        // `$91:FACA` installs the launch handler over whatever handler is current. A windup
+        // whose handler normal movement replaced (a knockback ending in `$C7/$C8`) keeps its
+        // pose and the windup's speeds, and a direction still launches from it.
         Phase = targetPose switch
         {
             SamusPoseIds.ShinesparkHorizontalRightPose or
@@ -689,8 +698,10 @@ false,             CrashSequenceFinished: true);
     /// <summary>Commits the crash's transitional standing pose after this frame's animation.</summary>
     public static void ApplyCrashFinishPose(ISnesAddressSpace bus, SamusState samus)
     {
-        // Transitional command two restores the normal input handler as well as beta.
+        // Transitional command two restores the normal input handler as well as beta. That
+        // replaces a drained pose's movement word too: a Samus drained mid-crash is free.
         samus.ShinesparkPoseInputLocked = false;
+        samus.Drained.RelinquishMovementHandler();
         byte standingPose = samus.IsFacingLeft(bus)
             ? SamusPoseIds.FacingLeftNormalPose
             : SamusPoseIds.FacingRightNormalPose;

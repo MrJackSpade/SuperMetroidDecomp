@@ -274,6 +274,8 @@ internal static class DebuggerRetiredFieldDefinitions
         [("SuperMetroid.Core.Game.PhantoonFlameDropRequest", "<X>k__BackingField")] = Discard,
         [("SuperMetroid.Core.Game.PhantoonFlameDropRequest", "<Y>k__BackingField")] = Discard,
         [("SuperMetroid.Core.Game.RidleyEnemyState", "<AttackTableIndex>k__BackingField")] = Discard,
+        // Retired with the live $0CEE read at $A6:BD2C; the flag itself is the state.
+        [("SuperMetroid.Core.Game.RidleyEnemyState", "<PowerBombReactionLatched>k__BackingField")] = Discard,
         [("SuperMetroid.Core.Game.RidleyEnemyState", "<FireballCooldown>k__BackingField")] = Discard,
         [("SuperMetroid.Core.Game.RidleyEnemyState", "<FireballVolleyCounter>k__BackingField")] = Discard,
         [("SuperMetroid.Core.Game.RidleyEnemyState", "<GrabbedSamusMovementIndex>k__BackingField")] = Discard,

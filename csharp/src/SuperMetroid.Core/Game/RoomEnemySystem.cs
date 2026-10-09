@@ -210,6 +210,13 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     public bool CeresEscapeStartedThisFrame { get; private set; }
 
+    /// <summary>
+    /// One-frame publication of a Draygon-owned <c>ReleaseSamusFromDraygon</c> ($90:E2DE)
+    /// during EnemyMain. The release writes $FFFF to all three prospective-pose slots, which
+    /// the runtime owns and clears after EnemyMain.
+    /// </summary>
+    public bool SamusReleasedByDraygonThisFrame { get; private set; }
+
     // A door load initializes enemies while the door IRQ scrolls; init AIs that read
     // layer 1 then wait for the loader's camera (CompleteLoaderTimeCameraReads).
     // TimeIsFrozenFlag as the enemy frame saw it; the draw hooks that follow read it.
@@ -308,6 +315,7 @@ public sealed partial class RoomEnemySystem
         LastMetroidSoundEffectLibrary3 = null;
         LastCeresDoorSoundEffectLibrary2 = null;
         CeresEscapeStartedThisFrame = false;
+        SamusReleasedByDraygonThisFrame = false;
         LastBoulderSoundEffect = null;
         LastZebetiteSoundEffect = null;
         LastEtecoonSoundEffect = null;
@@ -581,6 +589,7 @@ public sealed partial class RoomEnemySystem
     /// <param name="collisionPlms">Optional room PLMs participating in the scoped enemy terrain-collision probes.</param>
     /// <param name="nmiFrameCounter">Current independent sixteen-bit NMI clock; null uses the standalone enemy-pass clock.</param>
     /// <param name="processingListPrepared">True when <see cref="PrepareEnemyProcessingList"/> already ran at the native pre-Samus boundary; false prepares the lists here for standalone callers.</param>
+    /// <param name="samusPreviousPositionCheckpoint">The camera's frame-start Samus checkpoint under the live previous-position words that Draygon and Yapping Maw cap; null when no camera owns them.</param>
     public void StepFrame(
         ushort cameraX,
         ushort cameraY,
@@ -597,11 +606,13 @@ public sealed partial class RoomEnemySystem
         bool resolveSamusContactBeforeAi = false,
         RoomPlmSystem? collisionPlms = null,
         ushort? nmiFrameCounter = null,
-        bool processingListPrepared = false)
+        bool processingListPrepared = false,
+        SamusCameraPoint? samusPreviousPositionCheckpoint = null)
     {
         using var terrainScope = new EnemyTerrainScope(this, collisionPlms);
         EnsureLoaded();
         _samusForEnemyDrops = samus;
+        _samusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint;
         _enemyFrameTimeIsFrozen = timeIsFrozen;
         _samusProjectilesForEnemyFrame = samusProjectiles;
         _audioPowerBomb = sharedProjectiles?.PowerBombExplosion;
@@ -620,6 +631,7 @@ public sealed partial class RoomEnemySystem
         LastMetroidSoundEffectLibrary3 = null;
         LastCeresDoorSoundEffectLibrary2 = null;
         CeresEscapeStartedThisFrame = false;
+        SamusReleasedByDraygonThisFrame = false;
         LastBoulderSoundEffect = null;
         LastZebetiteSoundEffect = null;
         LastEtecoonSoundEffect = null;
@@ -764,7 +776,10 @@ public sealed partial class RoomEnemySystem
                         samus,
                         controllerInput,
                         level,
-                        samusProjectiles, cameraX, cameraY);
+                        samusProjectiles,
+                        sharedProjectiles ?? throw new InvalidOperationException(
+                            "Ridley's power-bomb check ($A6:BD2C) requires the shared projectile owner."),
+                        cameraX, cameraY);
                     ranActorAi = true;
                 }
                 if (!ranActorAi &&
@@ -1929,7 +1944,9 @@ public sealed partial class RoomEnemySystem
                     samus,
                     controllerInput,
                     level,
-                    samusProjectiles, cameraX, cameraY);
+                    samusProjectiles,
+                    sharedProjectiles,
+                    cameraX, cameraY);
                 return;
             case EnemyAiCodePointers.MainAI_RidleyExplosion when slot.EnemyDefinitionPointer == RidleyExplosionDefinitions.EnemyDefinition:
                 RunNorfairRidleyExplosionMain(slot);

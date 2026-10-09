@@ -98,7 +98,7 @@ public sealed partial class RoomEnemySystem
     /// Ports <c>$A5:8F1E</c>: fly the grabbed pair toward the authored spiral center, then
     /// install the facing-specific roar before the expanding orbit begins.
     /// </summary>
-    private static void CarrySamusToDraygonSpiral(DraygonEnemyState state, SamusState? samus)
+    private void CarrySamusToDraygonSpiral(DraygonEnemyState state, SamusState? samus)
     {
         SamusState activeSamus = RequireDraygonGrabbedSamus(samus);
         if (IsDraygonGrappleConnected(activeSamus))
@@ -198,7 +198,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports the incidental 64-frame tail-whip pause at <c>$A5:90D4</c>.</summary>
-    private static void RunDraygonTailWhip(DraygonEnemyState state, SamusState? samus)
+    private void RunDraygonTailWhip(DraygonEnemyState state, SamusState? samus)
     {
         MoveSamusWithDraygon(state, RequireDraygonGrabbedSamus(samus));
         state.TailWhipTimer = unchecked((ushort)(state.TailWhipTimer - 1));
@@ -219,7 +219,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Installs the four-repeat finishing whip list at <c>$A5:9105</c>.</summary>
-    private static void BeginDraygonFinalTailWhips(DraygonEnemyState state, SamusState? samus)
+    private void BeginDraygonFinalTailWhips(DraygonEnemyState state, SamusState? samus)
     {
         MoveSamusWithDraygon(state, RequireDraygonGrabbedSamus(samus));
         InstallDraygonInstruction(
@@ -234,7 +234,7 @@ public sealed partial class RoomEnemySystem
     /// Ports <c>$A5:9124</c>. The tail's cartridge list owns the duration and eventually
     /// executes opcode <c>$9F57</c>, which changes the body function to release Samus.
     /// </summary>
-    private static void WaitForDraygonFinalTailWhips(DraygonEnemyState state, SamusState? samus) =>
+    private void WaitForDraygonFinalTailWhips(DraygonEnemyState state, SamusState? samus) =>
         MoveSamusWithDraygon(state, RequireDraygonGrabbedSamus(samus));
 
     /// <summary>Ports release, collision-bit cleanup, and tail flail at <c>$A5:9128</c>.</summary>
@@ -247,7 +247,7 @@ public sealed partial class RoomEnemySystem
         // The normal route does own one, so invoke the bank-$90 release only in that case.
         if (samus.DraygonGrabbed.IsActive)
         {
-            samus.DraygonGrabbed.Release(_bus!, samus);
+            ReleaseSamusDuringEnemyMain(samus);
             // ReleaseSamusFromDraygon publishes bit one, and $A5:9128 immediately clears
             // the complete native grapple-flags word. Consume the host projection here so
             // a later encounter cannot observe a stale owner-release request.
@@ -283,29 +283,21 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>
-    /// Exact owner-position seam at <c>$A5:94A9</c>. Bank-$90 publishes escape as a
-    /// one-shot owner signal after changing Samus back to an ordinary pose; consume that
-    /// signal before asking the grabbed-pose object to accept another owner coordinate.
+    /// <c>MoveSamusWithDraygon</c> ($A5:94A9). It places Samus without checking that she is
+    /// still held, and only then tests the escape bit bank $90 publishes. The first carry
+    /// call after an escape therefore drags the released Samus once more before Draygon
+    /// switches to flying straight up.
     /// </summary>
-    private static void MoveSamusWithDraygon(DraygonEnemyState state, SamusState samus)
+    private void MoveSamusWithDraygon(DraygonEnemyState state, SamusState samus)
     {
-        if (samus.DraygonGrabbed.ConsumeOwnerReleaseSignal())
-        {
-            state.Function = DraygonAiFunction.FlyStraightUp;
-            return;
-        }
-
-        if (!samus.DraygonGrabbed.IsActive)
-        {
-            state.Function = DraygonAiFunction.FlyStraightUp;
-            return;
-        }
-
         samus.DraygonGrabbed.ApplyOwnerPosition(
             samus,
             state.Body.XPosition,
             state.Body.YPosition,
             state.FacingRight);
+        CapSamusScrollingSpeed(samus);
+        if (samus.DraygonGrabbed.ConsumeOwnerReleaseSignal())
+            state.Function = DraygonAiFunction.FlyStraightUp;
     }
 
     /// <summary>
@@ -368,6 +360,16 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot body = state.Body;
         body.FlashTimer = unchecked((ushort)(body.HurtAiTime + 8));
         body.AiHandlerBits = unchecked((ushort)(body.AiHandlerBits | 2));
+    }
+
+    /// <summary>
+    /// Runs <c>ReleaseSamusFromDraygon</c> ($90:E2DE) from Draygon's AI and publishes it so the
+    /// runtime clears the prospective poses alpha already chose.
+    /// </summary>
+    private void ReleaseSamusDuringEnemyMain(SamusState samus)
+    {
+        samus.DraygonGrabbed.Release(_bus!, samus);
+        SamusReleasedByDraygonThisFrame = true;
     }
 
     private static SamusState RequireDraygonGrabbedSamus(SamusState? samus)

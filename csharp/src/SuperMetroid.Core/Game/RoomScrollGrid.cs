@@ -69,10 +69,10 @@ public sealed class RoomScrollGrid
     /// Builds the implicit scroll table used when a room state's scroll word is nonnegative.
     /// </summary>
     /// <remarks>
-    /// This is the literal nested loop at $82:E84A: every row begins as blue/green value
-    /// two, while the final row receives <paramref name="lastRowState" />.
-    /// The remaining bytes in the fixed 50-byte WRAM allocation are cleared because this
-    /// path constructs the buffer rather than copying adjacent ROM bytes into all 50 slots.
+    /// This is the literal nested loop at $82:E88D: every row begins as green value two,
+    /// while the final row receives <paramref name="lastRowState" />. The loop writes only
+    /// the room's width x height cells; the rest of the 50-byte WRAM allocation keeps what
+    /// the previous room left there, and the scroll routines read it at the room's edges.
     /// </remarks>
     public static RoomScrollGrid CreateImplicit(
         ISnesAddressSpace bus,
@@ -82,14 +82,19 @@ public sealed class RoomScrollGrid
     {
         ArgumentNullException.ThrowIfNull(bus);
         RoomScrollStates.Validate(lastRowState, nameof(lastRowState));
+        ISnesMutableMemory memory = bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+            "Implicit scroll storage keeps the previous room's bytes past its cells; it requires WRAM.");
         var grid = new RoomScrollGrid(bus, widthInScreens, heightInScreens);
         for (int index = 0; index < StorageByteCount; index++)
         {
-            byte value = index < grid.LogicalCellCount
-                ? (byte)(index / widthInScreens == heightInScreens - 1
-                    ? lastRowState
-                    : RoomScrollState.Green)
-                : (byte)RoomScrollState.RedBoundary;
+            if (index >= grid.LogicalCellCount)
+            {
+                grid._cells[index] = memory.ReadWorkRamByte(WorkRamAddress + index);
+                continue;
+            }
+            byte value = (byte)(index / widthInScreens == heightInScreens - 1
+                ? lastRowState
+                : RoomScrollState.Green);
             grid._cells[index] = value;
             bus.WriteByte(WorkRamAddress + index, value);
         }

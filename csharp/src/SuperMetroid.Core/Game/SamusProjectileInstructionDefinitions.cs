@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Projectile duration/trail/control programs, independent of installed spritemap references.
@@ -340,9 +341,116 @@ internal static class SamusProjectileInstructionDefinitions
     internal static ushort ReadWord(int address) =>
         TryPowerWord(address, out ushort value) || TryWaveIceWord(address, out value) ||
         TrySpazerWord(address, out value) || TryPlasmaWord(address, out value) ||
-        TryChargedWord(address, out value) || TryNonBeamWord(address, out value) ? value :
+        TryChargedWord(address, out value) || TryNonBeamWord(address, out value) ||
+        ReflectedListPrefixWords.TryGetValue(address, out value) ? value :
         throw new InvalidDataException(
             $"Projectile instruction mechanics word ${address:X6} is outside the compiled definitions.");
+
+    /// <summary>
+    /// The word preceding every list start $90:BE17 can install when it reflects a beam or
+    /// missile. A trail spawned before the new list's first record reads it as an animation
+    /// frame ($93:81D8); for the first list it lies in the data tables before $93:86DB.
+    /// </summary>
+    private static readonly FrozenDictionary<int, ushort> ReflectedListPrefixWords =
+        new Dictionary<int, ushort>
+        {
+            [0x9386d9] = 0xa16d,
+            [0x9386e5] = 0x86db,
+            [0x9386f1] = 0x86e7,
+            [0x9386fd] = 0x86f3,
+            [0x938709] = 0x86ff,
+            [0x938715] = 0x870b,
+            [0x938721] = 0x8717,
+            [0x93872d] = 0x8723,
+            [0x938739] = 0x872f,
+            [0x938741] = 0x0000,
+            [0x9387c5] = 0x8743,
+            [0x938849] = 0x87c7,
+            [0x9388cd] = 0x884b,
+            [0x938951] = 0x88cf,
+            [0x938975] = 0x8953,
+            [0x938991] = 0x8987,
+            [0x9389ad] = 0x89a3,
+            [0x9389c9] = 0x89bf,
+            [0x9389e5] = 0x89db,
+            [0x938a01] = 0x89f7,
+            [0x938a1d] = 0x8a13,
+            [0x938a39] = 0x8a2f,
+            [0x938a55] = 0x8a4b,
+            [0x938aa9] = 0x8a57,
+            [0x938afd] = 0x8aab,
+            [0x938b51] = 0x8aff,
+            [0x938ba5] = 0x8b53,
+            [0x938bf9] = 0x8ba7,
+            [0x938c4d] = 0x8bfb,
+            [0x938ca1] = 0x8c4f,
+            [0x938cf5] = 0x8ca3,
+            [0x938d09] = 0x8cff,
+            [0x938d1d] = 0x8d13,
+            [0x938d31] = 0x8d27,
+            [0x938d45] = 0x8d3b,
+            [0x938d4d] = 0x0000,
+            [0x938d91] = 0x8d4f,
+            [0x938d99] = 0x0000,
+            [0x938ddd] = 0x8d9b,
+            [0x938e29] = 0x8de7,
+            [0x938e31] = 0x0000,
+            [0x938e75] = 0x8e33,
+            [0x938e89] = 0x8e77,
+            [0x938e9d] = 0x8e8b,
+            [0x938eb1] = 0x8e9f,
+            [0x938ec5] = 0x8eb3,
+            [0x938ed9] = 0x8ec7,
+            [0x938eed] = 0x8edb,
+            [0x938f01] = 0x8eef,
+            [0x938f15] = 0x8f03,
+            [0x938f1d] = 0x0000,
+            [0x938fa1] = 0x8f1f,
+            [0x939025] = 0x8fa3,
+            [0x9390a9] = 0x9027,
+            [0x93912d] = 0x90ab,
+            [0x939151] = 0x912f,
+            [0x939159] = 0x0000,
+            [0x9391dd] = 0x915b,
+            [0x939261] = 0x91df,
+            [0x9392e5] = 0x9263,
+            [0x939369] = 0x92e7,
+            [0x9393bd] = 0x93ab,
+            [0x939411] = 0x93ff,
+            [0x939465] = 0x9453,
+            [0x9394b9] = 0x94a7,
+            [0x93957d] = 0x94db,
+            [0x939641] = 0x959f,
+            [0x939705] = 0x9663,
+            [0x9397c9] = 0x9727,
+            [0x93988d] = 0x97eb,
+            [0x939951] = 0x98af,
+            [0x939a15] = 0x9973,
+            [0x939ad9] = 0x9a37,
+            [0x939b1d] = 0x9b0b,
+            [0x939b61] = 0x9b4f,
+            [0x939ba5] = 0x9b93,
+            [0x939be9] = 0x9bd7,
+            [0x939c9d] = 0x9c1b,
+            [0x939d51] = 0x9ccf,
+            [0x939e05] = 0x9d83,
+            [0x939eb9] = 0x9e37,
+            [0x939ec5] = 0x9ebb,
+            [0x939ed1] = 0x9ec7,
+            [0x939edd] = 0x9ed3,
+            [0x939ee9] = 0x9edf,
+            [0x939ef5] = 0x9eeb,
+            [0x939f01] = 0x9ef7,
+            [0x939f0d] = 0x9f03,
+            [0x939f19] = 0x9f0f,
+            [0x939f25] = 0x9f1b,
+            [0x939f31] = 0x9f27,
+            [0x939f3d] = 0x9f33,
+            [0x939f49] = 0x9f3f,
+            [0x939f55] = 0x9f4b,
+            [0x939f61] = 0x9f57,
+            [0x939f6d] = 0x9f63,
+        }.ToFrozenDictionary();
 
     /// <summary>Mutually exclusive native projectile program families; direction and frame remain separate axes.</summary>
     internal enum FrameFamily

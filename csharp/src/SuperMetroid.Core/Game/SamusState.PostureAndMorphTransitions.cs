@@ -216,7 +216,7 @@ public sealed partial class SamusState
             // the surface first and the shorter clipped distance is what moves center Y.
             BlockMoveResult alignment = ProbeChangedPoseVertical(
                 bus, level, SamusPostureDefinitions.CrouchEntryDownwardPixels << 16,
-                (nmiFrameCounter & 1) == 0, plms, includeSolidEnemies: false);
+                (nmiFrameCounter & 1) == 0, targetPose, plms, includeSolidEnemies: false);
             Kinematics.YPosition = unchecked((ushort)(
                 Kinematics.YPosition + (alignment.AcceptedDisplacement >> 16)));
             // Command seven publishes the aligned whole Y before scrolling; the
@@ -327,7 +327,7 @@ public sealed partial class SamusState
             }
             BlockMoveResult alignment = ProbeChangedPoseVertical(
                 bus, level, SamusPostureDefinitions.MorphEntryDownwardPixels << 16,
-                (nmiFrameCounter & 1) == 0, plms, includeSolidEnemies: false);
+                (nmiFrameCounter & 1) == 0, targetPose, plms, includeSolidEnemies: false);
             Kinematics.YPosition = unchecked((ushort)(
                 Kinematics.YPosition + (alignment.AcceptedDisplacement >> 16)));
             // Command seven ($91:ED0E) replaces the previous whole-Y checkpoint

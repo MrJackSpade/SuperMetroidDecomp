@@ -493,6 +493,7 @@ public sealed partial class RoomEnemySystem
 
         samus.XPosition = unchecked((ushort)(slot.XPosition + state.HeldSamusXOffset));
         samus.YPosition = unchecked((ushort)(slot.YPosition + state.HeldSamusYOffset));
+        CapSamusScrollingSpeed(samus);
     }
 
     /// <summary>Custom touch callback $A8:A799: grab, never ordinary contact damage.</summary>

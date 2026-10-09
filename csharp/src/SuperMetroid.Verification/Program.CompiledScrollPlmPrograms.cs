@@ -45,7 +45,7 @@ internal static partial class Program
     }
 
     private sealed class RetailScrollProgramReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
+        : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
         internal int ForbiddenReadAttempts { get; private set; }
 
@@ -68,5 +68,10 @@ internal static partial class Program
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+
+        // Room scroll storage keeps WRAM bytes across rooms; WRAM is not guarded cartridge data.
+        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
+
+        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
     }
 }

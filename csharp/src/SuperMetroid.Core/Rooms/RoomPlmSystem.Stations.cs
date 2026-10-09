@@ -14,23 +14,19 @@ public sealed partial class RoomPlmSystem
     private bool _saveStationLockedOut;
 
     /// <summary>
-    /// Applies the station-owned part of Samus command $0C ($90:F29E), called by
-    /// gameplay-resume setup at $82:A2E3. Map access-list deletion does not restore
-    /// the normal Samus handlers; leaving the automatically opened map does.
+    /// The map station's side of gameplay resume ($82:A2E3). Map access-list deletion does
+    /// not restore the normal Samus handlers; leaving the automatically opened map does,
+    /// through command $0C (<see cref="SamusState.ReleaseRefillStationLockOnUnpause"/>).
     /// </summary>
-    public void ReleaseMapStationInputOnUnpause(SamusState samus)
+    public void ResumeMapStationsAfterUnpause()
     {
-        ArgumentNullException.ThrowIfNull(samus);
         foreach (PlmSlot slot in _slots)
         {
-            if (!slot.Active || slot.Station is not { Kind: StationKind.Map } station ||
-                station.OperationPhase == StationOperationPhase.Idle)
-                continue;
             // Unpause can arrive before the final access-art hold expires. Keep that
-            // remaining animation; only the Samus handler ownership changes here.
-            if (station.OperationPhase == StationOperationPhase.AwaitingMapUnpause)
+            // remaining animation; only a station waiting for the map returns to idle.
+            if (slot.Active && slot.Station is { Kind: StationKind.Map } station &&
+                station.OperationPhase == StationOperationPhase.AwaitingMapUnpause)
                 station.OperationPhase = StationOperationPhase.Idle;
-            samus.InputLocked = false;
         }
     }
 
@@ -439,12 +435,12 @@ public sealed partial class RoomPlmSystem
             else if (canActivate)
             {
                 // Access lists draw their first extension frame for six ticks, hold the
-                // fully inserted arm for $60, then execute the activation opcode. Movement
-                // command six owns Samus for that entire synchronous sequence.
+                // fully inserted arm for $60, then execute the activation opcode. Command
+                // six locked Samus in setup; this pass does not lock her again, so one an
+                // intervening unpause freed ($90:F2A2) stays free.
                 station.OperationPhase = StationOperationPhase.Extending;
                 station.OperationTimer = StationAccessMovementFrames;
                 operationStartedThisPass = true;
-                samus.LockIntoRefillStation();
                 _soundRequests.Add(CreateSoundRequest(RoomPlmSounds.StationExtension, MaximumQueued: 6));
                 DrawStationAccess(
                     bus,

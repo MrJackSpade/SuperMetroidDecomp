@@ -308,14 +308,18 @@ public sealed partial class SamusState
     /// accepts standing/running/landing sources as well as an existing wall-stop source:
     /// `$91:EADE` can test a prospective run before that run is installed, and changing aim
     /// while still pressing into the wall proposes another running pose for the same probe.
+    /// A moonwalk that proposes a run is probed too: `$91:EB05` moves one pixel along the
+    /// moonwalk pose's facing, but `$91:EB4E` picks the wall pose from the proposed run's
+    /// direction, so a moonwalk facing right can stop in the left-facing wall pose.
     /// </summary>
     public void ApplyRanIntoWallPoseChange(ISnesAddressSpace bus, byte targetPose)
     {
         ArgumentNullException.ThrowIfNull(bus);
+        bool moonwalking = IsMoonwalkingPose(Pose);
         bool rightSource = IsRightFacingStandingPose(Pose) || IsRightFacingRunningPose(Pose) ||
-            IsRightFacingRanIntoWallPose(Pose) || IsRightFacingLandingPose(Pose);
+            IsRightFacingRanIntoWallPose(Pose) || IsRightFacingLandingPose(Pose) || moonwalking;
         bool leftSource = IsLeftFacingStandingPose(Pose) || IsLeftFacingRunningPose(Pose) ||
-            IsLeftFacingRanIntoWallPose(Pose) || IsLeftFacingLandingPose(Pose);
+            IsLeftFacingRanIntoWallPose(Pose) || IsLeftFacingLandingPose(Pose) || moonwalking;
         bool rightRoute = rightSource &&
             (IsRightFacingRanIntoWallPose(targetPose) || targetPose == SamusPoseIds.StandingAimUpRightPose);
         bool leftRoute = leftSource &&

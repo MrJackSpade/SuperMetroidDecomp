@@ -697,8 +697,6 @@ public sealed partial class RoomEnemySystem
             samus,
             controllerInput,
             skipDeathAnimation: true);
-        if (slot.EnemyDefinitionPointer == NorfairRidleyDefinition)
-            ResolveNorfairRidleyShotAfterCommon(slot);
         return true;
     }
 

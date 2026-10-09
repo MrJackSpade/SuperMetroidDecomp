@@ -29,11 +29,29 @@ public sealed partial class SamusState
     /// </summary>
     public bool RefillStationLocked { get; private set; }
 
+    /// <summary>
+    /// Whether Mother Brain's rainbow-beam setup ($90:F394) owns the handler pair: its new-state
+    /// handler is the bare <c>RTL</c> at $90:E8D9 until command one restores the normal pair.
+    /// </summary>
+    public bool RainbowBeamHandlersInstalled =>
+        Drained.Phase == DrainedSamusPhase.RainbowBeamLocked && InputLocked;
+
     /// <summary>Applies <c>SamusCommand_6_LockSamusIntoRefillStation</c>.</summary>
     public void LockIntoRefillStation()
     {
         InputLocked = true;
         StationaryScriptControlLocked = false;
         RefillStationLocked = true;
+    }
+
+    /// <summary>
+    /// The handler part of unpause command $0C ($90:F2A2): whenever the new-state handler is
+    /// command six's bare <c>RTL</c>, it restores the normal pair. Any station that locked
+    /// Samus, map or recharge, therefore lets go when the pause menu closes.
+    /// </summary>
+    public void ReleaseRefillStationLockOnUnpause()
+    {
+        if (RefillStationLocked)
+            InputLocked = false;
     }
 }

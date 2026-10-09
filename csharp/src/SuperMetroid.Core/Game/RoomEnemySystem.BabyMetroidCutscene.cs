@@ -209,7 +209,8 @@ public sealed partial class RoomEnemySystem
                 explosion.XPosition,
                 explosion.YPosition,
                 explosion.ProjectileParameter);
-            state.LastSoundEffect = explosion.SoundEffect;
+            // $A9:CDF4 queues the explosion through QueueSound_Lib3_Max3.
+            state.LastSoundEffectLibrary3 = explosion.SoundEffect;
         }
 
         if (step.BabyPaletteTransfer is { } palette)

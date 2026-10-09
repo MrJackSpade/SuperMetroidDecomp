@@ -19,10 +19,16 @@ public sealed partial class SuperMetroidGame
     }
 
     /// <summary>
-    /// $85:8104 publishes state $0C after the map-data box without touching either fade
-    /// word, so the darkening proceeds at whatever cadence the last fade left behind.
+    /// <c>Samus_PauseCheck</c> ($90:EA45) reloads both fade words and leaves the brightness
+    /// register alone, so the darkening starts from whatever $51 holds; after an unpause
+    /// interrupted by reserve refill that is still black, and state $0C ends at once.
+    /// $85:8104 (the map-data box) touches neither, so it changes nothing here.
     /// </summary>
-    private void BeginMapStationPauseFade() => pauseBrightness = PauseFadeTiming.FullyLit;
+    private void BeginGameplayPauseFade()
+    {
+        pauseFadeDelay = PauseFadeTiming.CounterReload;
+        pauseFadeCounter = PauseFadeTiming.CounterReload;
+    }
 
     /// <summary>$82:8B34, $82:8CE4 and $82:93B5 clear both fade words on a fade's final frame.</summary>
     private void ClearScreenFadeTiming()

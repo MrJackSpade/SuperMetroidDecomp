@@ -102,6 +102,7 @@ public sealed partial class RoomEnemySystem
         ushort controllerInput,
         RoomLevelData? level = null,
         SamusProjectileSystem? samusProjectiles = null,
+        SamusBombProjectileSystem? sharedProjectiles = null,
         ushort cameraX = 0,
         ushort cameraY = 0)
     {
@@ -111,7 +112,8 @@ public sealed partial class RoomEnemySystem
             unchecked((short)state.HurtMovementClamp) - 4));
 
         UpdateNorfairRidleyIntangibility(slot, state, cameraX, cameraY);
-        PrepareNorfairRidleyCombatFrame(slot, state);
+        PrepareNorfairRidleyCombatFrame(slot, state, sharedProjectiles ?? throw new InvalidOperationException(
+            "Ridley's power-bomb check ($A6:BD2C) requires the shared projectile owner."));
 
         RunNorfairRidleyFunction(slot, state, samus, controllerInput, level);
 

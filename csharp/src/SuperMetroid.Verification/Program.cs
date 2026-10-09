@@ -822,6 +822,146 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--baby-metroid-death-explosion-sound"])
+{
+    Suite(nameof(VerifyBabyMetroidDeathExplosionSound), () => VerifyBabyMetroidDeathExplosionSound());
+    return 0;
+}
+if (args is ["--damage-boost-jump-initializer"])
+{
+    Suite(nameof(VerifyDamageBoostJumpInitializer), () => VerifyDamageBoostJumpInitializer());
+    return 0;
+}
+if (args is ["--reserve-refill-rainbow-beam"])
+{
+    Suite(nameof(VerifyReserveRefillRainbowBeam), () => VerifyReserveRefillRainbowBeam());
+    return 0;
+}
+if (args is ["--moonwalk-ran-into-wall"])
+{
+    Suite(nameof(VerifyMoonwalkRanIntoWall), () => VerifyMoonwalkRanIntoWall());
+    return 0;
+}
+if (args is ["--mother-brain-fake-death-lock"])
+{
+    Suite(nameof(VerifyMotherBrainFakeDeathLock), () => VerifyMotherBrainFakeDeathLock());
+    return 0;
+}
+if (args is ["--door-waits-for-message-box"])
+{
+    Suite(nameof(VerifyDoorWaitsForMessageBox), () => VerifyDoorWaitsForMessageBox());
+    return 0;
+}
+if (args is ["--unpause-station-lock-release"])
+{
+    Suite(nameof(VerifyUnpauseStationLockRelease), () => VerifyUnpauseStationLockRelease());
+    return 0;
+}
+if (args is ["--eye-door-sweat-span-underflow"])
+{
+    Suite(nameof(VerifyEyeDoorSweatSpanUnderflow), () => VerifyEyeDoorSweatSpanUnderflow());
+    return 0;
+}
+if (args is ["--drained-spark-crash"])
+{
+    Suite(nameof(VerifyDrainedSparkCrash), () => VerifyDrainedSparkCrash());
+    return 0;
+}
+if (args is ["--baby-metroid-wall-clear-timing"])
+{
+    Suite(nameof(VerifyBabyMetroidWallClearTiming), () => VerifyBabyMetroidWallClearTiming());
+    return 0;
+}
+if (args is ["--bomb-jump-run-momentum"])
+{
+    Suite(nameof(VerifyBombJumpRunMomentum), () => VerifyBombJumpRunMomentum());
+    return 0;
+}
+if (args is ["--contact-damage-sound"])
+{
+    Suite(nameof(VerifyContactDamageSound), () => VerifyContactDamageSound());
+    return 0;
+}
+if (args is ["--super-missile-enemy-hit-quake"])
+{
+    Suite(nameof(VerifySuperMissileEnemyHitQuake), () => VerifySuperMissileEnemyHitQuake());
+    return 0;
+}
+if (args is ["--released-samus-falls-off-draygon"])
+{
+    Suite(nameof(VerifyReleasedSamusFallsOffDraygon), () => VerifyReleasedSamusFallsOffDraygon());
+    return 0;
+}
+if (args is ["--draygon-escape-drag"])
+{
+    Suite(nameof(VerifyDraygonEscapeDrag), () => VerifyDraygonEscapeDrag());
+    return 0;
+}
+if (args is ["--draygon-scrolling-speed-cap"])
+{
+    Suite(nameof(VerifyDraygonScrollingSpeedCap), () => VerifyDraygonScrollingSpeedCap());
+    return 0;
+}
+if (args is ["--item-cancel-clears-charge"])
+{
+    Suite(nameof(VerifyItemCancelClearsCharge), () => VerifyItemCancelClearsCharge());
+    return 0;
+}
+if (args is ["--frozen-time-enemy-projectiles"])
+{
+    Suite(nameof(VerifyFrozenTimeEnemyProjectiles), () => VerifyFrozenTimeEnemyProjectiles());
+    return 0;
+}
+if (args is ["--unpause-reserve-blackout"])
+{
+    Suite(nameof(VerifyUnpauseReserveBlackout), () => VerifyUnpauseReserveBlackout());
+    return 0;
+}
+if (args is ["--powamp-death-sequence"])
+{
+    Suite(nameof(VerifyPowampDeathSequence), () => VerifyPowampDeathSequence());
+    return 0;
+}
+if (args is ["--ridley-shot-health-stage"])
+{
+    Suite(nameof(VerifyRidleyShotHealthStage), () => VerifyRidleyShotHealthStage());
+    return 0;
+}
+if (args is ["--wall-jump-dust"])
+{
+    Suite(nameof(VerifyWallJumpDust), () => VerifyWallJumpDust());
+    return 0;
+}
+if (args is ["--unpause-elevator-flags"])
+{
+    Suite(nameof(VerifyUnpauseElevatorFlags), () => VerifyUnpauseElevatorFlags());
+    return 0;
+}
+if (args is ["--knockback-shinespark-launch"])
+{
+    Suite(nameof(VerifyKnockbackShinesparkLaunch), () => VerifyKnockbackShinesparkLaunch());
+    return 0;
+}
+if (args is ["--door-sounds-during-power-bomb"])
+{
+    Suite(nameof(VerifyDoorSoundsDuringPowerBomb), () => VerifyDoorSoundsDuringPowerBomb());
+    return 0;
+}
+if (args is ["--super-missile-death-animation"])
+{
+    Suite(nameof(VerifySuperMissileDeathAnimation), () => VerifySuperMissileDeathAnimation());
+    return 0;
+}
+if (args is ["--implicit-scroll-residue"])
+{
+    Suite(nameof(VerifyImplicitScrollResidue), () => VerifyImplicitScrollResidue());
+    return 0;
+}
+if (args is ["--elevator-stand-up-contact"])
+{
+    Suite(nameof(VerifyElevatorStandUpContact), () => VerifyElevatorStandUpContact());
+    return 0;
+}
 if (args is ["--empty-extended-frame-shots"])
 {
     Suite(nameof(VerifyEmptyExtendedFrameShots), () => VerifyEmptyExtendedFrameShots());
@@ -7873,6 +8013,33 @@ Suite(nameof(VerifySquareSlopeBeamCollision), () => VerifySquareSlopeBeamCollisi
 Suite(nameof(VerifyAirSpikeAlphaRadius), () => VerifyAirSpikeAlphaRadius());
 Suite(nameof(VerifyKraidArmSamusContact), () => VerifyKraidArmSamusContact());
 Suite(nameof(VerifyEmptyExtendedFrameShots), () => VerifyEmptyExtendedFrameShots());
+Suite(nameof(VerifyElevatorStandUpContact), () => VerifyElevatorStandUpContact());
+Suite(nameof(VerifyImplicitScrollResidue), () => VerifyImplicitScrollResidue());
+Suite(nameof(VerifySuperMissileDeathAnimation), () => VerifySuperMissileDeathAnimation());
+Suite(nameof(VerifyDoorSoundsDuringPowerBomb), () => VerifyDoorSoundsDuringPowerBomb());
+Suite(nameof(VerifyKnockbackShinesparkLaunch), () => VerifyKnockbackShinesparkLaunch());
+Suite(nameof(VerifyUnpauseElevatorFlags), () => VerifyUnpauseElevatorFlags());
+Suite(nameof(VerifyRidleyShotHealthStage), () => VerifyRidleyShotHealthStage());
+Suite(nameof(VerifyPowampDeathSequence), () => VerifyPowampDeathSequence());
+Suite(nameof(VerifyUnpauseReserveBlackout), () => VerifyUnpauseReserveBlackout());
+Suite(nameof(VerifyFrozenTimeEnemyProjectiles), () => VerifyFrozenTimeEnemyProjectiles());
+Suite(nameof(VerifyItemCancelClearsCharge), () => VerifyItemCancelClearsCharge());
+Suite(nameof(VerifyDraygonScrollingSpeedCap), () => VerifyDraygonScrollingSpeedCap());
+Suite(nameof(VerifyDraygonEscapeDrag), () => VerifyDraygonEscapeDrag());
+Suite(nameof(VerifyReleasedSamusFallsOffDraygon), () => VerifyReleasedSamusFallsOffDraygon());
+Suite(nameof(VerifySuperMissileEnemyHitQuake), () => VerifySuperMissileEnemyHitQuake());
+Suite(nameof(VerifyContactDamageSound), () => VerifyContactDamageSound());
+Suite(nameof(VerifyBombJumpRunMomentum), () => VerifyBombJumpRunMomentum());
+Suite(nameof(VerifyBabyMetroidWallClearTiming), () => VerifyBabyMetroidWallClearTiming());
+Suite(nameof(VerifyDrainedSparkCrash), () => VerifyDrainedSparkCrash());
+Suite(nameof(VerifyEyeDoorSweatSpanUnderflow), () => VerifyEyeDoorSweatSpanUnderflow());
+Suite(nameof(VerifyUnpauseStationLockRelease), () => VerifyUnpauseStationLockRelease());
+Suite(nameof(VerifyDoorWaitsForMessageBox), () => VerifyDoorWaitsForMessageBox());
+Suite(nameof(VerifyMotherBrainFakeDeathLock), () => VerifyMotherBrainFakeDeathLock());
+Suite(nameof(VerifyMoonwalkRanIntoWall), () => VerifyMoonwalkRanIntoWall());
+Suite(nameof(VerifyReserveRefillRainbowBeam), () => VerifyReserveRefillRainbowBeam());
+Suite(nameof(VerifyDamageBoostJumpInitializer), () => VerifyDamageBoostJumpInitializer());
+Suite(nameof(VerifyBabyMetroidDeathExplosionSound), () => VerifyBabyMetroidDeathExplosionSound());
 Suite(nameof(VerifyRoomFxRomData), () => VerifyRoomFxRomData());
 Suite(nameof(VerifyPowerBombFixedColors), () => VerifyPowerBombFixedColors());
 Suite(nameof(VerifySamusVisorColors), () => VerifySamusVisorColors());

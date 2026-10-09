@@ -264,6 +264,14 @@ public sealed partial class SuperMetroidRuntime
     }
 
     /// <summary>
+    /// The power-bomb gate in all three sound-queue routines (<c>$80:9072</c>,
+    /// <c>$80:90F4</c>, <c>$80:9176</c>): while the explosion status is negative every
+    /// request is dropped after the occupancy check, whoever makes it.
+    /// </summary>
+    public bool PowerBombExplosionSuppressesSounds =>
+        unchecked((short)PowerBombExplosionStatus) < 0;
+
+    /// <summary>
     /// Low-byte snapshot at WRAM <c>$0A11</c> used by X-ray stability and post-draw spin audio.
     /// The runtime updates it after each completed gameplay frame.
     /// </summary>
@@ -1248,7 +1256,8 @@ public sealed partial class SuperMetroidRuntime
         if (enemyMainAlreadyRan)
         {
             bool lockedBeforeEnemyMain = Samus?.InputLocked == true;
-            RunEnemyMainPhase(processingListPrepared: true);
+            RunEnemyMainPhase(processingListPrepared: true,
+                Camera?.PreviousSamusPoint ?? samusCameraPointAtFrameStart);
             enemyMainReleasedAlphaLock = lockedBeforeEnemyMain && Samus?.InputLocked == false;
         }
         SuspendedGameplayFrameTail? frameTail = null;
@@ -1283,6 +1292,10 @@ public sealed partial class SuperMetroidRuntime
             // match selected for the old pose to the newly installed one.
             BeginAttractSamusInput();
             byte poseAtFrameStart = Samus.Pose;
+            // Beta dispatches on the pose installed when it runs, which EnemyMain can have
+            // replaced since alpha: Draygon's death releases a sparking Samus to pose $01,
+            // and standing movement runs. `$91:E8B6` then reads that pose's type.
+            byte poseAtBetaMovement = poseAtFrameStart;
             // Ordinary alpha publishes the current pose's live radius before input
             // and collision. Prospective transitions later in beta can retain the
             // previous radius until this point in the following frame. The locked
@@ -1415,17 +1428,18 @@ public sealed partial class SuperMetroidRuntime
                     // Consequently a Select edge can choose missiles and an X edge can
                     // fire one during this same alpha pass. Input-locked message/elevator
                     // handlers do not execute the normal selection owner.
-                    if (!AlphaInputLocked() && !SamusState.IsForwardFacingPose(Samus.Pose) && Samus.HandleHudSelection(
-                            Controller1.Current,
-                            Controller1.NewlyPressed))
+                    // The switched-to handler of the item the loop settles on runs on every
+                    // cancel or select edge, even one that leaves the selection unchanged.
+                    // Each clears the charge and restores suit colors, except grapple's
+                    // while a grapple is already active ($90:C59A), which changes nothing.
+                    if (!AlphaInputLocked() && !SamusState.IsForwardFacingPose(Samus.Pose) &&
+                        Samus.HandleHudSelection(Controller1.Current, Controller1.NewlyPressed).ItemHandlerAccepted &&
+                        (Samus.SelectedHudItem != SamusHudRomData.GrappleSelectedItem ||
+                         Samus.Grapple.Phase == GrapplePhase.Inactive))
                     {
                         Projectiles.CancelChargeForHudSelection();
                         Samus.ProjectileFlareCounter = 0;
-                        // Accepted HUD handlers restore suit colors even without a
-                        // charged beam. An already-active grapple is the native exception.
-                        if (Samus.SelectedHudItem != SamusHudRomData.GrappleSelectedItem ||
-                            Samus.Grapple.Phase == GrapplePhase.Inactive)
-                            Samus.LoadSuitPalette(_addressSpace, Cgram);
+                        Samus.LoadSuitPalette(_addressSpace, Cgram);
                     }
 
                     // The selected scope uses held Run, not Fire. Setup installs its
@@ -1516,7 +1530,7 @@ public sealed partial class SuperMetroidRuntime
                 PreviousMovementTypeForXray = xrayActivatedThisFrame
                     ? movementBeforeXrayAdmission : Samus.ReadMovementType(_addressSpace);
                 if (!enemyMainAlreadyRan)
-                    RunEnemyMainPhase(processingListPrepared: true);
+                    RunEnemyMainPhase(processingListPrepared: true, previousCameraPoint);
                 // Actor commands replace beta before its dispatch in this same update.
                 stationaryScriptControlLocked = Samus.StationaryScriptControlLocked;
                 if (!TimeIsFrozen && !deathOwnsSamus)
@@ -1584,6 +1598,8 @@ public sealed partial class SuperMetroidRuntime
                         grapplePreviousY,
                         previousCameraPoint.YSubposition);
                 }
+
+                poseAtBetaMovement = Samus.Pose;
 
                 if (deathOwnsSamus || suitOwnsSamus)
                 {
@@ -1714,11 +1730,14 @@ public sealed partial class SuperMetroidRuntime
                 // with `$90:94CB`; the other phases stay motionless while enemy AI controls
                 // pose/timing. This branch is reached only when no independently retained
                 // Crystal Flash pointer still owns the physical movement-handler word.
+                // Controller zero ($91:E4F8) changes only the pose, so a crashing spark keeps
+                // its handler and finishes below; `$F7` relinquishes the spark itself.
                 // The rainbow-beam lock is beta `$E8D9` itself: once command one restores
                 // `$E725` during enemy AI, this same frame's beta dispatches the knockback
                 // pose's type-$0A mover below, as `$90:A5FC` does natively.
                 else if (Samus.Drained.Phase != DrainedSamusPhase.Inactive &&
-                    !(Samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked && !Samus.InputLocked))
+                    !(Samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked && !Samus.InputLocked) &&
+                    (Samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked || !Samus.Shinespark.OwnsMovementHandler))
                 {
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;
@@ -1734,11 +1753,7 @@ public sealed partial class SuperMetroidRuntime
                 // `$90:CFFA` replaces the normal movement-handler pointer. Windup, active
                 // launch, and crash therefore own beta movement regardless of the pose's
                 // table index; ordinary type-$1B physics does not exist to fall back to.
-                else if (Samus.Shinespark.Phase is
-                    ShinesparkPhase.Windup or ShinesparkPhase.Horizontal or
-                    ShinesparkPhase.Vertical or ShinesparkPhase.Diagonal or
-                    ShinesparkPhase.Crash or ShinesparkPhase.CrashEchoCircle or
-                    ShinesparkPhase.CrashFinish)
+                else if (Samus.Shinespark.OwnsMovementHandler)
                 {
                     // Determine_Samus_YAcceleration supplies the environment-selected pair
                     // used as spark acceleration. Projectile_Func7 does not replace it.
@@ -2414,6 +2429,7 @@ Landed: true, HitCeiling: false);
                             "A published bomb-jump direction requires active room level data."),
                         TimeIsFrozen,
                         NmiFrameCounter,
+                        Controller1.NewlyPressed,
                         Plms))
                 {
                     ProspectiveSamusPose = null;
@@ -2627,17 +2643,17 @@ Landed: true, HitCeiling: false);
                 if (!animationTransitionApplied &&
                     LastGroundedSamusMovement is
                         { Vertical.IsUnobstructedDownwardMovement: true } &&
-                    (SamusState.IsRightFacingStandingPose(poseAtFrameStart) ||
-                     SamusState.IsLeftFacingStandingPose(poseAtFrameStart) ||
-                     SamusState.IsRightFacingLandingPose(poseAtFrameStart) ||
-                     SamusState.IsLeftFacingLandingPose(poseAtFrameStart) ||
-                     SamusState.IsRightFacingRunningPose(poseAtFrameStart) ||
-                     SamusState.IsLeftFacingRunningPose(poseAtFrameStart) ||
-                     SamusState.IsMoonwalkingPose(poseAtFrameStart) ||
-                     poseAtFrameStart is SamusPoseIds.KnockbackRightPose or SamusPoseIds.KnockbackLeftPose ||
-                     SamusState.IsRanIntoWallPose(poseAtFrameStart) ||
-                     SamusState.IsRightFacingCrouchingPose(poseAtFrameStart) ||
-                     SamusState.IsLeftFacingCrouchingPose(poseAtFrameStart)))
+                    (SamusState.IsRightFacingStandingPose(poseAtBetaMovement) ||
+                     SamusState.IsLeftFacingStandingPose(poseAtBetaMovement) ||
+                     SamusState.IsRightFacingLandingPose(poseAtBetaMovement) ||
+                     SamusState.IsLeftFacingLandingPose(poseAtBetaMovement) ||
+                     SamusState.IsRightFacingRunningPose(poseAtBetaMovement) ||
+                     SamusState.IsLeftFacingRunningPose(poseAtBetaMovement) ||
+                     SamusState.IsMoonwalkingPose(poseAtBetaMovement) ||
+                     poseAtBetaMovement is SamusPoseIds.KnockbackRightPose or SamusPoseIds.KnockbackLeftPose ||
+                     SamusState.IsRanIntoWallPose(poseAtBetaMovement) ||
+                     SamusState.IsRightFacingCrouchingPose(poseAtBetaMovement) ||
+                     SamusState.IsLeftFacingCrouchingPose(poseAtBetaMovement)))
                 {
                     byte fallingPose = Samus.SelectFallingPoseForCurrentAim(_addressSpace);
                     Samus.ApplyWalkedOffFloorTransition(_addressSpace,
@@ -2735,7 +2751,8 @@ Landed: true, HitCeiling: false);
                                 SamusKnockbackMovement.ApplyDamageBoostPoseTransition(
                                     _addressSpace,
                                     Samus,
-                                    targetPose);
+                                    targetPose,
+                                    Controller1.NewlyPressed);
                                 break;
                             case var (source, target)
                                 when ((SamusState.IsRightFacingNormalJumpPose(source) &&
@@ -3092,7 +3109,8 @@ Landed: true, HitCeiling: false);
                     SamusKnockbackMovement.ApplyDamageBoostPoseTransition(
                         _addressSpace,
                         Samus,
-                        unchecked((byte)boostFallback));
+                        unchecked((byte)boostFallback),
+                        Controller1.NewlyPressed);
                 }
                 else if (!animationTransitionApplied &&
                          SamusState.IsDraygonGrabbedPose(poseAtFrameStart) &&

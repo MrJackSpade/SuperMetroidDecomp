@@ -1051,13 +1051,7 @@ public sealed partial class SuperMetroidRuntime
         // Setup ASM $8F:C8C8 spawns into the pool that Enemies.Load has just cleared.
         if (room.State.SetupCallback == RoomSetupCallback.SpawnPrePhantoonRoomEnemyProjectile)
             Enemies.SpawnPrePhantoonRoomProjectile(BackgroundScroll);
-        ApplyPendingBotwoonWallPlm();
-        ApplyPendingSporeSpawnCeilingPlm();
-        ApplyPendingCrocomireArenaPlms();
-        ApplyPendingKraidPlms();
-        ApplyPendingMotherBrainPlms();
-        ApplyPendingShitroidWallPlms();
-        ApplyPendingChozoStatuePlms();
+        ApplyEnemyRequestedRoomEffects();
         TourianStatues.Load(this);
         Enemies.QueueGraphicsUploads(VramWrites);
 
@@ -1309,8 +1303,29 @@ public sealed partial class SuperMetroidRuntime
     }
 
     /// <summary>
+    /// Applies the hardcoded PLMs and room effects that enemy AI requested during its pass.
+    /// </summary>
+    /// <remarks>
+    /// Native actors call <c>Spawn_Hardcoded_PLM</c> ($84:83D7) and their other room writes
+    /// inside EnemyMain, and each PLM's setup edits the level at once. Applying them right
+    /// after the enemy pass lets Samus's movement later in the frame meet the edited
+    /// terrain; Baby Metroid clears its invisible wall this way just before Samus runs
+    /// through it.
+    /// </remarks>
+    private void ApplyEnemyRequestedRoomEffects()
+    {
+        ApplyPendingBotwoonWallPlm();
+        ApplyPendingSporeSpawnCeilingPlm();
+        ApplyPendingCrocomireArenaPlms();
+        ApplyPendingKraidPlms();
+        ApplyPendingMotherBrainPlms();
+        ApplyPendingShitroidWallPlms();
+        ApplyPendingChozoStatuePlms();
+    }
+
+    /// <summary>
     /// Transfers Shitroid's bank-$A9 hardcoded wall requests to the shared bank-$84 PLM
-    /// pool at both producer seams: enemy initialization and the gameplay PLM handler.
+    /// pool at both producer seams: enemy initialization and the end of each enemy pass.
     /// </summary>
     private void ApplyPendingShitroidWallPlms()
     {

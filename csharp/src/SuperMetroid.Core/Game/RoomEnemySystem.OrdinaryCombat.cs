@@ -1084,8 +1084,8 @@ public sealed partial class RoomEnemySystem
                 {
                     // The multibox prelude requests this earthquake before dispatching the
                     // hitbox callback, even when that callback is the no-op shell region.
-                    EarthquakeTimer = 30;
-                    EarthquakeType = 18;
+                    EarthquakeTimer = SamusProjectileRomData.NonBeam.SuperMissileEarthquakeDuration;
+                    EarthquakeType = SamusProjectileRomData.NonBeam.SuperMissileEnemyHitEarthquakeType;
                 }
 
                 // Golden's definition installs $D667, but its ordinary extended body
@@ -1755,8 +1755,6 @@ public sealed partial class RoomEnemySystem
                     ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
                 if (isHorizontalShutter)
                     ReactHorizontalShutter(enemy);
-                if (isNorfairRidley)
-                    ResolveNorfairRidleyShotAfterCommon(enemy);
                 if (isDraygonBody)
                     ResolveDraygonReaction(enemy, samus);
 
@@ -2201,8 +2199,6 @@ public sealed partial class RoomEnemySystem
                                 ResolveSporeSpawnShotAfterCommon(enemy);
                             if (isDraygonBody)
                                 ResolveDraygonReaction(enemy, samus);
-                            if (isNorfairRidley)
-                                ResolveNorfairRidleyShotAfterCommon(enemy);
                             if (isBotwoon)
                                 ResolveBotwoonCombatAfterCommon(enemy);
                             if (isShaktool)
@@ -2643,8 +2639,6 @@ public sealed partial class RoomEnemySystem
                 ResolveKiHunterShotAfterCommon(enemy);
             if (isBotwoon)
                 ResolveBotwoonCombatAfterCommon(enemy);
-            if (isNorfairRidley)
-                ResolveNorfairRidleyPowerBombAfterCommon(enemy);
             if (isDraygonBody)
                 ResolveDraygonReaction(enemy, samus);
 
@@ -3397,6 +3391,7 @@ public sealed partial class RoomEnemySystem
         enemy.Health = damage >= enemy.Health
             ? (ushort)0
             : unchecked((ushort)(enemy.Health - damage));
+        QueueEnemySound(SoundEffectLibrary2Sounds.EnemyContactDamaged, maximumQueued: 1);
         if (enemy.Health != 0)
             return;
 

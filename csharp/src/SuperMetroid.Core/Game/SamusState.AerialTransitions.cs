@@ -331,7 +331,9 @@ public sealed partial class SamusState
             HorizontalSpeed.RequestNormalSuitPaletteRestore();
 
         Pose = targetPose;
-        RefreshCollisionRadii(bus);
+        // `$91:FDAE` leaves $0B00 at the spin body's radius; alpha's SetSamusRadius takes
+        // the wall-jump body only next frame, so this frame's enemy and projectile
+        // collision still use the compact spin radius.
 
         // `$91:F2D3` clears acceleration and the ordinary base-speed pair before
         // `$90:9949` installs the launch. It deliberately does *not* touch the extra-run
@@ -697,6 +699,25 @@ public sealed partial class SamusState
     /// it is deliberately not retained until some later shot succeeds.
     /// </summary>
     public void ClearPoseTransitionShotDirection() => PoseTransitionShotDirection = 0;
+
+    /// <summary>
+    /// <c>InitializeSamusPose_NormalJumping</c> ($91:F543) for a normal-jump pose already
+    /// installed by a transition that reaches the ordinary initializer ($91:F433). Stored shine
+    /// diverts the six shinespark-capable poses into a windup; otherwise retained extra run
+    /// speed selects deceleration and a fresh Shoot press arms the transition shot.
+    /// </summary>
+    /// <returns>True when the initializer began a shinespark windup instead.</returns>
+    internal bool InitializeInstalledNormalJumpPose(
+        ISnesAddressSpace bus,
+        SamusMovementType previousMovementType,
+        ushort controllerNewInput)
+    {
+        if (TryBeginShinesparkWindup(bus, Pose, previousMovementType))
+            return true;
+        InitializeOrdinaryAerialAcceleration();
+        PublishNormalJumpPoseShotDirection(bus, controllerNewInput);
+        return false;
+    }
 
     /// <summary>Publishes $91:F5CF-F5E6 after an accepted normal-jump pose initializer.</summary>
     internal void PublishNormalJumpPoseShotDirection(ISnesAddressSpace bus, ushort controllerNewInput)

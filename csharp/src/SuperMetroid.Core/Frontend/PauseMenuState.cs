@@ -162,22 +162,10 @@ internal sealed partial class PauseMenuState
             return false;
         }
 
-        // HandlePauseScreenStart runs from both stable pages. It is intentionally checked
-        // after the delayed-held filter rather than from the raw NMI edge: a fresh press is
-        // excluded for three frames by $80:8146 before becoming menu input.
-        if ((delayedPressed & SnesButton.Start) != 0)
-        {
-            audio?.QueueSound(SoundEffectLibrary1Sounds.MenuConfirm, maximumQueued: 6);
-            SetPauseButtonLabelMode(1);
-            return true;
-        }
-
         if (ScreenMode == 0)
         {
-            // Map arrows read the ordinary held controller word, not the delayed chrome
-            // input. An accepted pulse keeps running after release, as on the cartridge.
-            if (mapScroll.Step(heldInput ?? delayedHeldInput, ref mapHorizontalScroll, ref mapVerticalScroll))
-                audio?.QueueSound(SoundEffectLibrary1Sounds.MapScroll, maximumQueued: 6);
+            // `$82:9120`: L/R, then Start, then map scrolling. A Start press does not stop
+            // the same frame's scroll pulse.
             if ((delayedPressed & SnesButton.R) != 0)
             {
                 audio?.QueueSound(SoundEffectLibrary1Sounds.MenuConfirm, maximumQueued: 6);
@@ -185,27 +173,46 @@ internal sealed partial class PauseMenuState
                 transition = PauseMenuTransition.MapToEquipmentFadeOut;
                 transitionBrightness = 15;
             }
-            return false;
+            bool mapStart = HandleStartButton(delayedPressed);
+            // Map arrows read the ordinary held controller word, not the delayed chrome
+            // input. An accepted pulse keeps running after release, as on the cartridge.
+            if (mapScroll.Step(heldInput ?? delayedHeldInput, ref mapHorizontalScroll, ref mapVerticalScroll))
+                audio?.QueueSound(SoundEffectLibrary1Sounds.MapScroll, maximumQueued: 6);
+            return mapStart;
         }
 
-        if ((delayedPressed & SnesButton.L) != 0)
-        {
-            audio?.QueueSound(SoundEffectLibrary1Sounds.MenuConfirm, maximumQueued: 6);
-            SetPauseButtonLabelMode(0);
-            transition = PauseMenuTransition.EquipmentToMapFadeOut;
-            transitionBrightness = 15;
-            return false;
-        }
-
-        // EquipmentScreenMain consumes the ordinary $8F rising-edge word for D-pad/A;
-        // only the shared L/R/Start chrome uses the delayed-held word at $05DF.
+        // `$82:9142`: EquipmentScreenMain, then L/R, then Start, so an A press in the
+        // frame that unpauses still toggles the selected item. EquipmentScreenMain consumes
+        // the ordinary $8F rising-edge word for D-pad/A; only the shared L/R/Start chrome
+        // uses the delayed-held word at $05DF.
         HandleEquipmentInput(newlyPressed, nmiFrameCounter8);
         // EquipmentScreenMain refreshes the reserve amount independently of selected
         // label edits. Keep this per-frame write without rebuilding the whole tilemap,
         // which would erase the cartridge's same-frame VAR overrun.
         WriteReserveSupplyDigits();
         UploadEquipmentTilemap();
-        return false;
+        if ((delayedPressed & SnesButton.L) != 0)
+        {
+            audio?.QueueSound(SoundEffectLibrary1Sounds.MenuConfirm, maximumQueued: 6);
+            SetPauseButtonLabelMode(0);
+            transition = PauseMenuTransition.EquipmentToMapFadeOut;
+            transitionBrightness = 15;
+        }
+        return HandleStartButton(delayedPressed);
+    }
+
+    /// <summary>
+    /// <c>Handle_PauseScreen_StartButton</c> at <c>$82:A5B7</c>, run last on both stable
+    /// pages. It reads the delayed-held word: a fresh press is excluded for three frames by
+    /// <c>$80:8146</c> before becoming menu input. True requests game state $10.
+    /// </summary>
+    private bool HandleStartButton(SnesButton delayedPressed)
+    {
+        if ((delayedPressed & SnesButton.Start) == 0)
+            return false;
+        audio?.QueueSound(SoundEffectLibrary1Sounds.MenuConfirm, maximumQueued: 6);
+        SetPauseButtonLabelMode(1);
+        return true;
     }
 
     /// <summary>

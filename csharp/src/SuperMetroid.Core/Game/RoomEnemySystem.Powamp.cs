@@ -376,15 +376,12 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
+        // `$A8:C5A6-$C5B5`: the balloon is deleted, the spikes fire, and the body goes
+        // through EnemyDeath with whatever the spike loop left in A as its animation.
         balloon.Health = 0;
         balloon.Properties = balloon.Properties.With(EnemyProperties.Deleted);
-        SpawnPowampSpikeBurst(body);
-        if (!body.Properties.HasAny(EnemyProperties.Deleted))
-        {
-            body.Health = 0;
-            body.Properties = body.Properties.With(EnemyProperties.Deleted);
-            EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
-        }
+        ushort accumulator = SpawnPowampSpikeBurst(body);
+        StartGenericEnemyDeath(body, accumulator);
     }
 
     /// <summary>Ports the body-only private tail of <c>EnemyTouch_Powamp</c>.</summary>

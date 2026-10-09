@@ -40,7 +40,7 @@ public sealed partial class SuperMetroidRuntime
         // The draw handler can append spin-stop/charge sounds. Do not publish the
         // prior gameplay frame's liquid, movement, projectile or PLM requests again.
         Samus?.LiquidPhysics.BeginFrameSoundRequests(BombProjectiles.PowerBombExplosion);
-        RunEnemyMainPhase(processingListPrepared: false);
+        RunEnemyMainPhase(processingListPrepared: false, Camera?.PreviousSamusPoint);
         // The Samus-collision pass belongs to gameplay only.
         if (runEnemyProjectiles)
             RunEnemyProjectileHandler();
@@ -56,9 +56,14 @@ public sealed partial class SuperMetroidRuntime
     /// <c>Enemy_Projectile_Handler</c> ($86:8104): runs every projectile unless
     /// <c>EnemyProjectile_Enable</c> is clear (time freeze or X-ray suspension).
     /// </summary>
+    /// <summary>
+    /// <c>Enemy_Projectile_Handler</c> ($86:8104). State eight calls it unconditionally and it
+    /// checks only the enable bit X-ray clears, so its instructions keep running while time
+    /// is frozen for a reserve refill.
+    /// </summary>
     private void RunEnemyProjectileHandler()
     {
-        if (TimeIsFrozen || Samus?.Xray.AreEnemyProjectilesSuspended == true || LevelData is null || Camera is null)
+        if (Samus?.Xray.AreEnemyProjectilesSuspended == true || LevelData is null || Camera is null)
             return;
         Enemies.StepEnemyProjectileInstructions(
             LevelData, Samus, Camera.XPosition, Camera.YPosition,

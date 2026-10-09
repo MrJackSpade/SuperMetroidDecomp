@@ -398,66 +398,7 @@ public sealed partial class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.MainGameplay:
-                // DisplayMessageBox is a nested NMI-waiting coroutine inside gameplay
-                // state eight. Its final acknowledgement returns below the normal bank-$90
-                // pause-check call site, so Start may neither enter pause while the box is
-                // visible nor on the exact frame it closes. Preserve entry state before
-                // StepFrame consumes the acknowledgement; checking IsActive afterward alone
-                // misses that final suspended frame.
-                bool messageBoxOwnedFrame = runtime!.MessageBox.IsActive;
-                bool mapStationMessageOwnedFrame = messageBoxOwnedFrame &&
-                    runtime.MessageBox.MessageId == GameplayMessageIds.MapDataAccessCompleted;
-                // Station command six installs an inert new-state handler before this
-                // frame. Retraction can restore normal input later in StepFrame, after the
-                // cartridge's Samus-handler call site has already passed pause-check.
-                bool samusInputLockedAtFrameStart = runtime.Samus?.InputLocked == true;
-                runtime!.StepFrame(controllerInput, queueEchoSound: () => gameplayAudio.QueueEcho(runtime), checkLowHealth: () => gameplayAudio.CheckLowHealth(runtime));
-                HandleSaveStationPersistence();
-                PublishGameplay(runtime);
-                HandleGunshipLandingSave();
-                if (RouteOutOfHealth())
-                {
-                    // `$82:DB69` publishes the next outer state at the end of this already-
-                    // completed gameplay call. Nothing else may replace it on the trigger
-                    // frame—not pause, an elevator handoff, or a pending ordinary door.
-                }
-                else if (runtime.Enemies.LastGunshipEvent == GunshipFrameEvent.EscapeTakeoffCompleted)
-                {
-                    BeginZebesEscapeFade();
-                }
-                else if (mapStationMessageOwnedFrame && !runtime.MessageBox.IsActive)
-                {
-                    // Bank $85's message-close return explicitly selects state $0C
-                    // for map acquisition, independently of Start or station input lock.
-                    // Keep this separate from admission of a manual pause request.
-                    BeginMapStationPauseFade();
-                    pauseMenu = null;
-                    GameState = SuperMetroidGameState.PausingDarkening;
-                }
-                else if (CanEnterPause(messageBoxOwnedFrame, samusInputLockedAtFrameStart))
-                {
-                    // Samus_PauseCheck at `$90:EA45` executes during the already-completed
-                    // state-eight frame. It initializes both fade counters and publishes
-                    // state $0C; the following dispatcher call consumes the first delay.
-                    BeginPauseFade(PauseFadeTiming.FullyLit);
-                    pauseMenu = null;
-                    GameState = SuperMetroidGameState.PausingDarkening;
-                }
-                else if (runtime.LastCeresElevatorShaftRoomMain.DepartureRequestedThisFrame)
-                {
-                    // `$89:ACC3` has already selected standing pose, locked Samus, and
-                    // published game state $20. The following dispatcher call owns the
-                    // 60-frame hold; do not decrement it on this trigger frame.
-                    ceresDeparture.Begin();
-                    GameState = SuperMetroidGameState.MadeItToCeresElevator;
-                }
-                else if (runtime.HasPendingDoorTransition)
-                {
-                    // `$94:938B/$93CE` changes WRAM game_state during the gameplay call.
-                    // The already-produced gameplay image remains this frame's image; the
-                    // following dispatcher call begins state `$09` from that publication.
-                    GameState = SuperMetroidGameState.HitDoorBlock;
-                }
+                RunMainGameplayState(controllerInput, gameplayAudio);
                 break;
 
             case SuperMetroidGameState.ReserveTanksAuto:
@@ -474,7 +415,7 @@ public sealed partial class SuperMetroidGame
                             runtime.NmiFrameCounter);
                         if (reserveStep.RefillSoundRequested)
                             audio.QueueSoundAndGetAccumulator(SoundEffectLibrary3Sounds.ReserveRefill, 3,
-                                soundSuppressed: unchecked((short)runtime.PowerBombExplosionStatus) < 0);
+                                soundSuppressed: runtime.PowerBombExplosionSuppressesSounds);
                         // $82:DC18-$DC24 clears the freeze and restores state eight
                         // BEFORE calling gameplay. Unfreezing after StepFrame lets
                         // Samus resume while projectiles/enemies remain a frame behind.
@@ -491,7 +432,7 @@ public sealed partial class SuperMetroidGame
                 // first; their native queue occupancy affects this final Max6 call.
                 CollectTranslatedAudioRequests(gameplayAudio);
                 runtime.Samus!.HealthWarning.Update(runtime.Samus.Health, audio,
-                    soundSuppressed: unchecked((short)runtime.PowerBombExplosionStatus) < 0);
+                    soundSuppressed: runtime.PowerBombExplosionSuppressesSounds);
                 break;
 
             case SuperMetroidGameState.DeathSequenceStart:
@@ -769,7 +710,9 @@ public sealed partial class SuperMetroidGame
                 // Samus command $0C also calls LoadSamusSuitPalette at $91:E6CB.
                 // Equipment bits are live, but the restored gameplay palette is cached.
                 resumedSamus.LoadSuitPalette(bus, runtime.Cgram);
-                runtime.Plms.ReleaseMapStationInputOnUnpause(resumedSamus);
+                runtime.Plms.ResumeMapStationsAfterUnpause();
+                resumedSamus.ReleaseRefillStationLockOnUnpause();
+                runtime.Enemies.ClearElevatorFlagsOnGameplayResume();
                 runtime!.RunNmi(controllerInput, mainLoopRequestedNmi: true);
                 pauseMenu = null;
                 BeginPauseFade(0);
@@ -778,11 +721,9 @@ public sealed partial class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.Unpausing:
-                // State $12 resumes the full state-eight loop behind an INIDISP fade.
-                runtime!.StepFrame(controllerInput, queueEchoSound: () => gameplayAudio.QueueEcho(runtime), checkLowHealth: () => gameplayAudio.CheckLowHealth(runtime));
-                PublishGameplay(runtime);
-                if (runtime.HasPendingDoorTransition)
-                    GameState = SuperMetroidGameState.HitDoorBlock;
+                // `$82:93A4` runs the whole state-eight routine behind the INIDISP fade, so
+                // its out-of-health, pause, door and other publications all apply here.
+                RunMainGameplayState(controllerInput, gameplayAudio);
                 AdvancePauseFade(brightening: true);
                 ApplyDisplayBrightness(pauseBrightness);
                 if (pauseBrightness == PauseFadeTiming.FullyLit)
@@ -873,6 +814,9 @@ public sealed partial class SuperMetroidGame
                         GameState = SuperMetroidGameState.MainGameplay;
                         gameplayFadeLeadsToCeresArrival = false;
                         ClearScreenFadeTiming();
+                        // HandleFadingIn wrote $51 = $0F this frame; the level is published
+                        // before it rises, so record the register directly.
+                        pauseBrightness = PauseFadeTiming.FullyLit;
                     }
                 }
                 break;
@@ -899,17 +843,23 @@ public sealed partial class SuperMetroidGame
                 SamusState doorSamus = runtime.Samus
                     ?? throw new InvalidOperationException("Door transition requires live Samus state.");
                 SamusMovementType doorMovementType = doorSamus.ReadMovementType(bus);
+                // A live power-bomb explosion drops all three requests inside the queue
+                // routines, so neither ring holds anything for $E29E to wait on.
+                bool doorSoundsSuppressed = runtime.PowerBombExplosionSuppressesSounds;
                 if (doorMovementType is
                     SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
                 {
-                    audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x32), maximumQueued: 15);
+                    audio.QueueSoundAndGetAccumulator(SoundEffectLibrary1Sounds.StopSpinJump,
+                        maximumQueued: 15, soundSuppressed: doorSoundsSuppressed);
                 }
                 else if ((controllerInput & (ushort)SnesButton.X) == 0 &&
                     runtime.Projectiles.FlareCounter < 16)
                 {
-                    audio.QueueSound(SoundEffectLibrary1Sounds.CancelAll, maximumQueued: 15);
+                    audio.QueueSoundAndGetAccumulator(SoundEffectLibrary1Sounds.CancelAll,
+                        maximumQueued: 15, soundSuppressed: doorSoundsSuppressed);
                 }
-                audio.QueueSound(SoundEffectLibrary2Sounds.CancelAll, maximumQueued: 15);
+                audio.QueueSoundAndGetAccumulator(SoundEffectLibrary2Sounds.CancelAll,
+                    maximumQueued: 15, soundSuppressed: doorSoundsSuppressed);
                 // $82:E279 follows both entry cancellation commands, not precedes them.
                 audio.DoorTransitionSoundsDisabled = true;
                 // State $09 calls state $0A synchronously for ordinary doors; state $0A
@@ -925,12 +875,15 @@ public sealed partial class SuperMetroidGame
                 PublishGameplay(runtime!);
                 if (doorTransition.Phase == DoorTransitionPhase.Complete)
                 {
+                    // $82:E72F ORs $1F into $51 before the destination fade-in, so a door
+                    // taken mid-pause-fade still leaves the screen fully lit.
+                    pauseBrightness = PauseFadeTiming.FullyLit;
                     audio.DoorTransitionSoundsDisabled = false;
                     // The cartridge resumes spin audio only after sound admission is
                     // restored at the final fade boundary, not on each fade frame.
                     if (SamusSpinSoundCommand.Select(bus, runtime!.Samus!) is { } spinSound)
                         audio.QueueSoundAndGetAccumulator(spinSound, maximumQueued: 9,
-                            soundSuppressed: runtime.IsAttractDemo || (short)runtime.PowerBombExplosionStatus < 0);
+                            soundSuppressed: runtime.IsAttractDemo || runtime.PowerBombExplosionSuppressesSounds);
                     GameState = SuperMetroidGameState.MainGameplay;
                 }
                 break;
@@ -1320,6 +1273,76 @@ public sealed partial class SuperMetroidGame
         endingFadeBrightness = 15;
         endingFadeCounter = 0;
         GameState = SuperMetroidGameState.SamusEscapesFromZebes;
+    }
+
+    /// <summary>
+    /// <c>GameState_8_MainGameplay</c>: one gameplay frame and the state publications its
+    /// routines make. State $12 (<c>$82:93A1</c>) calls the same routine before fading in.
+    /// </summary>
+    private void RunMainGameplayState(ushort controllerInput, GameplayAudioFramePublication gameplayAudio)
+    {
+        // DisplayMessageBox is a nested NMI-waiting coroutine inside gameplay
+        // state eight. Its final acknowledgement returns below the normal bank-$90
+        // pause-check call site, so Start may neither enter pause while the box is
+        // visible nor on the exact frame it closes. Preserve entry state before
+        // StepFrame consumes the acknowledgement; checking IsActive afterward alone
+        // misses that final suspended frame.
+        bool messageBoxOwnedFrame = runtime!.MessageBox.IsActive;
+        bool mapStationMessageOwnedFrame = messageBoxOwnedFrame &&
+            runtime.MessageBox.MessageId == GameplayMessageIds.MapDataAccessCompleted;
+        // Station command six installs an inert new-state handler before this
+        // frame. Retraction can restore normal input later in StepFrame, after the
+        // cartridge's Samus-handler call site has already passed pause-check.
+        bool samusInputLockedAtFrameStart = runtime.Samus?.InputLocked == true;
+        runtime!.StepFrame(controllerInput, queueEchoSound: () => gameplayAudio.QueueEcho(runtime), checkLowHealth: () => gameplayAudio.CheckLowHealth(runtime));
+        HandleSaveStationPersistence();
+        PublishGameplay(runtime);
+        HandleGunshipLandingSave();
+        if (RouteOutOfHealth())
+        {
+            // `$82:DB69` publishes the next outer state at the end of this already-
+            // completed gameplay call. Nothing else may replace it on the trigger
+            // frame—not pause, an elevator handoff, or a pending ordinary door.
+        }
+        else if (runtime.Enemies.LastGunshipEvent == GunshipFrameEvent.EscapeTakeoffCompleted)
+        {
+            BeginZebesEscapeFade();
+        }
+        else if (mapStationMessageOwnedFrame && !runtime.MessageBox.IsActive)
+        {
+            // Bank $85's message-close return explicitly selects state $0C
+            // for map acquisition, independently of Start or station input lock.
+            // Keep this separate from admission of a manual pause request.
+            pauseMenu = null;
+            GameState = SuperMetroidGameState.PausingDarkening;
+        }
+        else if (CanEnterPause(messageBoxOwnedFrame, samusInputLockedAtFrameStart))
+        {
+            // Samus_PauseCheck at `$90:EA45` executes during the already-completed
+            // state-eight frame. It initializes both fade counters and publishes
+            // state $0C; the following dispatcher call consumes the first delay.
+            BeginGameplayPauseFade();
+            pauseMenu = null;
+            GameState = SuperMetroidGameState.PausingDarkening;
+        }
+        else if (runtime.LastCeresElevatorShaftRoomMain.DepartureRequestedThisFrame)
+        {
+            // `$89:ACC3` has already selected standing pose, locked Samus, and
+            // published game state $20. The following dispatcher call owns the
+            // 60-frame hold; do not decrement it on this trigger frame.
+            ceresDeparture.Begin();
+            GameState = SuperMetroidGameState.MadeItToCeresElevator;
+        }
+        else if (runtime.HasPendingDoorTransition && !runtime.MessageBox.IsActive)
+        {
+            // `$94:938B/$93CE` changes WRAM game_state during the gameplay call.
+            // The already-produced gameplay image remains this frame's image; the
+            // following dispatcher call begins state `$09` from that publication.
+            // A message box opened later in the same call (a station's completion
+            // notice in the PLM handler) suspends that call in bank $85 until it
+            // closes, so the door's state waits for the box's final frame.
+            GameState = SuperMetroidGameState.HitDoorBlock;
+        }
     }
 
     private bool RouteOutOfHealth()

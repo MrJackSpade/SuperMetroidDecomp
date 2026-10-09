@@ -8,6 +8,9 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Copies Ridley's authored RGB5 images while retaining the native reveal pointer order.</summary>
 public static class NorfairRidleyColorExtractor
 {
+    /// <summary>Reads Ridley's initial palette and zero-terminated native reveal-pointer sequence, preserving authored row order and rejecting invalid pointers or high-bit colors.</summary>
+    /// <param name="bus">Supported-cartridge address space containing the Norfair Ridley palette data and reveal pointer table.</param>
+    /// <returns>UTF-8 JSON bytes for the versioned Norfair Ridley color catalog.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

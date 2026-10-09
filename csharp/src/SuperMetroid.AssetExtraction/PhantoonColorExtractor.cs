@@ -8,6 +8,9 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Extracts Phantoon's health, fade-out, and ship-power RGB5 targets.</summary>
 public static class PhantoonColorExtractor
 {
+    /// <summary>Reads all Phantoon health bands, fade-out colors, and ship-power targets, rejects high-bit colors, and serializes their RGB5 components.</summary>
+    /// <param name="bus">Supported-cartridge address space containing the complete Phantoon color tables.</param>
+    /// <returns>UTF-8 JSON bytes for the versioned Phantoon color catalog.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

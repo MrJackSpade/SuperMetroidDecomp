@@ -8,6 +8,9 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Exports complete Mother Brain death-fade and exploded-door RGB5 images.</summary>
 public static class MotherBrainDeathColorExtractor
 {
+    /// <summary>Reads every Mother Brain body, leg, and corpse death-fade row plus the exploded-door palette, rejects high-bit colors, and serializes RGB5 data.</summary>
+    /// <param name="bus">Supported-cartridge address space containing the death-fade and door palette tables.</param>
+    /// <returns>UTF-8 JSON bytes for the complete versioned Mother Brain death-color catalog.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

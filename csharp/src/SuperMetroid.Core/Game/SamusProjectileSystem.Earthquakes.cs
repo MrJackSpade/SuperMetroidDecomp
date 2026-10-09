@@ -10,9 +10,12 @@ public sealed partial class SamusProjectileSystem
     internal void BindRoomEarthquakeOwner(RoomEnemySystem owner)
         => _roomEarthquakeOwner = owner ?? throw new ArgumentNullException(nameof(owner));
 
-    private void RequestSuperMissileEarthquake()
+    /// <param name="earthquakeType">
+    /// The impact's type at $93:8125, or the enemy-hit type at $A0:9CB7/$A0:A1E9.
+    /// </param>
+    private void RequestSuperMissileEarthquake(ushort earthquakeType)
     {
-        EarthquakeType = SamusProjectileRomData.NonBeam.SuperMissileEarthquakeType;
+        EarthquakeType = earthquakeType;
         EarthquakeTimer = SamusProjectileRomData.NonBeam.SuperMissileEarthquakeDuration;
         if (_roomEarthquakeOwner is { } room)
         {

@@ -78,8 +78,8 @@ public sealed partial class RoomEnemySystem
             // no-op shell hit therefore still marks the beam and shakes for a Super Missile.
             if (family == SamusProjectileFamily.SuperMissile)
             {
-                EarthquakeTimer = 30;
-                EarthquakeType = 18;
+                EarthquakeTimer = SamusProjectileRomData.NonBeam.SuperMissileEarthquakeDuration;
+                EarthquakeType = SamusProjectileRomData.NonBeam.SuperMissileEnemyHitEarthquakeType;
             }
 
             if (hitboxShotAi == PhantoonNoOpHitboxCallback ||

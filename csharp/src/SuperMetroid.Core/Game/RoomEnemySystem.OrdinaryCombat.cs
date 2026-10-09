@@ -1084,8 +1084,8 @@ public sealed partial class RoomEnemySystem
                 {
                     // The multibox prelude requests this earthquake before dispatching the
                     // hitbox callback, even when that callback is the no-op shell region.
-                    EarthquakeTimer = 30;
-                    EarthquakeType = 18;
+                    EarthquakeTimer = SamusProjectileRomData.NonBeam.SuperMissileEarthquakeDuration;
+                    EarthquakeType = SamusProjectileRomData.NonBeam.SuperMissileEnemyHitEarthquakeType;
                 }
 
                 // Golden's definition installs $D667, but its ordinary extended body

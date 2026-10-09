@@ -152,6 +152,12 @@ public static class SamusProjectileRomData
         public const ushort SuperMissileEarthquakeType = 20;
         /// <summary>$93:812B, KillProjectileInner: thirty room-shaking calls after Super Missile impact.</summary>
         public const ushort SuperMissileEarthquakeDuration = 30;
+        /// <summary>
+        /// $A0:9CB7 / $A0:A1E9, enemy/projectile collision: a Super Missile touching an enemy
+        /// starts this quake for the same thirty calls. Crawlers fall only for the impact's
+        /// type, so an enemy hit leaves them crawling.
+        /// </summary>
+        public const ushort SuperMissileEnemyHitEarthquakeType = 18;
     }
 
     /// <summary>Beam-trail instructions and direction/frame offset families.</summary>

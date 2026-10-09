@@ -17,6 +17,7 @@ namespace SuperMetroid.AssetExtraction;
 /// </summary>
 public static class RoomVisualLayoutFiles
 {
+    /// <summary>Stock manifest filename recording version-one provenance and each retail source's address, block dimensions, filename, and JSON byte hash.</summary>
     public const string ManifestFileName = "room-layouts.json";
     private const int FormatVersion = 1;
 
@@ -32,8 +33,20 @@ public static class RoomVisualLayoutFiles
     /// <summary>Distinct visual sources selected by retail room states and their row strides.</summary>
     public static IReadOnlyDictionary<int, int> RetailSources { get; } = BuildRetailSources();
 
+    /// <summary>Formats the stable per-source stock/override JSON filename without reading or validating the source.</summary>
+    /// <param name="sourceAddress">Native 24-bit compressed level-data identity, shared by all room states using that source; membership validation occurs during loading.</param>
+    /// <returns><c>level-</c> followed by the uppercase hexadecimal address padded to at least six digits and <c>.json</c>.</returns>
     public static string SourceFileName(int sourceAddress) => $"level-{sourceAddress:X6}.json";
 
+    /// <summary>Decompresses every distinct retail room visual source and exports row-major foreground/background metatile-and-flip words without collision types or BTS.</summary>
+    /// <param name="bus">Non-null import-capable cartridge source for the compressed level streams identified by <see cref="RetailSources"/>.</param>
+    /// <param name="directory">Family directory, created if absent; receives new per-source JSON files and the required manifest.</param>
+    /// <param name="sourceCartridgeSha256">Nonblank caller-supplied provenance hash, recorded without recomputation and checked against the supported identity on stock load.</param>
+    /// <remarks>Widths and heights use 16-pixel blocks. Foreground allocation determines height; absent trailing background words become zero, and every exported word keeps only bits 0..11. Create-new writes refuse existing files and do not roll back earlier outputs.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="ArgumentException">The directory/source hash is blank or the address space lacks cartridge import access.</exception>
+    /// <exception cref="InvalidDataException">A compressed stream, foreground/BTS allocation, row stride, or trailing background-word boundary is invalid.</exception>
+    /// <exception cref="IOException">An output exists or filesystem access fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256)
     {
@@ -59,6 +72,14 @@ public static class RoomVisualLayoutFiles
             new LayoutFileManifest(FormatVersion, sourceCartridgeSha256, entries), JsonOptions);
     }
 
+    /// <summary>Checks the complete retail-source manifest and stock hashes, then selects independently replaceable initial room visual layouts.</summary>
+    /// <param name="stockDirectory">Family directory containing all per-source stock JSON files and the required provenance/dimension manifest.</param>
+    /// <param name="overrideDirectory">Optional family directory; each absent source JSON independently falls back to stock.</param>
+    /// <returns>A ROM-independent catalog of selected initial foreground/background visual words, preserving gameplay allocation, collision/BTS data, and later PLM writes.</returns>
+    /// <remarks>Stock provenance and every byte hash remain mandatory with overrides. Strict selected JSON must retain source identity, original block dimensions, array extents, and twelve-bit words; no override manifest is needed. An overridden stock document is hash-checked but not separately deserialized or compared with cartridge bytes.</remarks>
+    /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is null, empty, or whitespace.</exception>
+    /// <exception cref="InvalidDataException">Provenance, coverage, integrity, strict JSON, source identity, dimensions, or visual word arrays are invalid.</exception>
+    /// <exception cref="IOException">A required stock or selected override file cannot be read.</exception>
     public static RoomVisualLayoutCatalog Load(string stockDirectory, string? overrideDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
@@ -118,6 +139,9 @@ public static class RoomVisualLayoutFiles
         return new RoomVisualLayoutCatalog(selected);
     }
 
+    /// <summary>Loads and validates every stock source through <see cref="Load"/> with no overrides, cartridge reads, or file writes.</summary>
+    /// <param name="directory">Room-layout family directory containing the manifest and all referenced stock JSON files.</param>
+    /// <exception cref="InvalidDataException">Stock provenance, hashes, schema, coverage, or layouts are invalid.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
     private static ReadOnlyDictionary<int, int> BuildRetailSources()

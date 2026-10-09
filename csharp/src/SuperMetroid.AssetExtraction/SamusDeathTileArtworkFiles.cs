@@ -20,6 +20,15 @@ public static class SamusDeathTileArtworkFiles
         WriteIndented = true,
     };
 
+    /// <summary>Exports the five $0400-byte death-explosion character transfers as a 64-by-160 indexed PNG and validates the written stock installation.</summary>
+    /// <param name="bus">Cartridge source for bank-$9B pages $8400, $8800, $8C00, $9000, and $8000 in native queue order.</param>
+    /// <param name="directory">Artwork directory, created if absent; existing PNG and companion manifest are overwritten.</param>
+    /// <param name="sourceCartridgeSha256">Caller-supplied provenance recorded verbatim; post-write loading requires the supported cartridge hash.</param>
+    /// <remarks>Pixel indices represent four-bit OBJ pens, not runtime colors. Writes are separate, with no rollback if later file/stock validation fails; animation timing and OAM placement are not exported.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="ArgumentException">The directory is null, empty, or whitespace.</exception>
+    /// <exception cref="InvalidDataException">Transfer coverage, provenance, or generated indexed artwork is incompatible.</exception>
+    /// <exception cref="IOException">Filesystem output or post-write input fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -47,6 +56,13 @@ public static class SamusDeathTileArtworkFiles
         _ = Load(directory, null);
     }
 
+    /// <summary>Checks stock death-explosion provenance, hash, and PNG admission before selecting an optional replacement atlas.</summary>
+    /// <param name="stockDirectory">Artwork directory containing the required death-explosion PNG and version-one manifest.</param>
+    /// <param name="overrideDirectory">Optional artwork directory; null or an absent replacement PNG selects validated stock.</param>
+    /// <returns>A ROM-independent atlas for all five fixed transfers, retaining selected character pixels without changing destinations, palettes, or sequence timing.</returns>
+    /// <remarks>Overrides need no manifest but must decode as the same 64-by-160 four-bit character sheet. Required stock is validated even when replaced.</remarks>
+    /// <exception cref="InvalidDataException">Manifest provenance/version, stock hash, or selected PNG dimensions/indices are invalid; admission errors include the source filename.</exception>
+    /// <exception cref="IOException">A required stock or selected override file cannot be read.</exception>
     public static SamusDeathTileAtlas Load(string stockDirectory, string? overrideDirectory)
     {
         SamusArtworkFile manifestFile = SamusArtworkFile.Read(Path.Combine(stockDirectory, SamusDeathTileAtlasFormat.ManifestFileName));

@@ -20,6 +20,15 @@ public static class SamusArmCannonArtworkFiles
         WriteIndented = true,
     };
 
+    /// <summary>Exports 253 pose selectors, bounded bank-$90 drawing descriptors, ten direction styles/tile lists, and twelve cannon-cover characters, then verifies planar PNG round-trip.</summary>
+    /// <param name="bus">Non-null import-capable cartridge source for cover placement/OBJ attributes and bank-$9A character pixels.</param>
+    /// <param name="directory">Artwork directory, created if absent; existing placement JSON, 96-by-8 indexed PNG, and companion manifest are overwritten.</param>
+    /// <param name="sourceCartridgeSha256">Caller-supplied provenance hash recorded verbatim; the post-write load requires the supported cartridge identity.</param>
+    /// <remarks>The sixteen-color PNG palette is diagnostic. Writes are separate and not rolled back if provenance, placement, or round-trip validation later fails.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="ArgumentException">The directory is blank or the address space lacks cartridge import access.</exception>
+    /// <exception cref="InvalidDataException">The generated artwork, provenance, or decoded transfer bytes fail validation.</exception>
+    /// <exception cref="IOException">Filesystem output or post-write input fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -85,6 +94,13 @@ public static class SamusArmCannonArtworkFiles
         }
     }
 
+    /// <summary>Validates stock cannon-cover placement and pixels, then independently selects optional replacement JSON and PNG files.</summary>
+    /// <param name="stockDirectory">Artwork directory containing the required placement JSON, indexed PNG, and pinned-cartridge manifest.</param>
+    /// <param name="overrideDirectory">Optional artwork directory; each missing replacement file independently falls back to validated stock.</param>
+    /// <returns>A ROM-independent catalog of owned cover placement/attribute selectors and encoded character pixels.</returns>
+    /// <remarks>Stock provenance, both byte hashes, and production codec admission are mandatory even with overrides. Overrides need no manifest; strict placement JSON retains bounded pose/descriptor/direction/source domains, while the PNG supplies twelve four-bit characters.</remarks>
+    /// <exception cref="InvalidDataException">Manifest compatibility, stock hashes, strict JSON, selectors, or indexed artwork are invalid; admission errors identify the offending filename.</exception>
+    /// <exception cref="IOException">A required stock or selected override file cannot be read.</exception>
     public static SamusArmCannonArtworkCatalog Load(string stockDirectory, string? overrideDirectory)
     {
         SamusArtworkFile manifestFile = SamusArtworkFile.Read(Path.Combine(stockDirectory, ManifestFileName));

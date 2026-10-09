@@ -10,7 +10,9 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Extracts the two authored direct small-OBJ atmospheric lists as editable JSON.</summary>
 public static class SamusAtmosphericArtworkFiles
 {
+    /// <summary>Stock/override JSON filename for the four-frame footstep list and shared four-frame lava/dust direct-OBJ list.</summary>
     public const string ArtworkFileName = "samus-atmosphere.json";
+    /// <summary>Stock manifest filename recording version-one format, cartridge provenance, and the atmospheric JSON's SHA-256.</summary>
     public const string ManifestFileName = "samus-atmosphere-manifest.json";
     private const int FormatVersion = 1;
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -22,6 +24,15 @@ public static class SamusAtmosphericArtworkFiles
         WriteIndented = true,
     };
 
+    /// <summary>Checks the native atmospheric pointer bindings and exports the two authored four-word direct small-OBJ attribute lists.</summary>
+    /// <param name="bus">Cartridge source for type-one footsteps at $90:8C0F and the shared type-4/6/7 lava/dust list at $90:8C17.</param>
+    /// <param name="directory">Artwork directory, created if absent; existing artwork JSON and companion manifest are overwritten.</param>
+    /// <param name="sourceCartridgeSha256">Caller-supplied provenance recorded verbatim; the post-write load requires the supported cartridge hash.</param>
+    /// <remarks>Type two must keep its intentional zero pointer and mutable-memory path; it is not exported. Packed words retain tile, palette, priority, and flips. Separate writes are not rolled back on later validation failure.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="ArgumentException">The directory is null, empty, or whitespace.</exception>
+    /// <exception cref="InvalidDataException">Native pointer bindings, provenance, or generated list structure are incompatible.</exception>
+    /// <exception cref="IOException">Filesystem output or post-write input fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -46,6 +57,13 @@ public static class SamusAtmosphericArtworkFiles
         _ = Load(directory, null);
     }
 
+    /// <summary>Validates stock atmospheric attributes before selecting an optional complete two-list JSON replacement.</summary>
+    /// <param name="stockDirectory">Artwork directory containing the required version-one JSON and pinned-cartridge manifest.</param>
+    /// <param name="overrideDirectory">Optional artwork directory; null or absent artwork JSON uses validated stock.</param>
+    /// <returns>A ROM-independent catalog that captures both lists without retaining deserialized caller arrays.</returns>
+    /// <remarks>Stock provenance, byte hash, and strict schema/list-length admission are checked even with overrides. Replacement JSON needs both four-word lists but no manifest; packed attribute values themselves are unrestricted, and type-two/animation mechanics are unchanged.</remarks>
+    /// <exception cref="InvalidDataException">Provenance, hash, strict JSON, version, or list dimensions are invalid; admission errors include the source filename.</exception>
+    /// <exception cref="IOException">A required stock or selected override file cannot be read.</exception>
     public static SamusAtmosphericArtworkCatalog Load(string stockDirectory, string? overrideDirectory)
     {
         SamusArtworkFile manifestFile = SamusArtworkFile.Read(Path.Combine(stockDirectory, ManifestFileName));

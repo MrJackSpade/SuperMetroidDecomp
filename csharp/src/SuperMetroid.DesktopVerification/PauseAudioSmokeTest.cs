@@ -7,6 +7,11 @@ using SuperMetroid.Core.Input;
 namespace SuperMetroid.Desktop;
 
 /// <summary>PCM-level regression for gameplay-to-pause-to-gameplay audio continuity.</summary>
+/// <param name="FramesGenerated">Number of gameplay frames stepped across the complete frontend route.</param>
+/// <param name="PauseFrames">Number of stepped frames spent in the pause darkening, paused, or lightening states.</param>
+/// <param name="AudioCommandCount">Total cartridge audio commands rendered during the route.</param>
+/// <param name="MaximumAdjacentSampleDelta">Largest sample-to-sample amplitude change within a rendered PCM frame.</param>
+/// <param name="MaximumFrameBoundaryDelta">Largest amplitude change between the last sample of one frame and the first sample of the next.</param>
 public readonly record struct PauseAudioSmokeTestResult(
     int FramesGenerated,
     int PauseFrames,
@@ -154,6 +159,8 @@ public static class PauseAudioSmokeTest
         }
     }
 
+    /// <summary>Writes a Crateria save slot with the area boss defeated and save station used so the frontend follows the saved-game map route.</summary>
+    /// <param name="bus">Address space whose SRAM receives the fixture save.</param>
     private static void SeedCrateriaSave(SuperMetroidAddressSpace bus)
     {
         var system = new Bank80SystemState();

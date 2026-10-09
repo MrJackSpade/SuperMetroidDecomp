@@ -44,8 +44,15 @@ internal abstract class KagoBugProjectileInstructionProgramDefinitions
     /// </summary>
     internal const ushort SpawnDropInstruction = 0xd1ce;
 
+    /// <summary>Number of compiled address/value pairs for the landed, falling, jump, and shot instruction programs.</summary>
     public static int MechanicsWordCount => 23;
+    /// <summary>Number of spritemap operands embedded in those instruction programs.</summary>
     public static int PresentationWordCount => 11;
+
+    /// <summary>Returns the mechanics address/value pair at one position in the compiled projectile programs.</summary>
+    /// <param name="index">Zero-based position in the combined mechanics-word table.</param>
+    /// <returns>The instruction address and its compiled operand.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the compiled mechanics table.</exception>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -69,6 +76,10 @@ internal abstract class KagoBugProjectileInstructionProgramDefinitions
         };
     }
 
+    /// <summary>Builds the indefinite hold and backward-goto words shared by falling and jump-loop programs.</summary>
+    /// <param name="start">Address of the loop's held-frame instruction.</param>
+    /// <param name="index">Word position within the three-word loop sequence.</param>
+    /// <returns>The instruction address and value at the requested loop position.</returns>
     private static InstructionMechanicsWord HoldLoop(ushort start, int index) => index switch
     {
         0 => new(start, 0x7fff),
@@ -76,6 +87,10 @@ internal abstract class KagoBugProjectileInstructionProgramDefinitions
         _ => new((ushort)(start + 6), start),
     };
 
+    /// <summary>Returns the address of a spritemap operand in native projectile-program order.</summary>
+    /// <param name="index">Zero-based position in the presentation-operand table.</param>
+    /// <returns>Bank-$86 address of the selected spritemap operand.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the compiled presentation table.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -90,6 +105,10 @@ internal abstract class KagoBugProjectileInstructionProgramDefinitions
             _ => JumpLoop + 2,
         };
     }
+    /// <summary>Looks up the compiled operand stored at a mechanics address.</summary>
+    /// <param name="address">Bank-$86 address of the instruction word to resolve.</param>
+    /// <returns>The compiled instruction operand.</returns>
+    /// <exception cref="InvalidDataException">The address is not part of the compiled Kago-bug projectile programs.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

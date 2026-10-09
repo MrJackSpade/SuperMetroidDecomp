@@ -19,7 +19,13 @@ internal abstract class BombTorizoDormantInstructionProgramDefinitions : IInstru
     /// <summary><c>WakeBT_WhenChozoIsCrumbled</c> at $AA:C6C6.</summary>
     internal const ushort WakeWhenHandCrumbles = 0xc6c6;
 
+    /// <summary>Number of control and duration words in the bounded dormant entry through its first sleep.</summary>
     public static int MechanicsWordCount => 6;
+
+    /// <summary>Resolves one mechanics operand while skipping the interleaved dormant-frame presentation word.</summary>
+    /// <param name="index">Zero-based ordinal among the six compiled mechanics words.</param>
+    /// <returns>The native address and value of the selected control or duration word.</returns>
+    /// <exception cref="IndexOutOfRangeException">The ordinal is outside the dormant program segment.</exception>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -27,11 +33,21 @@ internal abstract class BombTorizoDormantInstructionProgramDefinitions : IInstru
         _ = TryReadMechanicsWord(address, out ushort value);
         return new(address, value);
     }
+    /// <summary>Number of presentation operands in the dormant program segment.</summary>
     public static int PresentationWordCount => 1;
+
+    /// <summary>Returns the address of the dormant extended-spritemap operand.</summary>
+    /// <param name="index">Presentation-word ordinal; only zero is defined.</param>
+    /// <returns>Bank-$AA address of the dormant-frame presentation word.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The ordinal is not zero.</exception>
     public static ushort PresentationWordAddress(int index) => index == 0
         ? DormantFrameOperand
         : throw new ArgumentOutOfRangeException(nameof(index));
 
+    /// <summary>Looks up the compiled setup, wake-function, and sleep words in the dormant entry segment.</summary>
+    /// <param name="address">Bank-$AA address of the candidate instruction word.</param>
+    /// <param name="value">Receives the compiled operand when the address belongs to the mechanics sequence.</param>
+    /// <returns><see langword="true"/> for a control or duration word; the interleaved spritemap word is excluded.</returns>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         // Establish foot state and animation lock, show the dormant frame, then install
@@ -49,6 +65,9 @@ internal abstract class BombTorizoDormantInstructionProgramDefinitions : IInstru
         return value != 0;
     }
 
+    /// <summary>Tests whether a full address selects a byte in this program's compiled mechanics words.</summary>
+    /// <param name="address">Full cartridge address to classify.</param>
+    /// <returns><see langword="true"/> for bank-$AA mechanics bytes, excluding the dormant-frame presentation word.</returns>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xaa0000) return false;

@@ -18,9 +18,16 @@ internal abstract class ChozoTourianDustInstructionProgramDefinitions
     /// <summary>Reset/randomize loop at $86:AF18, after the initial loop counter.</summary>
     internal const ushort TourianLoop = TourianDescentDust + 4;
 
+    /// <summary>Number of address/value pairs defining the three compiled mechanics programs.</summary>
     public static int MechanicsWordCount => 31;
+
+    /// <summary>Number of extracted spritemap operands referenced by those programs.</summary>
     public static int PresentationWordCount => 14;
 
+    /// <summary>Gets the native address and value for a mechanics word in program order.</summary>
+    /// <param name="index">Zero-based index across the footsteps, explosions, and statue-dust programs.</param>
+    /// <returns>The ROM address and compiled value for the selected instruction word.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the compiled mechanics words.</exception>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -64,6 +71,10 @@ internal abstract class ChozoTourianDustInstructionProgramDefinitions
         return new((ushort)(TourianDescentDust + 28 + 2 * (dust - 10)), control);
     }
 
+    /// <summary>Gets the native address of an extracted spritemap operand in program order.</summary>
+    /// <param name="index">Zero-based index across the three programs' presentation words.</param>
+    /// <returns>The ROM address containing the operand reference.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the compiled presentation words.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -71,11 +82,18 @@ internal abstract class ChozoTourianDustInstructionProgramDefinitions
         if (index < 10) return (ushort)(SpikeClearingExplosions + 8 + 4 * (index - 4));
         return (ushort)(TourianDescentDust + 14 + 4 * (index - 10));
     }
+    /// <summary>Determines whether this catalog compiles the instruction program for the projectile kind.</summary>
+    /// <param name="kind">Projectile kind to check.</param>
+    /// <returns><see langword="true"/> for the two Wrecked Ship Chozo footsteps or Tourian statue dust.</returns>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep or
         RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstepAlternate or
         RoomEnemyProjectileKind.TourianStatueDescentDust;
 
+    /// <summary>Looks up a compiled mechanics value by its native instruction address.</summary>
+    /// <param name="address">ROM address of a word represented by this catalog.</param>
+    /// <returns>The compiled value stored at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not part of a compiled mechanics program.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

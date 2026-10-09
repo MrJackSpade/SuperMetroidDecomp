@@ -15,6 +15,7 @@ internal static class MotherBrainEscapeGatePlmDrawDefinitions
     internal const ushort Closed = 0x948b;
 
     /// <summary>Four vertical cells, always solid, selected by open/half/closed state.</summary>
+    /// <param name="Pointer">Native draw-list address selecting the open, half-closed, or closed visual.</param>
     internal readonly record struct Draw(ushort Pointer)
     {
         /// <summary>
@@ -31,6 +32,10 @@ internal static class MotherBrainEscapeGatePlmDrawDefinitions
         }
     }
 
+    /// <summary>Identifies one of the three native gate draws without materializing its cell words.</summary>
+    /// <param name="pointer">Bank-$84 draw-list address to classify.</param>
+    /// <param name="draw">Receives the gate visual descriptor when the address is supported.</param>
+    /// <returns><see langword="true"/> when the pointer is the open, half-closed, or closed gate draw.</returns>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         bool owned = pointer is Open or HalfClosed or Closed;
@@ -38,6 +43,7 @@ internal static class MotherBrainEscapeGatePlmDrawDefinitions
         return owned;
     }
 
+    /// <summary>Enumerates the open, half-closed, and closed gate drawings in native pointer order.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -51,6 +57,10 @@ internal static class MotherBrainEscapeGatePlmDrawDefinitions
     }
 
     // Temporary artwork DTOs; gameplay computes each cell directly.
+    /// <summary>Builds the temporary four-cell artwork description for a supported native gate draw.</summary>
+    /// <param name="pointer">Bank-$84 draw-list address to materialize.</param>
+    /// <param name="list">Receives the draw rows and native pointer when the address is supported.</param>
+    /// <returns><see langword="true"/> when the pointer identifies one of the three gate states.</returns>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;
@@ -61,6 +71,10 @@ internal static class MotherBrainEscapeGatePlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Returns the stable authoring identifier for one of the three gate visual states.</summary>
+    /// <param name="pointer">Native draw-list address whose visual identifier is requested.</param>
+    /// <returns><c>open</c>, <c>half-closed</c>, or <c>closed</c>, according to the pointer.</returns>
+    /// <exception cref="InvalidDataException">The pointer does not identify a supported gate draw.</exception>
     internal static string VisualId(ushort pointer) => pointer switch
     {
         Open => "open",
@@ -70,6 +84,10 @@ internal static class MotherBrainEscapeGatePlmDrawDefinitions
             $"Mother Brain escape-gate draw ${pointer:X4} has no visual ID."),
     };
 
+    /// <summary>Finds a gate draw by its stable, case-sensitive authoring identifier.</summary>
+    /// <param name="id">Visual identifier to match using ordinal string comparison.</param>
+    /// <param name="list">Receives the matching draw list when an identifier is found.</param>
+    /// <returns><see langword="true"/> when <paramref name="id"/> names an available gate state.</returns>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {

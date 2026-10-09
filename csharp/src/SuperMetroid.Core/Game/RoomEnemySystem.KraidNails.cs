@@ -9,6 +9,9 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Dispatches a fingernail's initialization, wait, or active-flight behavior for this room frame.</summary>
+    /// <param name="nail">Physical fingernail actor slot whose function is being advanced.</param>
+    /// <param name="level">Room collision geometry required while the nail is flying.</param>
     private void RunKraidNailMain(RoomEnemySlot nail, RoomLevelData? level)
     {
         KraidEnemyState state = RequireKraidState(nail);
@@ -54,6 +57,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Seeds a nail's velocity and launch position, including the paired actor's alternating lint wait.</summary>
+    /// <param name="nail">Fingernail actor slot being initialized.</param>
+    /// <param name="part">Per-nail state that tracks its spawn alternation and next function.</param>
     private void InitializeKraidNailFlight(RoomEnemySlot nail, KraidPartState part)
     {
         // The pair coordinates its next launch through the other actor's previous
@@ -94,6 +100,9 @@ public sealed partial class RoomEnemySystem
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
     }
 
+    /// <summary>Moves a flying nail through room geometry and reflects its velocity at wall, body, or floor contacts.</summary>
+    /// <param name="nail">Active fingernail actor whose position and velocity are updated.</param>
+    /// <param name="level">Room collision geometry used to resolve movement contacts.</param>
     private void TickKraidNailFlight(RoomEnemySlot nail, RoomLevelData level)
     {
         int horizontal = CombineKraidVelocity(nail.VariableB, nail.VariableC);
@@ -116,6 +125,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Tests whether a right-moving nail has reached Kraid's height-dependent body contour.</summary>
+    /// <param name="nail">Fingernail actor being checked against the body outline.</param>
+    /// <returns><see langword="true"/> when the nail's right edge crosses the contour while moving right.</returns>
     private bool KraidBodyContourReflectsNail(RoomEnemySlot nail)
     {
         RoomEnemySlot body = _slots[0];
@@ -126,6 +138,10 @@ public sealed partial class RoomEnemySystem
             unchecked((short)nail.VariableC) >= 0;
     }
 
+    /// <summary>Combines the low and high words of a signed 16.16 velocity into its 32-bit representation.</summary>
+    /// <param name="low">Fractional low word of the velocity.</param>
+    /// <param name="high">Whole-pixel high word of the velocity.</param>
+    /// <returns>The signed fixed-point velocity used by room movement.</returns>
     private static int CombineKraidVelocity(ushort low, ushort high) =>
         unchecked((int)(((uint)high << 16) | low));
 
@@ -137,6 +153,10 @@ public sealed partial class RoomEnemySystem
     private static (ushort Low, ushort High) ReflectKraidNailHorizontalVelocity(ushort low, ushort high) =>
         (unchecked((ushort)-low), unchecked((ushort)-high));
 
+    /// <summary>Negates a complete 16.16 velocity, carrying between its fractional and whole words.</summary>
+    /// <param name="low">Fractional low word of the velocity.</param>
+    /// <param name="high">Whole-pixel high word of the velocity.</param>
+    /// <returns>The low and high words of the negated velocity.</returns>
     private static (ushort Low, ushort High) NegateKraidVelocity(ushort low, ushort high)
     {
         int negated = unchecked(-CombineKraidVelocity(low, high));

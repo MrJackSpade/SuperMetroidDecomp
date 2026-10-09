@@ -40,6 +40,7 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
     }
 
     // Temporary DTOs serve artwork interfaces; runtime draws the scalar square directly.
+    /// <summary>Enumerates the clear draw and all three crumble appearances in native pointer order.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -52,6 +53,9 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
         }
     }
 
+    /// <summary>Maps a supported ceiling draw pointer to its stable editable-art identifier.</summary>
+    /// <param name="pointer">Native bank-$84 draw-list pointer.</param>
+    /// <returns>The identifier used to select the matching visual entry.</returns>
     internal static string VisualId(ushort pointer) => pointer switch
     {
         ClearPointer => "clear-ceiling",
@@ -62,6 +66,10 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
             $"Spore Spawn ceiling draw ${pointer:X4} has no visual ID."),
     };
 
+    /// <summary>Finds a ceiling draw list by its exact, case-sensitive visual identifier.</summary>
+    /// <param name="id">Stable identifier for the clear or one of the three crumble appearances.</param>
+    /// <param name="list">Receives the matching physical draw list, or the default value when the identifier is unknown.</param>
+    /// <returns><see langword="true"/> when the identifier corresponds to a supported appearance.</returns>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
@@ -77,6 +85,9 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
         return false;
     }
 
+    /// <summary>Returns the native draw-list pointer for one of the three ordered crumble animation frames.</summary>
+    /// <param name="frame">Zero-based crumble frame index from zero through two.</param>
+    /// <returns>The bank-$84 pointer for the selected frame.</returns>
     internal static ushort CrumbleFramePointer(int frame) => frame switch
     {
         0 => CrumbleFirstPointer,
@@ -85,6 +96,10 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame)),
     };
 
+    /// <summary>Resolves a supported draw-list pointer to its two-by-two physical block layout.</summary>
+    /// <param name="pointer">Native pointer of the clear or crumble draw list.</param>
+    /// <param name="list">Receives the physical draw definition, or the default value when the pointer is unsupported.</param>
+    /// <returns><see langword="true"/> when the pointer identifies the clear list or a crumble frame.</returns>
     internal static bool TryGet(ushort pointer,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
@@ -97,6 +112,10 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
         return false;
     }
 
+    /// <summary>Builds two horizontal runs that cover a two-by-two square with one physical level word.</summary>
+    /// <param name="pointer">Native draw-list address represented by the returned definition.</param>
+    /// <param name="physicalWord">Block value repeated in all four cells.</param>
+    /// <returns>The run-based draw description for the physical square.</returns>
     private static RoomPlmShotBlockDrawDefinitions.DrawList Square(
         ushort pointer, ushort physicalWord) => new(pointer,
         new RoomPlmShotBlockDrawDefinitions.Run[]

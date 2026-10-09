@@ -61,6 +61,12 @@ internal static class ZebetiteDefinitions
 }
 
 /// <summary>One active Zebetite generation's geometry and initial presentation binding.</summary>
+/// <param name="GenerationFlags">Native flags identifying the generation's multipart form.</param>
+/// <param name="YRadius">Half-height used for the generation's collision geometry.</param>
+/// <param name="InstructionList">Health-tier instruction-list entry used by the generation.</param>
+/// <param name="XPosition">Horizontal center shared by the generation's physical halves.</param>
+/// <param name="PrimaryYPosition">Vertical center of the primary barrier.</param>
+/// <param name="LinkedYPosition">Vertical center of the linked barrier half; equals the primary position for a single barrier.</param>
 internal readonly record struct ZebetiteGenerationDefinition(
     ushort GenerationFlags,
     ushort YRadius,

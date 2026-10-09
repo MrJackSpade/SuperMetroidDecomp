@@ -42,10 +42,19 @@ public static class CinematicGlowPaletteFxProgramMechanicsDefinitions
     /// <summary>$01FE: CGRAM byte destination of the cinematic gunship glow.</summary>
     private const ushort GunshipColorByte = 0x01fe;
 
+    /// <summary>Read-only view that resolves the two supported owners to their cartridge-authored control programs.</summary>
     private static readonly IReadOnlyList<CinematicGlowPaletteFxProgramDefinition> Definitions = new ProgramEntries();
+
+    /// <summary>Provides indexed and enumerable access to the old Mother Brain and gunship definitions in owner order.</summary>
     private sealed class ProgramEntries : IReadOnlyList<CinematicGlowPaletteFxProgramDefinition>
     {
+        /// <summary>Number of glow programs exposed by this catalog.</summary>
         public int Count => 2;
+
+        /// <summary>Creates the immutable mechanics description for the owner at the requested catalog position.</summary>
+        /// <param name="index">Zero-based owner value; only the two declared glow owners are valid.</param>
+        /// <returns>The control-program definition corresponding to <paramref name="index"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> does not identify either supported owner.</exception>
         public CinematicGlowPaletteFxProgramDefinition this[int index] =>
             (CinematicGlowPaletteFxProgramOwner)index switch
             {
@@ -59,6 +68,8 @@ public static class CinematicGlowPaletteFxProgramMechanicsDefinitions
                     colorsPerFrame: 1, frameDuration: 5),
                 _ => throw new ArgumentOutOfRangeException(nameof(index)),
             };
+        /// <summary>Enumerates both program definitions in the same order used by indexed access.</summary>
+        /// <returns>An enumerator yielding the old Mother Brain definition followed by the gunship definition.</returns>
         public IEnumerator<CinematicGlowPaletteFxProgramDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
@@ -87,6 +98,13 @@ public static class CinematicGlowPaletteFxProgramMechanicsDefinitions
 /// <summary>One complete cinematic glow control program.</summary>
 public sealed class CinematicGlowPaletteFxProgramDefinition
 {
+    /// <summary>Captures the cartridge control words and color-layout parameters for one cinematic glow loop.</summary>
+    /// <param name="owner">The glow effect whose palette-FX list installs the loop.</param>
+    /// <param name="definitionPointer">Bank-$8D pointer to the palette-FX definition record.</param>
+    /// <param name="programStart">Bank-$8D pointer to the loop's initial color-index instruction.</param>
+    /// <param name="colorByteIndex">CGRAM byte offset of the first color written by each timed record.</param>
+    /// <param name="colorsPerFrame">Count of presentation-owned BGR555 words emitted in each timed record.</param>
+    /// <param name="frameDuration">Cartridge-authored hold duration shared by the loop's timed records.</param>
     internal CinematicGlowPaletteFxProgramDefinition(
         CinematicGlowPaletteFxProgramOwner owner,
         ushort definitionPointer,

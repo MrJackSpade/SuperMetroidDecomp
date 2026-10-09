@@ -51,6 +51,7 @@ internal static class ExploredMapPackingDefinitions
     /// </summary>
     internal readonly struct OccupiedByteIndexes(IAreaMapView stockRules) : IReadOnlyList<byte>
     {
+        /// <summary>Gets the number of native map bytes containing at least one discoverable tile.</summary>
         public int Count
         {
             get
@@ -62,6 +63,10 @@ internal static class ExploredMapPackingDefinitions
             }
         }
 
+        /// <summary>
+        /// Gets the native map-byte index at the requested ordinal among occupied bytes.
+        /// The ordinal must be between zero and <see cref="Count"/> minus one.
+        /// </summary>
         public byte this[int index]
         {
             get
@@ -73,6 +78,10 @@ internal static class ExploredMapPackingDefinitions
             }
         }
 
+        /// <summary>
+        /// Determines whether a native map byte is retained by the sparse save format
+        /// by checking its eight tile cells against the stock discoverability rules.
+        /// </summary>
         private bool Contains(int nativeByte)
         {
             int pageBytes = AreaMapLayout.HeightInTiles * AreaMapLayout.PageWidthInTiles / 8;
@@ -84,6 +93,7 @@ internal static class ExploredMapPackingDefinitions
             return false;
         }
 
+        /// <summary>Enumerates occupied native map-byte indexes in ascending native order.</summary>
         public IEnumerator<byte> GetEnumerator()
         {
             for (int candidate = 0; candidate < Bank80SystemState.ExploredMapBytesPerArea; candidate++)
@@ -94,6 +104,8 @@ internal static class ExploredMapPackingDefinitions
 }
 
 /// <summary>One area's calculated SRAM destination and occupied native map-byte view.</summary>
+/// <param name="DestinationOffset">The byte offset where this area's retained map bytes begin in the packed SRAM map data.</param>
+/// <param name="AreaByteIndexes">The native map-byte indexes retained for this area, in native map order.</param>
 internal readonly record struct ExploredMapPackingDefinition(
     ushort DestinationOffset,
     ExploredMapPackingDefinitions.OccupiedByteIndexes AreaByteIndexes);

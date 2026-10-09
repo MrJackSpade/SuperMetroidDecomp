@@ -372,6 +372,11 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Continues a Crocomire waiting loop until damage selects its next fight state.</summary>
+    /// <param name="state">Fight state whose damage flag and destination state are updated when hit.</param>
+    /// <param name="next">Instruction pointer following the current callback.</param>
+    /// <param name="damagedDestination">Fight state entered after the waiting state receives damage.</param>
+    /// <returns>The next instruction pointer, either the current loop continuation, roar, or step-back program.</returns>
     private static ushort RunCrocomireWaitingForDamage(
         CrocomireEnemyState state,
         ushort next,
@@ -389,14 +394,23 @@ public sealed partial class RoomEnemySystem
             : next;
     }
 
+    /// <summary>Moves Crocomire horizontally by whole pixels while ignoring nonsquare slopes.</summary>
+    /// <param name="slot">Crocomire body slot to move.</param>
+    /// <param name="level">Room collision data used by the horizontal mover.</param>
+    /// <param name="pixels">Signed horizontal displacement in whole pixels.</param>
+    /// <returns><see langword="true"/> when the slot is Crocomire and the movement succeeds.</returns>
     private bool MoveCrocomire(RoomEnemySlot slot, RoomLevelData level, int pixels) =>
         // The instruction callbacks pass INT16_SHL16(±4) into the ordinary ignore-slopes
         // enemy mover; retaining 16.16 here preserves collision-edge alignment.
         slot.EnemyDefinitionPointer == CrocomireDefinition &&
         MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, pixels << 16);
 
+    /// <summary>Consumes and returns the next room-enemy random value for Crocomire instruction effects.</summary>
+    /// <returns>The next value from the shared enemy random-number source.</returns>
     private ushort ReadCrocomireRandom() => RequireRandomNumber();
 
+    /// <summary>Spawns foot dust at a signed random horizontal offset from Crocomire's body.</summary>
+    /// <param name="state">Crocomire state supplying the body position and foot radius.</param>
     private void SpawnCrocomireRandomFootDust(CrocomireEnemyState state)
     {
         ushort random = ReadCrocomireRandom();
@@ -406,6 +420,9 @@ public sealed partial class RoomEnemySystem
         SpawnCrocomireDust(state, offset);
     }
 
+    /// <summary>Creates the Crocomire dust effect at the body-foot position with a small random horizontal jitter.</summary>
+    /// <param name="state">Crocomire state supplying the body position and foot radius.</param>
+    /// <param name="xOffset">Signed horizontal offset applied before the effect's random jitter.</param>
     private void SpawnCrocomireDust(CrocomireEnemyState state, int xOffset)
     {
         ushort random = ReadCrocomireRandom();
@@ -415,6 +432,9 @@ public sealed partial class RoomEnemySystem
             animationIndex: 0x15);
     }
 
+    /// <summary>Ensures collision level data is available before a Crocomire movement instruction runs.</summary>
+    /// <param name="level">Room level data required by movement callbacks.</param>
+    /// <exception cref="InvalidOperationException">No room level data is available.</exception>
     private static void RequireCrocomireLevel(RoomLevelData? level)
     {
         if (level is null)

@@ -38,8 +38,15 @@ internal abstract class SparkInstructionProgramDefinitions
     /// into the instruction timer; the separate intangibility callback and function timers own gameplay.</summary>
     private const ushort FlickerOutCadence = 1;
 
+    /// <summary>Number of address/value pairs describing callbacks, frame durations, branches, and terminal instructions.</summary>
     public static int MechanicsWordCount => 33;
+    /// <summary>Number of spritemap operands resolved through installed Spark artwork.</summary>
     public static int PresentationWordCount => 26;
+
+    /// <summary>Builds one compiled address/value pair from the four native Spark instruction programs.</summary>
+    /// <param name="index">Zero-based mechanics-word index across activation, active, deactivation, and emitter streams.</param>
+    /// <returns>The instruction address and its callback, duration, or control-flow value.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the compiled mechanics-word range.</exception>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -51,16 +58,27 @@ internal abstract class SparkInstructionProgramDefinitions
             index == 25 ? SetIntangible : CommonEnemyInstructionCodes.Sleep);
         return LoopWord(Emitter, index - 27);
     }
+    /// <summary>Selects the authored timer for one of the activation sequence's flashing or sustained poses.</summary>
+    /// <param name="frame">Zero-based frame-command index within the flicker-on sequence.</param>
+    /// <returns>The command's one-, two-, or sustained-tick visual duration.</returns>
     private static ushort ActivationDuration(int frame)
     {
         if (frame >= 8) return ActivationSustainedTicks;
         if ((frame & 1) == 0) return ActivationFlashOnTicks;
         return frame == 7 ? ActivationFinalGapTicks : ActivationFlashOffTicks;
     }
+    /// <summary>Returns a word from a four-pose loop and its terminating backward branch.</summary>
+    /// <param name="start">Address of the loop's first pose instruction.</param>
+    /// <param name="index">Word index selecting a frame command, goto command, or branch target.</param>
+    /// <returns>The compiled address/value pair for the selected loop word.</returns>
     private static InstructionMechanicsWord LoopWord(ushort start, int index) => index < 4
         ? new((ushort)(start + index * 4), ContinuousVisualCadence)
         : new((ushort)(start + 16 + (index - 4) * 2), index == 4 ? CommonEnemyInstructionCodes.Goto : start);
 
+    /// <summary>Maps an artwork-selection ordinal to its spritemap operand address in the native Spark lists.</summary>
+    /// <param name="index">Zero-based index among all activation, active, deactivation, and emitter presentation words.</param>
+    /// <returns>The bank-$A8 address of the selected operand.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the compiled presentation-word range.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();

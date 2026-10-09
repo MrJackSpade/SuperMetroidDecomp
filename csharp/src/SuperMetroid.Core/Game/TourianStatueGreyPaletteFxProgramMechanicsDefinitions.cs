@@ -29,10 +29,19 @@ public static class TourianStatueGreyPaletteFxProgramMechanicsDefinitions
     /// <summary>CGRAM byte $C0: first statue palette, with palette row eight skipped.</summary>
     private const ushort FirstColorByte = 0xc0;
 
+    /// <summary>Read-only catalog of the four statue-specific setup records that enter the shared grey-out loop.</summary>
     internal static readonly IReadOnlyList<TourianStatueGreyPaletteFxProgramDefinition> Definitions = new ProgramEntries();
+
+    /// <summary>Builds boss-specific setup records on demand in the same order as the native definition table.</summary>
     private sealed class ProgramEntries : IReadOnlyList<TourianStatueGreyPaletteFxProgramDefinition>
     {
+        /// <summary>Number of statue entries preceding the shared animation program.</summary>
         public int Count => 4;
+
+        /// <summary>Resolves one statue's setup data, including its CGRAM destination and branch behavior.</summary>
+        /// <param name="index">Zero-based position in the four-entry boss definition table.</param>
+        /// <returns>The setup record for the boss at <paramref name="index"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside the four available entries.</exception>
         public TourianStatueGreyPaletteFxProgramDefinition this[int index]
         {
             get
@@ -46,6 +55,8 @@ public static class TourianStatueGreyPaletteFxProgramMechanicsDefinitions
                     usesGoto: index < Count - 1);
             }
         }
+        /// <summary>Enumerates the boss-specific setup records in native definition order.</summary>
+        /// <returns>An enumerator yielding one entry for each of the four statue bosses.</returns>
         public IEnumerator<TourianStatueGreyPaletteFxProgramDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
@@ -136,6 +147,12 @@ public static class TourianStatueGreyPaletteFxProgramMechanicsDefinitions
 /// <summary>One boss-specific entry into the shared Tourian statue grey-out program.</summary>
 public sealed class TourianStatueGreyPaletteFxProgramDefinition
 {
+    /// <summary>Stores one boss's entry point and destination metadata for the shared grey-out program.</summary>
+    /// <param name="boss">The statue boss whose palette-FX definition selects this entry.</param>
+    /// <param name="definitionPointer">Bank-$8D pointer to the boss-specific palette-FX definition.</param>
+    /// <param name="programStart">Bank-$8D pointer to the boss-specific setup instructions.</param>
+    /// <param name="colorByteIndex">CGRAM byte offset of the first color written by the shared animation.</param>
+    /// <param name="usesGoto">Whether setup ends with an explicit branch to the shared frame sequence; the final boss entry falls through.</param>
     internal TourianStatueGreyPaletteFxProgramDefinition(
         TourianStatueBoss boss,
         ushort definitionPointer,

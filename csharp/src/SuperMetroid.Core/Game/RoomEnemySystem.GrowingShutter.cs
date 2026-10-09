@@ -3,7 +3,9 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Literal translation of the four-section growing shutter enemy $D4FF.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Vertical distance in pixels that each of the shutter's four growth sections spans.</summary>
     private const ushort GrowingShutterSectionLength = 0x0010;
+    /// <summary>Vertical inset applied between the first three completed shutter sections.</summary>
     private const ushort GrowingShutterIntermediateInset = 0x0007;
 
     /// <summary>Ports <c>GrowingShutter_Init</c> at $A2:E9DA.</summary>
@@ -96,6 +98,12 @@ public sealed partial class RoomEnemySystem
         return false;
     }
 
+    /// <summary>Switches the shutter from its wait state to directional growth and queues its on-screen activation sound.</summary>
+    /// <param name="slot">The room enemy slot whose native function state is being advanced.</param>
+    /// <param name="state">The shutter's per-instance growth state.</param>
+    /// <param name="growsUp">Whether this activation starts upward rather than downward growth.</param>
+    /// <param name="cameraX">The current horizontal camera position used to determine sound visibility.</param>
+    /// <param name="cameraY">The current vertical camera position used to determine sound visibility.</param>
     private void ActivateGrowingShutter(
         RoomEnemySlot slot,
         GrowingShutterEnemyState state,
@@ -155,6 +163,10 @@ public sealed partial class RoomEnemySystem
         CarrySamusWithGrowingShutter(slot, state, samus);
     }
 
+    /// <summary>Transfers upward shutter movement to Samus when she is standing on the shutter platform.</summary>
+    /// <param name="slot">The shutter slot supplying the platform position and collision bounds.</param>
+    /// <param name="state">The shutter state containing its position from the preceding update.</param>
+    /// <param name="samus">The player state whose extra vertical displacement is adjusted while riding.</param>
     private static void CarrySamusWithGrowingShutter(
         RoomEnemySlot slot,
         GrowingShutterEnemyState state,
@@ -171,6 +183,11 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Snaps a completed section to its boundary, advances the growth level, and selects the next size instruction.</summary>
+    /// <param name="slot">The enemy slot whose position and drawing instruction are updated.</param>
+    /// <param name="state">The per-instance growth level to advance.</param>
+    /// <param name="target">The exact vertical boundary reached by this section.</param>
+    /// <param name="growsUp">Whether the section is extending toward decreasing Y coordinates.</param>
     private static void FinishGrowingShutterSection(
         RoomEnemySlot slot,
         GrowingShutterEnemyState state,
@@ -200,6 +217,10 @@ public sealed partial class RoomEnemySystem
         InstallGrowingShutterInstruction(slot, instruction, radius);
     }
 
+    /// <summary>Installs a shutter size instruction and resets its animation timer, growth timer, and vertical collision radius.</summary>
+    /// <param name="slot">The enemy slot receiving the instruction and collision settings.</param>
+    /// <param name="instruction">The native instruction-list address for the completed growth size.</param>
+    /// <param name="yRadius">The vertical collision radius matching that size.</param>
     private static void InstallGrowingShutterInstruction(
         RoomEnemySlot slot,
         ushort instruction,

@@ -19,9 +19,13 @@ internal abstract class TorizoChozoOrbInstructionProgramDefinitions
     /// <summary><c>EnemyHeaders_GoldenTorizoOrb</c> at $A0:EFBF.</summary>
     internal const ushort GoldenOrbEnemyHeader = 0xefbf;
 
+    /// <summary>Number of compiled address/value pairs covering mechanics operands in the orb instruction lists.</summary>
     public static int MechanicsWordCount => 40;
+    /// <summary>Number of extracted spritemap operand words retained as presentation data.</summary>
     public static int PresentationWordCount => 18;
 
+    /// <summary>Returns the compiled address/value pair for one mechanics operand in the orb instruction programs.</summary>
+    /// <param name="index">Zero-based mechanics operand index, from zero through <see cref="MechanicsWordCount"/> minus one.</param>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -75,6 +79,8 @@ internal abstract class TorizoChozoOrbInstructionProgramDefinitions
         return new((ushort)(start + offset), value);
     }
 
+    /// <summary>Maps a presentation operand ordinal to its native address in the corresponding instruction list.</summary>
+    /// <param name="index">Zero-based presentation operand index, from zero through <see cref="PresentationWordCount"/> minus one.</param>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -83,10 +89,14 @@ internal abstract class TorizoChozoOrbInstructionProgramDefinitions
         if (index < 13) return (ushort)(FloorImpact + 15 + 4 * (index - 7));
         return (ushort)(Shot + 8 + 4 * (index - 13));
     }
+    /// <summary>Reports whether the projectile kind is one of the Bomb or Golden Torizo Chozo orbs.</summary>
+    /// <param name="kind">The runtime projectile kind to classify.</param>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.BombTorizoChozoOrb or
         RoomEnemyProjectileKind.GoldenTorizoChozoOrb;
 
+    /// <summary>Looks up a compiled mechanics operand by native address and fails if the address is not part of these lists.</summary>
+    /// <param name="address">The bank-$86 instruction-list address whose compiled value is required.</param>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

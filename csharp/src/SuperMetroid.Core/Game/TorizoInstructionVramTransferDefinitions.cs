@@ -1,6 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One native bank-$AA common-enemy $814B tile transfer descriptor.</summary>
+/// <summary>One bank-$AA <c>$814B</c> operand describing a character-art transfer.</summary>
+/// <param name="Instruction">Address of the native transfer instruction in the enemy instruction list.</param>
+/// <param name="ByteCount">Number of source bytes copied into VRAM.</param>
+/// <param name="SourceAddress">Cartridge address of the editable character-art payload.</param>
+/// <param name="DestinationWord">Destination word address in VRAM.</param>
 internal readonly record struct TorizoInstructionVramTransferDefinition(
     ushort Instruction, ushort ByteCount, int SourceAddress, ushort DestinationWord);
 
@@ -12,6 +16,7 @@ internal readonly record struct TorizoInstructionVramTransferDefinition(
 internal static class TorizoInstructionVramTransferDefinitions
 {
 
+    /// <summary>Transfer descriptors sorted by instruction address for binary-search lookup.</summary>
     private static readonly TorizoInstructionVramTransferDefinition[] Entries =
     [
         new(0xb0f1, 0x0040, 0xaab479, 0x7300),
@@ -68,6 +73,10 @@ internal static class TorizoInstructionVramTransferDefinitions
         new(0xd1cc, 0x0040, 0xaab339, 0x7d80),
     ];
 
+    /// <summary>Finds the compiled art-transfer descriptor for a native instruction address.</summary>
+    /// <param name="instruction">Address of the <c>$814B</c> instruction to resolve.</param>
+    /// <param name="transfer">Receives the matching transfer, or the default value when no descriptor exists.</param>
+    /// <returns><see langword="true"/> when the instruction has an extracted character-art transfer definition.</returns>
     internal static bool TryGet(ushort instruction,
         out TorizoInstructionVramTransferDefinition transfer)
     {

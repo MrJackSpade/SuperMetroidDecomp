@@ -80,14 +80,21 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
 
     // `$A9:BCA6/$BCB6` are indexed after incrementing the explosion index. Keeping all eight
     // signed records here preserves the initial index-zero -> record-one behavior.
+    /// <summary>Signed horizontal offsets applied to successive rainbow-beam explosion effects.</summary>
     private static ReadOnlySpan<short> ExplosionXOffsets =>
         [-8, 6, -4, 2, 3, -6, 8, 0];
 
+    /// <summary>Signed vertical offsets paired by index with <see cref="ExplosionXOffsets"/>.</summary>
     private static ReadOnlySpan<short> ExplosionYOffsets =>
         [-7, 2, 5, -4, 6, -2, -6, 7];
 
+    /// <summary>Owns translated Samus movement and the live rainbow-beam aim angle.</summary>
     private readonly MotherBrainRainbowBeamSamusMovement _movement = new();
+
+    /// <summary>Tracks the native corpse graphics and rotting-table progression.</summary>
     private readonly MotherBrainCorpseRottingState _corpseRotting = new();
+
+    /// <summary>Optional installed corpse atlas required when live corpse rotting is initialized.</summary>
     private readonly RoomCharacterAtlas? _corpseArtwork;
 
     /// <summary>Standalone cartridge fixtures omit artwork; installed rooms bind the PNG.</summary>
@@ -209,6 +216,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     /// </summary>
     public uint SmallPurpleBreathGenerationWriteCount { get; private set; }
 
+    /// <summary>Publishes a body-AI change to the small-purple-breath flag and records its write.</summary>
+    /// <param name="enabled">Whether subsequent corpse updates may generate the small purple breath.</param>
     private void WriteSmallPurpleBreathGeneration(bool enabled)
     {
         SmallPurpleBreathGenerationEnabled = enabled;

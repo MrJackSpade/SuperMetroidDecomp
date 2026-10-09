@@ -628,6 +628,12 @@ public static class DoorDefinitions
         return Get(PointerAt(doorListPointer, layout, behavior & 0x7f));
     }
 
+    /// <summary>Maps one logical room-list index to its physical header, substituting the shared elevator header when selected.</summary>
+    /// <param name="listPointer">Room door-list address, used to choose the retail elevator pseudo-door identity.</param>
+    /// <param name="layout">Bounds and physical-record progression for this room's list.</param>
+    /// <param name="index">Zero-based logical entry index, including any elevator pseudo-door entry.</param>
+    /// <returns>The bank-$83 physical door-header pointer or the shared elevator pseudo-door pointer.</returns>
+    /// <exception cref="InvalidDataException">The index is outside the room's declared door-list length.</exception>
     internal static ushort PointerAt(ushort listPointer, DoorListLayout layout, int index)
     {
         if ((uint)index >= (uint)layout.Count)
@@ -639,6 +645,11 @@ public static class DoorDefinitions
         return checked((ushort)(layout.First + layout.Stride * physicalIndex));
     }
 
+    /// <summary>Describes how a room's logical door list progresses through its physical bank-$83 header records.</summary>
+    /// <param name="First">Pointer to the first physical header, excluding any inserted shared elevator entry.</param>
+    /// <param name="Count">Number of logical list entries, including an elevator entry when one is present.</param>
+    /// <param name="Stride">Byte distance between successive physical headers; retail lists use twelve bytes except alternating-header lists.</param>
+    /// <param name="ElevatorIndex">Logical entry replaced by the shared elevator pseudo-door, or -1 when the list has no elevator entry.</param>
     internal readonly record struct DoorListLayout(ushort First, int Count, int Stride = 12, int ElevatorIndex = -1);
 
     /// <summary>Each room selects its first physical header, bounded list length and optional elevator slot.</summary>

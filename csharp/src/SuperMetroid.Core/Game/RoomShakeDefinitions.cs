@@ -1,6 +1,12 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One cartridge earthquake type's background and enemy-projectile displacement.</summary>
+/// <param name="Bg1X">Horizontal offset component applied to background layer 1 for this shake type; zero means the layer is unaffected.</param>
+/// <param name="Bg1Y">Vertical offset component applied to background layer 1 for this shake type; zero means the layer is unaffected.</param>
+/// <param name="Bg2X">Horizontal offset component applied to background layer 2 for this shake type; zero means the layer is unaffected.</param>
+/// <param name="Bg2Y">Vertical offset component applied to background layer 2 for this shake type; zero means the layer is unaffected.</param>
+/// <param name="ProjectileX">Horizontal offset component for eligible enemy projectiles; zero means projectiles are not shaken.</param>
+/// <param name="ProjectileY">Vertical offset component for eligible enemy projectiles; zero means projectiles are not shaken.</param>
 internal readonly record struct RoomShakeDefinition(
     short Bg1X, short Bg1Y, short Bg2X, short Bg2Y, short ProjectileX, short ProjectileY);
 

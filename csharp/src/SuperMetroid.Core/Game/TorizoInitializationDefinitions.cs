@@ -18,5 +18,11 @@ public static class TorizoInitializationDefinitions
 }
 
 /// <summary>Initial actor placement, program selection, property mask and collision radii.</summary>
+/// <param name="X">Initial horizontal room coordinate assigned to the Torizo actor.</param>
+/// <param name="Y">Initial vertical room coordinate assigned to the Torizo actor.</param>
+/// <param name="Instruction">Bank-$AA instruction-list pointer installed on the actor.</param>
+/// <param name="PropertyMask">Bits ORed into the actor's existing enemy properties during population.</param>
+/// <param name="XRadius">Horizontal collision radius used by the initialized actor.</param>
+/// <param name="YRadius">Vertical collision radius used by the initialized actor.</param>
 public readonly record struct TorizoInitializationDefinition(
     ushort X, ushort Y, ushort Instruction, ushort PropertyMask, ushort XRadius, ushort YRadius);

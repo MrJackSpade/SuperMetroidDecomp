@@ -16,9 +16,13 @@ public enum D3D11DeviceKind
 /// <summary>Render-thread-owned D3D11 device/context lifetime, isolated from portable display contracts.</summary>
 public sealed class D3D11RenderDevice : IDisposable
 {
+    /// <summary>Managed thread ID that created the device and owns its immediate context.</summary>
     private readonly int ownerThread = Environment.CurrentManagedThreadId;
+    /// <summary>Whether the context and device references have been released by the owner thread.</summary>
     private bool disposed;
+    /// <summary>The Direct3D 11 device created for the explicitly selected backend.</summary>
     internal ID3D11Device Device { get; }
+    /// <summary>The immediate context that must only be used by the render-owner thread.</summary>
     internal ID3D11DeviceContext Context { get; }
     /// <summary>Description queried from the adapter actually associated with the successfully created device.</summary>
     public string AdapterDescription { get; }
@@ -52,6 +56,8 @@ public sealed class D3D11RenderDevice : IDisposable
         catch { context.Dispose(); device.Dispose(); throw; }
     }
 
+    /// <summary>Selects the first enumerated non-software DXGI adapter for hardware device creation.</summary>
+    /// <exception cref="NotSupportedException">DXGI exposes no non-software adapter.</exception>
     private static IDXGIAdapter1 FindHardwareAdapter()
     {
         using IDXGIFactory1 factory = DXGI.CreateDXGIFactory1<IDXGIFactory1>();
@@ -63,6 +69,9 @@ public sealed class D3D11RenderDevice : IDisposable
         throw new NotSupportedException("DXGI exposes no hardware adapter; explicitly select WARP for software-driver diagnostics.");
     }
 
+    /// <summary>Checks that the device is live and that the current thread owns its immediate context.</summary>
+    /// <exception cref="ObjectDisposedException">The device has already been disposed.</exception>
+    /// <exception cref="InvalidOperationException">The current thread differs from the thread that created the device.</exception>
     internal void VerifyOwner()
     {
         ObjectDisposedException.ThrowIf(disposed, this);

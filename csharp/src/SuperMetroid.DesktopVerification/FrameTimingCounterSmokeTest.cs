@@ -1,6 +1,11 @@
 namespace SuperMetroid.Desktop;
 
 /// <summary>Deterministic result from the host timing counter regression.</summary>
+/// <param name="EmulatedFramesPerSecond">The emulated frame rate reported for the measured interval.</param>
+/// <param name="PaintedFramesPerSecond">The host paint rate reported for the measured interval.</param>
+/// <param name="AverageEmulationMilliseconds">The mean duration of an emulated frame in milliseconds.</param>
+/// <param name="WorstEmulationMilliseconds">The longest emulated-frame duration in the interval, in milliseconds.</param>
+/// <param name="LateFrames">The accumulated late-frame amount reported by the counter, which may be fractional.</param>
 public readonly record struct FrameTimingCounterSmokeTestResult(
     double EmulatedFramesPerSecond,
     double PaintedFramesPerSecond,
@@ -59,6 +64,10 @@ public static class FrameTimingCounterSmokeTest
             snapshot.LateFrames);
     }
 
+    /// <summary>Fails the smoke check when an observed timing value differs from its expected value beyond the fixed tolerance.</summary>
+    /// <param name="actual">The value produced by the timing counter.</param>
+    /// <param name="expected">The deterministic value calculated for the synthetic clock sequence.</param>
+    /// <param name="subject">A label included in the exception if the comparison fails.</param>
     private static void AssertNear(double actual, double expected, string subject)
     {
         if (Math.Abs(actual - expected) > 0.000_001)

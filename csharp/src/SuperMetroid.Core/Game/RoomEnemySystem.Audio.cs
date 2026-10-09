@@ -25,10 +25,13 @@ public sealed partial class RoomEnemySystem
     // Enemy AI can execute several independent actors in one frame. A single nullable
     // "last sound" loses calls when two actors publish during that pass, so new translations
     // use the same append-only-per-frame shape already proven by Samus and PLM audio.
+    /// <summary>Sound queue calls published by enemy actors during the current EnemyMain frame.</summary>
     private readonly List<EnemySoundRequest> _soundRequests = [];
+    /// <summary>Music queue calls published by enemy actors during the current EnemyMain frame.</summary>
     private readonly List<EnemyMusicRequest> _musicRequests = [];
     // Runtime frame bindings are not duplicate serialized cartridge owners. EnemyMain
     // refreshes this before AI; later draw and room-main requests sample the same owner.
+    /// <summary>Power-bomb state sampled by enemy audio publication to preserve native sound suppression.</summary>
     [NonSerialized] private SamusPowerBombExplosionState? _audioPowerBomb;
 
     /// <summary>
@@ -43,6 +46,7 @@ public sealed partial class RoomEnemySystem
     // Enemy initialization runs while a room loads, outside EnemyMain's publication window,
     // and its frontend consumes the requests within that same update. Nothing here
     // survives an update boundary, so debugger snapshots never contain it.
+    /// <summary>Music commands queued during room initialization for delayed publication in that update.</summary>
     [NonSerialized] private List<MusicCommand>? _initializationMusicDelayed8;
 
     /// <summary>
@@ -210,6 +214,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Publishes a legacy sound field using its original library and queue-capacity variant.</summary>
+    /// <param name="soundId">Nullable cartridge sound ID retained by a legacy actor translation.</param>
+    /// <param name="library">Sound library selected by the native queue call.</param>
+    /// <param name="maximumQueued">Maximum number of matching requests admitted by the native queue variant.</param>
     private void QueueLegacySound(
         ushort? soundId,
         SoundEffectLibrary library,
@@ -219,6 +227,9 @@ public sealed partial class RoomEnemySystem
             QueueEnemySound(SoundEffectId.FromCartridge(library, value), maximumQueued);
     }
 
+    /// <summary>Publishes a legacy music command only when both its command and delay were recorded.</summary>
+    /// <param name="command">Nullable music command retained by a legacy actor translation.</param>
+    /// <param name="delay">Nullable native delay associated with that command.</param>
     private void QueueLegacyMusic(MusicCommand? command, MusicCommandDelay? delay)
     {
         if (command is MusicCommand value && delay is MusicCommandDelay wait)

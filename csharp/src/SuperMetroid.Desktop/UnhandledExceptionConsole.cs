@@ -9,8 +9,11 @@ namespace SuperMetroid.Desktop;
 /// </summary>
 public static class UnhandledExceptionConsole
 {
+    /// <summary>Ensures only the first concurrent fatal reporter writes a stack trace and owns the console prompt.</summary>
     private static int fatalErrorIsBeingReported;
+    /// <summary>Optional sink that may handle a WinForms callback exception without terminating the message loop.</summary>
     private static Action<Exception>? recoverableUiErrorReporter;
+    /// <summary>Callback used to publish diagnostic artifacts after printing a fatal error and before waiting to exit.</summary>
     private static Action? fatalDiagnosticCheckpoint;
 
     /// <summary>
@@ -86,6 +89,9 @@ public static class UnhandledExceptionConsole
         waitForAcknowledgment();
     }
 
+    /// <summary>Offers a WinForms callback failure to the recoverable sink, or reports it as fatal and exits the UI thread.</summary>
+    /// <param name="sender">The WinForms event source; the exception policy does not depend on its identity.</param>
+    /// <param name="eventArguments">The callback exception, replaced with an aggregate if the recoverable reporter also fails.</param>
     private static void HandleUiThreadException(object? sender, ThreadExceptionEventArgs eventArguments)
     {
         Action<Exception>? reporter = Volatile.Read(ref recoverableUiErrorReporter);
@@ -109,6 +115,9 @@ public static class UnhandledExceptionConsole
         Application.ExitThread();
     }
 
+    /// <summary>Prints an unhandled background-thread failure and leaves process termination to the CLR.</summary>
+    /// <param name="sender">The object whose background thread raised the unhandled-exception notification.</param>
+    /// <param name="eventArguments">The escaped exception object and CLR termination-state metadata.</param>
     private static void HandleBackgroundThreadException(object? sender, UnhandledExceptionEventArgs eventArguments)
     {
         Exception exception = eventArguments.ExceptionObject as Exception ??
@@ -118,6 +127,7 @@ public static class UnhandledExceptionConsole
         Environment.ExitCode = ReportAndWait(exception);
     }
 
+    /// <summary>Waits for interactive console acknowledgment; redirected input reaches EOF without blocking CI.</summary>
     private static void WaitForConsoleAcknowledgment()
     {
         // A normal interactive launch owns a console input stream and waits here. Redirected

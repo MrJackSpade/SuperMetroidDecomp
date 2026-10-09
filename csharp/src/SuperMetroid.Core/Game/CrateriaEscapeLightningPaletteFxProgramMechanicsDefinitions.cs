@@ -53,20 +53,27 @@ public static class CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions
     private static readonly CrateriaEscapeLightningPaletteFxProgramDefinition CreBlockPixel = new(
         CrateriaEscapeLightningPaletteOwner.CreBlockPixel, CreBlockPixelDefinitionPointer,
         CreBlockPixelProgramStart, 0x00ae, 5);
+    /// <summary>Stable read-only list backing the public catalog of the two compiled program definitions.</summary>
     private static readonly ProgramList Programs = new();
 
     /// <summary>The yellow-lightning and CRE-pixel programs in definition order.</summary>
     public static IReadOnlyList<CrateriaEscapeLightningPaletteFxProgramDefinition> All => Programs;
 
+    /// <summary>Provides indexed and sequential access to the yellow-lightning and CRE-pixel definitions.</summary>
     private sealed class ProgramList : IReadOnlyList<CrateriaEscapeLightningPaletteFxProgramDefinition>
     {
+        /// <summary>Gets the two compiled room variants.</summary>
         public int Count => 2;
+
+        /// <summary>Gets the yellow-lightning definition first and the CRE-pixel definition second.</summary>
+        /// <param name="index">Zero-based definition position, either zero or one.</param>
         public CrateriaEscapeLightningPaletteFxProgramDefinition this[int index] => index switch
         {
             0 => YellowLightning,
             1 => CreBlockPixel,
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
+        /// <summary>Enumerates the two definitions in the same order as the indexer.</summary>
         public IEnumerator<CrateriaEscapeLightningPaletteFxProgramDefinition> GetEnumerator()
         { yield return YellowLightning; yield return CreBlockPixel; }
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
@@ -89,6 +96,12 @@ public static class CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions
 /// <summary>One complete late-Crateria escape palette control program.</summary>
 public sealed class CrateriaEscapeLightningPaletteFxProgramDefinition
 {
+    /// <summary>Creates the control-program metadata needed to locate its setup, timed records, and palette payload.</summary>
+    /// <param name="owner">Palette program variant associated with the definition.</param>
+    /// <param name="definitionPointer">Native bank-$8D palette-FX definition that selects this program.</param>
+    /// <param name="programStart">Address of the program's color-index setup instruction.</param>
+    /// <param name="colorByteIndex">First destination byte in CGRAM for the live colors.</param>
+    /// <param name="colorsPerFrame">Number of BGR555 color words carried by each timed record.</param>
     internal CrateriaEscapeLightningPaletteFxProgramDefinition(
         CrateriaEscapeLightningPaletteOwner owner,
         ushort definitionPointer,

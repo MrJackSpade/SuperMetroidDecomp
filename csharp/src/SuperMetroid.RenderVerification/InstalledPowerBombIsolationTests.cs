@@ -12,6 +12,8 @@ using SuperMetroid.Rendering.Direct3D11;
 /// </summary>
 internal static partial class InstalledPowerBombIsolationTests
 {
+    /// <summary>Runs bounded Power Bomb and Crystal Flash simulations with installed color overrides and verifies mechanics, geometry, rendering, and restoration remain isolated.</summary>
+    /// <param name="installationRoot">Root of the extracted game installation containing the stock map presentation files.</param>
     internal static void Run(string installationRoot)
     {
         string stockDirectory = Path.Combine(Path.GetFullPath(installationRoot), "game", "maps");
@@ -125,6 +127,10 @@ internal static partial class InstalledPowerBombIsolationTests
         }
     }
 
+    /// <summary>Creates an armed Power Bomb state or starts a Crystal Flash at the center of the playfield.</summary>
+    /// <param name="colors">Fixed-color presentation data bound to the state.</param>
+    /// <param name="crystalFlash">Selects Crystal Flash startup when <see langword="true"/>; otherwise starts a regular Power Bomb explosion.</param>
+    /// <returns>A fresh explosion state configured for the selected effect.</returns>
     internal static SamusPowerBombExplosionState Create(PowerBombFixedColorCatalog colors, bool crystalFlash)
     {
         var state = new SamusPowerBombExplosionState { PresentationColors = colors };
@@ -133,6 +139,10 @@ internal static partial class InstalledPowerBombIsolationTests
         return state;
     }
 
+    /// <summary>Asserts that two simulations have equal mechanics state while allowing their fixed-color presentation outputs to differ.</summary>
+    /// <param name="first">Stock-color simulation used as the reference.</param>
+    /// <param name="second">Override-color simulation compared with the reference.</param>
+    /// <param name="context">Scenario label included in any mismatch report.</param>
     internal static void RequireSameMechanics(SamusPowerBombExplosionState first,
         SamusPowerBombExplosionState second, string context)
     {
@@ -149,6 +159,10 @@ internal static partial class InstalledPowerBombIsolationTests
         }
     }
 
+    /// <summary>Checks that both render layers are absent together or expose the same horizontal color-add window on every scanline.</summary>
+    /// <param name="first">Reference render layer captured from the stock simulation.</param>
+    /// <param name="second">Render layer captured from the override simulation.</param>
+    /// <param name="context">Scenario label included in any mismatch report.</param>
     private static void RequireSameGeometry(ScanlineColorAddRenderLayer? first,
         ScanlineColorAddRenderLayer? second, string context)
     {
@@ -159,9 +173,15 @@ internal static partial class InstalledPowerBombIsolationTests
                 first.Windows[row].Right == second.Windows[row].Right, context + $": window row {row} differs");
     }
 
+    /// <summary>Reads the current fixed-color outputs used to tint the explosion or Crystal Flash.</summary>
+    /// <param name="state">Simulation whose COLDATA channel values are returned.</param>
+    /// <returns>Red, green, and blue intensity bytes in channel order.</returns>
     internal static (byte Red, byte Green, byte Blue) Colors(SamusPowerBombExplosionState state) =>
         (state.FixedColorRed, state.FixedColorGreen, state.FixedColorBlue);
 
+    /// <summary>Stops the verification run with the supplied context when an expected property is false.</summary>
+    /// <param name="condition">Property that must hold for the current verification step.</param>
+    /// <param name="context">Diagnostic message identifying the failed assertion.</param>
     internal static void Require(bool condition, string context)
     {
         if (!condition) throw new InvalidOperationException(context);

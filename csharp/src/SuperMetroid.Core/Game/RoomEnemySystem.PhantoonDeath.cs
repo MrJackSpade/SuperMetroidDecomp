@@ -10,9 +10,15 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Increase applied to the death-wave amplitude on each update.</summary>
     private const ushort PhantoonDeathWaveDelta = 0x0100;
+    /// <summary>Maximum amplitude reached by the death-wave palette effect.</summary>
     private const ushort PhantoonDeathWaveMaximum = 0xf000;
 
+    /// <summary>Moves Phantoon through the fatal swoop until his horizontal position starts the death fade sequence.</summary>
+    /// <param name="body">The body slot whose swoop position and AI function are updated.</param>
+    /// <param name="state">Phantoon's per-instance state, including the eye used for aim direction.</param>
+    /// <param name="samus">The player position used to aim the eye and steer the swoop.</param>
     private void RunPhantoonFatalSwoop(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -80,6 +86,9 @@ public sealed partial class RoomEnemySystem
             body.VariableF = (ushort)PhantoonAiFunction.BeginFinalWavyDeath;
     }
 
+    /// <summary>Initializes the wave, hides the auxiliary parts, and enters Phantoon's final mosaic death phase.</summary>
+    /// <param name="body">The body slot that continues producing the BG2 wave.</param>
+    /// <param name="state">The boss state receiving wave, mosaic, visibility, and sound initialization.</param>
     private static void BeginPhantoonWavyMosaicDeath(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -105,6 +114,10 @@ public sealed partial class RoomEnemySystem
         state.LastCombatSoundEffect = 0x007e;
     }
 
+    /// <summary>Advances the death-wave amplitude, expands the mosaic effect, and then completes the final fade.</summary>
+    /// <param name="body">The body slot whose AI function changes when the fade reaches its endpoint.</param>
+    /// <param name="state">Phantoon's wave and mosaic state updated during the death sequence.</param>
+    /// <param name="nmiFrameCounter8">The frame counter used to preserve the native palette-fade cadence.</param>
     private void RunPhantoonWavyMosaicDeath(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -160,6 +173,10 @@ public sealed partial class RoomEnemySystem
         _vram!.ExecuteWordTransfer(clearedTilemap, PhantoonBg2VramBase, wordIncrement: 1);
     }
 
+    /// <summary>Waits through the death delay, powers on the Wrecked Ship, and applies the boss defeat and reward effects.</summary>
+    /// <param name="body">The body slot used for the final arena drop and then marked deleted.</param>
+    /// <param name="state">The boss state holding the power palette, persistence, door, and music requests.</param>
+    /// <param name="nmiFrameCounter8">The NMI frame counter supplied by the enemy update loop.</param>
     private void ActivateWreckedShipAfterPhantoon(
         RoomEnemySlot body,
         PhantoonEnemyState state,

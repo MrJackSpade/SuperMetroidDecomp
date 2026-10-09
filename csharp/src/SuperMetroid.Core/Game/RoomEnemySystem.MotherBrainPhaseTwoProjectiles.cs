@@ -7,9 +7,11 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Per-parameter horizontal offsets from Mother Brain's head for the six attached drool projectiles.</summary>
     private static ReadOnlySpan<short> MotherBrainDroolXOffsets =>
         [6, 14, 8, 10, 11, 12];
 
+    /// <summary>Per-parameter vertical offsets from Mother Brain's head for the six attached drool projectiles.</summary>
     private static ReadOnlySpan<short> MotherBrainDroolYOffsets =>
         [20, 18, 23, 19, 25, 18];
 
@@ -242,6 +244,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Positions an onion-ring projectile at the fixed offset from the linked Mother Brain head.</summary>
+    /// <param name="ring">Projectile slot whose current position is updated.</param>
+    /// <param name="state">Encounter state containing the physical head slot.</param>
     private static void PinMotherBrainOnionRingToMouth(
         RoomEnemyProjectileSlot ring,
         MotherBrainEnemyState state)
@@ -252,6 +257,10 @@ public sealed partial class RoomEnemySystem
         ring.YPosition = unchecked((ushort)(head.YPosition + 0x0010));
     }
 
+    /// <summary>Checks onion-ring contact with Samus using wrapped coordinate distances and the combined hitbox radii.</summary>
+    /// <param name="ring">Moving projectile whose hitbox is tested.</param>
+    /// <param name="samus">Samus position and kinematic hitbox.</param>
+    /// <returns>True when both wrapped axis distances are strictly inside their combined radii.</returns>
     private static bool MotherBrainOnionRingOverlapsSamus(
         RoomEnemyProjectileSlot ring,
         SamusState samus) =>
@@ -260,6 +269,10 @@ public sealed partial class RoomEnemySystem
         WrappedMagnitude(unchecked((ushort)(ring.YPosition - samus.YPosition))) <
             ring.YRadius + samus.Kinematics.YRadius;
 
+    /// <summary>Checks onion-ring contact with the Baby using wrapped distances and its authored hitbox radii.</summary>
+    /// <param name="ring">Moving projectile whose hitbox is tested.</param>
+    /// <param name="baby">Baby position and cutscene collision radii.</param>
+    /// <returns>True when both wrapped axis distances are strictly inside their combined radii.</returns>
     private static bool MotherBrainOnionRingOverlapsBaby(
         RoomEnemyProjectileSlot ring,
         BabyMetroidCutsceneState baby) =>
@@ -268,6 +281,11 @@ public sealed partial class RoomEnemySystem
         WrappedMagnitude(unchecked((ushort)(ring.YPosition - baby.YPosition))) <
             ring.YRadius + BabyMetroidCutsceneState.YHitboxRadius;
 
+    /// <summary>Deletes the ring, spawns the room-dust explosion at its impact point, and records the explosion sound request.</summary>
+    /// <param name="ring">Projectile slot consumed by the impact.</param>
+    /// <param name="state">Encounter state receiving the sound-effect request.</param>
+    /// <param name="x">Impact X coordinate captured before clearing the projectile.</param>
+    /// <param name="y">Impact Y coordinate captured before clearing the projectile.</param>
     private void ExplodeMotherBrainOnionRing(
         RoomEnemyProjectileSlot ring,
         MotherBrainEnemyState state,

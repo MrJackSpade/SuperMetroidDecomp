@@ -4,12 +4,17 @@ using System.Text;
 namespace SuperMetroid.Game;
 
 /// <summary>Loads player settings from the installation data root (or legacy ROM directory).</summary>
+/// <param name="Path">Absolute path of the INI file that supplied the loaded settings.</param>
+/// <param name="Options">Parsed gameplay and presentation settings from that file.</param>
+/// <param name="Source">Description of the selected settings location, such as an executable-directory override.</param>
 internal sealed record GameConfigurationFile(
     string Path,
     SuperMetroidGameOptions Options,
     string Source)
 {
+    /// <summary>Filename of the active player configuration stored in the data or executable directory.</summary>
     public const string FileName = "SuperMetroid.ini";
+    /// <summary>Filename of the first-run template used to seed a missing player configuration.</summary>
     public const string DefaultsFileName = "SuperMetroid.defaults.ini";
 
     /// <summary>Loads normal player settings from the installation, independent of its import ROM.</summary>
@@ -19,6 +24,11 @@ internal sealed record GameConfigurationFile(
         return LoadFromDirectory(dataDirectory, defaultsDirectory, "installation data-directory settings");
     }
 
+    /// <summary>Loads or initializes the player INI, preferring an executable-directory override over the data-root file.</summary>
+    /// <param name="dataDirectory">Installation data root used when no local override exists.</param>
+    /// <param name="defaultsDirectory">Optional directory for the active override and defaults template.</param>
+    /// <param name="source">Origin description recorded with the loaded file unless a local override is selected.</param>
+    /// <returns>The resolved settings-file path and its parsed options.</returns>
     private static GameConfigurationFile LoadFromDirectory(string dataDirectory,
         string? defaultsDirectory, string source)
     {

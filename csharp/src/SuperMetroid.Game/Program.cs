@@ -3,8 +3,12 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Desktop;
 using System.Runtime.InteropServices;
 
+/// <summary>Desktop game entry point that installs process error handling before startup and gameplay.</summary>
 internal static class Program
 {
+    /// <summary>Initializes the desktop host, loads configuration or replay input, and runs the game window.</summary>
+    /// <param name="args">Command-line arguments, including optional replay or DPI-audit options.</param>
+    /// <returns>Process exit code after startup, gameplay, or a reported fatal error.</returns>
     [STAThread]
     private static int Main(string[] args)
     {
@@ -139,10 +143,16 @@ internal static class Program
 /// <summary>Named Win32 process-error policy for the playable executable.</summary>
 static partial class NativeGameProcess
 {
+    /// <summary>Prevents the operating system from displaying critical-error dialogs for the process.</summary>
     internal const uint SemFailCriticalErrors = 0x0001;
+    /// <summary>Suppresses the native general-protection-fault error box.</summary>
     internal const uint SemNoGpFaultErrorBox = 0x0002;
+    /// <summary>Suppresses the native error box for failed file-open operations.</summary>
     internal const uint SemNoOpenFileErrorBox = 0x8000;
 
+    /// <summary>Sets the calling process's Win32 error-mode flags.</summary>
+    /// <param name="errorMode">Bitmask of process error-mode flags to enable.</param>
+    /// <returns>The process error-mode flags that were active before this call.</returns>
     [LibraryImport("kernel32.dll")]
     internal static partial uint SetErrorMode(uint errorMode);
 }

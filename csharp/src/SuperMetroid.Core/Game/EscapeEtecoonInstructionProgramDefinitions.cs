@@ -21,9 +21,16 @@ internal abstract class EscapeEtecoonInstructionProgramDefinitions
     /// <summary><c>InstList_EtecoonEscape_ExpressGratitudeThenEscape_0</c> at $B3:E5DA.</summary>
     internal const ushort ExpressGratitudeThenEscape = 0xe5da;
 
+    /// <summary>Number of compiled control and duration operands across all escape Etecoon programs.</summary>
     public static int MechanicsWordCount => 63;
+
+    /// <summary>Number of editable spritemap words referenced by the escape Etecoon programs.</summary>
     public static int PresentationWordCount => 30;
 
+    /// <summary>Resolves one ordinal in the compiled low/high-tide, escape, stationary, or gratitude instruction data.</summary>
+    /// <param name="index">Zero-based mechanics-word ordinal across the concatenated program catalog.</param>
+    /// <returns>The native address and operand value for that mechanics word.</returns>
+    /// <exception cref="IndexOutOfRangeException">The ordinal is outside the compiled mechanics-word range.</exception>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
@@ -90,10 +97,19 @@ internal abstract class EscapeEtecoonInstructionProgramDefinitions
         return new((ushort)(ExpressGratitudeThenEscape + offset), value);
     }
 
+    /// <summary>Resolves a four-pose animation's duration entries and its loop command and target.</summary>
+    /// <param name="start">Bank-$B3 address of the first duration word in the four-pose sequence.</param>
+    /// <param name="word">Ordinal selecting a duration, the <c>Goto</c> command, or its destination word.</param>
+    /// <param name="duration">Tick count assigned to each pose before the loop command.</param>
+    /// <returns>The address and value of the selected instruction word.</returns>
     private static InstructionMechanicsWord FourPoseLoop(ushort start, int word, ushort duration) =>
         new((ushort)(start + (word < 5 ? 4 * word : 18)),
             word < 4 ? duration : word == 4 ? CommonEnemyInstructionCodes.Goto : start);
 
+    /// <summary>Returns the native address of one editable spritemap operand in the escape Etecoon programs.</summary>
+    /// <param name="index">Zero-based ordinal among the thirty presentation words.</param>
+    /// <returns>Bank-$B3 address of the selected spritemap word.</returns>
+    /// <exception cref="IndexOutOfRangeException">The ordinal is outside the presentation-word range.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -111,6 +127,10 @@ internal abstract class EscapeEtecoonInstructionProgramDefinitions
         return (ushort)(ExpressGratitudeThenEscape + (index < 28 ? 8 + 8 * (index - 24) : 44 + 4 * (index - 28)));
     }
 
+    /// <summary>Looks up a compiled instruction operand by its native bank-$B3 address.</summary>
+    /// <param name="address">Address of a mechanics word in an escape Etecoon instruction list.</param>
+    /// <returns>The compiled operand stored at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not part of the compiled mechanics catalog.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

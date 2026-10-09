@@ -19,8 +19,11 @@ public enum KagoEnemyFunction : ushort
 /// </summary>
 public sealed class KagoEnemyState
 {
+    /// <summary>Common enemy-record storage from which this typed state reads and writes Kago's variable fields.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Associates Kago's typed state with the common enemy record for its physical slot.</summary>
+    /// <param name="slot">Initialized enemy slot whose variables back the Kago-specific fields.</param>
     internal KagoEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Common variable A ($7E:0FA8 plus physical slot offset), holding the native bank-$A8 indirect main-AI word; initialized to $AB7B and changed to $AB81 on the first AI update.</summary>
@@ -61,9 +64,12 @@ public sealed class KagoEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native enemy-definition pointer for the stationary Kago shell in bank $A8.</summary>
     internal const ushort KagoDefinition = 0xe7ff;
+    /// <summary>Native shot-response callback pointer used after common projectile hit handling.</summary>
     internal const ushort KagoShotAi = EnemyAiCodePointers.BankA8.KagoShot;
 
+    /// <summary>Typed Kago state indexed by physical enemy slot until each shell is removed.</summary>
     private readonly KagoEnemyState?[] _kagoStates =
         new KagoEnemyState?[MaximumEnemyCount];
 
@@ -138,6 +144,10 @@ public sealed partial class RoomEnemySystem
             state.SpawnedBugCount++;
     }
 
+    /// <summary>Gets the typed Kago state established when this shell was initialized.</summary>
+    /// <param name="slot">Enemy slot whose Kago-specific state is required.</param>
+    /// <returns>The state associated with <paramref name="slot"/>.</returns>
+    /// <exception cref="InvalidOperationException">The slot has not been initialized as a Kago.</exception>
     private KagoEnemyState RequireKagoState(RoomEnemySlot slot) =>
         _kagoStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Kago state.");

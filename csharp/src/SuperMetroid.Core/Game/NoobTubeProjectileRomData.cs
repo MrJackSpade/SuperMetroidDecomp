@@ -3,15 +3,26 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Bank-$86 tables and fixed-point constants for n00b-tube projectiles.</summary>
 public static class NoobTubeProjectileRomData
 {
+    /// <summary>Backing table for shard spawn X offsets, indexed by the native shard parameter.</summary>
     private static readonly short[] ShardXOffsetWords =
         [-56, -64, -20, -40, -64, -48, -24, -40, 0, -8];
+
+    /// <summary>Backing table for shard spawn Y offsets, paired by index with the X-offset table.</summary>
     private static readonly short[] ShardYOffsetWords =
         [8, -12, -26, -24, -32, 28, 16, -8, -24, 16];
+
+    /// <summary>Backing table of signed 8.8 initial X velocities for the shard parameter variants.</summary>
     private static readonly short[] ShardXVelocityWords =
         [-384, -384, -160, -288, -288, -320, -96, -352, 0, -64];
+
+    /// <summary>Backing table of signed 8.8 initial Y velocities paired with each shard variant's X velocity.</summary>
     private static readonly short[] ShardYVelocityWords =
         [320, -256, -416, -288, -288, 448, 576, -96, -288, 384];
+
+    /// <summary>Backing table of six released-air bubble X offsets from the spawning block origin.</summary>
     private static readonly ushort[] BubbleXOffsetWords = [40, 80, 104, 120, 152, 184];
+
+    /// <summary>Backing table of six released-air bubble Y offsets paired with their X offsets.</summary>
     private static readonly ushort[] BubbleYOffsetWords = [80, 72, 84, 32, 64, 84];
 
     /// <summary>Signed X offsets from the tube crack for parameters $00-$12.</summary>

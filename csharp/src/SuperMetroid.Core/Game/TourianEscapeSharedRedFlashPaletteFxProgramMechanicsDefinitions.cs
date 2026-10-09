@@ -48,10 +48,17 @@ public static class TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefiniti
     private const ushort GeneralColorByte = 0x00a8;
     /// <summary>CGRAM byte $E8: Arkanoid-block and red-orb flash destination.</summary>
     private const ushort ArkanoidColorByte = 0x00e8;
+    /// <summary>Provides the two entry definitions that converge on the shared timed red-flash loop.</summary>
     internal static readonly IReadOnlyList<TourianEscapeSharedRedFlashPaletteFxProgramDefinition> Definitions = new ProgramEntries();
+
+    /// <summary>Indexable view of the general-level and Arkanoid entry definitions in owner order.</summary>
     private sealed class ProgramEntries : IReadOnlyList<TourianEscapeSharedRedFlashPaletteFxProgramDefinition>
     {
+        /// <summary>Gets the number of distinct entry definitions.</summary>
         public int Count => 2;
+
+        /// <summary>Gets the entry definition for the requested red-flash owner.</summary>
+        /// <param name="index">The owner value identifying the general-level or Arkanoid entry.</param>
         public TourianEscapeSharedRedFlashPaletteFxProgramDefinition this[int index] =>
             (TourianEscapeSharedRedFlashPaletteOwner)index switch
             {
@@ -63,6 +70,8 @@ public static class TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefiniti
                     ArkanoidDefinitionPointer, ArkanoidProgramStart, ArkanoidColorByte, usesGoto: false),
                 _ => throw new ArgumentOutOfRangeException(nameof(index)),
             };
+
+        /// <summary>Enumerates the entry definitions in owner order.</summary>
         public IEnumerator<TourianEscapeSharedRedFlashPaletteFxProgramDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
@@ -127,6 +136,12 @@ public static class TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefiniti
 /// <summary>One entry into Tourian's shared escape red-flash loop.</summary>
 public sealed class TourianEscapeSharedRedFlashPaletteFxProgramDefinition
 {
+    /// <summary>Creates the metadata for one entry into the shared Tourian red-flash loop.</summary>
+    /// <param name="owner">The enemy category that owns this entry.</param>
+    /// <param name="definitionPointer">The bank-$8D palette-FX definition address selecting the entry.</param>
+    /// <param name="programStart">The instruction-list address where this entry begins.</param>
+    /// <param name="colorByteIndex">The destination CGRAM byte selected before entering the shared loop.</param>
+    /// <param name="usesGoto">Whether the entry branches over adjacent setup words to the shared loop.</param>
     internal TourianEscapeSharedRedFlashPaletteFxProgramDefinition(
         TourianEscapeSharedRedFlashPaletteOwner owner,
         ushort definitionPointer,

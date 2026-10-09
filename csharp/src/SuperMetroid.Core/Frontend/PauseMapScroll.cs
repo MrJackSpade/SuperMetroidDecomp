@@ -22,11 +22,22 @@ internal static class PauseMapScrollLayout
 /// Pause-page held-input arbitration and the shared $82:925D eight-update scroll pulse.
 /// File select uses different vertical bounds; pause must not inherit those limits.
 /// </summary>
+/// <param name="minimumX">Left boundary of the pause map's scrollable extent.</param>
+/// <param name="maximumX">Right boundary of the pause map's scrollable extent.</param>
+/// <param name="minimumY">Upper boundary of the pause map's scrollable extent.</param>
+/// <param name="maximumY">Lower boundary of the pause map's scrollable extent.</param>
 internal sealed class PauseMapScroll(ushort minimumX, ushort maximumX, ushort minimumY, ushort maximumY)
 {
+    /// <summary>Direction accepted for the current multi-update scroll pulse.</summary>
     private MapScrollDirection direction;
+    /// <summary>Number of updates elapsed in the currently accepted scroll pulse.</summary>
     private int tick;
 
+    /// <summary>Reports whether the map can continue scrolling in the requested direction.</summary>
+    /// <param name="candidate">Direction whose pause-map boundary is being checked.</param>
+    /// <param name="horizontal">Current horizontal map offset.</param>
+    /// <param name="vertical">Current vertical map offset.</param>
+    /// <returns><see langword="true"/> when that direction has not reached its pause-map cutoff.</returns>
     public bool CanScroll(MapScrollDirection candidate, ushort horizontal, ushort vertical) => candidate switch
     {
         MapScrollDirection.Left => Signed(minimumX - PauseMapScrollLayout.LeftMargin - horizontal) < 0,
@@ -36,6 +47,11 @@ internal sealed class PauseMapScroll(ushort minimumX, ushort maximumX, ushort mi
         _ => false,
     };
 
+    /// <summary>Arbitrates held directions and advances one update of the pause-map scroll pulse.</summary>
+    /// <param name="heldInput">Controller-button mask held on this update.</param>
+    /// <param name="horizontal">Current horizontal offset, updated when the pulse reaches its movement tick.</param>
+    /// <param name="vertical">Current vertical offset, updated when the pulse reaches its movement tick.</param>
+    /// <returns><see langword="true"/> when the accepted pulse completes; otherwise, <see langword="false"/>.</returns>
     public bool Step(ushort heldInput, ref ushort horizontal, ref ushort vertical)
     {
         bool left = CanScroll(MapScrollDirection.Left, horizontal, vertical);
@@ -71,6 +87,12 @@ internal sealed class PauseMapScroll(ushort minimumX, ushort maximumX, ushort mi
         return true;
     }
 
+    /// <summary>Interprets wrapped 16-bit coordinate arithmetic as a signed displacement.</summary>
+    /// <param name="value">Integer difference to narrow to SNES signed-coordinate width.</param>
+    /// <returns>The low 16 bits interpreted as a signed value.</returns>
     private static short Signed(int value) => unchecked((short)value);
+    /// <summary>Applies 16-bit wrapping to a map coordinate update.</summary>
+    /// <param name="value">Integer coordinate after applying the scroll step.</param>
+    /// <returns>The low 16 bits of the coordinate.</returns>
     private static ushort Wrap(int value) => unchecked((ushort)value);
 }

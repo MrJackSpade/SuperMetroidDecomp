@@ -7,6 +7,8 @@ using SuperMetroid.Desktop;
 
 internal static partial class InstalledPowerBombIsolationTests
 {
+    /// <summary>Checks every reachable Crystal Flash radius against its compiled fade operand and enforces the exclusive limit.</summary>
+    /// <param name="stock">Stock fixed-color catalog supplying the native lifetime colors.</param>
     private static void CheckCompiledLifetimeOperands(PowerBombFixedColorCatalog stock)
     {
         // The pinned $88:8D85 rows are (14,14,10), (15,15,9), (16,16,8),
@@ -26,6 +28,8 @@ internal static partial class InstalledPowerBombIsolationTests
         throw new InvalidOperationException("The compiled Crystal Flash radius domain accepted its exclusive limit.");
     }
 
+    /// <summary>Verifies current and legacy state graphs restore and resume both normal and Crystal Flash explosions.</summary>
+    /// <param name="colors">Stock color catalog rebound after each debugger-state restore.</param>
     private static void CheckStateRestoration(PowerBombFixedColorCatalog colors)
     {
         int currentRestores = 0, legacyRestores = 0;
@@ -58,6 +62,10 @@ internal static partial class InstalledPowerBombIsolationTests
             "checkpoints resume with identical stock state, colors and cleanup; old layouts warn explicitly.");
     }
 
+    /// <summary>Checks current edited captures and legacy modded captures retain their timing after catalog rebinding.</summary>
+    /// <param name="edited">Explosion state captured with customized presentation colors.</param>
+    /// <param name="reboundColors">Replacement catalog assigned after restoring the checkpoint.</param>
+    /// <param name="context">Scenario label used to identify a failed assertion.</param>
     private static void CheckEditedRestore(SamusPowerBombExplosionState edited,
         PowerBombFixedColorCatalog reboundColors, string context)
     {
@@ -83,6 +91,11 @@ internal static partial class InstalledPowerBombIsolationTests
         Require(!historical.IsActive, context + ": modded legacy capture did not release HDMA");
     }
 
+    /// <summary>Compares cleanup timing, mechanics, and displayed fade colors from a restored checkpoint onward.</summary>
+    /// <param name="state">Captured state used to create the comparison baseline.</param>
+    /// <param name="restored">Restored state whose remaining execution is compared with the baseline.</param>
+    /// <param name="colors">Catalog rebound to both states before they resume.</param>
+    /// <param name="context">Scenario label included in assertion failures.</param>
     private static void CompareRemainder(SamusPowerBombExplosionState state,
         SamusPowerBombExplosionState restored, PowerBombFixedColorCatalog colors, string context)
     {
@@ -99,6 +112,11 @@ internal static partial class InstalledPowerBombIsolationTests
         } while (baseline.IsActive);
     }
 
+    /// <summary>Serializes and deserializes an explosion state using either the current or legacy field layout.</summary>
+    /// <param name="state">Checkpoint to round-trip.</param>
+    /// <param name="legacy">Whether to write the prior field envelope before deserialization.</param>
+    /// <param name="warning">Receives any migration warning written during deserialization.</param>
+    /// <returns>The reconstructed explosion state.</returns>
     private static SamusPowerBombExplosionState Restore(SamusPowerBombExplosionState state,
         bool legacy, out string warning)
     {
@@ -116,6 +134,9 @@ internal static partial class InstalledPowerBombIsolationTests
         finally { Console.SetError(previous); warning = errors.ToString(); }
     }
 
+    /// <summary>Writes the pre-separation explosion-state envelope, omitting the newer afterglow countdown field.</summary>
+    /// <param name="destination">Stream receiving the legacy object graph.</param>
+    /// <param name="state">State whose legacy-compatible fields are serialized.</param>
     private static void WriteLegacyGraph(Stream destination, SamusPowerBombExplosionState state)
     {
         // Construct the exact prior field envelope while using the production codec

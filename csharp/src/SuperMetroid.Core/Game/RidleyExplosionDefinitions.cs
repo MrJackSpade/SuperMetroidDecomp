@@ -131,17 +131,23 @@ internal static class RidleyExplosionDefinitions
     };
 }
 
-/// <summary>One native Ridley-breakup lifetime and initializer-dispatch record.</summary>
+/// <summary>Lifetime value returned for one Ridley breakup actor parameter.</summary>
+/// <param name="Lifetime">Cartridge-authored frame lifetime copied into the fragment actor's timer state.</param>
 internal readonly record struct RidleyExplosionPartDefinition(
     ushort Lifetime);
 
-/// <summary>One facing-specific body fragment placement and animation selector.</summary>
+/// <summary>Facing-specific offsets and animation selection for one non-tail Ridley fragment.</summary>
+/// <param name="XOffset">Signed horizontal displacement from the parent Ridley position for the fragment's body origin.</param>
+/// <param name="YOffset">Signed vertical displacement from the parent Ridley position for the fragment's body origin.</param>
+/// <param name="InstructionList">Bank-$A6 pointer to the fragment's facing-specific native animation instruction list.</param>
 internal readonly record struct RidleyExplosionBodyPartDefinition(
     short XOffset,
     short YOffset,
     ushort InstructionList);
 
-/// <summary>One signed body-relative position in Ridley's death-explosion cycle.</summary>
+/// <summary>One signed scatter offset used to place a small explosion around Ridley's death breakup.</summary>
+/// <param name="XOffset">Horizontal displacement from Ridley's death-explosion anchor, in game-coordinate units.</param>
+/// <param name="YOffset">Vertical displacement from Ridley's death-explosion anchor, in game-coordinate units.</param>
 internal readonly record struct RidleyDeathExplosionPlacement(
     short XOffset,
     short YOffset);

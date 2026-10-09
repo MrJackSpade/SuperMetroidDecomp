@@ -103,6 +103,16 @@ public static class LibraryBackgroundLoader
 bg3CharacterBaseWord);
     }
 
+    /// <summary>Copies a compiled list transfer into VRAM from live memory or the matching installed artwork.</summary>
+    /// <param name="bus">Address space used to access cartridge-visible memory.</param>
+    /// <param name="vram">VRAM queue receiving the transfer at a word-addressed destination.</param>
+    /// <param name="sourceAddress">Source bus address encoded by the library-background command.</param>
+    /// <param name="destinationWord">Destination VRAM word address from the command.</param>
+    /// <param name="byteCount">Number of source bytes to transfer.</param>
+    /// <param name="skyArt">Installed room-sky transfers that may own the source.</param>
+    /// <param name="hudArt">Installed HUD character data that may own the source.</param>
+    /// <param name="characterArt">Installed character data, including the statue-ghost transfer.</param>
+    /// <exception cref="InvalidDataException">The transfer size is zero or installed resources do not own the source.</exception>
     private static void TransferToVram(ISnesAddressSpace bus, SnesVram vram,
         int sourceAddress, ushort destinationWord, ushort byteCount,
         RoomSkyTilemapCatalog? skyArt, HudTileAtlas? hudArt,
@@ -153,6 +163,13 @@ bg3CharacterBaseWord);
                 $"Library-background transfer ${sourceAddress:X6} has no installed artwork.");
     }
 
+    /// <summary>Copies an installed, decompressed room tilemap into its bank-$7E staging destination.</summary>
+    /// <param name="bus">Address space receiving the decompressed bytes.</param>
+    /// <param name="sourceAddress">ROM source address used to select the installed tilemap.</param>
+    /// <param name="destination">Bank-relative WRAM byte offset at which the tilemap is staged.</param>
+    /// <param name="tilemapArt">Catalog supplying the decompressed tilemap data.</param>
+    /// <exception cref="InvalidOperationException">No tilemap catalog is installed.</exception>
+    /// <exception cref="InvalidDataException">The tilemap would extend beyond the WRAM bank.</exception>
     private static void DecompressToWorkRam(ISnesAddressSpace bus, int sourceAddress,
         ushort destination, RoomBackgroundTilemapCatalog? tilemapArt)
     {
@@ -171,6 +188,10 @@ bg3CharacterBaseWord);
                 decompressed[index]);
     }
 
+    /// <summary>Fills the BG2 staging pages with the cleared tile and queues their VRAM transfer.</summary>
+    /// <param name="bus">Address space containing the WRAM staging pages.</param>
+    /// <param name="vram">VRAM queue receiving the BG2 pages.</param>
+    /// <param name="includeKraidPage">Whether to also copy the page used by Kraid's background layout.</param>
     private static void ClearBg2(ISnesAddressSpace bus, SnesVram vram, bool includeKraidPage)
     {
         // Clear_BG2_Tilemap fills both $800-byte WRAM pages with tile $0338, then performs
@@ -206,10 +227,20 @@ bg3CharacterBaseWord);
             transfer.VramDestinationWord);
     }
 
+    /// <summary>Requires the address space to expose mutable WRAM for queued memory-to-VRAM transfers.</summary>
+    /// <param name="bus">Address space that must provide live writable memory.</param>
+    /// <returns>The mutable memory view used as the queued transfer source.</returns>
+    /// <exception cref="InvalidOperationException">The address space does not expose mutable memory.</exception>
     private static ISnesMutableMemory RequireWorkMemory(ISnesAddressSpace bus) =>
         bus as ISnesMutableMemory ?? throw new InvalidOperationException(
             "Library-background staging transfers require live WRAM.");
 
+    /// <summary>Fills an even-sized bank-relative WRAM range with repeated little-endian words.</summary>
+    /// <param name="bus">Address space receiving the fill writes.</param>
+    /// <param name="destination">Bank-relative byte offset of the first word.</param>
+    /// <param name="byteCount">Even number of bytes to fill within the bank.</param>
+    /// <param name="value">Word value written at each successive two-byte position.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The byte count is odd or the range exceeds the bank.</exception>
     private static void FillWords(
         ISnesAddressSpace bus,
         ushort destination,
@@ -238,5 +269,6 @@ bg3CharacterBaseWord);
 /// Observable output of one bank-$82 library-background list, including PPU register
 /// side effects which cannot be represented by VRAM writes alone.
 /// </summary>
+/// <param name="Bg3CharacterBaseWord">BG3 character-base register value requested by a list, or null when unchanged.</param>
 public readonly record struct LibraryBackgroundExecutionResult(
     ushort? Bg3CharacterBaseWord);

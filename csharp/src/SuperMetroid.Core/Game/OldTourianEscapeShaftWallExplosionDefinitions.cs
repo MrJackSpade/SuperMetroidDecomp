@@ -21,17 +21,21 @@ internal static class OldTourianEscapeShaftWallExplosionDefinitions
 
     /// <summary>$86:B4A0/$B4A6: the wall-middle X/Y written to position and Var0/Var1.</summary>
     internal const ushort XPosition = 0x0110;
+    /// <summary>Native center Y coordinate for the wall-middle explosion and its Var1 value.</summary>
     internal const ushort YPosition = 0x0888;
 
     /// <summary>$86:B44F-$B451: library-two small explosion $24, Max6.</summary>
     internal static SoundEffectId ExplosionSound => SoundEffectLibrary2Sounds.SmallExplosion;
+    /// <summary>Max6 argument supplied to the native library-two small-explosion sound instruction.</summary>
     internal const byte ExplosionSoundMaximum = 6;
 
     /// <summary>$86:B452-$B468: six small-explosion poses holding 4, 6, 5, 5, 5 and 6 frames.</summary>
     private static ReadOnlySpan<ushort> FrameDurations => [4, 6, 5, 5, 5, 6];
 
+    /// <summary>Address of the first timed frame record whose operands refer to extracted explosion artwork.</summary>
     private const ushort FirstFrame = 0xb452;
 
+    /// <summary>Reports whether the projectile kind is owned by this old-Tourian fake-wall explosion program.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) =>
         kind == RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion;
 
@@ -59,8 +63,12 @@ internal static class OldTourianEscapeShaftWallExplosionDefinitions
             $"Old Tourian escape-shaft wall explosion has no mechanics word at $86:{address:X4}.");
     }
 
+    /// <summary>Gets the number of timed spritemap operands retained as presentation data.</summary>
     internal static int PresentationWordCount => FrameDurations.Length;
 
+    /// <summary>Returns the address of one frame's spritemap operand, leaving its duration in the compiled mechanics table.</summary>
+    /// <param name="index">Zero-based frame index in the six-frame explosion sequence.</param>
+    /// <returns>The bank-$86 word address of the frame's presentation pointer.</returns>
     internal static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();

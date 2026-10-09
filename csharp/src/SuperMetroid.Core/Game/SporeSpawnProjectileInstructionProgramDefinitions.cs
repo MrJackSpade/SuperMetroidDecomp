@@ -28,9 +28,16 @@ internal abstract class SporeSpawnProjectileInstructionProgramDefinitions
     /// </summary>
     private static readonly ushort[] ShotDurations = [1, 3, 6, 5, 5, 5, 6];
     // Closed-emitter hold 1 and airborne/stalk holds 5 are the same authored cadence (reviewed under #1165).
+    /// <summary>Number of address/value pairs compiling the spawner, spore, stalk, and shot programs.</summary>
     public static int MechanicsWordCount => 28;
+
+    /// <summary>Number of spritemap operands referenced by those projectile programs.</summary>
     public static int PresentationWordCount => 17;
 
+    /// <summary>Gets a compiled instruction address and value by its flattened program-word index.</summary>
+    /// <param name="index">Zero-based index spanning the five compiled instruction lists.</param>
+    /// <returns>The ROM address and mechanics value represented at that position.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the compiled mechanics words.</exception>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -70,6 +77,10 @@ internal abstract class SporeSpawnProjectileInstructionProgramDefinitions
         });
     }
 
+    /// <summary>Gets the native address of a presentation operand by its flattened program order.</summary>
+    /// <param name="index">Zero-based index among the seventeen spritemap operands.</param>
+    /// <returns>The ROM address containing the operand referenced by the compiled programs.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the compiled presentation words.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -80,11 +91,18 @@ internal abstract class SporeSpawnProjectileInstructionProgramDefinitions
         int shot = index - 10;
         return (ushort)(SporeShot + (shot == 0 ? 2 : shot < 4 ? 8 + 4 * (shot - 1) : 22 + 4 * (shot - 4)));
     }
+    /// <summary>Determines whether this catalog supplies mechanics for the stalk, airborne spore, or spawner.</summary>
+    /// <param name="kind">Projectile kind to check.</param>
+    /// <returns><see langword="true"/> when the kind uses one of these compiled programs.</returns>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.SporeSpawnStalk or
         RoomEnemyProjectileKind.SporeSpawnSpore or
         RoomEnemyProjectileKind.SporeSpawnSpawner;
 
+    /// <summary>Looks up a compiled mechanics value using its native instruction address.</summary>
+    /// <param name="address">ROM address of a mechanics word in one of the compiled programs.</param>
+    /// <returns>The value stored for the requested instruction address.</returns>
+    /// <exception cref="InvalidDataException">The address does not belong to a compiled Spore Spawn program.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

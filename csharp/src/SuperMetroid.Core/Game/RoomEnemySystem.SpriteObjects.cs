@@ -61,6 +61,8 @@ public enum RoomSpriteObjectKind : ushort
 /// </summary>
 public sealed class RoomSpriteObjectSlot
 {
+    /// <summary>Creates a slot with its fixed position in the shared 32-entry pool.</summary>
+    /// <param name="slotIndex">Zero-based pool index retained for native word-array addressing.</param>
     internal RoomSpriteObjectSlot(int slotIndex) => SlotIndex = slotIndex;
 
     /// <summary>Zero-based physical pool slot, zero through 31; allocation and update/draw traversal search from the highest slot downward.</summary>
@@ -94,6 +96,7 @@ public sealed class RoomSpriteObjectSlot
     /// <summary>Native $7E:F2F8 plus the slot offset: bit zero suppresses instruction updates but leaves active-object drawing and slot occupancy intact.</summary>
     public ushort DisableFlags { get; internal set; }
 
+    /// <summary>Resets the slot's object identity, position, graphics, instruction state, and flags.</summary>
     internal void Clear()
     {
         Kind = RoomSpriteObjectKind.None;
@@ -109,7 +112,9 @@ public sealed class RoomSpriteObjectSlot
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Number of physical sprite-object entries in the native bank-$B4 pool.</summary>
     private const int RoomSpriteObjectSlotCount = 32;
+    /// <summary>Fixed sprite-object slots shared by enemy bodies, effects, and room objects.</summary>
     private readonly RoomSpriteObjectSlot[] _roomSpriteObjects =
         Enumerable.Range(0, RoomSpriteObjectSlotCount)
             .Select(index => new RoomSpriteObjectSlot(index))
@@ -181,6 +186,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Executes the repeat-last, terminate, or goto opcode stored in a slot's instruction timer.</summary>
+    /// <param name="slot">Active object whose current program record is an opcode.</param>
+    /// <exception cref="InvalidDataException">The slot contains an opcode that has no translated implementation.</exception>
     private static void ProcessRoomSpriteObjectOpcode(RoomSpriteObjectSlot slot)
     {
         switch (slot.InstructionTimer)
@@ -218,6 +226,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Loads a timed frame's duration and resolves its visual spritemap operand.</summary>
+    /// <param name="slot">Object slot positioned at a timed instruction record.</param>
+    /// <exception cref="InvalidDataException">The record does not contain a positive timed-frame duration.</exception>
     private static void LoadRoomSpriteObjectFrame(RoomSpriteObjectSlot slot)
     {
         ushort duration = RoomSpriteObjectInstructionProgramDefinitions.ReadMechanicsWord(

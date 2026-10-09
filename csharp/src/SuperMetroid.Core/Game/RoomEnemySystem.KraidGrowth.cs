@@ -6,6 +6,10 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Starts Kraid's growth phase once health falls below the sixth health-eighth threshold.</summary>
+    /// <param name="body">Main Kraid slot whose script state and growth countdown are updated.</param>
+    /// <param name="state">Per-Kraid phase state receiving the next body-part function and camera/ejection setup.</param>
+    /// <returns>True when the phase transition was initialized; false while Kraid remains above the threshold.</returns>
     private bool TryBeginKraidGrowth(RoomEnemySlot body, KraidEnemyState state)
     {
         if (unchecked((short)(body.Health - state.HealthEighthThreshold(6))) >= 0)
@@ -37,6 +41,9 @@ public sealed partial class RoomEnemySystem
         return true;
     }
 
+    /// <summary>Executes the current growth-phase action, advancing Kraid through camera release, ceiling break, BG2 update, and room fade.</summary>
+    /// <param name="body">Main Kraid slot carrying the growth function and counters.</param>
+    /// <param name="state">Per-Kraid state updated as each growth stage completes.</param>
     private void RunKraidGrowthFunction(RoomEnemySlot body, KraidEnemyState state)
     {
         switch ((KraidAiFunction)body.VariableA)
@@ -110,6 +117,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Advances palette six by one channel-wise interpolation step toward room colors or black.</summary>
+    /// <param name="state">Growth state used to read the authored room-backdrop target colors.</param>
+    /// <param name="fadeToBlack">Selects black instead of the room backdrop as the fade target.</param>
+    /// <returns>True after all thirteen interpolation steps have completed.</returns>
     private bool AdvanceKraidRoomBackgroundFade(
         KraidEnemyState state,
         bool fadeToBlack)
@@ -132,6 +143,11 @@ public sealed partial class RoomEnemySystem
         return true;
     }
 
+    /// <summary>Interpolates a BGR555 color between the current value and a target using the growth fade step.</summary>
+    /// <param name="step">Current interpolation step from zero through thirteen.</param>
+    /// <param name="current">Starting BGR555 color.</param>
+    /// <param name="target">Destination BGR555 color.</param>
+    /// <returns>The color with each five-bit component transitioned independently.</returns>
     private static ushort TransitionKraidColor(ushort step, ushort current, ushort target)
     {
         int red = TransitionKraidComponent(step, current & 31, target & 31);
@@ -140,6 +156,11 @@ public sealed partial class RoomEnemySystem
         return unchecked((ushort)(red | (green << 5) | (blue << 10)));
     }
 
+    /// <summary>Applies one fixed-point fade step to a single five-bit color component.</summary>
+    /// <param name="step">Interpolation step, with zero preserving the source and thirteen selecting the target.</param>
+    /// <param name="current">Starting component value.</param>
+    /// <param name="target">Destination component value.</param>
+    /// <returns>The transitioned component value.</returns>
     private static int TransitionKraidComponent(ushort step, int current, int target)
     {
         if (step == 0)
@@ -152,6 +173,9 @@ public sealed partial class RoomEnemySystem
         return (signedDelta + current * 256) >> 8;
     }
 
+    /// <summary>Initializes Kraid's second phase and activates the lint launchers, nails, and walking foot behavior.</summary>
+    /// <param name="body">Main Kraid slot whose head instruction and target position are set for the next phase.</param>
+    /// <param name="state">Per-Kraid state receiving second-phase part functions and movement targets.</param>
     private void FinishKraidGrowth(RoomEnemySlot body, KraidEnemyState state)
     {
         SetupKraidSecondPhaseThinking(body, state);

@@ -3,6 +3,8 @@ using System.Diagnostics;
 namespace SuperMetroid.Desktop;
 
 /// <summary>Result of a host-device queue/backpressure diagnostic.</summary>
+/// <param name="BuffersSubmitted">Number of silent PCM blocks submitted to the host device.</param>
+/// <param name="SubmissionTime">Elapsed time spent submitting those blocks, excluding the final queue drain.</param>
 public readonly record struct WaveOutAudioSmokeTestResult(
     int BuffersSubmitted,
     TimeSpan SubmissionTime);
@@ -12,9 +14,16 @@ public readonly record struct WaveOutAudioSmokeTestResult(
 /// </summary>
 public static class WaveOutAudioSmokeTest
 {
+    /// <summary>PCM sample rate used to construct the Windows waveOut device.</summary>
     private const int SampleRate = 48_000;
+
+    /// <summary>Number of interleaved PCM channels submitted for each audio frame.</summary>
     private const int ChannelCount = 2;
+
+    /// <summary>Number of stereo sample frames corresponding to one 60 Hz video frame.</summary>
     private const int StereoFramesPerVideoFrame = SampleRate / 60;
+
+    /// <summary>Default submission count, three times the six-buffer hardware queue capacity.</summary>
     private const int DefaultBuffersToSubmit = 18;
 
     /// <summary>

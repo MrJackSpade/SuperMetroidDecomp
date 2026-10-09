@@ -10,6 +10,9 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Attempts to launch Kraid's spit rock from the body using the next room random value.</summary>
+    /// <param name="body">Body slot supplying the projectile's launch position.</param>
+    /// <returns><see langword="true"/> if a shared projectile slot was available and initialized.</returns>
     private bool SpawnKraidSpitRock(RoomEnemySlot body)
     {
         RoomEnemyProjectileSlot? rock = AllocateEnemyProjectile();
@@ -31,6 +34,9 @@ public sealed partial class RoomEnemySystem
         return true;
     }
 
+    /// <summary>Records a rising-rock request and emits a randomized left or right rock when a slot is free.</summary>
+    /// <param name="body">Body slot supplying the origin for the rock's randomized horizontal position.</param>
+    /// <param name="state">Kraid state whose request and successful-spawn counts are updated.</param>
     private void RequestKraidRisingRock(RoomEnemySlot body, KraidEnemyState state)
     {
         state.RiseRockSpawnRequestCount++;
@@ -58,6 +64,9 @@ public sealed partial class RoomEnemySystem
         LastKraidSoundEffect = new KraidSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x001e));
     }
 
+    /// <summary>Attempts to create a ceiling rock at the given horizontal position with randomized downward speed.</summary>
+    /// <param name="xPosition">World X coordinate assigned to the new rock.</param>
+    /// <returns><see langword="true"/> if a shared projectile slot was available and initialized.</returns>
     private bool SpawnKraidCeilingRock(ushort xPosition)
     {
         RoomEnemyProjectileSlot? rock = AllocateEnemyProjectile();
@@ -77,6 +86,9 @@ public sealed partial class RoomEnemySystem
         return true;
     }
 
+    /// <summary>Moves a bouncing rock, removes it on block collision, and advances its horizontal and vertical speeds.</summary>
+    /// <param name="rock">Projectile slot being advanced.</param>
+    /// <param name="level">Room geometry used to detect block collisions during movement.</param>
     private void RunKraidRockPreInstruction(
         RoomEnemyProjectileSlot rock,
         RoomLevelData level)
@@ -95,6 +107,9 @@ public sealed partial class RoomEnemySystem
         rock.YVelocity = unchecked((ushort)(rock.YVelocity + 0x0040));
     }
 
+    /// <summary>Advances a ceiling rock's fall, removing it when vertical movement collides with room geometry.</summary>
+    /// <param name="rock">Projectile slot being advanced.</param>
+    /// <param name="level">Room geometry used to detect vertical block collisions.</param>
     private void RunKraidCeilingRockPreInstruction(
         RoomEnemyProjectileSlot rock,
         RoomLevelData level)
@@ -107,6 +122,8 @@ public sealed partial class RoomEnemySystem
         rock.YVelocity = unchecked((ushort)((rock.YVelocity + 0x0018) & 0x3fff));
     }
 
+    /// <summary>Reads the random value required by Kraid's projectile selection and launch rules.</summary>
+    /// <returns>The next room random number supplied by the active simulation context.</returns>
     private ushort ReadKraidRandomNumber() =>
         RequireRandomNumber();
 }

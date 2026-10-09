@@ -7,6 +7,11 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes one recognized Spore Spawn instruction callback and advances its operand cursor as the native word layout requires.</summary>
+    /// <param name="body">Enemy slot whose definition and instruction state identify the boss.</param>
+    /// <param name="opcode">Instruction callback word currently being dispatched.</param>
+    /// <param name="cursor">Address of the callback word; handled instructions advance it past any inline operands.</param>
+    /// <returns><see langword="true"/> when the slot belongs to Spore Spawn and the opcode is handled; otherwise leaves the cursor unchanged and returns <see langword="false"/>.</returns>
     private bool TryProcessSporeSpawnInstruction(
         RoomEnemySlot body,
         ushort opcode,
@@ -111,6 +116,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Loads the selected death-palette frame into the sprite, level, and background color rows.</summary>
+    /// <param name="sourceByteOffset">Native byte offset identifying the death-sequence frame.</param>
+    /// <param name="targetOnly">When <see langword="true"/>, updates the target palette snapshot instead of live CGRAM.</param>
     private void LoadSporeSpawnDeathPalette(ushort sourceByteOffset, bool targetOnly)
     {
         SporeSpawnEnemyState state = _sporeSpawn ?? throw new InvalidOperationException(
@@ -132,6 +140,11 @@ public sealed partial class RoomEnemySystem
             targetOnly);
     }
 
+    /// <summary>Copies one layer of the selected death frame either to live CGRAM or the boss's target colors.</summary>
+    /// <param name="layer">Sprite, level, or background palette row being updated.</param>
+    /// <param name="sourceByteOffset">Native byte offset used to select a frame in the layer's death-palette table.</param>
+    /// <param name="state">Spore Spawn state receiving target colors when <paramref name="targetOnly"/> is enabled.</param>
+    /// <param name="targetOnly">Selects snapshot updates instead of visible CGRAM writes.</param>
     private void CopySporeSpawnPaletteRow(
         SporeSpawnDeathPaletteLayer layer,
         ushort sourceByteOffset,
@@ -154,6 +167,8 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Uses the next RNG value to place the hardening dust cloud around the boss and queues its sound effect.</summary>
+    /// <param name="state">Boss state providing the center position for the dust burst.</param>
     private void SpawnSporeSpawnHardeningDust(SporeSpawnEnemyState state)
     {
         ushort random = _nextRandom!();
@@ -164,6 +179,8 @@ public sealed partial class RoomEnemySystem
         LastSporeSpawnSoundEffectLibrary2 = 0x0029;
     }
 
+    /// <summary>Uses the next RNG value to place one dying-explosion sprite object and queues its sound effect.</summary>
+    /// <param name="state">Boss state providing the center position for the explosion.</param>
     private void SpawnSporeSpawnDyingExplosion(SporeSpawnEnemyState state)
     {
         ushort random = _nextRandom!();
@@ -175,6 +192,8 @@ public sealed partial class RoomEnemySystem
         LastSporeSpawnSoundEffectLibrary2 = 0x0025;
     }
 
+    /// <summary>Requests the sixteen deterministic drop attempts emitted by the boss's death instruction and records that the burst was issued.</summary>
+    /// <param name="state">Boss state whose death-drop request flag is set after all attempts are made.</param>
     private void RequestSporeSpawnDeathDrops(SporeSpawnEnemyState state)
     {
         for (int drop = 0; drop < 16; drop++)

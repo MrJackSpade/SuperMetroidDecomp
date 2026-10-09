@@ -12,72 +12,139 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Bank-$A0 callback for the standard enemy-to-Samus contact path.</summary>
     private const ushort CommonNormalEnemyTouchAi = EnemyAiCodePointers.BankA0.NormalEnemyTouch;
+    /// <summary>Bank-$A0 callback for ordinary projectile damage and death handling.</summary>
     private const ushort CommonNormalEnemyShotAi = EnemyAiCodePointers.BankA0.NormalEnemyShot;
+    /// <summary>Skree's bank-$A3 projectile reaction.</summary>
     private const ushort SkreeShotAi = EnemyAiCodePointers.BankA3.SkreeShot;
+    /// <summary>Metaree's bank-$A3 projectile reaction.</summary>
     private const ushort MetareeShotAi = EnemyAiCodePointers.BankA3.MetareeShot;
+    /// <summary>Fireflea's bank-$A3 touch reaction.</summary>
     private const ushort FirefleaTouchAi = EnemyAiCodePointers.BankA3.FirefleaTouch;
+    /// <summary>Fireflea's bank-$A3 power-bomb reaction.</summary>
     private const ushort FirefleaPowerBombAi = EnemyAiCodePointers.BankA3.FirefleaPowerBomb;
+    /// <summary>Fireflea's bank-$A3 ordinary projectile reaction.</summary>
     private const ushort FirefleaShotAi = EnemyAiCodePointers.BankA3.FirefleaShot;
+    /// <summary>Mochtroid's bank-$A3 touch reaction.</summary>
     private const ushort MochtroidTouchAi = EnemyAiCodePointers.BankA3.MochtroidTouch;
+    /// <summary>Mochtroid's bank-$A3 projectile reaction.</summary>
     private const ushort MochtroidShotAi = EnemyAiCodePointers.BankA3.MochtroidShot;
+    /// <summary>Metroid's bank-$A3 touch reaction.</summary>
     private const ushort MetroidTouchAi = EnemyAiCodePointers.BankA3.MetroidTouch;
+    /// <summary>Metroid's bank-$A3 projectile reaction.</summary>
     private const ushort MetroidShotAi = EnemyAiCodePointers.BankA3.MetroidShot;
+    /// <summary>Metroid's bank-$A3 power-bomb reaction.</summary>
     private const ushort MetroidPowerBombAi = EnemyAiCodePointers.BankA3.MetroidPowerBomb;
+    /// <summary>Zebetite's bank-$A6 touch callback.</summary>
     private const ushort ZebetiteTouchAi = EnemyAiCodePointers.BankA6.ZebetiteTouch;
+    /// <summary>Zebetite's bank-$A6 projectile callback.</summary>
     private const ushort ZebetiteShotAi = EnemyAiCodePointers.BankA6.ZebetiteShot;
+    /// <summary>Yard's bank-$A3 touch reaction.</summary>
     private const ushort YardTouchAi = EnemyAiCodePointers.BankA3.YardTouch;
+    /// <summary>Yard's bank-$A3 projectile reaction.</summary>
     private const ushort YardShotAi = EnemyAiCodePointers.BankA3.YardShot;
+    /// <summary>Beetom's bank-$A8 touch callback.</summary>
     private const ushort BeetomTouchAi = EnemyAiCodePointers.BankA8.BeetomTouch;
+    /// <summary>Beetom's bank-$A8 projectile callback.</summary>
     private const ushort BeetomShotAi = EnemyAiCodePointers.BankA8.BeetomShot;
+    /// <summary>Powamp's bank-$A8 touch callback.</summary>
     private const ushort PowampTouchAi = EnemyAiCodePointers.BankA8.PowampTouch;
+    /// <summary>Powamp's bank-$A8 projectile callback.</summary>
     private const ushort PowampShotAi = EnemyAiCodePointers.BankA8.PowampShot;
+    /// <summary>Powamp's bank-$A8 power-bomb callback.</summary>
     private const ushort PowampPowerBombAi = EnemyAiCodePointers.BankA8.PowampPowerBomb;
+    /// <summary>Work Robot's bank-$A8 touch callback.</summary>
     private const ushort WorkRobotTouchAi = EnemyAiCodePointers.BankA8.WorkRobotTouch;
+    /// <summary>Work Robot shot callback that rejects power beams and normal missiles.</summary>
     private const ushort WorkRobotNoPowerShotAi = EnemyAiCodePointers.BankA8.WorkRobotNoPowerShot;
+    /// <summary>Work Robot's ordinary bank-$A8 projectile callback.</summary>
     private const ushort WorkRobotShotAi = EnemyAiCodePointers.BankA8.WorkRobotShot;
+    /// <summary>Bull's bank-$A8 projectile callback.</summary>
     private const ushort BullShotAi = EnemyAiCodePointers.BankA8.BullShot;
+    /// <summary>Fake Kraid's bank-$A6 touch callback.</summary>
     private const ushort FakeKraidTouchAi = EnemyAiCodePointers.BankA6.FakeKraidTouch;
+    /// <summary>Fake Kraid's bank-$A6 projectile callback.</summary>
     private const ushort FakeKraidShotAi = EnemyAiCodePointers.BankA6.FakeKraidShot;
+    /// <summary>Shared Space Pirate power-bomb reaction in bank $B2.</summary>
     private const ushort SpacePiratePowerBombAi = EnemyAiCodePointers.BankB2.PowerBomb;
+    /// <summary>Shared Space Pirate touch callback in bank $B2.</summary>
     private const ushort SpacePirateTouchAi = EnemyAiCodePointers.BankB2.Touch;
+    /// <summary>Shared Space Pirate projectile callback in bank $B2.</summary>
     private const ushort SpacePirateShotAi = EnemyAiCodePointers.BankB2.Shot;
+    /// <summary>Mama Turtle's bank-$A2 contact callback.</summary>
     private const ushort MamaTurtleTouchAi = EnemyAiCodePointers.BankA2.MamaTurtleTouch;
+    /// <summary>Baby Turtle's bank-$A2 contact callback.</summary>
     private const ushort BabyTurtleTouchAi = EnemyAiCodePointers.BankA2.BabyTurtleTouch;
+    /// <summary>Baby Turtle's bank-$A2 projectile callback.</summary>
     private const ushort BabyTurtleShotAi = EnemyAiCodePointers.BankA2.BabyTurtleShot;
+    /// <summary>Yapping Maw's bank-$A8 contact callback.</summary>
     private const ushort YappingMawTouchAi = EnemyAiCodePointers.BankA8.YappingMawTouch;
+    /// <summary>Yapping Maw's bank-$A8 projectile callback.</summary>
     private const ushort YappingMawShotAi = EnemyAiCodePointers.BankA8.YappingMawShot;
+    /// <summary>Gold Ninja hitbox callback for a region that can take projectile damage.</summary>
     private const ushort GoldNinjaVulnerableHitboxShotAi = EnemyAiCodePointers.BankB2.GoldNinjaVulnerableHitboxShot;
+    /// <summary>Gold Ninja hitbox callback for a region protected from ordinary projectiles.</summary>
     private const ushort GoldNinjaInvincibleHitboxShotAi = EnemyAiCodePointers.BankB2.GoldNinjaInvincibleHitboxShot;
+    /// <summary>Crocomire header's bank-$A4 touch callback.</summary>
     private const ushort CrocomireHeaderTouchAi = EnemyAiCodePointers.BankA4.HeaderTouch;
+    /// <summary>Crocomire claw's bank-$A4 touch callback.</summary>
     private const ushort CrocomireClawTouchAi = EnemyAiCodePointers.BankA4.ClawTouch;
+    /// <summary>Crocomire component callback that performs no projectile action.</summary>
     private const ushort CrocomireNoOpHitboxShotAi = EnemyAiCodePointers.BankA4.NoOpHitboxShot;
+    /// <summary>Crocomire dust-region projectile callback.</summary>
     private const ushort CrocomireDustHitboxShotAi = EnemyAiCodePointers.BankA4.DustHitboxShot;
+    /// <summary>Crocomire mouth projectile callback.</summary>
     private const ushort CrocomireMouthShotAi = EnemyAiCodePointers.BankA4.MouthShot;
+    /// <summary>Alternate Crocomire dust-region projectile callback.</summary>
     private const ushort CrocomireAlternateDustHitboxShotAi = EnemyAiCodePointers.BankA4.AlternateDustHitboxShot;
+    /// <summary>Crocomire's bank-$A4 power-bomb reaction.</summary>
     private const ushort CrocomirePowerBombAi = EnemyAiCodePointers.BankA4.PowerBomb;
+    /// <summary>Spore Spawn's bank-$A5 touch callback.</summary>
     private const ushort SporeSpawnTouchAi = EnemyAiCodePointers.BankA5.SporeSpawnTouch;
+    /// <summary>Spore Spawn's bank-$A5 projectile callback.</summary>
     private const ushort SporeSpawnShotAi = EnemyAiCodePointers.BankA5.SporeSpawnShot;
+    /// <summary>Bank-$A0 dud callback installed on Spore Spawn hitbox records.</summary>
     private const ushort SporeSpawnDudHitboxShotAi = EnemyAiCodePointers.BankA0.DudShot;
+    /// <summary>Bank-$A0 no-op touch callback installed on Spore Spawn hitbox records.</summary>
     private const ushort SporeSpawnNoOpHitboxTouchAi = EnemyAiCodePointers.BankA0.NoOp;
+    /// <summary>Ceres steam's bank-$A6 contact callback.</summary>
     private const ushort CeresSteamTouchAi = EnemyAiCodePointers.BankA6.CeresSteamTouch;
+    /// <summary>Bank-$A0 no-op projectile callback used by Ceres steam hitboxes.</summary>
     private const ushort CeresSteamNoOpShotAi = EnemyAiCodePointers.BankA0.NoOp;
+    /// <summary>Ridley's extended-spritemap touch callback in bank $A6.</summary>
     private const ushort RidleyExtendedTouchAi = EnemyAiCodePointers.BankA6.RidleyExtendedTouch;
+    /// <summary>Ridley's bank-$A6 ordinary projectile callback.</summary>
     private const ushort RidleyShotAi = EnemyAiCodePointers.BankA6.RidleyShot;
+    /// <summary>Ridley's bank-$A6 power-bomb reaction.</summary>
     private const ushort RidleyPowerBombAi = EnemyAiCodePointers.BankA6.RidleyPowerBomb;
+    /// <summary>Mother Brain body projectile callback in bank $A9.</summary>
     private const ushort MotherBrainBodyShotAi = EnemyAiCodePointers.BankA9.MotherBrainBodyShot;
+    /// <summary>Mother Brain head projectile callback in bank $A9.</summary>
     private const ushort MotherBrainHeadShotAi = EnemyAiCodePointers.BankA9.MotherBrainHeadShot;
+    /// <summary>Mother Brain head contact callback in bank $A9.</summary>
     private const ushort MotherBrainHeadTouchAi = EnemyAiCodePointers.BankA9.MotherBrainHeadTouch;
+    /// <summary>Kraid arm's bank-$A7 contact callback.</summary>
     private const ushort KraidArmTouchAi = EnemyAiCodePointers.BankA7.KraidArmTouch;
+    /// <summary>Kraid's bank-$A7 projectile callback that intentionally does nothing.</summary>
     private const ushort KraidNoOpShotAi = EnemyAiCodePointers.BankA7.KraidNoOpShot;
+    /// <summary>Kraid arm's bank-$A7 projectile callback.</summary>
     private const ushort KraidArmShotAi = EnemyAiCodePointers.BankA7.KraidArmShot;
+    /// <summary>Dead Torizo callback shared by contact and ordinary projectile hits.</summary>
     private const ushort DeadTorizoTouchAndShotAi = EnemyAiCodePointers.BankA9.DeadTorizoTouchAndShot;
+    /// <summary>Dead Torizo's bank-$A9 power-bomb reaction.</summary>
     private const ushort DeadTorizoPowerBombAi = EnemyAiCodePointers.BankA9.DeadTorizoPowerBomb;
+    /// <summary>Dead Sidehopper's bank-$A9 contact callback.</summary>
     private const ushort DeadSidehopperTouchAi = EnemyAiCodePointers.BankA9.DeadSidehopperTouch;
+    /// <summary>Dead Sidehopper's bank-$A9 projectile callback.</summary>
     private const ushort DeadSidehopperShotAi = EnemyAiCodePointers.BankA9.DeadSidehopperShot;
+    /// <summary>Dead Sidehopper's bank-$A9 power-bomb reaction.</summary>
     private const ushort DeadSidehopperPowerBombAi = EnemyAiCodePointers.BankA9.DeadSidehopperPowerBomb;
+    /// <summary>Shitroid's bank-$A9 contact callback.</summary>
     private const ushort ShitroidTouchAi = EnemyAiCodePointers.BankA9.ShitroidTouch;
+    /// <summary>Shitroid's bank-$A9 projectile callback.</summary>
     private const ushort ShitroidShotAi = EnemyAiCodePointers.BankA9.ShitroidShot;
+    /// <summary>Shitroid's bank-$A9 power-bomb reaction.</summary>
     private const ushort ShitroidPowerBombAi = EnemyAiCodePointers.BankA9.ShitroidPowerBomb;
 
     /// <summary>Runs the common radius-based Samus/enemy touch pass for translated actors.</summary>
@@ -2266,6 +2333,10 @@ public sealed partial class RoomEnemySystem
         return hitCount;
     }
 
+    /// <summary>Checks whether a bank-qualified callback is compiled as an intentional no-op.</summary>
+    /// <param name="bank">ROM bank that owns the callback address.</param>
+    /// <param name="pointer">Bank-local callback address to classify.</param>
+    /// <returns><see langword="true"/> when the definition catalog marks the callback as a no-op.</returns>
     private static bool IsLiteralNoOpEnemyAi(byte bank, ushort pointer) =>
         EnemyShotCallbackDefinitions.IsLiteralNoOp(bank, pointer);
 
@@ -2727,6 +2798,10 @@ public sealed partial class RoomEnemySystem
         enemy.InvincibilityTimer = 10;
     }
 
+    /// <summary>Reads the vulnerability-table byte selected by a projectile's family and beam combination.</summary>
+    /// <param name="enemy">Actor whose header selects the vulnerability table.</param>
+    /// <param name="projectileType">Family and beam-combination identity used to choose a table offset.</param>
+    /// <returns>The unmasked byte stored at the selected vulnerability offset.</returns>
     private static byte ReadProjectileVulnerability(
         RoomEnemySlot enemy,
         SamusProjectileTypeWord projectileType)
@@ -2748,6 +2823,10 @@ public sealed partial class RoomEnemySystem
         return EnemyVulnerabilityDefinitions.Read(pointer, byteOffset);
     }
 
+    /// <summary>Decoded vulnerability inputs needed to resolve one ordinary projectile hit.</summary>
+    /// <param name="Multiplier">Damage multiplier after applying the native family-specific mask.</param>
+    /// <param name="FreezeImmediately">Whether the raw beam entry requests immediate freezing.</param>
+    /// <param name="RawBeamEntry">Original beam-table byte, retained for sentinel-dependent hit behavior.</param>
     private readonly record struct NormalShotVulnerability(
         int Multiplier,
         bool FreezeImmediately,
@@ -3320,10 +3399,14 @@ public sealed partial class RoomEnemySystem
             : PirateHitboxShotAction.Normal;
     }
 
+    /// <summary>Result of dispatching a Space Pirate extended-hitbox projectile callback.</summary>
     private enum PirateHitboxShotAction : byte
     {
+        /// <summary>Continue through the ordinary projectile damage path.</summary>
         Normal,
+        /// <summary>Consume the hit without damaging or reflecting the projectile.</summary>
         Ignore,
+        /// <summary>Apply the Gold Ninja's projectile-reflection response.</summary>
         Reflect,
     }
 
@@ -3404,6 +3487,16 @@ public sealed partial class RoomEnemySystem
         StartGenericEnemyDeath(enemy, deathAnimation: 1);
     }
 
+    /// <summary>Tests strict overlap between two axis-aligned boxes centered on their actors.</summary>
+    /// <param name="firstX">Horizontal center of the first box.</param>
+    /// <param name="firstY">Vertical center of the first box.</param>
+    /// <param name="firstXRadius">Horizontal half-extent of the first box.</param>
+    /// <param name="firstYRadius">Vertical half-extent of the first box.</param>
+    /// <param name="secondX">Horizontal center of the second box.</param>
+    /// <param name="secondY">Vertical center of the second box.</param>
+    /// <param name="secondXRadius">Horizontal half-extent of the second box.</param>
+    /// <param name="secondYRadius">Vertical half-extent of the second box.</param>
+    /// <returns><see langword="true"/> only when both axes overlap with positive extent.</returns>
     private static bool RadiusBoxesOverlap(
         ushort firstX,
         ushort firstY,

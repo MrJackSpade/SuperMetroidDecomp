@@ -41,28 +41,48 @@ internal static class RoomPlmHeaders
 
     // The fake-death sequence requests these row/tube actors by exact identity. Their
     // descriptive names keep the boss state machine free of an opaque address matrix.
+    /// <summary>Mother Brain background row 2 actor used while clearing the boss room at <c>$84:B67B</c>.</summary>
     public const ushort MotherBrainsBackgroundRow2 = 0xb67b;
+    /// <summary>Mother Brain background row 3 actor used while clearing the boss room at <c>$84:B67F</c>.</summary>
     public const ushort MotherBrainsBackgroundRow3 = 0xb67f;
+    /// <summary>Mother Brain background row 4 actor used while clearing the boss room at <c>$84:B683</c>.</summary>
     public const ushort MotherBrainsBackgroundRow4 = 0xb683;
+    /// <summary>Mother Brain background row 5 actor used while clearing the boss room at <c>$84:B687</c>.</summary>
     public const ushort MotherBrainsBackgroundRow5 = 0xb687;
+    /// <summary>Mother Brain background row 6 actor used while clearing the boss room at <c>$84:B68B</c>.</summary>
     public const ushort MotherBrainsBackgroundRow6 = 0xb68b;
+    /// <summary>Mother Brain background row 7 actor used while clearing the boss room at <c>$84:B68F</c>.</summary>
     public const ushort MotherBrainsBackgroundRow7 = 0xb68f;
+    /// <summary>Mother Brain background row 8 actor used while clearing the boss room at <c>$84:B693</c>.</summary>
     public const ushort MotherBrainsBackgroundRow8 = 0xb693;
+    /// <summary>Mother Brain background row 9 actor used while clearing the boss room at <c>$84:B697</c>.</summary>
     public const ushort MotherBrainsBackgroundRow9 = 0xb697;
+    /// <summary>Mother Brain background row A actor used while clearing the boss room at <c>$84:B69B</c>.</summary>
     public const ushort MotherBrainsBackgroundRowA = 0xb69b;
+    /// <summary>Mother Brain background row B actor used while clearing the boss room at <c>$84:B69F</c>.</summary>
     public const ushort MotherBrainsBackgroundRowB = 0xb69f;
+    /// <summary>Mother Brain background row C actor used while clearing the boss room at <c>$84:B6A3</c>.</summary>
     public const ushort MotherBrainsBackgroundRowC = 0xb6a3;
+    /// <summary>Mother Brain background row D actor used while clearing the boss room at <c>$84:B6A7</c>.</summary>
     public const ushort MotherBrainsBackgroundRowD = 0xb6a7;
+    /// <summary>Clears the ceiling block above Mother Brain's chamber at <c>$84:B6B3</c>.</summary>
     public const ushort ClearMotherBrainCeilingBlock = 0xb6b3;
+    /// <summary>Clears the ceiling tube above Mother Brain's chamber at <c>$84:B6B7</c>.</summary>
     public const ushort ClearMotherBrainCeilingTube = 0xb6b7;
+    /// <summary>Clears the side tube at the bottom middle of Mother Brain's chamber at <c>$84:B6BB</c>.</summary>
     public const ushort ClearMotherBrainBottomMiddleSideTube = 0xb6bb;
+    /// <summary>Clears the paired bottom-middle tubes in Mother Brain's chamber at <c>$84:B6BF</c>.</summary>
     public const ushort ClearMotherBrainBottomMiddleTubes = 0xb6bf;
+    /// <summary>Clears the bottom-left tube in Mother Brain's chamber at <c>$84:B6C3</c>.</summary>
     public const ushort ClearMotherBrainBottomLeftTube = 0xb6c3;
+    /// <summary>Clears the bottom-right tube in Mother Brain's chamber at <c>$84:B6C7</c>.</summary>
     public const ushort ClearMotherBrainBottomRightTube = 0xb6c7;
 
     /// <summary>Main map-station room actor at $84:B6D3.</summary>
     public const ushort MapStation = 0xb6d3;
+    /// <summary>Main energy recharge station actor that refills energy on interaction at <c>$84:B6DF</c>.</summary>
     public const ushort EnergyStation = 0xb6df;
+    /// <summary>Main missile recharge station actor that refills missiles on interaction at <c>$84:B6EB</c>.</summary>
     public const ushort MissileStation = 0xb6eb;
 
     /// <summary>Ordinary elevator-platform room actor at $84:B70B.</summary>
@@ -150,27 +170,47 @@ internal static class RoomPlmHeaders
 
     // Door families use a six-byte header stride in left/right/up/down order. Naming each
     // address prevents orientation arithmetic from silently accepting an in-between word.
+    /// <summary>Standard grey door header for a left-facing opening at <c>$84:C842</c>.</summary>
     public const ushort GreyDoorFacingLeft = 0xc842;
+    /// <summary>Standard grey door header for a right-facing opening at <c>$84:C848</c>.</summary>
     public const ushort GreyDoorFacingRight = 0xc848;
+    /// <summary>Standard grey door header for an upward-facing opening at <c>$84:C84E</c>.</summary>
     public const ushort GreyDoorFacingUp = 0xc84e;
+    /// <summary>Standard grey door header for a downward-facing opening at <c>$84:C854</c>.</summary>
     public const ushort GreyDoorFacingDown = 0xc854;
 
+    /// <summary>Standard yellow door header for a left-facing opening at <c>$84:C85A</c>.</summary>
     public const ushort YellowDoorFacingLeft = 0xc85a;
+    /// <summary>Standard yellow door header for a right-facing opening at <c>$84:C860</c>.</summary>
     public const ushort YellowDoorFacingRight = 0xc860;
+    /// <summary>Standard yellow door header for an upward-facing opening at <c>$84:C866</c>.</summary>
     public const ushort YellowDoorFacingUp = 0xc866;
+    /// <summary>Standard yellow door header for a downward-facing opening at <c>$84:C86C</c>.</summary>
     public const ushort YellowDoorFacingDown = 0xc86c;
+    /// <summary>Standard green door header for a left-facing opening at <c>$84:C872</c>.</summary>
     public const ushort GreenDoorFacingLeft = 0xc872;
+    /// <summary>Standard green door header for a right-facing opening at <c>$84:C878</c>.</summary>
     public const ushort GreenDoorFacingRight = 0xc878;
+    /// <summary>Standard green door header for an upward-facing opening at <c>$84:C87E</c>.</summary>
     public const ushort GreenDoorFacingUp = 0xc87e;
+    /// <summary>Standard green door header for a downward-facing opening at <c>$84:C884</c>.</summary>
     public const ushort GreenDoorFacingDown = 0xc884;
+    /// <summary>Standard red door header for a left-facing opening at <c>$84:C88A</c>.</summary>
     public const ushort RedDoorFacingLeft = 0xc88a;
+    /// <summary>Standard red door header for a right-facing opening at <c>$84:C890</c>.</summary>
     public const ushort RedDoorFacingRight = 0xc890;
+    /// <summary>Standard red door header for an upward-facing opening at <c>$84:C896</c>.</summary>
     public const ushort RedDoorFacingUp = 0xc896;
+    /// <summary>Standard red door header for a downward-facing opening at <c>$84:C89C</c>.</summary>
     public const ushort RedDoorFacingDown = 0xc89c;
 
+    /// <summary>Standard blue door header for a left-facing opening at <c>$84:C8A2</c>.</summary>
     public const ushort BlueDoorFacingLeft = 0xc8a2;
+    /// <summary>Standard blue door header for a right-facing opening at <c>$84:C8A8</c>.</summary>
     public const ushort BlueDoorFacingRight = 0xc8a8;
+    /// <summary>Standard blue door header for an upward-facing opening at <c>$84:C8AE</c>.</summary>
     public const ushort BlueDoorFacingUp = 0xc8ae;
+    /// <summary>Standard blue door header for a downward-facing opening at <c>$84:C8B4</c>.</summary>
     public const ushort BlueDoorFacingDown = 0xc8b4;
 
     /// <summary>Door-transition-only blue-door closer facing left at $84:C8BA.</summary>
@@ -295,37 +335,65 @@ internal static class RoomPlmHeaders
     public const ushort DraygonCannonFacingLeft = 0xdf71;
 
     // Exposed permanent-item headers. The order matches InWorldCollectibleKind exactly.
+    /// <summary>Exposed energy-tank collectible header used by the permanent-item order at <c>$84:EED7</c>.</summary>
     public const ushort ExposedEnergyTank = 0xeed7;
+    /// <summary>Exposed missile-tank collectible header used by the permanent-item order at <c>$84:EEDB</c>.</summary>
     public const ushort ExposedMissileTank = 0xeedb;
+    /// <summary>Exposed super-missile-tank collectible header used by the permanent-item order at <c>$84:EEDF</c>.</summary>
     public const ushort ExposedSuperMissileTank = 0xeedf;
+    /// <summary>Exposed power-bomb-tank collectible header used by the permanent-item order at <c>$84:EEE3</c>.</summary>
     public const ushort ExposedPowerBombTank = 0xeee3;
+    /// <summary>Exposed Morph Ball collectible header used by the permanent-item order at <c>$84:EF23</c>.</summary>
     public const ushort ExposedMorphBall = 0xef23;
 
     // Chozo-orb permanent-item headers. The order matches InWorldCollectibleKind exactly.
+    /// <summary>Chozo-orb energy-tank collectible header at <c>$84:EF2B</c>.</summary>
     public const ushort ChozoEnergyTank = 0xef2b;
+    /// <summary>Chozo-orb missile-tank collectible header at <c>$84:EF2F</c>.</summary>
     public const ushort ChozoMissileTank = 0xef2f;
+    /// <summary>Chozo-orb super-missile-tank collectible header at <c>$84:EF33</c>.</summary>
     public const ushort ChozoSuperMissileTank = 0xef33;
+    /// <summary>Chozo-orb power-bomb-tank collectible header at <c>$84:EF37</c>.</summary>
     public const ushort ChozoPowerBombTank = 0xef37;
+    /// <summary>Chozo-orb bombs collectible header at <c>$84:EF3B</c>.</summary>
     public const ushort ChozoBombs = 0xef3b;
+    /// <summary>Chozo-orb Charge Beam collectible header at <c>$84:EF3F</c>.</summary>
     public const ushort ChozoChargeBeam = 0xef3f;
+    /// <summary>Chozo-orb Ice Beam collectible header at <c>$84:EF43</c>.</summary>
     public const ushort ChozoIceBeam = 0xef43;
+    /// <summary>Chozo-orb Hi-Jump Boots collectible header at <c>$84:EF47</c>.</summary>
     public const ushort ChozoHiJumpBoots = 0xef47;
+    /// <summary>Chozo-orb Speed Booster collectible header at <c>$84:EF4B</c>.</summary>
     public const ushort ChozoSpeedBooster = 0xef4b;
+    /// <summary>Chozo-orb Wave Beam collectible header at <c>$84:EF4F</c>.</summary>
     public const ushort ChozoWaveBeam = 0xef4f;
+    /// <summary>Chozo-orb Spazer Beam collectible header at <c>$84:EF53</c>.</summary>
     public const ushort ChozoSpazerBeam = 0xef53;
+    /// <summary>Chozo-orb Spring Ball collectible header at <c>$84:EF57</c>.</summary>
     public const ushort ChozoSpringBall = 0xef57;
+    /// <summary>Chozo-orb Varia Suit collectible header at <c>$84:EF5B</c>.</summary>
     public const ushort ChozoVariaSuit = 0xef5b;
+    /// <summary>Chozo-orb Gravity Suit collectible header at <c>$84:EF5F</c>.</summary>
     public const ushort ChozoGravitySuit = 0xef5f;
+    /// <summary>Chozo-orb X-Ray Scope collectible header at <c>$84:EF63</c>.</summary>
     public const ushort ChozoXrayScope = 0xef63;
+    /// <summary>Chozo-orb Plasma Beam collectible header at <c>$84:EF67</c>.</summary>
     public const ushort ChozoPlasmaBeam = 0xef67;
+    /// <summary>Chozo-orb Grapple Beam collectible header at <c>$84:EF6B</c>.</summary>
     public const ushort ChozoGrappleBeam = 0xef6b;
+    /// <summary>Chozo-orb Space Jump collectible header at <c>$84:EF6F</c>.</summary>
     public const ushort ChozoSpaceJump = 0xef6f;
+    /// <summary>Chozo-orb Screw Attack collectible header at <c>$84:EF73</c>.</summary>
     public const ushort ChozoScrewAttack = 0xef73;
+    /// <summary>Chozo-orb reserve-tank collectible header at <c>$84:EF7B</c>.</summary>
     public const ushort ChozoReserveTank = 0xef7b;
 
     // Concealed shot-block permanent-item headers. The order matches
     // InWorldCollectibleKind exactly.
+    /// <summary>Shot-block-concealed energy-tank collectible header at <c>$84:EF7F</c>.</summary>
     public const ushort ShotBlockEnergyTank = 0xef7f;
+    /// <summary>Shot-block-concealed missile-tank collectible header at <c>$84:EF83</c>.</summary>
     public const ushort ShotBlockMissileTank = 0xef83;
+    /// <summary>Shot-block-concealed super-missile-tank collectible header at <c>$84:EF87</c>.</summary>
     public const ushort ShotBlockSuperMissileTank = 0xef87;
 }

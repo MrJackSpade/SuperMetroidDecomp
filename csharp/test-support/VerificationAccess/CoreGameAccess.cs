@@ -11,6 +11,7 @@ using System.Collections;
 /// <summary>Verification access to <see cref="AreaAnimatedTileObjectDefinitions"/> members production does not use.</summary>
 internal static class AreaAnimatedTileObjectDefinitionsAccess
 {
+    /// <summary>Exposes native animated-tile list validation and pointer derivation to verification code.</summary>
     extension(AreaAnimatedTileObjectDefinitions)
     {
         /// <summary>Calculates a native list identity as AC76+20h*area, for indices0..7.</summary>
@@ -39,6 +40,7 @@ internal static class AreaAnimatedTileObjectDefinitionsAccess
             return ((ushort)(PrivateState.InvokeStatic(typeof(AreaAnimatedTileObjectDefinitions), "SelectObject", (int)(nativeAreaIndex), (int)(bit)))!);
         }
 
+        /// <summary>Rejects indices outside the eight-row native animated-tile tables.</summary>
         internal static void ValidateNativeAreaIndex(int nativeAreaIndex)
         {
             if ((uint)nativeAreaIndex >= AreaAnimatedTileObjectDefinitions.NativeAreaCount)
@@ -54,6 +56,7 @@ internal static class AreaAnimatedTileObjectDefinitionsAccess
 /// <summary>Verification access to <see cref="BabyMetroidCutsceneState"/> members production does not use.</summary>
 internal static class BabyMetroidCutsceneStateAccess
 {
+    /// <summary>Provides read-only interpretation of Baby Metroid cutscene state.</summary>
     extension(BabyMetroidCutsceneState self)
     {
         /// <summary>True when enemy property `$0100` suppresses the Baby's spritemap.</summary>
@@ -64,6 +67,7 @@ internal static class BabyMetroidCutsceneStateAccess
 /// <summary>Verification access to <see cref="Bank80SystemState"/> members production does not use.</summary>
 internal static class Bank80SystemStateAccess
 {
+    /// <summary>Exposes arithmetic behavior implemented by the bank-$80 system routines.</summary>
     extension(Bank80SystemState)
     {
         /// <summary>
@@ -74,10 +78,12 @@ internal static class Bank80SystemStateAccess
         internal static uint Multiply16By16(ushort left, ushort right) => (uint)left * right;
     }
 
+    /// <summary>Maps a room Chozo bit number to its byte offset and native bit mask.</summary>
     private static (int ByteIndex, byte BitMask) RoomChozoBit(int bitIndex) =>
         ((int, byte))PrivateState.InvokeStatic(typeof(Bank80SystemState), "ResolvePersistentRoomBit", bitIndex,
             Bank80SystemState.RoomChozoBitByteCount, "Chozo-room bit index must fit the native 64-byte table.")!;
 
+    /// <summary>Provides typed access to persistent room-state operations.</summary>
     extension(Bank80SystemState self)
     {
         /// <summary>Whether the room's Chozo-statue bit is set in the native 64-byte table.</summary>
@@ -103,6 +109,7 @@ internal static class Bank80SystemStateAccess
 /// <summary>Verification access to <see cref="BrinstarBlueSporePaletteFxProgramDefinition"/> members production does not use.</summary>
 internal static class BrinstarBlueSporePaletteFxProgramDefinitionAccess
 {
+    /// <summary>Exposes the ROM definition selected by the blue-spore palette effect.</summary>
     extension(BrinstarBlueSporePaletteFxProgramDefinition self)
     {
         /// <summary>Native palette-FX definitions $8D:F775 (standard) and $8D:F779 (Spore Spawn).</summary>
@@ -113,8 +120,10 @@ internal static class BrinstarBlueSporePaletteFxProgramDefinitionAccess
 /// <summary>Verification access to <see cref="CeresBabyInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class CeresBabyInstructionProgramDefinitionsAccess
 {
+    /// <summary>Identifies compiled Baby instruction operands for source-range auditing.</summary>
     extension(CeresBabyInstructionProgramDefinitions)
     {
+        /// <summary>Reports whether a bank-$A6 address is part of a compiled spritemap operand.</summary>
         internal static bool IsCompiledSpritemapByte(int address)
         {
             if ((address & 0xff0000) != 0xa60000)
@@ -129,6 +138,7 @@ internal static class CeresBabyInstructionProgramDefinitionsAccess
             return false;
         }
 
+        /// <summary>Reports whether a bank-$A6 address is part of a compiled palette operand.</summary>
         internal static bool IsCompiledPaletteByte(int address)
         {
             if ((address & 0xff0000) != 0xa60000)
@@ -148,8 +158,10 @@ internal static class CeresBabyInstructionProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="CeresDoorInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class CeresDoorInstructionProgramDefinitionsAccess
 {
+    /// <summary>Exposes selected presentation fields from compiled Ceres door instruction data.</summary>
     extension(CeresDoorInstructionProgramDefinitions)
     {
+        /// <summary>Returns the frame operand paired with a compiled door presentation word.</summary>
         internal static ushort PresentationWordFrame(int index) => (((ushort Address, ushort Frame))(PrivateState.InvokeStatic(typeof(CeresDoorInstructionProgramDefinitions), "PresentationWord", (int)(index)))!).Frame;
     }
 }
@@ -157,8 +169,10 @@ internal static class CeresDoorInstructionProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="CeresEscapeVramTransferDefinitions"/> members production does not use.</summary>
 internal static class CeresEscapeVramTransferDefinitionsAccess
 {
+    /// <summary>Recognizes descriptor storage and terminators in the compiled Ceres escape data.</summary>
     extension(CeresEscapeVramTransferDefinitions)
     {
+        /// <summary>Reports whether a bank-$A6 address belongs to a transfer descriptor or terminator.</summary>
         internal static bool IsDescriptorByteAddress(int address)
         {
             if ((address & 0xff0000) != 0xa60000)

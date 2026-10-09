@@ -2,7 +2,10 @@ using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>One named visual frame selected by an otherwise compiled enemy program.</summary>
+/// <summary>A native enemy OAM composition registered for editing and selected by a compiled program.</summary>
+/// <param name="Bank">The ROM bank containing the native spritemap.</param>
+/// <param name="Pointer">The bank-relative address of the spritemap's part count.</param>
+/// <param name="Name">The stable editor-facing identity used to bind artwork to this composition.</param>
 internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Pointer, string Name);
 
 /// <summary>
@@ -13,179 +16,335 @@ internal static class EnemySpritemapDefinitions
 {
     /// <summary>Schema before Ridley's eight ordinary breakup body compositions.</summary>
     internal const int PreRidleyBreakupVersion = 68;
+    /// <summary>Frame count at schema 68, before the ordinary Ridley breakup body compositions.</summary>
     internal const int PreRidleyBreakupFrameCount = 1404;
     /// <summary>Schema before the single-frame Kzan and Polyp compositions were installed.</summary>
     internal const int PreSingleFrameVersion = 67;
+    /// <summary>Frame count at schema 67, before Kzan and Polyp single-frame compositions.</summary>
     internal const int PreSingleFrameFrameCount = 1402;
     /// <summary>Schema before Puromi/Nuclear Waffle's eight head frames were installed.</summary>
     internal const int PreNuclearWaffleVersion = 66;
+    /// <summary>Frame count at schema 66, before Puromi/Nuclear Waffle head compositions.</summary>
     internal const int PreNuclearWaffleFrameCount = 1394;
     /// <summary>Schema before Kraid's two ordinary belly-lint frames were installed.</summary>
     internal const int PreKraidLintVersion = 65;
+    /// <summary>Frame count at schema 65, before Kraid's ordinary belly-lint compositions.</summary>
     internal const int PreKraidLintFrameCount = 1392;
     /// <summary>Schema before audit-identified ordinary environmental/Tourian artwork additions.</summary>
     internal const int PreAuditOrdinaryVersion = 64;
+    /// <summary>Frame count at schema 64, before the audit's ordinary environment and Tourian art additions.</summary>
     internal const int PreAuditOrdinaryFrameCount = 1339;
     /// <summary>Schema before the friendly-animal compositions; existing edits remain valid.</summary>
     internal const int PreFriendlyAnimalVersion = 63;
+    /// <summary>Frame count at schema 63, before friendly-animal compositions.</summary>
     internal const int PreFriendlyAnimalFrameCount = 1257;
     /// <summary>Schema before the Zero crawler; existing edits and bindings remain valid.</summary>
     internal const int PreZeroVersion = 62;
+    /// <summary>Frame count at schema 62, before Zero crawler compositions.</summary>
     internal const int PreZeroFrameCount = 1241;
     /// <summary>Schema before the tatori family; previous compositions and bindings remain editable.</summary>
     internal const int PreMamaTurtleVersion = 61;
+    /// <summary>Frame count at schema 61, before the tatori family compositions.</summary>
     internal const int PreMamaTurtleFrameCount = 1212;
+    /// <summary>Schema version immediately before Gunship artwork was added.</summary>
     internal const int PreGunshipVersion = 60;
+    /// <summary>Frame count in schema 60, before Gunship artwork.</summary>
     internal const int PreGunshipFrameCount = 1199;
+    /// <summary>Schema version immediately before Botwoon artwork was added.</summary>
     internal const int PreBotwoonVersion = 59;
+    /// <summary>Frame count in schema 59, before Botwoon artwork.</summary>
     internal const int PreBotwoonFrameCount = 1183;
+    /// <summary>Schema version immediately before Yard artwork was added.</summary>
     internal const int PreYardVersion = 58;
+    /// <summary>Frame count in schema 58, before Yard artwork.</summary>
     internal const int PreYardFrameCount = 1079;
+    /// <summary>Schema version immediately before work-robot artwork was added.</summary>
     internal const int PreWorkRobotVersion = 57;
+    /// <summary>Frame count in schema 57, before work-robot artwork.</summary>
     internal const int PreWorkRobotFrameCount = 1052;
+    /// <summary>Schema version immediately before Evir artwork was added.</summary>
     internal const int PreEvirVersion = 56;
+    /// <summary>Frame count in schema 56, before Evir artwork.</summary>
     internal const int PreEvirFrameCount = 1028;
+    /// <summary>Schema version immediately before Mochtroid artwork was added.</summary>
     internal const int PreMochtroidVersion = 55;
+    /// <summary>Frame count in schema 55, before Mochtroid artwork.</summary>
     internal const int PreMochtroidFrameCount = 1022;
+    /// <summary>Schema version immediately before dead Tourian corpse compositions were added.</summary>
     internal const int PreDeadTourianCorpseVersion = 54;
+    /// <summary>Frame count in schema 54, before dead Tourian corpse compositions.</summary>
     internal const int PreDeadTourianCorpseFrameCount = 1009;
+    /// <summary>Schema version immediately before stationary dead Torizo artwork was added.</summary>
     internal const int PreDeadTorizoStationaryVersion = 53;
+    /// <summary>Frame count in schema 53, before stationary dead Torizo artwork.</summary>
     internal const int PreDeadTorizoStationaryFrameCount = 1008;
+    /// <summary>Current installed composition schema; consumers use this to recognize compatible edits.</summary>
     internal const int Version = 69;
+    /// <summary>Schema version immediately before Rinka artwork was added.</summary>
     internal const int PreRinkaVersion = 52;
+    /// <summary>Frame count in schema 52, before Rinka artwork.</summary>
     internal const int PreRinkaFrameCount = 1003;
+    /// <summary>Schema version immediately before Viola artwork was added.</summary>
     internal const int PreViolaVersion = 51;
+    /// <summary>Frame count in schema 51, before Viola artwork.</summary>
     internal const int PreViolaFrameCount = 995;
+    /// <summary>Schema version immediately before Chozo statue artwork was added.</summary>
     internal const int PreChozoStatueVersion = 50;
+    /// <summary>Frame count in schema 50, before Chozo statue artwork.</summary>
     internal const int PreChozoStatueFrameCount = 969;
+    /// <summary>Schema version immediately before Norfair lava-jumper artwork was added.</summary>
     internal const int PreNorfairLavaJumperVersion = 49;
+    /// <summary>Frame count in schema 49, before Norfair lava-jumper artwork.</summary>
     internal const int PreNorfairLavaJumperFrameCount = 958;
+    /// <summary>Schema version immediately before Multiviola artwork was added.</summary>
     internal const int PreMultiviolaVersion = 48;
+    /// <summary>Frame count in schema 48, before Multiviola artwork.</summary>
     internal const int PreMultiviolaFrameCount = 950;
+    /// <summary>Schema version immediately before Dragon artwork was added.</summary>
     internal const int PreDragonVersion = 47;
+    /// <summary>Frame count in schema 47, before Dragon artwork.</summary>
     internal const int PreDragonFrameCount = 938;
+    /// <summary>Schema version immediately before Tripper and Kamer artwork was added.</summary>
     internal const int PreTripperKamerVersion = 46;
+    /// <summary>Frame count in schema 46, before Tripper and Kamer artwork.</summary>
     internal const int PreTripperKamerFrameCount = 920;
+    /// <summary>Schema version immediately before Shaktool artwork was added.</summary>
     internal const int PreShaktoolVersion = 45;
+    /// <summary>Frame count in schema 45, before Shaktool artwork.</summary>
     internal const int PreShaktoolFrameCount = 905;
+    /// <summary>Schema version immediately before Metroid artwork was added.</summary>
     internal const int PreMetroidVersion = 44;
+    /// <summary>Frame count in schema 44, before Metroid artwork.</summary>
     internal const int PreMetroidFrameCount = 901;
+    /// <summary>Schema version immediately before shutter artwork was added.</summary>
     internal const int PreShutterVersion = 43;
+    /// <summary>Frame count in schema 43, before shutter artwork.</summary>
     internal const int PreShutterFrameCount = 896;
+    /// <summary>Schema version immediately before morph-ball eye artwork was added.</summary>
     internal const int PreMorphBallEyeVersion = 42;
+    /// <summary>Frame count in schema 42, before morph-ball eye artwork.</summary>
     internal const int PreMorphBallEyeFrameCount = 874;
+    /// <summary>Schema version immediately before face-block artwork was added.</summary>
     internal const int PreFaceBlockVersion = 41;
+    /// <summary>Frame count in schema 41, before face-block artwork.</summary>
     internal const int PreFaceBlockFrameCount = 869;
+    /// <summary>Schema version immediately before Kago artwork was added.</summary>
     internal const int PreKagoVersion = 40;
+    /// <summary>Frame count in schema 40, before Kago artwork.</summary>
     internal const int PreKagoFrameCount = 866;
+    /// <summary>Schema version immediately before Fly-family artwork was added.</summary>
     internal const int PreFlyVersion = 39;
+    /// <summary>Frame count in schema 39, before Fly-family artwork.</summary>
     internal const int PreFlyFrameCount = 862;
+    /// <summary>Schema version immediately before Sciser artwork was added.</summary>
     internal const int PreSciserVersion = 38;
+    /// <summary>Frame count in schema 38, before Sciser artwork.</summary>
     internal const int PreSciserFrameCount = 850;
+    /// <summary>Schema version immediately before supplemental Ridley artwork was added.</summary>
     internal const int PreRidleySupplementVersion = 37;
+    /// <summary>Frame count in schema 37, before supplemental Ridley artwork.</summary>
     internal const int PreRidleySupplementFrameCount = 819;
+    /// <summary>Schema version immediately before dead Torizo artwork was added.</summary>
     internal const int PreDeadTorizoVersion = 36;
+    /// <summary>Frame count in schema 36, before dead Torizo artwork.</summary>
     internal const int PreDeadTorizoFrameCount = 818;
+    /// <summary>Schema version immediately before Mother Brain artwork was added.</summary>
     internal const int PreMotherBrainVersion = 35;
+    /// <summary>Frame count in schema 35, before Mother Brain artwork.</summary>
     internal const int PreMotherBrainFrameCount = 800;
+    /// <summary>Schema version immediately before Ki Hunter artwork was added.</summary>
     internal const int PreKiHunterVersion = 34;
+    /// <summary>Frame count in schema 34, before Ki Hunter artwork.</summary>
     internal const int PreKiHunterFrameCount = 759;
+    /// <summary>Schema version immediately before Yapping Maw artwork was added.</summary>
     internal const int PreYappingMawVersion = 33;
+    /// <summary>Frame count in schema 33, before Yapping Maw artwork.</summary>
     internal const int PreYappingMawFrameCount = 735;
+    /// <summary>Schema version immediately before room sprite-object compositions were added.</summary>
     internal const int PreRoomSpriteObjectVersion = 32;
+    /// <summary>Frame count in schema 32, before room sprite-object compositions.</summary>
     internal const int PreRoomSpriteObjectFrameCount = 472;
+    /// <summary>Schema version immediately before Draygon breath artwork was added.</summary>
     internal const int PreDraygonBreathVersion = 31;
+    /// <summary>Frame count in schema 31, before Draygon breath artwork.</summary>
     internal const int PreDraygonBreathFrameCount = 463;
+    /// <summary>Schema version immediately before Draygon intro artwork was added.</summary>
     internal const int PreDraygonIntroVersion = 30;
+    /// <summary>Frame count in schema 30, before Draygon intro artwork.</summary>
     internal const int PreDraygonIntroFrameCount = 459;
+    /// <summary>Schema version immediately before elevator platform artwork was added.</summary>
     internal const int PreElevatorVersion = 29;
+    /// <summary>Frame count in schema 29, before elevator platform artwork.</summary>
     internal const int PreElevatorFrameCount = 457;
+    /// <summary>Schema version immediately before Kamer platform artwork was added.</summary>
     internal const int PreKamerVersion = 28;
+    /// <summary>Frame count in schema 28, before Kamer platform artwork.</summary>
     internal const int PreKamerFrameCount = 453;
+    /// <summary>Schema version immediately before Fune and Namihe artwork was added.</summary>
     internal const int PreFuneNamiheVersion = 27;
+    /// <summary>Frame count in schema 27, before Fune and Namihe artwork.</summary>
     internal const int PreFuneNamiheFrameCount = 431;
+    /// <summary>Schema version immediately before Sbug artwork was added.</summary>
     internal const int PreSbugVersion = 26;
+    /// <summary>Frame count in schema 26, before Sbug artwork.</summary>
     internal const int PreSbugFrameCount = 407;
+    /// <summary>Schema version immediately before HZoomer artwork was added.</summary>
     internal const int PreHZoomerVersion = 25;
+    /// <summary>Frame count in schema 25, before HZoomer artwork.</summary>
     internal const int PreHZoomerFrameCount = 387;
+    /// <summary>Schema version immediately before Choot artwork was added.</summary>
     internal const int PreChootVersion = 24;
+    /// <summary>Frame count in schema 24, before Choot artwork.</summary>
     internal const int PreChootFrameCount = 383;
+    /// <summary>Schema version immediately before Sidehopper and Dessgeega artwork was added.</summary>
     internal const int PreHopperVersion = 23;
+    /// <summary>Frame count in schema 23, before Sidehopper and Dessgeega artwork.</summary>
     internal const int PreHopperFrameCount = 359;
+    /// <summary>Schema version immediately before Beetom artwork was added.</summary>
     internal const int PreBeetomVersion = 22;
+    /// <summary>Frame count in schema 22, before Beetom artwork.</summary>
     internal const int PreBeetomFrameCount = 337;
+    /// <summary>Schema version immediately before Alcoon artwork was added.</summary>
     internal const int PreAlcoonVersion = 21;
+    /// <summary>Frame count in schema 21, before Alcoon artwork.</summary>
     internal const int PreAlcoonFrameCount = 319;
+    /// <summary>Schema version immediately before Bull artwork was added.</summary>
     internal const int PreBullVersion = 20;
+    /// <summary>Frame count in schema 20, before Bull artwork.</summary>
     internal const int PreBullFrameCount = 316;
+    /// <summary>Schema version immediately before Puyo artwork was added.</summary>
     internal const int PrePuyoVersion = 19;
+    /// <summary>Frame count in schema 19, before Puyo artwork.</summary>
     internal const int PrePuyoFrameCount = 308;
+    /// <summary>Schema version immediately before Norfair Rio artwork was added.</summary>
     internal const int PreNorfairRioVersion = 18;
+    /// <summary>Frame count in schema 18, before Norfair Rio artwork.</summary>
     internal const int PreNorfairRioFrameCount = 288;
+    /// <summary>Schema version immediately before Lower Norfair Rio artwork was added.</summary>
     internal const int PreLowerNorfairRioVersion = 17;
+    /// <summary>Frame count in schema 17, before Lower Norfair Rio artwork.</summary>
     internal const int PreLowerNorfairRioFrameCount = 270;
+    /// <summary>Schema version immediately before Rio artwork was added.</summary>
     internal const int PreRioVersion = 16;
+    /// <summary>Frame count in schema 16, before Rio artwork.</summary>
     internal const int PreRioFrameCount = 262;
+    /// <summary>Schema version immediately before Ceres baby compositions were added.</summary>
     internal const int PreCeresBabyVersion = 15;
+    /// <summary>Frame count in schema 15, before Ceres baby compositions.</summary>
     internal const int PreCeresBabyFrameCount = 259;
+    /// <summary>Schema version immediately before Ceres door compositions were added.</summary>
     internal const int PreCeresDoorVersion = 14;
+    /// <summary>Frame count in schema 14, before Ceres door compositions.</summary>
     internal const int PreCeresDoorFrameCount = 244;
     /// <summary>Last art-only composition schema; later accepted schemas own editable display bindings.</summary>
     internal const int PreDisplayBindingsVersion = 13;
+    /// <summary>Frame count at schema 13, before display-binding compatibility was introduced.</summary>
     internal const int PreDisplayBindingsFrameCount = 244;
+    /// <summary>Schema version immediately before Magdollite artwork was added.</summary>
     internal const int PreMagdolliteVersion = 12;
+    /// <summary>Frame count in schema 12, before Magdollite artwork.</summary>
     internal const int PreMagdolliteFrameCount = 215;
+    /// <summary>Schema version immediately before Fireflea artwork was added.</summary>
     internal const int PreFirefleaVersion = 11;
+    /// <summary>Frame count in schema 11, before Fireflea artwork.</summary>
     internal const int PreFirefleaFrameCount = 194;
+    /// <summary>Schema version immediately before Ripper artwork was added.</summary>
     internal const int PreRipperVersion = 10;
+    /// <summary>Frame count in schema 10, before Ripper artwork.</summary>
     internal const int PreRipperFrameCount = 180;
+    /// <summary>Schema version immediately before Owtch and Stoke artwork was added.</summary>
     internal const int PreOwtchStokeVersion = 9;
+    /// <summary>Frame count in schema 9, before Owtch and Stoke artwork.</summary>
     internal const int PreOwtchStokeFrameCount = 167;
+    /// <summary>Previous composition schema accepted by the loader.</summary>
     internal const int PreviousVersion = 8;
+    /// <summary>Frame count associated with schema 8.</summary>
     internal const int PreviousFrameCount = 145;
+    /// <summary>Older composition schema retained for migration compatibility.</summary>
     internal const int PriorVersion = 7;
+    /// <summary>Frame count associated with schema 7.</summary>
     internal const int PriorFrameCount = 101;
+    /// <summary>Older composition schema retained for migration compatibility.</summary>
     internal const int EarlierVersion = 6;
+    /// <summary>Frame count associated with schema 6.</summary>
     internal const int EarlierFrameCount = 79;
+    /// <summary>Older composition schema retained for migration compatibility.</summary>
     internal const int IntermediateVersion = 5;
+    /// <summary>Frame count associated with schema 5.</summary>
     internal const int IntermediateFrameCount = 69;
+    /// <summary>Earliest composition schema accepted by the loader.</summary>
     internal const int LegacyVersion = 4;
+    /// <summary>Frame count associated with schema 4.</summary>
     internal const int LegacyFrameCount = 47;
+    /// <summary>Filename used for serialized editable enemy compositions.</summary>
     internal const string FileName = "enemy-compositions.json";
+    /// <summary>ROM bank containing Boyon spritemaps, including its idle and bounce frames.</summary>
     internal const byte BoyonBank = 0xa2;
+    /// <summary>ROM bank containing the Rio spritemap family.</summary>
     internal const byte RioBank = 0xa2;
+    /// <summary>ROM bank containing Lower Norfair Rio spritemaps.</summary>
     internal const byte LowerNorfairRioBank = 0xa2;
+    /// <summary>ROM bank containing Norfair Geruta spritemaps.</summary>
     internal const byte NorfairRioBank = 0xa2;
+    /// <summary>ROM bank containing Puyo spritemaps.</summary>
     internal const byte PuyoBank = 0xa2;
+    /// <summary>ROM bank containing Bull spritemaps.</summary>
     internal const byte BullBank = 0xa8;
+    /// <summary>ROM bank containing Alcoon spritemaps.</summary>
     internal const byte AlcoonBank = 0xa8;
+    /// <summary>ROM bank containing Beetom spritemaps.</summary>
     internal const byte BeetomBank = 0xa8;
+    /// <summary>ROM bank containing the Sidehopper and Dessgeega spritemap families.</summary>
     internal const byte HopperBank = 0xa3;
+    /// <summary>ROM bank containing Choot spritemaps.</summary>
     internal const byte ChootBank = 0xa2;
+    /// <summary>ROM bank containing HZoomer and shared crawler spritemaps.</summary>
     internal const byte HZoomerBank = 0xa3;
+    /// <summary>ROM bank containing Sbug spritemaps.</summary>
     internal const byte SbugBank = 0xa3;
+    /// <summary>ROM bank containing Fune and Namihe spritemaps.</summary>
     internal const byte FuneNamiheBank = 0xa8;
+    /// <summary>ROM bank containing Kamer platform spritemaps.</summary>
     internal const byte KamerPlatformBank = 0xa2;
+    /// <summary>ROM bank containing elevator platform spritemaps.</summary>
     internal const byte ElevatorBank = 0xa3;
+    /// <summary>ROM bank containing room sprite-object compositions.</summary>
     internal const byte RoomSpriteObjectBank = 0xb4;
+    /// <summary>ROM bank containing Skultera spritemaps.</summary>
     internal const byte SkulteraBank = 0xa3;
+    /// <summary>ROM bank containing Waver spritemaps.</summary>
     internal const byte WaverBank = 0xa3;
+    /// <summary>ROM bank containing Zoa spritemaps.</summary>
     internal const byte ZoaBank = 0xa3;
+    /// <summary>ROM bank shared by Skree and Metaree spritemaps.</summary>
     internal const byte SkreeMetareeBank = 0xa3;
+    /// <summary>ROM bank containing the pipe bug variants.</summary>
     internal const byte PipeBugBank = 0xb3;
+    /// <summary>ROM bank containing Fake Kraid spritemaps.</summary>
     internal const byte FakeKraidBank = 0xa6;
+    /// <summary>ROM bank containing Kraid nail spritemaps.</summary>
     internal const byte KraidNailBank = 0xa7;
+    /// <summary>ROM bank shared by Owtch and Stoke spritemaps.</summary>
     internal const byte OwtchStokeBank = 0xa2;
+    /// <summary>ROM bank containing Ripper spritemaps.</summary>
     internal const byte RipperBank = 0xa2;
+    /// <summary>ROM bank containing Fireflea spritemaps.</summary>
     internal const byte FirefleaBank = 0xa3;
+    /// <summary>ROM bank containing Magdollite spritemaps.</summary>
     internal const byte MagdolliteBank = 0xa8;
+    /// <summary>ROM bank containing the boulder roll compositions.</summary>
     internal const byte BoulderBank = 0xa6;
+    /// <summary>ROM bank containing Atomic's directional spiral compositions.</summary>
     internal const byte AtomicBank = 0xa8;
+    /// <summary>Largest number of OAM parts accepted in one editable composition.</summary>
     internal const int MaximumParts = 128;
+    /// <summary>Tile width of the editable enemy composition canvas.</summary>
     internal const int TileColumns = 16;
+    /// <summary>Tile height of the editable enemy composition canvas.</summary>
     internal const int TileRows = 32;
 
     // These mutually exclusive identities preserve the historical installed-schema order.
+    /// <summary>Stable, mutually exclusive identities for the hand-mapped native sprite frames.</summary>
     private enum NamedFrameId
     {
         /// <summary>$A2:88DA: boyon_idle_0 visual identity in the installed frame schema.</summary>
@@ -1137,6 +1296,9 @@ internal static class EnemySpritemapDefinitions
     /// <summary>Two-byte part count followed by five bytes per native OAM part.</summary>
     private static int NativeFrameBytes(int parts) => 2 + 5 * parts;
 
+    /// <summary>Resolves a stable frame identity to its ROM bank, native pointer, and editor name.</summary>
+    /// <param name="frame">Identity whose native composition is requested.</param>
+    /// <returns>The catalog entry used to edit and render that composition.</returns>
     private static EnemySpritemapDefinition NamedFrame(NamedFrameId frame)
     {
         (byte bank, ushort pointer) = frame switch
@@ -1482,6 +1644,8 @@ internal static class EnemySpritemapDefinitions
         return new(bank, pointer, frame.ToString());
     }
 
+    /// <summary>Enumerates the explicitly mapped identities in their stable schema order.</summary>
+    /// <returns>Native frame entries for the hand-authored identity catalog.</returns>
     private static IEnumerable<EnemySpritemapDefinition> NamedFrames()
     {
         for (var frame = NamedFrameId.boyon_idle_0; frame <= NamedFrameId.draygon_breath_bubble_8; frame++)
@@ -1492,6 +1656,8 @@ internal static class EnemySpritemapDefinitions
     // All other bank-$B4 presentation targets are shared by the 62 compiled
     // sprite-object programs. Build their stable, address-named art identities
     // from the compiled selectors; do not duplicate their pointer list here.
+    /// <summary>Combines hand-mapped entries with generated entries from each visual family.</summary>
+    /// <returns>All installed compositions, preserving the order used by schema frame indexes.</returns>
     private static IEnumerable<EnemySpritemapDefinition> EnumerateFrames()
     {
         foreach (var frame in NamedFrames())
@@ -1584,18 +1750,40 @@ internal static class EnemySpritemapDefinitions
         foreach (var frame in RidleyBreakupVisualDefinitions.Claw) yield return frame;
     }
 
+    /// <summary>Cached ordered collection of every editable enemy and room-object composition.</summary>
     internal static FrameList Frames { get; } = new();
 
+    /// <summary>Read-only, lazily materialized view of the installed composition catalog.</summary>
     internal sealed class FrameList : IReadOnlyList<EnemySpritemapDefinition>
     {
         // The frame list is a fixed derivation of the definitions; derive it once, not per access.
+        /// <summary>Shared cache containing the ordered frame definitions.</summary>
         private readonly Lazy<EnemySpritemapDefinition[]> frames = new(() => EnumerateFrames().ToArray());
+
+        /// <summary>Number of installed frame definitions.</summary>
         public int Count => frames.Value.Length;
+
+        /// <summary>Alias used by serialization code for the total definition count.</summary>
         internal int Length => Count;
+
+        /// <summary>Gets one definition by its stable zero-based schema index.</summary>
+        /// <param name="index">Index in the ordered installed-frame catalog.</param>
+        /// <returns>The frame definition at that index.</returns>
+        /// <exception cref="IndexOutOfRangeException">The index is outside the catalog.</exception>
         public EnemySpritemapDefinition this[int index] => (uint)index < Count
             ? frames.Value[index] : throw new IndexOutOfRangeException();
+
+        /// <summary>Gets a contiguous slice of definitions from the cached catalog.</summary>
+        /// <param name="range">Zero-based index range to retrieve.</param>
+        /// <returns>The selected frame definitions in catalog order.</returns>
         internal EnemySpritemapDefinition[] this[Range range] => frames.Value[range];
+
+        /// <summary>Enumerates the cached definitions in stable catalog order.</summary>
+        /// <returns>An enumerator over all installed frame definitions.</returns>
         public IEnumerator<EnemySpritemapDefinition> GetEnumerator() => ((IEnumerable<EnemySpritemapDefinition>)frames.Value).GetEnumerator();
+
+        /// <summary>Enumerates the same catalog through the non-generic collection contract.</summary>
+        /// <returns>An enumerator over all installed frame definitions.</returns>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 

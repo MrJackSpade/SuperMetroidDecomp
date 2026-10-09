@@ -12,6 +12,7 @@ using System.Text.Json.Serialization;
 /// <summary>Verification access to <see cref="BeamTileAtlas"/> members production does not use.</summary>
 internal static class BeamTileAtlasAccess
 {
+    /// <summary>Supplies VRAM loading access for focused atlas checks.</summary>
     extension(BeamTileAtlas self)
     {
         internal void LoadTo(SnesVram vram) =>
@@ -22,6 +23,7 @@ internal static class BeamTileAtlasAccess
 /// <summary>Verification access to <see cref="BeamTileCatalog"/> members production does not use.</summary>
 internal static class BeamTileCatalogAccess
 {
+    /// <summary>Creates beam catalogs from test-provided artwork files.</summary>
     extension(BeamTileCatalog)
     {
         internal static BeamTileCatalog Load(IReadOnlyDictionary<string, byte[]> files,
@@ -43,6 +45,7 @@ internal static class BeamTileCatalogAccess
 /// <summary>Verification access to <see cref="CeresEscapeOverlayTilemapDefinitions"/> members production does not use.</summary>
 internal static class CeresEscapeOverlayTilemapDefinitionsAccess
 {
+    /// <summary>Exposes source range membership for tilemap definition checks.</summary>
     extension(CeresEscapeOverlayTilemapDefinitions)
     {
         internal static bool ContainsByteAddress(int address)
@@ -59,6 +62,7 @@ internal static class CeresEscapeOverlayTilemapDefinitionsAccess
 /// <summary>Verification access to <see cref="CeresRidleyColorCatalog"/> members production does not use.</summary>
 internal static class CeresRidleyColorCatalogAccess
 {
+    /// <summary>Exposes resolved Ridley palette bands for focused checks.</summary>
     extension(CeresRidleyColorCatalog self)
     {
         internal ushort ResolveStart(int color) => PrivateState.Field<CeresRidleyStartColorDefinitions>(self, "start").Resolve(color);
@@ -78,6 +82,7 @@ internal static class CeresRidleyColorCatalogAccess
 /// <summary>Verification access to <see cref="ChozoAndTubeColorCatalog"/> members production does not use.</summary>
 internal static class ChozoAndTubeColorCatalogAccess
 {
+    /// <summary>Exposes statue palette colors for verification.</summary>
     extension(ChozoAndTubeColorCatalog self)
     {
         internal ushort ResolveWreckedShip(int color) => ((ushort)(PrivateState.Invoke(self, "ResolveStatue", (ChozoStatuePalette)(ChozoStatuePalette.WreckedShip), (int)(color)))!);
@@ -89,6 +94,7 @@ internal static class ChozoAndTubeColorCatalogAccess
 /// <summary>Verification access to <see cref="CreditsPresentation"/> members production does not use.</summary>
 internal static class CreditsPresentationAccess
 {
+    /// <summary>Constructs test presentations from precompiled credits rows.</summary>
     extension(CreditsPresentation)
     {
         internal static CreditsPresentation FromCompiledRowsForVerification(
@@ -108,6 +114,7 @@ internal static class CreditsPresentationAccess
 /// <summary>Verification access to <see cref="CrocomireBodyFrameSequence"/> members production does not use.</summary>
 internal static class CrocomireBodyFrameSequenceAccess
 {
+    /// <summary>Provides ordered array access for frame sequence assertions.</summary>
     extension(CrocomireBodyFrameSequence self)
     {
         internal ushort[] ToArray()
@@ -122,6 +129,7 @@ internal static class CrocomireBodyFrameSequenceAccess
 /// <summary>Verification access to <see cref="CrocomireColorCatalog"/> members production does not use.</summary>
 internal static class CrocomireColorCatalogAccess
 {
+    /// <summary>Exposes individual Crocomire palette bands for verification.</summary>
     extension(CrocomireColorCatalog self)
     {
         internal ushort ResolveFightBody(int color) => ((ushort)(PrivateState.Invoke(self, "Get", PrivateState.StaticField<object>(PrivateState.Nested(typeof(CrocomireColorCatalog), "Band"), "FightBody"), (int)(color)))!);
@@ -157,6 +165,7 @@ internal static class EndingFontAtlasAccess
 /// <summary>Verification access to <see cref="EnemyBg2FrameDefinitionSequence"/> members production does not use.</summary>
 internal static class EnemyBg2FrameDefinitionSequenceAccess
 {
+    /// <summary>Exposes ordered array materialization for BG2 frame checks.</summary>
     extension(EnemyBg2FrameDefinitionSequence self)
     {
         internal EnemyBg2FrameDefinition[] ToArray()
@@ -282,6 +291,7 @@ internal static class EscapeTimerTileAtlasAccess
 /// <summary>Verification access to <see cref="GameplayBasePaletteCatalog"/> members production does not use.</summary>
 internal static class GameplayBasePaletteCatalogAccess
 {
+    /// <summary>Provides access to base palette data for focused checks.</summary>
     extension(GameplayBasePaletteCatalog self)
     {
         internal ReadOnlySpan<ushort> CommonSprites => PrivateState.Field<ushort[]>(self, "commonSprites");
@@ -291,6 +301,7 @@ internal static class GameplayBasePaletteCatalogAccess
 /// <summary>Verification access to <see cref="GoldenTorizoStrideGeometryDefinitions"/> members production does not use.</summary>
 internal static class GoldenTorizoStrideGeometryDefinitionsAccess
 {
+    /// <summary>Exposes native frame identities for geometry definition checks.</summary>
     extension(GoldenTorizoStrideGeometryDefinitions)
     {
         internal static int NativeFrameIdentity(int phase)
@@ -304,6 +315,7 @@ internal static class GoldenTorizoStrideGeometryDefinitionsAccess
 /// <summary>Verification access to <see cref="MapArrowVisual"/> members production does not use.</summary>
 internal static class MapArrowVisualAccess
 {
+    /// <summary>Exposes explicit timing storage for map arrow checks.</summary>
     extension(MapArrowVisual self)
     {
         internal int StoredDurationCount => PrivateState.Field<Dictionary<int, byte>?>(self, "durationOverrides")?.Count ?? 0;
@@ -313,6 +325,7 @@ internal static class MapArrowVisualAccess
 /// <summary>Verification access to <see cref="MapMarkerTileArtwork"/> members production does not use.</summary>
 internal static class MapMarkerTileArtworkAccess
 {
+    /// <summary>Exposes explicit marker artwork edit storage.</summary>
     extension(MapMarkerTileArtwork self)
     {
         internal int StoredEditCount => PrivateState.Field<Dictionary<int, byte>?>(self, "edits")?.Count ?? 0;
@@ -322,6 +335,7 @@ internal static class MapMarkerTileArtworkAccess
 /// <summary>Verification access to <see cref="MapObjectTileArtwork"/> members production does not use.</summary>
 internal static class MapObjectTileArtworkAccess
 {
+    /// <summary>Exposes pixel edit and payload storage for map objects.</summary>
     extension(MapObjectTileArtwork self)
     {
         internal int StoredHighlightPixelCount => PrivateState.Field<Dictionary<int, byte>?>(self, "highlightEdits")?.Count ?? 0;
@@ -335,6 +349,7 @@ internal static class MapObjectTileArtworkAccess
 /// <summary>Verification access to <see cref="MapSaveMarkerLayout"/> members production does not use.</summary>
 internal static class MapSaveMarkerLayoutAccess
 {
+    /// <summary>Exposes coordinate override storage for map layout checks.</summary>
     extension(MapSaveMarkerLayout self)
     {
         internal int StoredCoordinateComponentCount => PrivateState.Field<Dictionary<string, (int? X, int? Y)>>(self, "coordinateOverrides").Values.Sum(point =>
@@ -348,6 +363,7 @@ internal static class MapSpriteCatalogAccess
     private static WorldMapLabelComposition? WorldLabel(MapSpriteCatalog catalog, ushort id) =>
         (WorldMapLabelComposition?)PrivateState.Invoke(catalog, "GetWorldLabel", id);
 
+    /// <summary>Exposes composition and storage details for map sprite checks.</summary>
     extension(MapSpriteCatalog self)
     {
         internal bool StoresComposition(ushort id) => WorldLabel(self, id) is { } label
@@ -374,6 +390,7 @@ internal static class MapSpriteCatalogAccess
 /// <summary>Verification access to <see cref="MenuBeveledSquareArtwork"/> members production does not use.</summary>
 internal static class MenuBeveledSquareArtworkAccess
 {
+    /// <summary>Exposes stored edits for beveled-square artwork checks.</summary>
     extension(MenuBeveledSquareArtwork self)
     {
         internal int StoredEditCount => PrivateState.Field<Dictionary<int, byte>?>(self, "edits")?.Count ?? 0;
@@ -383,6 +400,7 @@ internal static class MenuBeveledSquareArtworkAccess
 /// <summary>Verification access to <see cref="MenuCompactLetteringArtwork"/> members production does not use.</summary>
 internal static class MenuCompactLetteringArtworkAccess
 {
+    /// <summary>Exposes glyph and pixel edit storage for compact lettering checks.</summary>
     extension(MenuCompactLetteringArtwork self)
     {
         internal int StoredInkByteCount => PrivateState.Field<Dictionary<char, uint>>(self, "glyphs").Count * sizeof(uint);
@@ -400,6 +418,7 @@ internal static class MenuCompactLetteringArtworkAccess
 /// <summary>Verification access to <see cref="MenuLargeFontArtwork"/> members production does not use.</summary>
 internal static class MenuLargeFontArtworkAccess
 {
+    /// <summary>Exposes face and edit storage for large-font checks.</summary>
     extension(MenuLargeFontArtwork self)
     {
         internal int StoredFaceByteCount => PrivateState.Field<byte[]>(self, "faces").Length;
@@ -417,6 +436,7 @@ internal static class MenuLargeFontArtworkAccess
 /// <summary>Verification access to <see cref="MenuPanelTileArtwork"/> members production does not use.</summary>
 internal static class MenuPanelTileArtworkAccess
 {
+    /// <summary>Exposes explicit edit storage for panel artwork checks.</summary>
     extension(MenuPanelTileArtwork self)
     {
         internal int StoredEditCount => PrivateState.Field<Dictionary<int, byte>?>(self, "edits")?.Count ?? 0;
@@ -426,6 +446,7 @@ internal static class MenuPanelTileArtworkAccess
 /// <summary>Verification access to <see cref="MenuShoulderButtonArtwork"/> members production does not use.</summary>
 internal static class MenuShoulderButtonArtworkAccess
 {
+    /// <summary>Exposes explicit edit storage for shoulder button checks.</summary>
     extension(MenuShoulderButtonArtwork self)
     {
         internal int StoredEditCount => PrivateState.Field<Dictionary<int, byte>?>(self, "edits")?.Count ?? 0;
@@ -435,6 +456,7 @@ internal static class MenuShoulderButtonArtworkAccess
 /// <summary>Verification access to <see cref="MenuShoulderHighlightArtwork"/> members production does not use.</summary>
 internal static class MenuShoulderHighlightArtworkAccess
 {
+    /// <summary>Exposes explicit edit storage for shoulder highlight checks.</summary>
     extension(MenuShoulderHighlightArtwork self)
     {
         internal int StoredEditCount => PrivateState.Field<Dictionary<int, byte>?>(self, "edits")?.Count ?? 0;
@@ -444,6 +466,7 @@ internal static class MenuShoulderHighlightArtworkAccess
 /// <summary>Verification access to <see cref="MenuSmallFontArtwork"/> members production does not use.</summary>
 internal static class MenuSmallFontArtworkAccess
 {
+    /// <summary>Exposes face and edit storage for small-font checks.</summary>
     extension(MenuSmallFontArtwork self)
     {
         internal int StoredFaceByteCount => PrivateState.Field<byte[]>(self, "faces").Length;
@@ -461,6 +484,7 @@ internal static class MenuSmallFontArtworkAccess
 /// <summary>Verification access to <see cref="MenuThinBorderArtwork"/> members production does not use.</summary>
 internal static class MenuThinBorderArtworkAccess
 {
+    /// <summary>Exposes explicit edit storage for thin-border artwork checks.</summary>
     extension(MenuThinBorderArtwork self)
     {
         internal int StoredEditCount => PrivateState.Field<Dictionary<int, byte>?>(self, "edits")?.Count ?? 0;
@@ -470,6 +494,7 @@ internal static class MenuThinBorderArtworkAccess
 /// <summary>Verification access to <see cref="MotherBrainBodyVisualDefinitions"/> members production does not use.</summary>
 internal static class MotherBrainBodyVisualDefinitionsAccess
 {
+    /// <summary>Exposes ordered frame definitions for Mother Brain body checks.</summary>
     extension(MotherBrainBodyVisualDefinitions)
     {
         internal static EnemyExtendedFrameDefinition[] Frames =>
@@ -480,6 +505,7 @@ internal static class MotherBrainBodyVisualDefinitionsAccess
 /// <summary>Verification access to <see cref="NorfairRidleyColorCatalog"/> members production does not use.</summary>
 internal static class NorfairRidleyColorCatalogAccess
 {
+    /// <summary>Exposes initial and reveal paint colors for Ridley palette checks.</summary>
     extension(NorfairRidleyColorCatalog self)
     {
         internal ushort ResolveInitial(int color) => PrivateState.Field<NorfairRidleyInitialPaintDefinitions>(self, "initial").ColorAt(color);
@@ -491,6 +517,7 @@ internal static class NorfairRidleyColorCatalogAccess
 /// <summary>Verification access to <see cref="PauseReserveTankPresentation"/> members production does not use.</summary>
 internal static class PauseReserveTankPresentationAccess
 {
+    /// <summary>Exposes stored frames and anchors for reserve meter checks.</summary>
     extension(PauseReserveTankPresentation self)
     {
         internal int StoredFrameCount => (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "Full") is null ? 0 : 1) + (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "EndCap") is null ? 0 : 1) + (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "Empty") is null ? 0 : 1) + (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "Fill1") is null ? 0 : 1) + (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "Fill2") is null ? 0 : 1) + (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "Fill3") is null ? 0 : 1) + (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "Fill4") is null ? 0 : 1) + (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "Fill5") is null ? 0 : 1) + (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "Fill6") is null ? 0 : 1) + (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "Fill7") is null ? 0 : 1);
@@ -509,6 +536,7 @@ internal static class PauseSelectorPresentationAccess
     private static object[] Categories(PauseSelectorPresentation presentation) =>
         [.. new[] { "reserve", "beam", "equipment" }.Select(name => PrivateState.Field<object>(presentation, name))];
 
+    /// <summary>Exposes duration, composition, and anchor storage for selector checks.</summary>
     extension(PauseSelectorPresentation self)
     {
         internal int StoredDurationCount => PrivateState.Field<Dictionary<int, int>?>(self, "durationOverrides")?.Count ?? 0;
@@ -527,6 +555,7 @@ internal static class PauseSelectorPresentationAccess
 /// <summary>Verification access to <see cref="RoomFxBlendColors"/> members production does not use.</summary>
 internal static class RoomFxBlendColorsAccess
 {
+    /// <summary>Exposes computed blend words for room effect checks.</summary>
     extension(RoomFxBlendColors self)
     {
         // The generated array is the requested output, never a retained stock-color cache.
@@ -537,6 +566,7 @@ internal static class RoomFxBlendColorsAccess
 /// <summary>Verification access to <see cref="RoomFxPaletteBlendCatalog"/> members production does not use.</summary>
 internal static class RoomFxPaletteBlendCatalogAccess
 {
+    /// <summary>Exposes selected room FX blend palettes for verification.</summary>
     extension(RoomFxPaletteBlendCatalog self)
     {
         internal ReadOnlySpan<ushort> Resolve(byte selection) => ((RoomFxBlendColors)(PrivateState.Invoke(self, "SelectColors", (byte)(selection)))!).CreateColors();
@@ -546,6 +576,7 @@ internal static class RoomFxPaletteBlendCatalogAccess
 /// <summary>Verification access to <see cref="SamusBodyTileDefinition"/> members production does not use.</summary>
 internal static class SamusBodyTileDefinitionAccess
 {
+    /// <summary>Exposes body tile transfer geometry calculation for tests.</summary>
     extension(SamusBodyTileDefinition self)
     {
         internal SamusBodyTileDefinition WithTransferGeometry(SamusBodyArtworkCatalog body, bool upper, int set, int position) =>
@@ -581,6 +612,7 @@ internal static class SamusBodyTransferDefinitionsAccess
 /// <summary>Verification access to <see cref="SamusChargeColorCatalog"/> members production does not use.</summary>
 internal static class SamusChargeColorCatalogAccess
 {
+    /// <summary>Exposes charged-beam and pseudo-screw color resolution.</summary>
     extension(SamusChargeColorCatalog self)
     {
         internal ushort ResolveCharge(bool pseudo, int suit, int phase, int color) =>
@@ -591,6 +623,7 @@ internal static class SamusChargeColorCatalogAccess
 /// <summary>Verification access to <see cref="SamusSpritemapArtworkCatalog"/> members production does not use.</summary>
 internal static class SamusSpritemapArtworkCatalogAccess
 {
+    /// <summary>Exposes installed spritemap definitions for coverage checks.</summary>
     extension(SamusSpritemapArtworkCatalog self)
     {
         internal IReadOnlyCollection<SamusSpritemapDefinition> Definitions => PrivateState.Field<Dictionary<ushort, SamusSpritemapDefinition>>(self, "definitions").Values;
@@ -600,6 +633,7 @@ internal static class SamusSpritemapArtworkCatalogAccess
 /// <summary>Verification access to <see cref="SelectedPresentationHash"/> members production does not use.</summary>
 internal static class SelectedPresentationHashAccess
 {
+    /// <summary>Adapts test frame collections to the presentation hash contract.</summary>
     extension(SelectedPresentationHash)
     {
         internal static string FromWordFrames(string domain, IReadOnlyDictionary<ushort, ushort[]> frames) =>
@@ -626,6 +660,7 @@ internal static class SelectedPresentationHashAccess
 /// <summary>Verification access to <see cref="TitlePalettePresentation"/> members production does not use.</summary>
 internal static class TitlePalettePresentationAccess
 {
+    /// <summary>Exposes title palette words for presentation checks.</summary>
     extension(TitlePalettePresentation self)
     {
         internal ReadOnlySpan<ushort> Colors => PrivateState.Field<ushort[]>(self, "colors");
@@ -635,6 +670,7 @@ internal static class TitlePalettePresentationAccess
 /// <summary>Verification access to <see cref="TourianStatueColorCatalog"/> members production does not use.</summary>
 internal static class TourianStatueColorCatalogAccess
 {
+    /// <summary>Exposes resolved Tourian statue palette entries.</summary>
     extension(TourianStatueColorCatalog self)
     {
         internal ushort ResolveStatue(int color) => ((ushort)(PrivateState.Invoke(PrivateState.Field<object>(self, "statueColors"), "Read", (int)(color)))!);

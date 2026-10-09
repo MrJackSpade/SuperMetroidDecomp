@@ -19,41 +19,78 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed partial class CeresDestructionCinematicState
 {
+    /// <summary>Cartridge address space used by actors and the room palette effect.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Optional audio queue whose pending commands gate the scene transitions.</summary>
     private readonly CartridgeAudioState? audio;
+    /// <summary>Scene-local video memory populated by the cinematic's asset transfers.</summary>
     private readonly SnesVram vram = new();
+    /// <summary>Scene-local color memory used by the palette fade and rendered layers.</summary>
     private readonly SnesCgram cgram = new();
+    /// <summary>Combined Mode 7 maps for the Ceres approach and destruction shots.</summary>
     private byte[] ceresTilemaps;
+    /// <summary>Host-owned scene assets, rebound separately after restoring debugger state.</summary>
     [NonSerialized] private IntroCinematicArtworkCatalog? artwork;
+    /// <summary>Host-owned sprite-list presentation used to resolve cinematic actor graphics.</summary>
     [NonSerialized] private IIntroCinematicSpritePresentation? spriteArtwork;
+    /// <summary>Actors currently owned by the Ceres destruction or Zebes reveal scene.</summary>
     private readonly List<IntroDiscoverySprite> actors = [];
+    /// <summary>Maps the initial Ceres actors to their fixed sprite presentation slots.</summary>
     private readonly Dictionary<IntroDiscoverySprite, int> ceresActorSlots = [];
+    /// <summary>Explosion state for the space station's final power-bomb blast.</summary>
     private readonly SamusPowerBombExplosionState stationExplosion = new();
+    /// <summary>Engine flicker palette program active during the Zebes portion.</summary>
     private RoomPaletteFxSystem? paletteFx;
+    /// <summary>Host-owned colors needed to execute the engine flicker palette program.</summary>
     [NonSerialized] private IPaletteFxColorSource? paletteFxColors;
+    /// <summary>Zebes planet actor whose position controls the later approach phases.</summary>
     private IntroDiscoverySprite? zebesPlanetActor;
+    /// <summary>Completion star actor hidden until the planet title has finished.</summary>
     private IntroDiscoverySprite? zebesCompletionStarActor;
+    /// <summary>Planet title actor removed when the reveal transitions into the approach.</summary>
     private IntroDiscoverySprite? zebesTitleActor;
 
+    /// <summary>16-bit whole-pixel component of the Mode 7 horizontal camera position.</summary>
     private ushort backgroundX = unchecked((ushort)-44);
+    /// <summary>Fractional component paired with <see cref="backgroundX"/> for 16.16 movement.</summary>
     private ushort backgroundXSubPosition;
+    /// <summary>16-bit whole-pixel component of the Mode 7 vertical camera position.</summary>
     private ushort backgroundY = unchecked((ushort)-112);
+    /// <summary>Fractional component paired with <see cref="backgroundY"/> for 16.16 movement.</summary>
     private ushort backgroundYSubPosition;
+    /// <summary>Mode 7 scale used by the Ceres and Zebes camera sequences.</summary>
     private ushort zoom = CeresDestructionRomData.Motion.IdentityScale;
+    /// <summary>Mode 7 rotation advanced by the authored cinematic phases.</summary>
     private SnesAngle angle;
+    /// <summary>Master display brightness in the SNES range from zero through fifteen.</summary>
     private byte brightness;
+    /// <summary>Alternating-update divider used by the slow brightness ramps.</summary>
     private int fadeCounter = 1;
+    /// <summary>Authored hold duration for explosion and close-Zebes scenes.</summary>
     private int phaseTimer;
+    /// <summary>Fallback queue countdown used only when no host audio state is supplied.</summary>
     private int musicQueueTimer = 14;
     // $8B:C11B's NMI waits completed so far; setup runs after the last one.
     private int initialNmiWaits;
+    /// <summary>Shared cinematic update word used to time explosion and mosaic effects.</summary>
     private ushort cinematicFrameCounter;
+    /// <summary>Elapsed frame count used to schedule the repeated Ceres explosion spawner.</summary>
     private int explosionSpawnerFrame;
+    /// <summary>Index into the authored sequence of offsets for repeated explosion effects.</summary>
     private int explosionOffsetIndex;
+    /// <summary>Frames remaining before the next repeated explosion is spawned.</summary>
     private ushort explosionRepeatCountdown;
+    /// <summary>Whether the active scene is rendered through the Mode 7 background path.</summary>
     private bool usesMode7 = true;
+    /// <summary>PPU main-screen planes enabled for the current cinematic scene.</summary>
     private SnesMainScreenLayers mainScreenLayers = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj;
 
+    /// <summary>Creates the Ceres destruction sequence and installs its initial graphics and actors.</summary>
+    /// <param name="bus">Cartridge address space used by the scene's actors and palette program.</param>
+    /// <param name="audio">Optional audio state used to observe the actual queued music commands.</param>
+    /// <param name="fixedColors">Optional host palette colors used by the station explosion.</param>
+    /// <param name="artwork">Installed Ceres and Zebes graphics and tilemap assets.</param>
+    /// <param name="paletteFxColors">Optional installed colors for the later engine-flicker effect.</param>
     public CeresDestructionCinematicState(
         ISnesAddressSpace bus,
         CartridgeAudioState? audio = null,
@@ -138,6 +175,8 @@ internal sealed partial class CeresDestructionCinematicState
         }
     }
 
+    /// <summary>Combines flight and destruction map assets into the staging layout expected by VRAM uploads.</summary>
+    /// <returns>Contiguous Ceres tilemap bytes used by phase-specific transfers.</returns>
     private byte[] LoadCeresTilemaps()
     {
         IntroCinematicArtworkCatalog content = artwork ?? throw new InvalidOperationException(
@@ -149,8 +188,10 @@ internal sealed partial class CeresDestructionCinematicState
         return maps;
     }
 
+    /// <summary>Current native-equivalent phase of the Ceres and Zebes sequence.</summary>
     public CeresDestructionPhase Phase { get; private set; }
 
+    /// <summary>Whether the final Zebes pan has completed and control can leave this cinematic.</summary>
     public bool Finished => Phase == CeresDestructionPhase.Finished;
 
     /// <summary>Executes one call through the native state-$22 cinematic dispatcher.</summary>
@@ -183,6 +224,7 @@ internal sealed partial class CeresDestructionCinematicState
         StepWrapperTail();
     }
 
+    /// <summary>Advances the active scene phase, including actors, camera motion, and palette counters.</summary>
     private void StepPhase()
     {
         // The global bank-$82 frame dispatcher runs HDMA before the cinematic. A
@@ -363,6 +405,7 @@ internal sealed partial class CeresDestructionCinematicState
         cinematicFrameCounter++;
     }
 
+    /// <summary>Loads the initial Ceres maps and actors, then starts the music-queue wait phase.</summary>
     private void SetupCeresDestruction()
     {
         IntroCinematicArtworkCatalog content = artwork ?? throw new InvalidOperationException(
@@ -426,6 +469,7 @@ internal sealed partial class CeresDestructionCinematicState
         Phase = CeresDestructionPhase.WaitForMusicQueue;
     }
 
+    /// <summary>Loads Zebes reveal graphics and resets the camera and fade state for its mosaic entrance.</summary>
     private void SetupZebesReveal()
     {
         IntroCinematicArtworkCatalog content = artwork ?? throw new InvalidOperationException(
@@ -462,6 +506,7 @@ internal sealed partial class CeresDestructionCinematicState
         usesMode7 = false;
     }
 
+    /// <summary>Enters the Mode 7 title scene and creates the planet, decoration, star, and title actors.</summary>
     private void SetupZebesMode7Actors()
     {
         usesMode7 = true;
@@ -482,6 +527,7 @@ internal sealed partial class CeresDestructionCinematicState
         Phase = CeresDestructionPhase.PlanetZebesTitle;
     }
 
+    /// <summary>Applies the authored slow 16.16 camera drift during the opening Ceres approach.</summary>
     private void StepInitialDrift()
     {
         AddSignedSixteenSixteen(ref backgroundY, ref backgroundYSubPosition,
@@ -490,6 +536,7 @@ internal sealed partial class CeresDestructionCinematicState
             CeresDestructionRomData.Motion.NegativeQuarterPixel16Point16);
     }
 
+    /// <summary>Raises master brightness by one every other update until full brightness.</summary>
     private void StepSlowFadeIn()
     {
         if (fadeCounter-- > 0)
@@ -498,6 +545,8 @@ internal sealed partial class CeresDestructionCinematicState
         brightness = (byte)Math.Min(15, brightness + 1);
     }
 
+    /// <summary>Lowers master brightness by one every other update until forced black.</summary>
+    /// <returns><see langword="true"/> when brightness reaches zero.</returns>
     private bool StepSlowFadeOut()
     {
         if (fadeCounter-- > 0)
@@ -507,6 +556,8 @@ internal sealed partial class CeresDestructionCinematicState
         return brightness == 0;
     }
 
+    /// <summary>Reduces the mosaic register on every fourth update until the effect is cleared.</summary>
+    /// <returns><see langword="true"/> when no mosaic-size bits remain.</returns>
     private bool StepZebesMosaic()
     {
         if ((cinematicFrameCounter & 3) != 0)
@@ -516,9 +567,14 @@ internal sealed partial class CeresDestructionCinematicState
         return (phaseTimer & CeresDestructionRomData.Timing.MosaicSizeMask) == 0;
     }
 
+    /// <summary>Reports completion of queued music, using a local timer only without host audio.</summary>
+    /// <returns><see langword="true"/> when the opening track commands have finished queuing.</returns>
     private bool MusicQueueFinished() =>
         audio is null ? --musicQueueTimer <= 0 : !audio.HasQueuedMusic;
 
+    /// <summary>Constructs an actor from its cartridge definition and initializes its active pre-instruction.</summary>
+    /// <param name="definition">Position, attributes, instruction list, and pre-instruction for the actor.</param>
+    /// <returns>The initialized scene actor.</returns>
     private static IntroDiscoverySprite CreateActor(
         CeresDestructionActorDefinition definition)
     {
@@ -531,6 +587,9 @@ internal sealed partial class CeresDestructionCinematicState
         return actor;
     }
 
+    /// <summary>Creates a Zebes actor from its indexed definition and optional host placement.</summary>
+    /// <param name="index">Actor index in the Zebes reveal definition table.</param>
+    /// <returns>The initialized actor with any installed placement override applied.</returns>
     private IntroDiscoverySprite CreateZebesActor(int index)
     {
         CeresDestructionActorDefinition definition =
@@ -547,6 +606,10 @@ internal sealed partial class CeresDestructionCinematicState
         return CreateActor(definition);
     }
 
+    /// <summary>Adds a signed fixed-point delta to the split whole and fractional camera words.</summary>
+    /// <param name="whole">Whole-pixel word updated in place.</param>
+    /// <param name="sub">Fractional word updated in place with carry or borrow.</param>
+    /// <param name="fixedDelta">Signed 16.16 movement amount.</param>
     private static void AddSignedSixteenSixteen(
         ref ushort whole,
         ref ushort sub,
@@ -559,6 +622,10 @@ internal sealed partial class CeresDestructionCinematicState
             unchecked((ushort)fixedDelta));
     }
 
+    /// <summary>Rejects an extracted asset stream shorter than the bytes consumed by the cinematic.</summary>
+    /// <param name="bytes">Expanded asset data to validate.</param>
+    /// <param name="minimum">Minimum required byte count.</param>
+    /// <param name="name">Asset description included in the invalid-data error.</param>
     private static void RequireMinimum(byte[] bytes, int minimum, string name)
     {
         if (bytes.Length < minimum)
@@ -569,22 +636,39 @@ internal sealed partial class CeresDestructionCinematicState
     }
 }
 
+/// <summary>Dispatch states for the Ceres destruction, Zebes reveal, and approach sequence.</summary>
 internal enum CeresDestructionPhase
 {
+    /// <summary>Waits until the initial music commands have entered the audio queue.</summary>
     WaitForMusicQueue,
+    /// <summary>Fades in while the camera drifts toward the Ceres explosion.</summary>
     FadeInAndDrift,
+    /// <summary>Continues the Ceres approach until the final explosion scale is reached.</summary>
     ApproachExplosion,
+    /// <summary>Moves away from the blast while rotating and shrinking the Ceres view.</summary>
     FlyingAwayFromExplosion,
+    /// <summary>Holds on the blast before fading out the Ceres scene.</summary>
     HoldAfterExplosion,
+    /// <summary>Fades Ceres to black before installing the Zebes reveal.</summary>
     FadeOutCeres,
+    /// <summary>Initializes the Zebes scene after the Ceres fade has completed.</summary>
     FlyToZebesInitial,
+    /// <summary>Fades in Zebes while progressively removing its mosaic.</summary>
     FadeInZebes,
+    /// <summary>Finishes the mosaic reveal and creates the Mode 7 Zebes actors.</summary>
     RemoveZebesMosaic,
+    /// <summary>Displays the planet title before beginning the approach camera motion.</summary>
     PlanetZebesTitle,
+    /// <summary>First authored camera-motion segment toward Zebes.</summary>
     FlyingTowardZebesA,
+    /// <summary>Middle camera-motion segment, including the rotation transition.</summary>
     FlyingTowardZebesB,
+    /// <summary>Final camera-motion segment before the close Zebes hold.</summary>
     FlyingTowardZebesC,
+    /// <summary>Holds the close Zebes view before sliding the scene away.</summary>
     HoldCloseZebes,
+    /// <summary>Moves the Zebes actors offscreen and completes the cinematic.</summary>
     SlideZebesSceneAway,
+    /// <summary>Terminal state reached after the Zebes scene has left the display.</summary>
     Finished,
 }

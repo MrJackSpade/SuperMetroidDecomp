@@ -53,11 +53,13 @@ internal static partial class Program
                 int logicalCount = header.WidthInScreens * header.HeightInScreens;
                 for (int index = 0; index < expected.Length; index++)
                 {
+                    // $82:E88D writes only the room's cells; the rest keeps the WRAM the
+                    // previous grid (here, the previous audited state) left behind.
                     expected[index] = index < logicalCount
                         ? (byte)(index / header.WidthInScreens == header.HeightInScreens - 1
                             ? lastRow
                             : RoomScrollState.Green)
-                        : (byte)RoomScrollState.RedBoundary;
+                        : bus.ReadWorkRamByte(RoomScrollGrid.WorkRamAddress + index);
                 }
             }
 
@@ -90,6 +92,9 @@ internal static partial class Program
             ceresPointer);
         var guardedCeres = CreateRetailRuntimeFixture(new RoomScrollSourceReadGuard(
             bus, ceres.State.ScrollPointer));
+        var ceresResidue = new byte[RoomScrollGrid.StorageByteCount];
+        for (int index = 0; index < ceresResidue.Length; index++)
+            ceresResidue[index] = bus.ReadWorkRamByte(RoomScrollGrid.WorkRamAddress + index);
         guardedCeres.InitializeStartingCeresRoom();
         var expectedCeres = new byte[RoomScrollGrid.StorageByteCount];
         int ceresLogicalCount = ceres.WidthInScreens * ceres.HeightInScreens;
@@ -102,7 +107,7 @@ internal static partial class Program
                 ? (byte)(index / ceres.WidthInScreens == ceres.HeightInScreens - 1
                     ? ceresLastRow
                     : RoomScrollState.Green)
-                : (byte)RoomScrollState.RedBoundary;
+                : ceresResidue[index];
         }
         AssertTrue(expectedCeres.AsSpan().SequenceEqual(guardedCeres.Camera!.Scrolls.Storage),
             "production Ceres entry installs compiled scroll storage");
@@ -116,7 +121,12 @@ internal static partial class Program
         : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
         public byte ReadCartridgeByte(int address) => ReadByte(address);
-        public byte ReadWorkRamByte(int address) => ReadByte(address);
+        // The scroll buffer itself is WRAM the previous room left; implicit grids keep it.
+        public byte ReadWorkRamByte(int address) =>
+            address >= RoomScrollGrid.WorkRamAddress &&
+            address < RoomScrollGrid.WorkRamAddress + RoomScrollGrid.StorageByteCount
+                ? ((ISnesMutableMemory)source).ReadWorkRamByte(address)
+                : ReadByte(address);
         public byte ReadSaveRamByte(int address) => ReadByte(address);
 
         public static byte ReadByte(int address) => throw new InvalidOperationException(

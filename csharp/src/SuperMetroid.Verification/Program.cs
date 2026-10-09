@@ -822,6 +822,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--implicit-scroll-residue"])
+{
+    Suite(nameof(VerifyImplicitScrollResidue), () => VerifyImplicitScrollResidue());
+    return 0;
+}
 if (args is ["--elevator-stand-up-contact"])
 {
     Suite(nameof(VerifyElevatorStandUpContact), () => VerifyElevatorStandUpContact());
@@ -7879,6 +7884,7 @@ Suite(nameof(VerifyAirSpikeAlphaRadius), () => VerifyAirSpikeAlphaRadius());
 Suite(nameof(VerifyKraidArmSamusContact), () => VerifyKraidArmSamusContact());
 Suite(nameof(VerifyEmptyExtendedFrameShots), () => VerifyEmptyExtendedFrameShots());
 Suite(nameof(VerifyElevatorStandUpContact), () => VerifyElevatorStandUpContact());
+Suite(nameof(VerifyImplicitScrollResidue), () => VerifyImplicitScrollResidue());
 Suite(nameof(VerifyRoomFxRomData), () => VerifyRoomFxRomData());
 Suite(nameof(VerifyPowerBombFixedColors), () => VerifyPowerBombFixedColors());
 Suite(nameof(VerifySamusVisorColors), () => VerifySamusVisorColors());

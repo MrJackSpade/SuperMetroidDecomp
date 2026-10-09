@@ -10,6 +10,7 @@ internal static class EndingRewardInstructionDefinitions
     internal const ushort Start = 0xed1d;
     /// <summary>$8B:EE5D, exclusive end after the flight head lists.</summary>
     internal const ushort End = 0xee5d;
+    /// <summary>Bank-$8B instruction-list entry points for the post-credits reward actors.</summary>
     private enum List : ushort
     {
         /// <summary>$8B:ED1D, SuitlessIdle actor instruction list.</summary>
@@ -47,9 +48,68 @@ internal static class EndingRewardInstructionDefinitions
         /// <summary>$8B:EE4D, HeadJump actor instruction list.</summary>
         HeadJump = 0xee4d,
     }
-    private enum HairStage { Standing, Open1, Open2, Open3, Open4, Open5, Open6, Open7, Open8, Ready }
-    private enum ArmStage { Wait, Raise1, Raise2, Raise3, Raise4, Raise5, ThumbUp, Turn1, Turn2, Lower6, Lower5, Lower4, Lower3, Rest }
+    /// <summary>Displayed poses and authored hold stages for Samus's suitless hair reveal.</summary>
+    private enum HairStage
+    {
+        /// <summary>Holds the initial arms-straight pose.</summary>
+        Standing,
+        /// <summary>First frame of the hair-opening motion.</summary>
+        Open1,
+        /// <summary>Second frame of the hair-opening motion.</summary>
+        Open2,
+        /// <summary>Third frame of the hair-opening motion.</summary>
+        Open3,
+        /// <summary>Fourth frame, held for the longer authored pause.</summary>
+        Open4,
+        /// <summary>Fifth frame of the hair-opening motion.</summary>
+        Open5,
+        /// <summary>Sixth frame of the hair-opening motion.</summary>
+        Open6,
+        /// <summary>Seventh frame of the hair-opening motion.</summary>
+        Open7,
+        /// <summary>Eighth frame of the hair-opening motion.</summary>
+        Open8,
+        /// <summary>Final standing pose after the hair reveal.</summary>
+        Ready,
+    }
 
+    /// <summary>Ordered arm poses and holds for Samus's post-credits gesture.</summary>
+    private enum ArmStage
+    {
+        /// <summary>Pauses before the arm begins to rise.</summary>
+        Wait,
+        /// <summary>First raised-arm pose.</summary>
+        Raise1,
+        /// <summary>Second raised-arm pose.</summary>
+        Raise2,
+        /// <summary>Third raised-arm pose.</summary>
+        Raise3,
+        /// <summary>Fourth raised-arm pose.</summary>
+        Raise4,
+        /// <summary>Fifth raised-arm pose.</summary>
+        Raise5,
+        /// <summary>Thumb-up pose held before turning.</summary>
+        ThumbUp,
+        /// <summary>First turn-away pose.</summary>
+        Turn1,
+        /// <summary>Second turn-away pose held before lowering the arm.</summary>
+        Turn2,
+        /// <summary>First pose in the arm-lowering sequence.</summary>
+        Lower6,
+        /// <summary>Second pose in the arm-lowering sequence.</summary>
+        Lower5,
+        /// <summary>Third pose in the arm-lowering sequence.</summary>
+        Lower4,
+        /// <summary>Fourth pose in the arm-lowering sequence.</summary>
+        Lower3,
+        /// <summary>Resting arm pose at the end of the gesture.</summary>
+        Rest,
+    }
+
+    /// <summary>Translates a bank-$8B list cursor into its next display, control-flow, or delete word.</summary>
+    /// <param name="pointer">Even byte pointer within the compiled reward list range.</param>
+    /// <returns>The native-equivalent instruction or sprite-frame pointer for the actor interpreter.</returns>
+    /// <exception cref="InvalidDataException">The pointer falls outside the compiled lists or is not word-aligned.</exception>
     internal static ushort ReadWord(ushort pointer)
     {
         int offset = pointer - Start;
@@ -118,6 +178,9 @@ internal static class EndingRewardInstructionDefinitions
             helmet ? Frame.LargeSamusHelmetFromEndingFrame2 : Frame.JumpingSamusHeadFromEnding);
     }
 
+    /// <summary>Maps one hair-reveal stage to its authored duration and suitless sprite frame.</summary>
+    /// <param name="stage">Pose stage selected by the native hair-release instruction list.</param>
+    /// <returns>Hold duration and sprite frame for that stage.</returns>
     private static (ushort Duration, Frame Frame) HairDisplay(HairStage stage) => stage switch
     {
         HairStage.Standing => (90, Frame.SuitlessSamusStandingArmsStraight),
@@ -133,6 +196,9 @@ internal static class EndingRewardInstructionDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(stage)),
     };
 
+    /// <summary>Maps one arm-gesture stage to its duration and optional sprite frame.</summary>
+    /// <param name="stage">Gesture stage selected by the native arm instruction list.</param>
+    /// <returns>Hold duration and frame; a null frame represents the wait interval without a new pose.</returns>
     private static (ushort Duration, Frame? Frame) ArmDisplay(ArmStage stage) => stage switch
     {
         ArmStage.Wait => (64, null),
@@ -152,6 +218,9 @@ internal static class EndingRewardInstructionDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(stage)),
     };
 
+    /// <summary>Decodes one suitless jump-list word, including launch, pre-instruction, and flight transitions.</summary>
+    /// <param name="word">Zero-based word offset within the suitless jump list.</param>
+    /// <returns>The display or control-flow word consumed by the actor interpreter.</returns>
     private static ushort SuitlessJumpWord(int word)
     {
         if (word < 2) return DisplayWord(word, 48, Frame.SuitlessSamusStanding);
@@ -162,6 +231,9 @@ internal static class EndingRewardInstructionDefinitions
         return HoldWord(word - 7, (ushort)((ushort)List.SuitlessJump + 14), 48, Frame.SuitlessSamusJumping);
     }
 
+    /// <summary>Decodes one suited jump-list word and its split head/body flight sequence.</summary>
+    /// <param name="word">Zero-based word offset within the suited jump list.</param>
+    /// <returns>The display or control-flow word consumed by the actor interpreter.</returns>
     private static ushort SuitedJumpWord(int word)
     {
         if (word == 0) return EndingRewardJumpDefinitions.PrepareHead;
@@ -173,6 +245,9 @@ internal static class EndingRewardInstructionDefinitions
         return HoldWord(word - 7, (ushort)((ushort)List.SuitedJump + 14), 5, Frame.LargeSamusFromEndingJumping);
     }
 
+    /// <summary>Decodes landing poses and the final shooting sequence after Samus touches down.</summary>
+    /// <param name="word">Zero-based word offset within the landing list.</param>
+    /// <returns>The display, shot, or delete instruction for this list position.</returns>
     private static ushort LandingWord(int word)
     {
         if (word < 2) return DisplayWord(word, 10, Frame.SamusLanding);
@@ -182,12 +257,38 @@ internal static class EndingRewardInstructionDefinitions
         return word < 9 ? DisplayWord(word - 7, 128, Frame.SamusShooting) : Delete;
     }
 
+    /// <summary>Converts a byte pointer to a zero-based word index within an instruction list.</summary>
+    /// <param name="pointer">Current byte pointer.</param>
+    /// <param name="list">List start address.</param>
+    /// <returns>Word offset from the list start.</returns>
     private static int Word(ushort pointer, List list) => (pointer - (ushort)list) / 2;
+
+    /// <summary>Encodes alternating timed-list duration and sprite-frame words.</summary>
+    /// <param name="word">Zero-based word position in the list.</param>
+    /// <param name="duration">Duration emitted for an even word.</param>
+    /// <param name="frame">Sprite frame emitted for an odd word, when present.</param>
+    /// <returns>A duration or frame pointer; an odd word with no frame emits zero.</returns>
     private static ushort DisplayWord(int word, ushort duration, Frame? frame) => (word & 1) == 0
         ? duration : frame.HasValue ? EndingRewardSpriteDefinitions.FramePointer(frame.Value) : (ushort)0;
+
+    /// <summary>Decodes a timed two-word hold at the current cursor in a specific list.</summary>
+    /// <param name="pointer">Current byte pointer in the list.</param>
+    /// <param name="start">List start used for the loop target.</param>
+    /// <param name="duration">Number of updates to hold the displayed frame.</param>
+    /// <param name="frame">Sprite frame held during the interval.</param>
+    /// <returns>The duration, frame pointer, or native goto instruction.</returns>
     private static ushort Hold(ushort pointer, List start, ushort duration, Frame frame) => HoldWord(Word(pointer, start), (ushort)start, duration, frame);
+
+    /// <summary>Emits a timed frame pair, then loops to the list start through the native goto instruction.</summary>
+    /// <param name="word">Zero-based word position in the list.</param>
+    /// <param name="start">List pointer used after the timed pair.</param>
+    /// <param name="duration">Number of updates to display the frame.</param>
+    /// <param name="frame">Sprite frame in the timed pair.</param>
+    /// <returns>The duration, frame pointer, or goto opcode.</returns>
     private static ushort HoldWord(int word, ushort start, ushort duration, Frame frame) => word < 2
         ? DisplayWord(word, duration, frame) : word == 2 ? CinematicCodePointers.CinematicSpriteObject_Instruction_Goto : start;
+    /// <summary>Native instruction that removes the current ending-reward actor.</summary>
     private const ushort Delete = CinematicCodePointers.CinematicSpriteObject_Instruction_Delete;
+    /// <summary>Native instruction that installs the actor's next pre-instruction callback.</summary>
     private const ushort SetPreInstruction = CinematicCodePointers.CinematicSpriteObject_Instruction_SetPreInstruction;
 }

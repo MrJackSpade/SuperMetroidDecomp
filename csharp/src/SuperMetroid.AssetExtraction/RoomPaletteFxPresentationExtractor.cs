@@ -8,6 +8,9 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Extracts authored room and cinematic palette animation colors to RGB5 JSON.</summary>
 internal static class RoomPaletteFxPresentationExtractor
 {
+    /// <summary>Exports authored room and cinematic palette-effect frames as RGB5 presentation data.</summary>
+    /// <param name="bus">Cartridge source for the palette colors referenced by compiled effect definitions.</param>
+    /// <returns>Serialized palette-effect presentation data.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

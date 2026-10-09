@@ -12,8 +12,10 @@ namespace SuperMetroid.SourceAudit;
 /// </summary>
 internal static partial class ProductionMagicNumberAudit
 {
+    /// <summary>Repository-relative location of the reviewed fingerprint set loaded by the audit.</summary>
     private const string BaselineRelativePath = "csharp/magic-number-baseline.txt";
 
+    /// <summary>Production source trees whose handwritten functional code is checked for raw hexadecimal values.</summary>
     private static readonly string[] ProductionSourceRoots =
     [
         "csharp/src/SuperMetroid.Core",
@@ -140,6 +142,10 @@ internal static partial class ProductionMagicNumberAudit
         return findings;
     }
 
+    /// <summary>Reads one source file and adds its non-exempt hexadecimal findings to the audit collection.</summary>
+    /// <param name="repositoryRoot">Absolute repository root used to create a stable relative path.</param>
+    /// <param name="path">Absolute source-file path to inspect.</param>
+    /// <param name="findings">Destination collection receiving findings from the file.</param>
     private static void AuditFile(
         string repositoryRoot,
         string path,
@@ -149,6 +155,9 @@ internal static partial class ProductionMagicNumberAudit
         AuditLines(relativePath, File.ReadLines(path), findings);
     }
 
+    /// <summary>Walks upward from a directory until it finds the repository's core project tree.</summary>
+    /// <param name="startingPath">Directory or executable path from which to begin the search.</param>
+    /// <returns>The first matching repository root, or <see langword="null"/> when none is found.</returns>
     private static string? FindRepositoryRootFrom(string startingPath)
     {
         for (DirectoryInfo? directory = new(Path.GetFullPath(startingPath));
@@ -167,6 +176,10 @@ internal static partial class ProductionMagicNumberAudit
         return null;
     }
 
+    /// <summary>Classifies hexadecimal literals in source lines and records those outside approved definitions.</summary>
+    /// <param name="relativePath">Repository-relative, slash-normalized path used in finding identity.</param>
+    /// <param name="lines">Source lines to scan in order.</param>
+    /// <param name="findings">Destination collection receiving classified findings.</param>
     private static void AuditLines(
         string relativePath,
         IEnumerable<string> lines,
@@ -210,6 +223,11 @@ internal static partial class ProductionMagicNumberAudit
         }
     }
 
+    /// <summary>Assigns a domain category to a hexadecimal literal from its containing source expression.</summary>
+    /// <param name="code">Comment-free and string-free source text from the literal's line.</param>
+    /// <param name="literal">Matched hexadecimal token, including any numeric suffix.</param>
+    /// <param name="value">Parsed unsigned value used for category range checks.</param>
+    /// <returns>The detected domain, or <see langword="null"/> when the literal is outside this audit's scope.</returns>
     private static MagicNumberCategory? Classify(string code, string literal, ulong value)
     {
         string lower = code.ToLowerInvariant();
@@ -273,9 +291,17 @@ internal static partial class ProductionMagicNumberAudit
         return null;
     }
 
+    /// <summary>Reports whether source text contains any classifier fragment using ordinal matching.</summary>
+    /// <param name="value">Normalized source text being classified.</param>
+    /// <param name="fragments">Domain terms whose presence indicates a candidate category.</param>
+    /// <returns><see langword="true"/> when at least one fragment occurs in the text.</returns>
     private static bool ContainsAny(string value, params string[] fragments) =>
         fragments.Any(fragment => value.Contains(fragment, StringComparison.Ordinal));
 
+    /// <summary>Recognizes an explicitly categorized same-line exemption with a non-empty reason marker.</summary>
+    /// <param name="line">Original source line, including comments where the exemption is written.</param>
+    /// <param name="category">Finding category that the exemption must name.</param>
+    /// <returns><see langword="true"/> when the line contains the required category marker.</returns>
     private static bool HasReviewedInlineExemption(
         string line,
         MagicNumberCategory category)
@@ -286,12 +312,18 @@ internal static partial class ProductionMagicNumberAudit
         return line.Contains(marker, StringComparison.OrdinalIgnoreCase);
     }
 
+    /// <summary>Converts a matched hexadecimal token to its unsigned numeric value.</summary>
+    /// <param name="literal">Token containing a hexadecimal prefix, digits, separators, and optional suffix.</param>
+    /// <returns>The parsed base-sixteen value.</returns>
     private static ulong ParseHexLiteral(string literal)
     {
         string digits = literal[2..].TrimEnd('u', 'U', 'l', 'L').Replace("_", string.Empty);
         return ulong.Parse(digits, NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture);
     }
 
+    /// <summary>Loads the compact fingerprint payload from the reviewed baseline file.</summary>
+    /// <param name="path">Filesystem path to the baseline text file.</param>
+    /// <returns>Case-normalized fingerprints, or an empty set when the payload line is absent.</returns>
     private static HashSet<string> ReadBaseline(string path)
     {
         if (!File.Exists(path))
@@ -312,6 +344,10 @@ internal static partial class ProductionMagicNumberAudit
         return fingerprints;
     }
 
+    /// <summary>Removes comments and quoted literals while carrying block-comment state to the next line.</summary>
+    /// <param name="line">Single source line to reduce to executable code text.</param>
+    /// <param name="insideBlockComment">Whether scanning enters or exits this line within a block comment.</param>
+    /// <returns>Source text with comments and quoted contents replaced or removed.</returns>
     private static string RemoveCommentsAndQuotedText(string line, ref bool insideBlockComment)
     {
         var result = new StringBuilder(line.Length);
@@ -359,21 +395,40 @@ internal static partial class ProductionMagicNumberAudit
     }
 }
 
+/// <summary>Domain that explains why a raw hexadecimal literal must be owned by a named definition.</summary>
 internal enum MagicNumberCategory
 {
+    /// <summary>Mapped cartridge address or address range used as functional data.</summary>
     RomAddress,
+    /// <summary>Native callback, instruction, or setup pointer used to select behavior.</summary>
     CallbackPointer,
+    /// <summary>Raw switch discriminator that identifies a mutually exclusive domain value.</summary>
     DomainDiscriminator,
+    /// <summary>Collision response code that belongs to the room collision domain.</summary>
     CollisionType,
+    /// <summary>Block behavior or BTS value interpreted by room logic.</summary>
     BlockBehavior,
+    /// <summary>Samus pose, movement type, or movement handler identity.</summary>
     PoseOrMovement,
+    /// <summary>Projectile family or kind selector used by combat logic.</summary>
     ProjectileFamily,
+    /// <summary>Sound effect or music identifier passed to audio dispatch.</summary>
     AudioId,
+    /// <summary>Controller input bits combined or tested by input logic.</summary>
     ControllerBits,
+    /// <summary>Packed PPU, tilemap, palette, or graphics word whose bit layout has domain meaning.</summary>
     PackedPpuWord,
+    /// <summary>Battery-backed SRAM offset or slot-layout location.</summary>
     SramOffset,
 }
 
+/// <summary>A source occurrence of a hexadecimal value classified by the production audit.</summary>
+/// <param name="RelativePath">Slash-normalized repository-relative path used to identify the source file.</param>
+/// <param name="LineNumber">One-based source line where the literal appears.</param>
+/// <param name="Literal">Original hexadecimal token, including its written casing and suffix.</param>
+/// <param name="Category">Domain classification that determines the named container expected for the value.</param>
+/// <param name="Source">Trimmed source line retained for diagnostics and fingerprint calculation.</param>
+/// <param name="Signature">Full lowercase SHA-256 digest of the finding's stable identity input.</param>
 internal sealed record MagicNumberFinding(
     string RelativePath,
     int LineNumber,
@@ -382,8 +437,16 @@ internal sealed record MagicNumberFinding(
     string Source,
     string Signature)
 {
+    /// <summary>Short stable baseline key derived from the leading digest bytes.</summary>
     public string BaselineFingerprint => Signature[..16];
 
+    /// <summary>Creates a finding and computes its stable digest from path, category, token, and source line.</summary>
+    /// <param name="relativePath">Slash-normalized repository-relative source path.</param>
+    /// <param name="lineNumber">One-based line containing the finding.</param>
+    /// <param name="literal">Matched hexadecimal token as written.</param>
+    /// <param name="category">Domain classification assigned by the scanner.</param>
+    /// <param name="source">Trimmed source line included in the identity digest and diagnostic.</param>
+    /// <returns>A finding whose signature can be compared with the reviewed baseline.</returns>
     public static MagicNumberFinding Create(
         string relativePath,
         int lineNumber,
@@ -403,10 +466,14 @@ internal sealed record MagicNumberFinding(
             signature);
     }
 
+    /// <summary>Human-readable finding text that names the expected definition owner and remediation.</summary>
     public string Diagnostic =>
         $"{RelativePath}:{LineNumber}: raw {Literal} [{Category}]. " +
         $"Expected {ExpectedContainer(Category)}. {Remediation(Category)} Source: {Source}";
 
+    /// <summary>Names the typed catalog or domain owner appropriate for a finding category.</summary>
+    /// <param name="category">Domain requiring a named definition.</param>
+    /// <returns>Suggested owner name included in the audit diagnostic.</returns>
     private static string ExpectedContainer(MagicNumberCategory category) => category switch
     {
         MagicNumberCategory.RomAddress => "a named ROM address/range catalog",
@@ -423,11 +490,20 @@ internal sealed record MagicNumberFinding(
         _ => "a named domain definition",
     };
 
+    /// <summary>Builds the migration guidance associated with a classified raw value.</summary>
+    /// <param name="category">Finding domain used to select the appropriate remediation.</param>
+    /// <returns>Text directing the author to a named owner or a reasoned inline exemption.</returns>
     private static string Remediation(MagicNumberCategory category) =>
         $"Move the value to the {ExpectedContainer(category)} and reference that symbol; " +
         $"if it is intrinsic algorithm data, add a reviewed same-line allow({category}) reason.";
 }
 
+/// <summary>Counts and finding sets produced by one production magic-number audit run.</summary>
+/// <param name="CurrentFindingCount">Total classified findings discovered in scanned production sources.</param>
+/// <param name="BaselineCount">Number of reviewed fingerprints loaded from the baseline.</param>
+/// <param name="RetiredBaselineEntries">Baseline fingerprints no longer represented by a current finding.</param>
+/// <param name="CurrentFindings">All current findings, including entries already covered by the baseline.</param>
+/// <param name="NewFindings">Current findings whose fingerprints are absent from the reviewed baseline.</param>
 internal sealed record MagicNumberAuditResult(
     int CurrentFindingCount,
     int BaselineCount,
@@ -435,5 +511,6 @@ internal sealed record MagicNumberAuditResult(
     IReadOnlyList<MagicNumberFinding> CurrentFindings,
     IReadOnlyList<MagicNumberFinding> NewFindings)
 {
+    /// <summary>Whether every current finding is already represented in the reviewed baseline.</summary>
     public bool Passed => NewFindings.Count == 0;
 }

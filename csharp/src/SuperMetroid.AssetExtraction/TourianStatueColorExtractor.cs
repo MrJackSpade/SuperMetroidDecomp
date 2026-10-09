@@ -37,6 +37,11 @@ public static class TourianStatueColorExtractor
         });
     }
 
+    /// <summary>Reads a contiguous run of BGR555 colors and converts it to RGB5 channels.</summary>
+    /// <param name="bus">Cartridge source containing the palette run.</param>
+    /// <param name="source">Address of the first little-endian palette word.</param>
+    /// <param name="count">Number of color words to decode.</param>
+    /// <returns>The decoded colors in source order.</returns>
     private static PaletteRgb5[] Read(ISnesAddressSpace bus, int source, int count)
     {
         var result = new PaletteRgb5[count];

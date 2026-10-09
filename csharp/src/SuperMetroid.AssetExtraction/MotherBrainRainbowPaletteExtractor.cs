@@ -7,6 +7,9 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Installs bank-$AD rainbow and grey-transition colors without copying native control tables.</summary>
 internal static class MotherBrainRainbowPaletteExtractor
 {
+    /// <summary>Exports Mother Brain's authored rainbow, grey fades, fake-death, normal, and beam-cycle colors.</summary>
+    /// <param name="bus">Cartridge source containing the palette frames and pointer tables.</param>
+    /// <returns>Serialized RGB5 palette presentation data without native control tables.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

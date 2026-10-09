@@ -1,10 +1,19 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Physical component of one Golden Torizo extended frame; not editable art.</summary>
+/// <param name="X">Horizontal component offset from the Torizo frame origin.</param>
+/// <param name="Y">Vertical component offset from the Torizo frame origin.</param>
+/// <param name="HitboxList">Bank-$AA pointer to this component's touch/shot rectangle list.</param>
 internal readonly record struct GoldenTorizoCollisionComponent(
     short X, short Y, ushort HitboxList);
 
 /// <summary>Native ordered touch/shot rectangle from a bank-$AA hitbox list.</summary>
+/// <param name="Left">Signed horizontal rectangle edge relative to the actor origin.</param>
+/// <param name="Top">Signed upper rectangle edge relative to the actor origin.</param>
+/// <param name="Right">Signed horizontal rectangle edge relative to the actor origin.</param>
+/// <param name="Bottom">Signed lower rectangle edge relative to the actor origin.</param>
+/// <param name="TouchAi">Native AI pointer dispatched when Samus touches the rectangle.</param>
+/// <param name="ShotAi">Native AI pointer dispatched when the rectangle is hit by a shot.</param>
 internal readonly record struct GoldenTorizoCollisionHitbox(
     short Left, short Top, short Right, short Bottom,
     ushort TouchAi, ushort ShotAi);
@@ -28,6 +37,7 @@ internal readonly record struct GoldenTorizoCollisionHitbox(
 /// </remarks>
 internal static class TorizoCollisionDefinitions
 {
+    /// <summary>Bank containing the native Torizo frames and collision lists.</summary>
     internal const byte Bank = TorizoInstructionProgramDefinitions.Bank;
 
     /// <summary>$AA:87D0, the native blank frame.</summary>
@@ -45,6 +55,7 @@ internal static class TorizoCollisionDefinitions
     /// <summary>Right-facing hitbox lists follow the left-facing block by this many bytes.</summary>
     internal const ushort RightFacingListOffset = 0x015e;
 
+    /// <summary>Single zero-offset component used when a frame has no collision.</summary>
     private static readonly GoldenTorizoCollisionComponent[] SingleEmpty = [new(0, 0, EmptyList)];
 
     /// <summary>The 42 left-facing frames from $AA:A4FA, in native order.</summary>
@@ -117,6 +128,7 @@ internal static class TorizoCollisionDefinitions
         [new(15, -29, 0x87c7), new(3, -24, 0x89b6), new(0, 0, 0x8a7a)],
     ];
 
+    /// <summary>Number of left-facing frames represented by the right-facing mirror run.</summary>
     private static int MirroredCount => LeftFrames.Length + AwakeningFrames.Length;
 
     /// <summary>Components of <paramref name="frame"/>; right-facing frames mirror on read.</summary>
@@ -145,6 +157,12 @@ internal static class TorizoCollisionDefinitions
     private static GoldenTorizoCollisionComponent[] LeftFacing(int index) =>
         index < LeftFrames.Length ? LeftFrames[index] : AwakeningFrames[index - LeftFrames.Length];
 
+    /// <summary>Finds a frame in a contiguous native run whose records have variable component counts.</summary>
+    /// <param name="run">Ordered component arrays for one frame run.</param>
+    /// <param name="start">Bank-$AA pointer to the run's first frame record.</param>
+    /// <param name="frame">Frame pointer being resolved.</param>
+    /// <param name="components">Receives the matching component array, or null when absent.</param>
+    /// <returns><see langword="true"/> when the pointer identifies a frame in the run.</returns>
     private static bool TryFind(GoldenTorizoCollisionComponent[][] run, ushort start, ushort frame,
         out GoldenTorizoCollisionComponent[]? components)
     {
@@ -162,27 +180,51 @@ internal static class TorizoCollisionDefinitions
         return false;
     }
 
+    /// <summary>Advances from one native frame record to the next using its count word and component records.</summary>
+    /// <param name="frame">Pointer to the current frame record.</param>
+    /// <param name="components">Number of eight-byte components following the count word.</param>
+    /// <returns>Pointer immediately following the current record.</returns>
     private static ushort Next(ushort frame, int components) => (ushort)(frame + 2 + 8 * components);
 
+    /// <summary>Native bank-$AA list at $87E8 for the first awakening pose.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List87E8 = [new(-16, -27, 16, 27, 0xc977, 0xc9c2)];
+    /// <summary>Native bank-$AA list at $87F6 for the second awakening pose.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List87F6 = [new(-14, -27, 13, 27, 0xc977, 0xc9c2)];
+    /// <summary>Native bank-$AA list at $8804 for the third awakening pose.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List8804 = [new(-13, -34, 9, 33, 0xc977, 0xc9c2)];
+    /// <summary>Native bank-$AA list at $8812 for the fourth awakening pose.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List8812 = [new(-11, -38, 11, 39, 0xc977, 0xc9c2)];
+    /// <summary>Native bank-$AA list at $8820 for the fifth awakening pose.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List8820 = [new(-15, -44, 8, 47, 0xc977, 0xc9c2)];
+    /// <summary>Native bank-$AA list at $882E for the sixth awakening pose.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List882E = [new(-18, -43, 3, 24, 0xc977, 0xc9c2)];
+    /// <summary>Native bank-$AA list at $883C for the seventh awakening pose.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List883C = [new(-17, -42, 5, 15, 0xc977, 0xc9c2)];
+    /// <summary>Native bank-$AA list at $884A for left-facing torso and rear-leg poses.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List884A = [new(-15, -39, 7, 21, 0xc977, 0xc97c)];
+    /// <summary>Native bank-$AA list at $891C for the first right-facing jump-back pose.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List891C = [new(-18, -38, 7, 9, 0xc977, 0xc97c)];
+    /// <summary>Native bank-$AA list at $892A for the second right-facing jump-back pose.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List892A = [new(-18, -37, 7, 18, 0xc977, 0xc97c)];
+    /// <summary>Native bank-$AA list at $8946 for the first mirrored facing pose.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List8946 = [new(-15, -27, 13, 27, 0xc977, 0xc9c2)];
+    /// <summary>Native bank-$AA list at $8954 for the next mirrored facing pose.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List8954 = [new(-13, -27, 13, 27, 0xc977, 0xc9c2)];
+    /// <summary>Native bank-$AA list at $8962 for the next mirrored facing pose.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List8962 = [new(-14, -32, 13, 33, 0xc977, 0xc9c2)];
+    /// <summary>Native bank-$AA list at $8970 for the next mirrored facing pose.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List8970 = [new(-14, -35, 11, 39, 0xc977, 0xc9c2)];
+    /// <summary>Native bank-$AA list at $897E for the next mirrored facing pose.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List897E = [new(-6, -42, 13, 47, 0xc977, 0xc9c2)];
+    /// <summary>Native bank-$AA list at $898C for the next mirrored facing pose.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List898C = [new(-7, -41, 11, 47, 0xc977, 0xc9c2)];
+    /// <summary>Native bank-$AA list at $899A for the next mirrored facing pose.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List899A = [new(-8, -41, 22, 47, 0xc977, 0xc9c2)];
+    /// <summary>Native bank-$AA list at $89A8 for the left-facing crouch pose.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List89A8 = [new(-10, -38, 13, 23, 0xc977, 0xc97c)];
+    /// <summary>Native bank-$AA list at $8A7A for the first left-facing jump-back pose.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List8A7A = [new(-8, -37, 15, 14, 0xc977, 0xc97c)];
+    /// <summary>Native bank-$AA list at $8A88 for the second left-facing jump-back pose.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List8A88 = [new(-9, -40, 16, 25, 0xc977, 0xc97c)];
 
     /// <summary>Hitbox list rectangles, fitted per facing to the drawings.</summary>
@@ -243,10 +285,16 @@ internal static class TorizoCollisionDefinitions
 }
 
 /// <summary>Allocation-free view of one frame's components, mirrored for right-facing frames.</summary>
+/// <param name="source">Authored component records used for direct or mirrored access.</param>
+/// <param name="mirrored">Whether X offsets and nonempty hitbox pointers must be mirrored on access.</param>
 internal readonly struct TorizoCollisionComponents(GoldenTorizoCollisionComponent[] source, bool mirrored)
 {
+    /// <summary>Number of physical components in the source frame.</summary>
     internal int Length => source.Length;
 
+    /// <summary>Gets a component, reflecting its horizontal offset and hitbox pointer when this is a mirrored frame.</summary>
+    /// <param name="index">Zero-based component index.</param>
+    /// <returns>The authored component or its right-facing mirror.</returns>
     internal GoldenTorizoCollisionComponent this[int index]
     {
         get
@@ -260,12 +308,20 @@ internal readonly struct TorizoCollisionComponents(GoldenTorizoCollisionComponen
         }
     }
 
+    /// <summary>Creates a value-type enumerator over the frame components without allocating.</summary>
+    /// <returns>An enumerator beginning before the first component.</returns>
     public Enumerator GetEnumerator() => new(this);
 
+    /// <summary>Iterates a collision-component view by index.</summary>
+    /// <param name="view">Frame view supplying component count and mirrored values.</param>
     internal struct Enumerator(TorizoCollisionComponents view)
     {
+        /// <summary>Index of the most recently yielded component, initially before the sequence.</summary>
         private int index = -1;
+        /// <summary>Advances to the next component when one remains.</summary>
+        /// <returns><see langword="true"/> when <see cref="Current"/> refers to a component.</returns>
         public bool MoveNext() => ++index < view.Length;
+        /// <summary>The component selected by the most recent successful <see cref="MoveNext"/>.</summary>
         public readonly GoldenTorizoCollisionComponent Current => view[index];
     }
 }

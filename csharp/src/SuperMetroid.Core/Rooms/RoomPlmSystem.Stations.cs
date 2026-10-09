@@ -6,11 +6,17 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Map/resource/save stations and the ordinary elevator-platform room PLM.</summary>
 public sealed partial class RoomPlmSystem
 {
+    /// <summary>Byte offset from a station PLM instruction pointer to its ordinary animation list.</summary>
     private const int StationNormalAnimationOffset = 4;
+    /// <summary>Byte offset to the map-acquired animation list used after map station activation.</summary>
     private const int MapStationAcquiredAnimationOffset = 20;
+    /// <summary>Updates spent moving the station access arm between retracted and extended positions.</summary>
     private const ushort StationAccessMovementFrames = 6;
+    /// <summary>Updates the access arm holds its fully extended pose before activation.</summary>
     private const ushort StationAccessExtendedHoldFrames = 0x60;
+    /// <summary>Activation requests published during the latest PLM handler pass.</summary>
     private readonly List<StationActivationEvent> _stationActivationEvents = [];
+    /// <summary>Prevents a save station from requesting another save during this room entry.</summary>
     private bool _saveStationLockedOut;
 
     /// <summary>
@@ -112,6 +118,11 @@ public sealed partial class RoomPlmSystem
         _saveStationLockedOut = true;
     }
 
+    /// <summary>Finds the unique resident save station identified by an activation event.</summary>
+    /// <param name="activation">Event carrying the station's area and native room argument.</param>
+    /// <returns>The resident station state that owns the save handshake.</returns>
+    /// <exception cref="InvalidOperationException">The identified station is no longer resident.</exception>
+    /// <exception cref="InvalidDataException">More than one resident station has the same identity.</exception>
     private StationPlmState FindSaveStation(StationActivationEvent activation)
     {
         StationPlmState[] matches = _slots
@@ -130,6 +141,13 @@ public sealed partial class RoomPlmSystem
         };
     }
 
+    /// <summary>Installs collision behavior and runtime state for a supported station or elevator PLM.</summary>
+    /// <param name="level">Room collision and foreground block data to update.</param>
+    /// <param name="streamer">Tilemap streamer kept in sync with changed level entries.</param>
+    /// <param name="system">Area map state consulted when initializing map stations.</param>
+    /// <param name="area">Room area associated with station activation state.</param>
+    /// <param name="slot">Resident PLM slot being initialized.</param>
+    /// <returns>True when the slot header belongs to a handled station or elevator.</returns>
     private static bool TrySetupStationOrElevator(
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
@@ -169,6 +187,13 @@ public sealed partial class RoomPlmSystem
         }
     }
 
+    /// <summary>Configures a station's collision blocks, access triggers, and animation state.</summary>
+    /// <param name="level">Room collision and foreground block data to update.</param>
+    /// <param name="streamer">Tilemap streamer kept in sync with changed level entries.</param>
+    /// <param name="system">Area map state used to choose the map station's initial appearance.</param>
+    /// <param name="area">Area that owns the station.</param>
+    /// <param name="slot">Resident PLM slot describing the station.</param>
+    /// <param name="kind">Station behavior installed for this PLM.</param>
     private static void SetupStation(
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
@@ -231,6 +256,12 @@ public sealed partial class RoomPlmSystem
             animationFrameCount: 3);
     }
 
+    /// <summary>Writes a station-access trigger block and its BTS behavior.</summary>
+    /// <param name="level">Room block data receiving the trigger.</param>
+    /// <param name="streamer">Tilemap streamer updated with the collision word.</param>
+    /// <param name="blockIndex">Linear room index of the access trigger.</param>
+    /// <param name="behavior">BTS behavior identifying the station access direction or floor trigger.</param>
+    /// <exception cref="InvalidDataException">The trigger index is outside the room.</exception>
     private static void WriteAccessBlock(
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
@@ -252,6 +283,13 @@ public sealed partial class RoomPlmSystem
             new RoomBlockBehavior((byte)behavior));
     }
 
+    /// <summary>Changes a station block's collision type and optionally its BTS behavior.</summary>
+    /// <param name="level">Room block data receiving the updated word and behavior.</param>
+    /// <param name="streamer">Tilemap streamer updated with the collision word.</param>
+    /// <param name="blockIndex">Linear room index of the station block.</param>
+    /// <param name="original">Original level word whose non-collision bits are preserved.</param>
+    /// <param name="collisionType">New high-nibble collision type.</param>
+    /// <param name="behavior">Optional BTS payload; null preserves the existing behavior.</param>
     private static void WriteStationBlock(
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
@@ -284,6 +322,15 @@ public sealed partial class RoomPlmSystem
             roomWidthInBlocks,
             bypassSetupGate: false);
 
+    /// <summary>Matches a collision trigger to its resident station and starts eligible access handling.</summary>
+    /// <param name="accessBlockIndex">Linear room index of the block that reported collision.</param>
+    /// <param name="behavior">BTS value identifying station family and side.</param>
+    /// <param name="collisionPose">Samus collision pose used by the native setup gate.</param>
+    /// <param name="horizontal">Whether the reported movement/collision is horizontal.</param>
+    /// <param name="movingPositive">Whether movement proceeds toward increasing coordinates.</param>
+    /// <param name="roomWidthInBlocks">Room width used to resolve wrapped save-station positioning.</param>
+    /// <param name="bypassSetupGate">Whether to skip the native pose and direction gate.</param>
+    /// <returns>True when a resident station owns the trigger, including an ineligible activation.</returns>
     private bool TryNotifyStationCollision(
         int accessBlockIndex,
         RoomBlockBehavior behavior,
@@ -387,6 +434,15 @@ public sealed partial class RoomPlmSystem
         return (probeX >> SaveStationTriggerGeometry.BlockCoordinateShift) == blockIndex % roomWidthInBlocks;
     }
 
+    /// <summary>Advances one resident station's access, activation, and sprite-animation state.</summary>
+    /// <param name="bus">Address space used to read and execute station drawing instructions.</param>
+    /// <param name="level">Room block data associated with the station.</param>
+    /// <param name="streamer">Tilemap streamer receiving station frame updates.</param>
+    /// <param name="slot">Resident PLM slot whose station is being advanced.</param>
+    /// <param name="layer1XPosition">Current horizontal layer scroll used for drawing.</param>
+    /// <param name="layer1YPosition">Current vertical layer scroll used for drawing.</param>
+    /// <param name="bg1XOffset">Background offset applied by PLM drawing.</param>
+    /// <returns>True when the station owns this PLM pass and suppresses ordinary instruction dispatch.</returns>
     private bool TryStepStation(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -567,6 +623,16 @@ public sealed partial class RoomPlmSystem
         return true;
     }
 
+    /// <summary>Runs the save pod's alternating-frame loop and publishes its completion message.</summary>
+    /// <param name="bus">Address space used by station draw instructions.</param>
+    /// <param name="level">Room block data associated with the save station.</param>
+    /// <param name="streamer">Tilemap streamer receiving pod frame updates.</param>
+    /// <param name="slot">Resident save-station PLM slot.</param>
+    /// <param name="station">Save station state whose phase and frame counters are advanced.</param>
+    /// <param name="layer1XPosition">Current horizontal layer scroll used for drawing.</param>
+    /// <param name="layer1YPosition">Current vertical layer scroll used for drawing.</param>
+    /// <param name="bg1XOffset">Background offset applied by PLM drawing.</param>
+    /// <returns>True while the save animation or message-close handshake owns this update.</returns>
     private bool StepSaveStationAnimation(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -649,6 +715,10 @@ public sealed partial class RoomPlmSystem
             station.SaveAnimationLoopsRemaining--;
     }
 
+    /// <summary>Applies the station's completed effect and publishes its frontend message request.</summary>
+    /// <param name="station">Station state whose acquisition or refill effect is applied.</param>
+    /// <param name="slot">Resident slot supplying the native station argument and block index.</param>
+    /// <param name="samus">Live Samus state receiving refill effects where applicable.</param>
     private void PublishStationActivation(
         StationPlmState station,
         PlmSlot slot,
@@ -693,6 +763,15 @@ public sealed partial class RoomPlmSystem
             slot.BlockIndex));
     }
 
+    /// <summary>Draws the access-arm frame selected by the station's BTS and extension state.</summary>
+    /// <param name="bus">Address space used by PLM instruction drawing.</param>
+    /// <param name="level">Room block data targeted by the draw instruction.</param>
+    /// <param name="streamer">Tilemap streamer receiving the resulting block updates.</param>
+    /// <param name="station">Station holding the access block and BTS behavior.</param>
+    /// <param name="extended">True for the fully extended pose; false for the moving/retracted pose.</param>
+    /// <param name="layer1XPosition">Current horizontal layer scroll used for drawing.</param>
+    /// <param name="layer1YPosition">Current vertical layer scroll used for drawing.</param>
+    /// <param name="bg1XOffset">Background offset applied by PLM drawing.</param>
     private void DrawStationAccess(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -719,6 +798,12 @@ public sealed partial class RoomPlmSystem
             bg1XOffset);
     }
 
+    /// <summary>Mutable runtime data owned by one resident station PLM.</summary>
+    /// <param name="kind">Station family that determines trigger and activation behavior.</param>
+    /// <param name="area">Area used for map acquisition and activation identity.</param>
+    /// <param name="animationList">Instruction list currently supplying station sprite frames.</param>
+    /// <param name="completedAnimationList">List used after a map or refill station activates.</param>
+    /// <param name="animationFrameCount">Number of frames in the selected station animation sequence.</param>
     private sealed class StationPlmState(
         StationKind kind,
         AreaId area,
@@ -726,32 +811,55 @@ public sealed partial class RoomPlmSystem
         ushort completedAnimationList,
         int animationFrameCount)
     {
+        /// <summary>Station family controlling the station's effect and activation route.</summary>
         public StationKind Kind { get; } = kind;
+        /// <summary>Area whose map-acquisition state is read or updated by this station.</summary>
         public AreaId AreaIndex { get; } = area;
+        /// <summary>Instruction list currently supplying the station's visual frames.</summary>
         public ushort AnimationList { get; set; } = animationList;
+        /// <summary>Visual list selected after a map or refill station activates.</summary>
         public ushort CompletedAnimationList { get; } = completedAnimationList;
+        /// <summary>Frame count used to wrap the active animation index.</summary>
         public int AnimationFrameCount { get; } = animationFrameCount;
+        /// <summary>Index of the next frame to draw from <see cref="AnimationList"/>.</summary>
         public int AnimationFrame { get; set; }
+        /// <summary>Remaining updates before the current station frame advances.</summary>
         public ushort AnimationTimer { get; set; } = 1;
+        /// <summary>Whether the station's initial frame has been drawn and its PLM is sleeping.</summary>
         public bool InitialDrawCompleted { get; set; }
+        /// <summary>Whether a collision handler has requested station activation.</summary>
         public bool Triggered { get; set; }
+        /// <summary>Current access-arm extension, activation, or retraction phase.</summary>
         public StationOperationPhase OperationPhase { get; set; }
+        /// <summary>Remaining updates in the current access-arm operation phase.</summary>
         public ushort OperationTimer { get; set; }
+        /// <summary>Linear room block index of the access trigger currently owned by this station.</summary>
         public int AccessBlockIndex { get; set; } = -1;
+        /// <summary>BTS behavior identifying which station access drawing is active.</summary>
         public StationAccessBehavior? AccessBehavior { get; set; }
+        /// <summary>Save-pod confirmation, animation, and completion-message phase.</summary>
         public SaveStationPhase SavePhase { get; set; }
+        /// <summary>Remaining authored save-pod animation loops after acceptance.</summary>
         public ushort SaveAnimationLoopsRemaining { get; set; }
     }
 
+    /// <summary>Lifecycle phases for a station's access arm between collision and cleanup.</summary>
     private enum StationOperationPhase : byte
     {
+        /// <summary>No station access operation is active.</summary>
         Idle,
+        /// <summary>The arm is moving from its resting pose toward full extension.</summary>
         Extending,
+        /// <summary>The arm reached full extension and is holding before station activation.</summary>
         Extended,
+        /// <summary>The arm remains extended for the post-activation hold.</summary>
         PostActivationHold,
+        /// <summary>The arm is moving back toward its resting pose.</summary>
         Retracting,
+        /// <summary>The retracted frame is holding before access state is cleared.</summary>
         FinalRetractionHold,
         // The access actor has finished; command $0C still owns the Samus release.
+        /// <summary>Access animation is complete while map unpause still owns Samus input release.</summary>
         AwaitingMapUnpause,
     }
 }
@@ -800,6 +908,8 @@ public enum SaveStationPhase : byte
 }
 
 /// <summary>A save station's confirmation outcome and its same-pass first-frame draw.</summary>
+/// <param name="Saving">True when confirmation was accepted and the save animation began.</param>
+/// <param name="TilemapUpdates">Block tilemap changes produced by the initial animation draw.</param>
 public readonly record struct SaveStationConfirmationResult(
     bool Saving,
     IReadOnlyList<PlmTilemapUpdate> TilemapUpdates);

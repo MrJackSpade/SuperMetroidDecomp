@@ -102,6 +102,9 @@ public static class ProjectileSpriteDefinitions
     /// <summary>$93:A0F3: unused projectile25h executes four invisible timed records.</summary>
     private const ushort InvisibleProjectileProgram = 0xa0f3;
 
+    /// <summary>Maps an aligned eight-byte native timed record within one contiguous instruction range to its zero-based phase.</summary>
+    /// <param name="pointer">Instruction-record address to classify.</param><param name="start">First record address in the range.</param><param name="count">Number of records accepted.</param><param name="phase">Receives the record index when the address is aligned and in range.</param>
+    /// <returns><see langword="true"/> only for an address at a record boundary inside the range.</returns>
     private static bool TryTimedPhase(ushort pointer, ushort start, int count, out int phase)
     {
         int offset = pointer - start;
@@ -109,8 +112,12 @@ public static class ProjectileSpriteDefinitions
         return offset >= 0 && offset < count * 8 && offset % 8 == 0;
     }
 
+    /// <summary>Returns the native composition offset for a beam-explosion stage, accounting for its two single-part cores.</summary>
+    /// <param name="phase">Zero-based displayed explosion stage.</param><returns>Bank-$93 composition address for that stage.</returns>
     private static ushort BeamExplosionPointer(int phase) => (ushort)(BeamExplosionStart +
         Math.Min(phase, 2) * RecordBytes(1) + Math.Max(0, phase - 2) * RecordBytes(4));
+    /// <summary>Returns the missile-explosion composition address, whose first stage is one part and later stages are four parts.</summary>
+    /// <param name="phase">Zero-based displayed explosion stage.</param><returns>Bank-$93 composition address for that stage.</returns>
     private static ushort MissileExplosionPointer(int phase) => (ushort)(MissileExplosionStart +
         (phase == 0 ? 0 : RecordBytes(1) + (phase - 1) * RecordBytes(4)));
     /// <summary>$93:9EBB-9F1A: eight one-record missile compass programs.</summary>
@@ -120,6 +127,9 @@ public static class ProjectileSpriteDefinitions
     /// <summary>$93:9F7B: the super-missile link has no visible composition.</summary>
     private const ushort SuperMissileLinkProgram = 0x9f7b;
 
+    /// <summary>Decodes a one-record directional program address into the matching rotated OAM pose.</summary>
+    /// <param name="pointer">Instruction record address.</param><param name="start">First of eight compass programs.</param><param name="pose">Receives the OAM compass index when recognized.</param>
+    /// <returns><see langword="true"/> for one of the eight record starts, excluding each program's trailing jump.</returns>
     private static bool TryCompassPose(ushort pointer, ushort start, out int pose)
     {
         int offset = pointer - start;
@@ -128,6 +138,8 @@ public static class ProjectileSpriteDefinitions
         return offset >= 0 && offset < 8 * programBytes && offset % programBytes == 0;
     }
 
+    /// <summary>Calculates the packed native address for a missile compass pose, whose axial and diagonal records have different sizes.</summary>
+    /// <param name="start">First composition address in the missile family.</param><param name="pose">Zero-based compass pose.</param><returns>Bank-$93 composition address.</returns>
     private static ushort MissilePointer(ushort start, int pose) => (ushort)(start +
         pose / 2 * (RecordBytes(2) + RecordBytes(3)) + pose % 2 * RecordBytes(2));
     /// <summary>$93:9F87 and9FA3: normal/fast PowerBomb cycles each traverse the same three poses.</summary>
@@ -139,6 +151,9 @@ public static class ProjectileSpriteDefinitions
     /// <summary>$93:9153/915B: corresponding charged IceWave lead-in and four travel-axis loops.</summary>
     private const ushort ChargedIceWaveLeadIn = 0x9153, ChargedIceWaveProgram = 0x915b;
 
+    /// <summary>Resolves a charged Wave or charged IceWave timed record to its axis- and phase-specific artwork.</summary>
+    /// <param name="pointer">Timed-record address in the selected instruction family.</param><param name="programStart">First axis loop in that family.</param><param name="compositionStart">First composition in the corresponding Wave artwork group.</param><param name="sprite">Receives the calculated composition pointer.</param>
+    /// <returns><see langword="true"/> for one of the sixteen records in any of the four axis loops.</returns>
     private static bool TryChargedWaveCycle(ushort pointer, ushort programStart, ushort compositionStart, out ushort sprite)
     {
         const int cycleBytes = 16 * 8 + 4;
@@ -170,7 +185,15 @@ public static class ProjectileSpriteDefinitions
     /// <summary>$93:8977..8A56: eight compass Spazer/SpazerIce lists, each three timed records and a self-jump.</summary>
     private const ushort SpazerProgramStart = 0x8977;
     /// <summary>Native semantic spread phases of each ordinary Spazer list.</summary>
-    private enum SpazerSpreadPhase { Seed, Intermediate, Full }
+    private enum SpazerSpreadPhase
+    {
+        /// <summary>The initial unspread beam seed.</summary>
+        Seed,
+        /// <summary>The first selected spread stage; axial and diagonal families use different physical stage numbers.</summary>
+        Intermediate,
+        /// <summary>The terminal selected spread stage for the ordinary compass cycle.</summary>
+        Full
+    }
     /// <summary>Selected physical spread stages remain REQUIRED phase-policy inputs: axial2/5, diagonal1/4. Pointer arithmetic does not derive these choices.</summary>
     private static int SpazerSelectedStage(SpazerSpreadPhase phase, bool diagonal) => phase switch
     {
@@ -179,6 +202,9 @@ public static class ProjectileSpriteDefinitions
         SpazerSpreadPhase.Full => diagonal ? 4 : 5,
         _ => throw new ArgumentOutOfRangeException(nameof(phase)),
     };
+    /// <summary>Resolves one of the three timed records in an ordinary Spazer compass program.</summary>
+    /// <param name="pointer">Address of the native timed record.</param><param name="sprite">Receives the seed or selected spread composition pointer.</param>
+    /// <returns><see langword="true"/> when the address is a record boundary in one of the eight programs.</returns>
     private static bool TrySpazerCompassSprite(ushort pointer, out ushort sprite)
     {
         const int programBytes = 3 * 8 + 4;
@@ -198,6 +224,8 @@ public static class ProjectileSpriteDefinitions
         sprite = (ushort)(start + (stage == 0 ? 0 : RecordBytes(seedParts) + (stage - 1) * RecordBytes(3 * seedParts)));
         return true;
     }
+    /// <summary>Converts the instruction table's up-first compass numbering to the seed direction numbering used by composition groups.</summary>
+    /// <param name="compass">Zero-based instruction-list direction, from up clockwise.</param><returns>The corresponding Spazer seed orientation.</returns>
     private static SpazerSeedDirection SpazerCompassDirection(int compass) => compass switch
         {
             0 => SpazerSeedDirection.Up,
@@ -216,6 +244,9 @@ public static class ProjectileSpriteDefinitions
     private const int SpazerDiagonalNearCenterStage = 5;
     /// <summary>$93:8BFB..8C4E selects a capped0..4..0 sweep with three phases at4; this chosen ceiling/plateau remains REQUIRED phase policy.</summary>
     private const int SpazerDownLeftSelectedCeiling = 4;
+    /// <summary>Maps a SpazerWave outward-and-return record to the native selected spread stage for its compass direction.</summary>
+    /// <param name="pointer">Address of a timed record in the SpazerWave loops.</param><param name="sprite">Receives the selected composition address.</param>
+    /// <returns><see langword="true"/> for one of the ten timed records in any directional loop.</returns>
     private static bool TrySpazerWaveSprite(ushort pointer, out ushort sprite)
     {
         const int cycleLength = 10, cycleBytes = cycleLength * 8 + 4;
@@ -252,6 +283,9 @@ public static class ProjectileSpriteDefinitions
         WaveTravelAxis.FallingDiagonal => 2,
         _ => throw new ArgumentOutOfRangeException(nameof(axis)),
     };
+    /// <summary>Resolves ordinary Plasma and PlasmaWave records, including their shared orientation-specific startup compositions.</summary>
+    /// <param name="pointer">Timed-record address in either instruction family.</param><param name="sprite">Receives the matching startup or mature composition pointer.</param>
+    /// <returns><see langword="true"/> when the address belongs to a timed record in either family.</returns>
     private static bool TryPlasmaSprite(ushort pointer, out ushort sprite)
     {
         const int programBytes = 2 * 8 + 4;
@@ -306,8 +340,13 @@ public static class ProjectileSpriteDefinitions
     private const ushort ChargedPlasmaProgramStart = 0x9adb;
     /// <summary>$93:9BEB..9EBA: four charged PlasmaWave axes, six alternating growth leads then sixteen spread records.</summary>
     private const ushort ChargedPlasmaWaveProgramStart = 0x9beb;
+    /// <summary>Selects the alternating startup artwork used while charged Plasma grows along an axis.</summary>
+    /// <param name="axis">Travel orientation of the projectile.</param><param name="phase">Zero-based growth record.</param><returns>The selected startup composition pointer.</returns>
     private static ushort ChargedPlasmaGrowthSprite(WaveTravelAxis axis, int phase) =>
         PlasmaStartupPointer((PlasmaCoreGroup(axis) + (phase % 2) * 4) * 4 + phase / 2);
+    /// <summary>Resolves charged Plasma and charged PlasmaWave records to startup-growth or spreading artwork.</summary>
+    /// <param name="pointer">Timed-record address in either charged instruction family.</param><param name="sprite">Receives the corresponding composition address.</param>
+    /// <returns><see langword="true"/> when the address is an aligned record in either family.</returns>
     private static bool TryChargedPlasmaSprite(ushort pointer, out ushort sprite)
     {
         const int programBytes = 8 * 8 + 4;
@@ -357,15 +396,60 @@ public static class ProjectileSpriteDefinitions
     /// <summary>Native six-phase composition groups fromD8EE, named by actual directional/alternate consumers. Choosing these artworks remains REQUIRED.</summary>
     private enum ChargedSpazerShape
     {
-        HorizontalAlternate, VerticalAlternate, FallingAlternate, RisingAlternate,
-        UpRight, DownRight, DownLeft, UpLeft, Down, Left, Up, Right,
+        /// <summary>Horizontal alternate spread used when the charged seed faces either horizontal direction.</summary>
+        HorizontalAlternate,
+        /// <summary>Alternate vertical spread shared by upward and downward seed directions.</summary>
+        VerticalAlternate,
+        /// <summary>Alternate falling diagonal spread group.</summary>
+        FallingAlternate,
+        /// <summary>Alternate rising diagonal spread group.</summary>
+        RisingAlternate,
+        /// <summary>Ordinary spread group for the upper-right orientation.</summary>
+        UpRight,
+        /// <summary>Ordinary spread group for the lower-right orientation.</summary>
+        DownRight,
+        /// <summary>Ordinary diagonal artwork selected for the lower-left seed orientation.</summary>
+        DownLeft,
+        /// <summary>Ordinary spread group for the upper-left orientation.</summary>
+        UpLeft,
+        /// <summary>Ordinary spread group for the downward orientation.</summary>
+        Down,
+        /// <summary>Ordinary spread group for the leftward orientation.</summary>
+        Left,
+        /// <summary>Ordinary spread group for the upward orientation.</summary>
+        Up,
+        /// <summary>Ordinary spread group for the rightward orientation.</summary>
+        Right,
     }
     /// <summary>Selected two-pose startup groups EE12..F0C4 in native identity order. Their directional/art selections remain REQUIRED.</summary>
     private enum SpazerStartupShape
     {
-        Left, UpLeft, Up, UpRight, Right, DownRight, Down,
-        HorizontalAlternate, FallingAlternate, VerticalAlternate, RisingAlternate,
+        /// <summary>Left-facing two-pose startup strip.</summary>
+        Left,
+        /// <summary>Upper-left diagonal two-pose startup strip.</summary>
+        UpLeft,
+        /// <summary>Upward two-pose startup strip.</summary>
+        Up,
+        /// <summary>Upper-right diagonal two-pose startup strip.</summary>
+        UpRight,
+        /// <summary>Right-facing two-pose startup strip used by the horizontal seed.</summary>
+        Right,
+        /// <summary>Down-right diagonal two-pose startup strip.</summary>
+        DownRight,
+        /// <summary>Downward two-pose startup strip.</summary>
+        Down,
+        /// <summary>Alternate horizontal two-pose startup selected for horizontal seed directions.</summary>
+        HorizontalAlternate,
+        /// <summary>Alternate falling diagonal startup strip.</summary>
+        FallingAlternate,
+        /// <summary>Alternate vertical startup strip shared by the up and down directions.</summary>
+        VerticalAlternate,
+        /// <summary>Alternate rising diagonal startup strip.</summary>
+        RisingAlternate,
     }
+    /// <summary>Maps a seed orientation to the ordinary charged Spazer spread group used by its native axis.</summary>
+    /// <param name="direction">Seed orientation from the projectile's compass instruction list.</param>
+    /// <returns>The ordinary axial or diagonal spread group for that orientation.</returns>
     private static ChargedSpazerShape ChargedSpazerBase(SpazerSeedDirection direction) => direction switch
     {
         SpazerSeedDirection.Up => ChargedSpazerShape.Up,
@@ -378,6 +462,9 @@ public static class ProjectileSpriteDefinitions
         SpazerSeedDirection.UpLeft => ChargedSpazerShape.UpLeft,
         _ => throw new ArgumentOutOfRangeException(nameof(direction)),
     };
+    /// <summary>Maps a seed orientation to the alternate charged Spazer spread group shared by its paired directions.</summary>
+    /// <param name="direction">Seed orientation from the projectile's compass instruction list.</param>
+    /// <returns>The alternate horizontal, vertical, rising, or falling artwork group.</returns>
     private static ChargedSpazerShape ChargedSpazerAlternate(SpazerSeedDirection direction) => direction switch
     {
         SpazerSeedDirection.Up or SpazerSeedDirection.Down => ChargedSpazerShape.VerticalAlternate,
@@ -386,6 +473,10 @@ public static class ProjectileSpriteDefinitions
         SpazerSeedDirection.UpLeft or SpazerSeedDirection.DownRight => ChargedSpazerShape.FallingAlternate,
         _ => throw new ArgumentOutOfRangeException(nameof(direction)),
     };
+    /// <summary>Selects the startup composition for a charged Spazer direction and one of its four lead-in records.</summary>
+    /// <param name="direction">Seed orientation associated with the native instruction-list axis.</param>
+    /// <param name="phase">Lead-in record index; odd phases use alternate artwork.</param>
+    /// <returns>The bank-$93 composition address consumed by the selected record.</returns>
     private static ushort ChargedSpazerStartup(SpazerSeedDirection direction, int phase)
     {
         SpazerStartupShape shape;
@@ -412,6 +503,10 @@ public static class ProjectileSpriteDefinitions
             };
         return SpazerStartupPointer((int)shape * 2 + phase / 2);
     }
+    /// <summary>Resolves timed records in the eight charged SpazerWave compass loops to startup or spread compositions.</summary>
+    /// <param name="pointer">Bank-relative instruction record address.</param>
+    /// <param name="sprite">Receives the matching composition address, or the default value when unrecognized.</param>
+    /// <returns>True only for one of the aligned timed records, excluding each loop's trailing jump.</returns>
     private static bool TryChargedSpazerWaveSprite(ushort pointer, out ushort sprite)
     {
         const int programBytes = 24 * 8 + 4;
@@ -441,6 +536,10 @@ public static class ProjectileSpriteDefinitions
     }
     /// <summary>$93:936B..94BA: four ordinary charged Spazer axes, four startup and six selected spread rows.</summary>
     private const ushort ChargedSpazerProgramStart = 0x936b;
+    /// <summary>Resolves an ordinary charged Spazer instruction record to its directional startup or spread artwork.</summary>
+    /// <param name="pointer">Bank-relative instruction record address.</param>
+    /// <param name="sprite">Receives the matching composition address, or the default value when unrecognized.</param>
+    /// <returns>True only for one of the aligned timed records in the four ordinary axis loops.</returns>
     private static bool TryChargedSpazerSprite(ushort pointer, out ushort sprite)
     {
         const int programBytes = 10 * 8 + 4;
@@ -484,6 +583,10 @@ public static class ProjectileSpriteDefinitions
     private const ushort WaveSpecialBeamProgram = 0xa159;
     /// <summary>$93:A16D: unused Shinespark beam (projectile27h) traverses six beam-explosion visual stages.</summary>
     private const ushort UnusedShinesparkBeamProgram = 0xa16d;
+    /// <summary>Maps a supported projectile instruction record to its calculated composition identity.</summary>
+    /// <param name="instructionPointer">Bank-relative address of the current instruction record.</param>
+    /// <param name="sprite">Receives the resolved composition address, or the default value if no selector recognizes it.</param>
+    /// <returns>True when a compiled projectile family defines artwork for the instruction record.</returns>
     internal static bool TryCalculatedFrameSprite(ushort instructionPointer, out ushort sprite)
     {
         if (TryPowerDirectionSprite(instructionPointer, out sprite)) return true;
@@ -630,7 +733,20 @@ public static class ProjectileSpriteDefinitions
     }
 
     /// <summary>Mutually exclusive travel axes of the four native Wave instruction loops at93:8743,87C7,884B,88CF.</summary>
-    private enum WaveTravelAxis { Vertical, RisingDiagonal, Horizontal, FallingDiagonal }
+    private enum WaveTravelAxis
+    {
+        /// <summary>Projectile moves along the vertical axis.</summary>
+        Vertical,
+        /// <summary>Projectile moves diagonally up and right.</summary>
+        RisingDiagonal,
+        /// <summary>Projectile moves along the horizontal axis.</summary>
+        Horizontal,
+        /// <summary>Projectile moves diagonally down and right.</summary>
+        FallingDiagonal
+    }
+    /// <summary>Returns the zero-based offset in the ordered set of required native sprite compositions.</summary>
+    /// <param name="index">Identity index in the 417-entry sorted sequence.</param><returns>Bank-$93 spritemap address.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the identity sequence.</exception>
     private static ushort PointerAt(int index)
     {
         if ((uint)index >= 417) throw new IndexOutOfRangeException();
@@ -684,6 +800,8 @@ public static class ProjectileSpriteDefinitions
     private const ushort SpazerStart = 0xd10e;
     /// <summary>$93:D8EE, Charged_S_SI_SW_SIW: two four-part axial groups, six six-part diagonal groups, then four four-part axial groups.</summary>
     private const ushort ChargedSpazerStart = 0xd8ee;
+    /// <summary>Calculates a charged Wave composition address while skipping the two native records not selected by instruction lists.</summary>
+    /// <param name="start">First core composition for the Wave family.</param><param name="index">Zero-based selected stage.</param><returns>Bank-$93 composition address.</returns>
     private static ushort ChargedWavePointer(ushort start, int index)
     {
         // B368/B37E and BA8E/BAA4 each contain two unselected four-part
@@ -691,9 +809,15 @@ public static class ProjectileSpriteDefinitions
         return (ushort)(start + Math.Min(index, 2) * RecordBytes(4) +
             Math.Max(0, index - 2) * RecordBytes(8) + (index >= 26 ? 2 * RecordBytes(4) : 0));
     }
+    /// <summary>Computes the byte extent of a native seed record followed by its five three-lane spread records.</summary>
+    /// <param name="seedParts">Number of parts in each seed.</param><returns>Total serialized bytes in one spread group.</returns>
     private static int SpreadGroupBytes(int seedParts) => RecordBytes(seedParts) + 5 * RecordBytes(3 * seedParts);
+    /// <summary>Computes the within-group offset for a seed or one of its spread phases.</summary>
+    /// <param name="seedParts">Number of parts in the seed record.</param><param name="phase">Zero for the seed; positive values select successive spread records.</param><returns>Byte offset from the start of the group.</returns>
     private static int SpreadPhaseOffset(int seedParts, int phase) =>
         phase == 0 ? 0 : RecordBytes(seedParts) + (phase - 1) * RecordBytes(3 * seedParts);
+    /// <summary>Maps the compact selected Spazer identity index across physical groups, including a skipped unreferenced native pose.</summary>
+    /// <param name="index">Zero-based index in the selected ordinary Spazer composition sequence.</param><returns>Bank-$93 spritemap address.</returns>
     private static ushort SpazerPointer(int index)
     {
         // D4B4 is an unreferenced twelve-part spread pose at the end of the
@@ -704,6 +828,8 @@ public static class ProjectileSpriteDefinitions
         return (ushort)(SpazerStart + Math.Min(group, 4) * SpreadGroupBytes(4) +
             Math.Max(0, group - 4) * SpreadGroupBytes(2) + SpreadPhaseOffset(seedParts, phase));
     }
+    /// <summary>Maps the selected charged Spazer sequence into packed axial, diagonal, and trailing axial groups.</summary>
+    /// <param name="index">Zero-based selected composition index.</param><returns>Bank-$93 spritemap address.</returns>
     private static ushort ChargedSpazerPointer(int index)
     {
         int group = index / 6, phase = index % 6;
@@ -720,6 +846,8 @@ public static class ProjectileSpriteDefinitions
     private const ushort BeamExplosionStart = 0xabb3;
     /// <summary>$93:EE12: six Spazer startup orientation groups serialize length1..4 strips then one/two/three two-tile pairs.</summary>
     private const ushort SpazerStartupStart = 0xee12;
+    /// <summary>Calculates a selected Spazer startup address while retaining intervening unselected records in each physical group.</summary>
+    /// <param name="index">Zero-based selected startup composition index.</param><returns>Bank-$93 spritemap address.</returns>
     private static ushort SpazerStartupPointer(int index)
     {
         // The fourth orientation selects only its first two poses. Its other
@@ -734,6 +862,8 @@ public static class ProjectileSpriteDefinitions
     }
     /// <summary>$93:AA84: SuperMissileExplosion starts with three four-quadrant cores, followed by core/spikes, a large-part ring, then ring/spikes.</summary>
     private const ushort SuperMissileExplosionStart = 0xaa84;
+    /// <summary>Returns a super-missile explosion stage address, accounting for its larger ring record before the final pose.</summary>
+    /// <param name="phase">Zero-based explosion stage.</param><returns>Bank-$93 composition address.</returns>
     private static ushort SuperMissileExplosionPointer(int phase) => (ushort)(SuperMissileExplosionStart +
         Math.Min(phase, 3) * RecordBytes(4) + (phase >= 4 ? RecordBytes(4 + 4 * 2) : 0) +
         (phase >= 5 ? RecordBytes(4 * 2) : 0));
@@ -741,9 +871,30 @@ public static class ProjectileSpriteDefinitions
     /// <summary>Native Charged_PW_PIW composition groups, identified by the actual directional instruction consumers at $93:8D4F/8D9B/8DE7/8E33 and $93:9C1B..9E3D.</summary>
     private enum PlasmaWaveShape
     {
-        HorizontalShort, HorizontalLong, DownRightShort, DownRightLong,
-        VerticalShort, VerticalLong, HorizontalAlternate, DownRightAlternate,
-        VerticalAlternate, DownLeftAlternate, DownLeftShort, DownLeftLong,
+        /// <summary>Four-part horizontal uncharged core.</summary>
+        HorizontalShort,
+        /// <summary>Seven-part horizontal charged core.</summary>
+        HorizontalLong,
+        /// <summary>Six-part down-right diagonal core.</summary>
+        DownRightShort,
+        /// <summary>Ten-part down-right diagonal core.</summary>
+        DownRightLong,
+        /// <summary>Four-part vertical uncharged core.</summary>
+        VerticalShort,
+        /// <summary>Seven-part vertical charged core.</summary>
+        VerticalLong,
+        /// <summary>Alternate seven-part horizontal core.</summary>
+        HorizontalAlternate,
+        /// <summary>Alternate twelve-part down-right core.</summary>
+        DownRightAlternate,
+        /// <summary>Alternate seven-part vertical core.</summary>
+        VerticalAlternate,
+        /// <summary>Alternate twelve-part down-left core.</summary>
+        DownLeftAlternate,
+        /// <summary>Six-part down-left diagonal core.</summary>
+        DownLeftShort,
+        /// <summary>Ten-part down-left diagonal core.</summary>
+        DownLeftLong,
     }
     /// <summary>$93:BC0A/BCC8: horizontal uncharged four-tile and charged seven-tile cores.</summary>
     private const ushort PlasmaWaveHorizontalShort = 0xbc0a, PlasmaWaveHorizontalLong = 0xbcc8;
@@ -757,6 +908,8 @@ public static class ProjectileSpriteDefinitions
     private const ushort PlasmaWaveVerticalAlternate = 0xc94d, PlasmaWaveDownLeftAlternate = 0xcc04;
     /// <summary>$93:CE2A/CF42: down-left/up-right diagonal six-part and ten-part cores.</summary>
     private const ushort PlasmaWaveDownLeftShort = 0xce2a, PlasmaWaveDownLeftLong = 0xcf42;
+    /// <summary>Calculates a PlasmaWave composition address from its shape family and selected spread phase.</summary>
+    /// <param name="index">Packed shape and phase index; each shape contributes five selected poses.</param><returns>Bank-$93 composition address.</returns>
     private static ushort PlasmaWavePointer(int index)
     {
         // Core part counts describe the native chosen footprints. Their full
@@ -784,7 +937,19 @@ public static class ProjectileSpriteDefinitions
     /// <summary>$93:F0FA: Charged_P_PI_PW_PIW startup, two axial orientation groups then two diagonal groups, repeated with alternate orientation/art.</summary>
     private const ushort PlasmaStartupStart = 0xf0fa;
     /// <summary>Four selected growth stages of the native startup instruction streams. Their selected sizes remain independent FrameBindingCatalog policy.</summary>
-    private enum PlasmaGrowthStage { Core, Short, Long, Full }
+    private enum PlasmaGrowthStage
+    {
+        /// <summary>Smallest selected startup pose.</summary>
+        Core,
+        /// <summary>Intermediate short startup footprint.</summary>
+        Short,
+        /// <summary>Expanded startup footprint before the terminal pose.</summary>
+        Long,
+        /// <summary>Largest selected startup footprint.</summary>
+        Full
+    }
+    /// <summary>Calculates the selected startup composition address while accounting for unselected native growth records.</summary>
+    /// <param name="index">Packed orientation group and selected growth stage.</param><returns>Bank-$93 startup composition address.</returns>
     private static ushort PlasmaStartupPointer(int index)
     {
         int group = index / 4, localGroup = group % 4;
@@ -819,14 +984,23 @@ public static class ProjectileSpriteDefinitions
     /// <summary>$82:E13E-E148 restores9A:81A0 at SpriteP5/CGRAM208. Fixed projectile artwork selects that installed sixteen-color row; its color payload remains required.</summary>
     private const int FixedProjectilePalette = (GameplayBasePaletteFormat.EnemyProjectileInitialColor - SnesCgram.ColorCount / 2) /
         GameplayBasePaletteFormat.SpriteColorCount;
+    /// <summary>Recognizes a one-part Power or Ice beam composition and returns its animated glyph phase.</summary>
+    /// <param name="pointer">Bank-$93 composition address.</param><param name="phase">Receives the phase in the matching beam family.</param>
+    /// <returns><see langword="true"/> when the pointer identifies a single-part beam pose.</returns>
     internal static bool TrySingleBeamPhase(ushort pointer, out int phase) =>
         TryPhase(pointer, PowerStart, 1, 8, out phase) || TryPhase(pointer, IceStart, 1, 4, out phase);
+    /// <summary>Classifies a composition pointer in a fixed-size sequence of equal-part-count records.</summary>
+    /// <param name="pointer">Composition address to classify.</param><param name="start">First record address.</param><param name="parts">Part count, which determines each record's serialized size.</param><param name="count">Number of records in the sequence.</param><param name="phase">Receives the zero-based record index.</param>
+    /// <returns><see langword="true"/> only for an aligned record start in the sequence.</returns>
     private static bool TryPhase(ushort pointer, ushort start, int parts, int count, out int phase)
     {
         int relative = pointer - start;
         phase = relative / RecordBytes(parts);
         return relative >= 0 && relative % RecordBytes(parts) == 0 && phase < count;
     }
+    /// <summary>Identifies a four-part charged Power or Ice pose and indicates which tile-order policy applies.</summary>
+    /// <param name="pointer">Composition address.</param><param name="phase">Receives the selected pose index.</param><param name="ice">Receives <see langword="true"/> for the Ice family.</param>
+    /// <returns><see langword="true"/> for a recognized charged-beam composition.</returns>
     internal static bool TryChargedBeamPhase(ushort pointer, out int phase, out bool ice)
     {
         ice = false;
@@ -836,6 +1010,9 @@ public static class ProjectileSpriteDefinitions
         return TryPhase(pointer, ChargedIceStart, 4, 4, out phase);
     }
     /// <summary>$93:ADD5/ADF2/AE0F/AE2C: axial SuperMissile poses, separated by one two-part axial and one three-part diagonal record.</summary>
+    /// <summary>Recognizes the four axial SuperMissile compositions, skipping the intervening diagonal records.</summary>
+    /// <param name="pointer">Composition address.</param><param name="pose">Receives the axial orientation and reflection index.</param>
+    /// <returns><see langword="true"/> for an axial record start in the SuperMissile group.</returns>
     internal static bool TryAxialSuperMissilePose(ushort pointer, out int pose)
     {
         int offset = pointer - SuperMissileStart;
@@ -847,9 +1024,14 @@ public static class ProjectileSpriteDefinitions
     private const int SuperMissileHorizontalGlyph = 0x65, SuperMissileVerticalGlyph = 0x69,
         SuperMissilePriority = 2;
     /// <summary>Four axial native poses use a centered two-cell strip, reflected with travel direction; independent glyph/style/pixel content remains required.</summary>
+    /// <summary>Provides the two OAM tiles of an axial SuperMissile pose in native order.</summary>
+    /// <param name="pose">Decoded orientation and reflection selector from the native composition address.</param>
     internal readonly struct AxialSuperMissileParts(int pose) : IReadOnlyList<CompiledSpritePart>
     {
+        /// <summary>The axial strip consists of two adjacent OAM tiles.</summary>
         public int Count => 2;
+        /// <summary>Returns one tile in native traversal order, reflecting the strip for the reverse pose.</summary>
+        /// <param name="index">Tile index 0 or 1.</param><exception cref="IndexOutOfRangeException">The index is outside the two-tile strip.</exception>
         public CompiledSpritePart this[int index]
         {
             get
@@ -870,6 +1052,7 @@ public static class ProjectileSpriteDefinitions
                     SnesObjAttributeWord.Create(tile, FixedProjectilePalette, SuperMissilePriority, flips), false);
             }
         }
+        /// <summary>Enumerates the two tiles of the axial SuperMissile pose in native order.</summary>
         public IEnumerator<CompiledSpritePart> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -877,9 +1060,14 @@ public static class ProjectileSpriteDefinitions
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>$93:A24D..A27E: eight centered one-tile Power poses (also the first four Ice poses at $93:EDF6) traverse a triangular three-glyph cycle and rotate its horizontal/vertical reflection phases.</summary>
+    /// <summary>Builds the single-tile animated Power or Ice beam pose for a selected phase.</summary>
+    /// <param name="phase">Native pose phase, controlling glyph and reflection.</param>
     internal readonly struct SingleBeamParts(int phase) : IReadOnlyList<CompiledSpritePart>
     {
+        /// <summary>A single-beam pose is represented by one OAM part.</summary>
         public int Count => 1;
+        /// <summary>Returns the sole animated beam tile.</summary>
+        /// <param name="index">Must be zero.</param><exception cref="IndexOutOfRangeException">The index is not zero.</exception>
         public CompiledSpritePart this[int index]
         {
             get
@@ -892,6 +1080,7 @@ public static class ProjectileSpriteDefinitions
                     SnesObjAttributeWord.Create(tile, PowerPalette, PowerPriority, flips), false);
             }
         }
+        /// <summary>Enumerates the single animated Power or Ice beam tile.</summary>
         public IEnumerator<CompiledSpritePart> GetEnumerator()
         {
             yield return this[0];
@@ -899,9 +1088,14 @@ public static class ProjectileSpriteDefinitions
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>$93:EC54..ED88 and ED9E..EDE0 mirror one glyph across a centered two-by-two cell square; Power uses column order and Ice row order.</summary>
+    /// <summary>Builds a four-quadrant charged beam using the traversal order of its Power or Ice family.</summary>
+    /// <param name="phase">Selected charged pose, including the glyph-bank phase.</param><param name="ice">Selects Ice's row-first traversal when true and Power's column-first traversal otherwise.</param>
     internal readonly struct ChargedBeamParts(int phase, bool ice) : IReadOnlyList<CompiledSpritePart>
     {
+        /// <summary>The charged beam is a four-tile square.</summary>
         public int Count => 4;
+        /// <summary>Returns one quadrant in the family-specific native traversal order.</summary>
+        /// <param name="index">Zero-based quadrant index from 0 through 3.</param><exception cref="IndexOutOfRangeException">The index is outside the four-part square.</exception>
         public CompiledSpritePart this[int index]
         {
             get
@@ -916,6 +1110,7 @@ public static class ProjectileSpriteDefinitions
                     SnesObjAttributeWord.Create(tile, PowerPalette, PowerPriority, flips), false);
             }
         }
+        /// <summary>Enumerates the four charged-beam quadrants in the selected family's traversal order.</summary>
         public IEnumerator<CompiledSpritePart> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -924,14 +1119,41 @@ public static class ProjectileSpriteDefinitions
     }
     /// <summary>$93:EC43/EDA3: charged Power/Ice use independently selected OBJ glyphs $33/$34, sharing palette6/priority2 with the single-tile beam.</summary>
     private const int ChargedBeamTile = 0x33;
+    /// <summary>Maps a one-part Wave composition pointer to its position among the centered pose and directional displacement stages.</summary>
+    /// <param name="pointer">Composition address in the ordinary Wave group.</param><param name="phase">Receives the native sequence index.</param>
+    /// <returns><see langword="true"/> for one of the 33 one-part Wave records.</returns>
     internal static bool TryWavePhase(ushort pointer, out int phase) => TryPhase(pointer, WaveStart, 1, 33, out phase);
     /// <summary>$93:AEA4..AEC0 and other diagonal groups: component magnitudes6/9/11/12 equal floor(3*axial/4). This selected ratio remains required, not a trigonometric assertion.</summary>
     private const int WaveDiagonalNumerator = 3, WaveDiagonalDenominator = 4;
-    private enum WaveDirection { Up, Down, UpRight, DownLeft, Right, Left, UpLeft, DownRight }
+    /// <summary>Signed compass displacements used to lay out the native Wave spread poses.</summary>
+    private enum WaveDirection
+    {
+        /// <summary>Displacement toward the top of the screen.</summary>
+        Up,
+        /// <summary>Displacement toward the bottom of the screen.</summary>
+        Down,
+        /// <summary>Displacement toward the upper right.</summary>
+        UpRight,
+        /// <summary>Displacement toward the lower left.</summary>
+        DownLeft,
+        /// <summary>Displacement toward the right.</summary>
+        Right,
+        /// <summary>Displacement toward the left.</summary>
+        Left,
+        /// <summary>Displacement toward the upper left.</summary>
+        UpLeft,
+        /// <summary>Displacement toward the lower right.</summary>
+        DownRight
+    }
     /// <summary>$93:AE65..AF4B: one centered pose then four stages in each of eight signed directional displacement groups.</summary>
+    /// <summary>Creates the centered one-tile ordinary Wave pose for a native direction and displacement phase.</summary>
+    /// <param name="phase">Zero selects the centered pose; later values encode direction and displacement step.</param>
     internal readonly struct WaveParts(int phase) : IReadOnlyList<CompiledSpritePart>
     {
+        /// <summary>Every native Wave phase contains one OAM part.</summary>
         public int Count => 1;
+        /// <summary>Returns the single tile at the requested collection index.</summary>
+        /// <param name="index">Must be zero, the only valid index.</param><exception cref="IndexOutOfRangeException">The index is not zero.</exception>
         public CompiledSpritePart this[int index]
         {
             get
@@ -963,12 +1185,25 @@ public static class ProjectileSpriteDefinitions
                     SnesObjAttributeWord.Create(tile, PowerPalette, PowerPriority, 0), false);
             }
         }
+        /// <summary>Enumerates the sole tile in the selected ordinary Wave pose.</summary>
         public IEnumerator<CompiledSpritePart> GetEnumerator() { yield return this[0]; }
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
+    /// <summary>Recognizes vertical charged Wave and IceWave seed/spread compositions.</summary>
+    /// <param name="pointer">Bank-$93 composition address.</param><param name="phase">Receives the vertical phase index shared by the recognized families.</param>
+    /// <returns><see langword="true"/> for a vertical seed or one of its selected spread poses.</returns>
+    /// <summary>Recognizes vertical charged Wave and IceWave seed or spread compositions.</summary>
+    /// <param name="pointer">Bank-$93 composition address.</param><param name="phase">Receives the phase index shared by the recognized families.</param>
+    /// <returns><see langword="true"/> for a vertical seed or selected spread pose.</returns>
     internal static bool TryVerticalChargedWavePhase(ushort pointer, out int phase) =>
         TryVerticalChargedWavePhase(pointer, ChargedWaveStart, out phase) ||
         TryVerticalChargedWavePhase(pointer, ChargedIceWaveStart, out phase);
+    /// <summary>Classifies vertical records within one charged Wave family, skipping its unselected intervening compositions.</summary>
+    /// <param name="pointer">Composition address.</param><param name="start">Family's first core address.</param><param name="phase">Receives the seed or spread phase.</param>
+    /// <returns><see langword="true"/> when the pointer is one of the selected vertical records.</returns>
+    /// <summary>Classifies vertical records within one charged Wave family, skipping its unselected compositions.</summary>
+    /// <param name="pointer">Composition address.</param><param name="start">Family's first core address.</param><param name="phase">Receives the seed or spread phase.</param>
+    /// <returns><see langword="true"/> when the pointer is a selected vertical record.</returns>
     private static bool TryVerticalChargedWavePhase(ushort pointer, ushort start, out int phase)
     {
         if (TryPhase(pointer, start, 4, 2, out phase)) return true;
@@ -977,9 +1212,14 @@ public static class ProjectileSpriteDefinitions
         return true;
     }
     /// <summary>$93:AF4C..B0C7 and B672..B7ED: two centered glyphs followed by four paired vertical displacements, each with swapped lobe glyphs.</summary>
+    /// <summary>Provides the seed or vertical eight-part lobe spread for a charged Wave family.</summary>
+    /// <param name="phase">Selected vertical composition phase; initial phases are the four-part core.</param>
     internal readonly struct VerticalChargedWaveParts(int phase) : IReadOnlyList<CompiledSpritePart>
     {
+        /// <summary>The vertical charged-wave composition contains four seed or eight spread parts.</summary>
         public int Count => phase < 2 ? 4 : 8;
+        /// <summary>Returns the selected part in native record order.</summary>
+        /// <param name="index">Zero-based part position in this phase.</param><exception cref="IndexOutOfRangeException">The index exceeds the current phase's part count.</exception>
         public CompiledSpritePart this[int index]
         {
             get
@@ -995,6 +1235,7 @@ public static class ProjectileSpriteDefinitions
                     SnesObjAttributeWord.Create(tile, PowerPalette, PowerPriority, flips), false);
             }
         }
+        /// <summary>Enumerates the vertical charged-Wave core or its two four-tile lobes in native order.</summary>
         public IEnumerator<CompiledSpritePart> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -1002,6 +1243,12 @@ public static class ProjectileSpriteDefinitions
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Native93:AD6D/AD8A/ADA7/ADC4 andADE1/ADFE/AE1B/AE38: diagonal records follow each two-part axial record.</summary>
+    /// <summary>Recognizes diagonal Missile or SuperMissile records and identifies the selected projectile artwork family.</summary>
+    /// <param name="pointer">Composition address.</param><param name="pose">Receives the diagonal orientation.</param><param name="super">Receives <see langword="true"/> for SuperMissile.</param>
+    /// <returns><see langword="true"/> when the pointer identifies a diagonal record in either missile group.</returns>
+    /// <summary>Recognizes diagonal Missile or SuperMissile records and identifies the artwork family.</summary>
+    /// <param name="pointer">Composition address.</param><param name="pose">Receives the diagonal orientation.</param><param name="super">Receives <see langword="true"/> for SuperMissile.</param>
+    /// <returns><see langword="true"/> when the pointer identifies a diagonal record in either missile group.</returns>
     internal static bool TryDiagonalMissilePose(ushort pointer, out int pose, out bool super)
     {
         super = false;
@@ -1009,6 +1256,9 @@ public static class ProjectileSpriteDefinitions
         super = true;
         return TryDiagonalMissilePose(pointer, SuperMissileStart, out pose);
     }
+    /// <summary>Maps a three-part diagonal missile record within one missile family to its orientation.</summary>
+    /// <param name="pointer">Composition address.</param><param name="start">First address in the selected missile group.</param><param name="pose">Receives the diagonal orientation index.</param>
+    /// <returns><see langword="true"/> for a diagonal record start, excluding axial records.</returns>
     private static bool TryDiagonalMissilePose(ushort pointer, ushort start, out int pose)
     {
         int offset = pointer - start - RecordBytes(2);
@@ -1022,9 +1272,14 @@ public static class ProjectileSpriteDefinitions
     /// <summary>Native AD72/ADF0 glyph roots and AD6F/ADE3 first corner in bottom-right,bottom-left,top-left order; both the chosen three-corner footprint and these artwork/order seeds remain REQUIRED.</summary>
     private const int MissileDiagonalGlyph = 0x56, SuperMissileDiagonalGlyph = 0x66,
         MissileFirstCorner = 2, SuperMissileFirstCorner = 0;
+    /// <summary>Builds the three-corner diagonal footprint for a Missile or SuperMissile pose.</summary>
+    /// <param name="pose">Diagonal orientation and reflection index.</param><param name="super">Selects SuperMissile's independently authored footprint and glyphs.</param>
     internal readonly struct DiagonalMissileParts(int pose, bool super) : IReadOnlyList<CompiledSpritePart>
     {
+        /// <summary>Diagonal missile artwork uses three neighboring OAM parts.</summary>
         public int Count => 3;
+        /// <summary>Returns a tile from the selected diagonal missile pose.</summary>
+        /// <param name="index">Zero-based part index from 0 through 2.</param><exception cref="IndexOutOfRangeException">The index is outside the three-part pose.</exception>
         public CompiledSpritePart this[int index]
         {
             get
@@ -1043,6 +1298,7 @@ public static class ProjectileSpriteDefinitions
                     SnesObjAttributeWord.Create(tile, FixedProjectilePalette, SuperMissilePriority, flips), false);
             }
         }
+        /// <summary>Enumerates the three tiles of the selected diagonal missile pose.</summary>
         public IEnumerator<CompiledSpritePart> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -1053,6 +1309,9 @@ public static class ProjectileSpriteDefinitions
     private const int BombGlyphStart = 0x4c, BombPalette = FixedProjectilePalette, EffectPriority = 3;
     /// <summary>$93:ABC1-AC18: four mirrored quadrant beam-explosion stages use consecutive glyphs60-63 and the installed beam-color row. Glyph selection/priority/pixels remain REQUIRED.</summary>
     private const int BeamExplosionQuadGlyphStart = 0x60, BeamExplosionPalette = PowerPalette;
+    /// <summary>Recognizes single-tile bomb poses and the four-part beam-explosion poses.</summary>
+    /// <param name="pointer">Composition address.</param><param name="phase">Receives the pose index in its family.</param><param name="quad">Receives <see langword="true"/> when the pose uses four parts.</param>
+    /// <returns><see langword="true"/> for a supported simple effect composition.</returns>
     internal static bool TrySimpleEffectPose(ushort pointer, out int phase, out bool quad)
     {
         quad = false;
@@ -1060,9 +1319,14 @@ public static class ProjectileSpriteDefinitions
         quad = true;
         return TryPhase(pointer, BeamExplosionPointer(2), 4, 4, out phase);
     }
+    /// <summary>Provides either a single Bomb tile or a four-part beam-explosion pose.</summary>
+    /// <param name="phase">Selected effect stage and glyph offset.</param><param name="quad">Chooses the four-quadrant explosion form when true.</param>
     internal readonly struct SimpleEffectParts(int phase, bool quad) : IReadOnlyList<CompiledSpritePart>
     {
+        /// <summary>Single-tile effects contain one part; expanded explosion poses contain four.</summary>
         public int Count => quad ? 4 : 1;
+        /// <summary>Returns the requested tile of the effect pose.</summary>
+        /// <param name="index">Zero-based part position.</param><exception cref="IndexOutOfRangeException">The index exceeds the pose's part count.</exception>
         public CompiledSpritePart this[int index]
         {
             get
@@ -1078,19 +1342,31 @@ public static class ProjectileSpriteDefinitions
                     SnesObjAttributeWord.Create(tile, quad ? BeamExplosionPalette : BombPalette, EffectPriority, flips), false);
             }
         }
+        /// <summary>Enumerates the selected single-part or four-part effect composition.</summary>
         public IEnumerator<CompiledSpritePart> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
+    /// <summary>Recognizes the selected eight-part horizontal spread records in charged Wave and IceWave groups.</summary>
+    /// <param name="pointer">Composition address.</param><param name="phase">Receives the spread phase.</param>
+    /// <returns><see langword="true"/> for one of the selected horizontal spread records.</returns>
+    /// <summary>Recognizes selected eight-part horizontal spread records in charged Wave and IceWave groups.</summary>
+    /// <param name="pointer">Composition address.</param><param name="phase">Receives the spread phase.</param>
+    /// <returns><see langword="true"/> for one of the selected horizontal spread records.</returns>
     internal static bool TryHorizontalChargedWavePhase(ushort pointer, out int phase) =>
         TryPhase(pointer, ChargedWavePointer(ChargedWaveStart, 26), 8, 8, out phase) ||
         TryPhase(pointer, ChargedWavePointer(ChargedIceWaveStart, 26), 8, 8, out phase);
     /// <summary>$93:B394-B4E3 and BABA-BC09: paired horizontal lobes reuse the four required axial distances and alternating glyphs. The independently chosen left clockwise/right row-order traversal remains REQUIRED artwork policy.</summary>
+    /// <summary>Builds the two four-part lobes of a horizontal charged Wave spread.</summary>
+    /// <param name="phase">Selected spread stage controlling lobe displacement and glyph pair.</param>
     internal readonly struct HorizontalChargedWaveParts(int phase) : IReadOnlyList<CompiledSpritePart>
     {
+        /// <summary>Each horizontal charged-wave spread is represented by eight parts.</summary>
         public int Count => 8;
+        /// <summary>Returns the requested tile in the two-lobe native order.</summary>
+        /// <param name="index">Zero-based part position from 0 through 7.</param><exception cref="IndexOutOfRangeException">The index exceeds the eight-part spread.</exception>
         public CompiledSpritePart this[int index]
         {
             get
@@ -1111,12 +1387,16 @@ public static class ProjectileSpriteDefinitions
                     SnesObjAttributeWord.Create(tile, PowerPalette, PowerPriority, flips), false);
             }
         }
+        /// <summary>Enumerates the eight tiles of a horizontal charged-Wave spread in native lobe order.</summary>
         public IEnumerator<CompiledSpritePart> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
+    /// <summary>Classifies a Spazer seed record and returns its orientation across the diagonal and axial groups.</summary>
+    /// <param name="pointer">Composition address.</param><param name="pose">Receives the seed orientation index.</param>
+    /// <returns><see langword="true"/> for one of the eight native seed records.</returns>
     internal static bool TrySpazerSeedPose(ushort pointer, out int pose)
     {
         int offset = pointer - SpazerStart;
@@ -1135,9 +1415,15 @@ public static class ProjectileSpriteDefinitions
     private enum SpazerSeedDirection { UpRight, DownRight, DownLeft, UpLeft, Down, Left, Up, Right }
     /// <summary>$93:D113/D118 and D643/D6EF: selected diagonal32/31,vertical33,horizontal30 atlas cells remain REQUIRED artwork identities.</summary>
     private const int SpazerDiagonalGlyph = 0x32, SpazerVerticalGlyph = 0x33, SpazerHorizontalGlyph = 0x30;
+    /// <summary>Provides the four-cell diagonal or two-cell axial seed in a decoded Spazer orientation.</summary>
+    /// <param name="pose">Native seed orientation index: diagonal groups precede axial groups.</param>
     internal readonly struct SpazerSeedParts(int pose) : IReadOnlyList<CompiledSpritePart>
     {
+        /// <summary>Number of OAM tiles in this seed: four for axial orientations and two for diagonal orientations.</summary>
         public int Count => pose < 4 ? 4 : 2;
+        /// <summary>Gets one seed tile in the native composition order for the decoded orientation.</summary>
+        /// <param name="index">Zero-based tile position within this seed.</param>
+        /// <exception cref="IndexOutOfRangeException">The index is outside this orientation's seed.</exception>
         public CompiledSpritePart this[int index]
         {
             get
@@ -1173,12 +1459,16 @@ public static class ProjectileSpriteDefinitions
                     SnesObjAttributeWord.Create(tile, PowerPalette, PowerPriority, flips), false);
             }
         }
+        /// <summary>Enumerates the seed tiles in the decoded Spazer orientation.</summary>
         public IEnumerator<CompiledSpritePart> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
+    /// <summary>Recognizes a selected diagonal Spazer spread record and decodes its direction and spread stage.</summary>
+    /// <param name="pointer">Composition address.</param><param name="pose">Receives the diagonal orientation.</param><param name="phase">Receives the spread stage within that orientation.</param>
+    /// <returns><see langword="true"/> for an aligned selected spread record in a diagonal group.</returns>
     internal static bool TrySpazerDiagonalSpread(ushort pointer, out int pose, out int phase)
     {
         int offset = pointer - SpazerStart;
@@ -1190,9 +1480,15 @@ public static class ProjectileSpriteDefinitions
             withinGroup < 4 * RecordBytes(12) && withinGroup % RecordBytes(12) == 0;
     }
     /// <summary>The first four diagonal spreads atD124/D270/D3BC/D508 repeat each seed on center and opposite perpendicular lanes. Distances6/9/11/12 share floor(3*required axial distance/4); spacing/projection and phase-selection inputs remain REQUIRED.</summary>
+    /// <summary>Builds the twelve-part, three-lane diagonal spread by repeating the oriented four-part seed.</summary>
+    /// <param name="pose">Diagonal seed orientation.</param><param name="phase">Selected spread phase determining lane separation.</param>
     internal readonly struct SpazerDiagonalSpreadParts(int pose, int phase) : IReadOnlyList<CompiledSpritePart>
     {
+        /// <summary>Each diagonal spread pose contains two three-tile lobes.</summary>
         public int Count => 12;
+        /// <summary>Gets a tile from the selected diagonal spread lobes in their native traversal order.</summary>
+        /// <param name="index">Zero-based tile position across both lobes.</param>
+        /// <exception cref="IndexOutOfRangeException">The index is outside the twelve-tile spread.</exception>
         public CompiledSpritePart this[int index]
         {
             get
@@ -1208,6 +1504,7 @@ public static class ProjectileSpriteDefinitions
                     unchecked((byte)((sbyte)seed.Y + dy)), seed.Attributes, seed.InheritPalette);
             }
         }
+        /// <summary>Enumerates all twelve tiles of the selected diagonal Spazer spread.</summary>
         public IEnumerator<CompiledSpritePart> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -1227,9 +1524,15 @@ public static class ProjectileSpriteDefinitions
             !(pose == 7 && phase == 0);
     }
     /// <summary>Repeated axial seed lanes. Native vertical, initial-left and later horizontal traversal policies remain REQUIRED composition choices.</summary>
+    /// <summary>Builds three repeated two-cell lanes for an axial Spazer spread.</summary>
+    /// <param name="pose">Axial seed orientation.</param><param name="phase">Seed or spread phase controlling lane spacing and order.</param>
     internal readonly struct SpazerAxialSpreadParts(int pose, int phase) : IReadOnlyList<CompiledSpritePart>
     {
+        /// <summary>Each axial spread pose contains two three-tile lobes.</summary>
         public int Count => 6;
+        /// <summary>Gets a tile from the selected axial spread lobes in native order.</summary>
+        /// <param name="index">Zero-based tile position across both lobes.</param>
+        /// <exception cref="IndexOutOfRangeException">The index is outside the six-tile spread.</exception>
         public CompiledSpritePart this[int index]
         {
             get
@@ -1258,6 +1561,7 @@ public static class ProjectileSpriteDefinitions
                     unchecked((byte)((sbyte)seed.Y + (vertical ? 0 : lane * distance))), seed.Attributes, seed.InheritPalette);
             }
         }
+        /// <summary>Enumerates the six tiles of the selected axial Spazer spread.</summary>
         public IEnumerator<CompiledSpritePart> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -1275,9 +1579,15 @@ public static class ProjectileSpriteDefinitions
     /// <summary>$93:D8EE: the chosen four-cell length and tile34 artwork remain REQUIRED inputs; cell adjacency and centering calculate.</summary>
     private const int ChargedSpazerHorizontalCells = 4, ChargedSpazerHorizontalGlyph = 0x34;
     /// <summary>Horizontal charged Spazer lanes share required spread distances. Center-first initial versus lower-first later ordering remains REQUIRED composition policy.</summary>
+    /// <summary>Builds the centered horizontal charged Spazer seed or its three displaced copies.</summary>
+    /// <param name="phase">Selected charged Spazer spread phase.</param>
     internal readonly struct HorizontalChargedSpazerParts(int phase) : IReadOnlyList<CompiledSpritePart>
     {
+        /// <summary>Returns four tiles for the centered core or twelve across its three horizontal copies.</summary>
         public int Count => ChargedSpazerHorizontalCells * (phase == 0 ? 1 : 3);
+        /// <summary>Gets a core tile or a tile in one of the phase-selected horizontal lobes.</summary>
+        /// <param name="index">Zero-based position in the native core/lobe traversal.</param>
+        /// <exception cref="IndexOutOfRangeException">The index is outside this phase's composition.</exception>
         public CompiledSpritePart this[int index]
         {
             get
@@ -1293,6 +1603,7 @@ public static class ProjectileSpriteDefinitions
                     SnesObjAttributeWord.Create(ChargedSpazerHorizontalGlyph, PowerPalette, PowerPriority, 0), false);
             }
         }
+        /// <summary>Enumerates the horizontal charged-Spazer core or its displaced copies.</summary>
         public IEnumerator<CompiledSpritePart> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -1305,9 +1616,15 @@ public static class ProjectileSpriteDefinitions
     /// <summary>$93:DA8E: the selected four-cell column and glyph37 remain REQUIRED artwork inputs.</summary>
     private const int ChargedSpazerVerticalCells = 4, ChargedSpazerVerticalGlyph = 0x37;
     /// <summary>Three descending columns. Side placement measures a required distance to the near cell edge and reflects across X=0; this placement policy and right/left/center traversal remain REQUIRED choices.</summary>
+    /// <summary>Builds the three descending four-cell columns of a vertical charged Spazer spread.</summary>
+    /// <param name="phase">Spread phase controlling the distance of the two side columns.</param>
     internal readonly struct VerticalChargedSpazerSpreadParts(int phase) : IReadOnlyList<CompiledSpritePart>
     {
+        /// <summary>Three descending lanes each contain the four cells selected by the vertical spread.</summary>
         public int Count => 3 * ChargedSpazerVerticalCells;
+        /// <summary>Gets a cell from the selected vertical spread lane and row.</summary>
+        /// <param name="index">Zero-based position in right, left, then centered lane order.</param>
+        /// <exception cref="IndexOutOfRangeException">The index is outside the three-lane composition.</exception>
         public CompiledSpritePart this[int index]
         {
             get
@@ -1322,6 +1639,7 @@ public static class ProjectileSpriteDefinitions
                     SnesObjAttributeWord.Create(ChargedSpazerVerticalGlyph, PowerPalette, PowerPriority, 0), false);
             }
         }
+        /// <summary>Enumerates the twelve tiles of the vertical charged-Spazer spread by lane.</summary>
         public IEnumerator<CompiledSpritePart> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -1339,9 +1657,15 @@ public static class ProjectileSpriteDefinitions
         return offset >= 0 && group < 6 && (within == 0 || within == RecordBytes(1));
     }
     /// <summary>One/two-cell centered startup strips; native group glyph/reflection selection and traversal remain REQUIRED composition inputs, while adjacency and centering calculate.</summary>
+    /// <summary>Builds a centered horizontal or vertical startup strip with the native reflection for its group.</summary>
+    /// <param name="group">Selected startup orientation and artwork family.</param><param name="length">Number of adjacent cells in the strip.</param>
     internal readonly struct SpazerAxialStartupParts(int group, int length) : IReadOnlyList<CompiledSpritePart>
     {
+        /// <summary>Number of adjacent cells in the selected one- or two-cell axial strip.</summary>
         public int Count => length;
+        /// <summary>Gets one cell in the startup strip's centered traversal order.</summary>
+        /// <param name="index">Zero-based cell position along the strip.</param>
+        /// <exception cref="IndexOutOfRangeException">The index is outside the selected strip.</exception>
         public CompiledSpritePart this[int index]
         {
             get
@@ -1362,6 +1686,7 @@ public static class ProjectileSpriteDefinitions
                     SnesObjAttributeWord.Create(glyph, PowerPalette, PowerPriority, flips), false);
             }
         }
+        /// <summary>Enumerates the cells of the selected centered axial startup strip.</summary>
         public IEnumerator<CompiledSpritePart> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -1379,9 +1704,15 @@ public static class ProjectileSpriteDefinitions
         return offset >= 0 && group < 3 && (within == 0 || within == RecordBytes(2));
     }
     /// <summary>Ordinary diagonal startup strips keep the required two-pair origin and shift by half a cell when shortened to one pair. Pair adjacency/reflection calculate; selected footprint lengths, origin, glyphs and order remain REQUIRED.</summary>
+    /// <summary>Builds one or two adjacent tile pairs for an ordinary diagonal Spazer startup pose.</summary>
+    /// <param name="group">Selected diagonal orientation group.</param><param name="pairs">Number of tile pairs in the selected footprint.</param>
     internal readonly struct SpazerDiagonalStartupParts(int group, int pairs) : IReadOnlyList<CompiledSpritePart>
     {
+        /// <summary>Each startup pose is composed of the selected number of two-cell pairs.</summary>
         public int Count => pairs * 2;
+        /// <summary>Gets a tile within the selected adjacent pairs in native traversal order.</summary>
+        /// <param name="index">Zero-based tile position in the startup footprint.</param>
+        /// <exception cref="IndexOutOfRangeException">The index is outside the selected footprint.</exception>
         public CompiledSpritePart this[int index]
         {
             get
@@ -1399,12 +1730,16 @@ public static class ProjectileSpriteDefinitions
                     SnesObjAttributeWord.Create(SpazerDiagonalGlyph - index % 2, PowerPalette, PowerPriority, flips), false);
             }
         }
+        /// <summary>Enumerates the tile pairs in the selected ordinary diagonal startup pose.</summary>
         public IEnumerator<CompiledSpritePart> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
+    /// <summary>Recognizes one of the selected Plasma startup core compositions.</summary>
+    /// <param name="pointer">Composition address.</param><param name="group">Receives the selected startup orientation and artwork group.</param>
+    /// <returns><see langword="true"/> when the pointer matches one of eight startup core records.</returns>
     internal static bool TryPlasmaStartupCore(ushort pointer, out int group)
     {
         for (group = 0; group < 8; group++)
@@ -1431,9 +1766,15 @@ public static class ProjectileSpriteDefinitions
     /// <summary>$93:F048: chosen inner/endcap glyphs35/36 remain REQUIRED artwork inputs.</summary>
     private const int SpazerDiagonalInnerGlyph = 0x35, SpazerDiagonalEndcapGlyph = 0x36;
     /// <summary>One centered endcap pair, then two rotated pairs. Footprint, glyph/endcap selection and native traversal remain REQUIRED; cell adjacency/reflection calculate.</summary>
+    /// <summary>Builds the endcap or expanded rotated footprint used by alternate diagonal Spazer startups.</summary>
+    /// <param name="reflected">Selects the mirrored rising or falling alternate pose.</param><param name="phase">Zero selects the centered endcap pair; the later phase selects the expanded pose.</param>
     internal readonly struct AlternateDiagonalStartupParts(bool reflected, int phase) : IReadOnlyList<CompiledSpritePart>
     {
+        /// <summary>The endcap phase has two tiles; the expanded alternate pose has four.</summary>
         public int Count => phase == 0 ? 2 : 4;
+        /// <summary>Gets an endcap or expanded-pose tile with the selected diagonal reflection.</summary>
+        /// <param name="index">Zero-based tile position in the selected phase.</param>
+        /// <exception cref="IndexOutOfRangeException">The index is outside the selected footprint.</exception>
         public CompiledSpritePart this[int index]
         {
             get
@@ -1465,6 +1806,7 @@ public static class ProjectileSpriteDefinitions
                     SnesObjAttributeWord.Create(tile, PowerPalette, PowerPriority, flips), false);
             }
         }
+        /// <summary>Enumerates the endcap pair or expanded footprint of the alternate diagonal startup.</summary>
         public IEnumerator<CompiledSpritePart> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -1472,9 +1814,15 @@ public static class ProjectileSpriteDefinitions
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>$93:F0FA/F194/F22E/F2CE and alternate groupsF36E/F408/F4A2/F542: centered startup cores share tile geometry; selected glyph/footprint/style remain REQUIRED.</summary>
+    /// <summary>Builds the selected one- or two-part centered core for a Plasma startup orientation group.</summary>
+    /// <param name="group">Selected Plasma startup orientation and alternate-art group.</param>
     internal readonly struct PlasmaStartupCoreParts(int group) : IReadOnlyList<CompiledSpritePart>
     {
+        /// <summary>Axial startup groups use one core tile and diagonal groups use two.</summary>
         public int Count => group % 4 < 2 ? 1 : 2;
+        /// <summary>Gets a tile from the selected axial or diagonal startup core.</summary>
+        /// <param name="index">Zero-based tile position in the core.</param>
+        /// <exception cref="IndexOutOfRangeException">The index is outside the selected core.</exception>
         public CompiledSpritePart this[int index]
         {
             get
@@ -1493,6 +1841,7 @@ public static class ProjectileSpriteDefinitions
                         reflected ? SnesTileFlipFlags.Horizontal : 0), false);
             }
         }
+        /// <summary>Enumerates the one- or two-part core selected for a Plasma startup group.</summary>
         public IEnumerator<CompiledSpritePart> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -1510,9 +1859,15 @@ public static class ProjectileSpriteDefinitions
     /// <summary>$93:BC0A: the chosen four-cell short Plasma footprint remains REQUIRED artwork input.</summary>
     private const int PlasmaWaveShortCells = 4;
     /// <summary>Centered horizontal strip or opposite displaced copies. Selected length/glyph, lobe order and four spread distances remain REQUIRED; repeated cell geometry calculates.</summary>
+    /// <summary>Builds a short horizontal PlasmaWave core or its two oppositely displaced copies.</summary>
+    /// <param name="phase">Zero selects the core; later values select a spread distance.</param>
     internal readonly struct HorizontalPlasmaWaveShortParts(int phase) : IReadOnlyList<CompiledSpritePart>
     {
+        /// <summary>The core uses one four-cell strip; spread phases use two opposing strips.</summary>
         public int Count => PlasmaWaveShortCells * (phase == 0 ? 1 : 2);
+        /// <summary>Gets a cell in the core strip or in one of its phase-displaced copies.</summary>
+        /// <param name="index">Zero-based tile position in the native strip/lobe order.</param>
+        /// <exception cref="IndexOutOfRangeException">The index is outside the selected composition.</exception>
         public CompiledSpritePart this[int index]
         {
             get
@@ -1526,6 +1881,7 @@ public static class ProjectileSpriteDefinitions
                     SnesObjAttributeWord.Create(SpazerHorizontalGlyph, PowerPalette, PowerPriority, 0), false);
             }
         }
+        /// <summary>Enumerates the horizontal PlasmaWave core or both of its displaced copies.</summary>
         public IEnumerator<CompiledSpritePart> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];

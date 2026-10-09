@@ -17,6 +17,7 @@ public static class SnesCpuOperandRead
         return (ushort)(low | high << 8);
     }
 
+    /// <summary>Reads one operand byte, returning the supplied MDR latch only for proven undriven ranges.</summary>
     private static byte ReadData(ISnesAddressSpace bus, int address, byte memoryDataRegister)
     {
         int bank = address >> 16, offset = address & 0xffff;

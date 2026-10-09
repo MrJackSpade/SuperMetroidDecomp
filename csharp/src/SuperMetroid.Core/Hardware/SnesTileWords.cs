@@ -19,10 +19,15 @@ public enum SnesTileFlipFlags : ushort
 /// <param name="Raw">The complete 16-bit entry, including character, palette, priority, and flip fields.</param>
 public readonly record struct SnesBgTilemapWord(ushort Raw)
 {
+    /// <summary>Low ten BG tilemap bits containing the character number.</summary>
     private const ushort CharacterMask = 0x03ff;
+    /// <summary>Starting bit position of the BG palette selector.</summary>
     private const int PaletteShift = 10;
+    /// <summary>Three-bit BG palette selector mask before shifting.</summary>
     private const ushort PaletteMask = 0x0007;
+    /// <summary>BG tilemap high-priority selector at bit 13.</summary>
     private const ushort PriorityMask = 0x2000;
+    /// <summary>Both independent tile flip bits in their packed positions.</summary>
     private const ushort FlipMask = 0xc000;
 
     /// <summary>Gets the ten-bit character number, from 0 through 1023, relative to the background's character base.</summary>
@@ -110,9 +115,13 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
     private const ushort TileNumberMask = 0x01ff;
     /// <summary>Bit position where the three-bit OBJ palette selector begins.</summary>
     private const int PaletteShift = 9;
+    /// <summary>Starting bit position of the OBJ priority field.</summary>
     private const int PriorityShift = 12;
+    /// <summary>Three-bit palette mask before shifting into the attribute word.</summary>
     private const ushort ThreeBitMask = 0x0007;
+    /// <summary>Two-bit priority mask before shifting into the attribute word.</summary>
     private const ushort TwoBitMask = 0x0003;
+    /// <summary>Both OBJ flip bits in their packed attribute positions.</summary>
     private const ushort FlipMask = 0xc000;
 
     /// <summary>Gets the nine-bit OBJ character number, from 0 through 511, including the tile-page select bit.</summary>
@@ -130,6 +139,7 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
     /// <summary>Gets whether the object's rows are drawn in reverse vertical order.</summary>
     public bool FlipVertically => (FlipFlags & SnesTileFlipFlags.Vertical) != 0;
 
+    /// <summary>Mask covering only the three OBJ palette bits in the attribute word.</summary>
     private const ushort PaletteFieldMask = ThreeBitMask << PaletteShift;
 
     /// <summary>Encodes every field in one standard two-byte low-OAM attribute record.</summary>
@@ -210,7 +220,9 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
 /// </summary>
 public readonly record struct SnesOamHighTablePair
 {
+    /// <summary>Low two bits belonging to one sprite's shared high-table pair.</summary>
     private const byte PairMask = 0x03;
+    /// <summary>First pair bit carrying screen X coordinate bit eight.</summary>
     private const byte XHighMask = 0x01;
     /// <summary>Second bit in each packed high-table pair selects the large OBJ size.</summary>
     private const byte LargeObjectMask = 0x02;

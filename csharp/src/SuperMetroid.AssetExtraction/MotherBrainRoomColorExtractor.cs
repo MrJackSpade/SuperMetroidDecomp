@@ -7,6 +7,9 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Extracts only BGR555 payloads selected by the compiled room-flash program.</summary>
 internal static class MotherBrainRoomColorExtractor
 {
+    /// <summary>Exports the room-flash, final-room, phase-two, projectile, and recovery RGB5 colors.</summary>
+    /// <param name="bus">Cartridge source containing Mother Brain's room palette data.</param>
+    /// <returns>Serialized room-color presentation data.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

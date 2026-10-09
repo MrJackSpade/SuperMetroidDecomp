@@ -15,7 +15,9 @@ public class SuperMetroidAddressSpace : ISnesAddressSpace, ISnesMutableMemory
     /// <summary>8 KiB of battery-backed SRAM used by three save slots and metadata.</summary>
     public const int SaveRamByteCount = 0x2000;
 
+    /// <summary>Backing bytes for both physical WRAM banks and their modeled mirrors.</summary>
     private readonly byte[] _workRam = new byte[WorkRamByteCount];
+    /// <summary>Backing bytes for the game's battery-backed save slots and metadata.</summary>
     private readonly byte[] _saveRam = new byte[SaveRamByteCount];
 
     /// <summary>

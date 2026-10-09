@@ -86,6 +86,10 @@ public static class GameplayMessagePanelExtractor
         return output.ToArray();
     }
 
+    /// <summary>Reads one little-endian tilemap or definition word from cartridge space.</summary>
+    /// <param name="bus">Cartridge-backed address space.</param>
+    /// <param name="address">Address of the word's low byte.</param>
+    /// <returns>The two source bytes combined as an unsigned word.</returns>
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
 }

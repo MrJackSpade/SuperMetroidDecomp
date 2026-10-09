@@ -62,8 +62,11 @@ public enum BotwoonHeadFunction : ushort
 /// </summary>
 public sealed class BotwoonEnemyState
 {
+    /// <summary>Physical enemy slot whose common variable words hold Botwoon's head state.</summary>
     private readonly RoomEnemySlot _head;
 
+    /// <summary>Creates debugger state backed by the native head actor's variable words.</summary>
+    /// <param name="head">Botwoon head slot, which must be the room's native slot zero.</param>
     internal BotwoonEnemyState(RoomEnemySlot head) => _head = head;
 
     /// <summary>Variable D's bank-$B3 main-function pointer, owning initial waiting, traversal/spitting, and synchronized death progression.</summary>
@@ -178,10 +181,12 @@ public sealed class BotwoonEnemyState
 
     /// <summary>One kilobyte of native position history, represented as 256 X/Y pairs.</summary>
     internal ushort[] HistoryX { get; } = new ushort[256];
+    /// <summary>Y coordinates paired with <see cref="HistoryX"/> in the circular body-history buffer.</summary>
     internal ushort[] HistoryY { get; } = new ushort[256];
 
     /// <summary>Four delayed head positions used to choose the visible head orientation.</summary>
     internal ushort[] HeadHistoryX { get; } = new ushort[4];
+    /// <summary>Y coordinates paired with <see cref="HeadHistoryX"/> for delayed head orientation.</summary>
     internal ushort[] HeadHistoryY { get; } = new ushort[4];
 }
 
@@ -208,14 +213,21 @@ public readonly record struct BotwoonMusicRequest(MusicCommand Command, MusicCom
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native bank-$B3 enemy-definition pointer for Botwoon.</summary>
     internal const ushort BotwoonDefinition = 0xf293;
+    /// <summary>Native touch-AI callback installed for the Botwoon head.</summary>
     internal const ushort BotwoonTouchAi = EnemyAiCodePointers.BankB3.BotwoonTouch;
+    /// <summary>Native projectile-hit callback installed for the Botwoon head.</summary>
     internal const ushort BotwoonShotAi = EnemyAiCodePointers.BankB3.BotwoonShot;
+    /// <summary>Native power-bomb callback installed for the Botwoon head.</summary>
     internal const ushort BotwoonPowerBombAi = EnemyAiCodePointers.BankB3.BotwoonPowerBomb;
 
+    /// <summary>Number of pickups emitted by Botwoon's specialized death-drop routine.</summary>
     private const int BotwoonSpecialDropCount = 16;
 
+    /// <summary>Typed extended state for the room's single Botwoon head.</summary>
     private BotwoonEnemyState? _botwoonState;
+    /// <summary>Pickup requests accumulated by the final body-landing drop sequence.</summary>
     private readonly List<BotwoonDropRequest> _botwoonDropRequests = new();
 
     /// <summary>Last library-two sound selected by Botwoon in the current enemy frame.</summary>
@@ -233,6 +245,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Track three, queued with the native eight-frame delay after wall cleanup.</summary>
     public BotwoonMusicRequest? LastBotwoonMusicRequest { get; private set; }
 
+    /// <summary>Clears Botwoon state and room-local outputs during a room transition.</summary>
     private void ResetBotwoonRoomState()
     {
         _botwoonState = null;
@@ -365,6 +378,7 @@ public sealed partial class RoomEnemySystem
         UpdateBotwoonHealthPalette(head, state);
     }
 
+    /// <summary>Selects authored traversal or stationary spitting after a hole crossing.</summary>
     private void RunBotwoonActionSelector(
         RoomEnemySlot head,
         BotwoonEnemyState state,
@@ -400,6 +414,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Runs a selected movement descriptor until its terminator marks the path complete.</summary>
     private void RunBotwoonAuthoredPathState(
         RoomEnemySlot head,
         BotwoonEnemyState state,
@@ -418,6 +433,7 @@ public sealed partial class RoomEnemySystem
         RunBotwoonMovingFrame(head, state, samus, detectHole: false);
     }
 
+    /// <summary>Holds Botwoon inside its hole while aiming and advancing the spit cooldown.</summary>
     private void RunBotwoonHiddenSpitState(
         RoomEnemySlot head,
         BotwoonEnemyState state,
@@ -451,6 +467,7 @@ public sealed partial class RoomEnemySystem
         ChooseBotwoonPath(head, state);
     }
 
+    /// <summary>Updates head history, delayed body positions, movement, and head callbacks for one frame.</summary>
     private void RunBotwoonMovingFrame(
         RoomEnemySlot head,
         BotwoonEnemyState state,
@@ -467,6 +484,7 @@ public sealed partial class RoomEnemySystem
             DetectBotwoonHole(head, state);
     }
 
+    /// <summary>Dispatches the head's direct hole movement or authored-path movement callback.</summary>
     private static void RunBotwoonMovement(RoomEnemySlot head, BotwoonEnemyState state)
     {
         switch (state.MovementFunction)
@@ -487,6 +505,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Moves toward the selected hole target and updates crossing state on rectangle entry or exit.</summary>
     private static void MoveBotwoonTowardHole(RoomEnemySlot head, BotwoonEnemyState state)
     {
         BotwoonHoleDefinition hole =
@@ -510,9 +529,11 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Clamps target displacement to the signed range used by native vector selection.</summary>
     private static short ClampBotwoonTargetDelta(short value) =>
         value < -256 ? (short)-255 : value >= 256 ? (short)255 : value;
 
+    /// <summary>Uses RNG and health phase to select a movement descriptor and traversal direction.</summary>
     private void ChooseBotwoonPath(RoomEnemySlot head, BotwoonEnemyState state)
     {
         UpdateBotwoonHealthPhase(head, state);
@@ -521,6 +542,7 @@ public sealed partial class RoomEnemySystem
             (_nextRandom!() & 0x0018) + insideBase + 4 * state.TargetHoleOffset));
     }
 
+    /// <summary>Selects movement speed from strict half- and quarter-health thresholds.</summary>
     private static void UpdateBotwoonHealthPhase(RoomEnemySlot head, BotwoonEnemyState state)
     {
         if (state.InsideHole)
@@ -539,6 +561,7 @@ public sealed partial class RoomEnemySystem
         state.SegmentSpacingBytes = speed.SegmentSpacingBytes;
     }
 
+    /// <summary>Loads a chosen descriptor's sample pointer, direction, and target-hole identity.</summary>
     private static void LoadBotwoonPathDescriptor(BotwoonEnemyState state)
     {
         BotwoonPathDescriptorDefinition descriptor =
@@ -552,6 +575,7 @@ public sealed partial class RoomEnemySystem
         state.MovementFunction = BotwoonMovementFunction.FollowAuthoredPath;
     }
 
+    /// <summary>Consumes signed X/Y path samples in the selected forward or reverse direction.</summary>
     private static void FollowBotwoonPath(RoomEnemySlot head, BotwoonEnemyState state)
     {
         short totalX = 0;
@@ -585,6 +609,7 @@ public sealed partial class RoomEnemySystem
         head.YPosition = unchecked((ushort)(head.YPosition + totalY));
     }
 
+    /// <summary>Stores the head position and advances its aligned circular-history cursor.</summary>
     private static void RecordBotwoonHeadPosition(RoomEnemySlot head, BotwoonEnemyState state)
     {
         int ringIndex = state.RingByteOffset >> 2;
@@ -592,6 +617,7 @@ public sealed partial class RoomEnemySystem
         state.HistoryY[ringIndex] = head.YPosition;
     }
 
+    /// <summary>Positions each body point from its speed-dependent delayed history sample.</summary>
     private static void PositionBotwoonBody(BotwoonEnemyState state)
     {
         ushort historyOffset = unchecked((ushort)(
@@ -612,6 +638,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Toggles one segment's hidden state when its delayed sample reaches the saved crossing.</summary>
     private static void ToggleBotwoonSegmentAtHole(
         BotwoonEnemyState state,
         int segmentIndex,
@@ -634,6 +661,7 @@ public sealed partial class RoomEnemySystem
         state.SavedHoleRingByteOffset = 0xffff;
     }
 
+    /// <summary>Selects each body instruction list from neighboring delayed positions.</summary>
     private static void OrientBotwoonBody(RoomEnemySlot head, BotwoonEnemyState state)
     {
         for (int argument = 24; argument >= 0; argument -= 2)
@@ -662,6 +690,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Detects hole rectangle crossings and latches them until the body catches up.</summary>
     private static void DetectBotwoonHole(RoomEnemySlot head, BotwoonEnemyState state)
     {
         if (state.HoleLatch)
@@ -685,6 +714,7 @@ public sealed partial class RoomEnemySystem
         state.HoleLatch = false;
     }
 
+    /// <summary>Dispatches the head callback for movement orientation, aiming, and spit timing.</summary>
     private void RunBotwoonHeadFunction(
         RoomEnemySlot head,
         BotwoonEnemyState state,
@@ -725,6 +755,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Derives head orientation from delayed positions and applies hole visibility rules.</summary>
     private static void AnimateBotwoonHeadFromMovement(RoomEnemySlot head, BotwoonEnemyState state)
     {
         short dx = unchecked((short)(head.XPosition - state.HeadHistoryX[3]));
@@ -759,6 +790,7 @@ public sealed partial class RoomEnemySystem
         state.HeadHistoryY[0] = head.YPosition;
     }
 
+    /// <summary>Calculates the spit angle toward Samus and installs the authored attack animation.</summary>
     private void AimBotwoonAtSamus(
         RoomEnemySlot head,
         BotwoonEnemyState state,
@@ -777,6 +809,7 @@ public sealed partial class RoomEnemySystem
         RunBotwoonHeadFunction(head, state, samus);
     }
 
+    /// <summary>Installs a head instruction list only when the selected list changes.</summary>
     private static void InstallBotwoonHeadInstruction(
         RoomEnemySlot head,
         BotwoonEnemyState state,
@@ -790,6 +823,7 @@ public sealed partial class RoomEnemySystem
         head.Timer = 0;
     }
 
+    /// <summary>Creates the aimed projectiles admitted by the current spit-animation callback.</summary>
     private void SpawnBotwoonSpitVolley(
         RoomEnemySlot head,
         BotwoonEnemyState state,
@@ -805,6 +839,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Applies the next authored palette step when health crosses its strict threshold.</summary>
     private void UpdateBotwoonHealthPalette(RoomEnemySlot head, BotwoonEnemyState state)
     {
         if (state.PalettePhaseByteOffset ==
@@ -835,6 +870,7 @@ public sealed partial class RoomEnemySystem
         state.PalettePhaseByteOffset = unchecked((ushort)(state.PalettePhaseByteOffset + 2));
     }
 
+    /// <summary>Accelerates the head through its quadratic death arc and detects landing.</summary>
     private void RunBotwoonHeadFall(RoomEnemySlot head, BotwoonEnemyState state)
     {
         int displacement = ReadQuadraticEnemySpeed(
@@ -858,6 +894,7 @@ public sealed partial class RoomEnemySystem
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
     }
 
+    /// <summary>Starts the timed wall-crumble sequence after the final body point lands.</summary>
     private void BeginBotwoonWallExplosions(RoomEnemySlot head, BotwoonEnemyState state)
     {
         state.Function = BotwoonEnemyFunction.WallExplosions;
@@ -888,6 +925,7 @@ public sealed partial class RoomEnemySystem
         state.SmallExplosionTimer = 0;
     }
 
+    /// <summary>Emits staged wall explosions, then removes Botwoon and publishes completion state.</summary>
     private void RunBotwoonWallExplosions(RoomEnemySlot head, BotwoonEnemyState state)
     {
         if (state.WallExplosionFrame >= 192)
@@ -958,6 +996,7 @@ public sealed partial class RoomEnemySystem
         head.Properties = head.Properties.With(EnemyProperties.IgnoreSamusCollision);
     }
 
+    /// <summary>Adds a fixed-point displacement projected from a cartridge byte-angle and magnitude.</summary>
     private static void AddBotwoonAngleVector(
         RoomEnemySlot head,
         byte angle,
@@ -977,6 +1016,7 @@ public sealed partial class RoomEnemySystem
             yDisplacement);
     }
 
+    /// <summary>Adds signed fixed-point displacement while retaining native position wrapping.</summary>
     private static (ushort Position, ushort Subposition) AddBotwoonFixed(
         ushort position,
         ushort subposition,
@@ -1032,6 +1072,7 @@ public sealed partial class RoomEnemySystem
         return true;
     }
 
+    /// <summary>Returns initialized state only for Botwoon's native head slot.</summary>
     private BotwoonEnemyState RequireBotwoonState(RoomEnemySlot head) =>
         _botwoonState is not null && head.SlotIndex == 0
             ? _botwoonState

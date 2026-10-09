@@ -11,13 +11,22 @@ using SuperMetroid.Core.Rooms;
 /// </summary>
 internal sealed partial class InstalledSamusIsolationTests
 {
+    /// <summary>Installed artwork fixture containing stock and independently edited presentation data.</summary>
     private readonly InstalledSamusArtworkFixture artwork;
+    /// <summary>Stock and edited suit palettes used by the paired actors.</summary>
     private readonly (SamusSuitColorCatalog Stock, SamusSuitColorCatalog Edited) suits;
+    /// <summary>Stock and edited full-body animation palettes.</summary>
     private readonly (SamusFullBodyCycleColorCatalog Stock, SamusFullBodyCycleColorCatalog Edited) cycles;
+    /// <summary>Stock and edited Crystal Flash palettes.</summary>
     private readonly (CrystalFlashColorCatalog Stock, CrystalFlashColorCatalog Edited) crystal;
+    /// <summary>Beam palette data shared by the finite render scenarios.</summary>
     private readonly BeamPaletteCatalog beams;
+    /// <summary>Counters for comparisons, draws, changed OAM/VRAM/CGRAM observations, and constructed scenarios.</summary>
     private int comparisons, draws, changedOam, changedTiles, changedColors, scenarios;
 
+    /// <summary>Loads stock and edited palette catalogs for the supplied installed artwork fixture.</summary>
+    /// <param name="artwork">Fixture with the original and edited game installations.</param>
+    /// <param name="root">Project root used to open the projectile palette asset.</param>
     private InstalledSamusIsolationTests(InstalledSamusArtworkFixture artwork, string root)
     {
         this.artwork = artwork;
@@ -32,6 +41,9 @@ internal sealed partial class InstalledSamusIsolationTests
         beams = BeamPaletteCatalog.Load(stream);
     }
 
+    /// <summary>Runs the finite stock-versus-edited Samus isolation scenarios and reports observed differences.</summary>
+    /// <param name="artwork">Installed artwork fixture under comparison.</param>
+    /// <param name="root">Project root containing the extracted projectile palette asset.</param>
     internal static void Run(InstalledSamusArtworkFixture artwork, string root)
     {
         var tests = new InstalledSamusIsolationTests(artwork, root);
@@ -47,6 +59,7 @@ internal sealed partial class InstalledSamusIsolationTests
             $"{tests.changedColors} changed CGRAM observations. No ROM, import or player data is used.");
     }
 
+    /// <summary>Creates a stock/edited actor pair with the same initial pose, equipment, medium, and ceiling.</summary>
     private Pair Create(byte pose = SamusPoseIds.FacingRightNormalPose,
         ushort equipment = 0, ushort medium = SamusLiquidPhysicsState.Air, bool lowCeiling = false)
     {
@@ -54,18 +67,35 @@ internal sealed partial class InstalledSamusIsolationTests
         return new Pair(this, pose, equipment, medium, lowCeiling);
     }
 
+    /// <summary>One constructed Samus and the private memory, room, palette, and artwork it owns.</summary>
     private sealed class Actor
     {
+        /// <summary>Isolated address space with no cartridge backing.</summary>
         internal readonly SuperMetroidAddressSpace Memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
+        /// <summary>Samus initialized against this actor's isolated dependencies.</summary>
         internal readonly SamusState Samus;
+        /// <summary>Constructed collision room containing a solid floor and optional low ceiling.</summary>
         internal readonly RoomLevelData Level;
+        /// <summary>Actor-local color memory populated from its selected suit palette.</summary>
         internal readonly SnesCgram Colors = new();
+        /// <summary>Actor-local video memory receiving Samus tile transfers.</summary>
         internal readonly SnesVram Tiles = new();
+        /// <summary>Selected stock or edited body artwork.</summary>
         internal readonly SamusBodyArtworkCatalog Body;
+        /// <summary>Selected stock or edited suit palette.</summary>
         internal readonly SamusSuitColorCatalog Suits;
+        /// <summary>Selected stock or edited full-body cycle palette.</summary>
         internal readonly SamusFullBodyCycleColorCatalog Cycles;
+        /// <summary>Selected stock or edited Crystal Flash palette.</summary>
         internal readonly CrystalFlashColorCatalog Crystal;
 
+        /// <summary>Builds a self-contained actor using either the stock or edited presentation inputs.</summary>
+        /// <param name="tests">Fixture owner supplying both presentation variants.</param>
+        /// <param name="edited">Selects edited assets when true and stock assets otherwise.</param>
+        /// <param name="pose">Initial native Samus pose.</param>
+        /// <param name="equipment">Equipped item bits applied before pose initialization.</param>
+        /// <param name="medium">Air, water, or lava/acid physics configuration.</param>
+        /// <param name="lowCeiling">Adds a solid ceiling above the actor's floor row.</param>
         internal Actor(InstalledSamusIsolationTests tests, bool edited, byte pose,
             ushort equipment, ushort medium, bool lowCeiling)
         {
@@ -96,11 +126,20 @@ internal sealed partial class InstalledSamusIsolationTests
         }
     }
 
+    /// <summary>Keeps matching stock and edited actors synchronized through the same operations.</summary>
     private sealed class Pair
     {
         private readonly InstalledSamusIsolationTests tests;
+        /// <summary>Actor bound to the original installation assets.</summary>
         internal Actor Stock { get; }
+        /// <summary>Actor bound to the independently edited installation assets.</summary>
         internal Actor Edited { get; }
+        /// <summary>Constructs both variants and checks their initial mechanics and memory.</summary>
+        /// <param name="tests">Owning scenario fixture.</param>
+        /// <param name="pose">Pose supplied to both actors.</param>
+        /// <param name="equipment">Equipment bits supplied to both actors.</param>
+        /// <param name="medium">Liquid physics mode supplied to both actors.</param>
+        /// <param name="lowCeiling">Whether both constructed rooms contain a low ceiling.</param>
         internal Pair(InstalledSamusIsolationTests tests, byte pose,
             ushort equipment, ushort medium, bool lowCeiling)
         {
@@ -110,6 +149,10 @@ internal sealed partial class InstalledSamusIsolationTests
             Check("initialization");
         }
 
+        /// <summary>Applies a mutation to both actors, compares state, and optionally renders them.</summary>
+        /// <param name="context">Scenario label used in any failure report.</param>
+        /// <param name="operation">Mutation applied once to each actor.</param>
+        /// <param name="draw">Whether to follow the mutation with a production draw comparison.</param>
         internal void Apply(string context, Action<Actor> operation, bool draw = true)
         {
             operation(Stock); operation(Edited);
@@ -117,6 +160,11 @@ internal sealed partial class InstalledSamusIsolationTests
             if (draw) Draw(context);
         }
 
+        /// <summary>Runs the same operation on each actor, checks equal results and state, then optionally draws.</summary>
+        /// <typeparam name="T">Operation result type compared between stock and edited actors.</typeparam>
+        /// <param name="context">Scenario label used in any failure report.</param>
+        /// <param name="operation">Operation evaluated separately for each actor.</param>
+        /// <param name="draw">Whether to follow the operation with a production draw comparison.</param>
         internal T Apply<T>(string context, Func<Actor, T> operation, bool draw = true)
         {
             T expected = operation(Stock), actual = operation(Edited);
@@ -126,6 +174,8 @@ internal sealed partial class InstalledSamusIsolationTests
             return expected;
         }
 
+        /// <summary>Requires matching Samus mechanics, work/save RAM, and collision-room contents.</summary>
+        /// <param name="context">Scenario label included in comparison failures.</param>
         internal void Check(string context)
         {
             new SamusMechanicsSnapshot(Stock.Samus).RequireSame(new(Edited.Samus), context);
@@ -137,6 +187,9 @@ internal sealed partial class InstalledSamusIsolationTests
             if (!Stock.Colors.Colors.SequenceEqual(Edited.Colors.Colors)) tests.changedColors++;
         }
 
+        /// <summary>Draws both actors, compares visual outputs, and verifies drawing leaves mechanics unchanged.</summary>
+        /// <param name="context">Scenario label included in rendering failures.</param>
+        /// <param name="frame">Animation frame passed to both Samus draw calls.</param>
         internal void Draw(string context, ushort frame = 0)
         {
             var beforeStock = new SamusMechanicsSnapshot(Stock.Samus);
@@ -160,8 +213,10 @@ internal sealed partial class InstalledSamusIsolationTests
     }
 
     // Geometry belongs only to this constructed room, not to any cartridge definition.
+    /// <summary>Dimensions and floor placement of the synthetic collision room, expressed in tiles and pixels.</summary>
     private const int RoomWidth = 32, RoomHeight = 32, FloorRow = 24, FloorY = FloorRow * 16;
 
+    /// <summary>Confirms the mechanics snapshot detects representative changes, including private sequence state.</summary>
     private static void CheckSnapshotSensitivity()
     {
         var samus = RepositoryInstallation.CreateSamus();
@@ -190,6 +245,9 @@ internal sealed partial class InstalledSamusIsolationTests
         }
     }
 
+    /// <summary>Throws an invalid-operation failure when a fixture invariant is false.</summary>
+    /// <param name="condition">Invariant that must hold.</param>
+    /// <param name="message">Explanation included in the failure exception.</param>
     private static void Require(bool condition, string message)
     { if (!condition) throw new InvalidOperationException(message); }
 }

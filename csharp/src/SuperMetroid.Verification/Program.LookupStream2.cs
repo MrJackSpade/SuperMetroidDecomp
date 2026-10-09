@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the yard enemy groups and their authored member ordering.</summary>
     private static void VerifyLookupStream2YardGroups()
     {
         var frames = YardVisualDefinitions.Frames();
@@ -18,6 +19,7 @@ internal static partial class Program
         Console.WriteLine("Yard groups: 38 semantic program roles preserve all104 native frame identities/names/order.");
     }
 
+    /// <summary>Checks Chozo statue foot geometry against native graphics and placement data.</summary>
     private static void VerifyLookupStream2ChozoFootGeometry(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -99,6 +101,7 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => ChozoStrideGeometryDefinitions.NativePoseIdentity(-1), "Chozo pose lower bound");
         Console.WriteLine("Chozo shared geometry:174 native parts,eight stock views,16 independent foot-X edits,hash/display order and existing96-word/actual carry checks pass; shape and two movement-policy inputs remain documented.");
     }
+    /// <summary>Checks ghost palette colors and the native source rows selected by its states.</summary>
     private static void VerifyLookupStream2GhostPalette(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -169,6 +172,7 @@ internal static partial class Program
         Console.WriteLine("Ghost palette:16 native targets and shared-source words,actual white-flash target copy,32 full component-fade steps,and native pixel-slot usage pass; calculated channels preserve the specified source paint and transparent payload.");
     }
 
+    /// <summary>Checks Tourian accent palette timing and color changes emitted on each update.</summary>
     private static void VerifyLookupStream2TourianAccentCadence(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions), () => VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions(rom));
@@ -207,6 +211,7 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.Duration(15), "Accent duration upper domain");
         Console.WriteLine("Old Tourian accent cadence:30 native durations,90 repeated color words,68 mechanics words and130 actual per-tick CGRAM/loop states pass with mechanics reads blocked.");
     }
+    /// <summary>Checks the ninja palette program's record layout and instruction boundaries.</summary>
     private static void VerifyLookupStream2NinjaProgramLayout()
     {
         AssertEqual(308, NinjaSpacePirateInstructionProgramDefinitions.MechanicsWordCount, "Complete native Ninja mechanics count");
@@ -232,6 +237,7 @@ internal static partial class Program
         Suite(nameof(VerifyNinjaSpacePirateInstructionProgramDefinitions), () => VerifyNinjaSpacePirateInstructionProgramDefinitions());
     }
 
+    /// <summary>Checks projectile frame identities and geometry for each projectile family.</summary>
     private static void VerifyLookupStream2ProjectileIdentityGeometry(ISnesAddressSpace rom)
     {
         var expected = new SortedSet<ushort>();
@@ -426,6 +432,7 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[417], "Projectile identity upper bound");
         Console.WriteLine("Projectile identity geometry:417 exact identities from805 native selectors,48 physical startup records,417 actual extracted OAM draws,independent composition edit/ownership,all existing flare selectors and bounds pass;all417 identities and 208 stock beam/missile/effect compositions calculate; independent frame selection/composition/art inputs remain pending.");
     }
+    /// <summary>Checks environmental palette catalog entries against their native program data.</summary>
     private static void VerifyLookupStream2EnvironmentalCatalogs(CartridgeImportAddressSpace rom)
     {
         var norfair = NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.All;
@@ -462,6 +469,7 @@ internal static partial class Program
         Suite(nameof(VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions), () => VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions(rom));
         Console.WriteLine("Environmental catalogs:six native definition/color/loop bindings,292mechanics words,16heat phase bytes,actual complete/repeating cycles,live colors,enumeration/order and bounds pass; accent timing and independent colors remain pending.");
     }
+    /// <summary>Checks backdrop graphics dimensions and placement for the stream-two scenes.</summary>
     private static void VerifyLookupStream2BackdropGeometry(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseBackdropExtractor.Extract(rom);
@@ -536,6 +544,7 @@ internal static partial class Program
             AssertTrue(expected.AsSpan().SequenceEqual(vram.Bytes), "Actual area load preserves every selected word and untouched VRAM byte");
         }
     }
+    /// <summary>Checks equipment-screen base tile geometry against native layout data.</summary>
     private static void VerifyLookupStream2EquipmentBaseGeometry(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseEquipmentBaseExtractor.Extract(rom);
@@ -609,6 +618,7 @@ internal static partial class Program
             }
         }
     }
+    /// <summary>Checks equipment wireframe mirrors and their correspondence to source graphics.</summary>
     private static void VerifyLookupStream2WireframeMirrors(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -677,6 +687,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks reserve-tank labels, glyph selection, and tilemap placement.</summary>
     private static void VerifyLookupStream2ReserveLabels(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseReserveUiExtractor.Extract(rom);
@@ -737,6 +748,7 @@ internal static partial class Program
         Console.WriteLine("Reserve labels:22 native words/four destinations,22 independent cell edits,56 actual attribute-preserving/ordinary/moved patches and bounds pass; independent glyph/arrow inputs remain required.");
     }
 
+    /// <summary>Checks equipment menu labels and their native text-to-tile mapping.</summary>
     private static void VerifyLookupStream2EquipmentLabels(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseEquipmentLabelExtractor.Extract(rom);
@@ -838,6 +850,7 @@ internal static partial class Program
         Console.WriteLine("Pause equipment labels:115 native words/15placements,106 ordinary and five Hyper cell edits, disabled recoloring, exact Plasma/Varia overrun, source hashes and bounds pass; glyph artwork remains independent.");
     }
 
+    /// <summary>Checks the equipment menu's blank tile cells and the regions they occupy.</summary>
     private static void VerifyLookupStream2EquipmentBlank(SuperMetroidAddressSpace rom)
     {
         byte[] nativeJson = PauseEquipmentLabelExtractor.Extract(rom);
@@ -891,6 +904,7 @@ internal static partial class Program
         Console.WriteLine("Pause equipment blank: nine native empty cells, stock/no stored payload, nine independent edits, serialized hashes and20 actual inventory/Hyper tilemap writes pass.");
     }
 
+    /// <summary>Checks Dead Torizo pose geometry and native frame placement.</summary>
     private static void VerifyLookupStream2DeadTorizoGeometry(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1035,6 +1049,7 @@ internal static partial class Program
                 AssertEqual(bytes[index], rom.ReadByte(0x7e2000 + index), context);
         }
     }
+    /// <summary>Checks crawler palette ramps across native stages and frame timing.</summary>
     private static void VerifyLookupStream2CrawlerRamps(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1073,6 +1088,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => CrawlerSpeedDefinitions.ForParameter(32), "Crawler parameter upper bound");
         Console.WriteLine("Crawler speed ramps: both 32 native words and 384 actual crawler/Yard velocity resets pass; irregular gaps/terminal choices remain pending.");
     }
+    /// <summary>Checks lava-jumper frame layout and its animated tile arrangement.</summary>
     private static void VerifyLookupStream2LavaJumperLayout(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyNorfairLavaJumperInstructionProgramDefinitions), () => VerifyNorfairLavaJumperInstructionProgramDefinitions(rom));
@@ -1095,6 +1111,7 @@ internal static partial class Program
         AssertEqual(14, visual, "All fourteen lava-jumper visual operands independently confirmed");
         Console.WriteLine("Lava-jumper calculated layout:23 native controls,14 native selectors, actual parent/follower programs and handshake pass; seven pose holds remain pending.");
     }
+    /// <summary>Checks Chozo statue graphics and component placement in the assembled display.</summary>
     private static void VerifyLookupStream2ChozoLayout(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyChozoStatueInstructionProgramDefinitions), () => VerifyChozoStatueInstructionProgramDefinitions(rom));
@@ -1131,6 +1148,7 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => ChozoStatueInstructionProgramDefinitions.PresentationWordAddress(-1), "Chozo visual lower bound");
         Console.WriteLine("Chozo calculated layouts:166 native controls,52 independently decoded native visual operands, exact list boundaries and existing allocation checks pass; hold/footstep payloads remain pending.");
     }
+    /// <summary>Checks horizontal camera targets selected by native room and scroll state.</summary>
     private static void VerifyLookupStream2HorizontalCameraTargets(ISnesAddressSpace rom)
     {
         var storage = new byte[RoomScrollGrid.StorageByteCount];
@@ -1158,6 +1176,7 @@ internal static partial class Program
             new(200, 0, 100, 0), new(204, 0, 100, 0), new(0, 0, 0, 8, 1)), "Native mode domain remains validated before tracking");
         Console.WriteLine("Horizontal camera targets:eight native offsets and32 actual mode/facing/reversal targets preserve geometry, speed and domain validation.");
     }
+    /// <summary>Checks Torizo page dispatch and the frame page chosen for each actor state.</summary>
     private static void VerifyLookupStream2TorizoPageDispatch(ISnesAddressSpace rom)
     {
         TorizoInstructionTileSheetDefinition[] original =
@@ -1204,6 +1223,7 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => _ = TorizoInstructionVramArtworkDefinitions.All[8], "Torizo page upper bound");
         Console.WriteLine("Torizo page dispatch:eight exact ordered identities, native decoded page resolution/bounds and canonical content hash pass.");
     }
+    /// <summary>Checks Kago frame dimensions and native sprite-part coordinates.</summary>
     private static void VerifyLookupStream2KagoFrameGeometry(ISnesAddressSpace rom)
     {
         int count = 0;
@@ -1220,6 +1240,7 @@ internal static partial class Program
         AssertEqual(3, count, "Kago frame enumeration count");
         Console.WriteLine("Kago frames:three native selectors/four-part headers, stable names and installed catalog membership pass.");
     }
+    /// <summary>Checks Kraid lint initialization data and the resulting actor setup.</summary>
     private static void VerifyLookupStream2KraidLintInitialization(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1256,6 +1277,7 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => KraidLintInitializationDefinitions.InitialDelayForSlot(invalid), "Only lint slots have launch policy");
         Console.WriteLine("Kraid lint initialization: three native policies, actual slot writes and all 512 countdown transitions pass.");
     }
+    /// <summary>Checks enemy drop selection values against native drop-table dispatch.</summary>
     private static void VerifyLookupStream2DropSelection(SuperMetroidAddressSpace rom)
     {
         // Native first record weights60,60,60,5,60,10 yield cumulative thresholds
@@ -1282,6 +1304,7 @@ internal static partial class Program
             "Drop column upper bound");
         Console.WriteLine("Enemy drop selection:six native identities and actual cumulative selections, RNG-zero reroll, energy hysteresis and full-resource eligibility pass.");
     }
+    /// <summary>Checks Pipe Bug visual frame geometry and graphics registration.</summary>
     private static void VerifyLookupStream2PipeBugVisualGeometry(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyBrinstarPipeBugInstructionProgramDefinitions), () => VerifyBrinstarPipeBugInstructionProgramDefinitions(rom));
@@ -1309,6 +1332,7 @@ internal static partial class Program
             }
         }
     }
+    /// <summary>Checks Pipe Bug formation membership and the native formation layout.</summary>
     private static void VerifyLookupStream2PipeBugFormation(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1357,6 +1381,7 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => PipeBugDefinitions.NorfairPostRiseFunction(5), "Formation upper bound");
         Console.WriteLine("Norfair Pipe Bug formation:ten native immediates, both actual facing formations and leader-only timer resets pass.");
     }
+    /// <summary>Checks Golden Torizo control-state dispatch and state-dependent behavior.</summary>
     private static void VerifyLookupStream2GoldenControl(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyGoldenTorizoJumpLandingDefinitions), () => VerifyGoldenTorizoJumpLandingDefinitions(rom));
@@ -1394,6 +1419,7 @@ internal static partial class Program
             "Golden landing control index boundary");
         Console.WriteLine("Golden Torizo control dispatch:7 initial words,20 landing words, native instruction positions, exact installed initial sprite and bounded ownership pass.");
     }
+    /// <summary>Checks trail appearance timing and actor frames revealed during the sequence.</summary>
     private static void VerifyLookupStream2TrailAppearance(ISnesAddressSpace rom)
     {
         byte[] json = ProjectileTrailExtractor.Extract(rom);
@@ -1434,6 +1460,7 @@ internal static partial class Program
         Suite(nameof(VerifyLookupStream2TrailPrograms), () => VerifyLookupStream2TrailPrograms(rom));
         Console.WriteLine("Trail appearance:42 native words,252 independent field edits and existing real OAM/lifetime/freeze proof pass; ice phase boundaries remain pending.");
     }
+    /// <summary>Checks trail palette programs against native instruction timing and color output.</summary>
     private static void VerifyLookupStream2TrailPrograms(ISnesAddressSpace bus)
     {
         byte[] json = ProjectileTrailExtractor.Extract(bus);
@@ -1520,6 +1547,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks trail program selectors and the palette sequence selected by each value.</summary>
     private static void VerifyLookupStream2TrailSelectors(ISnesAddressSpace bus)
     {
 
@@ -1551,6 +1579,7 @@ internal static partial class Program
         Console.WriteLine("Trail selectors: 103 reachable native words and 64 real spawn selections pass with the complete selector window forbidden.");
     }
 
+    /// <summary>Checks tube palette ramp rows and the cadence used to advance between them.</summary>
     private static void VerifyLookupStream2TubeRamp(ISnesAddressSpace rom)
     {
         PaletteRgb5[] Read(int address) => Enumerable.Range(0, 32).Select(index =>
@@ -1625,6 +1654,7 @@ internal static partial class Program
             AssertEqual(expected, catalog.ContentIdentity, "tube canonical identity preserved");
         }
     }
+    /// <summary>Checks pause-state ownership of input, rendering, and the active room update.</summary>
     private static void VerifyLookupStream2PauseOwnership(ISnesAddressSpace rom)
     {
         for (int cell = -1; cell <= PauseEquipmentBaseDefinitions.Cells; cell++)
@@ -1650,6 +1680,7 @@ internal static partial class Program
         }
         Console.WriteLine("Pause ownership: all1024 cells plus rejected outer bounds match native label/reserve destinations, including the nine-cell Plasma overlap.");
     }
+    /// <summary>Checks Dead Torizo graphics transfers and their destination ranges.</summary>
     private static void VerifyLookupStream2DeadTorizoTransfers(ISnesAddressSpace rom)
     {
         var enemies = new RoomEnemySystem();
@@ -1690,6 +1721,7 @@ internal static partial class Program
         }
         Console.WriteLine("Dead Torizo: all56 native descriptor fields, two terminators, actual fourteen queued live-WRAM transfers, phase parity, enumeration and bounds pass.");
     }
+    /// <summary>Checks gunship graphics transfers and the native memory layout they populate.</summary>
     private static void VerifyLookupStream2GunshipTransfers(ISnesAddressSpace rom)
     {
         var transfers = GunshipLiftoffTransferDefinitions.Frames;
@@ -1721,6 +1753,7 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => _ = transfers[5], "Gunship upper transfer bound");
         Console.WriteLine("Gunship transfers: all10 native source/destination fields, five typed identities, actual queued uploads/phase handoff, enumeration and bounds pass.");
     }
+    /// <summary>Checks reserve-tank arrow palette colors and their selected CGRAM positions.</summary>
     private static void VerifyLookupStream2ReserveArrowColors(ISnesAddressSpace rom)
     {
         byte[] source = PauseReserveUiExtractor.Extract(rom);
@@ -1785,6 +1818,7 @@ internal static partial class Program
         }
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
     }
+    /// <summary>Checks reserve-tank display geometry and placement of its meter and labels.</summary>
     private static void VerifyLookupStream2ReserveGeometry(ISnesAddressSpace rom)
     {
         byte[] source = PauseReserveUiExtractor.Extract(rom);
@@ -1840,6 +1874,7 @@ internal static partial class Program
             }
         }
     }
+    /// <summary>Checks ghost and Norfair palette data shared by the stream-two environment.</summary>
     private static void VerifyLookupStream2GhostAndNorfair(ISnesAddressSpace rom)
     {
         const System.Reflection.BindingFlags methods = System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic;
@@ -1915,6 +1950,7 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.Duration(16), "Norfair duration upper bound");
         Console.WriteLine("Ghost appearance: 18 native offset fields, 17 native intervals, actual wrapped positions/timing/visibility and malformed states pass; Norfair: 64 native durations and four 116-tick cycles pass.");
     }
+    /// <summary>Checks stream-two palette program timing and exact palette writes.</summary>
     private static void VerifyLookupStream2PaletteMechanics(ISnesAddressSpace rom)
     {
         int upperWords = 0, oldWords = 0, bellyWords = 0;
@@ -1990,6 +2026,7 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorPointer(0, 8), "Old Tourian upper color bound");
         Console.WriteLine("Stream 2 palette mechanics: original mechanics, inline color offsets, durations, dispatch and bounds pass.");
     }
+    /// <summary>Checks Crystal Flash body graphics and their native tile geometry.</summary>
     private static void VerifyLookupStream2CrystalBody(ISnesAddressSpace rom)
     {
         byte[] source = CrystalFlashColorExtractor.Extract(rom);
@@ -2068,7 +2105,10 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBody(0, -1), "Calculated body lower color bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBody(0, 10), "Calculated body upper color bound");
         Console.WriteLine("Stream 2 Crystal Flash body: all100 body and36 bubble native colors, CGRAM application and every independent supplied edit pass; one bubble residual remains pending.");
-    }    private static void VerifyLookupStream2KraidRamps(ISnesAddressSpace rom)
+    }
+
+    /// <summary>Checks Kraid palette ramp stages and the color changes they apply.</summary>
+    private static void VerifyLookupStream2KraidRamps(ISnesAddressSpace rom)
     {
         PaletteRgb5[] ReadSource(KraidPaletteSource source) => Enumerable.Range(0, KraidPaletteRomData.ColorCount(source))
             .Select(index =>
@@ -2151,6 +2191,7 @@ internal static partial class Program
             }
         }
     }
+    /// <summary>Checks power-beam direction bindings and frame data selected for each direction.</summary>
     private static void VerifyLookupStream2PowerDirectionBindings(ISnesAddressSpace rom)
     {
         byte[] json = ProjectileFrameBindingExtractor.Extract(rom);
@@ -2251,6 +2292,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => stock.Resolve(0x86dc), "Program interior is not accepted as a timed record");
         Console.WriteLine("Stream2 Power bindings: 805calculated beam/effect selectors,805native operands,zero stored stock operands and805actual handler/edit paths pass.");
     }
+    /// <summary>Checks Golden Torizo foot geometry against native pose coordinates and tile extents.</summary>
     private static void VerifyLookupStream2GoldenTorizoFootGeometry(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

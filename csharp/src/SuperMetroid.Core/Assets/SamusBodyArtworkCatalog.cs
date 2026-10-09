@@ -32,16 +32,27 @@ public sealed partial class SamusBodyArtworkCatalog
     /// <summary>Maximum planar-byte capacity of one definition slot.</summary>
     public const int BytesPerDefinitionSlot = TilesPerDefinition * 32;
 
+    /// <summary>Sparse upper-body set-pointer overrides; unspecified entries use the native selector table.</summary>
     private readonly Dictionary<int, ushort> topPointers;
+    /// <summary>Sparse lower-body set-pointer overrides; unspecified entries use the native selector table.</summary>
     private readonly Dictionary<int, ushort> bottomPointers;
+    /// <summary>Sparse per-pose animation-list pointer overrides.</summary>
     private readonly Dictionary<int, ushort> posePointers;
+    /// <summary>Sparse per-pose signed art-origin overrides.</summary>
     private readonly Dictionary<int, sbyte> graphicsYOffsets;
+    /// <summary>Explicit landing-offset bytes that differ from values resolved through shared native geometry.</summary>
     private readonly Dictionary<int, ushort> landingYOffsets;
+    /// <summary>Explicit posture-transition offsets that cannot be derived from the selected geometry.</summary>
     private readonly Dictionary<int, sbyte> postureYOffsets;
+    /// <summary>Explicit drained-state offsets that cannot be derived from the selected geometry.</summary>
     private readonly Dictionary<int, sbyte> drainedYOffsets;
+    /// <summary>Sparse byte overrides for the contiguous four-byte frame-selector interval.</summary>
     private readonly Dictionary<int, byte> frames;
+    /// <summary>Cloned, validated upper-body tile definitions grouped by native set.</summary>
     private readonly SamusBodyTileDefinition[][] top;
+    /// <summary>Cloned, validated lower-body tile definitions grouped by native set.</summary>
     private readonly SamusBodyTileDefinition[][] bottom;
+    /// <summary>Lookup from physical bank address to the definition selected by native set/position arithmetic.</summary>
     private readonly Dictionary<int, SamusBodyTileDefinition> definitionsByAddress = [];
 
     /// <summary>Editable bank-$92 OAM composition for these body frames.</summary>
@@ -169,6 +180,8 @@ public sealed partial class SamusBodyArtworkCatalog
         IndexDefinitions(false, this.bottom);
     }
 
+    /// <summary>Binds transfer geometry to every definition so first-transfer sizes can be resolved once from selectors.</summary>
+    /// <param name="upper">Selects upper-body rather than lower-body addressing.</param><param name="groups">Definition groups to bind in place.</param>
     private void BindTransfers(bool upper, SamusBodyTileDefinition[][] groups)
     {
         ReadOnlySpan<ushort> pointers = PosePointers;
@@ -195,15 +208,21 @@ public sealed partial class SamusBodyArtworkCatalog
     public ReadOnlySpan<sbyte> PostureYOffsets => Enumerable.Range(0, SamusRenderingRomData.Body.PostureTransitionVerticalOffsetByteCount).Select(PostureByte).ToArray();
     /// <summary>Gets the resolved drained-state vertical-offset table.</summary>
     public ReadOnlySpan<sbyte> DrainedYOffsets => Enumerable.Range(0, SamusRenderingRomData.Body.DrainedVerticalOffsetByteCount).Select(DrainedByte).ToArray();
+    /// <summary>Resolves a landing-table byte from an explicit override or its shared source byte.</summary>
+    /// <param name="index">Byte offset in the landing table.</param><returns>The selected byte value.</returns>
     private ushort LandingByte(int index) => landingYOffsets.TryGetValue(index, out ushort value)
         ? value : SamusBodyPlacementDefinitions.LandingSourceIndex(index) == index
             ? SamusBodyPlacementDefinitions.DefaultLandingByte(index) : LandingByte(SamusBodyPlacementDefinitions.LandingSourceIndex(index));
+    /// <summary>Resolves a posture-transition offset using explicit values, shared entries, or selected geometry.</summary>
+    /// <param name="index">Byte offset in the posture table.</param><returns>The signed art offset.</returns>
     private sbyte PostureByte(int index) => postureYOffsets.TryGetValue(index, out sbyte value)
         ? value : SamusBodyPlacementDefinitions.PostureSourceIndex(index) != index
             ? PostureByte(SamusBodyPlacementDefinitions.PostureSourceIndex(index))
             : SamusBodyPlacementDefinitions.TryDefaultPostureByte(this, index, out sbyte calculated)
                 ? calculated : throw new InvalidDataException("Selected posture geometry no longer supplies its installed offset.");
 
+    /// <summary>Resolves a drained-state offset from the sparse override or selected body geometry.</summary>
+    /// <param name="index">Byte offset in the drained-state table.</param><returns>The signed art offset.</returns>
     private sbyte DrainedByte(int index) => drainedYOffsets.TryGetValue(index, out sbyte value)
         ? value : SamusBodyPlacementDefinitions.TryDefaultDrainedByte(this, index, out sbyte calculated)
             ? calculated : throw new InvalidDataException("Selected drained geometry no longer supplies its installed offset.");
@@ -247,11 +266,15 @@ public sealed partial class SamusBodyArtworkCatalog
             throw new InvalidDataException($"Pose ${pose:X2} has no authored graphics Y offset.");
     /// <summary>Gets the resolved contiguous bank-$92 frame-selector interval.</summary>
     public ReadOnlySpan<SamusBodyFrameSelection> Frames => Enumerable.Range(0, FrameCount).Select(FrameAt).ToArray();
+    /// <summary>Resolves one byte of a native frame selector from the sparse edit or its shared source component.</summary>
+    /// <param name="index">Byte offset in the contiguous selector interval.</param><returns>The selected component byte.</returns>
     private byte FrameComponent(int index) => frames.TryGetValue(index, out byte value)
         ? value : SamusBodyFrameDefinitions.SourceComponent(index) != index
             ? FrameComponent(SamusBodyFrameDefinitions.SourceComponent(index))
             : SamusBodyFrameDefinitions.TryComponent(index, out byte calculated) ? calculated
                 : throw new InvalidDataException("Installed body frame has no selected component.");
+    /// <summary>Reconstructs one upper/lower set-and-position selector from four consecutive resolved bytes.</summary>
+    /// <param name="index">Zero-based frame-selector index.</param><returns>The four-byte body selection.</returns>
     private SamusBodyFrameSelection FrameAt(int index) => new(FrameComponent(index * 4), FrameComponent(index * 4 + 1),
         FrameComponent(index * 4 + 2), FrameComponent(index * 4 + 3));
     /// <summary>Gets an upper-body definition group by pointer-table index.</summary>
@@ -259,6 +282,8 @@ public sealed partial class SamusBodyArtworkCatalog
     /// <summary>Gets a lower-body definition group by pointer-table index.</summary>
     public IReadOnlyList<SamusBodyTileDefinition> BottomSet(int set) => bottom[set];
 
+    /// <summary>Returns the selected animation-list pointer for a pose, falling back to its native default.</summary>
+    /// <param name="pose">Native pose index.</param><returns>Bank-relative frame-list offset.</returns>
     private ushort PosePointer(byte pose) => posePointers.TryGetValue(pose, out ushort value)
         ? value : SamusBodyPoseDefinitions.DefaultFrameList(pose);
 
@@ -278,6 +303,8 @@ public sealed partial class SamusBodyArtworkCatalog
         return frame;
     }
 
+    /// <summary>Resolves a body set pointer from the relevant sparse override table or native table default.</summary>
+    /// <param name="upperHalf">Selects the upper-body pointer table when true.</param><param name="set">Set index within the selected table.</param><returns>Bank-relative definition pointer.</returns>
     private ushort SetPointer(bool upperHalf, int set)
     {
         Dictionary<int, ushort> overrides = upperHalf ? topPointers : bottomPointers;
@@ -314,6 +341,8 @@ public sealed partial class SamusBodyArtworkCatalog
         return definition;
     }
 
+    /// <summary>Indexes definitions by their physical addresses, including positions that spill into the next native group.</summary>
+    /// <param name="upperHalf">Selects upper- or lower-body pointer arithmetic.</param><param name="groups">Validated definition groups to add to the address map.</param>
     private void IndexDefinitions(bool upperHalf, SamusBodyTileDefinition[][] groups)
     {
         for (int set = 0; set < groups.Length; set++)
@@ -326,6 +355,9 @@ public sealed partial class SamusBodyArtworkCatalog
         }
     }
 
+    /// <summary>Clones supplied definition groups and verifies each transfer payload fits its native slot constraints.</summary>
+    /// <param name="pointers">Native set pointers used to reject malformed group origins.</param><param name="groups">Caller-owned grouped definitions to validate and clone.</param><returns>Independent arrays retaining the supplied definition objects.</returns>
+    /// <exception cref="InvalidDataException">A group, transfer size, or planar payload is malformed.</exception>
     private static SamusBodyTileDefinition[][] CloneAndValidate(
         ushort[] pointers, SamusBodyTileDefinition[][] groups)
     {
@@ -351,6 +383,10 @@ public sealed partial class SamusBodyArtworkCatalog
 }
 
 /// <summary>Four-byte native selector: upper set/position, then lower set/position.</summary>
+/// <param name="TopSet">Upper-body definition group selected by this frame.</param>
+/// <param name="TopPosition">Definition position within the upper-body group.</param>
+/// <param name="BottomSet">Lower-body definition group selected by this frame, or the native no-transfer sentinel.</param>
+/// <param name="BottomPosition">Definition position within the lower-body group when a transfer is present.</param>
 public readonly record struct SamusBodyFrameSelection(
     [property: JsonRequired] byte TopSet,
     [property: JsonRequired] byte TopPosition,
@@ -360,19 +396,31 @@ public readonly record struct SamusBodyFrameSelection(
 /// <summary>One native seven-byte transfer compiled from palette-indexed PNG tiles.</summary>
 public sealed class SamusBodyTileDefinition
 {
+    /// <summary>Owned planar bytes for a standalone definition that is not derived from an installed catalog.</summary>
     private readonly byte[]? standalonePlanar;
+    /// <summary>Sparse per-byte pixel overrides relative to installed artwork defaults.</summary>
     private readonly Dictionary<int, byte>? pixelInputs;
+    /// <summary>Sparse bits outside the modeled contour mask, retained separately from pixel edits.</summary>
     private readonly Dictionary<int, byte>? contourEdits;
+    /// <summary>Length of the full planar payload represented by this definition.</summary>
     internal int PayloadLength { get; }
+    /// <summary>Explicit source-address replacement for a standalone definition or a changed installed address.</summary>
     private readonly int? sourceAddressOverride;
+    /// <summary>Explicit first-transfer size when the native selector-derived size differs from the supplied value.</summary>
     private readonly ushort? firstSizeOverride;
     // The body's pointers and frames are fixed once it is bound, so the calculated first
     // transfer size is resolved at binding instead of rescanning every pose on each read.
+    /// <summary>First-transfer size derived once from the installed body's selector and transfer geometry.</summary>
     private readonly ushort? calculatedFirstSize;
+    /// <summary>Second-transfer size supplied for a standalone definition.</summary>
     private readonly ushort standaloneSecondSize;
+    /// <summary>Catalog supplying shared source pixels and selector-derived transfer geometry, absent for standalone data.</summary>
     private readonly SamusBodyArtworkCatalog? body;
+    /// <summary>Whether the bound definition belongs to the upper half of Samus's body.</summary>
     private readonly bool upper;
+    /// <summary>Native definition-set index used to resolve shared artwork and transfer geometry.</summary>
     private readonly int set;
+    /// <summary>Definition position within the selected native set.</summary>
     private readonly int position;
 
     /// <summary>Creates one standalone native body-transfer definition.</summary>
@@ -391,6 +439,8 @@ public sealed class SamusBodyTileDefinition
         PayloadLength = planar.Length;
     }
 
+    /// <summary>Creates a catalog-bound definition by retaining only edits that differ from its resolved defaults.</summary>
+    /// <param name="supplied">Validated standalone artwork whose bytes provide the selected pixels.</param><param name="body">Catalog used to resolve selectors, shared pixels, and transfer geometry.</param><param name="upper">Selects upper-body lookup rules.</param><param name="set">Native body set index.</param><param name="position">Definition position within that set.</param><param name="pointers">Resolved set pointers used to determine transfer size.</param><param name="frames">Resolved frame selectors used to determine transfer size.</param>
     private SamusBodyTileDefinition(SamusBodyTileDefinition supplied, SamusBodyArtworkCatalog body,
         bool upper, int set, int position, ReadOnlySpan<ushort> pointers, ReadOnlySpan<SamusBodyFrameSelection> frames)
     {
@@ -443,6 +493,9 @@ public sealed class SamusBodyTileDefinition
         firstSizeOverride = calculatedFirstSize == first ? null : first;
     }
 
+    /// <summary>Returns a catalog-bound copy with the first transfer size resolved from current selector geometry.</summary>
+    /// <param name="body">Catalog owning this definition.</param><param name="upper">Selects upper-body lookup rules.</param><param name="set">Native definition-set index.</param><param name="position">Definition position within the set.</param><param name="pointers">Resolved body-set pointers.</param><param name="frames">Resolved frame selectors used by transfer-size calculation.</param>
+    /// <returns>A definition that preserves artwork edits while using catalog-derived geometry.</returns>
     internal SamusBodyTileDefinition WithTransferGeometry(SamusBodyArtworkCatalog body, bool upper, int set, int position,
         ReadOnlySpan<ushort> pointers, ReadOnlySpan<SamusBodyFrameSelection> frames) =>
         new(this, body, upper, set, position, pointers, frames);
@@ -466,6 +519,10 @@ public sealed class SamusBodyTileDefinition
         }
     }
 
+    /// <summary>Reads one planar payload byte from standalone data or the merged sparse edits and installed defaults.</summary>
+    /// <param name="index">Byte offset within the full planar payload.</param><returns>The resolved planar byte.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The byte offset is outside the payload.</exception>
+    /// <exception cref="InvalidDataException">Installed artwork has no independent value for this byte.</exception>
     internal byte ReadPlanarByte(int index)
     {
         if ((uint)index >= PayloadLength) throw new ArgumentOutOfRangeException(nameof(index));
@@ -476,6 +533,9 @@ public sealed class SamusBodyTileDefinition
             : throw new InvalidDataException("Installed body artwork lost an independent pixel input.");
     }
 
+    /// <summary>Attempts to resolve the default byte from diagnostics, blank-tile rules, or a shared source definition.</summary>
+    /// <param name="index">Byte offset in this definition's planar payload.</param><param name="value">Receives the resolved default when one is available.</param>
+    /// <returns>True when the byte is derivable without an independent pixel edit.</returns>
     private bool TryPixelDefault(int index, out byte value)
     {
         if (SamusBodyPixelDefinitions.TryDiagnosticByte(upper, set, position, index, out value)) return true;

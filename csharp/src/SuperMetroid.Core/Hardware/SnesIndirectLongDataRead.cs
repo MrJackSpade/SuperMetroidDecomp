@@ -29,6 +29,7 @@ public static class SnesIndirectLongDataRead
         return (ushort)(low | high << 8);
     }
 
+    /// <summary>Reads one byte at a wrapped CPU address using the current data-bus latch and compiled cartridge slice.</summary>
     private static byte ReadDataByte(ISnesAddressSpace bus, int address, byte busLatch,
         ReadOnlySpan<byte> cartridgeDefinition, int definitionAddress)
     {

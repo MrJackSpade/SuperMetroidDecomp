@@ -8,6 +8,12 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Read one native on-screen OAM frame into visual-only editable fields.</summary>
 internal static class IntroCinematicSpriteFrameExtractor
 {
+    /// <summary>Decodes the requested native OAM spritemap into visual-only editable parts.</summary>
+    /// <param name="bus">Cartridge address space containing the spritemap bank.</param>
+    /// <param name="pointer">Bank-relative pointer to the count-prefixed OAM entries.</param>
+    /// <param name="expectedParts">Required OAM entry count for this authored frame.</param>
+    /// <param name="name">Frame identity included in malformed-data errors.</param>
+    /// <returns>Sprite parts with decoded offsets, tile coordinates, size, priority, and flips.</returns>
     internal static SpriteVisualPart[] Extract(ISnesAddressSpace bus,
         ushort pointer, int expectedParts, string name)
     {

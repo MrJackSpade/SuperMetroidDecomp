@@ -16,33 +16,64 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class IntroCinematicObjectSystem
 {
+    /// <summary>ROM address space used to read the compiled cinematic instruction streams.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Optional audio queue used for alternating typewriter key sounds.</summary>
     private readonly CartridgeAudioState? audio;
+    /// <summary>VRAM target for portrait rectangles drawn by the eye animation.</summary>
     private readonly SnesVram vram;
+    /// <summary>Staging tilemap updated by narration and uploaded during each object step.</summary>
     private readonly ushort[] textTilemap;
+    /// <summary>Current bank-$8B eye animation-list pointer.</summary>
     private ushort eyeInstructionPointer = CinematicCodePointers.BackgroundLists.SamusBlinking;
+    /// <summary>Countdown until the eye instruction list consumes its next record.</summary>
     private ushort eyeInstructionTimer = 1;
+    /// <summary>Current bank-$8C text-background instruction pointer, when legacy text is active.</summary>
     private ushort textInstructionPointer;
+    /// <summary>Countdown governing either a text instruction or the next narration character.</summary>
     private ushort textInstructionTimer;
+    /// <summary>Host-provided localized narration records, rebound after state restoration.</summary>
     [NonSerialized] private IntroNarrationPresentation? narrationPresentation;
+    /// <summary>Host-provided eye frame pixels used to render compiled eye-list selections.</summary>
     [NonSerialized] private IntroEyeTilemapPresentation? eyeArtwork;
+    /// <summary>Current eye frame data pointer retained so artwork can be rebound and redrawn.</summary>
     private ushort currentEyeFramePointer;
+    /// <summary>Packed destination position associated with the retained eye frame.</summary>
     private ushort currentEyePackedPosition;
+    /// <summary>Compiled semantic narration for the active English page.</summary>
     [NonSerialized] private IntroNarrationCharacter[]? narrationProgram;
+    /// <summary>Page identity needed to resume or finish the active narration program.</summary>
     private IntroNarrationPageId? narrationPage;
+    /// <summary>Index of the next semantic character to reveal.</summary>
     private int narrationCharacterIndex;
+    /// <summary>Whether the page's authored initial marker delay remains to be consumed.</summary>
     private bool narrationInitialMarkerPending;
+    /// <summary>Whether page six has entered its final caret-visible hold.</summary>
     private bool narrationFinalHoldStarted;
+    /// <summary>Current bank-$8B caret sprite-list pointer.</summary>
     private ushort spriteInstructionPointer =
         CinematicCodePointers.Lists.IntroTextCaret;
+    /// <summary>Countdown until the caret sprite list advances.</summary>
     private ushort spriteInstructionTimer = 1;
+    /// <summary>Current bank-$8B sprite-map pointer selected for the caret object.</summary>
     private ushort spriteMapPointer;
+    /// <summary>Persistent caret object's native screen X coordinate.</summary>
     private ushort caretX = IntroCinematicRomData.ObjectSystem.CaretLeftX;
+    /// <summary>Persistent caret object's native screen Y coordinate.</summary>
     private ushort caretY = IntroCinematicRomData.ObjectSystem.CaretFirstTextY;
+    /// <summary>Alternates typewriter audio admission between eligible characters.</summary>
     private bool typewriterSoundToggle;
     // Nullable for older debugger snapshots that predate text-glow state.
+    /// <summary>Optional per-character glow state, absent in older restored snapshots.</summary>
     private CinematicTextGlowSystem? textGlow;
 
+    /// <summary>Creates the intro object interpreter with host resources for its two instruction streams.</summary>
+    /// <param name="bus">Address space containing the compiled bank-$8B and bank-$8C words.</param>
+    /// <param name="vram">Video memory receiving the interpreted eye-frame rectangles.</param>
+    /// <param name="textTilemap">Exactly $400 words of staging storage for the cinematic text tilemap.</param>
+    /// <param name="audio">Optional sound queue for typewriter effects.</param>
+    /// <param name="narrationPresentation">Localized narration source used to compile semantic page records.</param>
+    /// <param name="eyeArtwork">Eye-animation frames copied into the portrait tilemap.</param>
     public IntroCinematicObjectSystem(
         ISnesAddressSpace bus,
         SnesVram vram,
@@ -226,6 +257,7 @@ internal sealed class IntroCinematicObjectSystem
         }
     }
 
+    /// <summary>Initializes page-local timing and binds its compiled narration records.</summary>
     private void StartNarration(IntroNarrationPageId page, ushort nativePointer)
     {
         textInstructionTimer = IntroNarrationDefinitions.InitialMarkerDelayFrames;
@@ -241,6 +273,7 @@ internal sealed class IntroCinematicObjectSystem
         textInstructionPointer = 0;
     }
 
+    /// <summary>Consumes one narration timing tick, reveals due characters, and handles page completion.</summary>
     private void StepInstalledNarration()
     {
         if (textInstructionTimer-- != 1)
@@ -303,6 +336,7 @@ internal sealed class IntroCinematicObjectSystem
         narrationPage = null;
     }
 
+    /// <summary>Publishes the page's input-wait or intro-finish signal after its final hold.</summary>
     private void FinishInstalledNarration(IntroNarrationPageId page)
     {
         switch (page)
@@ -335,6 +369,7 @@ internal sealed class IntroCinematicObjectSystem
         }
     }
 
+    /// <summary>Advances the persistent caret sprite list, including its goto, delete, and sleep controls.</summary>
     private void StepSpriteObject()
     {
         if (spriteInstructionPointer == 0 || spriteInstructionTimer-- != 1)
@@ -378,6 +413,7 @@ internal sealed class IntroCinematicObjectSystem
         }
     }
 
+    /// <summary>Advances one bank-$8C background list and dispatches its compiled page-control opcodes.</summary>
     private void StepBgObject(ref ushort instructionPointer, ref ushort instructionTimer)
     {
         if (instructionPointer == 0 || instructionTimer-- != 1)
@@ -482,6 +518,7 @@ internal sealed class IntroCinematicObjectSystem
         }
     }
 
+    /// <summary>Resolves a compiled eye frame and copies its rectangle to the portrait tilemap.</summary>
     private void ProcessTileData(
         ushort instructionRecordPointer,
         ushort packedPosition,
@@ -507,6 +544,7 @@ internal sealed class IntroCinematicObjectSystem
             $"Cinematic tile data $8C:{dataPointer:X4} has no installed definition.");
     }
 
+    /// <summary>Copies a validated rectangular frame into consecutive portrait tilemap rows.</summary>
     private void CopyRectangleToPortrait(int destinationX, int destinationY, int width, int height,
         ReadOnlySpan<ushort> source)
     {
@@ -523,6 +561,7 @@ internal sealed class IntroCinematicObjectSystem
         }
     }
 
+    /// <summary>Restores the persistent caret to the initial text position and non-blinking list.</summary>
     private void ResetCaret()
     {
         // RestIntroTextCaret ($8B:ADEE) moves the persistent slot back from Y=$F8 before
@@ -533,6 +572,7 @@ internal sealed class IntroCinematicObjectSystem
         spriteInstructionTimer = 1;
     }
 
+    /// <summary>Selects the existing caret's blink list and primes its first animation step.</summary>
     private void SetCaretBlinking()
     {
         // Instruction_SetCaretToBlink points the existing slot at $CC03 and primes timer
@@ -541,6 +581,7 @@ internal sealed class IntroCinematicObjectSystem
         spriteInstructionTimer = 1;
     }
 
+    /// <summary>Rejects a tile rectangle that would extend beyond the 32-by-32 cinematic map.</summary>
     private static void ValidateRectangle(int x, int y, int width, int height)
     {
         if (x + width > IntroCinematicRomData.Layers.TilemapWidth ||
@@ -548,20 +589,24 @@ internal sealed class IntroCinematicObjectSystem
             throw new InvalidDataException($"Cinematic rectangle ({x},{y}) {width}x{height} leaves its 32x32 tilemap.");
     }
 
+    /// <summary>Reads a compiled word from the bank-$8B sprite instruction stream.</summary>
     private static ushort ReadBank8B(ushort pointer) =>
         IntroCaretInstructionDefinitions.TryReadWord(pointer, out ushort word)
             ? word
             : throw new InvalidDataException(
                 $"Cinematic caret instruction $8B:{pointer:X4} is not compiled.");
 
+    /// <summary>Reads a compiled word from the bank-$8C background instruction stream.</summary>
     private static ushort ReadBank8C(ushort pointer) =>
         IntroEyeAnimationDefinitions.TryReadWord(pointer, out ushort word)
             ? word
             : throw new InvalidDataException(
                 $"Cinematic eye instruction $8C:{pointer:X4} is not compiled.");
 
+    /// <summary>Advances a bank-local instruction pointer with native 16-bit wrapping.</summary>
     private static ushort Add(ushort pointer, int byteCount) => unchecked((ushort)(pointer + byteCount));
 
+    /// <summary>Builds the format error reported when an instruction is not valid for its active stream.</summary>
     private static InvalidDataException Unsupported(string kind, ushort opcode, ushort pointer) =>
         new($"Cinematic {kind} opcode $8B:{opcode:X4}, read from ${pointer:X4}, is invalid for the active retail stream.");
 }

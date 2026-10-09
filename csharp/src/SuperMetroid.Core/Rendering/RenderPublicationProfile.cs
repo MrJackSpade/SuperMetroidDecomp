@@ -19,6 +19,7 @@ internal sealed class RenderPublicationProfile : IDisposable
     /// <summary>Begins a sample for the active thread-local profiler, or a no-op sample when profiling is disabled.</summary>
     internal static Sample Measure() => active is { } profile ? new(profile) : default;
 
+    /// <summary>One measured owner-thread publication interval, or a no-op when profiling is disabled.</summary>
     internal readonly struct Sample : IDisposable
     {
         /// <summary>Profiler receiving this sample; null represents the disabled no-op case.</summary>
@@ -32,6 +33,7 @@ internal sealed class RenderPublicationProfile : IDisposable
             allocation = GC.GetAllocatedBytesForCurrentThread();
             start = Stopwatch.GetTimestamp();
         }
+        /// <summary>Accumulates elapsed ticks, allocated bytes, and one completed publication.</summary>
         public void Dispose()
         {
             if (profile is null) return;
@@ -42,11 +44,13 @@ internal sealed class RenderPublicationProfile : IDisposable
         }
     }
 
+    /// <summary>Ensures this profiler is accessed only by its active creating thread.</summary>
     private void VerifyOwner()
     {
         if (Environment.CurrentManagedThreadId != owner || !ReferenceEquals(active, this))
             throw new InvalidOperationException("Publication profiler used outside its owner-thread scope.");
     }
 
+    /// <summary>Ends this profiler scope and clears the thread-local active instance.</summary>
     public void Dispose() { VerifyOwner(); active = null; }
 }

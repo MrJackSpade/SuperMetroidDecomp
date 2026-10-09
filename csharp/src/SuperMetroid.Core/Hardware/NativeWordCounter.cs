@@ -4,6 +4,7 @@ namespace SuperMetroid.Core.Hardware;
 /// Result of one native 65C816 word decrement. The flags describe the wrapped result, not
 /// the pre-decrement value, matching the processor's DEC/BEQ/BMI/BPL branch sequence.
 /// </summary>
+/// <param name="Value">The wrapped word produced by one native decrement.</param>
 public readonly record struct NativeWordCounterStep(ushort Value)
 {
     /// <summary>Whether DEC produced <c>$0000</c> and set the processor zero flag.</summary>

@@ -9,6 +9,9 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Converts the title's complete cartridge CGRAM image to editable RGB5 JSON.</summary>
 internal static class TitlePaletteExtractor
 {
+    /// <summary>Exports the title CGRAM image and authored ambient palette frames as RGB5 JSON.</summary>
+    /// <param name="bus">Cartridge source containing the title palette and ambient effect colors.</param>
+    /// <returns>Serialized title-palette presentation data.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

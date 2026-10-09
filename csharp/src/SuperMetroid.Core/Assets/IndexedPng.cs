@@ -13,6 +13,14 @@ namespace SuperMetroid.Core.Assets;
 /// </remarks>
 public static class IndexedPng
 {
+    /// <summary>Decodes a complete static indexed PNG, preserving each pixel's palette index and palette alpha; verifies dimensions, chunk ordering/checksums, the 16-MiB encoded limit, and exact inflated row length before returning unpacked pixels.</summary>
+    /// <param name="input">Caller-owned stream at the PNG signature, left open; the image must end at stream EOF without trailing bytes.</param>
+    /// <param name="expectedWidth">Required pixel width, 1..2048; the file must match exactly.</param>
+    /// <param name="expectedHeight">Required pixel height, 1..2048; the file must match exactly.</param>
+    /// <returns>New row-major one-byte palette indices and the decoded RGB/alpha palette, before SNES bitplane encoding or color assignment.</returns>
+    /// <exception cref="ArgumentNullException">The input stream is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">A required dimension is outside 1..2048.</exception>
+    /// <exception cref="InvalidDataException">The PNG is malformed, truncated, oversized, has different dimensions, or uses unsupported truecolor, animation, or interlace.</exception>
     public static IndexedPngImage Read(Stream input, int expectedWidth, int expectedHeight)
     {
         ArgumentNullException.ThrowIfNull(input);
@@ -138,6 +146,15 @@ public static class IndexedPng
         return new(width, height, pixels, palette);
     }
 
+    /// <summary>Writes a noninterlaced eight-bit indexed PNG with unfiltered rows, preserving index identity and palette RGB/alpha exactly; a transparency chunk is emitted only when some palette alpha is not 255.</summary>
+    /// <param name="output">Caller-owned destination stream at its current position, left open; existing trailing bytes are not truncated.</param>
+    /// <param name="width">Pixel width, 1..2048.</param>
+    /// <param name="height">Pixel height, 1..2048.</param>
+    /// <param name="pixels">Exactly width times height row-major palette indices, one byte per pixel; every index must address an entry in the supplied palette.</param>
+    /// <param name="palette">One through 256 ordered RGBA entries; no color matching, quantization, or palette-index reassignment is performed.</param>
+    /// <exception cref="ArgumentNullException">The output stream or palette is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">A dimension is outside 1..2048.</exception>
+    /// <exception cref="ArgumentException">Pixel count, palette count, or a pixel's palette index is invalid.</exception>
     public static void Write(Stream output, int width, int height, ReadOnlySpan<byte> pixels, IReadOnlyList<Rgba32> palette)
     {
         ArgumentNullException.ThrowIfNull(output);
@@ -185,4 +202,8 @@ public static class IndexedPng
 }
 
 /// <summary>Decoded source indexes and palette, before any SNES tile encoding or palette assignment.</summary>
+/// <param name="Width">Image width in pixels.</param>
+/// <param name="Height">Image height in pixels.</param>
+/// <param name="Pixels">Row-major unpacked palette indices, one byte per pixel; the array is exposed directly rather than copied by the record.</param>
+/// <param name="Palette">Ordered RGB/alpha entries addressed by the pixel indices; the array is exposed directly and is not itself a SNES CGRAM palette.</param>
 public sealed record IndexedPngImage(int Width, int Height, byte[] Pixels, Rgba32[] Palette);

@@ -36,6 +36,10 @@ public sealed class EnemySpritemapCatalog
     /// Resolves an editable presentation binding without changing the native frame pointer
     /// retained by enemy AI, hitbox selection, or instruction timing.
     /// </summary>
+    /// <param name="bank">Native enemy spritemap bank, combined with the same-bank pointer to identify the authored binding.</param>
+    /// <param name="nativePointer">Unmodified native frame word retained by gameplay; the selected visual frame must belong to the same bank.</param>
+    /// <param name="parts">Installed OAM composition selected by the binding, or <see cref="EnemySpritemapParts.Empty"/> when no bound frame is installed.</param>
+    /// <returns>True when both a display binding and its selected composition exist; missing identities return false without reading cartridge data.</returns>
     public bool TryGetDisplay(byte bank, ushort nativePointer,
         out EnemySpritemapParts parts)
     {
@@ -55,6 +59,10 @@ public sealed class EnemySpritemapCatalog
     /// A complete stock catalog permits a previous-version override to retain its
     /// existing edits while newly added frame identities come from stock content.
     /// </summary>
+    /// <param name="json">Caller-owned JSON stream, left open; duplicate and unknown properties are rejected.</param>
+    /// <param name="stockForLegacyOverride">Optional complete current stock catalog, required to accept supported older schemas and supply their missing newer frame identities/bindings.</param>
+    /// <returns>Compiled visual parts and same-bank display bindings; collision, AI frame identity, and instruction timing are not imported from the artwork document.</returns>
+    /// <exception cref="InvalidDataException">The schema, complete named-frame set, OAM fields/capacity, or display bindings are invalid.</exception>
     public static EnemySpritemapCatalog Load(Stream json,
         EnemySpritemapCatalog? stockForLegacyOverride = null)
     {
@@ -328,7 +336,9 @@ public sealed class EnemySpritemapCatalog
 /// <summary>Versioned, semantic enemy frame names mapped to editable OAM parts.</summary>
 public sealed record EnemySpritemapDocument
 {
+    /// <summary>Composition schema revision; current loading requires <see cref="EnemySpritemapDefinitions.Version"/>, or a supported older revision accompanied by a complete stock catalog for merging.</summary>
     public required int Version { get; init; }
+    /// <summary>Complete case-sensitive semantic frame keys for the selected schema, each mapped to an ordered non-null OAM-part array; parts describe visual offsets, size, tiles, palette, priority, and reflections rather than gameplay hitboxes.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
     /// <summary>Visual-only native-frame-to-displayed-frame bindings; never AI timing.</summary>
     public Dictionary<string, string>? DisplayFrames { get; init; }

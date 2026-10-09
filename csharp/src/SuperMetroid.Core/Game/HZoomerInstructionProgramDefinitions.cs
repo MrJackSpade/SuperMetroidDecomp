@@ -15,6 +15,7 @@ internal abstract class HZoomerInstructionProgramDefinitions
     /// <summary><c>InstList_HZoomer_UpsideUp_0</c> at $A3:E01F.</summary>
     internal const ushort UpsideUp = 0xe01f;
 
+    /// <summary>Number of mechanics words across the four compiled surface loops.</summary>
     public static int MechanicsWordCount => 36;
 
     /// <summary>Each surface initializes its axis, shows five three-tick frames, then loops to the first frame.</summary>
@@ -36,12 +37,18 @@ internal abstract class HZoomerInstructionProgramDefinitions
         };
     }
 
+    /// <summary>Determines whether a bank-relative address selects one of the interleaved live spritemap operands.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - UpsideRight;
         int local = offset % 28;
         return offset >= 0 && offset < 4 * 28 && local >= 6 && local <= 22 && (local - 6) % 4 == 0;
     }
+
+    /// <summary>Looks up a compiled duration or control word by its bank-relative address.</summary>
+    /// <param name="address">The instruction address to resolve within one of the four surface loops.</param>
+    /// <returns>The mechanics word stored at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not a compiled mechanics-word position.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

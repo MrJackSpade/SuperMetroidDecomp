@@ -27,6 +27,9 @@ internal abstract class AlcoonInstructionProgramDefinitions
     /// <summary><c>InstList_Alcoon_FacingRight_Airborne_LookingForward</c> at $A8:DCC1.</summary>
     internal const ushort AirborneRightLookingForward = 0xdcc1;
 
+    /// <summary>Identifies aligned words in the compiled Alcoon program that are visual operands rather than mechanics.</summary>
+    /// <param name="address">The bank-$A8 address of the candidate instruction word.</param>
+    /// <returns><see langword="true"/> when the address is in the compiled span and not a mechanics word.</returns>
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - WalkingLeft;
@@ -34,10 +37,18 @@ internal abstract class AlcoonInstructionProgramDefinitions
         return (uint)offset < 224 && (offset & 1) == 0 && !TryReadMechanicsWord(address, out _);
     }
 
+    /// <summary>Returns a compiled engine-control or timing word from Alcoon's instruction programs.</summary>
+    /// <param name="address">The bank-$A8 address to resolve.</param>
+    /// <returns>The mechanics word stored at the address.</returns>
+    /// <exception cref="InvalidDataException">The address does not identify a compiled mechanics word.</exception>
     internal static ushort ReadMechanicsWord(ushort address) =>
         TryReadMechanicsWord(address, out ushort value) ? value : throw new InvalidDataException(
             $"Alcoon instruction mechanics pointer $A8:{address:X4} is not compiled.");
 
+    /// <summary>Attempts to resolve a compiled engine-control or timing word without throwing for unrecognized addresses.</summary>
+    /// <param name="address">The bank-$A8 address to inspect.</param>
+    /// <param name="value">Receives the mechanics word when the address is recognized; otherwise receives zero.</param>
+    /// <returns><see langword="true"/> when the address contains a compiled mechanics word.</returns>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;

@@ -6,11 +6,14 @@ public sealed partial class SuperMetroidGame
 {
     // Before a room exists, the frontend still owns the cartridge's live RNG word.
     // Lazy initialization also supports older debugger snapshots without this field.
+    /// <summary>Stores the live cartridge RNG state while no gameplay runtime owns it.</summary>
     private Bank80SystemState? menuRandom;
 
+    /// <summary>Gets the runtime RNG state, or lazily creates the frontend-owned state before runtime setup.</summary>
     private Bank80SystemState FrontendRandomOwner =>
         runtime?.System ?? (menuRandom ??= new Bank80SystemState());
 
+    /// <summary>Copies the live RNG word out of a runtime before releasing it, preserving frontend continuity.</summary>
     private void ReleaseRuntimePreservingRandom()
     {
         (menuRandom ??= new()).SetRandomNumber(FrontendRandomOwner.RandomNumber);

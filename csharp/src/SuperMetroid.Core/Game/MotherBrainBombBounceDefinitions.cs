@@ -13,9 +13,16 @@ internal static class MotherBrainBombBounceDefinitions
     /// <summary>The ordinary fall gravity, also used before the first bounce.</summary>
     internal const ushort FallAcceleration = 0x0007;
 
+    /// <summary>Acceleration added for each growth step in the later-bounce gravity sequence.</summary>
     private const int GrowthUnit = 16;
+
+    /// <summary>Caps per-bounce gravity growth after four increments while the bounce sequence continues.</summary>
     private const int MaximumGrowthSteps = 4;
 
+    /// <summary>Gets the vertical acceleration selected by the Mother Brain bomb's bounce stage.</summary>
+    /// <param name="stage">The stage index, with zero for ordinary fall and the last stage as expiry.</param>
+    /// <returns>The stage's downward acceleration, or zero for the expiry sentinel.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The stage is outside the compiled bounce sequence.</exception>
     internal static ushort YAcceleration(int stage)
     {
         if ((uint)stage >= StageCount) throw new ArgumentOutOfRangeException(nameof(stage));

@@ -14,7 +14,13 @@ internal static class DownwardGateEnemyProjectileRomData
 
     /// <summary>One block of accumulated 8.8 motion before advancing a sleeping list.</summary>
     public const ushort OneBlockDistance = 0x1000;
+
+    /// <summary>Pixel width and height of one room block used to place gate projectiles from PLM coordinates.</summary>
     public const int PixelsPerRoomBlock = 16;
+
+    /// <summary>Additional vertical pixel displacement applied when spawning the closed gate actor.</summary>
     public const int ClosedPositionOffsetPixels = 64;
+
+    /// <summary>Byte stride of one entry in the native <c>PLM_BlockIndices</c> array used to associate a gate actor with its block.</summary>
     public const int NativeBytesPerRoomBlock = 2;
 }

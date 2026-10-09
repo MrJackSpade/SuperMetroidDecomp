@@ -9,8 +9,11 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Absolute horizontal launch velocity assigned to a newly spawned Alcoon fireball before its pre-instruction decelerates it.</summary>
     private const ushort AlcoonFireballGraphicsHorizontalSpeed = 0x0400;
+    /// <summary>Minimum absolute horizontal velocity retained as the fireball approaches its target speed.</summary>
     private const ushort AlcoonFireballTerminalHorizontalSpeed = 0x0200;
+    /// <summary>Amount by which each collision-free pre-instruction moves horizontal velocity toward its terminal value.</summary>
     private const ushort AlcoonFireballHorizontalDeceleration = 0x0040;
 
     /// <summary>

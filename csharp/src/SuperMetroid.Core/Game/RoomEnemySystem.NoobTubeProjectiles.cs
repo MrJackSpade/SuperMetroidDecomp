@@ -91,6 +91,12 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Converts a native even byte offset into a table index after validating its bounds.</summary>
+    /// <param name="parameter">Even byte offset supplied by the n00b-tube initializer.</param>
+    /// <param name="entryCount">Number of entries available in the selected offset table.</param>
+    /// <param name="family">Projectile family name used to identify malformed data.</param>
+    /// <returns>The zero-based table index represented by <paramref name="parameter"/>.</returns>
+    /// <exception cref="InvalidDataException">The offset is odd or selects beyond the table.</exception>
     private static int ValidateEvenNoobTubeParameter(
         ushort parameter,
         int entryCount,
@@ -164,6 +170,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Uses the projectile's angle accumulator to apply a sine-derived horizontal step.</summary>
+    /// <param name="projectile">Projectile whose fractional horizontal position and angle are updated.</param>
+    /// <param name="angleStep">Amount added to the angle accumulator after the position update.</param>
     private static void MoveNoobTubeProjectileHorizontallyAlongArc(
         RoomEnemyProjectileSlot projectile,
         ushort angleStep)
@@ -178,6 +187,8 @@ public sealed partial class RoomEnemySystem
         projectile.XVelocity = unchecked((ushort)(projectile.XVelocity + angleStep));
     }
 
+    /// <summary>Advances a released bubble by its vertical velocity and publishes its tracked horizontal position.</summary>
+    /// <param name="projectile">Bubble state containing velocity and tracked horizontal coordinates.</param>
     private static void MoveNoobTubeBubbleVertically(RoomEnemyProjectileSlot projectile)
     {
         (projectile.YPosition, projectile.YSubposition) = AddEightBitVelocity(

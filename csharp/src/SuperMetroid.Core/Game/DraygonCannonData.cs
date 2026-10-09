@@ -37,6 +37,9 @@ public static class DraygonCannonData
 }
 
 /// <summary>One bank-$A5 cannon-control word paired with its wall projectile origin.</summary>
+/// <param name="DisabledWord">Bank-$7E control word checked to suppress firing when this cannon is destroyed.</param>
+/// <param name="X">Horizontal world position assigned to the spawned wall projectile.</param>
+/// <param name="Y">Vertical world position assigned to the spawned wall projectile.</param>
 internal readonly record struct DraygonCannonTarget(
     ushort DisabledWord,
     ushort X,

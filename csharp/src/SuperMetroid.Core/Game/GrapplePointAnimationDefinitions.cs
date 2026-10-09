@@ -11,11 +11,18 @@ internal static class GrapplePointAnimationDefinitions
     internal const ushort FrameStride = 0x0200;
     /// <summary>$9B:BFC6/C645 NTSC delay: five, decremented through zero for a six-call interval.</summary>
     internal const ushort Delay = 5;
+
+    /// <summary>Gets the number of endpoint animation frames between the begin and exclusive end pointers.</summary>
     internal const int FrameCount = (EndPointer - BeginPointer) / FrameStride;
 
+    /// <summary>Maps an endpoint animation ordinal to its bank-$9A character-data source address.</summary>
+    /// <param name="frame">The frame ordinal, advanced by the native source stride.</param>
+    /// <returns>The bank-qualified address of that frame's tile data.</returns>
     internal static int SourceAddress(byte frame) => SamusGrappleRomData.Banks.CharacterData |
         unchecked((ushort)(BeginPointer + frame * FrameStride));
 
+    /// <summary>Ticks the endpoint animation timer and advances or wraps its tile-source frame when the delay expires.</summary>
+    /// <param name="state">The grapple state whose endpoint animation timer and frame ordinal are updated.</param>
     internal static void Advance(SamusGrappleState state)
     {
         state.PointAnimationTimer = unchecked((ushort)(state.PointAnimationTimer - 1));

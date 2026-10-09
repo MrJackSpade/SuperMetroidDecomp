@@ -29,13 +29,23 @@ internal abstract class CacatacProjectileInstructionProgramDefinitions
 
     /// <summary>Ten six-byte direction programs: one-frame drawing followed by sleep.</summary>
     internal const int ProgramCount = 10;
+
+    /// <summary>Gets the number of live spritemap operands interleaved with the ten direction programs.</summary>
     public static int PresentationWordCount => ProgramCount;
 
+    /// <summary>Gets the bank-local address of a direction program's spritemap operand.</summary>
+    /// <param name="index">The zero-based direction-program index.</param>
+    /// <returns>The native address of the selected presentation word.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index does not identify one of the ten programs.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= ProgramCount) throw new IndexOutOfRangeException();
         return (ushort)(LeftFacingUp + 6 * index + 2);
     }
+    /// <summary>Reads a compiled one-tick duration or terminal sleep opcode, excluding spritemap operands.</summary>
+    /// <param name="address">The bank-local instruction-word address to resolve.</param>
+    /// <returns>The mechanics value stored at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is outside these programs or identifies a presentation operand.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - LeftFacingUp;

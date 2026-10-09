@@ -44,7 +44,10 @@ internal abstract class PowampInstructionProgramDefinitions
     /// <summary>$A8:C183..C19E: each balloon transition has three frame controls and Sleep.</summary>
     private const int BalloonMechanicsCount = FramesPerProgram + 1;
 
+    /// <summary>Number of compiled duration and control words across the two body loops and two balloon transitions.</summary>
     public static int MechanicsWordCount => 2 * (BodyMechanicsCount + BalloonMechanicsCount);
+
+    /// <summary>Number of live spritemap operands interleaved with the four programs' frame durations.</summary>
     public static int PresentationWordCount => 4 * FramesPerProgram;
 
     /// <summary>Native ordered controls calculated from the two loop programs followed by the two sleeping transitions.</summary>
@@ -75,6 +78,10 @@ internal abstract class PowampInstructionProgramDefinitions
         ? (ushort)(BodyFast + group * (FramesPerProgram * 4 + 4))
         : (ushort)(BalloonInflate0 + (group - 2) * (FramesPerProgram * 4 + 2));
 
+    /// <summary>Resolves a compiled duration or control instruction at its native address.</summary>
+    /// <param name="address">The bank-relative address of the mechanics word to read.</param>
+    /// <returns>The calculated duration, control opcode, or control target stored at that position.</returns>
+    /// <exception cref="InvalidDataException">The address does not identify a mechanics word in these programs.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

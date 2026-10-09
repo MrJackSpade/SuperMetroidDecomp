@@ -35,6 +35,7 @@ internal abstract class GoldenTorizoWalkingInstructionProgramDefinitions
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
 
+    /// <summary>Describes the walking instruction lists and marks their editable extended-frame selector words.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xd20d),
         Entry(GoldenTorizoCombatInstructionPointers.WalkingLeftRightLeg),
@@ -81,6 +82,9 @@ internal abstract class GoldenTorizoWalkingInstructionProgramDefinitions
         Frame(4),
         Op(TorizoInstructionCodes.Instruction_GoldenTorizo_WalkingMovement_IndexInY, 0x0000),
         Op(CommonEnemyInstructionCodes.Goto, TorizoWalkingLeftRightLegMoving));
+    /// <summary>Gets the number of extended-frame selector words embedded in the walking lists.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+
+    /// <summary>Gets the native word address of a walking-list extended-frame selector.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 }

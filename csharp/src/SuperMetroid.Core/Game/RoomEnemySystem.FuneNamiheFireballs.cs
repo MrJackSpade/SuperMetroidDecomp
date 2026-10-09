@@ -3,9 +3,14 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Bank-$86 half of the shared Fune/Namihe fireball family.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native pre-instruction hook shared by Fune's and Namihe's launched fireballs.</summary>
     private const ushort NamiFuneFireballPreInstruction =
         EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_NamiFuneFireball;
+
+    /// <summary>Function address selecting the left-moving fireball update path.</summary>
     private const ushort NamiFuneFireballMovingLeft = 0xdf40;
+
+    /// <summary>Function address selecting the right-moving fireball update path.</summary>
     private const ushort NamiFuneFireballMovingRight = 0xdf6a;
 
     /// <summary>

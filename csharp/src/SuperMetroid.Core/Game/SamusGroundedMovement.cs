@@ -179,6 +179,9 @@ public static class SamusGroundedMovement
 
     // This is held-input behavior, independent of whether the weapon producer admitted a shot.
     // Angled standing poses deliberately retain their own animation timelines.
+    /// <summary>Restarts the normal standing-shot animation while X is held in a normal standing pose.</summary>
+    /// <param name="samus">The standing Samus state whose animation timer may be reset.</param>
+    /// <param name="controllerInput">The current held-button mask used to detect X.</param>
     private static void ResetStandingShotAnimation(SamusState samus, ushort controllerInput)
     {
         if (samus.Pose is SamusPoseIds.FacingRightNormalPose or SamusPoseIds.FacingLeftNormalPose &&
@@ -629,6 +632,8 @@ public static class SamusGroundedMovement
 }
 
 /// <summary>Both bank-$94 scans performed by one grounded bank-$90 movement handler.</summary>
+/// <param name="Horizontal">The result of the handler's horizontal collision scan.</param>
+/// <param name="Vertical">The result of the handler's vertical movement or grounding scan.</param>
 public readonly record struct GroundedMovementResult(
     BlockMoveResult Horizontal,
     BlockMoveResult Vertical);

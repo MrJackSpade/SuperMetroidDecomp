@@ -59,6 +59,9 @@ internal static class CacatacProjectileDefinitions
     }
 }
 
+/// <summary>Signed 8.8 launch-speed words selected for a Cacatac spike's direction.</summary>
+/// <param name="Negative">The 16-bit two's-complement word for the negative velocity component.</param>
+/// <param name="Positive">The 16-bit word for the positive velocity component.</param>
 internal readonly record struct CacatacSpikeSpeedPair(
     ushort Negative,
     ushort Positive);

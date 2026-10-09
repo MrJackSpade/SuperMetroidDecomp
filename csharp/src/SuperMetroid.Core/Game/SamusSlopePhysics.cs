@@ -157,6 +157,12 @@ public static class SamusSlopePhysics
         return new SlopeAlignmentResult(yPosition, adjusted);
     }
 
+    /// <summary>Finds the room collision block containing a pixel coordinate when it lies within the level.</summary>
+    /// <param name="level">Room dimensions and collision blocks to query.</param>
+    /// <param name="xPosition">Horizontal room-pixel coordinate.</param>
+    /// <param name="yPosition">Vertical room-pixel coordinate.</param>
+    /// <param name="block">Receives the containing collision block, or the default value when out of bounds.</param>
+    /// <returns><see langword="true"/> when the pixel maps to a block inside the level.</returns>
     private static bool TryGetBlockAtPixel(
         RoomLevelData level,
         ushort xPosition,
@@ -179,6 +185,8 @@ public static class SamusSlopePhysics
 }
 
 /// <summary>Debugger-visible result of bank-$94's post-horizontal slope correction.</summary>
+/// <param name="YPosition">Whole-pixel vertical position after any floor or ceiling slope correction.</param>
+/// <param name="Adjusted">Whether the alignment routine changed the supplied vertical position.</param>
 public readonly record struct SlopeAlignmentResult(
     ushort YPosition,
     bool Adjusted);

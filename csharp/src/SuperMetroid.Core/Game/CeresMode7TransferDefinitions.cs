@@ -48,6 +48,9 @@ public static class CeresMode7TransferDefinitions
     private const int PlatformColumn = 14, PlatformRow = 12;
     /// <summary>$A6:ACE2/ACF5/AD08: baby map position (4,10), an authored layout placement.</summary>
     private const int BabyColumn = 4, BabyRow = 10;
+    /// <summary>One contiguous authored row extent in the Mode 7 wing tilemap.</summary>
+    /// <param name="Column">Zero-based destination column where this row's transfer begins.</param>
+    /// <param name="Width">Number of consecutive tilemap cells included in the row transfer.</param>
     private readonly record struct WingRegion(int Column, int Width);
     /// <summary>$A6:AD49/AD80: the six wing row extents trace the drawn wing silhouette and are authored drawing content; row stepping and packed paired-frame addresses derive from them (see residualScalarInputsReview).</summary>
     private static readonly WingRegion[] WingRegions =

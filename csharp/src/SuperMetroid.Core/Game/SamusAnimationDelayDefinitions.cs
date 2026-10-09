@@ -13,8 +13,13 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 internal static class SamusAnimationDelayDefinitions
 {
+    /// <summary>Bank-$91 start of the pose-indexed pointer table, covering the 253 real Samus pose selectors.</summary>
     internal const int PointerTableAddress = 0x91B010;
+
+    /// <summary>Bank-$91 start of the delay and animation-command streams referenced by the pose pointers.</summary>
     internal const int DelayStreamsAddress = 0x91B20A;
+
+    /// <summary>Exclusive bank-$91 end of compiled delay streams, before the separate running-cadence pointer.</summary>
     internal const int DelayStreamsEndExclusive = 0x91B5D1;
 
     /// <summary>$91:B010-$B209, AnimationDelayTable: the real pose selector domain before running delay bytes.</summary>

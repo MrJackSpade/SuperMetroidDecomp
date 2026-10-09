@@ -11,7 +11,13 @@ internal abstract class KagoInstructionProgramDefinitions
     /// <summary><c>InstList_Kago_TakenHit_FastAnimation</c> at $A8:AB32.</summary>
     internal const ushort Fast = 0xab32;
 
+    /// <summary>Number of timing and control words exposed across Kago's slow and fast loops.</summary>
     public static int MechanicsWordCount => 12;
+
+    /// <summary>Returns the address and expected value of one timing or control word in the compiled loops.</summary>
+    /// <param name="index">Zero-based position among the six slow-loop words followed by the six fast-loop words.</param>
+    /// <returns>The native address and its duration, shared goto opcode, or loop target.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the compiled mechanics table.</exception>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -28,6 +34,10 @@ internal abstract class KagoInstructionProgramDefinitions
         int offset = address - Slow;
         return (uint)offset < 40 && offset % 20 < 16 && offset % 4 == 2;
     }
+    /// <summary>Resolves a compiled timing or control word by its native instruction address.</summary>
+    /// <param name="address">Native bank-$A8 address of a mechanics-owned word, excluding interleaved spritemap operands.</param>
+    /// <returns>The duration, shared goto opcode, or loop target stored at that address.</returns>
+    /// <exception cref="InvalidDataException">The address does not identify one of Kago's compiled mechanics words.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

@@ -6,9 +6,16 @@ namespace SuperMetroid.Core.Frontend;
 /// Tile words select the high-priority BG plane; no per-letter layout table.</summary>
 internal static class SpaceColonyCaptionDefinitions
 {
+    /// <summary>Caption characters written individually into the intro's high-priority BG tilemap.</summary>
     private const string Text = "SPACE COLONY";
+
+    /// <summary>Number of non-space glyphs emitted for the caption.</summary>
     internal static int LetterCount => Text.Length - 1;
 
+    /// <summary>Maps a non-space caption index to its tilemap column and native glyph tile word.</summary>
+    /// <param name="index">Zero-based position among the twelve letters, with the space omitted.</param>
+    /// <returns>The destination column and high-priority tile word for that letter.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the caption's non-space letters.</exception>
     internal static (int Column, ushort Tile) Letter(int index)
     {
         if ((uint)index >= LetterCount) throw new ArgumentOutOfRangeException(nameof(index));

@@ -33,6 +33,9 @@ internal abstract class RipperInstructionProgramDefinitions
     /// grapple/freeze behavior or the one-tick list reset on direction reversal.</summary>
     private const ushort AlternateVisualHoldTicks = 7;
 
+    /// <summary>Returns the authored display duration for one of the alternating neutral and accessory poses.</summary>
+    /// <param name="phase">Timed-record position; even phases select the neutral pose and odd phases select the alternate pose.</param>
+    /// <returns>Eight ticks for the neutral pose or seven ticks for the alternate pose.</returns>
     internal static ushort VisualHold(int phase) =>
         (phase & 1) == 0 ? NeutralVisualHoldTicks : AlternateVisualHoldTicks;
 
@@ -45,6 +48,10 @@ internal abstract class RipperInstructionProgramDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(program)),
     });
 
+    /// <summary>Reads a compiled timed-record or loop-control word from one of the six Ripper-family animation lists.</summary>
+    /// <param name="address">Bank-$A2 address of the mechanics word.</param>
+    /// <returns>The selected display duration, goto command, or loop target.</returns>
+    /// <exception cref="InvalidDataException">The address is not a compiled mechanics word in these lists.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (TryRead(address, out ushort value))
@@ -53,6 +60,10 @@ internal abstract class RipperInstructionProgramDefinitions
             $"Ripper-family instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
+    /// <summary>Attempts to resolve an address in the six directional Ripper-family loops, excluding their spritemap operands.</summary>
+    /// <param name="address">Bank-$A2 address to look up.</param>
+    /// <param name="value">Receives the duration or control value when found; receives zero when absent.</param>
+    /// <returns><see langword="true"/> when the address is a compiled mechanics word; otherwise, <see langword="false"/>.</returns>
     internal static bool TryRead(ushort address, out ushort value)
     {
         for (int program = 0; program < 6; program++)

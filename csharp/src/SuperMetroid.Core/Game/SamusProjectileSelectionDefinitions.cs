@@ -76,6 +76,9 @@ internal static class SamusProjectileSelectionDefinitions
     /// <summary>$93:A16D UNUSED_InstList_SamusProjectile_Projectile27_93A16D: unused kind27 program.</summary>
     private const ushort Projectile27Program = 0xa16d;
 
+    /// <summary>Resolves a word in the bank-$93 projectile dispatch and instruction-list tables.</summary>
+    /// <param name="address">24-bit bus address being read from the compiled projectile data.</param>
+    /// <returns>The selector value or instruction-list address represented at that location.</returns>
     internal static ushort ReadWord(int address)
     {
         if (address < BeamSelectors || address >= Projectile27 + 4 || (address & 1) == 0)
@@ -144,6 +147,10 @@ internal static class SamusProjectileSelectionDefinitions
         return address == Projectile27 ? Read(address) : Projectile27Program;
     }
 
+    /// <summary>Selects the native beam-header record for one charge state and installed beam combination.</summary>
+    /// <param name="charged"><see langword="true"/> when the selected projectile uses the charged-beam dispatch.</param>
+    /// <param name="beam">Installed beam flags that determine the equipment-table row.</param>
+    /// <returns>The bank-$93 address of the selected beam-header record.</returns>
     private static ushort BeamHeader(bool charged, SamusBeamFlags beam)
     {
         int row = beam switch
@@ -164,6 +171,11 @@ internal static class SamusProjectileSelectionDefinitions
         return (ushort)(BeamHeaderStart + (row + (charged ? 12 : 0)) * BeamHeaderStride);
     }
 
+    /// <summary>Selects the instruction-list start for a beam projectile's charge, equipment, and direction.</summary>
+    /// <param name="charged"><see langword="true"/> when the projectile is using a charged-beam program.</param>
+    /// <param name="beam">Installed beam flags that choose the compatible projectile program.</param>
+    /// <param name="octant">Zero-based direction sector used by compass-oriented projectile programs.</param>
+    /// <returns>The bank-$93 address where the selected instruction list begins.</returns>
     private static ushort BeamProgram(bool charged, SamusBeamFlags beam, int octant)
     {
         int axis = octant & 3;

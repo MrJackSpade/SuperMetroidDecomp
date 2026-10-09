@@ -1,6 +1,9 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One authored Magdollite rising-body phase.</summary>
+/// <param name="DistanceThreshold">Whole-pixel rise required to advance beyond this phase when the maximum-rise test does not take precedence.</param>
+/// <param name="BodyInstructionList">Compiled body animation list selected for this rising phase.</param>
+/// <param name="OverlayYOffset">Vertical pixel offset subtracted from the body Y position to place the overlay.</param>
 internal readonly record struct MagdollitePhaseDefinition(
     ushort DistanceThreshold,
     ushort BodyInstructionList,

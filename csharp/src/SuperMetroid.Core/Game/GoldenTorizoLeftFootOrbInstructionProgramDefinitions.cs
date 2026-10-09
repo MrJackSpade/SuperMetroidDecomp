@@ -21,6 +21,7 @@ internal abstract class GoldenTorizoLeftFootOrbInstructionProgramDefinitions
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
 
+    /// <summary>Compiled attack list with native control operations and editable extended-frame presentation slots.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xcc57),
         Entry(Start),
@@ -42,6 +43,13 @@ internal abstract class GoldenTorizoLeftFootOrbInstructionProgramDefinitions
         Frame(3),
         Op(TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY, WalkingMovement),
         Op(TorizoInstructionCodes.Instruction_Torizo_Return));
+
+    /// <summary>Number of extended-frame presentation operands in the attack list.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+
+    /// <summary>Gets the bank-$AA address of a presentation operand in the compiled attack list.</summary>
+    /// <param name="index">Zero-based index into the extended-frame slots.</param>
+    /// <returns>The address of the selected presentation word.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the layout's presentation slots.</exception>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 }

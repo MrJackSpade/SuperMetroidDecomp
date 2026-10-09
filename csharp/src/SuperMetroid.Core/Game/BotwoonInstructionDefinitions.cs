@@ -1,6 +1,8 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Visible head poses selected from Botwoon's eight angular octants.</summary>
+/// <param name="MovementInstruction">Instruction-list address for the visible head pose's movement animation.</param>
+/// <param name="SpitInstruction">Instruction-list address for the corresponding head pose while spitting.</param>
 internal readonly record struct BotwoonHeadInstructionDefinition(
     ushort MovementInstruction,
     ushort SpitInstruction);
@@ -68,5 +70,8 @@ internal static class BotwoonInstructionDefinitions
     }
     // Head and body programs run counterclockwise from up-left. Their physical
     // layout includes an unused down-facing-left slot between down-left and down.
+    /// <summary>Maps a clockwise angular octant to the native counterclockwise program slot, skipping its unused facing.</summary>
+    /// <param name="octant">Zero-based selector for one of the eight clockwise angular sectors.</param>
+    /// <returns>The corresponding slot offset in Botwoon's native movement and body program layouts.</returns>
     private static int PhysicalDirection(int octant) => 8 - octant - (octant >= 5 ? 1 : 0);
 }

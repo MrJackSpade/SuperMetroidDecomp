@@ -10,6 +10,9 @@ internal abstract class ChootInstructionProgramDefinitions
     /// <summary>$A2:D840: jump control timing with a different final visual operand.</summary>
     internal const ushort Falling = 0xd840;
 
+    /// <summary>Recognizes the addresses in the idle, jump, and fall programs that carry visual frame operands.</summary>
+    /// <param name="address">The bank-$A2 instruction address to classify.</param>
+    /// <returns><see langword="true"/> when the address selects a separately supplied presentation frame.</returns>
     internal static bool IsPresentationWord(ushort address)
     {
         if (address == Idle + 4)
@@ -19,6 +22,10 @@ internal abstract class ChootInstructionProgramDefinitions
             offset % (Falling - Jumping) is 0 or 4;
     }
 
+    /// <summary>Reads one compiled control or timing word from Choot's instruction programs.</summary>
+    /// <param name="address">The bank-$A2 address of the mechanics word.</param>
+    /// <returns>The engine-control code or timing value stored at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not a compiled mechanics word.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (TryRead(address, out ushort value))
@@ -27,6 +34,10 @@ internal abstract class ChootInstructionProgramDefinitions
             $"Choot instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
+    /// <summary>Attempts to resolve a Choot mechanics word, leaving visual operands unclaimed.</summary>
+    /// <param name="address">The bank-$A2 address to inspect.</param>
+    /// <param name="value">Receives the compiled control or timing word, or zero when the address is unrecognized.</param>
+    /// <returns><see langword="true"/> when the address contains a compiled mechanics word.</returns>
     internal static bool TryRead(ushort address, out ushort value)
     {
         if (address < Jumping)

@@ -1,6 +1,8 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One fixed-point environmental damage contribution per accepted frame.</summary>
+/// <param name="SubDamage">Unsigned fractional damage accumulated for each accepted frame, in 16-bit fixed-point units.</param>
+/// <param name="WholeDamage">Whole energy units added for each accepted frame alongside the fractional contribution.</param>
 internal readonly record struct SamusLiquidDamageRate(ushort SubDamage, ushort WholeDamage);
 
 /// <summary>Compiled liquid-damage rates from Samus's fixed bank-$90 physics constants.</summary>
@@ -16,6 +18,7 @@ internal static class SamusLiquidDamageDefinitions
 /// <summary>Calculated uniform/progressive frame cadence with narrowly retained original atmospheric exposure choreography. These selected animation holds are not a fluid or damage integration law.</summary>
 internal static class SamusAtmosphericAnimationDefinitions
 {
+    /// <summary>Native atmospheric effect selector values used to choose each effect's authored frame count and timer cadence.</summary>
     private enum EffectType : byte
     {
         /// <summary>$90:8BA5, AtmosphericGraphics_1_FootstepSplashes.</summary>

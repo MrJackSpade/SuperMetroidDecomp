@@ -10,7 +10,10 @@ internal abstract class SbugInstructionProgramDefinitions
     /// <summary><c>$A3:A071</c>, right-facing animation loop.</summary>
     internal const ushort Right = 0xa071;
 
+    /// <summary>Gets the 48 duration and branch words across eight four-frame animation loops.</summary>
     public static int MechanicsWordCount => 48;
+
+    /// <summary>Gets the four interleaved spritemap operands exposed by each of the eight directional loops.</summary>
     public static int PresentationWordCount => 32;
 
     /// <summary>Eight directional programs each display four five-tick frames and branch back to their entry.</summary>
@@ -24,6 +27,10 @@ internal abstract class SbugInstructionProgramDefinitions
             : new((ushort)(start + 16 + 2 * (word - 4)), word == 4 ? CommonEnemyInstructionCodes.Goto : start);
     }
 
+    /// <summary>Returns the bank-local address of one live spritemap operand in the directional animation lists.</summary>
+    /// <param name="index">Zero-based presentation operand position across all eight loops.</param>
+    /// <returns>The address of the selected interleaved operand.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside <see cref="PresentationWordCount"/>.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)

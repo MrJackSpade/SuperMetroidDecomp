@@ -1,6 +1,8 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>The walk counter after one shot reaction and whether it started recoil.</summary>
+/// <param name="WalkCounter">Updated counter after native subtraction and signed-underflow clamping.</param>
+/// <param name="HyperBeamRecoil">Whether the form-four Hyper Beam path underflowed and requested recoil.</param>
 internal readonly record struct MotherBrainShotReactionResult(ushort WalkCounter, bool HyperBeamRecoil);
 
 /// <summary>
@@ -9,6 +11,12 @@ internal readonly record struct MotherBrainShotReactionResult(ushort WalkCounter
 /// </summary>
 internal static class MotherBrainShotReaction
 {
+    /// <summary>Applies Mother Brain's native form- and projectile-dependent walk-counter reaction.</summary>
+    /// <param name="form">Current Mother Brain form; form four enables the special Hyper Beam recoil branch.</param>
+    /// <param name="projectileType">Projectile class used to select the native reaction-table entry.</param>
+    /// <param name="walkCounter">Counter value before the hit reaction.</param>
+    /// <returns>The clamped counter and whether the special Hyper Beam underflow started recoil.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The projectile type is outside the native three-bit table domain.</exception>
     public static MotherBrainShotReactionResult Resolve(
         ushort form,
         MotherBrainProjectileType projectileType,

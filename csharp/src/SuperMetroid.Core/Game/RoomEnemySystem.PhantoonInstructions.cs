@@ -47,6 +47,8 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Opens Phantoon's eye, starts a randomized vulnerable window, and centers the eye for tracking.</summary>
+    /// <param name="state">Complete encounter state whose body, eye, and tentacle slots receive the tracking setup.</param>
     private void BeginPhantoonEyeTracking(PhantoonEnemyState state)
     {
         state.Tentacles!.VariableA = 0;
@@ -60,6 +62,9 @@ public sealed partial class RoomEnemySystem
         state.Eye.CurrentInstruction = PhantoonInstructionProgramDefinitions.EyeballCentered;
     }
 
+    /// <summary>Chooses the alternating second-round body pattern and refreshes the eye-closed and attack timers.</summary>
+    /// <param name="state">Encounter state whose body and eye variables determine and receive the next pattern.</param>
+    /// <param name="nmiFrameCounter8">Eight-bit NMI frame value supplied by the callback; pattern parity is sampled from the room's current enemy-frame counter.</param>
     private void PickPhantoonSecondRoundPattern(
         PhantoonEnemyState state,
         byte nmiFrameCounter8)
@@ -94,6 +99,10 @@ public sealed partial class RoomEnemySystem
             eye.VariableF = 0;
     }
 
+    /// <summary>Resolves the full four-part encounter state from either the body slot or one of its companion slots.</summary>
+    /// <param name="stateSlot">Body or companion slot whose shared Phantoon state is needed.</param>
+    /// <returns>The encounter state rooted at the body slot.</returns>
+    /// <exception cref="InvalidOperationException">The eye, tentacle, or mouth slot has not been initialized.</exception>
     private PhantoonEnemyState RequireCompletePhantoonStateForPart(RoomEnemySlot stateSlot) =>
         RequireCompletePhantoonState(stateSlot.EnemyDefinitionPointer == PhantoonBodyDefinition
             ? stateSlot

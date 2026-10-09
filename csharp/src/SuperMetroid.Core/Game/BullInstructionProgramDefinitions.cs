@@ -13,6 +13,7 @@ internal abstract class BullInstructionProgramDefinitions
     /// <summary><c>InstList_Bull_Shot_1</c> at $A8:D859.</summary>
     internal const ushort ShotLoop = 0xd859;
 
+    /// <summary>Gets the number of native duration and control words, excluding interleaved spritemap operands.</summary>
     public static int MechanicsWordCount => 16;
 
     /// <summary>Normal loops four ten-frame drawings; shot loops four three-frame drawings five times and returns to normal.</summary>
@@ -34,11 +35,18 @@ internal abstract class BullInstructionProgramDefinitions
         };
     }
 
+    /// <summary>Tests whether an instruction address selects a spritemap operand in Bull's normal or shot animation lists.</summary>
+    /// <param name="address">Bank-$A8 address to classify.</param>
+    /// <returns><see langword="true"/> for one of the eight interleaved presentation operands; otherwise, <see langword="false"/>.</returns>
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - (address < ShotLoop ? Normal + 2 : ShotLoop + 2);
         return (uint)offset < 16 && offset % 4 == 0;
     }
+    /// <summary>Resolves a compiled duration or control-word address to its native instruction value.</summary>
+    /// <param name="address">Bank-$A8 address of a mechanics word, excluding spritemap operands.</param>
+    /// <returns>The duration, timer, jump, or loop-control value stored at the address.</returns>
+    /// <exception cref="InvalidDataException">The address does not select one of the compiled mechanics words.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

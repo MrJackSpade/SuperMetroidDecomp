@@ -99,6 +99,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Updates a live body link's animation when its orientation selects a new instruction list.</summary>
+    /// <param name="segment">The articulated body projectile whose orientation and instruction pointer are synchronized.</param>
+    /// <param name="randomEnemyCounter">Frame counter bits used to reproduce the randomized hurt-flash palette.</param>
     private void AnimateBotwoonBodySegment(
         RoomEnemyProjectileSlot segment,
         byte randomEnemyCounter)
@@ -114,6 +117,9 @@ public sealed partial class RoomEnemySystem
         ApplyBotwoonBodyHurtPalette(segment, randomEnemyCounter);
     }
 
+    /// <summary>Applies the body-link palette, including the randomized white flash while Botwoon is hurt.</summary>
+    /// <param name="segment">The body projectile whose object palette bits are updated.</param>
+    /// <param name="randomEnemyCounter">Selects whether a nonzero head flash timer displays this link in palette zero.</param>
     private void ApplyBotwoonBodyHurtPalette(
         RoomEnemyProjectileSlot segment,
         byte randomEnemyCounter)
@@ -126,6 +132,10 @@ public sealed partial class RoomEnemySystem
                 .WithPaletteIndex(0);
     }
 
+    /// <summary>Advances a dying body link's fall and transitions it to its landed state at the room floor.</summary>
+    /// <param name="segment">The falling link; its vertical velocity stores the quadratic speed-table accumulator.</param>
+    /// <param name="state">The owning head state whose final-link landing flag is set when applicable.</param>
+    /// <param name="randomEnemyCounter">Frame counter bits used to preserve the hurt-flash palette during descent.</param>
     private void RunBotwoonBodyFall(
         RoomEnemyProjectileSlot segment,
         BotwoonEnemyState state,

@@ -7,7 +7,9 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native $A9:9A42 entry for Mother Brain's phase-two hand-beam body program.</summary>
     private const ushort MotherBrainHandBeamBodyInstruction = 0x9a42;
+    /// <summary>Native $A9:9852 entry for the five backward-walk programs used to position the body before firing.</summary>
     private const ushort MotherBrainHandBeamWalkInstruction = 0x9852;
 
     /// <summary>Ports the four-entry body dispatcher at <c>$A9:B87D-B8EA</c>.</summary>
@@ -201,6 +203,9 @@ public sealed partial class RoomEnemySystem
         beam.InstructionTimer = 1;
     }
 
+    /// <summary>Checks whether a fired beam child has moved outside the arena's inclusive X/Y bounds.</summary>
+    /// <param name="beam">Projectile whose current whole-pixel position is checked.</param>
+    /// <returns><see langword="true"/> when X is outside [$0002,$00ED] or Y is outside [$0022,$00CD].</returns>
     private static bool IsMotherBrainHandBeamOutsideArena(
         RoomEnemyProjectileSlot beam) =>
         unchecked((short)(beam.YPosition - 0x0022)) < 0 ||

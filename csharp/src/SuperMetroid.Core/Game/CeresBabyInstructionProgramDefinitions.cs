@@ -61,6 +61,10 @@ internal abstract class CeresBabyInstructionProgramDefinitions
     /// </summary>
     public static int MechanicsWordCount => 43;
 
+    /// <summary>Returns an address/value pair for one authored control-flow or timing word in the Baby's two draw programs.</summary>
+    /// <param name="index">Zero-based index in the ordered mechanics-word catalog.</param>
+    /// <returns>The native address and compiled value of the requested mechanics word.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the mechanics-word catalog.</exception>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -99,7 +103,9 @@ internal abstract class CeresBabyInstructionProgramDefinitions
         });
     }
 
+    /// <summary>Number of compiled spritemap operands: eight in the initial program and twelve in the expressive loop.</summary>
     internal const int SpritemapOperandCount = 20;
+    /// <summary>Number of compiled palette operands: twelve in the expressive loop and one final restore operand.</summary>
     internal const int PaletteOperandCount = 13;
 
     /// <summary>Enumerates the twelve expressive and one final palette operands.</summary>

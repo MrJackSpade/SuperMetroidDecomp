@@ -1,6 +1,8 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One frame-relative displacement used while Bomb Torizo changes posture.</summary>
+/// <param name="X">Signed horizontal movement for the selected posture frame.</param>
+/// <param name="Y">Vertical movement for the selected posture frame.</param>
 internal readonly record struct BombTorizoPostureDisplacement(short X, short Y);
 
 /// <summary>Fixed posture and walking movement definitions for Bomb Torizo.</summary>
@@ -16,6 +18,7 @@ internal static class BombTorizoMovementDefinitions
     // no second stock sequence is stored (see residualScalarInputsReview).
     private static readonly short[] LeftPostureX = [-9, -6, -7, 5, -16, -7, 0, 0];
 
+    /// <summary>Vertical posture displacements for the eight even table offsets, repeated for the mirrored facing sequence.</summary>
     private static readonly short[] PostureY =
         [0, -6, -6, -7, 0, 0, 0, 0];
 

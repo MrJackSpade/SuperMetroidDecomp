@@ -25,6 +25,9 @@ internal static class SparkMovementDefinitions
         };
 }
 
+/// <summary>One population-selected Spark movement state, pairing the instruction list to execute with its initial enemy function.</summary>
+/// <param name="InstructionList">Bank-$A8 instruction-list pointer selected for the Spark's population parameter.</param>
+/// <param name="Function">Initial enemy function paired with that instruction list, including the native adjacent-word observation for selector three.</param>
 internal readonly record struct SparkMovementDefinition(
     ushort InstructionList,
     SparkEnemyFunction Function);

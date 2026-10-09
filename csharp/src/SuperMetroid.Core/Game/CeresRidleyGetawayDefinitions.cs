@@ -1,6 +1,9 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One authored Mode 7 getaway frame; velocities retain native signed-word encoding.</summary>
+/// <param name="Zoom">The frame's Mode 7 zoom word; <see cref="CeresRidleyGetawayDefinitions.Finished"/> marks the terminal entry.</param>
+/// <param name="XVelocity">The native signed-word horizontal offset step, subtracted from the Mode 7 horizontal offset.</param>
+/// <param name="YVelocity">The native signed-word vertical offset step, added to the Mode 7 vertical offset.</param>
 public readonly record struct CeresRidleyGetawayFrame(ushort Zoom, ushort XVelocity, ushort YVelocity);
 
 /// <summary>Immutable NTSC Ceres getaway zoom and translation curves.</summary>

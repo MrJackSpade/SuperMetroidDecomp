@@ -37,6 +37,7 @@ internal abstract class GoldenTorizoRightwardInstructionProgramDefinitions
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
 
+    /// <summary>Compiled mechanics and presentation slots for Golden Torizo's two turning-right and two linked walking-right instruction lists.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xd2ad),
         Entry(GoldenTorizoCombatInstructionPointers.DodgeTurningRight),
@@ -94,6 +95,12 @@ internal abstract class GoldenTorizoRightwardInstructionProgramDefinitions
         Frame(4),
         Op(TorizoInstructionCodes.Instruction_GoldenTorizo_WalkingMovement_IndexInY, 0x0014),
         Op(CommonEnemyInstructionCodes.Goto, TorizoWalkingRightLeftLegMoving));
+    /// <summary>Number of interleaved spritemap selectors retained as editable presentation operands.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+
+    /// <summary>Returns the native address of an editable spritemap selector in the compiled instruction lists.</summary>
+    /// <param name="index">Zero-based index among the twelve presentation operands.</param>
+    /// <returns>The bank-$AA address of the selected operand.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the presentation operand range.</exception>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 }

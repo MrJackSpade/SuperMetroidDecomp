@@ -18,9 +18,18 @@ public sealed class RoomScrollGrid
     /// <summary>24-bit WRAM address of the first room scroll-zone byte.</summary>
     public const int WorkRamAddress = 0x7ecd20;
 
+    /// <summary>Local mirror of the fixed native scroll allocation for indexed cell reads.</summary>
     private readonly byte[] _cells = new byte[StorageByteCount];
+
+    /// <summary>Address space used to keep WRAM synchronized with mutations to the local scroll mirror.</summary>
     private readonly ISnesAddressSpace _bus;
 
+    /// <summary>Creates a logical screen grid backed by the fixed native scroll-zone allocation.</summary>
+    /// <param name="bus">The address space used for scroll-zone WRAM access.</param>
+    /// <param name="widthInScreens">Room width in 256-pixel scroll cells.</param>
+    /// <param name="heightInScreens">Room height in 256-pixel scroll cells.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">A dimension is nonpositive or the logical grid exceeds the 50-byte allocation.</exception>
     private RoomScrollGrid(ISnesAddressSpace bus, int widthInScreens, int heightInScreens)
     {
         _bus = bus ?? throw new ArgumentNullException(nameof(bus));

@@ -6,6 +6,8 @@ namespace SuperMetroid.Core.Frontend;
 
 internal sealed partial class PauseMenuState
 {
+    /// <summary>Installs replacement map and pause presentation assets, rebinds their VRAM and CGRAM content, and refreshes dependent pause-screen artwork without resetting live animation state.</summary>
+    /// <param name="catalog">Validated presentation assets to bind; required because pause rendering depends on installed map visuals.</param>
     internal void BindMapPresentation(AreaMapPresentationCatalog? catalog)
     {
         AreaMapPresentationCatalog? previousCatalog = mapPresentation;
@@ -73,6 +75,7 @@ internal sealed partial class PauseMenuState
         if (ScreenMode == 0) LoadPauseMapTilemap();
     }
 
+    /// <summary>Loads the active area's pause backdrop into BG2 using the currently bound presentation catalog.</summary>
     private void LoadPauseBackdrop()
     {
         (mapPresentation ?? throw new InvalidOperationException(
@@ -80,6 +83,7 @@ internal sealed partial class PauseMenuState
             .PauseBackdrops.LoadTo(vram, PauseMenuLayout.Bg2TilemapWord * 2, area);
     }
 
+    /// <summary>Rebuilds the pause button tilemap from the bound backdrop while retaining palette bits owned by live menu highlights.</summary>
     private void RefreshPauseButtonArtwork()
     {
         byte[] replacement = (mapPresentation ?? throw new InvalidOperationException(

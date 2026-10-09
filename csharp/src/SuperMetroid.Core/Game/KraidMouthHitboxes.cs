@@ -101,6 +101,10 @@ internal static class KraidMouthHitboxes
         return (byte)(target >> (8 * (callOffset - 1)));
     }
 
+    /// <summary>Reads two adjacent low-half bytes as a little-endian word, wrapping the address within bank $A7.</summary>
+    /// <param name="bus">The live address space used to resolve each byte.</param>
+    /// <param name="pointer">The bank-local address of the word's low byte.</param>
+    /// <returns>The signed-geometry word represented by the two bytes.</returns>
     private static ushort ReadLiveWord(ISnesAddressSpace bus, ushort pointer)
     {
         byte low = ReadLiveByte(bus, pointer);
@@ -108,6 +112,12 @@ internal static class KraidMouthHitboxes
         return (ushort)(low | high << 8);
     }
 
+    /// <summary>Reads a live low-half alias byte or one of the explicitly modeled bank-window boundary bytes.</summary>
+    /// <param name="bus">The address space and live memory/peripheral source for the aliased address.</param>
+    /// <param name="pointer">The bank-local address, including the possible boundary-window range.</param>
+    /// <returns>The byte supplied by mapped WRAM, SRAM, a CPU peripheral, or the compiled boundary stub.</returns>
+    /// <exception cref="InvalidOperationException">The bus lacks the live memory or peripheral source required by its mapping.</exception>
+    /// <exception cref="InvalidDataException">The address requires uncompiled cartridge data or falls beyond the bounded boundary window.</exception>
     private static byte ReadLiveByte(ISnesAddressSpace bus, ushort pointer)
     {
         if (pointer < 0x8000)
@@ -138,6 +148,10 @@ internal static class KraidMouthHitboxes
             $"Kraid low-half mouth geometry crossed into uncompiled cartridge address $A7:{pointer:X4}.");
     }
 
+    /// <summary>Adds an offset to a bank-local pointer with native 16-bit address wraparound.</summary>
+    /// <param name="pointer">The starting address within the bank.</param>
+    /// <param name="offset">The byte displacement to apply.</param>
+    /// <returns>The wrapped 16-bit address within the same bank.</returns>
     private static ushort AddWithinBank(ushort pointer, int offset) =>
         unchecked((ushort)(pointer + offset));
 }

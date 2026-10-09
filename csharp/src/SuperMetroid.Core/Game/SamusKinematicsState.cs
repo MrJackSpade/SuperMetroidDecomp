@@ -14,6 +14,7 @@ public sealed class SamusKinematicsState
     // `$7E:182C-$1833` remembers the solid enemy hit in each movement direction until the
     // next EnemyMain tail clears all four words. Dead-monster actors inspect this delayed
     // producer state; a one-call return value alone cannot reproduce that ordering.
+    /// <summary>Last solid-enemy index recorded for each native movement direction; <see cref="ushort.MaxValue"/> marks no collision.</summary>
     private readonly ushort[] _solidEnemyCollisionIndexes =
         [ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue];
 
@@ -230,12 +231,16 @@ public sealed class SamusKinematicsState
     internal void ClearSolidEnemyCollisionIndexes() =>
         Array.Fill(_solidEnemyCollisionIndexes, ushort.MaxValue);
 
+    /// <summary>Splits an unsigned 16.16 fixed-point X value into the native whole-pixel and fractional WRAM words.</summary>
+    /// <param name="value">The packed position, with the whole-pixel word in the high half.</param>
     internal void SetXFixed(uint value)
     {
         XPosition = unchecked((ushort)(value >> 16));
         XSubposition = unchecked((ushort)value);
     }
 
+    /// <summary>Splits an unsigned 16.16 fixed-point Y value into the native whole-pixel and fractional WRAM words.</summary>
+    /// <param name="value">The packed position, with the whole-pixel word in the high half.</param>
     internal void SetYFixed(uint value)
     {
         YPosition = unchecked((ushort)(value >> 16));

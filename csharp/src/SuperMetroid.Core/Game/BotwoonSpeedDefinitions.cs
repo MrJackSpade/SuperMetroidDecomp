@@ -1,6 +1,9 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Botwoon's health-dependent movement, body-history spacing and spit speed.</summary>
+/// <param name="MovementSpeed">Native movement speed selected for the health phase.</param>
+/// <param name="SegmentSpacingBytes">Distance in the body-history buffer between adjacent segments; native records use 48 divided by movement speed.</param>
+/// <param name="SpitSpeed">Projectile speed used by Botwoon's spit attack for the same health phase.</param>
 public readonly record struct BotwoonSpeedDefinition(ushort MovementSpeed, ushort SegmentSpacingBytes, ushort SpitSpeed);
 
 /// <summary>Immutable NTSC mechanics; the PAL cartridge has different movement records.</summary>

@@ -11,6 +11,12 @@ namespace SuperMetroid.AssetExtraction;
 /// </summary>
 public static class FileSelectPresentationExtractor
 {
+    /// <summary>Builds file-select page templates and imports dynamic slot artwork, borders, cursor frames, and helmet frames.</summary>
+    /// <param name="bus">Non-null cartridge import address space supplying native menu tilemaps, text patches, and spritemaps.</param>
+    /// <returns>New UTF-8 JSON bytes containing pages, field patches, digit and slot-letter cells, tile-cell anchors, pixel-space sprite anchors, and frame durations.</returns>
+    /// <remarks>Includes main, copy, and clear presentation variants without importing save contents, validation, or copy/clear control flow.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="InvalidDataException">Imported artwork escapes its page or fails presentation or spritemap validation.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

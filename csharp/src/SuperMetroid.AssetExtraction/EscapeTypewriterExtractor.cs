@@ -7,6 +7,12 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Extracts safe text and placement from the two native escape typewriter streams.</summary>
 public static class EscapeTypewriterExtractor
 {
+    /// <summary>Imports the Ceres and Zebes escape-warning text and line destinations from their native typewriter streams.</summary>
+    /// <param name="bus">Non-null cartridge address space supplying the two warning programs.</param>
+    /// <returns>New UTF-8 JSON bytes containing ordered lines of supported text and starting VRAM word addresses, not pixel or byte coordinates.</returns>
+    /// <remarks>The native character-delay header is checked, while typewriter timing, glyph artwork, and audio behavior remain compiled.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="InvalidDataException">A program has an unexpected header or command, unsupported characters, excessive lines, or invalid text placement.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

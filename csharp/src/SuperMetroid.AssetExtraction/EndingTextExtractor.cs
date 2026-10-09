@@ -6,6 +6,12 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Extracts bounded post-credit labels while validating native stream mechanics.</summary>
 public static class EndingTextExtractor
 {
+    /// <summary>Imports post-credit labels, item-percentage wording, Japanese subtitle cells, and the final message while checking native text-stream mechanics.</summary>
+    /// <param name="bus">Non-null cartridge import address space containing ending tilemap panels, glyphs, and instruction streams.</param>
+    /// <returns>New UTF-8 JSON bytes containing editable text and its native tilemap templates and character placements.</returns>
+    /// <remarks>Instruction opcodes, delays, and panel geometry are validated against compiled definitions rather than exported as editable behavior.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="InvalidDataException">A stream command, delay, placement, glyph, character count, or termination differs from the supported layout.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

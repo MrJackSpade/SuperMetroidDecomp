@@ -8,6 +8,12 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Extracts Draygon's four transfer images and eight health-band color records.</summary>
 public static class DraygonColorExtractor
 {
+    /// <summary>Imports Draygon's intro, background, sprite, and white-flash palettes and eight ordered health-band color records.</summary>
+    /// <param name="bus">Non-null cartridge import address space containing the native Draygon palette sources.</param>
+    /// <returns>New UTF-8 JSON bytes containing the four palette roles and health bands as RGB5 channels in the range 0..31.</returns>
+    /// <remarks>The document supplies colors; the runtime retains health-band selection and palette-transfer timing.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="InvalidDataException">A native color uses bit 15, which the RGB5 document cannot represent.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

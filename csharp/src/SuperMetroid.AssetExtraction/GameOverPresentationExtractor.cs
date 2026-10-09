@@ -11,6 +11,12 @@ namespace SuperMetroid.AssetExtraction;
 /// </summary>
 public static class GameOverPresentationExtractor
 {
+    /// <summary>Imports game-over text, Baby and egg artwork, cursor frames, and Baby palettes after verifying the compiled native animation sequence.</summary>
+    /// <param name="bus">Non-null cartridge import address space supplying game-over text, spritemaps, palettes, and Baby instruction records.</param>
+    /// <returns>New UTF-8 JSON bytes containing the BG tilemap, visual frames, raw palette words, pixel-space anchors, palette selections, and cursor-frame duration.</returns>
+    /// <remarks>Checks Baby frame durations, spritemap and palette pointers, sound handoffs, and restart markers; those dispatcher mechanics remain compiled.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="InvalidDataException">The native animation differs from its compiled definitions, text escapes the 32x32 page, or presentation validation fails.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

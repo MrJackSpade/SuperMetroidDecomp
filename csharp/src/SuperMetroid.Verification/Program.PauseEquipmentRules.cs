@@ -96,6 +96,16 @@ internal static partial class Program
                 AssertEqual(expected < 0 ? (0, 0) : (category, expected), (pause.SelectedCategory, pause.SelectedItem), "all category subsets retain first-owned selection");
             }
         }
+        // `$82:9142` runs EquipmentScreenMain before the Start handler, so an A press in the
+        // frame that unpauses still toggles the item. The 13% movie unequips the Speed Booster
+        // with Start+A this way.
+        ushort speedBooster = PauseEquipmentRules.Mask(3, 2);
+        var unpausing = Inventory(3, speedBooster);
+        var startAndA = Create(unpausing);
+        EnterPauseEquipment(startAndA);
+        AssertEqual((3, 2), (startAndA.SelectedCategory, startAndA.SelectedItem), "the Speed Booster is selected");
+        AssertTrue(startAndA.Step((ushort)SnesButton.Start, (ushort)SnesButton.A), "Start unpauses");
+        AssertEqual((ushort)0, unpausing.EquippedItems, "the same frame's A still unequips the Speed Booster");
         ushort[] wireframeMasks = Enumerable.Range(0, 4).Select(index => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
             PauseMenuRomData.EquipmentSetTable + index * 2)).ToArray();
         Suite(nameof(VerifyPauseWireframeSelection), () => VerifyPauseWireframeSelection(bus));

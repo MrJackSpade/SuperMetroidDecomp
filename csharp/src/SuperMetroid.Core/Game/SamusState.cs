@@ -410,6 +410,8 @@ public sealed partial class SamusState
     /// </summary>
     internal bool OrdinarySpikeBlockBtsZeroDamageEnabled { get; set; } = true;
 
+    /// <summary>Creates independent player state and owned movement/special-sequence children, binding live kinematics back to this owner and seeding its collision pose with the standing-right default.</summary>
+    /// <remarks>Construction performs no cartridge reads and does not initialize room position, pose-dependent radii, animation data, or installed artwork; gameplay setup supplies those separately.</remarks>
     public SamusState()
     {
         Kinematics = new SamusKinematicsState(this);
@@ -446,18 +448,6 @@ public sealed partial class SamusState
         set => Kinematics.YPosition = value;
     }
 
-    /// <summary>
-    /// Applies the crouching table's direct `$27/$71/$73/$85 -> $01` and mirrored
-    /// `$28/$72/$74/$86 -> $02` exits. These are real six-byte transition-table records;
-    /// unlike the animated `$F7-$FC` stand-up family, they install the final standing pose
-    /// immediately after pose-change collision has made room for its larger radius. The
-    /// live collision radius remains the crouching radius until the following alpha pass,
-    /// matching the cartridge's previous-pose radius publication during `$91:FDAE`.
-    /// </summary>
-    /// <returns>
-    /// False when the two-sided pose-change collision resolver falls back to stable
-    /// crouch because both the floor and ceiling constrain the larger body.
-    /// </returns>
 
     private enum LargerPoseCollisionOutcome
     {

@@ -1,5 +1,3 @@
-using System.Security.Cryptography;
-using System.Text;
 using SuperMetroid.Core.Game;
 using static SuperMetroid.Core.Game.MotherBrainInstructionCodes;
 
@@ -15,25 +13,25 @@ internal static class EnemyVisualProgramSpecializations
     // invalidates that disposition rather than granting a permanent exemption.
     private static readonly Dictionary<string, string> ControlOnly = new Dictionary<string, string>
     {
-        [nameof(CommonEnemyProjectileInstructionProgramDefinitions)] = "745F2209AFBF057E617830A089E9CDA8D518CF2E5C327750D1BE8745AACED221",
-        [nameof(GoldenTorizoEyeBeamAttackInstructionProgramDefinitions)] = "4DCD82EAE1D6A1D3BC8FAE9F8A4E7E8DB7544B27DAE930FEC37005AD90344ADE",
-        [nameof(GoldenTorizoJumpLandingInstructionProgramDefinitions)] = "F8EF0540D791B3715DE310B0F68F6DBE7E4FE32FB6F2D0CAA899008613455AA5",
-        [nameof(GoldenTorizoStunnedInstructionProgramDefinitions)] = "3DA0A675BA4413792DFA683B0D8D0F51D6B54C8E4BE00909E91443D2A74C39E9",
-        [nameof(TourianEntranceStatueInstructionProgramDefinitions)] = "BB51936C0584E148468F52405BBB88D117E4830915FC2050C4DD7E3C060A7AA4",
+        [nameof(CommonEnemyProjectileInstructionProgramDefinitions)] = "ECEEAB15597158422F47BA4E1EB12EB6BF2D4F0DBB4BF2F87913A2E407C659D1",
+        [nameof(GoldenTorizoEyeBeamAttackInstructionProgramDefinitions)] = "6E5D066AC2B21A6DAA905FE0C06618FB560DF8982E2C2B8C2A5321041446104B",
+        [nameof(GoldenTorizoJumpLandingInstructionProgramDefinitions)] = "7C40FB832920219672D6C26A111F163684B55251B169CC0F1D70E11799AC8456",
+        [nameof(GoldenTorizoStunnedInstructionProgramDefinitions)] = "E81BAF67EE6DB25209B292A70F74D12F29CBD6C1D1B1A23821ABE5C51E5446A5",
+        [nameof(TourianEntranceStatueInstructionProgramDefinitions)] = "75F94F33315595FA75DCDFEE8D1E35E4AF705F36C81C6A26BCFD5CFF4A39E079",
     };
 
     private static readonly Dictionary<string, string> CustomLayouts = new()
     {
-        [nameof(MotherBrainBodyInstructionProgramDefinitions)] = "A1820853D30EFE3E4622BBA57B70CF3C054274CABC40D863A06CB6F57F8C677A",
-        [nameof(MotherBrainHeadInstructionProgramDefinitions)] = "E36A1D0F040DF490E7C1D1755F03E63F3ED4705B075466D2110EAD6E5093199A",
-        [nameof(MotherBrainHandBeamBodyInstructionDefinitions)] = "AE97385D5C904FABA81D5E2219D9BAF156BE4133F34F981BB76941C8AF7C309B",
-        [nameof(MotherBrainFallingTubeInstructionDefinitions)] = "1C2F7138D82495CFF28A271C948A6A34FC9F0258C7493E6BF5A70572C4F60AE0",
+        [nameof(MotherBrainBodyInstructionProgramDefinitions)] = "3DE6D14720ED5D9F3F581ED71952CCF8192F1B893DF922196100FD3D13314E3E",
+        [nameof(MotherBrainHeadInstructionProgramDefinitions)] = "0C329E356A619E554E43622051779A9962B0EFB115B3C51748930960D3810196",
+        [nameof(MotherBrainHandBeamBodyInstructionDefinitions)] = "EFF8284E8A50876F9711AD2BBC574BEEF32F083EDB492559C2ACECADAD552FE2",
+        [nameof(MotherBrainFallingTubeInstructionDefinitions)] = "83D279758A5E1FEAF7FC600BCF7749A4E81AB60BAF5F71CA0EAEBF4D28296EA7",
     };
 
     internal static void GuardCustomLayouts(string root)
     {
         // Falling-tube layout delegates its five visual identities to this calculated catalog.
-        GuardSource(root, "csharp/src/SuperMetroid.Core/Assets/MotherBrainVisualDefinitions.cs", "8A566B9D6A4B899CD9790E9EA79394935234CB6013C6DFC92855D81223D89419");
+        GuardSource(root, "csharp/src/SuperMetroid.Core/Assets/MotherBrainVisualDefinitions.cs", "E5B9FA6732E619B737CD88C679DBD0060082553328081CCE0FFA979592E25F85");
         foreach ((string name, string expected) in CustomLayouts)
             GuardOwner(root, name, expected);
     }
@@ -65,8 +63,7 @@ internal static class EnemyVisualProgramSpecializations
     }
 
     internal static bool SourceMatches(string source, string expected) =>
-        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(
-            source.Replace("\r\n", "\n", StringComparison.Ordinal)))) == expected;
+        SourceFingerprint.Of(source) == expected;
 
     internal static bool IsReviewedControlOnly(Type type, string root)
     {

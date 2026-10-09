@@ -6,15 +6,15 @@ internal static class AreaMapClosedContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.AreaMapPresentationCatalog", "map-atomic-seven-areas-and-owned-uploads", ["Get", "Resolve"],
-            [new("csharp/src/SuperMetroid.Core/Assets/AreaMapPresentationCatalog.cs", "8EF059B28CE319380BD93B60C88C32AFCA638FA3D4F6636A998F80DAEAD1FB55"),
-             new("csharp/src/SuperMetroid.Core/Game/AreaId.cs", "6B88F8EE1B5ED42848833924AD9B5844B632D174C964D73E78D8E3774922E834"),
-             new("csharp/src/SuperMetroid.Core/Assets/AreaMapPresentationAsset.cs", "C0EE04CDE0B62C1BA9DCAD29D4FF292429D0F2BA069FD862ABAC889A7361BBCC"),
-             new("csharp/src/SuperMetroid.Core/Assets/AreaMapStockRules.cs", "1DD2CCD2C5DDC040198093F3C0921512EAA12E87DE06D4A27E51151D233E8762"),
-             new("csharp/src/SuperMetroid.Core/Assets/HudTileAtlas.cs", "CF458EE39ACC8CB91CCC5C98D909A3E62DD5A09BD8F6FBEEF51BEE8C9664489A"),
-             new("csharp/src/SuperMetroid.Core/Assets/MapTileAtlas.cs", "77C73DABEFEF89B1C47928C2138A40410D6C8852BC2CB526F0AA9F6A068F93C8"),
-             new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerTileAtlas.cs", "E2A5D6F4B5EF50E10D293A29679D4B64F3573FD140426DFB90A553ABBD67FE15"),
-             new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerGlyphDefinitions.cs", "4942E6802A8F4B086F7C8D3F4A0FD3530E1C07B5C2F467D97CF76FE6855A1366"),
-             new("csharp/src/SuperMetroid.Core/Game/KraidBackgroundRomData.cs", "CAA2BECE420633BA670F1C76CF407D842591A3F3CC0A7845F9B3C1D6E29EB44B"),
-             new("csharp/src/SuperMetroid.Core/Hardware/IVramAssetProvider.cs", "73DCE6788B0BB9B1549CF04466AE14CB8AABA3AD9FCC2738E188ABBA2F2F8D44")]),
+            [new("csharp/src/SuperMetroid.Core/Assets/AreaMapPresentationCatalog.cs", "76E7E8B33D3D47A35942DBB543990D96FE14C93EE90C5D8596CAF39CDC1157E9"),
+             new("csharp/src/SuperMetroid.Core/Game/AreaId.cs", "34967995C1C41594033A1B1824A26C2181EE2D90862E68A15EF36D53899F35B5"),
+             new("csharp/src/SuperMetroid.Core/Assets/AreaMapPresentationAsset.cs", "6983B013E9087483AAC896A9F95D08BBD5FE9A96F9BEB036815F04FB0E7862BA"),
+             new("csharp/src/SuperMetroid.Core/Assets/AreaMapStockRules.cs", "FC95BDC4F7ECDCFA0B448BF443273311D45B437C31DBE9CFE0D1F037CC2D4B8F"),
+             new("csharp/src/SuperMetroid.Core/Assets/HudTileAtlas.cs", "7E13642A0E1B95613BC2F4B1C51082711C43BBDCAF0A4B7EE58F686280E9E871"),
+             new("csharp/src/SuperMetroid.Core/Assets/MapTileAtlas.cs", "9AE09DBDAE455EAFD608A18F87FA18BA0664618F0484BD2BE43FA7C7CC267719"),
+             new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerTileAtlas.cs", "18E30F613BFAD79AB0C4B8093D1041749062C6BFFA57B347C69138FED38BAD21"),
+             new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerGlyphDefinitions.cs", "22A4DAF4C90D2F9B1779E7EB0D2722FE7B28AD42886744F9139276CB86FB352F"),
+             new("csharp/src/SuperMetroid.Core/Game/KraidBackgroundRomData.cs", "A7E09B8EDE22BFD4933EC6D87A5F4615AD0B5A0BBBC6286F6DFCDBCBEBAAF0D0"),
+             new("csharp/src/SuperMetroid.Core/Hardware/IVramAssetProvider.cs", "368BAF27A59AD317E14B4D907C23EA5BB2438547E593FC781712960F529E631B")]),
     ];
 }

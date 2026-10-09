@@ -1,5 +1,3 @@
-using System.Security.Cryptography;
-using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
@@ -144,8 +142,7 @@ internal sealed class ClosedPresentationAudit
     }
 
     internal static bool MatchesReviewedSource(string text, ReviewedSource source) =>
-        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text.Replace("\r\n", "\n", StringComparison.Ordinal))))
-            == source.Sha256;
+        SourceFingerprint.Of(text) == source.Fingerprint;
 
     internal bool TryInspect(InvocationExpressionSyntax call, SemanticModel semantic, IMethodSymbol method,
         ResourceIndex exports, AuditReport report, string location, string arguments)

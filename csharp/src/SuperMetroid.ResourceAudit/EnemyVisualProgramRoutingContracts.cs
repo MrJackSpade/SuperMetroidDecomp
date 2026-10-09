@@ -1,5 +1,3 @@
-using System.Security.Cryptography;
-using System.Text;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -10,13 +8,13 @@ internal static class EnemyVisualProgramRoutingContracts
 {
     private static readonly Dictionary<string, string> Methods = new()
     {
-        ["ReadEnemyInstructionMechanicsWord"] = "78C846F138FBD864577FC5B370924917A2AB4C55C287D73100C5637182DD70CE",
-        ["ReadEnemyProjectileInstructionMechanicsWord"] = "0DFF0A03BFCE9607A45D28FA81E1B158023D6E1D9CFDCE682C587F0BA45240A9",
-        ["ReadEnemyVisualSelector"] = "6FB5ADC8C63B8D832AE601B1B7C4EEEA018661AF7F54DAD526A6C539AA5AFC34",
-        ["SetEnemyProjectileVisualOperand"] = "7769ECC83131B76FAEF68F04B0287AE7DB2E148B966162AA430CA4BB4EC0E701",
-        ["DrawEnemySpritemap"] = "53DE711742E79F43F56E399701DC584441E2602853C4D4576D477AFE150242D2",
-        ["ProcessInstructions"] = "DF37BF0A5EF5A7936D7F8AA3479A4C1BEF5524786309361310F23D0623C94444",
-        ["ProcessEnemyProjectileInstructions"] = "2801B6B17F37304D16488D341FDCD4526625AE8BD4BEE3330290D8099EF16222",
+        ["ReadEnemyInstructionMechanicsWord"] = "D9A4F9CB3B767BF4A16555EE799AAEA8E069CD5FC1221F57718526E04C8CCAC4",
+        ["ReadEnemyProjectileInstructionMechanicsWord"] = "F334DE86B660B79F3AE5D9A073534C75BE4D6550182A30627B79E3703E318BC7",
+        ["ReadEnemyVisualSelector"] = "C868EC05247BA3AFCFE623B8069E961E73C7344F6224149F8922706B56BB6167",
+        ["SetEnemyProjectileVisualOperand"] = "EE891D65133B250AE6404621D0F69587B2B0F4246BBFE0962D66C44C9F71C4D1",
+        ["DrawEnemySpritemap"] = "48A6E01227A86D44E60F98951E91F536A27E8C76ECCCAE5832CDC2D0073FBB75",
+        ["ProcessInstructions"] = "65C805A5A6863AC871B5330FE103A57B1493E68EAB3A8F52A27512115B72D03B",
+        ["ProcessEnemyProjectileInstructions"] = "6169FEBA0A8D8CB8550BCA059295013FBB46EA7EDA37383A2D20224976A92F50",
     };
 
     internal static void Inspect(CSharpCompilation compilation, AuditReport report)
@@ -27,8 +25,7 @@ internal static class EnemyVisualProgramRoutingContracts
         foreach ((string name, string expected) in Methods)
         {
             MethodDeclarationSyntax method = methods.Single(method => method.Identifier.ValueText == name);
-            string tokens = string.Join("\n", method.DescendantTokens().Select(token => token.Text));
-            string actual = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(tokens)));
+            string actual = SourceFingerprint.Of(method);
             if (actual != expected)
                 report.Gap(ResourceDomains.CompiledSelector, name, method.SyntaxTree.FilePath,
                     "Interpreter routing changed; review this audit's source contract. Token SHA256=" + actual);

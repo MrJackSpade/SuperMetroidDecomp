@@ -4,25 +4,25 @@ namespace SuperMetroid.ResourceAudit;
 internal static class RoomRevealClosedContractDefinitions
 {
     private static readonly ReviewedSource XrayCatalog = new(
-        "csharp/src/SuperMetroid.Core/Rooms/XrayRevealVisualCatalog.cs", "8C746D49DC6230D7CFF3394418CE0082EB96A4F7612FC84A82C3024462866F38");
+        "csharp/src/SuperMetroid.Core/Rooms/XrayRevealVisualCatalog.cs", "9582691188679D18CC56B94C6733957F3B60778D6A5CFB4A4EC5DCD4247B6EAD");
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Rooms.XrayRevealVisualCatalog", "xray-command-and-visual-share-one-identity", ["Apply"],
             [XrayCatalog,
-             new("csharp/src/SuperMetroid.Core/Rooms/XrayRevealTable.cs", "BA1BF2A7B4071AE4425FC53944922252C6EC9CFBDC44AC5F2F31D26956CCD4A9"),
-             new("csharp/src/SuperMetroid.Core/Rooms/XrayRevealDefinitions.cs", "2A71F1DA3CF4A49A5C355BD92B3A92A116E9CB088AEB700C3D7DFF037FF4AC29"),
-             new("csharp/src/SuperMetroid.Core/Rooms/XrayRevealCodePointers.cs", "87502E951FBA43CD3FBD17816FF3AB2CEDDB23943B1E9EC92CDB56B25CC23DB9"),
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomLevelWord.cs", "C60A0D88B80F72A103567E9311D776592A330E4567D0934EF8D525B8BDA9CBD1")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/XrayRevealTable.cs", "DAF667ADFD0D2095DC0A6123A1D5D8FF3DF467B7EA566890DAD3BD2591944892"),
+             new("csharp/src/SuperMetroid.Core/Rooms/XrayRevealDefinitions.cs", "8C9A46EDD4EFE6BCE1B5F8F735D17D3C2771A356D3AE0CEA87ABB6B76E05F85A"),
+             new("csharp/src/SuperMetroid.Core/Rooms/XrayRevealCodePointers.cs", "86EC8000705FAFF078C2A9C8264A2ECFE81172DC47C5F6DDF6FCFCD6A0A101FE"),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomLevelWord.cs", "76E66EDE002E9700C0CBC0987C44DA5EC988A3318193A38B7ED389C601D78121")]),
         new("SuperMetroid.Core.Rooms.XrayOverlayVisualCatalog", "xray-complete-items-and-required-room-overlays", ["ItemMetatile", "RoomTiles"],
-            [XrayCatalog, new("csharp/src/SuperMetroid.Core/Rooms/XrayOverlayRomData.cs", "AA2E43C1A69E6A3E643B779D30026FC182F83B07E000BA7253EC0342E3A1D0DD"),
-             new("csharp/src/SuperMetroid.Core/Rooms/XrayRoomOverlaySourceDefinitions.cs", "98E13B5B5BDBB4B9045DE9738C26A9B20C6015B7FB6DCF2A187DEBF195257F30"),
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomStateDefinitions.cs", "62A0435AE18B4C24973F36620FC79500DE554A06F73077794BDD66F3D98DFB53"),
-             new("csharp/src/SuperMetroid.Core/Rooms/CartridgeRoomHeader.cs", "456E784B457DC4B8361279DDA9069B6B039AA160EF819498EF60DF7F410A1D4B")]),
+            [XrayCatalog, new("csharp/src/SuperMetroid.Core/Rooms/XrayOverlayRomData.cs", "07721A2212E9940BAEE87A39FB9173633668385EC5B726714C88A482860ABC90"),
+             new("csharp/src/SuperMetroid.Core/Rooms/XrayRoomOverlaySourceDefinitions.cs", "B270E150681D3043CD0DEDF501522C19286B4C2AD35CABED1C15C5F3EB82478E"),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomStateDefinitions.cs", "93A78AC57BDA8AB714CA6D250C9A3CA7008EF1F254D2047BA4277ACB1A9AEFD6"),
+             new("csharp/src/SuperMetroid.Core/Rooms/CartridgeRoomHeader.cs", "42868C1BEC2CBEAEADDB79C45774FA21152564E70BB5FFD6F4D8A57B39DA53CB")]),
         new("SuperMetroid.Core.Rooms.RoomPlmDynamicCollectibleArtCatalog", "plm-complete-seventeen-item-uploads", ["Resolve"],
-            [new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmDynamicCollectibleArtCatalog.cs", "8A70DAE86ABF723E875335A3F443323D152A593BC66B523E59DA551B10D18E3A"),
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmDynamicCollectibleGraphicsDefinitions.cs", "AACC9D5CC27B974EDD9CC76C0ACB6DECCB4F2DDBBC20B08A7E740827D7D650FF"),
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmDynamicCollectibleGraphicsDefinitions.Generated.cs", "DF3A7FC53C7DDBB57A8CA16FD3BE6E6EE91F057A86A2C4F458D3F036D45AC782"),
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.Collectibles.cs", "5BD9B6917BB21DB972D7A56A6FB8DF4CB5C9F462F1D567EDA99EA4431D369971"),
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmHeaders.cs", "0D9279D0FBF9FF72981B929A9466B45B121BD0A2F418014740D9DF66D9E8E973")]),
+            [new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmDynamicCollectibleArtCatalog.cs", "8255665E14E54C25F8CCB58EB2626032004B80B1C3EA6D849400012DD58D7D15"),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmDynamicCollectibleGraphicsDefinitions.cs", "C0213A2C783A110FDB9E76DF28B5D082E45393F2F3832F89CD2AA68E4D39A391"),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmDynamicCollectibleGraphicsDefinitions.Generated.cs", "564B749407C707DE90156B387B05E92940BEE9A39A41317C043E87F6C2E1A15E"),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.Collectibles.cs", "AA37C4703E54550A713A87315CBA11505195D990994057ED7B8256454A152507"),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmHeaders.cs", "2DE013B89FB74240E47032E5EFBEF83F51A45705195745DB8F82C929FEA9F089")]),
     ];
 }

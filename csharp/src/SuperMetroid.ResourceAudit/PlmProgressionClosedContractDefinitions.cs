@@ -5,48 +5,48 @@ internal static class PlmProgressionClosedContractDefinitions
 {
     private static readonly ReviewedSource SharedDrawShape = new(
         "csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockDrawDefinitions.cs",
-        "B0121BABA88C41ABFFC02877AF97FC02C30C2F06AA4301A19B2BE00F992D835F");
+        "EE5DD1AAFD6BCCA4627D2D11582BCB88782327B9B764DAA7081B5DAD3822D132");
     private static readonly ReviewedSource ElevatubeDefinition = new(
         "csharp/src/SuperMetroid.Core/Rooms/MaridiaElevatubePlmDefinitions.cs",
-        "1B9795F3849300D62D7D7C2E7689DAC1E702754CDB0B1C439C859B289C787DB3");
+        "D036DCF1F294E96033A51FD7E85041855BB00ABCD1E1B5D11A2F62ED4B513C66");
 
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Rooms.RoomPlmTourianAccessVisualCatalog", "plm-tourian-access-complete-draws", ["GetWord"],
             [SharedDrawShape,
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmTourianAccessVisualCatalog.cs", "64978941DFB8D36E35728C38E59FFB465100269615AA63848FDF371E5C306535"),
-             new("csharp/src/SuperMetroid.Core/Rooms/TourianAccessPlmDrawDefinitions.cs", "D028AAE6CF0E45642BD9AFB3F0FDF3C78EEBF54DAC77C3DCD589826F518B5616")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmTourianAccessVisualCatalog.cs", "5E7B73B49ADFC3D356D24F18FC33B0264720CA362C3BCD6AB8BEFF872AFD4B94"),
+             new("csharp/src/SuperMetroid.Core/Rooms/TourianAccessPlmDrawDefinitions.cs", "76AF3C76CC57D6208C7BD4C2FDFB724933F2CF8FADC78E4344C0703183EF22C2")]),
         new("SuperMetroid.Core.Rooms.RoomPlmSpeedBoosterVisualCatalog", "plm-speed-booster-complete-reveal", ["GetWord"],
             [SharedDrawShape,
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmSpeedBoosterVisualCatalog.cs", "19CC90AFC412B2E974227C388C8F3E05D22A83559152F5C3AD7B6C17E1B45589"),
-             new("csharp/src/SuperMetroid.Core/Rooms/SpeedBoosterBlockPlmDrawDefinitions.cs", "3D1D8EDF0CBA5946331129B701AEA4B780CE874D405B091F4E63C4C0C62725EF"),
-             new("csharp/src/SuperMetroid.Core/Rooms/SpeedBoosterBlockPlmProgramDefinitions.cs", "63698BB75FD940A39A253930C8E206A18AB4E8392B767173AA048832C7C14F5B")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmSpeedBoosterVisualCatalog.cs", "ED6B308007D200997CA60EC4873A12CF2D53416EE6DF54729DC94078D4E0EA58"),
+             new("csharp/src/SuperMetroid.Core/Rooms/SpeedBoosterBlockPlmDrawDefinitions.cs", "75F04CD495A7511038602B09675F529348D626A744CB6905BA38E37050BE56AD"),
+             new("csharp/src/SuperMetroid.Core/Rooms/SpeedBoosterBlockPlmProgramDefinitions.cs", "96302C27E6286E087C15C867848E85C86F2E85CDAE9D1EF79F2C14691DD3FB08")]),
         new("SuperMetroid.Core.Rooms.RoomPlmMaridiaElevatubeVisualCatalog", "plm-maridia-elevatube-complete-draw", ["GetWord"],
             [SharedDrawShape, ElevatubeDefinition,
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmMaridiaElevatubeVisualCatalog.cs", "33FF2B04E1DEE8F8B3871BE65B6EE3CD5DCF516B6DCABEFB1F6F7C0CC8B7FA98")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmMaridiaElevatubeVisualCatalog.cs", "E44B8D6B1591FFCE3A7FCB9E1535A4A1BB59063B8894F04256D0B8222EBF295A")]),
         new("SuperMetroid.Core.Rooms.RoomPlmSporeSpawnCeilingVisualCatalog", "plm-spore-ceiling-complete-draws", ["GetWord"],
             [SharedDrawShape,
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmSporeSpawnCeilingVisualCatalog.cs", "A1FF9A28A5A28357576BCA9CB6BE6FC3C84885B6077FCE30FFCCEE72A68B9B86"),
-             new("csharp/src/SuperMetroid.Core/Rooms/SporeSpawnCeilingPlmDrawDefinitions.cs", "5CC19E2F78F4FE452967897B8F73159DF48B655C4B8A0DAC09BAC7FD61936B27")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmSporeSpawnCeilingVisualCatalog.cs", "85312B4F68D04BC84ED0FDB3805AC6F9F2AA44E79DE1B099D278671C8CAA4460"),
+             new("csharp/src/SuperMetroid.Core/Rooms/SporeSpawnCeilingPlmDrawDefinitions.cs", "8BD887000A3421C91233FAC3B50ACC60F31B13C0BE7DDF098D16251C0AB24FFE")]),
         new("SuperMetroid.Core.Rooms.RoomPlmSamusEaterVisualCatalog", "plm-samus-eater-complete-draws", ["GetWord"],
             [SharedDrawShape,
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmSamusEaterVisualCatalog.cs", "98196B7BDCAD1DA5BD03B9AEECE0FDD28A2C9B6696BF8DD88F0C7D94E1A95349"),
-             new("csharp/src/SuperMetroid.Core/Rooms/SamusEaterPlmDrawDefinitions.cs", "4013297F2748429D0AD81C9CC0234F21CC70BB859B195E6EBAA02203825B9BDA")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmSamusEaterVisualCatalog.cs", "039CE83E19C7411BF7A157D40D1AC0E1DE8B0AE8BB89DCA62EA03297BA5E7DD5"),
+             new("csharp/src/SuperMetroid.Core/Rooms/SamusEaterPlmDrawDefinitions.cs", "ECE8D1600FED63C435BC0D875E191460A83B860AAC0DDB95B3D3F0ABC63EDC80")]),
         new("SuperMetroid.Core.Rooms.RoomPlmBotwoonWallVisualCatalog", "plm-botwoon-wall-complete-clear", ["GetWord"],
             [SharedDrawShape,
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmBotwoonWallVisualCatalog.cs", "C469328CB1862D8BC6582A3A55456A20B36C3609300AA19DD736940CF2C6C1AD"),
-             new("csharp/src/SuperMetroid.Core/Rooms/BotwoonWallPlmDrawDefinitions.cs", "B09D9072F3F9BDAA1D1B9D3D6C5EDF543550645778D208A9D5D8CD82D55C375C")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmBotwoonWallVisualCatalog.cs", "C64CCC3DC7A673F359377405A35255A54571BE8B7D536628FE1EE65BCAFCF4C3"),
+             new("csharp/src/SuperMetroid.Core/Rooms/BotwoonWallPlmDrawDefinitions.cs", "1D586E3A53B3791E4BFD7ABC27754F0E0862DD7FA9925A71A65A140E8D35BCB0")]),
         new("SuperMetroid.Core.Rooms.RoomPlmKraidVisualCatalog", "plm-kraid-room-complete-draws", ["GetWord"],
             [SharedDrawShape, ElevatubeDefinition,
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmKraidVisualCatalog.cs", "CA5BC3D390FBD40A5A0905E14534555A6F5B3248B0C08095A80BE5CC60E3984E"),
-             new("csharp/src/SuperMetroid.Core/Rooms/KraidRoomPlmDrawDefinitions.cs", "41CC27F3F7E0233B6192469FE187D8C4DA1B53C15E9CD438FB348CE5DE1B5E74")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmKraidVisualCatalog.cs", "8ACED9E97E493AEE1293114FDCB655AF77F8B153FB2ED007ADFE40CC4F2E1748"),
+             new("csharp/src/SuperMetroid.Core/Rooms/KraidRoomPlmDrawDefinitions.cs", "A3703071F347B6B8E3644329C9B4A5914060295D78BFAEBDF2FDBA00E06A0F96")]),
         new("SuperMetroid.Core.Rooms.RoomPlmCrocomireVisualCatalog", "plm-crocomire-arena-complete-draws", ["GetWord"],
             [SharedDrawShape,
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmCrocomireVisualCatalog.cs", "0E11FA9B3685132FE15E32D9AC28C74D83E1B1859C856BB618E8E9BECBFC7FB1"),
-             new("csharp/src/SuperMetroid.Core/Rooms/CrocomireArenaPlmDrawDefinitions.cs", "11F27AD767900E6AD184512E22E14CFF73ABE33D4BB7B68097F9D91D5EC65A46")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmCrocomireVisualCatalog.cs", "D188D3BA42671E97D48D51CFFD2CB4B8C44739EEA7D4F3C9C2EA690E1A5222D2"),
+             new("csharp/src/SuperMetroid.Core/Rooms/CrocomireArenaPlmDrawDefinitions.cs", "4101CCF5A2D77FA406C29C0A769D31F4383AB465D84E659B9BBF88A2D9D4D80D")]),
         new("SuperMetroid.Core.Rooms.RoomPlmMotherBrainFakeDeathVisualCatalog", "plm-mother-brain-fake-death-complete-draws", ["GetWord"],
             [SharedDrawShape,
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmMotherBrainFakeDeathVisualCatalog.cs", "B4039BE2661E865E7E6628BDBE2830DF207754866CD1FE2AE14AA490567D4490"),
-             new("csharp/src/SuperMetroid.Core/Rooms/MotherBrainFakeDeathPlmDrawDefinitions.cs", "B1F9F4958F2E812E1A265EAD74ACF191794C2174B2809A4CD21E56B34665A4E4")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmMotherBrainFakeDeathVisualCatalog.cs", "DB42318205C9759EE17ED771CCE62752ED4ECF810A9D785B8A5BD07616478CB3"),
+             new("csharp/src/SuperMetroid.Core/Rooms/MotherBrainFakeDeathPlmDrawDefinitions.cs", "BCD58AA65E6114169BB59C8BB6D4298A89F11DD29DF52D30C55B11E29D5A2A9E")]),
     ];
 }

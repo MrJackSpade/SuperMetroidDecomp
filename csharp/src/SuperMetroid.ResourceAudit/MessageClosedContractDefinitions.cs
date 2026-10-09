@@ -5,10 +5,10 @@ internal static class MessageClosedContractDefinitions
 {
     private static readonly ReviewedSource[] SharedGlyphSources =
     [
-        new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageTitlePresentation.cs", "5EABBA7475F00DDFAB0931844CFF0ABDA0C3BC8F737410D4B51465ED7CD4818E"),
-        new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageTitleDefinitions.cs", "175BE431D6D7C958B3A3A5EADBD3B9B407059B31BA5349C3DCB1D5826F306BF7"),
-        new("csharp/src/SuperMetroid.Core/Game/GameplayMessageRomData.cs", "67BA1EB8F936B86DCE13C4ED1D9767D500B50BB73DA6B0264FC25B34A0FD916D"),
-        new("csharp/src/SuperMetroid.Core/Game/GameplayMessageIds.cs", "400AF5615A00F434B6200EADCA93DF013A3F93B50B740EF48DF4E20603322CD8"),
+        new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageTitlePresentation.cs", "E6BF6B8328812976B42527B947FE5B454774B6B67E6806B05B4FF1D605BB9DA8"),
+        new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageTitleDefinitions.cs", "1A30B19CFB20D2C97C92B53726C280B4EC4F224D2E4A0012EFBC349776854361"),
+        new("csharp/src/SuperMetroid.Core/Game/GameplayMessageRomData.cs", "A5A3270D705668179C51079EC266C3D02964298241FA6425C544115057E33CAA"),
+        new("csharp/src/SuperMetroid.Core/Game/GameplayMessageIds.cs", "76347AB16D00426201E22A6C8B2918D272F5407B559A06D6702CDBFE6A2E0895"),
     ];
 
     internal static readonly ClosedPresentationContract[] All =
@@ -18,12 +18,12 @@ internal static class MessageClosedContractDefinitions
         new("SuperMetroid.Core.Assets.GameplayMessagePanelPresentation", "message-panels-v1-complete-owned-id-set",
             ["Contains", "Build"],
             [.. SharedGlyphSources,
-             new("csharp/src/SuperMetroid.Core/Assets/GameplayMessagePanelPresentation.cs", "795D43EFE9820AA175301AAA602057A9A58DFA26B2130A694ED7ACD0805A6C97"),
-             new("csharp/src/SuperMetroid.Core/Assets/GameplayMessagePanelDefinitions.cs", "3E857C6847EE06012B18138C2AA1074E68E04124D1AFC282930F94E44124D808")]),
+             new("csharp/src/SuperMetroid.Core/Assets/GameplayMessagePanelPresentation.cs", "14F92D2FB8A7E1AB33B244AE35F11302D2C329563E650D1C04D2BF2BC82A4A69"),
+             new("csharp/src/SuperMetroid.Core/Assets/GameplayMessagePanelDefinitions.cs", "5A94F91A65800F43B327756770A1F7690081D362A63B51873613F83553FD096B")]),
         new("SuperMetroid.Core.Assets.GameplayMessageNoticePresentation", "message-notices-v1-complete-owned-id-set",
             ["Contains", "Build", "ApplySelection"],
             [.. SharedGlyphSources,
-             new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticePresentation.cs", "903F8CCAAE5D0264CE35DE30DCEBB4C4D0A9BF33B335784BB93D0D14FC185E71"),
-             new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticeDefinitions.cs", "EDA3F1979E4A230DBAEAA4B333729C7B3D640C4A007940B8BA4282779C1CE44C")]),
+             new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticePresentation.cs", "9A8E0A349EC9EA87322034B1E34D6CB2ACB2C5130B5B16A805918C98B5D3A8E3"),
+             new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticeDefinitions.cs", "48446B5D1E427F244C8A9991BC1A870244CAFDEAB75F6D45C010933CF591CC8B")]),
     ];
 }

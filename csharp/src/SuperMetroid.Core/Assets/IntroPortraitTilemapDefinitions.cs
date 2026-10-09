@@ -13,8 +13,11 @@ internal static class IntroPortraitTilemapDefinitions
     private const int Top = 5;
     /// <summary>$97:88CC: chosen blank tile $3FE and palette three, no priority or reflections; RGB paint and tile pixels are separate.</summary>
     private const ushort Blank = 0x0ffe;
+    /// <summary>$97:88CC: palette-three attributes applied to occupied portrait cells without priority or flip bits.</summary>
     private const ushort Style = 3 << 10;
 
+    /// <summary>Builds the BG2 page tilemap for the selected portrait silhouette and its surrounding fragments.</summary>
+    /// <returns>Little-endian tilemap words for the complete background page.</returns>
     internal static byte[] Compile()
     {
         const int columns = IntroCinematicArtworkFormat.TileColumns;

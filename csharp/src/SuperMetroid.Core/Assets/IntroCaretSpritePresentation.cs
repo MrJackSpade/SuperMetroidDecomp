@@ -6,11 +6,14 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable visible OAM composition of the intro caret, independent of its blink script.</summary>
 public sealed class IntroCaretSpritePresentation
 {
+    /// <summary>Compiled visible compositions keyed by their native spritemap pointers.</summary>
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
     public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(IntroCaretSpritePresentation), frames);
 
+    /// <summary>Creates a presentation from the already validated native-frame lookup.</summary>
+    /// <param name="frames">Compositions indexed by the native pointer used by the cinematic draw script.</param>
     private IntroCaretSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 

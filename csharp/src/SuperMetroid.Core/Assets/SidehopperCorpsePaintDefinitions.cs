@@ -24,6 +24,10 @@ internal static class SidehopperCorpsePaintDefinitions
     /// <summary>$A9:F8B4, ink7 is the selected floor two-thirds dark-body outline/mouth shade.</summary>
     private const int OutlineNumerator = 2, OutlineDenominator = 3;
 
+    /// <summary>Resolves one of the sixteen selected corpse-palette inks to its packed SNES color word.</summary>
+    /// <param name="color">Zero-based ink index in the standalone corpse paint; indices 8 through 15 interpolate the body shades.</param>
+    /// <returns>The BGR555 word for the requested ink.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The ink index is outside the palette's 0-through-15 range.</exception>
     internal static ushort Color(int color) => color switch
     {
         0 => TransparentSlot,
@@ -38,6 +42,12 @@ internal static class SidehopperCorpsePaintDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(color)),
     };
 
+    /// <summary>Applies one rounded integer ratio independently to each five-bit BGR component.</summary>
+    /// <param name="color">Packed BGR555 source color.</param>
+    /// <param name="numerator">Multiplier applied to each component before division.</param>
+    /// <param name="denominator">Divisor used to produce the scaled component.</param>
+    /// <param name="rounding">Nonnegative adjustment added before division to select the desired integer rounding.</param>
+    /// <returns>The scaled BGR555 color with each component kept in its original channel position.</returns>
     private static ushort Scale(ushort color, int numerator, int denominator, int rounding)
     {
         int result = 0;

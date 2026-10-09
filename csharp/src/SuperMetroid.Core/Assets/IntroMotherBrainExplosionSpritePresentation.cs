@@ -6,11 +6,14 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable explosion OAM art, independent of native placement and timing.</summary>
 public sealed class IntroMotherBrainExplosionSpritePresentation
 {
+    /// <summary>Compiled OAM compositions indexed by their native bank-$8C spritemap pointers.</summary>
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
     public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(IntroMotherBrainExplosionSpritePresentation), frames);
 
+    /// <summary>Creates the installed presentation lookup from the decoded and validated explosion frames.</summary>
+    /// <param name="frames">Compositions keyed by the native pointers assigned to the twelve small and large frames.</param>
     private IntroMotherBrainExplosionSpritePresentation(
         Dictionary<ushort, SpriteComposition> frames) => this.frames = frames;
 

@@ -10,8 +10,11 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class CeresRevealActorLayout
 {
+    /// <summary>Non-stock ordered placements, or <see langword="null"/> when every actor uses its compiled native position.</summary>
     private readonly CeresRevealActorPlacement[]? placements;
 
+    /// <summary>Stores the validated actor placements, using the compiled defaults when the document matches stock exactly.</summary>
+    /// <param name="placements">Six validated placements in native reveal spawn order.</param>
     private CeresRevealActorLayout(CeresRevealActorPlacement[] placements)
     {
         bool stock = true;

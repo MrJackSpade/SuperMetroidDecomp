@@ -10,6 +10,11 @@ internal static class RipperVisualDefinitions
     /// <summary>$A2:E527, the three left-facing ordinary Ripper two-part compositions, followed by right-facing ones.</summary>
     private const ushort OrdinaryLeftFrame = 0xe527;
 
+    /// <summary>Resolves a compiled Ripper-family presentation operand to its bank-local OAM frame pointer.</summary>
+    /// <param name="enemyDefinition">GRipper, Ripper II, or ordinary Ripper definition whose frame layout is selected.</param>
+    /// <param name="address">Instruction address of the presentation word.</param>
+    /// <returns>The corresponding spritemap root in bank $A2.</returns>
+    /// <exception cref="InvalidDataException">The enemy definition is unsupported or the address is not a compiled visual operand.</exception>
     internal static ushort FrameAt(ushort enemyDefinition, ushort address)
     {
         bool ordinary = enemyDefinition switch
@@ -41,6 +46,9 @@ internal static class RipperVisualDefinitions
             drawing * fullCompositionBytes - (drawing / 2) * (fullCompositionBytes - shortCompositionBytes));
     }
 
+    /// <summary>Determines whether a relative instruction offset selects a timed-frame presentation word.</summary>
+    /// <param name="offset">Byte offset from the start of a direction's movement program.</param>
+    /// <returns><see langword="true"/> for one of the four frame operands in either direction's cycle.</returns>
     private static bool IsVisualOffset(int offset) =>
         offset >= 0 && offset <= 32 && offset % 20 <= 12 && (offset % 20 & 3) == 0;
 }

@@ -12,10 +12,14 @@ internal static class KraidLintVisualDefinitions
     /// <summary>Initial and post-growth ordinary OAM frames at $A7:A5DF and $A7:8C6C.</summary>
     internal const int FrameCount = 2;
 
+    /// <summary>Lists the native addresses of the two spritemap selectors used by Kraid's initial and post-growth lint poses.</summary>
+    /// <returns>The ordered presentation operand addresses from the compiled instruction program.</returns>
     internal static ushort[] Operands() => Enumerable.Range(0,
         KraidLintInstructionProgramDefinitions.PresentationWordCount)
         .Select(KraidLintInstructionProgramDefinitions.PresentationWordAddress).ToArray();
 
+    /// <summary>Builds the two ordinary OAM compositions selected for Kraid's belly-lint poses.</summary>
+    /// <returns>The ordered initial and post-growth spritemap definitions resolved from bank $A7.</returns>
     internal static EnemySpritemapDefinition[] Frames() =>
         CompiledEnemyCompositionDefinitions.Frames(Bank, Operands(), FrameCount, "kraid_lint");
 }

@@ -6,11 +6,14 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable intro Rinka OAM art, without movement or hit behavior.</summary>
 public sealed class IntroRinkaSpritePresentation : IIntroCinematicSpritePresentation
 {
+    /// <summary>Compiled intro Rinka compositions keyed by their native bank-$8C frame identities.</summary>
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
     public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(IntroRinkaSpritePresentation), frames);
 
+    /// <summary>Creates a presentation from the frame compositions validated and compiled by <see cref="Load"/>.</summary>
+    /// <param name="frames">Compiled compositions indexed by each intro Rinka frame's native bank-$8C pointer.</param>
     private IntroRinkaSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 

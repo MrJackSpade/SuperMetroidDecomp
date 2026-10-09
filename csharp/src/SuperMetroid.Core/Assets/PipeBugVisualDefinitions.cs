@@ -16,6 +16,11 @@ internal static class PipeBugVisualDefinitions
     /// <summary>Each native Pipe Bug OAM composition has a two-byte count and one five-byte part.</summary>
     private const int FrameBytes = 2 + 5;
 
+    /// <summary>Maps a Pipe Bug visual-instruction operand to the spritemap selected by its enemy variant and flight phase.</summary>
+    /// <param name="enemyDefinition">Native enemy-definition identifier selecting the Pipe Bug program layout.</param>
+    /// <param name="address">Bank-$B3 address of the instruction operand that selects a visual frame.</param>
+    /// <returns>The native spritemap pointer for the selected OAM composition.</returns>
+    /// <exception cref="InvalidDataException">The enemy definition is unsupported or the address is not a compiled visual operand.</exception>
     internal static ushort FrameAt(ushort enemyDefinition, ushort address)
     {
         switch (enemyDefinition)
@@ -71,6 +76,10 @@ internal static class PipeBugVisualDefinitions
         return (ushort)(frames + FrameBytes * (group * 3 + Math.Min(record, 4 - record)));
     }
 
+    /// <summary>Rejects an address that does not identify a compiled Pipe Bug visual operand.</summary>
+    /// <param name="address">The unsupported bank-$B3 operand address.</param>
+    /// <returns>This method does not return.</returns>
+    /// <exception cref="InvalidDataException">The requested visual operand is not part of a compiled Pipe Bug program.</exception>
     private static ushort Invalid(ushort address) => throw new InvalidDataException(
         $"Pipe Bug visual operand $B3:{address:X4} is not compiled.");
 }

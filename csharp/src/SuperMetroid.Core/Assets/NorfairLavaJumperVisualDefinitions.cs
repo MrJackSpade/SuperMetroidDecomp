@@ -11,8 +11,12 @@ internal static class NorfairLavaJumperVisualDefinitions
 {
     /// <summary>Native Norfair lava-jumper spritemap bank $A2.</summary>
     internal const byte Bank = 0xa2;
+    /// <summary>Expected number of distinct OAM roots selected across the parent and follower programs.</summary>
     internal const int FrameCount = 11;
 
+    /// <summary>Builds the ordered distinct spritemap definitions selected by the compiled presentation operands.</summary>
+    /// <returns>All eleven selected frames, each named from its bank-local pointer.</returns>
+    /// <exception cref="InvalidDataException">The compiled operands do not resolve to exactly eleven distinct frames.</exception>
     internal static EnemySpritemapDefinition[] Frames()
     {
         var seen = new HashSet<ushort>();

@@ -11,6 +11,7 @@ internal static class YardVisualDefinitions
 {
     /// <summary>Yard's instruction and spritemap bank, $A3.</summary>
     internal const byte Bank = 0xa3;
+    /// <summary>Number of distinct OAM spritemap frames selected across Yard's 112 visual operands.</summary>
     internal const int FrameCount = 104;
 
     /// <summary>Maps a native bank-$A3 presentation operand to its containing named crawling/turn/hiding/airborne program; boundaries are the existing instruction entry identities.</summary>
@@ -57,6 +58,11 @@ internal static class YardVisualDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(operand)),
     };
 
+    /// <summary>
+    /// Resolves the visual selectors in Yard's native instruction programs, assigning pose-group
+    /// names and retaining one definition for each distinct selected spritemap pointer.
+    /// </summary>
+    /// <returns>The 104 unique bank-$A3 frame definitions selected by the 112 presentation operands.</returns>
     internal static EnemySpritemapDefinition[] Frames()
     {
         var frames = new List<EnemySpritemapDefinition>(FrameCount);

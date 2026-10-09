@@ -13,6 +13,7 @@ internal static class MamaTurtleVisualDefinitions
     /// <summary>Twenty-nine selected Spritemap_BabyTurtle/MamaTurtle records at $A2:94D9..983F.</summary>
     internal const int FrameCount = 29;
 
+    /// <summary>Builds one spritemap definition for each distinct frame selected by the compiled Mama/Baby Turtle programs.</summary>
     internal static EnemySpritemapDefinition[] Frames()
     {
         var frames = new List<EnemySpritemapDefinition>(FrameCount);
@@ -31,6 +32,10 @@ internal static class MamaTurtleVisualDefinitions
         return [.. frames];
     }
 
+    /// <summary>Resolves a compiled Mama/Baby Turtle presentation operand to its bank-$A2 spritemap pointer.</summary>
+    /// <param name="operandAddress">The instruction operand address within one of the compiled presentation lists.</param>
+    /// <returns>The selected spritemap pointer.</returns>
+    /// <exception cref="InvalidDataException">The address is not a compiled visual operand.</exception>
     internal static ushort FrameAt(ushort operandAddress)
     {
         for (int index = 0; index < MamaTurtleInstructionProgramDefinitions.PresentationWordCount; index++)

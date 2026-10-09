@@ -9,6 +9,11 @@ internal static class CrateriaLightningColorDefinitions
     internal static CrateriaLightningPaletteFxProgramDefinition SurfaceProgram =>
         CrateriaLightningPaletteFxProgramMechanicsDefinitions.All[0];
 
+    /// <summary>Maps an even color-data address in the surface-lightning table to its record and color slot.</summary>
+    /// <param name="pointer">Address to locate in the surface-lightning palette data.</param>
+    /// <param name="frame">Receives the zero-based palette-record index when the address is owned by this table; otherwise receives zero.</param>
+    /// <param name="color">Receives the zero-based color index within that record when the address is owned by this table; otherwise receives zero.</param>
+    /// <returns><see langword="true"/> when <paramref name="pointer"/> identifies an aligned color word in the surface-lightning table.</returns>
     internal static bool TryCoordinates(ushort pointer, out int frame, out int color)
     {
         var program = SurfaceProgram;
@@ -43,6 +48,11 @@ internal static class CrateriaLightningColorDefinitions
     internal static CrateriaLightningPaletteFxProgramDefinition DarkProgram =>
         CrateriaLightningPaletteFxProgramMechanicsDefinitions.All[1];
 
+    /// <summary>Maps an even color-data address in the dark-lightning table to its record and color slot.</summary>
+    /// <param name="pointer">Address to locate in the dark-lightning palette data.</param>
+    /// <param name="frame">Receives the zero-based palette-record index when the address is owned by this table; otherwise receives zero.</param>
+    /// <param name="color">Receives the zero-based color index within that record when the address is owned by this table; otherwise receives zero.</param>
+    /// <returns><see langword="true"/> when <paramref name="pointer"/> identifies an aligned color word in the dark-lightning table.</returns>
     internal static bool TryDarkCoordinates(ushort pointer, out int frame, out int color)
     {
         var program = DarkProgram;

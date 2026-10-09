@@ -8,6 +8,8 @@ internal static class IntroFontGlyphDefinitions
     /// <summary>$95:D089 tile $29 is the solid ink-two blank copied to subtitle staging by $8B:A872-A8BB.</summary>
     private const int SubtitleBlank = 0x29;
 
+    /// <summary>Packs the authored glyph pixels into the atlas's SNES 2bpp tile layout.</summary>
+    /// <returns>Transfer bytes containing every small and tall intro-font tile.</returns>
     internal static byte[] Compile()
     {
         var output = new byte[IntroFontAtlasFormat.ByteCount];
@@ -27,6 +29,11 @@ internal static class IntroFontGlyphDefinitions
         return output;
     }
 
+    /// <summary>Resolves one glyph-relative pixel, including its ink, contour, and background palette index.</summary>
+    /// <param name="glyph">Atlas glyph identity whose authored stroke and contour rules are sampled.</param>
+    /// <param name="x">Horizontal pixel coordinate within the eight-pixel glyph width.</param>
+    /// <param name="y">Vertical pixel coordinate within the glyph's small or tall row range.</param>
+    /// <returns>The two-bit palette index for the requested pixel.</returns>
     private static int Pixel(int glyph, int x, int y)
     {
         if (glyph == Period + 2) return x == 0 ? 0 : Pixel(Period, x - 1, y);

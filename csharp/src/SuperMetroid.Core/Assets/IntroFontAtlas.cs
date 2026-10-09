@@ -3,8 +3,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable 2-bpp font used by the English opening narration.</summary>
 public sealed class IntroFontAtlas
 {
+    /// <summary>Holds noncanonical encoded bytes; null selects the compiled canonical glyph definition.</summary>
     private readonly byte[]? suppliedTransfer;
 
+    /// <summary>Stores an edited transfer only when its bytes differ from the canonical opening-font encoding.</summary>
+    /// <param name="transfer">The SNES two-bit planar bytes produced from the indexed glyph atlas.</param>
     private IntroFontAtlas(byte[] transfer) => suppliedTransfer =
         transfer.AsSpan().SequenceEqual(IntroFontGlyphDefinitions.Compile()) ? null : transfer;
 

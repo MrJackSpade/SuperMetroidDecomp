@@ -24,6 +24,10 @@ internal static class CrocomireSkeletonVisualDefinitions
     private const ushort SingleComponentStart = ThreeComponentCollapse + 2 + 8 * 3;
 
 
+    /// <summary>Tests whether a bank and pointer identify one of the compiled Crocomire skeleton OAM roots.</summary>
+    /// <param name="bank">Bank byte that must match the skeleton's native visual bank.</param>
+    /// <param name="pointer">Candidate extended-spritemap root pointer.</param>
+    /// <returns><see langword="true"/> when the pointer is among the selected skeleton frames in the matching bank.</returns>
     internal static bool IsFrame(byte bank, ushort pointer)
     {
         if (bank != Bank) return false;
@@ -50,6 +54,10 @@ internal static class CrocomireSkeletonVisualDefinitions
         };
     }
 
+    /// <summary>Builds the extended-frame definition for a skeleton root in native sequence order.</summary>
+    /// <param name="index">Zero-based index of one of the 33 selected corpse and collapse poses.</param>
+    /// <returns>The bank, native OAM root pointer, and stable asset name for that pose.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the compiled skeleton frame sequence.</exception>
     internal static EnemyExtendedFrameDefinition Frame(int index)
     {
         ushort pointer = FramePointer(index);

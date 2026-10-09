@@ -5,6 +5,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Bounded copy/clear row selection from $81:96C2, $81:9813 and $81:9B64.</summary>
 internal static class FileSelectDataNavigation
 {
+    /// <summary>Mask containing one occupancy bit for each of the three save slots.</summary>
     private const int AllSlots = (1 << FileSelectLayout.SaveSlotCount) - 1;
 
     /// <summary>Moves among occupied save slots and Exit, without wrapping.</summary>
@@ -33,6 +34,12 @@ internal static class FileSelectDataNavigation
         return Move(selected, AllSlots & ~(1 << sourceSlot), pressed);
     }
 
+    /// <summary>Moves one selectable row in the pressed direction, stopping at the first enabled row or the menu boundary.</summary>
+    /// <param name="selected">Currently selected save-slot row or Exit row.</param>
+    /// <param name="enabledSlots">Bit mask of selectable save-slot rows; Exit remains selectable independently.</param>
+    /// <param name="pressed">Input buttons determining direction, with Up taking priority over Down.</param>
+    /// <returns>The next selectable row, or <paramref name="selected"/> when input is idle or movement is blocked.</returns>
+    /// <exception cref="InvalidDataException">The current row is outside the data-selection menu or is disabled.</exception>
     private static int Move(int selected, int enabledSlots, SnesButton pressed)
     {
         const int exit = FileSelectLayout.DataSelectionCount - 1;

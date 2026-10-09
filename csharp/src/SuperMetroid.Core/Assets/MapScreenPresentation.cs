@@ -7,7 +7,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable compiled map-screen layers authored as named JSON tile grids.</summary>
 public sealed class MapScreenPresentation
 {
+    /// <summary>Compiled little-endian tilemap pages indexed by their canonical map-screen identifiers.</summary>
     private readonly Dictionary<string, byte[]> pages;
+
+    /// <summary>Creates a presentation from the validated byte pages produced by <see cref="Load"/>.</summary>
+    /// <param name="pages">Compiled 32-by-32 tilemap bytes keyed by page identifier.</param>
     private MapScreenPresentation(Dictionary<string, byte[]> pages) => this.pages = pages;
     /// <summary>Copies the named, compiled 32-by-32 tilemap page to the requested VRAM byte address.</summary>
     public void LoadTo(SnesVram vram, int destinationByteAddress, string page) => vram.LoadBytes(destinationByteAddress, pages[page]);

@@ -6,11 +6,14 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable intro Mother Brain OAM art, separate from AI and instruction timing.</summary>
 public sealed class IntroMotherBrainSpritePresentation
 {
+    /// <summary>Installed visual compositions indexed by their native bank-$8C frame pointers.</summary>
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
     public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(IntroMotherBrainSpritePresentation), frames);
 
+    /// <summary>Creates the presentation from validated, independently owned frame compositions.</summary>
+    /// <param name="frames">Compiled Mother Brain compositions keyed by their original bank-$8C frame identities.</param>
     private IntroMotherBrainSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 

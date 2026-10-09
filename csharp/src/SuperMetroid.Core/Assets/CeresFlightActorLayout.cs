@@ -9,8 +9,11 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class CeresFlightActorLayout
 {
+    /// <summary>Nondefault placements in native actor order; <see langword="null"/> represents the compiled stock layout.</summary>
     private readonly CeresFlightActorPlacement[]? placements;
 
+    /// <summary>Stores custom placements only when they differ from every actor's compiled starting position.</summary>
+    /// <param name="placements">Validated placements for all rear-view actors in their fixed native spawn order.</param>
     private CeresFlightActorLayout(CeresFlightActorPlacement[] placements)
     {
         bool stock = true;

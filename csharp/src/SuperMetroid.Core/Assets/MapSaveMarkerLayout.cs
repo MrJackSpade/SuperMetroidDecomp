@@ -14,7 +14,11 @@ namespace SuperMetroid.Core.Assets;
 /// </remarks>
 public sealed class MapSaveMarkerLayout
 {
+    /// <summary>Stores only marker coordinates that differ from compiled station projections; a null axis keeps its compiled value.</summary>
     private readonly Dictionary<string, (int? X, int? Y)> coordinateOverrides;
+
+    /// <summary>Creates a layout from the sparse coordinate overrides validated by <see cref="Load"/>.</summary>
+    /// <param name="coordinateOverrides">Marker-keyed X/Y overrides, with null axes indicating that the compiled coordinate should be used.</param>
     private MapSaveMarkerLayout(Dictionary<string, (int? X, int? Y)> coordinateOverrides) =>
         this.coordinateOverrides = coordinateOverrides;
 

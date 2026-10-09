@@ -5,7 +5,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Twelve trail tiles in one indexed sheet, compiled into two noncontiguous VRAM transfers.</summary>
 public sealed class ProjectileTrailAtlas : IVramAssetProvider
 {
+    /// <summary>Compiled planar bytes for the twelve authored trail tiles, stored without the unrelated VRAM gap between their destinations.</summary>
     private readonly byte[] tiles;
+
+    /// <summary>Wraps the twelve encoded trail tiles used by the two noncontiguous VRAM ranges.</summary>
+    /// <param name="tiles">Planar bytes ordered as eight ice/wave tiles followed by four missile tiles.</param>
     private ProjectileTrailAtlas(byte[] tiles) => this.tiles = tiles;
     /// <summary>First eight 4-bpp characters, $0100 bytes corresponding to $9A:D900 and standard OBJ tiles $38..$3F, for ice/wave trail frames.</summary>
     public ReadOnlyMemory<byte> IceAndWave => tiles.AsMemory(0, ProjectileTrailAtlasDefinitions.IceWaveByteCount);

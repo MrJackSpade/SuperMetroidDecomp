@@ -6,7 +6,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Boss, elevator and gunship drawing anchors, independent of progression and destination rules.</summary>
 public sealed class MapLandmarkLayout
 {
+    /// <summary>Stores validated area-map anchors by their ordinal, case-sensitive landmark identity.</summary>
     private readonly Dictionary<string, MapLabelPoint> points;
+
+    /// <summary>Creates the lookup used to resolve configured landmark drawing anchors.</summary>
+    /// <param name="points">Complete validated identity-to-coordinate mapping.</param>
     private MapLandmarkLayout(Dictionary<string, MapLabelPoint> points) => this.points = points;
     /// <summary>Gets a boss, elevator-label, or gunship drawing anchor in area-map pixels before the renderer subtracts map scrolling; does not determine whether the landmark is visible.</summary>
     /// <param name="id">Case-sensitive stable identity published by <see cref="MapLandmarkDefinitions.AllIds"/>.</param>

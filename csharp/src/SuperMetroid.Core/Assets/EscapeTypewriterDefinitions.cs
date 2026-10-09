@@ -45,6 +45,10 @@ public static class EscapeTypewriterDefinitions
     /// <summary>$A6:C4A2, TypewriterText_ZebesEscapeTimer: BG2 tilemap VRAM identity.</summary>
     private const int ZebesTilemapBase = 0x4800;
 
+    /// <summary>Returns the number of authored warning lines in the selected Ceres or Zebes typewriter program.</summary>
+    /// <param name="id">Identity of the escape-warning program.</param>
+    /// <returns>Three lines for Ceres or two lines for Zebes.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The program identity is not supported.</exception>
     internal static int LineCount(EscapeTypewriterProgramId id) => id switch
     {
         EscapeTypewriterProgramId.Ceres => CeresLineCount,
@@ -52,6 +56,11 @@ public static class EscapeTypewriterDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(id)),
     };
 
+    /// <summary>Returns one authored warning line together with its destination tilemap cell.</summary>
+    /// <param name="id">Identity selecting the Ceres or Zebes wording and tilemap.</param>
+    /// <param name="index">Zero-based line position within the selected program.</param>
+    /// <returns>The approved text and the VRAM word offset where its first character is drawn.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The program identity or line index is outside its supported range.</exception>
     internal static EscapeTypewriterLine Line(EscapeTypewriterProgramId id, int index)
     {
         if ((uint)index >= LineCount(id)) throw new ArgumentOutOfRangeException(nameof(index));

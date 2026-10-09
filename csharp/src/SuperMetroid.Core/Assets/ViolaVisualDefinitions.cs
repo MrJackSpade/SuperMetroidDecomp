@@ -10,8 +10,12 @@ internal static class ViolaVisualDefinitions
 {
     /// <summary>Native Viola spritemap bank.</summary>
     internal const byte Bank = 0xa3;
+    /// <summary>Number of distinct OAM compositions selected by the normal loop.</summary>
     internal const int FrameCount = 8;
 
+    /// <summary>Builds one definition for each distinct spritemap selected by Viola's normal loop.</summary>
+    /// <returns>Unique bank-$A3 frame definitions in first-selector order.</returns>
+    /// <exception cref="InvalidDataException">The compiled selectors do not resolve to the expected number of frames.</exception>
     internal static EnemySpritemapDefinition[] Frames()
     {
         var seen = new HashSet<ushort>();

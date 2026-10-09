@@ -28,6 +28,11 @@ internal static class SamusArmCannonPlacementDefinitions
     /// <summary>$90:CAD7/CAD8: later unused retracted descriptor tail, repeated at CC01..CC04 and CC0F..CC14.</summary>
     private static (int X, int Y) UnusedLaterTail => (-19, -2);
 
+    /// <summary>Derives an editable arm-cannon drawing coordinate from its pose address and the corresponding body spritemap.</summary>
+    /// <param name="body">Body artwork whose selected sprite part supplies the cannon attachment point.</param>
+    /// <param name="address">Address of an editable arm-cannon drawing-data byte.</param>
+    /// <param name="value">Receives the derived X or Y coordinate when the pose and body spritemap are supported; otherwise receives zero.</param>
+    /// <returns><see langword="true"/> when the address maps to a supported pose and a usable body spritemap.</returns>
     internal static bool TryCoordinate(SamusBodyArtworkCatalog body, ushort address, out byte value)
     {
         value = 0;
@@ -179,6 +184,12 @@ internal static class SamusArmCannonPlacementDefinitions
         return true;
     }
 
+    /// <summary>Finds the pose and coordinate component represented by a non-stock arm-cannon drawing-data address.</summary>
+    /// <param name="address">Drawing-data address to resolve.</param>
+    /// <param name="pose">Receives the owning pose when the address is in the editable allocation; otherwise receives the default pose value.</param>
+    /// <param name="phase">Receives the zero-based descriptor phase containing the address, or zero when it is not owned.</param>
+    /// <param name="yComponent">Receives whether the address selects the Y byte rather than the X byte; false when it is not owned.</param>
+    /// <returns><see langword="true"/> when the address belongs to an editable pose drawing coordinate rather than stock drawing data.</returns>
     private static bool TryOwner(ushort address, out SamusPoseId pose, out int phase, out bool yComponent)
     {
         pose = 0; phase = 0; yComponent = false;

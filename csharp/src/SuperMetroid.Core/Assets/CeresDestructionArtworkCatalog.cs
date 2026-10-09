@@ -9,6 +9,13 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class CeresDestructionArtworkCatalog
 {
+    /// <summary>Stores the validated Ceres map bytes and compiled Zebes reveal and destruction presentation assets.</summary>
+    /// <param name="ceresMaps">Three ordered 32-by-24 Mode 7 map slices compiled as bytes.</param>
+    /// <param name="zebesMap">Compiled BG tilemap page used for the Zebes reveal.</param>
+    /// <param name="zebesCharacters">Compiled 4bpp character transfer for the reveal.</param>
+    /// <param name="sprites">Validated OAM compositions for the destruction and reveal scenes.</param>
+    /// <param name="revealActors">Validated initial placements for the six reveal actors.</param>
+    /// <param name="destructionActors">Validated initial placements for the three destruction-background actors.</param>
     private CeresDestructionArtworkCatalog(byte[] ceresMaps,
         RoomBackgroundTilemapAtlas zebesMap, RoomCharacterAtlas zebesCharacters,
         CeresDestructionSpritePresentation sprites, CeresRevealActorLayout revealActors,
@@ -92,6 +99,10 @@ public sealed class CeresDestructionArtworkCatalog
         json.Write(bytes);
     }
 
+    /// <summary>Deserializes and validates the three ordered Mode 7 views in a Ceres destruction map document.</summary>
+    /// <param name="json">Source stream positioned at the beginning of the JSON document.</param>
+    /// <returns>The validated version-1 document with 32-by-24 eight-bit tile-index arrays.</returns>
+    /// <exception cref="InvalidDataException">The JSON is malformed, null, or violates the required schema or tile-index range.</exception>
     private static CeresDestructionMapDocument ReadMap(Stream json)
     {
         CeresDestructionMapDocument document;

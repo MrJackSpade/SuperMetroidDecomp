@@ -55,6 +55,10 @@ public static class PauseReserveUiDefinitions
     /// <summary>$82:BF14-BF20 selects RESERVE TANK at tiles $80-86, palette seven and priority.</summary>
     private const int ReserveTankGlyph = 0x80;
 
+    /// <summary>Returns the native tile-word length for one supported reserve-menu label.</summary>
+    /// <param name="name">Stable label identity: Mode, ReserveTank, Manual, or Auto.</param>
+    /// <returns>Seven words for full labels or four words for the mode value.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The label identity is not supported.</exception>
     internal static int StockLabelWords(string name) => name switch
     {
         "Mode" or "ReserveTank" => LabelWords,
@@ -88,5 +92,9 @@ public static class PauseReserveUiDefinitions
         return Word(first + index, 7);
     }
 
+    /// <summary>Builds a priority-enabled tilemap word from a glyph index and BG palette selector.</summary>
+    /// <param name="glyph">Tile index placed in the tilemap word.</param>
+    /// <param name="palette">Palette selector encoded in the word's palette bits.</param>
+    /// <returns>The packed tilemap word used by the reserve-menu labels.</returns>
     private static ushort Word(int glyph, int palette) => (ushort)(0x2000 | palette << 10 | glyph);
 }

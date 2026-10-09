@@ -9,6 +9,13 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class CeresFlightArtworkCatalog
 {
+    /// <summary>Stores the compiled transfer buffers and selected presentation resources as one flight catalog.</summary>
+    /// <param name="mode7Characters">Encoded chunky Mode-7 character bytes owned by the catalog.</param>
+    /// <param name="mode7Maps">Ordered front and rear Mode-7 map upload bytes.</param>
+    /// <param name="objectCharacters">Encoded planar OBJ character bytes owned by the catalog.</param>
+    /// <param name="palette">Selected full approach palette.</param>
+    /// <param name="sprites">Selected actor OAM compositions.</param>
+    /// <param name="actors">Selected initial actor placements.</param>
     private CeresFlightArtworkCatalog(byte[] mode7Characters, byte[] mode7Maps,
         byte[] objectCharacters, CeresFlightPalette palette,
         CeresFlightSpritePresentation sprites, CeresFlightActorLayout actors)
@@ -107,6 +114,10 @@ public sealed class CeresFlightArtworkCatalog
         json.Write(bytes);
     }
 
+    /// <summary>Loads and validates both ordered tile-index arrays from a Ceres flight map document.</summary>
+    /// <param name="json">Readable stream positioned at the start of the map document.</param>
+    /// <returns>The validated front and rear map arrays in their editing representation.</returns>
+    /// <exception cref="InvalidDataException">The JSON is malformed or its schema, dimensions, array lengths, or tile indices are invalid.</exception>
     private static CeresFlightMapDocument ReadMap(Stream json)
     {
         CeresFlightMapDocument document;

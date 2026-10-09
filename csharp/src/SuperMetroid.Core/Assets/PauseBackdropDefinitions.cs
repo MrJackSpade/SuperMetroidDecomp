@@ -80,6 +80,9 @@ public static class PauseBackdropDefinitions
         return StockFrameWord(cell + (Rows - ButtonRows) * Columns);
     }
 
+    /// <summary>Returns the authored stock BG2 word for a row-major backdrop cell, including frame and control artwork.</summary>
+    /// <param name="cell">The zero-based cell index in the 32-by-32 backdrop grid.</param>
+    /// <returns>The SNES BG word for the stock cell's glyph, palette, priority, and flip settings.</returns>
     private static ushort StockFrameWord(int cell)
     {
         int row = cell / Columns, column = cell % Columns;
@@ -110,6 +113,11 @@ public static class PauseBackdropDefinitions
         return BlankWord;
     }
 
+    /// <summary>Encodes a palette-two, priority-enabled BG word for a glyph with optional horizontal or vertical flips.</summary>
+    /// <param name="glyph">The tile index placed in the BG word.</param>
+    /// <param name="flipX">Whether to set the horizontal-flip attribute.</param>
+    /// <param name="flipY">Whether to set the vertical-flip attribute.</param>
+    /// <returns>The encoded SNES BG word.</returns>
     private static ushort Styled(int glyph, bool flipX = false, bool flipY = false) =>
         (ushort)(0x2800 | glyph | (flipX ? 0x4000 : 0) | (flipY ? 0x8000 : 0));
 }

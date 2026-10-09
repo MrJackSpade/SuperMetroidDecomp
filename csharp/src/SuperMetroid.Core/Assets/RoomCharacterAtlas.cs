@@ -8,8 +8,11 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class RoomCharacterAtlas
 {
+    /// <summary>Owned planar 4-bpp bytes for the complete native character stream, without unused PNG display cells.</summary>
     private readonly byte[] planar;
 
+    /// <summary>Creates an atlas from the encoded native character bytes produced by <see cref="Load"/>.</summary>
+    /// <param name="planar">Owned, tile-aligned SNES planar data for the room's character transfer.</param>
     private RoomCharacterAtlas(byte[] planar) => this.planar = planar;
 
     /// <summary>Read-only view of the compiled, row-major 8x8 SNES 4-bpp characters, excluding unused PNG cells.</summary>

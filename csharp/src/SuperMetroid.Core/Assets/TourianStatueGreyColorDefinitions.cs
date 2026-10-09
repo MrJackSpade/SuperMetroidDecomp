@@ -10,6 +10,11 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal static class TourianStatueGreyColorDefinitions
 {
+    /// <summary>Decodes an aligned RGB5 color-word address in the statue's compiled frames into its frame and color indexes.</summary>
+    /// <param name="pointer">Address of a color word within an intermediate or endpoint palette frame.</param>
+    /// <param name="frame">Receives the zero-based frame index, or zero when the address is not a color word.</param>
+    /// <param name="color">Receives the zero-based color index, or zero when the address is not a color word.</param>
+    /// <returns><see langword="true"/> when the pointer selects an aligned color word within a frame.</returns>
     internal static bool TryCoordinates(ushort pointer, out int frame, out int color)
     {
         frame = color = 0;
@@ -44,6 +49,11 @@ internal static class TourianStatueGreyColorDefinitions
         return true;
     }
 
+    /// <summary>Calculates one RGB5 channel at an intermediate frame by rounding its proportional movement from the first endpoint toward the last.</summary>
+    /// <param name="first">Channel value from the first supplied palette row.</param>
+    /// <param name="last">Channel value from the final supplied palette row.</param>
+    /// <param name="frame">One-based interpolation step between the endpoint rows.</param>
+    /// <returns>The interpolated channel value, rounded to the nearest seventh-step increment.</returns>
     private static int Channel(int first, int last, int frame)
     {
         int delta = last - first;

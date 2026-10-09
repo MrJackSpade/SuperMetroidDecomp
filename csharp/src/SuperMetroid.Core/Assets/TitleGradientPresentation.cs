@@ -10,8 +10,11 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class TitleGradientPresentation
 {
+    /// <summary>Compiled 224-scanline color and control data indexed by the native zoom high nibble.</summary>
     private readonly TitleGradientLine[][] variants;
 
+    /// <summary>Stores the compiled scanlines for every native zoom bucket.</summary>
+    /// <param name="variants">Sixteen independent arrays in zoom-nibble order, each containing one entry per screen scanline.</param>
     private TitleGradientPresentation(TitleGradientLine[][] variants) => this.variants = variants;
 
     /// <summary>Returns the authored scanlines selected by native zoom bits four through seven.</summary>

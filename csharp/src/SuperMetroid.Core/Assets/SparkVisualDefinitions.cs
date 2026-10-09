@@ -10,10 +10,13 @@ internal static class SparkVisualDefinitions
     /// <summary>Eight Wrecked Ship Spark activation, active and emitter compositions at $A8:E71F..E79B.</summary>
     internal const int FrameCount = 8;
 
+    /// <summary>Returns the addresses of every compiled Spark presentation operand in program order.</summary>
+    /// <returns>The instruction-list word addresses used to select Spark artwork.</returns>
     internal static ushort[] Operands() => Enumerable.Range(0,
         SparkInstructionProgramDefinitions.PresentationWordCount)
         .Select(SparkInstructionProgramDefinitions.PresentationWordAddress).ToArray();
 
+    /// <summary>Builds the distinct Spark spritemap definitions selected by its compiled presentation operands.</summary>
     internal static EnemySpritemapDefinition[] Frames() =>
         CompiledEnemyCompositionDefinitions.Frames(Bank, Operands(), FrameCount, "spark");
 }

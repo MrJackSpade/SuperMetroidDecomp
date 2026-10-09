@@ -100,6 +100,13 @@ public static class SpcAudioAssetExtractor
         return manifest;
     }
 
+    /// <summary>Decodes one uploaded SPC bank into track, instrument, and canonical sample metadata.</summary>
+    /// <param name="definition">Identity and source address of the upload being decoded.</param>
+    /// <param name="ram">Reconstructed APU RAM after applying the upload stream.</param>
+    /// <param name="written">Bitmap identifying bytes supplied by the upload.</param>
+    /// <param name="canonicalSamples">Builder that writes and deduplicates decoded WAV samples.</param>
+    /// <param name="includeTrackPointers">Whether this bank contains the music track pointer table.</param>
+    /// <returns>Decoded bank metadata for the audio manifest.</returns>
     private static AudioBankMetadata ExtractBankMetadata(
         AudioUploadAssetDefinition definition,
         byte[] ram,
@@ -197,6 +204,11 @@ public static class SpcAudioAssetExtractor
             samples);
     }
 
+    /// <summary>Decodes every configured SFX library and deduplicates programs by their APU address.</summary>
+    /// <param name="commonRam">Reconstructed common APU RAM containing SFX programs.</param>
+    /// <param name="commonWritten">Bitmap identifying uploaded common-RAM bytes.</param>
+    /// <param name="programs">Receives the unique decoded programs referenced by all libraries.</param>
+    /// <returns>Sound-effect command libraries with channel-to-program bindings.</returns>
     private static List<AudioSoundLibraryMetadata> ExtractSoundLibraries(
         byte[] commonRam,
         bool[] commonWritten,
@@ -350,6 +362,9 @@ public static class SpcAudioAssetExtractor
         return false;
     }
 
+    /// <summary>Checks that an SPC upload stream has valid records and a legal terminator.</summary>
+    /// <param name="stream">Raw length/address/data records to validate.</param>
+    /// <param name="name">Upload name included in invalid-stream errors.</param>
     private static void ValidateUploadStream(ReadOnlySpan<byte> stream, string name)
     {
         byte[] scratch = new byte[SpcDriverData.ApuRamSize];
@@ -364,6 +379,10 @@ public static class SpcAudioAssetExtractor
         }
     }
 
+    /// <summary>Applies upload records to APU RAM and marks every written byte.</summary>
+    /// <param name="ram">Mutable APU RAM destination.</param>
+    /// <param name="written">Parallel bitmap updated for each copied range.</param>
+    /// <param name="stream">Raw SPC upload stream, including its terminating record.</param>
     private static void ApplyUpload(byte[] ram, bool[] written, ReadOnlySpan<byte> stream)
     {
         int offset = 0;
@@ -396,6 +415,10 @@ public static class SpcAudioAssetExtractor
         }
     }
 
+    /// <summary>Reads a little-endian word from reconstructed APU memory.</summary>
+    /// <param name="bytes">APU memory bytes.</param>
+    /// <param name="address">Address of the low byte.</param>
+    /// <returns>The decoded 16-bit word.</returns>
     private static ushort ReadWord(byte[] bytes, int address) =>
         unchecked((ushort)(bytes[address] | (bytes[address + 1] << 8)));
 
@@ -406,19 +429,33 @@ public static class SpcAudioAssetExtractor
     /// </summary>
     private sealed class CanonicalSampleBuilder
     {
+        /// <summary>Root audio directory used to store manifest-relative sample paths.</summary>
         private readonly string audioDirectory;
+        /// <summary>Directory receiving canonical WAV files.</summary>
         private readonly string samplesDirectory;
+        /// <summary>Maps sample-rate, loop, and PCM identity to the stable ID already assigned.</summary>
         private readonly Dictionary<string, string> idsByContent = new(StringComparer.Ordinal);
+        /// <summary>Canonical WAV metadata in first cartridge occurrence order.</summary>
         private readonly List<AudioCanonicalSampleMetadata> metadata = [];
 
+        /// <summary>Creates a builder for canonical samples under the audio installation directory.</summary>
+        /// <param name="audioDirectory">Root directory used for relative manifest paths.</param>
+        /// <param name="samplesDirectory">Destination directory for the generated WAV files.</param>
         internal CanonicalSampleBuilder(string audioDirectory, string samplesDirectory)
         {
             this.audioDirectory = audioDirectory;
             this.samplesDirectory = samplesDirectory;
         }
 
+        /// <summary>Gets canonical sample metadata in the order each unique sample was first encountered.</summary>
         internal IReadOnlyList<AudioCanonicalSampleMetadata> Metadata => metadata;
 
+        /// <summary>Writes a new unique PCM sample or returns the ID assigned to matching content.</summary>
+        /// <param name="dataIndex">Cartridge audio upload index that first references the sample.</param>
+        /// <param name="source">BRR directory slot containing the sample.</param>
+        /// <param name="pcm">Decoded mono signed 16-bit samples.</param>
+        /// <param name="loopSampleIndex">Decoded loop position, or <see langword="null"/> for a one-shot sample.</param>
+        /// <returns>The stable sample ID used by bank metadata.</returns>
         internal string Add(byte dataIndex, byte source, short[] pcm, int? loopSampleIndex)
         {
             byte[] pcmBytes = new byte[checked(pcm.Length * sizeof(short))];

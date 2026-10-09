@@ -29,6 +29,10 @@ public static class IntroNarrationExtractor
         return output.ToArray();
     }
 
+    /// <summary>Decodes one bounded narration page and checks its native script sequence.</summary>
+    /// <param name="bus">Cartridge address space containing the bank-$8C stream and glyph records.</param>
+    /// <param name="page">Compiled page identity, instruction pointer, and expected command opcodes.</param>
+    /// <returns>Editable lines decoded from the page's native glyph placements.</returns>
     private static IntroNarrationPage ExtractPage(
         ISnesAddressSpace bus,
         IntroNarrationNativePage page)
@@ -115,6 +119,13 @@ public static class IntroNarrationExtractor
             $"{IntroNarrationDefinitions.Native.MaximumRecords} records.");
     }
 
+    /// <summary>Checks one native narration marker's delay, position, data pointer, and draw function.</summary>
+    /// <param name="bus">Cartridge address space containing the marker and marker payload.</param>
+    /// <param name="pointer">Bank-local address of the marker record.</param>
+    /// <param name="duration">Required marker delay.</param>
+    /// <param name="packedPosition">Required encoded row and column.</param>
+    /// <param name="dataPointer">Required marker payload address.</param>
+    /// <param name="drawFunction">Required marker callback word.</param>
     private static void RequireRecord(
         ISnesAddressSpace bus,
         ushort pointer,
@@ -133,6 +144,11 @@ public static class IntroNarrationExtractor
         }
     }
 
+    /// <summary>Rejects a native instruction word that differs from the page contract.</summary>
+    /// <param name="bus">Cartridge address space containing the word.</param>
+    /// <param name="pointer">Bank-local address to inspect.</param>
+    /// <param name="expected">Required opcode or operand.</param>
+    /// <param name="identity">Instruction identity included in mismatch diagnostics.</param>
     private static void RequireWord(
         ISnesAddressSpace bus,
         ushort pointer,
@@ -145,13 +161,25 @@ public static class IntroNarrationExtractor
                 $"Opening-narration {identity} is ${actual:X4}, expected ${expected:X4}.");
     }
 
+    /// <summary>Reads one byte from the opening narration script bank.</summary>
+    /// <param name="bus">Cartridge address space supplying the byte.</param>
+    /// <param name="pointer">Bank-local address to read.</param>
+    /// <returns>The native byte.</returns>
     private static byte ReadByte(ISnesAddressSpace bus, ushort pointer) =>
         bus.ReadCartridgeByte((int)new SnesAddress(
             IntroNarrationDefinitions.Native.ScriptBank, pointer));
 
+    /// <summary>Reads a little-endian word from the opening narration script bank.</summary>
+    /// <param name="bus">Cartridge address space supplying the bytes.</param>
+    /// <param name="pointer">Bank-local address of the low byte.</param>
+    /// <returns>The decoded word.</returns>
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
         unchecked((ushort)(ReadByte(bus, pointer) | ReadByte(bus, Add(pointer, 1)) << 8));
 
+    /// <summary>Adds a byte displacement with the bank-local address width used by the script.</summary>
+    /// <param name="pointer">Starting bank-local address.</param>
+    /// <param name="bytes">Byte displacement.</param>
+    /// <returns>The wrapped 16-bit address.</returns>
     private static ushort Add(ushort pointer, int bytes) =>
         unchecked((ushort)(pointer + bytes));
 }

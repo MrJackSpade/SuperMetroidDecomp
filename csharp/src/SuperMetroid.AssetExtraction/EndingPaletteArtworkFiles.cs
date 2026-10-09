@@ -11,6 +11,7 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Installs native ending colors as independently replaceable RGB5 JSON files.</summary>
 public static class EndingPaletteArtworkFiles
 {
+    /// <summary>Version of the ending palette stock manifest schema.</summary>
     private const int ManifestVersion = 2;
 
     /// <summary>Exports all seven ending palette roles to RGB5 JSON and a hashed manifest, verifying native color-byte round-trips and flattening logo fades in destination order.</summary>
@@ -160,6 +161,7 @@ public static class EndingPaletteArtworkFiles
         return native;
     }
 
+    /// <summary>Camel-case JSON settings for RGB5 palette documents and their manifest.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -167,6 +169,10 @@ public static class EndingPaletteArtworkFiles
         WriteIndented = true,
     };
 
+    /// <summary>Source provenance and stock digests for independently installed ending palettes.</summary>
+    /// <param name="Version">Ending palette manifest schema version.</param>
+    /// <param name="SourceCartridgeSha256">SHA-256 of the cartridge revision used for extraction.</param>
+    /// <param name="StockSha256">Palette JSON hashes keyed by their stable role filenames.</param>
     private sealed record Manifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, string> StockSha256);
 }

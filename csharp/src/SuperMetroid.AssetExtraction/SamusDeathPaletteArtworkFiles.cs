@@ -14,7 +14,9 @@ public static class SamusDeathPaletteArtworkFiles
     public const string ArtworkFileName = "samus-death-palettes.json";
     /// <summary>Stock manifest filename recording version-one format, cartridge provenance, and the death-palette JSON's SHA-256.</summary>
     public const string ManifestFileName = "samus-death-palettes-manifest.json";
+    /// <summary>Schema version for the extracted fatal-damage palette document.</summary>
     private const int FormatVersion = 1;
+    /// <summary>Strict camel-case JSON settings for death-palette stock and override documents.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -100,6 +102,9 @@ public static class SamusDeathPaletteArtworkFiles
         }
     }
 
+    /// <summary>Validates palette dimensions and selector values before constructing the runtime catalog.</summary>
+    /// <param name="document">Parsed suited, suitless, whiteout, and explosion-selector data.</param>
+    /// <returns>A catalog containing the authored fatal-damage color inputs.</returns>
     private static SamusDeathPaletteArtworkCatalog Build(ArtworkDocument document)
     {
         if (document.Version != FormatVersion || document.Suited is null ||
@@ -110,6 +115,10 @@ public static class SamusDeathPaletteArtworkFiles
             document.Whiteout, document.ExplosionPaletteIndices);
     }
 
+    /// <summary>Reads one sixteen-color native death-palette row.</summary>
+    /// <param name="bus">Cartridge address space supplying bank-$9B palette words.</param>
+    /// <param name="pointer">Bank-local address of the first palette color.</param>
+    /// <returns>Packed RGB5 color words in native order.</returns>
     private static ushort[] ReadPalette(ISnesAddressSpace bus, ushort pointer)
     {
         var colors = new ushort[SamusDeathPaletteArtworkCatalog.ColorCount];
@@ -119,10 +128,25 @@ public static class SamusDeathPaletteArtworkFiles
         return colors;
     }
 
+    /// <summary>Reads a little-endian cartridge word.</summary>
+    /// <param name="bus">Cartridge address space supplying the bytes.</param>
+    /// <param name="address">Address of the low byte.</param>
+    /// <returns>The decoded 16-bit word.</returns>
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
+    /// <summary>Editable fatal-damage palette rows and explosion palette selectors.</summary>
+    /// <param name="Version">Death-palette JSON schema version.</param>
+    /// <param name="Suited">Power, Varia, and Gravity palette rows in native order.</param>
+    /// <param name="Suitless">Suitless palette rows in native order.</param>
+    /// <param name="Whiteout">Native ShadesOfWhite RGB5 words.</param>
+    /// <param name="ExplosionPaletteIndices">Palette selector byte from each explosion timing record.</param>
     private sealed record ArtworkDocument(int Version, ushort[][][] Suited,
         ushort[][] Suitless, ushort[] Whiteout, ushort[] ExplosionPaletteIndices);
+
+    /// <summary>Stock provenance and integrity metadata for the death-palette artwork JSON.</summary>
+    /// <param name="Version">Death-palette JSON schema version.</param>
+    /// <param name="SourceCartridgeSha256">SHA-256 of the extraction cartridge revision.</param>
+    /// <param name="ArtworkSha256">SHA-256 of the stock artwork document bytes.</param>
     private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256, string ArtworkSha256);
 }

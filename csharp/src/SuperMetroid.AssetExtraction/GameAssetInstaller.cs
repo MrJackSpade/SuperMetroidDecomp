@@ -75,6 +75,12 @@ public static partial class GameAssetInstaller
         return IsExtractedContentComplete(installation) ? installation : null;
     }
 
+    /// <summary>Serializes installation, reuses only a complete matching install, or extracts the supplied validated ROM.</summary>
+    /// <param name="rom">Supported cartridge bytes already validated by the caller.</param>
+    /// <param name="root">Application-owned installation root.</param>
+    /// <param name="cancellationToken">Cancellation requested during setup stages.</param>
+    /// <param name="progress">Optional setup progress reporter.</param>
+    /// <returns>The installation containing the validated ROM and extracted resources.</returns>
     private static GameInstallation InstallValidated(byte[] rom, string root,
         CancellationToken cancellationToken, IProgress<string>? progress)
     {
@@ -96,9 +102,15 @@ public static partial class GameAssetInstaller
         return ExtractAndPublish(installation, rom, new HashSet<InstallerComponent>(), cancellationToken, progress);
     }
 
+    /// <summary>Checks for both the private ROM copy and a complete extracted-content installation.</summary>
+    /// <param name="installation">Installation paths and stock resource locations to inspect.</param>
+    /// <returns><see langword="true"/> when both installation portions are complete.</returns>
     private static bool IsComplete(GameInstallation installation) =>
         File.Exists(installation.RomPath) && IsExtractedContentComplete(installation);
 
+    /// <summary>Runs repairable stock-content validation and converts recognized corruption into an incomplete result.</summary>
+    /// <param name="installation">Extracted-content directory and receipt to validate.</param>
+    /// <returns><see langword="true"/> when all required resources validate.</returns>
     private static bool IsExtractedContentComplete(GameInstallation installation)
     {
         try
@@ -163,6 +175,8 @@ public static partial class GameAssetInstaller
         }
     }
 
+    /// <summary>Restores the previous content directory when publication stopped between directory moves.</summary>
+    /// <param name="installation">Installation whose current and previous content paths are checked.</param>
     private static void RecoverInterruptedPublish(GameInstallation installation)
     {
         string previous = Path.Combine(installation.Root, GameInstallationLayout.PreviousDirectoryName);
@@ -170,6 +184,9 @@ public static partial class GameAssetInstaller
             Directory.Move(previous, installation.ContentDirectory);
     }
 
+    /// <summary>Acquires the per-installation exclusive setup lock.</summary>
+    /// <param name="root">Installation root that owns the lock file.</param>
+    /// <returns>An open stream holding the lock until disposed.</returns>
     internal static FileStream Lock(string root)
     {
         Directory.CreateDirectory(root);
@@ -177,5 +194,8 @@ public static partial class GameAssetInstaller
         catch (IOException error) { throw new IOException("Game setup is already in use. Close the other setup window and retry.", error); }
     }
 
+    /// <summary>Receipt binding extracted content to the installer schema and supported ROM revision.</summary>
+    /// <param name="FormatVersion">Extracted-content layout version.</param>
+    /// <param name="RomSha256">Supported cartridge SHA-256 that produced the installed content.</param>
     private sealed record InstallationReceipt(int FormatVersion, string RomSha256);
 }

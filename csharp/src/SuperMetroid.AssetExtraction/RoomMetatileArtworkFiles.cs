@@ -13,6 +13,7 @@ public static class RoomMetatileArtworkFiles
 {
     /// <summary>Stock visual-block manifest filename recording cartridge provenance, metatile JSON hashes, and native transfer lengths.</summary>
     public const string ManifestFileName = "room-blocks.json";
+    /// <summary>Schema version accepted for room-metatile stock manifests.</summary>
     private const int FormatVersion = 1;
 
     /// <summary>Creates stock visual metatile JSON for CRE and each distinct room block-table source, with a provenance manifest.</summary>
@@ -100,6 +101,8 @@ public static class RoomMetatileArtworkFiles
     /// <exception cref="InvalidDataException">Stock provenance, coverage, dimensions, hashes, or visual composition data are invalid.</exception>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
+    /// <summary>Builds the complete filename-to-source-address set for CRE and distinct room tilesets.</summary>
+    /// <returns>Expected stock resources keyed by their source-derived filenames.</returns>
     private static Dictionary<string, int> ExpectedSources()
     {
         var sources = new Dictionary<string, int>
@@ -114,6 +117,7 @@ public static class RoomMetatileArtworkFiles
         return sources;
     }
 
+    /// <summary>Strict camel-case JSON settings shared by manifest serialization and parsing.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -123,7 +127,14 @@ public static class RoomMetatileArtworkFiles
         WriteIndented = true,
     };
 
+    /// <summary>Records the required decoded size and integrity hash for one stock metatile JSON file.</summary>
+    /// <param name="NativeByteCount">Expected decoded four-quadrant block-table size.</param>
+    /// <param name="Sha256">SHA-256 of the exact stock JSON bytes.</param>
     private sealed record RoomMetatileFileEntry(int NativeByteCount, string Sha256);
+    /// <summary>Describes the complete installed set of stock room-metatile resources.</summary>
+    /// <param name="Version">Manifest schema version.</param>
+    /// <param name="SourceCartridgeSha256">SHA-256 identity of the extraction cartridge.</param>
+    /// <param name="Entries">Stock resource metadata keyed by source-derived filename.</param>
     private sealed record RoomMetatileFileManifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, RoomMetatileFileEntry> Entries);
 }

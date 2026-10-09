@@ -73,6 +73,11 @@ public static class GameplayBasePaletteFiles
     /// <param name="stockDirectory">Installed stock gameplay base-palette directory.</param>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
+    /// <summary>Reads a contiguous native RGB5 palette and rejects words outside the representable color range.</summary>
+    /// <param name="bus">Cartridge address space containing little-endian palette words.</param>
+    /// <param name="address">Address of the first palette color.</param>
+    /// <param name="count">Number of colors to read.</param>
+    /// <returns>RGB5 colors in cartridge order.</returns>
     private static PaletteRgb5[] ReadColors(ISnesAddressSpace bus, int address, int count)
     {
         var colors = new PaletteRgb5[count];
@@ -90,6 +95,10 @@ public static class GameplayBasePaletteFiles
         return colors;
     }
 
+    /// <summary>Stock provenance and integrity metadata for the base palette document.</summary>
+    /// <param name="Version">Base palette document schema version.</param>
+    /// <param name="SourceCartridgeSha256">SHA-256 of the cartridge revision used for extraction.</param>
+    /// <param name="ArtworkSha256">SHA-256 of the stock palette JSON bytes.</param>
     private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256,
         string ArtworkSha256);
 }

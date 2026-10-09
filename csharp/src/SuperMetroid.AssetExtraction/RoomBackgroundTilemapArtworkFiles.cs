@@ -13,6 +13,7 @@ public static class RoomBackgroundTilemapArtworkFiles
 {
     /// <summary>Stock manifest filename recording every library-background source address, native transfer length, and JSON hash.</summary>
     public const string ManifestFileName = "room-backgrounds.json";
+    /// <summary>Schema version accepted for room-background stock manifests.</summary>
     private const int FormatVersion = 1;
 
     /// <summary>Creates one editable tilemap JSON file per retail compressed library-background source and records its provenance.</summary>
@@ -105,6 +106,7 @@ public static class RoomBackgroundTilemapArtworkFiles
     /// <exception cref="InvalidDataException">Stock provenance, coverage, transfer sizes, hashes, or tilemap content are invalid.</exception>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
+    /// <summary>Strict camel-case JSON settings shared by manifest serialization and parsing.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -114,7 +116,15 @@ public static class RoomBackgroundTilemapArtworkFiles
         WriteIndented = true,
     };
 
+    /// <summary>Records one background tilemap source and the integrity metadata for its stock JSON.</summary>
+    /// <param name="SourceAddress">Immutable cartridge source address used as the runtime identity.</param>
+    /// <param name="NativeByteCount">Expected decoded transfer size, which determines the page count.</param>
+    /// <param name="Sha256">SHA-256 of the exact stock JSON bytes.</param>
     private sealed record RoomBackgroundFileEntry(int SourceAddress, int NativeByteCount, string Sha256);
+    /// <summary>Describes the complete installed set of stock room-background tilemaps.</summary>
+    /// <param name="Version">Manifest schema version.</param>
+    /// <param name="SourceCartridgeSha256">SHA-256 identity of the extraction cartridge.</param>
+    /// <param name="Entries">Stock file metadata keyed by source-derived filename.</param>
     private sealed record RoomBackgroundFileManifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, RoomBackgroundFileEntry> Entries);
 }

@@ -13,6 +13,13 @@ namespace SuperMetroid.AssetExtraction;
 /// compiled engine build, and replaceable presentation are deliberately separate so future
 /// replay/state compatibility can distinguish a mechanics change from an art or audio edit.
 /// </summary>
+/// <param name="FormatVersion">Version of the framed aggregate identity contract.</param>
+/// <param name="SourceCartridgeSha256">SHA-256 identity of the supported source cartridge.</param>
+/// <param name="CompiledDefinitionsBuildId">Module identifier for the compiled gameplay definitions.</param>
+/// <param name="AudioContentSha256">Digest of the selected installed audio content.</param>
+/// <param name="MapContentSha256">Digest of the selected installed map content.</param>
+/// <param name="ProjectileContentSha256">Digest of the selected installed projectile presentation.</param>
+/// <param name="CompositeSha256">Framed digest combining the build and every selected content domain.</param>
 public sealed record GameContentIdentity(
     int FormatVersion,
     string SourceCartridgeSha256,
@@ -189,6 +196,9 @@ public sealed record GameContentIdentity(
         return warnings;
     }
 
+    /// <summary>Appends one UTF-8 value with a little-endian length prefix to the aggregate hash.</summary>
+    /// <param name="hash">Incremental SHA-256 receiving the framed value.</param>
+    /// <param name="value">Text value to frame and append.</param>
     private static void Append(IncrementalHash hash, string value)
     {
         byte[] bytes = Encoding.UTF8.GetBytes(value);
@@ -198,6 +208,9 @@ public sealed record GameContentIdentity(
         hash.AppendData(bytes);
     }
 
+    /// <summary>Requires a content identity to be a complete hexadecimal SHA-256 digest.</summary>
+    /// <param name="digest">Digest text to validate.</param>
+    /// <param name="parameterName">Public argument name used if validation fails.</param>
     private static void ValidateDigest(string digest, string parameterName)
     {
         if (digest is null || digest.Length != SHA256.HashSizeInBytes * 2 ||
@@ -209,6 +222,11 @@ public sealed record GameContentIdentity(
         }
     }
 
+    /// <summary>Adds a compatibility warning when a recorded binary digest differs from the current hexadecimal digest.</summary>
+    /// <param name="warnings">Destination compatibility-warning collection.</param>
+    /// <param name="component">Human-readable content-domain name.</param>
+    /// <param name="recorded">Digest stored with the diagnostic artifact.</param>
+    /// <param name="currentHex">Digest of the currently selected installed content.</param>
     private static void AddDigestWarning(
         List<string> warnings,
         string component,

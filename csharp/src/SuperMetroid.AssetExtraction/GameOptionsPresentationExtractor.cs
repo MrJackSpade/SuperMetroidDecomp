@@ -132,6 +132,9 @@ public static class GameOptionsPresentationExtractor
         }
     }
 
+    /// <summary>Converts little-endian options tilemap bytes into renderer-facing cells.</summary>
+    /// <param name="bytes">Byte sequence containing whole tilemap words.</param>
+    /// <returns>Cells preserving character, palette, priority, and flip attributes.</returns>
     private static MapPresentationCell[] Cells(ReadOnlySpan<byte> bytes)
     {
         if (bytes.Length % sizeof(ushort) != 0)
@@ -154,6 +157,11 @@ public static class GameOptionsPresentationExtractor
         return cells;
     }
 
+    /// <summary>Builds fixed-column cursor anchors using the compiled row-position mapping.</summary>
+    /// <param name="x">Cell column shared by each cursor anchor.</param>
+    /// <param name="count">Number of menu rows.</param>
+    /// <param name="rowY">Mapping from row index to its cell row.</param>
+    /// <returns>Cursor points in row order.</returns>
     private static MapLabelPoint[] Points(ushort x, int count, Func<int, ushort> rowY)
     {
         var result = new MapLabelPoint[count];
@@ -162,6 +170,9 @@ public static class GameOptionsPresentationExtractor
         return result;
     }
 
+    /// <summary>Converts a byte offset in the options tilemap into cell coordinates.</summary>
+    /// <param name="byteOffset">Byte offset from the map start.</param>
+    /// <returns>Column and row for the corresponding cell.</returns>
     private static MapLabelPoint ByteOffsetPoint(ushort byteOffset)
     {
         int cell = byteOffset / sizeof(ushort);
@@ -169,9 +180,16 @@ public static class GameOptionsPresentationExtractor
             cell / GameOptionsRomData.MenuTilemapWidth);
     }
 
+    /// <summary>Expands a tilemap byte range into row-major cell indices.</summary>
+    /// <param name="byteOffset">Starting byte offset.</param>
+    /// <param name="byteCount">Number of bytes in the range.</param>
+    /// <returns>Cell indices covered by the range.</returns>
     private static int[] CellRange(int byteOffset, int byteCount) =>
         Enumerable.Range(byteOffset / sizeof(ushort), byteCount / sizeof(ushort)).ToArray();
 
+    /// <summary>Creates enabled and disabled cell ranges for one special-options toggle.</summary>
+    /// <param name="layout">Native top and bottom positions for the toggle states.</param>
+    /// <returns>The serialized visual document for the toggle.</returns>
     private static GameOptionsToggleVisualDocument Toggle(GameOptionsToggleLayout layout) => new()
     {
         EnabledCells = CellRange(layout.EnabledTop,

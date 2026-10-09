@@ -218,6 +218,10 @@ public static class FileSelectPresentationExtractor
         }
     }
 
+    /// <summary>Decodes one native file-select text patch into relative tilemap cells.</summary>
+    /// <param name="bus">Cartridge address space containing the fixed-bank tilemap stream.</param>
+    /// <param name="pointer">Bank-local address of the patch.</param>
+    /// <returns>Patch cells with row-relative coordinates and original tilemap words.</returns>
     private static RawPatch ReadPatch(ISnesAddressSpace bus, ushort pointer)
     {
         var cells = new List<RawPatchCell>();
@@ -239,6 +243,10 @@ public static class FileSelectPresentationExtractor
         }
     }
 
+    /// <summary>Places a decoded text patch onto a page and rejects cells outside its tilemap.</summary>
+    /// <param name="page">Mutable file-select page words.</param>
+    /// <param name="patch">Patch cells positioned relative to their anchor.</param>
+    /// <param name="byteOffset">Byte offset locating the patch's first cell.</param>
     private static void Apply(ushort[] page, RawPatch patch, int byteOffset)
     {
         MapLabelPoint anchor = Point(byteOffset);
@@ -252,6 +260,8 @@ public static class FileSelectPresentationExtractor
         }
     }
 
+    /// <summary>Creates a page-sized tilemap initialized with the authored blank tile.</summary>
+    /// <returns>The initialized file-select page words.</returns>
     private static ushort[] BlankPage()
     {
         var page = new ushort[FileSelectPresentationDefinitions.CellCount];
@@ -259,6 +269,10 @@ public static class FileSelectPresentationExtractor
         return page;
     }
 
+    /// <summary>Creates slot-field anchors from the energy and time tilemap locations.</summary>
+    /// <param name="energyOffset">Byte offset of the slot's energy field.</param>
+    /// <param name="timeOffset">Byte offset of the slot's displayed time value.</param>
+    /// <returns>The derived energy, health, no-data, and time anchors.</returns>
     private static FileSelectSlotFieldDocument Slot(int energyOffset, int timeOffset) => new()
     {
         EnergyAnchor = Point(energyOffset),
@@ -267,6 +281,9 @@ public static class FileSelectPresentationExtractor
         TimeValueAnchor = Point(timeOffset),
     };
 
+    /// <summary>Converts native patch cells into the serialized file-select patch document.</summary>
+    /// <param name="patch">Decoded cells retaining native relative coordinates and tile words.</param>
+    /// <returns>The editable patch document.</returns>
     private static FileSelectPatchDocument Document(RawPatch patch) => new()
     {
         Cells = patch.Cells.Select(cell => new FileSelectPatchCellDocument
@@ -277,6 +294,9 @@ public static class FileSelectPresentationExtractor
         }).ToArray(),
     };
 
+    /// <summary>Decodes little-endian tilemap bytes into presentation cells.</summary>
+    /// <param name="bytes">Even-length tilemap byte sequence.</param>
+    /// <returns>Decoded cells in row-major order.</returns>
     private static MapPresentationCell[] Cells(ReadOnlySpan<byte> bytes)
     {
         if (bytes.Length % sizeof(ushort) != 0)
@@ -287,6 +307,9 @@ public static class FileSelectPresentationExtractor
         return Cells(words);
     }
 
+    /// <summary>Converts tilemap words into renderer-facing presentation cells.</summary>
+    /// <param name="words">Native tilemap words in row-major order.</param>
+    /// <returns>Presentation cells preserving character, palette, priority, and flips.</returns>
     private static MapPresentationCell[] Cells(ReadOnlySpan<ushort> words)
     {
         var cells = new MapPresentationCell[words.Length];
@@ -295,6 +318,9 @@ public static class FileSelectPresentationExtractor
         return cells;
     }
 
+    /// <summary>Converts one SNES background tilemap word into a presentation cell.</summary>
+    /// <param name="raw">Packed native tilemap word.</param>
+    /// <returns>The decoded character coordinate and visual attributes.</returns>
     private static MapPresentationCell Cell(ushort raw)
     {
         var word = new SnesBgTilemapWord(raw);
@@ -309,6 +335,9 @@ public static class FileSelectPresentationExtractor
         };
     }
 
+    /// <summary>Converts a byte offset in a page tilemap into cell coordinates.</summary>
+    /// <param name="byteOffset">Byte offset from the start of the page.</param>
+    /// <returns>Column and row of the corresponding tilemap cell.</returns>
     private static MapLabelPoint Point(int byteOffset)
     {
         int cell = byteOffset / sizeof(ushort);
@@ -316,6 +345,13 @@ public static class FileSelectPresentationExtractor
             cell / FileSelectPresentationDefinitions.Width);
     }
 
+    /// <summary>Native tilemap cells for one decoded file-select text patch.</summary>
+    /// <param name="Cells">Cells in patch order with coordinates relative to its anchor.</param>
     private sealed record RawPatch(RawPatchCell[] Cells);
+
+    /// <summary>One raw tilemap word and its patch-relative position.</summary>
+    /// <param name="X">Column offset from the patch anchor.</param>
+    /// <param name="Y">Row offset from the patch anchor.</param>
+    /// <param name="Word">Packed SNES tilemap word.</param>
     private readonly record struct RawPatchCell(int X, int Y, ushort Word);
 }

@@ -462,6 +462,7 @@ public static class EndingObjectArtworkFiles
     /// <param name="directory">Installed stock ending object-artwork directory.</param>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
+    /// <summary>Strict camel-case settings for ending-object stock provenance JSON.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -469,6 +470,10 @@ public static class EndingObjectArtworkFiles
         WriteIndented = true,
     };
 
+    /// <summary>Cartridge provenance and stock file hashes for ending object presentation assets.</summary>
+    /// <param name="Version">Ending-object manifest schema version.</param>
+    /// <param name="SourceCartridgeSha256">SHA-256 of the cartridge revision used for extraction.</param>
+    /// <param name="StockSha256">Stock resource hashes keyed by installed filename.</param>
     private sealed record Manifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, string> StockSha256);
 }

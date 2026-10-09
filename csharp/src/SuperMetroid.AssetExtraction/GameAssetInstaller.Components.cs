@@ -7,6 +7,9 @@ namespace SuperMetroid.AssetExtraction;
 public static partial class GameAssetInstaller
 {
     /// <summary>One extraction stage: its progress text, extractor, and stock validator.</summary>
+    /// <param name="Progress">User-facing progress text reported before extraction begins.</param>
+    /// <param name="Extract">Action that writes this resource into the staging directory.</param>
+    /// <param name="Validate">Stock-content validator run immediately after extraction.</param>
     private sealed record InstallerStep(
         string Progress,
         Action<CartridgeImportAddressSpace, string, CancellationToken> Extract,
@@ -16,8 +19,12 @@ public static partial class GameAssetInstaller
     /// One extracted-content directory. A repair keeps a component whose installed files still
     /// validate and re-extracts only the components that fail, then republishes atomically.
     /// </summary>
+    /// <param name="DirectoryName">Content subdirectory owned by this component.</param>
+    /// <param name="Steps">Extraction and validation stages performed for the component.</param>
     private sealed record InstallerComponent(string DirectoryName, params InstallerStep[] Steps)
     {
+        /// <summary>Runs each stage's stock validator against the component's installed directory.</summary>
+        /// <param name="contentDirectory">Root extracted-content directory.</param>
         public void Validate(string contentDirectory)
         {
             string directory = Path.Combine(contentDirectory, DirectoryName);
@@ -25,6 +32,11 @@ public static partial class GameAssetInstaller
         }
     }
 
+    /// <summary>Adapts a non-cancellable extractor to the installer stage contract.</summary>
+    /// <param name="progress">User-facing stage progress text.</param>
+    /// <param name="extract">Extractor that writes one component directory.</param>
+    /// <param name="validate">Validator for the resulting stock resources.</param>
+    /// <returns>An installer stage that invokes the extractor and validator.</returns>
     private static InstallerStep Step(string progress,
         Action<CartridgeImportAddressSpace, string> extract, Action<string> validate) =>
         new(progress, (bus, directory, _) => extract(bus, directory), validate);

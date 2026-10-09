@@ -15,6 +15,7 @@ public static class RoomCharacterArtworkFiles
 {
     /// <summary>Stock character manifest filename recording cartridge provenance, PNG hashes, and required native planar transfer lengths.</summary>
     public const string ManifestFileName = "room-characters.json";
+    /// <summary>Schema version accepted for room-character stock manifests.</summary>
     private const int FormatVersion = 2;
 
     /// <summary>Creates stock indexed PNGs for CRE, distinct room graphics-set sources, and Tourian-statue ghost characters, plus their manifest.</summary>
@@ -115,6 +116,8 @@ public static class RoomCharacterArtworkFiles
     /// <summary>Used by installer completeness checks; overrides do not affect stock provenance.</summary>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
+    /// <summary>Builds the complete filename-to-source-address set for CRE, room tilesets, and the Tourian ghost sheet.</summary>
+    /// <returns>Expected stock PNG resources keyed by their source-derived filenames.</returns>
     private static Dictionary<string, int> ExpectedSources()
     {
         var sources = new Dictionary<string, int>
@@ -131,6 +134,7 @@ public static class RoomCharacterArtworkFiles
         return sources;
     }
 
+    /// <summary>Camel-case JSON settings shared by manifest serialization and parsing.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -138,9 +142,16 @@ public static class RoomCharacterArtworkFiles
         WriteIndented = true,
     };
 
+    /// <summary>Describes the complete installed set of stock room-character sheets.</summary>
+    /// <param name="Version">Manifest schema version.</param>
+    /// <param name="SourceCartridgeSha256">SHA-256 identity of the extraction cartridge.</param>
+    /// <param name="Entries">Stock PNG metadata keyed by source-derived filename.</param>
     private sealed record RoomCharacterFileManifest(
         int Version, string SourceCartridgeSha256,
         Dictionary<string, RoomCharacterFileEntry> Entries);
 
+    /// <summary>Records the decoded planar size and integrity hash for one stock room-character PNG.</summary>
+    /// <param name="NativeByteCount">Required decoded four-bit planar transfer size.</param>
+    /// <param name="Sha256">SHA-256 of the exact stock PNG bytes.</param>
     private sealed record RoomCharacterFileEntry(int NativeByteCount, string Sha256);
 }

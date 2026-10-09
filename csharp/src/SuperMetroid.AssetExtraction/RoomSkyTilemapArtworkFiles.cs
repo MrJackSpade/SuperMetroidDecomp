@@ -10,6 +10,7 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Installs seven literal bank-$8A sky tilemap pages with persistent JSON overrides.</summary>
 public static class RoomSkyTilemapArtworkFiles
 {
+    /// <summary>Version of the scrolling-sky page manifest and JSON format.</summary>
     private const int FormatVersion = 1;
 
     /// <summary>Exports seven contiguous bank-$8A scrolling-sky pages to editable BG tile-word JSON and creates their hashed provenance manifest.</summary>
@@ -90,6 +91,7 @@ public static class RoomSkyTilemapArtworkFiles
     /// <param name="stockDirectory">Installed stock scrolling-sky directory.</param>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
+    /// <summary>Strict camel-case settings for the sky-page provenance manifest.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -99,6 +101,10 @@ public static class RoomSkyTilemapArtworkFiles
         WriteIndented = true,
     };
 
+    /// <summary>Cartridge provenance and per-page digests for the seven installed sky maps.</summary>
+    /// <param name="Version">Scrolling-sky asset format version.</param>
+    /// <param name="SourceCartridgeSha256">SHA-256 of the cartridge revision used for extraction.</param>
+    /// <param name="Sha256">Stock page JSON hashes keyed by the stable page filenames.</param>
     private sealed record RoomSkyFileManifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, string> Sha256);
 }

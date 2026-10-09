@@ -46,6 +46,12 @@ public static class EndingTextExtractor
         return output.ToArray();
     }
 
+    /// <summary>Decodes one bounded native ending-text stream while validating delays, glyphs, and termination.</summary>
+    /// <param name="bus">Cartridge address space containing stream commands and glyph records.</param>
+    /// <param name="pointer">Bank-local address of the stream's initial delay marker.</param>
+    /// <param name="sequence">Compiled sequence contract selecting expected rows and commands.</param>
+    /// <param name="characters">Receives decoded glyph placements and native tile words.</param>
+    /// <returns>The decoded text in native character order.</returns>
     private static string ReadStream(ISnesAddressSpace bus, ushort pointer,
         EndingTextSequence sequence, out EndingTextCharacter[] characters)
     {
@@ -110,6 +116,10 @@ public static class EndingTextExtractor
         throw new InvalidDataException($"Native {sequence} did not terminate within the bounded record count.");
     }
 
+    /// <summary>Decodes a fixed tilemap text row and checks paired glyph rows when required.</summary>
+    /// <param name="cells">Panel tilemap cells in row-major order.</param>
+    /// <param name="region">Row, column, width, and glyph style to decode.</param>
+    /// <returns>Decoded text with trailing blank characters removed.</returns>
     private static string DecodeRow(EndingTextCell[] cells, EndingTextRegionDefinition region)
     {
         var text = new char[region.Width];
@@ -125,6 +135,11 @@ public static class EndingTextExtractor
         return new string(text).TrimEnd();
     }
 
+    /// <summary>Reads a fixed number of little-endian tilemap cells from bank-local memory.</summary>
+    /// <param name="bus">Cartridge address space containing the panel.</param>
+    /// <param name="pointer">Bank-local address of the first tilemap word.</param>
+    /// <param name="count">Number of words to read.</param>
+    /// <returns>Cells retaining their raw native words.</returns>
     private static EndingTextCell[] ReadCells(ISnesAddressSpace bus, ushort pointer, int count)
     {
         var result = new EndingTextCell[count];
@@ -133,6 +148,10 @@ public static class EndingTextExtractor
         return result;
     }
 
+    /// <summary>Checks the native no-op marker's delay, packed position, and data pointer.</summary>
+    /// <param name="bus">Cartridge address space containing the marker and no-op function.</param>
+    /// <param name="pointer">Marker record address.</param>
+    /// <param name="duration">Required delay word for this marker.</param>
     private static void RequireMarker(ISnesAddressSpace bus, ushort pointer, ushort duration)
     {
         RequireWord(ReadWord(bus, pointer), duration, "ending-text marker duration");
@@ -142,15 +161,33 @@ public static class EndingTextExtractor
         RequireWord(ReadWord(bus, EndingTextDefinitions.Native.MarkerData), EndingTextDefinitions.Native.DoNothingFunction, "ending-text marker function");
     }
 
+    /// <summary>Rejects a native word that differs from the compiled ending-text contract.</summary>
+    /// <param name="actual">Word read from the cartridge.</param>
+    /// <param name="expected">Required compiled word.</param>
+    /// <param name="identity">Field name used in the mismatch diagnostic.</param>
     private static void RequireWord(ushort actual, ushort expected, string identity)
     {
         if (actual != expected) throw new InvalidDataException(
             $"Native {identity} is ${actual:X4}, expected ${expected:X4}.");
     }
 
+    /// <summary>Reads one byte from the native ending-text bank.</summary>
+    /// <param name="bus">Cartridge address space supplying the byte.</param>
+    /// <param name="pointer">Bank-local address to read.</param>
+    /// <returns>The cartridge byte.</returns>
     private static byte ReadByte(ISnesAddressSpace bus, ushort pointer) =>
         bus.ReadCartridgeByte((int)new SnesAddress(EndingTextDefinitions.Native.Bank, pointer));
+
+    /// <summary>Reads a little-endian word from the native ending-text bank.</summary>
+    /// <param name="bus">Cartridge address space supplying the bytes.</param>
+    /// <param name="pointer">Bank-local address of the low byte.</param>
+    /// <returns>The decoded word.</returns>
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
         unchecked((ushort)(ReadByte(bus, pointer) | ReadByte(bus, Add(pointer, 1)) << 8));
+
+    /// <summary>Adds a byte displacement using the cartridge's 16-bit bank-local address width.</summary>
+    /// <param name="pointer">Starting bank-local address.</param>
+    /// <param name="bytes">Byte displacement.</param>
+    /// <returns>The wrapped 16-bit address.</returns>
     private static ushort Add(ushort pointer, int bytes) => unchecked((ushort)(pointer + bytes));
 }

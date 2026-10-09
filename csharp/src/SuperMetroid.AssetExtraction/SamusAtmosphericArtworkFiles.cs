@@ -14,7 +14,9 @@ public static class SamusAtmosphericArtworkFiles
     public const string ArtworkFileName = "samus-atmosphere.json";
     /// <summary>Stock manifest filename recording version-one format, cartridge provenance, and the atmospheric JSON's SHA-256.</summary>
     public const string ManifestFileName = "samus-atmosphere-manifest.json";
+    /// <summary>Schema version for the extracted atmospheric attribute lists.</summary>
     private const int FormatVersion = 1;
+    /// <summary>Strict camel-case JSON settings for atmospheric stock and override documents.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -83,6 +85,10 @@ public static class SamusAtmosphericArtworkFiles
         }
     }
 
+    /// <summary>Validates the two extracted attribute lists and creates the runtime catalog.</summary>
+    /// <param name="document">Parsed atmospheric artwork lists.</param>
+    /// <param name="source">Path used to identify invalid document data.</param>
+    /// <returns>A catalog containing the type-one and shared type-four lists.</returns>
     private static SamusAtmosphericArtworkCatalog Build(ArtworkDocument document, string source)
     {
         if (document.Version != FormatVersion || document.TypeOne is null ||
@@ -91,6 +97,10 @@ public static class SamusAtmosphericArtworkFiles
         return new SamusAtmosphericArtworkCatalog(document.TypeOne, document.SharedTypeFour);
     }
 
+    /// <summary>Reads the fixed number of packed direct-OBJ attributes at a native pointer.</summary>
+    /// <param name="bus">Cartridge address space supplying the bank-$90 words.</param>
+    /// <param name="pointer">Bank-local start of the attribute list.</param>
+    /// <returns>The packed attributes in frame order.</returns>
     private static ushort[] ReadList(ISnesAddressSpace bus, ushort pointer)
     {
         var words = new ushort[SamusMovementRomData.Environment.DirectAtmosphericFrameCount];
@@ -99,6 +109,11 @@ public static class SamusAtmosphericArtworkFiles
         return words;
     }
 
+    /// <summary>Confirms one atmospheric type remains bound to its known native pointer.</summary>
+    /// <param name="bus">Cartridge address space containing the pointer table.</param>
+    /// <param name="table">Address of the table's first pointer.</param>
+    /// <param name="type">Atmospheric type index to check.</param>
+    /// <param name="expected">Required pointer value, including intentional zero entries.</param>
     private static void AssertPointer(ISnesAddressSpace bus, int table, int type, ushort expected)
     {
         ushort actual = ReadWord(bus, table + type * 2);
@@ -107,9 +122,22 @@ public static class SamusAtmosphericArtworkFiles
                 $"Atmospheric type {type} points to ${actual:X4}, expected ${expected:X4}.");
     }
 
+    /// <summary>Reads a little-endian cartridge word.</summary>
+    /// <param name="bus">Cartridge address space supplying the bytes.</param>
+    /// <param name="address">Address of the low byte.</param>
+    /// <returns>The decoded 16-bit word.</returns>
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
+    /// <summary>Editable packed attribute lists for type one and the shared type-four family.</summary>
+    /// <param name="Version">Atmospheric JSON schema version.</param>
+    /// <param name="TypeOne">Four native direct-OBJ attributes for the type-one list.</param>
+    /// <param name="SharedTypeFour">Four attributes shared by atmospheric types four, six, and seven.</param>
     private sealed record ArtworkDocument(int Version, ushort[] TypeOne, ushort[] SharedTypeFour);
+
+    /// <summary>Stock provenance and integrity metadata for the atmospheric artwork JSON.</summary>
+    /// <param name="Version">Atmospheric JSON schema version.</param>
+    /// <param name="SourceCartridgeSha256">SHA-256 of the extraction cartridge revision.</param>
+    /// <param name="ArtworkSha256">SHA-256 of the stock artwork document bytes.</param>
     private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256, string ArtworkSha256);
 }

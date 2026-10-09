@@ -10,6 +10,7 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Installs independently editable ending Mode-7 maps and character PNGs.</summary>
 public static class EndingMode7ArtworkFiles
 {
+    /// <summary>Version of the ending Mode-7 stock manifest schema.</summary>
     private const int ManifestVersion = 2;
 
     /// <summary>Separates the three ending backdrops and reward icon into editable map JSON and indexed character PNGs, verifies native transfer round-trips, and creates their hashed manifest.</summary>
@@ -219,6 +220,7 @@ public static class EndingMode7ArtworkFiles
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
 
+    /// <summary>Strict camel-case JSON settings for ending Mode-7 manifests and map documents.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -226,6 +228,10 @@ public static class EndingMode7ArtworkFiles
         WriteIndented = true,
     };
 
+    /// <summary>Source provenance and stock hashes for each ending Mode-7 map and character sheet.</summary>
+    /// <param name="Version">Ending Mode-7 manifest schema version.</param>
+    /// <param name="SourceCartridgeSha256">SHA-256 of the cartridge revision used for extraction.</param>
+    /// <param name="StockSha256">Stock file hashes keyed by their installed filenames.</param>
     private sealed record Manifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, string> StockSha256);
 }

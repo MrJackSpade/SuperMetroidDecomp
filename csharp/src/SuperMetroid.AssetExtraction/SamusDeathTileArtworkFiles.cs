@@ -10,7 +10,9 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Exports the five native death graphics transfers into one indexed PNG.</summary>
 public static class SamusDeathTileArtworkFiles
 {
+    /// <summary>Version of the death-tile atlas provenance manifest.</summary>
     private const int FormatVersion = 1;
+    /// <summary>Strict camel-case settings for the death-tile stock manifest.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -82,5 +84,9 @@ public static class SamusDeathTileArtworkFiles
         }
     }
 
+    /// <summary>Stock provenance and PNG integrity metadata for the death-tile atlas.</summary>
+    /// <param name="Version">Death-tile manifest schema version.</param>
+    /// <param name="SourceCartridgeSha256">SHA-256 of the cartridge revision used for extraction.</param>
+    /// <param name="ArtworkSha256">SHA-256 of the stock indexed PNG bytes.</param>
     private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256, string ArtworkSha256);
 }

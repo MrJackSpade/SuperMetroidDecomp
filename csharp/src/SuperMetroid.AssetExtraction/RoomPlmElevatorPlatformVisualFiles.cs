@@ -16,8 +16,10 @@ public static class RoomPlmElevatorPlatformVisualFiles
     public const string VisualFileName = "elevator-platforms.json";
     /// <summary>Stock manifest filename containing version-one format, cartridge provenance, and the visual JSON's SHA-256.</summary>
     public const string ManifestFileName = "manifest.json";
+    /// <summary>Schema version accepted for elevator-platform visual documents and manifests.</summary>
     private const int FormatVersion = 1;
 
+    /// <summary>Shared camel-case JSON settings used for elevator-platform visual files.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -93,6 +95,9 @@ public static class RoomPlmElevatorPlatformVisualFiles
     /// <exception cref="InvalidDataException">Stock provenance, integrity, schema, or compiled appearance checks fail.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
+    /// <summary>Verifies every compiled elevator-platform draw record and extracts its editable visual words.</summary>
+    /// <param name="bus">Cartridge address space containing the bank-$84 platform draws.</param>
+    /// <returns>Named entries preserving every compiled run and word position.</returns>
     private static RoomPlmElevatorPlatformVisualEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
         var entries = new List<RoomPlmElevatorPlatformVisualEntry>();
@@ -134,6 +139,9 @@ public static class RoomPlmElevatorPlatformVisualFiles
         return entries.ToArray();
     }
 
+    /// <summary>Requires stock visual words to equal the visual portion of every compiled platform word.</summary>
+    /// <param name="catalog">Validated stock catalog to compare.</param>
+    /// <param name="path">Stock filename included in mismatch errors.</param>
     private static void VerifyStockMatchesCompiled(RoomPlmElevatorPlatformVisualCatalog catalog,
         string path)
     {
@@ -151,6 +159,10 @@ public static class RoomPlmElevatorPlatformVisualFiles
         }
     }
 
+    /// <summary>Validates a decoded elevator-platform document and constructs its immutable catalog.</summary>
+    /// <param name="document">Decoded document with versioned entries.</param>
+    /// <param name="path">Source filename included in validation errors.</param>
+    /// <returns>The validated catalog.</returns>
     private static RoomPlmElevatorPlatformVisualCatalog CreateCatalog(
         VisualDocument document, string path)
     {
@@ -164,7 +176,16 @@ public static class RoomPlmElevatorPlatformVisualFiles
         }
     }
 
+    /// <summary>Reads and decodes a required elevator-platform JSON file.</summary>
+    /// <typeparam name="T">Document type to deserialize.</typeparam>
+    /// <param name="path">File to read and identify in errors.</param>
+    /// <returns>The decoded non-null document.</returns>
     private static T ReadJson<T>(string path) => ReadJson<T>(File.ReadAllBytes(path), path);
+    /// <summary>Decodes elevator-platform JSON bytes and translates malformed or empty content into data errors.</summary>
+    /// <typeparam name="T">Document type to deserialize.</typeparam>
+    /// <param name="bytes">UTF-8 JSON payload.</param>
+    /// <param name="path">Logical source filename included in errors.</param>
+    /// <returns>The decoded non-null document.</returns>
     private static T ReadJson<T>(byte[] bytes, string path)
     {
         try
@@ -178,11 +199,22 @@ public static class RoomPlmElevatorPlatformVisualFiles
         }
     }
 
+    /// <summary>Reads a little-endian word from a bank-$84 draw-list offset.</summary>
+    /// <param name="bus">Cartridge address space to read.</param>
+    /// <param name="pointer">Sixteen-bit bank-relative address.</param>
+    /// <returns>The decoded word.</returns>
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
         unchecked((ushort)(bus.ReadCartridgeByte(0x840000 | pointer) |
             bus.ReadCartridgeByte(0x840000 | unchecked((ushort)(pointer + 1))) << 8));
 
+    /// <summary>Records the schema, source cartridge identity, and stock visual payload hash.</summary>
+    /// <param name="Version">Manifest schema version.</param>
+    /// <param name="SourceCartridgeSha256">SHA-256 identity of the extraction cartridge.</param>
+    /// <param name="VisualSha256">SHA-256 of the exact stock visual JSON bytes.</param>
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);
+    /// <summary>Represents the complete editable elevator-platform visual document.</summary>
+    /// <param name="Version">Visual document schema version.</param>
+    /// <param name="Entries">Named entries for all three compiled platform frames.</param>
     private sealed record VisualDocument(int Version, RoomPlmElevatorPlatformVisualEntry[] Entries);
 }

@@ -19,8 +19,11 @@ public enum HibashiEnemyFunction : ushort
 /// </summary>
 public sealed class HibashiEnemyState
 {
+    /// <summary>Population record whose native variables back this Hibashi state view.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a state view over one Hibashi population record.</summary>
+    /// <param name="slot">Enemy slot containing this part's shared variables and native parameters.</param>
     internal HibashiEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Graphics part's same-bank function word in common variable A, initialized to inactive; nonzero population parts do not dispatch this state machine.</summary>
@@ -66,6 +69,7 @@ public sealed class HibashiEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Per-slot Hibashi state views, populated when each Hibashi part is initialized.</summary>
     private readonly HibashiEnemyState?[] _hibashiStates =
         new HibashiEnemyState?[MaximumEnemyCount];
 
@@ -200,6 +204,10 @@ public sealed partial class RoomEnemySystem
         return _slots[graphics.SlotIndex + 1];
     }
 
+    /// <summary>Gets the initialized Hibashi state associated with an enemy slot.</summary>
+    /// <param name="slot">Hibashi slot whose state is required.</param>
+    /// <returns>The state view created for the slot during Hibashi initialization.</returns>
+    /// <exception cref="InvalidOperationException">The slot has not been initialized as Hibashi.</exception>
     private HibashiEnemyState RequireHibashiState(RoomEnemySlot slot) =>
         _hibashiStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Hibashi state.");

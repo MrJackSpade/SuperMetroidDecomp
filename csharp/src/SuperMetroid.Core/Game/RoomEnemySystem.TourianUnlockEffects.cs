@@ -4,6 +4,8 @@ public sealed partial class RoomEnemySystem
 {
     /// <summary>FX surface used by the native unlocking particles and their splash actors.</summary>
     internal ushort TourianStatueWaterY { get; set; }
+
+    /// <summary>Attempts to allocate and initialize the four dust projectiles emitted during the statue descent.</summary>
     internal void SpawnTourianDescentDust()
     {
         for (int count = 0; count < 4; count++)
@@ -41,6 +43,9 @@ public sealed partial class RoomEnemySystem
                 .ApplyEye(_cgram!, parameter);
     }
 
+    /// <summary>Creates a supported splash, particle, or tail child at its parent's position.</summary>
+    /// <param name="parent">Projectile whose position seeds the child placement.</param>
+    /// <param name="definition">Native bank-$86 child definition selecting the child kind and initialization.</param>
     private void SpawnTourianParticleChild(RoomEnemyProjectileSlot parent, ushort definition)
     {
         var projectile = AllocateEnemyProjectile();
@@ -65,6 +70,9 @@ public sealed partial class RoomEnemySystem
         projectile.YVelocity = unchecked((ushort)(4 * EnemyTrigonometryTables.SignedNegativeCosineWord(angle)));
     }
 
+    /// <summary>Applies one update of a recognized Tourian unlock effect's native motion routine.</summary>
+    /// <param name="projectile">Active effect record whose position and lifetime are advanced.</param>
+    /// <returns><see langword="true"/> when the projectile's pre-instruction was handled.</returns>
     private bool TryStepTourianUnlockEffect(RoomEnemyProjectileSlot projectile)
     {
         switch (projectile.PreInstruction)
@@ -98,6 +106,11 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Executes a supported Tourian unlock instruction and advances its operand cursor.</summary>
+    /// <param name="projectile">Effect record receiving the instruction's state changes.</param>
+    /// <param name="code">Instruction pointer or native command identifier to dispatch.</param>
+    /// <param name="cursor">Instruction-stream position, advanced past the handled opcode and operands.</param>
+    /// <returns><see langword="true"/> if this method handled the command; otherwise the caller can try another dispatcher.</returns>
     private bool TryExecuteTourianUnlockInstruction(RoomEnemyProjectileSlot projectile, ushort code, ref ushort cursor)
     {
         switch (code)

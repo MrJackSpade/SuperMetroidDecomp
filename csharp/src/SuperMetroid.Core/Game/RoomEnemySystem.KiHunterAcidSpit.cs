@@ -6,10 +6,14 @@ public sealed partial class RoomEnemySystem
 {
     // Definition records hold the idle RTS at $86:CFF7; the start-moving callbacks install
     // the mover at $86:CFF8, so the spit does not move on the frames before that.
+    /// <summary>Pre-instruction installed by the one-shot callback that shifts the spit before continuous movement.</summary>
     private const ushort KiHunterAcidMovingPreInstruction =
         EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KiHunterAcid_Moving;
+    /// <summary>Horizontal launch speed of three pixels per update in signed 8.8 fixed-point units.</summary>
     private const ushort KiHunterAcidHorizontalSpeed = 0x0300;
+    /// <summary>Vertical speed added each update by the projectile's 8.8 fixed-point gravity step.</summary>
     private const ushort KiHunterAcidGravity = 0x0010;
+    /// <summary>Maximum downward speed, two pixels per update in 8.8 fixed-point units.</summary>
     private const ushort KiHunterAcidTerminalYSpeed = 0x0200;
 
     /// <summary>

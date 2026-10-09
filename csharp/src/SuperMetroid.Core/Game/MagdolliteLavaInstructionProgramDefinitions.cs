@@ -16,7 +16,10 @@ internal abstract class MagdolliteLavaInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_Shot_MagdolliteFlame</c> at $86:DFE4.</summary>
     internal const ushort Shot = 0xdfe4;
 
+    /// <summary>Gets the seven compiled words for the two facing poses and the shot-triggered drop/delete program.</summary>
     public static int MechanicsWordCount => 7;
+
+    /// <summary>Gets the two interleaved spritemap operands for the left- and right-facing poses.</summary>
     public static int PresentationWordCount => 2;
 
     /// <summary>Each facing displays a one-tick pose then sleeps; being shot spawns drops and deletes.</summary>
@@ -39,12 +42,19 @@ internal abstract class MagdolliteLavaInstructionProgramDefinitions
         return new((ushort)(Shot + 2 * (index - 4)), command);
     }
 
+    /// <summary>Returns the address of the selected facing pose's spritemap operand.</summary>
+    /// <param name="index">Zero-based pose index: 0 for left-facing or 1 for right-facing.</param>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> is not one of the two poses.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
         return (ushort)(Left + 6 * index + 2);
     }
+    /// <summary>Resolves an exact compiled mechanics-word address for the Magdollite lava projectile.</summary>
+    /// <param name="address">Bank-$86 address to look up.</param>
+    /// <returns>The duration or command stored at the matching address.</returns>
+    /// <exception cref="InvalidDataException">The address is not a compiled mechanics word.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

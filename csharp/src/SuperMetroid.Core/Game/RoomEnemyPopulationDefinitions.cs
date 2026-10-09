@@ -3,7 +3,13 @@ namespace SuperMetroid.Core.Game;
 /// <summary>One immutable ordered bank-$A1 room population and its terminator quota.</summary>
 public sealed class RoomEnemyPopulationDefinition
 {
+    /// <summary>Stores placements in native record order for the read-only <see cref="Records"/> view.</summary>
     private readonly RoomEnemyPopulationRecord[] records;
+
+    /// <summary>Creates a compiled room population while retaining its native identity, ordered placements, and quota.</summary>
+    /// <param name="pointer">The bank-$A1 pointer that identifies this terminated population list.</param>
+    /// <param name="records">The placements preceding the native $FFFF terminator, in initialization order.</param>
+    /// <param name="deathQuota">The literal byte following the terminator, used as the nonempty room's kill-count requirement.</param>
     internal RoomEnemyPopulationDefinition(ushort pointer, RoomEnemyPopulationRecord[] records, byte deathQuota)
     {
         Pointer = pointer;
@@ -27,6 +33,7 @@ public sealed class RoomEnemyPopulationDefinition
 /// </remarks>
 public static partial class RoomEnemyPopulationDefinitions
 {
+    /// <summary>Holds all compiled population definitions in ascending native-pointer order.</summary>
     private static readonly RoomEnemyPopulationDefinition[] Definitions =
     [
         ..BuildSegment0(),
@@ -40,6 +47,7 @@ public static partial class RoomEnemyPopulationDefinitions
     /// <summary>Total placement records across the distinct compiled lists, excluding terminators and without counting repeated references from room states.</summary>
     public const int RecordCount = 1658;
 
+    /// <summary>Checks that the compiled catalog matches its declared totals and remains strictly pointer-ordered.</summary>
     static RoomEnemyPopulationDefinitions()
     {
         if (Definitions.Length != ListCount || Definitions.Sum(list => list.Records.Length) != RecordCount)

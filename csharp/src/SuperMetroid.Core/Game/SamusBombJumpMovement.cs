@@ -129,6 +129,13 @@ public static class SamusBombJumpMovement
         return new BombJumpMovementResult(vertical, FellWithoutFloor: movedDown);
     }
 
+    /// <summary>Applies one gravity step and moves along the vertical arc, switching to falling when displacement is nonnegative.</summary>
+    /// <param name="bus">Address space used by collision and moving-platform checks.</param>
+    /// <param name="level">Room geometry against which Samus moves.</param>
+    /// <param name="samus">State whose vertical speed and position are advanced.</param>
+    /// <param name="nmiFrameCounter">Frame counter used to preserve the native alternating collision scan order.</param>
+    /// <param name="plms">Room objects considered during vertical collision resolution.</param>
+    /// <returns>The vertical collision result and whether this displacement follows the downward path.</returns>
     private static (BlockMoveResult Result, bool MovedDown) MoveUpWithGravity(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -162,6 +169,11 @@ public static class SamusBombJumpMovement
         return (result, displacement >= 0);
     }
 
+    /// <summary>Clears bomb-jump ownership and returns the vertical collision result that ended the special handler.</summary>
+    /// <param name="samus">State whose bomb-jump and pose-input flags are reset.</param>
+    /// <param name="horizontal">Horizontal collision result from this frame; termination reports only the vertical result.</param>
+    /// <param name="vertical">Vertical collision result to expose in the returned frame result, if one exists.</param>
+    /// <returns>A frame result carrying the optional vertical collision.</returns>
     private static BombJumpMovementResult End(
         SamusState samus,
         BlockMoveResult? horizontal,
@@ -177,6 +189,8 @@ public static class SamusBombJumpMovement
 }
 
 /// <summary>Observable output of one special bomb-jump handler frame.</summary>
+/// <param name="Vertical">Vertical block-movement result produced during the frame, when vertical movement ran.</param>
+/// <param name="FellWithoutFloor">Whether the vertical displacement selected downward movement without reporting a floor collision.</param>
 public readonly record struct BombJumpMovementResult(
     BlockMoveResult? Vertical,
     bool FellWithoutFloor = false);

@@ -63,6 +63,7 @@ internal abstract class RoomSpriteObjectInstructionProgramDefinitions
     /// <summary>Native program bank $B4.</summary>
     internal const byte Bank = 0xb4;
 
+    /// <summary>Compiled bank-$B4 instruction layouts for room sprite objects and their ordered frame-presentation slots.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xbe24),
         Frame(6),
@@ -597,9 +598,19 @@ internal abstract class RoomSpriteObjectInstructionProgramDefinitions
         Frame(10),
         Frame(10),
         Op(Goto, SpriteObject3CEvirFacingRight));
+    /// <summary>Number of frame operands in the compiled sprite-object programs that supply visual frames.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+
+    /// <summary>Gets the bank-$B4 address of a frame operand by its presentation-slot index.</summary>
+    /// <param name="index">Zero-based slot from zero through <see cref="PresentationWordCount"/> minus one.</param>
+    /// <returns>The instruction address containing that frame operand.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the presentation slots.</exception>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
+    /// <summary>Reads a compiled control or timing word from a room sprite-object instruction program.</summary>
+    /// <param name="address">Bank-$B4 address of the instruction word.</param>
+    /// <returns>The mechanics word stored at the requested address.</returns>
+    /// <exception cref="InvalidDataException">The address is not represented by a compiled sprite-object program.</exception>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

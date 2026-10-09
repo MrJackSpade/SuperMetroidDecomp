@@ -14,6 +14,7 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class SamusPoseTransitionTable
 {
+    /// <summary>Controller bits excluded from both held and newly pressed input when matching pose chords.</summary>
     private const ushort StartAndSelectMask = 0x3000;
 
     /// <summary>
@@ -70,6 +71,7 @@ public static class SamusPoseTransitionTable
 }
 
 /// <summary>Debugger-readable winning six-byte transition-table record.</summary>
+/// <param name="ProspectivePose">Target pose selected by the winning record, before the runtime applies its transition effects.</param>
 public readonly record struct SamusPoseTransition(
     ushort ProspectivePose);
 
@@ -77,6 +79,8 @@ public readonly record struct SamusPoseTransition(
 /// Full control-flow result from <c>$91:81A9</c>, including its otherwise invisible
 /// branch into pose-definition fallback at <c>$91:82D9</c>.
 /// </summary>
+/// <param name="Transition">Winning pose change, or null when lookup returns without changing pose.</param>
+/// <param name="UsesPoseDefinitionFallback">Whether native lookup continues into pose-definition handling after no transition is selected.</param>
 public readonly record struct SamusPoseTransitionLookup(
     SamusPoseTransition? Transition,
     bool UsesPoseDefinitionFallback);

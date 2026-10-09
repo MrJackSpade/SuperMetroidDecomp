@@ -19,5 +19,9 @@ internal static class SamusBombSpreadLaunchDefinitions
 }
 
 /// <summary>One physical bomb's fuse and initial velocity; X retains the native direction bit rather than signed-short interpretation.</summary>
+/// <param name="FuseTimer">Countdown value assigned to the bomb's detonation timer.</param>
+/// <param name="XVelocity">Native encoded horizontal velocity, including its direction bit.</param>
+/// <param name="YSpeed">Whole-pixel upward speed before the charge-dependent vertical modifier.</param>
+/// <param name="YSubspeed">Initial fractional vertical-speed component copied to the projectile.</param>
 internal readonly record struct BombSpreadLaunchDefinition(
     ushort FuseTimer, ushort XVelocity, ushort YSpeed, ushort YSubspeed);

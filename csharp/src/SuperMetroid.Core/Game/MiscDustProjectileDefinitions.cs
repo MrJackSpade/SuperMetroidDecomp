@@ -1,6 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One randomized room-coordinate placement record for bank-$86 misc dust.</summary>
+/// <param name="XMask">Mask applied to the low random-number bits to select a horizontal offset.</param>
+/// <param name="YMask">Mask applied to the upper random-number bits to select a vertical offset.</param>
+/// <param name="XBase">Signed horizontal offset added before the masked random component.</param>
+/// <param name="YBase">Signed vertical offset added before the masked random component.</param>
 internal readonly record struct MiscDustPlacementDefinition(
     ushort XMask,
     ushort YMask,

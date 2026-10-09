@@ -10,10 +10,19 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class CeresDoorRumbleGeometryDefinitions
 {
+    /// <summary>Number of discrete anchor positions in the native destruction formation.</summary>
     internal const int Count = 4;
+    /// <summary>Horizontal pixel spacing between adjacent formation columns.</summary>
     private const int ColumnSpacing = 2;
+    /// <summary>Vertical pixel offsets ordered by the native interleaved anchor traversal.</summary>
     private static readonly short[] VerticalPlacements = [-8, 4, 22, 12];
 
+    /// <summary>
+    /// Returns the selected anchor's relative displacement from the Ceres door rumble origin.
+    /// </summary>
+    /// <param name="index">Zero-based position in the native four-anchor traversal.</param>
+    /// <returns>Horizontal and vertical pixel offsets for that anchor.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the four defined anchors.</exception>
     internal static (short X, short Y) Offset(int index)
     {
         if ((uint)index >= Count)

@@ -28,9 +28,15 @@ internal abstract class DragonInstructionProgramDefinitions
     /// <summary><c>$A2:E5FB</c>, marks the current body attack animation complete.</summary>
     internal const ushort AttackFinishedCallback = 0xe5fb;
 
+    /// <summary>Number of control-flow and timing words compiled from Dragon's six instruction layouts.</summary>
     public static int MechanicsWordCount => 26;
+    /// <summary>Number of spritemap operand words tracked separately from Dragon's mechanics.</summary>
     public static int PresentationWordCount => 16;
 
+    /// <summary>Maps an ordinal mechanics entry to its bank-$A2 address and control or timing word.</summary>
+    /// <param name="index">Zero-based index in the combined idle, wing, and attack mechanics list.</param>
+    /// <returns>The address/value pair used to model that instruction word.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the 26 compiled mechanics words.</exception>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
@@ -61,6 +67,10 @@ internal abstract class DragonInstructionProgramDefinitions
         return new((ushort)(attack + (attackWord < 6 ? 4 * attackWord : 22)), value);
     }
 
+    /// <summary>Maps a presentation operand ordinal to its bank-$A2 instruction address.</summary>
+    /// <param name="index">Zero-based index among the sixteen separately tracked spritemap words.</param>
+    /// <returns>The address of the operand in Dragon's idle or attack instruction programs.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the compiled presentation words.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)

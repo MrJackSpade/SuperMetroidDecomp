@@ -14,11 +14,21 @@ internal abstract class PolypInstructionProgramDefinitions
     /// <summary><c>Spritemap_Polyp</c> at $A2:B5FB, selected by the one stationary pose at $B51C.</summary>
     internal const ushort StationaryFrame = 0xb5fb;
 
+    /// <summary>Resolves Polyp's sole presentation operand to its stationary spritemap pointer.</summary>
+    /// <param name="operandAddress">Address of the compiled spritemap operand.</param>
+    /// <returns>The stationary frame pointer selected by that operand.</returns>
+    /// <exception cref="InvalidDataException">The address is not Polyp's presentation operand.</exception>
     internal static ushort FrameAt(ushort operandAddress) =>
         operandAddress == PresentationWord ? StationaryFrame
             : throw new InvalidDataException("Polyp visual operand is outside its stationary program.");
 
+    /// <summary>Gets the two mechanics words: a one-tick duration followed by the shared sleep command.</summary>
     public static int MechanicsWordCount => 2;
+
+    /// <summary>Returns the duration or sleep command at a zero-based position in Polyp's stationary program.</summary>
+    /// <param name="index">Mechanics-word index: zero selects the duration and one selects the sleep command.</param>
+    /// <returns>The address and value of the selected mechanics word.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside the two-word program.</exception>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -26,6 +36,10 @@ internal abstract class PolypInstructionProgramDefinitions
             index == 0 ? (ushort)1 : CommonEnemyInstructionCodes.Sleep);
     }
 
+    /// <summary>Resolves an exact compiled mechanics-word address in Polyp's stationary program.</summary>
+    /// <param name="address">Bank-$A2 address to look up.</param>
+    /// <returns>The mechanics word stored at the matching address.</returns>
+    /// <exception cref="InvalidDataException">The address does not identify either compiled mechanics word.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

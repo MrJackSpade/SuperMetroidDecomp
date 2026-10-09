@@ -49,6 +49,7 @@ internal abstract class KiHunterInstructionProgramDefinitions
     /// <summary>Native program bank $A8.</summary>
     internal const byte Bank = 0xa8;
 
+    /// <summary>Compiled Ki Hunter body and wing programs, with their frame words identified for installed visual data.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xe9fa),
         Entry(FlyingLeft),
@@ -146,9 +147,19 @@ internal abstract class KiHunterInstructionProgramDefinitions
         Op(KihunterSetFunctionToWinglessThinking),
         Frame(1),
         Op(CommonEnemyInstructionCodes.Sleep));
+    /// <summary>Number of frame words in the compiled Ki Hunter programs that select presentation artwork.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+
+    /// <summary>Gets the bank-$A8 address for a frame word identified by presentation-slot index.</summary>
+    /// <param name="index">Zero-based slot from zero through <see cref="PresentationWordCount"/> minus one.</param>
+    /// <returns>The instruction-list address of that frame word.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the presentation slots.</exception>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
+    /// <summary>Reads a compiled mechanics word from one of the Ki Hunter instruction programs.</summary>
+    /// <param name="address">Bank-$A8 address of the instruction word.</param>
+    /// <returns>The control or timing word stored at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not a compiled Ki Hunter mechanics word.</exception>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

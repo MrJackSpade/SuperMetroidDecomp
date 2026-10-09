@@ -25,7 +25,10 @@ internal abstract class CeresFallingDebrisInstructionProgramDefinitions
     /// </summary>
     internal const ushort Dark = 0x9756;
 
+    /// <summary>Gets the four duration and sleep-command words compiled from the light and dark projectile lists.</summary>
     public static int MechanicsWordCount => 4;
+
+    /// <summary>Gets the two spritemap operands kept in the separate presentation catalog.</summary>
     public static int PresentationWordCount => 2;
 
     /// <summary>Two six-byte programs each display one frame for one tick, then sleep.</summary>
@@ -49,10 +52,17 @@ internal abstract class CeresFallingDebrisInstructionProgramDefinitions
             throw new IndexOutOfRangeException();
         return (ushort)(Light + 6 * index + 2);
     }
+    /// <summary>Determines whether a projectile kind uses one of the two Ceres falling-debris instruction lists.</summary>
+    /// <param name="kind">Projectile kind to classify.</param>
+    /// <returns><see langword="true"/> for the light or dark falling-debris projectile.</returns>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.CeresFallingDebrisLight or
         RoomEnemyProjectileKind.CeresFallingDebrisDark;
 
+    /// <summary>Returns a compiled duration or sleep command for an exact mechanics-word address.</summary>
+    /// <param name="address">Bank-$86 instruction address to resolve.</param>
+    /// <returns>The mechanics word stored at the matching compiled address.</returns>
+    /// <exception cref="InvalidDataException">The address is not one of the four compiled mechanics words.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

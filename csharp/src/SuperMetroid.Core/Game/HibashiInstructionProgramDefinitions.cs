@@ -19,14 +19,23 @@ internal abstract class HibashiInstructionProgramDefinitions
     private const ushort FirstActivityFrame = 0x8e13;
     /// <summary><c>Instruction_Hibashi_ActivityFrame1</c> at $A6:8E2D starts the twenty-byte activity callback stride.</summary>
     private const ushort FollowingActivityFrames = 0x8e2d;
+
+    /// <summary>Number of interleaved graphics and hitbox spritemap operands in the compiled Hibashi programs.</summary>
     public static int PresentationWordCount => 24;
 
+    /// <summary>Gets the bank-local address of one visual operand in the graphics or hitbox program.</summary>
+    /// <param name="index">Zero-based operand index from zero through <see cref="PresentationWordCount"/> minus one.</param>
+    /// <returns>The native instruction address containing the selected spritemap pointer.</returns>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(index < 23 ? GraphicsProgram + 4 + index * 6 : HitboxProgram + 2);
     }
 
+    /// <summary>Reads a compiled duration or callback word and rejects addresses outside the known mechanics positions.</summary>
+    /// <param name="address">Bank-$A6 instruction address whose mechanics value is requested.</param>
+    /// <returns>The compiled instruction value at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not a compiled mechanics word.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (TryRead(address, out ushort value)) return value;
@@ -34,6 +43,10 @@ internal abstract class HibashiInstructionProgramDefinitions
             $"Hibashi instruction mechanics pointer $A6:{address:X4} is not compiled.");
     }
 
+    /// <summary>Attempts to resolve one bank-local Hibashi program address to its compiled mechanics word.</summary>
+    /// <param name="address">Bank-$A6 address to classify.</param>
+    /// <param name="value">Receives the compiled value when found, or zero when the address is not mechanics data.</param>
+    /// <returns><see langword="true"/> when the address contains a compiled command, duration, or activity callback.</returns>
     internal static bool TryRead(int address, out ushort value)
     {
         value = address switch

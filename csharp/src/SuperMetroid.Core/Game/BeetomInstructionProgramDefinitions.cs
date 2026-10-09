@@ -31,8 +31,12 @@ internal abstract class BeetomInstructionProgramDefinitions
     /// <summary>The repeating left-drain frame list at $A8:B6DE.</summary>
     internal const ushort DrainingLeftLoop = 0xb6de;
 
+    /// <summary>Byte distance between corresponding left-facing and right-facing Beetom program layouts.</summary>
     internal const int FacingStride = CrawlingRight - CrawlingLeft;
 
+    /// <summary>Tests whether a bank-local instruction pointer addresses an interleaved spritemap operand.</summary>
+    /// <param name="address">Instruction pointer within bank $A8.</param>
+    /// <returns><see langword="true"/> for a presentation word in either facing's crawling, hopping or draining programs.</returns>
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - CrawlingLeft;
@@ -45,6 +49,10 @@ internal abstract class BeetomInstructionProgramDefinitions
         return (local <= 14 && local % 4 == 2) || (local >= 20 && local <= 32 && local % 4 == 0);
     }
 
+    /// <summary>Returns the compiled timing or control word for a Beetom instruction pointer.</summary>
+    /// <param name="address">Bank-local instruction pointer in one of the compiled left- or right-facing programs.</param>
+    /// <returns>The mechanics opcode, duration, or continuation pointer at that word position.</returns>
+    /// <exception cref="InvalidDataException">The address does not identify a compiled mechanics word.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - CrawlingLeft;
@@ -78,6 +86,9 @@ internal abstract class BeetomInstructionProgramDefinitions
         throw new InvalidDataException($"Beetom instruction mechanics pointer $A8:{address:X4} is not compiled.");
     }
 
+    /// <summary>Classifies an offset within one facing's program stride as an engine-control or timing word.</summary>
+    /// <param name="local">Byte offset from the start of the left-facing layout, reduced to one facing's stride.</param>
+    /// <returns><see langword="true"/> when the offset holds compiled mechanics data rather than a spritemap operand.</returns>
     internal static bool IsMechanicsPosition(int local)
     {
         if (local < HopLeft - CrawlingLeft)

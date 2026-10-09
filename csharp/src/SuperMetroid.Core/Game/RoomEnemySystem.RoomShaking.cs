@@ -80,6 +80,10 @@ public sealed partial class RoomEnemySystem
 }
 
 /// <summary>Signed PPU-scroll deltas produced by one accepted gameplay frame.</summary>
+/// <param name="Bg1X">Horizontal scroll adjustment for background 1.</param>
+/// <param name="Bg1Y">Vertical scroll adjustment for background 1.</param>
+/// <param name="Bg2X">Horizontal scroll adjustment for background 2.</param>
+/// <param name="Bg2Y">Vertical scroll adjustment for background 2.</param>
 public readonly record struct RoomShakeFrameResult(
     short Bg1X,
     short Bg1Y,

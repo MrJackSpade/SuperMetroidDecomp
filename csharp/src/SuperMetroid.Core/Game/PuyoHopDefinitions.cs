@@ -1,6 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One native hop's fixed mechanics; the delta also serves as packed 8.8 dropping speed.</summary>
+/// <param name="Height">ROM jump-height threshold used to choose the initial position on the vertical speed curve.</param>
+/// <param name="XSpeed">Packed 8.8 horizontal speed used to accumulate hop time; NTSC movement applies its whole-pixel byte.</param>
+/// <param name="YIndexDelta">Packed 8.8 vertical-curve index increment, reused as the dropping displacement fraction.</param>
+/// <param name="Function">Airborne dispatcher branch that controls the hop or recovery behavior.</param>
 public readonly record struct PuyoHopDefinition(ushort Height, ushort XSpeed, ushort YIndexDelta, PuyoAirborneFunction Function);
 
 /// <summary>Seven immutable NTSC Puyo hop definitions, independent of animation artwork.</summary>

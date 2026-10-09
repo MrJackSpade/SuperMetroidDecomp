@@ -217,6 +217,8 @@ public sealed class SamusDraygonGrabbedState
         return published;
     }
 
+    /// <summary>Requires the grabbed-state timer handler to remain active before escape handling continues.</summary>
+    /// <param name="samus">Samus state whose grabbed-pose operation is being guarded.</param>
     private void EnsureActiveGrabbedPose(SamusState samus)
     {
         if (!IsActive)
@@ -229,6 +231,8 @@ public sealed class SamusDraygonGrabbedState
         // and movement handler. Crystal Flash can replace both while still held.
     }
 
+    /// <summary>Rejects movement processing unless Samus is in one of Draygon's native grabbed poses.</summary>
+    /// <param name="samus">Samus state whose current pose must belong to the grabbed-pose family.</param>
     private static void EnsureGrabbedPose(SamusState samus)
     {
         if (!SamusState.IsDraygonGrabbedPose(samus.Pose))
@@ -246,6 +250,8 @@ public readonly record struct DraygonGrabbedMovementResult();
 public readonly record struct DraygonOwnerPlacement();
 
 /// <summary>One timer/hack-handler pass at `$90:E2A1`.</summary>
+/// <param name="SuppressProspectivePose">Whether the caller should suppress the pose transition selected before this handler ran.</param>
+/// <param name="Released">Whether this pass crossed the escape threshold and performed release cleanup.</param>
 public readonly record struct DraygonEscapeResult(
     bool SuppressProspectivePose,
     bool Released);

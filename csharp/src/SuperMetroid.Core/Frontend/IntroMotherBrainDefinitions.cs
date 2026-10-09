@@ -47,10 +47,14 @@ internal static class IntroMotherBrainDefinitions
 }
 
 /// <summary>One native six-byte bank-$8B cinematic-object definition.</summary>
+/// <param name="InstructionList">Bank-$8B instruction-list address from which the cinematic object begins execution.</param>
 internal readonly record struct IntroMotherBrainActorDefinition(
     ushort InstructionList);
 
 /// <summary>One signed origin-offset and start-delay record for an intro explosion actor.</summary>
+/// <param name="XOffset">Signed horizontal displacement from Mother Brain's cinematic origin.</param>
+/// <param name="YOffset">Signed vertical displacement from Mother Brain's cinematic origin.</param>
+/// <param name="StartTimer">Number of actor updates to wait before consuming its first instruction-list entry.</param>
 internal readonly record struct IntroMotherBrainExplosionPlacement(
     short XOffset,
     short YOffset,

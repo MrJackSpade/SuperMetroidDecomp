@@ -1,9 +1,13 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One hand-relative placement used by Bomb Torizo's explosive swipe.</summary>
+/// <param name="XOffset">Horizontal pixel displacement from the attacking hand.</param>
+/// <param name="YOffset">Vertical pixel displacement from the attacking hand.</param>
 internal readonly record struct BombTorizoSwipeDefinition(short XOffset, short YOffset);
 
 /// <summary>One body-relative placement used by Bomb Torizo's low-health explosions.</summary>
+/// <param name="XOffset">Horizontal pixel displacement from Bomb Torizo's body origin.</param>
+/// <param name="YOffset">Vertical pixel displacement from Bomb Torizo's body origin.</param>
 internal readonly record struct BombTorizoExplosionDefinition(short XOffset, short YOffset);
 
 /// <summary>Fixed physical placement definitions for Bomb Torizo's body projectiles.</summary>

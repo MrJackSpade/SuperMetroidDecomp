@@ -6,7 +6,9 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Byte-oriented $A6:C2A7 text interpreter; each accepted call writes at most one glyph.</summary>
 public sealed class EscapeTypewriterState
 {
+    /// <summary>Complete tilemap word for the A glyph, used as the base for each installed letter code.</summary>
     private readonly ushort tileBase;
+    /// <summary>Host-provided warning lines reattached after construction or debugger-state restoration.</summary>
     [NonSerialized] private EscapeTypewriterProgram? installedProgram;
 
     /// <summary>Creates an unbound warning-text state retaining the native source identity; attach host text with <see cref="BindProgram"/> before interpreting it.</summary>
@@ -83,6 +85,10 @@ public sealed class EscapeTypewriterState
         return StepInstalled(program, vram);
     }
 
+    /// <summary>Consumes the next eligible line character, initializes the delay on first use, and marks completion after the last line.</summary>
+    /// <param name="program">Bound warning content whose lines and destinations drive this step.</param>
+    /// <param name="vram">VRAM used for non-space glyph transfers.</param>
+    /// <returns><see langword="true"/> only after the line cursor has passed every program line.</returns>
     private bool StepInstalled(EscapeTypewriterProgram program, SnesVram vram)
     {
         DelayTimer = Delay;
@@ -110,6 +116,9 @@ public sealed class EscapeTypewriterState
         return Completed = true;
     }
 
+    /// <summary>Writes a non-space character as one tilemap word and advances the destination for every character.</summary>
+    /// <param name="character">Next text byte; an exclamation mark selects the cartridge's dedicated punctuation glyph.</param>
+    /// <param name="vram">VRAM receiving a tile transfer when the character is not a space.</param>
     private void WriteCharacter(byte character, SnesVram vram)
     {
         if (character != (byte)' ')

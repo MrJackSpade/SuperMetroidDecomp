@@ -12,7 +12,9 @@ internal abstract class EyeDoorSweatInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_EyeDoorSweat_Impact</c> at $86:B61D.</summary>
     internal const ushort Impact = 0xb61d;
 
+    /// <summary>Number of address/value entries in the falling and impact mechanics program.</summary>
     public static int MechanicsWordCount => 8;
+    /// <summary>Number of presentation operand words resolved from extracted spritemap data.</summary>
     public static int PresentationWordCount => 4;
 
     /// <summary>Falling draws once and loops; impact clears movement, draws three frames and deletes.</summary>
@@ -30,11 +32,23 @@ internal abstract class EyeDoorSweatInstructionProgramDefinitions
         };
     }
 
+    /// <summary>
+    /// Maps a presentation operand's ordinal in the compiled lists to its native instruction address.
+    /// </summary>
+    /// <param name="index">Zero-based ordinal across the falling and impact spritemap operands.</param>
+    /// <returns>The address whose value is supplied by extracted presentation artwork.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the presentation-word list.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(index == 0 ? Initial + 2 : Impact + 4 + 4 * (index - 1));
     }
+    /// <summary>
+    /// Resolves a compiled mechanics word by instruction address for bus-backed instruction execution.
+    /// </summary>
+    /// <param name="address">Instruction address to look up in the falling and impact mechanics program.</param>
+    /// <returns>The compiled duration or operation word at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not one of the compiled mechanics-word addresses.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

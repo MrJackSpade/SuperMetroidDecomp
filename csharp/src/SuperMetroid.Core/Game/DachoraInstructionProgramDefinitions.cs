@@ -42,6 +42,8 @@ internal abstract class DachoraInstructionProgramDefinitions
     /// <summary>Native program bank $A7.</summary>
     internal const byte Bank = 0xa7;
 
+    /// <summary>Compiles Dachora's body and four echo actors' instruction lists into one bank-$A7 word layout.</summary>
+    /// <remarks>The layout indexes mechanics words separately from live presentation selectors and validates native entry addresses.</remarks>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xf345),
         Entry(RunningLeft),
@@ -156,10 +158,19 @@ internal abstract class DachoraInstructionProgramDefinitions
         Entry(FallingRight),
         Frame(5),
         Op(CommonEnemyInstructionCodes.Goto, FallingRight));
+    /// <summary>Gets the number of live presentation-selector words in the compiled instruction lists.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
 
+    /// <summary>Gets the bank-local address of a live presentation-selector word.</summary>
+    /// <param name="index">The zero-based index among the layout's live presentation-selector words.</param>
+    /// <returns>The native address of the selected presentation word.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index does not identify a presentation word in the layout.</exception>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
+    /// <summary>Reads a compiled mechanics word by its native bank-local address.</summary>
+    /// <param name="address">The word address to resolve in the Dachora instruction layout.</param>
+    /// <returns>The mechanics operand stored at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not a compiled mechanics word.</exception>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

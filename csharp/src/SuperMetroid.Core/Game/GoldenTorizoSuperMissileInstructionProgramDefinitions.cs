@@ -23,6 +23,7 @@ internal abstract class GoldenTorizoSuperMissileInstructionProgramDefinitions
     /// <summary>Native program bank $86.</summary>
     internal const byte Bank = 0x86;
 
+    /// <summary>Compiled instruction layout separating native mechanics words from extracted spritemap operands.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xb293),
         Entry(RightInitial),
@@ -67,9 +68,19 @@ internal abstract class GoldenTorizoSuperMissileInstructionProgramDefinitions
         Frame(5),
         Frame(5),
         Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete));
+    /// <summary>Number of interleaved spritemap operands supplied by extracted presentation data.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+
+    /// <summary>Returns the native instruction address for a presentation operand's zero-based slot.</summary>
+    /// <param name="index">Ordinal among the presentation slots in the compiled layout.</param>
+    /// <returns>Instruction address where that slot is consumed.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the layout's presentation slots.</exception>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
+    /// <summary>Resolves a compiled mechanics word by instruction address, excluding extracted presentation operands.</summary>
+    /// <param name="address">Address of a mechanics instruction word.</param>
+    /// <returns>The native operation or operand word at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not part of the compiled mechanics layout.</exception>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

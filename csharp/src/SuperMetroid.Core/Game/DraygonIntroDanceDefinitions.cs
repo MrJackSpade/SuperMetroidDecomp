@@ -50,6 +50,7 @@ internal static class DraygonIntroDanceDefinitions
         "95969595959585968777777879797A6A6B6A6B6A7B7C7B7B8B8B8B8B9B8A9B9A9A9AA9A9A9A898A797A797A7A6A6A69596959595848585858575867666766677" +
         "777879696A7A7B8B7A8A8B9A9AAA9AAA";
 
+    /// <summary>Decoded signed-nibble movement records, excluding the two delete control commands.</summary>
     private static readonly byte[] PackedMovement = Convert.FromHexString(PackedMovementHex);
 
     /// <summary>Returns the signed stream latency for native sprite slot 28 through 31.</summary>
@@ -104,6 +105,9 @@ internal static class DraygonIntroDanceDefinitions
 /// One decoded Evir movement record from Draygon's fixed opening dance stream.
 /// The delete sentinel is kept distinct from the otherwise valid zero-delta record.
 /// </summary>
+/// <param name="XDelta">Signed horizontal pixel displacement for this update.</param>
+/// <param name="YDelta">Signed vertical pixel displacement for this update.</param>
+/// <param name="DeletesSprite">Whether this stream entry removes the actor instead of applying its deltas.</param>
 internal readonly record struct DraygonIntroMovement(
     sbyte XDelta,
     sbyte YDelta,

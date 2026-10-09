@@ -17,6 +17,7 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusDrainedState
 {
+    /// <summary>Installed host artwork used to resolve the Hyper Beam palette during drained-state rendering.</summary>
     [NonSerialized] private SamusHyperBeamColorCatalog? presentationColors;
 
     /// <summary>Host-owned Hyper Beam palette artwork, excluded from debugger-state serialization.</summary>
@@ -29,6 +30,7 @@ public sealed class SamusDrainedState
     // Controller zero and command `$17` both call LoadSamusSuitPalette immediately. The
     // runtime's software-CGRAM pass occurs later in the same frame, so this one-shot latch
     // preserves that ordering without passing a rendering device into movement commands.
+    /// <summary>Defers normal suit-palette restoration until the next software-CGRAM update.</summary>
     private bool _suitPaletteRestoreRequested;
 
     /// <summary>Host-readable substitute for the active native pose/handler combination.</summary>
@@ -408,6 +410,11 @@ public sealed class SamusDrainedState
     /// <summary>Ends the Samus-side drain lock after release art reaches `$FD,$01/$02`.</summary>
     internal void CompleteRelease() => Phase = DrainedSamusPhase.Inactive;
 
+    /// <summary>
+    /// Enters the shared rainbow-beam lock by selecting the native left-knockback pose, refreshing its radii, and recording pose history.
+    /// </summary>
+    /// <param name="bus">Address space used to resolve pose collision radii and animation data.</param>
+    /// <param name="samus">Samus state whose pose, animation, history, and input lock are updated.</param>
     private void SetupForRainbowBeam(ISnesAddressSpace bus, SamusState samus)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -425,6 +432,8 @@ public sealed class SamusDrainedState
         Phase = DrainedSamusPhase.RainbowBeamLocked;
     }
 
+    /// <summary>Clears horizontal base velocity and both whole and fractional vertical velocity components.</summary>
+    /// <param name="samus">Samus state whose movement speeds are reset.</param>
     private static void ClearBaseAndVerticalSpeed(SamusState samus)
     {
         samus.HorizontalSpeed.BaseSpeed = 0;

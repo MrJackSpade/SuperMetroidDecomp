@@ -8,7 +8,12 @@ public readonly record struct RoomEnemyGraphicsSetHeader(ushort DefinitionPointe
 /// <summary>One immutable terminated bank-$B4 enemy graphics set.</summary>
 public sealed class RoomEnemyGraphicsSetDefinition
 {
+    /// <summary>Catalog-owned graphics-set members retained in their original staging order.</summary>
     private readonly RoomEnemyGraphicsSetHeader[] records;
+
+    /// <summary>Creates a catalog entry from its native bank-$B4 identity and ordered member records.</summary>
+    /// <param name="pointer">Native list-start word identifying this graphics set.</param>
+    /// <param name="records">Member records in the order used for VRAM staging.</param>
     internal RoomEnemyGraphicsSetDefinition(ushort pointer, RoomEnemyGraphicsSetHeader[] records)
     {
         Pointer = pointer;
@@ -28,6 +33,7 @@ public sealed class RoomEnemyGraphicsSetDefinition
 /// </remarks>
 public static partial class RoomEnemyGraphicsSetDefinitions
 {
+    /// <summary>All compiled retail set definitions in strictly increasing native pointer order.</summary>
     private static readonly RoomEnemyGraphicsSetDefinition[] Definitions =
     [
         ..BuildSegment0(),
@@ -39,6 +45,7 @@ public static partial class RoomEnemyGraphicsSetDefinitions
     /// <summary>Total four-byte member records across all compiled retail lists, excluding terminators and trailing metadata; not a count of unique enemy definitions or artwork images.</summary>
     public const int RecordCount = 425;
 
+    /// <summary>Verifies the compiled catalog's record totals and pointer ordering at initialization.</summary>
     static RoomEnemyGraphicsSetDefinitions()
     {
         if (Definitions.Length != ListCount || Definitions.Sum(list => list.Records.Length) != RecordCount)

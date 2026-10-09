@@ -30,6 +30,9 @@ internal abstract class LowerNorfairRioInstructionProgramDefinitions
     /// <summary>$A2:C6B0 flame display holds; three values do not establish a halving process. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private static readonly ushort[] FlameDurations = [6, 4, 3];
 
+    /// <summary>Finds the compiled instruction-list start whose address interval contains a bank-$A2 pointer.</summary>
+    /// <param name="address">Address within the parent or flame instruction data.</param>
+    /// <returns>The owning program start, or zero when the address is outside the compiled lists.</returns>
     internal static ushort ProgramAt(ushort address) => address switch
     {
         >= Idle and < PrepareToSwoop => Idle,
@@ -42,6 +45,9 @@ internal abstract class LowerNorfairRioInstructionProgramDefinitions
         _ => 0,
     };
 
+    /// <summary>Returns the number of displayed frames in a program's looping or finite animation sequence.</summary>
+    /// <param name="program">Start address of a compiled Lower Norfair Rio animation.</param>
+    /// <returns>The frame count used to locate that program's following control words.</returns>
     private static int FrameCount(ushort program) => program switch
     {
         Idle => 4,
@@ -50,6 +56,9 @@ internal abstract class LowerNorfairRioInstructionProgramDefinitions
         _ => 3,
     };
 
+    /// <summary>Identifies interleaved spritemap operands that select extracted presentation frames.</summary>
+    /// <param name="address">Bank-$A2 instruction-data address to classify.</param>
+    /// <returns><see langword="true"/> when the address is a compiled presentation operand.</returns>
     internal static bool IsPresentationWord(ushort address)
     {
         ushort program = ProgramAt(address);
@@ -89,6 +98,10 @@ internal abstract class LowerNorfairRioInstructionProgramDefinitions
             $"Lower Norfair Rio instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
+    /// <summary>Gets the authored instruction hold for a frame in one of the compiled Rio programs.</summary>
+    /// <param name="program">Start address of the animation whose timing is requested.</param>
+    /// <param name="frame">Zero-based frame index within that program's duration sequence.</param>
+    /// <returns>The number of updates for which the instruction holds the frame.</returns>
     private static ushort Duration(ushort program, int frame) => program switch
     {
         Idle => 11,

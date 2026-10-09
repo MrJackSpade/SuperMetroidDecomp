@@ -33,7 +33,10 @@ public sealed partial class BabyMetroidCutsceneState
     // `$A9:93BB-$93CA` is shared by Mother Brain's brain shake and the latched Baby.
     // `Enemy.frameCounter & 6` is a byte offset into these four 16-bit entries. The jitter
     // is authored: X steps 0,-1,0,1 but Y does not mirror it (see residualScalarInputsReview).
+    /// <summary>Four horizontal shake offsets indexed by the enemy frame-counter phase.</summary>
     private static ReadOnlySpan<short> ShakingXOffsets => [0, -1, 0, 1];
+
+    /// <summary>Four authored vertical shake offsets for the same phases; their sequence is not the inverse of the horizontal offsets.</summary>
     private static ReadOnlySpan<short> ShakingYOffsets => [0, 1, -1, 1];
 
     // Enemy header `$A0:ECBF` declares width/height `$24`. Despite the header macro's
@@ -879,4 +882,6 @@ public sealed partial class BabyMetroidCutsceneState
 /// Mother Brain's head enemy coordinates (<c>Enemy[1]</c> X/Y at <c>$0FBA/$0FBE</c>) as the
 /// Baby's routines read them.
 /// </summary>
+/// <param name="X">Whole-pixel horizontal position read from Mother Brain's head enemy slot.</param>
+/// <param name="Y">Whole-pixel vertical position read from Mother Brain's head enemy slot.</param>
 public readonly record struct MotherBrainHeadPosition(ushort X, ushort Y);

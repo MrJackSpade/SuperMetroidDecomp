@@ -7,6 +7,10 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Advances Kraid's pre-combat rise state, including screen restriction, tilemap transfers, rock cadence, and first-phase handoff.</summary>
+    /// <param name="body">Kraid body slot carrying the active rise function and its timer.</param>
+    /// <param name="state">Shared Kraid state containing body parts and instruction continuations.</param>
+    /// <param name="samus">Samus to constrain to the first screen while the rise sequence is active, when present.</param>
     private void RunKraidRiseFunction(
         RoomEnemySlot body,
         KraidEnemyState state,
@@ -111,6 +115,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Counts down a Kraid function timer and selects the part's next function when the timer expires.</summary>
+    /// <param name="slot">Enemy slot whose function timer and function selector are updated.</param>
+    /// <param name="part">Part state supplying the function to install at timer expiration.</param>
     private static void TickKraidFunctionTimer(
         RoomEnemySlot slot,
         KraidPartState part)
@@ -122,6 +129,9 @@ public sealed partial class RoomEnemySystem
             slot.VariableA = (ushort)part.NextFunction;
     }
 
+    /// <summary>Adds a signed 16.16 displacement to Kraid's combined integer and fractional vertical position.</summary>
+    /// <param name="body">Kraid body slot whose vertical position is updated.</param>
+    /// <param name="displacement">Signed fixed-point delta, with the integer portion in the upper 16 bits.</param>
     private static void AddSignedKraidVerticalDisplacement(
         RoomEnemySlot body,
         int displacement)
@@ -132,6 +142,8 @@ public sealed partial class RoomEnemySystem
         body.YSubposition = unchecked((ushort)position);
     }
 
+    /// <summary>Consumes one random value and derives Kraid's first-phase thinking delay from its low three bits.</summary>
+    /// <returns>A timer from 128 through 448 in 64-frame increments; a zero random selector maps to 128.</returns>
     private ushort ReadKraidThinkingTimer()
     {
         ushort random = RequireRandomNumber();

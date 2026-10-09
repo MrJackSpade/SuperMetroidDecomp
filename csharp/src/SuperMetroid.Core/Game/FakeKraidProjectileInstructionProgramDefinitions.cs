@@ -27,8 +27,14 @@ internal abstract class FakeKraidProjectileInstructionProgramDefinitions
     /// <c>Instruction_EnemyProjectile_Sleep</c> in the right-spike list at $86:9DEA.
     /// </summary>
     internal const ushort SpikeRightSleep = 0x9dea;
+
+    /// <summary>Number of interleaved sprite operands retained as live presentation words.</summary>
     public static int PresentationWordCount => 3;
 
+    /// <summary>Returns the bank-$86 address of a spit-list spritemap operand.</summary>
+    /// <param name="index">Zero-based operand index, shared by the three projectile instruction lists.</param>
+    /// <returns>The address of that list's corresponding presentation word.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the three compiled presentation words.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -36,11 +42,18 @@ internal abstract class FakeKraidProjectileInstructionProgramDefinitions
         return (ushort)(Spit + 6 * index + 2);
     }
 
+    /// <summary>Indicates whether a projectile kind is one of Fake Kraid's compiled spit or spike projectiles.</summary>
+    /// <param name="kind">Projectile kind to check.</param>
+    /// <returns><see langword="true"/> for the spit, left-spike, or right-spike projectile kinds.</returns>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.FakeKraidSpit or
         RoomEnemyProjectileKind.FakeKraidSpikeLeft or
         RoomEnemyProjectileKind.FakeKraidSpikeRight;
 
+    /// <summary>Resolves a compiled projectile-list address to its held frame duration or sleep instruction pointer.</summary>
+    /// <param name="address">Bank-$86 address of a list header or sleep word.</param>
+    /// <returns>The mechanics word stored at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not one of the compiled mechanics words.</exception>
     internal static ushort ReadMechanicsWord(ushort address) => address switch
     {
         Spit or SpikeLeft or SpikeRight => 0x7fff,

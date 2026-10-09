@@ -52,6 +52,7 @@ internal abstract class EtecoonInstructionProgramDefinitions
     /// <summary>Native program bank $A7.</summary>
     internal const byte Bank = 0xa7;
 
+    /// <summary>Compiled bank-$A7 animation programs, including the 45 frame words whose sprite visuals can be replaced.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xe81e),
         Entry(LookRightAtSamusAndRunLeft),
@@ -135,9 +136,19 @@ internal abstract class EtecoonInstructionProgramDefinitions
         Frame(32),
         Frame(32),
         Op(CommonEnemyInstructionCodes.Sleep));
+    /// <summary>Number of frame words in the Etecoon's compiled programs that select presentation artwork.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+
+    /// <summary>Gets the bank-$A7 address of a frame word identified by its presentation-slot index.</summary>
+    /// <param name="index">Zero-based slot from zero through <see cref="PresentationWordCount"/> minus one.</param>
+    /// <returns>The instruction-list address of that frame word.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the presentation slots.</exception>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
+    /// <summary>Reads a compiled mechanics word from an Etecoon instruction program.</summary>
+    /// <param name="address">Bank-$A7 address of the instruction word.</param>
+    /// <returns>The control or timing word stored at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not a compiled Etecoon mechanics word.</exception>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

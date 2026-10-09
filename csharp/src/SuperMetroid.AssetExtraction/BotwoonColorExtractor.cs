@@ -8,6 +8,9 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Exports Botwoon's eight complete health-band sprite palettes.</summary>
 public static class BotwoonColorExtractor
 {
+    /// <summary>Reads all complete native Botwoon health-band palettes, rejects colors with the high bit set, and serializes their RGB5 components.</summary>
+    /// <param name="bus">Supported-cartridge address space containing Botwoon's contiguous health palette table.</param>
+    /// <returns>UTF-8 JSON bytes for the versioned Botwoon color catalog.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

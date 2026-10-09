@@ -45,8 +45,9 @@ internal static class PlmInterpreterSourceContract
         // #1266 resets LoopTimer for a rejected shot; no program reads or operand widths change.
         ["TryStepGreyDoor/9"] = "1D39DE376A24C293CBCEA04F7BD7B26563277F20143E268129C5F7067D86BCD8",
         ["TryStepScrollPlm/3"] = "3E7FD154C88BC9644F274C7B75B77C61B7F1CFC8452913C988415733FB168E2D",
-        // #1269 station lock timing; no program reads or operand widths change.
-        ["TryStepStation/7"] = "84D1645C48A840FF5AA015C15560DDE8A65750F7C369E685F568AA56C76CDE99",
+        // #1269 station lock timing; the unpause-release change drops the second lock; no
+        // program reads or operand widths change.
+        ["TryStepStation/7"] = "8CED1EABD72AF7F2C5B7269DC3A57EDD3AECF55485BC4DB1E93C2AC1BB030B0F",
         ["TryStepWreckedShipTreadmill/3"] = "ED6CDE07E6C1DEF7DB2187EA0DD41010CFAA5FB9961A34EB61C57893E8486420",
     };
 }

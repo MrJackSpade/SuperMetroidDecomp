@@ -27,7 +27,7 @@ internal static class VramDmaProducerContracts
             ("SuperMetroid.Core.Game.ScrollingSkyState.QueueTilemapRows", "B26BA7F6ACF3E0A9E88D49A30A4EC87A879555D305F29051C4CE093CDDD857CF") => "sky",
             ("SuperMetroid.Core.Game.TourianStatueSequence.StepTiles", "DFB228D8FD2DE6101E8D6A161B08D7D06DCBC3114AB961A5D2471E2B1ED43DDB") => "statues",
             ("SuperMetroid.Core.Game.WreckedShipTreadmillAnimatedTilesState.Step", "CFF99DB4A23F31FDA6477D613ABD31FFF14C580BAAF5B2F63381731485B2ADB8") => "treadmill",
-            ("SuperMetroid.Core.Runtime.SuperMetroidRuntime.RunPlmHandlerCore", "AD0B028B810C7B1ACF07992E7D06013F63757AF6CE03223DB131E833332625A8") => "plm",
+            ("SuperMetroid.Core.Runtime.SuperMetroidRuntime.RunPlmHandlerCore", "440774579B4AA06B249473C51A59FECC7580D0C35E5316933E1E361582FC27ED") => "plm",
             _ => null,
         };
         return family is not null;

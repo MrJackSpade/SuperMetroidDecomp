@@ -3391,6 +3391,7 @@ public sealed partial class RoomEnemySystem
         enemy.Health = damage >= enemy.Health
             ? (ushort)0
             : unchecked((ushort)(enemy.Health - damage));
+        QueueEnemySound(SoundEffectLibrary2Sounds.EnemyContactDamaged, maximumQueued: 1);
         if (enemy.Health != 0)
             return;
 

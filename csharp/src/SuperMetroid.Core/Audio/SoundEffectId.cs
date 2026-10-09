@@ -140,6 +140,9 @@ public static class SoundEffectLibrary2Sounds
     /// <summary>Stops/cancels every currently active library-two sound.</summary>
     public static readonly SoundEffectId CancelAll = new(SoundEffectLibrary.Library2, 0x71);
 
+    /// <summary>$A0:A55A, NormalEnemyTouchAI: a speed-boosting, sparking or screw-attacking Samus damages the enemy she touches.</summary>
+    public static readonly SoundEffectId EnemyContactDamaged = new(SoundEffectLibrary.Library2, 0x0b); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
     /// <summary>Opens the standard horizontal or vertical room door actor.</summary>
     public static readonly SoundEffectId DoorOpening = new(SoundEffectLibrary.Library2, 0x57);
 

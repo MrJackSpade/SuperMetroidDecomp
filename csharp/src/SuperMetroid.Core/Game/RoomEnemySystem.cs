@@ -581,6 +581,7 @@ public sealed partial class RoomEnemySystem
     /// <param name="collisionPlms">Optional room PLMs participating in the scoped enemy terrain-collision probes.</param>
     /// <param name="nmiFrameCounter">Current independent sixteen-bit NMI clock; null uses the standalone enemy-pass clock.</param>
     /// <param name="processingListPrepared">True when <see cref="PrepareEnemyProcessingList"/> already ran at the native pre-Samus boundary; false prepares the lists here for standalone callers.</param>
+    /// <param name="samusPreviousPositionCheckpoint">The camera's frame-start Samus checkpoint under the live previous-position words that Draygon and Yapping Maw cap; null when no camera owns them.</param>
     public void StepFrame(
         ushort cameraX,
         ushort cameraY,
@@ -597,11 +598,13 @@ public sealed partial class RoomEnemySystem
         bool resolveSamusContactBeforeAi = false,
         RoomPlmSystem? collisionPlms = null,
         ushort? nmiFrameCounter = null,
-        bool processingListPrepared = false)
+        bool processingListPrepared = false,
+        SamusCameraPoint? samusPreviousPositionCheckpoint = null)
     {
         using var terrainScope = new EnemyTerrainScope(this, collisionPlms);
         EnsureLoaded();
         _samusForEnemyDrops = samus;
+        _samusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint;
         _enemyFrameTimeIsFrozen = timeIsFrozen;
         _samusProjectilesForEnemyFrame = samusProjectiles;
         _audioPowerBomb = sharedProjectiles?.PowerBombExplosion;

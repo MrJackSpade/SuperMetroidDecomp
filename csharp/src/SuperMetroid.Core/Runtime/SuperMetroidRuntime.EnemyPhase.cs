@@ -46,7 +46,11 @@ public sealed partial class SuperMetroidRuntime
     /// True in game state eight, whose frame start already ran $A0:8EB6. Door-transition
     /// enemy passes build the list immediately before EnemyMain instead.
     /// </param>
-    private void RunEnemyMainPhase(bool processingListPrepared)
+    /// <param name="samusPreviousPositionCheckpoint">
+    /// The camera's frame-start Samus checkpoint, under the live previous-position words that
+    /// <c>CapScrollingSpeed</c> reads.
+    /// </param>
+    private void RunEnemyMainPhase(bool processingListPrepared, SamusCameraPoint? samusPreviousPositionCheckpoint)
     {
         if (Camera is not null && Enemies.IsLoaded)
         {
@@ -66,7 +70,8 @@ public sealed partial class SuperMetroidRuntime
                 resolveSamusContactBeforeAi: true,
                 collisionPlms: Plms,
                 nmiFrameCounter: NmiFrameCounter,
-                processingListPrepared: processingListPrepared);
+                processingListPrepared: processingListPrepared,
+                samusPreviousPositionCheckpoint: samusPreviousPositionCheckpoint);
             if (Enemies.LastElevatorEvent == ElevatorFrameEvent.DepartureStarted)
             {
                 // MakeSamusFaceForward clears all pending pose requests after alpha

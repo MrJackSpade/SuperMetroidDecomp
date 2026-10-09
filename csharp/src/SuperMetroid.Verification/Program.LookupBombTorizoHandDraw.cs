@@ -3,10 +3,21 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies run widths, relative origins, and continuation offsets against both native hand records.</summary>
+    /// <param name="rom">The retail ROM containing the original PLM draw records.</param>
     private static void VerifyBombTorizoHandDrawGeometry(SuperMetroidAddressSpace rom) => VerifyBombTorizoHandDrawField(rom, 0);
+
+    /// <summary>Verifies the collision-field bits of compiled hand cells against the native records.</summary>
+    /// <param name="rom">The retail ROM containing the original PLM draw records.</param>
     private static void VerifyBombTorizoHandDrawCollision(SuperMetroidAddressSpace rom) => VerifyBombTorizoHandDrawField(rom, 1);
+
+    /// <summary>Verifies the visual tile bits of compiled hand cells against the native records.</summary>
+    /// <param name="rom">The retail ROM containing the original PLM draw records.</param>
     private static void VerifyBombTorizoHandDrawVisuals(SuperMetroidAddressSpace rom) => VerifyBombTorizoHandDrawField(rom, 2);
 
+    /// <summary>Checks one native draw-record field against its compiled shape, DTO, and exported visual records.</summary>
+    /// <param name="rom">The retail ROM used to read bank-$84 draw records.</param>
+    /// <param name="field">Selects geometry checks (0), collision bits (1), or visual tile bits (2).</param>
     private static void VerifyBombTorizoHandDrawField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] pointers = [0x9877,0x989d];

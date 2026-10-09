@@ -4,14 +4,24 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Exhaustively compares Kraid's selected horizontal targets against the native movement records.</summary>
+    /// <param name="positions">Six authored position keys from the second-phase movement table.</param>
+    /// <param name="expected">Reference lookup returning the target and think delay for a position and RNG word.</param>
     private static void VerifyKraidMovementTargets(ushort[] positions,
         Func<ushort, ushort, (ushort TargetX, ushort ThinkTimer)> expected) =>
         Suite(nameof(VerifyKraidMovementField), () => VerifyKraidMovementField(positions, expected, value => value.TargetX));
 
+    /// <summary>Exhaustively compares Kraid's selected thinking delays against the native movement records.</summary>
+    /// <param name="positions">Six authored position keys from the second-phase movement table.</param>
+    /// <param name="expected">Reference lookup returning the target and think delay for a position and RNG word.</param>
     private static void VerifyKraidMovementTimers(ushort[] positions,
         Func<ushort, ushort, (ushort TargetX, ushort ThinkTimer)> expected) =>
         Suite(nameof(VerifyKraidMovementField), () => VerifyKraidMovementField(positions, expected, value => value.ThinkTimer));
 
+    /// <summary>Checks one selected movement field for every RNG word in each row and every position/choice pair.</summary>
+    /// <param name="positions">Authored row keys used to exercise the table and fallback behavior.</param>
+    /// <param name="expected">Reference mapping from a position and RNG word to both movement results.</param>
+    /// <param name="field">Selector choosing the target coordinate or thinking delay to compare.</param>
     private static void VerifyKraidMovementField(ushort[] positions,
         Func<ushort, ushort, (ushort TargetX, ushort ThinkTimer)> expected,
         Func<(ushort TargetX, ushort ThinkTimer), ushort> field)
@@ -32,6 +42,9 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Reads Kraid's native movement records, compares the compiled selectors, and optionally exercises runtime choices.</summary>
+    /// <param name="rom">Address space containing the cartridge movement table and its indirect records.</param>
+    /// <param name="definitionsOnly">When true, runs data-selector comparisons and skips the live enemy transition checks.</param>
     private static void VerifyKraidMovementChoices(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);

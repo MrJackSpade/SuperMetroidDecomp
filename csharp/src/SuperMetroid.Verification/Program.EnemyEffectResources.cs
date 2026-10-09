@@ -5,6 +5,7 @@ using System.Reflection;
 
 internal static partial class Program
 {
+    /// <summary>Checks that missing or invalid corpse and Crocomire assets fail before mutating runtime state.</summary>
     private static void VerifyEnemyEffectResources()
     {
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
@@ -34,6 +35,7 @@ internal static partial class Program
         Console.WriteLine("  Enemy effect resources: missing/unknown art fails before changing WRAM, phases, actors, graphics or VRAM.");
     }
 
+    /// <summary>Confirms each supported Dead Tourian corpse variant rejects absent artwork without publishing or mutating its owner.</summary>
     private static void VerifyDeadTourianMissingArtwork()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -59,6 +61,11 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Runs an invalid Crocomire melting-resource operation and compares mechanics, graphics, tilemap, and VRAM against an untouched fixture.</summary>
+    /// <param name="art">Optional artwork supplied to both fixtures.</param>
+    /// <param name="operation">Operation expected to reject the missing or invalid resource.</param>
+    /// <param name="context">Label used to identify the checked failure.</param>
+    /// <param name="invalidHeader">Whether to give both fixtures an invalid melting-table offset before invoking the operation.</param>
     private static void CheckCrocomireResourceFailure(CrocomireMeltingArtwork? art,
         Action<CrocomireEffectFixture> operation, string context, bool invalidHeader = false)
     {
@@ -72,6 +79,7 @@ internal static partial class Program
         AssertTrue(expected.Vram.Bytes.SequenceEqual(actual.Vram.Bytes), context + " VRAM unchanged");
     }
 
+    /// <summary>Checks accepted Crocomire melt JSON casing and rejection of unknown, duplicate, or case-aliased properties.</summary>
     private static void VerifyCrocomireMeltJson()
     {
         string valid = MeltEffectJson();

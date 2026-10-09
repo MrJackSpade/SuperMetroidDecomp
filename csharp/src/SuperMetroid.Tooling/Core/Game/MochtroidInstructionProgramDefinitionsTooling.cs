@@ -6,7 +6,9 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(MochtroidInstructionProgramDefinitions))]
 internal abstract class MochtroidInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Number of compiled timing, Goto, and target words across the two Mochtroid instruction loops.</summary>
     public static int MechanicsWordCount => 12;
+    /// <summary>Number of compiled spritemap operand words, four for each of the two instruction loops.</summary>
     public static int PresentationWordCount => 8;
     /// <summary>Each loop displays four timed records followed by Goto and its target; all records calculate on demand.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
@@ -18,12 +20,18 @@ internal abstract class MochtroidInstructionProgramDefinitionsTooling : IInstruc
         ushort address = (ushort)(MochtroidInstructionProgramDefinitions.FreeFlight + 20 * program + (record < 4 ? 4 * record : 16 + 2 * (record - 4)));
         return new(address, MochtroidInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
+    /// <summary>Returns the address of one compiled spritemap operand in loop order.</summary>
+    /// <param name="index">Zero-based operand index across the free-flight and attached loops.</param>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the eight compiled operands.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
         return (ushort)(MochtroidInstructionProgramDefinitions.FreeFlight + 20 * (index / 4) + 4 * (index % 4) + 2);
     }
+    /// <summary>Reports whether a bank-$A3 address points to a byte in a compiled timing, Goto, or Goto-target word.</summary>
+    /// <param name="address">The full banked address to classify.</param>
+    /// <returns><see langword="true"/> for compiled instruction bytes and <see langword="false"/> for other addresses, including spritemap operands.</returns>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa30000)

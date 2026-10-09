@@ -4,10 +4,21 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies each native eye-door shape's dimensions, orientation, terminator, ordering, and draw placement.</summary>
+    /// <param name="rom">The retail ROM containing the bank-$84 eye-door draw records.</param>
     private static void VerifyEyeDoorLayoutGeometry(SuperMetroidAddressSpace rom) => VerifyEyeDoorLayoutField(rom,0);
+
+    /// <summary>Verifies the collision bits of compiled eye-door cells against their native records.</summary>
+    /// <param name="rom">The retail ROM containing the bank-$84 eye-door draw records.</param>
     private static void VerifyEyeDoorLayoutCollision(SuperMetroidAddressSpace rom) => VerifyEyeDoorLayoutField(rom,1);
+
+    /// <summary>Verifies the visual tile bits of compiled eye-door cells against their native records.</summary>
+    /// <param name="rom">The retail ROM containing the bank-$84 eye-door draw records.</param>
     private static void VerifyEyeDoorLayoutVisuals(SuperMetroidAddressSpace rom) => VerifyEyeDoorLayoutField(rom,2);
 
+    /// <summary>Checks one native layout field against compiled shapes, DTO exports, and the production PLM draw path.</summary>
+    /// <param name="rom">The retail ROM used to read native draw-record words.</param>
+    /// <param name="field">Selects geometry checks (0), collision bits (1), or visual tile bits (2).</param>
     private static void VerifyEyeDoorLayoutField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] pointers = [0x9bf7,0x9c03,0x9c0b,0x9c13,0x9c1b,0x9c23,0x9c2b,0x9c31,0x9c37,0x9c3d,0x9c43,0x9c49,

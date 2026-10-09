@@ -3,10 +3,21 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks native elevator-platform timer and animation-control words.</summary>
+    /// <param name="rom">Address space containing the bank-$84 platform program.</param>
     private static void VerifyElevatorPlatformControls(SuperMetroidAddressSpace rom) => VerifyElevatorPlatformProgramField(rom, 0);
+
+    /// <summary>Checks the platform program's native draw-list selection operands.</summary>
+    /// <param name="rom">Address space containing the bank-$84 platform program.</param>
     private static void VerifyElevatorPlatformDrawSelection(SuperMetroidAddressSpace rom) => VerifyElevatorPlatformProgramField(rom, 1);
+
+    /// <summary>Checks the native target word used to repeat the elevator-platform loop.</summary>
+    /// <param name="rom">Address space containing the bank-$84 platform program.</param>
     private static void VerifyElevatorPlatformLoopTarget(SuperMetroidAddressSpace rom) => VerifyElevatorPlatformProgramField(rom, 2);
 
+    /// <summary>Compares a selected set of compiled platform-program words with their native ROM values.</summary>
+    /// <param name="rom">Address space used to read the original PLM instruction stream.</param>
+    /// <param name="field">Selects control words (0), draw selectors (1), or the loop target (2).</param>
     private static void VerifyElevatorPlatformProgramField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] addresses = field switch

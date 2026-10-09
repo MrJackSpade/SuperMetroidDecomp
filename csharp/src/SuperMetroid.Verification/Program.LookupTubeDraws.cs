@@ -3,10 +3,18 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks tube-wall run counts, directions, continuation offsets, and word positions against native layout data.</summary>
     private static void VerifyTubeGeometry(SuperMetroidAddressSpace rom) => VerifyTubeDrawField(rom, 0);
+
+    /// <summary>Checks the collision-related bits of each exported tube-wall block against its native PLM record.</summary>
     private static void VerifyTubeCollision(SuperMetroidAddressSpace rom) => VerifyTubeDrawField(rom, 1);
+
+    /// <summary>Checks the visual tile bits of each tube-wall layout against the native PLM record.</summary>
     private static void VerifyTubeVisuals(SuperMetroidAddressSpace rom) => VerifyTubeDrawField(rom, 2);
 
+    /// <summary>Compares one tube-wall layout field with native PLM words across all authored frame pointers.</summary>
+    /// <param name="rom">Cartridge address space containing the native tube-wall PLM records.</param>
+    /// <param name="field">Selector for geometry (0), collision bits (1), or visual tile bits (2).</param>
     private static void VerifyTubeDrawField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] pointers = [0x98d1,0x98d7,0x98dd,0x98e3,0x9953,0x9991,0x99e5];

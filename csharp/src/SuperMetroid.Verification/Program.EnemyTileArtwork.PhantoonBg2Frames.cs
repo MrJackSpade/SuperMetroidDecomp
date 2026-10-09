@@ -7,6 +7,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks all installed Phantoon BG2 frames against native write streams, then verifies an override's VRAM effect and collision independence.</summary>
+    /// <param name="rom">Retail address space used to read the original frame and collision records.</param>
+    /// <param name="stockDirectory">Directory containing the installed stock artwork files.</param>
+    /// <param name="stock">Catalog loaded from the stock artwork files.</param>
     private static void VerifyInstalledPhantoonBg2Frames(
         SuperMetroidAddressSpace rom, string stockDirectory,
         EnemyTileArtworkCatalog stock)
@@ -134,6 +138,11 @@ internal static partial class Program
             (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
     }
 
+    /// <summary>Compares compiled Phantoon component and hitbox data with ROM records and checks callbacks for stock and edited artwork.</summary>
+    /// <param name="rom">Retail address space containing native component and hitbox records.</param>
+    /// <param name="guardedBus">Cartridge bus guard used while exercising production hitbox lookup.</param>
+    /// <param name="stock">Unmodified artwork catalog whose frame selectors are checked against native collision data.</param>
+    /// <param name="edited">Catalog with a BG2 tile override, used to confirm artwork changes leave collision callbacks intact.</param>
     private static void VerifyPhantoonCollisionDefinitions(
         SuperMetroidAddressSpace rom, ISnesAddressSpace guardedBus,
         EnemyTileArtworkCatalog stock, EnemyTileArtworkCatalog edited)
@@ -208,6 +217,14 @@ internal static partial class Program
             "Phantoon eye-only frame selects native vulnerable eye callback");
     }
 
+    /// <summary>Runs production hitbox lookup for one Phantoon frame and returns the selected touch or shot callback.</summary>
+    /// <param name="art">Artwork catalog supplying the selected frame's extended hitbox components.</param>
+    /// <param name="bus">Address space supplied to the enemy system for hitbox lookup.</param>
+    /// <param name="pointer">Spritemap pointer identifying the Phantoon frame to query.</param>
+    /// <param name="targetX">Horizontal target coordinate tested against the frame's hitboxes.</param>
+    /// <param name="targetY">Vertical target coordinate tested against the frame's hitboxes.</param>
+    /// <param name="selectShot">When true, selects the shot callback; otherwise selects the touch callback.</param>
+    /// <returns>The callback selected by production lookup, or zero when no hitbox contains the target.</returns>
     private static ushort FindPhantoonHitboxCallback(
         EnemyTileArtworkCatalog art, ISnesAddressSpace bus,
         ushort pointer, ushort targetX, ushort targetY, bool selectShot)
@@ -232,6 +249,12 @@ internal static partial class Program
         return found ? (ushort)arguments[6]! : (ushort)0;
     }
 
+    /// <summary>Draws one selected Phantoon BG2 frame through the production enemy renderer and returns the resulting VRAM bytes.</summary>
+    /// <param name="art">Artwork catalog supplying the frame's tilemap writes.</param>
+    /// <param name="bus">Address space assigned to the enemy system during drawing.</param>
+    /// <param name="pointer">Spritemap pointer selecting the Phantoon frame to draw.</param>
+    /// <param name="newInstructionFrame">Whether to set the gate that allows BG2 writes on this draw.</param>
+    /// <returns>A copy of VRAM after the selected frame has been drawn.</returns>
     private static byte[] DrawPhantoonBg2(EnemyTileArtworkCatalog art,
         ISnesAddressSpace bus, ushort pointer, bool newInstructionFrame)
     {

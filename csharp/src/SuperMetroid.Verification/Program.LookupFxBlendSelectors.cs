@@ -4,8 +4,10 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     // Original public selector domain/order before conversion at11df17c7.
+    /// <summary>Returns the legacy FX-blend selector IDs in their original order.</summary>
     private static byte[] OriginalFxBlendIds() => [0x02, 0x22, 0x42, 0x48, 0x62, 0xe2, 0xe8, 0xee];
 
+    /// <summary>Checks that every legacy blend selector retains its identity and document key.</summary>
     private static void VerifyFxBlendSelectorIdentities()
     {
         byte[] original = OriginalFxBlendIds();
@@ -19,6 +21,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Compares catalog source addresses with the cartridge's indexed color-table base.</summary>
+    /// <param name="rom">Cartridge address space containing the native long-address load operand.</param>
     private static void VerifyFxBlendSourceAddresses(ISnesAddressSpace rom)
     {
         // Original LDA.l operand at89:AB5F supplies the color-one base.
@@ -33,6 +37,9 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks stock and edited blend selection, CGRAM application, and rejection of unknown selectors.</summary>
+    /// <param name="rom">Cartridge address space used to derive expected stock color words.</param>
+    /// <param name="stock">Installed stock blend catalog to compare with an independently edited catalog.</param>
     private static void VerifyFxBlendPageDispatch(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock)
     {
         var document = new RoomFxPaletteBlendDocument { Version = 1, Blends = new() };

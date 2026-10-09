@@ -3,6 +3,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Evaluates the retail body-contour table with its wrapped signed CMP/BPL selection rule.</summary>
+    /// <param name="rom">Loaded cartridge address space containing the seven contour records.</param>
+    /// <param name="relativeY">Wrapped vertical displacement from Kraid's body origin.</param>
+    /// <returns>The selected body's left-edge displacement from its origin.</returns>
     private static short NativeKraidBodyLeftEdge(SuperMetroidAddressSpace rom, short relativeY)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -17,6 +21,8 @@ internal static partial class Program
         throw new InvalidOperationException("Native Kraid body contour did not terminate within its records.");
     }
 
+    /// <summary>Confirms compiled contour selection across every wrapped vertical value and checks strict collision at the contour edge.</summary>
+    /// <param name="rom">Cartridge address space used as the native contour-table oracle.</param>
     private static void VerifyKraidBodyContourCases(SuperMetroidAddressSpace rom)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -43,6 +49,11 @@ internal static partial class Program
             }
         }
     }
+
+    /// <summary>Decodes the native growth animation's resume instruction and timer for a tilemap selector.</summary>
+    /// <param name="rom">Cartridge address space containing the native selector and resume operands.</param>
+    /// <param name="tilemap">Tilemap value used to select one of the native growth branches.</param>
+    /// <returns>The instruction pointer and timer selected by the retail routine.</returns>
     private static KraidHeadResumeDefinition NativeKraidGrowthResume(SuperMetroidAddressSpace rom, ushort tilemap)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -58,6 +69,8 @@ internal static partial class Program
         return new((ushort)(Word(0xa7c047) + offset), Word(0xa70000 | (Word(0xa7c04d) + offset)));
     }
 
+    /// <summary>Compares compiled growth-resume definitions with the native selection for every possible tilemap word.</summary>
+    /// <param name="rom">Cartridge address space used to decode the native growth routine.</param>
     private static void VerifyKraidGrowthResumeCases(SuperMetroidAddressSpace rom)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)

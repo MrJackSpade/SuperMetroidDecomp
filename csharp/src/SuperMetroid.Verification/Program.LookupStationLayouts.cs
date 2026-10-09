@@ -4,10 +4,18 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks station draw descriptors against cartridge geometry, run offsets, exported order, and reverse visual IDs.</summary>
     private static void VerifyStationLayoutGeometry(SuperMetroidAddressSpace rom) => VerifyStationLayoutDrawField(rom, 0);
+
+    /// <summary>Checks the collision bits of station draw cells against their native level words.</summary>
     private static void VerifyStationLayoutCollision(SuperMetroidAddressSpace rom) => VerifyStationLayoutDrawField(rom, 1);
+
+    /// <summary>Checks the visual tile bits of station draw cells against their native level words.</summary>
     private static void VerifyStationLayoutVisuals(SuperMetroidAddressSpace rom) => VerifyStationLayoutDrawField(rom, 2);
 
+    /// <summary>Validates the station draw catalog's descriptor geometry or selected row-word bits against cartridge data.</summary>
+    /// <param name="rom">The address space containing the native station PLM draw lists.</param>
+    /// <param name="field">Selects geometry and identity checks (0), collision bits (1), or visual tile bits (2).</param>
     private static void VerifyStationLayoutDrawField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] pointers = [0x9f25,0x9f6d,0x9f91,0x9f31,0x9f79,0x9f9d,0x9f3d,0x9f85,0x9fa9,0x9a3f,0x9a9f,0x9a6f,0x9f49,0x9f55,0x9f5b,0x9f67,0x9fb5,0x9fbb,0x9fc1,0x9fc7];

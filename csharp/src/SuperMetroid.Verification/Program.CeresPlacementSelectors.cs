@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the maintained rear-view actor order and its native X/Y placement operands.</summary>
+    /// <param name="rom">Cartridge address space containing the Ceres flight instructions.</param>
     private static void VerifyCeresRearPlacementSelector(ISnesAddressSpace rom)
     {
         // Original maintained extraction table at d12fa8fa; IDs are asset-format identities,
@@ -28,6 +30,8 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => CeresFlightActorDefinitions.RearViewPlacementSource(i), "rear selector bounds");
     }
 
+    /// <summary>Checks the Ceres reveal actor selector order and the corresponding native placement immediates.</summary>
+    /// <param name="rom">Cartridge address space containing the destruction instructions.</param>
     private static void VerifyCeresRevealPlacementSelector(ISnesAddressSpace rom)
     {
         (string Id, ushort XAddress, ushort YAddress)[] original =
@@ -52,6 +56,7 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => CeresDestructionActorDefinitions.ZebesPlacementSource(i), "reveal selector bounds");
     }
 
+    /// <summary>Checks the initial Ceres placement IDs remain in their authored actor order and reject invalid indices.</summary>
     private static void VerifyCeresInitialPlacementSelector()
     {
         string[] original = ["large-asteroid", "small-asteroid", "vortex"];
@@ -62,6 +67,10 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => CeresDestructionActorDefinitions.InitialPlacementId(i), "initial selector bounds");
     }
 
+    /// <summary>Verifies an actor coordinate matches the little-endian immediate operand in bank $8B.</summary>
+    /// <param name="rom">Cartridge address space used to inspect the instruction bytes.</param>
+    /// <param name="operand">Bank-relative address of the immediate coordinate word.</param>
+    /// <param name="coordinate">Expected actor coordinate value.</param>
     private static void VerifyPlacementOperand(ISnesAddressSpace rom, ushort operand, ushort coordinate)
     {
         int address = 0x8b0000 | operand;

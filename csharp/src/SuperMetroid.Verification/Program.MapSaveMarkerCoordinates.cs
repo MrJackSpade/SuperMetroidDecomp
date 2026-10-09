@@ -6,6 +6,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Reconstructs the retail save-station marker corpus and compares it with the extracted JSON layout.</summary>
+    /// <param name="rom">Cartridge address space containing area marker pointers and native coordinate tables.</param>
     private static void VerifyMapSaveMarkerCoordinates(ISnesAddressSpace rom)
     {
         var points = new Dictionary<string, MapLabelPoint>();
@@ -31,11 +33,22 @@ internal static partial class Program
         Suite(nameof(VerifyMapSaveMarkerY), () => VerifyMapSaveMarkerY(original, extracted));
     }
 
+    /// <summary>Checks horizontal marker defaults, independent edits, serialization bounds, and runtime binding.</summary>
+    /// <param name="original">Coordinates reconstructed from the retail marker tables.</param>
+    /// <param name="extracted">Serialized marker layout produced from the cartridge.</param>
     private static void VerifyMapSaveMarkerX(MapSaveMarkerDocument original, byte[] extracted) =>
         Suite(nameof(VerifyMapSaveMarkerCoordinateField), () => VerifyMapSaveMarkerCoordinateField(original, extracted, vertical: false));
+
+    /// <summary>Checks vertical marker defaults, independent edits, serialization bounds, and runtime binding.</summary>
+    /// <param name="original">Coordinates reconstructed from the retail marker tables.</param>
+    /// <param name="extracted">Serialized marker layout produced from the cartridge.</param>
     private static void VerifyMapSaveMarkerY(MapSaveMarkerDocument original, byte[] extracted) =>
         Suite(nameof(VerifyMapSaveMarkerCoordinateField), () => VerifyMapSaveMarkerCoordinateField(original, extracted, vertical: true));
 
+    /// <summary>Verifies one coordinate axis across stock data, custom round-trips, schema limits, and marker consumption.</summary>
+    /// <param name="original">Retail marker points used as the baseline for independent coordinate edits.</param>
+    /// <param name="extracted">Serialized stock layout whose calculated-axis defaults are checked.</param>
+    /// <param name="vertical"><see langword="true"/> to test Y values; otherwise tests X values.</param>
     private static void VerifyMapSaveMarkerCoordinateField(MapSaveMarkerDocument original, byte[] extracted, bool vertical)
     {
         MapSaveMarkerLayout stock = MapSaveMarkerLayout.Load(new MemoryStream(extracted, writable: false));

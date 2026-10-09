@@ -6,6 +6,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks extracted arrow data, independent directional edits, and validation of the four required scroll directions.</summary>
+    /// <param name="rom">The address space used to extract the original map-arrow presentation data.</param>
     private static void VerifyMapArrowCases(ISnesAddressSpace rom)
     {
         byte[] bytes = MapArrowExtractor.Extract(rom);
@@ -46,6 +48,9 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Compares each direction's configured X coordinate with the corresponding native table entry.</summary>
+    /// <param name="rom">The address space containing the original arrow-coordinate table.</param>
+    /// <param name="presentation">The extracted presentation whose directional X values are checked.</param>
     private static void VerifyMapArrowXSelection(ISnesAddressSpace rom, MapArrowPresentation presentation)
     {
         for (int index = 0; index < 4; index++)
@@ -53,6 +58,9 @@ internal static partial class Program
                 presentation.Get((MapScrollDirection)(index + 1)).X, "original arrow X selected by direction");
     }
 
+    /// <summary>Checks directional Y coordinates against native values after the cartridge's one-pixel OAM bias.</summary>
+    /// <param name="rom">The address space containing the original arrow-coordinate table.</param>
+    /// <param name="presentation">The extracted presentation whose directional Y values are checked.</param>
     private static void VerifyMapArrowYSelection(ISnesAddressSpace rom, MapArrowPresentation presentation)
     {
         for (int index = 0; index < 4; index++)
@@ -60,6 +68,8 @@ internal static partial class Program
                 presentation.Get((MapScrollDirection)(index + 1)).Y, "original arrow Y selected by direction with native OAM bias");
     }
 
+    /// <summary>Verifies that each native direction selects the expected sprite base and rejects unsupported directions.</summary>
+    /// <param name="rom">The address space containing the native animation and sprite-variant tables.</param>
     private static void VerifyMapArrowShapeCases(ISnesAddressSpace rom)
     {
         for (int index = 0; index < 4; index++)

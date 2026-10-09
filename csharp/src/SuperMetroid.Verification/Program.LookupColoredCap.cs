@@ -3,10 +3,18 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks that all 48 colored-cap frames retain their pointer order, visual identities, and native draw geometry.</summary>
     private static void VerifyColoredCapGeometry(SuperMetroidAddressSpace rom) => VerifyColoredCapField(rom, 0);
+
+    /// <summary>Compares the collision-related high bits of every colored-cap row with its native PLM data.</summary>
     private static void VerifyColoredCapCollision(SuperMetroidAddressSpace rom) => VerifyColoredCapField(rom, 1);
+
+    /// <summary>Compares the visual tile bits of every colored-cap row with its native PLM data.</summary>
     private static void VerifyColoredCapVisuals(SuperMetroidAddressSpace rom) => VerifyColoredCapField(rom, 2);
 
+    /// <summary>Validates either frame identity and geometry or one selected set of row-word bits against the cartridge data.</summary>
+    /// <param name="rom">The address space used to read the cartridge's native PLM words.</param>
+    /// <param name="field">Selects full geometry and identity checks (0), collision bits (1), or visual tile bits (2).</param>
     private static void VerifyColoredCapField(SuperMetroidAddressSpace rom, int field)
     {
         (ushort First, string Name)[] families = [

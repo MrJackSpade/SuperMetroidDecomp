@@ -3,10 +3,21 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks every cannon draw-list continuation and exported run geometry against the ROM.</summary>
+    /// <param name="rom">Address space containing the native Samus-eater PLM draw lists.</param>
     private static void VerifyCannonLayoutGeometry(SuperMetroidAddressSpace rom) => VerifyCannonLayoutDrawField(rom, 0);
+
+    /// <summary>Checks the cannon draw-list collision bits against their compiled definitions.</summary>
+    /// <param name="rom">Address space containing the native Samus-eater PLM draw lists.</param>
     private static void VerifyCannonLayoutCollision(SuperMetroidAddressSpace rom) => VerifyCannonLayoutDrawField(rom, 1);
+
+    /// <summary>Checks the cannon draw-list visual tile bits against their compiled definitions.</summary>
+    /// <param name="rom">Address space containing the native Samus-eater PLM draw lists.</param>
     private static void VerifyCannonLayoutVisuals(SuperMetroidAddressSpace rom) => VerifyCannonLayoutDrawField(rom, 2);
 
+    /// <summary>Compares exported and compiled cannon draw runs with native words for a selected field.</summary>
+    /// <param name="rom">Address space containing the native draw-list records.</param>
+    /// <param name="field">Selector for geometry (0), collision bits (1), or visual tile bits (2).</param>
     private static void VerifyCannonLayoutDrawField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] pointers = [0x9fcd,0x9fdd,0xa02d,0xa03d,0xa04d,0xa05d,0xa0ed,0xa101,0xa165,0xa179,0xa18d,0xa1a1];

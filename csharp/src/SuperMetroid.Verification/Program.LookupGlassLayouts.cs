@@ -3,10 +3,18 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks glass-pane run counts, directions, continuation offsets, and word positions against native layout data.</summary>
     private static void VerifyGlassLayoutGeometry(SuperMetroidAddressSpace rom) => VerifyGlassLayoutDrawField(rom, 0);
+
+    /// <summary>Checks the collision-related bits of every exported glass-pane block against the native PLM stream.</summary>
     private static void VerifyGlassLayoutCollision(SuperMetroidAddressSpace rom) => VerifyGlassLayoutDrawField(rom, 1);
+
+    /// <summary>Checks the visual tile bits of every glass-pane layout against the native PLM stream.</summary>
     private static void VerifyGlassLayoutVisuals(SuperMetroidAddressSpace rom) => VerifyGlassLayoutDrawField(rom, 2);
 
+    /// <summary>Compares one glass-layout field with native PLM words across all authored frame pointers.</summary>
+    /// <param name="rom">Cartridge address space containing the native glass-pane PLM records.</param>
+    /// <param name="field">Selector for geometry (0), collision bits (1), or visual tile bits (2).</param>
     private static void VerifyGlassLayoutDrawField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] pointers = [0x9717,0x971d,0x9731,0x9745,0x974f,0x9769,0x9781,0x978f,0x97b7,0x97e7,0x9817];

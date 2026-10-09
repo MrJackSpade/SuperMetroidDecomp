@@ -4,10 +4,21 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks calculated pixels and independent edits for the map-arrow tiles.</summary>
+    /// <param name="rom">Cartridge address space supplying the original menu map atlas.</param>
     private static void VerifyMapArrowPixels(ISnesAddressSpace rom) => VerifyMapMarkerPixelFamily(rom, [0x9d, 0x9e]);
+
+    /// <summary>Checks calculated pixels and independent edits for the pulsing map-marker tile.</summary>
+    /// <param name="rom">Cartridge address space supplying the original menu map atlas.</param>
     private static void VerifyMapPulsePixels(ISnesAddressSpace rom) => VerifyMapMarkerPixelFamily(rom, [0xaf]);
+
+    /// <summary>Checks calculated pixels and independent edits for the defeated-boss map marker.</summary>
+    /// <param name="rom">Cartridge address space supplying the original menu map atlas.</param>
     private static void VerifyDefeatedBossPixels(ISnesAddressSpace rom) => VerifyMapMarkerPixelFamily(rom, [0x9f]);
 
+    /// <summary>Verifies one map-marker tile family against native planar data and confirms edited pixels encode independently.</summary>
+    /// <param name="rom">Cartridge address space containing the original 4bpp menu map atlas.</param>
+    /// <param name="tiles">Tile indices whose calculated pixels and editable image regions are checked.</param>
     private static void VerifyMapMarkerPixelFamily(ISnesAddressSpace rom, int[] tiles)
     {
         var files = MapSpriteExtractor.Extract(rom);

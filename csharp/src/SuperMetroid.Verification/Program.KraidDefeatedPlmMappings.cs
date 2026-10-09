@@ -3,15 +3,22 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks that each defeated-room PLM request uses the horizontal block coordinate embedded in Kraid's native callbacks.</summary>
     private static void VerifyKraidDefeatedPlmColumns(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidDefeatedPlmField), () => VerifyKraidDefeatedPlmField(rom, 0, request => request.BlockX));
 
+    /// <summary>Checks that each defeated-room PLM request uses the vertical block coordinate embedded in Kraid's native callbacks.</summary>
     private static void VerifyKraidDefeatedPlmRows(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidDefeatedPlmField), () => VerifyKraidDefeatedPlmField(rom, 1, request => request.BlockY));
 
+    /// <summary>Checks that each defeated-room PLM request uses the header word embedded in Kraid's native callbacks.</summary>
     private static void VerifyKraidDefeatedPlmHeaders(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidDefeatedPlmField), () => VerifyKraidDefeatedPlmField(rom, 2, request => request.Header));
 
+    /// <summary>Compares one request field against both inline native calls and verifies the defeated-room sequence's count, order, and bounds.</summary>
+    /// <param name="rom">Address space containing Kraid's native callback arguments.</param>
+    /// <param name="offset">Byte offset of the selected field within each argument block: zero for column, one for row, or two for the header word.</param>
+    /// <param name="field">Selector for the corresponding value in a decoded PLM request.</param>
     private static void VerifyKraidDefeatedPlmField(SuperMetroidAddressSpace rom, int offset,
         Func<KraidPlmRequest, ushort> field)
     {

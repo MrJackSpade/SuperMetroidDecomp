@@ -7,6 +7,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies installed Ceres escape overlay bytes, native VRAM transfers, edits, and invalid-resource handling.</summary>
+    /// <param name="rom">Cartridge address space used as the byte and transfer oracle.</param>
+    /// <param name="stockDirectory">Directory containing the stock overlay document and extracted artwork.</param>
+    /// <param name="stock">Installed stock artwork catalog under verification.</param>
     private static void VerifyCeresEscapeOverlayTilemaps(ISnesAddressSpace rom,
         string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -150,13 +154,23 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Supplies Ceres overlay tilemap bytes from an installed artwork catalog during VRAM queue draining.</summary>
+    /// <param name="art">Catalog that resolves extracted tilemap source ranges.</param>
     private sealed class CeresEscapeOverlayProvider(EnemyTileArtworkCatalog art)
         : IVramAssetProvider, IInstalledArtworkTransferSource
     {
+        /// <summary>Fails when a generic VRAM asset is requested; this fixture resolves only installed overlay ranges.</summary>
+        /// <param name="asset">Unexpected generic VRAM asset requested by the transfer queue.</param>
+        /// <exception cref="InvalidOperationException">The transfer queue requested a generic asset instead of an overlay range.</exception>
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
             throw new InvalidOperationException(
                 $"Ceres overlay fixture did not expect asset {asset}.");
 
+        /// <summary>Looks up a requested byte range in the installed Ceres overlay catalog.</summary>
+        /// <param name="sourceAddress">Cartridge source address of the requested overlay bytes.</param>
+        /// <param name="byteCount">Number of bytes requested by the transfer.</param>
+        /// <param name="data">Receives the resolved bytes when the catalog contains the full range.</param>
+        /// <returns><see langword="true"/> when the installed catalog resolves the requested range.</returns>
         public bool TryResolve(int sourceAddress, int byteCount,
             out ReadOnlyMemory<byte> data) =>
             art.TryResolve(sourceAddress, byteCount, out data);

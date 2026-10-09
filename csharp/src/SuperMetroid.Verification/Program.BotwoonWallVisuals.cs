@@ -7,6 +7,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks that extracted, loaded, and custom Botwoon wall-clear art preserve the stock word mapping and content identity rules.</summary>
+    /// <param name="rom">Retail address space used to read the native nine-word clear-wall spritemap.</param>
     private static void VerifyBotwoonWallStockMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] native = new ushort[9];
@@ -42,6 +44,7 @@ internal static partial class Program
         Suite(nameof(VerifyBotwoonWallVisualSeparation), () => VerifyBotwoonWallVisualSeparation(custom));
     }
 
+    /// <summary>Confirms the clear-wall draw pointer is the only pointer with a stable exported visual identity.</summary>
     private static void VerifyBotwoonWallVisualIdMapping()
     {
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
@@ -51,6 +54,7 @@ internal static partial class Program
                 AssertThrows<InvalidDataException>(() => BotwoonWallPlmDrawDefinitions.VisualId((ushort)pointer), "Botwoon visual ID accepts only the clear draw");
     }
 
+    /// <summary>Exercises stock extraction, installation loading, art-only overrides, refresh persistence, and rejection of physical-bit edits.</summary>
     private static void VerifyBotwoonWallVisuals()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -131,6 +135,8 @@ internal static partial class Program
             "Botwoon wall visuals: native nine-tile clear, live art edit, physical/timing isolation, stock repair and strict failures pass.");
     }
 
+    /// <summary>Verifies an edited clear-wall tile reaches redraw and streaming while collision words and native deletion timing remain unchanged.</summary>
+    /// <param name="edited">Loaded catalog supplying the custom clear-wall artwork.</param>
     private static void VerifyBotwoonWallVisualSeparation(
         RoomPlmBotwoonWallVisualCatalog edited)
     {

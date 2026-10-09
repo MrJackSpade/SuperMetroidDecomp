@@ -3,13 +3,24 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks downward-gate draw run counts, directions, cell widths, continuations, pointer ownership, and record boundaries.</summary>
+    /// <param name="rom">Retail address space supplying the native bank-$84 draw records.</param>
     private static void VerifyDownwardGateDrawGeometry(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyDownwardGateDrawField), () => VerifyDownwardGateDrawField(rom, 0));
+
+    /// <summary>Checks that calculated downward-gate collision flags match the high nibble of each native tile word.</summary>
+    /// <param name="rom">Retail address space containing the native draw words.</param>
     private static void VerifyDownwardGateDrawCollision(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyDownwardGateDrawField), () => VerifyDownwardGateDrawField(rom, 1));
+
+    /// <summary>Checks that calculated downward-gate tile identities match the low twelve bits of each native tile word.</summary>
+    /// <param name="rom">Retail address space containing the native draw words.</param>
     private static void VerifyDownwardGateDrawVisuals(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyDownwardGateDrawField), () => VerifyDownwardGateDrawField(rom, 2));
 
+    /// <summary>Compares all fourteen resident-frame and trigger draw lists against their native records for the selected field.</summary>
+    /// <param name="rom">Retail address space supplying native bank-$84 draw words.</param>
+    /// <param name="field">Zero checks geometry and ownership, one checks collision flags, and two checks visual tile identities.</param>
     private static void VerifyDownwardGateDrawField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] pointers = [0xa517,0xa525,0xa533,0xa541,0xa54f,0xa55d,

@@ -3,6 +3,9 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Reads the native arm-frame stream independently to collect each spritemap entry boundary.</summary>
+    /// <param name="rom">Cartridge address space containing Kraid's arm instruction data.</param>
+    /// <returns>Native pointers for the 22 physical arm frames before the lint hitbox data.</returns>
     private static ushort[] NativeKraidArmPhysicalFrames(SuperMetroidAddressSpace rom)
     {
         var pointers = new List<ushort>();
@@ -18,6 +21,8 @@ internal static partial class Program
         return pointers.ToArray();
     }
 
+    /// <summary>Checks that compiled physical-frame pointers match the independently walked native stream and enforce index bounds.</summary>
+    /// <param name="rom">Cartridge address space used to derive the expected frame list.</param>
     private static void VerifyKraidArmPhysicalFramePointers(SuperMetroidAddressSpace rom)
     {
         ushort[] expected = NativeKraidArmPhysicalFrames(rom);
@@ -29,6 +34,8 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => KraidArmCollisionDefinitions.FramePointer(22), "Past arm frame ordinal");
     }
 
+    /// <summary>Compares the selected stationary collision component in every arm frame with its native instruction record.</summary>
+    /// <param name="rom">Cartridge address space supplying native component counts and coordinates.</param>
     private static void VerifyKraidArmStationaryPositions(SuperMetroidAddressSpace rom)
     {
         int checkedPositions = 0;
@@ -46,6 +53,9 @@ internal static partial class Program
         }
         AssertEqual(22, checkedPositions, "All stationary arm component positions checked");
     }
+    /// <summary>Exhaustively checks exact frame-pointer membership and ordered collision-layout selection against native records.</summary>
+    /// <param name="rom">Cartridge address space supplying native frame records and hitbox pointers.</param>
+    /// <returns>The hitbox pointers referenced by the compiled physical components.</returns>
     private static HashSet<ushort> VerifyKraidArmPhysicalLayoutSelection(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidArmStationaryPositions), () => VerifyKraidArmStationaryPositions(rom));

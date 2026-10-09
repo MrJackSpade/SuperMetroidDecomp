@@ -3,10 +3,21 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks the Blue Brinstar cap's published spritemap identities and geometry against cartridge data.</summary>
+    /// <param name="rom">Cartridge address space containing the native PLM draw records.</param>
     private static void VerifyBlueCapGeometry(SuperMetroidAddressSpace rom) => VerifyBlueCapField(rom, 0);
+
+    /// <summary>Checks the Blue Brinstar cap's collision fields against the native PLM draw records.</summary>
+    /// <param name="rom">Cartridge address space containing the native PLM draw records.</param>
     private static void VerifyBlueCapCollision(SuperMetroidAddressSpace rom) => VerifyBlueCapField(rom, 1);
+
+    /// <summary>Checks the Blue Brinstar cap's visual fields against the native PLM draw records.</summary>
+    /// <param name="rom">Cartridge address space containing the native PLM draw records.</param>
     private static void VerifyBlueCapVisuals(SuperMetroidAddressSpace rom) => VerifyBlueCapField(rom, 2);
 
+    /// <summary>Validates the selected Blue cap draw-data field across every published frame and directional alias.</summary>
+    /// <param name="rom">Cartridge address space used as the native reference.</param>
+    /// <param name="field">Verification pass: zero for geometry and identity, one for collision bits, or two for visual bits.</param>
     private static void VerifyBlueCapField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] pointers = [0xa9b3,0xa9bf,0xa9cb,0xa9d7,0xa9ef,0xa9fb,0xaa07,0xaa13,0xaa2b,0xaa37,0xaa43,0xaa4f,0xaa67,0xaa73,0xaa7f,0xaa8b,0xa9a7,0xa9e3,0xaa1f,0xaa5b];

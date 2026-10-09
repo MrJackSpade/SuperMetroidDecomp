@@ -4,10 +4,21 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks that exported Chozo draw shapes preserve native run counts, offsets, ordering, and bounds.</summary>
+    /// <param name="rom">Cartridge address space containing the native PLM draw programs.</param>
     private static void VerifyChozoLayoutGeometry(SuperMetroidAddressSpace rom) => VerifyChozoLayoutDrawField(rom, 0);
+
+    /// <summary>Checks that calculated Chozo draw words retain the native collision-relevant bits.</summary>
+    /// <param name="rom">Cartridge address space used as the native draw-program oracle.</param>
     private static void VerifyChozoLayoutCollision(SuperMetroidAddressSpace rom) => VerifyChozoLayoutDrawField(rom, 1);
+
+    /// <summary>Checks that calculated Chozo draw words retain the native visual bits.</summary>
+    /// <param name="rom">Cartridge address space used as the native draw-program oracle.</param>
     private static void VerifyChozoLayoutVisuals(SuperMetroidAddressSpace rom) => VerifyChozoLayoutDrawField(rom, 2);
 
+    /// <summary>Compares one aspect of the installed Chozo PLM draw layouts with their native programs and exported views.</summary>
+    /// <param name="rom">Cartridge address space used to read the native draw programs.</param>
+    /// <param name="field">Aspect to compare: zero for geometry, one for collision bits, or two for visual bits.</param>
     private static void VerifyChozoLayoutDrawField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] pointers = [0xa2b5,0x9cc5,0x9d0f];

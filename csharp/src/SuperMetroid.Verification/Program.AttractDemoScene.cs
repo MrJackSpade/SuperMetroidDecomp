@@ -7,6 +7,9 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies attract-scene import, stock scene records, command playback, cancellation, and completion-set selection.
+    /// </summary>
     private static void VerifyAttractDemoScene()
     {
         Suite(nameof(VerifyStockAttractScenes), () => VerifyStockAttractScenes());
@@ -73,6 +76,9 @@ internal static partial class Program
             throw new InvalidDataException("Incomplete-game save incorrectly unlocked set four.");
     }
 
+    /// <summary>
+    /// Compares every compiled stock attract scene and set sentinel with the retail ROM, then checks the input records for each scene.
+    /// </summary>
     private static void VerifyStockAttractScenes()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -98,6 +104,11 @@ internal static partial class Program
         Console.WriteLine($"Compiled attract scenes: {total} records and four sentinels match cartridge data.");
     }
 
+    /// <summary>
+    /// Checks native attract-object commands against compiled definitions and advances every stock scene's input program.
+    /// </summary>
+    /// <param name="retail">Retail address space used to compare native initializer and command words.</param>
+    /// <param name="sceneCounts">Number of populated scenes in each compiled attract set.</param>
     private static void VerifyAttractCommandDefinitionsAndPlayback(
         ISnesAddressSpace retail,
         int[] sceneCounts)
@@ -189,6 +200,11 @@ internal static partial class Program
             unchecked((ushort)(source.ReadByte(address) | (source.ReadByte(address + 1) << 8)));
     }
 
+    /// <summary>
+    /// Compares the compiled attract-input interpreter with the cartridge reference across scene playback and departure frames.
+    /// </summary>
+    /// <param name="bus">Retail address space used by the reference interpreter.</param>
+    /// <param name="scene">Scene whose input object and command stream are compared.</param>
     private static void VerifyCompiledAttractInput(ISnesAddressSpace bus, AttractDemoScene scene)
     {
         // Run well beyond each displayed scene: this also checks script tails that ordinary

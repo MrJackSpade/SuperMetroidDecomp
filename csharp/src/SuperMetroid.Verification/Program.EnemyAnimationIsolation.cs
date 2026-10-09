@@ -3,6 +3,7 @@ using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
+    /// <summary>Compares stock and replaced Boyon and Golden Torizo animation assets while checking gameplay outcomes.</summary>
     private static void VerifyEnemyAnimationIsolation()
     {
         var stock = new EnemyIdentityFixture().Build();
@@ -14,6 +15,9 @@ internal static partial class Program
             "boss attack/hitbox windows and death progression remain frame-exact with replaced display sequences and projectile art.");
     }
 
+    /// <summary>Checks that altered Boyon artwork changes every paired draw while preserving movement and bounce mechanics.</summary>
+    /// <param name="stock">Fixture using the installed stock animation artwork.</param>
+    /// <param name="edited">Fixture using the edited artwork with the same compiled animation sequence.</param>
     private static void VerifyBoyonAnimationIsolation(EnemyAnimationFixture stock, EnemyAnimationFixture edited)
     {
         var heights = new HashSet<ushort>();
@@ -43,6 +47,9 @@ internal static partial class Program
             $"{heights.Count} Y positions and {bounceSounds} bounce callbacks; OAM changes every frame without changing mechanics.");
     }
 
+    /// <summary>Checks Golden Torizo attack and death timing, collisions, projectiles, RNG, and progression with replaced artwork.</summary>
+    /// <param name="stock">Fixture using the installed stock animation artwork.</param>
+    /// <param name="edited">Fixture using edited artwork while retaining the same gameplay instruction programs.</param>
     private static void VerifyTorizoAnimationIsolation(EnemyAnimationFixture stock, EnemyAnimationFixture edited)
     {
         // The fixed right-orb program has 24 startup frames, six 6-frame firing
@@ -104,6 +111,12 @@ internal static partial class Program
             "identical motion, projectiles, damage fields, RNG and progression with different OAM.");
     }
 
+    /// <summary>Compares native extended-hitbox callback results across positions and shot types for stock and edited fixtures.</summary>
+    /// <param name="stock">Fixture whose collision behavior provides the reference result.</param>
+    /// <param name="edited">Fixture required to produce the same hit result and callback output.</param>
+    /// <param name="frame">Attack frame label used to identify any failed comparison.</param>
+    /// <param name="hits">Cumulative count of sample positions reported as hits.</param>
+    /// <param name="misses">Cumulative count of sample positions reported as misses.</param>
     private static void CompareTorizoHitWindows(EnemyAnimationFixture stock, EnemyAnimationFixture edited,
         int frame, ref int hits, ref int misses)
     {

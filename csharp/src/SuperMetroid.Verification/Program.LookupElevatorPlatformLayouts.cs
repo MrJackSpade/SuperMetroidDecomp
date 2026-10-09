@@ -4,10 +4,19 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks all three authored elevator-platform pointers, run geometry, offsets, and physical collision-cell placement against the ROM.</summary>
+    /// <param name="rom">Retail address space containing the native draw-list words.</param>
     private static void VerifyElevatorPlatformLayoutGeometry(SuperMetroidAddressSpace rom) => VerifyElevatorPlatformLayoutDrawField(rom, 0);
+    /// <summary>Checks the upper word flags, including each cell's solid bit, against the native draw lists.</summary>
+    /// <param name="rom">Retail address space containing the native draw-list words.</param>
     private static void VerifyElevatorPlatformLayoutCollision(SuperMetroidAddressSpace rom) => VerifyElevatorPlatformLayoutDrawField(rom, 1);
+    /// <summary>Checks the tile-index bits of every platform cell against the native draw lists.</summary>
+    /// <param name="rom">Retail address space containing the native draw-list words.</param>
     private static void VerifyElevatorPlatformLayoutVisuals(SuperMetroidAddressSpace rom) => VerifyElevatorPlatformLayoutDrawField(rom, 2);
 
+    /// <summary>Compares each exported platform frame with native layout words, checking geometry, collision flags, or tile indices.</summary>
+    /// <param name="rom">Retail address space used as the source of native draw-list words.</param>
+    /// <param name="field">Selects full geometry and pointer-domain checks (0), upper word flags including solidity (1), or low tile-index bits (2).</param>
     private static void VerifyElevatorPlatformLayoutDrawField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] pointers = [0xaa97,0xaaaf,0xaac7];

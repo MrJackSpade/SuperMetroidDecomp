@@ -10,6 +10,10 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Compares the door-camera alignment trace with its fixture and verifies subpixel preservation through a retail room transition.
+    /// </summary>
+    /// <param name="fixture">CSV trace containing native camera positions, completion markers, and expected alignment results.</param>
     private static void VerifyDoorAlignmentParity(
         string fixture = "csharp/test-fixtures/movement-release/door-alignment-448-v1.csv")
     {
@@ -94,6 +98,9 @@ internal static partial class Program
             "  Door alignment: 1,072 native camera steps, completion calls, and retained subpixels agree.");
     }
 
+    /// <summary>
+    /// Exercises an offset retail door transition and checks camera alignment, destination OAM input continuity, and retained Samus state.
+    /// </summary>
     private static void VerifyCompleteDoorAlignmentHandoff()
     {
         const ushort sourceRoom = 0xb236;
@@ -196,9 +203,15 @@ internal static partial class Program
             "door transition retains the running-momentum flag");
     }
 
+    /// <summary>Parses one fixture field as a base-ten integer using culture-independent formatting.</summary>
+    /// <param name="value">Decimal text from the door-alignment CSV.</param>
+    /// <returns>The parsed integer value.</returns>
     private static int ParseDecimal(string value) =>
         int.Parse(value, CultureInfo.InvariantCulture);
 
+    /// <summary>Parses one fixture field as an unsigned hexadecimal word using culture-independent formatting.</summary>
+    /// <param name="value">Hexadecimal text from the door-alignment CSV, without a prefix.</param>
+    /// <returns>The parsed 16-bit value.</returns>
     private static ushort ParseHex(string value) =>
         ushort.Parse(value, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
 }

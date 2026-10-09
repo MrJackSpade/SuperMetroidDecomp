@@ -6,6 +6,9 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Creates a six-area label layout whose entries all share the supplied point for repeatable window fixtures.</summary>
+    /// <param name="x">Horizontal label coordinate used for every area.</param>
+    /// <param name="y">Vertical label coordinate used for every area.</param>
     private static WorldMapLabelLayout CreateWindowLabelFixture(int x, int y)
     {
         var points = Enumerable.Range(0, 6).ToDictionary(area => ((SuperMetroid.Core.Game.AreaId)area).ToString(),
@@ -15,6 +18,8 @@ internal static partial class Program
         stream.Position = 0;
         return WorldMapLabelLayout.Load(stream);
     }
+
+    /// <summary>Checks retail map-window motion timing, edge clamps, completion, and fractional-position retention for every area.</summary>
     private static void VerifyFileSelectMapWindow()
     {
         Suite(nameof(VerifyFileSelectAreaMapGraphics), () => VerifyFileSelectAreaMapGraphics());
@@ -70,6 +75,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks window compositing bounds and return motion, including that the transition frame avoids room-map BG1 tiles.</summary>
     private static void VerifyFileSelectMapWindowComposition()
     {
         var fake = new TestAddressSpace();
@@ -120,6 +126,7 @@ internal static partial class Program
         AssertTrue(frameOnly.SequenceEqual(graphics.RenderFrameOnly()), "transition frame never samples room-map BG1 tiles");
     }
 
+    /// <summary>Checks area-map colors, BG3 transfers, opaque rendering, and visited-station label masks for all areas.</summary>
     private static void VerifyFileSelectAreaMapGraphics()
     {
         Rgba32[] main = [new(255, 8, 0), new(0, 0, 8)];

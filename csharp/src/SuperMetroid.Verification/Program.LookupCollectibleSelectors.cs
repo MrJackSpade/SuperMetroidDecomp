@@ -3,6 +3,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks the four collectible-orb animation phases against their native spritemap operands and rejects out-of-range phases.</summary>
+    /// <param name="rom">Cartridge address space containing the orb instruction words.</param>
     private static void VerifyCollectibleOrbSelector(SuperMetroidAddressSpace rom)
     {
         for (int phase = 0; phase < 4; phase++)
@@ -12,6 +14,8 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => RoomPlmCollectibleDrawDefinitions.OrbFrame(bad), "Collectible orb phase bounds");
     }
 
+    /// <summary>Checks shot-reveal and reverse-order reconceal frames against the native lists, including phase bounds.</summary>
+    /// <param name="rom">Cartridge address space containing the reveal and reconceal instruction words.</param>
     private static void VerifyCollectibleRevealSelector(SuperMetroidAddressSpace rom)
     {
         for (int phase = 0; phase < 3; phase++)
@@ -25,6 +29,8 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => RoomPlmCollectibleDrawDefinitions.ShotRevealFrame(bad), "Collectible reveal phase bounds");
     }
 
+    /// <summary>Checks all four tank kinds use their native visible frame independently of graphics-slot selection.</summary>
+    /// <param name="rom">Cartridge address space containing the tank instruction lists.</param>
     private static void VerifyCollectibleTankSelector(SuperMetroidAddressSpace rom)
     {
         // Native exposed tank instruction-list draw operands, independently addressed.
@@ -42,6 +48,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks each byte-backed dynamic kind selects native phase/slot operands and rejects invalid phases or slots.</summary>
+    /// <param name="rom">Cartridge address space containing the dynamic collectible instruction words.</param>
     private static void VerifyCollectibleDynamicSelector(SuperMetroidAddressSpace rom)
     {
         // The byte-backed kind domain historically selects dynamic graphics for every value above the four tanks.

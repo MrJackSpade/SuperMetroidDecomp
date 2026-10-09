@@ -8,6 +8,17 @@ internal static partial class Program
 {
     // These adapters require an import source at the diagnostic boundary. Core has no
     // address-based artwork loader, including when tests use constructed cartridge data.
+    /// <summary>Draws a cartridge-backed enemy spritemap through the tooling oracle using the supplied OAM placement and attributes.</summary>
+    /// <param name="bus">Address space that must expose cartridge-import reads.</param>
+    /// <param name="oam">Destination OAM buffer for the expanded sprite parts.</param>
+    /// <param name="bank">Bank containing the spritemap data.</param>
+    /// <param name="spritemapPointer">Bank-local address of the spritemap.</param>
+    /// <param name="originX">Horizontal sprite origin.</param>
+    /// <param name="originY">Vertical sprite origin.</param>
+    /// <param name="paletteBits">Palette selector bits applied to emitted object attributes.</param>
+    /// <param name="baseTileIndex">Base tile index used when resolving sprite tiles.</param>
+    /// <param name="clipVerticalWrap">Whether vertically wrapped parts are clipped.</param>
+    /// <param name="originYIsOnScreen">Whether the origin is already in the on-screen coordinate range.</param>
     private static void DrawImportedEnemySpritemap(ISnesAddressSpace bus, OamBuffer oam,
         byte bank, ushort spritemapPointer, ushort originX, ushort originY,
         ushort paletteBits, ushort baseTileIndex,
@@ -27,6 +38,14 @@ internal static partial class Program
                 0x860000 | projectile.PresentationOperandAddress)
             : projectile.SpritemapPointer;
 
+    /// <summary>Draws a cartridge-backed enemy-projectile spritemap through the tooling oracle.</summary>
+    /// <param name="bus">Address space that must expose cartridge-import reads.</param>
+    /// <param name="oam">Destination OAM buffer for the expanded sprite parts.</param>
+    /// <param name="bank8dSpritemapPointer">Bank-$8D address of the projectile's native spritemap.</param>
+    /// <param name="originX">Horizontal sprite origin.</param>
+    /// <param name="originY">Vertical sprite origin.</param>
+    /// <param name="graphicsIndex">Projectile graphics selection used to resolve its tile data.</param>
+    /// <param name="originYIsOnScreen">Whether the origin is already in the on-screen coordinate range.</param>
     private static void DrawImportedEnemyProjectileSpritemap(ISnesAddressSpace bus, OamBuffer oam,
         ushort bank8dSpritemapPointer, ushort originX, ushort originY,
         ushort graphicsIndex, bool originYIsOnScreen) =>
@@ -55,6 +74,10 @@ internal static partial class Program
                 ProgramFrames = programs,
             })));
     }
+    /// <summary>Checks that an executing enemy instruction's native spritemap operand matches the selector stored on its slot.</summary>
+    /// <param name="rom">Cartridge address space containing the enemy instruction operand.</param>
+    /// <param name="slot">Enemy slot currently executing a timed instruction.</param>
+    /// <param name="executedOperands">Set that records each verified bank-local selector address.</param>
     private static void VerifyExecutedEnemySelector(ISnesAddressSpace rom,
         RoomEnemySlot slot, HashSet<ushort> executedOperands)
     {
@@ -69,6 +92,14 @@ internal static partial class Program
     }
     // Confirm the visual actually selected by a timed instruction, whether its owner
     // carries an installed operand or a legacy compiled sprite identity.
+    /// <summary>
+    /// Compares the active projectile frame selected by its timed instruction against the cartridge sprite output and installed artwork.
+    /// </summary>
+    /// <param name="rom">Cartridge address space containing the bank-$86 selector operand.</param>
+    /// <param name="projectile">Active projectile whose current frame is being verified.</param>
+    /// <param name="artwork">Imported projectile artwork used for installed or compiled visual frames.</param>
+    /// <param name="executedOperands">Set that records each verified presentation operand address.</param>
+    /// <param name="expectedOperand">Optional known operand address for an instruction whose pointer layout is nonstandard.</param>
     private static void VerifyExecutedProjectileFrame(ISnesAddressSpace rom,
         RoomEnemyProjectileSlot projectile, EnemyProjectileSpritemapCatalog artwork,
         HashSet<ushort> executedOperands, ushort? expectedOperand = null)

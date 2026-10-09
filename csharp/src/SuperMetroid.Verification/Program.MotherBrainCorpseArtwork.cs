@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Extracts and validates the stock Mother Brain corpse artwork before running installed-art checks.</summary>
     private static void VerifyMotherBrainCorpseStockArtwork()
     {
         using var temporary = new TestTempDirectory("map-catalog");
@@ -16,6 +17,9 @@ internal static partial class Program
         Suite(nameof(VerifyInstalledMotherBrainCorpseArtwork), () => VerifyInstalledMotherBrainCorpseArtwork(temporary.Root, EnemyTileArtworkFiles.Load(temporary.Root, null)));
     }
 
+    /// <summary>Checks native transfer and staging parity, then verifies edited and reloaded corpse artwork overrides.</summary>
+    /// <param name="directory">Directory containing the extracted indexed PNG asset.</param>
+    /// <param name="stock">Catalog loaded from the extracted stock asset.</param>
     private static void VerifyInstalledMotherBrainCorpseArtwork(
         string directory, EnemyTileArtworkCatalog stock)
     {
@@ -114,6 +118,10 @@ internal static partial class Program
         Console.WriteLine("  Mother Brain corpse art: indexed PNG import parity, six RAM-only sprite VRAM pages, independent staging oracle, room/sequence staging, edit/reload and invalid override pass.");
     }
 
+    /// <summary>Runs the production corpse-page transfer against a supplied cartridge-incapable bus.</summary>
+    /// <param name="artwork">Artwork catalog providing the corpse graphics pages.</param>
+    /// <param name="bus">Address space installed into the room enemy system for the transfer.</param>
+    /// <returns>VRAM after all native corpse-page transfer requests have been applied.</returns>
     private static SnesVram TransferMotherBrainCorpsePages(
         EnemyTileArtworkCatalog artwork, ISnesAddressSpace bus)
     {
@@ -136,6 +144,9 @@ internal static partial class Program
         return vram;
     }
 
+    /// <summary>Compares the staged corpse graphics bytes and initialized rot-table entries between two address spaces.</summary>
+    /// <param name="expected">Reference address space containing the independently assembled native result.</param>
+    /// <param name="actual">Address space populated by the installed production path.</param>
     private static void AssertMotherBrainCorpseBufferParity(
         SuperMetroidAddressSpace expected, SuperMetroidAddressSpace actual)
     {

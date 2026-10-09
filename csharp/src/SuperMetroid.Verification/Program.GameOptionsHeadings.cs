@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Imports the three Game Options heading sprites from the pinned cartridge and verifies their IDs and anchors.</summary>
     private static void VerifyGameOptionsHeadings()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -18,6 +19,10 @@ internal static partial class Program
         Suite(nameof(VerifyGameOptionsHeadingAnchors), () => VerifyGameOptionsHeadingAnchors(rom, document));
     }
 
+    /// <summary>Maps an ordinal Game Options page to the corresponding original heading asset name.</summary>
+    /// <param name="index">Page ordinal: primary menu, controller menu, or special menu.</param>
+    /// <returns>The stable asset name used to locate the imported heading.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The ordinal is not one of the three Game Options pages.</exception>
     private static string OriginalHeadingName(int index) => index switch
     {
         0 => GameOptionsPresentationDefinitions.PrimaryMenu,
@@ -26,6 +31,9 @@ internal static partial class Program
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 
+    /// <summary>Checks cartridge heading IDs, native instruction-list pointers, imported sprite parts, and selector bounds.</summary>
+    /// <param name="rom">Pinned cartridge address space used as the native reference.</param>
+    /// <param name="document">Extracted presentation document containing the imported heading sprites.</param>
     private static void VerifyGameOptionsHeadingIds(ISnesAddressSpace rom, GameOptionsPresentationDocument document)
     {
         // The original table-entry locations independently identify the native IDs;
@@ -48,6 +56,9 @@ internal static partial class Program
                 "heading sprite selector bounds");
     }
 
+    /// <summary>Checks native heading coordinate operands against their decoded definitions and imported anchor points.</summary>
+    /// <param name="rom">Pinned cartridge address space containing the heading setup instructions.</param>
+    /// <param name="document">Extracted presentation document whose heading anchors are compared with the cartridge.</param>
     private static void VerifyGameOptionsHeadingAnchors(ISnesAddressSpace rom, GameOptionsPresentationDocument document)
     {
         AssertEqual((byte)0xa9, rom.ReadByte(0x82f369), "native heading common Y LDA");

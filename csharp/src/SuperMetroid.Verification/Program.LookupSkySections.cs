@@ -4,6 +4,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks all 23 band boundaries against the ROM table and verifies camera selection, 16-frame scroll accumulation, wrapping, and terminal fallback.</summary>
+    /// <param name="rom">Retail address space containing the scrolling-sky section records.</param>
     private static void VerifySkySectionTopPositions(SuperMetroidAddressSpace rom)
     {
         int originalCount = ReadVerificationWord(rom, 0x88adef) / 8;
@@ -50,6 +52,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks each compiled sky band's fractional scroll increment against its native record, including the duplicate slot.</summary>
+    /// <param name="rom">Retail address space containing the scrolling-sky section records.</param>
     private static void VerifySkySectionSubspeeds(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 23; index++)
@@ -57,6 +61,8 @@ internal static partial class Program
                 RoomFxRomData.ScrollingSky.GetSection(index).Subspeed, "Sky fractional speed including band17");
     }
 
+    /// <summary>Checks each compiled sky band's integer scroll increment against its native record.</summary>
+    /// <param name="rom">Retail address space containing the scrolling-sky section records.</param>
     private static void VerifySkySectionSpeeds(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 23; index++)
@@ -64,6 +70,8 @@ internal static partial class Program
                 RoomFxRomData.ScrollingSky.GetSection(index).Speed, "Sky integer speed");
     }
 
+    /// <summary>Checks the HDMA accumulator slot assigned to each sky band against the native table, including repeated slot assignments.</summary>
+    /// <param name="rom">Retail address space containing the scrolling-sky section records.</param>
     private static void VerifySkySectionDataSlots(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 23; index++)

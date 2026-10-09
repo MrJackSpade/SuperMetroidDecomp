@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+/// <summary>Checks the Ceres destruction cinematic's phases, Mode 7 transfers, and final handoff using synthetic ROM assets.</summary>
 static void VerifyCeresDestructionCinematic()
 {
     var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
@@ -138,6 +139,11 @@ static void VerifyCeresDestructionCinematic()
         $"  Ceres destruction: ROM phases, C9C7 flight, and state-six handoff agree ({frame} calls).");
 }
 
+/// <summary>Writes a compressed stream containing one repeated $400-byte output chunk for each supplied value.</summary>
+/// <param name="rom">Mutable ROM image receiving the encoded stream.</param>
+/// <param name="snesAddress">SNES address at which the compressed stream begins.</param>
+/// <param name="chunkValues">Byte value to repeat in each successive $400-byte output chunk.</param>
+/// <exception cref="ArgumentException"><paramref name="chunkValues"/> contains no chunks.</exception>
 static void WriteRepeatedCompressedChunks(
     byte[] rom,
     int snesAddress,
@@ -158,6 +164,12 @@ static void WriteRepeatedCompressedChunks(
     WriteSequentialRomByte(rom, ref address, 0xff);
 }
 
+/// <summary>Writes a compressed stream that expands to a fixed-length sequence of one repeated byte value.</summary>
+/// <param name="rom">Mutable ROM image receiving the encoded stream.</param>
+/// <param name="snesAddress">SNES address at which the compressed stream begins.</param>
+/// <param name="outputLength">Expanded byte count, which must be a positive multiple of $400.</param>
+/// <param name="value">Byte repeated throughout the expanded output.</param>
+/// <exception cref="ArgumentOutOfRangeException"><paramref name="outputLength"/> is not a positive multiple of $400.</exception>
 static void WriteRepeatedCompressedStream(
     byte[] rom,
     int snesAddress,
@@ -178,6 +190,10 @@ static void WriteRepeatedCompressedStream(
     WriteSequentialRomByte(rom, ref address, 0xff);
 }
 
+/// <summary>Stores one byte at the current SNES address and advances using sequential LoROM bank addressing.</summary>
+/// <param name="rom">Mutable ROM image receiving the byte.</param>
+/// <param name="snesAddress">Address to write; updated to the next sequential LoROM address.</param>
+/// <param name="value">Byte value to store.</param>
 static void WriteSequentialRomByte(byte[] rom, ref int snesAddress, byte value)
 {
     rom[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress)] = value;

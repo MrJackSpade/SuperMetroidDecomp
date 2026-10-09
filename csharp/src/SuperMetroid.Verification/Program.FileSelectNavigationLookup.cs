@@ -4,6 +4,8 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+    /// <summary>Compares source/clear menu movement against the original occupancy-filtered choices and ROM selectors.</summary>
+    /// <param name="rom">Cartridge address space used to verify the native occupancy bits.</param>
     private static void VerifyFileSelectSourceNavigation(ISnesAddressSpace rom)
     {
         // Complete filtered lists produced by the old source/clear code in
@@ -29,6 +31,8 @@ internal static partial class Program
         Console.WriteLine("Source/clear navigation: all eight original choice lists, 20 selectable states, input priority and rejection pass.");
     }
 
+    /// <summary>Checks copy-destination navigation excludes only the selected source slot, matching native ROM behavior.</summary>
+    /// <param name="rom">Cartridge address space containing the destination-selection instructions.</param>
     private static void VerifyFileSelectDestinationNavigation(ISnesAddressSpace rom)
     {
         // Original destination lists exclude just the source, even if another
@@ -53,6 +57,10 @@ internal static partial class Program
         Console.WriteLine("Copy destination navigation: all three original choice lists, nine selectable states, input priority and rejection pass.");
     }
 
+    /// <summary>Verifies directional clamping and rejection against an original ordered submenu choice list.</summary>
+    /// <param name="original">Selectable item identities in native menu order.</param>
+    /// <param name="actual">Navigation operation being checked for each current item and input.</param>
+    /// <param name="description">Context label included in comparison failures.</param>
     private static void VerifyOriginalSubmenuChoices(int[] original,
         Func<int, SnesButton, int> actual, string description)
     {
@@ -90,6 +98,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks visible main-menu transitions for empty and populated save lists, including invalid selections.</summary>
     private static void VerifyFileSelectMainNavigation()
     {
         // Independent original managed lists from b9e1e0ff, cross-checked against

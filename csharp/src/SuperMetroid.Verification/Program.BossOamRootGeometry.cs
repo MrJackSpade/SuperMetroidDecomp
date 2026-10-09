@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks Ridley's selected OAM roots and confirms the native component counts behind their address strides.</summary>
+    /// <param name="rom">The address space used to read each root's native component count.</param>
     private static void VerifyRidleyOamRootGeometry(SuperMetroidAddressSpace rom)
     {
         ushort[] expected = [
@@ -13,6 +15,8 @@ internal static partial class Program
             index => index == 10 ? 1 : 4));
     }
 
+    /// <summary>Checks Draygon's selected OAM roots across its frame groups against native component counts.</summary>
+    /// <param name="rom">The address space used to read each root's native component count.</param>
     private static void VerifyDraygonOamRootGeometry(SuperMetroidAddressSpace rom)
     {
         ushort[] expected = [
@@ -30,6 +34,8 @@ internal static partial class Program
             index => components[index % 24]));
     }
 
+    /// <summary>Checks Spore Spawn's selected OAM roots and the component counts that determine their record spacing.</summary>
+    /// <param name="rom">The address space used to read each root's native component count.</param>
     private static void VerifySporeSpawnOamRootGeometry(SuperMetroidAddressSpace rom)
     {
         ushort[] expected = [
@@ -42,6 +48,12 @@ internal static partial class Program
 
     // Expected roots were captured from the published catalog before conversion;
     // native count words independently confirm the record geometry behind the strides.
+    /// <summary>Compares selected root addresses with the captured catalog and checks native record counts and index rejection.</summary>
+    /// <param name="rom">The address space containing the native OAM records.</param>
+    /// <param name="bank">The bank containing all expected root addresses.</param>
+    /// <param name="expected">Captured root addresses in frame-selection order.</param>
+    /// <param name="actual">The catalog lookup that returns a root for each frame index.</param>
+    /// <param name="componentCount">Expected native component count for each selected frame.</param>
     private static void VerifyBossOamRoots(SuperMetroidAddressSpace rom, byte bank,
         ushort[] expected, Func<int, ushort> actual, Func<int, int> componentCount)
     {

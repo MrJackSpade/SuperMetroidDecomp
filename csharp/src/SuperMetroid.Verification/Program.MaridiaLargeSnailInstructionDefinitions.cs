@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the compiled Maridia Large Snail selectors, mechanics words, and complete instruction programs against retail data and production execution.</summary>
+    /// <param name="rom">Retail address space used for native-word comparisons and executed-selector verification.</param>
     private static void VerifyMaridiaLargeSnailInstructionDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -175,6 +177,14 @@ internal static partial class Program
             "effects, and sixty executed selectors match cartridge data with runtime reads forbidden.");
     }
 
+    /// <summary>Runs the selected Large Snail program through the production instruction processor and records each executed visual selector.</summary>
+    /// <param name="rom">Address space used to verify selectors against their native operands.</param>
+    /// <param name="executedOperands">Set collecting verified presentation operand addresses.</param>
+    /// <param name="enemies">Enemy system whose production processor executes the list.</param>
+    /// <param name="process">Reflected production instruction-processing method.</param>
+    /// <param name="snail">Large Snail slot whose instruction pointer and timer are advanced.</param>
+    /// <param name="program">Instruction-list entry selected for this run.</param>
+    /// <param name="callCount">Number of eligible instruction calls to make.</param>
     private static void ExecuteMaridiaLargeSnailProgram(
         ISnesAddressSpace rom,
         HashSet<ushort> executedOperands,
@@ -195,6 +205,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Warms and repeatedly reads compiled Large Snail mechanics words so the caller can measure steady-state lookup allocations.</summary>
+    /// <returns>A checksum that keeps the repeated reads observable.</returns>
     private static int ProbeMaridiaLargeSnailInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -210,19 +222,35 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian instruction word from the supplied cartridge address space.</summary>
+    /// <param name="bus">Retail address space containing the original Large Snail instruction data.</param>
+    /// <param name="address">Address of the low byte; the high byte follows immediately.</param>
+    /// <returns>The adjacent bytes combined as an unsigned 16-bit word.</returns>
     private static ushort ReadMaridiaLargeSnailInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Rejects reads of compiled Large Snail mechanics and selectors while tracking which installed presentation operands production execution requests.</summary>
+    /// <param name="source">Underlying address space for reads outside guarded instruction data and for writes.</param>
     private sealed class MaridiaLargeSnailInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Unique presentation operand addresses observed through this guarded address space.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of attempted reads rejected because they target migrated selector or mechanics data.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes import-source reads through the same guard and presentation tracking as ordinary byte reads.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The underlying byte when the address is outside guarded Large Snail data.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects migrated mechanics reads, records selector reads, and forwards other byte requests.</summary>
+        /// <param name="address">Address-space location requested by production code.</param>
+        /// <returns>The underlying byte when the address is outside the guarded instruction ranges.</returns>
+        /// <exception cref="InvalidOperationException">The address identifies compiled selector or mechanics data.</exception>
         public byte ReadByte(int address)
         {
             if (address is >= 0xa2cb77 and < 0xa2cb87 ||
@@ -254,6 +282,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged; this wrapper guards cartridge reads only.</summary>
+        /// <param name="address">Address-space location to write.</param>
+        /// <param name="value">Byte passed through to the underlying source.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

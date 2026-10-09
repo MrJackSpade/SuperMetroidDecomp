@@ -5,12 +5,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs the retail-ROM-backed checks for compiled normal and strong Brinstar Pipe Bug instruction programs.</summary>
     private static void VerifyBrinstarPipeBugInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyBrinstarPipeBugInstructionProgramDefinitions), () => VerifyBrinstarPipeBugInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares compiled mechanics with cartridge words and drives each normal/strong animation loop through production initialization.</summary>
+    /// <param name="rom">Retail address space used to check instruction and visual operand values.</param>
     private static void VerifyBrinstarPipeBugInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -149,6 +152,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Repeats a normal Pipe Bug mechanics lookup for the warmed allocation check.</summary>
+    /// <returns>A checksum that consumes the resolved word values.</returns>
     private static int ProbeBrinstarPipeBugInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -160,18 +165,34 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian instruction word from the supplied retail address space.</summary>
+    /// <param name="bus">Retail address space containing the reference bytes.</param>
+    /// <param name="address">SNES address of the word's low byte.</param>
+    /// <returns>The two adjacent bytes combined into a 16-bit value.</returns>
     private static ushort ReadBrinstarPipeBugInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Rejects production reads from compiled Pipe Bug mechanics and installed presentation selectors.</summary>
+    /// <param name="source">Underlying address space used for permitted reads and forwarded writes.</param>
     private sealed class BrinstarPipeBugInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads rejected for targeting a compiled presentation word.</summary>
         internal int ForbiddenPresentationReadAttempts { get; private set; }
+
+        /// <summary>Number of attempted reads rejected for targeting a compiled mechanics byte.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge reads through the mechanics and presentation checks.</summary>
+        /// <param name="address">SNES cartridge address requested by the caller.</param>
+        /// <returns>The underlying byte when the address is outside both compiled regions.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from compiled mechanics and presentation data before delegating other reads.</summary>
+        /// <param name="address">SNES address requested by the caller.</param>
+        /// <returns>The wrapped address-space byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to a compiled mechanics or presentation word.</exception>
         public byte ReadByte(int address)
         {
             if (BrinstarPipeBugInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -201,6 +222,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged because this verification guard restricts reads only.</summary>
+        /// <param name="address">SNES address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

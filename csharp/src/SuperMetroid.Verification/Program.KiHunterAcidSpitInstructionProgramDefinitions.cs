@@ -6,12 +6,15 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Loads the retail ROM and verifies KiHunter acid-spit instruction definitions against production behavior.</summary>
     private static void VerifyKiHunterAcidSpitInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKiHunterAcidSpitInstructionProgramDefinitions), () => VerifyKiHunterAcidSpitInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares compiled mechanics with bank 86 and exercises both spit directions, floor impact, and splash deletion.</summary>
+    /// <param name="rom">Retail address space containing KiHunter projectile instructions and visual operands.</param>
     private static void VerifyKiHunterAcidSpitInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -175,6 +178,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Repeatedly reads representative spit and impact mechanics words for the warmed-allocation check.</summary>
+    /// <returns>A checksum that keeps the repeated lookups observable.</returns>
     private static int ProbeKiHunterAcidSpitInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -188,6 +193,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian projectile instruction word from the code bank.</summary>
+    /// <param name="source">Retail address space containing the projectile code bank.</param>
+    /// <param name="address">Offset of the low byte within that bank.</param>
+    /// <returns>The word formed by the addressed byte and its successor.</returns>
     private static ushort ReadKiHunterAcidSpitInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -197,14 +206,25 @@ internal static partial class Program
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Rejects compiled KiHunter and shared-delete mechanics reads while recording presentation-selector reads.</summary>
+    /// <param name="source">Wrapped address space used for reads and writes permitted by the guard.</param>
     private sealed class KiHunterAcidSpitInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets KiHunter presentation-word offsets whose bytes production requested.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Gets attempts to read bytes owned by compiled KiHunter or shared projectile mechanics.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes a cartridge-byte request through the guard's mechanics check.</summary>
+        /// <param name="address">Cartridge bus address to read.</param>
+        /// <returns>The byte returned by the wrapped source when permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled-mechanics reads, records presentation reads, and forwards other bytes.</summary>
+        /// <param name="address">Bus address of the requested byte.</param>
+        /// <returns>The byte returned by the wrapped source when the guard permits the read.</returns>
         public byte ReadByte(int address)
         {
             if (KiHunterAcidSpitInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -236,6 +256,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Bus address receiving the write.</param>
+        /// <param name="value">Byte written at <paramref name="address"/>.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

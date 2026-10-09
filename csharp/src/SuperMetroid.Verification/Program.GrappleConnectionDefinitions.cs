@@ -5,9 +5,19 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Invokes the production special-angle grapple handler for one anchor and reports whether it handled the angle.</summary>
+    /// <param name="bus">Address space used by the grapple handler.</param>
+    /// <param name="samus">Player state whose pose and position may be updated.</param>
+    /// <param name="grapple">Grapple state containing the anchor and current angle.</param>
+    /// <param name="previousX">Player X position before handling.</param>
+    /// <param name="previousY">Player Y position before handling.</param>
+    /// <param name="result">Camera movement result produced when a special connection is handled.</param>
+    /// <returns><see langword="true"/> when a native special-angle record matches.</returns>
     private delegate bool SpecialGrappleHandler(ISnesAddressSpace bus, SamusState samus,
         SamusGrappleState grapple, ushort previousX, ushort previousY, out GrappleMovementResult result);
 
+    /// <summary>Compares compiled grapple connection words with the cartridge and registers dispatch, special-angle, and drop checks.</summary>
+    /// <param name="rom">Retail address space containing the native connection tables.</param>
     private static void VerifyGrappleConnectionDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -42,6 +52,8 @@ internal static partial class Program
         Console.WriteLine("Grapple connection definitions: 100 native words and 48 policy bytes, 3072 address classifications with loud non-catalog rejection, and real connection/angle/cancel/drop dispatch pass with migrated reads forbidden.");
     }
 
+    /// <summary>Exercises accepted grapple firing across authored poses, directions, and vertical motion to verify native dispatch.</summary>
+    /// <param name="rom">Retail address space supplying the source pose and connection-handler data.</param>
     private static void VerifyGrappleConnectionDispatch(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -94,6 +106,9 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks each exact special-angle record against the production handler, including wrapped anchor and camera results.</summary>
+    /// <param name="rom">Retail address space used to read the native special-angle records.</param>
+    /// <param name="guard">Address space that rejects reads of migrated grapple connection tables.</param>
     private static void VerifyGrappleSpecialConnections(SuperMetroidAddressSpace rom, ISnesAddressSpace guard)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -151,6 +166,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Compares grapple cancellation and dropped-pose selection with native movement, pose, and radius tables.</summary>
+    /// <param name="rom">Retail address space containing the source movement metadata and native lookup tables.</param>
     private static void VerifyGrappleCancellationAndDrop(SuperMetroidAddressSpace rom)
     {
         var cancel = typeof(SamusGrappleMovement).GetMethod("HandleFiringPoseChange", BindingFlags.NonPublic | BindingFlags.Static)!
@@ -224,17 +241,31 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Prevents production code from reading the compiled grapple connection, cancellation, and drop tables from ROM.</summary>
+    /// <param name="source">Address space used for reads outside the guarded ranges and for all writes.</param>
     private sealed class GrappleConnectionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Controls whether reads of migrated native table ranges are rejected.</summary>
         public bool ForbidReads = true;
+
+        /// <summary>Routes importer reads through the same guarded address-space path as runtime reads.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The source byte when the address is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from migrated grapple tables and forwards other addresses.</summary>
+        /// <param name="address">Cartridge address requested by production code.</param>
+        /// <returns>The source byte for an address outside the guarded ranges.</returns>
+        /// <exception cref="InvalidOperationException">Reads are forbidden and the address belongs to a migrated table.</exception>
         public byte ReadByte(int address)
         {
             if (ForbidReads && (address is >= 0x9bb8b8 and < 0x9bb8d4 or >= 0x9bc3c6 and < 0x9bc48e or >= 0x9bc9ba and < 0x9bc9ce))
                 throw new InvalidOperationException($"Compiled Grapple connection read ROM ${address:X6}.");
             return source.ReadByte(address);
         }
+        /// <summary>Forwards writes unchanged because the guard only restricts reads.</summary>
+        /// <param name="address">Cartridge address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

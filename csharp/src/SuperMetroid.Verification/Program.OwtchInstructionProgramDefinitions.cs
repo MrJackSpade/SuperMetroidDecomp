@@ -5,12 +5,19 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Loads the retail ROM and runs the Owtch instruction-program verification against its cartridge tables.
+    /// </summary>
     private static void VerifyOwtchInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyOwtchInstructionProgramDefinitions), () => VerifyOwtchInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>
+    /// Compares compiled mechanics and frame selectors with ROM data, then executes both directional loops while guarding their source bytes.
+    /// </summary>
+    /// <param name="rom">The retail cartridge address space used to verify original Owtch instruction words and selectors.</param>
     private static void VerifyOwtchInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -128,6 +135,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Repeatedly reads a compiled Owtch mechanics word to warm the lookup path for allocation measurement.
+    /// </summary>
+    /// <returns>A non-zero checksum that consumes the mechanics lookup results.</returns>
     private static int ProbeOwtchInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -139,17 +150,40 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>
+    /// Reads adjacent cartridge bytes and combines them as one little-endian Owtch instruction word.
+    /// </summary>
+    /// <param name="bus">The cartridge address space containing the reference word.</param>
+    /// <param name="address">The bus address of the low byte.</param>
+    /// <returns>The unsigned 16-bit value stored at that address.</returns>
     private static ushort ReadOwtchInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>
+    /// Rejects production reads from compiled Owtch mechanics and presentation data while forwarding other accesses.
+    /// </summary>
+    /// <param name="source">The wrapped address space that supplies bytes outside the guarded ranges.</param>
     private sealed class OwtchInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>
+        /// Gets the number of attempts to read compiled Owtch mechanics or presentation bytes.
+        /// </summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>
+        /// Routes importer cartridge reads through the Owtch instruction-data guard.
+        /// </summary>
+        /// <param name="address">The cartridge address requested by the importer.</param>
+        /// <returns>The byte at the address when it is outside both guarded Owtch data ranges.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>
+        /// Rejects reads of compiled mechanics or presentation bytes and forwards all other reads to the wrapped source.
+        /// </summary>
+        /// <param name="address">The bus address being read.</param>
+        /// <returns>The source byte for a permitted read.</returns>
         public byte ReadByte(int address)
         {
             if (OwtchInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -162,6 +196,11 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>
+        /// Determines whether a bank-$A2 address is either byte of a compiled Owtch frame-selector word.
+        /// </summary>
+        /// <param name="address">The full bus address to compare with the selector table.</param>
+        /// <returns><see langword="true"/> when the address belongs to a presentation word; otherwise, <see langword="false"/>.</returns>
         private static bool IsPresentationByte(int address)
         {
             if ((address & 0xff0000) != 0xa20000)
@@ -180,6 +219,11 @@ internal static partial class Program
             return false;
         }
 
+        /// <summary>
+        /// Forwards a write to the wrapped address space without changing its address or value.
+        /// </summary>
+        /// <param name="address">The destination bus address.</param>
+        /// <param name="value">The byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

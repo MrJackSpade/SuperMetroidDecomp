@@ -5,12 +5,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs the Norfair Pipe Bug instruction and mechanics checks against the retail ROM in the verification directory.</summary>
     private static void VerifyNorfairPipeBugInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyNorfairPipeBugInstructionProgramDefinitions), () => VerifyNorfairPipeBugInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks the four directional instruction loops and verifies compiled mechanics and visual selectors against cartridge data.</summary>
+    /// <param name="rom">Retail address space providing expected mechanics and presentation words.</param>
     private static void VerifyNorfairPipeBugInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -108,6 +111,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Repeats compiled mechanics lookups so the warmed allocation assertion measures steady-state behavior.</summary>
+    /// <returns>A checksum that keeps the lookup results observable.</returns>
     private static int ProbeNorfairPipeBugInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -119,17 +124,32 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads one little-endian instruction word from the retail address space.</summary>
+    /// <param name="bus">Address space supplying the word bytes.</param>
+    /// <param name="address">Address of the low byte, followed by the high byte.</param>
+    /// <returns>The combined 16-bit value.</returns>
     private static ushort ReadNorfairPipeBugInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Wraps address-space reads to reject runtime access to compiled mechanics bytes and installed visual selectors.</summary>
+    /// <param name="source">Underlying address space for reads and writes that pass the guard.</param>
     private sealed class NorfairPipeBugInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads of presentation operands that should be supplied by compiled visual definitions.</summary>
         internal int ForbiddenPresentationReadAttempts { get; private set; }
+        /// <summary>Number of attempted reads of mechanics bytes that should be supplied by compiled instruction definitions.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
+
+        /// <summary>Routes a cartridge-import request through the guard's checked byte-read path.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
+        /// <returns>The underlying byte when neither forbidden range is accessed.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects forbidden mechanics or presentation reads and delegates other addresses to the wrapped source.</summary>
+        /// <param name="address">Address requested from the SNES address space.</param>
+        /// <returns>The underlying byte for an allowed read.</returns>
         public byte ReadByte(int address)
         {
             if (NorfairPipeBugInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -158,6 +178,9 @@ internal static partial class Program
             }
             return source.ReadByte(address);
         }
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Destination address.</param>
+        /// <param name="value">Byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

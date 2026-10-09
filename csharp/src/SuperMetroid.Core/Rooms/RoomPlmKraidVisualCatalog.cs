@@ -35,8 +35,11 @@ public sealed class RoomPlmKraidVisualCatalog
         }
     });
 
+    /// <summary>Installed one-block layouts for the first, second, and third successive ceiling-crumble stages.</summary>
     private ushort[] crumbleFirst = [], crumbleSecond = [], crumbleThird = [];
+    /// <summary>Installed ceiling-background frames one through three, selected by their compiled draw identities.</summary>
     private ushort[] ceilingBackground1 = [], ceilingBackground2 = [], ceilingBackground3 = [];
+    /// <summary>Installed first and second spike-column frames, followed by the defeated-room ceiling and spike clearing layouts.</summary>
     private ushort[] spikeFirst = [], spikeSecond = [], clearCeiling = [], clearSpikes = [];
 
     /// <summary>Selects one of the ten named $84:9367..93BF Kraid draw roles.</summary>

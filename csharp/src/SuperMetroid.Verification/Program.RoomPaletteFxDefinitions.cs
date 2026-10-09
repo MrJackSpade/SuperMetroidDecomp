@@ -4,6 +4,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Checks compiled palette-FX definitions, production spawn setup, and room-load
+    /// selections while preventing runtime code from rereading the metadata under test.
+    /// </summary>
+    /// <param name="rom">Cartridge address space supplying the retail definitions and area lists.</param>
     private static void VerifyRoomPaletteFxDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => unchecked((ushort)(
@@ -120,6 +125,11 @@ internal static partial class Program
             "with fixed metadata reads forbidden.");
     }
 
+    /// <summary>
+    /// Confirms production dispatch initializes each definition's slot and initial instruction list.
+    /// </summary>
+    /// <param name="guardedRom">Address space that rejects reads from compiled palette-FX metadata.</param>
+    /// <param name="pointers">Definition pointers whose production spawn setup is checked.</param>
     private static void VerifyPaletteFxDispatchSpawns(ISnesAddressSpace guardedRom, IEnumerable<ushort> pointers)
     {
         foreach (ushort pointer in pointers)
@@ -147,6 +157,10 @@ internal static partial class Program
 
     }
 
+    /// <summary>Enumerates aligned definition pointers from the first address through the last.</summary>
+    /// <param name="first">Address of the first definition in the inclusive range.</param>
+    /// <param name="last">Address of the final definition to include.</param>
+    /// <returns>Each definition address, advanced by one compiled record's byte count.</returns>
     private static IEnumerable<ushort> DefinitionRange(ushort first, ushort last)
     {
         for (int pointer = first; pointer <= last; pointer +=
@@ -156,6 +170,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Finds the active slot with the highest index, matching the system's reverse slot scan.</summary>
+    /// <param name="system">Palette-FX system whose private slot array is inspected.</param>
+    /// <returns>The active slot object used by the verification assertions.</returns>
+    /// <exception cref="InvalidOperationException">No slot has a nonzero definition ID.</exception>
     private static object ActivePaletteFxSlot(RoomPaletteFxSystem system)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -169,19 +187,37 @@ internal static partial class Program
         throw new InvalidOperationException("Expected one active palette-FX slot.");
     }
 
+    /// <summary>Reads a named slot property as a 16-bit word for setup-state assertions.</summary>
+    /// <param name="slot">Palette-FX slot instance returned by the system.</param>
+    /// <param name="name">Property name identifying the word to inspect.</param>
+    /// <returns>The property's value converted to an unsigned 16-bit word.</returns>
     private static ushort PaletteFxSlotWord(object slot, string name) =>
         (ushort)slot.GetType().GetProperty(name)!.GetValue(slot)!;
 
+    /// <summary>
+    /// Wraps the cartridge address space so verification can fail if runtime code reads
+    /// any setup metadata address recorded in <paramref name="forbidden"/>.
+    /// </summary>
+    /// <param name="source">Underlying address space used for allowed reads and all writes.</param>
+    /// <param name="forbidden">Addresses belonging to definitions or area-list metadata.</param>
     private sealed class RoomPaletteFxDefinitionReadGuard(
         ISnesAddressSpace source,
         HashSet<int> forbidden) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Rejects compiled-metadata reads before forwarding an ordinary bus read.</summary>
+        /// <param name="address">Bus address requested by the runtime system.</param>
+        /// <returns>The source byte when the address is not guarded.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to guarded metadata.</exception>
         public byte ReadByte(int address)
         {
             RejectMetadataRead(address);
             return source.ReadByte(address);
         }
 
+        /// <summary>Applies the metadata guard before forwarding a cartridge-data read.</summary>
+        /// <param name="address">Cartridge address requested by the runtime system.</param>
+        /// <returns>The source cartridge byte when the address is not guarded.</returns>
+        /// <exception cref="InvalidOperationException">The address is guarded or the source lacks cartridge data.</exception>
         public byte ReadCartridgeByte(int address)
         {
             RejectMetadataRead(address);
@@ -189,6 +225,9 @@ internal static partial class Program
                 "Palette-FX test source requires cartridge data.")).ReadCartridgeByte(address);
         }
 
+        /// <summary>Fails verification when runtime execution requests a compiled metadata byte.</summary>
+        /// <param name="address">Address checked against the forbidden metadata set.</param>
+        /// <exception cref="InvalidOperationException">The address is in the forbidden set.</exception>
         private void RejectMetadataRead(int address)
         {
             if (forbidden.Contains(address))
@@ -196,6 +235,9 @@ internal static partial class Program
                     $"Palette-FX runtime reread compiled metadata byte ${address:X6}.");
         }
 
+        /// <summary>Forwards writes to the underlying address space without changing their values.</summary>
+        /// <param name="address">Bus address receiving the write.</param>
+        /// <param name="value">Byte value to write.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

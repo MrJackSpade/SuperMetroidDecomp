@@ -4,12 +4,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs the cartridge-backed verification suite for Dragon instruction mechanics and animation programs.</summary>
     private static void VerifyDragonInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyDragonInstructionProgramDefinitions), () => VerifyDragonInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares compiled mechanics with native words and executes all Dragon programs through the production interpreter.</summary>
+    /// <param name="rom">Retail address space used for native-word and visual-selector comparisons.</param>
     private static void VerifyDragonInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -123,6 +126,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Repeatedly reads a compiled Dragon mechanics word for the warmed allocation probe.</summary>
+    /// <returns>A checksum consumed by the caller to keep lookup results observable.</returns>
     private static int ProbeDragonInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -134,17 +139,31 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian instruction word from the retail cartridge image.</summary>
+    /// <param name="bus">Address space containing the native word.</param>
+    /// <param name="address">Address of the word's low byte.</param>
+    /// <returns>The combined sixteen-bit value.</returns>
     private static ushort ReadDragonInstructionWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Address-space proxy that records presentation-selector reads and rejects reads of compiled Dragon mechanics.</summary>
+    /// <param name="source">Underlying bus used for permitted reads and forwarded writes.</param>
     private sealed class DragonInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation word addresses observed through A2-bank reads.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        /// <summary>Number of attempted reads rejected because they targeted compiled mechanics bytes.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes imported cartridge reads through the mechanics guard.</summary>
+        /// <param name="address">Cartridge address being imported.</param>
+        /// <returns>The permitted byte from the wrapped source.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, records presentation-selector accesses, and forwards other reads.</summary>
+        /// <param name="address">Address requested by production code.</param>
+        /// <returns>The byte from the underlying source when the address is permitted.</returns>
         public byte ReadByte(int address)
         {
             if (DragonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -175,6 +194,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the wrapped cartridge address space.</summary>
+        /// <param name="address">Address receiving the write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

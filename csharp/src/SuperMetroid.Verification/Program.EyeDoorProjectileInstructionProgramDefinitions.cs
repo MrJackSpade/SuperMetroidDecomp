@@ -5,12 +5,15 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Registers the Eye Door projectile instruction-definition verification suite against the retail ROM.</summary>
     private static void VerifyEyeDoorProjectileInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyEyeDoorProjectileInstructionProgramDefinitions), () => VerifyEyeDoorProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks compiled mechanics words and executes the Eye Door flight, impact, and shot programs without presentation reads from ROM.</summary>
+    /// <param name="rom">Retail cartridge address space used to compare compiled instruction operands with their source bytes.</param>
     private static void VerifyEyeDoorProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -166,6 +169,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Consumes repeated mechanics lookups so the verification can confirm warmed access allocates no per-frame storage.</summary>
+    /// <returns>A checksum of the looked-up initial and shot instruction words.</returns>
     private static int ProbeEyeDoorProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -179,6 +184,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads one little-endian projectile instruction operand from bank $86.</summary>
+    /// <param name="source">Retail address space containing the projectile instruction stream.</param>
+    /// <param name="address">Bank-local address of the first operand byte.</param>
+    /// <returns>The two source bytes combined into an unsigned word.</returns>
     private static ushort ReadEyeDoorProjectileInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -188,14 +197,26 @@ internal static partial class Program
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Tracks selected compiled presentation operands and rejects runtime reads of compiled Eye Door mechanics bytes.</summary>
+    /// <param name="source">Address space forwarded for permitted reads and all writes.</param>
     private sealed class EyeDoorProjectileInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation-word addresses observed while the production projectile program executes.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of attempts to read a byte belonging to compiled mechanics data.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes importer reads through the same mechanics-read guard used during projectile execution.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The byte read from the wrapped address space if it is not guarded.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, records presentation-word access, and forwards other reads.</summary>
+        /// <param name="address">Cartridge address requested by production code.</param>
+        /// <returns>The byte at an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled Eye Door mechanics data.</exception>
         public byte ReadByte(int address)
         {
             if (EyeDoorProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -226,6 +247,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes without filtering; this guard observes reads only.</summary>
+        /// <param name="address">Cartridge address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -5,12 +5,19 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Loads the retail ROM and verifies Stoke-projectile instruction mechanics against its cartridge tables.
+    /// </summary>
     private static void VerifyStokeProjectileInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyStokeProjectileInstructionProgramDefinitions), () => VerifyStokeProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>
+    /// Checks compiled mechanics and visual selectors against ROM data, then exercises both real projectile directions and their animation loops.
+    /// </summary>
+    /// <param name="rom">The retail cartridge address space used as the reference for instruction words and sprite selectors.</param>
     private static void VerifyStokeProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -131,6 +138,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Warms repeated lookups of the compiled initial and loop mechanics words for the allocation measurement.
+    /// </summary>
+    /// <returns>A non-zero checksum that consumes the lookup results.</returns>
     private static int ProbeStokeProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -144,6 +155,12 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>
+    /// Reads adjacent bytes from the enemy-projectile bank and combines them in cartridge little-endian order.
+    /// </summary>
+    /// <param name="source">The address space supplying the reference instruction bytes.</param>
+    /// <param name="address">The bank-relative address of the word's low byte.</param>
+    /// <returns>The unsigned 16-bit word stored at that address.</returns>
     private static ushort ReadStokeProjectileInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -153,14 +170,35 @@ internal static partial class Program
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>
+    /// Rejects reads of compiled Stoke-projectile and shared-delete mechanics while tracking any cartridge reads of presentation operands.
+    /// </summary>
+    /// <param name="source">The wrapped address space used for accesses allowed by the audit.</param>
     private sealed class StokeProjectileInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>
+        /// Gets the presentation-word addresses observed during guarded production execution.
+        /// </summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>
+        /// Gets the number of attempts to read compiled Stoke-projectile or shared-delete mechanics bytes.
+        /// </summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>
+        /// Routes an importer read through the Stoke-projectile mechanics guard.
+        /// </summary>
+        /// <param name="address">The cartridge address requested by the importer.</param>
+        /// <returns>The byte at the address if it is outside the guarded mechanics ranges.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>
+        /// Rejects reads from compiled mechanics data, records presentation-word reads, and forwards permitted addresses.
+        /// </summary>
+        /// <param name="address">The bus address to inspect and read.</param>
+        /// <returns>The byte from the wrapped address space for a permitted read.</returns>
         public byte ReadByte(int address)
         {
             if (StokeProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -192,6 +230,11 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>
+        /// Forwards a write to the wrapped address space without changing its address or value.
+        /// </summary>
+        /// <param name="address">The destination bus address.</param>
+        /// <param name="value">The byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

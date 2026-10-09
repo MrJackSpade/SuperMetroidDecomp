@@ -5,12 +5,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Loads the retail ROM and verifies compiled Magdollite mechanics and representative instruction programs.</summary>
     private static void VerifyMagdolliteInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMagdolliteInstructionProgramDefinitions), () => VerifyMagdolliteInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares bank-A8 mechanics with the ROM and executes the head, pillar, hand, and lava-related programs.</summary>
+    /// <param name="rom">Retail address space containing Magdollite instruction words and presentation selectors.</param>
     private static void VerifyMagdolliteInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -202,6 +205,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Repeatedly reads the left-idle entry word for the warmed-allocation check.</summary>
+    /// <returns>A checksum that keeps the mechanics lookups observable.</returns>
     private static int ProbeMagdolliteInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -213,17 +218,30 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian instruction word from the supplied bus address.</summary>
+    /// <param name="bus">Retail address space containing the instruction bytes.</param>
+    /// <param name="address">Bus address of the low byte.</param>
+    /// <returns>The word formed by the addressed byte and its successor.</returns>
     private static ushort ReadMagdolliteInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Rejects production reads of compiled Magdollite mechanics and presentation-selector bytes.</summary>
+    /// <param name="source">Wrapped address space used for reads and writes outside the compiled instruction data.</param>
     private sealed class MagdolliteInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets attempts to read a byte belonging to a compiled mechanics or presentation word.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes a cartridge-byte request through the forbidden-range guard.</summary>
+        /// <param name="address">Cartridge bus address to read.</param>
+        /// <returns>The byte returned by the wrapped source when allowed.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled instruction-data reads before forwarding other byte requests.</summary>
+        /// <param name="address">Bus address of the requested byte.</param>
+        /// <returns>The byte returned by the wrapped source when the address is allowed.</returns>
         public byte ReadByte(int address)
         {
             if (MagdolliteInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -236,6 +254,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Identifies either byte of a compiled Magdollite presentation-word operand in bank A8.</summary>
+        /// <param name="address">Bus address of the byte to classify.</param>
+        /// <returns><see langword="true"/> when the byte belongs to a presentation word.</returns>
         private static bool IsPresentationByte(int address) =>
             (address & 0xff0000) == 0xa80000 &&
             (MagdolliteInstructionProgramDefinitions.IsPresentationWord(
@@ -243,6 +264,9 @@ internal static partial class Program
              MagdolliteInstructionProgramDefinitions.IsPresentationWord(
                 unchecked((ushort)(address - 1))));
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Bus address receiving the write.</param>
+        /// <param name="value">Byte written at <paramref name="address"/>.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

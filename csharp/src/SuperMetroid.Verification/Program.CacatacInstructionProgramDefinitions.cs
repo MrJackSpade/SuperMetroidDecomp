@@ -5,12 +5,15 @@ using SuperMetroid.Core.Assets;
 
 internal static partial class Program
 {
+    /// <summary>Registers the retail-ROM verification suite for compiled Cacatac instruction mechanics.</summary>
     private static void VerifyCacatacInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyCacatacInstructionProgramDefinitions), () => VerifyCacatacInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks compiled instruction words and visual selectors, then executes the upright and inverted idle and attack paths through production systems with guarded reads.</summary>
+    /// <param name="rom">Retail address space supplying native instruction words and visual operands for comparison.</param>
     private static void VerifyCacatacInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -159,6 +162,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Warms and repeatedly reads a compiled idle-program word so the caller can measure steady-state lookup allocations.</summary>
+    /// <returns>A checksum that keeps the repeated mechanics reads observable.</returns>
     private static int ProbeCacatacInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -170,17 +175,31 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads one little-endian instruction word from the supplied cartridge address space.</summary>
+    /// <param name="bus">Retail address space containing the native instruction program.</param>
+    /// <param name="address">Address of the low byte; the high byte is read from the following address.</param>
+    /// <returns>The two bytes combined as an unsigned 16-bit word.</returns>
     private static ushort ReadCacatacInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Wraps cartridge access to reject reads of compiled Cacatac mechanics and presentation bytes during production execution.</summary>
+    /// <param name="source">Underlying address space for reads outside the compiled instruction and artwork ranges, and for writes.</param>
     private sealed class CacatacInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads rejected for targeting compiled mechanics or presentation data.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge-import reads through the same compiled-byte guard as ordinary reads.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The underlying byte when the address is outside compiled instruction and artwork ranges.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of compiled mechanics or presentation bytes and forwards all other addresses.</summary>
+        /// <param name="address">Address-space location requested by production code.</param>
+        /// <returns>The underlying byte when the address is not compiled Cacatac data.</returns>
+        /// <exception cref="InvalidOperationException">The address is owned by compiled Cacatac mechanics or presentation data.</exception>
         public byte ReadByte(int address)
         {
             if (CacatacInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -194,6 +213,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Checks whether a byte address falls within either byte of a compiled spritemap-selector word in bank $A2.</summary>
+        /// <param name="address">Full address-space byte address requested by the consumer.</param>
+        /// <returns>True when the address matches a compiled presentation operand.</returns>
         private static bool IsCompiledPresentationByte(int address)
         {
             if ((address & 0xff0000) == 0xa20000)
@@ -216,6 +238,9 @@ internal static partial class Program
             return false;
         }
 
+        /// <summary>Forwards writes unchanged; the guard restricts reads from compiled data only.</summary>
+        /// <param name="address">Address-space location to write.</param>
+        /// <param name="value">Byte passed to the underlying address space.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

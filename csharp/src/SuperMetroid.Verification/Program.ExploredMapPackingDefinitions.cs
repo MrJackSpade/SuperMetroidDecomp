@@ -16,6 +16,10 @@ internal static partial class Program
     private static readonly ushort[] ExploredMapNativeSourcePointers =
         [0x8146, 0x8196, 0x81e6, 0x8236, 0x8256, 0x82a6];
 
+    /// <summary>
+    /// Compares the calculated sparse explored-map packing data with the retail tables,
+    /// then verifies save/load behavior while forbidding production reads of those tables.
+    /// </summary>
     private static void VerifyExploredMapPackingDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -92,6 +96,12 @@ internal static partial class Program
             "  Explored-map packing: six area records and all 327 exported byte indexes match the cartridge; production save/load round-trips with the native codec tables forbidden.");
     }
 
+    /// <summary>
+    /// Checks that map packing remains bound to installed presentation data across stock
+    /// and edited catalogs, including save rebinding after debugger graph restoration.
+    /// </summary>
+    /// <param name="native">Retail address space used to extract the stock map presentation.</param>
+    /// <param name="explored">Exploration bitmap whose packed SRAM representation is compared.</param>
     private static void VerifyCalculatedMapPackingBindings(ISnesAddressSpace native, byte[] explored)
     {
         string parent = Path.GetFullPath(Path.Combine("csharp", "test-temp"));
@@ -164,13 +174,26 @@ internal static partial class Program
             Directory.Delete(resolved, recursive: true);
         }
     }
+    /// <summary>
+    /// Wraps cartridge, WRAM, and SRAM access to reject runtime reads of compiled explored-map
+    /// codec tables while forwarding unrelated memory operations to the underlying space.
+    /// </summary>
+    /// <param name="source">Address space that supplies permitted reads and receives writes.</param>
     private sealed class ExploredMapPackingReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Gets the number of attempted reads from addresses reserved for compiled map data.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Forwards an import-time cartridge read through the guarded cartridge path.</summary>
+        /// <param name="address">Absolute cartridge address requested by the importer.</param>
+        /// <returns>The byte at the address if it is not part of a forbidden codec table.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of compiled codec tables and forwards other cartridge reads.</summary>
+        /// <param name="address">Absolute cartridge address requested by the caller.</param>
+        /// <returns>The source byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to a compiled map codec table.</exception>
         public byte ReadByte(int address)
         {
             if (IsForbidden(address))
@@ -182,12 +205,23 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a cartridge or memory write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Absolute destination address.</param>
+        /// <param name="value">Byte to write.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
+        /// <summary>Reads a WRAM byte from the wrapped mutable-memory view.</summary>
+        /// <param name="address">WRAM address to read.</param>
+        /// <returns>The byte stored at the requested WRAM address.</returns>
+        /// <exception cref="InvalidOperationException">The wrapped address space does not expose mutable WRAM.</exception>
         public byte ReadWorkRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "The guarded source must expose WRAM.")).ReadWorkRamByte(address);
 
+        /// <summary>Rejects reads of compiled codec tables and forwards other SRAM reads.</summary>
+        /// <param name="address">SRAM address to read.</param>
+        /// <returns>The source byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address is forbidden or the source does not expose mutable SRAM.</exception>
         public byte ReadSaveRamByte(int address)
         {
             if (IsForbidden(address))
@@ -200,6 +234,12 @@ internal static partial class Program
                 "The guarded source must expose SRAM.")).ReadSaveRamByte(address);
         }
 
+        /// <summary>
+        /// Determines whether an address belongs to the native sparse map lists or the
+        /// packed-map metadata tables replaced by compiled definitions.
+        /// </summary>
+        /// <param name="address">Absolute cartridge or save-memory address to classify.</param>
+        /// <returns><see langword="true"/> when reads of the address must be rejected.</returns>
         private static bool IsForbidden(int address)
         {
             if (address is >= 0x818131 and < 0x818146 or

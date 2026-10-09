@@ -528,31 +528,52 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Reads a little-endian reference word directly from the retail address space.</summary>
+    /// <param name="source">Retail address space containing the compared instruction bytes.</param>
+    /// <param name="address">SNES address of the word's low byte.</param>
+    /// <returns>The adjacent bytes combined into a 16-bit word.</returns>
     private static ushort ReadEnemyProjectileMechanicsWord(
         SuperMetroidAddressSpace source,
         int address) =>
         unchecked((ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8));
 
+    /// <summary>Rejects reads from compiled projectile mechanics and records reads of installed presentation operands.</summary>
+    /// <param name="source">Underlying address space used for permitted reads, duration checks, and forwarded writes.</param>
     private sealed class EnemyProjectileMechanicsReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Distinct byte addresses requested from compiled projectile presentation words.</summary>
         private readonly HashSet<int> _presentationReadBytes = [];
 
+        /// <summary>Number of attempted reads rejected for targeting compiled mechanics bytes.</summary>
         public int ForbiddenReadAttempts { get; private set; }
+
+        /// <summary>Count of distinct presentation-byte addresses observed through the guarded APIs.</summary>
         public int PresentationReadBytes => _presentationReadBytes.Count;
 
+        /// <summary>Checks a general address-space read before delegating it to the wrapped source.</summary>
+        /// <param name="address">SNES address requested by the caller.</param>
+        /// <returns>The wrapped byte when the address is not compiled mechanics.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled enemy-projectile mechanics.</exception>
         public byte ReadByte(int address)
         {
             RejectCompiledMechanicsRead(address);
             return source.ReadByte(address);
         }
 
+        /// <summary>Checks a cartridge read before forwarding it through the import-source interface.</summary>
+        /// <param name="address">SNES cartridge address requested by the importer.</param>
+        /// <returns>The cartridge byte when the address is not compiled mechanics.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled enemy-projectile mechanics.</exception>
         public byte ReadCartridgeByte(int address)
         {
             RejectCompiledMechanicsRead(address);
             return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
         }
 
+        /// <summary>Rejects compiled mechanics bytes and records addresses belonging to compiled visual operands.</summary>
+        /// <param name="address">SNES address about to be read through a guarded API.</param>
+        /// <exception cref="InvalidOperationException">The address targets a compiled mechanics byte.</exception>
         private void RejectCompiledMechanicsRead(int address)
         {
             if (EnemyProjectileInstructionMechanicsDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -570,12 +591,18 @@ internal static partial class Program
                 _presentationReadBytes.Add(address);
         }
 
+        /// <summary>Compares an interpreter-selected frame duration with the native word immediately before its visual operand.</summary>
+        /// <param name="operand">Bank-local address of the selected presentation word.</param>
+        /// <param name="duration">Duration currently retained by the projectile interpreter.</param>
         internal void VerifySelectedDuration(ushort operand, ushort duration)
         {
             int address = 0x860000 | unchecked((ushort)(operand - 2));
             ushort native = (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
             AssertEqual(native, duration, "real projectile frame retains exact native duration");
         }
+        /// <summary>Forwards a byte write unchanged; the guard observes reads only.</summary>
+        /// <param name="address">SNES address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

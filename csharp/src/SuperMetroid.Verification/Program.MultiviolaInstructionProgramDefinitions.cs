@@ -4,12 +4,18 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs the Multiviola instruction checks against the installed retail ROM.</summary>
     private static void VerifyMultiviolaInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMultiviolaInstructionProgramDefinitions), () => VerifyMultiviolaInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>
+    /// Compares compiled mechanics with bank $A2 and exercises the real initializer and
+    /// instruction loop while checking that production avoids mechanics and selector reads.
+    /// </summary>
+    /// <param name="rom">Retail address space containing Multiviola's native instruction data.</param>
     private static void VerifyMultiviolaInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -78,6 +84,11 @@ internal static partial class Program
             "loop and compiled spritemap selectors pass with mechanics bytes forbidden.");
     }
 
+    /// <summary>
+    /// Repeatedly resolves the flying and terminal instruction words for the caller's
+    /// warmed lookup allocation check.
+    /// </summary>
+    /// <returns>A checksum that keeps the looked-up mechanics values observable.</returns>
     private static int ProbeMultiviolaInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -91,6 +102,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian instruction word from bank $A2.</summary>
+    /// <param name="source">Cartridge address space containing the instruction bytes.</param>
+    /// <param name="address">Bank-local address of the word's low byte.</param>
+    /// <returns>The low byte combined with the following byte as the high byte.</returns>
     private static ushort ReadMultiviolaInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -98,14 +113,32 @@ internal static partial class Program
             source.ReadByte(0xa20000 | address) |
             source.ReadByte(0xa20000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>
+    /// Rejects runtime reads of compiled Multiviola mechanics words and records presentation
+    /// selector reads so the verifier can confirm both remain supplied by compiled data.
+    /// </summary>
+    /// <param name="source">Underlying cartridge address space for permitted reads and writes.</param>
     private sealed class MultiviolaInstructionReadGuard(
         ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the distinct presentation-word addresses observed during execution.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Gets the number of attempted reads from compiled mechanics bytes.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes an import-time cartridge read through the guarded address-space path.</summary>
+        /// <param name="address">Absolute cartridge address requested by the importer.</param>
+        /// <returns>The source byte when the address is not a compiled mechanics byte.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>
+        /// Rejects compiled mechanics reads, records access to known presentation words,
+        /// and forwards other bytes from the wrapped address space.
+        /// </summary>
+        /// <param name="address">Absolute address requested by production code.</param>
+        /// <returns>The source byte when the address is not forbidden.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to a compiled mechanics word.</exception>
         public byte ReadByte(int address)
         {
             if (MultiviolaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -136,6 +169,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Absolute destination address.</param>
+        /// <param name="value">Byte to write.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

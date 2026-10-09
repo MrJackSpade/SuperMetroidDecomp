@@ -52,6 +52,9 @@ internal static partial class Program
             "dispatch, and both retail treadmill streams agree.");
     }
 
+    /// <summary>
+    /// Confirms constructed non-retail animated-tile definitions fail during admission instead of dispatching unsupported instruction streams.
+    /// </summary>
     private static void VerifyConstructedAnimatedTileStreams()
     {
         // Generic ROM dispatch was removed when treadmill mechanics became compiled.
@@ -84,6 +87,12 @@ internal static partial class Program
             AnimatedTileObjectPointers.WreckedShipTreadmillRightwards),
             "compiled treadmill definition rejects the opposite direction");
     }
+    /// <summary>
+    /// Runs one compiled treadmill direction against retail memory and checks its wait, frame transfers, loop, and absence of migrated-data reads.
+    /// </summary>
+    /// <param name="bus">The retail address space used for the treadmill's artwork and surrounding cartridge data.</param>
+    /// <param name="direction">The treadmill direction whose compiled stream is exercised.</param>
+    /// <param name="expectedSources">The four expected frame-source addresses in execution order.</param>
     private static void VerifyRetailTreadmillStream(
         ISnesAddressSpace bus,
         WreckedShipTreadmillDirection direction,
@@ -120,6 +129,10 @@ internal static partial class Program
             $"{direction} no longer reads frame-source presentation operands");
     }
 
+    /// <summary>
+    /// Runs the focused retail-ROM checks for treadmill headers, wait behavior, frame records, control flow, transfer dimensions, and artwork sources.
+    /// </summary>
+    /// <param name="bus">The retail address space providing the original treadmill instruction data.</param>
     private static void VerifyRetailTreadmillMechanics(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyTreadmillHeaderSelection), () => VerifyTreadmillHeaderSelection());
@@ -133,6 +146,11 @@ internal static partial class Program
         Suite(nameof(VerifyTreadmillMechanicsDomain), () => VerifyTreadmillMechanicsDomain(bus));
         Suite(nameof(VerifyTreadmillArtworkSources), () => VerifyTreadmillArtworkSources(bus));
     }
+    /// <summary>
+    /// Checks that a named animated-tile pointer catalog has the expected number of unique mapped 16-bit entries.
+    /// </summary>
+    /// <param name="catalog">The catalog type whose public constant pointers are inspected.</param>
+    /// <param name="expectedCount">The required number of pointer constants in the catalog.</param>
     private static void AssertAnimatedTileCatalog(Type catalog, int expectedCount)
     {
         FieldInfo[] fields = GetUshortConstants(catalog);
@@ -144,15 +162,37 @@ internal static partial class Program
             AssertTrue(pointer >= 0x8000, $"{catalog.Name} pointer ${pointer:X4} is mapped");
     }
 
+    /// <summary>
+    /// Wraps the retail address space, rejecting compiled treadmill mechanics reads and counting reads of frame-source operands.
+    /// </summary>
+    /// <param name="inner">The address space that receives all accesses not rejected by the mechanics guard.</param>
+    /// <param name="definition">The direction-specific compiled definition used to identify mechanics and presentation addresses.</param>
     private sealed class WreckedShipTreadmillMechanicsForbiddenBus(
         ISnesAddressSpace inner,
         WreckedShipTreadmillObjectDefinition definition) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>
+        /// Gets the number of attempted reads that overlapped compiled treadmill mechanics data.
+        /// </summary>
         public int ForbiddenReadAttempts { get; private set; }
+
+        /// <summary>
+        /// Gets the number of reads of frame-source operands that remain presentation data in the cartridge.
+        /// </summary>
         public int PresentationReadCount { get; private set; }
 
+        /// <summary>
+        /// Routes an importer cartridge read through the treadmill access guard.
+        /// </summary>
+        /// <param name="address">The cartridge address requested by the importer.</param>
+        /// <returns>The byte from the wrapped address space if the address is not compiled mechanics data.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>
+        /// Rejects accesses to compiled mechanics bytes, records presentation-operand reads, and forwards permitted reads.
+        /// </summary>
+        /// <param name="address">The bus address requested by the caller.</param>
+        /// <returns>The byte at the requested address when it is outside compiled mechanics data.</returns>
         public byte ReadByte(int address)
         {
             SnesAddress source = SnesAddress.FromBusAddress(address);
@@ -178,6 +218,11 @@ internal static partial class Program
             return inner.ReadByte(address);
         }
 
+        /// <summary>
+        /// Forwards a memory write to the wrapped address space unchanged.
+        /// </summary>
+        /// <param name="address">The destination bus address.</param>
+        /// <param name="value">The byte to write.</param>
         public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
     }
 }

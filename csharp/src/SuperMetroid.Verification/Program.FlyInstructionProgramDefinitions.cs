@@ -4,12 +4,20 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Loads the retail cartridge image and runs the fly-family instruction-definition checks.
+    /// </summary>
     private static void VerifyFlyInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyFlyInstructionProgramDefinitions), () => VerifyFlyInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>
+    /// Compares compiled fly mechanics with cartridge data and exercises initialization,
+    /// instruction-loop behavior, and the absence of runtime reads for compiled mechanics.
+    /// </summary>
+    /// <param name="rom">The retail address space used as the reference for compiled mechanics.</param>
     private static void VerifyFlyInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -78,6 +86,11 @@ internal static partial class Program
             "without instruction or presentation ROM reads.");
     }
 
+    /// <summary>
+    /// Repeatedly resolves the flight instruction's mechanics word to measure warmed lookup
+    /// allocations while consuming the returned values.
+    /// </summary>
+    /// <returns>A checksum of the mechanics values read during the probe.</returns>
     private static int ProbeFlyInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -87,18 +100,42 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>
+    /// Reads a little-endian instruction word from two adjacent cartridge bytes.
+    /// </summary>
+    /// <param name="bus">The address space containing the instruction data.</param>
+    /// <param name="address">The absolute address of the word's low byte.</param>
+    /// <returns>The word formed from the low byte at <paramref name="address"/> and the next byte.</returns>
     private static ushort ReadFlyInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>
+    /// Wraps the cartridge address space to detect forbidden fly mechanics reads and record
+    /// accesses to compiled presentation words while the real enemy code runs.
+    /// </summary>
+    /// <param name="source">The underlying address space to which permitted reads and writes are forwarded.</param>
     private sealed class FlyInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Bank A2 presentation-word addresses whose bytes were requested through this guard.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>The number of attempts to read bytes compiled into the fly mechanics definition.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Applies the guard's read checks before forwarding a cartridge-byte request.</summary>
+        /// <param name="address">The absolute cartridge address to read.</param>
+        /// <returns>The byte supplied by the underlying address space when the read is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>
+        /// Rejects reads of compiled fly mechanics, tracks reads of compiled presentation words,
+        /// and forwards other permitted reads.
+        /// </summary>
+        /// <param name="address">The absolute address to read.</param>
+        /// <returns>The byte supplied by the underlying address space.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled fly mechanics.</exception>
         public byte ReadByte(int address)
         {
             if (FlyInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -129,6 +166,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">The absolute address receiving the write.</param>
+        /// <param name="value">The byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -12,13 +12,22 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class TourianStatueSequence
 {
+    /// <summary>Tracks one statue's animated-tile program as it advances through its bank-$87 instruction stream.</summary>
     private sealed class TileObject
     {
+        /// <summary>Supplies the instruction addresses and transfer metadata for this statue's animation.</summary>
         public required TourianStatueAnimatedTileProgramDefinition Definition;
+        /// <summary>The next instruction address and remaining frame duration for this animation object.</summary>
         public ushort Pointer, Timer = 1;
     }
+
+    /// <summary>Active statue tile programs, kept in native spawn and handler traversal order.</summary>
     private readonly List<TileObject> objects = [];
+
+    /// <summary>Frames remaining before descent; -2 waits for all releases, nonnegative values count down, and -1 starts descent.</summary>
     private int delay = -2;
+
+    /// <summary>Accumulated 16.16 descent distance, advanced by the native quarter-pixel step.</summary>
     private int descent;
     /// <summary>Whether the last loaded room uses <c>RunStatueUnlockingAnimations</c>; remains true after the descent finishes and is reset by the next <see cref="Load"/>.</summary>
     public bool Enabled { get; private set; }
@@ -30,6 +39,8 @@ public sealed class TourianStatueSequence
     public short VerticalOffset => unchecked((short)((-descent) >> 16));
     /// <summary>BG2 offset accepted with the same NMI as the displayed OBJ buffer.</summary>
     public short DisplayedVerticalOffset { get; private set; }
+
+    /// <summary>Copies the current logical statue offset into the value presented with the next display update.</summary>
     internal void LatchDisplay() => DisplayedVerticalOffset = VerticalOffset;
 
     /// <summary>Resets room-local animation, delay, and displayed descent state, enabling the four statue tile programs only for the statue-unlocking room setup.</summary>
@@ -212,12 +223,19 @@ public sealed class TourianStatueSequence
         }
     }
 
+    /// <summary>Marks the statue descent complete and releases both Tourian entrance scroll boundaries.</summary>
+    /// <param name="runtime">Room runtime whose enemy and camera state receive the completion updates.</param>
     private static void EnableScrolling(SuperMetroidRuntime runtime)
     {
         runtime.Enemies.TourianEntranceStatueFinished = true;
         runtime.Camera!.Scrolls.SetLogicalState(0, 0, RoomScrollState.Green);
         runtime.Camera.Scrolls.SetLogicalState(0, 1, RoomScrollState.Green);
     }
+    /// <summary>Reads one little-endian instruction operand from a statue object's cataloged bank-$87 mechanics data.</summary>
+    /// <param name="tile">Animation object whose instruction program is being interpreted.</param>
+    /// <param name="pointer">Bank-local address of the two-byte operand.</param>
+    /// <returns>The operand word stored at the requested address.</returns>
+    /// <exception cref="InvalidDataException">The address is not a cataloged mechanics word for this object.</exception>
     private static ushort MechanicsWord(TileObject tile, int pointer)
     {
         ushort bankPointer = unchecked((ushort)pointer);

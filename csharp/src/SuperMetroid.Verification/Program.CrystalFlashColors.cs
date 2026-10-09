@@ -6,6 +6,15 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies Crystal Flash body and bubble colors against the cartridge, applies an
+    /// independent color override, and checks that live palette updates no longer reread
+    /// the native pointer tables or source color words.
+    /// </summary>
+    /// <param name="stockDirectory">Directory containing the stock map-presentation resources.</param>
+    /// <param name="overrideDirectory">Directory used to write and reload the Crystal Flash color override.</param>
+    /// <param name="original">Stock catalog used to compare content identity and restored colors.</param>
+    /// <param name="rom">Retail address space used for native palette comparison and re-extraction.</param>
     private static void VerifyCrystalFlashColorOverride(string stockDirectory,
         string overrideDirectory, AreaMapPresentationCatalog original, ISnesAddressSpace rom)
     {
@@ -151,12 +160,23 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Wraps cartridge reads and rejects access to Crystal Flash palette pointer tables and
+    /// color words after those values have been installed in the runtime catalog.
+    /// </summary>
     private sealed class CrystalFlashColorReadGuard : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Address space receiving reads outside the native Crystal Flash palette ranges.</summary>
         private readonly ISnesAddressSpace source;
+
+        /// <summary>Byte addresses of body/bubble pointer entries and the color words they reference.</summary>
         private readonly HashSet<int> forbidden = new();
+
+        /// <summary>Number of attempts to reread a protected pointer or color byte.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Builds the protected ranges from the cartridge's body and bubble pointer tables.</summary>
+        /// <param name="source">Retail address space used to resolve pointer entries and forward permitted access.</param>
         public CrystalFlashColorReadGuard(ISnesAddressSpace source)
         {
             this.source = source;
@@ -180,8 +200,16 @@ internal static partial class Program
             }
         }
 
+        /// <summary>Routes import-source cartridge reads through the same protected-range check.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The wrapped address space's byte when the read is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address is a protected pointer or palette-color byte.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from protected Crystal Flash palette data before forwarding other reads.</summary>
+        /// <param name="address">Address requested by the runtime.</param>
+        /// <returns>The wrapped address space's byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address is a protected pointer or palette-color byte.</exception>
         public byte ReadByte(int address)
         {
             if (forbidden.Contains(address))
@@ -192,8 +220,14 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged to the wrapped address space.</summary>
+        /// <param name="address">Address that receives the write.</param>
+        /// <param name="value">Byte written at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
+        /// <summary>Adds every byte occupied by a referenced 16-bit color array to the protected set.</summary>
+        /// <param name="pointer">Bank-local pointer to the first color word.</param>
+        /// <param name="count">Number of RGB5 color words stored at the pointer.</param>
         private void BlockColors(ushort pointer, int count)
         {
             int address = SamusPaletteRomData.Banks.Palette | pointer;

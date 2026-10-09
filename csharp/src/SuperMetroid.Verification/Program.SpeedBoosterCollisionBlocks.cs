@@ -22,6 +22,7 @@ internal static partial class Program
             "  Speed Booster blocks: contact gating, all five PLMs, sound, crumble, and respawn agree.");
     }
 
+    /// <summary>Confirms that BTS $0E stays solid and allocates no PLM when Samus lacks an active boost.</summary>
     private static void VerifyInactiveSpeedBlockRemainsSolid()
     {
         (TestAddressSpace bus, RoomLevelData level, RoomPlmSystem plms, int blockIndex) =
@@ -45,6 +46,7 @@ internal static partial class Program
             "rejected setup synchronously releases its temporary PLM slot");
     }
 
+    /// <summary>Checks that boosted downward contact clears BTS $0E and runs its respawning crumble program.</summary>
     private static void VerifyBoostedFloorContactRunsRespawningPlm()
     {
         (TestAddressSpace bus, RoomLevelData level, RoomPlmSystem plms, int blockIndex) =
@@ -94,6 +96,7 @@ internal static partial class Program
             "respawning list restores synthesized visual parent $0B6");
     }
 
+    /// <summary>Checks that boosted horizontal contact clears BTS $0F and runs its permanent crumble program.</summary>
     private static void VerifyBoostedWallContactRunsPermanentPlm()
     {
         (TestAddressSpace bus, RoomLevelData level, RoomPlmSystem plms, int blockIndex) =
@@ -125,6 +128,7 @@ internal static partial class Program
             "permanent speed-block list does not restore collision");
     }
 
+    /// <summary>Verifies the four Brinstar BTS values select their area-specific speed-block PLM definitions.</summary>
     private static void VerifyBrinstarAreaTableVariants()
     {
         var cases = new (byte Bts, SpeedBoosterBlockPlmDefinition Definition)[]
@@ -161,6 +165,13 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Builds a small room with one type-$B speed-block cell, an empty PLM population,
+    /// and fixture instruction lists for the Crateria and Brinstar variants.
+    /// </summary>
+    /// <param name="bts">Speed-block behavior byte assigned to the test cell.</param>
+    /// <param name="area">Room area used by PLM population loading to select area-specific definitions.</param>
+    /// <returns>The seeded address space, room level, loaded PLM system, and test cell index.</returns>
     private static (TestAddressSpace Bus, RoomLevelData Level, RoomPlmSystem Plms, int BlockIndex)
         CreateSpeedBoosterBlockFixture(RoomBlockBehavior bts, AreaId area)
     {
@@ -199,6 +210,9 @@ internal static partial class Program
         return (bus, level, plms, blockIndex);
     }
 
+    /// <summary>Creates Samus at the fixture's floor-contact position with the requested speed-boost stage.</summary>
+    /// <param name="active">Whether to initialize the active Speed Booster stage.</param>
+    /// <returns>A Samus state with collision radii configured for the fixture cell.</returns>
     private static SamusState CreateSpeedBoosterCollisionSamus(bool active)
     {
         var samus = new SamusState
@@ -215,6 +229,8 @@ internal static partial class Program
         return samus;
     }
 
+    /// <summary>Writes the draw record and native-shaped respawning/permanent PLM streams into fixture ROM.</summary>
+    /// <param name="bus">Address space receiving the test draw record and instruction-list bytes.</param>
     private static void SeedSpeedBoosterInstructionLists(TestAddressSpace bus)
     {
         const ushort drawPointer = 0xa000;
@@ -230,6 +246,10 @@ internal static partial class Program
         bus.WriteBytes(0x84c9e4, CreatePermanentSpeedList(1, drawPointer));
     }
 
+    /// <summary>Encodes the timed draw sequence followed by the respawn and delete commands.</summary>
+    /// <param name="crumbleDelay">Duration, in PLM timer units, of each of the first three crumble frames.</param>
+    /// <param name="drawPointer">Bank-local draw-list pointer repeated for each timed frame.</param>
+    /// <returns>The instruction bytes for a respawning speed-block PLM.</returns>
     private static byte[] CreateRespawningSpeedList(ushort crumbleDelay, ushort drawPointer)
     {
         var bytes = new List<byte> { 0x79, 0x8c, 0x06 };
@@ -248,6 +268,10 @@ internal static partial class Program
         return bytes.ToArray();
     }
 
+    /// <summary>Encodes the timed draw sequence followed by deletion without restoring the block.</summary>
+    /// <param name="crumbleDelay">Duration, in PLM timer units, of each of the first three crumble frames.</param>
+    /// <param name="drawPointer">Bank-local draw-list pointer repeated for each timed frame.</param>
+    /// <returns>The instruction bytes for a permanent speed-block PLM.</returns>
     private static byte[] CreatePermanentSpeedList(ushort crumbleDelay, ushort drawPointer)
     {
         var bytes = new List<byte> { 0x79, 0x8c, 0x06 };
@@ -264,6 +288,11 @@ internal static partial class Program
         return bytes.ToArray();
     }
 
+    /// <summary>Runs one PLM frame in the fixture using stationary scroll state and no enemy-death inputs.</summary>
+    /// <param name="plms">PLM system whose active instruction lists advance.</param>
+    /// <param name="bus">Address space supplying instruction and draw-list data.</param>
+    /// <param name="level">Room data whose collision and tilemap state PLMs may update.</param>
+    /// <param name="streamer">Background streamer receiving tilemap changes from the PLM step.</param>
     private static void StepSpeedBoosterPlm(
         RoomPlmSystem plms,
         TestAddressSpace bus,

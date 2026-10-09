@@ -8,12 +8,17 @@ internal static class GreyDoorPlmDrawDefinitions
 {
     /// <summary>Shared left-facing door-clear frame at $84:A677.</summary>
     private const ushort ClearLeft = 0xa677;
+    /// <summary>Byte stride of one twelve-byte grey-door draw record in the native table.</summary>
     internal const int DrawListBytes = 12;
 
     /// <summary>One of twenty twelve-byte records at $84:A677..A766.</summary>
+    /// <param name="Orientation">Door-facing orientation index shared by its clear and four opening frames.</param>
+    /// <param name="Frame">Clear-cap selector when negative, otherwise the opening animation frame index.</param>
     internal readonly record struct Draw(int Orientation, int Frame)
     {
+        /// <summary>Whether the orientation lays out the cap's four cells as two vertical rows.</summary>
         internal bool Vertical => Orientation < 2;
+        /// <summary>Native PLM draw command selecting the cell traversal direction and four-cell count.</summary>
         internal ushort DirectionAndCount => Vertical ? (ushort)0x8004 : (ushort)4;
 
         /// <summary>
@@ -42,6 +47,10 @@ internal static class GreyDoorPlmDrawDefinitions
         }
     }
 
+    /// <summary>Decodes an aligned native table pointer into its orientation and clear/opening frame.</summary>
+    /// <param name="pointer">Native draw-list pointer to classify.</param>
+    /// <param name="draw">Receives the decoded orientation/frame pair for an owned pointer.</param>
+    /// <returns><see langword="true"/> when the pointer selects one of the twenty table entries.</returns>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         int offset = pointer - ClearLeft;
@@ -51,6 +60,7 @@ internal static class GreyDoorPlmDrawDefinitions
         return owned;
     }
 
+    /// <summary>Enumerates the twenty calculated clear and opening draw lists in pointer order.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -64,6 +74,10 @@ internal static class GreyDoorPlmDrawDefinitions
     }
 
     // Temporary import/export DTOs; the runtime calculates cells directly.
+    /// <summary>Builds the four-cell draw-list representation for a pointer owned by the grey-door table.</summary>
+    /// <param name="pointer">Native draw-list pointer to resolve.</param>
+    /// <param name="list">Receives the generated draw list when the pointer is recognized.</param>
+    /// <returns><see langword="true"/> when the pointer identifies a table entry.</returns>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;
@@ -74,6 +88,10 @@ internal static class GreyDoorPlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Creates the stable visual identifier for a clear cap or one of the grey-door opening frames.</summary>
+    /// <param name="pointer">Native draw-list pointer whose asset identity is requested.</param>
+    /// <returns>A direction-specific identifier such as <c>clear-left</c> or <c>grey-right-frame-2</c>.</returns>
+    /// <exception cref="InvalidDataException">The pointer does not identify a grey-door draw record.</exception>
     internal static string VisualId(ushort pointer)
     {
         if (!TryDescribe(pointer, out var draw))
@@ -82,6 +100,10 @@ internal static class GreyDoorPlmDrawDefinitions
         return draw.Frame < 0 ? $"clear-{direction}" : $"grey-{direction}-frame-{draw.Frame}";
     }
 
+    /// <summary>Resolves an exact ordinal clear/opening visual identifier to its calculated draw list.</summary>
+    /// <param name="id">Identifier produced by <see cref="VisualId"/>.</param>
+    /// <param name="list">Receives the matching draw list when one exists.</param>
+    /// <returns><see langword="true"/> when the identifier belongs to this table.</returns>
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         for (int index = 0; index < 20; index++)

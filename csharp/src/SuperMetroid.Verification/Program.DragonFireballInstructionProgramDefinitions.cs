@@ -4,12 +4,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Loads the retail ROM and verifies compiled Dragon-fireball instruction data and execution behavior.</summary>
     private static void VerifyDragonFireballInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyDragonFireballInstructionProgramDefinitions), () => VerifyDragonFireballInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares compiled mechanics with bank 86 and exercises both projectile directions through their rising and falling loops.</summary>
+    /// <param name="rom">Retail address space containing Dragon-fireball instruction words and presentation operands.</param>
     private static void VerifyDragonFireballInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -158,6 +161,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Repeatedly reads representative rising and falling mechanics words for the warmed-allocation check.</summary>
+    /// <returns>A checksum that keeps the repeated lookups observable.</returns>
     private static int ProbeDragonFireballInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -171,6 +176,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads one little-endian projectile instruction word from the code bank.</summary>
+    /// <param name="source">Retail address space containing the projectile code bank.</param>
+    /// <param name="address">Offset of the low byte within that bank.</param>
+    /// <returns>The word formed by the addressed byte and its successor.</returns>
     private static ushort ReadDragonFireballInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -180,14 +189,25 @@ internal static partial class Program
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Rejects reads of compiled Dragon and shared projectile mechanics while recording presentation-selector reads.</summary>
+    /// <param name="source">Wrapped address space used for reads and writes permitted by the guard.</param>
     private sealed class DragonFireballInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets Dragon-fireball presentation-word offsets whose bytes production requested.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Gets attempts to read bytes owned by compiled Dragon or shared projectile mechanics.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes a cartridge-byte request through the guard's read policy.</summary>
+        /// <param name="address">Cartridge bus address to read.</param>
+        /// <returns>The byte returned by the wrapped source when permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics, records presentation-selector reads, and forwards other bytes.</summary>
+        /// <param name="address">Bus address of the requested byte.</param>
+        /// <returns>The byte returned by the wrapped source when the guard permits the read.</returns>
         public byte ReadByte(int address)
         {
             if (DragonFireballInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -219,6 +239,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Bus address receiving the write.</param>
+        /// <param name="value">Byte written at <paramref name="address"/>.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

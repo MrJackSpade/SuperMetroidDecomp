@@ -5,12 +5,20 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Runs the Fireflea instruction-definition checks against the installed retail ROM.
+    /// </summary>
     private static void VerifyFirefleaInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyFirefleaInstructionProgramDefinitions), () => VerifyFirefleaInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>
+    /// Compares compiled mechanics and all 52 presentation selectors with the cartridge,
+    /// then exercises the real initializer and instruction loop while guarding source bytes.
+    /// </summary>
+    /// <param name="rom">Retail address space containing Fireflea's native instruction data.</param>
     private static void VerifyFirefleaInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -95,6 +103,11 @@ internal static partial class Program
             "loop, and 52 exact frame selections pass with mechanics and visual source bytes forbidden.");
     }
 
+    /// <summary>
+    /// Repeatedly reads both supported loop words so the caller can check warmed lookup
+    /// allocation without the checksum being optimized away.
+    /// </summary>
+    /// <returns>A checksum over the mechanics words read by the probe.</returns>
     private static int ProbeFirefleaInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -108,6 +121,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian instruction word from bank $A3.</summary>
+    /// <param name="source">Cartridge address space containing the instruction bytes.</param>
+    /// <param name="address">Bank-local address of the word's low byte.</param>
+    /// <returns>The low byte combined with the following byte as the high byte.</returns>
     private static ushort ReadFirefleaInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -115,13 +132,26 @@ internal static partial class Program
             source.ReadByte(0xa30000 | address) |
             source.ReadByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>
+    /// Prevents production from reading Fireflea mechanics and presentation words directly
+    /// from the cartridge while forwarding unrelated address-space operations.
+    /// </summary>
+    /// <param name="source">Underlying cartridge address space for permitted reads and writes.</param>
     private sealed class FirefleaInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the number of attempted reads of guarded mechanics or presentation bytes.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes an import-time cartridge read through the runtime read guard.</summary>
+        /// <param name="address">Absolute cartridge address requested by the importer.</param>
+        /// <returns>The source byte when the address is not guarded.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of compiled mechanics and presentation bytes, forwarding all others.</summary>
+        /// <param name="address">Absolute address requested by production code.</param>
+        /// <returns>The source byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to a compiled Fireflea word.</exception>
         public byte ReadByte(int address)
         {
             if (FirefleaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -134,6 +164,11 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>
+        /// Tests whether an address is either byte of a Fireflea presentation word in bank $A3.
+        /// </summary>
+        /// <param name="address">Absolute cartridge address to classify.</param>
+        /// <returns><see langword="true"/> if the address is a presentation-selector byte.</returns>
         private static bool IsPresentationByte(int address) =>
             (address & 0xff0000) == 0xa30000 &&
             (FirefleaInstructionProgramDefinitions.IsPresentationWord(
@@ -141,6 +176,9 @@ internal static partial class Program
              FirefleaInstructionProgramDefinitions.IsPresentationWord(
                 unchecked((ushort)(address - 1))));
 
+        /// <summary>Forwards a write unchanged to the wrapped cartridge address space.</summary>
+        /// <param name="address">Absolute destination address.</param>
+        /// <param name="value">Byte to write.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

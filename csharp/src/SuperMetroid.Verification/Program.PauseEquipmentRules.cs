@@ -17,10 +17,26 @@ internal static partial class Program
         _ => throw new ArgumentOutOfRangeException(nameof(category)),
     };
 
+    /// <summary>Checks each beam upgrade bit against its native pause-menu mask table.</summary>
+    /// <param name="rom">The cartridge address space containing the native beam masks.</param>
     private static void VerifyPauseBeamMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, 1, PauseMaskTableAddress(1), 5);
+
+    /// <summary>Checks each suit and miscellaneous upgrade bit against its native mask table.</summary>
+    /// <param name="rom">The cartridge address space containing the native suit and item masks.</param>
     private static void VerifyPauseSuitMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, 2, PauseMaskTableAddress(2), 6);
+
+    /// <summary>Checks each boot upgrade bit against its native pause-menu mask table.</summary>
+    /// <param name="rom">The cartridge address space containing the native boot masks.</param>
     private static void VerifyPauseBootMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, 3, PauseMaskTableAddress(3), 3);
 
+    /// <summary>
+    /// Compares one category's compiled masks with cartridge words and verifies that unsupported
+    /// category and item selectors are rejected with the correct parameter name.
+    /// </summary>
+    /// <param name="rom">The address space containing the native mask words.</param>
+    /// <param name="category">The pause equipment category whose masks are checked.</param>
+    /// <param name="address">The absolute address of the first native mask word.</param>
+    /// <param name="count">The number of mask words defined for the category.</param>
     private static void VerifyPauseMaskCases(ISnesAddressSpace rom, int category, int address, int count)
     {
         for (int item = 0; item < count; item++)
@@ -46,6 +62,11 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Checks the compiled equipment wireframe selector against the cartridge's masked lookup
+    /// table for every possible 16-bit input.
+    /// </summary>
+    /// <param name="rom">The cartridge address space containing the native selector and table.</param>
     private static void VerifyPauseWireframeSelection(ISnesAddressSpace rom)
     {
         static ushort Word(ISnesAddressSpace source, int address) =>
@@ -64,6 +85,12 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Runs pause equipment against a guarded cartridge bus to confirm compiled masks, selection,
+    /// toggling, wireframe rendering, and reserve transfer behavior without runtime rule reads.
+    /// </summary>
+    /// <param name="bus">The address space used by the pause menu and native reference data.</param>
+    /// <param name="catalog">The compiled area-map presentation data required to construct pause state.</param>
     private static void VerifyCompiledPauseEquipmentRules(ISnesAddressSpace bus, AreaMapPresentationCatalog catalog)
     {
         Suite(nameof(VerifyPauseBeamMasks), () => VerifyPauseBeamMasks(bus));
@@ -147,10 +174,22 @@ internal static partial class Program
             : new SamusState { CollectedItems = owned, EquippedItems = owned };
     }
 
+    /// <summary>
+    /// Forwards cartridge access while failing if pause equipment or reserve-transfer rules are
+    /// read from ROM during production execution.
+    /// </summary>
+    /// <param name="source">The underlying address space for reads not belonging to guarded rule tables and for writes.</param>
     private sealed class PauseRulesReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge reads through the guard's rule-table checks.</summary>
+        /// <param name="address">The absolute cartridge address to read.</param>
+        /// <returns>The byte supplied by the wrapped address space if the address is allowed.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from compiled pause-rule tables and forwards all other reads.</summary>
+        /// <param name="address">The absolute address to read.</param>
+        /// <returns>The byte supplied by the wrapped address space.</returns>
+        /// <exception cref="InvalidOperationException">The address falls within a guarded pause-rule table.</exception>
         public byte ReadByte(int address)
         {
             if ((uint)(address - PauseMenuRomData.EquipmentSetTable) < 8 ||
@@ -160,6 +199,9 @@ internal static partial class Program
                 throw new InvalidOperationException($"Pause read compiled inventory/transfer rule at {address:X6}.");
             return source.ReadByte(address);
         }
+        /// <summary>Forwards a write unchanged to the underlying address space.</summary>
+        /// <param name="address">The absolute address receiving the write.</param>
+        /// <param name="value">The byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 

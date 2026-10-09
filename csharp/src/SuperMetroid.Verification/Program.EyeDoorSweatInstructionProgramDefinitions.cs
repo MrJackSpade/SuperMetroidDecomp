@@ -5,12 +5,19 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Loads the retail ROM and runs the Eye Door sweat instruction-program verification against its cartridge data.
+    /// </summary>
     private static void VerifyEyeDoorSweatInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyEyeDoorSweatInstructionProgramDefinitions), () => VerifyEyeDoorSweatInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>
+    /// Checks compiled mechanics against ROM words and exercises falling, floor-impact, shared-delete, and installed-visual behavior.
+    /// </summary>
+    /// <param name="rom">The retail cartridge address space used to verify the original instruction words and frame durations.</param>
     private static void VerifyEyeDoorSweatInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -155,6 +162,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Warms repeated lookups of the compiled falling and impact mechanics words for the allocation measurement.
+    /// </summary>
+    /// <returns>A non-zero checksum that consumes the lookup results.</returns>
     private static int ProbeEyeDoorSweatInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -168,6 +179,12 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>
+    /// Reads adjacent bytes from the enemy-projectile bank and combines them in cartridge little-endian order.
+    /// </summary>
+    /// <param name="source">The address space supplying the reference instruction bytes.</param>
+    /// <param name="address">The bank-relative address of the word's low byte.</param>
+    /// <returns>The unsigned 16-bit value stored at that address.</returns>
     private static ushort ReadEyeDoorSweatInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -177,14 +194,35 @@ internal static partial class Program
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>
+    /// Guards compiled Eye Door sweat and shared-delete mechanics while tracking any cartridge reads of installed presentation operands.
+    /// </summary>
+    /// <param name="source">The underlying address space used for reads and writes permitted by the audit.</param>
     private sealed class EyeDoorSweatInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>
+        /// Gets the presentation-word addresses observed while the production projectile code is running.
+        /// </summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>
+        /// Gets the number of attempts to read compiled Eye Door sweat or shared-delete mechanics bytes.
+        /// </summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>
+        /// Routes an importer read through the Eye Door sweat mechanics guard.
+        /// </summary>
+        /// <param name="address">The cartridge address requested by the importer.</param>
+        /// <returns>The byte at the address when it is outside both guarded mechanics ranges.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>
+        /// Rejects reads of compiled mechanics data, tracks presentation-operand reads, and forwards permitted addresses.
+        /// </summary>
+        /// <param name="address">The bus address to inspect and read.</param>
+        /// <returns>The byte returned by the wrapped address space for a permitted read.</returns>
         public byte ReadByte(int address)
         {
             if (EyeDoorSweatInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -216,6 +254,11 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>
+        /// Forwards a write to the wrapped address space without changing its address or value.
+        /// </summary>
+        /// <param name="address">The destination bus address.</param>
+        /// <param name="value">The byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

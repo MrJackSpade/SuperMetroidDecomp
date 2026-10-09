@@ -6,6 +6,12 @@ using SuperMetroid.Core.Rom;
 internal static partial class Program
 {
     // Independent reviewed fields, not the production rule's reported coverage.
+    /// <summary>
+    /// Returns the RGB5 component bits independently confirmed as calculated for a native paired-color entry.
+    /// </summary>
+    /// <param name="id">The room-FX blend selector from the cartridge.</param>
+    /// <param name="color">The primary or secondary color index in the pair.</param>
+    /// <returns>A bit mask of calculated component fields; unset fields are stored natively.</returns>
     private static int OriginalFxPairCalculatedMask(byte id, int color) => color == 0 && id is (0x42 or 0xe2 or 0xee) ? 0x7fff : id switch
     {
         0x02 => 0x7c1f,
@@ -15,10 +21,33 @@ internal static partial class Program
         _ => 0,
     };
 
+    /// <summary>
+    /// Confirms the red RGB5 component of each calculated native pair against cartridge, catalog, and CGRAM values.
+    /// </summary>
+    /// <param name="rom">The address space containing original paired-color words.</param>
+    /// <param name="stock">The installed palette-blend catalog under verification.</param>
     private static void VerifyFxPairRed(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxPairComponent(rom, stock, 0);
+
+    /// <summary>
+    /// Confirms the green RGB5 component of each calculated native pair against cartridge, catalog, and CGRAM values.
+    /// </summary>
+    /// <param name="rom">The address space containing original paired-color words.</param>
+    /// <param name="stock">The installed palette-blend catalog under verification.</param>
     private static void VerifyFxPairGreen(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxPairComponent(rom, stock, 5);
+
+    /// <summary>
+    /// Confirms the blue RGB5 component of each calculated native pair against cartridge, catalog, and CGRAM values.
+    /// </summary>
+    /// <param name="rom">The address space containing original paired-color words.</param>
+    /// <param name="stock">The installed palette-blend catalog under verification.</param>
     private static void VerifyFxPairBlue(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxPairComponent(rom, stock, 10);
 
+    /// <summary>
+    /// Checks one selected RGB5 component wherever the independent native mask identifies that component as calculated.
+    /// </summary>
+    /// <param name="rom">The address space containing the original paired-color values.</param>
+    /// <param name="stock">The installed catalog used to resolve and apply each pair.</param>
+    /// <param name="shift">The bit offset of the red, green, or blue five-bit field in a CGRAM color word.</param>
     private static void VerifyFxPairComponent(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock, int shift)
     {
         foreach (byte id in OriginalFxBlendIds())
@@ -41,6 +70,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Verifies calculated fields are not redundantly stored and that explicit RGB5 edits round-trip across the full valid range.
+    /// </summary>
+    /// <param name="rom">The address space providing the native paired-color words used to identify derived fields.</param>
     private static void VerifyFxPairStorageAndEdits(ISnesAddressSpace rom)
     {
         foreach (byte id in OriginalFxBlendIds())
@@ -83,8 +116,17 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Masks calculated paired-color fields in cartridge reads to ensure catalog construction derives those values rather than copying them.
+    /// </summary>
+    /// <param name="source">The underlying cartridge address space whose original bytes are masked selectively.</param>
     private sealed class DerivedBlendSourceGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>
+        /// Reads a byte and clears bits belonging to components calculated by the reviewed native blend rules.
+        /// </summary>
+        /// <param name="address">The cartridge address to read through the masking guard.</param>
+        /// <returns>The source byte with calculated paired-color fields cleared when the address belongs to a covered pair.</returns>
         public byte ReadByte(int address)
         {
             byte original = source.ReadByte(address);
@@ -98,7 +140,19 @@ internal static partial class Program
             }
             return original;
         }
+
+        /// <summary>
+        /// Routes an importer cartridge read through the derived-component mask.
+        /// </summary>
+        /// <param name="address">The cartridge address requested by the importer.</param>
+        /// <returns>The byte after calculated paired-color fields have been masked.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
+
+        /// <summary>
+        /// Forwards a write to the underlying address space without changing its address or value.
+        /// </summary>
+        /// <param name="address">The address receiving the write.</param>
+        /// <param name="value">The byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

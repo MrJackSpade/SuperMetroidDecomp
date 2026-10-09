@@ -6,11 +6,21 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks each installed map-window X origin against the native area record and verifies edited labels reach the window.</summary>
+    /// <param name="rom">Retail address space supplying native origin words.</param>
+    /// <param name="labels">Imported labels whose X coordinate is checked and edited in the fixture.</param>
     private static void VerifyMapWindowOriginX(ISnesAddressSpace rom, WorldMapLabelLayout labels) =>
         Suite(nameof(VerifyMapWindowOrigin), () => VerifyMapWindowOrigin(rom, labels, vertical: false));
+    /// <summary>Checks each installed map-window Y origin against the native area record and verifies edited labels reach the window.</summary>
+    /// <param name="rom">Retail address space supplying native origin words.</param>
+    /// <param name="labels">Imported labels whose Y coordinate is checked and edited in the fixture.</param>
     private static void VerifyMapWindowOriginY(ISnesAddressSpace rom, WorldMapLabelLayout labels) =>
         Suite(nameof(VerifyMapWindowOrigin), () => VerifyMapWindowOrigin(rom, labels, vertical: true));
 
+    /// <summary>Compares stock and installed label origins, then confirms JSON edits affect initial window placement only.</summary>
+    /// <param name="rom">Retail address space containing the six native map-window origin records.</param>
+    /// <param name="labels">Installed label layout used to initialize and edit each area's map window.</param>
+    /// <param name="vertical">Selects Y origins when true and X origins when false.</param>
     private static void VerifyMapWindowOrigin(ISnesAddressSpace rom, WorldMapLabelLayout labels, bool vertical)
     {
         int field = vertical ? 2 : 0;
@@ -50,15 +60,27 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks all six native left-edge signed 16.16 velocities against the compiled motion table.</summary>
+    /// <param name="rom">Retail address space containing native window-motion words.</param>
     private static void VerifyMapWindowLeftVelocities(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyMapWindowVelocity), () => VerifyMapWindowVelocity(rom, 0, motion => motion.Left));
+    /// <summary>Checks all six native right-edge signed 16.16 velocities against the compiled motion table.</summary>
+    /// <param name="rom">Retail address space containing native window-motion words.</param>
     private static void VerifyMapWindowRightVelocities(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyMapWindowVelocity), () => VerifyMapWindowVelocity(rom, 1, motion => motion.Right));
+    /// <summary>Checks all six native top-edge signed 16.16 velocities against the compiled motion table.</summary>
+    /// <param name="rom">Retail address space containing native window-motion words.</param>
     private static void VerifyMapWindowTopVelocities(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyMapWindowVelocity), () => VerifyMapWindowVelocity(rom, 2, motion => motion.Top));
+    /// <summary>Checks all six native bottom-edge signed 16.16 velocities against the compiled motion table.</summary>
+    /// <param name="rom">Retail address space containing native window-motion words.</param>
     private static void VerifyMapWindowBottomVelocities(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyMapWindowVelocity), () => VerifyMapWindowVelocity(rom, 3, motion => motion.Bottom));
 
+    /// <summary>Reads one native edge-velocity pair per area and compares it with the selected compiled component.</summary>
+    /// <param name="rom">Retail address space containing native signed 16.16 velocity words.</param>
+    /// <param name="edge">Velocity component index: left, right, top, or bottom.</param>
+    /// <param name="select">Selects the matching component from a compiled area-motion record.</param>
     private static void VerifyMapWindowVelocity(ISnesAddressSpace rom, int edge,
         Func<FileSelectMapWindowMotion, uint> select)
     {
@@ -73,6 +95,8 @@ internal static partial class Program
         Suite(nameof(VerifyMapWindowMotionBounds), () => VerifyMapWindowMotionBounds());
     }
 
+    /// <summary>Compares the six compiled map-window timers with their native cartridge words.</summary>
+    /// <param name="rom">Retail address space containing the per-area timer table.</param>
     private static void VerifyMapWindowTimers(ISnesAddressSpace rom)
     {
         for (int area = 0; area < 6; area++)
@@ -81,6 +105,7 @@ internal static partial class Program
         Suite(nameof(VerifyMapWindowMotionBounds), () => VerifyMapWindowMotionBounds());
     }
 
+    /// <summary>Confirms motion lookup rejects negative and out-of-range map areas.</summary>
     private static void VerifyMapWindowMotionBounds()
     {
         foreach (int area in new[] { int.MinValue, -1, 6, int.MaxValue })

@@ -9,6 +9,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks the four ending-explosion fragment load routines against their bank, compressed source, and published asset filename metadata.</summary>
+    /// <param name="bus">Retail address space containing the native fragment load instructions.</param>
     private static void VerifyEndingObjectFragmentMetadata(ISnesAddressSpace bus)
     {
         string[] names = ["ending-explosion-fragment-70.png", "ending-explosion-fragment-74.png",
@@ -30,6 +32,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Compares all six compiled cloud instruction lists and sprite compositions with cartridge data, including clipping, edits, and list progression.</summary>
+    /// <param name="bus">Retail address space used to inspect native instructions and spritemaps.</param>
     private static void VerifyEndingCloudDefinitions(ISnesAddressSpace bus)
     {
         for (int pointer = EndingCloudInstructionDefinitions.Start;
@@ -115,6 +119,8 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => EndingCloudInstructionDefinitions.ReadWord(invalid), "cloud program bounds");
     }
 
+    /// <summary>Verifies installed ending-object sheets, maps, and sprite frames against native data, then exercises guarded rendering and editable override behavior across the ending scenes.</summary>
+    /// <param name="installation">Installed game content and override directories used to load stock and edited ending artwork.</param>
     private static void VerifyEndingObjectArtwork(GameInstallation installation)
     {
         EndingObjectArtworkCatalog stock = installation.LoadEndingObjectArt();
@@ -439,11 +445,18 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Rejects runtime rereads of compiled ending instructions, spritemaps, and object art while forwarding unrelated address-space access.</summary>
+    /// <param name="source">Underlying cartridge and mutable-memory source for permitted operations.</param>
     private sealed class EndingObjectSourceReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
     {
+        /// <summary>Number of reads rejected because they target installed ending instructions, sprite data, or object sources.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Rejects compiled ending-data reads and forwards other byte requests.</summary>
+        /// <param name="address">Full address-space byte address requested by the consumer.</param>
+        /// <returns>The underlying byte when the address is outside guarded ending data.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to a compiled ending instruction, sprite, or artwork source.</exception>
         public byte ReadByte(int address)
         {
             if (address >= (int)new SnesAddress(0x8b,
@@ -569,8 +582,15 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged; the guard limits reads from installed ending data.</summary>
+        /// <param name="address">Address-space location to write.</param>
+        /// <param name="value">Byte passed through to the underlying source.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
+        /// <summary>Checks the requested address through the guard before forwarding the import-source read.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The underlying import-source byte when the address is outside guarded ending data.</returns>
+        /// <exception cref="InvalidOperationException">The wrapped source lacks an import interface or the address targets guarded ending data.</exception>
         public byte ReadCartridgeByte(int address)
         {
             _ = ReadByte(address);
@@ -579,11 +599,19 @@ internal static partial class Program
                 .ReadCartridgeByte(address);
         }
 
+        /// <summary>Forwards a WRAM read to the wrapped mutable-memory source.</summary>
+        /// <param name="address">WRAM address requested by the consumer.</param>
+        /// <returns>The byte stored at that address.</returns>
+        /// <exception cref="InvalidOperationException">The wrapped source does not expose mutable memory.</exception>
         public byte ReadWorkRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Ending OBJ guard requires WRAM."))
             .ReadWorkRamByte(address);
 
+        /// <summary>Forwards an SRAM read to the wrapped mutable-memory source.</summary>
+        /// <param name="address">SRAM address requested by the consumer.</param>
+        /// <returns>The byte stored at that address.</returns>
+        /// <exception cref="InvalidOperationException">The wrapped source does not expose mutable memory.</exception>
         public byte ReadSaveRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Ending OBJ guard requires SRAM."))

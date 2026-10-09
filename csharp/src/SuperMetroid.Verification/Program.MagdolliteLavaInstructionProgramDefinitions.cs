@@ -5,12 +5,20 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Loads the retail ROM and runs the Magdollite lava projectile program checks against it.
+    /// </summary>
     private static void VerifyMagdolliteLavaInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMagdolliteLavaInstructionProgramDefinitions), () => VerifyMagdolliteLavaInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>
+    /// Verifies compiled mechanics against cartridge words and exercises both lava poses,
+    /// the shot callback and deletion flow, installed visual operands, and guarded runtime reads.
+    /// </summary>
+    /// <param name="rom">The retail address space used to verify compiled instruction data and visuals.</param>
     private static void VerifyMagdolliteLavaInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -178,6 +186,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Repeatedly reads the left/shot and shared-delete mechanics words to measure warmed lookup allocations.
+    /// </summary>
+    /// <returns>A checksum that ensures the probed mechanics values are consumed.</returns>
     private static int ProbeMagdolliteLavaInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -195,6 +207,12 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>
+    /// Reads a little-endian word from adjacent bytes in the enemy-projectile code bank.
+    /// </summary>
+    /// <param name="source">The cartridge address space containing bank 86 data.</param>
+    /// <param name="address">The bank-relative address of the word's low byte.</param>
+    /// <returns>The value formed from the addressed byte and the following byte.</returns>
     private static ushort ReadMagdolliteLavaInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -204,14 +222,32 @@ internal static partial class Program
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>
+    /// Wraps the cartridge bus to reject runtime reads of compiled Magdollite or shared
+    /// projectile mechanics and record accesses to Magdollite presentation words.
+    /// </summary>
+    /// <param name="source">The underlying address space receiving allowed reads and all writes.</param>
     private sealed class MagdolliteLavaInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Bank 86 presentation-word addresses observed through this guard.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>The number of attempted reads from compiled Magdollite or shared mechanics.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes a cartridge-byte request through the guard's runtime-read checks.</summary>
+        /// <param name="address">The absolute cartridge address to read.</param>
+        /// <returns>The underlying byte when the address is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>
+        /// Rejects reads of compiled mechanics, records presentation-word accesses, and forwards
+        /// all other reads to the wrapped address space.
+        /// </summary>
+        /// <param name="address">The absolute address to read.</param>
+        /// <returns>The underlying byte for an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">The requested byte is part of compiled mechanics.</exception>
         public byte ReadByte(int address)
         {
             if (MagdolliteLavaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -243,6 +279,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards the write without changing its address or value.</summary>
+        /// <param name="address">The absolute address receiving the byte.</param>
+        /// <param name="value">The byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

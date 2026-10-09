@@ -5,12 +5,19 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Loads the retail ROM and verifies that gunship instruction mechanics match the compiled definitions.
+    /// </summary>
     private static void VerifyGunshipInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyGunshipInstructionProgramDefinitions), () => VerifyGunshipInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>
+    /// Compares compiled mechanics and visual selectors with ROM data, then exercises hull, pad, and initializer paths under a read guard.
+    /// </summary>
+    /// <param name="rom">The retail cartridge address space used to verify original mechanics and presentation operands.</param>
     private static void VerifyGunshipInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -171,6 +178,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Repeatedly reads a compiled gunship mechanics word to warm the lookup path for the allocation measurement.
+    /// </summary>
+    /// <returns>A non-zero checksum that consumes the lookup results.</returns>
     private static int ProbeGunshipInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -182,17 +193,44 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>
+    /// Reads two adjacent cartridge bytes and combines them as one little-endian instruction word.
+    /// </summary>
+    /// <param name="bus">The cartridge address space containing the reference word.</param>
+    /// <param name="address">The bus address of the word's low byte.</param>
+    /// <returns>The unsigned 16-bit value stored at that address.</returns>
     private static ushort ReadGunshipWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>
+    /// Audits gunship execution by rejecting reads of compiled mechanics bytes and recording reads of presentation operands.
+    /// </summary>
+    /// <param name="source">The underlying address space used for all permitted cartridge accesses.</param>
     private sealed class GunshipInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>
+        /// Gets the compiled presentation-word addresses read while production instruction programs are executing.
+        /// </summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>
+        /// Gets the number of attempted reads from the compiled gunship mechanics range.
+        /// </summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>
+        /// Routes an importer cartridge read through the gunship mechanics guard.
+        /// </summary>
+        /// <param name="address">The cartridge address requested by the importer.</param>
+        /// <returns>The byte at the address if the access is not a forbidden mechanics read.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>
+        /// Rejects reads of compiled mechanics bytes, records presentation-word reads, and forwards permitted accesses.
+        /// </summary>
+        /// <param name="address">The bus address being read.</param>
+        /// <returns>The byte supplied by the wrapped address space for a permitted access.</returns>
         public byte ReadByte(int address)
         {
             if (GunshipInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -222,6 +260,11 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>
+        /// Forwards a write to the wrapped address space without changing its address or value.
+        /// </summary>
+        /// <param name="address">The destination bus address.</param>
+        /// <param name="value">The byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

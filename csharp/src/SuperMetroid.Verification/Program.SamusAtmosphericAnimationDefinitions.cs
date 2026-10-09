@@ -4,6 +4,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Compares atmospheric timers, frame counts, and liquid-damage rates with the retail
+    /// ROM, then exercises their production consumers through a guarded address space.
+    /// </summary>
+    /// <param name="rom">Retail address space supplying the reference table values and WRAM fixture.</param>
     private static void VerifySamusAtmosphericAnimationDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -61,6 +66,11 @@ internal static partial class Program
             "Samus atmospheric animation: 37 timers, seven frame counts, four liquid-damage words, and all real cadence/damage consumers pass with mechanics ranges forbidden.");
     }
 
+    /// <summary>
+    /// Checks each atmospheric type and frame through the production update-and-draw path,
+    /// covering both timer expiry and delayed frame handoff.
+    /// </summary>
+    /// <param name="guarded">Address space that rejects reads from migrated atmospheric tables.</param>
     private static void VerifyProductionAtmosphericCadence(ISnesAddressSpace guarded)
     {
         var atmosphericArt = new SamusAtmosphericArtworkCatalog(
@@ -104,6 +114,12 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Confirms that a null animation pointer leaves OBJ attribute reads on mirrored WRAM,
+    /// restoring the two fixture bytes after the production draw check.
+    /// </summary>
+    /// <param name="rom">Mutable address space used to seed and restore the mirrored WRAM bytes.</param>
+    /// <param name="guarded">Address space passed to the atmospheric production update.</param>
     private static void VerifyNullAtmosphericPointerReadsMirroredWorkRam(
         SuperMetroidAddressSpace rom,
         ISnesAddressSpace guarded)
@@ -132,6 +148,13 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Checks that one production liquid-physics frame accumulates the expected periodic
+    /// lava or acid damage components from the compiled damage rate.
+    /// </summary>
+    /// <param name="guarded">Address space whose migrated mechanics ranges must not be read.</param>
+    /// <param name="fxType">Liquid hazard configured for the Samus frame.</param>
+    /// <param name="expected">Compiled fractional and whole damage values to compare.</param>
     private static void VerifyProductionLiquidDamage(
         ISnesAddressSpace guarded,
         RoomFxType fxType,
@@ -155,23 +178,44 @@ internal static partial class Program
             $"production {fxType} whole damage accumulation");
     }
 
+    /// <summary>
+    /// Rejects reads from the migrated atmospheric animation and liquid-damage ROM tables
+    /// while forwarding other cartridge accesses and mutable-memory operations.
+    /// </summary>
+    /// <param name="source">Underlying address space used for permitted reads and writes.</param>
     private sealed class SamusAtmosphericAnimationReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Routes an import-time cartridge read through the migrated-table guard.</summary>
+        /// <param name="address">Absolute cartridge address requested by the importer.</param>
+        /// <returns>The source byte when the address is outside guarded table ranges.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Reads a WRAM byte from the wrapped mutable-memory address space.</summary>
+        /// <param name="address">WRAM address requested by the caller.</param>
+        /// <returns>The byte stored at that address.</returns>
         public byte ReadWorkRamByte(int address) =>
             ((ISnesMutableMemory)source).ReadWorkRamByte(address);
 
+        /// <summary>Reads an SRAM byte from the wrapped mutable-memory address space.</summary>
+        /// <param name="address">SRAM address requested by the caller.</param>
+        /// <returns>The byte stored at that address.</returns>
         public byte ReadSaveRamByte(int address) =>
             ((ISnesMutableMemory)source).ReadSaveRamByte(address);
 
+        /// <summary>Rejects migrated table reads and forwards other reads to the source.</summary>
+        /// <param name="address">Absolute address requested by the production code.</param>
+        /// <returns>The source byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address falls within an atmospheric or liquid-damage table range.</exception>
         public byte ReadByte(int address) =>
             address is >= 0x908b93 and < 0x908bff or >= 0x909e8b and < 0x909e93
                 ? throw new InvalidOperationException(
                     $"Samus atmosphere attempted migrated mechanics read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards a byte write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Absolute destination address.</param>
+        /// <param name="value">Byte to write.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

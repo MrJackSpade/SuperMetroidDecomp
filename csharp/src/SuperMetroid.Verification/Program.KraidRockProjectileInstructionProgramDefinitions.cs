@@ -4,12 +4,20 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Runs the Kraid-rock instruction checks using the installed retail ROM as their reference.
+    /// </summary>
     private static void VerifyKraidRockProjectileInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKraidRockProjectileInstructionProgramDefinitions), () => VerifyKraidRockProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>
+    /// Verifies native mechanics words, projectile producer programs, sleep and explosion
+    /// behavior, and installed presentation selectors while preventing production ROM reads.
+    /// </summary>
+    /// <param name="rom">Retail address space containing the reference projectile programs.</param>
     private static void VerifyKraidRockProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -205,6 +213,11 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Repeatedly resolves both supported Kraid-rock mechanics words for the warmed
+    /// allocation check performed by the caller.
+    /// </summary>
+    /// <returns>A checksum that keeps the resolved word values observable.</returns>
     private static int ProbeKraidRockProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -218,6 +231,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian enemy-projectile instruction word.</summary>
+    /// <param name="source">Cartridge address space containing the instruction bytes.</param>
+    /// <param name="address">Bank-local address of the word's low byte.</param>
+    /// <returns>The low byte combined with the next byte as the high byte.</returns>
     private static ushort ReadKraidRockProjectileInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -227,14 +244,32 @@ internal static partial class Program
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>
+    /// Guards production against reading compiled Kraid-rock or shared-delete mechanics
+    /// from ROM and records which native presentation words are requested.
+    /// </summary>
+    /// <param name="source">Underlying address space for permitted reads and forwarded writes.</param>
     private sealed class KraidRockProjectileInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the distinct presentation-word addresses observed during execution.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Gets the number of attempted reads from guarded compiled mechanics bytes.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes an import-time cartridge read through the same ROM read guard.</summary>
+        /// <param name="address">Absolute cartridge address requested by the importer.</param>
+        /// <returns>The source byte when the read is not forbidden.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>
+        /// Rejects reads from compiled mechanics words, records recognized presentation-word
+        /// accesses, and forwards permitted reads to the underlying address space.
+        /// </summary>
+        /// <param name="address">Absolute address requested by production code.</param>
+        /// <returns>The source byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled mechanics data.</exception>
         public byte ReadByte(int address)
         {
             if (KraidRockProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -266,6 +301,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write unchanged to the underlying address space.</summary>
+        /// <param name="address">Absolute destination address.</param>
+        /// <param name="value">Byte to write.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

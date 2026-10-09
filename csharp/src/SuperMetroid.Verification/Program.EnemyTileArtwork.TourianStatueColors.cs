@@ -10,6 +10,10 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Verifies installed Tourian statue palette data against retail behavior and checks that overrides remain isolated.</summary>
+    /// <param name="bus">Retail address space used for source comparisons and guarded runtime execution.</param>
+    /// <param name="stockDirectory">Directory containing the stock enemy-artwork manifests and palette data.</param>
+    /// <param name="stock">Validated stock artwork catalog installed into test enemy systems.</param>
     private static void VerifyInstalledTourianStatueColors(ISnesAddressSpace bus,
         string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -233,6 +237,11 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Confirms an edited CGRAM matches the reference except for the explicitly masked color channels.</summary>
+    /// <param name="reference">Unedited CGRAM contents used as the comparison baseline.</param>
+    /// <param name="edited">CGRAM state produced with the selected artwork override.</param>
+    /// <param name="differences">Color indices and channel masks whose bits are expected to differ.</param>
+    /// <param name="context">Label included in assertion messages to identify the visual path under check.</param>
     private static void CheckOnlyDifferences(SnesCgram reference, SnesCgram edited,
         IReadOnlyList<(int Index, int Mask)> differences, string context)
     {
@@ -245,18 +254,28 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Guards statue-color reads against known palette bytes while preserving access to other memory regions.</summary>
+    /// <param name="source">Underlying address space and optional cartridge or mutable-memory provider.</param>
+    /// <param name="forbidden">Byte addresses that installed runtime code must not reread from the cartridge.</param>
     private sealed class TourianStatueColorReadGuard(ISnesAddressSpace source,
         HashSet<int> forbidden) : ISnesAddressSpace, IImportCartridgeSource,
         ISnesMutableMemory
     {
+        /// <summary>Gets the number of attempts to read an address in the forbidden palette source set.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Checks the requested address against the forbidden set before delegating a general memory read.</summary>
+        /// <param name="address">Address requested from the wrapped memory.</param>
+        /// <returns>The source byte when the address is permitted.</returns>
         public byte ReadByte(int address)
         {
             RejectForbidden(address);
             return source.ReadByte(address);
         }
 
+        /// <summary>Applies the palette-read guard before delegating through the cartridge-import interface.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
+        /// <returns>The source byte when the address is permitted and the source supports cartridge imports.</returns>
         public byte ReadCartridgeByte(int address)
         {
             RejectForbidden(address);
@@ -265,18 +284,29 @@ internal static partial class Program
                 .ReadCartridgeByte(address);
         }
 
+        /// <summary>Reads a WRAM byte through the wrapped mutable-memory provider.</summary>
+        /// <param name="address">WRAM address requested by the caller.</param>
+        /// <returns>The value supplied by the underlying mutable-memory source.</returns>
         public byte ReadWorkRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Tourian statue color guard requires WRAM."))
             .ReadWorkRamByte(address);
 
+        /// <summary>Reads an SRAM byte through the wrapped mutable-memory provider.</summary>
+        /// <param name="address">SRAM address requested by the caller.</param>
+        /// <returns>The value supplied by the underlying mutable-memory source.</returns>
         public byte ReadSaveRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Tourian statue color guard requires SRAM."))
             .ReadSaveRamByte(address);
 
+        /// <summary>Forwards a memory write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Destination address.</param>
+        /// <param name="value">Byte written to that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
+        /// <summary>Counts and rejects an attempted read from a cartridge byte known to contain extracted statue colors.</summary>
+        /// <param name="address">Address about to be read by an installed runtime path.</param>
         private void RejectForbidden(int address)
         {
             if (!forbidden.Contains(address)) return;

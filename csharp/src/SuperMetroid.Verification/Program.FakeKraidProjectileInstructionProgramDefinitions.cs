@@ -4,12 +4,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Registers the retail-ROM verification suite for Fake Kraid projectile instruction programs.</summary>
     private static void VerifyFakeKraidProjectileInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyFakeKraidProjectileInstructionProgramDefinitions), () => VerifyFakeKraidProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares compiled mechanics with cartridge words and exercises the production spit and spike producers, projectile instruction loops, terminal sleeps, and shared deletion path under guarded reads.</summary>
+    /// <param name="rom">Retail address space supplying reference instruction durations and words.</param>
     private static void VerifyFakeKraidProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -139,6 +142,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Warms and repeatedly reads compiled Fake Kraid projectile mechanics so the caller can measure steady-state lookup allocations.</summary>
+    /// <returns>A checksum that keeps the repeated reads observable.</returns>
     private static int ProbeFakeKraidProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -152,6 +157,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian projectile instruction word from the enemy-projectile bank.</summary>
+    /// <param name="source">Retail address space containing the original projectile program.</param>
+    /// <param name="address">Bank-relative address of the low byte.</param>
+    /// <returns>The adjacent cartridge bytes combined as an unsigned 16-bit word.</returns>
     private static ushort ReadFakeKraidProjectileInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -161,14 +170,26 @@ internal static partial class Program
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Wraps address-space access to reject reads of compiled Fake Kraid and shared-delete mechanics while observing presentation operand reads.</summary>
+    /// <param name="source">Underlying address space for permitted reads and writes.</param>
     private sealed class FakeKraidProjectileInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Unique presentation operand addresses requested by production projectile execution.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of attempted reads rejected for targeting compiled instruction mechanics.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge-import reads through the same mechanics guard and presentation tracking as ordinary byte reads.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The underlying byte when it is not a compiled mechanics byte.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of compiled Fake Kraid or shared-delete mechanics, records presentation accesses, and forwards other byte requests.</summary>
+        /// <param name="address">Address-space location requested by production code.</param>
+        /// <returns>The underlying byte when the address is outside guarded mechanics ranges.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled Fake Kraid or shared-delete mechanics.</exception>
         public byte ReadByte(int address)
         {
             if (FakeKraidProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -200,6 +221,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged; this wrapper restricts reads of compiled mechanics only.</summary>
+        /// <param name="address">Address-space location to write.</param>
+        /// <param name="value">Byte value passed through to the underlying source.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

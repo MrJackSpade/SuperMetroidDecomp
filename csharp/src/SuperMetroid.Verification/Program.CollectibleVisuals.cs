@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks collectible artwork edits reach redraws without changing collision, pickup, or persistence behavior.</summary>
     private static void VerifyCollectibleVisuals()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -115,6 +116,8 @@ internal static partial class Program
             "source-read guards, and installation validation pass.");
     }
 
+    /// <summary>Verifies extracted stock visuals, installation overrides, refresh behavior, and malformed-file rejection.</summary>
+    /// <param name="rom">Cartridge address space used to regenerate the stock visual manifest.</param>
     private static void VerifyCollectibleVisualInstallation(SuperMetroidAddressSpace rom)
     {
         string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
@@ -175,16 +178,26 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Reads one little-endian visual word from the collectible PLM's bank-$84 data.</summary>
+    /// <param name="bus">Address space containing the ROM-backed collectible data.</param>
+    /// <param name="pointer">Bank-local address of the first byte in the word.</param>
+    /// <returns>The two bytes at the pointer combined as an unsigned word.</returns>
     private static ushort ReadCollectibleVisualWord(ISnesAddressSpace bus,
         ushort pointer) => unchecked((ushort)(
         bus.ReadByte(0x840000 | pointer) |
         bus.ReadByte(0x840000 | unchecked((ushort)(pointer + 1))) << 8));
 
+    /// <summary>Rejects runtime reads of collectible draw and selector bytes while forwarding unrelated cartridge access.</summary>
     private sealed class CollectibleDrawReadGuard : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Underlying address space used for accesses outside the guarded collectible tables.</summary>
         private readonly ISnesAddressSpace source;
+
+        /// <summary>Cartridge addresses that runtime collectible drawing and selector lookup must not read.</summary>
         private readonly HashSet<int> blocked = [];
 
+        /// <summary>Builds a read guard for every draw record and both dynamic-frame selector tables.</summary>
+        /// <param name="source">Address space that receives permitted reads and all writes.</param>
         internal CollectibleDrawReadGuard(ISnesAddressSpace source)
         {
             this.source = source;
@@ -198,13 +211,23 @@ internal static partial class Program
                     blocked.Add(0x840000 | checked((ushort)(table + offset)));
         }
 
+        /// <summary>Routes import-source reads through the same forbidden-address check as runtime reads.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The byte from the wrapped address space when the address is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Reads an allowed address or rejects access to collectible drawing and selector data.</summary>
+        /// <param name="address">Cartridge address requested by the renderer.</param>
+        /// <returns>The wrapped address-space byte when the address is not guarded.</returns>
+        /// <exception cref="InvalidOperationException">The renderer attempts to read a guarded collectible byte.</exception>
         public byte ReadByte(int address) => blocked.Contains(address)
             ? throw new InvalidOperationException(
                 $"Live collectible read compiled draw or selector byte ${address:X6}.")
             : source.ReadByte(address);
 
+        /// <summary>Forwards writes unchanged because this guard only constrains reads.</summary>
+        /// <param name="address">Cartridge address to write.</param>
+        /// <param name="value">Byte written to the wrapped address space.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

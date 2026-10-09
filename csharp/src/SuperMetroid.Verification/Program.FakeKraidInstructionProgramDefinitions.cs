@@ -6,12 +6,15 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Loads the retail ROM and verifies Fake Kraid's compiled instruction definitions and execution paths.</summary>
     private static void VerifyFakeKraidInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyFakeKraidInstructionProgramDefinitions), () => VerifyFakeKraidInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares compiled mechanics with bank A6 and runs Fake Kraid's initializer, movement, and spit programs.</summary>
+    /// <param name="rom">Retail address space containing Fake Kraid's native population and instruction data.</param>
     private static void VerifyFakeKraidInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -200,6 +203,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Repeatedly reads the left-facing walk entry for the warmed-allocation check.</summary>
+    /// <returns>A checksum that keeps the mechanics lookups observable.</returns>
     private static int ProbeFakeKraidInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -211,19 +216,34 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian instruction word from the supplied bus address.</summary>
+    /// <param name="bus">Retail address space containing the instruction bytes.</param>
+    /// <param name="address">Bus address of the low byte.</param>
+    /// <returns>The word formed by the addressed byte and its successor.</returns>
     private static ushort ReadFakeKraidInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Rejects production reads of compiled mechanics and installed visual selectors.</summary>
+    /// <param name="source">Wrapped address space used for reads and writes outside the forbidden ranges.</param>
     private sealed class FakeKraidInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets attempts to read installed Fake Kraid presentation-selector bytes.</summary>
         internal int ForbiddenPresentationReadAttempts { get; private set; }
+
+        /// <summary>Gets attempts to read bytes owned by compiled Fake Kraid mechanics.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes a cartridge-byte request through the guard's forbidden-range checks.</summary>
+        /// <param name="address">Cartridge bus address to read.</param>
+        /// <returns>The byte returned by the wrapped source when permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects mechanics and installed-selector reads, then forwards other byte requests.</summary>
+        /// <param name="address">Bus address of the requested byte.</param>
+        /// <returns>The byte returned by the wrapped source when the address is allowed.</returns>
         public byte ReadByte(int address)
         {
             if (FakeKraidInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -255,6 +275,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Bus address receiving the write.</param>
+        /// <param name="value">Byte written at <paramref name="address"/>.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

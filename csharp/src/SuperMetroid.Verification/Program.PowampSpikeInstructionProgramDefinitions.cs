@@ -4,12 +4,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Registers verification of the compiled Powamp spike instruction program against the retail cartridge.</summary>
     private static void VerifyPowampSpikeInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyPowampSpikeInstructionProgramDefinitions), () => VerifyPowampSpikeInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares compiled mechanics with ROM and executes the real eight-spike burst, animation loop, and collision deletion.</summary>
+    /// <param name="rom">Retail address space used to verify native instruction words and frame durations.</param>
     private static void VerifyPowampSpikeInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -131,6 +134,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Performs repeated initial and deletion instruction lookups for the warmed-allocation check.</summary>
+    /// <returns>A checksum of the looked-up mechanics words.</returns>
     private static int ProbePowampSpikeInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -144,6 +149,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian Powamp spike instruction word from the projectile-code bank.</summary>
+    /// <param name="source">Retail address space containing the instruction stream.</param>
+    /// <param name="address">Bank-local address of the first byte in the word.</param>
+    /// <returns>The two bytes combined as an unsigned word.</returns>
     private static ushort ReadPowampSpikeInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -153,14 +162,26 @@ internal static partial class Program
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Rejects runtime reads of compiled Powamp spike mechanics and records any presentation-word reads.</summary>
+    /// <param name="source">Address space used for permitted reads and all writes.</param>
     private sealed class PowampSpikeInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation operand addresses observed during production projectile execution.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of attempted reads from mechanics bytes that have been compiled into the port.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes importer reads through the same compiled-mechanics guard as runtime reads.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The wrapped byte when the address is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, records presentation operands, and forwards other addresses.</summary>
+        /// <param name="address">Cartridge address requested by production code.</param>
+        /// <returns>The wrapped byte for an address outside compiled mechanics data.</returns>
+        /// <exception cref="InvalidOperationException">The address selects a compiled Powamp spike mechanics byte.</exception>
         public byte ReadByte(int address)
         {
             if (PowampSpikeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -191,6 +212,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged because the guard constrains reads only.</summary>
+        /// <param name="address">Cartridge address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -4,12 +4,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Loads the retail ROM and checks the compiled Bull instruction definitions against it.</summary>
     private static void VerifyBullInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyBullInstructionProgramDefinitions), () => VerifyBullInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares compiled mechanics with bank A8 and executes Bull's normal and immune-shot instruction paths.</summary>
+    /// <param name="rom">Retail address space containing Bull's native instruction data.</param>
     private static void VerifyBullInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic |
@@ -86,6 +89,8 @@ internal static partial class Program
             "pass with mechanics bytes forbidden.");
     }
 
+    /// <summary>Repeatedly reads the normal-program entry word for the warmed-allocation check.</summary>
+    /// <returns>A checksum that keeps each mechanics lookup observable.</returns>
     private static int ProbeBullInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -95,19 +100,35 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian instruction word from a bus address and its following byte.</summary>
+    /// <param name="bus">Address space containing the instruction bytes.</param>
+    /// <param name="address">Bus address of the low byte.</param>
+    /// <returns>The word formed from the addressed byte and its successor.</returns>
     private static ushort ReadBullInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Detects production reads of compiled Bull mechanics and can reject reads of presentation selectors.</summary>
+    /// <param name="source">Wrapped address space used for reads and writes permitted by the guard.</param>
+    /// <param name="forbidPresentation">Whether presentation-selector reads should throw instead of being recorded.</param>
     private sealed class BullInstructionProgramReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets presentation-word offsets whose bytes were requested through this wrapper.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Gets attempts to read bytes owned by compiled Bull mechanics.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes a cartridge-byte request through the guard's read policy.</summary>
+        /// <param name="address">Cartridge bus address to read.</param>
+        /// <returns>The byte returned by the wrapped source when permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled-mechanics reads, records or rejects presentation reads, and forwards other bytes.</summary>
+        /// <param name="address">Bus address of the requested byte.</param>
+        /// <returns>The byte returned by the wrapped source when the guard permits the read.</returns>
         public byte ReadByte(int address)
         {
             if (BullInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -141,6 +162,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Bus address receiving the write.</param>
+        /// <param name="value">Byte written at <paramref name="address"/>.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

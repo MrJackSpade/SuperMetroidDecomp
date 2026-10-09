@@ -5,12 +5,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs the Ceres steam instruction and mechanics checks against the retail ROM loaded from the verification working directory.</summary>
     private static void VerifyCeresSteamInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyCeresSteamInstructionProgramDefinitions), () => VerifyCeresSteamInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares compiled steam mechanics and executed directional animations with cartridge data while guarding production reads.</summary>
+    /// <param name="rom">Retail address space used as the expected data source and selector reference.</param>
     private static void VerifyCeresSteamInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -153,6 +156,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Exercises repeated compiled mechanics lookups so the warmed allocation check can detect per-call storage.</summary>
+    /// <returns>A checksum that prevents the lookup loop from being observationally unused.</returns>
     private static int ProbeCeresSteamInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -164,18 +169,32 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads one little-endian mechanics word from the banked cartridge address space.</summary>
+    /// <param name="bus">Address space supplying the two consecutive bytes.</param>
+    /// <param name="address">Address of the low byte; the high byte is read from the following address.</param>
+    /// <returns>The combined 16-bit word.</returns>
     private static ushort ReadCeresSteamInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Wraps cartridge access to record presentation-word reads and reject reads of compiled mechanics bytes.</summary>
+    /// <param name="source">Underlying address space receiving permitted reads and writes.</param>
     private sealed class CeresSteamInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Bank-$A6 presentation words observed through this guard during production execution.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        /// <summary>Number of attempted reads of mechanics bytes that should have come from compiled definitions.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes an import-source byte request through the guarded address-space read path.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
+        /// <returns>The byte returned by the underlying address space when the read is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects runtime mechanics reads, records accesses to compiled presentation operands, and delegates other reads.</summary>
+        /// <param name="address">Address requested from the wrapped SNES address space.</param>
+        /// <returns>The underlying byte for an allowed read.</returns>
         public byte ReadByte(int address)
         {
             if (CeresSteamInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -206,6 +225,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Destination address.</param>
+        /// <param name="value">Byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

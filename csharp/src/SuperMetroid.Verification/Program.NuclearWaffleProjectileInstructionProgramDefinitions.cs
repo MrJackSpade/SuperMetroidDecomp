@@ -5,12 +5,19 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Registers the Nuclear Waffle projectile instruction checks using retail ROM data.</summary>
     private static void VerifyNuclearWaffleProjectileInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyNuclearWaffleProjectileInstructionProgramDefinitions), () => VerifyNuclearWaffleProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>
+    /// Compares compiled mechanics words with cartridge bytes, executes the four projectile
+    /// links through their full looping program and shared delete path, and checks that
+    /// mechanics and presentation operands are served without runtime cartridge reads.
+    /// </summary>
+    /// <param name="rom">Retail address space used to verify instruction words and rendered projectile frames.</param>
     private static void VerifyNuclearWaffleProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -125,6 +132,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Warms repeated compiled mechanics lookups and returns a checksum consuming their values.</summary>
+    /// <returns>The accumulated values of alternating initial and loop-command mechanics words.</returns>
     private static int ProbeNuclearWaffleProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -138,6 +147,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian instruction word from the enemy-projectile code bank.</summary>
+    /// <param name="source">Address space containing the projectile instruction bytes.</param>
+    /// <param name="address">Bank-local address of the word's low byte.</param>
+    /// <returns>The low byte followed by the high byte as a 16-bit value.</returns>
     private static ushort ReadNuclearWaffleProjectileInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -147,14 +160,30 @@ internal static partial class Program
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>
+    /// Observes presentation-selector reads and rejects cartridge access to compiled
+    /// Nuclear Waffle or shared projectile mechanics.
+    /// </summary>
+    /// <param name="source">Address space used for permitted reads and forwarded writes.</param>
     private sealed class NuclearWaffleProjectileInstructionReadGuard(
         ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Bank-local presentation-selector words observed during projectile execution.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of attempted reads from compiled projectile mechanics bytes rejected by the guard.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes importer reads through the guard's selector tracking and mechanics rejection.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The wrapped address space's byte when the read is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled projectile mechanics.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, records presentation-selector reads, and forwards other bytes.</summary>
+        /// <param name="address">Address requested by production execution.</param>
+        /// <returns>The wrapped address space's byte when the access is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to Nuclear Waffle or shared projectile mechanics.</exception>
         public byte ReadByte(int address)
         {
             if (NuclearWaffleProjectileInstructionProgramDefinitionsTooling
@@ -189,6 +218,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged to the wrapped address space.</summary>
+        /// <param name="address">Address that receives the write.</param>
+        /// <param name="value">Byte written at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -4,12 +4,19 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Loads the retail ROM and runs the Dead Tourian corpse instruction-definition verification against its cartridge data.
+    /// </summary>
     private static void VerifyDeadTourianCorpseInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyDeadTourianCorpseInstructionProgramDefinitions), () => VerifyDeadTourianCorpseInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>
+    /// Checks compiled mechanics against ROM words and executes each real corpse variant while guarding migrated mechanics reads.
+    /// </summary>
+    /// <param name="rom">The retail cartridge address space used as the reference for original instruction data and visual selectors.</param>
     private static void VerifyDeadTourianCorpseInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -105,6 +112,10 @@ internal static partial class Program
             "spritemap selectors pass with mechanics bytes forbidden.");
     }
 
+    /// <summary>
+    /// Repeatedly looks up compiled corpse mechanics words to warm the lookup path and produce a non-zero allocation-probe checksum.
+    /// </summary>
+    /// <returns>The accumulated mechanics values consumed by the probe.</returns>
     private static int ProbeDeadTourianCorpseInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -118,6 +129,12 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>
+    /// Reads adjacent bytes in bank A9 and combines them as one little-endian corpse instruction word.
+    /// </summary>
+    /// <param name="source">The cartridge address space that supplies the reference bytes.</param>
+    /// <param name="address">The bank-relative address of the word's low byte.</param>
+    /// <returns>The unsigned 16-bit word stored at the requested address.</returns>
     private static ushort ReadDeadTourianCorpseInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -125,14 +142,35 @@ internal static partial class Program
             source.ReadByte(0xa90000 | address) |
             source.ReadByte(0xa90000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>
+    /// Audits corpse execution by rejecting reads from compiled mechanics data and recording reads of presentation selector words.
+    /// </summary>
+    /// <param name="source">The wrapped address space used for all permitted cartridge reads and writes.</param>
     private sealed class DeadTourianCorpseInstructionReadGuard(
         ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>
+        /// Routes an importer read through the corpse mechanics guard.
+        /// </summary>
+        /// <param name="address">The cartridge address requested by the importer.</param>
+        /// <returns>The byte at the address when it is not part of compiled mechanics data.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>
+        /// Gets the compiled presentation-word addresses observed while the production instruction runner is executing.
+        /// </summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>
+        /// Gets the number of attempts to read a byte in the compiled corpse mechanics range.
+        /// </summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>
+        /// Rejects compiled mechanics accesses, records presentation-word reads, and forwards permitted addresses to the wrapped bus.
+        /// </summary>
+        /// <param name="address">The bus address being read.</param>
+        /// <returns>The byte returned by the wrapped address space for an allowed read.</returns>
         public byte ReadByte(int address)
         {
             if (DeadTourianCorpseInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -163,6 +201,11 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>
+        /// Forwards a write to the wrapped address space without changing its destination or value.
+        /// </summary>
+        /// <param name="address">The destination bus address.</param>
+        /// <param name="value">The byte to write.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

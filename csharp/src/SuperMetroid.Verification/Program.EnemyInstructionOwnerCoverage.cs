@@ -175,6 +175,17 @@ internal static partial class Program
             "explicitly inventoried pending families.");
     }
 
+    /// <summary>
+    /// Invokes the enemy mechanics dispatcher with cartridge reads replaced by a sentinel
+    /// probe, distinguishing a compiled owner from the terminal ROM-fallback path.
+    /// </summary>
+    /// <param name="busField">Reflection handle for the enemy system's address-space field.</param>
+    /// <param name="readMechanics">Bound dispatcher method that resolves the current instruction word.</param>
+    /// <param name="enemies">Enemy system receiving the temporary probe during dispatch.</param>
+    /// <param name="source">Original address space restored after the probe call.</param>
+    /// <param name="slot">Enemy slot whose definition and instruction pointer select the owner.</param>
+    /// <param name="address">Instruction address passed to the dispatcher.</param>
+    /// <returns><see langword="true"/> when dispatch reaches an owner without falling back to cartridge data.</returns>
     private static bool HasCompiledEnemyInstructionOwner(
         FieldInfo busField,
         MethodInfo readMechanics,
@@ -208,6 +219,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Recognizes the initialization-dispatch exception emitted for an untranslated enemy initializer.</summary>
+    /// <param name="exception">Inner exception captured from reflective initialization.</param>
+    /// <param name="definitionPointer">Enemy definition whose initialization address appears in the diagnostic.</param>
+    /// <returns><see langword="true"/> only for the expected untranslated-initializer error message.</returns>
     private static bool IsUntranslatedEnemyInitializer(
         Exception? exception,
         ushort definitionPointer) =>
@@ -217,6 +232,8 @@ internal static partial class Program
             StringComparison.Ordinal) &&
         invalid.Message.EndsWith(" is not translated.", StringComparison.Ordinal);
 
+    /// <summary>Collects the distinct bank-$A0 enemy-definition addresses named by the upstream symbol file.</summary>
+    /// <returns>The named definition pointers in ascending order.</returns>
     private static ushort[] ReadNamedRetailEnemyDefinitions()
     {
         string symbolPath = Path.GetFullPath(
@@ -235,6 +252,12 @@ internal static partial class Program
             .ToArray();
     }
 
+    /// <summary>
+    /// Reads every distinct retail enemy-population list and groups its records by the
+    /// definition pointer, stopping each list at the native $FFFF terminator.
+    /// </summary>
+    /// <param name="rom">Retail address space containing room states and population records.</param>
+    /// <returns>Population records grouped under the enemy definition each record instantiates.</returns>
     private static Dictionary<ushort, List<RoomEnemyPopulationRecord>>
         ReadRetailEnemyPopulationRecords(ISnesAddressSpace rom)
     {
@@ -279,22 +302,44 @@ internal static partial class Program
         return records;
     }
 
+    /// <summary>Reads one little-endian population-record word from the retail address space.</summary>
+    /// <param name="bus">Address space containing the record bytes.</param>
+    /// <param name="address">Bus address of the word's low byte.</param>
+    /// <returns>The low byte followed by the high byte as a 16-bit value.</returns>
     private static ushort ReadEnemyOwnerAuditWord(
         ISnesAddressSpace bus,
         int address) =>
         unchecked((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
 
+    /// <summary>
+    /// Acts as a sentinel address space for owner dispatch: cartridge reads signal an
+    /// unowned mechanics fallback, while writes continue to the wrapped source.
+    /// </summary>
+    /// <param name="source">Address space that receives writes issued during the probe.</param>
     private sealed class EnemyInstructionOwnerReadProbe(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes importer reads through the sentinel mechanics-read path.</summary>
+        /// <param name="address">Cartridge bus address requested by the importer.</param>
+        /// <returns>This probe never returns a byte; it signals the attempted fallback.</returns>
+        /// <exception cref="EnemyInstructionOwnerFallbackReadException">A mechanics read reached the cartridge probe.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Raises the sentinel exception whenever dispatch attempts to read a byte from the probe.</summary>
+        /// <param name="address">Address whose read would indicate an uncompiled mechanics fallback.</param>
+        /// <returns>This probe never returns a byte.</returns>
+        /// <exception cref="EnemyInstructionOwnerFallbackReadException">The dispatcher attempted a cartridge read.</exception>
         public static byte ReadByte(int address) =>
             throw new EnemyInstructionOwnerFallbackReadException(address);
 
+        /// <summary>Forwards writes to the wrapped address space so probing preserves write behavior.</summary>
+        /// <param name="address">Address that receives the write.</param>
+        /// <param name="value">Byte written at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
+    /// <summary>Sentinel exception identifying a cartridge read attempted by unowned enemy mechanics.</summary>
+    /// <param name="address">Bus address whose read triggered the ownership fallback.</param>
     private sealed class EnemyInstructionOwnerFallbackReadException(int address) :
         Exception($"Ordinary-enemy mechanics fell back to ROM at ${address:X6}.");
 }

@@ -4,12 +4,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs Kago mechanics and instruction-program checks against the retail ROM in the verification working directory.</summary>
     private static void VerifyKagoInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKagoInstructionProgramDefinitions), () => VerifyKagoInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares compiled Kago mechanics with cartridge words and exercises slow, fast, and post-hit instruction behavior.</summary>
+    /// <param name="rom">Retail address space used as the expected-data source and wrapped by the runtime-read guard.</param>
     private static void VerifyKagoInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -93,6 +96,8 @@ internal static partial class Program
             "selectors pass without instruction or presentation ROM reads.");
     }
 
+    /// <summary>Repeats compiled mechanics lookups so the warmed allocation check measures the steady-state access path.</summary>
+    /// <returns>A checksum that keeps the lookup results observable.</returns>
     private static int ProbeKagoInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -102,18 +107,32 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian instruction mechanics word from the cartridge address space.</summary>
+    /// <param name="bus">Address space supplying the two bytes.</param>
+    /// <param name="address">Address of the low byte; the high byte is read next.</param>
+    /// <returns>The combined 16-bit word.</returns>
     private static ushort ReadKagoInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Wraps SNES reads to record Kago presentation accesses and fail if production rereads compiled mechanics bytes.</summary>
+    /// <param name="source">Underlying address space receiving permitted reads and writes.</param>
     private sealed class KagoInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Bank-$A8 presentation words observed through this guard.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        /// <summary>Number of attempted reads from mechanics bytes supplied by compiled definitions.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes an import-source request through the guarded read path.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
+        /// <returns>The underlying byte if the address is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, records accesses to presentation operands, and delegates other reads.</summary>
+        /// <param name="address">Address requested from the wrapped SNES memory.</param>
+        /// <returns>The underlying byte when the read is permitted.</returns>
         public byte ReadByte(int address)
         {
             if (KagoInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -144,6 +163,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Destination address.</param>
+        /// <param name="value">Byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

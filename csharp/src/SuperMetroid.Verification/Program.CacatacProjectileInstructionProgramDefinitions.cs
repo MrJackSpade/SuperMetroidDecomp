@@ -4,12 +4,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs the cartridge-backed checks for compiled Cacatac spike mechanics and projectile programs.</summary>
     private static void VerifyCacatacProjectileInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyCacatacProjectileInstructionProgramDefinitions), () => VerifyCacatacProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares compiled spike mechanics with the cartridge and executes each production projectile program under a read guard.</summary>
+    /// <param name="rom">Retail address space used for native-word comparison and permitted projectile reads.</param>
     private static void VerifyCacatacProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -97,6 +100,8 @@ internal static partial class Program
             "forbidden.");
     }
 
+    /// <summary>Repeatedly reads a compiled spike mechanics word for the warmed allocation probe.</summary>
+    /// <returns>A checksum consumed by the caller to make the lookup loop observable.</returns>
     private static int ProbeCacatacProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -108,18 +113,32 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads one little-endian instruction word from the cartridge address space.</summary>
+    /// <param name="bus">Address space containing the native word.</param>
+    /// <param name="address">Address of the word's low byte.</param>
+    /// <returns>The combined sixteen-bit value.</returns>
     private static ushort ReadCacatacProjectileInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Address-space proxy that records presentation-selector reads and rejects reads of compiled spike mechanics.</summary>
+    /// <param name="source">Underlying bus for permitted reads and forwarded writes.</param>
     private sealed class CacatacProjectileInstructionProgramReadGuard(
         ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes imported cartridge reads through the mechanics read guard.</summary>
+        /// <param name="address">Cartridge address being imported.</param>
+        /// <returns>The permitted byte from the wrapped source.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Presentation word addresses observed while reading bank-$86 selector bytes.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        /// <summary>Number of attempted reads rejected because they targeted compiled mechanics data.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Rejects compiled mechanics accesses, records presentation selectors, and forwards other reads.</summary>
+        /// <param name="address">Address requested by production code.</param>
+        /// <returns>The byte from the wrapped source when the address is permitted.</returns>
         public byte ReadByte(int address)
         {
             if (CacatacProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -150,6 +169,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the underlying cartridge address space.</summary>
+        /// <param name="address">Address receiving the write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

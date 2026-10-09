@@ -5,12 +5,19 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Registers the Kraid fingernail instruction checks against the retail cartridge.</summary>
     private static void VerifyKraidNailInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKraidNailInstructionProgramDefinitions), () => VerifyKraidNailInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>
+    /// Checks native nail population identities and initial frames, executes both nail
+    /// instruction loops through production dispatch, and rejects cartridge reads for
+    /// compiled mechanics and installed visual selectors.
+    /// </summary>
+    /// <param name="rom">Retail address space used to compare native records and instruction words.</param>
     private static void VerifyKraidNailInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -136,6 +143,8 @@ internal static partial class Program
             "with selector and mechanics ROM reads forbidden.");
     }
 
+    /// <summary>Warms repeated compiled mechanics lookups and returns a checksum that consumes their values.</summary>
+    /// <returns>The accumulated values read from alternating positions in the fingernail loop.</returns>
     private static int ProbeKraidNailInstructionAllocation()
     {
         int checksum = 0;
@@ -149,6 +158,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads one little-endian word from bank $A7 at the given bank-local address.</summary>
+    /// <param name="source">Address space containing the Kraid instruction bytes.</param>
+    /// <param name="address">Bank-local address of the word's low byte.</param>
+    /// <returns>The low byte followed by the high byte as a 16-bit value.</returns>
     private static ushort ReadKraidNailInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -156,14 +169,30 @@ internal static partial class Program
             source.ReadByte(0xa70000 | address) |
             source.ReadByte(0xa70000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>
+    /// Rejects runtime reads of compiled fingernail mechanics and installed selector words,
+    /// while allowing unrelated cartridge access to reach the wrapped address space.
+    /// </summary>
+    /// <param name="source">Address space used for reads outside the protected mechanics and selector ranges.</param>
     private sealed class KraidNailInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads from installed fingernail visual-selector words.</summary>
         internal int ForbiddenPresentationReadAttempts { get; private set; }
+
+        /// <summary>Number of attempted reads from compiled fingernail mechanics bytes.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes importer reads through the guard's mechanics and selector checks.</summary>
+        /// <param name="address">Cartridge bus address requested by the importer.</param>
+        /// <returns>The wrapped address space's byte when the read is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address is a protected mechanics or selector byte.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects protected mechanics and selector reads, then forwards unrelated addresses.</summary>
+        /// <param name="address">Address requested by production execution.</param>
+        /// <returns>The wrapped address space's byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled mechanics or an installed selector.</exception>
         public byte ReadByte(int address)
         {
             if (KraidNailInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -193,6 +222,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged to the wrapped address space.</summary>
+        /// <param name="address">Address that receives the write.</param>
+        /// <param name="value">Byte written at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

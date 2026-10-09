@@ -5,12 +5,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Loads the retail ROM and verifies compiled Ripper-family instruction data and production loops.</summary>
     private static void VerifyRipperInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyRipperInstructionProgramDefinitions), () => VerifyRipperInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares compiled bank-A2 words and visual selectors with retail data, then checks all six installed loops.</summary>
+    /// <param name="rom">Retail address space containing Ripper-family mechanics, selectors, and population records.</param>
     private static void VerifyRipperInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -215,6 +218,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Repeatedly reads a Ripper moving-program word for the warmed-allocation check.</summary>
+    /// <returns>A checksum that keeps the mechanics lookups observable.</returns>
     private static int ProbeRipperInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -226,17 +231,30 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian instruction word from the supplied bus address.</summary>
+    /// <param name="bus">Retail address space containing the instruction bytes.</param>
+    /// <param name="address">Bus address of the low byte.</param>
+    /// <returns>The word formed by the addressed byte and its successor.</returns>
     private static ushort ReadRipperInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Rejects production reads of compiled Ripper mechanics and presentation-selector words.</summary>
+    /// <param name="source">Wrapped address space used for reads and writes outside the compiled ranges.</param>
     private sealed class RipperInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets attempts to read a byte belonging to compiled mechanics or presentation data.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes a cartridge-byte request through the guard's forbidden-range checks.</summary>
+        /// <param name="address">Cartridge bus address to read.</param>
+        /// <returns>The byte returned by the wrapped source when permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics and presentation reads before forwarding other bytes.</summary>
+        /// <param name="address">Bus address of the requested byte.</param>
+        /// <returns>The byte returned by the wrapped source when the address is allowed.</returns>
         public byte ReadByte(int address)
         {
             if (RipperInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -249,6 +267,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Checks whether an A2-bank byte belongs to either byte of a compiled presentation operand.</summary>
+        /// <param name="address">Bus address of the byte to classify.</param>
+        /// <returns><see langword="true"/> when the address is part of a listed presentation word.</returns>
         private static bool IsPresentationByte(int address)
         {
             if ((address & 0xff0000) != 0xa20000)
@@ -267,6 +288,9 @@ internal static partial class Program
             return false;
         }
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Bus address receiving the write.</param>
+        /// <param name="value">Byte written at <paramref name="address"/>.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

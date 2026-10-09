@@ -140,11 +140,11 @@ public sealed partial class RoomEnemySystem
         if (causeOfDeath != 2)
             return enemy.Definition.DeathAnimation;
 
-        // Missiles normally force explosion two, except headers whose authored value is
-        // zero, one, or two. This is the exact signed `< 3` branch in $A0:A67F.
+        // A Super Missile raises headers zero, one and two to explosion two and keeps three
+        // and four: $A0:A67B loads Y = 2, and the signed `< 3` branch at $A0:A698 keeps it.
         return enemy.Definition.DeathAnimation < 3
-            ? enemy.Definition.DeathAnimation
-            : (ushort)2;
+            ? (ushort)2
+            : enemy.Definition.DeathAnimation;
     }
 
     /// <summary>

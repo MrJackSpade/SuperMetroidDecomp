@@ -4,38 +4,38 @@ namespace SuperMetroid.ResourceAudit;
 internal static class BackgroundTransferClosedContractDefinitions
 {
     private static readonly ReviewedSource SharedBg2Loader = new(
-        "csharp/src/SuperMetroid.Core/Assets/EnemyBg2FrameCatalog.cs", "345737A8680971A8B00A6607DF4A1D2B4B6A3FB9C2C8E1BA89E6E18FF3D4AB59");
+        "csharp/src/SuperMetroid.Core/Assets/EnemyBg2FrameCatalog.cs", "A330767AF6BAC71E0F47A7643ADB32E1B3399168C4DB4DEEBD8736992F48B365");
     private static readonly ReviewedSource SharedBg2Sequence = new(
-        "csharp/src/SuperMetroid.Core/Assets/EnemyBg2FrameDefinitionSequence.cs", "4CCFB8B82E6B6E4CF9D11DDBCD810ACF62078EEFED0EEA75025BEEA106DC073B");
+        "csharp/src/SuperMetroid.Core/Assets/EnemyBg2FrameDefinitionSequence.cs", "DC2420942352DB6FB8E1781CDAD188A4FA9F6780401EA22C487F73E02A809AF8");
     private static readonly ReviewedSource SharedBg2Layout = new(
-        "csharp/src/SuperMetroid.Core/Assets/EnemyBg2FrameDefinition.cs", "3F8202C79159289840C9E36C40B3B4F4B02A355582641236A79C4ACFD0321F66");
+        "csharp/src/SuperMetroid.Core/Assets/EnemyBg2FrameDefinition.cs", "8A606BC937500FC4AC942F7C33B3271C7253F3EB6AE737745190BB0CC951076F");
 
     internal static readonly ClosedPresentationContract[] All =
     [
-        Bg2("Phantoon", "A9CDCD7E43E6B958A053780E2CECF5FF2BE13553149BC81648B9CD9CCB3F99B9",
-            "E349DF3C0E8D4A5CD43FA3741000A7FB6F182C2006146867B56CF8FBD4583911"),
-        Bg2("Draygon", "30039A698A1284957CB7BAA1664381CE6F3210D46021F6FBAF4B1732B73F0964",
-            "E84E0DEA060122819331D762D81224A6DB9BBA75D292A3163ABB70A938BC17EE"),
-        Bg2("Crocomire", "ACADDFD75B4055235FFAF8AD6D8F668DA96244861CE63CBAA72C4DFD73EDC96C",
-            "68426254F61EB8595D0C8C76BF19AAA9D0F4BB200BBBD94A75C92F3948440B7D",
-            new ReviewedSource("csharp/src/SuperMetroid.Core/Assets/CrocomireBodyVisualDefinitions.cs", "7D426B07FE8D85F635157E8D85520482D670AD0C5D9483CFBAA2E92F194C2851")),
+        Bg2("Phantoon", "79E36732653BE385B94414E5D1FC8F40E38D108CC80EEEAB37ABC93575182CC7",
+            "FA8633BC77D4FD2207F74EBB5AD0D44A02C6E04F3BF25B0399954E6EAECC887B"),
+        Bg2("Draygon", "7A6607DEF60E67D7732B0FCF8DA15AC50D2C2FB4BFB9E0991DE917923BA79130",
+            "A46DEE3BD5B5D6E119EE02902ED3779F2E89A1F6FC0EE2EE7B6EFA3507C51754"),
+        Bg2("Crocomire", "31DA70077926433C013E54556040F416A4696DF9ED8BC35384E85B035008F4E8",
+            "AEF76EA96FFA2934CF793C1EA75375E7FA428DCF13298F520F16C4E089F6B6E0",
+            new ReviewedSource("csharp/src/SuperMetroid.Core/Assets/CrocomireBodyVisualDefinitions.cs", "25FAE7CDF158A29D00F6FF48B72ECE4BB47746793EB0A587DC3CC7D951C57993")),
         new("SuperMetroid.Core.Assets.MotherBrainBodyBg2FrameCatalog", "mother-brain-complete-bg2-membership", ["TryGet"],
             [SharedBg2Loader, SharedBg2Layout, SharedBg2Sequence,
-             new("csharp/src/SuperMetroid.Core/Assets/MotherBrainBodyBg2FrameCatalog.cs", "162F93597FECB32A9F5B6C45BA9C7EF88075316E6D49C443A23EC60C399572E7"),
-             new("csharp/src/SuperMetroid.Core/Assets/MotherBrainBodyVisualDefinitions.cs", "18266ACCCDBBBEB15696D4934A5FD438E3E1F26573EEA34F63BDC080B1F2F531")]),
+             new("csharp/src/SuperMetroid.Core/Assets/MotherBrainBodyBg2FrameCatalog.cs", "621D3E4116F35C960157FF3EFA30F2D2F158F42CCB22E57B6B51A4D5D68A2215"),
+             new("csharp/src/SuperMetroid.Core/Assets/MotherBrainBodyVisualDefinitions.cs", "F83F514B4095EAF776CE8F6080E7948E0FB302D00159CC611FB3F70D61FC43FA")]),
         new("SuperMetroid.Core.Assets.RoomFxLayer3TilemapCatalog", "room-fx-complete-six-pages", ["Resolve"],
-            [new("csharp/src/SuperMetroid.Core/Assets/RoomFxLayer3TilemapCatalog.cs", "5E0FFFA1390B99E878D3281598BD064CE707EDCEB11D7BD4DB38E0F4F3C26388"),
-             new("csharp/src/SuperMetroid.Core/Assets/RoomFxAtmosphereTilemap.cs", "930D05F56E1EED5EBFE39A9496CD2EF4934E9091D10852293E393FC01EE90BBA"),
-             new("csharp/src/SuperMetroid.Core/Assets/RoomFxSporeTilemap.cs", "CB16C9514BAAE6CA03515F3CFD0D18FA148132AC2FDEF2462009C10037CBBC76"),
-             new("csharp/src/SuperMetroid.Core/Assets/RoomFxLiquidTilemapDefinitions.cs", "1C54C0A3A730806D3DC500A0A4B35D217A06546BA6AC27E54396A936AC6DD3BF")]),
+            [new("csharp/src/SuperMetroid.Core/Assets/RoomFxLayer3TilemapCatalog.cs", "1EBC4E4D1A15DE75212FDF1870B487BAE3E32A461FDAAC64AB2714D8475A6678"),
+             new("csharp/src/SuperMetroid.Core/Assets/RoomFxAtmosphereTilemap.cs", "44166CE0F11B56FC3EBE0FE1C26D3A737435BBE944076324904AF9B2C57AC687"),
+             new("csharp/src/SuperMetroid.Core/Assets/RoomFxSporeTilemap.cs", "0A69032E758230200FF87F52A4AE4100A7FD1415AD7EF85D51DED733EC918596"),
+             new("csharp/src/SuperMetroid.Core/Assets/RoomFxLiquidTilemapDefinitions.cs", "62DCB4A775A22BBA161A7069BD9976F1B360C84EB3038B192C7EC616B3833022")]),
         new("SuperMetroid.Core.Assets.RoomFxPaletteBlendCatalog", "room-fx-complete-eight-blends-and-zero-clear", ["Apply", "Resolve"],
-            [new("csharp/src/SuperMetroid.Core/Assets/RoomFxPaletteBlendCatalog.cs", "E78396C5CA47FDE5A33D5B253E53C44571B789185B29E4D2F221CCBD24B66B13"),
-             new("csharp/src/SuperMetroid.Core/Game/RoomFxRomData.cs", "7EAB09A80AD4BE344F16079874A1ABF6AF8EFF4F4B1A5AC8DE213469C6014471")]),
+            [new("csharp/src/SuperMetroid.Core/Assets/RoomFxPaletteBlendCatalog.cs", "AA66AFB6D25AF338407272E1B12B4C16AC1A0647119E7FA232E24F8EE38D99BC"),
+             new("csharp/src/SuperMetroid.Core/Game/RoomFxRomData.cs", "AA01AC4CED546BD6E38C37778DBC9EDF179B42843D3B26C4651FD835B51E822D")]),
         new("SuperMetroid.Core.Assets.EndingObjectArtworkCatalog", "ending-complete-four-fragments", ["Fragment"],
-            [new("csharp/src/SuperMetroid.Core/Assets/EndingObjectArtworkCatalog.cs", "D94FD0E6CF4AAA49FB58B35E2E1BC9C6AF2798A290550961F0913A06B80862D6")]),
+            [new("csharp/src/SuperMetroid.Core/Assets/EndingObjectArtworkCatalog.cs", "12FE7DF6EA6CACB907254429A93FB7442C5A4144B28FB6B8E47E502B124F685F")]),
         new("SuperMetroid.Core.Assets.GunshipLiftoffArtworkCatalog", "gunship-complete-five-takeoff-transfers", ["Resolve", "TryResolve"],
-            [new("csharp/src/SuperMetroid.Core/Assets/GunshipLiftoffArtworkCatalog.cs", "A5D9226FD3EE4FBADE070DA138D29A685CB3462920CAD725301E01936AE0D8AB"),
-             new("csharp/src/SuperMetroid.Core/Hardware/IVramAssetProvider.cs", "73DCE6788B0BB9B1549CF04466AE14CB8AABA3AD9FCC2738E188ABBA2F2F8D44")]),
+            [new("csharp/src/SuperMetroid.Core/Assets/GunshipLiftoffArtworkCatalog.cs", "08BC02285A0E22FA50656211D60352073AFC1A979F6396F4AB97FB1209C7FBE1"),
+             new("csharp/src/SuperMetroid.Core/Hardware/IVramAssetProvider.cs", "368BAF27A59AD317E14B4D907C23EA5BB2438547E593FC781712960F529E631B")]),
     ];
 
     private static ClosedPresentationContract Bg2(string family, string catalogHash, string definitionHash,

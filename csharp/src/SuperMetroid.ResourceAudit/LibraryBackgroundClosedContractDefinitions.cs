@@ -6,11 +6,11 @@ internal static class LibraryBackgroundClosedContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.RoomBackgroundTilemapCatalog", "library-background-exact-required-source-keys", ["Get"],
-            [new("csharp/src/SuperMetroid.Core/Assets/RoomBackgroundTilemapCatalog.cs", "AB1859D5BAF137EF962E4FF561062FE045F86BE4CCC33A746BDC9818C917D15F"),
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomBackgroundTilemapSourceDefinitions.cs", "75EC5A0418AC85318C8D794A698619FC7AFA4BF498FA8B58A78ECAEE6BD4CC88"),
-             new("csharp/src/SuperMetroid.Core/Rooms/LibraryBackgroundProgramDefinitions.cs", "6F24306A87A5182F5D4DBEDFCC094F2FC23D2AA606A8E16F3471F24577DDB5BF"),
-             new("csharp/src/SuperMetroid.Core/Rooms/LibraryBackgroundProgramGeneratedDefinitions.cs", "5B95FAC0B0C578C778C0E4F1FCEF735390593A1ADBBBCDD21AD3A7B2A1BDFBB9"),
-             new("csharp/src/SuperMetroid.Core/Rooms/LibraryBackgroundCommand.cs", "61A7E66798DE3AA87448D5CE618C97E9C5C70D32D5AF1018AA28C0B13445B460"),
-             new("csharp/src/SuperMetroid.Core/Assets/RoomBackgroundTilemapAtlas.cs", "9FA2182B31CC5B874EC8DD279E72208D7EAA60147C92BF6099B21DCF99863A07")]),
+            [new("csharp/src/SuperMetroid.Core/Assets/RoomBackgroundTilemapCatalog.cs", "3562D2574149235706DF594827AAF264A263DCB2C09A15D249A295FBDC6FED47"),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomBackgroundTilemapSourceDefinitions.cs", "AB5AC9086573E1E6AAC06AA6BACF853A4727CB27307720695D81B9DD13C3CFB2"),
+             new("csharp/src/SuperMetroid.Core/Rooms/LibraryBackgroundProgramDefinitions.cs", "2A5348404C71B99588EEE3744039BE690114757868F2F61200B6F282EC88C95E"),
+             new("csharp/src/SuperMetroid.Core/Rooms/LibraryBackgroundProgramGeneratedDefinitions.cs", "27597FF68CE405308CD6D0F35AC55A4BC52C5ED154FF1EA34B85A1D6AEF2353A"),
+             new("csharp/src/SuperMetroid.Core/Rooms/LibraryBackgroundCommand.cs", "A00E55F26B852FE6DCB87FBA345C9CE84DDE12738020BF9854D3111A52D43531"),
+             new("csharp/src/SuperMetroid.Core/Assets/RoomBackgroundTilemapAtlas.cs", "3555499032A6A3B2A2E603076176F39E6177645970E04CD6D021489855EC4335")]),
     ];
 }

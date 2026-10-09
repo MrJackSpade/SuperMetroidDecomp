@@ -6,8 +6,8 @@ internal static class MotherBrainSheetsClosedContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.MotherBrainSpecialSpriteArtworkCatalog", "mother-brain-special-sheets-complete-pages", ["Get"],
-            [new("csharp/src/SuperMetroid.Core/Assets/MotherBrainSpecialSpriteArtworkCatalog.cs", "D9276621440C24A335CD2A127B35A1E48478CEEA8F3D01A06FBFA3995DC69F63"),
-             new("csharp/src/SuperMetroid.Core/Assets/MotherBrainSpecialSpriteArtworkDefinitions.cs", "DBFF99D31283772498D1696E65D6214703682D858121EB83843E1C3914361262"),
-             new("csharp/src/SuperMetroid.Core/Assets/RoomCharacterAtlas.cs", "0C2CD85F446A356CF2A0E226E7F9D45C64F23C118A58097058E2B33152F97512")]),
+            [new("csharp/src/SuperMetroid.Core/Assets/MotherBrainSpecialSpriteArtworkCatalog.cs", "D9AD5FC051E584DAF3CF2C833816F4FBE1A67DE4BF43E7B921CA3FCB7A2DECFA"),
+             new("csharp/src/SuperMetroid.Core/Assets/MotherBrainSpecialSpriteArtworkDefinitions.cs", "36D4815071727C76AD2533309312937E9C297D1783818B06DF15A3FC107A14A1"),
+             new("csharp/src/SuperMetroid.Core/Assets/RoomCharacterAtlas.cs", "2C71C8210FE457FA1D1FF6FFF05EE71BC9BBB661E562CA156F44A6FDEF7B985C")]),
     ];
 }

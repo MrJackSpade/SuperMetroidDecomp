@@ -5,28 +5,28 @@ internal static class PlmClosedContractDefinitions
 {
     private static readonly ReviewedSource SharedDrawShape = new(
         "csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockDrawDefinitions.cs",
-        "B0121BABA88C41ABFFC02877AF97FC02C30C2F06AA4301A19B2BE00F992D835F");
+        "EE5DD1AAFD6BCCA4627D2D11582BCB88782327B9B764DAA7081B5DAD3822D132");
 
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Rooms.RoomPlmShotBlockVisualCatalog", "plm-shot-block-complete-draws", ["GetWord"],
             [SharedDrawShape,
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockVisualCatalog.cs", "3AB990375C828D052D2A5CAD40857275E0758496C4A1137CB86140E89C512229")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockVisualCatalog.cs", "C0CBA15296CFC18DCED7A99B9474FA23BF5C8DCA65B71FD342686881FB369D51")]),
         new("SuperMetroid.Core.Rooms.RoomPlmStationVisualCatalog", "plm-station-complete-draws", ["GetWord"],
             [SharedDrawShape,
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmStationVisualCatalog.cs", "3B25D17786322F458E5A83C9EC3830D625FD7CFFAE90C1532FDBCAA589BB6A15"),
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmStationDrawDefinitions.cs", "E03643585C6FAA35322C92DD4E0D44BF1181D55DCDA050042B96775B70704126")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmStationVisualCatalog.cs", "D2A197C24AE77D2BEB8B8C66BAA5F5A22BD6622BBDB6280FBB3CE9DD499A9BFD"),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmStationDrawDefinitions.cs", "18831FF54D50F0480FBB92F5157A0D206F185C10561CAD33BFEA1D7E729ADB70")]),
         new("SuperMetroid.Core.Rooms.RoomPlmBombTorizoHandVisualCatalog", "plm-torizo-hand-complete-draws", ["GetWord"],
             [SharedDrawShape,
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmBombTorizoHandVisualCatalog.cs", "61366FBCFB6834BB95DE3A2C39E807B1AF968261AD808C52B3B221FE990C5BE8"),
-             new("csharp/src/SuperMetroid.Core/Rooms/BombTorizoHandPlmDrawDefinitions.cs", "FF6305F80AADFD65595FB6BFA3013054EC81D97C9F2A2DB145C23F95B0604456")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmBombTorizoHandVisualCatalog.cs", "E01676321A8ACE64C952B6FBDD4D3EC12BC1FDCB76E12E9736326588050671A0"),
+             new("csharp/src/SuperMetroid.Core/Rooms/BombTorizoHandPlmDrawDefinitions.cs", "2DC35D76BE3F276D4847BD5634ACDC5455D5469FA6CE492A3E9905CE4F2C2C2A")]),
         new("SuperMetroid.Core.Rooms.RoomPlmMotherBrainGlassVisualCatalog", "plm-mother-brain-glass-complete-draws", ["GetWord"],
             [SharedDrawShape,
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmMotherBrainGlassVisualCatalog.cs", "4AD4DCC29C4A9511DD1C71FF2E7C4EA0277904AE4C6B566275A7BA74061ABA0B"),
-             new("csharp/src/SuperMetroid.Core/Rooms/MotherBrainGlassPlmDrawDefinitions.cs", "D3D3E703BD35DA242D5CE555FD32150D647317CA2C457ED6A241803C9EF13150")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmMotherBrainGlassVisualCatalog.cs", "C277F276DFD29C926E615E1B35EF664C93F8F361EFEFFD76EAD9B332441CBC0E"),
+             new("csharp/src/SuperMetroid.Core/Rooms/MotherBrainGlassPlmDrawDefinitions.cs", "475D0FD043120234A45F5935BD1A7CB2816F7E1BCCCC811813DC122B889B8967")]),
         new("SuperMetroid.Core.Rooms.RoomPlmNoobTubeVisualCatalog", "plm-noob-tube-complete-draws", ["GetWord"],
             [SharedDrawShape,
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmNoobTubeVisualCatalog.cs", "06D30D7D0CFF33615AD9CE88BC535294C1E3C4B6F0102A2723C5D9C83160794E"),
-             new("csharp/src/SuperMetroid.Core/Rooms/NoobTubePlmDrawDefinitions.cs", "50A37A644C4EA2A5BC4C446DF9BB70AC86594327E3EB5D51E97F6B7476697D5E")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmNoobTubeVisualCatalog.cs", "F91F5DA138778DBD4D4CCF853E6A78E9C2E3C0EFF1B5370BC9D11FD7BF2CDD73"),
+             new("csharp/src/SuperMetroid.Core/Rooms/NoobTubePlmDrawDefinitions.cs", "F1F1B912F838A4FF484C592A9AC0A492F8966FC9481D606AE17ECC3A8A477916")]),
     ];
 }

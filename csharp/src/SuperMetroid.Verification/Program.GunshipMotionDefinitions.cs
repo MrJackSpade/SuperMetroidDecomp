@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the migrated gunship brake and hover tables against cartridge bytes and exercises their production consumers without permitting those consumers to reread the tables.</summary>
+    /// <param name="rom">Cartridge address space providing the original motion-table bytes and unrelated room-enemy data.</param>
     private static void VerifyGunshipMotionDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyGunshipBrakeAlgorithm), () => VerifyGunshipBrakeAlgorithm(rom));
@@ -80,6 +82,8 @@ internal static partial class Program
             "Gunship motion definitions: all seventeen brake deltas, four idle-bob records, and both production consumers pass with source reads forbidden.");
     }
 
+    /// <summary>Compares every supported landing-brake delta with the original table and checks that invalid frame indices are rejected.</summary>
+    /// <param name="rom">Address space containing the cartridge's reference brake deltas.</param>
     private static void VerifyGunshipBrakeAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (ushort frame = 0; frame < 17; frame++)
@@ -90,6 +94,8 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => GunshipMotionDefinitions.LandingBrakeYDelta(ushort.MaxValue), "Brake invalid maximum");
     }
 
+    /// <summary>Checks the four idle-bob timer values against the cartridge table and verifies the phase range enforced by the catalog.</summary>
+    /// <param name="rom">Address space containing the cartridge's reference hover records.</param>
     private static void VerifyGunshipHoverTimerAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (ushort phase = 0; phase < 4; phase++)
@@ -99,6 +105,8 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => GunshipMotionDefinitions.IdleBob(ushort.MaxValue), "Hover timer invalid maximum");
     }
 
+    /// <summary>Checks that each idle-bob phase selects the matching signed vertical delta from the cartridge table.</summary>
+    /// <param name="rom">Address space containing the cartridge's reference hover records.</param>
     private static void VerifyGunshipHoverDeltaSelection(SuperMetroidAddressSpace rom)
     {
         for (ushort phase = 0; phase < 4; phase++)
@@ -107,29 +115,43 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => GunshipMotionDefinitions.IdleBob(4), "Hover delta upper bound");
         AssertThrows<InvalidDataException>(() => GunshipMotionDefinitions.IdleBob(ushort.MaxValue), "Hover delta invalid maximum");
     }
+    /// <summary>Reads one little-endian 16-bit reference value from the cartridge image.</summary>
+    /// <param name="bus">Address space holding the original motion table.</param>
+    /// <param name="address">Address of the low byte; the high byte is read from the following address.</param>
+    /// <returns>The two bytes combined with the low byte in the least significant position.</returns>
     private static ushort ReadGunshipMotionWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Wraps cartridge access for the production gunship-motion check, rejecting reads from migrated motion tables while forwarding other dependencies.</summary>
+    /// <param name="source">Underlying address space used for allowed reads, writes, and any room-enemy fixture data.</param>
     private sealed class GunshipMotionDefinitionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource, IRoomEnemyFixtureSource
     {
+        /// <summary>Uses fixture-specific enemy data when available, otherwise resolves the pointer through the installed catalog.</summary>
         public RoomEnemyDefinition ReadEnemyDefinition(ushort pointer) =>
             source is IRoomEnemyFixtureSource fixture
                 ? fixture.ReadEnemyDefinition(pointer)
                 : RoomEnemyDefinitionCatalog.Get(pointer);
 
+        /// <summary>Uses fixture-specific population data when available, otherwise resolves the pointer through the installed definitions.</summary>
         public RoomEnemyPopulationDefinition ReadEnemyPopulation(ushort pointer) =>
             source is IRoomEnemyFixtureSource fixture
                 ? fixture.ReadEnemyPopulation(pointer)
                 : RoomEnemyPopulationDefinitions.Get(pointer);
 
+        /// <summary>Uses fixture-specific graphics data when available, otherwise resolves the pointer through the installed definitions.</summary>
         public RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer) =>
             source is IRoomEnemyFixtureSource fixture
                 ? fixture.ReadEnemyGraphicsSet(pointer)
                 : RoomEnemyGraphicsSetDefinitions.Get(pointer);
 
+        /// <summary>Routes import-source byte reads through the same migrated-table guard as ordinary address-space reads.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects access to the brake and hover table ranges under test and forwards all other byte reads.</summary>
+        /// <param name="address">Cartridge byte address requested by the consumer.</param>
+        /// <returns>The underlying byte when the address is outside the protected motion-table ranges.</returns>
+        /// <exception cref="InvalidOperationException">The consumer attempts to read a migrated gunship-motion table.</exception>
         public byte ReadByte(int address) =>
             address is >= 0xa2a622 and < 0xa2a644 or
                 >= 0xa2a7cf and < 0xa2a7d7
@@ -137,6 +159,9 @@ internal static partial class Program
                     $"Gunship attempted migrated motion-definition read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards writes unchanged because this guard constrains table reads rather than address-space mutation.</summary>
+        /// <param name="address">Cartridge byte address to write.</param>
+        /// <param name="value">Byte value passed to the underlying address space.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

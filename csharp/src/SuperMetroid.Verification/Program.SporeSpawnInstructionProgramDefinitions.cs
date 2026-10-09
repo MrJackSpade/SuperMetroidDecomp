@@ -124,6 +124,13 @@ internal static partial class Program
             "reads forbidden.");
     }
 
+    /// <summary>Creates an initialized Spore Spawn fixture and advances its production instruction processor.</summary>
+    /// <param name="bus">Guarded address space supplied to the enemy system.</param>
+    /// <param name="initialPointer">Instruction address from which the body starts running.</param>
+    /// <param name="frames">Number of instruction-processing calls to perform.</param>
+    /// <param name="artwork">Optional tile-art catalog; the installed enemy catalog is used when omitted.</param>
+    /// <param name="afterFrame">Optional callback invoked after each processed frame.</param>
+    /// <returns>The configured enemy system and its Spore Spawn body slot.</returns>
     private static (RoomEnemySystem System, RoomEnemySlot Body) RunSporeSpawnProgram(
         SporeSpawnInstructionReadGuard bus,
         ushort initialPointer,
@@ -172,6 +179,10 @@ internal static partial class Program
         return (enemies, body);
     }
 
+    /// <summary>Reads a little-endian word from bank $A5 in the retail address space.</summary>
+    /// <param name="source">Retail address space containing the reference bytes.</param>
+    /// <param name="address">Bank-local offset of the word's low byte.</param>
+    /// <returns>The adjacent bytes combined as a 16-bit value.</returns>
     private static ushort ReadSporeSpawnProgramWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -179,19 +190,34 @@ internal static partial class Program
             source.ReadByte(0xa50000 | address) |
             source.ReadByte(0xa50000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Guards runtime access to compiled Spore Spawn mechanics and optionally to its compiled visual selectors.</summary>
+    /// <param name="source">Address space that receives reads and writes allowed by the guard.</param>
     private sealed class SporeSpawnInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Distinct compiled presentation words read when presentation reads are permitted.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of blocked mechanics or presentation byte reads attempted.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
+
+        /// <summary>Whether reads from compiled presentation words are rejected instead of recorded and forwarded.</summary>
         internal bool DenyPresentationReads { get; init; }
 
+        /// <summary>Checks the requested address before forwarding a general memory read.</summary>
+        /// <param name="address">SNES address requested by the caller.</param>
+        /// <returns>The byte supplied by the wrapped address space when permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address is a compiled mechanics byte or a denied presentation byte.</exception>
         public byte ReadByte(int address)
         {
             CheckRead(address);
             return source.ReadByte(address);
         }
 
+        /// <summary>Checks a cartridge read against the guarded tables before delegating to the import source.</summary>
+        /// <param name="address">SNES cartridge address requested by the importer.</param>
+        /// <returns>The cartridge byte when the address passes the guard.</returns>
+        /// <exception cref="InvalidOperationException">The address is a compiled mechanics byte or a denied presentation byte.</exception>
         public byte ReadCartridgeByte(int address)
         {
             CheckRead(address);
@@ -200,18 +226,30 @@ internal static partial class Program
                 .ReadCartridgeByte(address);
         }
 
+        /// <summary>Forwards a WRAM read to the wrapped mutable address space.</summary>
+        /// <param name="address">WRAM address to read.</param>
+        /// <returns>The byte stored at that address.</returns>
         public byte ReadWorkRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Spore Spawn instruction guard requires WRAM."))
             .ReadWorkRamByte(address);
 
+        /// <summary>Forwards a save-RAM read to the wrapped mutable address space.</summary>
+        /// <param name="address">Save-RAM address to read.</param>
+        /// <returns>The byte stored at that address.</returns>
         public byte ReadSaveRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Spore Spawn instruction guard requires SRAM."))
             .ReadSaveRamByte(address);
 
+        /// <summary>Forwards a byte write unchanged to the wrapped address space.</summary>
+        /// <param name="address">SNES address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
+        /// <summary>Counts and rejects compiled mechanics reads and handles presentation reads according to the configured policy.</summary>
+        /// <param name="address">SNES address to classify before an address-space or cartridge read.</param>
+        /// <exception cref="InvalidOperationException">The address is a compiled mechanics byte or a denied presentation byte.</exception>
         private void CheckRead(int address)
         {
             if (SporeSpawnInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))

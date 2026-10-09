@@ -5,6 +5,7 @@ using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
+    /// <summary>Checks the Tourian access control and draw tables, then runs their clear and crumble PLMs.</summary>
     private static void VerifyCompiledTourianAccessPlmPrograms()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -24,9 +25,13 @@ internal static partial class Program
             "Tourian access PLMs: both native programs and five draws match ROM; complete clear and six-row crumble run without source reads.");
     }
 
+    /// <summary>Verifies that control operands are the exact native instruction words compiled for the Tourian access PLM.</summary>
+    /// <param name="rom">The retail address space containing the native PLM instructions.</param>
     private static void VerifyTourianAccessProgramControls(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyTourianAccessProgramField), () => VerifyTourianAccessProgramField(rom, false));
 
+    /// <summary>Checks the native frame-selector operands and their compiled Tourian draw pointers.</summary>
+    /// <param name="rom">The retail address space containing the original selector words.</param>
     private static void VerifyTourianAccessProgramDraws(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyTourianAccessProgramField), () => VerifyTourianAccessProgramField(rom, true));
@@ -39,6 +44,9 @@ internal static partial class Program
                 "Tourian access frame selector bounds");
     }
 
+    /// <summary>Checks complete word ownership and compares either compiled controls or draw operands with ROM.</summary>
+    /// <param name="rom">The retail address space containing the native instruction words.</param>
+    /// <param name="draw">Selects draw-operand comparisons when true, or control-word comparisons when false.</param>
     private static void VerifyTourianAccessProgramField(SuperMetroidAddressSpace rom, bool draw)
     {
         ushort[] controls = [0xaae5,0xaae8,0xaaec,0xaaf0,0xaaf4,0xaaf8,0xaafa,0xaafc,0xaafe,0xab0c,0xab10];
@@ -62,6 +70,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Verifies that the loop-count operand is the sole compiled mechanics byte for the access program.</summary>
+    /// <param name="rom">The retail address space containing the original loop-count byte.</param>
     private static void VerifyTourianAccessProgramLoopCount(SuperMetroidAddressSpace rom)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -74,6 +84,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks the five native draw layouts, every exported word, and the clear list's six-row span.</summary>
+    /// <param name="rom">The retail address space containing the native draw records.</param>
     private static void VerifyTourianAccessPhysicalDrawMapping(SuperMetroidAddressSpace rom)
     {
         RoomPlmShotBlockDrawDefinitions.DrawList[] draws =
@@ -135,6 +147,8 @@ internal static partial class Program
 
     }
 
+    /// <summary>Runs one Tourian floor PLM variant and confirms its native completion frame and physical clearing.</summary>
+    /// <param name="clear">Selects the immediate clear routine when true, or the timed crumble routine when false.</param>
     private static void VerifyFloor(bool clear)
     {
         const int width = 16;
@@ -172,13 +186,23 @@ internal static partial class Program
             $"Tourian {(clear ? "clear" : "crumble")} reads no migrated ROM bytes");
     }
 
+    /// <summary>Rejects reads from compiled Tourian access PLM control and draw ranges while forwarding other bus access.</summary>
+    /// <param name="source">The underlying address space that supplies reads outside the compiled ranges and accepts writes.</param>
     private sealed class TourianAccessSourceGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the number of attempts to reread a compiled Tourian access PLM byte.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge reads through the compiled-source guard.</summary>
+        /// <param name="address">The bus address to read.</param>
+        /// <returns>The byte returned by the guarded address space when the read is allowed.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the compiled access-program and draw ranges and delegates other reads.</summary>
+        /// <param name="address">The bus address to inspect and read.</param>
+        /// <returns>The byte supplied by the underlying address space when the address is allowed.</returns>
+        /// <exception cref="InvalidOperationException">The address is in a compiled Tourian access PLM range.</exception>
         public byte ReadByte(int address)
         {
             int pointer = address & 0xffff;
@@ -197,6 +221,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged to the underlying address space.</summary>
+        /// <param name="address">The bus address to write.</param>
+        /// <param name="value">The byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

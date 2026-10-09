@@ -8,6 +8,15 @@ namespace SuperMetroid.Core.Rooms;
 /// Names the ROM-derived pieces required to render one static room state. Keeping filenames
 /// here, rather than hiding them in the renderer, makes the eventual room-state table explicit.
 /// </summary>
+/// <param name="Name">Human-readable room label used in diagnostics when its data is inconsistent.</param>
+/// <param name="WidthInScreens">Room width in SNES screens, each containing sixteen 16-pixel blocks.</param>
+/// <param name="HeightInScreens">Room height in SNES screens, each containing sixteen 16-pixel blocks.</param>
+/// <param name="LevelData">Compressed stream containing the room's foreground, BTS, and background block layers.</param>
+/// <param name="AreaTiles">Compressed 4-bpp tile graphics used by this area's background layers.</param>
+/// <param name="AreaTileTable">Compressed area block definitions that map level entries to four BG tiles.</param>
+/// <param name="Palette">Compressed BGR555 palette data containing the room's eight BG sub-palettes.</param>
+/// <param name="CommonTiles">Compressed shared CRE tile graphics copied into their fixed VRAM region.</param>
+/// <param name="CommonTileTable">Compressed shared CRE block definitions prepended to the area's block table.</param>
 public sealed record RoomRenderDefinition(
     string Name,
     int WidthInScreens,
@@ -20,6 +29,9 @@ public sealed record RoomRenderDefinition(
     string CommonTileTable = "CRE_TileTable_Compressed.bin");
 
 /// <summary>A fully composed, top-left-origin room image in row-major RGBA order.</summary>
+/// <param name="Width">Rendered image width in pixels.</param>
+/// <param name="Height">Rendered image height in pixels.</param>
+/// <param name="Pixels">RGBA pixels in row-major order, with one entry per image coordinate.</param>
 public sealed record RenderedRoom(int Width, int Height, Rgba32[] Pixels);
 
 /// <summary>

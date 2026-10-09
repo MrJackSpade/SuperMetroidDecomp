@@ -23,11 +23,37 @@ public static class CeresFlightSpriteDefinitions
     /// <summary>Immutable six-name bank-$8C catalog in stable stars, large-asteroid, station, small-asteroid, and two-vortex order; maps editable composition names to native visual identities and descriptive stock OAM counts, not instruction timing.</summary>
     public static IReadOnlyList<CeresFlightSpriteFrameDefinition> Frames { get; } = new FrameList();
 
-    private enum Visual { Stars, LargeAsteroids, StationUnderAttack, SmallAsteroids, VortexEven, VortexOdd }
+    private enum Visual
+    {
+        /// <summary>Starfield spritemap selected by the Ceres stars program.</summary>
+        Stars,
 
+        /// <summary>Large asteroid spritemap used during the station explosion sequence.</summary>
+        LargeAsteroids,
+
+        /// <summary>Damaged Ceres station spritemap shown while the station is under attack.</summary>
+        StationUnderAttack,
+
+        /// <summary>Small asteroid spritemap selected by the Ceres flight stream.</summary>
+        SmallAsteroids,
+
+        /// <summary>Even-frame drawing of the alternating purple vortex.</summary>
+        VortexEven,
+
+        /// <summary>Odd-frame drawing of the alternating purple vortex.</summary>
+        VortexOdd
+    }
+
+    /// <summary>Provides indexed access to the six visual selections in their published catalog order.</summary>
     private sealed class FrameList : IReadOnlyList<CeresFlightSpriteFrameDefinition>
     {
+        /// <summary>Number of named Ceres flight visual selections.</summary>
         public int Count => 6;
+
+        /// <summary>Builds the descriptive asset definition for a catalog position.</summary>
+        /// <param name="index">Zero-based visual position: stars, large asteroids, station, small asteroids, then the two vortex frames.</param>
+        /// <returns>The native spritemap identity and stock OAM count for that selection.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">The index is outside the six catalog entries.</exception>
         public CeresFlightSpriteFrameDefinition this[int index]
         {
             get
@@ -45,6 +71,8 @@ public static class CeresFlightSpriteDefinitions
                 };
             }
         }
+        /// <summary>Enumerates the six visual definitions in catalog order.</summary>
+        /// <returns>An enumerator over the descriptive Ceres flight frame definitions.</returns>
         public IEnumerator<CeresFlightSpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];

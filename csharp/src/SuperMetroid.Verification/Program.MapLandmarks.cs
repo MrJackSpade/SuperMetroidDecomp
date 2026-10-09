@@ -8,6 +8,11 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    /// <summary>Checks file-select and pause landmark rendering, edited-layout rebinding, and override validation.</summary>
+    /// <param name="bus">Cartridge and mutable-memory address space used by the native and installed renderers.</param>
+    /// <param name="stock">Directory containing the stock presentation documents.</param>
+    /// <param name="overrides">Directory used to write and reload the edited landmark document.</param>
+    /// <param name="original">Stock presentation catalog used as the parity reference.</param>
     private static void VerifyMapLandmarks(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         var guard = new LandmarkReadGuard(bus);
@@ -105,10 +110,18 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Wraps memory access and rejects installed rendering reads from native boss, elevator, and optionally gunship tables.</summary>
     private sealed class LandmarkReadGuard : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Underlying address space used for accesses that do not target a blocked landmark definition.</summary>
         private readonly ISnesAddressSpace source;
+
+        /// <summary>Byte addresses belonging to native landmark pointer tables and their selected records.</summary>
         private readonly HashSet<int> blocked = new();
+
+        /// <summary>Creates a guard populated with each area's native boss and elevator landmark records.</summary>
+        /// <param name="source">Address space used to discover native table pointers and to serve allowed reads.</param>
+        /// <param name="blockGunship">Also blocks the selected-save gunship coordinate used by the direct icon check.</param>
         public LandmarkReadGuard(ISnesAddressSpace source, bool blockGunship = false)
         {
             this.source = source;
@@ -127,6 +140,10 @@ internal static partial class Program
                 for (int i = 0; i < 4; i++) blocked.Add(FileSelectMapRomData.MenuObjectBank | (pointer + i));
             }
         }
+        /// <summary>Adds an area's pointer entry and every byte in its terminated fixed-stride landmark list.</summary>
+        /// <param name="table">Pointer table containing one list pointer per area.</param>
+        /// <param name="area">Area whose native landmark list is being protected.</param>
+        /// <param name="stride">Size in bytes of each list record.</param>
         private void AddList(int table, AreaId area, int stride)
         {
             int entry = table + AreaIds.ToIndex(area) * 2;
@@ -141,27 +158,46 @@ internal static partial class Program
                 for (int i = 2; i < stride; i++) blocked.Add(address + i);
             }
         }
+        /// <summary>Throws when a renderer attempts to read an address registered as a native landmark definition.</summary>
+        /// <param name="address">SNES address to test against the blocked byte set.</param>
         private void RejectLandmarkSource(int address)
         {
             if (blocked.Contains(address))
                 throw new InvalidOperationException("Installed landmarks read boss/elevator ROM definitions.");
         }
+        /// <summary>Rejects blocked landmark addresses before forwarding a general address-space read.</summary>
+        /// <param name="address">SNES address to read.</param>
+        /// <returns>The byte supplied by the underlying address space.</returns>
+        /// <exception cref="InvalidOperationException">The requested address belongs to a protected landmark table or record.</exception>
         public byte ReadByte(int address)
         {
             RejectLandmarkSource(address);
             return source.ReadByte(address);
         }
+        /// <summary>Rejects blocked landmark addresses before forwarding through the cartridge-import interface.</summary>
+        /// <param name="address">SNES cartridge address to read.</param>
+        /// <returns>The cartridge byte supplied by the wrapped import source.</returns>
+        /// <exception cref="InvalidOperationException">The requested address belongs to a protected landmark table or record.</exception>
         public byte ReadCartridgeByte(int address)
         {
             RejectLandmarkSource(address);
             return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
         }
+        /// <summary>Forwards a WRAM read through the wrapped mutable-memory interface.</summary>
+        /// <param name="address">WRAM address to read.</param>
+        /// <returns>The byte stored at that address.</returns>
         public byte ReadWorkRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Landmark guard source does not expose WRAM.")).ReadWorkRamByte(address);
+        /// <summary>Forwards a save-RAM read through the wrapped mutable-memory interface.</summary>
+        /// <param name="address">Save-RAM address to read.</param>
+        /// <returns>The byte stored at that address.</returns>
         public byte ReadSaveRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Landmark guard source does not expose SRAM.")).ReadSaveRamByte(address);
+        /// <summary>Forwards a write unchanged to the underlying address space.</summary>
+        /// <param name="address">SNES address to write.</param>
+        /// <param name="value">Byte to store at the address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

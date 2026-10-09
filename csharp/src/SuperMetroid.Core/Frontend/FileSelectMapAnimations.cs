@@ -6,8 +6,13 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>$82:A881 arrow animations and $82:A92B palette animation, advanced by menu ticks only.</summary>
 public sealed class FileSelectMapAnimations
 {
+    /// <summary>Per-direction animation counters and visibility, indexed in map-scroll direction order.</summary>
     private readonly Arrow[] arrows = new Arrow[MapArrowDefinitions.Count];
+
+    /// <summary>Timing state for the map's animated OBJ palette cycle.</summary>
     private readonly MapPaletteAnimation palette;
+
+    /// <summary>Installed arrow positions and phase durations used by menu ticks; this host content is rebound after restoration.</summary>
     [NonSerialized] private MapArrowPresentation? presentation;
 
     /// <summary>Creates independent arrow counters and palette timing for a map menu, binding installed arrow positions and phase durations without reading cartridge animation data.</summary>
@@ -52,6 +57,9 @@ public sealed class FileSelectMapAnimations
 
     /// <summary>ResetPauseMenuAnimations resets palette timing but does not clear the arrow counters.</summary>
     public void ResetPalette() => palette.Reset();
+
+    /// <summary>Binds the installed highlight palette cycle used by subsequent palette ticks.</summary>
+    /// <param name="cycle">Cycle definition to use, or null when the current menu presentation has no highlight cycle.</param>
     internal void BindPalette(SuperMetroid.Core.Assets.MapPaletteCycle? cycle) => palette.Bind(cycle);
 
     /// <summary>Returns the native library-three sound request at the palette loop terminator.</summary>
@@ -103,11 +111,22 @@ public sealed class FileSelectMapAnimations
         }
     }
 
+    /// <summary>Mutable position, phase, and visibility state for one direction's map arrow.</summary>
+    /// <param name="x">Screen-space horizontal anchor supplied by the installed arrow presentation.</param>
+    /// <param name="y">Screen-space vertical anchor supplied by the installed arrow presentation.</param>
+    /// <param name="spriteBase">Base spritemap index from which the arrow's current composition is selected.</param>
     private sealed class Arrow(ushort x, ushort y, ushort spriteBase)
     {
+        /// <summary>Screen-space anchors and the direction's base spritemap index, respectively.</summary>
         public readonly ushort X = x, Y = y, Base = spriteBase;
+
+        /// <summary>Remaining menu ticks before advancement and the current zero-based animation phase, respectively.</summary>
         public int Timer, Frame;
+
+        /// <summary>Spritemap composition selected for the next draw call.</summary>
         public ushort Spritemap;
+
+        /// <summary>Whether the current scroll-boundary check permits this arrow to be drawn and advanced.</summary>
         public bool Visible;
     }
 }

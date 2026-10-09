@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the compiled Kraid head instruction stream and its runtime timer and growth consumers.</summary>
+    /// <param name="rom">Retail cartridge image used as the oracle for native instruction and growth-resume data.</param>
     private static void VerifyKraidHeadInstructionDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => unchecked((ushort)(
@@ -36,6 +38,8 @@ internal static partial class Program
             "Kraid head programs: 28 commands, 91 stream words, both sound callbacks, all entry timers, mutable low-half growth selection, and production interpretation pass with the private streams forbidden.");
     }
 
+    /// <summary>Runs each compiled head command through the production interpreter while rejecting reads of its source stream.</summary>
+    /// <param name="rom">Retail cartridge image supplying unrelated runtime reads made by the interpreter.</param>
     private static void VerifyProductionInterpreter(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -96,6 +100,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks native entry-timer behavior and every low-half growth selection through production consumers.</summary>
+    /// <param name="rom">Retail cartridge image used to determine the matching native growth timer and cursor.</param>
     private static void VerifyTimerAndGrowthConsumers(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
@@ -168,15 +174,26 @@ internal static partial class Program
             "Kraid growth reads its live low-half alias through typed WRAM");
     }
 
+    /// <summary>Test address-space proxy that detects forbidden instruction-stream and untyped live-WRAM reads.</summary>
+    /// <param name="source">Underlying cartridge and memory bus for permitted reads and forwarded writes.</param>
     private sealed class KraidHeadProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Live growth-selection word returned by typed reads of the native low-half WRAM alias.</summary>
         public ushort MutableTilemap { get; set; }
+        /// <summary>Number of attempted reads from bytes belonging to the compiled head instruction stream.</summary>
         public int ForbiddenReadAttempts { get; private set; }
+        /// <summary>Number of attempted generic-bus reads of the low-half alias reserved for typed WRAM access.</summary>
         public int UntypedLowHalfReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge imports through the same read filter used by generic bus accesses.</summary>
+        /// <param name="address">Cartridge address being read.</param>
+        /// <returns>The permitted byte from the underlying source.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Counts and rejects accesses to the compiled stream or the untyped low-half WRAM alias.</summary>
+        /// <param name="address">Address requested through the generic bus.</param>
+        /// <returns>The byte from the underlying source when the address is permitted.</returns>
         public byte ReadByte(int address)
         {
             if (address is 0xa71002 or 0xa71003)
@@ -194,6 +211,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Provides the configured live selection word for its WRAM alias and forwards other WRAM reads.</summary>
+        /// <param name="address">WRAM address requested by the production consumer.</param>
+        /// <returns>The selected byte of the configured word or the underlying WRAM value.</returns>
         public byte ReadWorkRamByte(int address) => address switch
         {
             0xa71002 => (byte)MutableTilemap,
@@ -202,10 +222,16 @@ internal static partial class Program
                 "Kraid head guard source does not expose WRAM.")).ReadWorkRamByte(address),
         };
 
+        /// <summary>Forwards save-RAM reads to the underlying mutable-memory source.</summary>
+        /// <param name="address">Save-RAM address requested by the consumer.</param>
+        /// <returns>The byte returned by the underlying source.</returns>
         public byte ReadSaveRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Kraid head guard source does not expose SRAM.")).ReadSaveRamByte(address);
 
+        /// <summary>Forwards memory writes without applying the read restrictions.</summary>
+        /// <param name="address">Address receiving the write.</param>
+        /// <param name="value">Byte to write at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

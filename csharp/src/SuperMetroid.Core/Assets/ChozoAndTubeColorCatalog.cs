@@ -21,12 +21,20 @@ public sealed class ChozoAndTubeColorCatalog
             content.AppendWords("lowerNorfair", Statue(ChozoStatuePalette.LowerNorfair));
         });
 
+    /// <summary>The eight authored colors used to reconstruct the stock tube-crack shade ramp.</summary>
     private readonly ushort[] tubeColorSeeds;
+    /// <summary>Per-index tube colors that differ from the reconstructed stock palette.</summary>
     private readonly Dictionary<int, ushort> tubeColorEdits = [];
     // Statue colors calculate from ChozoStatuePaintDefinitions; only supplied deviations are stored.
+    /// <summary>Wrecked Ship statue colors that override their compiled paint-definition values.</summary>
     private readonly Dictionary<int, ushort> wreckedShipEdits = [];
+    /// <summary>Lower Norfair statue colors that override their compiled paint-definition values.</summary>
     private readonly Dictionary<int, ushort> lowerNorfairEdits = [];
 
+    /// <summary>Stores supplied palette values as authored seeds and deviations from the stock formulas.</summary>
+    /// <param name="tubeCracks">Validated 32-color tube-crack image whose first eight values seed the derived ramp.</param>
+    /// <param name="wreckedShip">Validated Wrecked Ship statue colors, retained only where they differ from compiled defaults.</param>
+    /// <param name="lowerNorfair">Validated Lower Norfair statue colors, retained only where they differ from compiled defaults.</param>
     private ChozoAndTubeColorCatalog(ushort[] tubeCracks, ushort[] wreckedShip,
         ushort[] lowerNorfair)
     {
@@ -45,6 +53,7 @@ public sealed class ChozoAndTubeColorCatalog
         }
     }
 
+    /// <summary>Serializer settings shared by palette document reads and writes.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -72,6 +81,10 @@ public sealed class ChozoAndTubeColorCatalog
         return (ushort)(red | green << 5 | blue << 10);
     }
 
+    /// <summary>Returns an edited statue color when present, otherwise the compiled default for that variant.</summary>
+    /// <param name="palette">Chozo statue variant whose image is being resolved.</param>
+    /// <param name="color">Zero-based color index in the 32-word image.</param>
+    /// <returns>The selected packed RGB5 color.</returns>
     private ushort ResolveStatue(ChozoStatuePalette palette, int color)
     {
         if ((uint)color >= ChozoAndTubeColorRomData.ColorCount)
@@ -80,6 +93,9 @@ public sealed class ChozoAndTubeColorCatalog
         return edits.TryGetValue(color, out ushort edited) ? edited : ChozoStatuePaintDefinitions.Color(palette, color);
     }
 
+    /// <summary>Materializes all 32 selected colors for one statue variant in palette order.</summary>
+    /// <param name="palette">Statue variant to resolve.</param>
+    /// <returns>A new array containing the resolved packed RGB5 words.</returns>
     private ushort[] Statue(ChozoStatuePalette palette) =>
         Enumerable.Range(0, ChozoAndTubeColorRomData.ColorCount).Select(color => ResolveStatue(palette, color)).ToArray();
 
@@ -129,6 +145,9 @@ public sealed class ChozoAndTubeColorCatalog
         return bytes;
     }
 
+    /// <summary>Writes a resolved statue image into the shared 32-color OBJ CGRAM range.</summary>
+    /// <param name="cgram">CGRAM receiving the palette words.</param>
+    /// <param name="palette">Statue variant whose selected colors are installed.</param>
     private void Apply(SnesCgram cgram, ChozoStatuePalette palette)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -136,6 +155,10 @@ public sealed class ChozoAndTubeColorCatalog
             cgram.SetColor(ChozoAndTubeColorRomData.Destination + color, ResolveStatue(palette, color));
     }
 
+    /// <summary>Validates a JSON RGB5 image and packs its channels into SNES color words.</summary>
+    /// <param name="source">Image entries to validate; it must contain exactly 32 non-null colors.</param>
+    /// <param name="name">Image label included in validation errors.</param>
+    /// <returns>Packed RGB5 words in the same order as the input image.</returns>
     private static ushort[] Compile(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != ChozoAndTubeColorRomData.ColorCount)
@@ -154,6 +177,8 @@ public sealed class ChozoAndTubeColorCatalog
         return compiled;
     }
 
+    /// <summary>Rejects repeated JSON object properties before deserialization can collapse them.</summary>
+    /// <param name="value">Parsed document root to inspect recursively for duplicate property names.</param>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Chozo/tube color property {name}."));

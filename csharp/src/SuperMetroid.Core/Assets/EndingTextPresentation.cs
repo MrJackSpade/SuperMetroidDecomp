@@ -6,13 +6,32 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable, bounded post-credit labels with cinematic behavior kept in code.</summary>
 public sealed class EndingTextPresentation
 {
+    /// <summary>Supplied result-panel cells that differ from the generated template and producer label.</summary>
     private readonly Dictionary<int, ushort> resultOverrides = new();
+
+    /// <summary>Configured producer label used to calculate result-panel cells not explicitly overridden.</summary>
     private readonly string resultText;
+
+    /// <summary>Compiled row-major tilemap words for the two-row copyright panel.</summary>
     private readonly ushort[] copyrightPanel;
+
+    /// <summary>Supplied Japanese subtitle cells retained when they differ from the stock layout words.</summary>
     private readonly Dictionary<int, ushort> subtitleOverrides = new();
+
+    /// <summary>Compiled glyph placements for the item-percentage heading and detail labels.</summary>
     private readonly EndingTextCharacter[] percentage;
+
+    /// <summary>Compiled glyph placements for the configured final typewriter message.</summary>
     private readonly EndingTextCharacter[] finalMessage;
 
+    /// <summary>Creates the immutable runtime form after loading and compiling the bounded ending text and its raw tilemap overrides.</summary>
+    /// <param name="resultPanel">Supplied result-panel template words.</param>
+    /// <param name="copyrightPanel">Compiled copyright tilemap words.</param>
+    /// <param name="japaneseSubtitle">Supplied raw subtitle cells used to retain differences from the stock layout.</param>
+    /// <param name="percentage">Compiled item-percentage label glyph placements.</param>
+    /// <param name="finalMessage">Compiled final-message glyph placements.</param>
+    /// <param name="resultText">Producer label used to generate the result-panel text region.</param>
+    /// <param name="contentIdentity">Digest identifying the source document bytes.</param>
     private EndingTextPresentation(
         ushort[] resultPanel,
         ushort[] copyrightPanel,
@@ -53,7 +72,11 @@ public sealed class EndingTextPresentation
     /// <summary>Calculated subtitle cells, with independent supplied edits taking precedence.</summary>
     public readonly struct SubtitleSequence : IReadOnlyList<ushort>
     {
+        /// <summary>Presentation that supplies stock subtitle words and any raw-cell overrides.</summary>
         private readonly EndingTextPresentation owner;
+
+        /// <summary>Creates a subtitle view whose indexed reads resolve through the presentation's calculated and preserved cell data.</summary>
+        /// <param name="owner">Loaded presentation providing the subtitle's stock layout and edits.</param>
         internal SubtitleSequence(EndingTextPresentation owner) => this.owner = owner;
         /// <summary>Number of row-major subtitle tilemap words: two rows of 32 cells.</summary>
         public int Count => EndingTextLayoutDefinitions.SubtitleCellCount;
@@ -156,6 +179,13 @@ public sealed class EndingTextPresentation
         output.Write(bytes);
     }
 
+    /// <summary>Compiles bounded label glyphs into their tilemap cells, rejecting any placement outside the target panel's configured rows.</summary>
+    /// <param name="target">Row-major tilemap words receiving the compiled glyphs.</param>
+    /// <param name="text">Label text to compile.</param>
+    /// <param name="region">Starting cell, width, and glyph style for the label.</param>
+    /// <param name="rows">Number of rows available in the destination panel.</param>
+    /// <param name="identity">Panel label used to identify validation failures.</param>
+    /// <exception cref="InvalidDataException">A glyph placement extends beyond the target panel.</exception>
     private static void Apply(ushort[] target, string text,
         EndingTextRegionDefinition region, int rows, string identity)
     {
@@ -171,6 +201,12 @@ public sealed class EndingTextPresentation
         }
     }
 
+    /// <summary>Converts supported characters into positioned glyph words using the selected region's font and size.</summary>
+    /// <param name="text">Nonempty bounded label to compile.</param>
+    /// <param name="region">Placement and glyph-style definition for the label.</param>
+    /// <param name="identity">Label name used to identify validation failures.</param>
+    /// <returns>One positioned character entry for each input character.</returns>
+    /// <exception cref="InvalidDataException">The text is empty, exceeds the region width, or contains an unsupported glyph.</exception>
     private static EndingTextCharacter[] Compile(string text,
         EndingTextRegionDefinition region, string identity)
     {

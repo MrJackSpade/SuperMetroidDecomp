@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies native room-FX blend data, guarded load paths, and cosmetic color overrides against the retail ROM.</summary>
     private static void VerifyRoomFxPaletteBlends()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
@@ -70,6 +71,8 @@ internal static partial class Program
         Console.WriteLine("  Room-FX blend palettes: all 24 native words and guarded load/reload paths pass.");
     }
 
+    /// <summary>Checks that Ceres haze tint overrides affect rendered channels without changing native timing or fade behavior.</summary>
+    /// <param name="rom">Cartridge address space used to extract the stock tint values.</param>
     private static void VerifyCeresHazeTintOverride(ISnesAddressSpace rom)
     {
         RoomFxPaletteBlendDocument stock = JsonSerializer.Deserialize<RoomFxPaletteBlendDocument>(
@@ -132,6 +135,10 @@ internal static partial class Program
             "older color overrides inherit the stock red haze tint");
     }
 
+    /// <summary>Checks installation, application, validation, and removal of a room-FX palette blend override.</summary>
+    /// <param name="stock">Directory containing the stock map-presentation and room-FX resources.</param>
+    /// <param name="overrides">Directory where the edited blend document is written and later removed.</param>
+    /// <param name="baseline">Unedited presentation catalog used to compare content identity and restored stock colors.</param>
     private static void VerifyRoomFxPaletteBlendOverride(string stock, string overrides,
         AreaMapPresentationCatalog baseline)
     {
@@ -177,6 +184,11 @@ internal static partial class Program
         Console.WriteLine("Room-FX blend override: edited color reaches CGRAM and removal restores stock.");
     }
 
+    /// <summary>Loads a selected compiled room-FX blend into a fresh state while guarding against bank-$89 palette reads.</summary>
+    /// <param name="catalog">Palette blend catalog supplying the selected authored colors.</param>
+    /// <param name="tilemaps">Layer-3 tilemap catalog required by the room-FX state.</param>
+    /// <param name="selection">Blend selection byte placed in the default room-FX record.</param>
+    /// <returns>The initialized effect state, guarded bus, and CGRAM receiving the blend.</returns>
     private static (RoomLayer3FxState State, ForbiddenRoomFxPaletteBus Bus, SnesCgram Cgram)
         ConstructBlendLoad(RoomFxPaletteBlendCatalog catalog,
             RoomFxLayer3TilemapCatalog tilemaps, byte selection)
@@ -197,17 +209,26 @@ internal static partial class Program
         return (state, bus, cgram);
     }
 
+    /// <summary>Finds the default-door compiled room-FX record that selects the requested palette blend.</summary>
+    /// <param name="selection">Blend identifier stored in the compiled room-FX record.</param>
+    /// <returns>The matching record, or throws when no compiled default selects that blend.</returns>
     private static RoomFxRecordDefinition SelectCompiledBlendRecord(byte selection) =>
         RoomFxRecordDefinitions.All.FirstOrDefault(candidate =>
             candidate.DoorPointer == 0 && candidate.PaletteBlend == selection)
         ?? throw new InvalidDataException($"No compiled default room-FX record selects blend ${selection:X2}.");
 
+    /// <summary>Address-space wrapper that counts and rejects reads from the native bank-$89 palette tables.</summary>
+    /// <param name="inner">Test memory used for all addresses outside the forbidden palette bank.</param>
     private sealed class ForbiddenRoomFxPaletteBus(TestAddressSpace inner) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Underlying fixture memory used after the bank-$89 read check succeeds.</summary>
         public TestAddressSpace Inner { get; } = inner;
+        /// <summary>Number of attempted reads from bank $89.</summary>
         public int ForbiddenReads { get; private set; }
 
+        /// <summary>Records and rejects an address in the cartridge palette bank used by native room-FX blends.</summary>
+        /// <param name="address">Address being checked before the wrapped bus is read.</param>
         private void RejectPaletteSource(int address)
         {
             if ((address >> 16) == 0x89)
@@ -217,18 +238,27 @@ internal static partial class Program
             }
         }
 
+        /// <summary>Checks for a forbidden bank-$89 access before forwarding an address-space read.</summary>
+        /// <param name="address">Byte address requested from the test bus.</param>
+        /// <returns>The inner memory byte when the address is permitted.</returns>
         public byte ReadByte(int address)
         {
             RejectPaletteSource(address);
             return Inner.ReadByte(address);
         }
 
+        /// <summary>Checks for a forbidden bank-$89 access before forwarding a cartridge-source read.</summary>
+        /// <param name="address">Cartridge byte address requested by the importer.</param>
+        /// <returns>The inner memory byte when the address is permitted.</returns>
         public byte ReadCartridgeByte(int address)
         {
             RejectPaletteSource(address);
             return Inner.ReadCartridgeByte(address);
         }
 
+        /// <summary>Forwards writes unchanged; this wrapper rejects reads from the native palette bank.</summary>
+        /// <param name="address">Destination byte address.</param>
+        /// <param name="value">Byte written to the inner test memory.</param>
         public void WriteByte(int address, byte value) => Inner.WriteByte(address, value);
     }
 }

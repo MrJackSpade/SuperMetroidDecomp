@@ -10,6 +10,8 @@ internal static partial class SwapchainTests
     private static RenderMailboxCounterView MailboxCounters(D3D11RenderWorker worker) =>
         PrivateState.Field<LatestRenderFrameMailbox>(worker, "mailbox").VerificationCounters;
 
+    /// <summary>Exercises the render worker's mailbox, retained redraw, resizing, generation changes, and device recovery.</summary>
+    /// <param name="selection">Selected adapter and backend whose worker behavior is verified.</param>
     internal static void RunWorker(D3D11RenderDevice selection)
     {
         nint window = CreateWindowExW(0, "STATIC", "Hidden GPU worker verification", 0, 0, 0, 640, 480, 0, 0, 0, 0);
@@ -80,6 +82,9 @@ internal static partial class SwapchainTests
         VerifySurfaceSuspension(selection.Kind);
     }
 
+    /// <summary>Pumps the current thread's Win32 message queue until an asynchronous verification condition is met.</summary>
+    /// <param name="finished">Condition checked before each message-pump pass.</param>
+    /// <exception cref="TimeoutException">The condition did not become true within ten seconds.</exception>
     private static void PumpUntil(Func<bool> finished)
     {
         var timeout = System.Diagnostics.Stopwatch.StartNew();
@@ -92,11 +97,30 @@ internal static partial class SwapchainTests
         }
     }
 
+    /// <summary>Sequential Win32 <c>MSG</c> layout used by the hidden-window message pump.</summary>
     [StructLayout(LayoutKind.Sequential)]
     private struct WindowMessage
     {
-        public nint Window; public uint Id; public nuint WParam; public nint LParam;
-        public uint Time; public int X, Y; public uint Private;
+        /// <summary>Window handle that received the message, or zero for a thread message.</summary>
+        public nint Window;
+
+        /// <summary>Win32 message identifier.</summary>
+        public uint Id;
+
+        /// <summary>Message-specific unsigned parameter supplied by Windows.</summary>
+        public nuint WParam;
+
+        /// <summary>Message-specific pointer-sized parameter supplied by Windows.</summary>
+        public nint LParam;
+
+        /// <summary>Time at which Windows posted the message.</summary>
+        public uint Time;
+
+        /// <summary>Cursor x- and y-coordinates associated with the posted message.</summary>
+        public int X, Y;
+
+        /// <summary>Reserved field in the native <c>MSG</c> structure.</summary>
+        public uint Private;
     }
     [LibraryImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
@@ -107,6 +131,9 @@ internal static partial class SwapchainTests
     [LibraryImport("user32.dll")]
     private static partial nint DispatchMessageW(in WindowMessage message);
 
+    /// <summary>Verifies hidden swapchain creation, frame identity and generation rejection, and presentation after resize.</summary>
+    /// <param name="device">Direct3D device used to create the swapchain presenter.</param>
+    /// <param name="renderer">Renderer that supplies GPU frames for the presenter.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         // Predefined STATIC class, no WS_VISIBLE, no activation or message dialog.

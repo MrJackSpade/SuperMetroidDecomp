@@ -5,12 +5,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs Zoa's compiled mechanics, presentation-position, animation, and guarded-read checks against the retail ROM.</summary>
     private static void VerifyZoaInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyZoaInstructionProgramDefinitions), () => VerifyZoaInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks all four Zoa animation programs and verifies their mechanics and visual operands against cartridge data.</summary>
+    /// <param name="rom">Retail address space supplying independent mechanics and presentation-word values.</param>
     private static void VerifyZoaInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags =
@@ -122,6 +125,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Compares compiled Zoa mechanics words with native addresses and checks complete byte ownership and invalid-word rejection.</summary>
+    /// <param name="rom">Retail address space containing Zoa's bank-$A3 instruction programs.</param>
     private static void VerifyZoaMechanicsDispatch(SuperMetroidAddressSpace rom)
     {
         // Independent native word positions from bank_A3.asm, not the enumerator.
@@ -153,6 +158,8 @@ internal static partial class Program
                 "Zoa mechanics enumeration bounds");
     }
 
+    /// <summary>Checks the twelve visual selector positions against the native instruction stream and validates ordinal bounds.</summary>
+    /// <param name="rom">Retail address space supplying native presentation words.</param>
     private static void VerifyZoaPresentationPositions(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xb3c5, 0xb3cb, 0xb3d1, 0xb3d9, 0xb3dd, 0xb3e1,
@@ -169,6 +176,8 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => ZoaInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid),
                 "Zoa presentation enumeration bounds");
     }
+    /// <summary>Warms and repeatedly reads a compiled Zoa mechanics word for the caller's allocation measurement.</summary>
+    /// <returns>A checksum that keeps the repeated results observable.</returns>
     private static int ProbeZoaInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -180,17 +189,33 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads one little-endian Zoa instruction word from the supplied address space.</summary>
+    /// <param name="bus">Address space containing the instruction bytes.</param>
+    /// <param name="address">Address of the word's low byte.</param>
+    /// <returns>The low byte followed by the high byte as a 16-bit value.</returns>
     private static ushort ReadZoaInstructionWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Rejects reads of compiled Zoa mechanics and installed visual selectors while forwarding unrelated reads.</summary>
+    /// <param name="source">Underlying address space for reads outside the guarded data ranges.</param>
     private sealed class ZoaInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads of bank-$A3 presentation selector words.</summary>
         internal int ForbiddenPresentationReadAttempts { get; private set; }
+
+        /// <summary>Number of attempted reads of bytes represented by compiled mechanics definitions.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge-import reads through the same address checks as ordinary reads.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The byte returned by the guarded read.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics and presentation bytes, forwarding all other reads to the source.</summary>
+        /// <param name="address">Address requested by production code.</param>
+        /// <returns>The source byte when the request is outside the guarded ranges.</returns>
+        /// <exception cref="InvalidOperationException">The address is a compiled mechanics byte or installed presentation selector.</exception>
         public byte ReadByte(int address)
         {
             if (ZoaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -220,6 +245,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged because this guard only checks read accesses.</summary>
+        /// <param name="address">Address receiving the write.</param>
+        /// <param name="value">Byte value forwarded to the source.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

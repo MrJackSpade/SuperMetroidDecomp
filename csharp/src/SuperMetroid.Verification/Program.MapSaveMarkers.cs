@@ -10,6 +10,8 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    /// <summary>Compares every area's compiled save-marker identities and station-mask eligibility with cartridge tables.</summary>
+    /// <param name="bus">Cartridge address space used to read the native save-point pointer and marker lists.</param>
     private static void VerifySaveMarkerEligibility(ISnesAddressSpace bus)
     {
         var expectedIds = new List<string>();
@@ -70,6 +72,11 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks marker coordinates, animation, override installation, and save-map navigation without runtime coordinate reads.</summary>
+    /// <param name="bus">Cartridge address space used for native setup and map-menu behavior.</param>
+    /// <param name="stock">Directory containing the extracted stock map-presentation files.</param>
+    /// <param name="overrides">Directory where the test writes and reloads a selected-marker override.</param>
+    /// <param name="original">Validated stock presentation catalog used as the unedited comparison.</param>
     private static void VerifyMapSaveMarkers(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         var guard = new SaveMarkerReadGuard(bus);
@@ -168,10 +175,16 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Wraps the cartridge bus and rejects accesses to native save-marker coordinate tables after fixture setup.</summary>
     private sealed class SaveMarkerReadGuard : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Underlying memory used for reads and writes outside the blocked marker-table addresses.</summary>
         private readonly ISnesAddressSpace source;
+        /// <summary>Cartridge addresses for save-marker pointer words and all per-area coordinate entries.</summary>
         private readonly HashSet<int> blocked = new();
+
+        /// <summary>Builds the protected address set from the cartridge's marker pointers before guarding later reads.</summary>
+        /// <param name="source">Cartridge address space containing native save-marker tables.</param>
         public SaveMarkerReadGuard(ISnesAddressSpace source)
         {
             this.source = source;
@@ -184,27 +197,44 @@ internal static partial class Program
                     blocked.Add(FileSelectMapRomData.MenuObjectBank | (list + offset));
             }
         }
+        /// <summary>Throws when an address belongs to a native save-marker coordinate table.</summary>
+        /// <param name="address">Cartridge address about to be read.</param>
         private void RejectMarkerSource(int address)
         {
             if (blocked.Contains(address))
                 throw new InvalidOperationException("Installed selected-save marker read cartridge coordinate table.");
         }
+        /// <summary>Rejects blocked marker addresses and forwards other reads to the wrapped address space.</summary>
+        /// <param name="address">Cartridge byte address requested by the caller.</param>
+        /// <returns>The source byte when the address is not blocked.</returns>
         public byte ReadByte(int address)
         {
             RejectMarkerSource(address);
             return source.ReadByte(address);
         }
+        /// <summary>Applies the marker-table guard before forwarding through the import-capable cartridge source.</summary>
+        /// <param name="address">Cartridge byte address requested by the importer.</param>
+        /// <returns>The imported source byte when the address is not blocked.</returns>
         public byte ReadCartridgeByte(int address)
         {
             RejectMarkerSource(address);
             return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
         }
+        /// <summary>Forwards a WRAM read to the wrapped bus when it supports mutable-memory access.</summary>
+        /// <param name="address">Work-RAM byte address to read.</param>
+        /// <returns>The stored WRAM byte.</returns>
         public byte ReadWorkRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Save-marker guard source does not expose WRAM.")).ReadWorkRamByte(address);
+        /// <summary>Forwards a save-RAM read to the wrapped bus when it supports mutable-memory access.</summary>
+        /// <param name="address">Save-RAM byte address to read.</param>
+        /// <returns>The stored save-RAM byte.</returns>
         public byte ReadSaveRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Save-marker guard source does not expose SRAM.")).ReadSaveRamByte(address);
+        /// <summary>Forwards writes unchanged; the fixture guard only blocks reads from marker coordinate tables.</summary>
+        /// <param name="address">Destination byte address.</param>
+        /// <param name="value">Byte to write to the wrapped address space.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

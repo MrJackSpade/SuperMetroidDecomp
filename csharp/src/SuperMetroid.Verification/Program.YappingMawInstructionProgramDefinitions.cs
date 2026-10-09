@@ -4,12 +4,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Registers the retail-ROM verification suite for the Yapping Maw instruction program definitions.</summary>
     private static void VerifyYappingMawInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyYappingMawInstructionProgramDefinitions), () => VerifyYappingMawInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks compiled Yapping Maw mechanics against cartridge words, then exercises attack, cooldown, initialization, and allocation behavior through guarded production access.</summary>
+    /// <param name="rom">Retail address space providing reference instruction words and other permitted cartridge data.</param>
     private static void VerifyYappingMawInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -129,6 +132,9 @@ internal static partial class Program
             "cooldown entries, seven callbacks, and 52 compiled visual selectors pass.");
     }
 
+    /// <summary>Confirms the enemy initializer selects the expected attack program for ordinary and alternate Yapping Maw variants.</summary>
+    /// <param name="bus">Address space assigned to the enemy system under verification.</param>
+    /// <param name="flags">Reflection binding flags used to access the production initializer and bus field.</param>
     private static void VerifyYappingMawInitializerSelections(
         ISnesAddressSpace bus,
         BindingFlags flags)
@@ -166,6 +172,11 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Builds an enemy system with a typed Yapping Maw state and instruction slot positioned at a chosen program entry.</summary>
+    /// <param name="bus">Address space installed on the new enemy system.</param>
+    /// <param name="flags">Reflection binding flags used to install the bus and publish typed state.</param>
+    /// <param name="entry">Initial instruction pointer to execute.</param>
+    /// <returns>The system, its configured slot, and the typed state associated with that slot.</returns>
     private static (
         RoomEnemySystem Enemies,
         RoomEnemySlot Slot,
@@ -189,6 +200,12 @@ internal static partial class Program
         return (enemies, slot, state);
     }
 
+    /// <summary>Invokes the production instruction processor the requested number of times, making the instruction timer eligible on each call.</summary>
+    /// <param name="process">Bound production instruction-processing method.</param>
+    /// <param name="enemies">Enemy system receiving each instruction step.</param>
+    /// <param name="arguments">Reflection argument array passed unchanged to the processor.</param>
+    /// <param name="slot">Instruction slot whose timer is reset before every call.</param>
+    /// <param name="count">Number of processor calls to perform.</param>
     private static void RunYappingMawInstructionFrames(
         MethodInfo process,
         RoomEnemySystem enemies,
@@ -203,6 +220,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Warms and repeatedly reads compiled mechanics entries so the caller can measure steady-state lookup allocations.</summary>
+    /// <returns>A checksum that keeps each lookup result observable to the caller.</returns>
     private static int ProbeYappingMawInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -216,6 +235,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian mechanics word from bank $A8 for comparison with its compiled definition.</summary>
+    /// <param name="source">Retail address space containing the original instruction program.</param>
+    /// <param name="address">Bank-relative address of the low byte.</param>
+    /// <returns>The two cartridge bytes combined as an unsigned 16-bit word.</returns>
     private static ushort ReadYappingMawInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -223,13 +246,23 @@ internal static partial class Program
             source.ReadByte(0xa80000 | address) |
             source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Wraps cartridge access for production execution and rejects reads of the Yapping Maw mechanics or presentation bytes being verified as compiled data.</summary>
+    /// <param name="source">Underlying address space for permitted reads and writes.</param>
     private sealed class YappingMawInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads rejected because they target compiled Yapping Maw mechanics or presentation data.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes import-source reads through the same compiled-data checks as other byte reads.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The underlying byte when the address is not owned by the compiled definitions.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics and presentation ranges, counting each attempt, and forwards all other reads.</summary>
+        /// <param name="address">Cartridge address requested by production code.</param>
+        /// <returns>The underlying byte when the address is outside guarded definition data.</returns>
+        /// <exception cref="InvalidOperationException">The address identifies a compiled Yapping Maw mechanics or presentation byte.</exception>
         public byte ReadByte(int address)
         {
             if (YappingMawInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -259,6 +292,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged; this guard prevents reads from compiled data without restricting address-space mutation.</summary>
+        /// <param name="address">Cartridge address to write.</param>
+        /// <param name="value">Byte passed through to the underlying address space.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

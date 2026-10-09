@@ -4,12 +4,19 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Loads the retail ROM and verifies the compiled Evir instruction data against live execution.
+    /// </summary>
     private static void VerifyEvirInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyEvirInstructionProgramDefinitions), () => VerifyEvirInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>
+    /// Checks compiled Evir mechanics words and instruction-loop behavior using the supplied ROM.
+    /// </summary>
+    /// <param name="rom">Retail address space containing the Evir instruction and presentation data.</param>
     private static void VerifyEvirInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -170,6 +177,12 @@ internal static partial class Program
             "programs, complete regeneration callbacks, and 49 compiled spritemap selectors pass.");
     }
 
+    /// <summary>
+    /// Creates an enemy system whose private address-space dependency uses the supplied guarded bus.
+    /// </summary>
+    /// <param name="bus">Address space used to observe or reject Evir data reads.</param>
+    /// <param name="flags">Reflection visibility used to install the system's private bus.</param>
+    /// <returns>A room enemy system configured with <paramref name="bus"/>.</returns>
     private static RoomEnemySystem NewEvirInstructionSystem(
         ISnesAddressSpace bus,
         BindingFlags flags)
@@ -179,6 +192,12 @@ internal static partial class Program
         return enemies;
     }
 
+    /// <summary>
+    /// Initializes a test slot to execute an Evir instruction list in bank A8.
+    /// </summary>
+    /// <param name="slot">Enemy slot that will execute the selected instruction list.</param>
+    /// <param name="definition">Enemy definition pointer used to select the Evir mechanics.</param>
+    /// <param name="entry">Address of the first instruction to execute.</param>
     private static void PrepareEvirInstructionSlot(
         RoomEnemySlot slot,
         ushort definition,
@@ -190,6 +209,10 @@ internal static partial class Program
         slot.InstructionTimer = 1;
     }
 
+    /// <summary>
+    /// Repeatedly reads representative compiled mechanics words to measure warmed lookup allocation.
+    /// </summary>
+    /// <returns>A checksum that keeps the mechanics reads observable.</returns>
     private static int ProbeEvirInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -203,6 +226,12 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>
+    /// Reads one little-endian word from the Evir instruction bank.
+    /// </summary>
+    /// <param name="source">ROM address space containing bank A8.</param>
+    /// <param name="address">Offset of the low byte within bank A8.</param>
+    /// <returns>The word formed by the addressed byte and its following byte.</returns>
     private static ushort ReadEvirInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -210,15 +239,30 @@ internal static partial class Program
             source.ReadByte(0xa80000 | address) |
             source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>
+    /// Wraps an address space to detect production reads of compiled Evir mechanics and presentation data.
+    /// </summary>
+    /// <param name="source">Underlying address space that receives permitted reads and all writes.</param>
+    /// <param name="forbidPresentation">Whether presentation-data reads should throw instead of being recorded.</param>
     private sealed class EvirInstructionReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the presentation-word offsets whose bytes were read through this guard.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        /// <summary>Gets the number of attempts to read bytes owned by compiled Evir mechanics.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes a cartridge-byte read through the guard's read checks.</summary>
+        /// <param name="address">Cartridge address to read.</param>
+        /// <returns>The byte returned by the guarded address space.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>
+        /// Rejects reads from compiled mechanics, records or rejects presentation reads, and forwards allowed reads.
+        /// </summary>
+        /// <param name="address">Address of the byte requested from the wrapped address space.</param>
+        /// <returns>The requested byte when the guard permits the read.</returns>
         public byte ReadByte(int address)
         {
             if (EvirInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -250,6 +294,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Address receiving the write.</param>
+        /// <param name="value">Byte stored at <paramref name="address"/>.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

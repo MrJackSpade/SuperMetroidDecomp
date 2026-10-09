@@ -9,6 +9,7 @@ using SuperMetroid.Desktop;
 internal static partial class Program
 {
     // The original initialized-WRAM reproduction is retained alongside live producers.
+    /// <summary>Checks projectile velocity inheritance from native WRAM layouts and from live movement and runtime shots.</summary>
     private static void ProbeProjectileVelocityInheritance()
     {
         var initialize = typeof(SamusProjectileSystem)
@@ -62,6 +63,7 @@ internal static partial class Program
         Console.WriteLine("Projectile inheritance: original 50 cases, live movement writes and preceding-frame runtime shot pass.");
     }
 
+    /// <summary>Verifies that live collision movement publishes the directional fixed-point words consumed by projectile initialization.</summary>
     private static void VerifyProjectileInheritanceMovement()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -99,6 +101,8 @@ internal static partial class Program
             "Alpha reset clears exactly all eight directional words");
     }
 
+    /// <summary>Confirms a runtime shot inherits the preceding frame's movement and retains that behavior after runtime restoration.</summary>
+    /// <param name="weapon">The selected HUD item identifier used for the projectile launch comparison.</param>
     private static void VerifyProjectileInheritanceRuntime(ushort weapon)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -160,17 +164,47 @@ internal static partial class Program
             "Input-locked projectile alpha still clears directional movement records");
     }
 
+    /// <summary>Stores sparse address-space bytes for reproducing the native projectile-initialization WRAM reads.</summary>
     private sealed class ProjectileInheritanceProbeBus : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Backing bytes keyed by their complete bus address.</summary>
         private readonly Dictionary<int, byte> _bytes = new();
+
+        /// <summary>Routes cartridge reads to the probe's address-space byte lookup.</summary>
+        /// <param name="address">The bus address to read.</param>
+        /// <returns>The stored byte, or zero when the probe has no value at that address.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Returns the stored byte for a bus address, defaulting uninitialized probe memory to zero.</summary>
+        /// <param name="address">The bus address to read.</param>
+        /// <returns>The stored byte, or zero when no value was written.</returns>
         public byte ReadByte(int address) => _bytes.GetValueOrDefault(address);
+
+        /// <summary>Reads a WRAM byte from the same sparse address map used by the probe.</summary>
+        /// <param name="address">The WRAM address to read.</param>
+        /// <returns>The stored byte, or zero when no value was written.</returns>
         public byte ReadWorkRamByte(int address) => ReadByte(address);
+
+        /// <summary>Rejects save-RAM access because the projectile inheritance reproduction uses only WRAM.</summary>
+        /// <param name="address">The save-RAM address the probe was asked to read.</param>
+        /// <returns>This method never returns.</returns>
+        /// <exception cref="InvalidOperationException">The probe must not read save RAM.</exception>
         public byte ReadSaveRamByte(int address) => throw new InvalidOperationException(
             "Projectile inheritance probe must not read SRAM.");
+
+        /// <summary>Stores a byte at its complete bus address in the probe's sparse memory map.</summary>
+        /// <param name="address">The bus address to write.</param>
+        /// <param name="value">The byte to store.</param>
         public void WriteByte(int address, byte value) => _bytes[address] = value;
+
+        /// <summary>Reads two adjacent bytes as a little-endian word.</summary>
+        /// <param name="address">The address of the word's low byte.</param>
+        /// <returns>The combined 16-bit value.</returns>
         public ushort Word(int address) => (ushort)(ReadByte(address) | ReadByte(address + 1) << 8);
+
+        /// <summary>Writes a word as two adjacent little-endian bytes.</summary>
+        /// <param name="address">The address of the word's low byte.</param>
+        /// <param name="value">The 16-bit value to store.</param>
         public void Word(int address, ushort value)
         {
             WriteByte(address, (byte)value);

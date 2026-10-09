@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Authored Yard instruction-list entries driven through the production enemy interpreter.</summary>
     private static readonly ushort[] YardInstructionEntries =
     [
         YardInstructionProgramDefinitions.OutsideTurnUpsideRightMovingUp,
@@ -46,12 +47,15 @@ internal static partial class Program
         YardInstructionProgramDefinitions.AirborneFacingRightLoop,
     ];
 
+    /// <summary>Loads the retail cartridge and runs the Yard instruction-program verification suite.</summary>
     private static void VerifyYardInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyYardInstructionProgramDefinitions), () => VerifyYardInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares compiled mechanics with cartridge words and executes every authored Yard entry under a read guard.</summary>
+    /// <param name="rom">Cartridge address space used to check native instruction and visual selector words.</param>
     private static void VerifyYardInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -127,6 +131,10 @@ internal static partial class Program
             "five private callbacks, and 112 compiled visual selectors pass.");
     }
 
+    /// <summary>Creates a Yard enemy system with deterministic randomness and its private per-slot state initialized.</summary>
+    /// <param name="bus">Address space installed as the enemy system's cartridge bus.</param>
+    /// <param name="yard">Receives the configured Yard slot whose instruction programs will be executed.</param>
+    /// <returns>The enemy system containing the initialized Yard state.</returns>
     private static RoomEnemySystem CreateYardInstructionSystem(
         ISnesAddressSpace bus,
         out RoomEnemySlot yard)
@@ -148,6 +156,8 @@ internal static partial class Program
         return enemies;
     }
 
+    /// <summary>Consumes repeated compiled mechanics lookups for the warmed allocation measurement.</summary>
+    /// <returns>A checksum of selected instruction words that keeps the lookup results observable.</returns>
     private static int ProbeYardInstructionAllocation()
     {
         int checksum = 0;
@@ -161,6 +171,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian word from bank $A3 at a 16-bit instruction address.</summary>
+    /// <param name="source">Cartridge address space containing the native program bytes.</param>
+    /// <param name="address">Bank-relative address of the word's low byte.</param>
+    /// <returns>The native word formed from the addressed byte and its successor.</returns>
     private static ushort ReadYardInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -168,15 +182,26 @@ internal static partial class Program
             source.ReadByte(0xa30000 | address) |
             source.ReadByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Tracks presentation-selector reads and rejects runtime access to mechanics words supplied by compiled definitions.</summary>
+    /// <param name="source">Underlying address space supplying permitted program bytes.</param>
+    /// <param name="forbidPresentation">When true, visual-selector reads throw instead of being recorded.</param>
     private sealed class YardInstructionReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation-word addresses observed while executing Yard programs when selector reads are allowed.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        /// <summary>Number of attempted reads from instruction bytes that should come from compiled mechanics definitions.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes importer reads through the guard's checks for forbidden runtime data access.</summary>
+        /// <param name="address">Cartridge byte address requested by the importer.</param>
+        /// <returns>The source byte when the read is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, records or rejects presentation selectors, and forwards other bytes.</summary>
+        /// <param name="address">Cartridge byte address requested during instruction execution.</param>
+        /// <returns>The source byte if the address is not forbidden.</returns>
         public byte ReadByte(int address)
         {
             if (YardInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -208,6 +233,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged; this fixture observes reads from Yard instruction data.</summary>
+        /// <param name="address">Destination byte address.</param>
+        /// <param name="value">Byte written to the underlying address space.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

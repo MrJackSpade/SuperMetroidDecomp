@@ -9,6 +9,10 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public static partial class SamusGrappleMovement
 {
+    /// <summary>Updates rope-length intent and swing pumping from held and newly pressed controller directions.</summary>
+    /// <param name="grapple">Grapple state receiving the rope delta and angular acceleration.</param>
+    /// <param name="controllerInput">Currently held normalized controller buttons used for left/right pumping.</param>
+    /// <param name="newlyPressedInput">Button edges used to select rope-length changes.</param>
     private static void ApplyRopeAndDirectionInput(
         SamusGrappleState grapple,
         ushort controllerInput,
@@ -63,6 +67,12 @@ public static partial class SamusGrappleMovement
         grapple.DirectionInputAcceleration = 0;
     }
 
+    /// <summary>Moves rope length one pixel at a time, stopping at the last collision-free length if the body line is obstructed.</summary>
+    /// <param name="bus">Address space carried with the movement call; candidate collision checks use the supplied room level.</param>
+    /// <param name="level">Room collision data tested at each intermediate rope length.</param>
+    /// <param name="samus">Samus state used when classifying collision blocks with actor-dependent behavior.</param>
+    /// <param name="grapple">Grapple state containing the current length, pending delta, and swing angle.</param>
+    /// <returns><see langword="true"/> if a candidate length collided; otherwise, <see langword="false"/> after applying the target length.</returns>
     private static bool ApplyRopeLengthDelta(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -132,6 +142,8 @@ public static partial class SamusGrappleMovement
     private static bool HangsStraightDown(SamusGrappleState grapple) =>
         (grapple.Angle.RawValue & 0xff00) == SnesAngle.HalfTurn.RawValue;
 
+    /// <summary>Sets gravity acceleration and velocity correction from the grapple angle quadrant and liquid state.</summary>
+    /// <param name="grapple">State whose angular physics fields are updated.</param>
     private static void CalculateGravity(SamusGrappleState grapple)
     {
         // $9B:BC1F is deliberately quadrant-based rather than trigonometric. The four
@@ -182,6 +194,8 @@ public static partial class SamusGrappleMovement
         }
     }
 
+    /// <summary>Combines input, gravity, and sign-dependent correction, then clamps angular velocity to the cartridge limit.</summary>
+    /// <param name="grapple">Grapple physics state whose angular velocity is advanced.</param>
     private static void IntegrateAngularVelocity(SamusGrappleState grapple)
     {
         int velocity = grapple.AngularVelocity +
@@ -200,6 +214,9 @@ public static partial class SamusGrappleMovement
             SamusGrappleRomData.Physics.MaximumAngularVelocity));
     }
 
+    /// <summary>Applies the temporary angular jump kick when Jump is newly pressed during the terrain-bounce window.</summary>
+    /// <param name="grapple">Grapple state supplying the bounce timer, swing direction, and submerged flag.</param>
+    /// <param name="newlyPressedInput">Normalized input edges; only the Jump button can trigger the kick.</param>
     private static void ApplyJumpImpulse(SamusGrappleState grapple, ushort newlyPressedInput)
     {
         // $9B:BD44 only admits this extra angular impulse during the 16-frame terrain-
@@ -224,6 +241,13 @@ public static partial class SamusGrappleMovement
         }
     }
 
+    /// <summary>Sweeps the proposed angular movement one angle-table byte at a time and reflects or commits it at collision boundaries.</summary>
+    /// <param name="bus">Address space passed through to the body probe; collision checks use the supplied room level.</param>
+    /// <param name="level">Room collision map used to test each sampled body position.</param>
+    /// <param name="samus">Samus state receiving any spike damage encountered by the sweep.</param>
+    /// <param name="grapple">Grapple state whose angle and temporary collision physics are updated.</param>
+    /// <returns>The first collision sample, or a non-collided result after the target angle is committed.</returns>
+    /// <exception cref="InvalidDataException">The computed sweep would exceed one complete angle-table revolution.</exception>
     private static GrappleSwingCollisionResult AdvanceAngleWithTerrainCollision(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -314,6 +338,13 @@ public static partial class SamusGrappleMovement
         return new GrappleSwingCollisionResult(Collided: false, DistanceFromFeet: 0);
     }
 
+    /// <summary>Samples the six radial body points for one candidate angle byte and returns the nearest colliding point.</summary>
+    /// <param name="bus">Address space carried from the movement sweep; this probe classifies samples against the supplied room level.</param>
+    /// <param name="level">Room collision map tested at each body sample.</param>
+    /// <param name="samus">Samus state used for spike-contact effects.</param>
+    /// <param name="grapple">Current anchor and rope length defining the sampled body line.</param>
+    /// <param name="candidateAngleByte">Whole-angle table index being tested by the movement sweep.</param>
+    /// <returns>A collided result with the sample's feet-relative ordinal, or a clear result.</returns>
     private static GrappleSwingCollisionResult ProbeSwingingBody(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -344,6 +375,11 @@ public static partial class SamusGrappleMovement
         return new GrappleSwingCollisionResult(Collided: false, DistanceFromFeet: 0);
     }
 
+    /// <summary>Projects an angle-table direction from the grapple anchor and converts the wrapped world position to room block coordinates.</summary>
+    /// <param name="grapple">State supplying and receiving the endpoint's cartridge-aligned anchor subpixel.</param>
+    /// <param name="angleByte">Index into the signed sine table for the candidate direction.</param>
+    /// <param name="distance">Radial distance from the adjusted anchor in pixels.</param>
+    /// <returns>World coordinates and their masked room-block coordinates.</returns>
     private static GrappleCollisionPoint CalculateCollisionPoint(
         SamusGrappleState grapple,
         byte angleByte,
@@ -373,6 +409,13 @@ public static partial class SamusGrappleMovement
             BlockY: (y >> 4) & 0xff);
     }
 
+    /// <summary>Classifies a body sample through extension chains, applying spike effects while deciding whether the sample blocks motion.</summary>
+    /// <param name="level">Room collision map containing the sampled block and any extension blocks.</param>
+    /// <param name="samus">Samus state used to apply eligible spike damage.</param>
+    /// <param name="blockX">Room block column of the sample.</param>
+    /// <param name="blockY">Room block row of the sample.</param>
+    /// <returns><see langword="true"/> for solid or missing collision data; spike air applies its effect but remains passable.</returns>
+    /// <exception cref="InvalidDataException">A collision type is invalid or an extension chain exceeds the supported traversal bound.</exception>
     private static bool IsSwingCollision(
         RoomLevelData level,
         SamusState samus,
@@ -447,6 +490,11 @@ public static partial class SamusGrappleMovement
         throw new InvalidDataException("Grapple swing extension chain exceeded sixteen blocks.");
     }
 
+    /// <summary>Rechecks the stored anchor with the grapple endpoint dispatcher and uses its carry result as the connection test.</summary>
+    /// <param name="level">Room collision map containing the grapple anchor.</param>
+    /// <param name="samus">Samus state passed to endpoint reaction logic.</param>
+    /// <param name="grapple">State supplying the stored anchor coordinates.</param>
+    /// <returns><see langword="true"/> while endpoint reaction reports carry and the grapple remains attached.</returns>
     private static bool IsStillConnectedToSupportedBlock(
         RoomLevelData level,
         SamusState samus,
@@ -463,6 +511,10 @@ public static partial class SamusGrappleMovement
         return reaction.Carry;
     }
 
+    /// <summary>Queues the cartridge damage and protection timers for a damaging swing-spike behavior byte.</summary>
+    /// <param name="samus">Samus state whose damage accumulator and invulnerability/knockback timers are updated.</param>
+    /// <param name="behavior">Block behavior byte controlling spike subtype and whether its lookup is disabled.</param>
+    /// <param name="solidSpike"><see langword="true"/> for solid-spike damage values; <see langword="false"/> for spike-air behavior.</param>
     private static void ApplySwingSpikeDamage(
         SamusState samus,
         byte behavior,
@@ -494,6 +546,9 @@ public static partial class SamusGrappleMovement
         samus.KnockbackTimer = 0x000a;
     }
 
+    /// <summary>Negates the signed arithmetic half of a velocity word, preserving the native wrap to 16 bits.</summary>
+    /// <param name="value">Signed velocity to halve and negate.</param>
+    /// <returns>The wrapped signed result of negating <paramref name="value"/> after an arithmetic right shift by one.</returns>
     private static short NegatedArithmeticHalf(short value) =>
         unchecked((short)-(value >> 1));
 

@@ -5,6 +5,7 @@ using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
+    /// <summary>Runs the retail-backed checks for Spore Spawn ceiling program words, draw lists, and runtime behavior.</summary>
     private static void VerifyCompiledSporeSpawnCeilingPlms()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -23,9 +24,13 @@ internal static partial class Program
             "Spore Spawn ceiling: two native lists and four 2x2 physical draws match ROM; crumble/clear, sound and deletion run with source bytes forbidden.");
     }
 
+    /// <summary>Verifies that the compiled mechanics reader owns exactly the control words in the native PLM program.</summary>
+    /// <param name="rom">Retail address space used to compare the native control values.</param>
     private static void VerifySporeSpawnCeilingProgramControls(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySporeSpawnCeilingProgramField), () => VerifySporeSpawnCeilingProgramField(rom, false));
 
+    /// <summary>Checks native crumble-frame selectors and verifies invalid frame indices are rejected.</summary>
+    /// <param name="rom">Retail address space containing the native draw operands.</param>
     private static void VerifySporeSpawnCeilingProgramDraws(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifySporeSpawnCeilingProgramField), () => VerifySporeSpawnCeilingProgramField(rom, true));
@@ -38,6 +43,9 @@ internal static partial class Program
                 "Spore ceiling frame selector bounds");
     }
 
+    /// <summary>Compares either control words or draw operands with the native program and shared word resolver.</summary>
+    /// <param name="rom">Retail address space used to read the selected program words.</param>
+    /// <param name="draw">Selects draw operands when true and instruction controls when false.</param>
     private static void VerifySporeSpawnCeilingProgramField(SuperMetroidAddressSpace rom, bool draw)
     {
         ushort[] controls = [0xab12,0xab15,0xab19,0xab1d,0xab21,0xab25];
@@ -61,6 +69,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks that the compiled byte reader owns only the native crumble sound operand.</summary>
+    /// <param name="rom">Retail address space supplying the original sound byte.</param>
     private static void VerifySporeSpawnCeilingProgramSound(SuperMetroidAddressSpace rom)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -73,6 +83,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks all four clear/crumble draw lists, including their 2x2 collision words and signed offsets.</summary>
+    /// <param name="rom">Retail address space used to compare the draw-list records.</param>
     private static void VerifySporeSpawnCeilingDrawMapping(SuperMetroidAddressSpace rom)
     {
         RoomPlmShotBlockDrawDefinitions.DrawList[] draws =
@@ -131,6 +143,8 @@ internal static partial class Program
 
     }
 
+    /// <summary>Runs a clear or crumble ceiling PLM and checks collision changes, sound timing, deletion, and guarded reads.</summary>
+    /// <param name="clear">Selects the one-step clear program when true, or the animated crumble program when false.</param>
     private static void VerifySporeSpawnCeiling(bool clear)
     {
         const int width = 16;
@@ -184,13 +198,23 @@ internal static partial class Program
             "Spore Spawn ceiling reads no migrated program or draw bytes");
     }
 
+    /// <summary>Rejects cartridge reads from migrated Spore Spawn ceiling program and draw-list ranges.</summary>
+    /// <param name="source">Underlying address space for reads outside those migrated ranges and for writes.</param>
     private sealed class SporeSpawnCeilingSourceGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Counts attempts to read instruction or draw bytes that are supplied by compiled definitions.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes importer reads through the same migrated-range guard.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The underlying byte when the address is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of migrated control and draw data before forwarding other addresses.</summary>
+        /// <param name="address">Absolute cartridge address to read.</param>
+        /// <returns>The underlying source byte for an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to a migrated ceiling program or draw list.</exception>
         public byte ReadByte(int address)
         {
             int pointer = address & 0xffff;
@@ -207,6 +231,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a cartridge write to the wrapped address space.</summary>
+        /// <param name="address">Absolute cartridge address to update.</param>
+        /// <param name="value">Byte written to that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

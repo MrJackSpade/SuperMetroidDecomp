@@ -19,11 +19,22 @@ public enum D3D11PresentationResult
 /// <summary>Render-owner flip-model swapchain; window creation and simulation remain host responsibilities.</summary>
 public sealed class D3D11SwapchainPresenter : IDisposable
 {
+    /// <summary>The render device whose owner thread must perform swapchain operations.</summary>
     private readonly D3D11RenderDevice owner;
+
+    /// <summary>The flip-model DXGI swapchain that presents rendered frames to the host window.</summary>
     private readonly IDXGISwapChain2 swapchain;
+
+    /// <summary>Owns the swapchain's frame-latency handle used to wait for presentation capacity.</summary>
     private readonly LatencyWaitHandle latency;
+
+    /// <summary>Render-target view for the current first swapchain buffer, recreated after resize.</summary>
     private ID3D11RenderTargetView? target;
+
+    /// <summary>Client dimensions used to draw the current frame into the swapchain target.</summary>
     private int width, height;
+
+    /// <summary>Whether disposal has released this presenter's render target, wait handle, and swapchain.</summary>
     private bool disposed;
 
     /// <summary>Creates a two-buffer BGRA flip-discard swapchain for an existing HWND on its device-owner thread, with a frame-latency waitable object and maximum latency one; owns the swapchain, not the window or device.</summary>
@@ -63,6 +74,12 @@ public sealed class D3D11SwapchainPresenter : IDisposable
     /// <summary>Nonblocking readiness query. The host waits outside simulation and the generation gate.</summary>
     public bool TryAcquireFrameOpportunity() { Verify(); return latency.WaitOne(0); }
 
+    /// <summary>Draws the display overlay and makes one generation-checked DXGI presentation attempt.</summary>
+    /// <param name="renderer">Renderer that submitted the frame and shares this presenter's device owner.</param>
+    /// <param name="identity">Identity that must match the submitted frame and pass the presentation gate.</param>
+    /// <param name="gate">Final generation gate that controls whether DXGI Present is called.</param>
+    /// <param name="timer">Optional GPU timer ended after display commands are submitted and before presentation waits.</param>
+    /// <returns>Whether the frame was presented, occluded, or rejected as stale by the generation gate.</returns>
     internal D3D11PresentationResult Present(D3D11FrameRenderer renderer, RenderFrameIdentity identity,
         RenderPresentationGate gate, D3D11GpuTimer? timer)
     {
@@ -99,11 +116,13 @@ public sealed class D3D11SwapchainPresenter : IDisposable
         CreateTarget();
     }
 
+    /// <summary>Creates a render-target view for buffer zero of the current swapchain.</summary>
     private void CreateTarget()
     {
         using var buffer = swapchain.GetBuffer<ID3D11Texture2D>(0);
         target = owner.Device.CreateRenderTargetView(buffer);
     }
+    /// <summary>Requires the device-owner thread and rejects use after disposal.</summary>
     private void Verify() { owner.VerifyOwner(); ObjectDisposedException.ThrowIf(disposed, this); }
     /// <summary>Releases the render target, owned latency wait handle, and swapchain on the device-owner thread; leaves the HWND/device to their owners and ignores repeated disposal.</summary>
     /// <exception cref="InvalidOperationException">First disposal is attempted from a different thread.</exception>
@@ -112,8 +131,12 @@ public sealed class D3D11SwapchainPresenter : IDisposable
         if (disposed) return;
         owner.VerifyOwner(); target?.Dispose(); latency.Dispose(); swapchain.Dispose(); disposed = true;
     }
+    /// <summary>Wraps and owns DXGI's frame-latency waitable handle as a managed wait handle.</summary>
     private sealed class LatencyWaitHandle : WaitHandle
     {
+        /// <summary>Adopts the native handle so disposal closes the DXGI waitable object.</summary>
+        /// <param name="handle">The frame-latency handle returned by the swapchain.</param>
+        /// <exception cref="InvalidOperationException">DXGI supplied a null handle.</exception>
         internal LatencyWaitHandle(nint handle)
         {
             if (handle == 0) throw new InvalidOperationException("DXGI returned no frame-latency handle.");

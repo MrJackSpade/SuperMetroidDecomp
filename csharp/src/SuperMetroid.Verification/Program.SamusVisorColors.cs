@@ -8,6 +8,7 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+    /// <summary>Compares extracted visor colors with cartridge data and checks installed room and X-ray palette cycles.</summary>
     private static void VerifySamusVisorColors()
     {
         if (!File.Exists("Super Metroid.smc"))
@@ -38,6 +39,9 @@ internal static partial class Program
         Console.WriteLine("  Samus visor: all six native colors and guarded room/X-ray cycles pass.");
     }
 
+    /// <summary>Builds an installed-color catalog from the six packed RGB5 words in the native visor table.</summary>
+    /// <param name="rom">Address space containing the cartridge's visor color table.</param>
+    /// <returns>A validated catalog equivalent to the native table.</returns>
     private static SamusVisorColorCatalog ReadOriginalVisorColors(ISnesAddressSpace rom)
     {
         var colors = new PaletteRgb5[SamusVisorColorFormat.ColorCount];
@@ -56,6 +60,9 @@ internal static partial class Program
             new SamusVisorColorDocument { Version = SamusVisorColorFormat.Version, Colors = colors })));
     }
 
+    /// <summary>Compares native and installed room-visor countdowns and CGRAM writes while guarding the installed path from table reads.</summary>
+    /// <param name="rom">Retail address space used by the native reference cycle and color oracle.</param>
+    /// <param name="catalog">Extracted visor colors used by the installed palette state.</param>
     private static void VerifyInstalledRoomVisorCycle(ISnesAddressSpace rom,
         SamusVisorColorCatalog catalog)
     {
@@ -87,6 +94,9 @@ internal static partial class Program
         AssertEqual(0, guarded.ForbiddenReads, "installed room cycle does not read visor ROM table");
     }
 
+    /// <summary>Compares native and installed X-ray visor palette cycles through widening and full-beam stages.</summary>
+    /// <param name="rom">Retail address space used to initialize Samus and run the native reference cycle.</param>
+    /// <param name="catalog">Extracted visor colors used by the installed X-ray palette state.</param>
     private static void VerifyInstalledXrayVisorCycle(ISnesAddressSpace rom,
         SamusVisorColorCatalog catalog)
     {
@@ -127,9 +137,16 @@ internal static partial class Program
         AssertEqual(0, guarded.ForbiddenReads, "installed X-ray cycle does not read visor ROM table");
     }
 
+    /// <summary>Reads one packed color word at a byte offset within the native visor table.</summary>
+    /// <param name="rom">Address space containing the cartridge table.</param>
+    /// <param name="offset">Byte offset of the little-endian color word.</param>
+    /// <returns>The packed SNES RGB5 color.</returns>
     private static ushort ReadVisorFixtureColor(ISnesAddressSpace rom, int offset) =>
         (ushort)(rom.ReadByte(SamusVisorColorFormat.SourceAddress + offset) |
             rom.ReadByte(SamusVisorColorFormat.SourceAddress + offset + 1) << 8);
+    /// <summary>Creates Samus in the standing X-ray pose and initializes the stock beam setup.</summary>
+    /// <param name="rom">Address space used for collision, animation, and X-ray initialization data.</param>
+    /// <returns>The initialized Samus state with an active X-ray beam.</returns>
     private static SamusState CreateXraySamus(ISnesAddressSpace rom)
     {
         var samus = new SamusState
@@ -145,6 +162,13 @@ internal static partial class Program
         return samus;
     }
 
+    /// <summary>Checks that an edited visor-color asset changes installed identity and reaches both room and X-ray CGRAM cycles.</summary>
+    /// <param name="stock">Directory containing the stock presentation assets.</param>
+    /// <param name="overrides">Directory where the temporary visor override is written.</param>
+    /// <param name="baseline">Unmodified presentation catalog used to compare content identity.</param>
+    /// <param name="rom">Retail address space used to initialize runtime and native X-ray fixtures.</param>
+    /// <param name="initialPalettes">Initial gameplay palettes supplied to the constructed runtime.</param>
+    /// <param name="fixtureAssets">Room assets used to bind the runtime fixture.</param>
     private static void VerifySamusVisorColorOverride(string stock, string overrides,
         AreaMapPresentationCatalog baseline, ISnesAddressSpace rom,
         GameplayBasePaletteCatalog initialPalettes, MapPresentationInstalledRoomAssets fixtureAssets)
@@ -204,11 +228,21 @@ internal static partial class Program
         Console.WriteLine("Samus visor override: edited room/X-ray colors reach CGRAM and stock restores.");
     }
 
+    /// <summary>Address-space proxy that fails and counts reads of the native visor table while forwarding other access.</summary>
+    /// <param name="inner">Underlying bus used for permitted reads and all writes.</param>
     private sealed class ForbiddenVisorColorBus(ISnesAddressSpace inner) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads within the protected native visor-color table range.</summary>
         public int ForbiddenReads { get; private set; }
+
+        /// <summary>Routes cartridge imports through the native-table read guard.</summary>
+        /// <param name="address">Cartridge address being read.</param>
+        /// <returns>The permitted byte from the underlying bus.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Counts and rejects reads of native visor colors; forwards all other addresses.</summary>
+        /// <param name="address">Address requested from the bus.</param>
+        /// <returns>The byte from the underlying bus when the address is outside the protected table.</returns>
         public byte ReadByte(int address)
         {
             if (address >= SamusVisorColorFormat.SourceAddress &&
@@ -221,6 +255,9 @@ internal static partial class Program
             return inner.ReadByte(address);
         }
 
+        /// <summary>Forwards a write to the underlying address space.</summary>
+        /// <param name="address">Address receiving the write.</param>
+        /// <param name="value">Byte to store.</param>
         public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
     }
 }

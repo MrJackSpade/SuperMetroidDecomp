@@ -10,6 +10,11 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    /// <summary>Compares native map rendering with installed resources and verifies independent edits, rebinding, and strict resource failures.</summary>
+    /// <param name="bus">Address space used to produce the native reference rendering.</param>
+    /// <param name="stock">Directory containing the installed stock map resources.</param>
+    /// <param name="overrides">Isolated directory used for temporary authored-resource edits.</param>
+    /// <param name="original">Stock presentation catalog used as the unedited baseline.</param>
     private static void VerifyMapScreens(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         var guard = new MapScreenReadGuard(bus);
@@ -133,6 +138,11 @@ internal static partial class Program
                 catalog.WorldArtwork, catalog.Sprites);
     }
 
+    /// <summary>Checks that rebinding a serialized file-select menu restores the current map presentation without changing its transition timing.</summary>
+    /// <param name="bus">Address space for the unedited control menu.</param>
+    /// <param name="guard">Address space that rejects map presentation reads from the cartridge.</param>
+    /// <param name="original">Stock map presentation restored after serialization.</param>
+    /// <param name="edited">Catalog with authored room presentation changes used before rebinding.</param>
     private static void VerifyScreenMenuRebinding(ISnesAddressSpace bus, ISnesAddressSpace guard, AreaMapPresentationCatalog original, AreaMapPresentationCatalog edited)
     {
         var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
@@ -166,10 +176,16 @@ internal static partial class Program
         AssertTrue(saves.ReadSlot(0)!.ToSnapshot().MapStationBytes.AsSpan().SequenceEqual(data.MapStationBytes), "screen edits preserve saved map progression");
     }
 
+    /// <summary>Rejects cartridge reads of installed map presentation while forwarding unrelated memory access.</summary>
     private sealed class MapScreenReadGuard : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Underlying address space used for reads and writes outside the blocked presentation ranges.</summary>
         private readonly ISnesAddressSpace source;
+        /// <summary>Absolute cartridge addresses occupied by map tiles, artwork, room frame data, and label pointers.</summary>
         private readonly HashSet<int> forbidden = new();
+
+        /// <summary>Builds the blocked-address set for installed map presentation resources.</summary>
+        /// <param name="source">Address space whose nonpresentation reads and writes are forwarded.</param>
         public MapScreenReadGuard(ISnesAddressSpace source)
         {
             this.source = source;
@@ -185,27 +201,49 @@ internal static partial class Program
                 Add(FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), FileSelectMapRomData.RoomLabelPointers + area * 2), 24);
             void Add(int start, int length) { for (int offset = 0; offset < length; offset++) forbidden.Add(start + offset); }
         }
+        /// <summary>Throws when a requested cartridge address belongs to presentation data supplied by installed resources.</summary>
+        /// <param name="address">Absolute cartridge address being checked.</param>
+        /// <exception cref="InvalidOperationException">The address is in a blocked map-presentation range.</exception>
         private void RejectScreenSource(int address)
         {
             if (forbidden.Contains(address))
                 throw new InvalidOperationException($"Installed map screens read cartridge presentation at {address:X6}.");
         }
+        /// <summary>Checks the presentation block list before forwarding a normal address-space read.</summary>
+        /// <param name="address">Absolute address to read.</param>
+        /// <returns>The underlying source byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address is blocked map-presentation data.</exception>
         public byte ReadByte(int address)
         {
             RejectScreenSource(address);
             return source.ReadByte(address);
         }
+        /// <summary>Checks the presentation block list before forwarding a cartridge-import read.</summary>
+        /// <param name="address">Absolute cartridge address to read.</param>
+        /// <returns>The underlying cartridge byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address is blocked map-presentation data.</exception>
         public byte ReadCartridgeByte(int address)
         {
             RejectScreenSource(address);
             return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
         }
+        /// <summary>Forwards a work-RAM read to the wrapped mutable-memory source.</summary>
+        /// <param name="address">Work-RAM address to read.</param>
+        /// <returns>The source byte at that address.</returns>
+        /// <exception cref="InvalidOperationException">The wrapped source does not expose work RAM.</exception>
         public byte ReadWorkRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Map-screen guard source does not expose WRAM.")).ReadWorkRamByte(address);
+        /// <summary>Forwards a save-RAM read to the wrapped mutable-memory source.</summary>
+        /// <param name="address">Save-RAM address to read.</param>
+        /// <returns>The source byte at that address.</returns>
+        /// <exception cref="InvalidOperationException">The wrapped source does not expose save RAM.</exception>
         public byte ReadSaveRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Map-screen guard source does not expose SRAM.")).ReadSaveRamByte(address);
+        /// <summary>Forwards a memory write to the underlying address space.</summary>
+        /// <param name="address">Absolute address to update.</param>
+        /// <param name="value">Byte written to that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

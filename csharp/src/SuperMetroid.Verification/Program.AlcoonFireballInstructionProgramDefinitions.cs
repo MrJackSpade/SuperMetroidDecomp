@@ -6,6 +6,7 @@ using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
+    /// <summary>Verifies Alcoon fireball definitions and production behavior against the supported retail ROM.</summary>
     private static void VerifyAlcoonFireballInstructionProgramDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -15,6 +16,8 @@ internal static partial class Program
         Suite(nameof(VerifyAlcoonFireballInstructionProgramDefinitions), () => VerifyAlcoonFireballInstructionProgramDefinitions(rom));
     }
 
+    /// <summary>Checks the four compiled visual operands against native pointers and rejects neighboring nonvisual words.</summary>
+    /// <param name="rom">Retail address space containing the native instruction and spritemap words.</param>
     private static void VerifyAlcoonFireballVisualSelectors(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0x9ea0, 0x9ea4, 0x9ea8, 0x9eac];
@@ -48,6 +51,8 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => EnemyProjectileSpritemapDefinitions.AlcoonFireballFrameAt(address),
                 "fireball resolver rejects distant invalid inputs");
     }
+    /// <summary>Checks the six compiled control words and verifies exact bank-byte ownership and invalid-word rejection.</summary>
+    /// <param name="rom">Retail address space used to read the native mechanics words.</param>
     private static void VerifyAlcoonFireballMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0x9e9e, 0x9ea2, 0x9ea6, 0x9eaa, 0x9eae, 0x9eb0];
@@ -90,6 +95,7 @@ internal static partial class Program
                 "Alcoon-fireball mechanics ordinal bounds");
     }
 
+    /// <summary>Checks the ordered four-word presentation address list and its ordinal bounds.</summary>
     private static void VerifyAlcoonFireballPresentationAddresses()
     {
         ushort[] expected = [0x9ea0, 0x9ea4, 0x9ea8, 0x9eac];
@@ -103,6 +109,8 @@ internal static partial class Program
                 "Alcoon-fireball presentation ordinal bounds");
     }
 
+    /// <summary>Exercises real spawned fireballs in both directions, including animation looping, shared deletion, and guarded ROM access.</summary>
+    /// <param name="rom">Retail address space used to verify instruction words and presentation selectors.</param>
     private static void VerifyAlcoonFireballInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -215,6 +223,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Repeats compiled mechanics lookups so the caller can measure warmed allocation behavior.</summary>
+    /// <returns>A checksum that keeps the lookup results observable.</returns>
     private static int ProbeAlcoonFireballInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -228,6 +238,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian projectile instruction word from its native bank.</summary>
+    /// <param name="source">Address space supplying the instruction bytes.</param>
+    /// <param name="address">Bank-relative address of the word's low byte.</param>
+    /// <returns>The two adjacent bytes combined into a 16-bit instruction word.</returns>
     private static ushort ReadAlcoonFireballInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -237,13 +251,23 @@ internal static partial class Program
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Rejects production reads of the migrated Alcoon fireball words and shared projectile mechanics.</summary>
+    /// <param name="source">Underlying address space used for permitted cartridge reads and writes.</param>
     private sealed class AlcoonFireballInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Counts attempts to read instruction bytes that production should resolve from compiled definitions.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes import-source reads through the guard's migrated-word checks.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The underlying byte when the guarded access is allowed.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects migrated fireball and shared-delete mechanics reads, then forwards other addresses.</summary>
+        /// <param name="address">Absolute cartridge address to read.</param>
+        /// <returns>The underlying source byte for a permitted address.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to migrated fireball or shared-delete mechanics.</exception>
         public byte ReadByte(int address)
         {
             if (((address & 0xff0000) == 0x860000 && (ushort)address is >= 0x9e9e and <= 0x9eb1) ||
@@ -257,6 +281,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a cartridge write to the wrapped address space.</summary>
+        /// <param name="address">Absolute cartridge address to update.</param>
+        /// <param name="value">Byte written to that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

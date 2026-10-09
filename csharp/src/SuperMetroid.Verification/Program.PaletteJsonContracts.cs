@@ -85,18 +85,33 @@ internal static partial class Program
             "legacy overrides and exact visible palette/animation isolation.");
     }
 
+    /// <summary>Pairs a representative palette JSON document with the production loader and schema behavior used to validate it.</summary>
+    /// <param name="Name">Short format label used in contract assertions and special-case checks.</param>
+    /// <param name="Document">Representative JSON object mutated to exercise accepted and rejected schema cases.</param>
+    /// <param name="Load">Production deserializer that reads one JSON document from a stream.</param>
+    /// <param name="CaseInsensitive">Whether this format preserves its historical case-insensitive property matching.</param>
     private sealed record PaletteJsonContract(string Name, JsonObject Document, Action<Stream> Load,
         bool CaseInsensitive = false);
 
+    /// <summary>Serializes a sample contract object with camel-case property names for schema mutation.</summary>
+    /// <param name="document">Typed sample document for the palette format under test.</param>
+    /// <returns>The serialized document as a mutable JSON object.</returns>
     private static JsonObject PaletteContractDocument(object document) => (JsonObject)JsonSerializer.SerializeToNode(
         document, document.GetType(), new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })!;
 
+    /// <summary>Encodes JSON text as UTF-8 and passes its read-only stream to the format's production loader.</summary>
+    /// <param name="contract">Contract specifying which production loader receives the document.</param>
+    /// <param name="json">JSON text to parse.</param>
     private static void LoadPaletteContract(PaletteJsonContract contract, string json)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json), writable: false);
         contract.Load(stream);
     }
 
+    /// <summary>Applies a schema mutation to a deep copy and returns the changed object as JSON text.</summary>
+    /// <param name="source">Representative object to copy without altering the original contract fixture.</param>
+    /// <param name="mutation">Edit applied to the copied root object.</param>
+    /// <returns>The mutated copy serialized as JSON.</returns>
     private static string Mutate(JsonObject source, Action<JsonObject> mutation)
     {
         var copy = (JsonObject)source.DeepClone();
@@ -104,6 +119,10 @@ internal static partial class Program
         return copy.ToJsonString();
     }
 
+    /// <summary>Walks object-property and array-index segments to locate a node in a representative JSON tree.</summary>
+    /// <param name="root">Root node from which path traversal begins.</param>
+    /// <param name="path">Property names and numeric array indices describing the node location.</param>
+    /// <returns>The node at the requested path, or <see langword="null"/> when that value is JSON null.</returns>
     private static JsonNode? PaletteContractNode(JsonNode root, string[] path)
     {
         JsonNode? node = root;
@@ -111,6 +130,10 @@ internal static partial class Program
         return node;
     }
 
+    /// <summary>Assigns a value at the final path segment after resolving its containing object or array.</summary>
+    /// <param name="root">Root node whose descendant is updated in place.</param>
+    /// <param name="path">Property names and numeric array indices locating the value to replace.</param>
+    /// <param name="value">Replacement JSON value, including <see langword="null"/> when testing null rejection.</param>
     private static void SetPaletteContractNode(JsonNode root, string[] path, JsonNode? value)
     {
         JsonNode parent = PaletteContractNode(root, path[..^1])!;
@@ -118,6 +141,10 @@ internal static partial class Program
         else parent[path[^1]] = value;
     }
 
+    /// <summary>Finds array locations in a sample schema and descends through the first element of each array.</summary>
+    /// <param name="node">Current JSON node being inspected.</param>
+    /// <param name="path">Property and index segments accumulated from the root.</param>
+    /// <returns>Paths to arrays and to nested arrays reachable through representative first elements.</returns>
     private static IEnumerable<string[]> PaletteContractArrayPaths(JsonNode? node, string[]? path = null)
     {
         path ??= [];
@@ -131,6 +158,10 @@ internal static partial class Program
                 foreach (string[] child in PaletteContractArrayPaths(pair.Value, [.. path, pair.Key])) yield return child;
     }
 
+    /// <summary>Finds RGB color objects by their red channel, following object fields and representative first array elements.</summary>
+    /// <param name="node">Current JSON node being inspected.</param>
+    /// <param name="path">Property and index segments accumulated from the root.</param>
+    /// <returns>Paths to objects recognized as palette colors by the presence of a red property.</returns>
     private static IEnumerable<string[]> PaletteContractColorPaths(JsonNode? node, string[]? path = null)
     {
         path ??= [];

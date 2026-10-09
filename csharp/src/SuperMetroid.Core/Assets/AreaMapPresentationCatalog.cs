@@ -10,7 +10,65 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable map content snapshot. Overrides never alter stock provenance or exploration rules.</summary>
 public sealed class AreaMapPresentationCatalog : IVramAssetProvider
 {
+    /// <summary>Per-area map views used to resolve each area's tiles, palettes, and screen presentation.</summary>
     private readonly IAreaMapView[] areas;
+/// <summary>Combines the selected area views, content identity, and compiled shared presentation resources into one immutable runtime catalog.</summary>
+/// <param name="areas">Compiled views indexed by retail area identity.</param>
+/// <param name="contentIdentity">Hash identity of the stock and selected presentation content.</param>
+/// <param name="tiles">Map-screen character tile atlas.</param>
+/// <param name="hudTiles">Gameplay HUD character atlas.</param>
+/// <param name="highlightCycle">Map highlight palette cycle.</param>
+/// <param name="palettes">Static map and pause-screen palettes.</param>
+/// <param name="labels">World-map area-label layout.</param>
+/// <param name="stations">Map-station label layout.</param>
+/// <param name="landmarks">Map landmark layout.</param>
+/// <param name="saveMarkers">File-select save-marker layout.</param>
+/// <param name="arrows">Map-arrow presentation.</param>
+/// <param name="screens">Compiled map-screen tilemap layers.</param>
+/// <param name="worldArtwork">World-map foreground and background artwork.</param>
+/// <param name="sprites">Map sprite catalog.</param>
+/// <param name="pauseTiles">Pause-menu character atlas.</param>
+/// <param name="pauseBackdrops">Pause-screen backdrop presentation.</param>
+/// <param name="pauseWireframes">Pause-screen suit wireframes.</param>
+/// <param name="pauseSelectors">Pause-screen selection indicators.</param>
+/// <param name="pauseReserveTanks">Reserve-tank strip presentation.</param>
+/// <param name="pauseReserveUi">Reserve labels, digits, and arrows.</param>
+/// <param name="pauseEquipmentBase">Pause equipment base tilemap.</param>
+/// <param name="pauseEquipmentLabels">Pause equipment labels.</param>
+/// <param name="escapeTimer">Escape countdown display layout.</param>
+/// <param name="escapeTimerTiles">Escape countdown character tiles.</param>
+/// <param name="gameplayHud">Gameplay HUD display presentation.</param>
+/// <param name="gameOver">Game-over screen presentation.</param>
+/// <param name="gameOptions">Options-menu presentation.</param>
+/// <param name="fileSelect">File-select screen presentation.</param>
+/// <param name="gameplayMessageTitles">Gameplay message title presentation.</param>
+/// <param name="gameplayMessagePanels">Gameplay message panel presentation.</param>
+/// <param name="gameplayMessageNotices">Short gameplay notice presentation.</param>
+/// <param name="escapeTypewriter">Escape sequence typewriter presentation.</param>
+/// <param name="introNarration">Opening narration content and layout.</param>
+/// <param name="introFont">Opening narration font atlas.</param>
+/// <param name="endingText">Ending text presentation.</param>
+/// <param name="endingFont">Ending font atlas.</param>
+/// <param name="staffCredits">Staff-credit presentation.</param>
+/// <param name="titleGraphics">Title-screen graphics.</param>
+/// <param name="titlePalette">Title-screen palette.</param>
+/// <param name="titleGradient">Title-screen gradient.</param>
+/// <param name="roomPaletteFx">Room palette effects.</param>
+/// <param name="motherBrainHealthPalette">Mother Brain health palette.</param>
+/// <param name="motherBrainRainbowPalette">Mother Brain rainbow palette.</param>
+/// <param name="roomFxAnimatedTiles">Animated room-effect tile atlas.</param>
+/// <param name="roomFxLayer3Tilemaps">Room-effect layer-three tilemaps.</param>
+/// <param name="roomFxPaletteBlends">Room-effect palette blends.</param>
+/// <param name="powerBombFixedColors">Power Bomb fixed colors.</param>
+/// <param name="samusVisorColors">Samus visor colors.</param>
+/// <param name="samusHurtColors">Samus hurt colors.</param>
+/// <param name="samusSuitColors">Samus suit colors.</param>
+/// <param name="samusFullBodyCycleColors">Samus full-body cycle colors.</param>
+/// <param name="crystalFlashColors">Crystal Flash colors.</param>
+/// <param name="samusChargeColors">Samus charge colors.</param>
+/// <param name="ceresRidleyColors">Ceres Ridley colors.</param>
+/// <param name="ceresRidleyMode7Colors">Ceres Ridley Mode-7 colors.</param>
+/// <param name="samusHyperBeamColors">Samus Hyper Beam colors.</param>
 private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity, MapTileAtlas tiles, HudTileAtlas hudTiles, MapPaletteCycle highlightCycle, MapStaticPalettes palettes, WorldMapLabelLayout labels, MapStationLayout stations, MapLandmarkLayout landmarks, MapSaveMarkerLayout saveMarkers, MapArrowPresentation arrows, MapScreenPresentation screens, WorldMapArtwork worldArtwork, MapSpriteCatalog sprites, MapTileAtlas pauseTiles, PauseBackdropPresentation pauseBackdrops, PauseWireframePresentation pauseWireframes, PauseSelectorPresentation pauseSelectors, PauseReserveTankPresentation pauseReserveTanks, PauseReserveUiPresentation pauseReserveUi, PauseEquipmentBasePresentation pauseEquipmentBase, PauseEquipmentLabelPresentation pauseEquipmentLabels, EscapeTimerPresentation escapeTimer, EscapeTimerTileAtlas escapeTimerTiles, GameplayHudPresentation gameplayHud, GameOverPresentation gameOver, GameOptionsPresentation gameOptions, FileSelectPresentation fileSelect, GameplayMessageTitlePresentation gameplayMessageTitles, GameplayMessagePanelPresentation gameplayMessagePanels, GameplayMessageNoticePresentation gameplayMessageNotices, EscapeTypewriterPresentation escapeTypewriter, IntroNarrationPresentation introNarration, IntroFontAtlas introFont, EndingTextPresentation endingText, EndingFontAtlas endingFont, CreditsPresentation staffCredits, TitleGraphicsPresentation titleGraphics, TitlePalettePresentation titlePalette, TitleGradientPresentation titleGradient, RoomPaletteFxPresentation roomPaletteFx, MotherBrainHealthPalettePresentation motherBrainHealthPalette, MotherBrainRainbowPalettePresentation motherBrainRainbowPalette, RoomFxAnimatedTileAtlas roomFxAnimatedTiles, RoomFxLayer3TilemapCatalog roomFxLayer3Tilemaps, RoomFxPaletteBlendCatalog roomFxPaletteBlends, PowerBombFixedColorCatalog powerBombFixedColors, SamusVisorColorCatalog samusVisorColors, SamusHurtColorCatalog samusHurtColors, SamusSuitColorCatalog samusSuitColors, SamusFullBodyCycleColorCatalog samusFullBodyCycleColors, CrystalFlashColorCatalog crystalFlashColors, SamusChargeColorCatalog samusChargeColors, CeresRidleyColorCatalog ceresRidleyColors, CeresRidleyMode7ColorCatalog ceresRidleyMode7Colors, SamusHyperBeamColorCatalog samusHyperBeamColors)
     {
         this.areas = areas;
@@ -385,18 +443,29 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
     /// <summary>Reads stock files that must match the extraction manifest's SHA-256 values.</summary>
     private sealed class VerifiedStockReader : IDisposable
     {
+        /// <summary>Directory containing the stock files whose hashes are recorded in the manifest.</summary>
         private readonly string directory;
+        /// <summary>Expected SHA-256 values and resource provenance loaded from the stock manifest.</summary>
         private readonly AreaMapCatalogManifest manifest;
+        /// <summary>Names of manifest resources that have been read and successfully verified.</summary>
         private readonly HashSet<string> read = new(StringComparer.Ordinal);
         // Stock bytes live only for one catalog load; every buffer returns to the pool on dispose.
+        /// <summary>Rented file buffers retained until catalog loading finishes, then returned to the shared pool.</summary>
         private readonly List<byte[]> rented = [];
 
+        /// <summary>Creates a reader that verifies stock resources against a previously validated manifest.</summary>
+        /// <param name="directory">Directory containing the manifest and stock resources.</param>
+        /// <param name="manifest">Validated mapping of stock filenames to expected digests.</param>
         private VerifiedStockReader(string directory, AreaMapCatalogManifest manifest)
         {
             this.directory = directory;
             this.manifest = manifest;
         }
 
+        /// <summary>Loads and validates the stock manifest before opening the verified resource reader.</summary>
+        /// <param name="directory">Directory containing the stock manifest and resource files.</param>
+        /// <returns>A reader that checks each resource against its manifest digest.</returns>
+        /// <exception cref="InvalidDataException">The manifest is missing, malformed, or does not describe the supported resource set.</exception>
         public static VerifiedStockReader Open(string directory)
         {
             AreaMapCatalogManifest manifest;
@@ -412,6 +481,10 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
             return new VerifiedStockReader(directory, manifest);
         }
 
+        /// <summary>Reads a manifest-listed stock file into a pooled buffer and verifies its SHA-256 digest.</summary>
+        /// <param name="file">Manifest key and filename of the stock resource to read.</param>
+        /// <returns>A segment containing the verified file bytes; the buffer remains owned until this reader is disposed.</returns>
+        /// <exception cref="InvalidDataException">The file is absent from the manifest or its digest does not match.</exception>
         public ArraySegment<byte> Read(string file)
         {
             if (!manifest.Sha256.TryGetValue(file, out string? expected))
@@ -430,12 +503,16 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
             return bytes;
         }
 
+        /// <summary>Returns every stock-file buffer rented by this reader to the shared array pool.</summary>
         public void Dispose()
         {
             foreach (byte[] buffer in rented) ArrayPool<byte>.Shared.Return(buffer);
             rented.Clear();
         }
 
+        /// <summary>Loads the station reveal mask and validates one unique set of in-bounds cells for each retail area.</summary>
+        /// <returns>Area-indexed sets of logical map cell indices revealed by stations.</returns>
+        /// <exception cref="InvalidDataException">The mask is malformed, omits an area, or contains duplicate or out-of-range cells.</exception>
         public Dictionary<AreaId, HashSet<int>> ReadStationCells()
         {
             Dictionary<string, int[]> masks;

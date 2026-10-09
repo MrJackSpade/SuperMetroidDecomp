@@ -110,6 +110,12 @@ internal static partial class Program
         Console.WriteLine("  Room-FX animation artwork: 30 simple and four treadmill PNG frames match native bytes and ROM-free NMI transfers.");
     }
 
+    /// <summary>Verifies that edited room-FX artwork reaches direct and queued VRAM transfers, remains ROM-free at runtime, and that older atlas overrides preserve their edits while inheriting newly added stock frames.</summary>
+    /// <param name="rom">Retail address space used to compare compiled artwork with native bytes and guard runtime reads.</param>
+    /// <param name="stock">Directory containing the checked stock atlas used as the override fallback.</param>
+    /// <param name="overrides">Directory in which temporary edited and legacy atlas files are created.</param>
+    /// <param name="baseline">Installed presentation before applying the edited atlas.</param>
+    /// <param name="initialPalettes">Initial palette assets used to construct the runtime while checking the edited treadmill transfer.</param>
     private static void VerifyRoomFxAnimatedTileArtworkOverride(ISnesAddressSpace rom,
         string stock, string overrides, AreaMapPresentationCatalog baseline,
         GameplayBasePaletteCatalog initialPalettes)
@@ -246,30 +252,51 @@ internal static partial class Program
         Console.WriteLine("Room-FX animation override: edited simple/treadmill/statue pixels reach VRAM; both legacy sheet sizes retain edits.");
     }
 
+    /// <summary>Address-space wrapper that counts and rejects bank-$87 reads while forwarding unrelated memory access to the wrapped source.</summary>
+    /// <param name="inner">Underlying address space, including mutable memory when WRAM or SRAM access is requested.</param>
     private sealed class RoomFxArtworkForbiddenBus(ISnesAddressSpace inner)
         : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Number of rejected reads targeting the bank that contains installed room-FX artwork sources.</summary>
         public int ForbiddenReads { get; private set; }
+
+        /// <summary>Rejects bank-$87 artwork access before forwarding any permitted byte read.</summary>
+        /// <param name="address">Address-space location requested by the consumer.</param>
+        /// <returns>The wrapped source byte for addresses outside bank $87.</returns>
+        /// <exception cref="InvalidOperationException">The read targets bank $87, where runtime artwork access is forbidden.</exception>
         public byte ReadByte(int address)
         {
             RejectArtworkRead(address);
             return inner.ReadByte(address);
         }
 
+        /// <summary>Applies the bank-$87 guard before routing a cartridge import read to the wrapped import source.</summary>
+        /// <param name="address">Cartridge address requested by the consumer.</param>
+        /// <returns>The wrapped import source byte when the address is outside bank $87.</returns>
         public byte ReadCartridgeByte(int address)
         {
             RejectArtworkRead(address);
             return CartridgeImportSource.Require(inner).ReadCartridgeByte(address);
         }
 
+        /// <summary>Forwards a WRAM read to the wrapped mutable-memory source.</summary>
+        /// <param name="address">WRAM address requested by the consumer.</param>
+        /// <returns>The byte stored at that address.</returns>
+        /// <exception cref="InvalidOperationException">The wrapped source does not expose mutable memory.</exception>
         public byte ReadWorkRamByte(int address) =>
             (inner as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Room-FX verification source requires WRAM.")).ReadWorkRamByte(address);
 
+        /// <summary>Forwards an SRAM read to the wrapped mutable-memory source.</summary>
+        /// <param name="address">SRAM address requested by the consumer.</param>
+        /// <returns>The byte stored at that address.</returns>
+        /// <exception cref="InvalidOperationException">The wrapped source does not expose mutable memory.</exception>
         public byte ReadSaveRamByte(int address) =>
             (inner as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Room-FX verification source requires SRAM.")).ReadSaveRamByte(address);
 
+        /// <summary>Counts and throws for addresses in bank $87, which would indicate an unintended cartridge-art read.</summary>
+        /// <param name="address">Address to inspect before forwarding a read.</param>
         private void RejectArtworkRead(int address)
         {
             if ((address >> 16) == 0x87)
@@ -278,14 +305,29 @@ internal static partial class Program
                 throw new InvalidOperationException($"Installed room-FX artwork read ROM ${address:X6}.");
             }
         }
+        /// <summary>Forwards writes unchanged; the wrapper only forbids reads from the artwork bank.</summary>
+        /// <param name="address">Address-space location to write.</param>
+        /// <param name="value">Byte value passed to the wrapped source.</param>
         public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
     }
 
+    /// <summary>Adapts an installed room-FX atlas to queued transfers and rejects typed-asset lookups that this verification does not expect.</summary>
+    /// <param name="atlas">Compiled artwork atlas used to resolve source-address and byte-count requests.</param>
     private sealed class RoomFxArtworkTestProvider(RoomFxAnimatedTileAtlas atlas) :
         IVramAssetProvider, IInstalledArtworkTransferSource
     {
+        /// <summary>Fails loudly because this verification expects installed artwork to be selected by source address, not typed asset ID.</summary>
+        /// <param name="asset">Unexpected typed asset requested by the transfer.</param>
+        /// <returns>This provider never returns for a typed-asset request.</returns>
+        /// <exception cref="InvalidOperationException">A queued transfer requests an asset ID instead of atlas source data.</exception>
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
             throw new InvalidOperationException($"Room-FX test did not expect typed asset {asset}.");
+
+        /// <summary>Looks up the requested source range in the compiled atlas, requiring the exact transfer length.</summary>
+        /// <param name="sourceAddress">Cartridge identity of the artwork frame.</param>
+        /// <param name="byteCount">Number of bytes requested by the queued transfer.</param>
+        /// <param name="data">Receives the matching installed frame bytes when the range is present.</param>
+        /// <returns>True when the atlas contains a frame for the source and requested length.</returns>
         public bool TryResolve(int sourceAddress, int byteCount,
             out ReadOnlyMemory<byte> data) => atlas.TryResolve(sourceAddress, byteCount, out data);
     }

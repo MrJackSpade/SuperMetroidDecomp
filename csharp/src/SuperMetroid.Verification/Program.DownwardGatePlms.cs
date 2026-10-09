@@ -5,6 +5,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Runs focused checks for compiled downward-gate shot-block instruction data.</summary>
+    /// <param name="rom">Retail cartridge image used by checks that compare imported source data.</param>
     private static void VerifyDownwardGateShotBlockDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyDownwardGateListSelection), () => VerifyDownwardGateListSelection(rom));
@@ -47,6 +49,7 @@ internal static partial class Program
             "  Downward gates: setup, slot order, actor handoff, and all eight shot filters agree.");
     }
 
+    /// <summary>Compares compiled gate population headers with their retail cartridge words.</summary>
     private static void VerifyDownwardGateHeaderDefinitions()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -57,6 +60,7 @@ internal static partial class Program
                 "Gate compiled-population first instruction");
     }
 
+    /// <summary>Checks gate draw data and its geometry, collision, and visual behavior against retail data.</summary>
     private static void VerifyDownwardGateDrawDefinitions()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -67,6 +71,7 @@ internal static partial class Program
         Suite(nameof(VerifyDownwardGateDrawVisuals), () => VerifyDownwardGateDrawVisuals(rom));
     }
 
+    /// <summary>Checks compiled gate instruction programs and their controls, draws, operands, and sounds.</summary>
     private static void VerifyDownwardGateProgramDefinitions()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -78,6 +83,7 @@ internal static partial class Program
         Suite(nameof(VerifyDownwardGateProgramSounds), () => VerifyDownwardGateProgramSounds(rom));
     }
 
+    /// <summary>Exercises resident gate setup, collision changes, and the closed/open projectile handoff.</summary>
     private static void VerifyDownwardGateSetupAndProjectile()
     {
         (TestAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer,
@@ -204,6 +210,10 @@ internal static partial class Program
             "moving gate travels four tiles down and remains parked closed");
     }
 
+    /// <summary>Checks one trigger's projectile filter and resulting collision draw against the expected retail behavior.</summary>
+    /// <param name="trigger">Side and color variant of the gate shot block being exercised.</param>
+    /// <param name="projectile">Projectile type presented to the trigger dispatcher.</param>
+    /// <param name="accepted">Whether the cartridge trigger is expected to accept this projectile.</param>
     private static void VerifyDownwardGateTrigger(
         DownwardGateTriggerBehavior trigger,
         ushort projectile,
@@ -236,6 +246,10 @@ internal static partial class Program
             $"{trigger} trigger list draws once and deletes without ROM control bytes");
     }
 
+    /// <summary>Builds a synthetic room containing a resident gate and its selected shot-block trigger.</summary>
+    /// <param name="trigger">Trigger variant used to encode the shot-block argument and placement.</param>
+    /// <param name="visuals">Optional compiled visual catalog supplied to the PLM system.</param>
+    /// <returns>The bus, room data, streamer, loaded PLMs, and gate's block index for the fixture.</returns>
     private static (TestAddressSpace Bus, RoomLevelData Level,
         BackgroundTilemapStreamer Streamer, RoomPlmSystem Plms, int GateBlockIndex)
         CreateDownwardGateFixture(DownwardGateTriggerBehavior trigger,
@@ -287,10 +301,15 @@ internal static partial class Program
         return (bus, level, streamer, plms, gateY * roomWidth + gateX);
     }
 
+    /// <summary>Address-space wrapper that prevents runtime population setup from rereading imported gate header words.</summary>
+    /// <param name="source">Underlying test bus used for reads outside the forbidden compiled-header addresses and for writes.</param>
     private sealed class DownwardGateHeaderReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
     {
 
 
+        /// <summary>Reads the source bus unless the address is one of the gate header words that runtime setup must not import.</summary>
+        /// <param name="address">24-bit cartridge address requested by production code.</param>
+        /// <returns>The byte at the requested address.</returns>
         public byte ReadByte(int address)
         {
             // The resident and shot-block gate headers' first-instruction words.
@@ -300,9 +319,17 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a cartridge write to the underlying test bus.</summary>
+        /// <param name="address">24-bit cartridge address receiving the write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
+    /// <summary>Advances one room-PLM update with neutral scroll, death, and controller inputs.</summary>
+    /// <param name="plms">Loaded room PLM system to advance.</param>
+    /// <param name="bus">Cartridge address space consulted by PLM instructions.</param>
+    /// <param name="level">Room collision and block data used during the update.</param>
+    /// <param name="streamer">Background tilemap streamer used by PLM drawing.</param>
     private static void StepDownwardGatePlm(
         RoomPlmSystem plms,
         TestAddressSpace bus,
@@ -320,6 +347,8 @@ internal static partial class Program
             enemyDeathQuota: 0,
             controllerNewInput: 0);
 
+    /// <summary>Installs the cartridge bytes required to execute the gate's closed and moving projectile definitions.</summary>
+    /// <param name="bus">Synthetic address space receiving the projectile definitions and instruction data.</param>
     private static void SeedDownwardGateProjectileRom(TestAddressSpace bus)
     {
         // Both exact fourteen-byte definitions share the same inert initial preinstruction.

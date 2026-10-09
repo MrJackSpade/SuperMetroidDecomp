@@ -7,6 +7,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies eye-door draw catalogs, native room mutations, retail program lifecycles, and installed visual overrides.</summary>
+    /// <param name="rom">Cartridge address space used for native draw mappings and retail instruction streams.</param>
     private static void VerifyEyeDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyEyeDoorVisualIds), () => VerifyEyeDoorVisualIds());
@@ -47,6 +49,8 @@ internal static partial class Program
             "  Eye doors: 622 compiled instruction bytes, guarded mirrored lifecycles, 24 physical draws and 23 compatible authored identities preserve collision.");
     }
 
+    /// <summary>Runs the focused checks for compiled eye-door instruction words, timing, draws, callbacks, and counters.</summary>
+    /// <param name="rom">Cartridge address space used as the reference for native instruction words.</param>
     private static void VerifyEyeDoorProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyEyeDoorProgramControl), () => VerifyEyeDoorProgramControl(rom));
@@ -63,6 +67,10 @@ internal static partial class Program
         Suite(nameof(VerifyEyeDoorProgramLoopCount), () => VerifyEyeDoorProgramLoopCount(rom));
     }
 
+    /// <summary>Exercises the three compiled draw lists for one orientation and checks their exact room-block writes.</summary>
+    /// <param name="orientation">Facing direction selecting the matching native draw-list pointers.</param>
+    /// <param name="lists">Compiled draw lists supplied to room population and checked against collision data.</param>
+    /// <param name="visuals">Optional editable visual catalog whose selected word must reach PLM tile updates.</param>
     private static void VerifyEyeDoorNativeDrawPath(
         EyeDoorOrientation orientation,
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists,
@@ -117,6 +125,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Runs a retail eye-door opening from a reconstructed bank-$84 program through collision and persistence.</summary>
+    /// <param name="rom">Cartridge address space providing the native bank-$84 program bytes.</param>
+    /// <param name="orientation">Door direction used to choose the three native PLM headers.</param>
+    /// <param name="lists">Compiled draw lists used while loading and advancing the door components.</param>
     private static void VerifyEyeDoorRetailProgramPath(
         SuperMetroidAddressSpace rom,
         EyeDoorOrientation orientation,
@@ -215,6 +227,8 @@ internal static partial class Program
             $"{orientation} opened eye-door reload avoids instruction and draw ROM reads");
     }
 
+    /// <summary>Checks extraction, stock-manifest validation, visual overrides, stock refresh, and malformed-file rejection.</summary>
+    /// <param name="rom">Cartridge address space used to extract the stock eye-door visual catalog.</param>
     private static void VerifyEyeDoorVisualInstallation(SuperMetroidAddressSpace rom)
     {
         string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
@@ -274,19 +288,35 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Guards compiled eye-door instruction and draw payload ranges while forwarding other memory accesses.</summary>
+    /// <param name="source">Underlying mutable address space used for permitted reads and writes.</param>
+    /// <param name="lists">Compiled draw lists whose source payloads must not be reread at runtime.</param>
     private sealed class EyeDoorDrawReadGuard(
         ISnesAddressSpace source,
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists) : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Number of attempts to read compiled eye-door instructions or draw payload bytes.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
         // The fixture's constructed eye-door programs run from low work RAM.
+        /// <summary>Forwards a low-WRAM read to the mutable source used by the fixture.</summary>
+        /// <param name="address">Work-RAM address requested by the PLM interpreter.</param>
+        /// <returns>The source byte at that work-RAM address.</returns>
         public byte ReadWorkRamByte(int address) => ((ISnesMutableMemory)source).ReadWorkRamByte(address);
 
+        /// <summary>Forwards a save-RAM read to the mutable source used by the fixture.</summary>
+        /// <param name="address">Save-RAM address requested by the caller.</param>
+        /// <returns>The source byte at that save-RAM address.</returns>
         public byte ReadSaveRamByte(int address) => ((ISnesMutableMemory)source).ReadSaveRamByte(address);
 
+        /// <summary>Routes cartridge reads through the guard so compiled-data accesses are counted and rejected.</summary>
+        /// <param name="address">Cartridge byte address requested by the importer or runtime.</param>
+        /// <returns>The source byte when the address is outside the guarded ranges.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of compiled program and draw bytes while passing unrelated addresses through.</summary>
+        /// <param name="address">Address requested from the fixture's wrapped memory.</param>
+        /// <returns>The source byte if the read does not overlap compiled eye-door data.</returns>
         public byte ReadByte(int address)
         {
             if (address is >= 0x84d81e and <= 0x84da8b)
@@ -309,6 +339,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged because this guard only detects forbidden runtime reads.</summary>
+        /// <param name="address">Destination address for the write.</param>
+        /// <param name="value">Byte written to the underlying mutable address space.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

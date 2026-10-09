@@ -11,14 +11,26 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class CeresDoorNormalPaintDefinitions
 {
+    /// <summary>Largest channel value representable by the five-bit SNES color components.</summary>
     private const int MaximumChannel = (1 << 5) - 1;
+
+    /// <summary>Blue-channel increase applied to the first two bevel highlights, capped at the five-bit channel maximum.</summary>
     private const int HighlightBlueTint = 14;
 
+    /// <summary>Separate policy for the copied warm target colors in palette slots nine through fourteen.</summary>
     private readonly CeresDoorWarmTargetPaintDefinitions warm;
+
     internal CeresDoorWarmTargetPaintDefinitions WarmTargets => warm;
+
+    /// <summary>Five-bit paint seeds keyed by one-based palette slot and color-channel index.</summary>
     private readonly Dictionary<int, int> paint = [];
+
+    /// <summary>Original slot colors retained when the calculated categorical paint differs from the supplied native color.</summary>
     private readonly Dictionary<int, ushort> edits = [];
 
+    /// <summary>Builds channel seeds for categorical paint and preserves source colors that the shared paint rules cannot reproduce.</summary>
+    /// <param name="colors">The fifteen normal-door palette colors in slot order, encoded as SNES BGR555 values.</param>
+    /// <exception cref="ArgumentException">The palette does not contain exactly fifteen colors.</exception>
     internal CeresDoorNormalPaintDefinitions(ReadOnlySpan<ushort> colors)
     {
         if (colors.Length != 15) throw new ArgumentException("Normal door paint requires fifteen colors.", nameof(colors));
@@ -31,6 +43,10 @@ internal sealed class CeresDoorNormalPaintDefinitions
             if (Calculate(slot) != colors[slot - 1]) edits.Add(slot, colors[slot - 1]);
     }
 
+    /// <summary>Identifies which slot/channel combinations have independently stored paint seeds instead of shared or calculated components.</summary>
+    /// <param name="slot">One-based palette slot.</param>
+    /// <param name="channel">Component index, where zero is red, one is green, and two is blue.</param>
+    /// <returns>True when the component is recorded as a seed in the paint map.</returns>
     private static bool StoresPaint(int slot, int channel) => channel switch
     {
         0 => false,
@@ -39,8 +55,16 @@ internal sealed class CeresDoorNormalPaintDefinitions
         _ => false,
     };
 
+    /// <summary>Returns the stored five-bit component used as the paint seed for a slot.</summary>
+    /// <param name="slot">One-based palette slot.</param>
+    /// <param name="channel">Component index in the slot's paint data.</param>
+    /// <returns>The seeded channel value.</returns>
     private int Seed(int slot, int channel) => paint[slot * 3 + channel];
 
+    /// <summary>Returns the normal-door color for a zero-based palette index, using preserved source paint or the categorical calculation as appropriate.</summary>
+    /// <param name="index">Zero-based index into the fifteen supplied palette slots.</param>
+    /// <returns>The BGR555 color for the requested slot.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the fifteen-slot palette.</exception>
     internal ushort ColorAt(int index)
     {
         if ((uint)index >= 15) throw new IndexOutOfRangeException();
@@ -48,6 +72,9 @@ internal sealed class CeresDoorNormalPaintDefinitions
         return edits.TryGetValue(slot, out ushort color) ? color : Calculate(slot);
     }
 
+    /// <summary>Calculates the color for a one-based slot from its stored channel seeds, bevel highlight policy, and warm-target palette.</summary>
+    /// <param name="slot">One-based normal-door palette slot.</param>
+    /// <returns>The calculated BGR555 color before any preserved source-color override is applied.</returns>
     private ushort Calculate(int slot)
     {
         if (slot is >= 9 and <= 14) return warm.ColorAt(slot - 9);

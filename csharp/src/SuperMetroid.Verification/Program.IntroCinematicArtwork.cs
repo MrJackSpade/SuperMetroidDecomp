@@ -585,6 +585,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Compares installed eye frames with native VRAM output and verifies artwork rebinding preserves the blink script.</summary>
+    /// <param name="bus">Retail cartridge address space used to construct the native reference and guarded installed path.</param>
+    /// <param name="stock">Installed opening-eye frames used by the production object system.</param>
+    /// <param name="installation">Installation whose editable eye-tilemap document is changed and reloaded.</param>
     private static void VerifyIntroEyeArtwork(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
@@ -659,6 +663,10 @@ internal static partial class Program
             "installed eye lists and all four frames avoid native source reads");
     }
 
+    /// <summary>Checks native caret OAM composition and verifies an edited frame reaches the installed blink sequence.</summary>
+    /// <param name="bus">Retail address space supplying native caret instructions and spritemaps.</param>
+    /// <param name="stock">Installed caret compositions used by the production draw path.</param>
+    /// <param name="installation">Installation whose caret sprite document is edited and loaded.</param>
     private static void VerifyIntroCaretSpriteArtwork(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
@@ -781,6 +789,9 @@ internal static partial class Program
             "installed caret blink avoids cartridge instruction and visual reads");
     }
 
+    /// <summary>Verifies flashback setup uses the imported Mother Brain collision map without rereading its cartridge source.</summary>
+    /// <param name="bus">Retail address space used to obtain the native collision reference and guard the installed path.</param>
+    /// <param name="stock">Installed opening artwork supplied while constructing the production intro state.</param>
     private static void VerifyIntroMotherBrainCollision(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock)
     {
@@ -809,6 +820,10 @@ internal static partial class Program
             "flashback setup never rereads the physical level source");
     }
 
+    /// <summary>Compares installed Mother Brain sprite frames with native OAM and checks palette edits and scene rebinding.</summary>
+    /// <param name="bus">Retail address space supplying the native spritemaps and guarded runtime context.</param>
+    /// <param name="stock">Installed Mother Brain sprite compositions used for baseline rendering.</param>
+    /// <param name="installation">Installation whose Mother Brain sprite override is edited and loaded.</param>
     private static void VerifyIntroMotherBrainSpriteArtwork(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
@@ -894,6 +909,10 @@ internal static partial class Program
         File.Delete(overridePath);
     }
 
+    /// <summary>Checks native explosion OAM, override presentation, and flashback rendering without live spritemap reads.</summary>
+    /// <param name="bus">Retail address space supplying native explosion frames and the guarded runtime context.</param>
+    /// <param name="stock">Installed explosion compositions used for baseline OAM and rendering.</param>
+    /// <param name="installation">Installation whose explosion document is edited and loaded.</param>
     private static void VerifyIntroMotherBrainExplosionSpriteArtwork(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus, IntroCinematicArtworkCatalog stock,
         GameInstallation installation)
@@ -991,6 +1010,15 @@ internal static partial class Program
         File.Delete(overridePath);
     }
 
+    /// <summary>Blocks selected cartridge-backed intro assets so verification can detect runtime rereads after installation.</summary>
+    /// <param name="source">Underlying memory and cartridge source forwarded when an address is not blocked.</param>
+    /// <param name="blockIntroMotherBrainExplosions">Whether native Mother Brain explosion spritemap reads should be rejected.</param>
+    /// <param name="blockIntroRinkas">Whether native Rinka spritemap reads should be rejected.</param>
+    /// <param name="blockIntroEggEffects">Whether native egg-effect spritemap reads should be rejected.</param>
+    /// <param name="blockIntroDiscoveryActors">Whether native discovery egg and baby spritemap reads should be rejected.</param>
+    /// <param name="blockIntroScientistSprites">Whether native scientist spritemap reads should be rejected.</param>
+    /// <param name="blockCeresFlightSprites">Whether installed Ceres flight spritemap reads should be rejected.</param>
+    /// <param name="blockCeresDestructionSprites">Whether installed Ceres destruction spritemap reads should be rejected.</param>
     private sealed class IntroArtworkSourceReadGuard(ISnesAddressSpace source,
         bool blockIntroMotherBrainExplosions = false,
         bool blockIntroRinkas = false,
@@ -1001,8 +1029,13 @@ internal static partial class Program
         bool blockCeresDestructionSprites = false) :
         ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
     {
+        /// <summary>Count of reads rejected because they addressed an installed or imported cinematic asset.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Rejects configured asset ranges and otherwise reads the requested byte from the underlying source.</summary>
+        /// <param name="address">SNES address requested by production code.</param>
+        /// <returns>The underlying source byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to an asset range that this guard is configured to block.</exception>
         public byte ReadByte(int address)
         {
             if (blockCeresFlightSprites)
@@ -1222,8 +1255,15 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the underlying source without applying the read-range guard.</summary>
+        /// <param name="address">Address receiving the write.</param>
+        /// <param name="value">Byte value forwarded to the source.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
+        /// <summary>Applies the blocked-range check before forwarding a typed cartridge import read.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The imported byte from the underlying cartridge source.</returns>
+        /// <exception cref="InvalidOperationException">The address is blocked or the source does not support cartridge imports.</exception>
         public byte ReadCartridgeByte(int address)
         {
             // Reuse the existing forbidden-range check so typed DMA imports cannot
@@ -1234,11 +1274,19 @@ internal static partial class Program
                 .ReadCartridgeByte(address);
         }
 
+        /// <summary>Forwards a WRAM read to the underlying mutable-memory source.</summary>
+        /// <param name="address">WRAM address to read.</param>
+        /// <returns>The byte stored at that address.</returns>
+        /// <exception cref="InvalidOperationException">The underlying source does not expose mutable memory.</exception>
         public byte ReadWorkRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Intro artwork guard requires WRAM."))
             .ReadWorkRamByte(address);
 
+        /// <summary>Forwards a save-RAM read to the underlying mutable-memory source.</summary>
+        /// <param name="address">Save-RAM address to read.</param>
+        /// <returns>The byte stored at that address.</returns>
+        /// <exception cref="InvalidOperationException">The underlying source does not expose mutable memory.</exception>
         public byte ReadSaveRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Intro artwork guard requires SRAM."))

@@ -16,7 +16,9 @@ internal static class CrocomireBodyVisualDefinitions
     internal const ushort FirstPureOamFrame = 0xca7e;
     /// <summary>First skeleton extended frame at $A4:E1FE.</summary>
     internal const ushort FirstSkeletonFrame = 0xe1fe;
+    /// <summary>Total number of selected fight-body extended-frame roots, excluding the later skeleton range.</summary>
     internal const int BodyFrameCount = 50;
+    /// <summary>Number of selected body roots that contain both ordinary OAM components and a BG2 stream.</summary>
     internal const int MixedBg2FrameCount = 42;
 
     /// <summary>$A4:BFC4, twelve selected six-component charge/step-back frames.</summary>
@@ -32,6 +34,7 @@ internal static class CrocomireBodyVisualDefinitions
     /// <summary>$A4:C752, fourteen selected seven-component body frames.</summary>
     private const ushort LaterBodyStart = 0xc752;
 
+    /// <summary>Provides calculated indexed and enumerated access to all selected fight-body frame roots.</summary>
     internal static CrocomireBodyFrameSequence Frames => new(BodyFrameCount);
 
     /// <summary>Enumerates native frame roots in ascending order. A frame has a
@@ -58,6 +61,12 @@ internal static class CrocomireBodyVisualDefinitions
         InRun(pointer, BodyStart, 3, 0x3a) || pointer == IsolatedBodyFrame ||
         InRun(pointer, LaterBodyStart, 14, 0x3a);
 
+    /// <summary>Tests whether a pointer is exactly one frame root in an arithmetic run of fixed-size entries.</summary>
+    /// <param name="pointer">Candidate frame pointer.</param>
+    /// <param name="start">First frame root in the run.</param>
+    /// <param name="count">Number of roots in the run.</param>
+    /// <param name="stride">Byte distance between consecutive roots.</param>
+    /// <returns><see langword="true"/> only for an in-range root aligned to the run stride.</returns>
     private static bool InRun(ushort pointer, ushort start, int count, int stride)
     {
         int offset = pointer - start;
@@ -66,14 +75,29 @@ internal static class CrocomireBodyVisualDefinitions
 }
 
 /// <summary>Calculated body-frame enumeration; no cached pointer lookup.</summary>
+/// <param name="Length">Number of selected frame roots exposed by this sequence.</param>
 internal readonly record struct CrocomireBodyFrameSequence(int Length)
 {
+    /// <summary>Gets the native pointer for a zero-based position in the selected body-frame sequence.</summary>
+    /// <param name="index">Frame position to resolve; valid positions range from zero through <see cref="Length"/> minus one.</param>
     internal ushort this[int index] => CrocomireBodyVisualDefinitions.FramePointer(index);
+
+    /// <summary>Creates an enumerator that calculates each frame pointer as it advances.</summary>
+    /// <returns>A value-type enumerator over the sequence's selected frame roots.</returns>
     public Enumerator GetEnumerator() => new(this);
+
+    /// <summary>Tracks the current position while calculating pointers from the source sequence.</summary>
+    /// <param name="sequence">Sequence whose length and indexer define the enumeration.</param>
     internal struct Enumerator(CrocomireBodyFrameSequence sequence)
     {
+        /// <summary>Index of the current item; initialized before the first sequence position.</summary>
         private int index = -1;
+
+        /// <summary>Advances to the next frame root and reports whether the sequence still has an item.</summary>
+        /// <returns><see langword="true"/> when the new current position is within the sequence.</returns>
         public bool MoveNext() => ++index < sequence.Length;
+
+        /// <summary>Gets the calculated pointer at the current position after a successful advance.</summary>
         public ushort Current => sequence[index];
     }
 }

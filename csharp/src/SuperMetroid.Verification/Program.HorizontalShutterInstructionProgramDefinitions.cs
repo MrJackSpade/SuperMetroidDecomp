@@ -4,12 +4,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs the horizontal-shutter instruction checks against the retail cartridge image.</summary>
     private static void VerifyHorizontalShutterInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyHorizontalShutterInstructionProgramDefinitions), () => VerifyHorizontalShutterInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares compiled instruction data with the cartridge and exercises the real stationary-shutter program.</summary>
+    /// <param name="rom">Cartridge address space used to verify native mechanics and execute permitted instruction reads.</param>
     private static void VerifyHorizontalShutterInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -76,6 +79,8 @@ internal static partial class Program
             "bytes forbidden.");
     }
 
+    /// <summary>Checks the two compiled mechanics words and verifies that no adjacent or visual bytes are classified as mechanics.</summary>
+    /// <param name="rom">Cartridge address space containing the native horizontal-shutter instruction words.</param>
     private static void VerifyHorizontalShutterMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xe9d4, 0xe9d8];
@@ -106,6 +111,7 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => HorizontalShutterInstructionProgramDefinitionsTooling.MechanicsWord(index), "Horizontal shutter mechanics bounds");
     }
 
+    /// <summary>Checks the presentation-word address, full membership domain, and out-of-range lookup behavior.</summary>
     private static void VerifyHorizontalShutterPresentationMapping()
     {
         ushort[] addresses = [0xe9d6];
@@ -118,6 +124,8 @@ internal static partial class Program
         foreach (int index in new[] { int.MinValue, -1, addresses.Length, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => HorizontalShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "Horizontal shutter visual bounds");
     }
+    /// <summary>Repeats stationary-program mechanics lookups so the caller can measure warmed allocation behavior.</summary>
+    /// <returns>A checksum that keeps the lookup results observable to the caller.</returns>
     private static int ProbeHorizontalShutterInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -129,18 +137,32 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian word from the supplied cartridge address space.</summary>
+    /// <param name="bus">Address space containing the instruction bytes.</param>
+    /// <param name="address">Address of the low byte of the word.</param>
+    /// <returns>The two cartridge bytes combined into one 16-bit value.</returns>
     private static ushort ReadHorizontalShutterInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Rejects runtime reads of compiled shutter mechanics while allowing other cartridge access.</summary>
+    /// <param name="source">Backing address space for reads and writes that pass the guard.</param>
     private sealed class HorizontalShutterInstructionProgramReadGuard(
         ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation-word addresses observed while the production shutter program executes.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        /// <summary>Number of attempts to read a byte owned by the compiled mechanics definitions.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes import reads through the compiled-mechanics check used by ordinary reads.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The backing byte when the read is outside the compiled mechanics range.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of compiled mechanics, records presentation reads, and forwards other requests.</summary>
+        /// <param name="address">Address requested from the cartridge source.</param>
+        /// <returns>The backing byte when the address is permitted.</returns>
         public byte ReadByte(int address)
         {
             if (HorizontalShutterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(
@@ -166,6 +188,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write to the backing address space without altering read tracking.</summary>
+        /// <param name="address">Address to update.</param>
+        /// <param name="value">Byte written to that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -34,12 +34,23 @@ public sealed class CeresDoorVisualCatalog
             }
         });
 
+    /// <summary>Compiled 4bpp character transfer used by the installed Ceres door artwork.</summary>
     private readonly RoomCharacterAtlas tiles;
+    /// <summary>Fifteen packed normal-state CGRAM colors for the door setup image.</summary>
     private readonly CeresDoorNormalPaintDefinitions normal;
+    /// <summary>Fifteen packed escape-state CGRAM colors, based on the normal palette's transparent slot.</summary>
     private readonly CeresDoorEscapePaintDefinitions escape;
+    /// <summary>Eight six-color animation rows addressed by the actor's animation frame.</summary>
     private readonly CeresDoorAnimationPaintDefinitions animation;
+    /// <summary>Per-cell Mode 7 platform overrides, keyed by frame and cell index; absent entries use canonical tiles.</summary>
     private readonly Dictionary<int, byte> platformEdits = [];
 
+    /// <summary>Creates the compiled door visuals and records only Mode 7 cells that differ from their canonical values.</summary>
+    /// <param name="tiles">Compiled character atlas used for the door's OBJ transfer.</param>
+    /// <param name="normal">Packed normal setup palette colors.</param>
+    /// <param name="escape">Packed escape-state palette colors.</param>
+    /// <param name="animation">Packed animation palette rows.</param>
+    /// <param name="mode7DoorFrames">Two four-byte Mode 7 strips used to calculate sparse edits against canonical tiles.</param>
     private CeresDoorVisualCatalog(RoomCharacterAtlas tiles, ushort[] normal,
         ushort[] escape, ushort[][] animation, byte[][] mode7DoorFrames)
     {
@@ -133,6 +144,9 @@ public sealed class CeresDoorVisualCatalog
             cgram.SetColor(destination + color, EscapeColor(color));
     }
 
+    /// <summary>Returns one packed CGRAM color from the escape-state door palette.</summary>
+    /// <param name="color">Zero-based index among the fifteen nontransparent setup colors.</param>
+    /// <returns>The selected BGR555 color word.</returns>
     private ushort EscapeColor(int color) => escape.ColorAt(color);
 
     /// <summary>Installs six selected inks at CGRAM 41–46 from animation row 0–7 corresponding to $A6:F871; the actor derives the row from its frame bits 3–5.</summary>
@@ -144,6 +158,10 @@ public sealed class CeresDoorVisualCatalog
             cgram.SetColor(CeresDoorVisualRomData.AnimationTargetColor + color, AnimationColor(row, color));
     }
 
+    /// <summary>Returns one packed CGRAM color from an actor-selected door animation row.</summary>
+    /// <param name="row">Zero-based animation row, from zero through seven.</param>
+    /// <param name="color">Zero-based ink position within the six-color row.</param>
+    /// <returns>The selected BGR555 color word.</returns>
     private ushort AnimationColor(int row, int color) => animation.ColorAt(row, color);
 
     /// <summary>$A6:F918/F91C: resolve shared canonical platform imagery or an independent supplied cell edit.</summary>
@@ -162,6 +180,10 @@ public sealed class CeresDoorVisualCatalog
         vram.LoadMode7MapBytes(transfer, CeresDoorVisualRomData.Mode7DestinationWord);
     }
 
+    /// <summary>Validates and converts the two four-cell Mode 7 frame strips from JSON integers to bytes.</summary>
+    /// <param name="source">Frame rows supplied by the editable visual document.</param>
+    /// <returns>Byte-valued character selectors for both platform strips.</returns>
+    /// <exception cref="InvalidDataException">The frame count, row size, or a cell's byte range is invalid.</exception>
     private static byte[][] CompileMode7Frames(int[][]? source)
     {
         if (source is null || source.Length != CeresDoorVisualRomData.Mode7FrameCount)
@@ -184,6 +206,12 @@ public sealed class CeresDoorVisualCatalog
         return result;
     }
 
+    /// <summary>Checks a palette row's dimensions and RGB5 channels, then packs its colors into BGR555 words.</summary>
+    /// <param name="source">RGB5 color entries parsed from the visual JSON.</param>
+    /// <param name="expectedCount">Required number of entries in this setup palette or animation row.</param>
+    /// <param name="name">Palette label included in invalid-data messages.</param>
+    /// <returns>Packed BGR555 color words in source order.</returns>
+    /// <exception cref="InvalidDataException">The row is absent, has the wrong length, or contains a null/out-of-range color.</exception>
     private static ushort[] Compile(PaletteRgb5[]? source, int expectedCount, string name)
     {
         if (source is null || source.Length != expectedCount)
@@ -200,6 +228,7 @@ public sealed class CeresDoorVisualCatalog
         return result;
     }
 
+    /// <summary>Uses camel-case names, preserves historical case-insensitive reads, rejects unknown fields, and indents serialized JSON.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

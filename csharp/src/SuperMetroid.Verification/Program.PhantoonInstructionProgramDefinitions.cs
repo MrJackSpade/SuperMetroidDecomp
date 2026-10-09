@@ -5,12 +5,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs Phantoon's compiled instruction, callback, presentation, and allocation checks against the retail ROM.</summary>
     private static void VerifyPhantoonInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyPhantoonInstructionProgramDefinitions), () => VerifyPhantoonInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks compiled mechanics words and executes the reachable body, eye, tentacle, and mouth programs.</summary>
+    /// <param name="rom">Retail address space supplying the independent native word and presentation references.</param>
     private static void VerifyPhantoonInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -192,6 +195,9 @@ internal static partial class Program
             "programs, four callbacks, and 27 native sprite selections pass with zero live reads.");
     }
 
+    /// <summary>Builds an enemy system with Phantoon's four actor slots and deterministic private runtime state initialized.</summary>
+    /// <param name="bus">Address space assigned to the enemy system for projectile and instruction processing.</param>
+    /// <returns>The configured system containing body, eye, tentacle, and mouth actors in slots zero through three.</returns>
     private static RoomEnemySystem CreatePhantoonInstructionSystem(ISnesAddressSpace bus)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -222,6 +228,14 @@ internal static partial class Program
         return enemies;
     }
 
+    /// <summary>Executes a selected Phantoon program for a fixed number of instruction calls and checks its native sprite selection.</summary>
+    /// <param name="rom">Address space used to inspect each executed native instruction word.</param>
+    /// <param name="executedOperands">Set updated with visual operand addresses reached by the program.</param>
+    /// <param name="process">Reflected enemy instruction processor invoked for each call.</param>
+    /// <param name="enemies">System owning the actor and Phantoon state under test.</param>
+    /// <param name="slot">Actor slot whose instruction pointer is advanced.</param>
+    /// <param name="entry">Program entry address assigned before execution begins.</param>
+    /// <param name="calls">Number of instruction-processing calls to perform.</param>
     private static void RunPhantoonInstructionProgram(
         ISnesAddressSpace rom, HashSet<ushort> executedOperands,
         MethodInfo process,
@@ -249,6 +263,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Warms and repeats compiled mechanics lookups so the caller can measure warmed allocation behavior.</summary>
+    /// <returns>A checksum that keeps the lookup results observable.</returns>
     private static int ProbePhantoonInstructionAllocation()
     {
         int checksum = 0;
@@ -263,6 +279,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian instruction word from Phantoon's bank-$A7 program data.</summary>
+    /// <param name="source">Retail address space supplying the two instruction bytes.</param>
+    /// <param name="address">Bank-relative address of the low byte.</param>
+    /// <returns>The low byte followed by the high byte as a 16-bit value.</returns>
     private static ushort ReadPhantoonInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -270,14 +290,26 @@ internal static partial class Program
             source.ReadByte(0xa70000 | address) |
             source.ReadByte(0xa70000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Rejects production reads of compiled Phantoon mechanics and records any live presentation-operand reads.</summary>
+    /// <param name="source">Underlying address space used for reads permitted by the guard.</param>
     private sealed class PhantoonInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Addresses of presentation words observed while production enemy instructions execute.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of production reads rejected because the byte belongs to compiled Phantoon mechanics data.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge-import reads through the same compiled-mechanics check as ordinary reads.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The byte returned by the guarded address-space read.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics bytes, records presentation operands, and forwards permitted reads to the source.</summary>
+        /// <param name="address">Address requested by production code.</param>
+        /// <returns>The source byte when the requested address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled Phantoon mechanics data.</exception>
         public byte ReadByte(int address)
         {
             if (PhantoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -306,6 +338,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a memory write unchanged; the guard monitors read access only.</summary>
+        /// <param name="address">Address receiving the write.</param>
+        /// <param name="value">Byte value forwarded to the source.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

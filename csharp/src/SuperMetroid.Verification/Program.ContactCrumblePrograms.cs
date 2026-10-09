@@ -4,10 +4,14 @@ using SuperMetroid.Core.Rooms;
 internal static partial class Program
 {
     // Native list boundaries and timed-record counts from pinned bank_84.asm.
+    /// <summary>Returns the native start, timed-frame count, and exclusive end for each contact-crumble program.</summary>
+    /// <returns>The eight authored control-list layouts in execution order.</returns>
     private static (ushort Start, int Frames, ushort End)[] ContactCrumbleNativeLayouts() =>
         [(0xc9f9,7,0xca1c),(0xca1c,8,0xca41),(0xca41,8,0xca66),(0xca66,8,0xca8b),
          (0xca8b,4,0xcaa0),(0xcaa0,4,0xcab5),(0xcab5,4,0xcaca),(0xcaca,4,0xcadf)];
 
+    /// <summary>Checks the complete native control-word address set and each compiled value against bank $84.</summary>
+    /// <param name="rom">The retail address space containing the native contact-crumble instruction lists.</param>
     private static void VerifyContactCrumbleControlMapping(SuperMetroidAddressSpace rom)
     {
         var addresses = new List<ushort>();
@@ -33,6 +37,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks that every contact-crumble draw operand is compiled at its native address with its native value.</summary>
+    /// <param name="rom">The retail address space containing the native draw operands.</param>
     private static void VerifyContactCrumbleDrawMapping(SuperMetroidAddressSpace rom)
     {
         var addresses = new HashSet<ushort>();
@@ -49,6 +55,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks the eight packed sound bytes against their native instruction-list positions and values.</summary>
+    /// <param name="rom">The retail address space containing the native sound bytes.</param>
     private static void VerifyContactCrumbleSoundMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xc9fb,0xca1e,0xca43,0xca68,0xca8d,0xcaa2,0xcab7,0xcacc];
@@ -64,6 +72,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Validates the three linked restoration descriptors, exported runs, and their reconstructed level words.</summary>
+    /// <param name="rom">The retail address space containing the native restoration records.</param>
     private static void VerifyContactCrumbleRestorationMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0xa4a1, 0xa4a9, 0xa4b1];
@@ -119,6 +129,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Runs all eight BTS variants through native and compiled PLM paths while forbidding migrated source reads.</summary>
     private static void VerifyContactCrumblePrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -191,6 +202,9 @@ internal static partial class Program
         Console.WriteLine($"Contact-crumble PLMs: 64 control words, 8 sound bytes, and 3 restoration lists match ROM; all eight programs run with source reads forbidden.");
     }
 
+    /// <summary>Checks that editing shared breakup art changes tile uploads while preserving contact-crumble collision and restoration words.</summary>
+    /// <param name="rom">The retail address space used to verify native PLM instruction data.</param>
+    /// <param name="forbidden">Source addresses that compiled control, draw, sound, and restoration data must not reread.</param>
     private static void VerifyContactCrumbleVisualSeparation(
         SuperMetroidAddressSpace rom, HashSet<int> forbidden)
     {
@@ -290,9 +304,16 @@ internal static partial class Program
             "edited block $0BC composition reaches later streaming");
     }
 
+    /// <summary>Groups the level, streamer, and PLM system used to run one contact-crumble fixture.</summary>
+    /// <param name="Level">The collision level containing the contact-crumble block.</param>
+    /// <param name="Streamer">The background streamer associated with that level.</param>
+    /// <param name="Plms">The PLM system that executes the contact-crumble program.</param>
     private sealed record ContactCrumbleFixture(
         RoomLevelData Level, BackgroundTilemapStreamer Streamer, RoomPlmSystem Plms);
 
+    /// <summary>Builds a small contact-crumble room and installs its PLM for one BTS behavior value.</summary>
+    /// <param name="bts">The block-to-script value selecting the native contact-crumble behavior.</param>
+    /// <returns>The initialized level, its background streamer, and its active PLM system.</returns>
     private static ContactCrumbleFixture NewContactCrumbleFixture(byte bts)
     {
         const int width = 8;

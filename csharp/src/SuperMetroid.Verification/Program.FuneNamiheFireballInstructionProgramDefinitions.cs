@@ -5,12 +5,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Loads the supported retail ROM and runs the Fune/Namihe fireball definition checks.</summary>
     private static void VerifyFuneNamiheFireballInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyFuneNamiheFireballInstructionProgramDefinitions), () => VerifyFuneNamiheFireballInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Coordinates mechanics, presentation, and production-loop checks for both fireball species.</summary>
+    /// <param name="rom">Retail address space used to compare native instruction and visual data.</param>
     private static void VerifyFuneNamiheFireballInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -100,6 +103,8 @@ internal static partial class Program
             "with mechanics bytes forbidden.");
     }
 
+    /// <summary>Checks compiled visual operands against native pointers and rejects controls and adjacent data as selectors.</summary>
+    /// <param name="rom">Retail address space containing the instruction words and spritemap headers.</param>
     private static void VerifyFuneNamiheFireballVisualSelectors(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0xde98, 0xde9c, 0xdea0, 0xdea8, 0xdeac, 0xdeb0];
@@ -133,6 +138,8 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => EnemyProjectileSpritemapDefinitions.FuneNamiheFireballFrameAt(address),
                 "fireball resolver rejects distant invalid inputs");
     }
+    /// <summary>Checks all ten compiled mechanics words and their exact bank-byte ownership and bounds.</summary>
+    /// <param name="rom">Retail address space used to read the native mechanics words.</param>
     private static void VerifyFuneNamiheFireballMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xde96, 0xde9a, 0xde9e, 0xdea2, 0xdea4, 0xdea6, 0xdeaa, 0xdeae, 0xdeb2, 0xdeb4];
@@ -175,6 +182,7 @@ internal static partial class Program
                 "FuneNamihe-fireball mechanics ordinal bounds");
     }
 
+    /// <summary>Checks the ordered presentation operand addresses and rejects invalid ordinal requests.</summary>
     private static void VerifyFuneNamiheFireballPresentationAddresses()
     {
         ushort[] expected = [0xde98, 0xde9c, 0xdea0, 0xdea8, 0xdeac, 0xdeb0];
@@ -188,6 +196,8 @@ internal static partial class Program
                 "FuneNamihe-fireball presentation ordinal bounds");
     }
 
+    /// <summary>Repeats compiled mechanics lookups so the caller can measure warmed allocation behavior.</summary>
+    /// <returns>A checksum that keeps the lookup results observable.</returns>
     private static int ProbeFuneNamiheFireballInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -201,6 +211,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads one little-endian projectile instruction word from its native bank.</summary>
+    /// <param name="source">Address space supplying the instruction bytes.</param>
+    /// <param name="address">Bank-relative address of the word's low byte.</param>
+    /// <returns>The adjacent bytes combined into a 16-bit instruction word.</returns>
     private static ushort ReadFuneNamiheFireballInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -210,13 +224,23 @@ internal static partial class Program
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Rejects production reads of the compiled Fune/Namihe fireball mechanics byte range.</summary>
+    /// <param name="source">Underlying address space used for permitted cartridge reads and writes.</param>
     private sealed class FuneNamiheFireballInstructionReadGuard(
         ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Counts attempts to read mechanics bytes that production should resolve from compiled definitions.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes importer reads through the guard's migrated-byte checks.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The underlying byte when the guarded read is allowed.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads in the compiled mechanics range and forwards other addresses.</summary>
+        /// <param name="address">Absolute cartridge address to read.</param>
+        /// <returns>The underlying source byte for a permitted address.</returns>
+        /// <exception cref="InvalidOperationException">The requested address belongs to compiled mechanics data.</exception>
         public byte ReadByte(int address)
         {
             if ((address & 0xff0000) == 0x860000 && (uint)(unchecked((ushort)address) - 0xde96) < 32)
@@ -229,6 +253,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a cartridge write to the wrapped address space.</summary>
+        /// <param name="address">Absolute cartridge address to update.</param>
+        /// <param name="value">Byte written to that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -5,8 +5,10 @@ using SuperMetroid.Core.Input;
 
 internal sealed partial class InstalledSamusIsolationTests
 {
+    /// <summary>Down, L, R, and X chord used to admit Crystal Flash in the paired-state sequence.</summary>
     private const ushort FlashChord = (ushort)(SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X);
 
+    /// <summary>Runs paired stock/edited checks for Crystal Flash, shinespark, suit pickup, death, and Reserve sequences.</summary>
     private void CheckSpecialSequences()
     {
         foreach (bool left in new[] { false, true }) CheckCrystalFlash(left);
@@ -24,6 +26,9 @@ internal sealed partial class InstalledSamusIsolationTests
         foreach (bool left in new[] { false, true }) CheckDrained(left);
     }
 
+    /// <summary>Sets the low-health and ammunition preconditions required for Crystal Flash.</summary>
+    /// <param name="samus">Actor whose resources are prepared.</param>
+    /// <returns>The same actor after setting its Crystal Flash inputs.</returns>
     private static SamusState PrepareFlash(SamusState samus)
     {
         samus.Health = 1; samus.MaxHealth = 1599;
@@ -31,6 +36,8 @@ internal sealed partial class InstalledSamusIsolationTests
         return samus;
     }
 
+    /// <summary>Compares Crystal Flash admission, rise, body/bubble colors, resource drain, and cleanup in both facings.</summary>
+    /// <param name="left">Selects the initial left-facing pose when true.</param>
     private void CheckCrystalFlash(bool left)
     {
         Pair pair = Create(left ? SamusPoseIds.FacingLeftNormalPose : SamusPoseIds.FacingRightNormalPose);
@@ -74,6 +81,7 @@ internal sealed partial class InstalledSamusIsolationTests
         Console.WriteLine($"  {context}: {frames} identical movement/animation/palette calls; all thirty ammo drains and release verified.");
     }
 
+    /// <summary>Checks that edited stored-shinespark palette inputs retain the native 180-call expiration.</summary>
     private void CheckStoredShine()
     {
         Pair pair = Create();
@@ -87,6 +95,8 @@ internal sealed partial class InstalledSamusIsolationTests
             "Edited stored-shine colors must retain the 180-call expiration");
     }
 
+    /// <summary>Compares windup, directional launch, crash, and release for one shinespark pose.</summary>
+    /// <param name="target">Shinespark target pose whose facing and trajectory are exercised.</param>
     private void CheckShinespark(byte target)
     {
         bool left = (target & 1) == 0;
@@ -126,6 +136,8 @@ internal sealed partial class InstalledSamusIsolationTests
         Console.WriteLine($"  {context}: 29 windup calls and {frames} identical launch/crash/release calls.");
     }
 
+    /// <summary>Compares suit transformation state, window geometry, pose, and control release for one pickup kind.</summary>
+    /// <param name="kind">Varia or Gravity suit pickup to exercise.</param>
     private void CheckSuitPickup(SamusSuitPickupKind kind)
     {
         Pair pair = Create();
@@ -149,6 +161,9 @@ internal sealed partial class InstalledSamusIsolationTests
         Console.WriteLine($"  {kind} suit: {frames} identical stage/window/pose/control calls; edited suit colors applied.");
     }
 
+    /// <summary>Checks the death sequence's timing, VRAM publication, explosion draw, and cleanup for one source/suit pair.</summary>
+    /// <param name="source">Starting Samus pose used by the death sequence.</param>
+    /// <param name="suit">Equipped-suit flags used to select death presentation assets.</param>
     private void CheckDeath(byte source, ushort suit)
     {
         Pair pair = Create(source, suit);
@@ -186,6 +201,7 @@ internal sealed partial class InstalledSamusIsolationTests
             context + ": death must retain its exact 16+60+135 call lifetime");
     }
 
+    /// <summary>Checks paired Reserve recovery timing, refill amount, sound cadence, animation, and input release.</summary>
     private void CheckReserve()
     {
         Pair pair = Create();
@@ -206,10 +222,22 @@ internal sealed partial class InstalledSamusIsolationTests
             !pair.Stock.Samus.InputLocked, "Reserve recovery failed to refill and release");
     }
 
+    /// <summary>Adapts the installed death-tile atlas to source-address VRAM transfers used by the sequence fixture.</summary>
+    /// <param name="tiles">Compiled tile data used to resolve the death sequence's transfer ranges.</param>
     private sealed class DeathAssets(SamusDeathTileAtlas tiles) : IVramAssetProvider, IInstalledArtworkTransferSource
     {
+        /// <summary>Resolves a requested source-address range from the installed death tile atlas.</summary>
+        /// <param name="sourceAddress">Native transfer source address.</param>
+        /// <param name="byteCount">Number of bytes requested from that source.</param>
+        /// <param name="data">Receives the resolved byte range when the atlas contains it.</param>
+        /// <returns>Whether the atlas provides the requested range.</returns>
         public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data) =>
             tiles.TryResolve(sourceAddress, byteCount, out data);
+
+        /// <summary>Rejects typed-asset resolution because this fixture serves death transfers by source address.</summary>
+        /// <param name="asset">Typed asset identifier requested by an unexpected caller.</param>
+        /// <returns>This fixture never returns; it throws for every typed asset identifier.</returns>
+        /// <exception cref="InvalidOperationException">No typed asset belongs to the death-tile transfer fixture.</exception>
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
             throw new InvalidOperationException("Death fixture received an unrelated typed asset " + asset);
     }

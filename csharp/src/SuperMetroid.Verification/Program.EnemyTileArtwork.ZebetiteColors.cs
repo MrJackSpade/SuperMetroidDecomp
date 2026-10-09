@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks installed Zebetite pulse colors against cartridge behavior and verifies edits remain isolated and persistent.</summary>
     private static void VerifyInstalledZebetiteColors(ISnesAddressSpace bus,
         string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -140,12 +141,21 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Wraps cartridge access to detect forbidden reads from the migrated Zebetite pulse-color table.</summary>
+    /// <param name="source">Underlying address space used for permitted reads and writes.</param>
     private sealed class ZebetiteColorReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the number of attempted reads from the migrated pulse-color range.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Forwards cartridge-import reads through the guarded byte-read path.</summary>
+        /// <param name="address">Cartridge address of the byte to read.</param>
+        /// <returns>The byte supplied by the underlying address space.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the migrated pulse-color table and delegates other reads.</summary>
+        /// <param name="address">Address of the requested byte.</param>
+        /// <returns>The underlying byte when the address is outside the forbidden table range.</returns>
         public byte ReadByte(int address)
         {
             if (address >= ZebetiteDefinitions.PaletteSource &&
@@ -160,6 +170,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the wrapped address space without altering their address or value.</summary>
+        /// <param name="address">Destination address for the byte.</param>
+        /// <param name="value">Byte to write.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

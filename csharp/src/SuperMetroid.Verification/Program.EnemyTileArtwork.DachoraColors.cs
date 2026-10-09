@@ -9,6 +9,10 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies extracted Dachora colors and selector tables against cartridge data, then checks edited and live palette behavior.</summary>
+    /// <param name="rom">Cartridge address space containing the native Dachora palette words and selector pointers.</param>
+    /// <param name="stockDirectory">Directory containing stock enemy-art files and temporary color overrides.</param>
+    /// <param name="stock">Installed artwork catalog whose Dachora colors are checked against native data.</param>
     private static void VerifyInstalledDachoraColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -154,13 +158,22 @@ internal static partial class Program
         };
     }
 
+    /// <summary>Guards live palette updates against reads from the migrated Dachora color and selector tables.</summary>
+    /// <param name="source">Underlying address space used for permitted reads and forwarded writes.</param>
     private sealed class DachoraPaletteReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the number of attempted reads from protected Dachora color or selector data.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes a cartridge-byte read through the guard's protected data checks.</summary>
+        /// <param name="address">Cartridge address of the requested byte.</param>
+        /// <returns>The underlying byte unless the address belongs to protected data, in which case the read throws.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from migrated Dachora colors or selector pointers and forwards other reads.</summary>
+        /// <param name="address">Address of the requested byte.</param>
+        /// <returns>The underlying byte when the address is outside protected data.</returns>
         public byte ReadByte(int address)
         {
             bool colors = address >= DachoraColorRomData.DefaultSource &&
@@ -181,6 +194,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write to the underlying address space.</summary>
+        /// <param name="address">Address where the byte is written.</param>
+        /// <param name="value">Byte value to write.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

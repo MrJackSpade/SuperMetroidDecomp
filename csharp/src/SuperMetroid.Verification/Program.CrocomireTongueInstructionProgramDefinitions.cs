@@ -3,12 +3,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs the Crocomire tongue instruction-program checks against the retail ROM.</summary>
     private static void VerifyCrocomireTongueInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyCrocomireTongueInstructionProgramDefinitions), () => VerifyCrocomireTongueInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Validates the compiled mechanics and presentation maps, dispatch behavior, and warmed lookup allocation.</summary>
+    /// <param name="rom">Retail ROM address space used as the independent expected-data source.</param>
     private static void VerifyCrocomireTongueInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -28,6 +31,8 @@ internal static partial class Program
             "presentation data.");
     }
 
+    /// <summary>Checks the fourteen mechanics words and verifies that byte dispatch excludes data gaps and presentation selectors.</summary>
+    /// <param name="rom">Retail ROM used to read the expected instruction words.</param>
     private static void VerifyCrocomireTongueMechanicsDispatch(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses =
@@ -60,6 +65,8 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => CrocomireTongueInstructionProgramDefinitionsTooling.MechanicsWord(14), "tongue mechanics index past end");
     }
 
+    /// <summary>Checks the nine spritemap operand addresses and their values against the cartridge.</summary>
+    /// <param name="rom">Retail ROM providing the expected presentation words.</param>
     private static void VerifyCrocomireTonguePresentationPositions(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xbe58, 0xbe5c, 0xbe60, 0xbe64, 0xbf9a, 0xbf9e, 0xbfa2, 0xbfa6, 0xbfaa];
@@ -75,6 +82,8 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => CrocomireTongueInstructionProgramDefinitionsTooling.PresentationWordAddress(-1), "tongue negative presentation index");
         AssertThrows<IndexOutOfRangeException>(() => CrocomireTongueInstructionProgramDefinitionsTooling.PresentationWordAddress(9), "tongue presentation index past end");
     }
+    /// <summary>Measures warmed mechanics-lookup allocation while consuming repeated fight-word reads.</summary>
+    /// <returns>The checksum accumulated from the repeated instruction-word reads.</returns>
     private static int ProbeCrocomireTongueInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -86,6 +95,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads an instruction word from two consecutive cartridge bytes in little-endian order.</summary>
+    /// <param name="bus">Address space supplying the instruction bytes.</param>
+    /// <param name="address">Byte address of the word's low-order byte.</param>
+    /// <returns>The decoded 16-bit instruction word.</returns>
     private static ushort ReadCrocomireTongueInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) =>

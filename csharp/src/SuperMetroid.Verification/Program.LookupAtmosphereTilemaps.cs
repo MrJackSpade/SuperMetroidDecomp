@@ -6,13 +6,29 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares the rain tilemap's calculated palette selector bits with ROM and installed page data.</summary>
+    /// <param name="rom">Address space containing the native rain tilemap page.</param>
+    /// <param name="stock">Installed rain and fog layer-three tilemaps under verification.</param>
     private static void VerifyRainTilePalette(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
         Suite(nameof(VerifyAtmosphereTileField), () => VerifyAtmosphereTileField(rom, stock, RoomFxType.Rain, 0x1c00));
+
+    /// <summary>Compares the fog tilemap's calculated palette selector bits with ROM and installed page data.</summary>
+    /// <param name="rom">Address space containing the native fog tilemap page.</param>
+    /// <param name="stock">Installed rain and fog layer-three tilemaps under verification.</param>
     private static void VerifyFogTilePalette(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
         Suite(nameof(VerifyAtmosphereTileField), () => VerifyAtmosphereTileField(rom, stock, RoomFxType.Fog, 0x1c00));
+
+    /// <summary>Checks the fog tilemap's priority bit against the corresponding native and installed fields.</summary>
+    /// <param name="rom">Address space containing the native fog tilemap page.</param>
+    /// <param name="stock">Installed rain and fog layer-three tilemaps under verification.</param>
     private static void VerifyFogTilePriority(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
         Suite(nameof(VerifyAtmosphereTileField), () => VerifyAtmosphereTileField(rom, stock, RoomFxType.Fog, 0x2000));
 
+    /// <summary>Compares one masked calculated field across the native page, calculated field logic, and installed presentation bytes.</summary>
+    /// <param name="rom">Address space used to read the native page pointer and tile words.</param>
+    /// <param name="stock">Installed layer-three tilemap catalog supplying the authored page bytes.</param>
+    /// <param name="type">Rain or fog effect whose native page and field rules are being compared.</param>
+    /// <param name="mask">Tile-word bits selected for this check, such as palette selection or priority.</param>
     private static void VerifyAtmosphereTileField(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock,
         RoomFxType type, int mask)
     {
@@ -29,6 +45,9 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks that only rain and fog use calculated fields and that edits preserve all other tilemap data.</summary>
+    /// <param name="rom">Address space containing the original rain and fog pages used as edit fixtures.</param>
+    /// <param name="stock">Installed catalog inspected to ensure calculated bits are not cached as authored edits.</param>
     private static void VerifyAtmosphereTilemapDomainAndEdits(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
     {
         for (int value = 0; value <= ushort.MaxValue; value++)
@@ -74,6 +93,9 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Runs the palette, priority, valid-domain, and edit-preservation checks for atmosphere tilemaps.</summary>
+    /// <param name="rom">Address space containing the native rain and fog pages.</param>
+    /// <param name="stock">Installed rain and fog page catalog passed to each focused check.</param>
     private static void VerifyAtmosphereTilemapFields(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
     {
         Suite(nameof(VerifyRainTilePalette), () => VerifyRainTilePalette(rom, stock));

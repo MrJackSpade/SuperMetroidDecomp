@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies both native elevator direction masks against real departure behavior while blocking runtime table reads.</summary>
+    /// <param name="rom">Cartridge address space supplying the native direction masks and extracted Samus artwork.</param>
     private static void VerifyElevatorInputDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyElevatorDirectionInputMapping), () => VerifyElevatorDirectionInputMapping(rom));
@@ -64,6 +66,8 @@ internal static partial class Program
             "Elevator input definitions: both native masks and real departure paths pass with table reads forbidden.");
     }
 
+    /// <summary>Checks that the named elevator direction masks match the cartridge table and rejects malformed offsets.</summary>
+    /// <param name="rom">Cartridge address space containing the native elevator input table.</param>
     private static void VerifyElevatorDirectionInputMapping(SuperMetroidAddressSpace rom)
     {
         foreach (ushort offset in new ushort[] { 0, 2 })
@@ -75,15 +79,26 @@ internal static partial class Program
         foreach (ushort offset in new ushort[] { 1, 3, 4, 5, 0x100, 0x102, 0xfffe, 0xffff })
             AssertThrows<InvalidDataException>(() => ElevatorActorDefinitions.RequiredDirectionInput(offset), "elevator invalid full-word direction offset");
     }
+    /// <summary>Wraps an address space to reject reads from the migrated elevator input-mask table.</summary>
+    /// <param name="source">Underlying address space used for reads outside the guarded table and for writes.</param>
     private sealed class ElevatorInputReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes a cartridge-byte read through the guard's protected address check.</summary>
+        /// <param name="address">Cartridge address of the requested byte.</param>
+        /// <returns>The underlying byte unless the address is in the guarded table, in which case the read throws.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Reads a byte while rejecting accesses to the native elevator input-mask table.</summary>
+        /// <param name="address">Address of the requested byte.</param>
+        /// <returns>The underlying byte when the address is outside the guarded table.</returns>
         public byte ReadByte(int address) => address is >= 0xa394e2 and < 0xa394e6
             ? throw new InvalidOperationException(
                 $"Elevator actor attempted migrated input-mask read ${address:X6}.")
             : source.ReadByte(address);
 
+        /// <summary>Forwards a byte write to the underlying address space.</summary>
+        /// <param name="address">Address where the byte is written.</param>
+        /// <param name="value">Byte value to write.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

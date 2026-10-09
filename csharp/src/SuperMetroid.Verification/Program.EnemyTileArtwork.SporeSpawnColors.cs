@@ -8,6 +8,10 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies installed Spore Spawn palette data and confirms live consumers use the extracted color catalog.</summary>
+    /// <param name="rom">Address space used to verify native source colors and wrapped by the forbidden-read guard.</param>
+    /// <param name="stockDirectory">Directory containing the stock Spore Spawn color presentation document.</param>
+    /// <param name="stock">Installed stock artwork catalog whose compiled color data is compared with the presentation asset.</param>
     private static void VerifyInstalledSporeSpawnColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -191,13 +195,24 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Detects any live palette read from the Spore Spawn color ranges migrated to presentation data.</summary>
+    /// <param name="source">Underlying address space that serves reads outside those ranges and receives writes.</param>
     private sealed class SporeSpawnPaletteReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads from the migrated color ranges, incremented before each rejected read.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes import-source reads through the same migrated-range check as ordinary bus reads.</summary>
+        /// <param name="address">Cartridge address requested by the import caller.</param>
+        /// <returns>The wrapped source byte when the address is outside the guarded color ranges.</returns>
+        /// <exception cref="InvalidOperationException">The requested address belongs to a migrated Spore Spawn color range.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects migrated Spore Spawn color reads and forwards all other requests to the wrapped address space.</summary>
+        /// <param name="address">Address requested from the cartridge bus.</param>
+        /// <returns>The wrapped source byte when the address is outside the guarded ranges.</returns>
+        /// <exception cref="InvalidOperationException">The requested address belongs to the guarded color interval.</exception>
         public byte ReadByte(int address)
         {
             if (address >= SporeSpawnColorRomData.SporeSource &&
@@ -212,6 +227,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged so exercised consumers retain access to the wrapped bus.</summary>
+        /// <param name="address">Address receiving the write.</param>
+        /// <param name="value">Byte written to that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

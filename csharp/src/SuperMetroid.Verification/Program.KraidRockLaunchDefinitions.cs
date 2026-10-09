@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares the launch-speed lookup against the cartridge table for every possible 16-bit RNG word.</summary>
+    /// <param name="rom">Address space containing the eight native signed 8.8 velocity choices.</param>
     private static void VerifyKraidRockLaunchSpeedSelection(SuperMetroidAddressSpace rom)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -15,6 +17,9 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Verifies the speed mapping and, unless limited to definitions, exercises actual rock allocation with forbidden table reads and RNG advances.</summary>
+    /// <param name="rom">Address space used for native reference words and the production system's other data.</param>
+    /// <param name="definitionsOnly">When <see langword="true"/>, runs only the lookup comparison and skips projectile-spawn checks.</param>
     private static void VerifyKraidRockLaunchDefinitions(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         Suite(nameof(VerifyKraidRockLaunchSpeedSelection), () => VerifyKraidRockLaunchSpeedSelection(rom));
@@ -63,12 +68,26 @@ internal static partial class Program
         Console.WriteLine("Kraid rock launch: eight native words and 65536 actual wrapped spawns pass with table reads and RNG advances forbidden.");
     }
 
+    /// <summary>Wraps the address space while rejecting Kraid rock velocity-table reads and bus writes.</summary>
+    /// <param name="source">Underlying cartridge space used for reads outside the migrated velocity table.</param>
     private sealed class KraidRockReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes importer reads through the guarded address-space read path.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The requested byte when it is outside the migrated velocity table.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of the migrated velocity table and forwards other reads.</summary>
+        /// <param name="address">Cartridge address to read.</param>
+        /// <returns>The requested byte when the address is outside the guarded table.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to the migrated Kraid rock velocity table.</exception>
         public byte ReadByte(int address) => address is >= 0xa7bc65 and < 0xa7bc75
             ? throw new InvalidOperationException("Unexpected migrated Kraid rock velocity read.") : source.ReadByte(address);
+
+        /// <summary>Rejects writes because this fixture only expects read access during the launch check.</summary>
+        /// <param name="address">Cartridge address the caller attempted to modify.</param>
+        /// <param name="value">Byte the caller attempted to write.</param>
+        /// <exception cref="InvalidOperationException">A bus write was attempted.</exception>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected Kraid rock bus write.");
     }
 }

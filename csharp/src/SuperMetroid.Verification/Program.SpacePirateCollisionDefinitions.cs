@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies native Space Pirate collision data, compiled lookup parity, visual selectors, and allocation-free warmed lookups.</summary>
     private static void VerifySpacePirateCollisionDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -271,13 +272,25 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Prevents compiled collision lookups from reading native component and hitbox bytes.</summary>
+    /// <param name="source">Address space used for reads outside the blocked collision-data ranges and for writes.</param>
+    /// <param name="blocked">Native bank-$B2 addresses that compiled collision code must not access.</param>
     private sealed class SpacePirateCollisionReadGuard(
         ISnesAddressSpace source, HashSet<int> blocked) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Counts attempted reads from addresses blocked by this guard.</summary>
         internal int BlockedReadAttempts { get; private set; }
 
+        /// <summary>Routes an import-source read through the blocked-address check.</summary>
+        /// <param name="address">Cartridge bus address requested by the caller.</param>
+        /// <returns>The wrapped source byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to native collision data blocked from runtime access.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from native collision data and forwards other addresses to the wrapped source.</summary>
+        /// <param name="address">Bus address to read.</param>
+        /// <returns>The underlying byte when the address is not blocked.</returns>
+        /// <exception cref="InvalidOperationException">The address is in the blocked collision-data set.</exception>
         public byte ReadByte(int address)
         {
             if (blocked.Contains(address))
@@ -289,6 +302,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Bus address receiving the write.</param>
+        /// <param name="value">Byte stored at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

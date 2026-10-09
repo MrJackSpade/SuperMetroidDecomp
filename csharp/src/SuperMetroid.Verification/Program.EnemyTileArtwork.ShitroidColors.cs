@@ -8,6 +8,10 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks installed Shitroid colors against ROM and verifies edits reach live palette consumers without ROM reads.</summary>
+    /// <param name="rom">Cartridge address space used to compare extracted color definitions with the original tables.</param>
+    /// <param name="stockDirectory">Directory containing the stock enemy artwork and color document.</param>
+    /// <param name="stock">Installed stock artwork catalog whose compiled Shitroid colors form the comparison baseline.</param>
     private static void VerifyInstalledShitroidColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -135,13 +139,20 @@ internal static partial class Program
         };
     }
 
+    /// <summary>Rejects live reads from the migrated Shitroid RGB5 cycle and target palette tables.</summary>
+    /// <param name="source">Address space that supplies unrelated reads and receives writes.</param>
     private sealed class ShitroidPaletteReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads from a migrated Shitroid color table.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes importer reads through the guarded address-space path.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Blocks reads from the normal cycle and target palettes while delegating other addresses.</summary>
+        /// <param name="address">Full cartridge address requested by the caller.</param>
+        /// <returns>The source byte when the address is outside the migrated color ranges.</returns>
         public byte ReadByte(int address)
         {
             bool normal = address >= ShitroidColorRomData.NormalCycle &&
@@ -160,6 +171,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged to the wrapped address space.</summary>
+        /// <param name="address">Full cartridge address to write.</param>
+        /// <param name="value">Byte written to that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

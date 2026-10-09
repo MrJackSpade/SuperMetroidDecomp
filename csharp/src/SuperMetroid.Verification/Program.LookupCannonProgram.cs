@@ -3,12 +3,29 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies compiled Draygon-cannon ownership and values for control bytes against the native PLM program.</summary>
+    /// <param name="rom">The retail ROM used to compare compiled mechanics words with their original bytes.</param>
     private static void VerifyCannonControls(SuperMetroidAddressSpace rom) => VerifyCannonField(rom, 0);
+
+    /// <summary>Verifies compiled Draygon-cannon ownership and values for draw operands against the native PLM program.</summary>
+    /// <param name="rom">The retail ROM used to compare compiled mechanics words with their original bytes.</param>
     private static void VerifyCannonDraws(SuperMetroidAddressSpace rom) => VerifyCannonField(rom, 1);
+
+    /// <summary>Verifies compiled Draygon-cannon ownership and values for target coordinates against the native PLM program.</summary>
+    /// <param name="rom">The retail ROM used to compare compiled mechanics words with their original bytes.</param>
     private static void VerifyCannonTargets(SuperMetroidAddressSpace rom) => VerifyCannonField(rom, 2);
+
+    /// <summary>Verifies compiled Draygon-cannon ownership and values for callback operands against the native PLM program.</summary>
+    /// <param name="rom">The retail ROM used to compare compiled mechanics words with their original bytes.</param>
     private static void VerifyCannonCallback(SuperMetroidAddressSpace rom) => VerifyCannonField(rom, 3);
+
+    /// <summary>Verifies compiled Draygon-cannon ownership and values for the hit-count operand against the native PLM program.</summary>
+    /// <param name="rom">The retail ROM used to compare compiled mechanics words with their original bytes.</param>
     private static void VerifyCannonHitCount(SuperMetroidAddressSpace rom) => VerifyCannonField(rom, 4);
 
+    /// <summary>Checks the full byte-address domain for cannon field ownership and compares owned values with cartridge data.</summary>
+    /// <param name="rom">The retail ROM supplying the native mechanics words for the field under test.</param>
+    /// <param name="field">Field selector: zero for control, one for draws, two for targets, three for callback, or four for hit count.</param>
     private static void VerifyCannonField(SuperMetroidAddressSpace rom, int field)
     {
         // Independent original operand positions in the right-hand list; left is relocated.

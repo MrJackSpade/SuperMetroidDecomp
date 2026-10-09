@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares all eight fragment definitions with cartridge tables and verifies production spawning uses only the compiled data.</summary>
+    /// <param name="rom">ROM address space providing the independent physical table values.</param>
     private static void VerifyMotherBrainDoorFragmentDefinitions(SuperMetroidAddressSpace rom)
     {
         for (ushort parameter = 0; parameter < 8; parameter++)
@@ -58,20 +60,35 @@ internal static partial class Program
             "Mother Brain door fragments: 32 native physical words and all eight real spawns pass with offset/velocity tables forbidden.");
     }
 
+    /// <summary>Reads a little-endian word from the cartridge's fragment-definition tables.</summary>
+    /// <param name="bus">Address space containing the reference bytes.</param>
+    /// <param name="address">Address of the word's low-order byte.</param>
+    /// <returns>The decoded 16-bit table word.</returns>
     private static ushort ReadMotherBrainFragmentWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Guards the migrated Mother Brain fragment tables while forwarding other cartridge access.</summary>
+    /// <param name="source">Underlying address space used for accesses outside the guarded table range.</param>
     private sealed class MotherBrainDoorFragmentReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Forwards import reads through the guarded byte-read implementation.</summary>
+        /// <param name="address">Cartridge address of the requested byte.</param>
+        /// <returns>The byte from the underlying address space when it is outside the guarded range.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects accesses to the migrated fragment tables and delegates all other reads.</summary>
+        /// <param name="address">Address of the byte to read.</param>
+        /// <returns>The underlying byte for an address outside the guarded tables.</returns>
         public byte ReadByte(int address) =>
             address is >= 0x86c992 and < 0x86c9d2
                 ? throw new InvalidOperationException(
                     $"Mother Brain door fragment attempted migrated table read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards a byte write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Destination address for the write.</param>
+        /// <param name="value">Byte to write.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

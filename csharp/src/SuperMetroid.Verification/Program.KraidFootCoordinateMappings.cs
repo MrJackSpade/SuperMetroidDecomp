@@ -3,15 +3,31 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the first Kraid foot's calculated X coordinate for each native frame.</summary>
+    /// <param name="rom">Retail address space used to read the original coordinate table.</param>
     private static void VerifyKraidFootFirstX(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidFootCoordinate), () => VerifyKraidFootCoordinate(rom, 0, false, KraidFootCollisionDefinitions.FirstX));
+
+    /// <summary>Verifies the first Kraid foot's calculated Y coordinate for each native frame.</summary>
+    /// <param name="rom">Retail address space used to read the original coordinate table.</param>
     private static void VerifyKraidFootFirstY(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidFootCoordinate), () => VerifyKraidFootCoordinate(rom, 0, true, KraidFootCollisionDefinitions.FirstY));
+
+    /// <summary>Verifies the second Kraid foot's calculated X coordinate for each native frame.</summary>
+    /// <param name="rom">Retail address space used to read the original coordinate table.</param>
     private static void VerifyKraidFootSecondX(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidFootCoordinate), () => VerifyKraidFootCoordinate(rom, 1, false, KraidFootCollisionDefinitions.SecondX));
+
+    /// <summary>Verifies the second Kraid foot's calculated Y coordinate for each native frame.</summary>
+    /// <param name="rom">Retail address space used to read the original coordinate table.</param>
     private static void VerifyKraidFootSecondY(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidFootCoordinate), () => VerifyKraidFootCoordinate(rom, 1, true, KraidFootCollisionDefinitions.SecondY));
 
+    /// <summary>Compares one foot component's calculated coordinate and production view against the retail frame table.</summary>
+    /// <param name="rom">Retail address space containing the frame records.</param>
+    /// <param name="component">Zero-based foot component index, first or second.</param>
+    /// <param name="vertical"><see langword="true"/> to compare Y; otherwise compares X.</param>
+    /// <param name="calculate">Coordinate selector that resolves the requested frame ordinal.</param>
     private static void VerifyKraidFootCoordinate(SuperMetroidAddressSpace rom, int component, bool vertical, Func<int, short> calculate)
     {
         ushort Word(int pointer) => (ushort)(rom.ReadByte(0xa70000 | pointer) | rom.ReadByte(0xa70000 | (pointer + 1)) << 8);
@@ -29,6 +45,8 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => calculate(35), "Past foot coordinate frame");
     }
 
+    /// <summary>Checks Kraid's shared hitbox record and validates membership and component selectors across the full pointer domain.</summary>
+    /// <param name="rom">Retail address space supplying the native hitbox and component records.</param>
     private static void VerifyKraidFootSharedHitbox(SuperMetroidAddressSpace rom)
     {
         ushort Word(int pointer) => (ushort)(rom.ReadByte(0xa70000 | pointer) | rom.ReadByte(0xa70000 | (pointer + 1)) << 8);

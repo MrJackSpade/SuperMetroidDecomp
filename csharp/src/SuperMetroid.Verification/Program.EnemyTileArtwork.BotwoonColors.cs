@@ -8,6 +8,10 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies Botwoon's installed RGB5 colors, live health-band rendering, override persistence, and ROM-read isolation.</summary>
+    /// <param name="rom">The retail address space used to compare extracted colors with their native palette data.</param>
+    /// <param name="stockDirectory">The directory containing the stock enemy-art manifest and Botwoon color document.</param>
+    /// <param name="stock">The installed stock catalog whose colors are checked before applying a test override.</param>
     private static void VerifyInstalledBotwoonColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -114,13 +118,21 @@ internal static partial class Program
         };
     }
 
+    /// <summary>Rejects live reads of Botwoon's health-palette words after they have been installed in the artwork catalog.</summary>
+    /// <param name="source">The underlying cartridge bus for addresses outside the migrated color table.</param>
     private sealed class BotwoonColorReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads from Botwoon's migrated native health-palette table.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes a cartridge-import byte read through the same palette guard as ordinary bus reads.</summary>
+        /// <param name="address">The bus address to read.</param>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the migrated Botwoon palette and delegates every other read to the cartridge.</summary>
+        /// <param name="address">The bus address to read.</param>
+        /// <returns>The source byte when the address is outside the guarded palette range.</returns>
         public byte ReadByte(int address)
         {
             if (address >= BotwoonHealthPaletteDefinitions.NativePaletteAddress &&
@@ -135,6 +147,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write to the underlying cartridge bus.</summary>
+        /// <param name="address">The bus address to write.</param>
+        /// <param name="value">The byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

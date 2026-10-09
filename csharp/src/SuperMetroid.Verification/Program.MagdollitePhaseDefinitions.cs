@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares all authored Magdollite phase words with the cartridge and exercises initialization, movement, and overlay consumers with phase-table reads blocked.</summary>
+    /// <param name="rom">Address space containing the cartridge's phase tables.</param>
     private static void VerifyMagdollitePhaseDefinitions(SuperMetroidAddressSpace rom)
     {
         const int thresholdTable = 0xa8af55;
@@ -121,18 +123,33 @@ internal static partial class Program
             "Magdollite phase definitions: 27 native words and real initialization, rise, fall and overlay consumers pass with table reads forbidden.");
     }
 
+    /// <summary>Reads one little-endian phase-table word from the supplied address space.</summary>
+    /// <param name="bus">Address space containing the phase data.</param>
+    /// <param name="address">Address of the word's low byte.</param>
+    /// <returns>The adjacent bytes combined into a 16-bit value.</returns>
     private static ushort ReadMagdolliteWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Address-space wrapper that rejects gameplay reads from Magdollite's migrated phase tables.</summary>
+    /// <param name="source">Underlying address space used for permitted reads and all writes.</param>
     private sealed class MagdollitePhaseReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge reads through the phase-table guard.</summary>
+        /// <param name="address">Full SNES address requested by the caller.</param>
+        /// <returns>The wrapped byte when the address is outside the protected tables.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects threshold, instruction-list, and overlay-offset table reads and forwards all other byte reads.</summary>
+        /// <param name="address">Full SNES address to read.</param>
+        /// <returns>The wrapped byte when the address is outside the protected tables.</returns>
         public byte ReadByte(int address) => address is >= 0xa8af55 and < 0xa8af8b
             ? throw new InvalidOperationException(
                 $"Magdollite attempted migrated phase read ${address:X6}.")
             : source.ReadByte(address);
 
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">Full SNES address to write.</param>
+        /// <param name="value">Byte stored at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

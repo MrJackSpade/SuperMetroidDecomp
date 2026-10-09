@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the three native explosion selectors and the corresponding production body-relative projectile spawns.</summary>
+    /// <param name="rom">Cartridge address space containing the native selector words used for comparison.</param>
     private static void VerifyMotherBrainDeathExplosionDefinitions(SuperMetroidAddressSpace rom)
     {
         for (ushort parameter = 0; parameter < 3; parameter++)
@@ -58,20 +60,35 @@ internal static partial class Program
             "Mother Brain death explosions: three native program selectors and all three real body-relative spawns pass with the selector table forbidden.");
     }
 
+    /// <summary>Reads one little-endian word from the cartridge for selector-table comparison.</summary>
+    /// <param name="bus">Address space providing the two bytes at the requested location.</param>
+    /// <param name="address">Address of the low byte of the word.</param>
+    /// <returns>The unsigned word formed from the low byte followed by the high byte.</returns>
     private static ushort ReadMotherBrainExplosionWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Rejects reads from the migrated Mother Brain explosion selector table during production spawning.</summary>
+    /// <param name="source">Underlying address space used for reads outside the protected selector table and for writes.</param>
     private sealed class MotherBrainDeathExplosionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes a cartridge-byte read through the selector-table guard.</summary>
+        /// <param name="address">Cartridge address of the requested byte.</param>
+        /// <returns>The underlying byte unless the address is in the protected table, in which case the read throws.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Reads a byte while rejecting access to the native explosion selector table.</summary>
+        /// <param name="address">Address of the requested byte.</param>
+        /// <returns>The underlying byte when the address is outside the protected table.</returns>
         public byte ReadByte(int address) =>
             address is >= 0x86c929 and < 0x86c92f
                 ? throw new InvalidOperationException(
                     $"Mother Brain death explosion attempted migrated selector read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards a byte write to the underlying address space.</summary>
+        /// <param name="address">Address where the byte is written.</param>
+        /// <param name="value">Byte value to write.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -74,6 +74,10 @@ internal static partial class Program
             $"exact word roundtrips/historical casing; {rejected} invalid documents rejected.");
     }
 
+    /// <summary>Produces malformed JSON variants that exercise duplicate, casing, range, and required-field validation.</summary>
+    /// <param name="json">Valid tilemap document to mutate for each corruption case.</param>
+    /// <param name="cell">Selects a cell object whose serialized fields can be altered or removed.</param>
+    /// <returns>Invalid documents covering ambiguous names and invalid tilemap values.</returns>
     private static IEnumerable<string> TilemapContractCorruptions(string json, Func<JsonObject, JsonObject> cell)
     {
         yield return TilemapContractMutate(json, root => root["attackDuration"] = 7);
@@ -89,6 +93,9 @@ internal static partial class Program
         yield return TilemapContractMutate(json, root => cell(root)["palette"] = RoomBackgroundTilemapFormat.PaletteCount);
     }
 
+    /// <summary>Builds deterministic little-endian tilemap words for exact encode/decode round-trip checks.</summary>
+    /// <param name="count">Number of 16-bit words to generate.</param>
+    /// <returns>The generated words serialized in little-endian byte order.</returns>
     private static byte[] TilemapContractWords(int count)
     {
         var bytes = new byte[count * sizeof(ushort)];
@@ -97,6 +104,9 @@ internal static partial class Program
         return bytes;
     }
 
+    /// <summary>Decodes one SNES background tilemap word into the JSON cell fields used by the room-map contract.</summary>
+    /// <param name="word">Packed tile index, palette, priority, and flip bits.</param>
+    /// <returns>A cell containing the decoded tile coordinates and display flags.</returns>
     private static RoomBackgroundTilemapCell TilemapContractCell(ushort word)
     {
         var fields = new SnesBgTilemapWord(word);
@@ -109,6 +119,10 @@ internal static partial class Program
         };
     }
 
+    /// <summary>Parses a JSON document, applies one targeted mutation, and serializes the result for rejection tests.</summary>
+    /// <param name="json">Document to parse and modify.</param>
+    /// <param name="mutate">Change applied to the parsed root object.</param>
+    /// <returns>The mutated JSON document.</returns>
     private static string TilemapContractMutate(string json, Action<JsonObject> mutate)
     {
         var root = (JsonObject)JsonNode.Parse(json)!;
@@ -116,7 +130,14 @@ internal static partial class Program
         return root.ToJsonString();
     }
 
+    /// <summary>Creates a read-only byte stream containing the UTF-8 encoding consumed by tilemap loaders.</summary>
+    /// <param name="text">Serialized JSON text to expose as a stream.</param>
+    /// <returns>A non-writable stream positioned at the beginning of the encoded document.</returns>
     private static MemoryStream TilemapContractStream(string text) => new(Encoding.UTF8.GetBytes(text), writable: false);
+
+    /// <summary>Changes selected property names to the historical uppercase spelling accepted by tilemap loaders.</summary>
+    /// <param name="json">Serialized tilemap document whose version and tile-column keys are changed.</param>
+    /// <returns>The document with those property names uppercased.</returns>
     private static string TilemapContractHistoricalCasing(string json) => json
         .Replace("\"version\"", "\"VERSION\"", StringComparison.Ordinal)
         .Replace("\"tileColumn\"", "\"TILECOLUMN\"", StringComparison.Ordinal);

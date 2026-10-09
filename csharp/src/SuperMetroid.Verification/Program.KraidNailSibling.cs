@@ -4,18 +4,30 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the low fractional X component of Kraid nail launch velocity against every native sibling-table case.</summary>
+    /// <param name="rom">Cartridge address space containing the native launch records.</param>
     private static void VerifyKraidNailLaunchXFraction(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 0, value => value.XFraction));
 
+    /// <summary>Checks the whole X component of Kraid nail launch velocity against every native sibling-table case.</summary>
+    /// <param name="rom">Cartridge address space containing the native launch records.</param>
     private static void VerifyKraidNailLaunchXWhole(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 2, value => value.XWhole));
 
+    /// <summary>Checks the low fractional Y component of Kraid nail launch velocity against every native sibling-table case.</summary>
+    /// <param name="rom">Cartridge address space containing the native launch records.</param>
     private static void VerifyKraidNailLaunchYFraction(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 4, value => value.YFraction));
 
+    /// <summary>Checks the whole Y component of Kraid nail launch velocity against every native sibling-table case.</summary>
+    /// <param name="rom">Cartridge address space containing the native launch records.</param>
     private static void VerifyKraidNailLaunchYWhole(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 6, value => value.YWhole));
 
+    /// <summary>Compares one velocity component across every sibling sign and random-table selection with the cartridge records.</summary>
+    /// <param name="rom">Cartridge address space containing the native launch tables and records.</param>
+    /// <param name="fieldOffset">Byte offset of the selected velocity component within a native record.</param>
+    /// <param name="field">Selects the matching component from the compiled sibling-velocity result.</param>
     private static void VerifyKraidNailLaunchField(SuperMetroidAddressSpace rom, int fieldOffset,
         Func<(ushort XFraction, ushort XWhole, ushort YFraction, ushort YWhole), ushort> field)
     {
@@ -35,6 +47,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Verifies both nail slots use their sibling's sign and flag for launch, without mutating sibling state or advancing RNG.</summary>
+    /// <param name="rom">Cartridge address space supplying the native velocity records for comparison.</param>
     private static void VerifyKraidNailSibling(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidNailLaunchXFraction), () => VerifyKraidNailLaunchXFraction(rom));

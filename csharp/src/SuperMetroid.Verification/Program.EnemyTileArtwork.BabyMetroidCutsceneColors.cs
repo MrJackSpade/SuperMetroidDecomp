@@ -8,6 +8,10 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks extracted Baby cutscene palettes, installed overrides, and live CGRAM updates.</summary>
+    /// <param name="rom">Cartridge address space supplying the original RGB5 palette data.</param>
+    /// <param name="stockDirectory">Directory containing the stock enemy-art files and manifest.</param>
+    /// <param name="stock">Loaded stock catalog used as the baseline for override comparisons.</param>
     private static void VerifyInstalledBabyMetroidCutsceneColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -128,13 +132,23 @@ internal static partial class Program
         };
     }
 
+    /// <summary>Forwards address-space operations while rejecting runtime reads of migrated Baby cutscene colors.</summary>
+    /// <param name="source">Address space used for permitted reads and all writes.</param>
     private sealed class BabyMetroidCutsceneColorReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads from the migrated initial-palette or fade-color ranges.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes an import-source byte request through the guarded read operation.</summary>
+        /// <param name="address">Cartridge address to read.</param>
+        /// <returns>The byte at the requested address when it is outside the migrated color ranges.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Reads a permitted byte from the wrapped address space and rejects migrated palette reads.</summary>
+        /// <param name="address">Address to read.</param>
+        /// <returns>The wrapped byte when the address is outside the initial and fade-color tables.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to a migrated Baby cutscene color range.</exception>
         public byte ReadByte(int address)
         {
             bool initial = address >= BabyMetroidCutsceneColorRomData.InitialSource &&
@@ -153,6 +167,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">Address to update.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

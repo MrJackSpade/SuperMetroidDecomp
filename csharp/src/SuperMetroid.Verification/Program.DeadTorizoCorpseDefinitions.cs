@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares the compiled dead-Torizo corpse definition with retail data and checks the production initializer.</summary>
+    /// <param name="rom">Retail address space supplying the expected configuration words.</param>
     private static void VerifyDeadTorizoCorpseDefinitions(SuperMetroidAddressSpace rom)
     {
         DeadTorizoCorpseDefinition definition = DeadTorizoCorpseDefinitions.Corpse;
@@ -75,16 +77,26 @@ internal static partial class Program
             "Dead Torizo corpse definitions: all eight native configuration words, the derived wrap offset, and the real initializer pass with migrated metadata reads forbidden.");
     }
 
+    /// <summary>Reads a little-endian word from the retail corpse metadata tables.</summary>
+    /// <param name="bus">Retail address space containing the source bytes.</param>
+    /// <param name="address">Full cartridge address of the word's low byte.</param>
+    /// <returns>The two bytes combined in little-endian order.</returns>
     private static ushort ReadDeadTorizoCorpseWord(
         SuperMetroidAddressSpace bus,
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Rejects runtime reads from corpse metadata that has been compiled into the port.</summary>
+    /// <param name="source">Address space that handles reads outside the migrated metadata ranges and receives writes.</param>
     private sealed class DeadTorizoCorpseDefinitionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes importer reads through the guard's address-space check.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Blocks reads from the corpse definition and wrap-offset words, delegating other addresses.</summary>
+        /// <param name="address">Full cartridge address requested by the caller.</param>
+        /// <returns>The source byte when the address is outside the migrated metadata.</returns>
         public byte ReadByte(int address) =>
             address is >= 0xa9dd58 and < 0xa9dd68 or
                 >= 0xa9e228 and < 0xa9e22a
@@ -92,6 +104,9 @@ internal static partial class Program
                     $"Dead Torizo attempted migrated corpse metadata read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards writes unchanged to the wrapped address space.</summary>
+        /// <param name="address">Full cartridge address to write.</param>
+        /// <param name="value">Byte written to that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

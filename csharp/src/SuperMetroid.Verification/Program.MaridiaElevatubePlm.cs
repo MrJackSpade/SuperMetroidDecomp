@@ -5,6 +5,7 @@ using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the elevatube's physical draw, sixteen-frame hold, sound instruction, and deletion without source reads.</summary>
     private static void VerifyMaridiaElevatubePlm()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -50,13 +51,20 @@ internal static partial class Program
             "Maridia elevatube PLM: native delay, draw, sound, and delete pass with source reads forbidden.");
     }
 
+    /// <summary>Rejects runtime reads from the compiled elevatube instruction and draw records.</summary>
+    /// <param name="source">Address space that serves unrelated reads and receives writes.</param>
     private sealed class MaridiaElevatubeSourceGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads from the migrated elevatube source ranges.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes importer reads through the same source-range guard.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Blocks bank $84 reads within the instruction and draw records, forwarding other addresses.</summary>
+        /// <param name="address">Full cartridge address requested by the caller.</param>
+        /// <returns>The source byte when the address is outside the compiled elevatube ranges.</returns>
         public byte ReadByte(int address)
         {
             int pointer = address & 0xffff;
@@ -73,6 +81,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged to the wrapped address space.</summary>
+        /// <param name="address">Full cartridge address to write.</param>
+        /// <param name="value">Byte written to that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares turret and direction tables with the cartridge and checks production turret, rotation, and bullet behavior.</summary>
+    /// <param name="rom">The retail address space containing Mother Brain's turret definition tables.</param>
     private static void VerifyMotherBrainTurretDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -164,14 +166,25 @@ internal static partial class Program
             "Mother Brain turret definitions: 12 placements, 96 rotation bytes, 16 instruction selectors, 32 bullet words, 384 rotations and all 20 real spawns pass with source tables forbidden.");
     }
 
+    /// <summary>Reads a little-endian word from the retail cartridge for comparison with a compiled turret definition.</summary>
+    /// <param name="bus">The retail address space supplying the source bytes.</param>
+    /// <param name="address">The byte address of the word's low byte.</param>
+    /// <returns>The two bytes combined with the low byte first.</returns>
     private static ushort ReadMotherBrainTurretWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Rejects reads from migrated Mother Brain turret tables while forwarding unrelated cartridge access.</summary>
+    /// <param name="source">The underlying bus used for addresses outside the compiled table ranges.</param>
     private sealed class MotherBrainTurretReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-import reads through the same turret-table guard as ordinary bus reads.</summary>
+        /// <param name="address">The bus address to read.</param>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects migrated turret-table reads and delegates all other reads to the underlying bus.</summary>
+        /// <param name="address">The bus address to read.</param>
+        /// <returns>The source byte when the address is outside the guarded table ranges.</returns>
         public byte ReadByte(int address) =>
             address is >= 0x86be89 and < 0x86bf59 ||
             address is >= 0x86bf9f and < 0x86bfdf ||
@@ -180,6 +193,9 @@ internal static partial class Program
                     $"Mother Brain turret attempted migrated table read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards a write to the underlying address space.</summary>
+        /// <param name="address">The bus address to write.</param>
+        /// <param name="value">The byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

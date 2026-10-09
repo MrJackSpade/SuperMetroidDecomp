@@ -6,6 +6,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks extracted Ceres and Zebes programs, edited UTF-8 content, live rebinding, debugger restoration, and strict glyph validation.</summary>
+    /// <param name="romPath">Retail ROM path used to extract the stock typewriter programs.</param>
     private static void VerifyEscapeTypewriterPresentation(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -85,6 +87,11 @@ internal static partial class Program
             $"Escape typewriter: Ceres/Zebes extraction and {comparedFrames} stock frames match with installed ROM reads forbidden; UTF-8 edits, active rebind and strict glyph validation pass.");
     }
 
+    /// <summary>Verifies deterministic stock extraction and that an override-directory edit changes the loaded presentation identity.</summary>
+    /// <param name="bus">Cartridge address space used by the extractor.</param>
+    /// <param name="stockDirectory">Directory containing the installed stock presentation resources.</param>
+    /// <param name="overrideDirectory">Writable directory used to exercise an edited typewriter document.</param>
+    /// <param name="stockCatalog">Previously loaded stock catalog used to compare content identity.</param>
     private static void VerifyEscapeTypewriterAssets(
         ISnesAddressSpace bus,
         string stockDirectory,
@@ -122,12 +129,25 @@ internal static partial class Program
             "Escape typewriter catalog: deterministic stock, override selection/identity and corruption failure pass.");
     }
 
+    /// <summary>Fails immediately if an installed escape typewriter attempts cartridge reads or writes during playback.</summary>
     private sealed class ForbiddenEscapeTextBus : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes importer reads to the same no-cartridge-read failure used by the address-space interface.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>This implementation never returns because all cartridge reads are forbidden.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects every cartridge read so playback cannot depend on text remaining in the ROM.</summary>
+        /// <param name="address">Cartridge address that playback attempted to access.</param>
+        /// <returns>This method never returns.</returns>
+        /// <exception cref="InvalidOperationException">A cartridge read was attempted.</exception>
         public static byte ReadByte(int address) => throw new InvalidOperationException(
             $"Installed escape typewriter read cartridge address ${address:X6}.");
+
+        /// <summary>Rejects cartridge writes during installed-program playback.</summary>
+        /// <param name="address">Cartridge address that playback attempted to modify.</param>
+        /// <param name="value">Byte the caller attempted to write.</param>
+        /// <exception cref="InvalidOperationException">A cartridge write was attempted.</exception>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException(
             $"Installed escape typewriter wrote cartridge address ${address:X6}.");
     }

@@ -9,6 +9,10 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks Norfair Ridley's installed initial and reveal palettes against native output and override behavior.</summary>
+    /// <param name="bus">ROM-backed address space used to compare extracted palette data and the reference behavior.</param>
+    /// <param name="stockDirectory">Directory containing the stock enemy-artwork manifest and palette file.</param>
+    /// <param name="stock">Installed artwork catalog whose Ridley palette is compared with native behavior.</param>
     private static void VerifyInstalledNorfairRidleyColors(ISnesAddressSpace bus,
         string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -215,13 +219,25 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Guards migrated Norfair Ridley palette bytes against runtime reads while forwarding other bus access.</summary>
+    /// <param name="source">Underlying address space for permitted reads and all writes.</param>
+    /// <param name="forbidden">Bus addresses that the installed palette path must not read.</param>
     private sealed class NorfairRidleyColorReadGuard(ISnesAddressSpace source,
         HashSet<int> forbidden) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Counts reads rejected because their addresses belong to migrated palette or pointer data.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes an import-source read through the forbidden-address check.</summary>
+        /// <param name="address">Cartridge bus address requested by the caller.</param>
+        /// <returns>The wrapped source byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address is in the forbidden palette or pointer set.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects forbidden palette reads and delegates all other reads to the wrapped address space.</summary>
+        /// <param name="address">Bus address to read.</param>
+        /// <returns>The underlying byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address is in the forbidden palette or pointer set.</exception>
         public byte ReadByte(int address)
         {
             if (forbidden.Contains(address))
@@ -233,6 +249,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Bus address receiving the write.</param>
+        /// <param name="value">Byte stored at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

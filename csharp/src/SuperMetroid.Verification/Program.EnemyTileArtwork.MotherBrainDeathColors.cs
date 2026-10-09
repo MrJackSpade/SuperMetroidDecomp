@@ -8,6 +8,10 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies Mother Brain death-palette extraction, installed overrides, live CGRAM updates, ROM independence, and malformed-input failures.</summary>
+    /// <param name="rom">Address space providing the native palette tables and source colors for comparison.</param>
+    /// <param name="stockDirectory">Directory containing the stock enemy-art manifest and palette document.</param>
+    /// <param name="stock">Loaded stock catalog whose death-color data is checked against the cartridge.</param>
     private static void VerifyInstalledMotherBrainDeathColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -166,13 +170,22 @@ internal static partial class Program
         };
     }
 
+    /// <summary>Address-space wrapper that blocks live reads from Mother Brain's migrated death-palette selector and color tables.</summary>
+    /// <param name="source">Underlying address space used for permitted reads and for all writes.</param>
     private sealed class MotherBrainDeathColorReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the number of attempts to read a protected death-palette table byte.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge reads through the protected-table check.</summary>
+        /// <param name="address">Full SNES address requested by the caller.</param>
+        /// <returns>The wrapped byte when the address is outside the blocked palette tables.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the migrated body, corpse, or door palette tables and forwards all other reads.</summary>
+        /// <param name="address">Full SNES address to read.</param>
+        /// <returns>The wrapped byte when the address is outside the protected tables.</returns>
         public byte ReadByte(int address)
         {
             bool body = address >= MotherBrainDeathRomData.BodyFadeTable &&
@@ -195,6 +208,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">Full SNES address to write.</param>
+        /// <param name="value">Byte stored at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

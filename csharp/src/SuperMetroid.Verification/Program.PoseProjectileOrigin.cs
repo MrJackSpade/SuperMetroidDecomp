@@ -5,6 +5,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks projectile and Grapple origins across pose, direction, and signed artwork-offset classes.</summary>
+    /// <param name="rom">Retail address space used for native origin and pose-table reference values.</param>
     private static void VerifyPoseProjectileOrigin(SuperMetroidAddressSpace rom)
     {
         short Word(int a) => unchecked((short)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8));
@@ -79,17 +81,28 @@ internal static partial class Program
         Console.WriteLine("Pose projectile origins: every pose and direction with each signed graphics-Y class, and authored Grapple launch/cancellation checks, preserve physics while replacing the graphics-Y byte.");
     }
 
+    /// <summary>Guards installed pose-presentation metadata while allowing unrelated cartridge reads.</summary>
+    /// <param name="source">Address space that supplies permitted reads and receives writes.</param>
     private sealed class PoseOriginPresentationBus(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Pose whose presentation-table aim and graphics-offset bytes must not be read.</summary>
         public byte Pose;
+
+        /// <summary>Routes importer reads through the guarded address-space path.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of the active pose's compiled aim and installed graphics-offset metadata.</summary>
+        /// <param name="address">Full cartridge address requested by the caller.</param>
+        /// <returns>The source byte when the address is not one of the guarded pose fields.</returns>
         public byte ReadByte(int address)
         {
             if (address == 0x91b629 + Pose * 8 + 3) throw new InvalidOperationException("Compiled pose aim read artwork metadata.");
             if (address == 0x91b629 + Pose * 8 + 4) throw new InvalidOperationException("Installed graphics offset read ROM.");
             return source.ReadByte(address);
         }
+        /// <summary>Forwards writes unchanged to the wrapped address space.</summary>
+        /// <param name="address">Full cartridge address to write.</param>
+        /// <param name="value">Byte written to that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

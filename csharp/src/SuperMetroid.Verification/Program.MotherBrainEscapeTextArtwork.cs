@@ -7,6 +7,9 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies native atlas bytes, all five installed VRAM pages, visible override effects, reload persistence, and malformed-file rejection.</summary>
+    /// <param name="directory">Installed artwork directory containing the extracted escape-text image.</param>
+    /// <param name="stock">Catalog loaded from installed resources, used as the unedited presentation baseline.</param>
     private static void VerifyInstalledMotherBrainEscapeTextArtwork(
         string directory, EnemyTileArtworkCatalog stock)
     {
@@ -86,6 +89,10 @@ internal static partial class Program
             "  Mother Brain escape text art: five guarded OBJ pages, cartridge parity, visible edit, reload and invalid override pass.");
     }
 
+    /// <summary>Runs the production Mother Brain tile-transfer handler for each installed escape-text page.</summary>
+    /// <param name="artwork">Catalog supplying the replacement character atlas to the enemy system.</param>
+    /// <param name="bus">Address space used by the production transfer handler.</param>
+    /// <returns>VRAM after all five page requests have been applied.</returns>
     private static SnesVram TransferMotherBrainEscapeTextPages(
         EnemyTileArtworkCatalog artwork, ISnesAddressSpace bus)
     {
@@ -108,11 +115,20 @@ internal static partial class Program
         return vram;
     }
 
+    /// <summary>Forwards cartridge access while rejecting reads from the installed Mother Brain escape-text artwork range.</summary>
+    /// <param name="source">Underlying cartridge space for reads outside the extracted artwork bytes.</param>
     private sealed class MotherBrainEscapeTextReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes importer reads through the artwork-range guard.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The requested byte when it is outside the installed artwork range.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the installed artwork bytes and forwards other reads.</summary>
+        /// <param name="address">Cartridge address to read.</param>
+        /// <returns>The requested byte when its address is outside the guarded range.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to the installed escape-text artwork.</exception>
         public byte ReadByte(int address) =>
             address is >= MotherBrainEscapeTextArtworkDefinitions.SourceAddress and
                 < MotherBrainEscapeTextArtworkDefinitions.SourceAddress +
@@ -121,6 +137,9 @@ internal static partial class Program
                     $"Mother Brain escape text attempted a visual ROM read at ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards writes unchanged to the wrapped cartridge address space.</summary>
+        /// <param name="address">Cartridge address to write.</param>
+        /// <param name="value">Byte to store at <paramref name="address"/>.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

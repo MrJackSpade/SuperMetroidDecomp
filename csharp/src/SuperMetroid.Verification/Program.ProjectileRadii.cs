@@ -7,6 +7,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies extracted projectile collision radii against ROM and checks runtime reads use the compiled catalog.</summary>
+    /// <param name="rom">Cartridge address space used to read expected radii and wrapped by the runtime read guard.</param>
     private static void VerifyProjectileRadii(SuperMetroidAddressSpace rom)
     {
         // Independent address inventory from the pinned disassembly's timed-record fields.
@@ -155,16 +157,32 @@ internal static partial class Program
         Console.WriteLine($"Projectile radii: 805 native pairs, loud non-catalog rejection, 1610 projectile frames and {bombFrames} bomb frames pass with radius reads forbidden and replaced art references.");
     }
 
+    /// <summary>Rejects reads of migrated projectile-radius bytes while forwarding unrelated bus access.</summary>
+    /// <param name="source">Underlying address space for reads outside the radius set and for writes.</param>
+    /// <param name="addresses">Starting byte addresses of radius pairs whose two bytes must not be read at runtime.</param>
     private sealed class ProjectileRadiusReadGuard(ISnesAddressSpace source, int[] addresses) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Set of forbidden radius-byte addresses, including both bytes of every supplied pair.</summary>
         private readonly HashSet<int> _radii = addresses.SelectMany(a => new[] { a, a + 1 }).ToHashSet();
+
+        /// <summary>Routes cartridge-source requests through the forbidden-radius check.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
+        /// <returns>The wrapped source byte when the address is not a migrated radius byte.</returns>
+        /// <exception cref="InvalidDataException">The requested address is part of a migrated projectile-radius pair.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects migrated radius-byte reads and forwards all other reads to the wrapped address space.</summary>
+        /// <param name="address">Address requested from the cartridge bus.</param>
+        /// <returns>The wrapped source byte when the address is not in the forbidden set.</returns>
+        /// <exception cref="InvalidDataException">The requested address is a byte of a compiled projectile radius.</exception>
         public byte ReadByte(int address)
         {
             if (_radii.Contains(address)) throw new InvalidDataException($"Projectile collision still reads ROM ${address:X6}.");
             return source.ReadByte(address);
         }
+        /// <summary>Forwards writes unchanged so runtime projectile behavior can use the wrapped bus.</summary>
+        /// <param name="address">Address receiving the write.</param>
+        /// <param name="value">Byte written to that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

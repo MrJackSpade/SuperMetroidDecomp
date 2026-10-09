@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks compiled Samus speed records, restored table bases, mutable aliases, and rejection of ROM overreads.</summary>
+    /// <param name="rom">The retail address space used to compare authored indexed speed words.</param>
     private static void VerifySamusIndexedSpeeds(SuperMetroidAddressSpace rom)
     {
         SpeedTableEntry Read(int a)
@@ -69,11 +71,20 @@ internal static partial class Program
         Console.WriteLine("Indexed Samus speeds: all 492 authored words and every restored base address preserve authored data/alignment; compiled reads are forbidden, mutable aliases stay live, and ROM overreads fail loudly.");
     }
 
+    /// <summary>Can be armed to reject any cartridge read while verifying that an authored speed record comes from compiled data.</summary>
+    /// <param name="source">The underlying address space used while reads are permitted.</param>
     private sealed class IndexedSpeedReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>When enabled, causes each attempted cartridge read to fail immediately.</summary>
         public bool ForbidReads { get; set; }
+
+        /// <summary>Routes a cartridge-import read through the guard's current read policy.</summary>
+        /// <param name="address">The bus address requested by the caller.</param>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads while armed and otherwise delegates to the wrapped address space.</summary>
+        /// <param name="address">The bus address to read.</param>
+        /// <returns>The wrapped byte when reads are permitted.</returns>
         public byte ReadByte(int address)
         {
             // Unaligned/non-catalog spans can overlap known words, so classify each
@@ -81,6 +92,11 @@ internal static partial class Program
             if (ForbidReads) throw new InvalidOperationException("Authored indexed speed unexpectedly reads the ROM.");
             return source.ReadByte(address);
         }
+
+        /// <summary>Rejects writes because this guard is used only to observe read behavior.</summary>
+        /// <param name="address">The bus address a caller attempted to modify.</param>
+        /// <param name="value">The byte a caller attempted to store.</param>
+        /// <exception cref="InvalidOperationException">This verification guard does not permit writes.</exception>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected indexed-speed write.");
     }
 }

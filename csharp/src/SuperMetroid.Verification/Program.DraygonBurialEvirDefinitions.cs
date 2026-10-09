@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares six Draygon burial Evir records with cartridge tables and the production spawn/movement paths.</summary>
+    /// <param name="rom">Cartridge address space supplying the native subspeed, position, and angle tables.</param>
     private static void VerifyDraygonBurialEvirDefinitions(SuperMetroidAddressSpace rom)
     {
         const int subspeedTable = 0xa5a1af;
@@ -99,6 +101,11 @@ internal static partial class Program
             "Draygon burial Evir definitions: all six spawn/movement records match ROM and the real allocation plus 16.16 movement paths pass with all three source tables forbidden.");
     }
 
+    /// <summary>Adds or subtracts a fractional 16.16 movement increment and splits the wrapped result into its words.</summary>
+    /// <param name="position">Current integer coordinate, used as the high word of the fixed-point position.</param>
+    /// <param name="magnitude">Unsigned subspeed increment placed in the low word before addition or subtraction.</param>
+    /// <param name="add"><see langword="true"/> to advance the coordinate; <see langword="false"/> to move it backward.</param>
+    /// <returns>The wrapped integer coordinate and fractional subposition after one movement update.</returns>
     private static (ushort Position, ushort Subposition) AddDraygonBurialSubspeed(
         ushort position,
         ushort magnitude,
@@ -111,17 +118,30 @@ internal static partial class Program
         return (unchecked((ushort)(fixedPosition >> 16)), unchecked((ushort)fixedPosition));
     }
 
+    /// <summary>Blocks reads of the three Draygon burial Evir tables while forwarding other bus operations.</summary>
+    /// <param name="source">Underlying address space used for reads outside the guarded range and for writes.</param>
     private sealed class DraygonBurialEvirReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-source reads through the guarded address-space read path.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
+        /// <returns>The source byte when the address is outside the forbidden definition tables.</returns>
+        /// <exception cref="InvalidOperationException">The requested byte belongs to a guarded Draygon definition table.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the subspeed, initial-position, and angle tables and forwards other reads.</summary>
+        /// <param name="address">Address to read from the wrapped cartridge bus.</param>
+        /// <returns>The requested source byte when the address is outside the forbidden range.</returns>
+        /// <exception cref="InvalidOperationException">The production movement path attempts to read the guarded table range.</exception>
         public byte ReadByte(int address) =>
             address is >= 0xa5a1af and < 0xa5a1f7
                 ? throw new InvalidOperationException(
                     $"Draygon burial Evir attempted migrated definition read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards writes unchanged so the production movement path can use the wrapped bus.</summary>
+        /// <param name="address">Address receiving the write.</param>
+        /// <param name="value">Byte written to that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

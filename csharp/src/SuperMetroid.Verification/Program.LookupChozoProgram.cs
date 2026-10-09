@@ -3,12 +3,25 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks compiled control instructions against native Chozo statue program bytes.</summary>
+    /// <param name="rom">Cartridge address space containing the original PLM program.</param>
     private static void VerifyChozoProgramControls(SuperMetroidAddressSpace rom) => VerifyChozoProgramField(rom, 0);
+    /// <summary>Checks compiled spritemap operands against their native draw-pointer bytes.</summary>
+    /// <param name="rom">Cartridge address space containing the original PLM program.</param>
     private static void VerifyChozoProgramDraws(SuperMetroidAddressSpace rom) => VerifyChozoProgramField(rom, 1);
+    /// <summary>Checks compiled instruction branch targets against the native target words.</summary>
+    /// <param name="rom">Cartridge address space containing the original PLM program.</param>
     private static void VerifyChozoProgramTargets(SuperMetroidAddressSpace rom) => VerifyChozoProgramField(rom, 2);
+    /// <summary>Checks the compiled callback operand against the native callback word.</summary>
+    /// <param name="rom">Cartridge address space containing the original PLM program.</param>
     private static void VerifyChozoProgramCallback(SuperMetroidAddressSpace rom) => VerifyChozoProgramField(rom, 3);
+    /// <summary>Checks compiled event operands against the native event word.</summary>
+    /// <param name="rom">Cartridge address space containing the original PLM program.</param>
     private static void VerifyChozoProgramEvent(SuperMetroidAddressSpace rom) => VerifyChozoProgramField(rom, 4);
 
+    /// <summary>Checks byte and word ownership across the full address domain and compares a selected program field with ROM.</summary>
+    /// <param name="rom">Cartridge address space used to read expected native program bytes.</param>
+    /// <param name="field">Field selector: controls, draw operands, branch targets, callback, or event.</param>
     private static void VerifyChozoProgramField(SuperMetroidAddressSpace rom, int field)
     {
         int[] draws = [0xd0f8,0xd0fc,0xd100,0xd104,0xd151,0xd3d1,0xd3ee];

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares compiled Ridley collision geometry with cartridge data and exercises both installed collision walkers.</summary>
     private static void VerifyRidleyCollisionDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -239,12 +240,22 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Counts and rejects every cartridge read so installed Ridley collision checks cannot silently fall back to ROM.</summary>
     private sealed class RidleyCollisionNoReadBus : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of byte-read attempts made against this no-read address space.</summary>
         internal int ReadAttempts { get; private set; }
 
+        /// <summary>Routes an import-source byte request through the rejecting read method.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
+        /// <returns>No value; every request is rejected.</returns>
+        /// <exception cref="InvalidOperationException">A cartridge byte read was attempted.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Records and rejects every byte read.</summary>
+        /// <param name="address">Address requested by the caller.</param>
+        /// <returns>No value; every request is rejected.</returns>
+        /// <exception cref="InvalidOperationException">A cartridge byte read was attempted.</exception>
         public byte ReadByte(int address)
         {
             ReadAttempts++;
@@ -252,6 +263,10 @@ internal static partial class Program
                 $"Installed Ridley collision read cartridge byte ${address:X6}.");
         }
 
+        /// <summary>Rejects writes because this verification address space provides no cartridge access.</summary>
+        /// <param name="address">Address the caller attempted to modify.</param>
+        /// <param name="value">Byte the caller attempted to write.</param>
+        /// <exception cref="InvalidOperationException">A cartridge byte write was attempted.</exception>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException(
             $"Installed Ridley collision wrote cartridge byte ${address:X6}.");
     }

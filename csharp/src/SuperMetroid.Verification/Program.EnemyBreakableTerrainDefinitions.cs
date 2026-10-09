@@ -5,6 +5,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the compiled enemy-spike selector table and confirms production collision handling without reading the original table.</summary>
+    /// <param name="rom">Address space containing the cartridge's native enemy-terrain reaction words.</param>
     private static void VerifyEnemyBreakableTerrainDefinitions(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 16; index++)
@@ -67,20 +69,35 @@ internal static partial class Program
             "Enemy terrain reactions: sixteen native headers, all 32 authored/high-bit selectors and real collision/PLM handoffs pass with the reaction table forbidden; 224 adjacent-code selectors fail explicitly.");
     }
 
+    /// <summary>Reads one little-endian word from the native enemy-terrain reaction table.</summary>
+    /// <param name="bus">Address space containing the source table.</param>
+    /// <param name="address">Address of the word's low byte.</param>
+    /// <returns>The two adjacent bytes combined into a 16-bit word.</returns>
     private static ushort ReadEnemyTerrainWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Address-space wrapper that rejects reads from the native enemy-terrain reaction table.</summary>
+    /// <param name="source">Underlying address space used for reads outside the protected table and for writes.</param>
     private sealed class EnemyTerrainReactionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge reads through the table-read guard.</summary>
+        /// <param name="address">Full SNES address requested by the caller.</param>
+        /// <returns>The wrapped byte if the requested address is outside the protected table.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects native reaction-table reads and forwards other byte reads to the wrapped address space.</summary>
+        /// <param name="address">Full SNES address to read.</param>
+        /// <returns>The wrapped byte when the address is outside the protected table.</returns>
         public byte ReadByte(int address) =>
             address is >= 0xa0c2da and < 0xa0c2fa
                 ? throw new InvalidOperationException(
                     $"Enemy terrain reaction attempted migrated table read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">Full SNES address to write.</param>
+        /// <param name="value">Byte stored at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

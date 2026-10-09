@@ -5,6 +5,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the post-shot cinematic's frame timing, palette fades, and exact VRAM upload sequence.</summary>
+    /// <param name="bus">The retail cartridge bus supplying source artwork and native fixture data.</param>
     private static void VerifyEndingPostShot(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyEndingPostShotTransferFields), () => VerifyEndingPostShotTransferFields(bus));
@@ -56,13 +58,21 @@ internal static partial class Program
         Console.WriteLine("  Post-shot: 36 rotation frames, delayed palette fades, six exact uploads, 180-frame hold.");
     }
 
+    /// <summary>Rejects rereads of the fixed post-shot upload table while delegating all other cartridge access.</summary>
+    /// <param name="source">The underlying cartridge bus used for addresses outside the upload table.</param>
     private sealed class PostShotUploadTableReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads from the fixed post-shot upload transfer table.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes a cartridge-import read through the same upload-table guard as ordinary bus reads.</summary>
+        /// <param name="address">The bus address to read.</param>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the fixed upload table and forwards all other reads to the cartridge bus.</summary>
+        /// <param name="address">The bus address to read.</param>
+        /// <returns>The underlying cartridge byte for an address outside the guarded table.</returns>
         public byte ReadByte(int address)
         {
             if (address >= EndingPostShotUploadDefinitions.TableAddress &&
@@ -76,6 +86,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write to the underlying cartridge bus.</summary>
+        /// <param name="address">The bus address to write.</param>
+        /// <param name="value">The byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

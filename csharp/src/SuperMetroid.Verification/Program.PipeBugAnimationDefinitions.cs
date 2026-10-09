@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks both Pipe Bug animation pointer tables against the cartridge and verifies normal/strong initialization and selector handoffs without runtime table reads.</summary>
+    /// <param name="rom">Address space containing the native animation pointer tables.</param>
     private static void VerifyPipeBugAnimationDefinitions(SuperMetroidAddressSpace rom)
     {
         const int normalTable = 0xb3882b;
@@ -83,22 +85,37 @@ internal static partial class Program
             "Pipe Bug animation definitions: eight native selectors and all eight production handoffs pass with both pointer tables forbidden.");
     }
 
+    /// <summary>Reads one little-endian instruction-list pointer from a Pipe Bug animation table.</summary>
+    /// <param name="bus">Address space containing the table.</param>
+    /// <param name="address">Address of the pointer's low byte.</param>
+    /// <returns>The adjacent bytes combined into a 16-bit pointer.</returns>
     private static ushort ReadPipeBugAnimationWord(
         SuperMetroidAddressSpace bus,
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Address-space wrapper that rejects gameplay reads from the migrated normal and strong Pipe Bug animation tables.</summary>
+    /// <param name="source">Underlying address space used for reads outside the tables and for all writes.</param>
     private sealed class PipeBugAnimationReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge reads through the animation-table guard.</summary>
+        /// <param name="address">Full SNES address requested by the caller.</param>
+        /// <returns>The wrapped byte when the address is outside the protected tables.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects normal or strong animation-table reads and forwards other byte reads to the wrapped address space.</summary>
+        /// <param name="address">Full SNES address to read.</param>
+        /// <returns>The wrapped byte when the address is outside the protected tables.</returns>
         public byte ReadByte(int address) =>
             address is >= 0xb3882b and < 0xb3883b
                 ? throw new InvalidOperationException(
                     $"Pipe Bug attempted migrated animation read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">Full SNES address to write.</param>
+        /// <param name="value">Byte stored at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

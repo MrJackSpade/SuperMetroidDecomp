@@ -79,15 +79,27 @@ internal static partial class Program
             "  Room-FX animated tiles: 65 control words and 30 artwork-source identities across 7 objects are compiled.");
     }
 
+    /// <summary>Observes room-FX animation reads and rejects accesses to compiled mechanics words.</summary>
+    /// <param name="inner">Address space receiving reads that are not rejected by the mechanics check.</param>
+    /// <param name="definition">Object definition whose compiled mechanics and presentation operands are monitored.</param>
     private sealed class RoomFxAnimatedTileMechanicsForbiddenBus(
         ISnesAddressSpace inner,
         RoomFxAnimatedTileObjectDefinition definition) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the number of attempted reads of compiled mechanics bytes.</summary>
         public int ForbiddenReadAttempts { get; private set; }
+
+        /// <summary>Gets the number of reads that hit a compiled presentation source operand.</summary>
         public int PresentationReadCount { get; private set; }
 
+        /// <summary>Routes a cartridge-byte request through the mechanics and presentation read tracking.</summary>
+        /// <param name="address">Cartridge address of the requested byte.</param>
+        /// <returns>The underlying byte unless the address is a compiled mechanics byte, in which case the read throws.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of compiled mechanics bytes, tracks presentation-operand reads, and forwards other reads.</summary>
+        /// <param name="address">Address of the requested byte.</param>
+        /// <returns>The underlying byte unless a compiled mechanics byte is requested.</returns>
         public byte ReadByte(int address)
         {
             SnesAddress source = SnesAddress.FromBusAddress(address);
@@ -113,6 +125,9 @@ internal static partial class Program
             return inner.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">Address where the byte is written.</param>
+        /// <param name="value">Byte value to write.</param>
         public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
     }
 }

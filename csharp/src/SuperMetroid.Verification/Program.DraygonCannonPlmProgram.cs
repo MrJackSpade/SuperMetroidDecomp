@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the retail Draygon cannon PLM programs, visual data, and runtime execution without source-table rereads.</summary>
     private static void VerifyDraygonCannonPlmProgram()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -128,13 +129,23 @@ internal static partial class Program
         Console.WriteLine("  Draygon cannon PLM: both retail programs match ROM and execute through damage without program reads.");
     }
 
+    /// <summary>Forwards address-space access while counting and rejecting reads from compiled cannon program and draw data.</summary>
+    /// <param name="source">Address space used for reads outside the compiled ranges and for all writes.</param>
     private sealed class DraygonCannonProgramReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads from a compiled cannon program or draw-data range.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes an import-source byte read through the same checks as other address-space reads.</summary>
+        /// <param name="address">Cartridge address to read.</param>
+        /// <returns>The byte at the requested address when it is outside the compiled ranges.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Reads a permitted byte and rejects access to compiled cannon program or draw data.</summary>
+        /// <param name="address">Address to read.</param>
+        /// <returns>The wrapped address space's byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address is within a guarded compiled range.</exception>
         public byte ReadByte(int address)
         {
             if ((address >= 0x84dcde && address <= 0x84dd26) ||
@@ -154,6 +165,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">Address to update.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

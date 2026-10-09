@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks compiled Draygon health bands against native thresholds and exercises the production selector without threshold reads.</summary>
     private static void VerifyDraygonHealthPaletteDefinitions(SuperMetroidAddressSpace rom)
     {
         static ushort ReadWord(ISnesAddressSpace bus, int address) => unchecked((ushort)(
@@ -86,13 +87,24 @@ internal static partial class Program
             "runs with the threshold table and terminator forbidden.");
     }
 
+    /// <summary>Wraps an address space and rejects reads of Draygon's native health-threshold table and terminator.</summary>
+    /// <param name="source">Address space used for reads outside the guarded threshold range and for writes.</param>
     private sealed class DraygonHealthThresholdReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Counts reads rejected because they target the native threshold words or terminator.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge-source reads through the threshold guard.</summary>
+        /// <param name="address">Cartridge bus address requested by the caller.</param>
+        /// <returns>The wrapped source byte when the address is outside the guarded range.</returns>
+        /// <exception cref="InvalidOperationException">The address targets a forbidden threshold word or terminator.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of the native threshold table and forwards other addresses to the wrapped source.</summary>
+        /// <param name="address">Bus address to read.</param>
+        /// <returns>The wrapped source byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address targets a forbidden threshold word or terminator.</exception>
         public byte ReadByte(int address)
         {
             if (address >= DraygonHealthPaletteDefinitions.NativeThresholdAddress &&
@@ -105,6 +117,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Bus address receiving the write.</param>
+        /// <param name="value">Byte stored at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

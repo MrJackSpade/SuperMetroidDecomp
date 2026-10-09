@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Audits every catalogued projectile entry for a compiled mechanics owner and rejects cartridge fallback.</summary>
     private static void VerifyEnemyProjectileInstructionOwnerCoverage()
     {
         const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -82,12 +83,18 @@ internal static partial class Program
             "fallback; unknown entries fail explicitly.");
     }
 
+    /// <summary>Fails on every cartridge read or write so mechanics lookups cannot silently fall back to ROM.</summary>
     private sealed class EnemyProjectileMechanicsFallbackForbiddenBus : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of forbidden address-space reads attempted by the audited lookups.</summary>
         internal int ReadAttempts { get; private set; }
 
+        /// <summary>Routes importer reads through the same fail-fast check as address-space reads.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Counts and rejects a cartridge read instead of returning fallback mechanics data.</summary>
+        /// <param name="address">Full cartridge address that the caller attempted to read.</param>
+        /// <returns>This guard never returns a byte because every read is forbidden.</returns>
         public byte ReadByte(int address)
         {
             ReadAttempts++;
@@ -95,6 +102,9 @@ internal static partial class Program
                 $"Projectile mechanics attempted forbidden cartridge read ${address:X6}.");
         }
 
+        /// <summary>Rejects writes because this audit expects mechanics resolution to be read-only.</summary>
+        /// <param name="address">Full cartridge address that the caller attempted to write.</param>
+        /// <param name="value">Byte the caller attempted to store.</param>
         public void WriteByte(int address, byte value) =>
             throw new InvalidOperationException(
                 $"Projectile mechanics attempted unexpected write ${address:X6}.");

@@ -9,6 +9,14 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Checks Grapple flare cadence, visibility, artwork composition, state preservation, and runtime rebinding.</summary>
+    /// <param name="bus">Cartridge address space used as the native cadence and selector reference.</param>
+    /// <param name="stock">Installed stock flare composition used for baseline rendering.</param>
+    /// <param name="edited">Composition with an isolated visual offset used to verify override behavior.</param>
+    /// <param name="body">Samus body artwork required by the flare rendering path.</param>
+    /// <param name="roomAssets">Installed room assets used to initialize the runtime fixture.</param>
+    /// <param name="maps">Map presentation catalog installed into the runtime fixture.</param>
+    /// <param name="grappleArtwork">Grapple tile atlas bound while exercising the actor path.</param>
     private static void VerifyGrappleFlarePresentation(SuperMetroidAddressSpace bus,
         ChargeFlareSpriteCatalog stock, ChargeFlareSpriteCatalog edited,
         SamusBodyArtworkCatalog body, MapPresentationInstalledRoomAssets roomAssets,
@@ -121,6 +129,14 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Verifies the live Grapple actor uses rebound flare compositions before and after restoring a saved game.</summary>
+    /// <param name="bus">Cartridge address space used to initialize the Ceres runtime.</param>
+    /// <param name="stock">Stock flare composition used to capture the original OAM output.</param>
+    /// <param name="edited">Edited composition whose visual change must reach the live actor.</param>
+    /// <param name="body">Samus body artwork bound to the runtime actor.</param>
+    /// <param name="roomAssets">Installed assets needed to initialize and rebind the Ceres room.</param>
+    /// <param name="maps">Map presentation catalog restored into the runtime.</param>
+    /// <param name="grappleArtwork">Grapple tile atlas restored with the runtime.</param>
     private static void VerifyGrappleFlareActorBinding(SuperMetroidAddressSpace bus,
         ChargeFlareSpriteCatalog stock, ChargeFlareSpriteCatalog edited,
         SamusBodyArtworkCatalog body, MapPresentationInstalledRoomAssets roomAssets,
@@ -166,12 +182,24 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Rejects reads of Grapple flare cadence and selector bytes that have been compiled into host definitions.</summary>
+    /// <param name="source">Address space used for permitted reads and all writes.</param>
     private sealed class GrappleFlarePresentationGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes an import-source byte read through the guarded address-space operation.</summary>
+        /// <param name="address">Cartridge address to read.</param>
+        /// <returns>The byte at the address when it is outside the compiled cadence and selector ranges.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Reads permitted bytes and rejects access to compiled Grapple flare data.</summary>
+        /// <param name="address">Address to read.</param>
+        /// <returns>The wrapped byte when the address is outside the guarded ranges.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to a compiled cadence or selector range.</exception>
         public byte ReadByte(int address) => address is >= 0x90c481 and < 0x90c4b5 or >= 0x93a225 and < 0x93a231
             ? throw new InvalidOperationException($"Grapple flare still reads compiled cadence/selector at {address:X6}.") : source.ReadByte(address);
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">Address to update.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

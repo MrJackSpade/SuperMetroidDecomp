@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares the byte-addressed ceiling-rock coordinate lookup against the native cartridge word window.</summary>
+    /// <param name="rom">The retail address space containing Kraid's ceiling-rock X-coordinate table.</param>
     private static void VerifyKraidCeilingRockCoordinates(SuperMetroidAddressSpace rom)
     {
         ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
@@ -15,6 +17,8 @@ internal static partial class Program
                 "Ceiling rock byte-window bounds");
     }
 
+    /// <summary>Exercises Kraid's growth update across all body Y values and ceiling-rock selectors while forbidding table rereads.</summary>
+    /// <param name="rom">The retail address space used to establish expected coordinates outside the guarded table.</param>
     private static void VerifyKraidCeilingRockPositions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidCeilingRockCoordinates), () => VerifyKraidCeilingRockCoordinates(rom));
@@ -55,12 +59,24 @@ internal static partial class Program
         Console.WriteLine("Kraid ceiling rocks: all 18 byte reads and 589824 actual growth updates match with placement reads forbidden.");
     }
 
+    /// <summary>Rejects runtime reads of Kraid's compiled ceiling-rock coordinate words and all writes.</summary>
+    /// <param name="source">The underlying cartridge address space for permitted reads.</param>
     private sealed class KraidCeilingReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-import reads through the same ceiling-table guard as ordinary reads.</summary>
+        /// <param name="address">The bus address to read.</param>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects accesses to the migrated ceiling-coordinate window and delegates other reads.</summary>
+        /// <param name="address">The bus address to read.</param>
+        /// <returns>The source byte when the address is outside the guarded coordinate window.</returns>
         public byte ReadByte(int address) => address is >= 0xa7acb3 and <= 0xa7acc5
             ? throw new InvalidOperationException("Unexpected migrated ceiling placement read.") : source.ReadByte(address);
+
+        /// <summary>Rejects all writes through this verification-only bus.</summary>
+        /// <param name="address">The bus address a caller attempted to modify.</param>
+        /// <param name="value">The byte a caller attempted to store.</param>
+        /// <exception cref="InvalidOperationException">This guard does not permit bus writes.</exception>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected ceiling bus write.");
     }
 }

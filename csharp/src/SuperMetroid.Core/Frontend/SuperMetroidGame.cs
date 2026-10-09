@@ -848,7 +848,7 @@ public sealed partial class SuperMetroidGame
                 if (doorMovementType is
                     SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
                 {
-                    audio.QueueSoundAndGetAccumulator(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x32),
+                    audio.QueueSoundAndGetAccumulator(SoundEffectLibrary1Sounds.StopSpinJump,
                         maximumQueued: 15, soundSuppressed: doorSoundsSuppressed);
                 }
                 else if ((controllerInput & (ushort)SnesButton.X) == 0 &&

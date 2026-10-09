@@ -299,7 +299,7 @@ internal static partial class Program
     }
 
     private sealed class TilesetDefinitionReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
+        : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
         // The guarded range begins at graphics set zero's native definition, located once
         // through the unguarded source's pointer table.
@@ -329,6 +329,11 @@ internal static partial class Program
         }
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+
+        // Room scroll storage keeps WRAM bytes across rooms; WRAM is not guarded cartridge data.
+        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
+
+        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
     }
 
     private static void ValidateTilemapTransfer(

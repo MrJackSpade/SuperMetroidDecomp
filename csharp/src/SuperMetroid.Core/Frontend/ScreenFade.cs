@@ -62,6 +62,71 @@ public sealed class ScreenFade
         inidisp = current == 1 ? ForcedBlank : current - 1;
     }
 
+    /// <summary>
+    /// $8B:911B AdvanceSlowScreenFadeIn: one cinematic dispatch of fading in. Returns the
+    /// native carry, set when this call reached full brightness.
+    /// </summary>
+    /// <remarks>
+    /// Unlike the bank $80 routines, these count down the low byte of $0723 and reload it
+    /// from $0725, stepping when the decrement reaches zero or wraps negative. Equal seeds
+    /// of N therefore step on the Nth call and every N calls after it.
+    /// </remarks>
+    public bool AdvanceSlowFadeIn(ref int inidisp)
+    {
+        if (ConsumeSlowDelay())
+            return false;
+        int next = (inidisp + 1) & 0x1f;
+        if ((sbyte)(next - FullyLit) >= 0)
+        {
+            inidisp = FullyLit;
+            ClearSlowTiming();
+            return true;
+        }
+        inidisp = next;
+        ReloadSlowDelay();
+        return false;
+    }
+
+    /// <summary>
+    /// $8B:90D5 AdvanceSlowScreenFadeOut: one cinematic dispatch of fading out. Returns the
+    /// native carry, set once brightness is zero (forced blank is written on that call).
+    /// </summary>
+    public bool AdvanceSlowFadeOut(ref int inidisp)
+    {
+        if (ConsumeSlowDelay())
+            return false;
+        int current = inidisp & BrightnessMask;
+        if (current == 0)
+            return true;
+        if (current == 1)
+        {
+            inidisp = ForcedBlank;
+            ClearSlowTiming();
+            return true;
+        }
+        inidisp = current - 1;
+        ReloadSlowDelay();
+        return false;
+    }
+
+    /// <summary>8-bit DEC $0723 with BEQ/BPL: true while the decremented byte stays positive.</summary>
+    private bool ConsumeSlowDelay()
+    {
+        byte next = unchecked((byte)(Delay - 1));
+        Delay = (ushort)((Delay & 0xff00) | next);
+        return next is > 0 and < 0x80;
+    }
+
+    /// <summary>8-bit LDA $0725 : STA $0723.</summary>
+    private void ReloadSlowDelay() => Delay = (ushort)((Delay & 0xff00) | (Counter & 0xff));
+
+    /// <summary>8-bit STZ $0723 and $0725 on reaching the fade's end.</summary>
+    private void ClearSlowTiming()
+    {
+        Delay &= 0xff00;
+        Counter &= 0xff00;
+    }
+
     /// <summary>DEC/BMI on the 16-bit counter; returns true when this dispatch only counts down.</summary>
     private bool ConsumeCounter()
     {

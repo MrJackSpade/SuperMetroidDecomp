@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -10,6 +11,13 @@ using SuperMetroid.Core.Rom;
 internal static partial class Program
 {
     /// <summary>Exercises the actual front/rear Mode-7 transfers and restored Ceres flight.</summary>
+    /// <summary>
+    /// Standalone frames from a new flight into its visible front approach: $8B:BCA0's
+    /// dispatch and $8B:BDE4's 24-dispatch music wait precede the 32-dispatch approach
+    /// (13% capture updates 6999-7055).
+    /// </summary>
+    private const int CeresFrontApproachTicks = 30;
+
     private static void VerifyCeresFlightArtwork(GameInstallation installation,
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -41,10 +49,10 @@ internal static partial class Program
         using var referencePalette = new MemoryStream(referenceFiles[CeresFlightPaletteFormat.FileName]);
         using var referenceSprites = new MemoryStream(referenceFiles[CeresFlightSpriteFormat.FileName]);
         using var referenceActors = new MemoryStream(referenceFiles[CeresFlightActorLayoutFormat.FileName]);
-        var native = new IntroCeresFlightState(bus, CeresFlightArtworkCatalog.Load(
+        var native = new IntroCeresFlightState(bus, new CartridgeAudioState(), CeresFlightArtworkCatalog.Load(
             referenceCharacters, referenceMaps, referenceObjects, referencePalette,
             referenceSprites, referenceActors));
-        var installed = new IntroCeresFlightState(guard, stock);
+        var installed = new IntroCeresFlightState(guard, new CartridgeAudioState(), stock);
         var phases = new HashSet<IntroCeresFlightPhase>();
         for (int tick = 0; tick < 4000 && !native.Finished; tick++)
         {
@@ -62,8 +70,8 @@ internal static partial class Program
                             SoftwareLayeredSnapshotRenderer.Render(original)),
                     $"installed Ceres flight matches native pixels and PPU state at tick {tick}");
             }
-            native.Step();
-            installed.Step();
+            native.StepFrame();
+            installed.StepFrame();
         }
         AssertTrue(native.Finished && installed.Finished &&
                 phases.Contains(IntroCeresFlightPhase.FlyingTowardCeres) &&
@@ -113,13 +121,13 @@ internal static partial class Program
 
             CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
             bool isRearMap = name == CeresFlightArtworkFormat.MapFileName;
-            var fresh = new IntroCeresFlightState(guard, edited);
+            var fresh = new IntroCeresFlightState(guard, new CartridgeAudioState(), edited);
             AssertTrue(fresh.CaptureRenderSnapshot().Memory.Vram.SequenceEqual(
                     ExpectedCeresFlightVram(edited, rear: false)),
                 $"edited {name} reaches exact front-view VRAM without changing other bytes");
-            var restored = new IntroCeresFlightState(guard, stock);
+            var restored = new IntroCeresFlightState(guard, new CartridgeAudioState(), stock);
             for (int tick = 0; tick < 100 && restored.Phase != IntroCeresFlightPhase.FlyingTowardCeres; tick++)
-                restored.Step();
+                restored.StepFrame();
             AssertEqual(IntroCeresFlightPhase.FlyingTowardCeres, restored.Phase,
                 "restored Ceres fixture reaches the rear-view map handoff");
             // The desktop/Android restore path rebinds the parent cinematic, not
@@ -204,13 +212,13 @@ internal static partial class Program
         using (var output = File.Create(overridePath))
             CeresFlightActorLayout.Write(output, document);
         CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
-        var original = new IntroCeresFlightState(guardedBus, stock);
-        var changed = new IntroCeresFlightState(guardedBus, edited);
+        var original = new IntroCeresFlightState(guardedBus, new CartridgeAudioState(), stock);
+        var changed = new IntroCeresFlightState(guardedBus, new CartridgeAudioState(), edited);
         for (int frame = 0; frame < 4000 &&
             original.Phase != IntroCeresFlightPhase.FlyingTowardCeres; frame++)
         {
-            original.Step();
-            changed.Step();
+            original.StepFrame();
+            changed.StepFrame();
         }
         AssertEqual(IntroCeresFlightPhase.FlyingTowardCeres, original.Phase,
             "Ceres actor-layout fixture reaches the rear-view handoff");
@@ -228,8 +236,8 @@ internal static partial class Program
             "editable layout moves the real rear-view asteroid actor by one tile");
         for (int frame = 0; frame < 20; frame++)
         {
-            original.Step();
-            changed.Step();
+            original.StepFrame();
+            changed.StepFrame();
         }
         AssertTrue(!original.CaptureRenderSnapshot().Memory.Oam.SequenceEqual(
                 changed.CaptureRenderSnapshot().Memory.Oam),
@@ -270,12 +278,12 @@ internal static partial class Program
             CeresFlightPalette.Write(output, document);
 
         CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
-        var native = new IntroCeresFlightState(guardedBus, stock);
-        var changed = new IntroCeresFlightState(guardedBus, edited);
-        for (int tick = 0; tick < 20; tick++)
+        var native = new IntroCeresFlightState(guardedBus, new CartridgeAudioState(), stock);
+        var changed = new IntroCeresFlightState(guardedBus, new CartridgeAudioState(), edited);
+        for (int tick = 0; tick < CeresFrontApproachTicks; tick++)
         {
-            native.Step();
-            changed.Step();
+            native.StepFrame();
+            changed.StepFrame();
         }
         LayeredRenderSnapshot stockFrame = native.CaptureRenderSnapshot();
         LayeredRenderSnapshot editedFrame = changed.CaptureRenderSnapshot();
@@ -287,10 +295,10 @@ internal static partial class Program
                 SoftwareLayeredSnapshotRenderer.Render(editedFrame)),
             "Ceres palette edit changes visible approach pixels");
 
-        var restored = new IntroCeresFlightState(guardedBus, stock);
+        var restored = new IntroCeresFlightState(guardedBus, new CartridgeAudioState(), stock);
         restored.BindArtwork(edited);
         AssertTrue(restored.CaptureRenderSnapshot().Memory.Cgram.SequenceEqual(
-                new IntroCeresFlightState(guardedBus, edited).CaptureRenderSnapshot().Memory.Cgram),
+                new IntroCeresFlightState(guardedBus, new CartridgeAudioState(), edited).CaptureRenderSnapshot().Memory.Cgram),
             "restored Ceres flight rebinds current palette without restarting phase");
 
         IntroCinematicArtworkCatalog stockParent = IntroCinematicArtworkFiles.Load(
@@ -336,13 +344,13 @@ internal static partial class Program
             using (var output = File.Create(overridePath))
                 IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
             CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
-            var stockFlight = new IntroCeresFlightState(bus,
+            var stockFlight = new IntroCeresFlightState(bus, new CartridgeAudioState(),
                 IntroCinematicArtworkFiles.Load(installation.IntroCinematicDirectory, null).CeresFlight);
-            var editedFlight = new IntroCeresFlightState(bus, edited);
-            for (int tick = 0; tick < 20; tick++)
+            var editedFlight = new IntroCeresFlightState(bus, new CartridgeAudioState(), edited);
+            for (int tick = 0; tick < CeresFrontApproachTicks; tick++)
             {
-                stockFlight.Step();
-                editedFlight.Step();
+                stockFlight.StepFrame();
+                editedFlight.StepFrame();
             }
             AssertEqual(IntroCeresFlightPhase.FlyingIntoCamera, stockFlight.Phase,
                 "visible Ceres edit fixture reaches the front flight phase");
@@ -366,14 +374,14 @@ internal static partial class Program
         Array.Fill(map.RearTiles, 0);
         using (var output = File.Create(mapOverride))
             CeresFlightArtworkCatalog.WriteMap(output, map);
-        var original = new IntroCeresFlightState(bus,
+        var original = new IntroCeresFlightState(bus, new CartridgeAudioState(),
             IntroCinematicArtworkFiles.Load(installation.IntroCinematicDirectory, null).CeresFlight);
-        var changed = new IntroCeresFlightState(bus,
+        var changed = new IntroCeresFlightState(bus, new CartridgeAudioState(),
             installation.LoadIntroCinematicArt().CeresFlight);
-        for (int tick = 0; tick < 20; tick++)
+        for (int tick = 0; tick < CeresFrontApproachTicks; tick++)
         {
-            original.Step();
-            changed.Step();
+            original.StepFrame();
+            changed.StepFrame();
         }
         AssertTrue(!SoftwareLayeredSnapshotRenderer.Render(original.CaptureRenderSnapshot())
                 .AsSpan().SequenceEqual(RenderForComparison(
@@ -382,8 +390,8 @@ internal static partial class Program
         for (int tick = 0; tick < 100 &&
             original.Phase != IntroCeresFlightPhase.FlyingTowardCeres; tick++)
         {
-            original.Step();
-            changed.Step();
+            original.StepFrame();
+            changed.StepFrame();
         }
         AssertEqual(IntroCeresFlightPhase.FlyingTowardCeres, original.Phase,
             "visible Ceres map fixture reaches the rear view");
@@ -391,8 +399,8 @@ internal static partial class Program
         // to fade before comparing the rear map's actually visible pixels.
         for (int fadeTick = 0; fadeTick < 40; fadeTick++)
         {
-            original.Step();
-            changed.Step();
+            original.StepFrame();
+            changed.StepFrame();
         }
         AssertTrue(!SoftwareLayeredSnapshotRenderer.Render(original.CaptureRenderSnapshot())
                 .AsSpan().SequenceEqual(RenderForComparison(

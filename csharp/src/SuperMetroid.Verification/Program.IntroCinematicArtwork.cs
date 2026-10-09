@@ -289,8 +289,8 @@ internal static partial class Program
             {
                 typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", dividerSetupFlags)!
                     .Invoke(scene, null);
-                typeof(IntroCinematicState).GetField("brightness", dividerSetupFlags)!
-                    .SetValue(scene, 15);
+                typeof(IntroCinematicState).GetField("inidisp", dividerSetupFlags)!
+                    .SetValue(scene, ScreenFade.FullyLit);
             }
             AssertEqual(stockDividerVisual.Phase, editedDividerVisual.Phase,
                 "visual divider override leaves page phase unchanged");
@@ -436,10 +436,10 @@ internal static partial class Program
                     }
                     // The full game owns INIDISP during this synthetic setup; force
                     // the already-composed layer to visible brightness for this probe.
-                    typeof(IntroCinematicState).GetField("brightness", flags)!
-                        .SetValue(stockScene, 15);
-                    typeof(IntroCinematicState).GetField("brightness", flags)!
-                        .SetValue(editedScene, 15);
+                    typeof(IntroCinematicState).GetField("inidisp", flags)!
+                        .SetValue(stockScene, ScreenFade.FullyLit);
+                    typeof(IntroCinematicState).GetField("inidisp", flags)!
+                        .SetValue(editedScene, ScreenFade.FullyLit);
                     AssertTrue(!SoftwareLayeredSnapshotRenderer.Render(stockScene.CaptureTranslatedRenderSnapshot())
                             .AsSpan().SequenceEqual(RenderForComparison(
                                 editedScene.CaptureTranslatedRenderSnapshot())),

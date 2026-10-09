@@ -82,8 +82,8 @@ public static class SamusGroundedMovement
         RoomLevelData level,
         SamusState samus,
         ushort nmiFrameCounter,
-        RoomPlmSystem? plms = null,
-        ushort controllerInput = 0)
+        ushort controllerInput,
+        RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -135,8 +135,8 @@ public static class SamusGroundedMovement
         RoomLevelData level,
         SamusState samus,
         ushort nmiFrameCounter,
-        RoomPlmSystem? plms = null,
-        ushort controllerInput = 0)
+        ushort controllerInput,
+        RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);

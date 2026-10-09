@@ -822,6 +822,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--low-percent-intro-timeline"])
+{
+    Suite(nameof(VerifyLowPercentIntroTimeline), () => VerifyLowPercentIntroTimeline());
+    return 0;
+}
 if (args is ["--ending-setup-nmi-waits"])
 {
     VerifyEndingSetupNmiWaits();
@@ -7837,6 +7842,7 @@ Suite(nameof(VerifyOldTourianEscapeShaftWall), () => VerifyOldTourianEscapeShaft
 Suite(nameof(VerifyCrateriaMainstreetEscapePassage), () => VerifyCrateriaMainstreetEscapePassage());
 Suite(nameof(VerifyZebesEscapeFade), () => VerifyZebesEscapeFade());
 Suite(nameof(VerifyEndingSetupNmiWaits), () => VerifyEndingSetupNmiWaits());
+Suite(nameof(VerifyLowPercentIntroTimeline), () => VerifyLowPercentIntroTimeline());
 Suite(nameof(VerifyRoomFxRomData), () => VerifyRoomFxRomData());
 Suite(nameof(VerifyPowerBombFixedColors), () => VerifyPowerBombFixedColors());
 Suite(nameof(VerifySamusVisorColors), () => VerifySamusVisorColors());

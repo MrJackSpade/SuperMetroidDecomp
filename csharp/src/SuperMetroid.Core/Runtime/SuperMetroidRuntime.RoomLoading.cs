@@ -198,9 +198,20 @@ public sealed partial class SuperMetroidRuntime
     /// </summary>
     public InitialViewportResult InitializePostCeresZebesRoom()
     {
-        SamusState samus = Samus
+        SamusState carried = Samus
             ?? throw new InvalidOperationException(
                 "The Ceres escape must retain its live Samus state through the cinematic.");
+
+        // `$82:8057` InitializeSamus clears all of Samus RAM, including the speeds and pose
+        // state the escape left behind; only the inventory below it survives. The player is
+        // the same one, so a tester grant already applied to her is not repeated.
+        // $91:E12F clears Pose; the port's constructor defaults to the right-facing pose.
+        var samus = new SamusState { Pose = 0, AnimationFrame = 0 };
+        samus.CopyInventoryFrom(carried);
+        Samus = samus;
+        if (ReferenceEquals(testerInventoryRecipient, carried))
+            testerInventoryRecipient = samus;
+        BindSamusPalettePresentation();
 
         // `$82:8038-$8048` assigns these indexes immediately before LoadFromLoadStation.
         // Station eighteen is a cutscene-only entry high above Landing Site; station zero
@@ -223,15 +234,12 @@ public sealed partial class SuperMetroidRuntime
                 $"Post-Ceres station eighteen targets area {room.AreaIndex}, expected Crateria.");
         }
 
-        // Samus_Initialize clears motion/pose state but deliberately retains inventory and
-        // progression. CADF refilled health on the preceding cinematic frame.
+        // CADF refilled health on the preceding cinematic frame; $91:E164 then seeds the
+        // hurt check from it. The $22 branch locks Samus's state handlers.
         samus.Health = samus.MaxHealth;
-        samus.Pose = 0;
-        samus.AnimationFrame = 0;
+        samus.PreviousHealthForHurtCheck = samus.Health;
         samus.Kinematics.SetXFixed((uint)station.SamusX << 16);
         samus.Kinematics.SetYFixed((uint)station.SamusY << 16);
-        samus.Kinematics.YSpeed = 0;
-        samus.Kinematics.YSubspeed = 0;
         samus.InputLocked = true;
         ActiveLoadStation = station;
 

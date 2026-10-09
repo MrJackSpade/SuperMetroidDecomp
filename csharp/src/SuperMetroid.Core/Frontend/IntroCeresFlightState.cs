@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -14,6 +15,7 @@ internal sealed class IntroCeresFlightState
     [NonSerialized] private Rgba32[]? frameBuffer;
 
     private readonly ISnesAddressSpace bus;
+    private readonly CartridgeAudioState audio;
     private readonly SnesVram vram = new();
     private readonly SnesCgram cgram = new();
     private byte[] tilemap;
@@ -29,7 +31,6 @@ internal sealed class IntroCeresFlightState
     private ushort backgroundYSubPosition;
     private ushort zoom = 0x0200;
     private SnesAngle angle = SnesAngle.FromTableIndex(0xe0);
-    private int musicQueueTimer = 14;
     private byte brightness;
     private IntroDiscoverySprite[] rearViewActors = [];
     private byte fixedColorRed = 0x20;
@@ -40,9 +41,12 @@ internal sealed class IntroCeresFlightState
     private bool spaceColonyHoldStarted;
     private int fadeDelay;
 
-    public IntroCeresFlightState(ISnesAddressSpace bus, CeresFlightArtworkCatalog? artwork = null)
+    /// <param name="audio">The shared music queue that $8B:BDE4 waits on.</param>
+    public IntroCeresFlightState(ISnesAddressSpace bus, CartridgeAudioState audio,
+        CeresFlightArtworkCatalog? artwork = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        this.audio = audio ?? throw new ArgumentNullException(nameof(audio));
         spriteArtwork = artwork?.Sprites;
         actorLayout = artwork?.Actors;
 
@@ -69,7 +73,9 @@ internal sealed class IntroCeresFlightState
         vram.LoadBytes(CeresFlightRomData.Vram.ObjectCharacterDestinationByte,
             objectCharacters.AsSpan(0, CeresFlightRomData.Vram.ObjectCharacterByteCount));
         content.Palette.LoadTo(cgram);
-        Phase = IntroCeresFlightPhase.WaitForMusicQueue;
+        // The PPU loads above are invisible: the screen stays in forced blank until $8B:BDE4.
+        // $8B:BCA0 itself runs as the next dispatch's cinematic function.
+        Phase = IntroCeresFlightPhase.Initial;
     }
 
     /// <summary>Reapplies current external art and palette without resetting the live flight phase.</summary>
@@ -82,7 +88,8 @@ internal sealed class IntroCeresFlightState
         vram.LoadMode7CharacterBytes(artwork.Mode7Characters.Span);
         vram.FillMode7MapBytes(CeresFlightRomData.Vram.Mode7BlankMapTile,
             CeresFlightRomData.Vram.Mode7MapFillWordCount);
-        int mapOffset = Phase is IntroCeresFlightPhase.WaitForMusicQueue or
+        int mapOffset = Phase is IntroCeresFlightPhase.Initial or
+            IntroCeresFlightPhase.WaitForMusicQueue or
             IntroCeresFlightPhase.FlyingIntoCamera
             ? 0 : CeresFlightRomData.Vram.Mode7MapSliceByteCount;
         vram.LoadMode7MapBytes(tilemap.AsSpan(mapOffset,
@@ -101,9 +108,18 @@ internal sealed class IntroCeresFlightState
     {
         switch (Phase)
         {
+            case IntroCeresFlightPhase.Initial:
+                // $8B:BDD2-$BDDF: the flight's music data, then its track, on the shared queue.
+                audio.QueueMusicDelayed8(MusicCommand.LoadData(CeresFlightRomData.Music.DataIndex));
+                audio.QueueMusicDelayed(
+                    MusicCommand.SelectTrack(CeresFlightRomData.Music.Track),
+                    MusicCommandDelay.FromDelayedYArgument(CeresFlightRomData.Music.TrackDelayArgument));
+                Phase = IntroCeresFlightPhase.WaitForMusicQueue;
+                break;
+
             case IntroCeresFlightPhase.WaitForMusicQueue:
-                // Track five is queued with the native fourteen-frame delayed command.
-                if (--musicQueueTimer <= 0)
+                // $8B:BDE4 enables the display once CheckIfMusicIsQueued reports an empty queue.
+                if (!audio.HasQueuedMusic)
                 {
                     brightness = 15;
                     Phase = IntroCeresFlightPhase.FlyingIntoCamera;
@@ -132,6 +148,12 @@ internal sealed class IntroCeresFlightState
             case IntroCeresFlightPhase.FadeOut:
                 StepFadeOut();
                 break;
+
+            case IntroCeresFlightPhase.StartGameAtCeres:
+                // $8B:C100 runs as the dispatch after forced blank; it hands control to state
+                // $1F, whose owner also performs this function's area-six checkpoint save.
+                Phase = IntroCeresFlightPhase.Finished;
+                break;
         }
 
         if (Phase == IntroCeresFlightPhase.FlyingIntoCamera)
@@ -141,7 +163,7 @@ internal sealed class IntroCeresFlightState
             IntroCeresFlightPhase.SpaceColonyTitle or
             IntroCeresFlightPhase.FadeOut)
             StepRearViewActors();
-        else if (Phase != IntroCeresFlightPhase.Finished)
+        else if (Phase is not (IntroCeresFlightPhase.StartGameAtCeres or IntroCeresFlightPhase.Finished))
             stars.Step(bus, instructionWord: CeresFlightSpriteInstructionDefinitions.ReadWord);
     }
 
@@ -153,6 +175,7 @@ internal sealed class IntroCeresFlightState
 
         if (Phase is IntroCeresFlightPhase.SpaceColonyTitle or
             IntroCeresFlightPhase.FadeOut or
+            IntroCeresFlightPhase.StartGameAtCeres or
             IntroCeresFlightPhase.Finished)
         {
             RenderSpaceColonyTitle(pixels, oam);
@@ -203,7 +226,8 @@ internal sealed class IntroCeresFlightState
     {
         OamBuffer oam = PrepareRenderOam();
         var layers = new List<RenderLayer> { new ObjPriorityRenderLayer(0) };
-        if (Phase is IntroCeresFlightPhase.SpaceColonyTitle or IntroCeresFlightPhase.FadeOut or IntroCeresFlightPhase.Finished)
+        if (Phase is IntroCeresFlightPhase.SpaceColonyTitle or IntroCeresFlightPhase.FadeOut or
+            IntroCeresFlightPhase.StartGameAtCeres or IntroCeresFlightPhase.Finished)
         {
             var caption = new Bg4BppRenderLayer(CeresFlightRomData.Layers.SpaceColonyTilemapWord,
                 CeresFlightRomData.Layers.SpaceColonyCharacterWord, 0, 0, 32, 32, false);
@@ -364,14 +388,14 @@ internal sealed class IntroCeresFlightState
 
     private void StepFadeOut()
     {
-        // `$C0A2` seeds both fade words with one. `AdvanceSlowScreenFadeOut` therefore
-        // removes one INIDISP level every other frame and ends at forced blank.
+        // `$C0A2` seeds both fade words with one. `$8B:C0C5` calls HandleFadingOut, which
+        // therefore removes one INIDISP level every other frame and ends at forced blank.
         if (fadeDelay-- > 0)
             return;
         fadeDelay = 1;
         brightness = (byte)Math.Max(0, brightness - 1);
         if (brightness == 0)
-            Phase = IntroCeresFlightPhase.Finished;
+            Phase = IntroCeresFlightPhase.StartGameAtCeres;
     }
 
     private void RenderSpaceColonyTitle(Span<Rgba32> pixels, OamBuffer oam)
@@ -532,12 +556,19 @@ internal sealed class IntroCeresFlightState
     }
 }
 
+/// <remarks>Debugger states store these numerically, so new members are appended.</remarks>
 internal enum IntroCeresFlightPhase
 {
+    /// <summary>$8B:BDE4: forced blank until the music queue drains.</summary>
     WaitForMusicQueue,
     FlyingIntoCamera,
     FlyingTowardCeres,
     SpaceColonyTitle,
     FadeOut,
+    /// <summary>$8B:C100 has run; game state $1F follows.</summary>
     Finished,
+    /// <summary>$8B:BCA0: the PPU setup dispatch that queues the flight's music.</summary>
+    Initial,
+    /// <summary>$8B:C0C5 reached forced blank and installed $8B:C100 for the next dispatch.</summary>
+    StartGameAtCeres,
 }

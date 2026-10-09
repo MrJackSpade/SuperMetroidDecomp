@@ -245,6 +245,21 @@ public static class IntroCinematicRomData
         public const int DiscoveryInitialTimer = 0x000e;
     }
 
+    /// <summary>Screen-fade seeds stored to both $0723 and $0725 by the intro's handoffs.</summary>
+    public static class Fade
+    {
+        /// <summary>
+        /// $8B:A5B3, $8B:A659 and $8B:A837: the first narration's fade in and out and page
+        /// one's fade in, advanced by AdvanceSlowScreenFadeIn/Out one level every two calls.
+        /// </summary>
+        public const ushort NarrationSlowFade = 0x0002;
+        /// <summary>
+        /// $8B:B246 Instruction_FinishIntro: the final fade, advanced by HandleFadingOut one
+        /// level every second dispatch.
+        /// </summary>
+        public const ushort FinishFade = 0x0001;
+    }
+
     /// <summary>Common object palette and sound definitions used by intro actors.</summary>
     public static class Objects
     {

@@ -1791,8 +1791,8 @@ public sealed partial class SuperMetroidRuntime
                         LevelData,
                         Samus,
                         NmiFrameCounter,
-                        Plms,
-                        Controller1.Current);
+                        Controller1.Current,
+                        Plms);
                         break;
                     case SamusPoseIds.MovingRightNormalPose:
                     case SamusPoseIds.MovingRightGunExtendedPose:
@@ -1816,8 +1816,8 @@ public sealed partial class SuperMetroidRuntime
                         LevelData,
                         Samus,
                         NmiFrameCounter,
-                        Plms,
-                        Controller1.Current);
+                        Controller1.Current,
+                        Plms);
                         break;
                     case SamusPoseIds.MovingLeftNormalPose:
                     case SamusPoseIds.MovingLeftGunExtendedPose:

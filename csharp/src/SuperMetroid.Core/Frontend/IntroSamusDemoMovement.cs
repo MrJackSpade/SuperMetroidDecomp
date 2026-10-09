@@ -62,7 +62,10 @@ internal static class IntroSamusDemoMovement
         }
         else if (SamusState.IsLeftFacingStandingPose(poseAtFrameStart))
         {
-            movement = SamusGroundedMovement.StepStandingLeft(bus, level, samus, nmiFrameCounter);
+            // The demo handler has written its held word into the controller input that
+            // $90:A3BA tests, so a held shot holds the standing animation here too.
+            movement = SamusGroundedMovement.StepStandingLeft(bus, level, samus, nmiFrameCounter,
+                heldInput);
         }
         else
         {

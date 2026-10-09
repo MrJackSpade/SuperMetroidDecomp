@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
@@ -20,9 +21,9 @@ internal static partial class Program
         Suite(nameof(VerifyCeresFlightPrograms), () => VerifyCeresFlightPrograms(retail));
 
         var guard = new CeresFlightActorDefinitionReadGuard(retail);
-        var state = new IntroCeresFlightState(guard, RepositoryInstallation.IntroArtwork.CeresFlight);
+        var state = new IntroCeresFlightState(guard, new CartridgeAudioState(), RepositoryInstallation.IntroArtwork.CeresFlight);
         for (int frame = 0; frame < 5000 && !state.Finished; frame++)
-            state.Step();
+            state.StepFrame();
         AssertTrue(state.Finished, "Ceres approach completes through production actor paths");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Ceres approach never rereads compiled actor definitions or animation lists");

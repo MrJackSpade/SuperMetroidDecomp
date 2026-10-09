@@ -542,7 +542,8 @@ static void VerifySamusExtraDisplacement()
         bus,
         level,
         standing,
-        nmiFrameCounter: 0);
+        nmiFrameCounter: 0,
+        controllerInput: 0);
     AssertEqual(0x00018000, positive.Horizontal.AcceptedDisplacement,
         "standing external +X bypasses zero base speed");
     AssertEqual(0x00034000, positive.Vertical.AcceptedDisplacement,
@@ -566,7 +567,8 @@ static void VerifySamusExtraDisplacement()
         bus,
         level,
         negative,
-        nmiFrameCounter: 1);
+        nmiFrameCounter: 1,
+        controllerInput: 0);
     AssertEqual(unchecked((int)0xfffe8000), upward.Vertical.AcceptedDisplacement,
         "negative no-speed external Y has no downward bias");
 

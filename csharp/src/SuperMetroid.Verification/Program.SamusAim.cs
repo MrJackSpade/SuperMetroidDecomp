@@ -81,7 +81,7 @@ static void VerifySamusStandingAimMovement()
         samus.HorizontalSpeed.BaseSpeed = 3;
         samus.ApplyGroundedAimTransition(bus, target);
         GroundedMovementResult result = SamusGroundedMovement.StepStandingRight(
-            bus, level, samus, nmiFrameCounter: 0);
+            bus, level, samus, nmiFrameCounter: 0, controllerInput: 0);
         AssertTrue(result.Vertical.Collided, $"right aim pose ${target:X2} remains grounded");
         AssertEqual(0, samus.HorizontalSpeed.BaseSpeed, $"right aim pose ${target:X2} clears base speed");
     }
@@ -103,7 +103,7 @@ static void VerifySamusStandingAimMovement()
     samus.ApplyGroundedAimTransition(bus, SamusPoseIds.RunningAimUpRightPose);
     SamusGroundedMovement.StepRunningRight(bus, level, samus, nmiFrameCounter: 1);
     samus.ApplyGroundedAimTransition(bus, SamusPoseIds.StandingAimUpRightPose);
-    SamusGroundedMovement.StepStandingRight(bus, level, samus, nmiFrameCounter: 0);
+    SamusGroundedMovement.StepStandingRight(bus, level, samus, nmiFrameCounter: 0, controllerInput: 0);
     AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "right aimed running-to-standing cleanup");
 
     // Install left-facing normal through a fresh state so the transition helper never
@@ -126,7 +126,7 @@ static void VerifySamusStandingAimMovement()
     {
         leftSamus.ApplyGroundedAimTransition(bus, target);
         GroundedMovementResult result = SamusGroundedMovement.StepStandingLeft(
-            bus, level, leftSamus, nmiFrameCounter: 1);
+            bus, level, leftSamus, nmiFrameCounter: 1, controllerInput: 0);
         AssertTrue(result.Vertical.Collided, $"left aim pose ${target:X2} remains grounded");
     }
     leftSamus.ApplyGroundedAimTransition(bus, SamusPoseIds.StandingAimUpLeftPose);
@@ -143,7 +143,7 @@ static void VerifySamusStandingAimMovement()
     leftSamus.ApplyGroundedAimTransition(bus, SamusPoseIds.RunningAimUpLeftPose);
     SamusGroundedMovement.StepRunningLeft(bus, level, leftSamus, nmiFrameCounter: 0);
     leftSamus.ApplyGroundedAimTransition(bus, SamusPoseIds.StandingAimUpLeftPose);
-    SamusGroundedMovement.StepStandingLeft(bus, level, leftSamus, nmiFrameCounter: 1);
+    SamusGroundedMovement.StepStandingLeft(bus, level, leftSamus, nmiFrameCounter: 1, controllerInput: 0);
     AssertEqual(0u, leftSamus.HorizontalSpeed.BaseFixed, "left aimed running-to-standing cleanup");
 
     AssertThrows<InvalidOperationException>(

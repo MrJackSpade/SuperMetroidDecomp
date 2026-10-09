@@ -628,7 +628,8 @@ static void VerifySamusGroundedMovement()
         bus,
         level,
         standing,
-        nmiFrameCounter: 0);
+        nmiFrameCounter: 0,
+        controllerInput: 0);
     AssertEqual(0, idle.Horizontal.AcceptedDisplacement, "standing no-base horizontal amount");
     AssertTrue(idle.Vertical.Collided, "standing one-pixel grounding probe collides");
     AssertEqual(0, standing.HorizontalSpeed.BaseSpeed, "standing clears base speed whole");

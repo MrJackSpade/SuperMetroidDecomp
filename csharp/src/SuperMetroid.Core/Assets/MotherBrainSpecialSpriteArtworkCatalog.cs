@@ -9,6 +9,10 @@ public sealed class MotherBrainSpecialSpriteArtworkCatalog
 
     private readonly Dictionary<int, RoomCharacterAtlas> sheets;
 
+    /// <summary>Installs the four complete native OBJ source sheets for phase-two legs, Baby Metroid, restored attack characters, and the exploded escape door, copying the source lookup while retaining each compiled atlas.</summary>
+    /// <param name="sheets">Exact full-source-address mapping: $B7:9000 has eight $0200-byte pages, $B1:8800 and $B7:A000 four each, and $AB:F400 two; individual transfer addresses inside a sheet are not separate keys.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="sheets"/> is null.</exception>
+    /// <exception cref="InvalidDataException">A required sheet is missing/null, its compiled byte length differs from the native page extent, or the mapping contains additional identities.</exception>
     public MotherBrainSpecialSpriteArtworkCatalog(
         IReadOnlyDictionary<int, RoomCharacterAtlas> sheets)
     {

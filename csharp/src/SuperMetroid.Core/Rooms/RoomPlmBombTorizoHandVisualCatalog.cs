@@ -3,6 +3,8 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>One Bomb Torizo hand frame's visible blocks in cartridge run order.</summary>
+/// <param name="Id">Compiled Bomb Torizo hand draw-frame identity.</param>
+/// <param name="Blocks">Visual metatile/flip words flattened by native run, then by word within each run; changed payloads are copied by the catalog.</param>
 public sealed record RoomPlmBombTorizoHandVisualEntry(string Id, ushort[] Blocks);
 
 /// <summary>
@@ -31,6 +33,10 @@ public sealed class RoomPlmBombTorizoHandVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
+    /// <summary>Validates complete hand-frame coverage and copies only authored visual differences, leaving Bombs gating, collision, draw geometry and debris/music choreography fixed.</summary>
+    /// <param name="entries">One entry for every compiled hand frame, with exactly the flattened native block count and no physical collision bits.</param>
+    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
+    /// <exception cref="InvalidDataException">An entry is invalid, repeats a frame, changes a compiled identity/shape, or leaves coverage incomplete.</exception>
     public RoomPlmBombTorizoHandVisualCatalog(
         IEnumerable<RoomPlmBombTorizoHandVisualEntry> entries)
     {
@@ -64,6 +70,13 @@ public sealed class RoomPlmBombTorizoHandVisualCatalog
         if (selected.Count != 0) customBlocks = selected;
     }
 
+    /// <summary>Resolves one selected visual word in a hand draw run, using compiled stock art when no independent edit was supplied.</summary>
+    /// <param name="drawPointer">Compiled bank-$84 Bomb Torizo hand draw identity.</param>
+    /// <param name="runIndex">Zero-based native draw-run ordinal.</param>
+    /// <param name="blockIndex">Zero-based word ordinal within that run, not the flattened entry index or a room coordinate.</param>
+    /// <returns>The metatile reference and parent flips, excluding the compiled physical collision nibble.</returns>
+    /// <exception cref="InvalidDataException">The draw identity is not a supported hand frame.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The run or word ordinal is outside the compiled shape.</exception>
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {
         if (!BombTorizoHandPlmDrawDefinitions.TryDescribe(drawPointer, out var draw))

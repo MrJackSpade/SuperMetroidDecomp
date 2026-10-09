@@ -20,6 +20,7 @@ public sealed class TourianStatueSequence
     private readonly List<TileObject> objects = [];
     private int delay = -2;
     private int descent;
+    /// <summary>Whether the last loaded room uses <c>RunStatueUnlockingAnimations</c>; remains true after the descent finishes and is reset by the next <see cref="Load"/>.</summary>
     public bool Enabled { get; private set; }
     /// <summary>
     /// The whole word of native HDMAObject_Var1:Var0, which descends by $FFFF:C000 per
@@ -31,6 +32,12 @@ public sealed class TourianStatueSequence
     public short DisplayedVerticalOffset { get; private set; }
     internal void LatchDisplay() => DisplayedVerticalOffset = VerticalOffset;
 
+    /// <summary>Resets room-local animation, delay, and displayed descent state, enabling the four statue tile programs only for the statue-unlocking room setup.</summary>
+    /// <param name="runtime">Live room owner supplying setup, events, enemies, level data, PLMs, and camera scroll states; an enabled statue room must already have its level and camera initialized.</param>
+    /// <remarks>
+    /// A prior unlock event or host unlock option starts at the fully descended offset, clears the access obstruction through its PLM, and enables vertical scrolling.
+    /// Otherwise the sequence starts raised and constrains scrolling until the authored release and descent finish. Disabled rooms retain no tile objects.
+    /// </remarks>
     public void Load(SuperMetroidRuntime runtime)
     {
         objects.Clear();

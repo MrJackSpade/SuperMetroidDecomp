@@ -3,6 +3,8 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Visual-only blocks for a blue-door cap or shared door-clear frame.</summary>
+/// <param name="Id">Compiled editable frame identity, shared by any physical aliases of that frame.</param>
+/// <param name="Blocks">Four visual metatile words in the native draw run's order; catalog construction copies changed words and rejects collision bits.</param>
 public sealed record RoomPlmBlueDoorVisualEntry(string Id, ushort[] Blocks);
 
 /// <summary>
@@ -26,6 +28,10 @@ public sealed class RoomPlmBlueDoorVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
+    /// <summary>Validates complete canonical blue-door frame coverage and retains owned copies only for visual words differing from the compiled draw shapes.</summary>
+    /// <param name="entries">Exactly one entry for every editable frame, each retaining the native four-block run geometry.</param>
+    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
+    /// <exception cref="InvalidDataException">An entry is null, changes an identity/shape, has invalid visual words, repeats a frame, or leaves coverage incomplete.</exception>
     public RoomPlmBlueDoorVisualCatalog(IEnumerable<RoomPlmBlueDoorVisualEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
@@ -54,6 +60,12 @@ public sealed class RoomPlmBlueDoorVisualCatalog
         if (selected.Count != 0) customBlocks = selected;
     }
 
+    /// <summary>Resolves a selected blue-door visual word, normalizing physical alias pointers to their shared editable frame without changing collision or door timing.</summary>
+    /// <param name="drawPointer">Compiled bank-$84 draw-instruction identity, including supported physical aliases.</param>
+    /// <param name="blockIndex">Zero-based word index 0..3 within the native cap/clear run, not a room-block coordinate.</param>
+    /// <returns>The visual metatile reference and flips, with physical collision bits excluded.</returns>
+    /// <exception cref="InvalidDataException">The draw pointer is not a supported blue-door frame.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The block index is outside 0..3.</exception>
     public ushort GetWord(ushort drawPointer, int blockIndex)
     {
         if (!BlueDoorPlmDrawDefinitions.TryDescribe(drawPointer, out var draw))

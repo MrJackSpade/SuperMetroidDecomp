@@ -11,6 +11,10 @@ public sealed class CrocomireSkeletonArtwork
 
     private CrocomireSkeletonArtwork(RoomCharacterAtlas atlas) => this.atlas = atlas;
 
+    /// <summary>Compiles the 256-by-24 indexed skeleton sheet into $0C00 bytes of four-bit characters, retaining the six ordered $0200-byte upload chunks represented by $A4:99CB/$99D9.</summary>
+    /// <param name="png">Caller-owned indexed PNG stream, left open, containing 96 row-major 8-by-8 characters with pen indices 0..15; PNG palette RGB values do not select runtime colors.</param>
+    /// <returns>Owned selected character bytes; the death sequence retains upload cadence and fixed OBJ placement, while skeleton poses use separate OAM compositions.</returns>
+    /// <exception cref="InvalidDataException">The PNG format, dimensions, or pixel indices do not represent the required skeleton character stream.</exception>
     public static CrocomireSkeletonArtwork Load(Stream png) =>
         new(RoomCharacterAtlas.Load(png,
             CrocomireSkeletonTransferDefinitions.TotalByteCount));

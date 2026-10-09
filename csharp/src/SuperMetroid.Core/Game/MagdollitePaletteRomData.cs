@@ -14,5 +14,6 @@ public static class MagdollitePaletteRomData
 
     /// <summary>The hook copies colors nine through twelve from each row.</summary>
     public const int FirstAnimatedColor = 9;
+    /// <summary>Four RGB5 color words per cycle update, replacing OBJ-row colors 9 through 12; <c>EnemyGraphicsDrawnHook_Magdollite_PeriodicallyCyclePalettes</c> at $A8:B0B2 leaves the other twelve colors unchanged.</summary>
     public const int AnimatedColorCount = 4;
 }

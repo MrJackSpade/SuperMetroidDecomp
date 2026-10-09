@@ -8,6 +8,9 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Exports the nine palette rows selected by the compiled Ceres getaway zoom curve.</summary>
 public static class CeresRidleyMode7ColorExtractor
 {
+    /// <summary>Reads the nine fixed-stride native palette rows selected by the compiled getaway zoom curve and serializes their RGB5 components.</summary>
+    /// <param name="bus">Supported-cartridge address space containing the Ceres Ridley Mode 7 zoom colors.</param>
+    /// <returns>UTF-8 JSON bytes for the versioned zoom-color catalog.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

@@ -36,6 +36,7 @@ public sealed class CartridgeAudioState
     private MusicCommand _musicEntry;
     private byte _soundHandlerDowntime;
 
+    /// <summary>Creates empty native music/SFX queues and zeroed acknowledgement state, scheduling the common audio-bank upload and reset port writes for the next <see cref="AdvanceFrame"/> rather than executing them immediately.</summary>
     public CartridgeAudioState() => Reset();
 
     /// <summary>
@@ -217,6 +218,8 @@ public sealed class CartridgeAudioState
     /// is suppressed. Speed Booster animation consumes this otherwise incidental
     /// register result after the library-three call at $90:85A6.
     /// </summary>
+    /// <param name="soundEffect">Native sound ID and library selecting one of the three independent SFX rings.</param>
+    /// <param name="maximumQueued">Admission threshold from 1 through 15 unread requests; an occupancy at or above this value rejects the request before suppression is tested.</param>
     /// <param name="soundSuppressed">
     /// The native disable-sounds, demo-state, or active Power Bomb guard, evaluated
     /// after the occupancy threshold. Suppression leaves the queue unchanged.

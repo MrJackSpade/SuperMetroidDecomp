@@ -8,6 +8,12 @@ public static class PcmWaveFile
     private const ushort PcmFormat = 1;
     private const int MinimumFormatChunkBytes = 16;
 
+    /// <summary>Decodes little-endian, uncompressed mono PCM16 after validating the RIFF length and the single format/data chunks; unrelated chunks are skipped.</summary>
+    /// <param name="bytes">Complete RIFF/WAVE file bytes, with an even-length data chunk and a positive sample rate.</param>
+    /// <param name="sourceName">Nonblank diagnostic label included in validation errors; no file is opened by this method.</param>
+    /// <returns>The sampling frequency in hertz and a newly allocated array of signed 16-bit sample amplitudes; loop metadata is not imported.</returns>
+    /// <exception cref="InvalidDataException">The container, chunk layout, PCM encoding, or declared size/rate fields are inconsistent.</exception>
+    /// <exception cref="OverflowException">A declared length or rate cannot be represented by the checked integer arithmetic.</exception>
     public static (int SampleRate, short[] Samples) ReadMonoPcm16(
         ReadOnlySpan<byte> bytes,
         string sourceName)
@@ -72,6 +78,13 @@ public static class PcmWaveFile
         return (sampleRate, samples);
     }
 
+    /// <summary>Creates or truncates a WAV file and writes a minimal little-endian mono PCM16 RIFF header followed by the supplied samples; no loop chunk is emitted.</summary>
+    /// <param name="path">Destination file path; its parent directory must already exist.</param>
+    /// <param name="sampleRate">Positive sampling frequency in hertz, written without resampling the input.</param>
+    /// <param name="samples">Signed 16-bit amplitudes in playback order; the samples are read but not modified.</param>
+    /// <exception cref="ArgumentNullException">The sample collection is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The sample rate is zero or negative.</exception>
+    /// <exception cref="OverflowException">The sample count cannot be represented as a signed integer byte length.</exception>
     public static void WriteMonoPcm16(string path, int sampleRate, IReadOnlyList<short> samples)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);

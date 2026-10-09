@@ -34,6 +34,9 @@ internal sealed class IntroRinkaSystem
     }
 
     /// <summary>One descending generic-handler pass over the spawner and Rinka slots.</summary>
+    /// <param name="bus">Address space the spawner and Rinka instruction lists step through.</param>
+    /// <param name="samus">Samus, whose X position a hitting Rinka crosses before applying its knockback.</param>
+    /// <param name="motherBrainExploding">True once Mother Brain's exploding routine deletes the Rinkas.</param>
     /// <param name="explosionsAllocated">
     /// True once Mother Brain's explosions occupy cinematic slots. Their slots then share
     /// this range, so a Rinka spawn would need the whole table to allocate faithfully.

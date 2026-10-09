@@ -20,6 +20,7 @@ public static class CeresFlightSpriteDefinitions
     /// <summary>8C:93D1, SpaceSpritemaps_CeresPurpleVortexFrame2, second drawing in 8B:CC57.</summary>
     internal const ushort VortexOdd = 0x93d1;
 
+    /// <summary>Immutable six-name bank-$8C catalog in stable stars, large-asteroid, station, small-asteroid, and two-vortex order; maps editable composition names to native visual identities and descriptive stock OAM counts, not instruction timing.</summary>
     public static IReadOnlyList<CeresFlightSpriteFrameDefinition> Frames { get; } = new FrameList();
 
     private enum Visual { Stars, LargeAsteroids, StationUnderAttack, SmallAsteroids, VortexEven, VortexOdd }

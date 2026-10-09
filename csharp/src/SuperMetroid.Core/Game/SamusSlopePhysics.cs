@@ -17,6 +17,7 @@ public static class SamusSlopePhysics
     /// <summary>
     /// Ports <c>BlockColl_Horiz_Slope_NonSquare</c> at <c>$94:84D6</c>.
     /// </summary>
+    /// <param name="bus">Compatibility address space forwarded to the typed overload for null validation; scaling uses compiled multipliers and performs no cartridge reads.</param>
     /// <param name="behavior">
     /// Native BTS byte. Bits 0–4 choose the profile; bit 7 marks a ceiling slope.
     /// </param>

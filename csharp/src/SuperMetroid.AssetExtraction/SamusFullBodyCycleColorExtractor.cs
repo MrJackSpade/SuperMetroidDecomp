@@ -8,6 +8,12 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Exports the four cartridge-authored full-body palette cycles without their timing rules.</summary>
 public static class SamusFullBodyCycleColorExtractor
 {
+    /// <summary>Exports Speed Booster, Screw Attack, stored-shine, and active-Shinespark full-body color families without their state/timing rules.</summary>
+    /// <param name="bus">Non-null import-capable cartridge source for bank-$9B palette rows selected by compiled family/suit/shade pointers.</param>
+    /// <returns>A new UTF-8 JSON buffer with four families, three suits per family, four shades per suit, and sixteen RGB5 colors per shade.</returns>
+    /// <remarks>Suits are ordered Power, Varia, Gravity; colors retain complete row order including transparent color zero, with channels 0..31 and bit 15 omitted. Extracted shades are artwork selections, not a replacement for native playback cadence.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="ArgumentException"><paramref name="bus"/> lacks cartridge import access.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

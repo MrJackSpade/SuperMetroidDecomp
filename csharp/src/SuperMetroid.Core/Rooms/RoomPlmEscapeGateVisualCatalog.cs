@@ -3,6 +3,8 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Editable visual block references for one Mother Brain escape-gate frame.</summary>
+/// <param name="Id">Compiled open, half-closed, or closed escape-gate draw identity.</param>
+/// <param name="Blocks">Four metatile/flip words ordered down the native vertical run; changed arrays are copied by the catalog.</param>
 public sealed record RoomPlmEscapeGateVisualEntry(string Id, ushort[] Blocks);
 
 /// <summary>
@@ -26,6 +28,11 @@ public sealed class RoomPlmEscapeGateVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
+    /// <summary>Validates all three escape-gate frames and copies visual differences without replacing physical level words, animation timing, or door handoff.</summary>
+    /// <remarks>Even the visually open frame retains compiled solid collision; an artwork override cannot change that behavior.</remarks>
+    /// <param name="entries">Exactly one four-word, visual-only entry for each compiled gate frame.</param>
+    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
+    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves frame coverage incomplete.</exception>
     public RoomPlmEscapeGateVisualCatalog(IEnumerable<RoomPlmEscapeGateVisualEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
@@ -54,6 +61,12 @@ public sealed class RoomPlmEscapeGateVisualCatalog
         if (selected.Count != 0) customBlocks = selected;
     }
 
+    /// <summary>Resolves one escape-gate block's selected appearance independently of its compiled solid collision word.</summary>
+    /// <param name="drawPointer">Bank-$84 draw identity: $9473 open, $947F half-closed, or $948B closed.</param>
+    /// <param name="blockIndex">Zero-based row ordinal, zero through three, down the vertical run.</param>
+    /// <returns>The authored metatile/flip word, or the compiled frame's visual bits when unchanged.</returns>
+    /// <exception cref="InvalidDataException">The pointer does not identify a supported escape-gate frame.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The row ordinal is outside the four-block run.</exception>
     public ushort GetWord(ushort drawPointer, int blockIndex)
     {
         if (!MotherBrainEscapeGatePlmDrawDefinitions.TryDescribe(drawPointer, out var draw))

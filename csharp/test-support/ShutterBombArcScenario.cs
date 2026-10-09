@@ -28,6 +28,12 @@ internal sealed class ShutterBombArcScenario
     internal RoomEnemySlot Platform => Runtime.Enemies.Slots[SlotIndex];
 
     /// <param name="runtime">A new invincible runtime bound to installed presentation assets.</param>
+    /// <param name="bus">Address space used to initialize Samus collision geometry and animation.</param>
+    /// <param name="slotIndex">Enemy slot identifying the shutter platform; slot zero uses the left-shutter approach direction.</param>
+    /// <param name="approach">Whether to start 32 pixels from the platform and move toward it for the first twelve scenario updates.</param>
+    /// <param name="interval">Positive update interval between bomb-button inputs, which stop at update 220.</param>
+    /// <param name="rollAt">Update index at which movement away from the shutter begins.</param>
+    /// <param name="duration">Updates spent rolling away, followed by the same number rolling back toward the shutter.</param>
     private ShutterBombArcScenario(SuperMetroidRuntime runtime, ISnesAddressSpace bus, int slotIndex, bool approach, int interval, int rollAt, int duration)
     {
         (SlotIndex, Approach, Interval, RollAt, Duration) = (slotIndex, approach, interval, rollAt, duration);

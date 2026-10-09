@@ -14,6 +14,7 @@ public readonly record struct FrameTimingCounterSmokeTestResult(
 /// </summary>
 public static class FrameTimingCounterSmokeTest
 {
+    /// <summary>Checks counter publication, millisecond/FPS conversion, interval clearing, and discard observation using a deterministic 1,000-tick-per-second clock.</summary>
     public static FrameTimingCounterSmokeTestResult Run()
     {
         const long TimestampFrequency = 1_000;

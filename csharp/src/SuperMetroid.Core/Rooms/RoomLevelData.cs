@@ -26,6 +26,21 @@ public sealed class RoomLevelData
     private readonly ushort[] _plmForegroundAllocation;
     private readonly byte[] _plmBehaviorAllocation;
 
+    /// <summary>Copies the logical BG1/BTS/BG2 planes and visual block definitions into one mutable room allocation, retaining bounded native streaming tails and prefilled PLM storage; an installed layout changes only initial visual references.</summary>
+    /// <param name="widthInBlocks">Row-major stride in 16-pixel room blocks, 1..255.</param>
+    /// <param name="heightInBlocks">Positive logical height in 16-pixel room blocks.</param>
+    /// <param name="foregroundEntries">Exactly width times height complete native BG1 words, including collision nibble, block selector, and parent flips.</param>
+    /// <param name="behaviorBytes">Exactly one native BTS byte per logical foreground block, in the same row-major order.</param>
+    /// <param name="backgroundEntries">Exactly width times height native BG2 block words, independent of foreground collision.</param>
+    /// <param name="blockDefinitions">Combined CRE then area definitions: four little-endian 8-by-8 BG tilemap words per 16-pixel visual block; length must be divisible by eight bytes.</param>
+    /// <param name="streamingForegroundAllocation">Optional copied native BG1 allocation including decompressed overread tails; empty uses the logical foreground plane, and a supplied allocation cannot be shorter.</param>
+    /// <param name="doorListPointer">Optional bank-$8F door-pointer table identity; null is suitable only for fixtures that never resolve a type-$9 door collision.</param>
+    /// <param name="streamingBackgroundAllocation">Optional copied native BG2 allocation and overread tail; empty uses the logical background plane, and a supplied allocation cannot be shorter.</param>
+    /// <param name="visualLayout">Optional matching-sized initial BG1/BG2 artwork; collision words, BTS, and native allocation tails remain unchanged.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Width is outside 1..255 or height is nonpositive.</exception>
+    /// <exception cref="ArgumentException">A logical plane, streaming allocation, or block-definition byte extent has an invalid size.</exception>
+    /// <exception cref="InvalidDataException">The selected visual layout does not match the room dimensions.</exception>
+    /// <exception cref="OverflowException">The logical dimension product exceeds the signed 32-bit range.</exception>
     public RoomLevelData(
         int widthInBlocks,
         int heightInBlocks,
@@ -485,6 +500,9 @@ public sealed class RoomLevelData
 }
 
 /// <summary>One indexed pair from native <c>level_data</c> and parallel <c>BTS</c>.</summary>
+/// <param name="Index">Row-major room-block index, not the native level-data byte offset; synthetic prefilled-solid boundary results use minus one.</param>
+/// <param name="LevelWord">Complete native BG1 word: collision type in bits 12..15, parent flips in bits 10..11, and visual block selector in bits 0..9.</param>
+/// <param name="Behavior">Parallel native BTS byte interpreted according to the collision type, rather than a universal terrain identifier.</param>
 public readonly record struct RoomCollisionBlock(int Index, ushort LevelWord, byte Behavior)
 {
     /// <summary>

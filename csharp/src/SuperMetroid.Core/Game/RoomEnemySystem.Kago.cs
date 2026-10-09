@@ -6,7 +6,9 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public enum KagoEnemyFunction : ushort
 {
+    /// <summary>Function_Kago_Nothing, $A8:AB7B: the first main-AI call only replaces variable A with its $AB81 return label; shell animation and shot-triggered effects remain independently owned.</summary>
     InstallNoOp = 0xab7b,
+    /// <summary>Function_Kago_Nothing.return, $A8:AB81: persistent inert RTL target after the initial handoff; the instruction interpreter animates the stationary shell and its shot callback controls damage response and bug spawning.</summary>
     NoOp = 0xab81,
 }
 
@@ -21,6 +23,7 @@ public sealed class KagoEnemyState
 
     internal KagoEnemyState(RoomEnemySlot slot) => _slot = slot;
 
+    /// <summary>Common variable A ($7E:0FA8 plus physical slot offset), holding the native bank-$A8 indirect main-AI word; initialized to $AB7B and changed to $AB81 on the first AI update.</summary>
     public KagoEnemyFunction Function
     {
         get => (KagoEnemyFunction)_slot.VariableA;

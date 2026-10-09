@@ -7,6 +7,8 @@ public sealed partial class SuperMetroidRuntime
     /// <summary>External map content supplied by the host; never serialized into a debugger snapshot.</summary>
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
     [NonSerialized] private bool hudArtworkRefreshPending;
+    /// <summary>Gets or binds the host-owned presentation catalog used by maps, HUD, messages, room effects, Samus/enemy colors, and named VRAM assets.</summary>
+    /// <remarks>Binding nonnull artwork schedules an initialized HUD refresh and rebinds compiled bus-source identities; assigning null removes presentation owners without rewriting already published VRAM.</remarks>
     public AreaMapPresentationCatalog? MapPresentation
     {
         get => mapPresentation;

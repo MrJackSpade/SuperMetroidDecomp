@@ -7,6 +7,12 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Extracts completion and save-confirmation notices as bounded UTF-8 text regions.</summary>
 public static class GameplayMessageNoticeExtractor
 {
+    /// <summary>Imports completion and save-confirmation notice templates, editable text regions, borders, and save-selection rows.</summary>
+    /// <param name="bus">Non-null cartridge address space supplying the native message definitions and tilemap words.</param>
+    /// <returns>New UTF-8 JSON bytes containing raw BG-cell templates, text-region row and column coordinates, alignment, widths, and palette indices.</returns>
+    /// <remarks>Verifies the expected notice setup and draw routines; confirmation input and message behavior remain compiled.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="InvalidDataException">A message uses unexpected routines, has incompatible glyph or palette data, or fails notice-schema validation.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

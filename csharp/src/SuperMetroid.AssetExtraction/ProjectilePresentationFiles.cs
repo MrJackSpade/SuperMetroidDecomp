@@ -9,7 +9,9 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Versioned stock composition provenance, separate from persistent user overrides.</summary>
 public static class ProjectilePresentationFiles
 {
+    /// <summary>Stock projectile provenance manifest filename, separate from persistent override content.</summary>
     public const string ManifestFileName = "projectile-manifest.json";
+    /// <summary>Current projectile manifest schema version covering all projectile, beam, flare, trail, and Grapple visual assets.</summary>
     public const int Version = 15;
     private static readonly JsonSerializerOptions Options = new()
     {

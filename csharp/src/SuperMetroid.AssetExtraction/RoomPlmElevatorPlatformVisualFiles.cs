@@ -12,7 +12,9 @@ namespace SuperMetroid.AssetExtraction;
 /// </summary>
 public static class RoomPlmElevatorPlatformVisualFiles
 {
+    /// <summary>Family-relative stock/override JSON filename for the elevator platform's three six-cell artwork frames.</summary>
     public const string VisualFileName = "elevator-platforms.json";
+    /// <summary>Stock manifest filename containing version-one format, cartridge provenance, and the visual JSON's SHA-256.</summary>
     public const string ManifestFileName = "manifest.json";
     private const int FormatVersion = 1;
 
@@ -23,6 +25,15 @@ public static class RoomPlmElevatorPlatformVisualFiles
         WriteIndented = true,
     };
 
+    /// <summary>Verifies the three elevator-platform draws at $84:AA97–AADE and exports their metatile/flip words, not their solid collision bits.</summary>
+    /// <param name="bus">Cartridge source whose three-run frame shapes, full level words, and continuation offsets must match compiled definitions.</param>
+    /// <param name="directory">Family directory, created before native checks; receives new visual JSON and manifest files.</param>
+    /// <param name="sourceCartridgeSha256">Nonblank importer-supplied provenance hash, recorded without recomputation and checked against the supported identity on stock load.</param>
+    /// <remarks>Each frame retains native upper-edge/upper-edge/lower-row run order. Existing outputs are refused; failure of the later manifest write does not remove the earlier JSON.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="ArgumentException">The directory or source hash is null, empty, or whitespace.</exception>
+    /// <exception cref="InvalidDataException">Native draw geometry or physical words differ from compiled data.</exception>
+    /// <exception cref="IOException">An output exists or filesystem access fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256)
     {
@@ -43,6 +54,14 @@ public static class RoomPlmElevatorPlatformVisualFiles
                 Convert.ToHexString(SHA256.HashData(json))), JsonOptions);
     }
 
+    /// <summary>Validates stock platform artwork before selecting an optional complete three-frame visual replacement.</summary>
+    /// <param name="stockDirectory">Family directory containing version-one stock JSON and its required provenance/hash manifest.</param>
+    /// <param name="overrideDirectory">Optional family directory; null or missing visual JSON uses validated stock.</param>
+    /// <returns>A ROM-independent catalog with copied authored visual words; solid geometry and the four-update first/second/third/second loop stay compiled.</returns>
+    /// <remarks>Stock must match supported provenance, its byte hash, and compiled visuals even when overridden. Replacement JSON needs all three identities with original run lengths and twelve-bit words, but no manifest.</remarks>
+    /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is null, empty, or whitespace.</exception>
+    /// <exception cref="InvalidDataException">Provenance, integrity, schema, identities, coverage, shapes, or visual bits are invalid.</exception>
+    /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
     public static RoomPlmElevatorPlatformVisualCatalog Load(
         string stockDirectory, string? overrideDirectory)
     {
@@ -69,6 +88,9 @@ public static class RoomPlmElevatorPlatformVisualFiles
             : CreateCatalog(ReadJson<VisualDocument>(overridePath), overridePath);
     }
 
+    /// <summary>Performs the stock checks from <see cref="Load"/> without overrides, cartridge reads, or file writes.</summary>
+    /// <param name="directory">Elevator-platform family directory containing stock JSON and manifest.</param>
+    /// <exception cref="InvalidDataException">Stock provenance, integrity, schema, or compiled appearance checks fail.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
     private static RoomPlmElevatorPlatformVisualEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)

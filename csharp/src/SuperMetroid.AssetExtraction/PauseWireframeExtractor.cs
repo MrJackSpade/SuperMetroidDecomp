@@ -8,6 +8,9 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Resolves wireframe pointers at import, exposing only visual atlas cells to authors.</summary>
 public static class PauseWireframeExtractor
 {
+    /// <summary>Resolves every native suit wireframe pointer and converts its tile words to bounded semantic atlas cells.</summary>
+    /// <param name="bus">Supported-cartridge address space containing wireframe pointers and fixed-size tilemaps.</param>
+    /// <returns>UTF-8 JSON bytes keyed by wireframe kind.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         var frames = new Dictionary<string, PauseBackdropCell[]>();

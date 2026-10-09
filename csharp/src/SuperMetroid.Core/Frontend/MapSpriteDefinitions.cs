@@ -3,6 +3,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Semantic identities for $82:C569 menu spritemaps used by map presentation.</summary>
 public static class MapSpriteDefinitions
 {
+    /// <summary>Required named compositions in the map-sprite presentation document: 26 sparse native identities, not the size of the complete $82:C569 pointer table or a bound on its IDs.</summary>
     public const int Count = 26;
     /// <summary>$82:C571 pointer for Arrow.Right.</summary>
     public const ushort ArrowRight = 0x4;
@@ -90,7 +91,14 @@ public static class MapSpriteDefinitions
             yield return (WorldTourian, Name(WorldTourian));
         }
     }
+    /// <summary>Tests whether a native menu spritemap identity belongs to the map-presentation subset; other valid bank-$82 menu sprites are not accepted.</summary>
+    /// <param name="id">Unscaled $82:C569 table ordinal, not its two-byte pointer offset or an ordinal among the 26 named map compositions.</param>
+    /// <returns>True for a named map role, otherwise false without throwing.</returns>
     public static bool Contains(ushort id) => NameOrNull(id) is not null;
+    /// <summary>Resolves the exact case-sensitive presentation key for a named native menu spritemap, preserving semantic roles such as <c>Indicator.Frame0</c> and <c>World.Crateria</c>.</summary>
+    /// <param name="id">Unscaled native $82:C569 table ordinal belonging to this map-only subset.</param>
+    /// <returns>The stable key used to validate, serialize, and bind the installed map-sprite composition.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The identity has no named map-presentation role.</exception>
     public static string Name(ushort id) => NameOrNull(id)
         ?? throw new ArgumentOutOfRangeException(nameof(id), $"Menu sprite {id:X4} is not a map frame.");
 

@@ -800,8 +800,6 @@ static void VerifyOamSpritemapPacking()
         "  OAM: imported spritemap packing, enemy arithmetic, clipping, wrap, and finalization agree.");
 }
 
-/// <summary>
-/// Fixes the first Samus slice to the retail pose-$01 pointer chain and independently
-/// checks palette placement, split tile DMA, position math, and native OAM attributes.
-/// </summary>
+// Fixes the first Samus slice to the retail pose-$01 pointer chain and independently
+// checks palette placement, split tile DMA, position math, and native OAM attributes.
 }

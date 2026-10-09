@@ -722,8 +722,6 @@ static void VerifySamusPostureMovement()
     Console.WriteLine("  Samus posture: animated/direct exits, crouch jumps, radii, movement, FD targets, and low-ceiling fallback agree.");
 }
 
-/// <summary>
-/// Verifies all six stationary aim poses against their literal pose-definition bytes,
-/// movement-type-zero grounding, same-facing transitions, and no-controller fallbacks.
-/// </summary>
+// Verifies all six stationary aim poses against their literal pose-definition bytes,
+// movement-type-zero grounding, same-facing transitions, and no-controller fallbacks.
 }

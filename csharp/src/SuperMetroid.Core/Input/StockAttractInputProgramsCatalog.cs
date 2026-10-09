@@ -7,7 +7,15 @@ public static partial class StockAttractInputPrograms
     /// <summary>One native object header: initializer, pre-instruction and initial list.</summary>
     public readonly record struct ObjectDefinition(ushort Initializer, ushort PreInstruction, ushort Start);
     /// <summary>The three distinct operations reachable from shipped title-demo objects.</summary>
-    public enum Operation { Input, Delete, Goto }
+    public enum Operation
+    {
+        /// <summary>Publishes held and newly pressed controller words for a timed input span.</summary>
+        Input,
+        /// <summary>Terminates the demo input object without a successor command.</summary>
+        Delete,
+        /// <summary>Redirects instruction execution to another bank-$91 command identity.</summary>
+        Goto
+    }
     /// <summary>A decoded input span or control transfer. Held and edge words remain independent.</summary>
     public readonly record struct Command(Operation Kind, ushort Next, ushort Duration = 0,
         SnesButton Held = SnesButton.None, SnesButton NewlyPressed = SnesButton.None);

@@ -13,6 +13,9 @@ public sealed class RenderPresentationGate
     private long generation;
     private int presentingThread;
 
+    /// <summary>Creates a presentation gate for an already established positive load/reset generation; only matching frame identities can enter the final presentation callback until the generation is advanced.</summary>
+    /// <param name="initialGeneration">Positive generation identity shared with the visual publisher, not a simulation frame sequence number.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="initialGeneration"/> is zero or negative.</exception>
     public RenderPresentationGate(long initialGeneration)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(initialGeneration);

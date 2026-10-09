@@ -22,6 +22,7 @@ public sealed partial class MainActivity : Activity
     private bool destroyed;
     private readonly CancellationTokenSource setupStopping = new();
 
+    /// <summary>Initializes immersive display and host focus services, then starts cancellable installation repair or cartridge setup.</summary>
     protected override void OnCreate(Bundle? savedInstanceState)
     {
         base.OnCreate(savedInstanceState);
@@ -55,6 +56,7 @@ public sealed partial class MainActivity : Activity
         }
     }
 
+    /// <summary>Marks the activity resumed, restores immersive display, and requests audio focus before reevaluating the session run gate.</summary>
     protected override void OnResume()
     {
         base.OnResume();
@@ -63,6 +65,7 @@ public sealed partial class MainActivity : Activity
         RefreshRunGate(requestFocus: true);
     }
 
+    /// <summary>Closes the session run gate, clears latched input through session deactivation, and abandons audio focus before framework pause.</summary>
     protected override void OnPause()
     {
         resumed = false;
@@ -71,6 +74,7 @@ public sealed partial class MainActivity : Activity
         base.OnPause();
     }
 
+    /// <summary>Updates window-focus ownership and reevaluates gameplay eligibility; regained focus also restores immersive display and may request audio focus.</summary>
     public override void OnWindowFocusChanged(bool hasFocus)
     {
         base.OnWindowFocusChanged(hasFocus);
@@ -103,6 +107,8 @@ public sealed partial class MainActivity : Activity
         }
     }
 
+    /// <summary>Routes mapped controller keys to the session input latch while gameplay can run, and opens the testing menu on Back/Mode release.</summary>
+    /// <returns>True for consumed menu or mapped controller events; otherwise the framework result, including keys dispatched while a menu is open.</returns>
     public override bool DispatchKeyEvent(KeyEvent? e)
     {
         if (e is not null && session is not null)
@@ -126,6 +132,8 @@ public sealed partial class MainActivity : Activity
         return base.DispatchKeyEvent(e);
     }
 
+    /// <summary>Marks the activity destroyed, cancels pending asset setup, releases focus listeners, and requests asynchronous session shutdown.</summary>
+    /// <remarks>The activity callback does not wait for the game worker; late setup completions cannot restart a destroyed activity.</remarks>
     protected override void OnDestroy()
     {
         destroyed = true;

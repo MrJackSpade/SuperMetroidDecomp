@@ -6,6 +6,12 @@ namespace SuperMetroid.Core.Rooms;
 /// One decoded placement and its setup metadata. Program/graphics payloads are
 /// bounded domain records, not an address space that can supply arbitrary bytes.
 /// </summary>
+/// <param name="Header">Decoded bank-$84 PLM header selecting setup and instruction-list identities.</param>
+/// <param name="BlockX">Horizontal placement coordinate in 16-pixel room blocks, from the native six-byte record.</param>
+/// <param name="BlockY">Vertical placement coordinate in 16-pixel room blocks, from the native six-byte record.</param>
+/// <param name="RoomArgument">Native per-placement word interpreted by the selected setup, such as an item/door index or scroll-program identity.</param>
+/// <param name="ScrollProgram">Constructed scroll index/state byte pairs followed by a high-bit terminator; population construction copies and validates the payload.</param>
+/// <param name="DynamicGraphic">Optional decoded permanent-collectible tiles and palette offsets; population construction validates and copies their payloads.</param>
 public sealed record RoomPlmPlacement(
     RoomPlmHeaderDefinition Header,
     byte BlockX,
@@ -26,9 +32,16 @@ public sealed class RoomPlmPopulationDefinition
 {
     private readonly RoomPlmPlacement[] placements;
 
+    /// <summary>Bank-$8F native population-list pointer retained as identity and diagnostic context, not as a runtime bus-read capability.</summary>
     public ushort Pointer { get; }
+    /// <summary>Validated placement records in native allocation order, excluding the zero header terminator; scroll and collectible payloads are owned copies.</summary>
     public ReadOnlyMemory<RoomPlmPlacement> Placements => placements;
 
+    /// <summary>Copies an ordered, bounded decoded population and validates setup-specific scroll and collectible payloads before any PLM slots are allocated.</summary>
+    /// <param name="pointer">Native bank-$8F population identity used in diagnostics; construction does not read from it.</param>
+    /// <param name="records">Placement sequence without a native zero terminator; at most 255 records may be supplied.</param>
+    /// <exception cref="ArgumentNullException">The sequence or one of its placements is null.</exception>
+    /// <exception cref="InvalidDataException">The record limit is exceeded, a header is the zero terminator, or a setup-specific payload is invalid.</exception>
     public RoomPlmPopulationDefinition(ushort pointer, IEnumerable<RoomPlmPlacement> records)
     {
         ArgumentNullException.ThrowIfNull(records);
@@ -41,6 +54,8 @@ public sealed class RoomPlmPopulationDefinition
     }
 
     /// <summary>Resolves the complete fixed placement list before allocation begins.</summary>
+    /// <param name="pointer">Compiled retail bank-$8F population-list identity.</param>
+    /// <returns>The ordered decoded population, with retail scroll triggers bound to their compiled program identities.</returns>
     public static RoomPlmPopulationDefinition FromCompiled(ushort pointer)
     {
         var records = new List<RoomPlmPlacement>();

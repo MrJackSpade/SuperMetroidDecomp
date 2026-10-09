@@ -7,6 +7,10 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Import-only conversion of the four bounded enemy color animations.</summary>
 public static class EnemyAuxiliaryColorFiles
 {
+    /// <summary>Imports the face-block glow, drained sidehopper, and Golden Torizo body and belly palette rows.</summary>
+    /// <param name="source">Cartridge-import-capable address space supplying the four native color tables.</param>
+    /// <returns>New UTF-8 JSON bytes containing the fixed row dimensions with red, green, and blue channels masked to 0..31.</returns>
+    /// <remarks>Reads each family's native row stride, including the sidehopper's fifteen supplied colors per sixteen-word row. Runtime AI retains frame selection and cadence.</remarks>
     public static byte[] Extract(ISnesAddressSpace source)
     {
         var palettes = new Dictionary<EnemyAuxiliaryPalette, PaletteRgb5[][]>();

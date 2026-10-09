@@ -5,7 +5,7 @@ internal static class ControllerInputStateAccess
 {
     extension(ControllerInputState self)
     {
-        /// <summary>Typed view of <see cref="Current"/> for gameplay button tests.</summary>
+        /// <summary>Typed view of <see cref="ControllerInputState.Current"/> for gameplay button tests.</summary>
         internal SnesButton CurrentButtons => (SnesButton)self.Current;
     }
 }

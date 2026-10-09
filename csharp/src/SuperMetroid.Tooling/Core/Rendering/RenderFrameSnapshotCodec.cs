@@ -9,6 +9,8 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 public static partial class RenderFrameSnapshotCodec
 {
+    /// <summary>Encodes a complete immutable display snapshot into a newly allocated, bounded little-endian SMFRAME packet at the current format version.</summary>
+    /// <returns>Portable bytes containing frame identity, composition, required PPU memory, and brightness passes; no CLR object identities or GPU resources are serialized.</returns>
     public static byte[] Serialize(RenderFrameSnapshot frame)
     {
         ArgumentNullException.ThrowIfNull(frame);

@@ -6,6 +6,10 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Import-time expansion of the title's native direct-mode HDMA tables.</summary>
 public static class TitleGradientDecoder
 {
+    /// <summary>Expands the selected title gradient's fixed-color and control HDMA tables into one descriptor per scanline.</summary>
+    /// <param name="cartridge">Cartridge source containing the native title HDMA tables.</param>
+    /// <param name="zoom">Native zoom value whose low-byte bits 4 through 7 select the fixed-color table.</param>
+    /// <returns>The decoded title gradient scanlines.</returns>
     public static TitleGradientLine[] Decode(IImportCartridgeSource cartridge, ushort zoom)
     {
         int pointer = TitleGradientRomData.FixedColorPointers + ((zoom & 0xf0) >> 3);

@@ -13,6 +13,8 @@ internal sealed class CartridgePaletteTransition
     private readonly int denominator;
     private readonly GradualColorChangeCounter numerator;
 
+    /// <param name="target">All 256 destination CGRAM color words in native BGR555 order; copied into the transition's target buffer.</param>
+    /// <param name="denominator">Native interpolation divisor, one through 65534; transition number denominator plus one installs the exact target.</param>
     /// <param name="numerator">The shared <c>$7E:C400</c> transition number this fade advances.</param>
     public CartridgePaletteTransition(ReadOnlySpan<ushort> target, int denominator, GradualColorChangeCounter numerator)
     {

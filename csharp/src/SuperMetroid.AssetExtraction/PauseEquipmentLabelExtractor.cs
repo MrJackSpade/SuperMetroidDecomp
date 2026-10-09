@@ -8,6 +8,9 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Extracts pause inventory label artwork and its visual destinations.</summary>
 public static class PauseEquipmentLabelExtractor
 {
+    /// <summary>Resolves native equipment-label destinations and tilemap pointers, verifies the Hyper Beam pointer layout, and serializes editable label cells.</summary>
+    /// <param name="bus">Supported-cartridge address space containing equipment label offsets, pointer tables, and tilemap words.</param>
+    /// <returns>UTF-8 JSON bytes for normal, blank, disabled, and Hyper Beam equipment labels.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         var labels = new Dictionary<string, PauseEquipmentLabel>(StringComparer.Ordinal);

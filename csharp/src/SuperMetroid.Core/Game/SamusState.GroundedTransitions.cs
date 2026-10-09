@@ -696,13 +696,9 @@ public sealed partial class SamusState
         }
     }
 
-    /// <summary>
-    /// Ports the jumping/falling turn initializers at <c>$91:F952/$91:F98A</c>.
-    /// The input tables publish only generic `$2F/$30/$87/$88`; the initializer reads the
-    /// PREVIOUS pose's shot-direction byte and substitutes one of sixteen exact turn poses.
-    /// </summary>
-    /// <returns>
-    /// True when the selected pose fits and is installed. False means the native larger-
-    /// pose collision path retained the compact source or forced stable crouch.
-    /// </returns>
+    // The jumping/falling turn initializers ($91:F952/$91:F98A) are implemented by
+    // TryApplyAerialTurn in the aerial partial declaration. Input tables publish generic
+    // $2F/$30/$87/$88; the initializer reads the previous pose's shot-direction byte
+    // and selects one of sixteen exact turn poses. True means that pose fits and is
+    // installed; false means larger-pose collision retained the source or forced crouch.
 }

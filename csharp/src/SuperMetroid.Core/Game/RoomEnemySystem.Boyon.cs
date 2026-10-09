@@ -7,7 +7,9 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public enum BoyonBounceMovement : ushort
 {
+    /// <summary>Native table index zero: advance down the speed curve until the stored spawn-height baseline is reached.</summary>
     Falling = 0,
+    /// <summary>Native table index one: retreat up the speed curve until the wrapped index selects falling.</summary>
     Rising = 1,
 }
 

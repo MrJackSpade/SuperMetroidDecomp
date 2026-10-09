@@ -14,6 +14,9 @@ public readonly struct BackgroundMosaicSampling
     public static BackgroundMosaicSampling ForBg2(byte register) =>
         (register & 2) == 0 ? default : new((register >> 4) + 1);
 
+    /// <summary>Creates frame-start mosaic sampling with an actual square block width, rather than the MOSAIC register's size-minus-one nibble; default construction is equivalent to size one and disables quantization.</summary>
+    /// <param name="size">Block width and height in screen pixels, 1..16; scrolling is applied after block-origin selection using each output scanline's registers.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> is outside 1..16.</exception>
     public BackgroundMosaicSampling(int size)
     {
         if (size is < 1 or > 16) throw new ArgumentOutOfRangeException(nameof(size));

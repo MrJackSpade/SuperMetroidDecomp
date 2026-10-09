@@ -3,6 +3,8 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>One Chozo statue PLM layout's visual blocks in native run order.</summary>
+/// <param name="Id">Compiled Chozo hand or slope-access draw-layout identity.</param>
+/// <param name="Blocks">Visual metatile/flip words flattened in native run order and word order within each run; changed arrays are copied by the catalog.</param>
 public sealed record RoomPlmChozoStatueVisualEntry(string Id, ushort[] Blocks);
 
 /// <summary>
@@ -31,6 +33,10 @@ public sealed class RoomPlmChozoStatueVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
+    /// <summary>Validates complete Chozo-layout coverage and copies authored visual differences without replacing physical level words or calculated run geometry.</summary>
+    /// <param name="entries">One entry per compiled layout with its exact flattened block count and visual-only word payload.</param>
+    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
+    /// <exception cref="InvalidDataException">An entry is invalid, duplicates an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
     public RoomPlmChozoStatueVisualCatalog(
         IEnumerable<RoomPlmChozoStatueVisualEntry> entries)
     {
@@ -64,6 +70,13 @@ public sealed class RoomPlmChozoStatueVisualCatalog
         if (selected.Count != 0) customBlocks = selected;
     }
 
+    /// <summary>Resolves one selected Chozo-layout visual word, projecting run-local indices into the flattened authored payload while preserving compiled mechanics.</summary>
+    /// <param name="drawPointer">Compiled bank-$84 Chozo draw-layout identity.</param>
+    /// <param name="runIndex">Zero-based native draw-run ordinal.</param>
+    /// <param name="blockIndex">Zero-based word ordinal within that run, not a room coordinate or flattened entry index.</param>
+    /// <returns>The metatile reference and parent flips; unchanged layouts derive these bits from compiled stock words.</returns>
+    /// <exception cref="InvalidDataException">The pointer is not a supported Chozo layout.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The run or word ordinal is outside the compiled draw shape.</exception>
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {
         if (!ChozoStatuePlmDrawDefinitions.TryDescribe(drawPointer, out var draw))

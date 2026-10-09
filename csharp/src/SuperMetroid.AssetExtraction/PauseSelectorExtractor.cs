@@ -7,6 +7,9 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Separates selector artwork/timing/positions from the fixed low-byte category dispatcher.</summary>
 public static class PauseSelectorExtractor
 {
+    /// <summary>Validates native selector category bindings, resolves anchors and sprite frames, and serializes its bounded animation phases and palette.</summary>
+    /// <param name="bus">Supported-cartridge address space containing selector pointers, positions, spritemaps, animation bytes, and palette attributes.</param>
+    /// <returns>UTF-8 JSON bytes for selector presentation, excluding the fixed category dispatcher.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseSelectorDefinitions.VariantPointer) != PauseSelectorDefinitions.CategoryVariable)

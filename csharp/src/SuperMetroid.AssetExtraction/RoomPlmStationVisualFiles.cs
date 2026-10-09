@@ -12,7 +12,9 @@ namespace SuperMetroid.AssetExtraction;
 /// </summary>
 public static class RoomPlmStationVisualFiles
 {
+    /// <summary>Family-relative stock/override JSON filename for twenty map, refill, save, and station-access draw layouts.</summary>
     public const string VisualFileName = "stations.json";
+    /// <summary>Stock manifest filename recording version-one format, cartridge provenance, and the visual JSON's SHA-256.</summary>
     public const string ManifestFileName = "manifest.json";
     private const int FormatVersion = 1;
 
@@ -23,6 +25,15 @@ public static class RoomPlmStationVisualFiles
         WriteIndented = true,
     };
 
+    /// <summary>Checks every compiled bank-$84 station draw shape, physical word, and offset before exporting named metatile/flip run arrays.</summary>
+    /// <param name="bus">Cartridge source for map, energy, missile, save, and access layouts in their original draw-run order.</param>
+    /// <param name="directory">Family directory, created before native checks; receives new visual JSON and manifest files.</param>
+    /// <param name="sourceCartridgeSha256">Nonblank importer-supplied provenance hash, recorded without recomputation and required to match the supported identity on stock load.</param>
+    /// <remarks>Only visual bits 0..11 are serialized; save-floor cap runs retain native order rather than a top-to-bottom rearrangement. Existing files are refused and separate writes can leave a partial installation.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="ArgumentException">The directory or source hash is null, empty, or whitespace.</exception>
+    /// <exception cref="InvalidDataException">Native station draws differ from compiled shapes, physical words, or offsets.</exception>
+    /// <exception cref="IOException">An output exists or filesystem access fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256)
     {
@@ -43,6 +54,14 @@ public static class RoomPlmStationVisualFiles
                 Convert.ToHexString(SHA256.HashData(json))), JsonOptions);
     }
 
+    /// <summary>Validates stock station artwork and selects an optional complete twenty-layout replacement without changing station effects or collision.</summary>
+    /// <param name="stockDirectory">Family directory containing version-one stock JSON and its required manifest.</param>
+    /// <param name="overrideDirectory">Optional family directory; null or absent visual JSON uses validated stock.</param>
+    /// <returns>A ROM-independent catalog with copied authored runs and compiled station mechanics and draw geometry unchanged.</returns>
+    /// <remarks>Stock provenance, byte hash, and compiled visual equality are checked before an override. Replacement JSON must contain all named layouts with original run counts/lengths and twelve-bit visual words; no override manifest is needed.</remarks>
+    /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is null, empty, or whitespace.</exception>
+    /// <exception cref="InvalidDataException">Provenance, integrity, schema, identities, coverage, run shape, or visual bits are invalid.</exception>
+    /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
     public static RoomPlmStationVisualCatalog Load(
         string stockDirectory, string? overrideDirectory)
     {
@@ -69,6 +88,9 @@ public static class RoomPlmStationVisualFiles
             : CreateCatalog(ReadJson<VisualDocument>(overridePath), overridePath);
     }
 
+    /// <summary>Performs the stock checks from <see cref="Load"/> without overrides, cartridge reads, or file writes.</summary>
+    /// <param name="directory">Station family directory containing stock JSON and manifest.</param>
+    /// <exception cref="InvalidDataException">Stock provenance, integrity, schema, or compiled appearance checks fail.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
     private static RoomPlmStationVisualEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)

@@ -5,7 +5,16 @@ using Vortice.DXGI;
 
 namespace SuperMetroid.Rendering.Direct3D11;
 
-public enum D3D11PresentationResult { Presented, Occluded, StaleGeneration }
+/// <summary>Mutually exclusive result of the render owner's final generation-checked swapchain presentation attempt.</summary>
+public enum D3D11PresentationResult
+{
+    /// <summary>DXGI Present returned success; the worker counts the submitted frame as presented, independently of simulation update count.</summary>
+    Presented,
+    /// <summary>DXGI reported occlusion; the worker retains the immutable frame and retries presentation after a bounded render-thread wait.</summary>
+    Occluded,
+    /// <summary>The presentation gate rejected the frame's old load/reset generation; DXGI Present was not called even though render/display commands were already submitted.</summary>
+    StaleGeneration
+}
 
 /// <summary>Render-owner flip-model swapchain; window creation and simulation remain host responsibilities.</summary>
 public sealed class D3D11SwapchainPresenter : IDisposable
@@ -17,6 +26,14 @@ public sealed class D3D11SwapchainPresenter : IDisposable
     private int width, height;
     private bool disposed;
 
+    /// <summary>Creates a two-buffer BGRA flip-discard swapchain for an existing HWND on its device-owner thread, with a frame-latency waitable object and maximum latency one; owns the swapchain, not the window or device.</summary>
+    /// <param name="owner">Live render-owner device shared by the renderer; must outlive the presenter.</param>
+    /// <param name="window">Nonzero native HWND kept alive by the host until presentation shutdown completes.</param>
+    /// <param name="width">Positive initial client width in pixels; minimized surfaces must be suspended by the host rather than created at zero.</param>
+    /// <param name="height">Positive initial client height in pixels.</param>
+    /// <exception cref="ArgumentOutOfRangeException">A client dimension is zero or negative.</exception>
+    /// <exception cref="ArgumentException"><paramref name="window"/> is zero.</exception>
+    /// <exception cref="InvalidOperationException">Construction is attempted off the device's owner thread.</exception>
     public D3D11SwapchainPresenter(D3D11RenderDevice owner, nint window, int width, int height)
     {
         this.owner = owner;
@@ -88,6 +105,8 @@ public sealed class D3D11SwapchainPresenter : IDisposable
         target = owner.Device.CreateRenderTargetView(buffer);
     }
     private void Verify() { owner.VerifyOwner(); ObjectDisposedException.ThrowIf(disposed, this); }
+    /// <summary>Releases the render target, owned latency wait handle, and swapchain on the device-owner thread; leaves the HWND/device to their owners and ignores repeated disposal.</summary>
+    /// <exception cref="InvalidOperationException">First disposal is attempted from a different thread.</exception>
     public void Dispose()
     {
         if (disposed) return;

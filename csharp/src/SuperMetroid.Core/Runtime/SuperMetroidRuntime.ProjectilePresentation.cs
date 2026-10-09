@@ -67,8 +67,10 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IInstalled
             BombProjectiles.FrameBindings = value;
         }
     }
+    /// <summary>Installed visual-only charge-flare offsets selected by pose movement and direction.</summary>
     [field: NonSerialized]
     public ChargeFlarePlacementCatalog? ChargeFlarePlacement { get; set; }
+    /// <summary>Installed charge-flare OAM compositions selected independently of timing and damage.</summary>
     [field: NonSerialized]
     public ChargeFlareSpriteCatalog? ChargeFlareCompositions { get; set; }
     [NonSerialized] private GrappleTileAtlas? grappleArtwork;
@@ -88,6 +90,7 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IInstalled
     }
     [NonSerialized] private ProjectileTrailCatalog? trailArtwork;
     [NonSerialized] private bool trailArtworkRefreshPending;
+    /// <summary>Current projectile-trail tiles and visual compositions; rebinding refreshes installed tiles at the next display boundary.</summary>
     public ProjectileTrailCatalog? TrailArtwork
     {
         get => trailArtwork;

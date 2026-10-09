@@ -9,9 +9,16 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Hash-checked stock RGB5 room palettes plus persistent user-selected replacements.</summary>
 public static class RoomStaticPaletteArtworkFiles
 {
+    /// <summary>Stock room-palette manifest filename recording cartridge provenance and hashes for all distinct palette JSON sources.</summary>
     public const string ManifestFileName = "room-palettes.json";
     private const int FormatVersion = 1;
 
+    /// <summary>Creates one stock RGB5 JSON palette per distinct room graphics-set color source and writes their provenance manifest.</summary>
+    /// <param name="bus">Non-null cartridge import address space supplying compressed native room palettes.</param>
+    /// <param name="directory">Output directory, created if needed; palette and manifest filenames must not already exist.</param>
+    /// <param name="sourceCartridgeSha256">Nonempty cartridge SHA-256 recorded with the generated palette-file hashes.</param>
+    /// <remarks>Exports 128 base BG colors per source, checks equivalent CGRAM colors after recompilation, and does not access player overrides.</remarks>
+    /// <exception cref="IOException">An output file already exists or filesystem output fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -32,6 +39,12 @@ public static class RoomStaticPaletteArtworkFiles
             new RoomPaletteFileManifest(FormatVersion, sourceCartridgeSha256, hashes), JsonOptions);
     }
 
+    /// <summary>Checks installed room-palette provenance and compiles independently selected RGB5 palette documents.</summary>
+    /// <param name="stockDirectory">Directory containing the supported-cartridge manifest and all hash-checked stock palette JSON files.</param>
+    /// <param name="overrideDirectory">Optional directory of same-named complete replacements; null or a missing file selects the corresponding stock palette.</param>
+    /// <returns>A catalog owning each selected 128-color base BG transfer, keyed by its native palette source address.</returns>
+    /// <remarks>Checks every stock file's hash before selecting and validating its replacement. Neither the stock manifest nor its hashes are taken from the override directory; loading needs no cartridge.</remarks>
+    /// <exception cref="InvalidDataException">The manifest, source coverage, stock hash, schema, color count, or RGB5 values are invalid.</exception>
     public static RoomStaticPaletteCatalog Load(string stockDirectory, string? overrideDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
@@ -80,6 +93,9 @@ public static class RoomStaticPaletteArtworkFiles
         return new RoomStaticPaletteCatalog(selected);
     }
 
+    /// <summary>Validates stock room-palette provenance and compiles all stock RGB5 palettes without player replacements.</summary>
+    /// <param name="stockDirectory">Installed room-palette directory to validate without cartridge access or file writes.</param>
+    /// <exception cref="InvalidDataException">Stock provenance, source coverage, hashes, or palette content are invalid.</exception>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
     private static Dictionary<string, int> ExpectedSources()

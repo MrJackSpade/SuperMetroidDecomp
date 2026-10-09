@@ -13,7 +13,9 @@ namespace SuperMetroid.AssetExtraction;
 /// </summary>
 public static class XrayRevealVisualFiles
 {
+    /// <summary>Family-relative version-two stock/override JSON filename for reveal-rule operands, eight item metatiles, and special-room overlay records.</summary>
     public const string VisualFileName = "reveals.json";
+    /// <summary>Stock manifest filename containing version-two format, caller-supplied cartridge provenance, and the reveal JSON's SHA-256.</summary>
     public const string ManifestFileName = "manifest.json";
     private const int FormatVersion = 2;
 
@@ -27,6 +29,15 @@ public static class XrayRevealVisualFiles
         Converters = { new JsonStringEnumConverter() },
     };
 
+    /// <summary>Checks all 16-by-256 native collision/BTS reveal results, then exports drawable operands, item-slot metatiles, and room-specific X-ray overlays.</summary>
+    /// <param name="bus">Cartridge source for bank-$91 reveal records, eight bank-$84 item draw pointers at $84:839D, and bank-$8F special-X-ray lists referenced by compiled room states.</param>
+    /// <param name="directory">Family directory, created before native validation; receives new <see cref="VisualFileName"/> and <see cref="ManifestFileName"/> files.</param>
+    /// <param name="sourceCartridgeSha256">Nonblank caller-supplied provenance hash, recorded without recomputation; stock load requires the supported cartridge identity.</param>
+    /// <remarks>Drawable rules are grouped by collision type and native definition. Item words are masked to twelve visual bits; room coordinates are unsigned 16-pixel block positions. Create-new writes refuse existing outputs and are not an atomic JSON/manifest transaction.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="ArgumentException">The directory or source hash is null, empty, or whitespace.</exception>
+    /// <exception cref="InvalidDataException">A native rule differs from compiled definitions, a pointer/command is invalid, or a room overlay is empty, unterminated, or contains nonvisual words.</exception>
+    /// <exception cref="IOException">An output exists or filesystem access fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256)
     {
@@ -87,6 +98,14 @@ public static class XrayRevealVisualFiles
                 Convert.ToHexString(SHA256.HashData(json))), JsonOptions);
     }
 
+    /// <summary>Validates version-two stock X-ray presentation and selects an optional complete replacement while retaining native rule selection, copy geometry, extensions, and area gating.</summary>
+    /// <param name="stockDirectory">Family directory containing the required stock reveal JSON and provenance/hash manifest.</param>
+    /// <param name="overrideDirectory">Optional family directory; null or missing reveal JSON selects validated stock.</param>
+    /// <returns>A ROM-independent catalog with copied rule operands, eight item slots, and ordered special-room tile lists.</returns>
+    /// <remarks>Stock provenance, byte hash, and structure are checked even with overrides; loading does not repeat cartridge reads or compare every stock operand with cartridge bytes. Strict JSON rejects unknown/missing constructor properties. Overrides need no manifest but must retain stock rule order, collision types, BTS groups, shapes, room identities, and record counts; twelve-bit words and byte-range room coordinates may change.</remarks>
+    /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is null, empty, or whitespace.</exception>
+    /// <exception cref="InvalidDataException">Provenance, integrity, strict JSON schema, rule coverage/shape, unused operands, overlay identities/counts, or visual words are invalid.</exception>
+    /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
     public static XrayRevealVisualCatalog Load(string stockDirectory,
         string? overrideDirectory)
     {
@@ -148,6 +167,9 @@ public static class XrayRevealVisualFiles
         return new XrayRevealVisualCatalog(mappings, overlays);
     }
 
+    /// <summary>Runs stock provenance, hash, strict-schema, and catalog-coverage checks through <see cref="Load"/> without overrides, cartridge reads, or writes.</summary>
+    /// <param name="directory">X-ray family directory containing both required version-two stock files.</param>
+    /// <exception cref="InvalidDataException">Stock validation fails.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
     private static void ValidateStructure(XrayRevealVisualDocument document, string path)

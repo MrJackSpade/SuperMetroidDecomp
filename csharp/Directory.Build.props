@@ -6,9 +6,6 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <!-- LibraryImport source generators emit unsafe pointer stubs behind the managed API. -->
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <!-- fix/v040-hotfix only: #634 is still documenting the public API on main. Remove this
-         when merging main back in once its documentation pass is complete. -->
-    <NoWarn>$(NoWarn);CS1591;CS1573;CS1574;CS1587</NoWarn>
+    <WarningsAsErrors>$(WarningsAsErrors);CS1591;CS1570;CS1572;CS1573;CS1574;CS1580;CS1584;CS1587;CS1658</WarningsAsErrors>
   </PropertyGroup>
 </Project>

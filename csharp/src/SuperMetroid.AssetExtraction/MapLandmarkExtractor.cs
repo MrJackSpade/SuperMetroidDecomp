@@ -9,6 +9,12 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Imports only landmark positions; validates mixed-record identities against compiled definitions.</summary>
 public static class MapLandmarkExtractor
 {
+    /// <summary>Exports named boss, elevator-destination-label, and Crateria gunship drawing positions from native area-map records.</summary>
+    /// <param name="bus">Import-capable cartridge source for bank-$82 boss/elevator lists and the Crateria save-point position list.</param>
+    /// <returns>A new UTF-8 JSON buffer mapping compiled landmark identities to area-map pixel anchors before scroll subtraction.</returns>
+    /// <remarks>Verifies expected boss slots, unused-slot sentinels, list terminators, and elevator destination spritemaps; discovery, defeated-boss state, and elevator connectivity are not editable output.</remarks>
+    /// <exception cref="ArgumentException"><paramref name="bus"/> does not provide cartridge import access, including null.</exception>
+    /// <exception cref="InvalidDataException">Required records, unused slots, destination bindings, or list boundaries differ from compiled definitions.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         var points = new Dictionary<string, MapLabelPoint>();

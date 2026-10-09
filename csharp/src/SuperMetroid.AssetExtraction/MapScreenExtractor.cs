@@ -10,6 +10,11 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Resolves native world layers and final room-map frames into editable visual resources.</summary>
 public static class MapScreenExtractor
 {
+    /// <summary>Builds the thirteen final world-map/room-frame tilemap pages and exports their shared foreground/background character atlases.</summary>
+    /// <param name="bus">Import-capable cartridge source for bank-$81/$82 menu layers, room-frame header/footer/labels, and bank-$8E planar characters.</param>
+    /// <returns>A new filename-keyed dictionary of owned buffers: versioned map-screen JSON, a 128-by-344 four-bit foreground PNG, and a 128-by-48 two-bit background PNG.</returns>
+    /// <remarks>Each page contains 32-by-32 tile cells with atlas coordinates, palette, priority, and flips. Room frames include native blank fill, footer words 1..160, and masked area labels; returned diagnostic PNG palettes are not runtime colors. No files are written and navigation/discovery data is excluded.</remarks>
+    /// <exception cref="ArgumentException"><paramref name="bus"/> does not provide cartridge import access, including null.</exception>
     public static Dictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
         var pages = new Dictionary<string, MapPresentationCell[]>();

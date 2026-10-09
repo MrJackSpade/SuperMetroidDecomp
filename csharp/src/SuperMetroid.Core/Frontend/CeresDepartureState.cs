@@ -28,6 +28,7 @@ public sealed class CeresDepartureState
     public byte Brightness => brightness;
 
     /// <summary>Starts state $20 from the room main's one-frame request.</summary>
+    /// <exception cref="InvalidOperationException">The departure has already begun or completed; a state instance admits the sequence only once.</exception>
     public void Begin()
     {
         if (Phase != CeresDeparturePhase.Inactive)
@@ -41,6 +42,8 @@ public sealed class CeresDepartureState
     /// <summary>
     /// Applies state <c>$20</c>'s post-gameplay decrement and reports the transition to $21.
     /// </summary>
+    /// <returns>Whether the wrapping 16-bit countdown reached zero or signed underflow and entered the fade; the triggering admission frame is not counted.</returns>
+    /// <exception cref="InvalidOperationException">The elevator-hold phase is not active.</exception>
     public bool StepHoldAfterGameplay()
     {
         if (Phase != CeresDeparturePhase.HoldingOnElevator)
@@ -60,6 +63,8 @@ public sealed class CeresDepartureState
     /// <summary>
     /// Applies one state-<c>$21</c> <c>HandleFadeOut</c> call after ordinary gameplay.
     /// </summary>
+    /// <returns>Whether brightness one reached forced blank and completed this timing owner; the caller owns checkpoint saving and cinematic dispatch.</returns>
+    /// <exception cref="InvalidOperationException">The blackout-fade phase is not active.</exception>
     public bool StepFadeAfterGameplay()
     {
         if (Phase != CeresDeparturePhase.FadingToBlack)
@@ -83,8 +88,12 @@ public sealed class CeresDepartureState
 /// <summary>Named bank-$82 phases owned by <see cref="CeresDepartureState"/>.</summary>
 public enum CeresDeparturePhase
 {
+    /// <summary>Host state before $89:ACC3 requests departure; ordinary Ceres gameplay and elevator arrival are not owned by this sequence.</summary>
     Inactive,
+    /// <summary>GameState_20_MadeItToCeresElevator: gameplay continues, then the 60-call hold decrements after each update before entering state $21.</summary>
     HoldingOnElevator,
+    /// <summary>GameState_21_BlackoutFromCeres: gameplay continues, then one INIDISP brightness step fades the screen per call with the native fade-delay words zero.</summary>
     FadingToBlack,
+    /// <summary>Forced blank has been reached; the outer game owner may save the Ceres departure checkpoint and enter the destruction cinematic, without restarting this timer.</summary>
     Complete,
 }

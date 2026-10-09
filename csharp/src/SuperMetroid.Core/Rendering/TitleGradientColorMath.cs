@@ -6,6 +6,8 @@ namespace SuperMetroid.Core.Rendering;
 /// <summary>Native fixed-color arithmetic for the title's BG1/backdrop and winning OBJ.</summary>
 public static class TitleGradientColorMath
 {
+    /// <param name="pixel">Winning RGB8 pixel before final display brightness; channels are quantized to RGB5 for arithmetic, alpha is preserved, and fully transparent pixels are returned unchanged.</param>
+    /// <param name="line">Current scanline's five-bit fixed-color components and raw CGADSUB control selecting layer participation and saturated addition/subtraction.</param>
     /// <param name="objectPalette">Null for BG1/backdrop; otherwise the winning OAM palette 0..7.</param>
     public static Rgba32 Apply(Rgba32 pixel, TitleGradientLine line, byte? objectPalette = null)
     {

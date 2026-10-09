@@ -17,7 +17,9 @@ public sealed class TorizoEnemyState
         IsGolden = isGolden;
     }
 
+    /// <summary>The owning room enemy body slot, whose common position, health, properties, and instruction state this extension supplements.</summary>
     public RoomEnemySlot Slot { get; }
+    /// <summary>Whether the owning definition is Golden Torizo ($EF7F), rather than Bomb Torizo ($EEFF); fixed at initialization.</summary>
     public bool IsGolden { get; }
 
     /// <summary>Persistent target colors and numerator shared by awakening and death fades.</summary>
@@ -65,13 +67,19 @@ public sealed class TorizoEnemyState
     /// <summary>Native <c>toriz_var_F</c> active-state pre-instruction pointer.</summary>
     public ushort PreInstruction { get; internal set; }
 
+    /// <summary>Host lifecycle latch set when $AA:C6C6 observes the $D6EA hand-trigger PLM gone and resumes Bomb Torizo's awakening instruction list.</summary>
     public bool AwakeningReleased { get; internal set; }
+    /// <summary>Host latch preventing repeat entry into death list $AA:B1C8 after lethal damage; remains set for this state instance.</summary>
     public bool DeathStarted { get; internal set; }
+    /// <summary>Whether the area's Torizo defeat bit ($04) was already set at initialization or was set by the translated $AA:B24D death instruction.</summary>
     public bool BossBitSet { get; internal set; }
+    /// <summary>Host latch recording the death instruction's 16-pickup scatter request in the variant's arena; does not mean those pickups were collected.</summary>
     public bool ItemDropRequested { get; internal set; }
 }
 
 /// <summary>Music request produced by Bomb Torizo's ROM instruction stream.</summary>
+/// <param name="Command">Track or music-data command to pass to the gameplay music queue.</param>
+/// <param name="Delay">Authored queue delay, expressed by the music command's gameplay-frame delay identifier.</param>
 public readonly record struct BombTorizoMusicRequest(MusicCommand Command, MusicCommandDelay Delay);
 
 /// <summary>

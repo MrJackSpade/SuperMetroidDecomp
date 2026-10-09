@@ -24,6 +24,10 @@ public static class SamusSolidEnemyCollision
     /// <param name="direction">Low two bits of native collision movement direction.</param>
     /// <param name="distance">Whole-pixel half of native scratch pair <c>$12.$14</c>.</param>
     /// <param name="distanceSubposition">Fractional half of native scratch pair <c>$12.$14</c>.</param>
+    /// <returns>The first qualifying body's current leading-edge gap, or the requested whole distance with no enemy index when no collision is found.</returns>
+    /// <remarks>No whole position or enemy body is changed. Exact current-edge contact clears <paramref name="state"/>'s Y subposition even for horizontal probes. The distance pair is an unsigned 16.16 magnitude; direction supplies its sign.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="state"/> or <paramref name="interactiveEnemies"/> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is not one of the four directional values 0..3; NonDirectionalProbe is not accepted here.</exception>
     public static SolidEnemyCollisionResult Probe(
         SamusKinematicsState state,
         IReadOnlyList<SolidEnemyCollisionBody> interactiveEnemies,
@@ -225,9 +229,13 @@ public static class SamusSolidEnemyCollision
 /// <summary>Low two bits consumed by <c>$A0:A8F0</c>'s direction jump table.</summary>
 public enum SamusCollisionDirection : ushort
 {
+    /// <summary>Native jump-table value 0 at $A0:A911: probes toward decreasing room X using the current left edge.</summary>
     Left = 0,
+    /// <summary>Native jump-table value 1 at $A0:A913: probes toward increasing room X using the current right edge.</summary>
     Right = 1,
+    /// <summary>Native jump-table value 2 at $A0:A915: probes toward decreasing room Y using the current top edge.</summary>
     Up = 2,
+    /// <summary>Native jump-table value 3 at $A0:A917: probes toward increasing room Y using the current bottom edge.</summary>
     Down = 3,
     /// <summary>Bank-$94:96E3 pose-observation direction $F; not an actual downward contact.</summary>
     NonDirectionalProbe = 0x0f,
@@ -236,6 +244,13 @@ public enum SamusCollisionDirection : ushort
 /// <summary>
 /// Collision-relevant words for one entry in native <c>InteractiveEnemyIndices</c>.
 /// </summary>
+/// <param name="Index">Native enemy-slot byte index, ordinarily slot number times $40; not this body's ordinal in the interactive list.</param>
+/// <param name="XPosition">Whole-pixel room X of the collision-box center, retained as a wrapping 16-bit word.</param>
+/// <param name="YPosition">Whole-pixel room Y of the collision-box center, increasing downward.</param>
+/// <param name="XRadius">Horizontal collision half-extent in pixels.</param>
+/// <param name="YRadius">Vertical collision half-extent in pixels.</param>
+/// <param name="FreezeTimer">Native frozen countdown word; any nonzero value makes the body solid regardless of its properties.</param>
+/// <param name="Properties">Raw enemy property word; bit $8000 makes an unfrozen body solid to Samus. Other property bits are not filtered by this probe.</param>
 public readonly record struct SolidEnemyCollisionBody(
     ushort Index,
     ushort XPosition,
@@ -246,6 +261,10 @@ public readonly record struct SolidEnemyCollisionBody(
     ushort Properties);
 
 /// <summary>Observable outputs of one bank-$A0 solid-enemy collision probe.</summary>
+/// <param name="Collided">True when the rounded future box overlaps a qualifying body and the current directional gap is not negative.</param>
+/// <param name="Distance">Unsigned whole-pixel current-edge gap on collision, or the caller's requested whole distance on failure; no fractional distance is returned.</param>
+/// <param name="EnemyIndex">Selected native enemy-slot byte index on collision, or null on failure.</param>
+/// <param name="WasTouching">True for a successful zero-gap contact, which clears Samus's Y subposition; false for positive gaps and failed probes.</param>
 public readonly record struct SolidEnemyCollisionResult(
     bool Collided,
     ushort Distance,

@@ -3,6 +3,8 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>One Draygon cannon frame's visible blocks in cartridge run order.</summary>
+/// <param name="Id">Compiled identity of a reachable Draygon cannon draw frame.</param>
+/// <param name="Blocks">Metatile/flip words flattened in native run order, then word order within each run; changed arrays are copied by the catalog.</param>
 public sealed record RoomPlmDraygonCannonVisualEntry(string Id, ushort[] Blocks);
 
 /// <summary>
@@ -31,6 +33,10 @@ public sealed class RoomPlmDraygonCannonVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
+    /// <summary>Validates complete reachable cannon-frame coverage and copies visual differences without changing shield damage, hit thresholds, control writes, or draw geometry.</summary>
+    /// <param name="entries">One visual-only entry per compiled frame with the exact flattened count of all its run words.</param>
+    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
+    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves reachable frame coverage incomplete.</exception>
     public RoomPlmDraygonCannonVisualCatalog(
         IEnumerable<RoomPlmDraygonCannonVisualEntry> entries)
     {
@@ -64,6 +70,13 @@ public sealed class RoomPlmDraygonCannonVisualCatalog
         if (selected.Count != 0) customBlocks = selected;
     }
 
+    /// <summary>Resolves a cannon block's selected appearance by projecting native run-local indices into the flattened authored frame.</summary>
+    /// <param name="drawPointer">Bank-$84 identity of a supported cannon draw frame, not its PLM header or instruction-list pointer.</param>
+    /// <param name="runIndex">Zero-based ordinal of the frame's native draw run.</param>
+    /// <param name="blockIndex">Zero-based word ordinal within that run, not a flattened entry index.</param>
+    /// <returns>The selected metatile/flip word, or visual bits from the compiled physical word when unchanged.</returns>
+    /// <exception cref="InvalidDataException">The pointer does not identify a supported cannon frame.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The run or word ordinal is outside the compiled draw shape.</exception>
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {
         if (!DraygonCannonPlmDrawDefinitions.TryDescribe(drawPointer, out var draw))

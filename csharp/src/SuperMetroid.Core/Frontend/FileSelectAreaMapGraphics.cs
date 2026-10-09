@@ -30,6 +30,16 @@ public sealed partial class FileSelectAreaMapGraphics
         return graphics;
     }
 
+    /// <summary>Initializes the unmasked world-map BG/palette owners from installed artwork and selects the requested Zebes area; labels must be bound separately or through <see cref="FromPresentation"/>.</summary>
+    /// <param name="bus">Runtime address space used by menu PPU setup.</param>
+    /// <param name="selectedArea">Game-area identity 0..5, not the file-select label display-order ordinal.</param>
+    /// <param name="mapTiles">Required installed map-character atlas.</param>
+    /// <param name="mapPalettes">Required world-map palettes, including area-specific selections.</param>
+    /// <param name="mapScreens">Required foreground and per-area background tilemap resources.</param>
+    /// <param name="worldArtwork">Required world-map character artwork.</param>
+    /// <param name="mapSprites">Required map-label OBJ artwork.</param>
+    /// <exception cref="InvalidOperationException">Any required presentation resource is absent despite its optional parameter default.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The selected area is outside the six Zebes identities.</exception>
     public FileSelectAreaMapGraphics(ISnesAddressSpace bus, int selectedArea, MapTileAtlas? mapTiles = null, MapStaticPalettes? mapPalettes = null,
         MapScreenPresentation? mapScreens = null, WorldMapArtwork? worldArtwork = null, MapSpriteCatalog? mapSprites = null)
     {
@@ -49,10 +59,16 @@ public sealed partial class FileSelectAreaMapGraphics
         SelectArea(selectedArea);
     }
 
+    /// <summary>Owned menu VRAM containing installed map characters, foreground/background tilemaps, and label OBJ art; not gameplay room VRAM.</summary>
     public SnesVram Vram => ppu.Vram;
+    /// <summary>Owned menu CGRAM used for selected-area palette loading and entry fades; rendering reads it without advancing those fades.</summary>
     public SnesCgram Cgram => ppu.Cgram;
+    /// <summary>Selected game-area identity 0..5 controlling the background, palette, and label highlight; this does not select a gameplay load station.</summary>
     public int SelectedArea { get; private set; }
 
+    /// <summary>Loads the installed area's world-map palette and background before publishing its selection, without advancing menu input, windows, or transition timers.</summary>
+    /// <param name="selectedArea">Game-area identity 0..5.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The area is outside the supported Zebes identities.</exception>
     public void SelectArea(int selectedArea)
     {
         if ((uint)selectedArea >= FileSelectMapRomData.AreaCount)
@@ -108,6 +124,9 @@ public sealed partial class FileSelectAreaMapGraphics
     // Owned frame: valid until this map renders again.
     [NonSerialized] private Rgba32[]? frameBuffer;
 
+    /// <summary>Composes the unmasked 256-by-224 BG1 main scene plus additive BG3 subscreen, excluding OBJ labels and transition clipping; no menu state advances.</summary>
+    /// <param name="includeBackdropInColorMath">True for steady/return $25 color math; false for forward-window $05 behavior, where transparent BG1 cells retain the backdrop without BG3 addition.</param>
+    /// <returns>The owned RGBA frame, valid until this graphics owner renders again.</returns>
     public Rgba32[] RenderBackgrounds(bool includeBackdropInColorMath = true)
     {
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, 256 * 224, frameBuffer ??= new Rgba32[256 * 224]);

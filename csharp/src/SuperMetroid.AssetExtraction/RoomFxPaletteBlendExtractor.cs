@@ -9,6 +9,11 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Exports the eight retail room-FX palette blends without exposing selector mechanics.</summary>
 public static class RoomFxPaletteBlendExtractor
 {
+    /// <summary>Imports the eight three-color room-FX blends and supplies the compiled stock Ceres haze tints.</summary>
+    /// <param name="bus">Non-null cartridge import address space supplying the independent native blend-color words.</param>
+    /// <returns>New UTF-8 JSON bytes containing RGB5 triplets in CGRAM 25..27 write order and separate blue and red fixed-color haze tints.</returns>
+    /// <remarks>Combines imported channels with calculated stock components, keeping channels in 0..31; selectors, CGRAM destinations, and fade timing remain compiled.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

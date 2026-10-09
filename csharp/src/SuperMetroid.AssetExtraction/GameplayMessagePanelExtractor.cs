@@ -7,6 +7,12 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Extracts the seven large item-instruction panels as editable presentation data.</summary>
 public static class GameplayMessagePanelExtractor
 {
+    /// <summary>Imports the seven large item-instruction panels with their raw templates, decoded titles, and shared border.</summary>
+    /// <param name="bus">Non-null cartridge address space supplying message definitions and the four-row panel tilemaps.</param>
+    /// <returns>New UTF-8 JSON bytes containing each panel's title, starting tile column, palette index, and preserved BG-cell template.</returns>
+    /// <remarks>Checks native shoot/run button-patching identities and panel lengths; current controller bindings and button replacement remain runtime behavior.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="InvalidDataException">A panel has an unexpected binding, draw routine, size, glyph, or title palette, or fails schema validation.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

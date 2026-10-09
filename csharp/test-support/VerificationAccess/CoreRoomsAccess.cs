@@ -1017,7 +1017,7 @@ internal static class RoomPlmSystemAccess
         /// <summary>
         /// Returns whether a room-authored header has a setup owner in the sequential loader.
         /// This is a read-only inventory seam for private-ROM audits; production still performs
-        /// dispatch and contextual failure from <see cref="LoadRoomPopulation"/> itself.
+        /// dispatch and contextual failure from <see cref="RoomPlmSystem.LoadRoomPopulation"/> itself.
         /// </summary>
         internal static bool IsSupportedRoomPopulationHeader(ushort header)
         {
@@ -1543,7 +1543,7 @@ internal static class RoomPlmSystemAccess
         /// <remarks>
         /// The caller supplies current layer-1 coordinates because native DrawPLM clips before
         /// queuing VRAM work. Level-data writes always occur; only the PPU-ring update is clipped.
-        /// Returned updates are also exposed through <see cref="TilemapUpdates"/> so a debugger
+        /// Returned updates are also exposed through the verification <c>TilemapUpdates</c> property so a debugger
         /// can inspect the exact block and destination before the runtime executes them.
         /// </remarks>
         internal IReadOnlyList<PlmTilemapUpdate> Step(

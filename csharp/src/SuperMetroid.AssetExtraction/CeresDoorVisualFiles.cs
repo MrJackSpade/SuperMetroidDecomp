@@ -10,6 +10,10 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Exports the Ceres-door actor's direct tile DMA and authored RGB5 rows.</summary>
 public static class CeresDoorVisualFiles
 {
+    /// <summary>Exports the Ceres door tile DMA as indexed PNG and its normal, escape, animated, and Mode 7 appearances as JSON, verifying the tile round-trip.</summary>
+    /// <param name="bus">Supported-cartridge address space containing the Ceres door tile, palette, and Mode 7 frame sources.</param>
+    /// <param name="directory">Destination directory receiving the tile PNG and color JSON; existing files are replaced.</param>
+    /// <returns>Uppercase SHA-256 digests of the exact tile and color files written.</returns>
     public static (string TileHash, string ColorHash) Extract(ISnesAddressSpace bus,
         string directory)
     {
@@ -57,6 +61,10 @@ public static class CeresDoorVisualFiles
             Convert.ToHexString(SHA256.HashData(paletteJson)));
     }
 
+    /// <summary>Compiles an in-memory Ceres door PNG/JSON pair into owned runtime visual data without cartridge access.</summary>
+    /// <param name="tilePng">Indexed PNG bytes for the fixed-size Ceres door tile transfer.</param>
+    /// <param name="paletteJson">Versioned RGB5 and Mode 7 appearance document bytes.</param>
+    /// <returns>The validated selected Ceres door visual catalog.</returns>
     public static CeresDoorVisualCatalog Load(byte[] tilePng, byte[] paletteJson) =>
         CeresDoorVisualCatalog.Load(new MemoryStream(tilePng, writable: false),
             new MemoryStream(paletteJson, writable: false));

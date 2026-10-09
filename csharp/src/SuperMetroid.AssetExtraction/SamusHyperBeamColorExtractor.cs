@@ -8,6 +8,12 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Exports the ten authored Hyper Beam palettes without exposing phase logic.</summary>
 public static class SamusHyperBeamColorExtractor
 {
+    /// <summary>Exports the ten full-body Hyper Beam palette images in the compiled frame-selection order.</summary>
+    /// <param name="bus">Non-null import-capable cartridge source for bank-$9B rows descending from $A360 in $20-byte steps.</param>
+    /// <returns>A new UTF-8 JSON buffer with ten ordered sixteen-color RGB5 frames, including color zero and channels 0..31.</returns>
+    /// <remarks>This body-palette resource is distinct from Hyper-shot flashes and the eight-color palette-FX program. Bit 15 is omitted; native phase selection and timing are not exported.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="ArgumentException"><paramref name="bus"/> lacks cartridge import access.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

@@ -12,7 +12,9 @@ namespace SuperMetroid.AssetExtraction;
 /// </summary>
 public static class RoomPlmCollectibleVisualFiles
 {
+    /// <summary>Editable JSON filename containing the complete twenty-four-frame collectible visual set.</summary>
     public const string VisualFileName = "collectibles.json";
+    /// <summary>Stock provenance manifest filename containing the format, source-cartridge identity, and visual-file digest.</summary>
     public const string ManifestFileName = "manifest.json";
     private const int FormatVersion = 1;
 
@@ -23,6 +25,13 @@ public static class RoomPlmCollectibleVisualFiles
         WriteIndented = true,
     };
 
+    /// <summary>Verifies the native collectible selectors/draw lists and creates a new stock visual JSON plus provenance manifest.</summary>
+    /// <param name="bus">Validated supported-cartridge address space used only for extraction-time bank-$84 comparisons.</param>
+    /// <param name="directory">Destination directory; files must not already exist.</param>
+    /// <param name="sourceCartridgeSha256">SHA-256 identity recorded in the stock manifest.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="ArgumentException">A path or cartridge identity is blank.</exception>
+    /// <exception cref="InvalidDataException">Native selectors, draw geometry, or level words differ from the compiled definitions.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256)
     {
@@ -43,6 +52,12 @@ public static class RoomPlmCollectibleVisualFiles
                 Convert.ToHexString(SHA256.HashData(json))), JsonOptions);
     }
 
+    /// <summary>Validates the stock manifest/digest and compiled stock parity, then selects an optional editable override without cartridge access.</summary>
+    /// <param name="stockDirectory">Installed stock collectible directory containing the manifest and visual JSON.</param>
+    /// <param name="overrideDirectory">Optional directory whose visual JSON replaces stock when present; its file is schema/coverage validated but is not required to match the stock digest.</param>
+    /// <returns>The immutable selected collectible visual catalog.</returns>
+    /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is blank.</exception>
+    /// <exception cref="InvalidDataException">The manifest, stock provenance/digest/parity, or selected JSON is invalid.</exception>
     public static RoomPlmCollectibleVisualCatalog Load(
         string stockDirectory, string? overrideDirectory)
     {
@@ -71,6 +86,8 @@ public static class RoomPlmCollectibleVisualFiles
             : CreateCatalog(ReadJson<VisualDocument>(overridePath), overridePath);
     }
 
+    /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with compiled collectible visuals.</summary>
+    /// <param name="directory">Stock collectible directory; overrides are intentionally ignored.</param>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
     private static RoomPlmCollectibleVisualEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)

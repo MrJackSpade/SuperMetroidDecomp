@@ -10,6 +10,11 @@ public sealed class RoomCharacterAtlasCatalog
 {
     private readonly Dictionary<int, RoomCharacterAtlas> bySource;
 
+    /// <summary>Creates a complete installed character-art catalog and verifies that every compiled room graphics set can resolve its selected source.</summary>
+    /// <param name="cre">Common room elements sheet uploaded alongside each graphics-set-specific sheet.</param>
+    /// <param name="bySource">Atlases keyed by immutable native source address; the mapping is copied, while atlas instances are shared.</param>
+    /// <exception cref="ArgumentNullException">The CRE atlas or source mapping is null.</exception>
+    /// <exception cref="InvalidDataException">A source selected by a compiled room graphics set is absent or maps to null.</exception>
     public RoomCharacterAtlasCatalog(RoomCharacterAtlas cre,
         IReadOnlyDictionary<int, RoomCharacterAtlas> bySource)
     {
@@ -25,6 +30,7 @@ public sealed class RoomCharacterAtlasCatalog
         this.bySource = new Dictionary<int, RoomCharacterAtlas>(bySource);
     }
 
+    /// <summary>Common room elements character sheet shared by every room graphics set.</summary>
     public RoomCharacterAtlas Cre { get; }
 
     /// <summary>SHA-256 of every selected character transfer, including CRE and shared sheets.</summary>

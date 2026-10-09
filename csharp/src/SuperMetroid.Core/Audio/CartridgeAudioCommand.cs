@@ -24,9 +24,11 @@ public readonly record struct CartridgeAudioCommand(
     byte Port,
     byte Value)
 {
+    /// <summary>Creates an upload command retaining the 24-bit cartridge stream identity.</summary>
     public static CartridgeAudioCommand Upload(int cartridgeAddress) =>
         new(CartridgeAudioCommandKind.Upload, cartridgeAddress, 0, 0);
 
+    /// <summary>Creates a CPU-to-APU write for one of ports zero through three.</summary>
     public static CartridgeAudioCommand WritePort(byte port, byte value) =>
         new(CartridgeAudioCommandKind.WritePort, 0, port, value);
 }
@@ -38,6 +40,7 @@ public readonly record struct CartridgeAudioAcknowledgements(
     byte Port2,
     byte Port3)
 {
+    /// <summary>Gets the acknowledgement byte for APU output port zero through three.</summary>
     public byte this[int port] => port switch
     {
         AudioRomData.Apu.MusicPort => Port0,

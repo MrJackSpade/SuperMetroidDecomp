@@ -51,6 +51,7 @@ public static class CeresDestructionSpriteDefinitions
         return (ushort)pointer;
     }
 
+    /// <summary>Immutable 23-name bank-$8C visual catalog: seven backdrops, six small blasts, four large blasts, then six station blasts; original OAM part counts describe stock geometry without restricting edited compositions or defining animation timing.</summary>
     public static IReadOnlyList<CeresDestructionSpriteFrameDefinition> Frames { get; } = new FrameList();
     private enum Backdrop { LargeAsteroids, Planet, Title, UpperLeftStars, UpperRightStars, LowerLeftStars, LowerRightStars }
     private sealed class FrameList : IReadOnlyList<CeresDestructionSpriteFrameDefinition>

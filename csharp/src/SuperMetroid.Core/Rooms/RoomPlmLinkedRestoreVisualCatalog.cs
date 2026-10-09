@@ -3,6 +3,8 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>One linked-block restoration image in cartridge run order.</summary>
+/// <param name="Id">Compiled bomb or contact-crumble restoration identity for a horizontal, vertical, or square layout.</param>
+/// <param name="Blocks">Metatile/flip words flattened by native run, with two words per run; changed arrays are copied by the catalog.</param>
 public sealed record RoomPlmLinkedRestoreVisualEntry(string Id, ushort[] Blocks);
 
 /// <summary>
@@ -30,6 +32,10 @@ public sealed class RoomPlmLinkedRestoreVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customWords;
 
+    /// <summary>Validates all six linked restoration layouts and copies visual differences without changing linked parent/child collision or restoration programs.</summary>
+    /// <param name="entries">One visual-only entry per compiled layout with two words per native run and complete identity coverage.</param>
+    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
+    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
     public RoomPlmLinkedRestoreVisualCatalog(IEnumerable<RoomPlmLinkedRestoreVisualEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
@@ -54,6 +60,13 @@ public sealed class RoomPlmLinkedRestoreVisualCatalog
         if (selected.Count != 0) customWords = selected;
     }
 
+    /// <summary>Resolves one linked restoration block by native run and word ordinals, leaving its physical collision link compiled.</summary>
+    /// <param name="drawPointer">Bank-$84 identity of a supported bomb or contact-crumble restoration draw.</param>
+    /// <param name="runIndex">Zero-based native run ordinal; square layouts have two runs and the other layouts one.</param>
+    /// <param name="blockIndex">Word ordinal within the run, zero or one, not a flattened entry index.</param>
+    /// <returns>The authored metatile/flip word, or the layout's common compiled visual word when unchanged.</returns>
+    /// <exception cref="InvalidDataException">The pointer does not identify a supported linked restoration layout.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The run or word ordinal is outside the compiled draw shape.</exception>
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {
         if (!Describe(drawPointer, out int runs, out ushort stockWord))

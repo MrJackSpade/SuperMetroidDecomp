@@ -12,7 +12,9 @@ namespace SuperMetroid.AssetExtraction;
 /// </summary>
 public static class RoomPlmDownwardGateVisualFiles
 {
+    /// <summary>Family-relative stock/override JSON filename for six downward-gate column frames and eight left/right trigger layouts.</summary>
     public const string VisualFileName = "downward-gates.json";
+    /// <summary>Stock provenance manifest filename; records format version one, cartridge SHA-256, and the visual JSON's byte hash.</summary>
     public const string ManifestFileName = "manifest.json";
     private const int FormatVersion = 1;
 
@@ -23,6 +25,15 @@ public static class RoomPlmDownwardGateVisualFiles
         WriteIndented = true,
     };
 
+    /// <summary>Checks bank-$84 downward-gate draw shapes, physical words, and continuation offsets before exporting metatile/flip words in native run order.</summary>
+    /// <param name="bus">Cartridge source for column draws $84:A517–A56A and trigger draws $84:A5D7–A626; upward gates are not included.</param>
+    /// <param name="directory">Family directory, created before native validation; receives new visual JSON and manifest files.</param>
+    /// <param name="sourceCartridgeSha256">Nonblank caller-supplied provenance hash, recorded without recomputation; stock loading requires the supported cartridge identity.</param>
+    /// <remarks>Words contain only bits 0..11, not collision types. Create-new outputs are separate writes and are not rolled back together on failure.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="ArgumentException">The directory or source hash is null, empty, or whitespace.</exception>
+    /// <exception cref="InvalidDataException">Native draw data differs from the compiled gate definitions.</exception>
+    /// <exception cref="IOException">An output exists or filesystem access fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256)
     {
@@ -43,6 +54,14 @@ public static class RoomPlmDownwardGateVisualFiles
                 Convert.ToHexString(SHA256.HashData(json))), JsonOptions);
     }
 
+    /// <summary>Validates stock downward-gate artwork and selects an optional complete fourteen-layout visual replacement.</summary>
+    /// <param name="stockDirectory">Family directory containing version-one stock JSON and its required manifest.</param>
+    /// <param name="overrideDirectory">Optional family directory; null or an absent visual JSON selects validated stock.</param>
+    /// <returns>A ROM-independent catalog with copied authored words and compiled collision, draw placement, and gate timing unchanged.</returns>
+    /// <remarks>Stock provenance, file hash, and compiled visual equality are checked before overrides. Overrides require every published identity and original run shape with twelve-bit visual words, but no manifest; legacy trigger color labels remain unchanged.</remarks>
+    /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is null, empty, or whitespace.</exception>
+    /// <exception cref="InvalidDataException">Provenance, integrity, schema, identities, frame coverage, shapes, or visual bits are invalid.</exception>
+    /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
     public static RoomPlmDownwardGateVisualCatalog Load(
         string stockDirectory, string? overrideDirectory)
     {
@@ -69,6 +88,9 @@ public static class RoomPlmDownwardGateVisualFiles
             : CreateCatalog(ReadJson<VisualDocument>(overridePath), overridePath);
     }
 
+    /// <summary>Runs stock manifest, schema, integrity, and compiled-appearance checks through <see cref="Load"/> without overrides, cartridge reads, or writes.</summary>
+    /// <param name="directory">Downward-gate family directory containing both required stock files.</param>
+    /// <exception cref="InvalidDataException">Stock validation fails.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
     private static RoomPlmDownwardGateVisualEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)

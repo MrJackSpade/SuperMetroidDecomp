@@ -13,6 +13,13 @@ public static class IntroCinematicArtworkFiles
 {
     private const int FormatVersion = 20;
 
+    /// <summary>Creates the stock opening-cinematic, Ceres-flight, and destruction-scene PNG and JSON resources with their provenance manifest.</summary>
+    /// <param name="bus">Non-null cartridge import address space supplying character graphics, tilemaps, palettes, sprites, and scene artwork.</param>
+    /// <param name="directory">Output directory, created if needed; each resource and the manifest require a previously absent filename.</param>
+    /// <param name="sourceCartridgeSha256">Nonempty source-cartridge SHA-256 recorded with the generated stock-resource hashes.</param>
+    /// <remarks>Checks native transfer dimensions, eye-frame draw geometry, palette representation, and artwork roundtrips. Scene timing and dispatch remain compiled, and player overrides are not read or modified.</remarks>
+    /// <exception cref="InvalidDataException">Native artwork, geometry, palettes, or an encoded resource fails validation.</exception>
+    /// <exception cref="IOException">An output file already exists or filesystem output fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -700,6 +707,10 @@ public static class IntroCinematicArtworkFiles
         CeresDestructionActorLayoutFormat.FileName,
     ];
 
+    /// <summary>Validates all stock opening and Ceres-scene artwork without selecting player replacements.</summary>
+    /// <param name="stockDirectory">Directory containing the cinematic manifest and its complete PNG and JSON resource set.</param>
+    /// <remarks>Checks supported cartridge provenance, complete filename coverage, every stock hash, and all resource schemas without cartridge access or file writes.</remarks>
+    /// <exception cref="InvalidDataException">The manifest, provenance, coverage, hash, or a compiled artwork resource is invalid.</exception>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
     private static readonly JsonSerializerOptions JsonOptions = new()

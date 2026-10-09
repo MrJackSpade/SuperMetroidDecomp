@@ -14,7 +14,9 @@ namespace SuperMetroid.AssetExtraction;
 /// </summary>
 public static class RoomPlmDynamicCollectibleArtFiles
 {
+    /// <summary>Stock/override JSON filename containing eight BG palette selectors per each of the seventeen dynamic permanent-item kinds, not RGB colors.</summary>
     public const string PaletteFileName = "palettes.json";
+    /// <summary>Stock manifest filename recording version-one format, cartridge provenance, and hashes for seventeen item PNGs plus palette-selector JSON.</summary>
     public const string ManifestFileName = "manifest.json";
     private const int FormatVersion = 1;
     private const int Width = 64;
@@ -36,6 +38,15 @@ public static class RoomPlmDynamicCollectibleArtFiles
         return $"item-{(int)kind:D2}-{kind.ToString().ToLowerInvariant()}.png";
     }
 
+    /// <summary>Checks all seventeen bank-$89 permanent-item character uploads, verifies their PNG round-trip, and exports indexed images with compiled per-tile palette selectors.</summary>
+    /// <param name="bus">Cartridge source whose native character bytes must match the compiled dynamic collectible definitions.</param>
+    /// <param name="directory">Family directory, created if absent; receives new per-kind 64-by-8 PNGs, palette JSON, and manifest.</param>
+    /// <param name="sourceCartridgeSha256">Nonblank caller-supplied provenance recorded without recomputation; loading requires the supported cartridge identity.</param>
+    /// <remarks>Each four-bit image holds eight characters: tiles 0..3 for frame zero and 4..7 for frame one. Diagnostic PNG colors are not runtime RGB. Create-new writes refuse existing files and may leave earlier outputs on failure.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="ArgumentException">The directory or source hash is null, empty, or whitespace.</exception>
+    /// <exception cref="InvalidDataException">A native tile differs from compiled artwork or the PNG round-trip changes character bytes.</exception>
+    /// <exception cref="IOException">An output exists or filesystem access fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256)
     {
@@ -86,6 +97,14 @@ public static class RoomPlmDynamicCollectibleArtFiles
             new ArtManifest(FormatVersion, sourceCartridgeSha256, hashes), JsonOptions);
     }
 
+    /// <summary>Validates every stock dynamic-item image and palette-selector entry while selecting optional per-image and whole-selector-document overrides.</summary>
+    /// <param name="stockDirectory">Family directory containing all seventeen stock PNGs, palette JSON, and required provenance/hash manifest.</param>
+    /// <param name="overrideDirectory">Optional family directory; each missing item PNG and an absent palette JSON independently fall back to stock.</param>
+    /// <returns>A ROM-independent complete artwork catalog that copies edited character/selector arrays and preserves item identity, pickup effects, collision, and PLM timing.</returns>
+    /// <remarks>All stock hashes and decoded pixels/selectors must match compiled artwork even when overridden. Overrides need no manifest; PNGs retain 64-by-8 indexed four-bit geometry and palette JSON must cover every kind with eight selectors 0..7 each.</remarks>
+    /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is null, empty, or whitespace.</exception>
+    /// <exception cref="InvalidDataException">Provenance, integrity, schema, item coverage, indexed PNGs, or palette selectors are invalid.</exception>
+    /// <exception cref="IOException">A required stock or selected override file cannot be read.</exception>
     public static RoomPlmDynamicCollectibleArtCatalog Load(
         string stockDirectory, string? overrideDirectory)
     {
@@ -148,6 +167,9 @@ public static class RoomPlmDynamicCollectibleArtFiles
         return new RoomPlmDynamicCollectibleArtCatalog(entries);
     }
 
+    /// <summary>Runs all stock provenance, hash, image/selector, and compiled-appearance checks through <see cref="Load"/> without overrides, cartridge reads, or writes.</summary>
+    /// <param name="directory">Dynamic collectible family directory containing every required stock file.</param>
+    /// <exception cref="InvalidDataException">Stock validation fails.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
     private static byte[] ReadStock(string directory, ArtManifest manifest,

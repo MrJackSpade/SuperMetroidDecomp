@@ -8,6 +8,9 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Extracts actual native visual offsets, retaining adjacent-row results for unnamed directions.</summary>
 public static class ChargeFlarePlacementExtractor
 {
+    /// <summary>Reads signed native charge-flare X/Y offsets for every default and running direction row, including unnamed adjacent-direction results.</summary>
+    /// <param name="bus">Supported-cartridge address space containing both charge-flare placement tables.</param>
+    /// <returns>UTF-8 JSON bytes keyed by running state and direction.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         var offsets = new Dictionary<string, ChargeFlareOffset>();

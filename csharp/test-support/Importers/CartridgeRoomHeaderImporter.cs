@@ -52,6 +52,11 @@ public static class CartridgeRoomHeaderImporter
         }
         throw new InvalidDataException("Native room selector exceeds its bounded command count.");
     }
+    /// <summary>Decodes a native bank-$8F room header and evaluates its bounded state-selection command list independently of compiled gameplay definitions.</summary>
+    /// <param name="bus">Address space providing the import-only cartridge source.</param>
+    /// <param name="roomPointer">Sixteen-bit room-header address within bank $8F.</param>
+    /// <param name="selection">Event, boss, and equipment conditions used to select the first matching native state, or the inline default state.</param>
+    /// <returns>The decoded room header and selected room-state payload; no gameplay state is initialized.</returns>
     public static CartridgeRoomHeader Load(ISnesAddressSpace bus, ushort roomPointer,
         RoomStateSelectionContext selection = default)
     {

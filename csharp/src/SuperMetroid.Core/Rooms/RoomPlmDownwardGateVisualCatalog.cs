@@ -3,6 +3,8 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Editable visual block references for one downward-gate frame or shot trigger.</summary>
+/// <param name="Id">Compiled identity of a gate draw frame or colored shot-trigger layout.</param>
+/// <param name="Runs">Metatile/flip words grouped by native draw run and ordered within each run; changed selections are deeply copied by the catalog.</param>
 public sealed record RoomPlmDownwardGateVisualEntry(string Id, ushort[][] Runs);
 
 /// <summary>
@@ -31,6 +33,10 @@ public sealed class RoomPlmDownwardGateVisualCatalog
 
     private readonly Dictionary<ushort, ushort[][]>? customWords;
 
+    /// <summary>Validates complete downward-gate and shot-trigger coverage and copies visual differences without changing collision, shot filtering, or animation mechanics.</summary>
+    /// <param name="entries">One entry per compiled layout, retaining its exact run count and word counts with visual-only payloads.</param>
+    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
+    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
     public RoomPlmDownwardGateVisualCatalog(IEnumerable<RoomPlmDownwardGateVisualEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
@@ -68,6 +74,13 @@ public sealed class RoomPlmDownwardGateVisualCatalog
         if (selected.Count != 0) customWords = selected;
     }
 
+    /// <summary>Resolves one gate or shot-trigger visual word using the compiled layout's native run structure.</summary>
+    /// <param name="drawPointer">Bank-$84 identity of a supported downward-gate draw layout.</param>
+    /// <param name="runIndex">Zero-based ordinal of the native draw run.</param>
+    /// <param name="wordIndex">Zero-based block ordinal within that run, not a room coordinate.</param>
+    /// <returns>The selected metatile/flip word, or the compiled physical word's visual bits when unchanged.</returns>
+    /// <exception cref="InvalidDataException">The pointer does not identify a supported gate or shot-trigger layout.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The run or word ordinal is outside the compiled draw shape.</exception>
     public ushort GetWord(ushort drawPointer, int runIndex, int wordIndex)
     {
         if (!DownwardGatePlmDrawDefinitions.TryDescribe(drawPointer, out var draw))

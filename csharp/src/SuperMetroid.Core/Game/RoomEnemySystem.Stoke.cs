@@ -10,7 +10,9 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public enum StokeDirection : ushort
 {
+    /// <summary>Native direction word zero: left-facing latch installed with the moving-left function by instruction $A2:8990.</summary>
     Left = 0,
+    /// <summary>Native direction word one: right-facing latch installed with the moving-right function by instruction $A2:899D.</summary>
     Right = 1,
 }
 
@@ -20,8 +22,11 @@ public enum StokeDirection : ushort
 /// </summary>
 public enum StokeAiFunction : ushort
 {
+    /// <summary>$A2:8A75, RTS_A28A75: no-op main entry while the attack animation owns projectile emission and eventual walk resumption.</summary>
     IdleDuringAttack = 0x8a75,
+    /// <summary>$A2:8A43, Function_Stoke_MovingLeft: walking with the negative 16.16 speed pair, terrain-turn checks, and the per-update random left-attack choice.</summary>
     MovingLeft = 0x8a43,
+    /// <summary>$A2:8A5C, Function_Stoke_MovingRight: walking with the positive 16.16 speed pair, terrain-turn checks, and the per-update random right-attack choice.</summary>
     MovingRight = 0x8a5c,
 }
 

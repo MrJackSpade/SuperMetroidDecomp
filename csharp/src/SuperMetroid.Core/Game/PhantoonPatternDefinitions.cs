@@ -4,6 +4,9 @@ namespace SuperMetroid.Core.Game;
 public static class PhantoonPatternDefinitions
 {
     /// <summary>$A7:CDAD, Phantoon_FlameRain_PositionTable: figure-eight cursor and world X/Y; each native record also has an unused zero word.</summary>
+    /// <param name="pattern">Native random-bucket index, 0..7; patterns zero and four share the same body placement.</param>
+    /// <returns>The body variable-A path cursor and whole-pixel room coordinates; does not draw RNG or move the boss.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The pattern is outside 0..7.</exception>
     public static (ushort Cursor, ushort X, ushort Y) RainPlacement(int pattern) => pattern switch
     {
         0 or 4 => (1, 128, 96),
@@ -22,9 +25,15 @@ public static class PhantoonPatternDefinitions
     /// </summary>
     public static RainColumnSequence FirstRainColumns => default;
 
+    /// <summary>Computed $A7:CFC2 first-flame column lookup, indexed by the eight rain patterns rather than by individual flames.</summary>
     public readonly struct RainColumnSequence : IReadOnlyList<byte>
     {
+        /// <summary>Eight pattern-to-first-column entries; each pattern's caller subsequently emits eight flames across nine wrapping columns.</summary>
         public int Count => 8;
+        /// <summary>Gets the first flame's zero-based column immediately after the selected body's column, wrapping from eight to zero.</summary>
+        /// <param name="pattern">Native rain-pattern index, 0..7.</param>
+        /// <returns>A column from 0..8; following eight consecutive columns leaves the body placement's column empty.</returns>
+        /// <exception cref="IndexOutOfRangeException">The pattern is outside the eight-entry lookup.</exception>
         public byte this[int pattern]
         {
             get
@@ -36,6 +45,8 @@ public static class PhantoonPatternDefinitions
                 return (byte)((bodyColumn + 1) % 9);
             }
         }
+        /// <summary>Enumerates each pattern's first flame column in native pattern order, without advancing RNG or spawning flames.</summary>
+        /// <returns>An enumerator over the eight computed column selectors.</returns>
         public IEnumerator<byte> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -61,6 +72,9 @@ public static class PhantoonPatternDefinitions
     /// $A7:D40D-$D41E selects the eye program from Samus's relative octant. The unused
     /// code5 retains the native downward selection; all other values name a direction.
     /// </summary>
+    /// <param name="direction">Native relative-direction selector, 0..8, with four and the unused five both selecting down.</param>
+    /// <returns>The bank-$A7 eye instruction-list pointer; the caller owns publishing it and resetting its instruction timer.</returns>
+    /// <exception cref="InvalidDataException">The direction exceeds the nine authored selectors.</exception>
     public static ushort EyeInstruction(ushort direction) => direction switch
     {
         0 => PhantoonInstructionProgramDefinitions.EyeLookingUp,

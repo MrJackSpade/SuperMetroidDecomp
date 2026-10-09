@@ -210,7 +210,6 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     public bool CeresEscapeStartedThisFrame { get; private set; }
 
-    /// <summary>Language flag sampled by $A6:C0D9 when the warning-text phase begins.</summary>
     // A door load initializes enemies while the door IRQ scrolls; init AIs that read
     // layer 1 then wait for the loader's camera (CompleteLoaderTimeCameraReads).
     // TimeIsFrozenFlag as the enemy frame saw it; the draw hooks that follow read it.
@@ -218,6 +217,7 @@ public sealed partial class RoomEnemySystem
 
     private bool _deferLoaderTimeCameraReads;
 
+    /// <summary>Language flag sampled by $A6:C0D9 when the warning-text phase begins and by Mother Brain's alternate escape-text selection.</summary>
     public bool JapaneseText { get; set; }
 
     /// <summary>

@@ -8,6 +8,10 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Extracts native area map tilemaps and reveal masks before gameplay starts.</summary>
 public static class AreaMapImporter
 {
+    /// <summary>Resolves one area's native tilemap and map-station reveal-mask pointers, copies their bytes, and decodes the split native tilemap layout into row-major cells.</summary>
+    /// <param name="bus">Supported-cartridge address space containing the area pointer tables and map data.</param>
+    /// <param name="area">Defined area whose complete map and reveal mask are imported.</param>
+    /// <returns>Owned native bytes, source addresses, and decoded tile words for the selected area.</returns>
     public static AreaMapCartridgeData Load(ISnesAddressSpace bus, AreaId area)
     {
         ArgumentNullException.ThrowIfNull(bus);

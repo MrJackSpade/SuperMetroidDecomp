@@ -5,9 +5,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Grapple tile ownership and the pinned $9B:C342/C346 endpoint/angle selection tables.</summary>
 public static class GrappleTileDefinitions
 {
+    /// <summary>Indexed PNG resource for the four endpoint-animation characters and three four-character rope-orientation groups; importing artwork leaves native angle selection and endpoint cadence unchanged.</summary>
     public const string FileName = "grapple-tiles.png";
     /// <summary>Four endpoint characters followed by three groups of four segment characters.</summary>
     public const int Width = 128;
+    /// <summary>Sheet height in pixels: one row of sixteen 8-by-8 four-bit planar characters, totaling 512 encoded bytes.</summary>
     public const int Height = 8;
     /// <summary>$9B:BFFB selects VRAM word $6200 for the endpoint character.</summary>
     public const ushort PointDestination = 0x6200;
@@ -49,6 +51,10 @@ public static class GrappleTileDefinitions
         3 => VramAssetId.GrapplePointFourthTiles,
         _ => throw new ArgumentOutOfRangeException(nameof(frame)),
     };
+    /// <summary>Resolves one of seven Grapple-owned upload identities to its native source and planar-sheet slice; this lookup neither advances endpoint animation nor enqueues a VRAM transfer.</summary>
+    /// <param name="asset">One of the four endpoint-frame identities or the horizontal, diagonal, or vertical segment identity.</param>
+    /// <returns>A 32-byte endpoint or 128-byte segment descriptor; destination VRAM words are separately defined by <see cref="PointDestination"/> and <see cref="SegmentDestination"/>.</returns>
+    /// <exception cref="InvalidDataException">The asset identity is not owned by the Grapple tile catalog.</exception>
     public static GrappleTileTransfer TransferFor(VramAssetId asset)
     {
         int index = asset switch
@@ -98,4 +104,8 @@ public static class GrappleTileDefinitions
 }
 
 /// <summary>One native transfer and its planar-byte position in the sixteen-character replacement sheet.</summary>
+/// <param name="Asset">Stable installed-artwork identity retained by deferred VRAM writes instead of embedding image bytes in pending simulation state.</param>
+/// <param name="SourceAddress">Native 24-bit bank-$9A source identity used to recognize restored cartridge-style transfers; replacement upload bytes come from the installed atlas.</param>
+/// <param name="AtlasOffset">Byte offset into the sheet's encoded 4-bpp characters, not a PNG pixel offset: 0/32/64/96 for endpoints and 128/256/384 for orientation groups.</param>
+/// <param name="ByteCount">Transfer length in bytes: 32 for one endpoint character or 128 for four rope characters; not a VRAM word count.</param>
 public readonly record struct GrappleTileTransfer(VramAssetId Asset, int SourceAddress, int AtlasOffset, ushort ByteCount);

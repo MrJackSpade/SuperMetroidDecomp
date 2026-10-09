@@ -8,6 +8,9 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Extracts native beam sheets per legal selection; shared stock sheets may be edited independently.</summary>
 public static class BeamTileExtractor
 {
+    /// <summary>Decodes each legal native beam tile sheet to indexed PNG and verifies that loading the PNG reproduces the original planar transfer bytes.</summary>
+    /// <param name="bus">Supported-cartridge address space containing the beam tile pointer table and four-bit planar graphics.</param>
+    /// <returns>PNG bytes keyed by the editable filename for each compiled beam artwork selection.</returns>
     public static Dictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
         var files = new Dictionary<string, byte[]>();

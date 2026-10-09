@@ -96,8 +96,8 @@ public static class SamusProjectileRomData
         /// <c>$0FFF</c> and doubles the index; indices beyond eleven read
         /// adjacent physical data, including the Chainsaw path, rather than
         /// extending this rule. Keep the words available to ROM-backed
-        /// consumers and the intentional adjacent-data overread. Alias:
-        /// <see cref="SamusPaletteRomData.CrystalFlash.BeamPalettePointers"/>.
+        /// consumers and the intentional adjacent-data overread. Selected ordinary
+        /// beam colors are supplied by <see cref="SuperMetroid.Core.Assets.BeamPaletteCatalog"/>.
         /// Investigation: #625 / #900.
         /// </remarks>
         public const int PalettePointers = 0x90c3c9;

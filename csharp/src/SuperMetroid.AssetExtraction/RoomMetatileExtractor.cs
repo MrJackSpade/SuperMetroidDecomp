@@ -9,6 +9,12 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Exports CRE and distinct area block tables as visual composition, never collision.</summary>
 public static class RoomMetatileExtractor
 {
+    /// <summary>Imports shared CRE and distinct room graphics-set metatile tables as visual block compositions.</summary>
+    /// <param name="bus">Non-null cartridge import address space supplying the compressed native block-definition tables.</param>
+    /// <returns>A new filename-keyed collection of UTF-8 JSON byte arrays containing each 16x16 block's four ordered 8x8 tile references and BG attributes.</returns>
+    /// <remarks>Shared sources are exported once and each document is recompiled for exact native-byte equality. Collision and block-behavior data are not included; files are not written.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="InvalidDataException">Decompression, block-count validation, or the visual document's native-byte roundtrip fails.</exception>
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

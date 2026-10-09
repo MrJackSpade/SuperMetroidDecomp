@@ -6,6 +6,7 @@ namespace SuperMetroid.Desktop;
 /// <summary>Reproduces a short pad press inside a slow host catch-up batch.</summary>
 public static class PlaybackFrameBatchSmokeTest
 {
+    /// <summary>Checks per-update polling of a short synthetic tap, completed-frame accounting, replay exhaustion, and empty batches without advancing a real game.</summary>
     public static void Run()
     {
         // Each simulated game/audio frame takes 20 ms. A physical tap starts at

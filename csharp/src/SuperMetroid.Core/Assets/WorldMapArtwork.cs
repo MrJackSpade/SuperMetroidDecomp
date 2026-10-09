@@ -56,6 +56,11 @@ public sealed class WorldMapArtwork
             .Where(index => !TryBackgroundDefault(index, out byte value) || background[index] != value)
             .ToDictionary(index => index, index => background[index]);
     }
+    /// <summary>Imports the installed world-map foreground and background indexed PNGs, validating geometry and bitplane index ranges while retaining independent authored pixel differences.</summary>
+    /// <param name="foregroundPng">Caller-owned foreground atlas stream with the format's fixed dimensions and pixel indices 0..15 for 4-bpp characters.</param>
+    /// <param name="backgroundPng">Caller-owned background/font atlas stream with the format's fixed dimensions and pixel indices 0..3 for 2-bpp characters.</param>
+    /// <returns>Immutable artwork that reconstructs the selected pixels from calculated geometry and owned authored differences; PNG display colors are not runtime palettes.</returns>
+    /// <exception cref="InvalidDataException">PNG structure, dimensions, or a pixel's bitplane index range is invalid.</exception>
     public static WorldMapArtwork Load(Stream foregroundPng, Stream backgroundPng)
     {
         var front = IndexedPng.Read(foregroundPng, WorldMapArtworkFormat.Width, WorldMapArtworkFormat.ForegroundHeight);
@@ -66,6 +71,8 @@ public sealed class WorldMapArtwork
         _ = SnesPlanarTileEncoder.Encode(back.Pixels, back.Width, back.Height, 2);
         return new(front.Pixels, back.Pixels);
     }
+    /// <summary>Reconstructs both selected atlases, encodes their row-major 8x8 characters, and loads the foreground 4-bpp and background 2-bpp streams at their fixed VRAM byte offsets.</summary>
+    /// <param name="vram">Destination VRAM receiving both character transfers; this method does not install palette colors or world-map layout words.</param>
     public void LoadTo(SnesVram vram)
     {
         var front = new byte[WorldMapArtworkFormat.Width * WorldMapArtworkFormat.ForegroundHeight];

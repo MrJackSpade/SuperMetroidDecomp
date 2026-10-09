@@ -898,8 +898,6 @@ static void VerifySamusDeathSequence()
         "whiteout, and nine explosion frames agree without timer-ROM reads.");
 }
 
-/// <summary>
-/// Exercises all five `$91:E4AD` drained-controller entries, command `$F7`, the shared
-/// old-speed vertical recurrence, collision handoff, and both asymmetric `$FD` releases.
-/// </summary>
+// Exercises all five `$91:E4AD` drained-controller entries, command `$F7`, the shared
+// old-speed vertical recurrence, collision handoff, and both asymmetric `$FD` releases.
 }

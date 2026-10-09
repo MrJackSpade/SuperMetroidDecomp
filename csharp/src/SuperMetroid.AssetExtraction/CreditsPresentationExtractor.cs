@@ -9,6 +9,9 @@ namespace SuperMetroid.AssetExtraction;
 /// </summary>
 public static class CreditsPresentationExtractor
 {
+    /// <summary>Interprets the bounded native credits row program, verifies authored blank-row spacing and glyph coverage, and serializes editable UTF-8 line content.</summary>
+    /// <param name="bus">Supported-cartridge address space containing the compressed credits tilemap and row instruction program.</param>
+    /// <returns>UTF-8 JSON bytes for the versioned credits presentation document.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ushort[][] nativeRows = ReadNativeRows(bus);

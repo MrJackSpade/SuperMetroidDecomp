@@ -9,6 +9,9 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Composes the native frame and area lettering once, at import, into editable tile grids.</summary>
 public static class PauseBackdropExtractor
 {
+    /// <summary>Combines the native pause frame with each area label, converts every tile word to semantic atlas coordinates, and serializes the shared button strip.</summary>
+    /// <param name="bus">Supported-cartridge address space containing the pause frame, area-label pointers, and button tilemap.</param>
+    /// <returns>UTF-8 JSON bytes for all area backdrops and pause buttons.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         byte[] frame = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseBackdropDefinitions.FrameSource, PauseBackdropDefinitions.ByteCount);

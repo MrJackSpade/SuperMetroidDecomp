@@ -255,6 +255,12 @@ public sealed class SamusHorizontalSpeedState
     /// reaches an animation command. True means the command was consumed and frame zero
     /// was restarted from the ROM-authored delay list for the new boost stage.
     /// </summary>
+    /// <param name="bus">Address space used by animation-delay lookup, including native-compatible adjacent-data reads for invalid stage selections.</param>
+    /// <param name="movementType">Current movement category; only running can consume this animation command.</param>
+    /// <param name="controllerInput">Current held SNES button word; the native dash button must be held.</param>
+    /// <param name="animationFrameBuffer">Native frame-delay adjustment added to the selected stage's first animation delay.</param>
+    /// <param name="animationFrame">Current animation frame, reset to zero only when this call consumes the command.</param>
+    /// <param name="animationFrameTimer">Zero when the command is not consumed; otherwise the new first-frame delay plus the buffer, wrapped to sixteen bits.</param>
     /// <param name="queueEchoSound">
     /// Synchronous native sound call, returning its accumulator after queue mutation.
     /// Supplying it reproduces the cartridge's queue-dependent table selection and

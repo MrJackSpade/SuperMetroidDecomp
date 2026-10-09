@@ -30,10 +30,15 @@ public static class MapTileWords
 /// </summary>
 public static class AreaMapLayout
 {
+    /// <summary>Logical area-map width of 64 cells, with the left and right halves stored in separate native pages.</summary>
     public const int WidthInTiles = 64;
+    /// <summary>Logical area-map height of 32 cells, shared by both horizontal pages.</summary>
     public const int HeightInTiles = 32;
+    /// <summary>Width of each 32-by-32 native page; X coordinates 32..63 select the second page rather than extending a 64-word physical row.</summary>
     public const int PageWidthInTiles = 32;
+    /// <summary>$80 bytes per presence or exploration page: 32 rows of four MSB-first bit bytes, one bit per map cell.</summary>
     public const int BitPlaneBytesPerPage = 0x80;
+    /// <summary>$0400 BG tile words per page, arranged as 32 rows of 32 cells; the second page begins after these 1024 words.</summary>
     public const int TilemapWordsPerPage = 0x400;
 
     /// <summary>Returns the native byte offset containing one map bit.</summary>
@@ -78,6 +83,7 @@ public static class AreaMapLayout
 /// prevents pause-map and HUD code from open-coding different masks while retaining every
 /// character, priority, and flip bit supplied by the cartridge.
 /// </remarks>
+/// <param name="Raw">Unmodified 16-bit BG word: ten character bits, three palette bits, priority at bit 13, and horizontal/vertical flips at bits 14/15.</param>
 public readonly record struct MapTileWord(ushort Raw)
 {
     private const ushort CharacterMask = 0x03ff;
@@ -120,5 +126,8 @@ public readonly record struct MapTileWord(ushort Raw)
     /// </summary>
     public MapTileWord WithLocationBlink() => new((ushort)(Raw | HudLocationBlinkAttributes));
 
+    /// <summary>Returns the complete native BG word without stripping map palette meaning or display attributes.</summary>
+    /// <param name="word">Typed map cell whose stored bits are to be published or transferred.</param>
+    /// <returns>The unchanged 16-bit value, including character, palette, priority, and flip fields.</returns>
     public static explicit operator ushort(MapTileWord word) => word.Raw;
 }

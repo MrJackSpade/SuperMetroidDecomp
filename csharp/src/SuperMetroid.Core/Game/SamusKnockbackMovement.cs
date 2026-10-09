@@ -63,9 +63,16 @@ public static class SamusKnockbackMovement
     /// Consumes special prospective command one after bank `$90` has admitted either the
     /// normal `$53/$54` hurt-pose branch or the pose-preserving Morph/Spring Ball branch.
     /// </summary>
+    /// <param name="bus">Address space passed to native pose metadata, hurt animation, and launch helpers.</param>
+    /// <param name="samus">Mutable player owner receiving the hurt pose, timer, movement handler, and cancellation of incompatible movement state.</param>
+    /// <param name="controllerInput">Held SNES button word used for the humanoid forward-held direction test; the Morph/Spring Ball branch ignores this input when selecting direction.</param>
     /// <param name="knockbackXDirection">
     /// Bank-$A0's `$0A54`: zero means move left, one means move right.
     /// </param>
+    /// <param name="knockbackTimer">Nonzero producer-owned timer in gameplay updates; normal contact supplies five, while scripted intro Rinka contact supplies eleven.</param>
+    /// <param name="level">Optional live room geometry for hurt-pose expansion collision; null leaves that collision pass to explicitly positioned cinematic or diagnostic callers.</param>
+    /// <param name="nmiFrameCounter">Native NMI counter passed to pose-expansion block reactions when room geometry is supplied.</param>
+    /// <param name="plms">Optional live PLM owner receiving those collision reactions.</param>
     /// <returns>
     /// True when the movement-type table installs the special knockback handler. False for
     /// native interrupt-suppression entries such as turning, grapple, and shinespark.

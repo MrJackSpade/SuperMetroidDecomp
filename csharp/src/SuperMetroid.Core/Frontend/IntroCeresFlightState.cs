@@ -41,7 +41,9 @@ internal sealed class IntroCeresFlightState
     private bool spaceColonyHoldStarted;
     private int fadeDelay;
 
+    /// <param name="bus">Address space the star and actor instruction lists step and draw through.</param>
     /// <param name="audio">The shared music queue that $8B:BDE4 waits on.</param>
+    /// <param name="artwork">Installed cinematic artwork; the approach cannot start without it.</param>
     public IntroCeresFlightState(ISnesAddressSpace bus, CartridgeAudioState audio,
         CeresFlightArtworkCatalog? artwork = null)
     {

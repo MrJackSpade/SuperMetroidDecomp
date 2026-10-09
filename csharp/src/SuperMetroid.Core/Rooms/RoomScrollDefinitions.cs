@@ -6,6 +6,10 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>An immutable application-owned copy of one native 50-byte room scroll allocation.</summary>
 public sealed class RoomScrollDefinition
 {
+    /// <summary>Copies a decoded native scroll allocation while retaining its bank-$8F source identity.</summary>
+    /// <param name="pointer">Explicit native scroll-data pointer used as a compiled lookup identity.</param>
+    /// <param name="storage">Raw allocation bytes to copy, including bytes beyond the room's logical screen cells; length/state validation belongs to catalog/grid consumers.</param>
+    /// <exception cref="ArgumentNullException">The storage array is null.</exception>
     public RoomScrollDefinition(ushort pointer, byte[] storage)
     {
         ArgumentNullException.ThrowIfNull(storage);
@@ -13,8 +17,10 @@ public sealed class RoomScrollDefinition
         Storage = storage.ToArray();
     }
 
+    /// <summary>Bank-$8F source pointer identifying this explicit allocation, not a runtime cartridge-read capability.</summary>
     public ushort Pointer { get; }
 
+    /// <summary>Read-only view of the owned raw native allocation; logical cells use red/blue/green states, while retained trailing bytes need not be valid states.</summary>
     public ReadOnlyMemory<byte> Storage { get; }
 }
 
@@ -202,6 +208,11 @@ public static class RoomScrollDefinitions
     }
 
     /// <summary>Creates the native scroll allocation selected by one compiled room state.</summary>
+    /// <param name="bus">Address space backing the mutable runtime scroll grid.</param>
+    /// <param name="scrollPointer">High-bit-set words select explicit bank-$8F allocations; nonnegative words select implicit cells with the final-row state given by their low byte plus one.</param>
+    /// <param name="widthInScreens">Logical room width in 256-pixel screens.</param>
+    /// <param name="heightInScreens">Logical room height in 256-pixel screens.</param>
+    /// <returns>A fresh mutable grid initialized from the compiled 50-byte allocation or the native implicit-scroll rule.</returns>
     public static RoomScrollGrid CreateGrid(
         ISnesAddressSpace bus,
         ushort scrollPointer,
@@ -220,6 +231,9 @@ public static class RoomScrollDefinitions
     }
 
     /// <summary>Returns one compiled explicit allocation by its bank-$8F pointer.</summary>
+    /// <param name="pointer">Exact explicit retail scroll-data identity; implicit selectors are not catalog entries.</param>
+    /// <returns>The shared immutable allocation definition.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The pointer is not one of the compiled explicit allocations.</exception>
     public static RoomScrollDefinition Get(ushort pointer)
     {
         int low = 0;

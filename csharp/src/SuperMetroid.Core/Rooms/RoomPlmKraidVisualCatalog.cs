@@ -3,6 +3,8 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>One editable Kraid ceiling or spike draw in native block order.</summary>
+/// <param name="Id">Compiled identity of a crumble stage, ceiling background, spike column, or defeated-room clearing layout.</param>
+/// <param name="Blocks">Metatile/flip words in the single horizontal run's native order; the catalog copies every frame array.</param>
 public sealed record RoomPlmKraidVisualEntry(string Id, ushort[] Blocks);
 
 /// <summary>
@@ -58,6 +60,10 @@ public sealed class RoomPlmKraidVisualCatalog
         }
     }
 
+    /// <summary>Validates and copies all ten Kraid ceiling and spike layouts without changing collision words, crumble timing, or movement callbacks.</summary>
+    /// <param name="entries">Exactly one visual-only entry per compiled role, with one block for individual stages or fifteen/twenty-two for the clearing layouts.</param>
+    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
+    /// <exception cref="InvalidDataException">An entry is invalid, repeats a role, changes a draw shape, or leaves compiled coverage incomplete.</exception>
     public RoomPlmKraidVisualCatalog(IEnumerable<RoomPlmKraidVisualEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
@@ -83,6 +89,13 @@ public sealed class RoomPlmKraidVisualCatalog
                 "Kraid room visuals do not cover all ten compiled draws.");
     }
 
+    /// <summary>Resolves the installed appearance of one Kraid-layout block while its physical level word remains compiled.</summary>
+    /// <param name="drawPointer">Bank-$84 identity of one of the ten compiled Kraid ceiling or spike draws.</param>
+    /// <param name="runIndex">Native run ordinal; must be zero because each layout has one horizontal run.</param>
+    /// <param name="blockIndex">Zero-based word ordinal along that run, not a room coordinate.</param>
+    /// <returns>The copied frame's metatile/flip word.</returns>
+    /// <exception cref="InvalidDataException">The pointer does not identify a supported Kraid layout.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The run is nonzero or the block ordinal is outside the compiled draw shape.</exception>
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {
         ushort[] words = Frame(drawPointer);

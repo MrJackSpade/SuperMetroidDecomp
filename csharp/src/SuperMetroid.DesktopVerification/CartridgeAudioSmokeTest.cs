@@ -13,6 +13,9 @@ public readonly record struct CartridgeAudioSmokeTestResult(
 /// <summary>Runs the real title music path without opening an audio device or game window.</summary>
 public static class CartridgeAudioSmokeTest
 {
+    /// <summary>Renders title music for the requested update count, then checks the isolated power-beam sound's request/clear handshake and nonzero PCM.</summary>
+    /// <param name="romPath">Retail cartridge loaded for the cartridge audio-queue path.</param>
+    /// <param name="frames">Positive number of title-music audio updates, separate from the thirty-update power-beam check.</param>
     public static CartridgeAudioSmokeTestResult Run(string romPath, int frames = 240)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(frames);

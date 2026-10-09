@@ -7,6 +7,11 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Imports gameplay-HUD artwork references and positions while excluding counter mechanics.</summary>
 public static class GameplayHudPresentationExtractor
 {
+    /// <summary>Imports HUD tilemap templates, item icons, digit cells, energy-tank artwork, and automatic-reserve indicators.</summary>
+    /// <param name="bus">Non-null cartridge import address space supplying native HUD BG-cell tables.</param>
+    /// <returns>New UTF-8 JSON bytes containing tile references, palette and flip attributes, and anchors measured in HUD tile cells.</returns>
+    /// <remarks>Includes selected and deselected visual palettes and the minimap anchor, but not counters, inventory state, or minimap-generation mechanics.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

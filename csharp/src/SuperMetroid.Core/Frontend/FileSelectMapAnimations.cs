@@ -10,6 +10,11 @@ public sealed class FileSelectMapAnimations
     private readonly MapPaletteAnimation palette;
     [NonSerialized] private MapArrowPresentation? presentation;
 
+    /// <summary>Creates independent arrow counters and palette timing for a map menu, binding installed arrow positions and phase durations without reading cartridge animation data.</summary>
+    /// <param name="bus">Required address-space dependency passed to palette initialization; construction validates it but does not read animation bytes from it.</param>
+    /// <param name="presentation">Required installed arrow definitions, retained as host content rather than serialized with the counters.</param>
+    /// <exception cref="ArgumentNullException">The address space is null.</exception>
+    /// <exception cref="InvalidOperationException">Installed arrow definitions are absent, including when the optional argument is omitted.</exception>
     public FileSelectMapAnimations(ISnesAddressSpace bus, MapArrowPresentation? presentation = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -50,9 +55,13 @@ public sealed class FileSelectMapAnimations
     internal void BindPalette(SuperMetroid.Core.Assets.MapPaletteCycle? cycle) => palette.Bind(cycle);
 
     /// <summary>Returns the native library-three sound request at the palette loop terminator.</summary>
+    /// <param name="cgram">Palette memory receiving the bound OBJ palette-three colors when this menu tick reaches a frame boundary.</param>
+    /// <returns>True when the cycle wraps and the caller should queue MapPaletteLoop; this method does not enqueue audio itself.</returns>
     public bool StepPalette(SnesCgram cgram) => palette.Step(cgram);
 
     /// <summary>Arrows advance only when their native boundary test allows them to be drawn.</summary>
+    /// <param name="available">Direction-specific scroll-boundary predicate; unavailable arrows become hidden and retain their existing frame and remaining timer.</param>
+    /// <remarks>One call consumes one menu tick for visible arrows; phase durations are menu-tick counts, with the native $FF terminator wrapping to phase zero.</remarks>
     public void StepArrows(Func<MapScrollDirection, bool> available)
     {
         for (int index = 0; index < arrows.Length; index++)
@@ -78,6 +87,11 @@ public sealed class FileSelectMapAnimations
         }
     }
 
+    /// <summary>Appends currently visible arrow compositions to OAM using OBJ palette three, without advancing counters or changing scroll availability.</summary>
+    /// <param name="oam">Destination sprite buffer owned by the menu frame being composed.</param>
+    /// <param name="sprites">Required installed map sprite compositions; no cartridge-art fallback is used when absent.</param>
+    /// <param name="verticalOffset">Screen-pixel Y translation added to each bound arrow anchor with unsigned 16-bit wrapping; pause-map rendering supplies its header offset here.</param>
+    /// <exception cref="InvalidOperationException">Installed sprite definitions are absent, including when the optional argument is omitted.</exception>
     public void DrawArrows(OamBuffer oam, MapSpriteCatalog? sprites = null, int verticalOffset = 0)
     {
         MapSpriteCatalog installed = sprites ?? throw new InvalidOperationException(

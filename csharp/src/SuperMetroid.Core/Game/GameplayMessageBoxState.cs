@@ -134,10 +134,15 @@ public sealed class GameplayMessageBoxState
     /// Bindings are parameters because the options menu may remap them; their defaults are
     /// the words installed by <c>NewSaveFile</c>.
     /// </summary>
+    /// <param name="bus">Runtime address space retained while this coroutine owns gameplay, including the gunship's completion-notice reopen.</param>
+    /// <param name="messageId">One-based native message identity 1..26 or gunship save confirmation 28; requires installed title, panel, or notice artwork.</param>
     /// <param name="controllerRead">
     /// The controller held at the dispatch's last ReadControllerInput. During the box the
     /// NMI handler runs in lag mode, so the save selector's presses are relative to this.
     /// </param>
+    /// <param name="shootBinding">Current native controller-bit binding for Shoot, used to substitute the corresponding button glyph in applicable item panels.</param>
+    /// <param name="runBinding">Current native controller-bit binding for Run, used to substitute the corresponding button glyph in applicable item panels.</param>
+    /// <param name="sourceContext">Caller identity included in unsupported-message diagnostics; does not affect message timing or presentation.</param>
     public void Begin(
         ISnesAddressSpace bus,
         GameplayMessageId messageId,
@@ -458,18 +463,27 @@ public sealed class GameplayMessageBoxState
 }
 
 /// <summary>Audio and HDMA-object handler calls made by one bank-$85 frame.</summary>
+/// <param name="RunsHdmaObjects">Whether the host must run the HDMA-object handler for this accepted message update, notably at the PPU restoration seam.</param>
+/// <param name="MusicHandlerCalls">Number of native music-queue handler calls represented by this update; zero suppresses the ordinary host music call.</param>
+/// <param name="SoundHandlerCalls">Number of native sound-handler calls represented by this update, including the extra dispatch call when the coroutine returns.</param>
 public readonly record struct MessageBoxFrameAudio(bool RunsHdmaObjects, int MusicHandlerCalls, int SoundHandlerCalls)
 {
+    /// <summary>Ordinary message-update descriptor: one music handler, one sound handler, and no HDMA-object handler; describes calls for the host rather than executing them.</summary>
     public static MessageBoxFrameAudio MusicAndSounds { get; } = new(false, 1, 1);
 }
 
 /// <summary>Coroutine phase for <see cref="GameplayMessageBoxState"/>.</summary>
 public enum GameplayMessageBoxPhase : byte
 {
+    /// <summary>No message owns gameplay or the BG3 window; after restoration, any completed save-confirmation result remains available for consumption by the suspended caller.</summary>
     Inactive,
+    /// <summary>$85:844C Open_MessageBox: publish scanline-window radii from zero through 24 pixels in two-pixel steps while gameplay remains suspended.</summary>
     Opening,
+    /// <summary>Fully opened ordinary message's mandatory authored wait: 360 updates for item descriptions or ten for station completion notices, without controller inspection.</summary>
     MinimumDisplay,
+    /// <summary>Fully opened input wait: ordinary messages dismiss on any held button, while save confirmation polls newly pressed A/B and left/right/select at its native read cadence.</summary>
     AwaitingInput,
+    /// <summary>$85:8589 Close_MessageBox: contract the window through radius zero before PPU restoration, or before the accepted gunship-save sound/completion sequence.</summary>
     Closing,
     /// <summary>The gunship's $85:8119 sound wait before SAVE COMPLETED.</summary>
     GunshipSavingSound,

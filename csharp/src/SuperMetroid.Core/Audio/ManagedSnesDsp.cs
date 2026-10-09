@@ -9,7 +9,9 @@ namespace SuperMetroid.Core.Audio;
 /// </summary>
 public sealed class ManagedSnesDsp
 {
+    /// <summary>Native 32.04-kHz stereo frames accumulated for each 60-Hz gameplay update.</summary>
     public const int NativeStereoFramesPerVideoFrame = 534;
+    /// <summary>Number of independent hardware S-DSP voices.</summary>
     public const int VoiceCount = 8;
 
     private readonly byte[] apuRam;
@@ -41,6 +43,7 @@ public sealed class ManagedSnesDsp
     private byte firBufferIndex;
     private ushort sampleOffset;
 
+    /// <summary>Creates a reset DSP bound to the supplied complete 64-KiB APU RAM image.</summary>
     public ManagedSnesDsp(byte[] apuRam)
     {
         ArgumentNullException.ThrowIfNull(apuRam);

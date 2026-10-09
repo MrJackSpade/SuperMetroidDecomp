@@ -17,8 +17,12 @@ public readonly record struct ColorAddWindow(byte Left, byte Right, byte Red, by
 public sealed record ScanlineColorAddRenderLayer : RenderLayer
 {
     private readonly ColorAddWindow[] windows;
+    /// <summary>Exactly 224 immutable per-scanline windows in top-to-bottom physical display order.</summary>
     public ReadOnlySpan<ColorAddWindow> Windows => windows;
 
+    /// <summary>Copies a complete physical-screen color-add program for deferred software or GPU compositing.</summary>
+    /// <param name="windows">One inclusive window and expanded RGB addition for each of the 224 visible scanlines.</param>
+    /// <exception cref="ArgumentException">The input does not contain exactly 224 entries.</exception>
     public ScanlineColorAddRenderLayer(ReadOnlySpan<ColorAddWindow> windows)
     {
         if (windows.Length != SnesPpuLayout.ScreenHeightPixels)

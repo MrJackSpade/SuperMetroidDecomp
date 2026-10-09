@@ -7,6 +7,11 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Extracts only Zebetite's eight authored pulse images from the pinned cartridge.</summary>
 public static class ZebetiteColorExtractor
 {
+    /// <summary>Exports the eight two-color Zebetite pulse images from $A6:FD87 in native frame order.</summary>
+    /// <param name="bus">Cartridge source for the sixteen consecutive packed color words, selected at runtime for OBJ palette two colors C and D.</param>
+    /// <returns>A new UTF-8 JSON buffer with eight two-color RGB5 frames, each channel in 0..31.</returns>
+    /// <remarks>Only lower-fifteen-bit channels are represented. Pulse cadence, Zebetite health/destruction, palette-slot selection, and collision behavior are not exported or changed.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

@@ -11,6 +11,7 @@ namespace SuperMetroid.Core.Audio;
 /// </summary>
 public sealed class ExtractedAudioAssetCatalog
 {
+    /// <summary>JSON manifest filename beneath the selected audio root, identifying upload streams, canonical WAV samples, and authored bank/SFX definitions.</summary>
     public const string ManifestFileName = "audio-manifest.json";
     private readonly IReadOnlyDictionary<int, byte[]> streams;
     private readonly IReadOnlyDictionary<int, ManagedPcmSampleBank> sampleBanks;
@@ -50,6 +51,10 @@ public sealed class ExtractedAudioAssetCatalog
     public string ContentIdentity => contentIdentity;
 
     /// <summary>Loads and validates every stream named by an extracted manifest.</summary>
+    /// <param name="audioDirectory">Audio root containing the manifest and all of its relative upload/WAV files; referenced paths must remain beneath this root.</param>
+    /// <returns>An address-keyed catalog whose upload and PCM bytes are loaded into memory and whose authored definitions have passed compatibility validation.</returns>
+    /// <exception cref="InvalidDataException">The schema, hashes, required bank identities, sample aliases, or authored definitions are invalid.</exception>
+    /// <exception cref="FileNotFoundException">The manifest or a referenced audio file is missing.</exception>
     public static ExtractedAudioAssetCatalog Load(string audioDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(audioDirectory);
@@ -210,6 +215,10 @@ public sealed class ExtractedAudioAssetCatalog
     /// the persistent override directory when one exists. An invalid override never silently
     /// falls back to stock, and a valid override never conceals broken stock installation data.
     /// </summary>
+    /// <param name="stockDirectory">Complete stock catalog, validated before override selection.</param>
+    /// <param name="overrideDirectory">Persistent replacement catalog root; absence of its manifest selects stock without merging individual files.</param>
+    /// <returns>The complete validated override catalog when present and compatible, otherwise the validated stock catalog.</returns>
+    /// <exception cref="InvalidDataException">Stock or selected content is invalid, or overrides change fixed upload, bank, sample-source, or program/routing identities.</exception>
     public static ExtractedAudioAssetCatalog Load(string stockDirectory, string overrideDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
@@ -617,6 +626,7 @@ public sealed record AudioAssetManifest(
     IReadOnlyList<AudioSoundProgramMetadata> SoundPrograms,
     IReadOnlyList<AudioSoundLibraryMetadata> SoundLibraries)
 {
+    /// <summary>Accepted manifest schema version 4, including canonical PCM aliases and decoded, address-stable music/SFX programs.</summary>
     public const int CurrentFormatVersion = 4;
 }
 

@@ -7,11 +7,23 @@ namespace SuperMetroid.Core.Rendering;
 public sealed class LayeredRenderSnapshot
 {
     private readonly RenderLayer[] layers;
+    /// <summary>Immutable VRAM, CGRAM, and finalized OAM image retained by reference, not copied again by this packet.</summary>
     public PpuMemorySnapshot Memory { get; }
+    /// <summary>Owned operation sequence in back-to-front application order on the 256-by-224-pixel visible viewport.</summary>
     public ReadOnlySpan<RenderLayer> Layers => layers;
+    /// <summary>Raw $2101 OBSEL byte selecting OBJ character bases, name-table offset, and small/large size pair.</summary>
     public byte ObjectSelection { get; }
+    /// <summary>Master brightness 0..15, applied after all layer operations; zero produces black.</summary>
     public byte Brightness { get; }
 
+    /// <summary>Retains immutable memory and layer records while copying their ordering into packet-owned storage.</summary>
+    /// <param name="memory">Complete captured PPU memory, independent of later simulation writes.</param>
+    /// <param name="layers">Supported immutable operations in execution order; an empty sequence displays the backdrop, and a fused gameplay base must be first.</param>
+    /// <param name="objectSelection">Unmodified OBSEL register byte; all byte values are retained.</param>
+    /// <param name="brightness">Final master brightness, from 0 through 15 inclusive.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="memory"/> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> exceeds 15.</exception>
+    /// <exception cref="ArgumentException">A layer is null or unsupported, has invalid geometry, priorities or color values, selects incompatible color math, or places a fused gameplay base after another operation.</exception>
     public LayeredRenderSnapshot(PpuMemorySnapshot memory, ReadOnlySpan<RenderLayer> layers,
         byte objectSelection, byte brightness)
     {

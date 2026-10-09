@@ -3,7 +3,9 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The mutually exclusive Torizo whose belly palette is animated.</summary>
 public enum TorizoBellyPaletteOwner
 {
+    /// <summary>Bomb Torizo belly object $8D:F759, selecting the six-frame $E2E9 program at CGRAM byte $0132 until enemy slot zero dies.</summary>
     BombTorizo,
+    /// <summary>Golden Torizo belly object $8D:F75D, selecting the six-frame $E331 program at CGRAM byte $0132 with its own colors and the same enemy-zero death lifetime.</summary>
     GoldenTorizo,
 }
 

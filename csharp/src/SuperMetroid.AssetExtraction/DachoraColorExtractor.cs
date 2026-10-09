@@ -8,6 +8,12 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Extracts Dachora's contiguous default, speed and shine RGB5 frames.</summary>
 public static class DachoraColorExtractor
 {
+    /// <summary>Imports Dachora's default palette and ordered speed and shine frames as editable RGB5 colors.</summary>
+    /// <param name="bus">Non-null cartridge import address space containing the native Dachora palette tables.</param>
+    /// <returns>New UTF-8 JSON bytes with the fixed frame dimensions and red, green, and blue channels in the range 0..31.</returns>
+    /// <remarks>Frame selection and animation cadence remain runtime behavior, not editable palette data.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="InvalidDataException">A native color uses bit 15, which the RGB5 document cannot represent.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

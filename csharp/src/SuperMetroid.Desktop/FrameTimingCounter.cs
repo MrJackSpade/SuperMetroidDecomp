@@ -55,6 +55,7 @@ public sealed class FrameTimingCounter
     private int paintedFrames;
     private double lateFrames;
 
+    /// <summary>Creates an empty UI-thread counter using Stopwatch ticks and the host's one-second reporting interval.</summary>
     public FrameTimingCounter()
         : this(Stopwatch.Frequency, FrameTimingConfiguration.ReportingInterval)
     {

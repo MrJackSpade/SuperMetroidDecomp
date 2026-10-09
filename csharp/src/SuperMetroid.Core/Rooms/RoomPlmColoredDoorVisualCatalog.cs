@@ -3,6 +3,8 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Visual-only blocks for one colored-door orientation and frame.</summary>
+/// <param name="Id">Compiled yellow, green, or red door-cap frame identity, including its orientation.</param>
+/// <param name="Blocks">Four metatile/flip words in native run order; changed arrays are copied by the catalog.</param>
 public sealed record RoomPlmColoredDoorVisualEntry(string Id, ushort[] Blocks);
 
 /// <summary>
@@ -26,6 +28,10 @@ public sealed class RoomPlmColoredDoorVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
+    /// <summary>Validates complete coverage of the forty-eight colored-door frames and copies visual differences while preserving compiled cap geometry and opening mechanics.</summary>
+    /// <param name="entries">Exactly one four-word, visual-only entry for each compiled color, orientation, and frame identity.</param>
+    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
+    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves frame coverage incomplete.</exception>
     public RoomPlmColoredDoorVisualCatalog(IEnumerable<RoomPlmColoredDoorVisualEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
@@ -54,6 +60,12 @@ public sealed class RoomPlmColoredDoorVisualCatalog
         if (selected.Count != 0) customBlocks = selected;
     }
 
+    /// <summary>Resolves one selected cap block without changing the physical collision word or door-opening rules.</summary>
+    /// <param name="drawPointer">Bank-$84 identity of the compiled colored-door draw frame.</param>
+    /// <param name="blockIndex">Zero-based word ordinal, zero through three, along the frame's horizontal or vertical run.</param>
+    /// <returns>The authored metatile/flip word, or the compiled stock word's visual bits when unchanged.</returns>
+    /// <exception cref="InvalidDataException">The pointer does not identify a supported colored-door frame.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The block ordinal is outside the four-word run.</exception>
     public ushort GetWord(ushort drawPointer, int blockIndex)
     {
         if (!ColoredDoorPlmDrawDefinitions.TryDescribe(drawPointer, out var draw))

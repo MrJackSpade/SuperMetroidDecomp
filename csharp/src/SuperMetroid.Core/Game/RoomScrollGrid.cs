@@ -13,7 +13,9 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class RoomScrollGrid
 {
+    /// <summary>Size in bytes of the fixed native room scroll-zone allocation.</summary>
     public const int StorageByteCount = 0x32;
+    /// <summary>24-bit WRAM address of the first room scroll-zone byte.</summary>
     public const int WorkRamAddress = 0x7ecd20;
 
     private readonly byte[] _cells = new byte[StorageByteCount];
@@ -29,8 +31,11 @@ public sealed class RoomScrollGrid
         HeightInScreens = heightInScreens;
     }
 
+    /// <summary>Gets the room width in 256-pixel scroll-zone cells.</summary>
     public int WidthInScreens { get; }
+    /// <summary>Gets the room height in 256-pixel scroll-zone cells.</summary>
     public int HeightInScreens { get; }
+    /// <summary>Gets the number of logical room cells within the fixed storage allocation.</summary>
     public int LogicalCellCount => WidthInScreens * HeightInScreens;
 
     /// <summary>Installs an application-owned copy of the native 50-byte scroll allocation.</summary>

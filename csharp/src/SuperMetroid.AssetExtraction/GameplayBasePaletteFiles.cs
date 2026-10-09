@@ -8,6 +8,11 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Extracts the starting gameplay CGRAM image and shared room-sprite palette.</summary>
 public static class GameplayBasePaletteFiles
 {
+    /// <summary>Writes the initial 256-color CGRAM image and 16 common-sprite colors as RGB5 JSON with a hashed manifest, then validates the resulting stock installation.</summary>
+    /// <param name="bus">Cartridge source for the initial palette at $9A:8000 and common-sprite palette at $9A:FC00.</param>
+    /// <param name="directory">Destination directory, created if absent; existing palette JSON and manifest are replaced.</param>
+    /// <param name="sourceCartridgeSha256">Identity written into the manifest; the final stock check requires the supported cartridge identity.</param>
+    /// <exception cref="InvalidDataException">The generated installation has incompatible provenance, digest, palette schema, or RGB5 content.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256)
     {
@@ -28,6 +33,11 @@ public static class GameplayBasePaletteFiles
         _ = Load(directory, null);
     }
 
+    /// <summary>Validates stock provenance, digest, and both complete RGB5 arrays before compiling an optional whole-document palette replacement without cartridge access.</summary>
+    /// <param name="stockDirectory">Stock directory containing the base-palette JSON and its provenance/digest manifest.</param>
+    /// <param name="overrideDirectory">Optional directory whose palette JSON replaces both stock arrays when present; an absent file retains stock.</param>
+    /// <returns>An owned selected-color catalog for the initial CGRAM image and common sprites, also supplying enemy-projectile colors from the initial image.</returns>
+    /// <exception cref="InvalidDataException">Stock provenance, digest, schema, or selected palette counts and RGB5 values are invalid.</exception>
     public static GameplayBasePaletteCatalog Load(string stockDirectory, string? overrideDirectory)
     {
         ArtworkManifest manifest;
@@ -59,6 +69,8 @@ public static class GameplayBasePaletteFiles
         return GameplayBasePaletteCatalog.Load(new MemoryStream(selected, writable: false));
     }
 
+    /// <summary>Checks stock manifest provenance and digest and validates the 256 initial and 16 common-sprite RGB5 colors, ignoring overrides.</summary>
+    /// <param name="stockDirectory">Installed stock gameplay base-palette directory.</param>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
     private static PaletteRgb5[] ReadColors(ISnesAddressSpace bus, int address, int count)

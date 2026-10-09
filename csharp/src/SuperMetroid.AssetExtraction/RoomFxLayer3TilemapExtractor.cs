@@ -9,6 +9,12 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Exports all six contiguous bank-$8A room-FX BG3 pages as named tile cells.</summary>
 public static class RoomFxLayer3TilemapExtractor
 {
+    /// <summary>Builds the six named room-FX BG3 pages after checking their native tilemap-pointer identities.</summary>
+    /// <param name="bus">Non-null cartridge import address space supplying the FX pointer table and bank-$8A tilemap sources.</param>
+    /// <returns>New UTF-8 JSON bytes containing ordered 32x33 pages for lava, acid, water, spores, rain, and fog, with tile references and BG attributes.</returns>
+    /// <remarks>Liquid words come from compiled stock definitions; spore attributes and calculated rain/fog fields are combined with imported tilemap data. Scrolling and FX timing are not exported.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="InvalidDataException">A native pointer does not select its compiled source or the assembled tilemap document fails validation.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

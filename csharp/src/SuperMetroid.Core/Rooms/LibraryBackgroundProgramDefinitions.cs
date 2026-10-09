@@ -33,6 +33,9 @@ public static partial class LibraryBackgroundProgramDefinitions
     }
 
     /// <summary>Finds a compiled retail command list. Constructed programs can be supplied explicitly, without byte decoding.</summary>
+    /// <param name="pointer">16-bit bank-$8F list identity; values absent from the pinned retail catalog simply fail lookup.</param>
+    /// <param name="program">Shared compiled definition on success, or null on failure; lookup does not execute transfers or load artwork.</param>
+    /// <returns>True when the exact pointer is cataloged; false otherwise.</returns>
     public static bool TryGet(ushort pointer, out LibraryBackgroundProgram program)
     {
         int low = 0;
@@ -55,12 +58,18 @@ public static partial class LibraryBackgroundProgramDefinitions
 }
 
 /// <summary>One ordered, fixed native list; the terminator is implicit in the command count.</summary>
+/// <param name="pointer">Bank-$8F list identity, normally in its high half; construction does not validate its address.</param>
+/// <param name="instructions">Ordered nonterminating commands. Wrapped without copying, so the caller must not modify the array after construction.</param>
+/// <param name="nativeByteCount">Original encoded byte length including the two-byte zero terminator; retained as supplied, not calculated or validated from the commands.</param>
 public sealed class LibraryBackgroundProgram(
     ushort pointer, LibraryBackgroundInstruction[] instructions, ushort nativeByteCount)
 {
+    /// <summary>16-bit bank-$8F command-list identity used for retail lookup and diagnostics, not a full source-data bus address.</summary>
     public ushort Pointer { get; } = pointer;
+    /// <summary>Read-only wrapper over the supplied array in execution order, with no explicit End command; shares that array rather than owning a copy.</summary>
     public IReadOnlyList<LibraryBackgroundInstruction> Instructions { get; } =
         Array.AsReadOnly(instructions);
+    /// <summary>Native encoded list size in bytes, including mixed-width operands and the implicit terminator; not a command count or transfer size.</summary>
     public ushort NativeByteCount { get; } = nativeByteCount;
 }
 
@@ -68,6 +77,11 @@ public sealed class LibraryBackgroundProgram(
 /// One fixed transfer/control command. Destination is a VRAM word for transfers
 /// or a work-RAM byte offset for decompression; unused operands are zero.
 /// </summary>
+/// <param name="Command">Bank-$82 dispatcher operation. Program arrays contain nonterminating commands; End is represented by the array's end instead.</param>
+/// <param name="SourceAddress">Full 24-bit source bus identity for transfers or compressed artwork; transfers may source live WRAM. Zero for operand-free clear commands.</param>
+/// <param name="Destination">VRAM word address for transfers, or byte offset within bank $7E for decompression; zero when unused.</param>
+/// <param name="ByteCount">Transfer payload length in bytes, required to be nonzero by the execution consumer; zero for decompression and clear operations whose sizes are determined elsewhere.</param>
+/// <param name="DoorPointer">16-bit door identity compared with the current door for TransferForDoor, or zero for unconditional commands.</param>
 public readonly record struct LibraryBackgroundInstruction(
     LibraryBackgroundCommand Command,
     int SourceAddress,

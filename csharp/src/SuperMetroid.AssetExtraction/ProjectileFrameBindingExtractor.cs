@@ -8,6 +8,12 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Exports visual spritemap operands from all authored timed projectile records.</summary>
 public static class ProjectileFrameBindingExtractor
 {
+    /// <summary>Imports the spritemap selection for every compiled timed Samus-projectile record in bank $93.</summary>
+    /// <param name="bus">Non-null cartridge import address space supplying the timed records' spritemap operands.</param>
+    /// <returns>New UTF-8 JSON bytes mapping each stable record name to a catalogued projectile-sprite name.</returns>
+    /// <remarks>Exports visual bindings only; record durations, collision radii, and instruction control flow remain compiled.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="InvalidDataException">A timed record selects a spritemap outside the compiled visual catalog or binding validation fails.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

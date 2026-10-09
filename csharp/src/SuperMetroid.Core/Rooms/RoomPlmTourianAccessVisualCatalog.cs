@@ -3,6 +3,8 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>One editable Tourian access-floor frame in cartridge draw-run order.</summary>
+/// <param name="Id">Case-sensitive compiled identity: <c>crumble-empty-row</c>, <c>crumble-frame-0</c> through <c>crumble-frame-2</c>, or <c>clear-six-rows</c>.</param>
+/// <param name="Blocks">Mutable row-major array of twelve-bit metatile/parent-flip words: four 16-by-16 cells for a single-row frame, or twenty-four for the six-row clear; collision bits are excluded.</param>
 public sealed record RoomPlmTourianAccessVisualEntry(string Id, ushort[] Blocks);
 
 /// <summary>
@@ -29,6 +31,11 @@ public sealed class RoomPlmTourianAccessVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customWords;
 
+    /// <summary>Validates all five Tourian access-floor layouts and captures their selected appearance independently of compiled physical words and row offsets.</summary>
+    /// <param name="entries">The empty row, three visible crumble rows, and six-row clear exactly once, each with its compiled block count and valid visual-only words.</param>
+    /// <remarks>Edited arrays are copied; stock-identical layouts use compiled visual bits, so caller-array edits after construction cannot alter the catalog.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="entries"/> is null.</exception>
+    /// <exception cref="InvalidDataException">Coverage, uniqueness, layout identity, block-array dimensions, or presentation-only word bits are invalid.</exception>
     public RoomPlmTourianAccessVisualCatalog(
         IEnumerable<RoomPlmTourianAccessVisualEntry> entries)
     {
@@ -58,6 +65,13 @@ public sealed class RoomPlmTourianAccessVisualCatalog
         if (selected.Count != 0) customWords = selected;
     }
 
+    /// <summary>Resolves one Tourian access-floor visual cell from edited artwork or its compiled stock layout.</summary>
+    /// <param name="drawPointer">Bank-$84 draw pointer: $9297 for an empty row, $92A3/$92AF/$92BB for visible crumble rows, or $92C7 for the six-row clear.</param>
+    /// <param name="runIndex">Top-to-bottom row index, zero for single-row frames or zero through five for the six-row clear.</param>
+    /// <param name="blockIndex">Zero-based left-to-right column within the four-cell row.</param>
+    /// <returns>The twelve-bit metatile index/parent-flip word, with no collision nibble or physical level mutation.</returns>
+    /// <exception cref="InvalidDataException"><paramref name="drawPointer"/> is not a compiled Tourian access layout.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The row or column is outside that layout's dimensions; the reported parameter is <paramref name="blockIndex"/>.</exception>
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {
         if (!TourianAccessPlmDrawDefinitions.TryDescribe(drawPointer, out int rows, out ushort stockWord))

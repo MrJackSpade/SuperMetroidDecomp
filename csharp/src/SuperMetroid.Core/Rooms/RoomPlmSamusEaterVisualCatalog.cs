@@ -3,6 +3,8 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>One replaceable Samus Eater block appearance in native run order.</summary>
+/// <param name="Id">Compiled floor/ceiling idle or chewing-pose identity.</param>
+/// <param name="Blocks">Eight metatile/flip words flattened by native run then word order; changed arrays are copied by the catalog.</param>
 public sealed record RoomPlmSamusEaterVisualEntry(string Id, ushort[] Blocks);
 
 /// <summary>
@@ -31,6 +33,10 @@ public sealed class RoomPlmSamusEaterVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customWords;
 
+    /// <summary>Validates all eight three-run plant poses and copies authored visual differences without changing collision, run geometry, chewing timing, or Samus interaction.</summary>
+    /// <param name="entries">Exactly one eight-word visual-only entry for each compiled floor and ceiling pose.</param>
+    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
+    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves coverage incomplete.</exception>
     public RoomPlmSamusEaterVisualCatalog(
         IEnumerable<RoomPlmSamusEaterVisualEntry> entries)
     {
@@ -62,6 +68,13 @@ public sealed class RoomPlmSamusEaterVisualCatalog
         if (selected.Count != 0) customWords = selected;
     }
 
+    /// <summary>Resolves one selected plant block, translating native run-local indices into the flattened authored payload.</summary>
+    /// <param name="drawPointer">Bank-$84 identity of a supported Samus Eater pose.</param>
+    /// <param name="runIndex">Zero-based native draw-run ordinal 0..2.</param>
+    /// <param name="blockIndex">Zero-based word ordinal within the selected run.</param>
+    /// <returns>The authored metatile/flip word, or the compiled physical word's visual bits when unchanged.</returns>
+    /// <exception cref="InvalidDataException">The pointer does not identify a supported pose.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The run or word ordinal is outside the compiled shape.</exception>
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {
         if (!SamusEaterPlmDrawDefinitions.TryDescribe(drawPointer, out var draw))

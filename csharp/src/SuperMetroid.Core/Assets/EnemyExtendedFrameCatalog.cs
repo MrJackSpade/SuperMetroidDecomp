@@ -374,15 +374,20 @@ public sealed class EnemyExtendedFrameCatalog
 /// <summary>Editable, visual-only coordinates and OAM parts of one component.</summary>
 public sealed record EnemyExtendedVisualComponent
 {
+    /// <summary>Gets the signed whole-pixel horizontal displacement from the enemy anchor.</summary>
     public required int OffsetX { get; init; }
+    /// <summary>Gets the signed whole-pixel vertical displacement from the enemy anchor.</summary>
     public required int OffsetY { get; init; }
+    /// <summary>Gets the ordered visual-only OAM parts drawn for this component.</summary>
     public required SpriteVisualPart[] Parts { get; init; }
 }
 
 /// <summary>Versioned editable extended-enemy-frame compositions.</summary>
 public sealed record EnemyExtendedFrameDocument
 {
+    /// <summary>Gets the extended-frame schema revision.</summary>
     public required int Version { get; init; }
+    /// <summary>Gets every named visual frame composition defined by this schema revision.</summary>
     public required Dictionary<string, EnemyExtendedVisualComponent[]> Frames { get; init; }
     /// <summary>Visual-only frame selection; native timers and hitboxes remain fixed.</summary>
     public Dictionary<string, string>? DisplayFrames { get; init; }

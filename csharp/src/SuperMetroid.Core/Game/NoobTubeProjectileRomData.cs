@@ -36,10 +36,21 @@ public static class NoobTubeProjectileRomData
     /// <summary>Absolute block-origin Y offsets for the six released-air bubbles.</summary>
     public static ReadOnlySpan<ushort> BubbleYOffsets => BubbleYOffsetWords;
 
+    /// <summary>Whole-pixel X offset from the spawning PLM block origin to the tube crack.</summary>
     public const ushort CrackXOffset = 96;
+
+    /// <summary>Whole-pixel Y offset from the spawning PLM block origin to the tube crack.</summary>
     public const ushort CrackYOffset = 48;
+
+    /// <summary>Initial signed 8.8 bubble Y velocity, <c>$FB00</c> or five pixels upward per update.</summary>
     public const ushort BubbleInitialYVelocity = 0xfb00;
+
+    /// <summary>Signed 8.8 downward velocity of the released tube crack, three quarters of a pixel per update.</summary>
     public const ushort CrackFallVelocity = 0x00c0;
+
+    /// <summary>Signed 8.8 downward velocity assigned when a glass shard enters its falling arc.</summary>
     public const ushort ShardFallYVelocity = 0x00c0;
+
+    /// <summary>Off-screen whole-pixel X coordinate assigned when a released actor is hidden.</summary>
     public const ushort HiddenXPosition = 0xee00;
 }

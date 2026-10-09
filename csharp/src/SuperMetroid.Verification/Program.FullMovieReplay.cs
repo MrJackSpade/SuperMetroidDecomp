@@ -29,6 +29,8 @@ internal static partial class Program
     /// code. The only imported state is the movie's own power-on SRAM; every later update
     /// receives only its converted controller word, and native WRAM is read-only evidence.
     /// </summary>
+    /// <param name="movie">The recorded movie whose power-on SRAM and controller timeline are replayed.</param>
+    /// <param name="traceDirectory">Directory containing the native input-consumption timeline and read-only WRAM checkpoints for the supplied movie.</param>
     /// <param name="traceFromUpdate">
     /// Diagnostic only: from this update on, print port and native Samus kinematics so a
     /// divergence can be read field by field. Comparison and failure are unchanged.

@@ -7,6 +7,12 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Imports the timer's visual compositions without exposing its countdown mechanics.</summary>
 public static class EscapeTimerPresentationExtractor
 {
+    /// <summary>Imports the escape-timer label and ten digit OAM compositions with their compiled visual placement defaults.</summary>
+    /// <param name="bus">Non-null cartridge import address space supplying the native timer spritemaps.</param>
+    /// <returns>New UTF-8 JSON bytes containing label and digit frames, pixel-space anchors, eight-pixel digit spacing, and inherited OBJ palette 5.</returns>
+    /// <remarks>Countdown arithmetic, activation, and display-number selection are not extracted as presentation data.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="InvalidDataException">A spritemap exceeds the bounded OAM part capacity or the presentation fails validation.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

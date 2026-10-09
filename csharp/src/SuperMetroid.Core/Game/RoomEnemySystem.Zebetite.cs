@@ -5,8 +5,11 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The three native function words stored in Zebetite variable A.</summary>
 public enum ZebetiteAiFunction : ushort
 {
+    /// <summary>$A6:FC41, Function_Zebetite_SpawnBottomZebetiteIfNeeded: primary setup allocates a linked half when the generation flag is negative, links native slot indices, then enters the door wait in the same update.</summary>
     SpawnLinkedHalf = 0xfc41,
+    /// <summary>$A6:FC5B, Function_Zebetite_WaitForDoorTransitionToFinish: remains inert while shared WRAM $0795 is nonzero, then installs and executes the active function immediately.</summary>
     WaitForDoorTransition = 0xfc5b,
+    /// <summary>$A6:FC67, Function_Zebetite_Active: updates palette/health artwork, regenerates one health per call up to 1000, or handles death with primary-owned generation progression.</summary>
     Active = 0xfc67,
 }
 
@@ -21,6 +24,7 @@ public sealed class ZebetiteEnemyState
 
     internal ZebetiteEnemyState(RoomEnemySlot slot) => _slot = slot;
 
+    /// <summary>Native Zebetite.function in variable A ($0FA8 plus this half's slot offset): the bank-$A6 indirect main-AI entry, independent for each physical half.</summary>
     public ZebetiteAiFunction Function
     {
         get => (ZebetiteAiFunction)_slot.VariableA;
@@ -58,6 +62,7 @@ public sealed class ZebetiteEnemyState
         internal set => _slot.Parameter2 = value;
     }
 
+    /// <summary>Nonzero native init0/parameter one identifies the linked bottom half; it skips primary palette cycling and dies without publishing the next generation's events or respawn.</summary>
     public bool IsSecondaryHalf => _slot.Parameter1 != 0;
 }
 

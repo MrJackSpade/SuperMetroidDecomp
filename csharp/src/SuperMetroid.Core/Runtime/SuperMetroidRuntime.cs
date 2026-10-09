@@ -35,6 +35,15 @@ public sealed partial class SuperMetroidRuntime
     private ISnesMutableMemory MutableMemory => _addressSpace as ISnesMutableMemory ??
         throw new InvalidOperationException("The runtime requires live WRAM/SRAM access.");
 
+    /// <summary>Creates the frame-steppable runtime, installs host gameplay options, and loads the required initial palette.</summary>
+    /// <param name="addressSpace">Cartridge definition source and mutable WRAM/SRAM owner used by translated systems.</param>
+    /// <param name="playerInvincibilityEnabled">Whether the frame-exit guard prevents lethal player energy.</param>
+    /// <param name="infiniteAmmoEnabled">Whether the frame-exit guard restores depleted unlocked ammunition.</param>
+    /// <param name="mapRevealMode">Host map-visibility override applied without changing saved exploration bits.</param>
+    /// <param name="preventEscapeTimeout">Whether the host suppresses the escape timer's terminal failure.</param>
+    /// <param name="initialPaletteArt">Required installed palette image loaded into CGRAM during construction.</param>
+    /// <param name="grantAllEquipment">Whether a new gameplay session receives the host all-equipment override.</param>
+    /// <param name="unlockTourian">Whether a new gameplay session receives the host Tourian-unlock override.</param>
     public SuperMetroidRuntime(
         ISnesAddressSpace addressSpace,
         bool playerInvincibilityEnabled = false,
@@ -237,18 +246,17 @@ public sealed partial class SuperMetroidRuntime
         ElevatorActorStatus status) => status == ElevatorActorStatus.Departing;
 
     /// <summary>
-    /// Native power-bomb explosion status at WRAM <c>$0CE2</c>. X-ray setup rejects every
-    /// nonzero phase. The getter now reads the translated bank-$88 owner; the setter remains
-    /// solely as a debugger seam for precondition tests that force an otherwise impossible
-    /// status without constructing an entire explosion.
-    /// </summary>
-    /// <summary>
     /// WRAM GameState ($0998) of the frontend dispatch now running. Samus commands such as
     /// $90:F4A2 test it from inside the outer frame; runtime-only hosts run state eight.
     /// </summary>
     [field: NonSerialized]
     public ushort DispatchGameState { get; set; } = (ushort)Frontend.SuperMetroidGameState.MainGameplay;
 
+    /// <summary>
+    /// Native power-bomb explosion status at WRAM <c>$0CE2</c>. X-ray setup rejects every
+    /// nonzero phase. The getter reads the translated bank-$88 owner; the setter is a
+    /// debugger seam for forcing preconditions without constructing an explosion.
+    /// </summary>
     public ushort PowerBombExplosionStatus
     {
         get => BombProjectiles.PowerBombExplosion.Status;
@@ -410,6 +418,7 @@ public sealed partial class SuperMetroidRuntime
 
     /// <summary>Door-selected bank-$83/$88 gameplay BG3 effect.</summary>
     public RoomLayer3FxState RoomLayer3Fx { get; } = new();
+    /// <summary>Persistent bank-$88 Ceres room-haze HDMA owner, activated and reset by room setup.</summary>
     public CeresHazeState CeresHaze { get; } = new();
 
     /// <summary>
@@ -950,6 +959,7 @@ public sealed partial class SuperMetroidRuntime
         TourianStatues.StepDescent(this);
     }
 
+    /// <summary>Runs one accepted NMI and publishes an empty finalized OAM frame without advancing gameplay owners.</summary>
     public void RunBlankGameplayFrame(ushort controllerInput)
     {
         RunNmi(controllerInput, mainLoopRequestedNmi: true);
@@ -996,6 +1006,7 @@ public sealed partial class SuperMetroidRuntime
     public ushort NmiCounterIncludingLag { get; private set; }
 
     /// <summary>Runs one accepted NMI followed by the translated per-frame timer logic.</summary>
+    /// <param name="controller1Input">Host-provided raw SNES controller word, normalized through action bindings when the accepted NMI latches player input; attract playback publishes its independent scripted words later.</param>
     /// <param name="drawHighPriorityEnemyProjectiles">
     /// Optional bank-$86 high-priority enemy-projectile draw pass. The generic runtime does
     /// not own a room-specific enemy pool yet, so the Mother Brain debugger injects its
@@ -1005,11 +1016,15 @@ public sealed partial class SuperMetroidRuntime
     /// Optional bank-$86 low-priority enemy-projectile draw pass at enemy layer six,
     /// immediately after Samus/projectiles as selected by `$A0:887C`.
     /// </param>
+    /// <param name="allowCeresElevatorDeparture">Allows the Ceres shaft room-main trigger to request departure; the outer dispatcher enables this only in state eight, not departure states $20/$21. Shaft rotation still advances independently.</param>
+    /// <param name="afterAcceptedNmi">Optional per-call hook immediately after the ordinary accepted NMI and before HDMA/main-loop owners; not retained or invoked by the suspended message-box frame path.</param>
+    /// <param name="advanceGameTime">Whether the normal frame tail advances the native four-word gameplay clock; disabling it does not suppress NMI, RNG, or gameplay-owner updates.</param>
     /// <param name="queueEchoSound">
     /// Immediate native echo sound call, including the CPU accumulator returned by
     /// the queue operation. The caller must publish earlier frame sounds into the
     /// same queue first. This per-call delegate is not retained in debugger states.
     /// </param>
+    /// <param name="checkLowHealth">Optional per-call low-energy-check hook after Samus's periodic damage when her health-check handler is enabled and X-ray does not own control; not retained in runtime state.</param>
     public RuntimeFrameResult StepFrame(
         ushort controller1Input,
         Action<OamBuffer>? drawHighPriorityEnemyProjectiles = null,

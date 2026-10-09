@@ -9,6 +9,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Enemy header $A0:E17F, selecting the Lower Norfair boss branches of Ridley's shared bank-$A6 implementation.</summary>
     public const ushort NorfairRidleyDefinition = 0xe17f;
 
     private static bool IsRidleyDefinition(ushort definitionPointer) =>

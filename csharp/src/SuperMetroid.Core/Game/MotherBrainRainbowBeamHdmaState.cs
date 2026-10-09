@@ -17,14 +17,25 @@ public sealed class MotherBrainRainbowBeamHdmaState
         get => presentationColors;
         set => presentationColors = value;
     }
+    /// <summary>Whether the last simulation update enabled the rainbow-beam color-add layer; disabling leaves the previous color and windows stored but prevents rendering them.</summary>
     public bool Active { get; private set; }
+    /// <summary>Current packed SNES RGB5 fixed-backdrop color for windowed addition, not a CGRAM entry; initialized on activation and advanced only by subsequent active updates.</summary>
     public ushort Color { get; private set; }
+    /// <summary>Next native $88:E833 color-table byte offset, advancing by four rather than by one color ordinal; a signed terminator resets to zero and repeats entry zero without advancing that update.</summary>
     public int ColorCursor { get; private set; }
+    /// <summary>Live read-only view of 224 visible scanline window words: low byte is inclusive WH0 left, high byte is inclusive WH1 right, and $00FF denotes empty; the first 32 HUD lines stay empty.</summary>
     public ReadOnlySpan<ushort> Windows => windows;
 
+    /// <summary>Creates an inactive simulation owner with every visible window empty; the first active update initializes its fixed color and cursor before building geometry.</summary>
     public MotherBrainRainbowBeamHdmaState() => Array.Fill(windows, MotherBrainBeamRomData.EmptyWindow);
 
     /// <summary>One emulated HDMA call, after the head's position and beam aim have been resolved.</summary>
+    /// <param name="bus">Required address-space context; geometry uses compiled tangent samples and the color cycle uses installed presentation colors, not live cartridge reads.</param>
+    /// <param name="active">Enemy-owned enable state; false disables drawing without advancing color or rebuilding windows, and a later activation restarts the color cycle.</param>
+    /// <param name="headX">Head enemy's whole-pixel room X position, not camera-relative; adding fourteen and retaining the low byte gives the screen-window mouth X.</param>
+    /// <param name="headY">Head enemy's whole-pixel room Y position; the mouth is five pixels lower and must lie strictly between native work-area scanlines 32 and 232.</param>
+    /// <param name="angle">Beam center aim; only its 256-unit-turn table index is used when computing the two wrapping edge angles.</param>
+    /// <param name="angularWidth">Native 8.8 angular-width word; its high byte is halved with integer truncation to obtain each edge's displacement in 256-unit-turn table units.</param>
     public void Step(ISnesAddressSpace bus, bool active, ushort headX, ushort headY,
         SnesAngle angle, ushort angularWidth)
     {

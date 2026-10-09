@@ -28,6 +28,9 @@ public static class DraygonCannonData
         DraygonFiringCannon.UnusedBottom => new(UnusedBottomDisabledWord, 444, 392),
         _ => throw new IndexOutOfRangeException(),
     };
+    /// <summary>Checks whether a bank-$7E word pointer names one of the five modeled cannon-disable words, without reading its current value.</summary>
+    /// <param name="address">Bank-relative WRAM byte address, not a cannon selector or a full 24-bit bus address.</param>
+    /// <returns><see langword="true"/> for $8802, $8804, $8806, $8808, or $880A, including the pre-disabled upper-left and unused bottom roles; <see langword="false"/> otherwise.</returns>
     public static bool IsControlWord(ushort address) => address is
         UpperLeftDisabledWord or LowerLeftDisabledWord or UpperRightDisabledWord or
         LowerRightDisabledWord or UnusedBottomDisabledWord;

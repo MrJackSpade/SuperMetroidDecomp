@@ -16,6 +16,7 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusAtmosphericEffectsState
 {
+    /// <summary>Four shared slots, represented by four words in each native timer, X, Y, and packed frame/type array.</summary>
     public const int SlotCount = 4;
 
     private readonly SamusAtmosphericEffectSlot[] _slots =
@@ -40,6 +41,12 @@ public sealed class SamusAtmosphericEffectsState
     /// Installs a literal native slot. Public visibility is intentional: deterministic tests
     /// and debugger experiments can seed the exact packed state without a fake water room.
     /// </summary>
+    /// <param name="slotIndex">Zero-based slot index, 0..3, corresponding to native byte offsets 0, 2, 4, and 6.</param>
+    /// <param name="type">Native graphics type 0..7; a zero packed frame/type word is inactive.</param>
+    /// <param name="animationFrame">Low-byte animation index; interpreted against the selected type when updated.</param>
+    /// <param name="animationTimer">Literal native countdown word, including signed delayed-start sentinels such as $8002.</param>
+    /// <param name="worldX">Room-space horizontal anchor in whole pixels, stored with native 16-bit wrapping.</param>
+    /// <param name="worldY">Room-space vertical anchor in whole pixels, stored with native 16-bit wrapping.</param>
     public void SetSlot(
         int slotIndex,
         byte type,
@@ -65,6 +72,7 @@ public sealed class SamusAtmosphericEffectsState
     /// coordinates behind; retaining that stale debugger-visible state matters when proving
     /// that a later producer really initialized every field it owns.
     /// </summary>
+    /// <param name="slotIndex">Zero-based slot index, 0..3; its timer and coordinates are not cleared.</param>
     public void ClearFrameAndType(int slotIndex)
     {
         ValidateSlotIndex(slotIndex);
@@ -75,6 +83,13 @@ public sealed class SamusAtmosphericEffectsState
     /// Ports <c>Handle_AtmosphericEffects</c> at <c>$90:8A4C-$8C1E</c>, including timer
     /// underflow, reverse slot order, per-type motion, clipping, and the two OAM paths.
     /// </summary>
+    /// <param name="bus">Address space providing mirrored WRAM for type two attributes and the Samus spritemap path.</param>
+    /// <param name="oam">OAM buffer to which visible sprites are appended, with slot three processed first.</param>
+    /// <param name="cameraX">Room-space camera X origin in whole pixels.</param>
+    /// <param name="cameraY">Room-space camera Y origin in whole pixels.</param>
+    /// <param name="fxYPosition">Live liquid-surface Y in room pixels, used to anchor the diving splash on each update.</param>
+    /// <param name="artwork">Installed Samus spritemaps required when visible diving splashes or bubbles use the spritemap draw path.</param>
+    /// <param name="directArtwork">Installed small-sprite attributes required for visible direct effects other than type two's WRAM-backed attributes.</param>
     public void UpdateAndDraw(
         ISnesAddressSpace bus,
         OamBuffer oam,
@@ -249,14 +264,19 @@ public sealed class SamusAtmosphericEffectSlot
     /// <summary>Low byte animation frame, high byte graphics type.</summary>
     public ushort FrameAndType { get; internal set; }
 
+    /// <summary>Low byte of the $0AEC array's packed word: the zero-based frame within the current graphics type.</summary>
     public byte AnimationFrame => unchecked((byte)FrameAndType);
 
+    /// <summary>High byte of the packed word: 1/2 footstep splashes, 3 diving splash, 4 lava spray, 5 bubbles, or 6/7 dust; zero is reserved for inactive state.</summary>
     public byte Type => unchecked((byte)(FrameAndType >> 8));
 
+    /// <summary>$0AD4 array countdown in update calls; negative words suppress motion/drawing until decrement reaches $8000 and reloads the current frame duration.</summary>
     public ushort AnimationTimer { get; internal set; }
 
+    /// <summary>$0ADC array horizontal anchor in whole room pixels; camera subtraction occurs only when drawing, and motion wraps as a native word.</summary>
     public ushort XPosition { get; internal set; }
 
+    /// <summary>$0AE4 array vertical anchor in whole room pixels; diving splashes follow the live FX surface and lava spray/dust rise one pixel per active update.</summary>
     public ushort YPosition { get; internal set; }
 
     internal void Clear()

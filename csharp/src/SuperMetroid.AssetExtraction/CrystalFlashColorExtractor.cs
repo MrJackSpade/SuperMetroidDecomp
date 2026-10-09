@@ -8,6 +8,12 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Extracts Crystal Flash display colors; native duration words are not editable.</summary>
 public static class CrystalFlashColorExtractor
 {
+    /// <summary>Exports Crystal Flash's ten body-color selections and six bubble-color selections in native pointer-record order.</summary>
+    /// <param name="bus">Non-null import-capable cartridge source for body pointer/timer records at $91:DC00, bubble pointers at $91:DC28, and their bank-$9B color payloads.</param>
+    /// <returns>A new UTF-8 JSON buffer with ten ten-color Body rows and six six-color Bubble rows, expressed as RGB5 channels 0..31.</returns>
+    /// <remarks>The two bands partition OBJ palette six into body colors 0..9 and bubble colors 10..15. Bit 15 is omitted from channel output; adjacent duration words, phase progression, activation costs, and recovery behavior are not exported.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="ArgumentException"><paramref name="bus"/> lacks cartridge import access.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

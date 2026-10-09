@@ -60,7 +60,7 @@ public readonly record struct SamusBeamLoadoutWord(ushort Raw)
 
     /// <summary>
     /// Exact low-twelve-bit index used by native defensive table checks. Unlike
-    /// <see cref="CombinationIndex"/>, this deliberately retains unknown/debug-edited bits
+    /// <see cref="SamusProjectileTypeWord.BeamCombinationIndex"/>, this deliberately retains unknown/debug-edited bits
     /// so invalid WRAM state still takes the cartridge's rejection branch.
     /// </summary>
     public int NativeConfigurationIndex => Raw & NativeConfigurationMask;

@@ -4,7 +4,19 @@ namespace SuperMetroid.Core.Game;
 public static class MotherBrainBeamRomData
 {
     /// <summary>Mutually exclusive targets of $AD:DE5F, indexed by the two edge quadrants.</summary>
-    public enum Direction { Down, Up, Right, Retain, Unsupported }
+    public enum Direction
+    {
+        /// <summary>Selects CalculateMotherBrainRainbowBeamHDMADataTable_AimedDownwards, $AD:E1A6, for both edges below the horizontal axis.</summary>
+        Down,
+        /// <summary>Selects CalculateMotherBrainRainbowBeamHDMADataTable_AimedUpwards, $AD:DF6E, for both edges above the horizontal axis.</summary>
+        Up,
+        /// <summary>Selects CalculateMotherBrainRainbowBeamHDMATable_AimedRight, $AD:DE7F, when the edges straddle the rightward axis.</summary>
+        Right,
+        /// <summary>Selects RTS_ADDE5E, $AD:DE5E, when the edges straddle the leftward axis; the preceding window table is retained rather than rebuilt.</summary>
+        Retain,
+        /// <summary>Represents one of $AD:DE5F's zero routine pointers, not an empty beam; the bounded HDMA builder rejects these unsupported edge-quadrant pairs.</summary>
+        Unsupported
+    }
     /// <summary>
     /// $AD:DE5F-DE7D, CalculateMotherBrainRainbowBeamHDMATables_pointers.
     /// The pair packs left-edge quadrant * 4 + right-edge quadrant. Zero native

@@ -1024,8 +1024,6 @@ static void SeedPoseNineSamusData(TestAddressSpace bus)
     bus.WriteBytes(0x92dc48, [0x07, 0x0c, 0x00, 0x06]);
 }
 
-/// <summary>
-/// Checks required-new/required-held masks, extra-button acceptance, ROM priority order,
-/// terminators, and same-pose suppression in the bank-$91 prospective-pose lookup.
-/// </summary>
+// Checks required-new/required-held masks, extra-button acceptance, ROM priority order,
+// terminators, and same-pose suppression in the bank-$91 prospective-pose lookup.
 }

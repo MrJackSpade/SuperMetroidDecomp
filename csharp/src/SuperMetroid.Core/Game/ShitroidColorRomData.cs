@@ -26,7 +26,10 @@ public static class ShitroidColorRomData
 
     /// <summary>$A9:F6E7/F6EF darkest innard red stops at5 while green/blue reach zero. Reviewed residual organ-red paint intensity; this is not a gameplay threshold.</summary>
     public const int NormalOrganRedFloor = 5;
+    /// <summary>Eight normal innard-pulse images at $A9:F6D1-$F710, with symmetric dimming/retracing rows; this image count does not encode the actor's palette-update cadence or cry timing.</summary>
     public const int NormalFrameCount = 8;
+    /// <summary>Four packed RGB5 words per normal pulse row, an eight-byte source stride, written to CGRAM slots 165..168 rather than replacing the complete OBJ palette.</summary>
     public const int NormalColorsPerFrame = 4;
+    /// <summary>Sixteen packed RGB5 words in each $A9:F8A6/$F8C6/$F8E6 target image, including its transparent-slot payload: a complete 32-byte OBJ palette row for initialization or target-color transitions.</summary>
     public const int TargetColorCount = 16;
 }

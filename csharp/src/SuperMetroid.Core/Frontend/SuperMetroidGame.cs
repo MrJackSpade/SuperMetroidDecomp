@@ -69,6 +69,11 @@ public sealed partial class SuperMetroidGame
     private ulong? lastAudioRuntimeGameplayPublication;
     private ushort? lastAudioRoomStatePointer;
 
+    /// <summary>Creates a reset-state session, reading the selected SRAM slot and capturing the native boot carry before any dispatcher frame runs.</summary>
+    /// <param name="bus">Retained cartridge address space with <see cref="ISnesMutableMemory"/> support for WRAM and SRAM changes throughout the session.</param>
+    /// <param name="gameOptions">Retained host options, or <see langword="null"/> to use a new default options record.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="bus"/> does not implement <see cref="ISnesMutableMemory"/>.</exception>
     public SuperMetroidGame(
         ISnesAddressSpace bus,
         SuperMetroidGameOptions? gameOptions = null)
@@ -1053,11 +1058,15 @@ public sealed partial class SuperMetroidGame
         return CurrentFrame;
     }
 
-    /// <summary>Last completed frame, useful for repainting without advancing emulation.</summary>
     /// <summary>Reads frontend status and audio commands without materializing a retained display.</summary>
     public FrontendFrame CurrentFrameMetadata =>
         new(GameState, PhaseName, FrameNumber, Array.Empty<Rgba32>(), lastAudioCommands);
 
+    /// <summary>Reads the current status, last audio commands, and display without advancing the dispatcher.</summary>
+    /// <remarks>
+    /// Pixels are the producer's reusable 256-by-224 buffer, not a copy; a host retaining them across another frame must copy them.
+    /// When a display capture already owns the current image, the pixel array is empty and the host presents that capture instead.
+    /// </remarks>
     public FrontendFrame CurrentFrame =>
         new(GameState, PhaseName, FrameNumber,
             captureIdentity is not null && capturedDisplay is not null ? Array.Empty<Rgba32>() : lastPixels,

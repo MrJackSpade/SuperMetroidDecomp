@@ -11,9 +11,16 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Hash-checked stock visual block definitions and persistent editable JSON overrides.</summary>
 public static class RoomMetatileArtworkFiles
 {
+    /// <summary>Stock visual-block manifest filename recording cartridge provenance, metatile JSON hashes, and native transfer lengths.</summary>
     public const string ManifestFileName = "room-blocks.json";
     private const int FormatVersion = 1;
 
+    /// <summary>Creates stock visual metatile JSON for CRE and each distinct room block-table source, with a provenance manifest.</summary>
+    /// <param name="bus">Non-null cartridge import address space containing the compressed visual block-definition tables.</param>
+    /// <param name="directory">Output directory, created if needed; resource and manifest filenames must not already exist.</param>
+    /// <param name="sourceCartridgeSha256">Nonempty cartridge SHA-256 stored with each file's hash and native block-table byte count.</param>
+    /// <remarks>Checks exact native-byte roundtrips for four-quadrant visual compositions. Collision and block behavior remain outside these resources; player overrides are not accessed.</remarks>
+    /// <exception cref="IOException">An output file already exists or filesystem output fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -87,6 +94,10 @@ public static class RoomMetatileArtworkFiles
             cre ?? throw new InvalidDataException("Room metatile manifest has no CRE resource."), selected);
     }
 
+    /// <summary>Validates the complete stock CRE and room metatile resources with player overrides disabled.</summary>
+    /// <param name="stockDirectory">Directory containing the visual-block manifest and stock JSON resources.</param>
+    /// <remarks>Checks supported cartridge provenance, expected source coverage, file hashes, block counts, and BG-cell fields without cartridge access or file writes.</remarks>
+    /// <exception cref="InvalidDataException">Stock provenance, coverage, dimensions, hashes, or visual composition data are invalid.</exception>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
     private static Dictionary<string, int> ExpectedSources()

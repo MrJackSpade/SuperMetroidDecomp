@@ -3,9 +3,13 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Exact same-bank function words dispatched by Rinka main AI at $A2:B7C4.</summary>
 public enum RinkaEnemyFunction : ushort
 {
+    /// <summary>Function_Rinka_Fire, $A2:B7DF: decrements the initially 26-update timer through signed underflow, then samples Samus once to form signed 8.8 velocities at nominal $0120 speed; movement begins on the following AI update.</summary>
     AimDelay = 0xb7df,
+    /// <summary>Function_Rinka_Killed, $A2:B844: hidden Mother Brain variant waits for its timer's signed underflow (1, 0, $FFFF), restores ten health, and reinitializes at a reserved spawn point.</summary>
     DeathRespawnDelay = 0xb844,
+    /// <summary>Function_Rinka_WaitingToFire, $A2:B852: stationary initial state that recycles an actor outside the expanded camera flight rectangle; animation instruction $B9C7, not this function's timer, starts the aim delay.</summary>
     WatchForLeavingViewport = 0xb852,
+    /// <summary>Function_Rinka_Moving, $A2:B85B: adds the fixed signed 8.8 velocities to the actor's fractional room position each update, then recycles it outside the camera-relative -16..271 X / -16..239 Y window without re-aiming.</summary>
     Flying = 0xb85b,
 }
 
@@ -20,6 +24,7 @@ public sealed class RinkaEnemyState
 
     internal RinkaEnemyState(RoomEnemySlot slot) => _slot = slot;
 
+    /// <summary>Common variable A ($7E:0FA8 plus slot offset): same-bank $A2 routine word dispatched by main AI, changed by initialization, the fire instruction, aim completion, or the special death tail.</summary>
     public RinkaEnemyFunction Function
     {
         get => (RinkaEnemyFunction)_slot.VariableA;
@@ -59,6 +64,9 @@ public sealed class RinkaEnemyState
 }
 
 /// <summary>One literal (X, Y, extra-RAM selector) record from $A2:B75B.</summary>
+/// <param name="XPosition">Authored spawn-center X in whole room pixels, tested against the current layer-one camera when reserving a Mother Brain Rinka location.</param>
+/// <param name="YPosition">Authored spawn-center Y in whole room pixels, not an OAM or camera-relative coordinate.</param>
+/// <param name="Token">Native spawn-availability byte selector plus two: even $0002..$0016 for the eleven table locations, reserved until the owning actor leaves, dies, or is terminated.</param>
 public readonly record struct RinkaSpawnResource(
     ushort XPosition,
     ushort YPosition,

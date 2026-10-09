@@ -18,6 +18,14 @@ public sealed class BackgroundTilemapStreamer
     private readonly ushort[] _backgroundEntries;
     private readonly byte[] _blockDefinitions;
 
+    /// <summary>Copies BG1/BG2 source allocations and the combined metatile table used to produce camera-stream and PLM redraw descriptors; construction does not write VRAM.</summary>
+    /// <param name="roomWidthInBlocks">Native row stride in 16-pixel blocks, 1..255, matching the eight-bit width used by bank-$80 multiplication.</param>
+    /// <param name="levelEntries">BG1 level-word allocation, including any defined native streaming tail required by requests; later mutations must be mirrored through <see cref="SetLevelEntry"/>.</param>
+    /// <param name="backgroundEntries">BG2 level-word allocation and its retained streaming tail, in the same row-major block geometry.</param>
+    /// <param name="blockDefinitions">Combined CRE/area metatiles in little-endian order, eight bytes per four-character 16-by-16 block; later table mutations require <see cref="SetBlockDefinitionWord"/>.</param>
+    /// <param name="sizeOfBg2">Native $098E VRAM-word allocation offset subtracted from BG1 ring bases to form BG2 destinations.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The room width is outside 1..255.</exception>
+    /// <exception cref="ArgumentException">The metatile byte length is not divisible by eight.</exception>
     public BackgroundTilemapStreamer(
         int roomWidthInBlocks,
         ReadOnlySpan<ushort> levelEntries,
@@ -37,6 +45,7 @@ public sealed class BackgroundTilemapStreamer
         _blockDefinitions = blockDefinitions.ToArray();
     }
 
+    /// <summary>Row stride of retained BG1/BG2 level words, in 16-pixel blocks rather than 8-pixel characters or VRAM words.</summary>
     public int RoomWidthInBlocks { get; }
 
     /// <summary>
@@ -266,6 +275,9 @@ public sealed class BackgroundTilemapStreamer
 }
 
 /// <summary>One visible 16x16 PLM block redraw in BG1's two-screen ring.</summary>
+/// <param name="TopRowDestination">VRAM word address of the block's upper-left character; the lower row begins 32 words later.</param>
+/// <param name="TopRow">Upper-left and upper-right packed BG character words in horizontal transfer order.</param>
+/// <param name="BottomRow">Lower-left and lower-right packed BG character words in horizontal transfer order.</param>
 public sealed record PlmTilemapUpdate(
     ushort TopRowDestination,
     ushort[] TopRow,
@@ -284,6 +296,7 @@ public sealed record PlmTilemapUpdate(
 }
 
 /// <summary>One completed WRAM staging buffer and its ordered NMI DMA operations.</summary>
+/// <param name="Segments">Transfer descriptors in native producer/consumer order, including unwrapped and wrapped slices; creating the record does not execute them.</param>
 public sealed record TilemapStreamUpdate(
     IReadOnlyList<TilemapDmaSegment> Segments)
 {
@@ -303,6 +316,11 @@ public sealed record TilemapStreamUpdate(
 /// One DMA sourced from a slice of a staging array. Column segments use VMAIN=$81
 /// (destination +32 words); row segments use VMAIN=$80 (destination +1 word).
 /// </summary>
+/// <param name="SourceWords">Staging array of packed BG character words, shared with any other slices of the same produced row or column.</param>
+/// <param name="SourceWordOffset">First source-array element to transfer, measured in words rather than bytes.</param>
+/// <param name="WordCount">Number of consecutive source words in this segment.</param>
+/// <param name="VramWordDestination">VRAM word address of the first destination character.</param>
+/// <param name="Direction">Destination stride: one word across a row or 32 words down a column.</param>
 public sealed record TilemapDmaSegment(
     ushort[] SourceWords,
     int SourceWordOffset,
@@ -310,6 +328,9 @@ public sealed record TilemapDmaSegment(
     ushort VramWordDestination,
     TilemapDmaDirection Direction)
 {
+    /// <summary>Validates the staging slice and immediately transfers its words to VRAM with the row/column stride; does not enqueue another transfer or advance camera state.</summary>
+    /// <param name="vram">Destination VRAM receiving packed BG character words.</param>
+    /// <exception cref="InvalidDataException">The source offset/count exceeds the staging array.</exception>
     public void ExecuteTo(SnesVram vram)
     {
         ArgumentNullException.ThrowIfNull(vram);
@@ -324,8 +345,11 @@ public sealed record TilemapDmaSegment(
     }
 }
 
+/// <summary>Destination progression within a native 32-character-wide BG tilemap page, distinct from the camera axis that caused the update.</summary>
 public enum TilemapDmaDirection
 {
+    /// <summary>Horizontal character sequence: VMAIN=$80 and destination address increments by one VRAM word after each transferred word.</summary>
     Row,
+    /// <summary>Vertical character sequence: VMAIN=$81 and destination address increments by 32 VRAM words after each transferred word.</summary>
     Column,
 }

@@ -8,6 +8,11 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Exports native RGB5 colors without exporting radius or HDMA mechanics.</summary>
 public static class PowerBombFixedColorExtractor
 {
+    /// <summary>Imports the sixteen pre-explosion and thirty-two explosion fixed-color triplets used by Power Bomb effects.</summary>
+    /// <param name="bus">Non-null cartridge import address space containing the native three-byte fixed-color sequences.</param>
+    /// <returns>New UTF-8 JSON bytes containing ordered RGB5 colors, with each native component masked to 0..31.</returns>
+    /// <remarks>Radius-based selection, HDMA geometry, and shared Crystal Flash or Ceres explosion behavior remain compiled.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

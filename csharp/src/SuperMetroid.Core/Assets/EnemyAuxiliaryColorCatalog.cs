@@ -44,6 +44,11 @@ public sealed class EnemyAuxiliaryColorCatalog
         _ => throw new ArgumentOutOfRangeException(nameof(palette)),
     };
 
+    /// <summary>Resolves one selected RGB5 word from the face-block glow, sidehopper drain/corpse, or Golden Torizo health rows without advancing timers, choosing health bands, or writing CGRAM.</summary>
+    /// <param name="palette">One of the four installed auxiliary-palette identities.</param>
+    /// <param name="frame">Zero-based row: 0..7 for face-block or Torizo palettes, or 0..6 for sidehopper stages; rows are not necessarily elapsed animation frames.</param>
+    /// <param name="color">Zero-based supplied color: 0..3 for face-block, 0..14 for sidehopper, or 0..15 for Torizo; sidehopper entries omit the native row's color zero.</param>
+    /// <returns>The packed RGB5 word preserving independently supplied edits.</returns>
     public ushort Resolve(EnemyAuxiliaryPalette palette, int frame, int color)
     {
         PaletteRows rows = RowsFor(palette);
@@ -123,6 +128,9 @@ public sealed class EnemyAuxiliaryColorCatalog
             return (ushort)result;
         }
     }
+    /// <summary>Loads all four named palette families at the supported version, validating each definition's row/color counts and RGB5 channels 0..31 while rejecting duplicate or unknown properties; compiles owned rows independently of cartridge storage.</summary>
+    /// <param name="source">UTF-8 JSON stream containing enum-named palette families; integer enum identities are not accepted.</param>
+    /// <returns>The immutable auxiliary-color catalog, retaining supplied rows when they differ from calculated stock relationships.</returns>
     public static EnemyAuxiliaryColorCatalog Load(Stream source)
     {
         ArgumentNullException.ThrowIfNull(source);
@@ -164,6 +172,9 @@ public sealed class EnemyAuxiliaryColorCatalog
         return new EnemyAuxiliaryColorCatalog(result);
     }
 
+    /// <summary>Serializes the auxiliary-color document as indented camel-case UTF-8 JSON with named palette identities and validates it through <see cref="Load"/> before returning the bytes.</summary>
+    /// <param name="document">Document containing the supported version and every palette family's complete RGB5 rows.</param>
+    /// <returns>Validated auxiliary-color JSON bytes.</returns>
     public static byte[] Write(EnemyAuxiliaryColorDocument document)
     {
         byte[] data = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
@@ -184,8 +195,11 @@ public sealed class EnemyAuxiliaryColorCatalog
     };
 }
 
+/// <summary>Editable JSON schema for four auxiliary enemy palette families; runtime AI retains palette destination, update cadence, drain-stage progression, and health-band selection.</summary>
 public sealed record EnemyAuxiliaryColorDocument
 {
+    /// <summary>Schema revision, which must equal <see cref="EnemyAuxiliaryColorFormat.Version"/>.</summary>
     public required int Version { get; init; }
+    /// <summary>All four enum-named RGB5 families: FaceBlock has eight four-color rows, DeadSidehopper seven fifteen-color rows, and each Golden Torizo family eight sixteen-color health bands.</summary>
     public required Dictionary<EnemyAuxiliaryPalette, PaletteRgb5[][]> Palettes { get; init; }
 }

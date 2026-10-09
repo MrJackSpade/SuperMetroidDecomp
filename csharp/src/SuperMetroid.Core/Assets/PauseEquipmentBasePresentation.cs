@@ -19,6 +19,8 @@ public sealed class PauseEquipmentBasePresentation
         }
     }
 
+    /// <summary>Builds a complete 32-by-32 native BG tilemap from selected edits and calculated stock composition.</summary>
+    /// <returns>A new 2048-byte little-endian tilemap in row-major order.</returns>
     public byte[] CreateTilemap()
     {
         var result = new byte[PauseEquipmentBaseDefinitions.Cells * sizeof(ushort)];
@@ -88,6 +90,10 @@ public sealed class PauseEquipmentBasePresentation
         }
     }
 
+    /// <summary>Loads and validates all 1024 editable equipment-page base cells.</summary>
+    /// <param name="json">The caller-owned stream containing the tile-reference document.</param>
+    /// <returns>The presentation retaining only cells that differ from calculated stock composition.</returns>
+    /// <exception cref="InvalidDataException">The JSON, version, cell count, or tile references are invalid.</exception>
     public static PauseEquipmentBasePresentation Load(Stream json)
     {
         PauseEquipmentBaseDocument document;
@@ -100,6 +106,9 @@ public sealed class PauseEquipmentBasePresentation
         return new(PauseTileGrid.Compile(document.Cells, "EquipmentBase"));
     }
 
+    /// <summary>Validates and writes an editable equipment-page base document as JSON.</summary>
+    /// <param name="output">The caller-owned destination stream.</param>
+    /// <param name="document">The complete 32-by-32 tile-reference document to serialize.</param>
     public static void Write(Stream output, PauseEquipmentBaseDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
@@ -107,8 +116,12 @@ public sealed class PauseEquipmentBasePresentation
     }
 }
 
+/// <summary>Editable JSON schema for the pause equipment page's static base tilemap.</summary>
 public sealed record PauseEquipmentBaseDocument
 {
+    /// <summary>Gets the equipment-base schema version.</summary>
     public required int Version { get; init; }
+
+    /// <summary>Gets all 1024 BG tile references in 32-column row-major order.</summary>
     public required PauseBackdropCell[] Cells { get; init; }
 }

@@ -3,10 +3,12 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Editable metatile references for one elevator-platform animation frame.</summary>
+/// <param name="Id">Compiled elevator-platform draw-frame identity.</param>
+/// <param name="Runs">Metatile/flip words grouped and ordered by native draw run; changed selections are deeply copied by the catalog.</param>
 public sealed record RoomPlmElevatorPlatformVisualEntry(string Id, ushort[][] Runs);
 
 /// <summary>
-/// Presentation-only elevator-platform block selection. The native four-frame
+/// Presentation-only elevator-platform block selection. The native four-step
 /// instruction loop, draw geometry, and physical collision words stay compiled.
 /// </summary>
 public sealed class RoomPlmElevatorPlatformVisualCatalog
@@ -31,6 +33,11 @@ public sealed class RoomPlmElevatorPlatformVisualCatalog
 
     private readonly Dictionary<ushort, ushort[][]>? customWords;
 
+    /// <summary>Validates all three elevator-platform draw layouts and copies visual differences while retaining native run geometry, collision words, and animation cadence.</summary>
+    /// <remarks>The four-step instruction loop selects first, second, third, then second layout; the repeated second layout has only one entry.</remarks>
+    /// <param name="entries">One visual-only entry per compiled frame, with its exact native run and word counts.</param>
+    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
+    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves frame coverage incomplete.</exception>
     public RoomPlmElevatorPlatformVisualCatalog(
         IEnumerable<RoomPlmElevatorPlatformVisualEntry> entries)
     {
@@ -71,6 +78,13 @@ public sealed class RoomPlmElevatorPlatformVisualCatalog
         if (selected.Count != 0) customWords = selected;
     }
 
+    /// <summary>Resolves one elevator-platform visual block without replacing its compiled physical word or draw offset.</summary>
+    /// <param name="drawPointer">Bank-$84 identity of a compiled elevator-platform draw frame.</param>
+    /// <param name="runIndex">Zero-based ordinal of the native draw run.</param>
+    /// <param name="wordIndex">Zero-based word ordinal within that run, not a room coordinate.</param>
+    /// <returns>The selected metatile/flip word, derived from the compiled stock frame when unchanged.</returns>
+    /// <exception cref="InvalidDataException">The pointer does not identify a supported platform frame.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The run or word ordinal is outside the compiled draw shape.</exception>
     public ushort GetWord(ushort drawPointer, int runIndex, int wordIndex)
     {
         if (!ElevatorPlatformPlmDefinitions.TryDescribe(drawPointer, out var shape))

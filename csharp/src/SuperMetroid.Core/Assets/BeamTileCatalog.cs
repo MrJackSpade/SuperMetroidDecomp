@@ -6,7 +6,9 @@ namespace SuperMetroid.Core.Assets;
 public sealed class BeamTileCatalog : IVramAssetProvider, IInstalledArtworkTransferSource
 {
     private readonly BeamTileAtlas[] sheets;
+    /// <summary>Gets the optional installed beam and grapple palette catalog paired with these tile sheets.</summary>
     public BeamPaletteCatalog? Palettes { get; }
+    /// <summary>Gets the optional installed fixed-color cycle used by the Hyper Beam visual effect.</summary>
     public HyperBeamFxColorCatalog? HyperBeamFxColors { get; }
     private BeamTileCatalog(BeamTileAtlas[] sheets, BeamPaletteCatalog? palettes,
         HyperBeamFxColorCatalog? hyperBeamFxColors)
@@ -39,6 +41,7 @@ public sealed class BeamTileCatalog : IVramAssetProvider, IInstalledArtworkTrans
         return new((BeamTileAtlas[])sheets.Clone(), palettes, hyperBeamFxColors);
     }
 
+    /// <summary>Resolves a supported typed beam-tile identity to its immutable 256-byte planar transfer.</summary>
     public ReadOnlyMemory<byte> Resolve(VramAssetId asset)
     {
         if (asset == VramAssetId.BeamChainsawTiles) return sheets[BeamTileAtlasDefinitions.SelectionCount].Transfer;
@@ -61,6 +64,7 @@ public sealed class BeamTileCatalog : IVramAssetProvider, IInstalledArtworkTrans
         return false;
     }
 
+    /// <summary>Maps a supported native equipped-beam selection to its queued VRAM asset identity.</summary>
     public static VramAssetId AssetFor(int selection)
     {
         if (selection == Game.ChainsawBeamGraphicsDefinitions.Selection) return VramAssetId.BeamChainsawTiles;

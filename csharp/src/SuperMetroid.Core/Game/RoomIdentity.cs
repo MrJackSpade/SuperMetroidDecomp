@@ -7,6 +7,10 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public readonly record struct RoomIdentity
 {
+    /// <summary>Creates a logical gameplay room key from a validated retail area and that area's native room byte.</summary>
+    /// <param name="area">One of the seven retail world-area identities.</param>
+    /// <param name="roomIndex">Native per-area room index; values are intentionally not globally unique or constrained here.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="area"/> is outside the retail domain.</exception>
     public RoomIdentity(AreaId area, byte roomIndex)
     {
         // Enum casts can manufacture arbitrary bytes. Validate at construction so a room

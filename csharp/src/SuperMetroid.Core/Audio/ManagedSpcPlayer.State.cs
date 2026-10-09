@@ -173,6 +173,8 @@ public sealed partial class ManagedSpcPlayer
     private byte echoVolumeFadeTargetRight;
     private byte lastWrittenEchoDelay;
 
+    /// <summary>Creates an independent SPC sequencer and DSP over owned 64-KiB APU RAM, applying native driver reset state without loading an audio bank or opening a host audio device.</summary>
+    /// <remarks>Uploads and instrument, music, sound-effect, and decoded sample definitions are installed separately by the audio renderer before playback.</remarks>
     public ManagedSpcPlayer()
     {
         dsp = new ManagedSnesDsp(ram);

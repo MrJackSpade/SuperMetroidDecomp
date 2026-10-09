@@ -10,7 +10,9 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Extracts the authored bank-$9B fatal-damage color and color-selection data.</summary>
 public static class SamusDeathPaletteArtworkFiles
 {
+    /// <summary>Stock/override JSON filename for suited/suitless death rows, whiteout shades, and explosion palette selectors.</summary>
     public const string ArtworkFileName = "samus-death-palettes.json";
+    /// <summary>Stock manifest filename recording version-one format, cartridge provenance, and the death-palette JSON's SHA-256.</summary>
     public const string ManifestFileName = "samus-death-palettes-manifest.json";
     private const int FormatVersion = 1;
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -22,6 +24,15 @@ public static class SamusDeathPaletteArtworkFiles
         WriteIndented = true,
     };
 
+    /// <summary>Exports three ten-row suited families, ten suitless rows, twenty-two whiteout shades, and nine explosion palette selectors from bank $9B.</summary>
+    /// <param name="bus">Cartridge source for native death palette pointer tables, sixteen-color payloads, ShadesOfWhite, and odd-byte explosion selectors.</param>
+    /// <param name="directory">Artwork directory, created if absent; existing JSON and companion manifest are overwritten.</param>
+    /// <param name="sourceCartridgeSha256">Caller-supplied provenance recorded verbatim; the post-write load requires the supported cartridge hash.</param>
+    /// <remarks>Colors remain packed RGB5 words 0..$7FFF including row color zero; suited order is Power, Varia, Gravity. Selectors are editable palette choices, not adjacent timing bytes. Separate writes are not rolled back if post-write validation fails.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="ArgumentException">The directory is null, empty, or whitespace.</exception>
+    /// <exception cref="InvalidDataException">Provenance, palette dimensions, RGB5 words, or explosion selector values are invalid.</exception>
+    /// <exception cref="IOException">Filesystem output or post-write input fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -63,6 +74,13 @@ public static class SamusDeathPaletteArtworkFiles
         _ = Load(directory, null);
     }
 
+    /// <summary>Validates stock fatal-damage color/selector artwork before selecting an optional complete JSON replacement.</summary>
+    /// <param name="stockDirectory">Artwork directory containing required version-one death-palette JSON and its provenance/hash manifest.</param>
+    /// <param name="overrideDirectory">Optional artwork directory; null or absent artwork JSON uses validated stock.</param>
+    /// <returns>A ROM-independent catalog of owned color inputs and selector choices, leaving death/explosion durations and suit-selection mechanics compiled.</returns>
+    /// <remarks>Stock provenance, byte hash, and strict schema/catalog admission are mandatory even with overrides. Replacement JSON needs all original dimensions, packed colors at most $7FFF, and nine row selectors 0..9, but no manifest.</remarks>
+    /// <exception cref="InvalidDataException">Provenance, hash, strict JSON, version, dimensions, color words, or selectors are invalid; admission errors identify the source filename.</exception>
+    /// <exception cref="IOException">A required stock or selected override file cannot be read.</exception>
     public static SamusDeathPaletteArtworkCatalog Load(string stockDirectory, string? overrideDirectory)
     {
         SamusArtworkFile manifestFile = SamusArtworkFile.Read(Path.Combine(stockDirectory, ManifestFileName));

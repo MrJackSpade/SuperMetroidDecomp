@@ -671,6 +671,10 @@ public sealed partial class RoomEnemySystem
     /// Runs common normal-enemy shot AI for ordinary radius-based translated actors. One
     /// projectile may resolve per enemy per pass, matching the native collision-handler exit.
     /// </summary>
+    /// <param name="bus">Address space used by native-compatible projectile collision, reflection, and impact side effects.</param>
+    /// <param name="projectiles">Live Samus beam and missile slots whose enemy collisions may consume, reflect, or transition their projectiles.</param>
+    /// <param name="sharedProjectiles">Shared bomb-projectile owner passed to projectile impact handling.</param>
+    /// <param name="samus">Live player state for enemy-specific shot reactions; may be null only for paths that do not require it, while player-dependent reactions such as Yard beam launch reject its absence.</param>
     /// <param name="onlyNativeEnemyIndex">Current EnemyMain slot, or null for a standalone whole-population audit.</param>
     public int ResolveOrdinaryProjectileHits(
         ISnesAddressSpace bus,

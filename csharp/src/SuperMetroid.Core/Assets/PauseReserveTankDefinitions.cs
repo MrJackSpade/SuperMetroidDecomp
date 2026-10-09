@@ -5,16 +5,22 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Reserve-strip visual identities and import-only cartridge bindings.</summary>
 public static class PauseReserveTankDefinitions
 {
+    /// <summary>Supported schema version for the editable reserve-strip anchors, palette, and visual frames.</summary>
     public const int Version = 1;
+    /// <summary>JSON asset filename for the pause equipment screen's reserve-tank strip presentation.</summary>
     public const string FileName = "pause-reserve-tanks.json";
     /// <summary>$82:C1D6 supplies six origins, including the trailing cap position.</summary>
     public const int AnchorCount = 6;
     /// <summary>$82:C1D6..C1E2: six eight-pixel columns starting at24, at Y96 minus the draw bias.</summary>
+    /// <param name="index">Zero-based tank/cap anchor, 0..5, not a reserve-energy quantity.</param>
+    /// <returns>The stock screen-pixel origin before editable anchor deviations are applied.</returns>
+    /// <exception cref="IndexOutOfRangeException">The anchor is outside the six-entry strip.</exception>
     public static MapLabelPoint StockAnchor(int index)
     {
         if ((uint)index >= AnchorCount) throw new IndexOutOfRangeException();
         return new(24 + index * 8, 95);
     }
+    /// <summary>$82:C1D6, EquipmentScreen_ReserveTank_Xpositions: import-only pointer to the six native horizontal origins; runtime uses the compiled stock anchors and editable deviations.</summary>
     public const int XPositions = PauseReserveTankRomData.XPositions;
     /// <summary>$82:C1E2 supplies Y plus one; import applies the draw routine's decrement.</summary>
     public const int YPosition = PauseReserveTankRomData.YPosition;
@@ -23,6 +29,7 @@ public static class PauseReserveTankDefinitions
     /// <summary>$82:B3FC uses OBJ palette three; $82:B433 keeps that palette even as its unused timer advances.</summary>
     public const ushort PaletteBits = PauseReserveTankRomData.PaletteBits;
     /// <summary>$82:B305 full tank; $82:B396 trailing cap; $82:B37D empty tank and $82:B3D9 seven fill levels.</summary>
+    /// <returns>Ten stable frame-name/native-spritemap pairs in full, end-cap, empty, then Fill1..Fill7 order; caller-owned reserve quantities select the frame.</returns>
     public static IEnumerable<(string Name, ushort Id)> Frames()
     {
         yield return ("Full", PauseReserveTankRomData.FullMap);
@@ -48,7 +55,10 @@ public static class PauseReserveTankDefinitions
         return new() { OffsetX = 0, OffsetY = 0, Size = 8, Priority = 3, Palette = null,
             FlipX = false, FlipY = false, TileColumn = tile % MapSpriteFormat.TileColumns, TileRow = tile / MapSpriteFormat.TileColumns };
     }
-    /// <summary>$82:B3D9 maps each eighth-step index to $20..$27; both native tables agree.</summary>
+    /// <summary>$82:B3D9 maps each of eight fill-step indices to $20..$27; both native tables agree.</summary>
+    /// <param name="index">Entry index, 0..15, covering both identical eight-entry native tables.</param>
+    /// <returns>The Empty-through-Fill7 spritemap identity selected by index modulo eight; gameplay computes the index using fourteen energy per step.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the sixteen native entries.</exception>
     public static ushort PartialMap(int index) => (uint)index < 16
         ? (ushort)(PauseReserveTankRomData.EmptyMap + index % 8) : throw new ArgumentOutOfRangeException(nameof(index));
 }

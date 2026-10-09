@@ -13,6 +13,7 @@ public readonly record struct HostViewportLayoutSmokeTestResult(
 /// </summary>
 public static class HostViewportLayoutSmokeTest
 {
+    /// <summary>Checks that expanding toolbar status text leaves the preferred toolbar width and gameplay-canvas bounds unchanged in a headless WinForms layout.</summary>
     public static HostViewportLayoutSmokeTestResult Run()
     {
         using var toolStrip = new ToolStrip { GripStyle = ToolStripGripStyle.Hidden };

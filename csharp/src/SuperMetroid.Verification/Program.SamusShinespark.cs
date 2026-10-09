@@ -476,14 +476,10 @@ static void VerifySamusStoredShineAndShinespark()
     Console.WriteLine("  Shinespark: storage, palette, launch, motion, bomb blocks, crash orbit/circle, departing echoes, and standing return agree.");
 }
 
-/// <summary>
-/// Exercises the complete no-equipment neutral-jump route: ROM pose transition bytecode,
-/// jump initialization constants, old-speed displacement ordering, variable-height cut,
-/// falling acceleration, solid-floor landing, radius alignment, and landing animation.
-/// </summary>
-/// <summary>
-/// Walks the exact `$90:D5A2-$D792` Crystal Flash handler chain, including its strict
-/// controller equality test, ten raise calls, NMI-mod-eight ammo cadence, ROM delay-list
-/// finish command, energy overflow, and one-frame-late movement-handler cleanup.
-/// </summary>
+// Exercises the complete no-equipment neutral-jump route: ROM pose transition bytecode,
+// jump initialization constants, old-speed displacement ordering, variable-height cut,
+// falling acceleration, solid-floor landing, radius alignment, and landing animation.
+// Walks the exact `$90:D5A2-$D792` Crystal Flash handler chain, including its strict
+// controller equality test, ten raise calls, NMI-mod-eight ammo cadence, ROM delay-list
+// finish command, energy overflow, and one-frame-late movement-handler cleanup.
 }

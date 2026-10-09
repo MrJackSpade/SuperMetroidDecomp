@@ -15,6 +15,7 @@ namespace SuperMetroid.AssetExtraction;
 /// </remarks>
 public static class SamusBodyArtworkFiles
 {
+    /// <summary>Body-art JSON filename containing split-DMA definitions, pose/frame selectors, spritemaps, vertical offsets, and stock PNG provenance hashes.</summary>
     public const string ManifestFileName = "samus-body.json";
     private const int FormatVersion = 4;
     private const int TileWidth = 64;
@@ -29,6 +30,12 @@ public static class SamusBodyArtworkFiles
         WriteIndented = true,
     };
 
+    /// <summary>Writes Samus's upper/lower body PNG sets and visual selector JSON, together with linked atmospheric, death, and arm-cannon artwork.</summary>
+    /// <param name="bus">Non-null cartridge address space supplying native body DMA definitions, pose/frame tables, spritemaps, offsets, and linked artwork.</param>
+    /// <param name="directory">Stock output directory, created if needed; body PNGs and body JSON are overwritten, while linked extractors retain their own file-creation policies.</param>
+    /// <param name="sourceCartridgeSha256">Source cartridge SHA-256 recorded in body and linked manifests; installed loading requires the supported revision.</param>
+    /// <remarks>Each DMA definition uses a zero-padded 64x16 four-bit character slot. Builds the complete catalog before publishing body JSON to reject invalid visual references; gameplay and animation-delay bytes are not exported.</remarks>
+    /// <exception cref="InvalidDataException">Native DMA bounds, sizes, spritemaps, visual references, or linked artwork fail validation.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -96,6 +103,12 @@ public static class SamusBodyArtworkFiles
             JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }
 
+    /// <summary>Validates the complete stock Samus body catalog before compiling selected body JSON, PNGs, and linked artwork.</summary>
+    /// <param name="stockDirectory">Directory containing supported-revision body metadata, hash-checked PNG sets, and all linked Samus artwork.</param>
+    /// <param name="overrideDirectory">Optional directory of independently selected same-named JSON or PNG replacements; missing files retain stock content.</param>
+    /// <returns>A cartridge-free catalog owning selected split-DMA characters, visual pose/frame mappings, spritemaps, offsets, and linked artwork.</returns>
+    /// <remarks>Body JSON overrides must retain stock PNG hashes, definition-set counts, native source addresses, and spritemap identities. Transfer sizes and references remain validated, and unused PNG-slot tiles must stay zero.</remarks>
+    /// <exception cref="InvalidDataException">Stock validation fails or selected metadata, identities, hashes, sizes, PNG padding, or linked artwork are invalid; diagnostics retain the offending filename.</exception>
     public static SamusBodyArtworkCatalog Load(string stockDirectory, string? overrideDirectory)
     {
         SamusArtworkFile stockFile = SamusArtworkFile.Read(Path.Combine(stockDirectory, ManifestFileName));
@@ -138,6 +151,10 @@ public static class SamusBodyArtworkFiles
         }
     }
 
+    /// <summary>Compiles and validates the complete installed Samus body and linked artwork with player overrides disabled.</summary>
+    /// <param name="stockDirectory">Stock Samus artwork directory containing body metadata, PNG sets, atmospheric, death, and arm-cannon resources.</param>
+    /// <remarks>Checks provenance, metadata, visual references, image hashes and padding, and linked catalogs without cartridge access or file writes.</remarks>
+    /// <exception cref="InvalidDataException">The body installation or any linked artwork resource is invalid.</exception>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
     private static DefinitionEntry[][] ExtractHalf(ISnesAddressSpace bus, string directory,

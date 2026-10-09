@@ -10,6 +10,7 @@ public readonly record struct HostKeyboardInputSmokeTestResult(
 /// <summary>Exercises the exact parent-preview message path without opening a window.</summary>
 public static class HostKeyboardInputSmokeTest
 {
+    /// <summary>Checks synthetic gameplay-key routing, shoulder mappings, Enter release, and neutral-input rearming after a host discontinuity without a window.</summary>
     public static HostKeyboardInputSmokeTestResult Run()
     {
         LiveGamepadProbe.VerifyMissingAxes();

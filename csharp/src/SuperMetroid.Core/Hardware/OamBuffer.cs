@@ -15,9 +15,13 @@ namespace SuperMetroid.Core.Hardware;
 /// </remarks>
 public sealed class OamBuffer
 {
+    /// <summary>Number of hardware OBJ records representable by one OAM image.</summary>
     public const int SpriteCount = SnesPpuLayout.OamSpriteCount;
+    /// <summary>Byte length of the 128 four-byte coordinate and attribute records.</summary>
     public const int LowTableByteCount = SnesPpuLayout.OamLowTableByteCount;
+    /// <summary>Byte length of the packed X-high and size-bit table.</summary>
     public const int HighTableByteCount = SnesPpuLayout.OamHighTableByteCount;
+    /// <summary>Total 544-byte DMA payload containing the low table followed by the high table.</summary>
     public const int UploadByteCount = SnesPpuLayout.OamUploadByteCount;
 
     private readonly byte[] _lowTable = new byte[LowTableByteCount];
@@ -106,6 +110,7 @@ public sealed class OamBuffer
     /// <param name="spritemapIndex">Word index into <c>$92:808D</c>.</param>
     /// <param name="originX">Screen-space X origin produced by bank $90.</param>
     /// <param name="originY">Screen-space Y origin produced by bank $90.</param>
+    /// <param name="artwork">Required installed Samus compositions indexed by the native pointer-table ordinal; a zero-pointer catalog entry selects the mutable WRAM spritemap case rather than an empty image.</param>
     public void AddSamusSpritemap(
         ISnesMutableMemory memory,
         ushort spritemapIndex,

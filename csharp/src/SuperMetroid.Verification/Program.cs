@@ -822,6 +822,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--unpause-station-lock-release"])
+{
+    Suite(nameof(VerifyUnpauseStationLockRelease), () => VerifyUnpauseStationLockRelease());
+    return 0;
+}
 if (args is ["--eye-door-sweat-span-underflow"])
 {
     Suite(nameof(VerifyEyeDoorSweatSpanUnderflow), () => VerifyEyeDoorSweatSpanUnderflow());
@@ -7998,6 +8003,7 @@ Suite(nameof(VerifyBombJumpRunMomentum), () => VerifyBombJumpRunMomentum());
 Suite(nameof(VerifyBabyMetroidWallClearTiming), () => VerifyBabyMetroidWallClearTiming());
 Suite(nameof(VerifyDrainedSparkCrash), () => VerifyDrainedSparkCrash());
 Suite(nameof(VerifyEyeDoorSweatSpanUnderflow), () => VerifyEyeDoorSweatSpanUnderflow());
+Suite(nameof(VerifyUnpauseStationLockRelease), () => VerifyUnpauseStationLockRelease());
 Suite(nameof(VerifyRoomFxRomData), () => VerifyRoomFxRomData());
 Suite(nameof(VerifyPowerBombFixedColors), () => VerifyPowerBombFixedColors());
 Suite(nameof(VerifySamusVisorColors), () => VerifySamusVisorColors());

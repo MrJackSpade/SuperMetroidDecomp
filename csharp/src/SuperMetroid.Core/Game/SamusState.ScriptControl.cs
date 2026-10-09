@@ -36,4 +36,15 @@ public sealed partial class SamusState
         StationaryScriptControlLocked = false;
         RefillStationLocked = true;
     }
+
+    /// <summary>
+    /// The handler part of unpause command $0C ($90:F2A2): whenever the new-state handler is
+    /// command six's bare <c>RTL</c>, it restores the normal pair. Any station that locked
+    /// Samus, map or recharge, therefore lets go when the pause menu closes.
+    /// </summary>
+    public void ReleaseRefillStationLockOnUnpause()
+    {
+        if (RefillStationLocked)
+            InputLocked = false;
+    }
 }

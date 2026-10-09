@@ -710,7 +710,8 @@ public sealed partial class SuperMetroidGame
                 // Samus command $0C also calls LoadSamusSuitPalette at $91:E6CB.
                 // Equipment bits are live, but the restored gameplay palette is cached.
                 resumedSamus.LoadSuitPalette(bus, runtime.Cgram);
-                runtime.Plms.ReleaseMapStationInputOnUnpause(resumedSamus);
+                runtime.Plms.ResumeMapStationsAfterUnpause();
+                resumedSamus.ReleaseRefillStationLockOnUnpause();
                 runtime.Enemies.ClearElevatorFlagsOnGameplayResume();
                 runtime!.RunNmi(controllerInput, mainLoopRequestedNmi: true);
                 pauseMenu = null;

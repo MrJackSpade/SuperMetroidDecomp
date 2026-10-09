@@ -33,6 +33,10 @@ internal static class BabyMetroidFinalHealthPaintDefinitions
     /// <summary>$AD:E87E, fang contour is three quarters of initial$A9:94EC, nearest rounding with ties toward dark.</summary>
     private const int ContourNumerator = 3, ContourDenominator = 4;
 
+    /// <summary>Resolves a supported Baby cutscene palette identity to its final-health BGR15 endpoint.</summary>
+    /// <param name="color">The palette identity used by the cutscene color catalog, including material shade slots.</param>
+    /// <returns>The packed 15-bit color selected or composed for the final-health fade endpoint.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The identity is not one of the supported final-health paint slots.</exception>
     internal static ushort Color(int color) => color switch
     {
         InitialSlots.DomeHighlightColor => DomeHighlight,
@@ -51,6 +55,8 @@ internal static class BabyMetroidFinalHealthPaintDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(color)),
     };
 
+    /// <summary>Builds the organ glint from its light base, preserving red and adding the initial glint contribution to green and blue.</summary>
+    /// <remarks>The green contribution rounds up, blue rounds down, and both channels are capped at the BGR15 maximum.</remarks>
     private static ushort Glint()
     {
         int red = InnardLight & 31;
@@ -59,6 +65,9 @@ internal static class BabyMetroidFinalHealthPaintDefinitions
         return (ushort)(red | green << 5 | blue << 10);
     }
 
+    /// <summary>Interpolates an organ surface shade between the light paint and the dark contour.</summary>
+    /// <param name="shade">The ordinal distance from the light slot toward the dark slot.</param>
+    /// <returns>A packed BGR15 shade using smoothstep red, linear green, and the configured per-slot blue step.</returns>
     private static ushort InnardShade(int shade)
     {
         int intervals = InitialSlots.InnardDark - InitialSlots.InnardLight;
@@ -71,6 +80,8 @@ internal static class BabyMetroidFinalHealthPaintDefinitions
         return (ushort)(red | green << 5 | blue << 10);
     }
 
+    /// <summary>Derives the outer fang contour by scaling each five-bit channel of the initial outline.</summary>
+    /// <remarks>Each channel is scaled to three quarters with nearest rounding; exact ties round toward the darker value.</remarks>
     private static ushort FangContour()
     {
         int result = 0;

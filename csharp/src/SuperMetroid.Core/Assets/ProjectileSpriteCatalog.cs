@@ -7,7 +7,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable, ROM-independent projectile visual compositions; no damage, collision or timing fields.</summary>
 public sealed class ProjectileSpriteCatalog
 {
+    /// <summary>Compiled visual compositions keyed by their native spritemap identity.</summary>
     private readonly Dictionary<ushort, SpriteComposition> frames;
+
+    /// <summary>Creates a catalog from the validated, compiled frame map.</summary>
+    /// <param name="frames">Complete mapping from required spritemap identities to visual compositions.</param>
     private ProjectileSpriteCatalog(Dictionary<ushort, SpriteComposition> frames) => this.frames = frames;
 
     /// <summary>Emits one installed projectile composition in authored OAM order using native projectile coordinate wrapping, without advancing animation or collision state.</summary>
@@ -36,6 +40,15 @@ public sealed class ProjectileSpriteCatalog
 
     // Charge flares use the same native part format but have a separate required
     // identity set, so existing projectile overrides remain compatible.
+    /// <summary>
+    /// Validates a projectile-style visual document and compiles every identity from the selected required set.
+    /// </summary>
+    /// <param name="json">JSON stream positioned at its document; the stream remains open.</param>
+    /// <param name="requiredPointers">Identities required when <paramref name="useProjectilePointers"/> is false.</param>
+    /// <param name="useProjectilePointers">When true, use the native projectile identity catalog instead of <paramref name="requiredPointers"/>.</param>
+    /// <returns>A catalog containing a compiled composition for each required identity.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
+    /// <exception cref="InvalidDataException">The document has duplicate or invalid JSON, the wrong schema or identity set, or an invalid visual part.</exception>
     internal static ProjectileSpriteCatalog LoadFrames(Stream json, ReadOnlySpan<ushort> requiredPointers, bool useProjectilePointers = false)
     {
         int requiredCount = useProjectilePointers ? ProjectileSpriteDefinitions.NativePointers.Length : requiredPointers.Length;
@@ -116,6 +129,11 @@ public sealed class ProjectileSpriteCatalog
         return new(frames);
     }
 
+    /// <summary>
+    /// Rejects repeated property names throughout a parsed projectile document using ordinal name comparison.
+    /// </summary>
+    /// <param name="element">Parsed JSON subtree to validate, including objects nested within arrays.</param>
+    /// <exception cref="InvalidDataException">An object in the document contains a repeated property name.</exception>
     private static void RejectDuplicateProperties(JsonElement element) =>
         JsonAssetDocument.RejectDuplicateProperties(element, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate projectile composition property {name}."));

@@ -21,6 +21,9 @@ internal static class TripperKamerVisualDefinitions
     /// Every nonzero value chooses the right map, including values outside the normal dispatcher domain.</summary>
     internal static ushort FrozenFrame(PlatformHorizontalMovement direction) =>
         direction == PlatformHorizontalMovement.Left ? FrozenMovingLeft : FrozenMovingRight;
+
+    /// <summary>Creates the installed artwork identities for all Kamer and Tripper platform and frozen poses.</summary>
+    /// <returns>The eighteen bank-$A3 spritemap definitions consumed by the enemy-artwork catalog.</returns>
     internal static EnemySpritemapDefinition[] Frames() =>
     [
         new(Bank, MovingTripperFrame(0, 0), "tripper_moving_left_0"),
@@ -65,9 +68,23 @@ internal static class TripperKamerVisualDefinitions
         return StillTripperFrame(facing, pose);
     }
     // These record-layout calculations serve runtime selection and export identities.
+
+    /// <summary>Calculates one of Kamer's four two-entry platform-map addresses.</summary>
+    /// <param name="frame">Zero-based frame index in the Kamer platform sequence, from 0 through 3.</param>
+    /// <returns>The bank-$A3 address of the selected spritemap.</returns>
     private static ushort KamerFrame(int frame) => (ushort)(0xa021 + 12 * frame);
+
+    /// <summary>Calculates a three-entry moving Tripper map address using its facing and pose record strides.</summary>
+    /// <param name="facing">Facing index: 0 for left and 1 for right.</param>
+    /// <param name="pose">Pose index: 0, 1, or 2 within the selected facing's three-frame sequence.</param>
+    /// <returns>The bank-$A3 address of the selected spritemap.</returns>
     private static ushort MovingTripperFrame(int facing, int pose) =>
         (ushort)(0x9f29 + 51 * facing + 17 * pose);
+
+    /// <summary>Calculates a still Tripper map address, accounting for the shorter middle record in each facing's sequence.</summary>
+    /// <param name="facing">Facing index: 0 for left and 1 for right.</param>
+    /// <param name="pose">Pose index: 0, 1, or 2 in the neutral/first/second sequence.</param>
+    /// <returns>The bank-$A3 address of the selected spritemap.</returns>
     private static ushort StillTripperFrame(int facing, int pose) =>
         (ushort)(0x9f8f + 61 * facing + 22 * pose - (pose == 2 ? 5 : 0));
 }

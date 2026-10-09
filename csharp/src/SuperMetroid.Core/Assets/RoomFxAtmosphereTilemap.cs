@@ -46,10 +46,16 @@ public static class RoomFxAtmosphereTilemapDefinitions
 /// </summary>
 internal sealed class RoomFxAtmosphereTilemap
 {
+    /// <summary>Selects the rain or fog attribute rules used when composing this page.</summary>
     private readonly RoomFxType type;
+    /// <summary>Retains each cell's authored graphical bits outside the calculated attribute mask.</summary>
     private readonly ushort[] preservedBits;
+    /// <summary>Sparse per-cell calculated-field values that differed from the canonical page when loaded.</summary>
     private readonly Dictionary<int, ushort>? customFields;
 
+    /// <summary>Reads one atmosphere tilemap page, preserving its graphical bits and any noncanonical calculated fields.</summary>
+    /// <param name="type">The atmosphere kind whose calculated attributes are separated from authored graphics.</param>
+    /// <param name="bytes">The complete page bytes in little-endian tilemap-word order.</param>
     public RoomFxAtmosphereTilemap(RoomFxType type, ReadOnlySpan<byte> bytes)
     {
         ushort mask = RoomFxAtmosphereTilemapDefinitions.CalculatedMask(type);

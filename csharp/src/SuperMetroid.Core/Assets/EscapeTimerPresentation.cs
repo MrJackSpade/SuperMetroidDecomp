@@ -7,9 +7,16 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable escape-timer spritemap compositions, palette and screen-relative anchors.</summary>
 public sealed class EscapeTimerPresentation
 {
+    /// <summary>Compiled frame compositions whose authored parts differ from the stock timer artwork.</summary>
     private readonly Dictionary<string, SpriteComposition> frames;
+    /// <summary>Screen-relative label and digit anchors whose authored coordinates differ from stock placement.</summary>
     private readonly Dictionary<string, MapLabelPoint> anchors;
 
+    /// <summary>Creates the runtime presentation from validated visual overrides and shared digit and palette settings.</summary>
+    /// <param name="frames">Compiled per-frame overrides, keyed by the timer's exact frame names.</param>
+    /// <param name="anchors">Nondefault screen-relative positions for the label and digit groups.</param>
+    /// <param name="digitSpacing">Horizontal pixel displacement from each tens digit to its ones digit.</param>
+    /// <param name="palette">Shared OBJ palette selector inherited by parts without an explicit palette.</param>
     private EscapeTimerPresentation(Dictionary<string, SpriteComposition> frames,
         Dictionary<string, MapLabelPoint> anchors, int digitSpacing, int palette)
     {
@@ -60,6 +67,9 @@ public sealed class EscapeTimerPresentation
         }
     }
 
+    /// <summary>Resolves an authored screen-relative anchor, falling back to the cartridge layout when no override exists.</summary>
+    /// <param name="name">Exact anchor key for the label or one of the timer's digit groups.</param>
+    /// <returns>The authored anchor when present; otherwise the corresponding stock anchor.</returns>
     private MapLabelPoint Anchor(string name) => anchors.TryGetValue(name, out var supplied)
         ? supplied : EscapeTimerPresentationDefinitions.DefaultAnchor(name);
 

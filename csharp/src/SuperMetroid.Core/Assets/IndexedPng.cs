@@ -29,6 +29,14 @@ public static class IndexedPng
         catch (EndOfStreamException error) { throw new InvalidDataException("Indexed PNG is truncated.", error); }
     }
 
+    /// <summary>
+    /// Parses and validates indexed PNG chunks, collecting the palette and compressed rows before decoding the image.
+    /// </summary>
+    /// <param name="input">Stream positioned at the PNG signature.</param>
+    /// <param name="width">Required image width, already checked against codec limits.</param>
+    /// <param name="height">Required image height, already checked against codec limits.</param>
+    /// <returns>The decoded indexed pixels and palette after the validated image terminator.</returns>
+    /// <exception cref="InvalidDataException">The stream contains malformed, unsupported, oversized, or inconsistent PNG data.</exception>
     private static IndexedPngImage ReadCore(Stream input, int width, int height)
     {
         Span<byte> signature = stackalloc byte[8];
@@ -110,6 +118,17 @@ public static class IndexedPng
         }
     }
 
+    /// <summary>
+    /// Inflates PNG scanlines, reverses their row filters, and unpacks each pixel's palette index.
+    /// </summary>
+    /// <param name="compressed">Compressed IDAT payloads collected from consecutive image-data chunks.</param>
+    /// <param name="width">Validated image width in pixels.</param>
+    /// <param name="height">Validated image height in rows.</param>
+    /// <param name="depth">Bits used for each indexed pixel: 1, 2, 4, or 8.</param>
+    /// <param name="palette">Decoded palette used to validate each unpacked index.</param>
+    /// <returns>Image dimensions, row-major unpacked palette indexes, and the palette.</returns>
+    /// <exception cref="InvalidDataException">A row filter is invalid, a pixel references a missing palette entry, or inflated data has excess bytes.</exception>
+    /// <exception cref="EndOfStreamException">The inflated stream ends before all scanlines are complete.</exception>
     private static IndexedPngImage DecodeRows(MemoryStream compressed, int width, int height, int depth, Rgba32[] palette)
     {
         compressed.Position = 0;
@@ -188,12 +207,25 @@ public static class IndexedPng
         PngWriter.WriteChunk(output, "IEND", []);
     }
 
+    /// <summary>
+    /// Selects the PNG Paeth predictor nearest to the linear estimate formed from the left, above, and upper-left bytes.
+    /// </summary>
+    /// <param name="a">Reconstructed byte immediately to the left.</param>
+    /// <param name="b">Reconstructed byte in the preceding row.</param>
+    /// <param name="c">Reconstructed byte diagonally above and left.</param>
+    /// <returns>The candidate with the smallest distance from <c>a + b - c</c>, preferring left then above on ties.</returns>
     private static int Paeth(int a, int b, int c)
     {
         int p = a + b - c, pa = Math.Abs(p - a), pb = Math.Abs(p - b), pc = Math.Abs(p - c);
         return pa <= pb && pa <= pc ? a : pb <= pc ? b : c;
     }
 
+    /// <summary>
+    /// Enforces the codec's inclusive width and height bounds before image-sized buffers are allocated.
+    /// </summary>
+    /// <param name="width">Requested pixel width.</param>
+    /// <param name="height">Requested pixel height.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Either dimension is outside 1 through 2048.</exception>
     private static void ValidateDimensions(int width, int height)
     {
         if (width < 1 || height < 1 || width > IndexedPngFormat.MaximumDimension || height > IndexedPngFormat.MaximumDimension)

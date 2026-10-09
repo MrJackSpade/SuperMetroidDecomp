@@ -6,8 +6,13 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>Standing suited body and its headless/armless variant share a
 /// thirty-part atlas grid. The full body prepends the four-tile arm strip.</summary>
+/// <param name="includeArm">Whether to prepend the standing pose's four-part arm strip.</param>
 internal sealed class EndingRewardStandingParts(bool includeArm) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Uses the matching standing-pose part layout when the supplied frame pointer names either supported pose.</summary>
+    /// <param name="pointer">Native spritemap pointer identifying the pose to check.</param>
+    /// <param name="supplied">Composition whose parts are reused or conditionally extended with this layout.</param>
+    /// <returns>The supplied composition with this layout applied for a supported standing pose; otherwise the original composition.</returns>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         if (pointer == EndingRewardSpriteDefinitions.FramePointer(Pose.LargeSamusFromEndingStanding))
@@ -17,7 +22,13 @@ internal sealed class EndingRewardStandingParts(bool includeArm) : IReadOnlyList
         return supplied;
     }
 
+    /// <summary>Number of parts in this pose, including the optional four-part arm strip.</summary>
     public int Count => includeArm ? 34 : 30;
+
+    /// <summary>Gets the atlas part at the requested position in draw order.</summary>
+    /// <param name="index">Zero-based position within this pose's part sequence.</param>
+    /// <returns>The sprite part to draw at that position.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside this pose's part sequence.</exception>
     public CompiledSpritePart this[int index]
     {
         get
@@ -58,6 +69,8 @@ internal sealed class EndingRewardStandingParts(bool includeArm) : IReadOnlyList
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+    /// <summary>Enumerates the pose's sprite parts in their required draw order.</summary>
+    /// <returns>An enumerator over this pose's parts.</returns>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];

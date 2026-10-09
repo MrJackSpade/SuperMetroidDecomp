@@ -7,11 +7,20 @@ namespace SuperMetroid.Core.Assets;
 /// grid; draw order traverses edge strips before the interior rows.</summary>
 internal sealed class EndingRewardPrepareJumpParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Applies the calculated 22-piece pose when the pointer selects Samus's suited jump-preparation frame.</summary>
+    /// <param name="pointer">Spritemap pointer identifying the frame to check.</param>
+    /// <param name="supplied">Composition extracted for the selected frame and used as the match source.</param>
+    /// <returns>The matched calculated composition for this frame, or <paramref name="supplied"/> for other frames.</returns>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied) =>
         pointer == EndingRewardSpriteDefinitions.FramePointer(EndingRewardSpriteFrame.LargeSamusFromEndingPreparingToJump)
             ? supplied.CalculateIfMatching(new EndingRewardPrepareJumpParts()) : supplied;
 
+    /// <summary>Gets the fixed number of ordered sprite pieces used to draw the suited jump-preparation pose.</summary>
     public int Count => 22;
+
+    /// <summary>Gets one boundary or interior atlas piece in the pose's fixed draw order.</summary>
+    /// <param name="index">Zero-based position among the 22 pieces.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside the pose's piece range.</exception>
     public CompiledSpritePart this[int index]
     {
         get
@@ -37,6 +46,8 @@ internal sealed class EndingRewardPrepareJumpParts : IReadOnlyList<CompiledSprit
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+    /// <summary>Enumerates the pose's sprite pieces in the order expected by the compiled spritemap.</summary>
+    /// <returns>An enumerator over the 22 ordered pieces.</returns>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];

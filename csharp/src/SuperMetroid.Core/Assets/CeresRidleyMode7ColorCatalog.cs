@@ -8,10 +8,14 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable Ceres Ridley Mode-7 zoom shades, separate from movement and rotation.</summary>
 public sealed class CeresRidleyMode7ColorCatalog
 {
+    /// <summary>Packed RGB5 colors grouped by the high byte of the native Mode-7 zoom word.</summary>
     private readonly CeresRidleyMode7PaintDefinitions rows;
 
+    /// <summary>Creates a catalog over the decoded zoom-shade rows.</summary>
+    /// <param name="rows">Per-zoom color values packed in SNES CGRAM word format.</param>
     private CeresRidleyMode7ColorCatalog(ushort[][] rows) => this.rows = new(rows);
 
+    /// <summary>JSON settings that enforce camel-case schema names, reject unmapped properties, and produce indented output.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -90,6 +94,9 @@ public sealed class CeresRidleyMode7ColorCatalog
         return bytes;
     }
 
+    /// <summary>Rejects duplicate JSON object properties before deserialization using ordinal name comparison.</summary>
+    /// <param name="value">Root JSON value to scan for repeated properties.</param>
+    /// <exception cref="InvalidDataException">An object contains a property name more than once.</exception>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Ceres Ridley Mode-7 property {name}."));

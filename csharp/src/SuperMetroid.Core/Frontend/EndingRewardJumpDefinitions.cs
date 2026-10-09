@@ -21,8 +21,14 @@ internal static class EndingRewardJumpDefinitions
     public const ushort Launch = 0xf651;
     /// <summary>$8B:F604 requests the screen shot sequence and its sound after landing.</summary>
     public const ushort Shoot = 0xf604;
+    /// <summary>Signed 16.16 vertical velocity assigned when the reward jump begins; negative moves upward.</summary>
     public const int LaunchVelocity = -16 * 65536;
     /// <summary>$8B:F65B adds $0000:3800 to the shared velocity before each actor's movement.</summary>
     public const int Gravity = 0x3800;
+    /// <summary>
+    /// <see cref="SheetSwitchY"/> selects the falling sprite sheet above the screen,
+    /// <see cref="LandingY"/> is the body's clamped landing coordinate, and
+    /// <see cref="UploadCount"/> is the number of graphics-upload chunks queued during descent.
+    /// </summary>
     public const int SheetSwitchY = -80, LandingY = 136, UploadCount = 16;
 }

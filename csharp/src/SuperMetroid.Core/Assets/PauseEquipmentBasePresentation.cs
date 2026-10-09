@@ -8,7 +8,11 @@ namespace SuperMetroid.Core.Assets;
 public sealed class PauseEquipmentBasePresentation
 {
     // Only independent supplied edits remain; every stock word comes from the composed page.
+    /// <summary>Authored tile words that differ from the calculated stock composition, keyed by row-major cell index.</summary>
     private readonly Dictionary<int, ushort> remainingCells = [];
+
+    /// <summary>Stores only selected cells that override the composed equipment-page defaults.</summary>
+    /// <param name="selected">Complete row-major tilemap of the selected equipment-base document.</param>
     private PauseEquipmentBasePresentation(ReadOnlySpan<byte> selected)
     {
         // Compare each supplied word independently with immutable stock composition.
@@ -29,8 +33,14 @@ public sealed class PauseEquipmentBasePresentation
         return result;
     }
 
+    /// <summary>Resolves a cell to its authored override when present, otherwise to the composed stock word.</summary>
+    /// <param name="cell">Row-major index within the 32-by-32 equipment tilemap.</param>
+    /// <returns>The selected BG tile word for that cell.</returns>
     private ushort Word(int cell) => remainingCells.TryGetValue(cell, out ushort value) ? value : DefaultWord(cell);
 
+    /// <summary>Composes the default equipment page from the Power Suit wireframe footprint and remaining stock cells.</summary>
+    /// <param name="cell">Row-major index within the equipment tilemap.</param>
+    /// <returns>The stock BG tile word at that cell before authored overrides are applied.</returns>
     private static ushort DefaultWord(int cell)
     {
         int relative = cell - PauseWireframeDefinitions.DestinationByte / sizeof(ushort);

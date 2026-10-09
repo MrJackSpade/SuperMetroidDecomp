@@ -7,9 +7,14 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable small-OBJ appearance keyed by native trail frame; no timing or movement fields.</summary>
 public sealed class ProjectileTrailCatalog
 {
+    /// <summary>Only frame attributes that differ from the catalog's derived stock appearance.</summary>
     private readonly Dictionary<ushort, ushort> suppliedAttributes = [];
     /// <summary>Optional installed twelve-tile trail artwork provider retained from loading; resolving appearances neither uploads nor replaces its pixels.</summary>
     public ProjectileTrailAtlas? Tiles { get; }
+
+    /// <summary>Builds the immutable catalog and retains only authored deviations from the derived defaults.</summary>
+    /// <param name="attributes">Complete validated attribute words indexed by native timed-record address.</param>
+    /// <param name="tiles">Optional artwork provider associated with the catalog.</param>
     private ProjectileTrailCatalog(Dictionary<ushort, ushort> attributes, ProjectileTrailAtlas? tiles)
     {
         Tiles = tiles;
@@ -39,6 +44,7 @@ public sealed class ProjectileTrailCatalog
         int firstTile = ice ? IceFirstTile : index < 38 ? WaveFirstTile : MissileFirstTile;
         return SnesObjAttributeWord.Create(firstTile + phase, ice ? 6 : 5, 2, SnesTileFlipFlags.None).Raw;
     }
+    /// <summary>Strict JSON settings shared by trail catalog loading and writing.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -114,6 +120,8 @@ public sealed class ProjectileTrailCatalog
         _ = Load(new MemoryStream(bytes));
         return bytes;
     }
+    /// <summary>Walks every JSON object and rejects a property name repeated within that object.</summary>
+    /// <param name="element">The JSON value whose nested objects are checked recursively.</param>
     private static void ValidateUnique(JsonElement element)
     {
         if (element.ValueKind != JsonValueKind.Object) return;

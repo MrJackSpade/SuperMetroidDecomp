@@ -10,9 +10,17 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class TitlePalettePresentation : IPaletteFxColorSource
 {
+    /// <summary>Compiled initial CGRAM palette words in native color-index order.</summary>
     private readonly ushort[] colors;
+
+    /// <summary>Authored ambient-frame colors retained where they differ from the calculated title effect.</summary>
     private readonly Dictionary<ushort, ushort> animatedColors;
 
+    /// <summary>Stores the compiled palette, independent ambient edits, and fast-skip replacement colors.</summary>
+    /// <param name="colors">Owned BGR555 words for the complete initial CGRAM palette.</param>
+    /// <param name="animatedColors">Ambient program color operands whose authored values must override calculated shading.</param>
+    /// <param name="skipCopyrightWhite">Selected BGR555 value restored to the white copyright slot during fast skip.</param>
+    /// <param name="skipCopyrightRed">Selected BGR555 value restored to the second copyright slot during fast skip.</param>
     private TitlePalettePresentation(
         ushort[] colors,
         Dictionary<ushort, ushort> animatedColors,
@@ -143,6 +151,11 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
             PackColor(document.SkipCopyrightRed, "skip copyright red"));
     }
 
+    /// <summary>Validates an optional RGB5 document entry and packs its channels into a native BGR555 word.</summary>
+    /// <param name="color">RGB5 value to compile; missing or out-of-range channels are invalid.</param>
+    /// <param name="name">Field label used to identify invalid data in the exception.</param>
+    /// <returns>The packed native color word.</returns>
+    /// <exception cref="InvalidDataException">The value is missing or any channel lies outside 0 through 31.</exception>
     private static ushort PackColor(PaletteRgb5? color, string name)
     {
         if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 ||

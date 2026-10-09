@@ -24,8 +24,11 @@ public sealed class WorkRobotPaletteCycle
             }
         });
 
+    /// <summary>Compiled frame colors when any authored value differs from the native cycle; otherwise null.</summary>
     private readonly ushort[][]? frames;
 
+    /// <summary>Retains authored frame colors only when they change the calculated native cycle.</summary>
+    /// <param name="frames">Six ordered records of four packed RGB555 colors each.</param>
     private WorkRobotPaletteCycle(ushort[][] frames)
     {
         for (int frame = 0; frame < frames.Length; frame++)
@@ -51,6 +54,7 @@ public sealed class WorkRobotPaletteCycle
         return (ushort)(31 - 16 * (position >> 1) - 7 * (position & 1));
     }
 
+    /// <summary>Strict camel-case JSON options shared by palette-cycle reads and writes.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -139,6 +143,8 @@ public sealed class WorkRobotPaletteCycle
         return bytes;
     }
 
+    /// <summary>Rejects repeated JSON object properties before deserialization can discard them.</summary>
+    /// <param name="value">Parsed document root whose property names must be unique.</param>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Work Robot palette property {name}."));

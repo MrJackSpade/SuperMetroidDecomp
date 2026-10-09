@@ -161,7 +161,11 @@ public static class IntroCinematicRomData
         /// <summary>Ordered scene operations, selected without a stored region table.</summary>
         public sealed class Regions : System.Collections.Generic.IReadOnlyList<IntroPaletteSpan>
         {
+            /// <summary>Scene whose ordered palette ranges this view exposes.</summary>
             private readonly Scene scene;
+
+            /// <summary>Creates a palette-range view for one intro scene.</summary>
+            /// <param name="scene">Scene selection that determines the exposed spans.</param>
             internal Regions(Scene scene) => this.scene = scene;
             /// <summary>Gets the number of palette spans in the selected scene.</summary>
             public int Count => scene switch { Scene.Narration => 4, Scene.Discovery => 2, _ => 3 };
@@ -313,4 +317,6 @@ public static class IntroCinematicRomData
 }
 
 /// <summary>One byte-indexed CGRAM span used by the intro palette fader.</summary>
+/// <param name="ByteOffset">First byte of the palette range in the CGRAM image.</param>
+/// <param name="ByteCount">Number of consecutive CGRAM bytes covered by the range.</param>
 public readonly record struct IntroPaletteSpan(ushort ByteOffset, ushort ByteCount);

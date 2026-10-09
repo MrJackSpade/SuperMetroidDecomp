@@ -12,6 +12,8 @@ internal static class ShutterVisualDefinitions
     /// <summary>Native shutter sprite-map bank.</summary>
     internal const byte Bank = 0xa2;
 
+    /// <summary>Builds the exported compositions for the four growing-shutter stages and the horizontal shutter.</summary>
+    /// <returns>The five bank-$A2 frames, with the visible 40-pixel growing frame shared by the vertical shutter.</returns>
     internal static EnemySpritemapDefinition[] Frames() =>
     [
         new(Bank, GrowingFrame(0), "shutter_growing_10px"),
@@ -27,12 +29,22 @@ internal static class ShutterVisualDefinitions
     // A stage with n sprites occupies 2+5n bytes, followed by an unused
     // intermediate map with n+1 sprites occupying 2+5(n+1) bytes.
     // Sum those pairs for the preceding stages, where n starts at one.
+    /// <summary>Calculates the native pointer for a visible growing-shutter stage, skipping the unused intermediate maps.</summary>
+    /// <param name="stage">Zero-based visible growth stage: zero through three.</param>
+    /// <returns>The bank-relative sprite-map pointer for the selected visible stage.</returns>
     private static ushort GrowingFrame(int stage) => (ushort)(0xed44 + 19 * stage + 5 * stage * (stage - 1));
 
+    /// <summary>Tests whether an operand address belongs to either the growing or horizontal shutter program.</summary>
+    /// <param name="address">Bank-relative instruction operand address.</param>
+    /// <returns><see langword="true"/> when either shutter family owns the address.</returns>
     internal static bool IsPresentationWord(ushort address) =>
         GrowingShutterInstructionProgramDefinitions.IsPresentationWord(address) ||
         HorizontalShutterInstructionProgramDefinitions.IsPresentationWord(address);
 
+    /// <summary>Maps a compiled growing or horizontal shutter presentation operand to its sprite-map pointer.</summary>
+    /// <param name="operandAddress">Bank-relative address of a recognized visual operand.</param>
+    /// <returns>The bank-relative pointer to the selected shutter composition.</returns>
+    /// <exception cref="InvalidDataException">No shutter presentation program owns the operand address.</exception>
     internal static ushort PointerAt(ushort operandAddress)
     {
         if (GrowingShutterInstructionProgramDefinitions.IsPresentationWord(operandAddress))

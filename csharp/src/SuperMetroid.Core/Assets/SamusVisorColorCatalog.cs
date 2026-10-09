@@ -7,10 +7,14 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable RGB5 visor colors shared by X-ray and room palette cycling.</summary>
 public sealed class SamusVisorColorCatalog
 {
+    /// <summary>Only color ordinals whose installed RGB5 value differs from the calculated stock value.</summary>
     private readonly Dictionary<int, ushort> colors;
 
+    /// <summary>Stores the compiled independent color edits used by visor palette resolution.</summary>
+    /// <param name="colors">Changed color ordinals mapped to packed BGR555 values.</param>
     private SamusVisorColorCatalog(Dictionary<int, ushort> colors) => this.colors = colors;
 
+    /// <summary>Strict camel-case JSON settings shared by visor-color deserialization and serialization.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -92,6 +96,8 @@ public sealed class SamusVisorColorCatalog
         return colors.TryGetValue(index, out ushort color) ? color : SamusVisorColorDefinitions.Color(index);
     }
 
+    /// <summary>Rejects duplicate object properties before deserialization could silently discard them.</summary>
+    /// <param name="value">Parsed JSON root to check for repeated property names.</param>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Samus visor color property {name}."));

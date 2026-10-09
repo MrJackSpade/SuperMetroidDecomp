@@ -10,6 +10,7 @@ internal static class EndingTextLayoutDefinitions
     /// <summary>$8C:DF77 continues the phrase at tile$80, after the two atlas rows containing copyright digits ($60..$79).</summary>
     private const int SubtitleContinuationTopTile = EndingTextDefinitions.CopyrightDigitTopBase +
         EndingTextDefinitions.JapaneseSubtitleRows * EndingFontAtlasFormat.TilesPerRow;
+    /// <summary>Number of tilemap cells traversed by the Japanese subtitle layout.</summary>
     internal const int SubtitleCellCount = EndingTextDefinitions.JapaneseSubtitleRows * EndingTextDefinitions.TilemapWidth;
 
     /// <summary>
@@ -46,6 +47,7 @@ internal static class EndingTextLayoutDefinitions
     private const ushort DevelopmentGroupAttributes = 6 << 10;
     /// <summary>$8C:DE6D applies BG palette7 to TEAM SHIKAMARU; this chosen style remains required.</summary>
     private const ushort DevelopmentTeamAttributes = 7 << 10;
+    /// <summary>Number of tilemap cells in the ending result panel.</summary>
     internal const int ResultCellCount = EndingTextDefinitions.ResultPanelRows * EndingTextDefinitions.TilemapWidth;
 
     /// <summary>
@@ -72,9 +74,27 @@ internal static class EndingTextLayoutDefinitions
         return EndingTextDefinitions.ResultBlankWord;
     }
 
+    /// <summary>
+    /// Places the supplied text horizontally within the tilemap row and returns the glyph at the requested cell.
+    /// </summary>
+    /// <param name="text">Text whose glyph sequence is centered.</param>
+    /// <param name="column">Tilemap column to resolve.</param>
+    /// <param name="large">Whether to use the large copyright font.</param>
+    /// <param name="bottom">Whether the requested glyph is the lower half of a large character.</param>
+    /// <param name="attributes">Tilemap attributes to combine with a nonblank glyph.</param>
+    /// <returns>The compiled tile word for the centered glyph, or the blank word outside the text.</returns>
     private static ushort Centered(string text, int column, bool large, bool bottom, ushort attributes) =>
         Glyph(text, column - (EndingTextDefinitions.TilemapWidth - text.Length) / 2, large, bottom, attributes);
 
+    /// <summary>
+    /// Resolves one character to its font tile word, returning the blank word for spaces and out-of-range positions.
+    /// </summary>
+    /// <param name="text">Text supplying the character.</param>
+    /// <param name="character">Zero-based character position.</param>
+    /// <param name="large">Whether the large copyright font is used.</param>
+    /// <param name="bottom">Whether to select the lower tile of a large glyph.</param>
+    /// <param name="attributes">Tilemap attributes combined with the compiled glyph word.</param>
+    /// <returns>The compiled character tile word or the blank word.</returns>
     private static ushort Glyph(string text, int character, bool large, bool bottom, ushort attributes)
     {
         if ((uint)character >= text.Length || text[character] == ' ')

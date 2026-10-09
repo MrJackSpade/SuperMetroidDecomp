@@ -4,12 +4,16 @@ namespace SuperMetroid.Core.Frontend;
 
 internal sealed partial class EndingCreditsState
 {
+    /// <summary>Applies one fixed-point fade step to the sixteen-color post-credits waiting backdrop range.</summary>
+    /// <param name="step">Component-fade multiplier used for the current transition step.</param>
     private void ApplyWaitingBackdropPalette(int step)
         => ApplyPostCreditsPaletteRange(EndingCreditsRomData.Rendering.WaitingPaletteStart,
             EndingCreditsRomData.Rendering.WaitingPaletteCount, step);
 
+    /// <summary>Current transition step used to fade reward-specific suit colors in and the waiting backdrop out.</summary>
     private int rewardPaletteStep;
 
+    /// <summary>Updates the waiting backdrop and reward suit palette for the current ending-reward transition step.</summary>
     private void ApplyRewardPalette()
     {
         if (EndingReward == EndingReward.Armored) return;
@@ -21,6 +25,10 @@ internal sealed partial class EndingCreditsState
                 EndingCreditsRomData.Rendering.WaitingPaletteCount, rewardPaletteStep);
     }
 
+    /// <summary>Writes a fixed-point component fade of the post-credits palette into a contiguous CGRAM range.</summary>
+    /// <param name="start">First CGRAM color index to update.</param>
+    /// <param name="count">Number of consecutive colors to write.</param>
+    /// <param name="step">Multiplier applied to each RGB5 component before conversion back to five-bit channels.</param>
     private void ApplyPostCreditsPaletteRange(int start, int count, int step)
     {
         // E110 saves Intro4 as its target, clears colors $20-$2F, then E158 runs the

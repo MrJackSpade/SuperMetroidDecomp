@@ -55,6 +55,7 @@ public static class PauseEquipmentLabelDefinitions
     /// <summary>The ordinary label view of the selector anchors, derived once rather than per lookup.</summary>
     public static IReadOnlyList<(int Category, int Item, string Key)> Labels() => labels.Value;
 
+    /// <summary>Cached ordinary label identities derived from selector anchors, excluding reserve controls.</summary>
     private static readonly Lazy<(int Category, int Item, string Key)[]> labels = new(() =>
         PauseSelectorDefinitions.Anchors()
             .Where(anchor => anchor.Category != PauseEquipmentCategories.Reserves)
@@ -105,6 +106,9 @@ public static class PauseEquipmentLabelDefinitions
     /// <summary>$82:C00A-C010: HYPER at atlas $137-139 with its distinct empty endcap at $12F.</summary>
     private const int HyperText = 0x137, HyperEndcap = 0x12f;
 
+    /// <summary>Gets the stored strip width after confirming that the key has a native equipment-page destination.</summary>
+    /// <param name="key">Case-sensitive installed label identity.</param>
+    /// <returns>Five words for an ordinary beam label, or nine for Hyper and other equipment labels.</returns>
     internal static int StockWordCount(string key)
     {
         _ = StockDestinationByte(key);
@@ -120,6 +124,7 @@ public static class PauseEquipmentLabelDefinitions
     }
 
     // Every label's destination by the rule above, derived once: lookups run per tilemap cell.
+    /// <summary>Cached byte offsets of ordinary labels in the 32-column equipment-page tilemap.</summary>
     private static readonly Lazy<Dictionary<string, int>> destinations = new(() =>
         Labels().ToDictionary(label => label.Key, label =>
         {
@@ -163,5 +168,10 @@ public static class PauseEquipmentLabelDefinitions
         return (ushort)(LabelPalette << 10 | glyph);
     }
 
+    /// <summary>Returns a glyph from a contiguous atlas run, using the shared padded-background tile after the run.</summary>
+    /// <param name="first">Atlas character index at the start of the run.</param>
+    /// <param name="length">Number of authored characters in the run.</param>
+    /// <param name="index">Zero-based character position within the rendered label text.</param>
+    /// <returns>The indexed atlas character or the padding character when the run has ended.</returns>
     private static int Run(int first, int length, int index) => index < length ? first + index : Padding;
 }

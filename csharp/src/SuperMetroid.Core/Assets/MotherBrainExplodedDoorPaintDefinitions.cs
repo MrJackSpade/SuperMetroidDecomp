@@ -15,6 +15,9 @@ internal static class MotherBrainExplodedDoorPaintDefinitions
     /// <summary>$A9:B27B: fourteen copied opaque colors, excluding transparent3800 and final black.</summary>
     internal const int ColorCount = 14;
 
+    /// <summary>Determines whether the supplied opaque inks match the computed stock exploded-door ramp.</summary>
+    /// <param name="colors">Palette entries whose first <see cref="ColorCount"/> values are compared in order.</param>
+    /// <returns><see langword="true"/> if all fourteen opaque inks match; otherwise, <see langword="false"/>.</returns>
     internal static bool Matches(ReadOnlySpan<ushort> colors)
     {
         for (int color = 0; color < ColorCount; color++)
@@ -22,6 +25,10 @@ internal static class MotherBrainExplodedDoorPaintDefinitions
         return true;
     }
 
+    /// <summary>Computes one of the fourteen opaque BGR555 inks used by the exploded Mother Brain door.</summary>
+    /// <param name="color">Zero-based opaque-ink index, from the violet and yellow ramps through metal shades and white.</param>
+    /// <returns>The packed SNES color word for the selected ink.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="color"/> is outside the opaque-ink range.</exception>
     internal static ushort Color(int color)
     {
         if ((uint)color >= ColorCount) throw new ArgumentOutOfRangeException(nameof(color));
@@ -43,6 +50,17 @@ internal static class MotherBrainExplodedDoorPaintDefinitions
         return Pack(neutral, neutral, neutral);
     }
 
+    /// <summary>Interpolates one integer channel value across the ramp's three shade intervals.</summary>
+    /// <param name="first">Channel value at the first endpoint.</param>
+    /// <param name="last">Channel value at the last endpoint.</param>
+    /// <param name="shade">Zero-based shade position from the first endpoint through the fourth shade.</param>
+    /// <returns>The interpolated channel value using integer division.</returns>
     private static int Interpolate(int first, int last, int shade) => (first * (ShadeIntervals - shade) + last * shade) / ShadeIntervals;
+
+    /// <summary>Packs three five-bit color channels into a SNES BGR555 word.</summary>
+    /// <param name="red">Five-bit red intensity.</param>
+    /// <param name="green">Five-bit green intensity.</param>
+    /// <param name="blue">Five-bit blue intensity.</param>
+    /// <returns>The packed BGR555 color word.</returns>
     private static ushort Pack(int red, int green, int blue) => (ushort)(red | green << 5 | blue << 10);
 }

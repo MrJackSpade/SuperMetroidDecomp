@@ -6,8 +6,13 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>Suitless lower-body and jump compositions use atlas grids, with
 /// separately positioned arm strips in the jumping pose.</summary>
+/// <param name="pose">Suitless pose whose ordered sprite parts are exposed by this grid.</param>
 internal sealed class EndingRewardSuitlessGridParts(Pose pose) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Replaces matching suitless-pose compositions with their atlas-grid part ordering.</summary>
+    /// <param name="pointer">Native spritemap pointer used to select a supported pose.</param>
+    /// <param name="supplied">Composition to retain when the pointer does not identify a supported pose.</param>
+    /// <returns>The recalculated composition for a matching pose, or <paramref name="supplied"/> unchanged.</returns>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         if (pointer == EndingRewardSpriteDefinitions.FramePointer(Pose.SuitlessSamusLowerBody))
@@ -18,6 +23,7 @@ internal sealed class EndingRewardSuitlessGridParts(Pose pose) : IReadOnlyList<C
             return supplied.CalculateIfMatching(new EndingRewardSuitlessGridParts(Pose.SuitlessSamusJumping));
         return supplied;
     }
+    /// <summary>Number of ordered parts in the selected pose's grid composition.</summary>
     public int Count => pose switch
     {
         Pose.SuitlessSamusLowerBody => 14,
@@ -26,6 +32,8 @@ internal sealed class EndingRewardSuitlessGridParts(Pose pose) : IReadOnlyList<C
         _ => throw new ArgumentOutOfRangeException(nameof(pose)),
     };
 
+    /// <summary>Gets the indexed tile and screen offset in the selected pose's composition order.</summary>
+    /// <param name="index">Zero-based part index, less than <see cref="Count"/>.</param>
     public CompiledSpritePart this[int index]
     {
         get
@@ -79,6 +87,7 @@ internal sealed class EndingRewardSuitlessGridParts(Pose pose) : IReadOnlyList<C
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+    /// <summary>Enumerates the pose's compiled sprite parts in the same order as the indexer.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];

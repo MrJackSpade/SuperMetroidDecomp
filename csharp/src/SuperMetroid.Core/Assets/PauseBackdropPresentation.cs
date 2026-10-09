@@ -10,8 +10,14 @@ public sealed class PauseBackdropPresentation
 {
     // Exact independent stock differences and supplied edits remain explicit;
     // calculated complete backdrops are never cached.
+    /// <summary>Per-area sparse tilemap overrides, indexed by retail area; omitted cells use the stock word.</summary>
     private readonly Dictionary<int, ushort>[] areas;
+    /// <summary>Sparse button-page tilemap overrides; omitted cells use the stock button word.</summary>
     private readonly Dictionary<int, ushort> buttons;
+
+    /// <summary>Stores the sparse area and button overrides used to materialize complete pause backdrops.</summary>
+    /// <param name="areas">One cell-indexed set of non-stock words for each retail area.</param>
+    /// <param name="buttons">Cell-indexed non-stock words for the separate button page.</param>
     private PauseBackdropPresentation(Dictionary<int, ushort>[] areas, Dictionary<int, ushort> buttons)
     { this.areas = areas; this.buttons = buttons; }
 
@@ -44,6 +50,10 @@ public sealed class PauseBackdropPresentation
         }
     }
 
+    /// <summary>Extracts only tilemap words that differ from the supplied stock-word calculation.</summary>
+    /// <param name="selected">Compiled row-major tilemap bytes containing little-endian words.</param>
+    /// <param name="calculate">Provides the stock word for each cell index.</param>
+    /// <returns>A cell-indexed dictionary containing the selected words that override stock.</returns>
     private static Dictionary<int, ushort> Differences(byte[] selected, Func<int, ushort> calculate)
     {
         var result = new Dictionary<int, ushort>();

@@ -101,6 +101,11 @@ public static partial class SuperMetroidGameOptionsIni
     /// </remarks>
     public static string DefaultFileContents { get; } = ReadDefaultFile();
 
+    /// <summary>
+    /// Reads the embedded default INI template shipped with the assembly.
+    /// </summary>
+    /// <returns>The complete default configuration text.</returns>
+    /// <exception cref="InvalidDataException">The expected embedded default resource is missing.</exception>
     private static string ReadDefaultFile()
     {
         using Stream stream = typeof(SuperMetroidGameOptionsIni).Assembly.GetManifestResourceStream(
@@ -353,6 +358,11 @@ public static partial class SuperMetroidGameOptionsIni
         };
     }
 
+    /// <summary>
+    /// Checks that a GitHub repository setting has two nonempty, supported ASCII name components.
+    /// </summary>
+    /// <param name="value">Candidate repository name in <c>owner/repository</c> form.</param>
+    /// <returns><see langword="true"/> when both components contain only ASCII letters, digits, hyphens, underscores, or periods.</returns>
     private static bool IsGitHubRepositoryName(string value)
     {
         string[] components = value.Split('/');
@@ -363,6 +373,15 @@ public static partial class SuperMetroidGameOptionsIni
                     char.IsAsciiLetterOrDigit(character) || character is '-' or '_' or '.'));
     }
 
+    /// <summary>
+    /// Parses an INI boolean value and reports invalid text with its source location and option key.
+    /// </summary>
+    /// <param name="sourceName">Name of the configuration source being parsed.</param>
+    /// <param name="lineNumber">One-based line containing the value.</param>
+    /// <param name="key">Option name used to identify the invalid value.</param>
+    /// <param name="value">Text expected to be <c>true</c> or <c>false</c>, ignoring case.</param>
+    /// <returns>The parsed boolean value.</returns>
+    /// <exception cref="InvalidDataException">The value is not a boolean token.</exception>
     private static bool ParseBoolean(
         string sourceName,
         int lineNumber,
@@ -377,6 +396,13 @@ public static partial class SuperMetroidGameOptionsIni
             $"{key} must be either true or false, not '{value}'");
     }
 
+    /// <summary>
+    /// Creates a configuration error that identifies the source file, line, and validation failure.
+    /// </summary>
+    /// <param name="sourceName">Configuration source in which the invalid entry was found.</param>
+    /// <param name="lineNumber">One-based line containing the invalid entry.</param>
+    /// <param name="reason">Description of the violated configuration rule.</param>
+    /// <returns>An exception suitable for throwing from the INI parser.</returns>
     private static InvalidDataException Invalid(string sourceName, int lineNumber, string reason) =>
         new($"Invalid game configuration in '{sourceName}' at line {lineNumber}: {reason}.");
 }

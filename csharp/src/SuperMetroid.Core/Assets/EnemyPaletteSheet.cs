@@ -14,7 +14,12 @@ public sealed class EnemyPaletteSheet
 
     /// <summary>Sixteen RGB5 colors in a complete four-bit OBJ palette, including its color-zero entry.</summary>
     public const int ColorCount = 16;
+
+    /// <summary>Compiled RGB5 words retained in native palette-index order.</summary>
     private readonly ushort[] colors;
+
+    /// <summary>Creates a sheet from the validated words produced by the JSON loader.</summary>
+    /// <param name="colors">Sixteen packed RGB5 color words in palette-index order.</param>
     private EnemyPaletteSheet(ushort[] colors) => this.colors = colors;
 
     /// <summary>Loads a version-one palette document with exactly sixteen non-null RGB5 colors, rejecting duplicate or unknown properties and channels outside 0..31; JSON property names are matched case-insensitively.</summary>
@@ -69,6 +74,7 @@ public sealed class EnemyPaletteSheet
         for (int i = 0; i < ColorCount; i++) cgram.SetColor(destinationColor + i, colors[i]);
     }
 
+    /// <summary>JSON settings shared by palette serialization and deserialization.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -77,6 +83,8 @@ public sealed class EnemyPaletteSheet
         WriteIndented = true,
     };
 
+    /// <summary>Rejects repeated property names before schema deserialization can discard their earlier values.</summary>
+    /// <param name="value">Root JSON element whose object properties must be unique, ignoring case.</param>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.OrdinalIgnoreCase,
             name => new InvalidDataException($"Duplicate enemy palette property {name}."));

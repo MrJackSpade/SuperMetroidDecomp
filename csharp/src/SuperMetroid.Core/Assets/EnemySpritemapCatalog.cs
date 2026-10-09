@@ -22,9 +22,14 @@ public sealed class EnemySpritemapCatalog
             }
         });
 
+    /// <summary>Compiled OAM parts keyed by the full native bank and frame-pointer identity.</summary>
     private readonly Dictionary<int, EnemySpritemapParts> frames;
+    /// <summary>Visual frame selections keyed by native identity, with values holding the selected same-bank identity.</summary>
     private readonly Dictionary<int, int> displayFrames;
 
+    /// <summary>Creates a catalog from validated compiled compositions and their visual frame bindings.</summary>
+    /// <param name="frames">Compiled compositions indexed by full native frame identity.</param>
+    /// <param name="displayFrames">Native-to-selected visual identities; each selection has already been validated for its bank.</param>
     private EnemySpritemapCatalog(Dictionary<int, EnemySpritemapParts> frames,
         Dictionary<int, int> displayFrames)
     {
@@ -328,6 +333,10 @@ public sealed class EnemySpritemapCatalog
         return parts;
     }
 
+    /// <summary>Rejects repeated JSON property names throughout an asset document using the requested name comparison.</summary>
+    /// <param name="element">Parsed JSON element whose objects are checked, including objects nested in arrays.</param>
+    /// <param name="propertyComparer">Name comparer to use, defaulting to ordinal comparison.</param>
+    /// <exception cref="InvalidDataException">A property name is repeated in one JSON object.</exception>
     internal static void RejectDuplicateProperties(JsonElement element, StringComparer? propertyComparer = null) =>
         JsonAssetDocument.RejectDuplicateProperties(element, propertyComparer ?? StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate enemy composition property {name}."));

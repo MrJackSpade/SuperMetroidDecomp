@@ -9,9 +9,14 @@ public sealed class CeresFlightPalette
 {
     // Independent painted colors remain unresolved inputs. Only repeated sections
     // and the endpoint-defined ramp are calculated; edited slots stay independent.
+    /// <summary>Stores independent painted inputs by canonical CGRAM index, excluding ramp interiors.</summary>
     private readonly Dictionary<int, ushort> colors = [];
+
+    /// <summary>Stores supplied palette slots that differ from the repeated or interpolated stock calculation.</summary>
     private readonly Dictionary<int, ushort> edits = [];
 
+    /// <summary>Builds sparse painted inputs and preserves every supplied slot that overrides the calculated palette.</summary>
+    /// <param name="supplied">Complete 256-entry BGR555 palette in CGRAM order.</param>
     private CeresFlightPalette(ushort[] supplied)
     {
         for (int index = 0; index < supplied.Length; index++)
@@ -56,6 +61,9 @@ public sealed class CeresFlightPalette
     /// <summary>$8C:E6AB-E6BA and E7AB-E7BA: eight colors interpolate RGB5 endpoints with nearest-integer rounding.</summary>
     private static bool IsRampInterior(int index) => index is > 0x61 and < 0x68; // magic-number-audit: allow(SramOffset) - CGRAM interpolation slots, not SRAM offsets.
 
+    /// <summary>Calculates a palette slot from its canonical repeat source or the endpoint-defined RGB5 ramp.</summary>
+    /// <param name="index">CGRAM index whose selected color is needed.</param>
+    /// <returns>The calculated BGR555 color before any independent slot edit is applied.</returns>
     private ushort Calculate(int index)
     {
         int source = SharedIndex(index);

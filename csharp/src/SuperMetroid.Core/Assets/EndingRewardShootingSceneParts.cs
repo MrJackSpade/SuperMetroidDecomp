@@ -6,8 +6,13 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>Small falling/landing/shooting figures use pose-specific origins
 /// on a common atlas grid. Native priority is zero for these four compositions.</summary>
+/// <param name="pose">Small Samus pose whose ordered native sprite parts are exposed by this collection.</param>
 internal sealed class EndingRewardShootingSceneParts(Pose pose) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Replaces the supplied composition with the pose-specific parts when the pointer selects one of these four frames.</summary>
+    /// <param name="pointer">Native spritemap pointer to test against the small reward pose definitions.</param>
+    /// <param name="supplied">Existing composition to retain or use as the base for matching parts.</param>
+    /// <returns>The supplied composition when unmatched, or its calculated pose-specific composition when matched.</returns>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         for (Pose pose = Pose.SamusFalling; pose <= Pose.SamusShooting; pose++)
@@ -15,6 +20,8 @@ internal sealed class EndingRewardShootingSceneParts(Pose pose) : IReadOnlyList<
                 return supplied.CalculateIfMatching(new EndingRewardShootingSceneParts(pose));
         return supplied;
     }
+
+    /// <summary>Gets the number of sprite parts in the selected pose's native composition.</summary>
     public int Count => pose switch
     {
         Pose.SamusFalling or Pose.SamusShooting => 15,
@@ -22,6 +29,10 @@ internal sealed class EndingRewardShootingSceneParts(Pose pose) : IReadOnlyList<
         Pose.SamusLanded => 21,
         _ => throw new ArgumentOutOfRangeException(nameof(pose)),
     };
+
+    /// <summary>Gets a pose part by its stable index in the native spritemap order.</summary>
+    /// <param name="index">Zero-based part index from zero through <see cref="Count"/> minus one.</param>
+    /// <returns>Tile, size and origin data for the indexed OBJ part.</returns>
     public CompiledSpritePart this[int index]
     {
         get
@@ -89,6 +100,9 @@ internal sealed class EndingRewardShootingSceneParts(Pose pose) : IReadOnlyList<
                 unchecked((byte)(originY + 8 * (tile / 16))), SnesObjAttributeWord.Create(tile, 0, 0, 0), true);
         }
     }
+
+    /// <summary>Enumerates all parts of the selected pose in native composition order.</summary>
+    /// <returns>An enumerator over this pose's compiled sprite parts.</returns>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];

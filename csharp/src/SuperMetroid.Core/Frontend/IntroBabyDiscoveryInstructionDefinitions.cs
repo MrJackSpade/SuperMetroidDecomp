@@ -19,6 +19,10 @@ internal static class IntroBabyDiscoveryInstructionDefinitions
     /// <summary>$8B:CE53, shared actor-delete instruction after the reverse crossfade.</summary>
     internal const ushort DeletePointer = CinematicCodePointers.Lists.Delete;
 
+    /// <summary>Compiles one egg-program word, resolving animation entries to their selected sprite or instruction value.</summary>
+    /// <param name="word">Zero-based 16-bit word index relative to <see cref="EggStart"/>.</param>
+    /// <returns>The word value exposed by the native egg instruction list.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is not represented in the compiled egg program.</exception>
     private static ushort EggWord(int word)
     {
         if (word is >= 8 and < 16)
@@ -62,6 +66,10 @@ internal static class IntroBabyDiscoveryInstructionDefinitions
         };
     }
 
+    /// <summary>Compiles one confused-baby program word, resolving its looping animation entries.</summary>
+    /// <param name="word">Zero-based 16-bit word index relative to <see cref="BabyStart"/>.</param>
+    /// <returns>The word value exposed by the native baby instruction list.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is not represented in the compiled baby program.</exception>
     private static ushort BabyWord(int word)
     {
         if (word < 8)
@@ -81,6 +89,10 @@ internal static class IntroBabyDiscoveryInstructionDefinitions
         };
     }
 
+    /// <summary>Reads one byte from the compiled egg, confused-baby, or shared delete instruction list.</summary>
+    /// <param name="pointer">Bank-$8B byte address within one of the supported instruction-list ranges.</param>
+    /// <returns>The addressed byte, selecting the low or high half of its compiled word.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The address is outside all supported lists.</exception>
     internal static byte ReadByte(ushort pointer)
     {
         ushort word;
@@ -104,6 +116,10 @@ internal static class IntroBabyDiscoveryInstructionDefinitions
         return (byte)(word >> (8 * (offset & 1)));
     }
 
+    /// <summary>Reads a little-endian instruction word wholly contained in a compiled list.</summary>
+    /// <param name="pointer">Bank-$8B address of the word's first byte.</param>
+    /// <returns>The two consecutive bytes combined with the first byte in the low-order position.</returns>
+    /// <exception cref="InvalidDataException">The word would cross a compiled-list boundary or is not in a supported list.</exception>
     internal static ushort ReadWord(ushort pointer)
     {
         if (pointer == DeletePointer || pointer >= EggStart && pointer < EggEnd - 1

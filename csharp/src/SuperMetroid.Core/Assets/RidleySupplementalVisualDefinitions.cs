@@ -49,6 +49,10 @@ internal static class RidleySupplementalVisualDefinitions
     /// <summary>$A6:DCBA..DCD8 selects one frame for each sixteenth-turn sector.</summary>
     internal const int TailTipPointerCount = 16;
 
+    /// <summary>Maps a native wing animation-table slot to its facing-specific spritemap pointer.</summary>
+    /// <param name="index">Slot in the combined left- and right-facing wing pointer table.</param>
+    /// <returns>The bank-$A6 spritemap address selected by that table slot.</returns>
+    /// <exception cref="InvalidDataException">The slot is outside the native wing pointer table.</exception>
     internal static ushort WingFrameAt(int index)
     {
         if ((uint)index >= WingPointerCount)
@@ -65,11 +69,19 @@ internal static class RidleySupplementalVisualDefinitions
         };
         return (ushort)((int)pose + index / WingCycleLength * RightWingFrameOffset);
     }
+    /// <summary>Maps a tail-tip direction sector to its one-object spritemap address.</summary>
+    /// <param name="index">Direction sector from zero (down) through fifteen.</param>
+    /// <returns>The bank-$A6 spritemap pointer for the requested sector.</returns>
+    /// <exception cref="InvalidDataException">The direction sector is outside the sixteen native entries.</exception>
     internal static ushort TailTipFrameAt(int index) =>
         (uint)index < TailTipPointerCount
             ? (ushort)(FirstTailTipFrame + ((LeftTailTipDirection - index) & (TailTipPointerCount - 1)) * TailTipFrameBytes)
             : throw new InvalidDataException($"Ridley tail-tip direction {index} is outside the native table.");
 
+    /// <summary>Selects the native spritemap size used by a link in Ridley's six-link tail.</summary>
+    /// <param name="index">Tail-link index in draw order, from zero through five.</param>
+    /// <returns>The large, medium, or small segment spritemap pointer assigned to that link.</returns>
+    /// <exception cref="InvalidDataException">The index does not identify one of the six drawn links.</exception>
     internal static ushort SegmentFrameAt(int index) => index switch
     {
         0 or 1 => LargeSegment,
@@ -78,6 +90,8 @@ internal static class RidleySupplementalVisualDefinitions
         _ => throw new InvalidDataException($"Ridley tail segment {index} is outside six drawn links."),
     };
 
+    /// <summary>Builds the distinct enemy-spritemap definitions required by Ridley's wings, tail tip, and tail links.</summary>
+    /// <returns>Definitions ordered by bank-$A6 pointer, with each referenced frame included once.</returns>
     internal static EnemySpritemapDefinition[] Frames()
     {
         var pointers = new SortedSet<ushort>

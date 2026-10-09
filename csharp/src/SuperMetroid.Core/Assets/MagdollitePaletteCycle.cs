@@ -24,7 +24,9 @@ public sealed class MagdollitePaletteCycle
         });
 
     // The four independent glow colors remain required artwork under issue1165.
+    /// <summary>Stores the first cycle row's four packed glow colors, from which unedited rows are rotated.</summary>
     private readonly ushort[] colors;
+    /// <summary>Stores later-row cells that differ from the native left rotation of <see cref="colors"/>, keyed by flattened row and color index.</summary>
     private readonly Dictionary<int, ushort> edits = [];
 
     /// <summary>
@@ -41,6 +43,7 @@ public sealed class MagdollitePaletteCycle
                 edits.Add(frame * colors.Length + color, frames[frame][color]);
     }
 
+    /// <summary>Applies the cycle document's camel-case naming, strict-member, and readable-output JSON conventions.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -136,6 +139,9 @@ public sealed class MagdollitePaletteCycle
         return bytes;
     }
 
+    /// <summary>Rejects repeated property names before deserializing a cycle document.</summary>
+    /// <param name="value">The parsed JSON value whose object properties are checked.</param>
+    /// <exception cref="InvalidDataException">A property name occurs more than once in an object.</exception>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Magdollite palette property {name}."));

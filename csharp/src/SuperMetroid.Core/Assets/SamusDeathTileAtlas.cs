@@ -12,8 +12,11 @@ namespace SuperMetroid.Core.Assets;
 /// OAM placement, sequence timing and every other atlas.</remarks>
 public sealed class SamusDeathTileAtlas : IInstalledArtworkTransferSource
 {
+    /// <summary>Independently retained planar bytes and edits that differ from their source-tile relation.</summary>
     private readonly Dictionary<int, byte> sourceBytes;
 
+    /// <summary>Validates the complete five-segment atlas and stores only independent or edited source bytes.</summary>
+    /// <param name="planar">4-bpp character bytes in the fixed death-transfer queue order.</param>
     private SamusDeathTileAtlas(byte[] planar)
     {
         if (planar.Length != SamusDeathTileAtlasFormat.TotalByteCount)
@@ -28,6 +31,9 @@ public sealed class SamusDeathTileAtlas : IInstalledArtworkTransferSource
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(SamusDeathTileAtlas),
         content => content.Append("death characters", ReadRange(0, SamusDeathTileAtlasFormat.TotalByteCount)));
 
+    /// <summary>Resolves a logical atlas byte through its retained value, source-tile alias, or transparent-padding rule.</summary>
+    /// <param name="index">Byte offset in the complete encoded atlas.</param>
+    /// <returns>The installed planar byte, including zero for transparent padding.</returns>
     private byte ReadByte(int index)
     {
         if (sourceBytes.TryGetValue(index, out byte value)) return value;
@@ -36,6 +42,10 @@ public sealed class SamusDeathTileAtlas : IInstalledArtworkTransferSource
             : throw new InvalidDataException("Death artwork source byte is unavailable.");
     }
 
+    /// <summary>Materializes a contiguous range of logical atlas bytes, resolving aliases for each offset.</summary>
+    /// <param name="first">Starting byte offset in the complete encoded atlas.</param>
+    /// <param name="count">Number of consecutive bytes to materialize.</param>
+    /// <returns>A new array containing the resolved bytes in order.</returns>
     private byte[] ReadRange(int first, int count)
     {
         var bytes = new byte[count];

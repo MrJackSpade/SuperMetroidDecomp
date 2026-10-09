@@ -7,11 +7,21 @@ namespace SuperMetroid.Core.Assets;
 /// strips and upper/lower body atlas regions.</summary>
 internal sealed class EndingRewardJumpParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Uses the 20-piece suited jump layout for the matching ending frame.</summary>
+    /// <param name="pointer">Native frame pointer used to select the ending pose.</param>
+    /// <param name="supplied">Composition to retain when the pointer selects another frame.</param>
+    /// <returns>The supplied composition with this layout applied only for the matching frame.</returns>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied) =>
         pointer == EndingRewardSpriteDefinitions.FramePointer(EndingRewardSpriteFrame.LargeSamusFromEndingJumping)
             ? supplied.CalculateIfMatching(new EndingRewardJumpParts()) : supplied;
 
+    /// <summary>Number of independently positioned sprite pieces in the suited jumping pose.</summary>
     public int Count => 20;
+
+    /// <summary>Gets a sprite piece at its position in the pose's draw order.</summary>
+    /// <param name="index">Zero-based piece index, from zero through <see cref="Count"/> minus one.</param>
+    /// <returns>The compiled sprite piece at the requested index.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the available pieces.</exception>
     public CompiledSpritePart this[int index]
     {
         get
@@ -59,6 +69,9 @@ internal sealed class EndingRewardJumpParts : IReadOnlyList<CompiledSpritePart>
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+
+    /// <summary>Enumerates all sprite pieces in their composition order.</summary>
+    /// <returns>An enumerator over the compiled pieces, from first drawn to last.</returns>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];

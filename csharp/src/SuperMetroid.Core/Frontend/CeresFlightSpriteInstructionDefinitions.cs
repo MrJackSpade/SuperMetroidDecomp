@@ -25,6 +25,13 @@ internal static class CeresFlightSpriteInstructionDefinitions
     private const ushort SmallAsteroidStart = 0xcc4f;
     /// <summary>$8B:CC57, two-frame purple-vortex loop.</summary>
     private const ushort VortexStart = 0xcc57;
+
+    /// <summary>Returns one byte of a looping sprite instruction that waits ten ticks, selects a frame, then jumps to its list start.</summary>
+    /// <param name="offset">Byte offset within the encoded loop instruction sequence.</param>
+    /// <param name="start">Bank-$8B address to which the loop jumps after displaying its frame.</param>
+    /// <param name="frame">Compiled sprite frame pointer emitted by the loop.</param>
+    /// <returns>The requested byte of the instruction sequence, in little-endian word order.</returns>
+    /// <exception cref="InvalidDataException">The byte offset is outside the encoded loop.</exception>
     private static byte LoopByte(int offset, ushort start, ushort frame)
     {
         ushort word = (offset / 2) switch
@@ -38,6 +45,10 @@ internal static class CeresFlightSpriteInstructionDefinitions
         return (byte)(word >> (8 * (offset & 1)));
     }
 
+    /// <summary>Returns one byte of the vortex's alternating two-frame animation loop.</summary>
+    /// <param name="offset">Byte offset within the six-word encoded loop.</param>
+    /// <returns>The requested instruction byte in little-endian word order.</returns>
+    /// <exception cref="InvalidDataException">The byte offset is outside the encoded vortex loop.</exception>
     private static byte VortexByte(int offset)
     {
         ushort word = (offset / 2) switch
@@ -51,6 +62,11 @@ internal static class CeresFlightSpriteInstructionDefinitions
         };
         return (byte)(word >> (8 * (offset & 1)));
     }
+
+    /// <summary>Reads one encoded instruction byte from the compiled rear-cluster, star, or large-asteroid lists.</summary>
+    /// <param name="pointer">Bank-$8B address within one of the ranges bounded by this catalog.</param>
+    /// <returns>The byte stored at that instruction address.</returns>
+    /// <exception cref="InvalidDataException">The address is outside all supported compiled lists.</exception>
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer is >= RearClusterStart and < RearClusterEnd)
@@ -67,6 +83,10 @@ internal static class CeresFlightSpriteInstructionDefinitions
             $"Ceres flight instruction $8B:{pointer:X4} leaves its compiled lists.");
     }
 
+    /// <summary>Reads one little-endian instruction word while keeping both bytes inside the same compiled list.</summary>
+    /// <param name="pointer">Bank-$8B address of the word's low byte.</param>
+    /// <returns>The instruction word formed from the addressed byte and its successor.</returns>
+    /// <exception cref="InvalidDataException">The word crosses a compiled-list boundary or either byte is outside a supported list.</exception>
     internal static ushort ReadWord(ushort pointer)
     {
         ushort next = unchecked((ushort)(pointer + 1));

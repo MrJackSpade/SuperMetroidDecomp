@@ -6,9 +6,14 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable starting CGRAM image and common sprite colors restored on room entry.</summary>
 public sealed class GameplayBasePaletteCatalog
 {
+    /// <summary>Compiled 256-color initial CGRAM image used when a room is loaded.</summary>
     private readonly ushort[] initial;
+    /// <summary>Compiled shared 16-color OBJ palette used by gameplay sprites.</summary>
     private readonly ushort[] commonSprites;
 
+    /// <summary>Stores the validated, packed RGB5 values used by room and sprite palette loading.</summary>
+    /// <param name="initial">Packed colors for the full starting CGRAM image.</param>
+    /// <param name="commonSprites">Packed colors for the shared sprite palette.</param>
     private GameplayBasePaletteCatalog(ushort[] initial, ushort[] commonSprites)
     {
         this.initial = initial;
@@ -69,6 +74,11 @@ public sealed class GameplayBasePaletteCatalog
         return bytes;
     }
 
+    /// <summary>Validates RGB5 components and packs a palette into SNES color words.</summary>
+    /// <param name="source">JSON palette entries to validate and compile.</param>
+    /// <param name="expected">Required number of entries.</param>
+    /// <param name="name">Palette label used in validation errors.</param>
+    /// <returns>Packed RGB5 color words in source order.</returns>
     private static ushort[] Compile(PaletteRgb5[]? source, int expected, string name)
     {
         if (source is null || source.Length != expected)

@@ -1,6 +1,8 @@
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>One immutable stock sprite's tile coverage and visible origin.</summary>
+/// <summary>Tile coverage for one stock sprite in the stationary Dead Torizo composition.</summary>
+/// <param name="Tile">OAM tile number locating the part in the source sheet.</param>
+/// <param name="TileExtent">Side length of the part in square SNES tiles.</param>
 internal readonly record struct DeadTorizoStockPart(int Tile, int TileExtent);
 
 /// <summary>
@@ -24,8 +26,14 @@ internal static class DeadTorizoStationaryCompositionDefinitions
     private const int BodyTile = 0x128, BodyColumns = 4, BodyRows = 5;
     /// <summary>$A9:D75C-D760: the large rear-foot part uses tile $1A6 at(-32,28).</summary>
     private const int FootTile = 0x1a6;
+
+    /// <summary>Side length, in tiles, of each large head, body, or foot part.</summary>
     private const int LargeExtent = 2;
 
+    /// <summary>Returns one of the 25 stock parts in table order, with its source OAM tile and tile-square extent.</summary>
+    /// <param name="index">Zero-based part index: ankle, three head parts, twenty body parts, then rear foot.</param>
+    /// <returns>The part's source-sheet tile number and square tile extent.</returns>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> is outside the 25-part composition.</exception>
     internal static DeadTorizoStockPart Part(int index)
     {
         if ((uint)index >= Count) throw new IndexOutOfRangeException();

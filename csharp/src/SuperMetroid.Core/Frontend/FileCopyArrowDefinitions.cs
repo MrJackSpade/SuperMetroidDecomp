@@ -17,6 +17,11 @@ public static class FileCopyArrowDefinitions
     /// <summary>$82:BB0E: all file-copy arrows use screen X = $14.</summary>
     internal const ushort OriginX = 20;
 
+    /// <summary>Chooses the arrow orientation and screen row for a copy between distinct save slots.</summary>
+    /// <param name="source">Zero-based source slot, from 0 through 2.</param>
+    /// <param name="destination">Zero-based destination slot, from 0 through 2.</param>
+    /// <returns>The layout index and screen Y coordinate for the selected arrow.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Either slot is outside the three-slot menu or both slots are equal.</exception>
     internal static (int Shape, ushort Y) Select(int source, int destination)
     {
         if ((uint)source >= 3 || (uint)destination >= 3 || source == destination)
@@ -26,12 +31,22 @@ public static class FileCopyArrowDefinitions
         return (shape, (ushort)(distance == 2 ? 104 : 88 + 32 * Math.Min(source, destination)));
     }
 
+    /// <summary>Returns the authored OAM parts for a layout index produced by <see cref="Select"/>.</summary>
+    /// <param name="shape">Arrow layout index in the range 0 through 3.</param>
+    /// <returns>Parts in native sprite drawing order.</returns>
     internal static ReadOnlySpan<CompiledSpritePart> Parts(int shape) => Shapes[shape];
+
+    /// <summary>Builds one small arrow sprite part with file-copy palette and priority attributes.</summary>
+    /// <param name="x">Signed horizontal offset from the arrow origin.</param>
+    /// <param name="y">Signed vertical offset from the arrow origin.</param>
+    /// <param name="tile">OBJ tile number used by the part.</param>
+    /// <param name="flipY">Whether to reflect the tile vertically.</param>
     private static CompiledSpritePart Part(int x, int y, int tile, bool flipY) => new(
         SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
         SnesObjAttributeWord.Create(tile, 1, 3, flipY ? SnesTileFlipFlags.Vertical : 0), true);
 
     // Native sprite order is retained, including the interleaved shaft and arrowhead tiles.
+    /// <summary>Four pre-authored arrow layouts selected by source/destination direction and slot distance.</summary>
     private static readonly CompiledSpritePart[][] Shapes =
     [
         [

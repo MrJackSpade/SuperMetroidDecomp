@@ -39,6 +39,10 @@ public static partial class GameSaveJsonCodec
         return root.ToJsonString();
     }
 
+    /// <summary>Validates and concatenates the legacy save's ordered hexadecimal SRAM pages.</summary>
+    /// <param name="pages">The preserved SRAM page array from schema version one.</param>
+    /// <returns>The complete SRAM image reconstructed at each page's declared offset.</returns>
+    /// <exception cref="InvalidDataException">The page count, offset, hexadecimal payload, or decoded page length is invalid.</exception>
     private static byte[] DecodeLegacyPages(JsonArray pages)
     {
         int size = GameSaveJsonFormat.PreservationPageByteCount;
@@ -61,9 +65,12 @@ public static partial class GameSaveJsonCodec
         return sram;
     }
 
+    /// <summary>One legacy JSON page pairing its SRAM offset with the page's hexadecimal bytes.</summary>
     private sealed record LegacySramPage
     {
+        /// <summary>Hexadecimal SRAM address of this page, formatted as a four-digit offset.</summary>
         public required string Offset { get; init; }
+        /// <summary>Page contents encoded as hexadecimal text and decoded during legacy import.</summary>
         public required string Bytes { get; init; }
     }
 }

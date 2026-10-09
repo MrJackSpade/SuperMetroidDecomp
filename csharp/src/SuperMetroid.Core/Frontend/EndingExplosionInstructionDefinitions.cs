@@ -30,6 +30,12 @@ internal static class EndingExplosionInstructionDefinitions
     /// pre-instruction installed after the right starfield ends the explosion.</summary>
     private const ushort StarsPreInstruction = 0xf35a;
 
+    /// <summary>
+    /// Resolves an instruction address in the compiled Zebes-explosion programs to its duration, operand, or operation code.
+    /// </summary>
+    /// <param name="pointer">Even instruction address within the compiled range from <see cref="Start"/> through the exclusive <see cref="End"/>.</param>
+    /// <returns>The word consumed at that instruction address.</returns>
+    /// <exception cref="InvalidDataException">The pointer is odd or outside the compiled instruction range.</exception>
     internal static ushort ReadWord(ushort pointer)
     {
         int offset = pointer - Start;
@@ -75,6 +81,11 @@ internal static class EndingExplosionInstructionDefinitions
         return pointer < Afterglow ? HoldWord(pointer, LeftStars, EndingExplosionSpriteDefinitions.Pointer(Pose.Stars)) : HoldWord(pointer, Afterglow, EndingExplosionSpriteDefinitions.Pointer(Pose.Afterglow));
     }
 
+    /// <summary>
+    /// Resolves a word position in the exploding-planet program, including its repeated damage and flash frames.
+    /// </summary>
+    /// <param name="word">Zero-based word offset from <see cref="Start"/>.</param>
+    /// <returns>The native duration, operand, or operation word at that position.</returns>
     private static ushort PlanetWord(int word)
     {
         if (word == 0) return CinematicCodePointers.CinematicSpriteObject_Instruction_SetTimer;
@@ -88,8 +99,20 @@ internal static class EndingExplosionInstructionDefinitions
         return word == 21 ? CinematicCodePointers.Ending_Instruction_SpawnExplosionSilhouette : CinematicCodePointers.CinematicSpriteObject_Instruction_Delete;
     }
 
+    /// <summary>
+    /// Converts a compiled planet-animation frame index to its sprite instruction pointer.
+    /// </summary>
+    /// <param name="frame">Frame value corresponding to an <see cref="Pose"/>.</param>
+    /// <returns>The instruction pointer for the selected explosion pose.</returns>
     private static ushort PlanetFrame(int frame) => EndingExplosionSpriteDefinitions.Pointer((Pose)frame);
 
+    /// <summary>
+    /// Resolves the three-word timed-frame loop shared by the starfield and afterglow programs.
+    /// </summary>
+    /// <param name="pointer">Instruction address within the loop.</param>
+    /// <param name="start">Address of the loop's duration word.</param>
+    /// <param name="frame">Sprite instruction pointer selected by the loop.</param>
+    /// <returns>The duration, frame pointer, or jump operation for the addressed word.</returns>
     private static ushort HoldWord(ushort pointer, ushort start, ushort frame) => ((pointer - start) / 2) switch
     {
         0 => 16,

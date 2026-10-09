@@ -7,10 +7,16 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal static class CrocomireBg2FrameDefinitions
 {
+    /// <summary>Schema version passed to the BG2 frame extractor and catalog loader.</summary>
     internal const int Version = 1;
+
+    /// <summary>Published JSON filename used for Crocomire's extracted BG2 frame definitions.</summary>
     internal const string FileName = "crocomire-bg2-frames.json";
+
+    /// <summary>ROM bank containing the source data for Crocomire's BG2 frame artwork.</summary>
     internal const byte Bank = CrocomireBodyVisualDefinitions.Bank;
 
+    /// <summary>Indexed definitions for the mixed Crocomire body frames that include BG2 artwork.</summary>
     internal static EnemyBg2FrameDefinitionSequence Frames =>
         new(CrocomireBodyVisualDefinitions.MixedBg2FrameCount, Frame);
 

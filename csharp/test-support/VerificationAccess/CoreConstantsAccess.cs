@@ -29,7 +29,7 @@ internal static class AreaAnimatedTileObjectDefinitionsConstants
 {
     /// <summary>
     /// The cartridge stores an eighth non-retail list after the seven typed areas.
-    /// Production <see cref="Read(AreaId, int)"/> deliberately accepts only typed retail
+    /// Production <see cref="AreaAnimatedTileObjectDefinitions.Read(AreaId, int)"/> deliberately accepts only typed retail
     /// areas, while verification retains this row so every native table word is audited.
     /// </summary>
     public const int NativeAreaCount = 8;
@@ -4153,7 +4153,7 @@ internal static class SamusSpecialSequenceRomDataSuitPickupConstants
 internal static class SamusXrayRomDataPaletteConstants
 {
     /// <summary><c>$91:D727</c>, suit-indexed normal Samus palette pointers.</summary>
-    /// <remarks>Alias of <see cref="SamusPaletteRomData.Common.NormalSuitPointers"/>;
+    /// <remarks>Alias of <see cref="SamusPaletteRomDataCommonConstants.NormalSuitPointers"/>;
     /// the three-word proof is issue #859 / #625.</remarks>
     public const int NormalSuitPointers = SamusPaletteRomDataCommonConstants.NormalSuitPointers;
     /// <summary>Bank expanded around a normal-suit palette pointer.</summary>

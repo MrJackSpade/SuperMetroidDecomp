@@ -2213,10 +2213,8 @@ static void VerifySamusPowerBeamProjectiles()
         "  Samus beams/missiles: producers, charge flare, linked supers, trails, all point-block families, motion, collision, and explosions agree.");
 }
 
-/// <summary>
-/// Exercises ordinary Morph-Ball entry, `$F9` endpoint selection, rolling momentum,
-/// walk-off, both automatic rebounds, grounded recovery, and blocked unmorph expansion.
-/// Every table byte below is copied from the corresponding retail-ROM structure rather
-/// than replaced with a host animation or physics constant.
-/// </summary>
+// Exercises ordinary Morph-Ball entry, `$F9` endpoint selection, rolling momentum,
+// walk-off, both automatic rebounds, grounded recovery, and blocked unmorph expansion.
+// Every table byte below is copied from the corresponding retail-ROM structure rather
+// than replaced with a host animation or physics constant.
 }

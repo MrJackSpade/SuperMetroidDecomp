@@ -22,9 +22,8 @@ internal static class SuperMetroidRuntimeAccess
         /// slope and selects the first lower supported surface, a visibly rendered solid floor.
         /// Floor type/BTS, height, pose radius, resting world Y, camera clamps, movement,
         /// collision, animation, graphics, and OAM all come from translated cartridge data.
-        /// Call it after <see cref="InitializeLandingSiteCamera"/> and before
-        /// <see cref="InitializeLandingSiteViewport"/>, because the latter must fill VRAM for
-        /// the newly selected camera position.
+        /// Call only after the room camera and level data are initialized. Refill the visible
+        /// tilemaps afterward so VRAM corresponds to the newly selected camera position.
         /// </remarks>
         internal DebugGroundedSamusPlacement InitializeDebugGroundedSamus(
             ushort xPosition = 0x0440,

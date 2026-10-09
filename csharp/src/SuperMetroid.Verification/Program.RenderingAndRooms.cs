@@ -1405,8 +1405,6 @@ static void VerifyScrollingSkyState()
     Console.WriteLine("  Sky: HDMA bands, circular uploads, and the Y=0 compiled overread agree.");
 }
 
-/// <summary>
-/// Exercises bank-$90 firing and movement, bank-$93 animation, and bank-$94 solid collision
-/// for an uncharged power beam without sharing implementation code with the production path.
-/// </summary>
+// Exercises bank-$90 firing and movement, bank-$93 animation, and bank-$94 solid collision
+// for an uncharged power beam without sharing implementation code with the production path.
 }

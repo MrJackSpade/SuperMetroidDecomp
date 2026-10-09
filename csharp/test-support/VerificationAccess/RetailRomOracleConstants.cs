@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Audio
 {
     internal static class AudioRomDataMusicTracks
     {
-        /// <summary>Title-screen track within <see cref="MusicBanks.Title"/>.</summary>
+        /// <summary>Title-screen track command for the music bank uploaded from <see cref="AudioUploadAddresses.TitleSequence"/>.</summary>
         public const byte Title = 0x05;
     }
 }

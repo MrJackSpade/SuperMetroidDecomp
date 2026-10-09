@@ -1474,9 +1474,7 @@ static void VerifySamusAtmosphericEffects()
         "  Samus atmosphere: liquid FX, footsteps, landing impact, packed timers, sound, and OAM agree.");
 }
 
-/// <summary>
-/// Verifies the cartridge's complete ten-way jump/fall turn selectors and the block-only
-/// wall-jump route. Every expectation below is a literal bank-$90/$91 table value; the test
-/// intentionally does not calculate a mirrored target from facing.
-/// </summary>
+// Verifies the cartridge's complete ten-way jump/fall turn selectors and the block-only
+// wall-jump route. Every expectation below is a literal bank-$90/$91 table value; the test
+// intentionally does not calculate a mirrored target from facing.
 }

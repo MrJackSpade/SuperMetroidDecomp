@@ -345,7 +345,7 @@ internal static class SnesObjRendererAccess
         /// sprite tile four times and allocates four RGBA canvases. This form performs the
         /// expensive character decode once, stores only the winning color plus its priority,
         /// and lets the PPU compositor place that winner at the appropriate point in its BG
-        /// ladder. Empty pixels retain <see cref="TransparentPriority"/>.
+        /// ladder. Empty pixels retain <see cref="SnesObjRenderer.TransparentPriority"/>.
         /// </remarks>
         internal static ResolvedObjFrame RenderResolved(
             OamBuffer oam,

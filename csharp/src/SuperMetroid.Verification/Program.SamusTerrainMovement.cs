@@ -1650,8 +1650,6 @@ static void VerifySamusRanIntoWall()
     Console.WriteLine("  Ran into wall: ten-way selector, arm-pump pixel, six stable poses, grounding, and cleanup agree.");
 }
 
-/// <summary>
-/// Sends a synthetic planar tile through DMA, OAM, OBSEL, and CGRAM so this tests the
-/// complete sprite-to-pixel path rather than a helper decoder in isolation.
-/// </summary>
+// Sends a synthetic planar tile through DMA, OAM, OBSEL, and CGRAM so this tests the
+// complete sprite-to-pixel path rather than a helper decoder in isolation.
 }

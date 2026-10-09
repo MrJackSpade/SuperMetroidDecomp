@@ -861,8 +861,6 @@ static void VerifySamusGunExtendedMovement()
     Console.WriteLine("  Samus horizontal fire: ROM selection, six extended bodies, forward-jump release, run-phase preservation, and firing landings agree.");
 }
 
-/// <summary>
-/// Fixes the two ROM tables and signed formulas used by Landing Site's actual BTS-$12
-/// non-square floor path at <c>$94:84D6</c> and <c>$94:87F4</c>.
-/// </summary>
+// Fixes the two ROM tables and signed formulas used by Landing Site's actual BTS-$12
+// non-square floor path at $94:84D6 and $94:87F4.
 }

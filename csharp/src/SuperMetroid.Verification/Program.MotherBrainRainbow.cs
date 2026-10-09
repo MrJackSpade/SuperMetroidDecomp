@@ -405,11 +405,9 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
     Console.WriteLine("  Mother Brain actor: rainbow drain, ammo depletion and HUD selection agree.");
 }
 
-/// <summary>
-/// Runs the complete `$A9:C710-$C8E1` entrance from initialization through head pinning.
-/// The hard-coded milestone coordinates came from the private retail-ROM runner, while the
-/// synthetic sine fixture is generated independently from the table's documented definition.
-/// This combination catches timer, angle, multiplication, subposition, collision, and
-/// cross-enemy ordering regressions without making the ordinary verifier depend on a ROM.
-/// </summary>
+// Runs the complete `$A9:C710-$C8E1` entrance from initialization through head pinning.
+// The hard-coded milestone coordinates came from the private retail-ROM runner, while the
+// synthetic sine fixture is generated independently from the table's documented definition.
+// This combination catches timer, angle, multiplication, subposition, collision, and
+// cross-enemy ordering regressions without making the ordinary verifier depend on a ROM.
 }

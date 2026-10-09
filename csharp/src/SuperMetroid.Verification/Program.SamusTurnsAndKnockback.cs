@@ -995,8 +995,6 @@ static void VerifySamusKnockbackAndDamageBoost()
     Console.WriteLine("  Samus knockback: all 28 interrupt entries, humanoid/ball starts, timer, 16.16 hurt arc, cleanup, and damage-boost handoff agree.");
 }
 
-/// <summary>
-/// Exercises the bank-$9B/$94 connected-pendulum order with deliberately tiny ROM tables.
-/// Hard-coded positions and velocities make this independent of production helper formulas.
-/// </summary>
+// Exercises the bank-$9B/$94 connected-pendulum order with deliberately tiny ROM tables.
+// Hard-coded positions and velocities make this independent of production helper formulas.
 }

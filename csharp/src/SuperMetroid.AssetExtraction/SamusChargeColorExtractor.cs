@@ -8,6 +8,12 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Exports charge-body and Hyper-shot colors in native playback order.</summary>
 public static class SamusChargeColorExtractor
 {
+    /// <summary>Exports charged-beam and pseudo-Screw body palettes by suit, plus Hyper-shot flash palettes in native playback order.</summary>
+    /// <param name="bus">Non-null import-capable cartridge source for bank-$91 suit/phase pointer lists and their bank-$9B sixteen-color payloads.</param>
+    /// <returns>A new UTF-8 JSON buffer with three suits, six phases per charge/pseudo-Screw family, and ten Hyper-shot frames; all colors use RGB5 channels 0..31.</returns>
+    /// <remarks>Suit order is Power, Varia, Gravity. Hyper-shot pointers are read in descending table-offset order $14..$02, not ascending source order. Full palette rows include color zero; bit 15 is not represented. Charge thresholds, phase cadence, and projectile behavior are not exported.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="ArgumentException"><paramref name="bus"/> lacks cartridge import access.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

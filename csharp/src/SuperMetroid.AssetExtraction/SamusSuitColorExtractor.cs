@@ -8,6 +8,12 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Exports the three ordinary suit palettes; selection and palette timing stay compiled.</summary>
 public static class SamusSuitColorExtractor
 {
+    /// <summary>Exports the ordinary Power, Varia, and Gravity suit OBJ palette rows, not suit-up effects or transient palette cycles.</summary>
+    /// <param name="bus">Non-null import-capable cartridge source for $9B:9400, $9B:9520, and $9B:9800 respectively.</param>
+    /// <returns>A new UTF-8 JSON buffer with three named sixteen-color arrays including color zero; each RGB5 channel is 0..31.</returns>
+    /// <remarks>Only lower-fifteen-bit color channels are represented. Equipped-suit priority, CGRAM installation, and palette timing remain runtime mechanics.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="ArgumentException"><paramref name="bus"/> lacks cartridge import access.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

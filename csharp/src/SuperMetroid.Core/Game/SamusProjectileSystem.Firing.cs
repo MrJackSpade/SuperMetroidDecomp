@@ -319,7 +319,8 @@ public sealed partial class SamusProjectileSystem
             level,
             slot,
             roomPlms,
-            waveBeam: (beamType & 1) != 0);
+            waveBeam: (beamType & 1) != 0,
+            sharedProjectiles.PowerBombExplosion);
         if (!initialImpact)
         {
             // The cartridge installs the callback only after muzzle collision. Do not
@@ -401,7 +402,8 @@ public sealed partial class SamusProjectileSystem
             level,
             slot,
             roomPlms,
-            waveBeam: true);
+            waveBeam: true,
+            sharedProjectiles.PowerBombExplosion);
         slot.PreInstruction = SamusProjectilePreInstruction.HyperBeam;
         InitializePowerBeamVelocity(bus, slot);
 

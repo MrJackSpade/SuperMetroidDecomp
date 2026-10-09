@@ -11,6 +11,7 @@ public sealed partial class SamusProjectileSystem
         ushort top = unchecked((ushort)(slot.YPosition - slot.YRadius));
         ushort bottom = unchecked((ushort)(slot.YPosition + slot.YRadius - 1));
         int remaining = unchecked((ushort)(bottom - (top & 0xfff0))) >> 4;
+        int span = remaining;
         ushort targetX = unchecked((ushort)(slot.XVelocity < 0
             ? slot.XPosition - slot.XRadius : slot.XPosition + slot.XRadius - 1));
         // XBA sets N/Z from its resulting LOW BYTE even with a 16-bit accumulator.
@@ -39,7 +40,7 @@ public sealed partial class SamusProjectileSystem
                     // still use floor(byteOffset / 2), including aligned writes.
                     block = block with { LevelWord = unchecked((ushort)((block.LevelWord >> 8) | (next << 8))) };
                 }
-                RunShotReaction(level, slot, block, roomPlms, out bool endSpan);
+                RunShotReaction(level, slot, block, roomPlms, new ShotSpan(span, remaining, targetX), out bool endSpan);
                 // Wave discards collision carry, but still honors PLM scan termination.
                 if (endSpan) return;
             }
@@ -61,6 +62,7 @@ public sealed partial class SamusProjectileSystem
         ushort right = unchecked((ushort)(slot.XPosition + slot.XRadius - 1));
         int remaining = unchecked((ushort)(right - (left & 0xfff0))) >> 4;
         if (remaining >= 16) return;
+        int span = remaining;
         ushort targetY = unchecked((ushort)(slot.YVelocity < 0
             ? slot.YPosition - slot.YRadius
             : slot.YPosition + slot.YRadius - 1));
@@ -82,7 +84,8 @@ public sealed partial class SamusProjectileSystem
             int index = byteOffset >> 1;
             if (index < level.WidthInBlocks * level.HeightInBlocks)
             {
-                RunShotReaction(level, slot, level.GetCollisionBlock(index % level.WidthInBlocks, index / level.WidthInBlocks), roomPlms, out bool endSpan, horizontalMovement: false);
+                RunShotReaction(level, slot, level.GetCollisionBlock(index % level.WidthInBlocks, index / level.WidthInBlocks), roomPlms,
+                    new ShotSpan(span, remaining, targetY), out bool endSpan, horizontalMovement: false);
                 if (endSpan) return;
             }
             byteOffset = unchecked((ushort)(byteOffset + 2));

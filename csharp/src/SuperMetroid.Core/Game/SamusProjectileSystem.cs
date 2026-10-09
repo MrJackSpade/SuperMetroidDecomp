@@ -471,7 +471,8 @@ public sealed partial class SamusProjectileSystem
                     slot,
                     layer1X,
                     layer1Y,
-                    roomPlms);
+                    roomPlms,
+                    sharedProjectiles.PowerBombExplosion);
             }
             else if (slot.PreInstruction is
                 SamusProjectilePreInstruction.WaveBeamThreeFrameTrail or

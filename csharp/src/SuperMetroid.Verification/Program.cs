@@ -822,6 +822,16 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--square-slope-beam-collision"])
+{
+    Suite(nameof(VerifySquareSlopeBeamCollision), () => VerifySquareSlopeBeamCollision());
+    return 0;
+}
+if (args is ["--beam-impact-sound"])
+{
+    Suite(nameof(VerifyBeamImpactSound), () => VerifyBeamImpactSound());
+    return 0;
+}
 if (args is ["--low-percent-intro-timeline"])
 {
     Suite(nameof(VerifyLowPercentIntroTimeline), () => VerifyLowPercentIntroTimeline());
@@ -7843,6 +7853,8 @@ Suite(nameof(VerifyCrateriaMainstreetEscapePassage), () => VerifyCrateriaMainstr
 Suite(nameof(VerifyZebesEscapeFade), () => VerifyZebesEscapeFade());
 Suite(nameof(VerifyEndingSetupNmiWaits), () => VerifyEndingSetupNmiWaits());
 Suite(nameof(VerifyLowPercentIntroTimeline), () => VerifyLowPercentIntroTimeline());
+Suite(nameof(VerifyBeamImpactSound), () => VerifyBeamImpactSound());
+Suite(nameof(VerifySquareSlopeBeamCollision), () => VerifySquareSlopeBeamCollision());
 Suite(nameof(VerifyRoomFxRomData), () => VerifyRoomFxRomData());
 Suite(nameof(VerifyPowerBombFixedColors), () => VerifyPowerBombFixedColors());
 Suite(nameof(VerifySamusVisorColors), () => VerifySamusVisorColors());

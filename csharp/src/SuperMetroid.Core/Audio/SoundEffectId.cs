@@ -128,6 +128,9 @@ public static class SoundEffectLibrary2Sounds
     /// <summary>$A9:B52B queues library-two $6E (Max6) when a missile or Super Missile hits Mother Brain's glass.</summary>
     public static readonly SoundEffectId MotherBrainGlassHit = new(SoundEffectLibrary.Library2, 0x6e); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
 
+    /// <summary>$93:80EF KillProjectileInner: beam impact explosion, library two $0C, Max6.</summary>
+    public static readonly SoundEffectId BeamImpact = new(SoundEffectLibrary.Library2, 0x0c); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
     /// <summary>$93:80CF KillProjectileInner: shared regular/Super Missile impact, library two $07, Max6.</summary>
     public static readonly SoundEffectId MissileImpact = new(SoundEffectLibrary.Library2, 0x07); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
 

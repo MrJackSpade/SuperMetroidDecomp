@@ -15,7 +15,8 @@ public sealed partial class SamusProjectileSystem
         SamusProjectileSlot slot,
         ushort layer1X,
         ushort layer1Y,
-        RoomPlmSystem? roomPlms)
+        RoomPlmSystem? roomPlms,
+        SamusPowerBombExplosionState powerBomb)
     {
         if (slot.PackedDirection.HasLowByteLifecycleState)
         {
@@ -61,7 +62,7 @@ public sealed partial class SamusProjectileSystem
         };
 
         if (collided)
-            KillBeam(bus, slot);
+            KillBeamOnBlockCollision(bus, slot, powerBomb);
 
         // $90:AF00 checks the movement window after the direction handler even
         // when collision changed the beam into an explosion. KillBeam moves its

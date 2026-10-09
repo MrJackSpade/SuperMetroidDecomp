@@ -63,7 +63,9 @@ public sealed partial class RoomEnemySystem
         foreach (var dust in step.CorpseDustRequests)
         {
             SpawnRoomGraphicsDustExplosion(dust.XPosition, dust.YPosition, dust.ProjectileParameter);
-            if (dust.SoundEffectQueued) state.LastSoundEffectLibrary3 = dust.SoundEffect;
+            // $A9:B252 queues the rot dust through QueueSound_Lib2_Max3.
+            if (dust.SoundEffectQueued)
+                QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, dust.SoundEffect), maximumQueued: 3);
         }
         if (step.MusicStopQueued) state.RequestMusic(MusicCommand.Stop, MusicCommandDelay.EightFrames);
         if (step.EscapeMusicQueued) state.RequestMusic(MusicCommand.LoadData(MotherBrainDeathRomData.EscapeMusicData), MusicCommandDelay.EightFrames);
@@ -85,7 +87,8 @@ public sealed partial class RoomEnemySystem
         if (step.EscapeDoorExplosion is { } doorDust)
         {
             SpawnRoomGraphicsDustExplosion(doorDust.XPosition, doorDust.YPosition, doorDust.ProjectileParameter);
-            state.LastSoundEffectLibrary3 = doorDust.SoundEffect;
+            // $A9:B346 queues the door explosion through QueueSound_Lib2_Max3.
+            QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, doorDust.SoundEffect), maximumQueued: 3);
         }
         if (step.EscapeDoorPlm is { } doorPlm)
             state.RequestPlm(doorPlm.BlockX, doorPlm.BlockY, doorPlm.PlmEntry);

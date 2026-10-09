@@ -822,6 +822,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--baby-metroid-death-explosion-sound"])
+{
+    Suite(nameof(VerifyBabyMetroidDeathExplosionSound), () => VerifyBabyMetroidDeathExplosionSound());
+    return 0;
+}
 if (args is ["--damage-boost-jump-initializer"])
 {
     Suite(nameof(VerifyDamageBoostJumpInitializer), () => VerifyDamageBoostJumpInitializer());
@@ -8034,6 +8039,7 @@ Suite(nameof(VerifyMotherBrainFakeDeathLock), () => VerifyMotherBrainFakeDeathLo
 Suite(nameof(VerifyMoonwalkRanIntoWall), () => VerifyMoonwalkRanIntoWall());
 Suite(nameof(VerifyReserveRefillRainbowBeam), () => VerifyReserveRefillRainbowBeam());
 Suite(nameof(VerifyDamageBoostJumpInitializer), () => VerifyDamageBoostJumpInitializer());
+Suite(nameof(VerifyBabyMetroidDeathExplosionSound), () => VerifyBabyMetroidDeathExplosionSound());
 Suite(nameof(VerifyRoomFxRomData), () => VerifyRoomFxRomData());
 Suite(nameof(VerifyPowerBombFixedColors), () => VerifyPowerBombFixedColors());
 Suite(nameof(VerifySamusVisorColors), () => VerifySamusVisorColors());

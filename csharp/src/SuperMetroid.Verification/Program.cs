@@ -822,6 +822,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--kraid-arm-samus-contact"])
+{
+    Suite(nameof(VerifyKraidArmSamusContact), () => VerifyKraidArmSamusContact());
+    return 0;
+}
 if (args is ["--air-spike-alpha-radius"])
 {
     Suite(nameof(VerifyAirSpikeAlphaRadius), () => VerifyAirSpikeAlphaRadius());
@@ -7861,6 +7866,7 @@ Suite(nameof(VerifyLowPercentIntroTimeline), () => VerifyLowPercentIntroTimeline
 Suite(nameof(VerifyBeamImpactSound), () => VerifyBeamImpactSound());
 Suite(nameof(VerifySquareSlopeBeamCollision), () => VerifySquareSlopeBeamCollision());
 Suite(nameof(VerifyAirSpikeAlphaRadius), () => VerifyAirSpikeAlphaRadius());
+Suite(nameof(VerifyKraidArmSamusContact), () => VerifyKraidArmSamusContact());
 Suite(nameof(VerifyRoomFxRomData), () => VerifyRoomFxRomData());
 Suite(nameof(VerifyPowerBombFixedColors), () => VerifyPowerBombFixedColors());
 Suite(nameof(VerifySamusVisorColors), () => VerifySamusVisorColors());

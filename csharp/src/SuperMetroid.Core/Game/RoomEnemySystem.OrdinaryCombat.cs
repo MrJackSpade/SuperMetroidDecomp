@@ -3203,6 +3203,8 @@ public sealed partial class RoomEnemySystem
             CrocomireTongueDefinition or
             SporeSpawnDefinition or
             CeresSteamDefinitions.EnemyDefinition or
+            KraidArmDefinition or
+            KraidFootDefinition or
             PhantoonBodyDefinition or
             DraygonBodyDefinition);
 

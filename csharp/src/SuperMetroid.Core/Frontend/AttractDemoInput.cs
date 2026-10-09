@@ -10,6 +10,8 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 public sealed class AttractDemoInput
 {
+    /// <summary>Owned, mutable demo-script execution state, loaded and enabled for the constructor's scene; the same instance is returned rather than a snapshot.</summary>
+    /// <remarks><see cref="StepStock"/> advances its instruction timers and independently authored held/newly-pressed controller words, which the gameplay runtime consumes without deriving new edges.</remarks>
     public DemoInputState Script { get; } = new();
 
     /// <summary>Production title playback uses compiled input definitions, not ROM bytecode.</summary>

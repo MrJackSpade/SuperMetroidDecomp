@@ -3,6 +3,8 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Editable tile appearances for one Crocomire arena draw layout.</summary>
+/// <param name="Id">Compiled identity of a Crocomire bridge or invisible-wall draw layout.</param>
+/// <param name="Blocks">Metatile/flip words flattened in native run order, then word order within each run; changed arrays are copied by the catalog.</param>
 public sealed record RoomPlmCrocomireVisualEntry(string Id, ushort[] Blocks);
 
 /// <summary>
@@ -30,6 +32,10 @@ public sealed class RoomPlmCrocomireVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customWords;
 
+    /// <summary>Validates all five Crocomire arena layouts and copies visual differences without changing physical level words, run geometry, or PLM programs.</summary>
+    /// <param name="entries">Exactly one visual-only entry per compiled draw identity with its full flattened block count.</param>
+    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
+    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
     public RoomPlmCrocomireVisualCatalog(
         IEnumerable<RoomPlmCrocomireVisualEntry> entries)
     {
@@ -61,6 +67,13 @@ public sealed class RoomPlmCrocomireVisualCatalog
         if (selected.Count != 0) customWords = selected;
     }
 
+    /// <summary>Resolves one arena-layout block, translating native run-local indices into the flattened visual override.</summary>
+    /// <param name="drawPointer">Bank-$84 identity of a supported Crocomire arena draw layout.</param>
+    /// <param name="runIndex">Zero-based ordinal of the compiled draw run.</param>
+    /// <param name="blockIndex">Zero-based word ordinal within that run, not a flattened entry index or room coordinate.</param>
+    /// <returns>The selected metatile/flip word, derived from the compiled physical word when unchanged.</returns>
+    /// <exception cref="InvalidDataException">The pointer does not identify a supported arena layout.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The run or word ordinal is outside the compiled draw shape.</exception>
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {
         if (!CrocomireArenaPlmDrawDefinitions.TryDescribe(drawPointer, out var draw))

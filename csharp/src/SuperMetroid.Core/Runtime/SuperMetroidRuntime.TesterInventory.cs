@@ -5,7 +5,9 @@ namespace SuperMetroid.Core.Runtime;
 public sealed partial class SuperMetroidRuntime
 {
     private SamusState? testerInventoryRecipient;
+    /// <summary>Whether the host's tester option grants the configured full inventory once to each initialized or restored Samus actor.</summary>
     public bool GrantAllEquipmentEnabled { get; private set; }
+    /// <summary>Whether the host's tester option bypasses the Tourian statue unlock event while preserving the room sequence's authored setup and scrolling effects.</summary>
     public bool UnlockTourianEnabled { get; private set; }
 
     /// <summary>Grant once per initialized player, preserving later damage, ammo use and equipment selections.</summary>

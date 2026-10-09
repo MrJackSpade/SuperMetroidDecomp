@@ -11,6 +11,10 @@ public static class ProjectileTrailProgramDefinitions
     /// <summary>Wave and missile each contain four four-byte timed records.</summary>
     public const int ShortTerminatorOffset = 4 * 4;
 
+    /// <summary>Reads one compiled bank-$90 projectile-trail mechanics word without exposing presentation operands or mutable low-half aliases.</summary>
+    /// <param name="address">Full 24-bit bus identity of a terminator, ice movement command, or timed-frame delay word.</param>
+    /// <param name="word">Zero for terminators, a compiled movement command for ice fall entries, or the one-/four-tick delay for a visual frame; zero on failure.</param>
+    /// <returns>True only for a compiled mechanics address in the native movement bank.</returns>
     public static bool TryRead(int address, out ushort word)
     {
         word = 0;

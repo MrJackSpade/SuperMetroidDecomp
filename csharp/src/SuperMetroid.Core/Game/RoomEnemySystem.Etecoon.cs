@@ -58,8 +58,11 @@ public enum EtecoonAiFunction : ushort
 /// </summary>
 public sealed class EtecoonEnemyState
 {
+    /// <summary>Backing physical enemy slot whose variables are exposed to diagnostics.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a debugger projection over the live enemy slot.</summary>
+    /// <param name="slot">Initialized Etecoon slot supplying the native variable words.</param>
     internal EtecoonEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Signed whole pixels of vertical velocity in variable A.</summary>
@@ -112,33 +115,56 @@ public sealed class EtecoonEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native enemy definition pointer used to recognize friendly Etecoon instances.</summary>
     internal const ushort EtecoonDefinition = 0xe5bf;
 
+    /// <summary>Library-two sound requested when an Etecoon wakes.</summary>
     private const ushort EtecoonWakeSound = 0x0035;
+    /// <summary>Library-two sound requested when a hop or teaching jump begins.</summary>
     private const ushort EtecoonJumpSound = 0x0033;
+    /// <summary>Library-two sound requested when the actor reaches a wall.</summary>
     private const ushort EtecoonWallSound = 0x0032;
+    /// <summary>Vertical distance in room pixels required to activate a dormant actor.</summary>
     private const int EtecoonActivationYDistance = 0x80;
+    /// <summary>Room-pixel proximity used to face Samus and qualify the nearby teaching hop.</summary>
     private const int EtecoonNearbyDistance = 0x40;
+    /// <summary>Room-pixel component threshold used to classify Samus as horizontally or vertically aligned.</summary>
     private const int EtecoonDirectionBand = 0x20;
+    /// <summary>Horizontal room-pixel distance for the successful long-run trigger.</summary>
     private const int EtecoonLongRunTriggerDistance = 0x30;
+    /// <summary>Rightward wall probe distance in signed 16.16 room coordinates.</summary>
     private const int EtecoonRightWallProbe = 32 << 16;
+    /// <summary>Whole-pixel boundary where the first route begins its teaching run-up.</summary>
     private const ushort EtecoonFirstTeachingX = 537;
+    /// <summary>Whole-pixel boundary where run-up transitions into the tunnel jump.</summary>
     private const ushort EtecoonRunStartX = 600;
+    /// <summary>Whole-pixel X boundary where the successful tunnel jump changes to running.</summary>
     private const ushort EtecoonLongJumpMidpointX = 680;
+    /// <summary>Whole-pixel X boundary where tunnel running begins the ledge fall.</summary>
     private const ushort EtecoonLongJumpEndX = 840;
+    /// <summary>Whole-pixel X boundary used to choose the failed or Samus-wait route.</summary>
     private const ushort EtecoonLongRunMaximumX = 832;
 
     // These are the literal eight ROM words at $A7:E900-$E90F. Keeping them named beside
     // their consumers avoids replacing authored fixed-point values with host-side tuning.
+    /// <summary>Native signed whole-pixel Y velocity for ordinary jumps, equal to -3.</summary>
     private const ushort EtecoonJumpYVelocity = 0xfffd;
+    /// <summary>Fractional Y velocity paired with the ordinary jump value.</summary>
     private const ushort EtecoonJumpYSubvelocity = 0x0000;
+    /// <summary>Native signed whole-pixel Y velocity for the long tunnel jump, equal to -4.</summary>
     private const ushort EtecoonLongJumpYVelocity = 0xfffc;
+    /// <summary>Fractional Y velocity paired with the long-jump value.</summary>
     private const ushort EtecoonLongJumpYSubvelocity = 0x0000;
+    /// <summary>Native signed whole-pixel rightward speed.</summary>
     private const ushort EtecoonRightVelocity = 0x0002;
+    /// <summary>Fractional rightward speed.</summary>
     private const ushort EtecoonRightSubvelocity = 0x0000;
+    /// <summary>Native signed whole-pixel leftward speed.</summary>
     private const ushort EtecoonLeftVelocity = 0xfffe;
+    /// <summary>Fractional leftward speed.</summary>
     private const ushort EtecoonLeftSubvelocity = 0x0000;
 
+    /// <summary>Per-slot debugger views for initialized Etecoons; null marks other enemy families.</summary>
     private readonly EtecoonEnemyState?[] _etecoonStates =
         new EtecoonEnemyState?[MaximumEnemyCount];
 
@@ -281,6 +307,7 @@ public sealed partial class RoomEnemySystem
         state.FunctionTimer = 256;
     }
 
+    /// <summary>Waits for the native hop countdown, then launches with ordinary jump velocity.</summary>
     private void RunEtecoonPreJumpCountdown(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -297,6 +324,7 @@ public sealed partial class RoomEnemySystem
             LastEtecoonSoundEffect = EtecoonJumpSound;
     }
 
+    /// <summary>Moves through the initial hop and chooses a Samus-facing pause or another hop on landing.</summary>
     private void RunEtecoonInitialJump(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -339,6 +367,7 @@ public sealed partial class RoomEnemySystem
         slot.CurrentInstruction = EtecoonInstructionProgramDefinitions.HitCeiling;
     }
 
+    /// <summary>Completes the look-at pause, selects the facing run, and restores ordinary jump velocity.</summary>
     private static void RunEtecoonFaceSamusPause(
         RoomEnemySlot slot,
         EtecoonEnemyState state)
@@ -361,6 +390,7 @@ public sealed partial class RoomEnemySystem
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
     }
 
+    /// <summary>Runs left until collision, then reverses into the right-wall approach.</summary>
     private void RunEtecoonLeftToWall(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -375,6 +405,7 @@ public sealed partial class RoomEnemySystem
         slot.Parameter1 = 1;
     }
 
+    /// <summary>Probes ahead for a solid wall and begins the wall jump when one is near.</summary>
     private void RunEtecoonRightToWall(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -393,6 +424,7 @@ public sealed partial class RoomEnemySystem
         MoveEtecoonHorizontally(slot, state, level);
     }
 
+    /// <summary>Applies horizontal then vertical movement and routes wall contact or landing.</summary>
     private void RunEtecoonAirborne(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -432,6 +464,7 @@ public sealed partial class RoomEnemySystem
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
     }
 
+    /// <summary>Waits out the wall pause, then launches away from the contacted wall.</summary>
     private void RunEtecoonWallPause(RoomEnemySlot slot, EtecoonEnemyState state)
     {
         PauseEtecoonForEarthquake(slot);
@@ -452,6 +485,7 @@ public sealed partial class RoomEnemySystem
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
     }
 
+    /// <summary>Selects the route-specific run-up or teaching hop after the landing countdown.</summary>
     private static void RunEtecoonRouteAfterLanding(
         RoomEnemySlot slot,
         EtecoonEnemyState state)
@@ -484,6 +518,7 @@ public sealed partial class RoomEnemySystem
         slot.InstructionTimer = 1;
     }
 
+    /// <summary>Runs left to the first route's authored X boundary before starting teaching hops.</summary>
     private void RunEtecoonMoveLeftToTeachingStart(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -498,6 +533,7 @@ public sealed partial class RoomEnemySystem
         InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.HoppingFacingLeft);
     }
 
+    /// <summary>Runs right to the second route's authored X boundary before starting teaching hops.</summary>
     private void RunEtecoonMoveRightToTeachingStart(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -512,6 +548,7 @@ public sealed partial class RoomEnemySystem
         InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.HoppingFacingLeft);
     }
 
+    /// <summary>Runs to the tunnel takeoff boundary and installs the successful long-jump state.</summary>
     private void RunEtecoonRightToLongJump(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -526,6 +563,7 @@ public sealed partial class RoomEnemySystem
         InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.JumpingRight);
     }
 
+    /// <summary>Moves through the tunnel jump until the midpoint boundary changes the actor to running.</summary>
     private void RunEtecoonLongJump(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -541,6 +579,7 @@ public sealed partial class RoomEnemySystem
         state.Function = EtecoonAiFunction.RunRightAfterLongJump;
     }
 
+    /// <summary>Runs through the tunnel to its end boundary before beginning the ledge fall.</summary>
     private void RunEtecoonRightAfterLongJump(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -555,6 +594,7 @@ public sealed partial class RoomEnemySystem
         SetEtecoonVerticalVelocity(state, 0xffff, EtecoonLongJumpYSubvelocity);
     }
 
+    /// <summary>Completes the ledge fall and schedules the next top-room hop group.</summary>
     private void RunEtecoonLongJumpLanding(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -570,6 +610,7 @@ public sealed partial class RoomEnemySystem
         state.Function = EtecoonAiFunction.IdleBetweenTeachingJumps;
     }
 
+    /// <summary>Performs a teaching hop and selects another hop or the proximity wait after landing.</summary>
     private void RunEtecoonTeachingJump(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -596,6 +637,7 @@ public sealed partial class RoomEnemySystem
         slot.CurrentInstruction = EtecoonInstructionProgramDefinitions.HitCeiling;
     }
 
+    /// <summary>Counts the teaching-hop group and dispatches the next hop or route-specific run.</summary>
     private void RunEtecoonIdleBetweenTeachingJumps(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -633,6 +675,7 @@ public sealed partial class RoomEnemySystem
             LastEtecoonSoundEffect = EtecoonJumpSound;
     }
 
+    /// <summary>Waits between hop groups until Samus meets the successful-jump proximity bounds.</summary>
     private void RunEtecoonWaitForSamusBeforeLongRun(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -659,6 +702,7 @@ public sealed partial class RoomEnemySystem
         slot.InstructionTimer = 1;
     }
 
+    /// <summary>Runs to the return-jump takeoff boundary for the unsuccessful tunnel route.</summary>
     private void RunEtecoonRightToReturnJump(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -672,6 +716,7 @@ public sealed partial class RoomEnemySystem
         InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.JumpingRight);
     }
 
+    /// <summary>Completes the return jump and restores leftward wall-running behavior on landing.</summary>
     private void RunEtecoonReturnJump(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -728,9 +773,11 @@ public sealed partial class RoomEnemySystem
         return MoveEnemyVertically(level, slot, displacement);
     }
 
+    /// <summary>Combines signed whole pixels and an unsigned fraction into the mover's signed 16.16 value.</summary>
     private static int ComposeEtecoonFixed(ushort whole, ushort fraction) =>
         unchecked(((int)(short)whole << 16) | fraction);
 
+    /// <summary>Adds a wrapped 16.16 acceleration pair to the actor's vertical velocity.</summary>
     private static void AddEtecoonFixed(
         EtecoonEnemyState state,
         ushort wholeIncrement,
@@ -743,6 +790,7 @@ public sealed partial class RoomEnemySystem
         state.VerticalSubvelocity = unchecked((ushort)value);
     }
 
+    /// <summary>Stores the native whole and fractional vertical velocity words.</summary>
     private static void SetEtecoonVerticalVelocity(
         EtecoonEnemyState state,
         ushort whole,
@@ -752,6 +800,7 @@ public sealed partial class RoomEnemySystem
         state.VerticalSubvelocity = fraction;
     }
 
+    /// <summary>Stores the native whole and fractional horizontal velocity words.</summary>
     private static void SetEtecoonHorizontalVelocity(
         EtecoonEnemyState state,
         ushort whole,
@@ -761,6 +810,7 @@ public sealed partial class RoomEnemySystem
         state.HorizontalSubvelocity = fraction;
     }
 
+    /// <summary>Decrements the wrapped function timer and reports one or underflow as expired.</summary>
     private static bool DecrementEtecoonTimerAndTestExpired(EtecoonEnemyState state)
     {
         bool wasOne = state.FunctionTimer == 1;
@@ -768,12 +818,14 @@ public sealed partial class RoomEnemySystem
         return wasOne || (state.FunctionTimer & 0x8000) != 0;
     }
 
+    /// <summary>Checks signed wrapped horizontal separation against a strict room-pixel distance.</summary>
     private static bool EtecoonIsWithinX(
         RoomEnemySlot slot,
         SamusState samus,
         int distance) =>
         Math.Abs(unchecked((short)(slot.XPosition - samus.XPosition))) < distance;
 
+    /// <summary>Checks signed wrapped vertical separation against a strict room-pixel distance.</summary>
     private static bool EtecoonIsWithinY(
         RoomEnemySlot slot,
         SamusState samus,
@@ -796,6 +848,7 @@ public sealed partial class RoomEnemySystem
         return deltaY < 0 ? (ushort)1 : (ushort)3;
     }
 
+    /// <summary>Installs an instruction-list pointer and makes its first instruction due next update.</summary>
     private static void InstallEtecoonInstruction(
         RoomEnemySlot slot,
         ushort instructionPointer)
@@ -804,6 +857,7 @@ public sealed partial class RoomEnemySystem
         slot.InstructionTimer = 1;
     }
 
+    /// <summary>Returns the initialized per-slot view or fails if the slot is not an Etecoon.</summary>
     private EtecoonEnemyState RequireEtecoonState(RoomEnemySlot slot) =>
         _etecoonStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Etecoon state.");

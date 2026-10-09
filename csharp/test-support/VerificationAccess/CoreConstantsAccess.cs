@@ -15,6 +15,7 @@ internal static class AnimatedTileInstructionListPointersConstants
     /// <summary>Rightward treadmill four-frame loop at $87:81E3.</summary>
     public const ushort WreckedShipTreadmillRightwardsLoop = 0x81e3;
 
+    /// <inheritdoc cref="AnimatedTileInstructionListPointersConstants"/>
     extension(AnimatedTileInstructionListPointers)
     {
         /// <inheritdoc cref="AnimatedTileInstructionListPointersConstants.WreckedShipTreadmillLeftwardsLoop"/>
@@ -39,6 +40,7 @@ internal static class AreaAnimatedTileObjectDefinitionsConstants
     /// </summary>
     public const int NativeListPointerTable = 0x83ac56;
 
+    /// <inheritdoc cref="AreaAnimatedTileObjectDefinitionsConstants"/>
     extension(AreaAnimatedTileObjectDefinitions)
     {
         /// <inheritdoc cref="AreaAnimatedTileObjectDefinitionsConstants.NativeAreaCount"/>
@@ -70,6 +72,7 @@ internal static class AttractDemoRomDataConstants
     /// <summary>$91:89FD, DemoSamusSetup_Pointers: four Samus-initializer list pointers.</summary>
     public const int SamusSetupSetPointers = 0x9189fd;
 
+    /// <inheritdoc cref="AttractDemoRomDataConstants"/>
     extension(AttractDemoRomData)
     {
         /// <inheritdoc cref="AttractDemoRomDataConstants.CompletionMarkerAddress"/>
@@ -96,8 +99,10 @@ internal static class AttractDemoRomDataConstants
 /// <summary>Cartridge values of <see cref="AudioRomData.Apu"/> that only verification reads.</summary>
 internal static class AudioRomDataApuConstants
 {
+    /// <summary>Selects the third SPC driver communication port for the third sound library.</summary>
     public const byte LibraryThreePort = 3;
 
+    /// <inheritdoc cref="AudioRomDataApuConstants"/>
     extension(AudioRomData.Apu)
     {
         /// <inheritdoc cref="AudioRomDataApuConstants.LibraryThreePort"/>
@@ -111,6 +116,7 @@ internal static class BabyMetroidCutsceneColorRomDataConstants
     /// <summary>$AD:E8E2, seven fade-frame pointers; index zero is never displayed.</summary>
     public const int FadePointerTable = 0xade8e2;
 
+    /// <inheritdoc cref="BabyMetroidCutsceneColorRomDataConstants"/>
     extension(BabyMetroidCutsceneColorRomData)
     {
         /// <inheritdoc cref="BabyMetroidCutsceneColorRomDataConstants.FadePointerTable"/>
@@ -129,6 +135,7 @@ internal static class BabyMetroidRouteDefinitionsConstants
     /// </summary>
     public const int SourceByteLength = 66;
 
+    /// <inheritdoc cref="BabyMetroidRouteDefinitionsConstants"/>
     extension(BabyMetroidRouteDefinitions)
     {
         /// <inheritdoc cref="BabyMetroidRouteDefinitionsConstants.SourceAddress"/>
@@ -146,6 +153,7 @@ internal static class BeaconPaletteFxProgramMechanicsDefinitionsConstants
     /// <summary>The room palette-FX definition at <c>$8D:F781</c>.</summary>
     public const ushort DefinitionPointer = 0xf781;
 
+    /// <inheritdoc cref="BeaconPaletteFxProgramMechanicsDefinitionsConstants"/>
     extension(BeaconPaletteFxProgramMechanicsDefinitions)
     {
         /// <inheritdoc cref="BeaconPaletteFxProgramMechanicsDefinitionsConstants.CycleFrames"/>
@@ -167,6 +175,7 @@ internal static class BeetomInstructionProgramDefinitionsConstants
     /// <summary>The terminal right-hop sleep instruction at $A8:B71A.</summary>
     public const ushort HopRightSleep = 0xb71a;
 
+    /// <inheritdoc cref="BeetomInstructionProgramDefinitionsConstants"/>
     extension(BeetomInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="BeetomInstructionProgramDefinitionsConstants.CrawlingRightLoop"/>
@@ -192,6 +201,7 @@ internal static class BlueDoorPlmProgramDefinitionsConstants
     /// <summary>Facing-up closing list at $84:C500.</summary>
     public const ushort ClosingUp = 0xc500;
 
+    /// <inheritdoc cref="BlueDoorPlmProgramDefinitionsConstants"/>
     extension(BlueDoorPlmProgramDefinitions)
     {
         /// <inheritdoc cref="BlueDoorPlmProgramDefinitionsConstants.ClosingDown"/>
@@ -211,6 +221,7 @@ internal static class BotwoonHealthPaletteDefinitionsConstants
     /// <summary><c>BotwoonHealthThresholdsForPaletteChange</c> at $B3:981B.</summary>
     public const int NativeThresholdAddress = 0xb3981b;
 
+    /// <inheritdoc cref="BotwoonHealthPaletteDefinitionsConstants"/>
     extension(BotwoonHealthPaletteDefinitions)
     {
         /// <inheritdoc cref="BotwoonHealthPaletteDefinitionsConstants.NativeThresholdAddress"/>
@@ -248,6 +259,7 @@ internal static class BotwoonInstructionProgramDefinitionsConstants
     /// </summary>
     public const ushort UnusedSpittingHorizontal = 0x93cf;
 
+    /// <inheritdoc cref="BotwoonInstructionProgramDefinitionsConstants"/>
     extension(BotwoonInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="BotwoonInstructionProgramDefinitionsConstants.FirstAdjacentProgram"/>
@@ -279,6 +291,7 @@ internal static class BotwoonSpeedDefinitionsConstants
     /// <summary>$B3:94BB, BotwoonSpeedTable: three speed/body-travel-time pairs.</summary>
     public const int MovementReferenceAddress = 0xb394bb;
 
+    /// <inheritdoc cref="BotwoonSpeedDefinitionsConstants"/>
     extension(BotwoonSpeedDefinitions)
     {
         /// <inheritdoc cref="BotwoonSpeedDefinitionsConstants.MovementReferenceAddress"/>
@@ -292,6 +305,7 @@ internal static class BotwoonWallPlmDrawDefinitionsConstants
     /// <summary><c>$84:9325</c>: first byte of the following unused draw list.</summary>
     public const ushort EndExclusive = 0x9325;
 
+    /// <inheritdoc cref="BotwoonWallPlmDrawDefinitionsConstants"/>
     extension(BotwoonWallPlmDrawDefinitions)
     {
         /// <inheritdoc cref="BotwoonWallPlmDrawDefinitionsConstants.EndExclusive"/>
@@ -307,6 +321,7 @@ internal static class BotwoonWallPlmProgramDefinitionsConstants
     /// <summary><c>$84:AB51</c>: first byte of the following scroll callback.</summary>
     public const ushort CrumbleEndExclusive = RoomPlmInstructionCodes.SetBotwoonScrollsBlue;
 
+    /// <inheritdoc cref="BotwoonWallPlmProgramDefinitionsConstants"/>
     extension(BotwoonWallPlmProgramDefinitions)
     {
         /// <inheritdoc cref="BotwoonWallPlmProgramDefinitionsConstants.ClearEndExclusive"/>
@@ -322,6 +337,7 @@ internal static class BrinstarBlueSporePaletteFxProgramMechanicsDefinitionsConst
     /// <summary>Frames from the first record through the next first record.</summary>
     public const int CycleFrames = 140;
 
+    /// <inheritdoc cref="BrinstarBlueSporePaletteFxProgramMechanicsDefinitionsConstants"/>
     extension(BrinstarBlueSporePaletteFxProgramMechanicsDefinitions)
     {
         /// <inheritdoc cref="BrinstarBlueSporePaletteFxProgramMechanicsDefinitionsConstants.CycleFrames"/>
@@ -335,6 +351,7 @@ internal static class CartridgeDoorHeaderConstants
     /// <summary>Encoded size of one retail bank-$83 door header.</summary>
     public const int SizeInBytes = DoorHeaderRomDataConstants.RecordByteCount;
 
+    /// <inheritdoc cref="CartridgeDoorHeaderConstants"/>
     extension(CartridgeDoorHeader)
     {
         /// <inheritdoc cref="CartridgeDoorHeaderConstants.SizeInBytes"/>
@@ -356,6 +373,7 @@ internal static class CeresCinematicLightPaletteFxProgramMechanicsDefinitionsCon
     /// <summary><c>PalFxDef_CutsceneCeresNavigationLightsSprite</c> at <c>$8D:E1AC</c>.</summary>
     public const ushort SpriteNavigationLightsDefinitionPointer = 0xe1ac;
 
+    /// <inheritdoc cref="CeresCinematicLightPaletteFxProgramMechanicsDefinitionsConstants"/>
     extension(CeresCinematicLightPaletteFxProgramMechanicsDefinitions)
     {
         /// <inheritdoc cref="CeresCinematicLightPaletteFxProgramMechanicsDefinitionsConstants.BackgroundNavigationLightsDefinitionPointer"/>
@@ -374,8 +392,10 @@ internal static class CeresCinematicLightPaletteFxProgramMechanicsDefinitionsCon
 /// <summary>Cartridge values of <see cref="CeresDestructionRomData.Assets"/> that only verification reads.</summary>
 internal static class CeresDestructionRomDataAssetsConstants
 {
+    /// <summary>Points to the shared object-character graphics used by the Ceres destruction sequence.</summary>
     public const int SharedObjectCharacters = 0x9ad200;
 
+    /// <inheritdoc cref="CeresDestructionRomDataAssetsConstants"/>
     extension(CeresDestructionRomData.Assets)
     {
         /// <inheritdoc cref="CeresDestructionRomDataAssetsConstants.SharedObjectCharacters"/>
@@ -392,6 +412,7 @@ internal static class CeresDoorInstructionProgramDefinitionsConstants
     /// </summary>
     public const ushort ClosedFacingLeft = 0xf5ea;
 
+    /// <inheritdoc cref="CeresDoorInstructionProgramDefinitionsConstants"/>
     extension(CeresDoorInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="CeresDoorInstructionProgramDefinitionsConstants.ClosedFacingLeft"/>
@@ -409,6 +430,7 @@ internal static class CeresElevatorArrivalDefinitionsConstants
     /// <summary>$86:81AB, Instruction_Goto opcode used by both looping programs.</summary>
     public const ushort GotoOpcode = 0x81ab;
 
+    /// <inheritdoc cref="CeresElevatorArrivalDefinitionsConstants"/>
     extension(CeresElevatorArrivalDefinitions)
     {
         /// <inheritdoc cref="CeresElevatorArrivalDefinitionsConstants.BankBase"/>
@@ -426,6 +448,7 @@ internal static class CeresExplosionDefinitionsConstants
     /// <summary>Bank containing the native definitions and placement tables.</summary>
     public const int NativeBank = 0x8b0000;
 
+    /// <inheritdoc cref="CeresExplosionDefinitionsConstants"/>
     extension(CeresExplosionDefinitions)
     {
         /// <inheritdoc cref="CeresExplosionDefinitionsConstants.NativeBank"/>
@@ -442,6 +465,7 @@ internal static class CeresRidleyEyeFadeDefinitionsConstants
     /// </summary>
     public const int NativeScheduleAddress = 0xa6e269;
 
+    /// <inheritdoc cref="CeresRidleyEyeFadeDefinitionsConstants"/>
     extension(CeresRidleyEyeFadeDefinitions)
     {
         /// <inheritdoc cref="CeresRidleyEyeFadeDefinitionsConstants.NativeScheduleAddress"/>
@@ -470,6 +494,7 @@ internal static class CeresShaftRotationDefinitionsConstants
     /// </remarks>
     public const int ReferenceAddress = 0x89ad5f;
 
+    /// <inheritdoc cref="CeresShaftRotationDefinitionsConstants"/>
     extension(CeresShaftRotationDefinitions)
     {
         /// <inheritdoc cref="CeresShaftRotationDefinitionsConstants.ReferenceAddress"/>
@@ -502,6 +527,7 @@ internal static class CeresSteamInstructionProgramDefinitionsConstants
     /// </summary>
     public const ushort UpActive = 0xf061;
 
+    /// <inheritdoc cref="CeresSteamInstructionProgramDefinitionsConstants"/>
     extension(CeresSteamInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="CeresSteamInstructionProgramDefinitionsConstants.DownActive"/>
@@ -521,6 +547,7 @@ internal static class ChargeFlareSpriteDefinitionsConstants
     /// <summary>$93:A1A1, FlareSpritemapPointers: the first 54 selectors are charge-flare components.</summary>
     public const int SelectorTable = 0x93A1A1;
 
+    /// <inheritdoc cref="ChargeFlareSpriteDefinitionsConstants"/>
     extension(ChargeFlareSpriteDefinitions)
     {
         /// <inheritdoc cref="ChargeFlareSpriteDefinitionsConstants.SelectorTable"/>
@@ -531,12 +558,19 @@ internal static class ChargeFlareSpriteDefinitionsConstants
 /// <summary>Cartridge values of <see cref="CinematicCodePointers"/> that only verification reads.</summary>
 internal static class CinematicCodePointersConstants
 {
+    /// <summary>Credit-object opcode that decrements its timer before continuing to the next instruction.</summary>
     public const ushort CreditsObject_Instruction_DecrementTimerAndGoto = 0x9a0d;
+    /// <summary>Credit-object opcode that removes the active cinematic object.</summary>
     public const ushort CreditsObject_Instruction_Delete = 0x99fe;
+    /// <summary>Credit sequence opcode that begins the ending presentation.</summary>
     public const ushort CreditsObject_Instruction_EndCredits = 0xf6fe;
+    /// <summary>Credit-object opcode that loads the timer used by the following instruction.</summary>
     public const ushort CreditsObject_Instruction_SetTimer = 0x9a17;
+    /// <summary>Ending opcode that removes the item-percentage subtitle from the tilemap.</summary>
     public const ushort Ending_Instruction_ClearItemPercentageSubtitle = 0xe780;
+    /// <summary>Ending opcode that draws the item-completion percentage.</summary>
     public const ushort Ending_Instruction_DrawItemPercentage = 0xe627;
+    /// <summary>Ending opcode that draws the subtitle beneath the item-completion percentage.</summary>
     public const ushort Ending_Instruction_DrawItemPercentageSubtitle = 0xe769;
     /// <summary><c>IndirectInstructionFunction_DoNothing</c> at $8B:8849.</summary>
     public const ushort IndirectInstruction_DoNothing = 0x8849;
@@ -545,6 +579,7 @@ internal static class CinematicCodePointersConstants
     /// <summary><c>IndirectInstructionFunction_DrawToCinematicBGTilemap</c> at $8B:88B7.</summary>
     public const ushort IndirectInstruction_DrawToBackgroundTilemap = 0x88b7;
 
+    /// <inheritdoc cref="CinematicCodePointersConstants"/>
     extension(CinematicCodePointers)
     {
         /// <inheritdoc cref="CinematicCodePointersConstants.CreditsObject_Instruction_DecrementTimerAndGoto"/>
@@ -573,14 +608,22 @@ internal static class CinematicCodePointersConstants
 /// <summary>Cartridge values of <see cref="CinematicCodePointers.Lists"/> that only verification reads.</summary>
 internal static class CinematicCodePointersListsConstants
 {
+    /// <summary>Ceres cinematic instruction list for the large asteroid field.</summary>
     public const ushort CeresExplosionLargeAsteroids = 0xce4b;
+    /// <summary>Ceres cinematic instruction list for the purple space vortex.</summary>
     public const ushort CeresPurpleSpaceVortex = 0xcc57;
+    /// <summary>Ceres cinematic instruction list for the small asteroid field.</summary>
     public const ushort CeresSmallAsteroids = 0xcc4f;
+    /// <summary>Ceres cinematic instruction list that draws the starfield.</summary>
     public const ushort CeresStars = 0xcda3;
+    /// <summary>Intro cinematic instruction list that creates the Rinka spawner.</summary>
     public const ushort IntroRinkaSpawner = 0xce0d;
+    /// <summary>Stride in bytes between Metroid egg particle records.</summary>
     public const ushort MetroidEggParticleStride = 8;
+    /// <summary>Intro cinematic instruction list that emits the Metroid egg slime drops.</summary>
     public const ushort MetroidEggSlimeDrops = 0xcd69;
 
+    /// <inheritdoc cref="CinematicCodePointersListsConstants"/>
     extension(CinematicCodePointers.Lists)
     {
         /// <inheritdoc cref="CinematicCodePointersListsConstants.CeresExplosionLargeAsteroids"/>
@@ -606,6 +649,7 @@ internal static class CommonEnemyEmptyExtendedFrameDefinitionsConstants
     /// <summary>Bank-local one-point hitbox list at $8059.</summary>
     public const ushort PointHitboxList = 0x8059;
 
+    /// <inheritdoc cref="CommonEnemyEmptyExtendedFrameDefinitionsConstants"/>
     extension(CommonEnemyEmptyExtendedFrameDefinitions)
     {
         /// <inheritdoc cref="CommonEnemyEmptyExtendedFrameDefinitionsConstants.PointHitboxList"/>
@@ -619,6 +663,7 @@ internal static class CrateriaEscapeLightningPaletteFxProgramMechanicsDefinition
     /// <summary>Both complete loops last 98 frames.</summary>
     public const int CycleFrames = 98;
 
+    /// <inheritdoc cref="CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitionsConstants"/>
     extension(CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions)
     {
         /// <inheritdoc cref="CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitionsConstants.CycleFrames"/>
@@ -632,6 +677,7 @@ internal static class CrocomireArenaPlmDrawDefinitionsConstants
     /// <summary><c>$84:9BF7</c>: first byte of the following eye-door draw region.</summary>
     public const ushort EndExclusive = 0x9bf7;
 
+    /// <inheritdoc cref="CrocomireArenaPlmDrawDefinitionsConstants"/>
     extension(CrocomireArenaPlmDrawDefinitions)
     {
         /// <inheritdoc cref="CrocomireArenaPlmDrawDefinitionsConstants.EndExclusive"/>
@@ -647,6 +693,7 @@ internal static class CrocomireInstructionProgramDefinitionsConstants
     /// <summary>First independently owned Crocomire-tongue program at $A4:BE56.</summary>
     public const ushort FirstTongueProgram = 0xbe56;
 
+    /// <inheritdoc cref="CrocomireInstructionProgramDefinitionsConstants"/>
     extension(CrocomireInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="CrocomireInstructionProgramDefinitionsConstants.FirstExcludedUnreferencedProgram"/>
@@ -676,6 +723,7 @@ internal static class CrocomireMeltingDefinitionsConstants
     /// </remarks>
     public const int MaskReferenceAddress = 0xa49bbd;
 
+    /// <inheritdoc cref="CrocomireMeltingDefinitionsConstants"/>
     extension(CrocomireMeltingDefinitions)
     {
         /// <inheritdoc cref="CrocomireMeltingDefinitionsConstants.MaskReferenceAddress"/>
@@ -691,6 +739,7 @@ internal static class CrocomireMeltingTransferDefinitionsConstants
     /// <summary>Native bank-$A4 base for independent ROM-oracle comparison.</summary>
     public const int NativeSourceAddress = 0xa49bc5;
 
+    /// <inheritdoc cref="CrocomireMeltingTransferDefinitionsConstants"/>
     extension(CrocomireMeltingTransferDefinitions)
     {
         /// <inheritdoc cref="CrocomireMeltingTransferDefinitionsConstants.NativeByteCount"/>
@@ -709,6 +758,7 @@ internal static class CrystalFlashPaletteTimingDefinitionsConstants
     /// </summary>
     public const int NativeFirstTimerAddress = 0x91dc02;
 
+    /// <inheritdoc cref="CrystalFlashPaletteTimingDefinitionsConstants"/>
     extension(CrystalFlashPaletteTimingDefinitions)
     {
         /// <inheritdoc cref="CrystalFlashPaletteTimingDefinitionsConstants.NativeFirstTimerAddress"/>
@@ -724,6 +774,7 @@ internal static class DachoraColorRomDataConstants
     /// <summary>Four native speed-image pointers at $A7:F787.</summary>
     public const int SpeedPointerTable = 0xa7f787;
 
+    /// <inheritdoc cref="DachoraColorRomDataConstants"/>
     extension(DachoraColorRomData)
     {
         /// <inheritdoc cref="DachoraColorRomDataConstants.ShinePointerTable"/>
@@ -739,6 +790,7 @@ internal static class DachoraInstructionProgramDefinitionsConstants
     /// <summary>The retail-unused left-facing charge program at $A7:F3F1.</summary>
     public const ushort UnusedChargeLeft = 0xf3f1;
 
+    /// <inheritdoc cref="DachoraInstructionProgramDefinitionsConstants"/>
     extension(DachoraInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="DachoraInstructionProgramDefinitionsConstants.UnusedChargeLeft"/>
@@ -752,6 +804,7 @@ internal static class DeadSidehopperInstructionProgramDefinitionsConstants
     /// <summary>The first following program, <c>InstList_CorpseZoomer_Param1_0</c>, at $A9:ECF5.</summary>
     public const ushort FirstAdjacentProgram = 0xecf5;
 
+    /// <inheritdoc cref="DeadSidehopperInstructionProgramDefinitionsConstants"/>
     extension(DeadSidehopperInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="DeadSidehopperInstructionProgramDefinitionsConstants.FirstAdjacentProgram"/>
@@ -765,6 +818,7 @@ internal static class DeadTorizoInstructionProgramDefinitionsConstants
     /// <summary><c>Spritemaps_CorpseTorizo</c> begins after the program at $A9:D6E2.</summary>
     public const ushort FirstAdjacentPresentationData = 0xd6e2;
 
+    /// <inheritdoc cref="DeadTorizoInstructionProgramDefinitionsConstants"/>
     extension(DeadTorizoInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="DeadTorizoInstructionProgramDefinitionsConstants.FirstAdjacentPresentationData"/>
@@ -782,6 +836,7 @@ internal static class DeadTorizoVramTransferDefinitionsConstants
     /// <summary>Four 16-bit descriptor words per native record.</summary>
     public const int RecordByteCount = 8;
 
+    /// <inheritdoc cref="DeadTorizoVramTransferDefinitionsConstants"/>
     extension(DeadTorizoVramTransferDefinitions)
     {
         /// <inheritdoc cref="DeadTorizoVramTransferDefinitionsConstants.EvenTable"/>
@@ -799,6 +854,7 @@ internal static class DeadTourianCorpseInstructionProgramDefinitionsConstants
     /// <summary>The first dead-monster spritemap after the programs, at $A9:ED25.</summary>
     public const ushort FirstAdjacentPresentationData = 0xed25;
 
+    /// <inheritdoc cref="DeadTourianCorpseInstructionProgramDefinitionsConstants"/>
     extension(DeadTourianCorpseInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="DeadTourianCorpseInstructionProgramDefinitionsConstants.FirstAdjacentPresentationData"/>
@@ -809,10 +865,14 @@ internal static class DeadTourianCorpseInstructionProgramDefinitionsConstants
 /// <summary>Cartridge values of <see cref="DeadTourianCorpseVisualDefinitions"/> that only verification reads.</summary>
 internal static class DeadTourianCorpseVisualDefinitionsConstants
 {
+    /// <summary>Number of displayed corpse frames in the Tourian corpse sequence.</summary>
     public const int CorpseFrameCount = 8;
+    /// <summary>Total visual frames across the corpse and sidehopper graphics.</summary>
     public const int FrameCount = CorpseFrameCount + SidehopperFrameCount;
+    /// <summary>Number of sidehopper frames following the corpse frames.</summary>
     public const int SidehopperFrameCount = 5;
 
+    /// <inheritdoc cref="DeadTourianCorpseVisualDefinitionsConstants"/>
     extension(DeadTourianCorpseVisualDefinitions)
     {
         /// <inheritdoc cref="DeadTourianCorpseVisualDefinitionsConstants.CorpseFrameCount"/>
@@ -827,8 +887,10 @@ internal static class DeadTourianCorpseVisualDefinitionsConstants
 /// <summary>Cartridge values of <see cref="DemoInputRomData"/> that only verification reads.</summary>
 internal static class DemoInputRomDataConstants
 {
+    /// <summary>Base address of the bank containing attract-demo input records.</summary>
     public const int BankBase = 0x910000;
 
+    /// <inheritdoc cref="DemoInputRomDataConstants"/>
     extension(DemoInputRomData)
     {
         /// <inheritdoc cref="DemoInputRomDataConstants.BankBase"/>
@@ -842,6 +904,7 @@ internal static class DoorClosingPlmRomDataConstants
     /// <summary>$8F:E68A-$8F:E6A1, the twelve direction-selected fallback headers.</summary>
     public const int HeaderTableAddress = 0x8fe68a;
 
+    /// <inheritdoc cref="DoorClosingPlmRomDataConstants"/>
     extension(DoorClosingPlmRomData)
     {
         /// <inheritdoc cref="DoorClosingPlmRomDataConstants.HeaderTableAddress"/>
@@ -855,6 +918,7 @@ internal static class DoorDefinitionsConstants
     /// <summary>Number of physical door records across the two native bank-$83 blocks.</summary>
     public const int HeaderCount = 597;
 
+    /// <inheritdoc cref="DoorDefinitionsConstants"/>
     extension(DoorDefinitions)
     {
         /// <inheritdoc cref="DoorDefinitionsConstants.HeaderCount"/>
@@ -876,6 +940,7 @@ internal static class DoorHeaderRomDataConstants
     /// <summary>Encoded byte length of one physical door record.</summary>
     public const int RecordByteCount = 12;
 
+    /// <inheritdoc cref="DoorHeaderRomDataConstants"/>
     extension(DoorHeaderRomData)
     {
         /// <inheritdoc cref="DoorHeaderRomDataConstants.PostFxBlockEnd"/>
@@ -894,8 +959,10 @@ internal static class DoorHeaderRomDataConstants
 /// <summary>Cartridge values of <see cref="DownwardGateEnemyProjectileRomData"/> that only verification reads.</summary>
 internal static class DownwardGateEnemyProjectileRomDataConstants
 {
+    /// <summary>Instruction that puts the downward gate projectile into its closed sleep state.</summary>
     public const ushort ClosedSleepInstruction = DownwardGateProjectileInstructionProgramDefinitions.ClosedSleep;
 
+    /// <inheritdoc cref="DownwardGateEnemyProjectileRomDataConstants"/>
     extension(DownwardGateEnemyProjectileRomData)
     {
         /// <inheritdoc cref="DownwardGateEnemyProjectileRomDataConstants.ClosedSleepInstruction"/>
@@ -912,6 +979,7 @@ internal static class DraygonHealthPaletteDefinitionsConstants
     /// </summary>
     public const int NativeThresholdAddress = 0xa596ef;
 
+    /// <inheritdoc cref="DraygonHealthPaletteDefinitionsConstants"/>
     extension(DraygonHealthPaletteDefinitions)
     {
         /// <inheritdoc cref="DraygonHealthPaletteDefinitionsConstants.NativeThresholdAddress"/>
@@ -931,6 +999,7 @@ internal static class DraygonIntroDanceDefinitionsConstants
     /// <summary>Native start of <c>DraygonFightIntroDanceData</c> at <c>$A5:CE07</c>.</summary>
     public const int NativeMovementStreamAddress = 0xa5ce07;
 
+    /// <inheritdoc cref="DraygonIntroDanceDefinitionsConstants"/>
     extension(DraygonIntroDanceDefinitions)
     {
         /// <inheritdoc cref="DraygonIntroDanceDefinitionsConstants.NativeMovementLatencyAddress"/>
@@ -946,6 +1015,7 @@ internal static class ElevatorInstructionProgramDefinitionsConstants
     /// <summary>The controller-input table immediately after the program, at $A3:94E2.</summary>
     public const ushort FirstAdjacentMechanicsData = 0x94e2;
 
+    /// <inheritdoc cref="ElevatorInstructionProgramDefinitionsConstants"/>
     extension(ElevatorInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="ElevatorInstructionProgramDefinitionsConstants.FirstAdjacentMechanicsData"/>
@@ -959,6 +1029,7 @@ internal static class EndingCreditsRomDataAssetsConstants
     /// <summary>$95:A82F, decompressed to $7F:0000 for the flyaway's high-byte Mode-7 character lane.</summary>
     public const int FlyawayCharacters = 0x95a82f;
 
+    /// <inheritdoc cref="EndingCreditsRomDataAssetsConstants"/>
     extension(EndingCreditsRomData.Assets)
     {
         /// <inheritdoc cref="EndingCreditsRomDataAssetsConstants.FlyawayCharacters"/>
@@ -974,6 +1045,7 @@ internal static class EndingLogoDefinitionsConstants
     /// <summary>Bank containing the native six-byte cinematic-object definitions.</summary>
     public const int NativeDefinitionBank = 0x8b0000;
 
+    /// <inheritdoc cref="EndingLogoDefinitionsConstants"/>
     extension(EndingLogoDefinitions)
     {
         /// <inheritdoc cref="EndingLogoDefinitionsConstants.ActorCount"/>
@@ -989,6 +1061,7 @@ internal static class EndingLogoPalettePointerDefinitionsConstants
     /// <summary>$8B:E5E7, sixteen pairs of reverse-copy bank-$8C palette pointers.</summary>
     public const int NativeTableAddress = 0x8be5e7;
 
+    /// <inheritdoc cref="EndingLogoPalettePointerDefinitionsConstants"/>
     extension(EndingLogoPalettePointerDefinitions)
     {
         /// <inheritdoc cref="EndingLogoPalettePointerDefinitionsConstants.NativeTableAddress"/>
@@ -1004,6 +1077,7 @@ internal static class EndingPostShotUploadDefinitionsConstants
     /// <summary>First eight-byte transfer record at <c>$8B:E45A</c>.</summary>
     public const int TableAddress = 0x8be45a;
 
+    /// <inheritdoc cref="EndingPostShotUploadDefinitionsConstants"/>
     extension(EndingPostShotUploadDefinitions)
     {
         /// <inheritdoc cref="EndingPostShotUploadDefinitionsConstants.RecordBytes"/>
@@ -1019,6 +1093,7 @@ internal static class EndingRewardActorDefinitionsConstants
     /// <summary>Bank containing the native six-byte cinematic-object definitions.</summary>
     public const int NativeDefinitionBank = 0x8b0000;
 
+    /// <inheritdoc cref="EndingRewardActorDefinitionsConstants"/>
     extension(EndingRewardActorDefinitions)
     {
         /// <inheritdoc cref="EndingRewardActorDefinitionsConstants.NativeDefinitionBank"/>
@@ -1034,6 +1109,7 @@ internal static class EndingRewardGraphicsUploadDefinitionsConstants
     /// <summary>$8B:F6B8: Func216 source-address table, relative to WRAM bank $7F.</summary>
     public const int SourceTable = 0x8bf6b8;
 
+    /// <inheritdoc cref="EndingRewardGraphicsUploadDefinitionsConstants"/>
     extension(EndingRewardGraphicsUploadDefinitions)
     {
         /// <inheritdoc cref="EndingRewardGraphicsUploadDefinitionsConstants.DestinationTable"/>
@@ -1049,6 +1125,7 @@ internal static class EnemyAiCodePointersBankB2Constants
     /// <summary>ExtendedSpritemap_CommonB2_Nothing at $B2:804F; one point hitbox selecting the common touch/shot callbacks.</summary>
     public const ushort EmptyExtendedSpritemap = 0x804f;
 
+    /// <inheritdoc cref="EnemyAiCodePointersBankB2Constants"/>
     extension(EnemyAiCodePointers.BankB2)
     {
         /// <inheritdoc cref="EnemyAiCodePointersBankB2Constants.EmptyExtendedSpritemap"/>
@@ -1064,6 +1141,7 @@ internal static class EnemyDropChanceDefinitionsConstants
     /// <summary>Bank-$B4 address used by native enemy drop probability pointers.</summary>
     public const int NativeBank = 0xb40000;
 
+    /// <inheritdoc cref="EnemyDropChanceDefinitionsConstants"/>
     extension(EnemyDropChanceDefinitions)
     {
         /// <inheritdoc cref="EnemyDropChanceDefinitionsConstants.LastPointer"/>
@@ -1085,6 +1163,7 @@ internal static class EnemyRomTablePointersCeresConstants
     /// <summary>Ridley wing spritemap pointers at $A6:DB02.</summary>
     public const int WingSpritemapPointers = 0xa6db02;
 
+    /// <inheritdoc cref="EnemyRomTablePointersCeresConstants"/>
     extension(EnemyRomTablePointers.Ceres)
     {
         /// <inheritdoc cref="EnemyRomTablePointersCeresConstants.DoorTransferPointers"/>
@@ -1132,6 +1211,7 @@ internal static class EnemyRomTablePointersKraidConstants
     /// <summary>Kraid second-phase movement record table at $A7:BA7D.</summary>
     public const int SecondPhaseMovementRecords = 0xa7ba7d;
 
+    /// <inheritdoc cref="EnemyRomTablePointersKraidConstants"/>
     extension(EnemyRomTablePointers.Kraid)
     {
         /// <inheritdoc cref="EnemyRomTablePointersKraidConstants.CeilingRockXWords"/>
@@ -1201,6 +1281,7 @@ internal static class EnemyRomTablePointersRidleyConstants
     /// <summary>Tail rotation divisor bytes at $A6:D61F.</summary>
     public const int TailRotationDivisorBytes = 0xa6d61f;
 
+    /// <inheritdoc cref="EnemyRomTablePointersRidleyConstants"/>
     extension(EnemyRomTablePointers.Ridley)
     {
         /// <inheritdoc cref="EnemyRomTablePointersRidleyConstants.AscendingPogoTargetXWords"/>
@@ -1242,6 +1323,7 @@ internal static class EnemyRomTablePointersTourianStatueConstants
     /// <summary>Statue instruction-list table at $AA:D810.</summary>
     public const int InstructionListWords = 0xaad810;
 
+    /// <inheritdoc cref="EnemyRomTablePointersTourianStatueConstants"/>
     extension(EnemyRomTablePointers.TourianStatue)
     {
         /// <inheritdoc cref="EnemyRomTablePointersTourianStatueConstants.InstructionListWords"/>
@@ -1255,6 +1337,7 @@ internal static class EnemyRomTablePointersWorkRobotConstants
     /// <summary>Parameterized instruction-list pointer words at $A8:CC30.</summary>
     public const int InitialInstructionListWords = 0xa8cc30;
 
+    /// <inheritdoc cref="EnemyRomTablePointersWorkRobotConstants"/>
     extension(EnemyRomTablePointers.WorkRobot)
     {
         /// <inheritdoc cref="EnemyRomTablePointersWorkRobotConstants.InitialInstructionListWords"/>
@@ -1268,6 +1351,7 @@ internal static class EnemyVulnerabilityDefinitionsConstants
     /// <summary>Bank-$B4 address used by native vulnerability pointers.</summary>
     public const int NativeBank = 0xb40000;
 
+    /// <inheritdoc cref="EnemyVulnerabilityDefinitionsConstants"/>
     extension(EnemyVulnerabilityDefinitions)
     {
         /// <inheritdoc cref="EnemyVulnerabilityDefinitionsConstants.NativeBank"/>
@@ -1281,6 +1365,7 @@ internal static class EscapeDachoraInstructionProgramDefinitionsConstants
     /// <summary><c>InstList_DachoraEscape_GotoY_IfAcidLessThanCE</c>, adjacent code at $B3:EAA8.</summary>
     public const ushort FirstAdjacentCodeRoutine = 0xeaa8;
 
+    /// <inheritdoc cref="EscapeDachoraInstructionProgramDefinitionsConstants"/>
     extension(EscapeDachoraInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="EscapeDachoraInstructionProgramDefinitionsConstants.FirstAdjacentCodeRoutine"/>
@@ -1294,6 +1379,7 @@ internal static class EscapeEtecoonInstructionProgramDefinitionsConstants
     /// <summary><c>Instruction_EtecoonEscape_XPositionPlusY</c>, adjacent code at $B3:E610.</summary>
     public const ushort FirstAdjacentCodeRoutine = 0xe610;
 
+    /// <inheritdoc cref="EscapeEtecoonInstructionProgramDefinitionsConstants"/>
     extension(EscapeEtecoonInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="EscapeEtecoonInstructionProgramDefinitionsConstants.FirstAdjacentCodeRoutine"/>
@@ -1307,6 +1393,7 @@ internal static class EscapeTimerPresentationDefinitionsConstants
     /// <summary>Bank-$80 table at <c>$80:9FD4</c> containing one spritemap pointer per decimal digit.</summary>
     public const int DigitPointerTable = 0x809fd4;
 
+    /// <inheritdoc cref="EscapeTimerPresentationDefinitionsConstants"/>
     extension(EscapeTimerPresentationDefinitions)
     {
         /// <inheritdoc cref="EscapeTimerPresentationDefinitionsConstants.DigitPointerTable"/>
@@ -1320,6 +1407,7 @@ internal static class EtecoonInstructionProgramDefinitionsConstants
     /// <summary>The first Etecoon movement constant after the programs, at $A7:E900.</summary>
     public const ushort FirstAdjacentMechanicsData = 0xe900;
 
+    /// <inheritdoc cref="EtecoonInstructionProgramDefinitionsConstants"/>
     extension(EtecoonInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="EtecoonInstructionProgramDefinitionsConstants.FirstAdjacentMechanicsData"/>
@@ -1333,6 +1421,7 @@ internal static class EvirInstructionProgramDefinitionsConstants
     /// <summary>First native Evir instruction callback at $A8:878F.</summary>
     public const ushort AdjacentCallbackCode = 0x878f;
 
+    /// <inheritdoc cref="EvirInstructionProgramDefinitionsConstants"/>
     extension(EvirInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="EvirInstructionProgramDefinitionsConstants.AdjacentCallbackCode"/>
@@ -1343,8 +1432,10 @@ internal static class EvirInstructionProgramDefinitionsConstants
 /// <summary>Cartridge values of <see cref="EvirVisualDefinitions"/> that only verification reads.</summary>
 internal static class EvirVisualDefinitionsConstants
 {
+    /// <summary>Number of frames in the Evir visual sequence.</summary>
     public const int FrameCount = 24;
 
+    /// <inheritdoc cref="EvirVisualDefinitionsConstants"/>
     extension(EvirVisualDefinitions)
     {
         /// <inheritdoc cref="EvirVisualDefinitionsConstants.FrameCount"/>
@@ -1360,6 +1451,7 @@ internal static class ExplodingZebesFadePaletteFxProgramMechanicsDefinitionsCons
     /// <summary>The palette-FX definition at <c>$8D:E1C4</c>.</summary>
     public const ushort DefinitionPointer = 0xe1c4;
 
+    /// <inheritdoc cref="ExplodingZebesFadePaletteFxProgramMechanicsDefinitionsConstants"/>
     extension(ExplodingZebesFadePaletteFxProgramMechanicsDefinitions)
     {
         /// <inheritdoc cref="ExplodingZebesFadePaletteFxProgramMechanicsDefinitionsConstants.CycleFrames"/>
@@ -1379,6 +1471,7 @@ internal static class ExploredMapPackingDefinitionsConstants
     /// <summary>$81:82D6, pointers to native sparse byte-index lists.</summary>
     public const int NativeSourcePointerTable = 0x8182d6;
 
+    /// <inheritdoc cref="ExploredMapPackingDefinitionsConstants"/>
     extension(ExploredMapPackingDefinitions)
     {
         /// <inheritdoc cref="ExploredMapPackingDefinitionsConstants.NativeByteCountTable"/>
@@ -1402,6 +1495,7 @@ internal static class FileSelectMapRomDataConstants
     /// <summary><c>$81:AA34</c>, RoomSelectMap_ExpandingSquare_Velocities: four low/high pairs per area.</summary>
     public const int WindowVelocities = 0x81aa34;
 
+    /// <inheritdoc cref="FileSelectMapRomDataConstants"/>
     extension(FileSelectMapRomData)
     {
         /// <inheritdoc cref="FileSelectMapRomDataConstants.DisplayAreaIndices"/>
@@ -1423,6 +1517,7 @@ internal static class FirefleaFxDefinitionsConstants
     /// <summary>$88:B058 Fireflea_Flashing_Shades, twelve packed unsigned words.</summary>
     public const int FlashReferenceAddress = 0x88b058;
 
+    /// <inheritdoc cref="FirefleaFxDefinitionsConstants"/>
     extension(FirefleaFxDefinitions)
     {
         /// <inheritdoc cref="FirefleaFxDefinitionsConstants.DarknessReferenceAddress"/>
@@ -1438,6 +1533,7 @@ internal static class FirefleaInstructionProgramDefinitionsConstants
     /// <summary>The adjacent unused Fireflea data block at $A3:8D03.</summary>
     public const ushort AdjacentUnusedData = 0x8d03;
 
+    /// <inheritdoc cref="FirefleaInstructionProgramDefinitionsConstants"/>
     extension(FirefleaInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="FirefleaInstructionProgramDefinitionsConstants.AdjacentUnusedData"/>
@@ -1451,6 +1547,7 @@ internal static class GameOverBabyAnimationDefinitionsConstants
     /// <summary>Sixty six-byte frame records plus three two-byte callbacks.</summary>
     public const int InstructionCount = (2 + 4 + 3) * 4 + 3 * 8;
 
+    /// <inheritdoc cref="GameOverBabyAnimationDefinitionsConstants"/>
     extension(GameOverBabyAnimationDefinitions)
     {
         /// <inheritdoc cref="GameOverBabyAnimationDefinitionsConstants.InstructionCount"/>
@@ -1461,8 +1558,10 @@ internal static class GameOverBabyAnimationDefinitionsConstants
 /// <summary>Cartridge values of <see cref="GameOverRomData.BabyAnimation"/> that only verification reads.</summary>
 internal static class GameOverRomDataBabyAnimationConstants
 {
+    /// <summary>First instruction word of the referenced animation program.</summary>
     public const ushort FirstInstruction = 0xbc27;
 
+    /// <inheritdoc cref="GameOverRomDataBabyAnimationConstants"/>
     extension(GameOverRomData.BabyAnimation)
     {
         /// <inheritdoc cref="GameOverRomDataBabyAnimationConstants.FirstInstruction"/>
@@ -1476,6 +1575,7 @@ internal static class GoldenTorizoAwakeningInstructionProgramDefinitionsConstant
     /// <summary>First word after the awakening handoff at $AA:CACE.</summary>
     public const ushort End = 0xcace;
 
+    /// <inheritdoc cref="GoldenTorizoAwakeningInstructionProgramDefinitionsConstants"/>
     extension(GoldenTorizoAwakeningInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="GoldenTorizoAwakeningInstructionProgramDefinitionsConstants.End"/>
@@ -1491,6 +1591,7 @@ internal static class GoldenTorizoEggInstructionProgramDefinitionsConstants
     /// <summary><c>InstList_EnemyProjectile_GoldenTorizoEgg_Hatched_Right_1</c> at $86:B16D.</summary>
     public const ushort HatchedRightLoop = 0xb16d;
 
+    /// <inheritdoc cref="GoldenTorizoEggInstructionProgramDefinitionsConstants"/>
     extension(GoldenTorizoEggInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="GoldenTorizoEggInstructionProgramDefinitionsConstants.HatchedLeftLoop"/>
@@ -1506,6 +1607,7 @@ internal static class GoldenTorizoInitialInstructionProgramDefinitionsConstants
     /// <summary>The first bank-$AA sleep instruction at $AA:C9E0.</summary>
     public const ushort Sleep = 0xc9e0;
 
+    /// <inheritdoc cref="GoldenTorizoInitialInstructionProgramDefinitionsConstants"/>
     extension(GoldenTorizoInitialInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="GoldenTorizoInitialInstructionProgramDefinitionsConstants.Sleep"/>
@@ -1516,8 +1618,10 @@ internal static class GoldenTorizoInitialInstructionProgramDefinitionsConstants
 /// <summary>Cartridge values of <see cref="GoldenTorizoJumpLandingInstructionProgramDefinitions"/> that only verification reads.</summary>
 internal static class GoldenTorizoJumpLandingInstructionProgramDefinitionsConstants
 {
+    /// <summary>Exclusive end pointer for the Golden Torizo jump-landing program.</summary>
     public const ushort End = 0xcdd7;
 
+    /// <inheritdoc cref="GoldenTorizoJumpLandingInstructionProgramDefinitionsConstants"/>
     extension(GoldenTorizoJumpLandingInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="GoldenTorizoJumpLandingInstructionProgramDefinitionsConstants.End"/>
@@ -1531,6 +1635,7 @@ internal static class GoldenTorizoLeftFootOrbInstructionProgramDefinitionsConsta
     /// <summary>First byte after the left-foot-forward orb list, $AA:CC99.</summary>
     public const ushort End = GoldenTorizoRightOrbInstructionProgramDefinitions.Start;
 
+    /// <inheritdoc cref="GoldenTorizoLeftFootOrbInstructionProgramDefinitionsConstants"/>
     extension(GoldenTorizoLeftFootOrbInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="GoldenTorizoLeftFootOrbInstructionProgramDefinitionsConstants.End"/>
@@ -1541,8 +1646,10 @@ internal static class GoldenTorizoLeftFootOrbInstructionProgramDefinitionsConsta
 /// <summary>Cartridge values of <see cref="GoldenTorizoLeftOrbInstructionProgramDefinitions"/> that only verification reads.</summary>
 internal static class GoldenTorizoLeftOrbInstructionProgramDefinitionsConstants
 {
+    /// <summary>Exclusive end pointer for the Golden Torizo left-foot orb program.</summary>
     public const ushort End = 0xcb83;
 
+    /// <inheritdoc cref="GoldenTorizoLeftOrbInstructionProgramDefinitionsConstants"/>
     extension(GoldenTorizoLeftOrbInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="GoldenTorizoLeftOrbInstructionProgramDefinitionsConstants.End"/>
@@ -1561,6 +1668,7 @@ internal static class GoldenTorizoLeftTurnInstructionProgramDefinitionsConstants
     /// </summary>
     public const ushort FacingScreenFrame = 0xa4f0;
 
+    /// <inheritdoc cref="GoldenTorizoLeftTurnInstructionProgramDefinitionsConstants"/>
     extension(GoldenTorizoLeftTurnInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="GoldenTorizoLeftTurnInstructionProgramDefinitionsConstants.End"/>
@@ -1573,8 +1681,10 @@ internal static class GoldenTorizoLeftTurnInstructionProgramDefinitionsConstants
 /// <summary>Cartridge values of <see cref="GoldenTorizoRightOrbInstructionProgramDefinitions"/> that only verification reads.</summary>
 internal static class GoldenTorizoRightOrbInstructionProgramDefinitionsConstants
 {
+    /// <summary>Exclusive end pointer for the Golden Torizo left-turn program.</summary>
     public const ushort End = 0xccdb;
 
+    /// <inheritdoc cref="GoldenTorizoRightOrbInstructionProgramDefinitionsConstants"/>
     extension(GoldenTorizoRightOrbInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="GoldenTorizoRightOrbInstructionProgramDefinitionsConstants.End"/>
@@ -1585,8 +1695,10 @@ internal static class GoldenTorizoRightOrbInstructionProgramDefinitionsConstants
 /// <summary>Cartridge values of <see cref="GoldenTorizoRightSonicInstructionProgramDefinitions"/> that only verification reads.</summary>
 internal static class GoldenTorizoRightSonicInstructionProgramDefinitionsConstants
 {
+    /// <summary>Exclusive end pointer for the Golden Torizo right-orb program.</summary>
     public const ushort End = 0xcdaf;
 
+    /// <inheritdoc cref="GoldenTorizoRightSonicInstructionProgramDefinitionsConstants"/>
     extension(GoldenTorizoRightSonicInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="GoldenTorizoRightSonicInstructionProgramDefinitionsConstants.End"/>
@@ -1597,9 +1709,12 @@ internal static class GoldenTorizoRightSonicInstructionProgramDefinitionsConstan
 /// <summary>Cartridge values of <see cref="GoldenTorizoRightwardInstructionProgramDefinitions"/> that only verification reads.</summary>
 internal static class GoldenTorizoRightwardInstructionProgramDefinitionsConstants
 {
+    /// <summary>Exclusive end pointer for the Golden Torizo rightward program.</summary>
     public const ushort End = 0xd369;
+    /// <summary>First instruction word of the rightward program.</summary>
     public const ushort Start = GoldenTorizoCombatInstructionPointers.DodgeTurningRight;
 
+    /// <inheritdoc cref="GoldenTorizoRightwardInstructionProgramDefinitionsConstants"/>
     extension(GoldenTorizoRightwardInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="GoldenTorizoRightwardInstructionProgramDefinitionsConstants.End"/>
@@ -1612,9 +1727,12 @@ internal static class GoldenTorizoRightwardInstructionProgramDefinitionsConstant
 /// <summary>Cartridge values of <see cref="GoldenTorizoWalkingInstructionProgramDefinitions"/> that only verification reads.</summary>
 internal static class GoldenTorizoWalkingInstructionProgramDefinitionsConstants
 {
+    /// <summary>Exclusive end pointer for the Golden Torizo walking program.</summary>
     public const ushort End = 0xd2ad;
+    /// <summary>First instruction word of the walking program.</summary>
     public const ushort Start = GoldenTorizoCombatInstructionPointers.WalkingLeftRightLeg;
 
+    /// <inheritdoc cref="GoldenTorizoWalkingInstructionProgramDefinitionsConstants"/>
     extension(GoldenTorizoWalkingInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="GoldenTorizoWalkingInstructionProgramDefinitionsConstants.End"/>
@@ -1642,6 +1760,7 @@ internal static class GrappleFiringDefinitionsConstants
     /// <summary>$9B:C0EF GrappleBeamFireVelocityTable.Y, ten signed 8.8 velocity words.</summary>
     public const int YVelocityReferenceAddress = 0x9bc0ef;
 
+    /// <inheritdoc cref="GrappleFiringDefinitionsConstants"/>
     extension(GrappleFiringDefinitions)
     {
         /// <inheritdoc cref="GrappleFiringDefinitionsConstants.AngleReferenceAddress"/>
@@ -1671,6 +1790,7 @@ internal static class GunshipMotionDefinitionsConstants
     /// <summary>$A2:A7CF ProcessShipHover.timer: four unsigned bytes at stride two.</summary>
     public const int HoverTimerReferenceAddress = 0xa2a7cf;
 
+    /// <inheritdoc cref="GunshipMotionDefinitionsConstants"/>
     extension(GunshipMotionDefinitions)
     {
         /// <inheritdoc cref="GunshipMotionDefinitionsConstants.BrakeReferenceAddress"/>
@@ -1688,6 +1808,7 @@ internal static class HZoomerInstructionProgramDefinitionsConstants
     /// <summary><c>Instruction_HZoomer_FunctionInY</c> immediately before the programs.</summary>
     public const ushort AdjacentFunctionCode = 0xdfc2;
 
+    /// <inheritdoc cref="HZoomerInstructionProgramDefinitionsConstants"/>
     extension(HZoomerInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="HZoomerInstructionProgramDefinitionsConstants.AdjacentFunctionCode"/>
@@ -1703,6 +1824,7 @@ internal static class HopperInstructionProgramDefinitionsConstants
     /// <summary>The final hopper physics-table word immediately before the first program.</summary>
     public const ushort LastAdjacentPhysicsWord = 0xaa74;
 
+    /// <inheritdoc cref="HopperInstructionProgramDefinitionsConstants"/>
     extension(HopperInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="HopperInstructionProgramDefinitionsConstants.LargeDessgeegaLandedCeiling"/>
@@ -1724,6 +1846,7 @@ internal static class HyperBeamPaletteFxProgramDefinitionsConstants
     /// <summary>Native address of the terminal loop command at <c>$8D:D9CC</c>.</summary>
     public const int NativeLoopControlAddress = 0x8dd9cc;
 
+    /// <inheritdoc cref="HyperBeamPaletteFxProgramDefinitionsConstants"/>
     extension(HyperBeamPaletteFxProgramDefinitions)
     {
         /// <inheritdoc cref="HyperBeamPaletteFxProgramDefinitionsConstants.ColorsPerFrame"/>
@@ -1745,6 +1868,7 @@ internal static class HyperBeamPaletteFxStateConstants
     /// <summary>Number of timed color records in the Hyper Beam loop.</summary>
     public const int FrameCount = HyperBeamPaletteFxProgramDefinitions.FrameCount;
 
+    /// <inheritdoc cref="HyperBeamPaletteFxStateConstants"/>
     extension(HyperBeamPaletteFxState)
     {
         /// <inheritdoc cref="HyperBeamPaletteFxStateConstants.ColorsPerFrame"/>
@@ -1760,6 +1884,7 @@ internal static class IntroBabyActorDefinitionsConstants
     /// <summary>Bank containing the native actor definitions and initializer routines.</summary>
     public const int NativeBank = 0x8b0000;
 
+    /// <inheritdoc cref="IntroBabyActorDefinitionsConstants"/>
     extension(IntroBabyActorDefinitions)
     {
         /// <inheritdoc cref="IntroBabyActorDefinitionsConstants.NativeBank"/>
@@ -1775,6 +1900,7 @@ internal static class IntroBabyDiscoveryCollisionDefinitionsConstants
     /// <summary>The native setup copies exactly $300 bytes.</summary>
     public const int SourceByteCount = IntroBabyDiscoveryCollisionDefinitions.Columns * IntroBabyDiscoveryCollisionDefinitions.SourceRows * sizeof(ushort);
 
+    /// <inheritdoc cref="IntroBabyDiscoveryCollisionDefinitionsConstants"/>
     extension(IntroBabyDiscoveryCollisionDefinitions)
     {
         /// <inheritdoc cref="IntroBabyDiscoveryCollisionDefinitionsConstants.SourceAddress"/>
@@ -1787,9 +1913,12 @@ internal static class IntroBabyDiscoveryCollisionDefinitionsConstants
 /// <summary>Cartridge values of <see cref="IntroCinematicRomData.Assets"/> that only verification reads.</summary>
 internal static class IntroCinematicRomDataAssetsConstants
 {
+    /// <summary>Address of the second Japanese font used by the intro cinematic.</summary>
     public const int JapaneseFontTwo = 0x95d713;
+    /// <summary>Address of the level data loaded for the Mother Brain flashback.</summary>
     public const int MotherBrainLevelData = 0x8cbec3;
 
+    /// <inheritdoc cref="IntroCinematicRomDataAssetsConstants"/>
     extension(IntroCinematicRomData.Assets)
     {
         /// <inheritdoc cref="IntroCinematicRomDataAssetsConstants.JapaneseFontTwo"/>
@@ -1802,8 +1931,10 @@ internal static class IntroCinematicRomDataAssetsConstants
 /// <summary>Cartridge values of <see cref="IntroCinematicRomData.Banks"/> that only verification reads.</summary>
 internal static class IntroCinematicRomDataBanksConstants
 {
+    /// <summary>Base address of the bank containing intro cinematic code.</summary>
     public const int CinematicCode = 0x8b0000;
 
+    /// <inheritdoc cref="IntroCinematicRomDataBanksConstants"/>
     extension(IntroCinematicRomData.Banks)
     {
         /// <inheritdoc cref="IntroCinematicRomDataBanksConstants.CinematicCode"/>
@@ -1814,8 +1945,10 @@ internal static class IntroCinematicRomDataBanksConstants
 /// <summary>Cartridge values of <see cref="IntroCinematicRomData.Flashback"/> that only verification reads.</summary>
 internal static class IntroCinematicRomDataFlashbackConstants
 {
+    /// <summary>Byte length of the Mother Brain level data copied for the flashback.</summary>
     public const int MotherBrainLevelByteCount = 448;
 
+    /// <inheritdoc cref="IntroCinematicRomDataFlashbackConstants"/>
     extension(IntroCinematicRomData.Flashback)
     {
         /// <inheritdoc cref="IntroCinematicRomDataFlashbackConstants.MotherBrainLevelByteCount"/>
@@ -1833,6 +1966,7 @@ internal static class IntroDiscoveryActorSpriteDefinitionsConstants
     /// <summary>$8C:8F7E, exclusive end of the sixteen consecutive egg compositions.</summary>
     public const ushort EggEnd = 0x8f7e;
 
+    /// <inheritdoc cref="IntroDiscoveryActorSpriteDefinitionsConstants"/>
     extension(IntroDiscoveryActorSpriteDefinitions)
     {
         /// <inheritdoc cref="IntroDiscoveryActorSpriteDefinitionsConstants.BabyEnd"/>
@@ -1850,6 +1984,7 @@ internal static class IntroEggEffectDefinitionsConstants
     /// <summary>Bank containing the seven native cinematic-object definitions.</summary>
     public const int NativeDefinitionBank = 0x8b0000;
 
+    /// <inheritdoc cref="IntroEggEffectDefinitionsConstants"/>
     extension(IntroEggEffectDefinitions)
     {
         /// <inheritdoc cref="IntroEggEffectDefinitionsConstants.NativeDefinitionBank"/>
@@ -1863,6 +1998,7 @@ internal static class IntroEggEffectSpriteDefinitionsConstants
     /// <summary>$8C:8FCB, exclusive end after eleven consecutive seven-byte records.</summary>
     public const ushort End = 0x8fcb;
 
+    /// <inheritdoc cref="IntroEggEffectSpriteDefinitionsConstants"/>
     extension(IntroEggEffectSpriteDefinitions)
     {
         /// <inheritdoc cref="IntroEggEffectSpriteDefinitionsConstants.End"/>
@@ -1879,6 +2015,7 @@ internal static class IntroEggMotionDefinitionsConstants
     /// </summary>
     public const int InitialPositionReferenceAddress = 0x8ba97c;
 
+    /// <inheritdoc cref="IntroEggMotionDefinitionsConstants"/>
     extension(IntroEggMotionDefinitions)
     {
         /// <inheritdoc cref="IntroEggMotionDefinitionsConstants.InitialPositionReferenceAddress"/>
@@ -1904,6 +2041,7 @@ internal static class IntroMotherBrainDefinitionsConstants
     /// <summary><c>$8B:BA03</c>, three signed small-explosion Y offsets.</summary>
     public const int SmallYOffsetReferenceAddress = 0x8bba03;
 
+    /// <inheritdoc cref="IntroMotherBrainDefinitionsConstants"/>
     extension(IntroMotherBrainDefinitions)
     {
         /// <inheritdoc cref="IntroMotherBrainDefinitionsConstants.BigTimerReferenceAddress"/>
@@ -1931,6 +2069,7 @@ internal static class IntroMotherBrainExplosionInstructionDefinitionsConstants
     /// <summary>One native six-frame small loop occupies 34 frames including blank hold.</summary>
     public const int SmallLoopFrames = 34;
 
+    /// <inheritdoc cref="IntroMotherBrainExplosionInstructionDefinitionsConstants"/>
     extension(IntroMotherBrainExplosionInstructionDefinitions)
     {
         /// <inheritdoc cref="IntroMotherBrainExplosionInstructionDefinitionsConstants.BigLoopFrames"/>
@@ -1946,6 +2085,7 @@ internal static class IntroMotherBrainExplosionSpriteDefinitionsConstants
     /// <summary>$8C:98D2, exclusive end of the twelve consecutive composition records.</summary>
     public const ushort End = 0x98d2;
 
+    /// <inheritdoc cref="IntroMotherBrainExplosionSpriteDefinitionsConstants"/>
     extension(IntroMotherBrainExplosionSpriteDefinitions)
     {
         /// <inheritdoc cref="IntroMotherBrainExplosionSpriteDefinitionsConstants.End"/>
@@ -1961,6 +2101,7 @@ internal static class IntroMotherBrainSpriteDefinitionsConstants
     /// <summary>$8C:8C5E, third nine-part Mother Brain frame.</summary>
     public const ushort FrameTwo = FrameOne + 2 + 5 * IntroMotherBrainSpriteDefinitions.StockPartCount;
 
+    /// <inheritdoc cref="IntroMotherBrainSpriteDefinitionsConstants"/>
     extension(IntroMotherBrainSpriteDefinitions)
     {
         /// <inheritdoc cref="IntroMotherBrainSpriteDefinitionsConstants.FrameOne"/>
@@ -1984,6 +2125,7 @@ internal static class IntroRinkaDefinitionsConstants
     /// <summary><c>$8B:B985</c>, four signed whole-pixel X velocity components.</summary>
     public const int XWholeVelocityReferenceAddress = 0x8bb985;
 
+    /// <inheritdoc cref="IntroRinkaDefinitionsConstants"/>
     extension(IntroRinkaDefinitions)
     {
         /// <inheritdoc cref="IntroRinkaDefinitionsConstants.InitialXReferenceAddress"/>
@@ -2005,6 +2147,7 @@ internal static class IntroRinkaSpriteDefinitionsConstants
     /// <summary>$8C:8CCF, exclusive end after three consecutive 22-byte records.</summary>
     public const ushort End = 0x8ccf;
 
+    /// <inheritdoc cref="IntroRinkaSpriteDefinitionsConstants"/>
     extension(IntroRinkaSpriteDefinitions)
     {
         /// <inheritdoc cref="IntroRinkaSpriteDefinitionsConstants.End"/>
@@ -2018,6 +2161,7 @@ internal static class IntroScientistSpriteDefinitionsConstants
     /// <summary>$8C:8D6F, exclusive end of ten consecutive compositions.</summary>
     public const ushort End = 0x8d6f;
 
+    /// <inheritdoc cref="IntroScientistSpriteDefinitionsConstants"/>
     extension(IntroScientistSpriteDefinitions)
     {
         /// <inheritdoc cref="IntroScientistSpriteDefinitionsConstants.End"/>
@@ -2028,8 +2172,10 @@ internal static class IntroScientistSpriteDefinitionsConstants
 /// <summary>Cartridge values of <see cref="KraidArmCollisionDefinitions"/> that only verification reads.</summary>
 internal static class KraidArmCollisionDefinitionsConstants
 {
+    /// <summary>Number of frames in Kraid arm collision animation data.</summary>
     public const int FrameCount = 22;
 
+    /// <inheritdoc cref="KraidArmCollisionDefinitionsConstants"/>
     extension(KraidArmCollisionDefinitions)
     {
         /// <inheritdoc cref="KraidArmCollisionDefinitionsConstants.FrameCount"/>
@@ -2043,6 +2189,7 @@ internal static class KraidArmInstructionProgramDefinitionsConstants
     /// <summary>First adjacent Kraid-lint instruction program at $A7:8AFE.</summary>
     public const ushort AdjacentLintProgram = 0x8afe;
 
+    /// <inheritdoc cref="KraidArmInstructionProgramDefinitionsConstants"/>
     extension(KraidArmInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="KraidArmInstructionProgramDefinitionsConstants.AdjacentLintProgram"/>
@@ -2059,6 +2206,7 @@ internal static class KraidBackgroundRomDataConstants
     /// </summary>
     public const int PreservedLowerTailFirstWord = 0x0700;
 
+    /// <inheritdoc cref="KraidBackgroundRomDataConstants"/>
     extension(KraidBackgroundRomData)
     {
         /// <inheritdoc cref="KraidBackgroundRomDataConstants.PreservedLowerTailFirstWord"/>
@@ -2072,6 +2220,7 @@ internal static class KraidLintInstructionProgramDefinitionsConstants
     /// <summary>The first adjacent Kraid fingernail program at $A7:8B0A.</summary>
     public const ushort FirstAdjacentFootProgram = 0x8b0a;
 
+    /// <inheritdoc cref="KraidLintInstructionProgramDefinitionsConstants"/>
     extension(KraidLintInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="KraidLintInstructionProgramDefinitionsConstants.FirstAdjacentFootProgram"/>
@@ -2085,6 +2234,7 @@ internal static class KraidNailInstructionProgramDefinitionsConstants
     /// <summary>First adjacent unused extended-spritemap record at $A7:8B2E.</summary>
     public const ushort AdjacentPresentationData = 0x8b2e;
 
+    /// <inheritdoc cref="KraidNailInstructionProgramDefinitionsConstants"/>
     extension(KraidNailInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="KraidNailInstructionProgramDefinitionsConstants.AdjacentPresentationData"/>
@@ -2098,6 +2248,7 @@ internal static class KraidRoomPlmDrawDefinitionsConstants
     /// <summary><c>$84:93EF</c>: start of the following Phantoon draw region.</summary>
     public const ushort EndExclusive = 0x93ef;
 
+    /// <inheritdoc cref="KraidRoomPlmDrawDefinitionsConstants"/>
     extension(KraidRoomPlmDrawDefinitions)
     {
         /// <inheritdoc cref="KraidRoomPlmDrawDefinitionsConstants.EndExclusive"/>
@@ -2111,6 +2262,7 @@ internal static class KraidRoomPlmProgramDefinitionsConstants
     /// <summary><c>$84:ABE3</c>: first byte of following Mother Brain PLM program.</summary>
     public const ushort EndExclusive = 0xabe3;
 
+    /// <inheritdoc cref="KraidRoomPlmProgramDefinitionsConstants"/>
     extension(KraidRoomPlmProgramDefinitions)
     {
         /// <inheritdoc cref="KraidRoomPlmProgramDefinitionsConstants.EndExclusive"/>
@@ -2124,6 +2276,7 @@ internal static class LandingSiteRomDataConstants
     /// <summary>Synthetic bank-$83 door used by the intro landing cutscene.</summary>
     public const ushort LandingCutsceneDoorPointer = 0x88fe;
 
+    /// <inheritdoc cref="LandingSiteRomDataConstants"/>
     extension(LandingSiteRomData)
     {
         /// <inheritdoc cref="LandingSiteRomDataConstants.LandingCutsceneDoorPointer"/>
@@ -2139,6 +2292,7 @@ internal static class LoadStationRomDataConstants
     /// <summary>$80:C4B5, seven area pointers followed by the end pointer for the Ceres list.</summary>
     public const int PointerTable = 0x80c4b5;
 
+    /// <inheritdoc cref="LoadStationRomDataConstants"/>
     extension(LoadStationRomData)
     {
         /// <inheritdoc cref="LoadStationRomDataConstants.DataEnd"/>
@@ -2156,6 +2310,7 @@ internal static class MamaTurtleEnemyDefinitionCatalogConstants
     /// <summary>Total byte length of the two native 64-byte headers.</summary>
     public const int SourceByteLength = 128;
 
+    /// <inheritdoc cref="MamaTurtleEnemyDefinitionCatalogConstants"/>
     extension(MamaTurtleEnemyDefinitionCatalog)
     {
         /// <inheritdoc cref="MamaTurtleEnemyDefinitionCatalogConstants.SourceAddress"/>
@@ -2173,6 +2328,7 @@ internal static class MamaTurtleShellContourDefinitionsConstants
     /// <summary>First signed contour word at <c>$A2:8E80</c>.</summary>
     public const int SourceAddress = 0xa28e80;
 
+    /// <inheritdoc cref="MamaTurtleShellContourDefinitionsConstants"/>
     extension(MamaTurtleShellContourDefinitions)
     {
         /// <inheritdoc cref="MamaTurtleShellContourDefinitionsConstants.EntryCount"/>
@@ -2190,6 +2346,7 @@ internal static class MapAnimationRomDataConstants
     /// <summary>$82:C10C contains fourteen three-byte highlight records before the loop sentinel.</summary>
     public const int PaletteFrameCount = 14;
 
+    /// <inheritdoc cref="MapAnimationRomDataConstants"/>
     extension(MapAnimationRomData)
     {
         /// <inheritdoc cref="MapAnimationRomDataConstants.AnimatedSpritePalette"/>
@@ -2205,6 +2362,7 @@ internal static class MapStaticPalettesRomDataConstants
     /// <summary>$81:A546 starts executable foreground-load code after all world-map palette copy records.</summary>
     public const int WorldPaletteDataEnd = 0x81a546;
 
+    /// <inheritdoc cref="MapStaticPalettesRomDataConstants"/>
     extension(MapStaticPalettesRomData)
     {
         /// <inheritdoc cref="MapStaticPalettesRomDataConstants.WorldPaletteDataEnd"/>
@@ -2218,6 +2376,7 @@ internal static class MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitionsCo
     /// <summary>$8D:F795: native Maridia1 sand-pit palette-FX definition; subsequent selected definitions occupy four bytes each.</summary>
     public const ushort SandPitDefinition = 0xF795;
 
+    /// <inheritdoc cref="MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitionsConstants"/>
     extension(MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions)
     {
         /// <inheritdoc cref="MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitionsConstants.SandPitDefinition"/>
@@ -2231,6 +2390,7 @@ internal static class MaridiaLargeSnailInstructionProgramDefinitionsConstants
     /// <summary>The selector table immediately following Oum's programs, at $A2:CB77.</summary>
     public const ushort FirstAdjacentMechanicsData = 0xcb77;
 
+    /// <inheritdoc cref="MaridiaLargeSnailInstructionProgramDefinitionsConstants"/>
     extension(MaridiaLargeSnailInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="MaridiaLargeSnailInstructionProgramDefinitionsConstants.FirstAdjacentMechanicsData"/>
@@ -2241,8 +2401,10 @@ internal static class MaridiaLargeSnailInstructionProgramDefinitionsConstants
 /// <summary>Cartridge values of <see cref="MenuShoulderButtonArtwork"/> that only verification reads.</summary>
 internal static class MenuShoulderButtonArtworkConstants
 {
+    /// <summary>Stored bytes per glyph in the shoulder-button artwork.</summary>
     public const int StoredGlyphByteCount = 2 * sizeof(ushort);
 
+    /// <inheritdoc cref="MenuShoulderButtonArtworkConstants"/>
     extension(MenuShoulderButtonArtwork)
     {
         /// <inheritdoc cref="MenuShoulderButtonArtworkConstants.StoredGlyphByteCount"/>
@@ -2258,6 +2420,7 @@ internal static class MetroidInstructionProgramDefinitionsConstants
     /// <summary><c>Instruction_Metroid_PlayRandomMetroidSFX</c> entry at $A3:EA1F.</summary>
     public const ushort ChasingSoundCallback = 0xea1f;
 
+    /// <inheritdoc cref="MetroidInstructionProgramDefinitionsConstants"/>
     extension(MetroidInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="MetroidInstructionProgramDefinitionsConstants.AdjacentBombedOffVelocities"/>
@@ -2273,6 +2436,7 @@ internal static class MochtroidInstructionProgramDefinitionsConstants
     /// <summary>The shake-velocity table immediately after the programs, at $A3:A76D.</summary>
     public const ushort FirstAdjacentMechanicsData = 0xa76d;
 
+    /// <inheritdoc cref="MochtroidInstructionProgramDefinitionsConstants"/>
     extension(MochtroidInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="MochtroidInstructionProgramDefinitionsConstants.FirstAdjacentMechanicsData"/>
@@ -2283,8 +2447,10 @@ internal static class MochtroidInstructionProgramDefinitionsConstants
 /// <summary>Cartridge values of <see cref="MochtroidVisualDefinitions"/> that only verification reads.</summary>
 internal static class MochtroidVisualDefinitionsConstants
 {
+    /// <summary>Number of visual frames in the Mochtroid sequence.</summary>
     public const int FrameCount = 6;
 
+    /// <inheritdoc cref="MochtroidVisualDefinitionsConstants"/>
     extension(MochtroidVisualDefinitions)
     {
         /// <inheritdoc cref="MochtroidVisualDefinitionsConstants.FrameCount"/>
@@ -2298,6 +2464,7 @@ internal static class MorphBallEyeInstructionProgramDefinitionsConstants
     /// <summary><c>EyeConstants</c>, adjacent non-instruction data at $A8:9050.</summary>
     public const ushort AdjacentProximityDefinitions = 0x9050;
 
+    /// <inheritdoc cref="MorphBallEyeInstructionProgramDefinitionsConstants"/>
     extension(MorphBallEyeInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="MorphBallEyeInstructionProgramDefinitionsConstants.AdjacentProximityDefinitions"/>
@@ -2311,6 +2478,7 @@ internal static class MotherBrainBabyInstructionProgramDefinitionsConstants
     /// <summary>ProcessMotherBrainInvincibilityPalette at $A9:CFD4, adjacent executable code outside the Baby list.</summary>
     public const ushort FirstAdjacentMovementCode = 0xcfd4;
 
+    /// <inheritdoc cref="MotherBrainBabyInstructionProgramDefinitionsConstants"/>
     extension(MotherBrainBabyInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="MotherBrainBabyInstructionProgramDefinitionsConstants.FirstAdjacentMovementCode"/>
@@ -2328,6 +2496,7 @@ internal static class MotherBrainContactHitboxDefinitionsConstants
     /// <summary><c>$A9:B44B</c>, one rectangle reused by neck joints one through three.</summary>
     public const int NeckSourceAddress = 0xa9b44b;
 
+    /// <inheritdoc cref="MotherBrainContactHitboxDefinitionsConstants"/>
     extension(MotherBrainContactHitboxDefinitions)
     {
         /// <inheritdoc cref="MotherBrainContactHitboxDefinitionsConstants.BodySourceAddress"/>
@@ -2345,6 +2514,7 @@ internal static class MotherBrainCorpseRottingStateConstants
     /// <summary>Six tile rows times <c>$E0</c> bytes per row.</summary>
     public const int GraphicsBufferSize = 0x0540;
 
+    /// <inheritdoc cref="MotherBrainCorpseRottingStateConstants"/>
     extension(MotherBrainCorpseRottingState)
     {
         /// <inheritdoc cref="MotherBrainCorpseRottingStateConstants.GraphicsBufferSize"/>
@@ -2360,6 +2530,7 @@ internal static class MotherBrainDeathRomDataConstants
     /// <summary>$AD:F107 pointer table, fifteen-color decapitated-head fades followed by null.</summary>
     public const int CorpseFadeTable = 0xadf107;
 
+    /// <inheritdoc cref="MotherBrainDeathRomDataConstants"/>
     extension(MotherBrainDeathRomData)
     {
         /// <inheritdoc cref="MotherBrainDeathRomDataConstants.BodyFadeTable"/>
@@ -2375,6 +2546,7 @@ internal static class MotherBrainFakeDeathPaletteRomDataConstants
     /// <summary>The resurrection uses the same $AD:ED9C pointer table as the later revival fade.</summary>
     public const int FromGreyPointerTable = MotherBrainDrainedPaletteRomData.FromGreyTable;
 
+    /// <inheritdoc cref="MotherBrainFakeDeathPaletteRomDataConstants"/>
     extension(MotherBrainFakeDeathPaletteRomData)
     {
         /// <inheritdoc cref="MotherBrainFakeDeathPaletteRomDataConstants.FromGreyPointerTable"/>
@@ -2388,6 +2560,7 @@ internal static class MotherBrainFallingTubePopulationDefinitionsConstants
     /// <summary>Bank $A9 containing the native tube-collapse placement records.</summary>
     public const int NativeBank = 0xa90000;
 
+    /// <inheritdoc cref="MotherBrainFallingTubePopulationDefinitionsConstants"/>
     extension(MotherBrainFallingTubePopulationDefinitions)
     {
         /// <inheritdoc cref="MotherBrainFallingTubePopulationDefinitionsConstants.NativeBank"/>
@@ -2409,6 +2582,7 @@ internal static class MotherBrainHeadInstructionProgramDefinitionsConstants
     /// <summary>$A9:9CE1, final current pointer in the dedicated neutral interpreter.</summary>
     public const ushort NeutralActiveEnd = 0x9ce1;
 
+    /// <inheritdoc cref="MotherBrainHeadInstructionProgramDefinitionsConstants"/>
     extension(MotherBrainHeadInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="MotherBrainHeadInstructionProgramDefinitionsConstants.BabyAttackActiveEnd"/>
@@ -2430,6 +2604,7 @@ internal static class MotherBrainLegTileTransferDefinitionsConstants
     /// <summary>The full $A9:8F8F address used only by cartridge parity checks.</summary>
     public const int NativeListAddress = 0xa98f8f;
 
+    /// <inheritdoc cref="MotherBrainLegTileTransferDefinitionsConstants"/>
     extension(MotherBrainLegTileTransferDefinitions)
     {
         /// <inheritdoc cref="MotherBrainLegTileTransferDefinitionsConstants.NativeListAddress"/>
@@ -2440,8 +2615,10 @@ internal static class MotherBrainLegTileTransferDefinitionsConstants
 /// <summary>Cartridge values of <see cref="MotherBrainRoomPaletteProgramDefinitions"/> that only verification reads.</summary>
 internal static class MotherBrainRoomPaletteProgramDefinitionsConstants
 {
+    /// <summary>Number of mechanics words consumed by the Mother Brain room palette program, including the two trailing control words.</summary>
     public const int MechanicsWordCount = MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount + 2;
 
+    /// <inheritdoc cref="MotherBrainRoomPaletteProgramDefinitionsConstants"/>
     extension(MotherBrainRoomPaletteProgramDefinitions)
     {
         /// <inheritdoc cref="MotherBrainRoomPaletteProgramDefinitionsConstants.MechanicsWordCount"/>
@@ -2457,6 +2634,7 @@ internal static class MotherBrainTileTransferDefinitionsConstants
     /// <summary>Each native record contains a word size, long source, and word VRAM destination.</summary>
     public const int RecordSize = 7;
 
+    /// <inheritdoc cref="MotherBrainTileTransferDefinitionsConstants"/>
     extension(MotherBrainTileTransferDefinitions)
     {
         /// <inheritdoc cref="MotherBrainTileTransferDefinitionsConstants.BabyTileList"/>
@@ -2472,6 +2650,7 @@ internal static class NinjaSpacePiratePaletteDefinitionsConstants
     /// <summary>Native source of the shared gold-Pirate color words at $B2:8727.</summary>
     public const int SharedGoldPirateSource = 0xb28727;
 
+    /// <inheritdoc cref="NinjaSpacePiratePaletteDefinitionsConstants"/>
     extension(NinjaSpacePiratePaletteDefinitions)
     {
         /// <inheritdoc cref="NinjaSpacePiratePaletteDefinitionsConstants.SharedGoldPirateSource"/>
@@ -2489,6 +2668,7 @@ internal static class NintendoLogoFadePaletteFxProgramMechanicsDefinitionsConsta
     /// <summary>Either entry runs the shared fade for 24 frames.</summary>
     public const int CycleFrames = NintendoLogoFadePaletteFxProgramMechanicsDefinitions.FrameCount * NintendoLogoFadePaletteFxProgramMechanicsDefinitions.FrameDuration;
 
+    /// <inheritdoc cref="NintendoLogoFadePaletteFxProgramMechanicsDefinitionsConstants"/>
     extension(NintendoLogoFadePaletteFxProgramMechanicsDefinitions)
     {
         /// <inheritdoc cref="NintendoLogoFadePaletteFxProgramMechanicsDefinitionsConstants.BootLogoDefinitionPointer"/>
@@ -2506,6 +2686,7 @@ internal static class NorfairEnvironmentalPaletteFxProgramMechanicsDefinitionsCo
     /// <summary>The shared complete-cycle duration.</summary>
     public const int CycleFrames = 116;
 
+    /// <inheritdoc cref="NorfairEnvironmentalPaletteFxProgramMechanicsDefinitionsConstants"/>
     extension(NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions)
     {
         /// <inheritdoc cref="NorfairEnvironmentalPaletteFxProgramMechanicsDefinitionsConstants.CycleFrames"/>
@@ -2519,6 +2700,7 @@ internal static class NorfairRioInstructionProgramDefinitionsConstants
     /// <summary><c>GerutaConstants</c>, adjacent non-instruction data at $A2:C1B7.</summary>
     public const ushort AdjacentMovementDefinitions = 0xc1b7;
 
+    /// <inheritdoc cref="NorfairRioInstructionProgramDefinitionsConstants"/>
     extension(NorfairRioInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="NorfairRioInstructionProgramDefinitionsConstants.AdjacentMovementDefinitions"/>
@@ -2534,6 +2716,7 @@ internal static class NuclearWaffleProjectileInstructionProgramDefinitionsConsta
     /// </summary>
     public const ushort LoopCommand = 0xbb8e;
 
+    /// <inheritdoc cref="NuclearWaffleProjectileInstructionProgramDefinitionsConstants"/>
     extension(NuclearWaffleProjectileInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="NuclearWaffleProjectileInstructionProgramDefinitionsConstants.LoopCommand"/>
@@ -2547,6 +2730,7 @@ internal static class OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions
     /// <summary>Both complete loops last 64 frames.</summary>
     public const int CycleFrames = 64;
 
+    /// <inheritdoc cref="OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitionsConstants"/>
     extension(OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions)
     {
         /// <inheritdoc cref="OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitionsConstants.CycleFrames"/>
@@ -2562,6 +2746,7 @@ internal static class OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitio
     /// <summary><c>PalFxDef_Crateria8</c> at <c>$8D:FFD9</c>.</summary>
     public const ushort DefinitionPointer = 0xffd9;
 
+    /// <inheritdoc cref="OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitionsConstants"/>
     extension(OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions)
     {
         /// <inheritdoc cref="OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitionsConstants.CycleFrames"/>
@@ -2579,6 +2764,7 @@ internal static class OwtchMovementDefinitionsConstants
     /// <summary>$A2:A3ED OwtchConstants_undergroundTimers, six unsigned burial durations.</summary>
     public const int TimerReferenceAddress = 0xa2a3ed;
 
+    /// <inheritdoc cref="OwtchMovementDefinitionsConstants"/>
     extension(OwtchMovementDefinitions)
     {
         /// <inheritdoc cref="OwtchMovementDefinitionsConstants.DistanceReferenceAddress"/>
@@ -2607,6 +2793,7 @@ internal static class PaletteFxHeatInstructionListDefinitionsConstants
     /// </summary>
     public const ushort VariaSourceTable = 0xe400;
 
+    /// <inheritdoc cref="PaletteFxHeatInstructionListDefinitionsConstants"/>
     extension(PaletteFxHeatInstructionListDefinitions)
     {
         /// <inheritdoc cref="PaletteFxHeatInstructionListDefinitionsConstants.GravitySourceTable"/>
@@ -2634,6 +2821,7 @@ internal static class PauseMenuLayoutConstants
     /// </summary>
     public const int ReserveSupplyDigitsByteOffset = 0x0310;
 
+    /// <inheritdoc cref="PauseMenuLayoutConstants"/>
     extension(PauseMenuLayout)
     {
         /// <inheritdoc cref="PauseMenuLayoutConstants.ReserveSupplyDigitCount"/>
@@ -2651,6 +2839,7 @@ internal static class PauseMenuRomDataConstants
     /// <summary>Equipment-set lookup table at $82:B257.</summary>
     public const int EquipmentSetTable = 0x82b257;
 
+    /// <inheritdoc cref="PauseMenuRomDataConstants"/>
     extension(PauseMenuRomData)
     {
         /// <inheritdoc cref="PauseMenuRomDataConstants.EquipmentSetTable"/>
@@ -2664,6 +2853,7 @@ internal static class PauseReserveTransferRomDataConstants
     /// <summary>$82:BF04, ReserveTank_TransferEnergyPerFrame, consumed as a ROM word.</summary>
     public const int TransferAmount = 0x82bf04;
 
+    /// <inheritdoc cref="PauseReserveTransferRomDataConstants"/>
     extension(PauseReserveTransferRomData)
     {
         /// <inheritdoc cref="PauseReserveTransferRomDataConstants.TransferAmount"/>
@@ -2674,9 +2864,12 @@ internal static class PauseReserveTransferRomDataConstants
 /// <summary>Cartridge values of <see cref="PhantoonBg2FrameDefinitions"/> that only verification reads.</summary>
 internal static class PhantoonBg2FrameDefinitionsConstants
 {
+    /// <summary>VRAM base address for Phantoon background frame transfers.</summary>
     public const ushort VramBase = EnemyBg2FrameLayout.VramBase;
+    /// <summary>WRAM source base address for Phantoon background frame transfers.</summary>
     public const ushort WorkingRamBase = EnemyBg2FrameLayout.WorkingRamBase;
 
+    /// <inheritdoc cref="PhantoonBg2FrameDefinitionsConstants"/>
     extension(PhantoonBg2FrameDefinitions)
     {
         /// <inheritdoc cref="PhantoonBg2FrameDefinitionsConstants.VramBase"/>
@@ -2689,8 +2882,10 @@ internal static class PhantoonBg2FrameDefinitionsConstants
 /// <summary>Cartridge values of <see cref="PhantoonColorRomData"/> that only verification reads.</summary>
 internal static class PhantoonColorRomDataConstants
 {
+    /// <summary>Destination offset used when the power-on palette upload begins at the start of VRAM.</summary>
     public const int PowerOnDestination = 0;
 
+    /// <inheritdoc cref="PhantoonColorRomDataConstants"/>
     extension(PhantoonColorRomData)
     {
         /// <inheritdoc cref="PhantoonColorRomDataConstants.PowerOnDestination"/>
@@ -2704,6 +2899,7 @@ internal static class PhantoonInstructionProgramDefinitionsConstants
     /// <summary>First casual-flame timer word following the instruction block at $A7:CCFD.</summary>
     public const ushort AdjacentCasualFlameTimers = 0xccfd;
 
+    /// <inheritdoc cref="PhantoonInstructionProgramDefinitionsConstants"/>
     extension(PhantoonInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="PhantoonInstructionProgramDefinitionsConstants.AdjacentCasualFlameTimers"/>
@@ -2719,6 +2915,7 @@ internal static class PlanetZebesTextPaletteFxProgramMechanicsDefinitionsConstan
     /// <summary>$8D:E1B0: native fade-in definition, immediately followed by the four-byte fade-out definition.</summary>
     public const ushort FadeInDefinition = 0xE1B0;
 
+    /// <inheritdoc cref="PlanetZebesTextPaletteFxProgramMechanicsDefinitionsConstants"/>
     extension(PlanetZebesTextPaletteFxProgramMechanicsDefinitions)
     {
         /// <inheritdoc cref="PlanetZebesTextPaletteFxProgramMechanicsDefinitionsConstants.CycleFrames"/>
@@ -2734,6 +2931,7 @@ internal static class PlatformInstructionProgramDefinitionsConstants
     /// <summary>The first callback implementation immediately after the programs.</summary>
     public const ushort FirstAdjacentCallback = 0x9c6b;
 
+    /// <inheritdoc cref="PlatformInstructionProgramDefinitionsConstants"/>
     extension(PlatformInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="PlatformInstructionProgramDefinitionsConstants.FirstAdjacentCallback"/>
@@ -2749,6 +2947,7 @@ internal static class PostCreditsIconGlarePaletteFxProgramMechanicsDefinitionsCo
     /// <summary>The palette-FX definition at <c>$8D:E200</c>.</summary>
     public const ushort DefinitionPointer = 0xe200;
 
+    /// <inheritdoc cref="PostCreditsIconGlarePaletteFxProgramMechanicsDefinitionsConstants"/>
     extension(PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions)
     {
         /// <inheritdoc cref="PostCreditsIconGlarePaletteFxProgramMechanicsDefinitionsConstants.CycleFrames"/>
@@ -2768,6 +2967,7 @@ internal static class PowampInstructionProgramDefinitionsConstants
     /// <summary>The first non-program word after Powamp's instruction streams, at $A8:C19F.</summary>
     public const ushort FirstAdjacentConstant = 0xc19f;
 
+    /// <inheritdoc cref="PowampInstructionProgramDefinitionsConstants"/>
     extension(PowampInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="PowampInstructionProgramDefinitionsConstants.BalloonDeflatedSleep"/>
@@ -2787,6 +2987,7 @@ internal static class PuyoInstructionProgramDefinitionsConstants
     /// <summary>The final airborne-pose sleep opcode at $A2:9A05.</summary>
     public const ushort LastSleepOpcode = 0x9a05;
 
+    /// <inheritdoc cref="PuyoInstructionProgramDefinitionsConstants"/>
     extension(PuyoInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="PuyoInstructionProgramDefinitionsConstants.FirstAdjacentDefinition"/>
@@ -2804,6 +3005,7 @@ internal static class RedBrinstarGlowPaletteFxProgramMechanicsDefinitionsConstan
     /// <summary>Red Brinstar background-glow palette-FX definition at $8D:F77D.</summary>
     public const ushort DefinitionPointer = 0xf77d;
 
+    /// <inheritdoc cref="RedBrinstarGlowPaletteFxProgramMechanicsDefinitionsConstants"/>
     extension(RedBrinstarGlowPaletteFxProgramMechanicsDefinitions)
     {
         /// <inheritdoc cref="RedBrinstarGlowPaletteFxProgramMechanicsDefinitionsConstants.CycleFrames"/>
@@ -2819,6 +3021,7 @@ internal static class ResidentDoorClosingDefinitionsConstants
     /// <summary>Number of retail resident door/gate headers with a secondary closing list.</summary>
     public const int Count = 20;
 
+    /// <inheritdoc cref="ResidentDoorClosingDefinitionsConstants"/>
     extension(ResidentDoorClosingDefinitions)
     {
         /// <inheritdoc cref="ResidentDoorClosingDefinitionsConstants.Count"/>
@@ -2832,6 +3035,7 @@ internal static class RioInstructionProgramDefinitionsConstants
     /// <summary>The first mechanics constant after Rio's programs, at $A2:BBBB.</summary>
     public const ushort FirstAdjacentMechanicsData = 0xbbbb;
 
+    /// <inheritdoc cref="RioInstructionProgramDefinitionsConstants"/>
     extension(RioInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="RioInstructionProgramDefinitionsConstants.FirstAdjacentMechanicsData"/>
@@ -2845,6 +3049,7 @@ internal static class RoomAssetRomDataLibraryBackgroundConstants
     /// <summary>Bank containing room-authored library-background command lists.</summary>
     public const int CommandBank = 0x8f0000;
 
+    /// <inheritdoc cref="RoomAssetRomDataLibraryBackgroundConstants"/>
     extension(RoomAssetRomData.LibraryBackground)
     {
         /// <inheritdoc cref="RoomAssetRomDataLibraryBackgroundConstants.CommandBank"/>
@@ -2858,6 +3063,7 @@ internal static class RoomAssetRomDataLibraryBackgroundTourianStatueGhostConstan
     /// <summary>Native destination VRAM word for the ghost character upload.</summary>
     public const ushort VramDestinationWord = 0x6d00;
 
+    /// <inheritdoc cref="RoomAssetRomDataLibraryBackgroundTourianStatueGhostConstants"/>
     extension(RoomAssetRomData.LibraryBackground.TourianStatueGhost)
     {
         /// <inheritdoc cref="RoomAssetRomDataLibraryBackgroundTourianStatueGhostConstants.VramDestinationWord"/>
@@ -2879,6 +3085,7 @@ internal static class RoomAssetRomDataTilesetsConstants
     /// <summary><c>$8F:E7A7 tileset_table</c>, a table of bank-$8F word pointers.</summary>
     public const int PointerTableAddress = 0x8fe7a7;
 
+    /// <inheritdoc cref="RoomAssetRomDataTilesetsConstants"/>
     extension(RoomAssetRomData.Tilesets)
     {
         /// <inheritdoc cref="RoomAssetRomDataTilesetsConstants.BlockDefinitionsAddressOffset"/>
@@ -2902,6 +3109,7 @@ internal static class RoomBlockBehaviorValuesConstants
     /// <summary>Up-facing blue-door shootable-cap dispatcher.</summary>
     public static readonly RoomBlockBehavior BlueDoorFacingUp = new(0x42);
 
+    /// <inheritdoc cref="RoomBlockBehaviorValuesConstants"/>
     extension(RoomBlockBehaviorValues)
     {
         /// <inheritdoc cref="RoomBlockBehaviorValuesConstants.BlueDoorFacingDown"/>
@@ -2917,6 +3125,7 @@ internal static class RoomEnemyRomLayoutConstants
     /// <summary>Bank containing room enemy population records.</summary>
     public const int PopulationBank = 0xa10000;
 
+    /// <inheritdoc cref="RoomEnemyRomLayoutConstants"/>
     extension(RoomEnemyRomLayout)
     {
         /// <inheritdoc cref="RoomEnemyRomLayoutConstants.PopulationBank"/>
@@ -2927,17 +3136,28 @@ internal static class RoomEnemyRomLayoutConstants
 /// <summary>Cartridge values of <see cref="RoomEnemySystem"/> that only verification reads.</summary>
 internal static class RoomEnemySystemConstants
 {
+    /// <summary>Address of the Blue Brinstar face-block palette table.</summary>
     public const int BlueBrinstarFaceBlockPaletteTable = 0xa8e7cc;
+    /// <summary>Initial instruction pointer for Bomb Torizo.</summary>
     public const ushort BombTorizoInitialInstruction = 0xb879;
+    /// <summary>Projectile pre-instruction dispatched for a Cacatac spike.</summary>
     public const ushort CacatacSpikePreInstruction = EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_CacatacSpike;
+    /// <summary>No-op AI dispatcher used by the growing shutter enemy.</summary>
     public const ushort GrowingShutterNoOpAi = EnemyAiCodePointers.BankA0.NoOp;
+    /// <summary>Initial left-facing projectile pre-instruction for Ki Hunter acid.</summary>
     public const ushort KiHunterAcidInitialLeftPreInstruction = EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KiHunterAcid_Left;
+    /// <summary>Initial right-facing projectile pre-instruction for Ki Hunter acid.</summary>
     public const ushort KiHunterAcidInitialRightPreInstruction = EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KiHunterAcid_Right;
+    /// <summary>Normal palette value used by Ninja Pirate.</summary>
     public const ushort NinjaPiratePaletteNormal = 0x0200;
+    /// <summary>Sound effect used for Ninja Pirate claw kicks or dives.</summary>
     public const ushort NinjaPirateSoundClawKickOrDive = 0x0066;
+    /// <summary>Body-hitbox instruction pointer used by Phantoon eye collision.</summary>
     public const ushort PhantoonEyeHitboxBodyInstruction = PhantoonInstructionProgramDefinitions.EyeHitboxBody;
+    /// <summary>Projectile pre-instruction dispatched for Stoke fireballs.</summary>
     public const ushort StokeProjectilePreInstruction = EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_StokeFireball;
 
+    /// <inheritdoc cref="RoomEnemySystemConstants"/>
     extension(RoomEnemySystem)
     {
         /// <inheritdoc cref="RoomEnemySystemConstants.BlueBrinstarFaceBlockPaletteTable"/>
@@ -2966,9 +3186,12 @@ internal static class RoomEnemySystemConstants
 /// <summary>Cartridge values of <see cref="RoomFxRomData.Earthquake"/> that only verification reads.</summary>
 internal static class RoomFxRomDataEarthquakeConstants
 {
+    /// <summary>Address of the background displacement table used by earthquake effects.</summary>
     public const int BgDisplacementTableAddress = 0xa0872d;
+    /// <inheritdoc cref="RoomFxRomDataEarthquakeConstants"/>
     public const int BytesPerType = 8;
 
+    /// <inheritdoc cref="RoomFxRomDataEarthquakeConstants"/>
     extension(RoomFxRomData.Earthquake)
     {
         /// <inheritdoc cref="RoomFxRomDataEarthquakeConstants.BgDisplacementTableAddress"/>
@@ -2988,6 +3211,7 @@ internal static class RoomFxRomDataLayer3AnimatedTilesConstants
     /// <summary>First rain character frame at $87:A874.</summary>
     public const ushort RainFirstFrame = 0xa874;
 
+    /// <inheritdoc cref="RoomFxRomDataLayer3AnimatedTilesConstants"/>
     extension(RoomFxRomData.Layer3AnimatedTiles)
     {
         /// <inheritdoc cref="RoomFxRomDataLayer3AnimatedTilesConstants.AcidFirstFrame"/>
@@ -3002,8 +3226,10 @@ internal static class RoomFxRomDataLayer3AnimatedTilesConstants
 /// <summary>Cartridge values of <see cref="RoomFxRomData.Tables"/> that only verification reads.</summary>
 internal static class RoomFxRomDataTablesConstants
 {
+    /// <summary>Address of the area palette-FX object-list pointer table.</summary>
     public const int AreaPaletteFxObjectListPointers = 0x83ac46;
 
+    /// <inheritdoc cref="RoomFxRomDataTablesConstants"/>
     extension(RoomFxRomData.Tables)
     {
         /// <inheritdoc cref="RoomFxRomDataTablesConstants.AreaPaletteFxObjectListPointers"/>
@@ -3075,6 +3301,7 @@ internal static class RoomHeaderPointersConstants
     /// <summary>West Ocean at $8F:93FE (area $00, room $05), using the ocean sky main routine.</summary>
     public const ushort WestOcean = 0x93fe;
 
+    /// <inheritdoc cref="RoomHeaderPointersConstants"/>
     extension(RoomHeaderPointers)
     {
         /// <inheritdoc cref="RoomHeaderPointersConstants.BlueBrinstarElevatorRoom"/>
@@ -3146,6 +3373,7 @@ internal static class RoomHeaderRomDataConstants
     /// <summary>SNES bank containing room headers, inline selectors, and room-state records.</summary>
     public const int BankAddress = 0x8f0000;
 
+    /// <inheritdoc cref="RoomHeaderRomDataConstants"/>
     extension(RoomHeaderRomData)
     {
         /// <inheritdoc cref="RoomHeaderRomDataConstants.BankAddress"/>
@@ -3159,6 +3387,7 @@ internal static class RoomIdentitiesConstants
     /// <summary>Crateria's Landing Site, room pair <c>$00/$00</c>.</summary>
     public static readonly RoomIdentity LandingSite = new(AreaId.Crateria, 0x00);
 
+    /// <inheritdoc cref="RoomIdentitiesConstants"/>
     extension(RoomIdentities)
     {
         /// <inheritdoc cref="RoomIdentitiesConstants.LandingSite"/>
@@ -3173,6 +3402,7 @@ internal static class RoomPaletteFxDefinitionsConstants
     public const ushort CinematicDefinitionsBegin = 0xe194;
     /// <summary>$8D:E200, final definition in the contiguous cinematic/Samus group.</summary>
     public const ushort CinematicDefinitionsEnd = 0xe200;
+    /// <summary>Byte size of one room palette-FX definition.</summary>
     public const int DefinitionByteCount = 4;
     /// <summary>$8D:F745, first definition in the contiguous room-effect group.</summary>
     public const ushort RoomDefinitionsBegin = 0xf745;
@@ -3185,6 +3415,7 @@ internal static class RoomPaletteFxDefinitionsConstants
     /// <summary>$8D:FFED, final definition in the contiguous Tourian escape group.</summary>
     public const ushort TourianDefinitionsEnd = 0xffed;
 
+    /// <inheritdoc cref="RoomPaletteFxDefinitionsConstants"/>
     extension(RoomPaletteFxDefinitions)
     {
         /// <inheritdoc cref="RoomPaletteFxDefinitionsConstants.CinematicDefinitionsBegin"/>
@@ -3209,8 +3440,10 @@ internal static class RoomPaletteFxDefinitionsConstants
 /// <summary>Cartridge values of <see cref="RoomPlmHeaderDefinitions"/> that only verification reads.</summary>
 internal static class RoomPlmHeaderDefinitionsConstants
 {
+    /// <summary>Number of retail room PLM header records.</summary>
     public const int RetailHeaderCount = 70;
 
+    /// <inheritdoc cref="RoomPlmHeaderDefinitionsConstants"/>
     extension(RoomPlmHeaderDefinitions)
     {
         /// <inheritdoc cref="RoomPlmHeaderDefinitionsConstants.RetailHeaderCount"/>
@@ -3221,53 +3454,96 @@ internal static class RoomPlmHeaderDefinitionsConstants
 /// <summary>Cartridge values of <see cref="RoomPlmHeaders"/> that only verification reads.</summary>
 internal static class RoomPlmHeadersConstants
 {
+    /// <summary>Instruction pointer that exposes the Chozo Morph Ball.</summary>
     public const ushort ChozoMorphBall = 0xef77;
+    /// <summary>Left-side energy-station access instruction.</summary>
     public const ushort EnergyStationLeftAccess = 0xb6e7;
+    /// <summary>Right-side energy-station access instruction.</summary>
     public const ushort EnergyStationRightAccess = 0xb6e3;
+    /// <summary>Instruction pointer that exposes Bombs.</summary>
     public const ushort ExposedBombs = 0xeee7;
+    /// <summary>Instruction pointer that exposes the Charge Beam.</summary>
     public const ushort ExposedChargeBeam = 0xeeeb;
+    /// <summary>Instruction pointer that exposes the Grapple Beam.</summary>
     public const ushort ExposedGrappleBeam = 0xef17;
+    /// <summary>Instruction pointer that exposes the Gravity Suit.</summary>
     public const ushort ExposedGravitySuit = 0xef0b;
+    /// <summary>Instruction pointer that exposes Hi-Jump Boots.</summary>
     public const ushort ExposedHiJumpBoots = 0xeef3;
+    /// <summary>Instruction pointer that exposes the Ice Beam.</summary>
     public const ushort ExposedIceBeam = 0xeeef;
+    /// <summary>Instruction pointer that exposes the Plasma Beam.</summary>
     public const ushort ExposedPlasmaBeam = 0xef13;
+    /// <summary>Instruction pointer that exposes the Reserve Tank.</summary>
     public const ushort ExposedReserveTank = 0xef27;
+    /// <summary>Instruction pointer that exposes the Screw Attack.</summary>
     public const ushort ExposedScrewAttack = 0xef1f;
+    /// <summary>Instruction pointer that exposes Space Jump.</summary>
     public const ushort ExposedSpaceJump = 0xef1b;
+    /// <summary>Instruction pointer that exposes the Spazer Beam.</summary>
     public const ushort ExposedSpazerBeam = 0xeeff;
+    /// <summary>Instruction pointer that exposes Speed Booster.</summary>
     public const ushort ExposedSpeedBooster = 0xeef7;
+    /// <summary>Instruction pointer that exposes Spring Ball.</summary>
     public const ushort ExposedSpringBall = 0xef03;
+    /// <summary>Instruction pointer that exposes the Varia Suit.</summary>
     public const ushort ExposedVariaSuit = 0xef07;
+    /// <summary>Instruction pointer that exposes the Wave Beam.</summary>
     public const ushort ExposedWaveBeam = 0xeefb;
+    /// <summary>Instruction pointer that exposes the X-Ray Scope.</summary>
     public const ushort ExposedXrayScope = 0xef0f;
     /// <summary>Collision-side permanent-item detector at $84:EED3.</summary>
     public const ushort ItemCollisionDetection = 0xeed3;
+    /// <summary>Left-side map-station access instruction.</summary>
     public const ushort MapStationLeftAccess = 0xb6db;
+    /// <summary>Right-side map-station access instruction.</summary>
     public const ushort MapStationRightAccess = 0xb6d7;
+    /// <summary>Left-side missile-station access instruction.</summary>
     public const ushort MissileStationLeftAccess = 0xb6f3;
+    /// <summary>Right-side missile-station access instruction.</summary>
     public const ushort MissileStationRightAccess = 0xb6ef;
     /// <summary>Collision-side save-station trigger at $84:B76B.</summary>
     public const ushort SaveStationTrigger = 0xb76b;
+    /// <summary>Collision instruction used by the scroll-trigger PLM.</summary>
     public const ushort ScrollTriggerCollision = 0xb6ff;
+    /// <summary>Instruction pointer for a shot block opened by Bombs.</summary>
     public const ushort ShotBlockBombs = 0xef8f;
+    /// <summary>Instruction pointer for a shot block opened by the Charge Beam.</summary>
     public const ushort ShotBlockChargeBeam = 0xef93;
+    /// <summary>Instruction pointer for a shot block opened by the Grapple Beam.</summary>
     public const ushort ShotBlockGrappleBeam = 0xefbf;
+    /// <summary>Instruction pointer for a shot block opened by the Gravity Suit.</summary>
     public const ushort ShotBlockGravitySuit = 0xefb3;
+    /// <summary>Instruction pointer for a shot block opened by Hi-Jump Boots.</summary>
     public const ushort ShotBlockHiJumpBoots = 0xef9b;
+    /// <summary>Instruction pointer for a shot block opened by the Ice Beam.</summary>
     public const ushort ShotBlockIceBeam = 0xef97;
+    /// <summary>Instruction pointer for a shot block opened by Morph Ball.</summary>
     public const ushort ShotBlockMorphBall = 0xefcb;
+    /// <summary>Instruction pointer for a shot block opened by the Plasma Beam.</summary>
     public const ushort ShotBlockPlasmaBeam = 0xefbb;
+    /// <summary>Instruction pointer for a shot block opened by a Power Bomb.</summary>
     public const ushort ShotBlockPowerBombTank = 0xef8b;
+    /// <summary>Instruction pointer for a shot block opened by the Reserve Tank.</summary>
     public const ushort ShotBlockReserveTank = 0xefcf;
+    /// <summary>Instruction pointer for a shot block opened by the Screw Attack.</summary>
     public const ushort ShotBlockScrewAttack = 0xefc7;
+    /// <summary>Instruction pointer for a shot block opened by Space Jump.</summary>
     public const ushort ShotBlockSpaceJump = 0xefc3;
+    /// <summary>Instruction pointer for a shot block opened by the Spazer Beam.</summary>
     public const ushort ShotBlockSpazerBeam = 0xefa7;
+    /// <summary>Instruction pointer for a shot block opened by Speed Booster.</summary>
     public const ushort ShotBlockSpeedBooster = 0xef9f;
+    /// <summary>Instruction pointer for a shot block opened by Spring Ball.</summary>
     public const ushort ShotBlockSpringBall = 0xefab;
+    /// <summary>Instruction pointer for a shot block opened by the Varia Suit.</summary>
     public const ushort ShotBlockVariaSuit = 0xefaf;
+    /// <summary>Instruction pointer for a shot block opened by the Wave Beam.</summary>
     public const ushort ShotBlockWaveBeam = 0xefa3;
+    /// <summary>Instruction pointer for a shot block opened by the X-Ray Scope.</summary>
     public const ushort ShotBlockXrayScope = 0xefb7;
 
+    /// <inheritdoc cref="RoomPlmHeadersConstants"/>
     extension(RoomPlmHeaders)
     {
         /// <inheritdoc cref="RoomPlmHeadersConstants.ChozoMorphBall"/>
@@ -3367,6 +3643,7 @@ internal static class RoomPlmInstructionCodesConstants
     /// <summary><c>$84:8764 Instruction_PLM_LoadItemPLMGfx</c>: load an item's graphics set.</summary>
     public const ushort LoadItemGraphics = 0x8764;
 
+    /// <inheritdoc cref="RoomPlmInstructionCodesConstants"/>
     extension(RoomPlmInstructionCodes)
     {
         /// <inheritdoc cref="RoomPlmInstructionCodesConstants.LoadItemGraphics"/>
@@ -3377,8 +3654,10 @@ internal static class RoomPlmInstructionCodesConstants
 /// <summary>Cartridge values of <see cref="RoomPlmPopulationDefinitions"/> that only verification reads.</summary>
 internal static class RoomPlmPopulationDefinitionsConstants
 {
+    /// <summary>Number of retail PLM population records.</summary>
     public const int RetailRecordCount = 941;
 
+    /// <inheritdoc cref="RoomPlmPopulationDefinitionsConstants"/>
     extension(RoomPlmPopulationDefinitions)
     {
         /// <inheritdoc cref="RoomPlmPopulationDefinitionsConstants.RetailRecordCount"/>
@@ -3396,6 +3675,7 @@ internal static class RoomShakeDefinitionsConstants
     /// <summary>$86:846B Get_Values_for_Screen_Shaking.horizontalX/Y, at four-byte stride.</summary>
     public const int ProjectileReferenceAddress = 0x86846b;
 
+    /// <inheritdoc cref="RoomShakeDefinitionsConstants"/>
     extension(RoomShakeDefinitions)
     {
         /// <inheritdoc cref="RoomShakeDefinitionsConstants.Bg1ReferenceAddress"/>
@@ -3413,6 +3693,7 @@ internal static class RoomStateDefinitionsConstants
     /// <summary>Number of distinct room states selected by the 262 retail rooms.</summary>
     public const int RetailStateCount = 323;
 
+    /// <inheritdoc cref="RoomStateDefinitionsConstants"/>
     extension(RoomStateDefinitions)
     {
         /// <inheritdoc cref="RoomStateDefinitionsConstants.RetailStateCount"/>
@@ -3429,6 +3710,7 @@ internal static class SamusArmCannonDefinitionsConstants
     /// </summary>
     public const int OpenFlagTable = 0x90c7d9;
 
+    /// <inheritdoc cref="SamusArmCannonDefinitionsConstants"/>
     extension(SamusArmCannonDefinitions)
     {
         /// <inheritdoc cref="SamusArmCannonDefinitionsConstants.OpenFlagTable"/>
@@ -3444,6 +3726,7 @@ internal static class SamusBeamPreInstructionCodesConstants
     /// <summary>$90:B96E, FireUnchargedBeam's low-nibble-indexed callback words.</summary>
     public const int UnchargedTable = 0x90b96e;
 
+    /// <inheritdoc cref="SamusBeamPreInstructionCodesConstants"/>
     extension(SamusBeamPreInstructionCodes)
     {
         /// <inheritdoc cref="SamusBeamPreInstructionCodesConstants.ChargedTable"/>
@@ -3465,6 +3748,7 @@ internal static class SamusBombSpreadRomDataConstants
     /// <summary>Five fractional initial Y-speed words beginning at $90:D8ED.</summary>
     public const int YSubspeeds = 0x90d8ed;
 
+    /// <inheritdoc cref="SamusBombSpreadRomDataConstants"/>
     extension(SamusBombSpreadRomData)
     {
         /// <inheritdoc cref="SamusBombSpreadRomDataConstants.FuseTimers"/>
@@ -3486,6 +3770,7 @@ internal static class SamusComboRomDataConstants
     /// <summary>SineCosineTables_8bitSine_SignExtended at $A0:B443, positive half-wave words.</summary>
     public const int PositiveSine = 0xa0b443;
 
+    /// <inheritdoc cref="SamusComboRomDataConstants"/>
     extension(SamusComboRomData)
     {
         /// <inheritdoc cref="SamusComboRomDataConstants.OriginAngles"/>
@@ -3506,6 +3791,7 @@ internal static class SamusDeathExplosionTimingDefinitionsConstants
     /// <summary>Bytes occupied by each interleaved timer/palette-index record.</summary>
     public const ushort RecordByteCount = 2;
 
+    /// <inheritdoc cref="SamusDeathExplosionTimingDefinitionsConstants"/>
     extension(SamusDeathExplosionTimingDefinitions)
     {
         /// <inheritdoc cref="SamusDeathExplosionTimingDefinitionsConstants.NativeFirstTimerAddress"/>
@@ -3527,6 +3813,7 @@ internal static class SamusGrappleRomDataConnectionsConstants
     /// <summary>Special-angle records used for fixed, swing, and wall-grab reactions.</summary>
     public const int SpecialAngleTable = 0x9bc43e;
 
+    /// <inheritdoc cref="SamusGrappleRomDataConnectionsConstants"/>
     extension(SamusGrappleRomData.Connections)
     {
         /// <inheritdoc cref="SamusGrappleRomDataConnectionsConstants.DirectionCount"/>
@@ -3562,6 +3849,7 @@ internal static class SamusGrappleRomDataFiringConstants
     /// <summary>Initial Y velocities for ten shot directions.</summary>
     public const int YVelocities = 0x9bc0ef;
 
+    /// <inheritdoc cref="SamusGrappleRomDataFiringConstants"/>
     extension(SamusGrappleRomData.Firing)
     {
         /// <inheritdoc cref="SamusGrappleRomDataFiringConstants.Angles"/>
@@ -3591,6 +3879,7 @@ internal static class SamusGrappleRomDataPhysicsConstants
     /// <summary><c>$A0:B3C3</c>, signed sine values indexed by <c>SnesAngle</c>.</summary>
     public const int SignedSineTable = 0xa0b3c3;
 
+    /// <inheritdoc cref="SamusGrappleRomDataPhysicsConstants"/>
     extension(SamusGrappleRomData.Physics)
     {
         /// <inheritdoc cref="SamusGrappleRomDataPhysicsConstants.SignedSineTable"/>
@@ -3612,6 +3901,7 @@ internal static class SamusGrappleRomDataRenderingConstants
     /// <summary>Pointers to folded-angle rope-segment character data.</summary>
     public const int SegmentTilePointers = 0x9bc346;
 
+    /// <inheritdoc cref="SamusGrappleRomDataRenderingConstants"/>
     extension(SamusGrappleRomData.Rendering)
     {
         /// <inheritdoc cref="SamusGrappleRomDataRenderingConstants.LeftPoseOffsetsByFrame"/>
@@ -3635,6 +3925,7 @@ internal static class SamusHudRomDataConstants
     /// <summary>$90:DDAA posture-transition flags: zero enters the standard handler.</summary>
     public const int TransitionFlags = 0x90ddaa;
 
+    /// <inheritdoc cref="SamusHudRomDataConstants"/>
     extension(SamusHudRomData)
     {
         /// <inheritdoc cref="SamusHudRomDataConstants.MovementHandlers"/>
@@ -3650,6 +3941,7 @@ internal static class SamusLoadingSuitPaletteFxProgramMechanicsDefinitionsConsta
     /// <summary>Every suit-loading program lasts 265 frames.</summary>
     public const int CycleFrames = 265;
 
+    /// <inheritdoc cref="SamusLoadingSuitPaletteFxProgramMechanicsDefinitionsConstants"/>
     extension(SamusLoadingSuitPaletteFxProgramMechanicsDefinitions)
     {
         /// <inheritdoc cref="SamusLoadingSuitPaletteFxProgramMechanicsDefinitionsConstants.CycleFrames"/>
@@ -3663,6 +3955,7 @@ internal static class SamusMovementRomDataHorizontalMotionConstants
     /// <summary><c>$91:B61F</c>, initial/next low byte for each Speed Booster stage.</summary>
     public const int SpeedBoostCounterLowBytes = 0x91b61f;
 
+    /// <inheritdoc cref="SamusMovementRomDataHorizontalMotionConstants"/>
     extension(SamusMovementRomData.HorizontalMotion)
     {
         /// <inheritdoc cref="SamusMovementRomDataHorizontalMotionConstants.SpeedBoostCounterLowBytes"/>
@@ -3678,6 +3971,7 @@ internal static class SamusMovementRomDataPosesConstants
     /// <summary><c>$91:9EE2</c>, one bank-$91 input-transition-list pointer per pose.</summary>
     public const int TransitionListPointers = 0x919ee2;
 
+    /// <inheritdoc cref="SamusMovementRomDataPosesConstants"/>
     extension(SamusMovementRomData.Poses)
     {
         /// <inheritdoc cref="SamusMovementRomDataPosesConstants.AnimationDelayListPointers"/>
@@ -3723,6 +4017,7 @@ internal static class SamusMovementRomDataVerticalMotionConstants
     /// <summary>Wall-jump subspeed selected by the current liquid medium.</summary>
     public const int WallJumpSubspeeds = 0x909ed7;
 
+    /// <inheritdoc cref="SamusMovementRomDataVerticalMotionConstants"/>
     extension(SamusMovementRomData.VerticalMotion)
     {
         /// <inheritdoc cref="SamusMovementRomDataVerticalMotionConstants.BallBounceSpeed"/>
@@ -3766,6 +4061,7 @@ internal static class SamusPaletteRomDataBanksConstants
     /// <summary>Bank <c>$91</c>, which owns Samus palette pointer lists.</summary>
     public const int Movement = 0x910000;
 
+    /// <inheritdoc cref="SamusPaletteRomDataBanksConstants"/>
     extension(SamusPaletteRomData.Banks)
     {
         /// <inheritdoc cref="SamusPaletteRomDataBanksConstants.Movement"/>
@@ -3789,6 +4085,7 @@ internal static class SamusPaletteRomDataCommonConstants
     /// </remarks>
     public const int NormalSuitPointers = 0x91d727;
 
+    /// <inheritdoc cref="SamusPaletteRomDataCommonConstants"/>
     extension(SamusPaletteRomData.Common)
     {
         /// <inheritdoc cref="SamusPaletteRomDataCommonConstants.NormalSuitPointers"/>
@@ -3811,6 +4108,7 @@ internal static class SamusPaletteRomDataCrystalFlashConstants
     /// </remarks>
     public const int BeamPalettePointers = 0x90c3c9;
 
+    /// <inheritdoc cref="SamusPaletteRomDataCrystalFlashConstants"/>
     extension(SamusPaletteRomData.CrystalFlash)
     {
         /// <inheritdoc cref="SamusPaletteRomDataCrystalFlashConstants.BeamPalettePointers"/>
@@ -3978,6 +4276,7 @@ internal static class SamusPaletteRomDataFullBodyCyclesConstants
     /// </remarks>
     public const int StoredShineLists = 0x91db10;
 
+    /// <inheritdoc cref="SamusPaletteRomDataFullBodyCyclesConstants"/>
     extension(SamusPaletteRomData.FullBodyCycles)
     {
         /// <inheritdoc cref="SamusPaletteRomDataFullBodyCyclesConstants.ActiveShinesparkLists"/>
@@ -4011,6 +4310,7 @@ internal static class SamusPaletteRomDataHyperBeamFxConstants
     /// <summary>Instruction <c>$C655</c>: select palette-buffer byte index from Y.</summary>
     public const ushort SetColorIndex = PaletteFxInstructionCodes.SetColorIndex;
 
+    /// <inheritdoc cref="SamusPaletteRomDataHyperBeamFxConstants"/>
     extension(SamusPaletteRomData.HyperBeamFx)
     {
         /// <inheritdoc cref="SamusPaletteRomDataHyperBeamFxConstants.Done"/>
@@ -4031,9 +4331,12 @@ internal static class SamusPaletteRomDataHyperBeamFxConstants
 /// <summary>Cartridge values of <see cref="SamusPoseIds"/> that only verification reads.</summary>
 internal static class SamusPoseIdsConstants
 {
+    /// <summary>Unused pose byte $DE retained in the native pose-ID domain.</summary>
     public const byte UnusedPoseDe = (byte)SamusPoseId.UnusedPoseDe;
+    /// <summary>Unused pose byte $DF retained in the native pose-ID domain.</summary>
     public const byte UnusedPoseDf = (byte)SamusPoseId.UnusedPoseDf;
 
+    /// <inheritdoc cref="SamusPoseIdsConstants"/>
     extension(SamusPoseIds)
     {
         /// <inheritdoc cref="SamusPoseIdsConstants.UnusedPoseDe"/>
@@ -4055,6 +4358,7 @@ internal static class SamusProjectileRomDataBeamsConstants
     /// <summary>Uncharged firing sound IDs indexed by beam combination.</summary>
     public const int UnchargedSounds = 0x90c28f;
 
+    /// <inheritdoc cref="SamusProjectileRomDataBeamsConstants"/>
     extension(SamusProjectileRomData.Beams)
     {
         /// <inheritdoc cref="SamusProjectileRomDataBeamsConstants.ChargedSounds"/>
@@ -4074,6 +4378,7 @@ internal static class SamusProjectileRomDataNonBeamConstants
     /// <summary>Bytes in one direction's acceleration/subacceleration record.</summary>
     public const int AccelerationRecordByteCount = 4;
 
+    /// <inheritdoc cref="SamusProjectileRomDataNonBeamConstants"/>
     extension(SamusProjectileRomData.NonBeam)
     {
         /// <inheritdoc cref="SamusProjectileRomDataNonBeamConstants.AccelerationRecordByteCount"/>
@@ -4087,6 +4392,7 @@ internal static class SamusProjectileRomDataTrailsConstants
     /// <summary>Number of trail pointer entries before the paired right table.</summary>
     public const int InstructionPointerCount = (SamusProjectileRomData.Trails.RightInstructionPointers - SamusProjectileRomData.Trails.LeftInstructionPointers) / sizeof(ushort);
 
+    /// <inheritdoc cref="SamusProjectileRomDataTrailsConstants"/>
     extension(SamusProjectileRomData.Trails)
     {
         /// <inheritdoc cref="SamusProjectileRomDataTrailsConstants.InstructionPointerCount"/>
@@ -4104,6 +4410,7 @@ internal static class SamusRenderingRomDataBodyConstants
     /// <summary><c>$92:9263</c>, base top-spritemap index for each pose.</summary>
     public const int TopSpritemapBaseIndices = 0x929263;
 
+    /// <inheritdoc cref="SamusRenderingRomDataBodyConstants"/>
     extension(SamusRenderingRomData.Body)
     {
         /// <inheritdoc cref="SamusRenderingRomDataBodyConstants.BottomSpritemapBaseIndices"/>
@@ -4125,6 +4432,7 @@ internal static class SamusRenderingRomDataTileTransfersConstants
     /// <summary>Number of top-half graphics sets before the bottom pointer table.</summary>
     public const int TopDefinitionSetCount = (SamusRenderingRomData.TileTransfers.BottomDefinitionListPointers - SamusRenderingRomData.TileTransfers.TopDefinitionListPointers) / sizeof(ushort);
 
+    /// <inheritdoc cref="SamusRenderingRomDataTileTransfersConstants"/>
     extension(SamusRenderingRomData.TileTransfers)
     {
         /// <inheritdoc cref="SamusRenderingRomDataTileTransfersConstants.AnimationRecordByteCount"/>
@@ -4142,6 +4450,7 @@ internal static class SamusSpecialSequenceRomDataSuitPickupConstants
     /// <summary><c>$88:E3C9</c>, 128-byte symmetric light-beam curve.</summary>
     public const int BeamCurve = 0x88e3c9;
 
+    /// <inheritdoc cref="SamusSpecialSequenceRomDataSuitPickupConstants"/>
     extension(SamusSpecialSequenceRomData.SuitPickup)
     {
         /// <inheritdoc cref="SamusSpecialSequenceRomDataSuitPickupConstants.BeamCurve"/>
@@ -4165,6 +4474,7 @@ internal static class SamusXrayRomDataPaletteConstants
     /// the six-word proof is issue #865 / #625.</remarks>
     public const int VisorWords = SamusPaletteRomData.Visor.Colors;
 
+    /// <inheritdoc cref="SamusXrayRomDataPaletteConstants"/>
     extension(SamusXrayRomData.Palette)
     {
         /// <inheritdoc cref="SamusXrayRomDataPaletteConstants.NormalSuitPointers"/>
@@ -4191,6 +4501,7 @@ internal static class SamusXrayRomDataWindowConstants
     /// <summary>Number of words in the inclusive quarter-turn tangent table.</summary>
     public const int AbsoluteTangentWordCount = 129;
 
+    /// <inheritdoc cref="SamusXrayRomDataWindowConstants"/>
     extension(SamusXrayRomData.Window)
     {
         /// <inheritdoc cref="SamusXrayRomDataWindowConstants.AbsoluteTangentTable"/>
@@ -4203,14 +4514,18 @@ internal static class SamusXrayRomDataWindowConstants
 /// <summary>Cartridge values of <see cref="SaveRamLayout"/> that only verification reads.</summary>
 internal static class SaveRamLayoutConstants
 {
+    /// <summary>Number of 16-bit words in the controller-button configuration.</summary>
     public const int ButtonConfigWordCount = 11;
     /// <summary>Size of the unassigned $7E:D8F0-$7E:D8F7 allocation.</summary>
     public const int ProgressionPaddingByteCount = 8;
     /// <summary>Unassigned eight-byte SRAM-mirror allocation at $7E:D8F0-$7E:D8F7.</summary>
     public const int ProgressionPaddingWramAddress = SaveRamLayout.OpenedDoorBitsWramAddress + Bank80SystemState.DoorBitByteCount;
+    /// <summary>Byte offset of the selected-slot complement word in the save-RAM layout.</summary>
     public const int SelectedSlotComplementOffset = SaveRamLayout.SelectedSlotOffset + WordByteCount;
+    /// <summary>Bytes in each native save-RAM word.</summary>
     public const int WordByteCount = 2;
 
+    /// <inheritdoc cref="SaveRamLayoutConstants"/>
     extension(SaveRamLayout)
     {
         /// <inheritdoc cref="SaveRamLayoutConstants.ButtonConfigWordCount"/>
@@ -4232,6 +4547,7 @@ internal static class SaveStationAnimationDefinitionsConstants
     /// <summary>Native address of the compiled loop-count operand for parity verification.</summary>
     public const int NativeSaveAnimationLoopsAddress = 0x84aff9;
 
+    /// <inheritdoc cref="SaveStationAnimationDefinitionsConstants"/>
     extension(SaveStationAnimationDefinitions)
     {
         /// <inheritdoc cref="SaveStationAnimationDefinitionsConstants.NativeSaveAnimationLoopsAddress"/>
@@ -4257,6 +4573,7 @@ internal static class SbugInstructionProgramDefinitionsConstants
     /// <summary><c>$A3:A085</c>, up-right-facing animation loop.</summary>
     public const ushort UpRight = 0xa085;
 
+    /// <inheritdoc cref="SbugInstructionProgramDefinitionsConstants"/>
     extension(SbugInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="SbugInstructionProgramDefinitionsConstants.Down"/>
@@ -4282,6 +4599,7 @@ internal static class SciserInstructionProgramDefinitionsConstants
     /// <summary>The final elevator return opcode immediately before Sciser's palette.</summary>
     public const ushort AdjacentPreviousCode = 0x95eb;
 
+    /// <inheritdoc cref="SciserInstructionProgramDefinitionsConstants"/>
     extension(SciserInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="SciserInstructionProgramDefinitionsConstants.AdjacentPreviousCode"/>
@@ -4305,6 +4623,7 @@ internal static class ShaktoolInstructionProgramDefinitionsConstants
     /// <summary><c>InstList_Shaktool_Head_AimingUpRight</c> at $AA:DABC.</summary>
     public const ushort HeadAimingUpRight = 0xdabc;
 
+    /// <inheritdoc cref="ShaktoolInstructionProgramDefinitionsConstants"/>
     extension(ShaktoolInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="ShaktoolInstructionProgramDefinitionsConstants.HeadAimingDownLeft"/>
@@ -4338,6 +4657,7 @@ internal static class ShaktoolSegmentDefinitionsConstants
     /// <summary>$AA:DE95 ShaktoolPieceData_properties, seven property words.</summary>
     public const int NativePropertiesAddress = 0xaade95;
 
+    /// <inheritdoc cref="ShaktoolSegmentDefinitionsConstants"/>
     extension(ShaktoolSegmentDefinitions)
     {
         /// <inheritdoc cref="ShaktoolSegmentDefinitionsConstants.NativeCallbackAddress"/>
@@ -4361,6 +4681,7 @@ internal static class SharedCrawlerInstructionProgramDefinitionsConstants
     /// <summary>The first word of the adjacent initial-list pointer table at $A3:E2CC.</summary>
     public const ushort AdjacentInitialSelectorTable = 0xe2cc;
 
+    /// <inheritdoc cref="SharedCrawlerInstructionProgramDefinitionsConstants"/>
     extension(SharedCrawlerInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="SharedCrawlerInstructionProgramDefinitionsConstants.AdjacentInitialSelectorTable"/>
@@ -4374,6 +4695,7 @@ internal static class ShitroidInstructionProgramDefinitionsConstants
     /// <summary>The first callback implementation after the programs, at $A9:F990.</summary>
     public const ushort FirstAdjacentCallbackCode = 0xf990;
 
+    /// <inheritdoc cref="ShitroidInstructionProgramDefinitionsConstants"/>
     extension(ShitroidInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="ShitroidInstructionProgramDefinitionsConstants.FirstAdjacentCallbackCode"/>
@@ -4390,6 +4712,7 @@ internal static class SlopeHeightDefinitionsConstants
     /// </summary>
     public const int ReferenceAddress = 0x948b2b;
 
+    /// <inheritdoc cref="SlopeHeightDefinitionsConstants"/>
     extension(SlopeHeightDefinitions)
     {
         /// <inheritdoc cref="SlopeHeightDefinitionsConstants.ReferenceAddress"/>
@@ -4400,9 +4723,12 @@ internal static class SlopeHeightDefinitionsConstants
 /// <summary>Cartridge values of <see cref="SmCompressionFormat"/> that only verification reads.</summary>
 internal static class SmCompressionFormatConstants
 {
+    /// <summary>Maximum output length represented by a long compression command.</summary>
     public const int MaximumLongLength = 1024;
+    /// <summary>Maximum output length represented by a short compression command.</summary>
     public const int MaximumShortLength = 32;
 
+    /// <inheritdoc cref="SmCompressionFormatConstants"/>
     extension(SmCompressionFormat)
     {
         /// <inheritdoc cref="SmCompressionFormatConstants.MaximumLongLength"/>
@@ -4418,6 +4744,7 @@ internal static class SnesPpuLayoutConstants
     /// <summary>Room scanlines below the HUD.</summary>
     public const int GameplayViewportHeightPixels = SnesPpuLayout.ScreenHeightPixels - SnesPpuLayout.GameplayHudHeightPixels;
 
+    /// <inheritdoc cref="SnesPpuLayoutConstants"/>
     extension(SnesPpuLayout)
     {
         /// <inheritdoc cref="SnesPpuLayoutConstants.GameplayViewportHeightPixels"/>
@@ -4431,6 +4758,7 @@ internal static class SoundEffectLibrary1SoundsConstants
     /// <summary>Uncharged Power Beam projectile launch.</summary>
     public static readonly SoundEffectId PowerBeam = new(SoundEffectLibrary.Library1, 0x0b);
 
+    /// <inheritdoc cref="SoundEffectLibrary1SoundsConstants"/>
     extension(SoundEffectLibrary1Sounds)
     {
         /// <inheritdoc cref="SoundEffectLibrary1SoundsConstants.PowerBeam"/>
@@ -4444,6 +4772,7 @@ internal static class SpacetimeBeamCopyDefinitionsConstants
     /// <summary>$00:FFFF ends the immutable source before the long word carries into low WRAM.</summary>
     public const int LastSourceAddress = 0x00ffff;
 
+    /// <inheritdoc cref="SpacetimeBeamCopyDefinitionsConstants"/>
     extension(SpacetimeBeamCopyDefinitions)
     {
         /// <inheritdoc cref="SpacetimeBeamCopyDefinitionsConstants.LastSourceAddress"/>
@@ -4454,8 +4783,10 @@ internal static class SpacetimeBeamCopyDefinitionsConstants
 /// <summary>Cartridge values of <see cref="SpcDriverData.Ram"/> that only verification reads.</summary>
 internal static class SpcDriverDataRamConstants
 {
+    /// <summary>Address of the SPC driver table containing music-track pointers.</summary>
     public const int MusicTrackPointerTable = 0x5820;
 
+    /// <inheritdoc cref="SpcDriverDataRamConstants"/>
     extension(SpcDriverData.Ram)
     {
         /// <inheritdoc cref="SpcDriverDataRamConstants.MusicTrackPointerTable"/>
@@ -4475,6 +4806,7 @@ internal static class SpcMusicTablesConstants
     /// <summary>$CF:80F4 uploaded driver kNoteVol, sixteen unsigned volume fractions.</summary>
     public const int NoteVolumeReferenceAddress = 0xcf80f4;
 
+    /// <inheritdoc cref="SpcMusicTablesConstants"/>
     extension(SpcMusicTables)
     {
         /// <inheritdoc cref="SpcMusicTablesConstants.BaseNoteReferenceAddress"/>
@@ -4494,6 +4826,7 @@ internal static class SporeSpawnCeilingPlmProgramDefinitionsConstants
     /// <summary><c>$84:AB27</c>: first byte of adjacent Botwoon setup code, not Spore Spawn data.</summary>
     public const ushort EndExclusive = 0xab27;
 
+    /// <inheritdoc cref="SporeSpawnCeilingPlmProgramDefinitionsConstants"/>
     extension(SporeSpawnCeilingPlmProgramDefinitions)
     {
         /// <inheritdoc cref="SporeSpawnCeilingPlmProgramDefinitionsConstants.EndExclusive"/>
@@ -4511,6 +4844,7 @@ internal static class SporeSpawnDeathColorDefinitionsConstants
     /// <summary>$C2:B264, Palettes_6_GreenBlueBrinstar; selected by both Spore Spawn room states at $8F:9DD9/$9DF3.</summary>
     public const int OriginalRoomPaletteSource = 0xc2b264;
 
+    /// <inheritdoc cref="SporeSpawnDeathColorDefinitionsConstants"/>
     extension(SporeSpawnDeathColorDefinitions)
     {
         /// <inheritdoc cref="SporeSpawnDeathColorDefinitionsConstants.BackgroundPaletteByteOffset"/>
@@ -4530,6 +4864,7 @@ internal static class SquareSlopeDefinitionsConstants
     /// <summary>$86:8729 SquareSlopeDefinitions_Bank86: identical enemy-projectile copy.</summary>
     public const int ProjectileReferenceAddress = 0x868729;
 
+    /// <inheritdoc cref="SquareSlopeDefinitionsConstants"/>
     extension(SquareSlopeDefinitions)
     {
         /// <inheritdoc cref="SquareSlopeDefinitionsConstants.EnemyReferenceAddress"/>
@@ -4547,6 +4882,7 @@ internal static class StokeProjectileInstructionProgramDefinitionsConstants
     /// </summary>
     public const ushort LoopCommand = 0xdb14;
 
+    /// <inheritdoc cref="StokeProjectileInstructionProgramDefinitionsConstants"/>
     extension(StokeProjectileInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="StokeProjectileInstructionProgramDefinitionsConstants.LoopCommand"/>
@@ -4560,6 +4896,7 @@ internal static class SuitPickupBeamCurveDefinitionsConstants
     /// <summary>Native source address of the 128-byte contour at <c>$88:E3C9</c>.</summary>
     public const int NativeCurveAddress = 0x88e3c9;
 
+    /// <inheritdoc cref="SuitPickupBeamCurveDefinitionsConstants"/>
     extension(SuitPickupBeamCurveDefinitions)
     {
         /// <inheritdoc cref="SuitPickupBeamCurveDefinitionsConstants.NativeCurveAddress"/>
@@ -4575,6 +4912,7 @@ internal static class TitleLogoFadePaletteFxProgramMechanicsDefinitionsConstants
     /// <summary>The palette-FX definition at <c>$8D:E194</c>.</summary>
     public const ushort DefinitionPointer = 0xe194;
 
+    /// <inheritdoc cref="TitleLogoFadePaletteFxProgramMechanicsDefinitionsConstants"/>
     extension(TitleLogoFadePaletteFxProgramMechanicsDefinitions)
     {
         /// <inheritdoc cref="TitleLogoFadePaletteFxProgramMechanicsDefinitionsConstants.CycleFrames"/>
@@ -4590,6 +4928,7 @@ internal static class TorizoBellyPaletteFxProgramMechanicsDefinitionsConstants
     /// <summary>Frames from the first record through the next first record.</summary>
     public const int CycleFrames = 52;
 
+    /// <inheritdoc cref="TorizoBellyPaletteFxProgramMechanicsDefinitionsConstants"/>
     extension(TorizoBellyPaletteFxProgramMechanicsDefinitions)
     {
         /// <inheritdoc cref="TorizoBellyPaletteFxProgramMechanicsDefinitionsConstants.CycleFrames"/>
@@ -4603,6 +4942,7 @@ internal static class TorizoChozoOrbInstructionProgramDefinitionsConstants
     /// <summary><c>InstList_EnemyProjectile_TorizoChozoOrbs_Right</c> at $86:AB1D.</summary>
     public const ushort MovingRight = 0xab1d;
 
+    /// <inheritdoc cref="TorizoChozoOrbInstructionProgramDefinitionsConstants"/>
     extension(TorizoChozoOrbInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="TorizoChozoOrbInstructionProgramDefinitionsConstants.MovingRight"/>
@@ -4616,6 +4956,7 @@ internal static class TorizoFallingLeftInstructionProgramDefinitionsConstants
     /// <summary>First byte after the falling-left list, $AA:BC96.</summary>
     public const ushort End = 0xbc96;
 
+    /// <inheritdoc cref="TorizoFallingLeftInstructionProgramDefinitionsConstants"/>
     extension(TorizoFallingLeftInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="TorizoFallingLeftInstructionProgramDefinitionsConstants.End"/>
@@ -4626,8 +4967,10 @@ internal static class TorizoFallingLeftInstructionProgramDefinitionsConstants
 /// <summary>Cartridge values of <see cref="TorizoInstructionVramTransferDefinitions"/> that only verification reads.</summary>
 internal static class TorizoInstructionVramTransferDefinitionsConstants
 {
+    /// <summary>Bank containing the native Torizo instruction-list VRAM transfer data.</summary>
     public const byte Bank = 0xaa;
 
+    /// <inheritdoc cref="TorizoInstructionVramTransferDefinitionsConstants"/>
     extension(TorizoInstructionVramTransferDefinitions)
     {
         /// <inheritdoc cref="TorizoInstructionVramTransferDefinitionsConstants.Bank"/>
@@ -4638,8 +4981,10 @@ internal static class TorizoInstructionVramTransferDefinitionsConstants
 /// <summary>Cartridge values of <see cref="TorizoJumpBackInstructionProgramDefinitions"/> that only verification reads.</summary>
 internal static class TorizoJumpBackInstructionProgramDefinitionsConstants
 {
+    /// <summary>Exclusive end pointer for the Torizo jump-back program.</summary>
     public const ushort End = 0xc188;
 
+    /// <inheritdoc cref="TorizoJumpBackInstructionProgramDefinitionsConstants"/>
     extension(TorizoJumpBackInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="TorizoJumpBackInstructionProgramDefinitionsConstants.End"/>
@@ -4650,8 +4995,10 @@ internal static class TorizoJumpBackInstructionProgramDefinitionsConstants
 /// <summary>Cartridge values of <see cref="TorizoJumpBackLeftInstructionProgramDefinitions"/> that only verification reads.</summary>
 internal static class TorizoJumpBackLeftInstructionProgramDefinitionsConstants
 {
+    /// <summary>Exclusive end pointer for the Torizo jump-back-left program.</summary>
     public const ushort End = 0xbd0e;
 
+    /// <inheritdoc cref="TorizoJumpBackLeftInstructionProgramDefinitionsConstants"/>
     extension(TorizoJumpBackLeftInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="TorizoJumpBackLeftInstructionProgramDefinitionsConstants.End"/>
@@ -4665,6 +5012,7 @@ internal static class TourianEntranceStatueInstructionProgramDefinitionsConstant
     /// <summary>First unused visible-loop list immediately after the live programs.</summary>
     public const ushort AdjacentUnusedProgram = 0xd7bb;
 
+    /// <inheritdoc cref="TourianEntranceStatueInstructionProgramDefinitionsConstants"/>
     extension(TourianEntranceStatueInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="TourianEntranceStatueInstructionProgramDefinitionsConstants.AdjacentUnusedProgram"/>
@@ -4678,6 +5026,7 @@ internal static class TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefini
     /// <summary>The complete shared loop lasts 28 frames.</summary>
     public const int CycleFrames = 28;
 
+    /// <inheritdoc cref="TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitionsConstants"/>
     extension(TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions)
     {
         /// <inheritdoc cref="TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitionsConstants.CycleFrames"/>
@@ -4695,6 +5044,7 @@ internal static class TourianGlowPaletteFxProgramMechanicsDefinitionsConstants
     /// <summary>The live Tourian 2 definition.</summary>
     public const ushort LiveDefinitionPointer = 0xf7a1;
 
+    /// <inheritdoc cref="TourianGlowPaletteFxProgramMechanicsDefinitionsConstants"/>
     extension(TourianGlowPaletteFxProgramMechanicsDefinitions)
     {
         /// <inheritdoc cref="TourianGlowPaletteFxProgramMechanicsDefinitionsConstants.CloneDefinitionPointer"/>
@@ -4712,6 +5062,7 @@ internal static class TourianStatueGreyPaletteFxProgramMechanicsDefinitionsConst
     /// <summary>Handler frames from initial setup through the terminal delete.</summary>
     public const int FramesThroughDeletion = 1 + TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameCount * 8 + 1;
 
+    /// <inheritdoc cref="TourianStatueGreyPaletteFxProgramMechanicsDefinitionsConstants"/>
     extension(TourianStatueGreyPaletteFxProgramMechanicsDefinitions)
     {
         /// <inheritdoc cref="TourianStatueGreyPaletteFxProgramMechanicsDefinitionsConstants.FramesThroughDeletion"/>
@@ -4727,6 +5078,7 @@ internal static class TourianStatueRomDataConstants
     /// <summary>$86:BA94 ascending soul projectile definition.</summary>
     public const ushort Soul = 0xba94;
 
+    /// <inheritdoc cref="TourianStatueRomDataConstants"/>
     extension(TourianStatueRomData)
     {
         /// <inheritdoc cref="TourianStatueRomDataConstants.EyeGlow"/>
@@ -4744,6 +5096,7 @@ internal static class UnusedCinematicFadePaletteFxProgramMechanicsDefinitionsCon
     /// <summary>The unused palette-FX definition at <c>$8D:E1EC</c>.</summary>
     public const ushort DefinitionPointer = 0xe1ec;
 
+    /// <inheritdoc cref="UnusedCinematicFadePaletteFxProgramMechanicsDefinitionsConstants"/>
     extension(UnusedCinematicFadePaletteFxProgramMechanicsDefinitions)
     {
         /// <inheritdoc cref="UnusedCinematicFadePaletteFxProgramMechanicsDefinitionsConstants.CycleFrames"/>
@@ -4761,6 +5114,7 @@ internal static class UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefini
     /// <summary><c>PalFxDef_Crateria2</c> at <c>$8D:FFE5</c>.</summary>
     public const ushort DefinitionPointer = 0xffe5;
 
+    /// <inheritdoc cref="UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitionsConstants"/>
     extension(UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions)
     {
         /// <inheritdoc cref="UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitionsConstants.CycleFrames"/>
@@ -4776,6 +5130,7 @@ internal static class ViolaInstructionProgramDefinitionsConstants
     /// <summary>The retail-unused X-flipped Viola program at $A3:B62B.</summary>
     public const ushort UnusedXFlipped = 0xb62b;
 
+    /// <inheritdoc cref="ViolaInstructionProgramDefinitionsConstants"/>
     extension(ViolaInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="ViolaInstructionProgramDefinitionsConstants.UnusedXFlipped"/>
@@ -4791,6 +5146,7 @@ internal static class WorkRobotPaletteTimingDefinitionsConstants
     /// <summary>The negative wrap marker at $A8:CCFD following the six records.</summary>
     public const int NativeTerminatorAddress = 0xa8ccfd;
 
+    /// <inheritdoc cref="WorkRobotPaletteTimingDefinitionsConstants"/>
     extension(WorkRobotPaletteTimingDefinitions)
     {
         /// <inheritdoc cref="WorkRobotPaletteTimingDefinitionsConstants.NativeFirstTimerAddress"/>
@@ -4803,8 +5159,10 @@ internal static class WorkRobotPaletteTimingDefinitionsConstants
 /// <summary>Cartridge values of <see cref="WorkRobotVisualDefinitions"/> that only verification reads.</summary>
 internal static class WorkRobotVisualDefinitionsConstants
 {
+    /// <summary>Number of frames in the Work Robot visual sequence.</summary>
     public const int FrameCount = 27;
 
+    /// <inheritdoc cref="WorkRobotVisualDefinitionsConstants"/>
     extension(WorkRobotVisualDefinitions)
     {
         /// <inheritdoc cref="WorkRobotVisualDefinitionsConstants.FrameCount"/>
@@ -4818,6 +5176,7 @@ internal static class WreckedShipGhostInstructionProgramDefinitionsConstants
     /// <summary>The first non-program word after <c>InstList_Coven</c>, at $A8:9A9C.</summary>
     public const ushort FirstAdjacentConstant = 0x9a9c;
 
+    /// <inheritdoc cref="WreckedShipGhostInstructionProgramDefinitionsConstants"/>
     extension(WreckedShipGhostInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="WreckedShipGhostInstructionProgramDefinitionsConstants.FirstAdjacentConstant"/>
@@ -4833,6 +5192,7 @@ internal static class WreckedShipGreenLightPaletteFxProgramMechanicsDefinitionsC
     /// <summary>Alternate caller of the powered-light program at $8D:F771.</summary>
     public const ushort PoweredDefinitionAlternate = 0xf771;
 
+    /// <inheritdoc cref="WreckedShipGreenLightPaletteFxProgramMechanicsDefinitionsConstants"/>
     extension(WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions)
     {
         /// <inheritdoc cref="WreckedShipGreenLightPaletteFxProgramMechanicsDefinitionsConstants.PoweredDefinition"/>
@@ -4852,6 +5212,7 @@ internal static class WreckedShipTreadmillRomDataConstants
     /// <summary>Fourth 32-byte graphics frame at $87:8EC4.</summary>
     public const int Frame3Source = WreckedShipTreadmillRomData.Frame0Source + 3 * WreckedShipTreadmillRomData.TransferByteCount;
 
+    /// <inheritdoc cref="WreckedShipTreadmillRomDataConstants"/>
     extension(WreckedShipTreadmillRomData)
     {
         /// <inheritdoc cref="WreckedShipTreadmillRomDataConstants.Frame1Source"/>
@@ -4869,6 +5230,7 @@ internal static class YappingMawInstructionProgramDefinitionsConstants
     /// <summary><c>InstListPointers_YappingMaw</c>, adjacent selector data at $A8:A097.</summary>
     public const ushort AdjacentAttackSelectorTable = 0xa097;
 
+    /// <inheritdoc cref="YappingMawInstructionProgramDefinitionsConstants"/>
     extension(YappingMawInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="YappingMawInstructionProgramDefinitionsConstants.AdjacentAttackSelectorTable"/>
@@ -4884,6 +5246,7 @@ internal static class ZebesExplosionFinalePaletteFxProgramMechanicsDefinitionsCo
     /// <summary>The palette-FX definition at <c>$8D:E1CC</c>.</summary>
     public const ushort DefinitionPointer = 0xe1cc;
 
+    /// <inheritdoc cref="ZebesExplosionFinalePaletteFxProgramMechanicsDefinitionsConstants"/>
     extension(ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions)
     {
         /// <inheritdoc cref="ZebesExplosionFinalePaletteFxProgramMechanicsDefinitionsConstants.CycleFrames"/>
@@ -4899,6 +5262,7 @@ internal static class ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitio
     /// <summary>The palette-FX definition at <c>$8D:E1C8</c>.</summary>
     public const ushort DefinitionPointer = 0xe1c8;
 
+    /// <inheritdoc cref="ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitionsConstants"/>
     extension(ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions)
     {
         /// <inheritdoc cref="ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitionsConstants.DefinitionPointer"/>
@@ -4914,6 +5278,7 @@ internal static class ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitionsC
     /// <summary>The palette-FX definition at <c>$8D:E1E4</c>.</summary>
     public const ushort DefinitionPointer = 0xe1e4;
 
+    /// <inheritdoc cref="ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitionsConstants"/>
     extension(ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions)
     {
         /// <inheritdoc cref="ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitionsConstants.CycleFrames"/>
@@ -4933,6 +5298,7 @@ internal static class ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
     /// <summary>The wide-background definition at <c>$8D:E1E8</c>.</summary>
     public const ushort WideExplosionBackgroundDefinitionPointer = 0xe1e8;
 
+    /// <inheritdoc cref="ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitionsConstants"/>
     extension(ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions)
     {
         /// <inheritdoc cref="ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitionsConstants.CycleFrames"/>
@@ -4952,6 +5318,7 @@ internal static class ZebetiteInstructionProgramDefinitionsConstants
     /// <summary><c>InstList_Small_HealthLessThan200</c> at $A6:FE02.</summary>
     public const ushort SmallHealthBelow200 = 0xfe02;
 
+    /// <inheritdoc cref="ZebetiteInstructionProgramDefinitionsConstants"/>
     extension(ZebetiteInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="ZebetiteInstructionProgramDefinitionsConstants.FirstSpritemap"/>
@@ -4967,6 +5334,7 @@ internal static class ZeroInstructionProgramDefinitionsConstants
     /// <summary>The retail-unused alternate upside-right program at $A3:982B.</summary>
     public const ushort UnusedAlternateUpsideRight = 0x982b;
 
+    /// <inheritdoc cref="ZeroInstructionProgramDefinitionsConstants"/>
     extension(ZeroInstructionProgramDefinitions)
     {
         /// <inheritdoc cref="ZeroInstructionProgramDefinitionsConstants.UnusedAlternateUpsideRight"/>
@@ -4983,6 +5351,7 @@ internal static class ZoaAnimationDefinitionsConstants
     /// </summary>
     public const int ReferenceAddress = 0xa3b40d;
 
+    /// <inheritdoc cref="ZoaAnimationDefinitionsConstants"/>
     extension(ZoaAnimationDefinitions)
     {
         /// <inheritdoc cref="ZoaAnimationDefinitionsConstants.ReferenceAddress"/>
@@ -4996,6 +5365,7 @@ internal static class ZoaSpeedDefinitionsConstants
     /// <summary>$A3:B415, ZoaXSpeedTable: five whole/fraction records, including the trailing zero record.</summary>
     public const int ReferenceAddress = 0xa3b415;
 
+    /// <inheritdoc cref="ZoaSpeedDefinitionsConstants"/>
     extension(ZoaSpeedDefinitions)
     {
         /// <inheritdoc cref="ZoaSpeedDefinitionsConstants.ReferenceAddress"/>

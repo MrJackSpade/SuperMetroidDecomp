@@ -16,6 +16,7 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class RoomLayer3FxState
 {
+    /// <summary>Owns animated BG3 tile transfer timing for the selected room effect.</summary>
     private readonly RoomFxAnimatedTilesState animatedTiles = new();
     [NonSerialized] private RoomFxAnimatedTileAtlas? animatedTileArtwork;
     [NonSerialized] private RoomFxLayer3TilemapCatalog? layer3Tilemaps;
@@ -41,37 +42,60 @@ public sealed class RoomLayer3FxState
         get => paletteBlendColors;
         set => paletteBlendColors = value;
     }
+    /// <summary>Fractional vertical accumulator used by native packed liquid velocity.</summary>
     private ushort verticalAccumulator;
+    /// <summary>Fractional horizontal accumulator used by rain scroll progression.</summary>
     private ushort horizontalAccumulator;
+    /// <summary>Rain scroll increment selected from the room-load random word.</summary>
     private ushort horizontalVelocity;
+    /// <summary>Camera Y from the preceding effect update for delta calculations.</summary>
     private ushort previousCameraY;
+    /// <summary>Camera X from the preceding effect update for delta calculations.</summary>
     private ushort previousCameraX;
+    /// <summary>Subpixel component retained while the liquid surface moves.</summary>
     private ushort baseYSubposition;
+    /// <summary>Current index in the repeating tide waveform.</summary>
     private ushort tidePhase;
+    /// <summary>Fixed-point offset accumulated by native tide calculations.</summary>
     private int tideFixedOffset;
+    /// <summary>Water horizontal subscroll shared by the BG2 and BG3 waves.</summary>
     private ushort waterHorizontalSubscroll;
+    /// <summary>BG3 water-wave animation countdown.</summary>
     private ushort waterBg3WaveTimer;
+    /// <summary>BG2 water-wave animation countdown.</summary>
     private ushort waterBg2WaveTimer;
+    /// <summary>Current phase of the BG3 water waveform.</summary>
     private int waterBg3WavePhase;
+    /// <summary>Current phase of the BG2 water waveform.</summary>
     private int waterBg2WavePhase;
+    /// <summary>Screen-space Y used to align water's surface wave to the viewport.</summary>
     private short waterSurfaceScreenY;
+    /// <summary>Lava/acid BG2 wave countdown for the selected wave mode.</summary>
     private ushort lavaAcidBg2WaveTimer;
+    /// <summary>Current phase of the lava/acid BG2 waveform.</summary>
     private int lavaAcidBg2WavePhase;
     // The spawned BG3 HDMA object's first pass installs its pre-instruction;
     // subsequent passes execute it before the main-loop RNG call. The water lists at
     // $88:D856 have the same shape, so this latch serves every liquid; the serialized
     // name predates water's use of it.
+    /// <summary>Tracks the first HDMA pass that installs the liquid's pre-instruction.</summary>
     private bool lavaAcidBg3PreInstructionInstalled;
     // A liquid's scroll HDMA objects own every per-frame liquid update. A direct
     // HDMA-object deletion ($A9:8C0C) ends them until the next room load.
+    /// <summary>Stops HDMA-owned liquid updates after the room deletes their scroll objects.</summary>
     private bool liquidHdmaObjectsDeleted;
 
     /// <summary>HDMA-object variable two of the lava/acid BG3 object: the ambient sound timer.</summary>
     private ushort lavaSoundTimer;
+    /// <summary>Current phase of the native liquid rise state machine.</summary>
     private LiquidRisePhase liquidRisePhase;
+    /// <summary>Sound requests emitted by the current room-effect update.</summary>
     private readonly List<RoomFxSoundRequest> soundRequests = [];
+    /// <summary>Host power-bomb state consulted when deciding whether to suppress FX audio.</summary>
     [NonSerialized] private SamusPowerBombExplosionState? audioPowerBomb;
+    /// <summary>Countdown controlling the room earthquake sound cadence.</summary>
     private ushort earthquakeSoundTimer;
+    /// <summary>Index of the next room earthquake sound-sequence entry.</summary>
     private int earthquakeSoundSequenceIndex;
 
     /// <summary>The literal FX type byte selected from the active room/door record.</summary>
@@ -135,6 +159,7 @@ public sealed class RoomLayer3FxState
         ushort roomHeaderPointer = 0) =>
         LoadCore(bus, vram, cgram, fxPointer, doorPointer, randomNumber, roomHeaderPointer, null);
 
+    /// <summary>Loads the selected room record, using a supplied decoded record when available.</summary>
     private void LoadCore(ISnesAddressSpace bus, SnesVram vram, SnesCgram cgram,
         ushort fxPointer, ushort doorPointer, ushort randomNumber, ushort roomHeaderPointer,
         RoomFxRecordDefinition? suppliedDefinition)
@@ -470,6 +495,7 @@ public sealed class RoomLayer3FxState
             definition.DefaultLayerBlend, "LoadFxEntry");
     }
 
+    /// <summary>Applies the record-selected palette blend to the active CGRAM palette.</summary>
     private void ApplyPaletteBlend(ISnesAddressSpace bus, SnesCgram cgram, byte selection)
     {
         (paletteBlendColors ?? throw new InvalidOperationException(
@@ -533,6 +559,7 @@ public sealed class RoomLayer3FxState
         }
     }
 
+    /// <summary>Advances liquid rise and tide using the current native RNG and carry inputs.</summary>
     private void AdvanceLiquidMotion(ushort randomNumber, bool mainGameLoopCarry)
     {
         StepLiquidRise(randomNumber, mainGameLoopCarry);
@@ -748,18 +775,22 @@ public sealed class RoomLayer3FxState
             tidePhase + (sample >= 0 ? positiveDelta : negativeDelta)));
     }
 
+    /// <summary>Combines the base surface and accumulated tide offset into a native Y word.</summary>
     private ushort ComputeTidalYPosition()
     {
         uint baseFixed = ((uint)BaseYPosition << 16) | baseYSubposition;
         return unchecked((ushort)((baseFixed + (uint)tideFixedOffset) >> 16));
     }
 
+    /// <summary>Whether liquid option bits select the vertical lava/acid BG2 waveform.</summary>
     private bool UsesLavaAcidVerticalWave =>
         (LiquidOptions & RoomFxRomData.LavaAcid.VerticalBg2WaveOption) != 0;
 
+    /// <summary>Whether liquid option bits select the horizontal lava/acid BG2 waveform.</summary>
     private bool UsesLavaAcidHorizontalWave =>
         (LiquidOptions & RoomFxRomData.LavaAcid.HorizontalBg2WaveOption) != 0;
 
+    /// <summary>Maps the liquid surface's camera-relative position to the BG3 scroll register.</summary>
     private static ushort ComputeLiquidVerticalScroll(ushort surfaceY, ushort cameraY)
     {
         if (unchecked((short)surfaceY) < 0)
@@ -772,6 +803,7 @@ public sealed class RoomLayer3FxState
             : (ushort)0;
     }
 
+    /// <summary>Clears room-selected state and restores effect timers to their load defaults.</summary>
     private void Reset()
     {
         animatedTiles.Reset();
@@ -812,29 +844,47 @@ public sealed class RoomLayer3FxState
     /// </summary>
     public void DeleteLiquidHdmaObjects() => liquidHdmaObjectsDeleted = true;
 
+    /// <summary>Interprets a packed velocity word's high byte as signed whole-pixel velocity.</summary>
     private static short SignedHighByte(ushort value) => unchecked((sbyte)(value >> 8));
 
     /// <summary>The mutually exclusive callbacks installed in the native rise-function word.</summary>
     private enum LiquidRisePhase
     {
+        /// <summary>No liquid rise transition is active.</summary>
         Dormant,
+        /// <summary>The rise timer is counting down before movement begins.</summary>
         Waiting,
+        /// <summary>The liquid surface is moving toward its target height.</summary>
         Moving,
     }
 }
 
 /// <summary>One bank-$88 room-FX request for the global cartridge sound queue.</summary>
+/// <param name="SoundEffect">Native sound effect identifier submitted to the global queue.</param>
+/// <param name="MaximumQueued">Maximum number of matching requests retained by the sound queue.</param>
+/// <param name="SoundSuppressed">Whether host power-bomb activity suppresses this ambient sound request.</param>
 public readonly record struct RoomFxSoundRequest(
     SoundEffectId SoundEffect,
     byte MaximumQueued,
     bool SoundSuppressed = false);
 
 /// <summary>One bank-$88 request for the global room-shake type and timer bits.</summary>
+/// <param name="Type">Native room-shake type requested by the effect.</param>
+/// <param name="TimerBits">Timer bits ORed into the global earthquake timer.</param>
 public readonly record struct RoomFxEarthquakeRequest(
     ushort Type,
     ushort TimerBits);
 
 /// <summary>Immutable gameplay BG3 values published by one accepted NMI.</summary>
+/// <param name="Type">Selected room effect whose values are represented in this snapshot.</param>
+/// <param name="LayerBlendConfiguration">BG3 blend configuration published with the effect state.</param>
+/// <param name="HorizontalScroll">BG3 horizontal-scroll register value.</param>
+/// <param name="VerticalScroll">BG3 vertical-scroll register value.</param>
+/// <param name="CurrentYPosition">Liquid surface Y, or the native no-surface sentinel.</param>
+/// <param name="LiquidOptions">Native liquid option bits visible to gameplay consumers.</param>
+/// <param name="WaterBg3WavePhase">BG3 water waveform phase at the snapshot point.</param>
+/// <param name="WaterBg2WavePhase">BG2 water waveform phase at the snapshot point.</param>
+/// <param name="WaterSurfaceScreenY">Screen Y used to align water's surface waveform.</param>
 public readonly record struct RoomLayer3FxRenderSnapshot(
     RoomFxType Type,
     LayerBlendingConfiguration LayerBlendConfiguration,

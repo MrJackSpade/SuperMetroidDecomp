@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks BG3 source pixels, primitive defaults, edit retention, and complete VRAM uploads.</summary>
     private static void VerifyLookupStream1WorldBackground(ISnesAddressSpace rom)
     {
         byte[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => rom.ReadByte(address + i)).ToArray();
@@ -68,6 +69,7 @@ internal static partial class Program
         Console.WriteLine($"World BG3:6144 native pixels,{calculated} geometry/mask defaults,{stored.Count} exact source pixels/10footprints,96 independent tile edits/all-pixel inversion and actual full uploads pass.");
     }
 
+    /// <summary>Checks the native death atlas byte mapping and its queued page transfers.</summary>
     private static void VerifyLookupStream1DeathPixels(ISnesAddressSpace rom)
     {
         var pages = SamusSpecialSequenceRomData.Death.TileSegments;
@@ -125,6 +127,7 @@ internal static partial class Program
         Console.WriteLine($"Death atlas:5120 native bytes,151 exact source tiles,zero stock relation overrides,{edits.Count} independent source/derived-byte edits,canonical hashes and five actual uploads pass.");
     }
 
+    /// <summary>Checks escape Dachora instruction timing, displacement callbacks, and cartridge-read isolation.</summary>
     private static void VerifyLookupStream1EscapeDachoraCadence(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -180,6 +183,7 @@ internal static partial class Program
         }
         Console.WriteLine("Escape Dachora cadence:139 native records,463 uninterrupted ticks,two complete pacing round trips and full accelerating departure pass.");
     }
+    /// <summary>Checks Powamp instruction durations, visuals, and timing callbacks against ROM records.</summary>
     private static void VerifyLookupStream1PowampCadence(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -248,6 +252,7 @@ internal static partial class Program
         }
         Console.WriteLine("Powamp cadence:12 native holds,376 uninterrupted exposure ticks,both Goto/Sleep boundaries and native balloon centers pass.");
     }
+    /// <summary>Checks Metroid pulse animation timing and associated native palette behavior.</summary>
     private static void VerifyLookupStream1MetroidPulse(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -289,6 +294,7 @@ internal static partial class Program
         }
         Console.WriteLine("Metroid pulse:25 native records,320 actual exposure ticks,two callback boundaries and exact sound/RNG ownership pass.");
     }
+    /// <summary>Checks atmospheric animation cadence against cartridge instruction records.</summary>
     private static void VerifyLookupStream1AtmosphericCadence(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -309,6 +315,7 @@ internal static partial class Program
         }
         Suite(nameof(VerifyProductionAtmosphericCadence), () => VerifyProductionAtmosphericCadence(new SamusAtmosphericAnimationReadGuard(rom)));
     }
+    /// <summary>Checks timer update cadence against native timer behavior.</summary>
     private static void VerifyLookupStream1TimerCadence(ISnesAddressSpace rom)
     {
         var failures = new List<string>();
@@ -351,6 +358,7 @@ internal static partial class Program
         }
         Console.WriteLine("Timer cadence:128 native corrections,384 phase observations,128 actual countdown updates and exact124/125 expiration pass.");
     }
+    /// <summary>Checks timer glyph extraction and the digits used by the presentation.</summary>
     private static void VerifyLookupStream1TimerGlyphs(ISnesAddressSpace rom)
     {
         byte[] png = EscapeTimerTileAtlasExtractor.Extract(rom);
@@ -487,6 +495,10 @@ internal static partial class Program
         AssertTrue(Transfer(stock).SequenceEqual(native), "Stock timer remains immutable");
         Console.WriteLine("Timer font:836 direct outline pixels,312 shared/reflected pixels,275 retained fill positions/four deviations,173 calculated digit/T/I/E basis fill sites,1600 independent PNG edits,800 native planar bytes and exact two-page queue/VRAM uploads pass.");
     }
+    /// <summary>Checks X-ray body frame selection and can restrict work to either hash boundary.</summary>
+    /// <param name="rom">Cartridge address space supplying the native frame data.</param>
+    /// <param name="basisOnly">When true, checks only the inputs before final composition.</param>
+    /// <param name="finalOnly">When true, checks only the completed frame selection.</param>
     private static void VerifyLookupStream1XrayBodyFrames(ISnesAddressSpace rom, bool basisOnly = false, bool finalOnly = false)
     {
         int count = SamusBodyArtworkCatalog.FrameCount * 4;
@@ -730,6 +742,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => stock.Frame(0xfd, 0), "Original pose bound preserved");
         Console.WriteLine($"Body frames:{count - Stored(stock).Count} calculated/aliased components, exact remaining basis,{edits} independent component edits, actual pose selection and original canonical hashes pass.");
     }
+    /// <summary>Checks pose-to-body-set pointers and their native address relationships.</summary>
     private static void VerifyLookupStream1BodyPosePointers(ISnesAddressSpace rom)
     {
         ushort[] native = Enumerable.Range(0, 253).Select(pose => (ushort)(rom.ReadByte(0x92d94e + pose * 2) | rom.ReadByte(0x92d94f + pose * 2) << 8)).ToArray();
@@ -805,6 +818,7 @@ internal static partial class Program
         });
 
 
+    /// <summary>Checks native upper and lower body-set pointer tables and retained overrides.</summary>
     private static void VerifyLookupStream1BodySetPointers(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -862,6 +876,7 @@ internal static partial class Program
         Console.WriteLine("Body allocation pointers:24 native semantic identities, zero stock overrides,24 valid independent allocation edits, runtime addresses and exact canonical hashes pass.");
     }
 
+    /// <summary>Checks Samus graphics Y origins against native pose data.</summary>
     private static void VerifyLookupStream1BodyGraphicsOrigins(ISnesAddressSpace rom)
     {
         sbyte[] native = Enumerable.Range(0, 253).Select(pose => unchecked((sbyte)rom.ReadByte(0x91b62d + pose * 8))).ToArray();
@@ -906,6 +921,7 @@ internal static partial class Program
         Console.WriteLine("Body graphics origins:253 direct native/default values, zero stock overrides,253 independent visual edits isolated from physics and hash/bounds checks pass.");
     }
 
+    /// <summary>Checks drained Samus body geometry and transfer selection.</summary>
     private static void VerifyLookupStream1DrainedGeometry(ISnesAddressSpace rom)
     {
         string directory = Path.GetFullPath("csharp/test-temp/drained-geometry-native");
@@ -975,6 +991,7 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => SamusBodyPlacementDefinitions.TryDefaultDrainedByte(stock, 32, out _), "Default drained bound");
         Console.WriteLine("Drained geometry:32 native defaults, zero stock fallbacks,32 independent edits,22 actual draws and independent empty/pointer/pixel/shifted-art checks pass.");
     }
+    /// <summary>Checks posture-specific Samus geometry offsets against cartridge data.</summary>
     private static void VerifyLookupStream1PostureGeometry(ISnesAddressSpace rom)
     {
         string directory = Path.GetFullPath("csharp/test-temp/posture-geometry-native");
@@ -1036,6 +1053,7 @@ internal static partial class Program
         AssertTrue(Stored(shifted) > 0, "Edited source geometry stores explicit independent differences");
         Console.WriteLine("Posture geometry:24 direct native defaults, zero stock fallbacks,24 offset edits,12 actual draw cases and empty/pointer/pixel/shifted-art independence pass.");
     }
+    /// <summary>Checks body-facing offset selection for the native Samus poses.</summary>
     private static void VerifyLookupStream1BodyFacingOffsets(ISnesAddressSpace rom)
     {
         ushort[] landing = Enumerable.Range(0, 17).Select(index => (ushort)rom.ReadByte(0x908d28 + index)).ToArray();
@@ -1116,6 +1134,7 @@ internal static partial class Program
         Console.WriteLine("Body facing offsets:17 direct landing defaults with zero overrides,24 posture bytes,41 independent edits,16 unaligned windows and content identities pass.");
     }
 
+    /// <summary>Checks upper and lower OAM base selection from native pose tables.</summary>
     private static void VerifyLookupStream1BodyOamBases(ISnesAddressSpace rom)
     {
         ushort[] ReadWords(int address, int count) => Enumerable.Range(0, count)
@@ -1193,6 +1212,7 @@ internal static partial class Program
         AssertTrue(stock.TopBases.SequenceEqual(top) && stock.BottomBases.SequenceEqual(bottom), "Stock bases immutable after edits");
         Console.WriteLine("Samus OAM bases:506 native named cases, zero stock overrides,506 independent edits, actual supplied payload selection, exact canonical hashes and original bounds pass.");
     }
+    /// <summary>Checks Samus hurt-palette blending and its native color values.</summary>
     private static void VerifyLookupStream1HurtBlend(ISnesAddressSpace rom)
     {
         ushort[] native = Enumerable.Range(0, 32).Select(index =>
@@ -1247,6 +1267,7 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(SamusHurtColorVariant.Intro, index), "Color bounds preserved");
         Console.WriteLine("Hurt/intro:32 native colors,30 direct relations,zero stock shade samples,zero stock overrides,96 independent RGB edits and exact exception membership pass.");
     }
+    /// <summary>Checks non-beam arm-cannon instruction program layout against ROM data.</summary>
     private static void VerifyLookupStream1NonBeamProgramLayout(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1290,6 +1311,7 @@ internal static partial class Program
         Console.WriteLine("NonBeam projectile programs:214 direct native mechanics words, exact domain and zero stored fallbacks pass; selected holds and phase counts remain required.");
     }
 
+    /// <summary>Checks charged-shot arm-cannon instruction records and timing.</summary>
     private static void VerifyLookupStream1ChargedProgramLayout(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1330,6 +1352,7 @@ internal static partial class Program
         Console.WriteLine("Charged projectile programs:1078 direct native mechanics words, exact domain and zero stored fallbacks pass; holds, phase counts and loop-entry choices remain required.");
     }
 
+    /// <summary>Checks Plasma beam instruction records and native sequence layout.</summary>
     private static void VerifyLookupStream1PlasmaProgramLayout(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1370,6 +1393,7 @@ internal static partial class Program
         Console.WriteLine("Plasma projectile programs:104 direct native mechanics words, exact domain and zero stored fallbacks pass; holds1/15/2 and cyclic phase count8 remain required.");
     }
 
+    /// <summary>Checks Spazer beam instruction records and native sequence layout.</summary>
     private static void VerifyLookupStream1SpazerProgramLayout(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1410,6 +1434,7 @@ internal static partial class Program
         Console.WriteLine("Spazer projectile programs:240 direct native mechanics words, exact domain and zero stored fallbacks pass; hold2 and phase counts3/10 remain required.");
     }
 
+    /// <summary>Checks Wave and Ice beam instruction records and native sequence layout.</summary>
     private static void VerifyLookupStream1WaveIceProgramLayout(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1450,6 +1475,7 @@ internal static partial class Program
         Console.WriteLine("Wave/Ice projectile programs:148 direct native mechanics words, exact domain and zero stored fallbacks pass; holds4/1 and phase counts16/4 remain required.");
     }
 
+    /// <summary>Checks power beam instruction records and native sequence layout.</summary>
     private static void VerifyLookupStream1PowerProgramLayout(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1482,6 +1508,7 @@ internal static partial class Program
         Console.WriteLine("Power projectile programs:32 direct native mechanics words, eight self-loop targets, exact domain and zero stored Power fallbacks pass; hold15 remains required.");
     }
 
+    /// <summary>Checks cannon pose selection for defined Samus firing poses.</summary>
     private static void VerifyLookupStream1CannonPoses(ISnesAddressSpace rom)
     {
         using var directory = new TestTempDirectory("map-catalog");
@@ -1534,6 +1561,7 @@ internal static partial class Program
         Console.WriteLine("Cannon poses:253 direct native defaults, zero stock overrides,253 independent arbitrary pointer edits/hashes and exact FD-FF rejection pass.");
     }
 
+    /// <summary>Checks that animation aliases resolve through the imported cartridge address space.</summary>
     private static void VerifyLookupStream1AnimationAliases(CartridgeImportAddressSpace bus)
     {
         for (int pose = 0xFD; pose <= 0xFF; pose++)
@@ -1553,6 +1581,7 @@ internal static partial class Program
         Console.WriteLine("Animation aliases: three original running-delay words and six live WRAM mutations match.");
     }
 
+    /// <summary>Checks HUD posture changes against Samus's native posture state.</summary>
     private static void VerifyLookupStream1HudPosture(ISnesAddressSpace rom)
     {
         for (int pose = 0; pose < 256; pose++)
@@ -1573,6 +1602,7 @@ internal static partial class Program
         Console.WriteLine("HUD posture: twelve real flags plus207 bounded instruction bytes, all512 admission branches and rejection domain match native.");
     }
 
+    /// <summary>Checks escape Dachora program words and selected movement branches.</summary>
     private static void VerifyLookupStream1EscapeDachoraPrograms(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(0xb30000 | address) | rom.ReadByte(0xb30000 | address + 1) << 8);
@@ -1615,6 +1645,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => EscapeDachoraInstructionProgramDefinitions.ReadMechanicsWord(invalid), "Dachora odd/adjacent control pointers reject");
         Console.WriteLine("Escape Dachora:119 controls/43 visual operands match independent native traversal; exact branches/order/domains pass; selected holds and acceleration cadence remain required.");
     }
+    /// <summary>Checks Powamp program words, branch targets, and loop structure.</summary>
     private static void VerifyLookupStream1PowampPrograms(ISnesAddressSpace rom)
     {
         ushort Word(int pointer) => (ushort)(rom.ReadByte(0xa80000 | pointer) | rom.ReadByte(0xa80000 | pointer + 1) << 8);
@@ -1657,6 +1688,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => PowampInstructionProgramDefinitions.ReadMechanicsWord(invalid), "Powamp non-word/adjacent control pointer rejects");
         Console.WriteLine("Powamp program layout:18 native controls,12 visual operands, exact order/domains/byte classification pass; five chosen timing inputs remain required.");
     }
+    /// <summary>Checks timer graphics layout and native tile allocation.</summary>
     private static void VerifyLookupStream1TimerLayout(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1757,6 +1789,7 @@ internal static partial class Program
             }
         }
     }
+    /// <summary>Checks flare OAM placement and the address-space reads permitted by rendering.</summary>
     private static void VerifyLookupStream1FlarePlacement(ISnesAddressSpace rom)
     {
         short Word(int address) => unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
@@ -1850,10 +1883,12 @@ internal static partial class Program
         }
         Console.WriteLine("Beam/Grapple flare origins:128 direct native words, zero stock overrides,128 independent edits, bounded aliases and four actual OAM fixtures pass.");
     }
+    /// <summary>Fails verification if flare rendering attempts to read cartridge memory.</summary>
     private sealed class LookupFlareForbiddenBus : ISnesAddressSpace
     {
         void ISnesAddressSpace.WriteByte(int address, byte value) => throw new InvalidOperationException($"Unexpected flare write {address:X6}");
     }
+    /// <summary>Runs the lookup-stream verification checks over the supplied cartridge data.</summary>
     private static void VerifyLookupStream1(ISnesAddressSpace rom)
     {
         for (int pose = 0; pose <= byte.MaxValue; pose++)
@@ -1909,6 +1944,7 @@ internal static partial class Program
         foreach (int invalid in new[] { int.MinValue, 0x90c253, 0x90c28f, 0x90c290, 0x90c292, int.MaxValue })
             AssertThrows<InvalidDataException>(() => SamusProjectileCooldownDefinitions.ReadByte(invalid), "stream1 invalid cooldown address");
     }
+    /// <summary>Checks Powamp movement and balloon alignment across its update sequence.</summary>
     private static void VerifyLookupStream1PowampMotion(ISnesAddressSpace rom)
     {
         short Word(int address) => unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
@@ -1935,6 +1971,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => PowampMotionDefinitions.SpikeYAcceleration(invalid), "Powamp Y direction domain");
         }
     }
+    /// <summary>Checks selected enemy movement updates against their native movement data.</summary>
     private static void VerifyLookupStream1EnemyMovement(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1958,6 +1995,7 @@ internal static partial class Program
         foreach (ushort invalid in new ushort[] { 1, 19, 20, ushort.MaxValue })
             AssertThrows<InvalidDataException>(() => CacatacProjectileDefinitions.InstructionList((CacatacSpikeDirection)invalid), "stream1 Cacatac invalid direction selector");
     }
+    /// <summary>Checks enemy animation durations and instruction cursor progression.</summary>
     private static void VerifyLookupStream1CadencePrograms(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -2018,6 +2056,7 @@ internal static partial class Program
                 AssertThrows<IndexOutOfRangeException>(() => presentation(invalid), "stream1 presentation enumeration bounds");
         }
     }
+    /// <summary>Checks projectile movement vectors and update timing against cartridge values.</summary>
     private static void VerifyLookupStream1ProjectileMotion(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -2038,6 +2077,7 @@ internal static partial class Program
             AssertEqual(unchecked((short)(direction is 0 or 1 or 8 or 9 ? -speed : direction is 3 or 4 or 5 or 6 ? speed : 0)), slot.YVelocity, "stream1 actual initializer Y preserves adjacent missile-data overread");
         }
     }
+    /// <summary>Checks selection of native lookup-stream records from relevant state inputs.</summary>
     private static void VerifyLookupStream1Selection(ISnesAddressSpace rom)
     {
         for (int address = 0x9383c1; address < 0x9386db; address += 2)
@@ -2052,6 +2092,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => SamusProjectileSelectionDefinitions.ReadWord(invalid),
                 "stream1 selector exact address-domain rejection");
     }
+    /// <summary>Checks enemy launch role assignment and the selected definitions.</summary>
     private static void VerifyLookupStream1LaunchRoles(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -2090,6 +2131,7 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => EscapeEtecoonDefinitions.Initialization(invalid), "Etecoon invalid role rejection");
         }
     }
+    /// <summary>Checks spark and spike instruction programs against native words.</summary>
     private static void VerifyLookupStream1SparkSpikePrograms(ISnesAddressSpace rom)
     {
         Check(0xf353, 0xf391, 17, 14,
@@ -2140,6 +2182,7 @@ internal static partial class Program
                 AssertTrue(!owns(invalid), "spark/spike outside byte-domain rejection");
         }
     }
+    /// <summary>Checks common enemy frame identities and their referenced artwork.</summary>
     private static void VerifyLookupStream1CommonFrames(ISnesAddressSpace rom)
     {
         byte[] originalBanks = [0xa0, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 0xaa, 0xb2, 0xb3];
@@ -2162,6 +2205,7 @@ internal static partial class Program
         foreach (int invalid in new[] { int.MinValue, -1, 1, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => CommonEnemyProjectileInstructionProgramDefinitionsTooling.MechanicsWord(invalid), "shared delete enumeration bounds");
     }
+    /// <summary>Checks Hibashi and dragon fireball definitions and motion records.</summary>
     private static void VerifyLookupStream1HibashiDragonFireball(ISnesAddressSpace rom)
     {
         Check(0x860000, 0xb4bf, 0xb4ef, 16, 8,
@@ -2211,6 +2255,7 @@ internal static partial class Program
                 AssertTrue(!owns(invalid), "Hibashi/Dragon external byte domain");
         }
     }
+    /// <summary>Checks Sciser animation and movement definitions used by the enemy system.</summary>
     private static void VerifyLookupStream1Sciser(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -2259,6 +2304,7 @@ internal static partial class Program
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => SciserInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid), "Sciser visual index domain");
     }
+    /// <summary>Checks native enemy death animation and effect definitions.</summary>
     private static void VerifyLookupStream1DeathDefinitions(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -2285,6 +2331,7 @@ internal static partial class Program
         AssertEqual(initialFrames.Length, frameIndex, "death frame enumerable count");
         AssertEqual(segments.Length, segmentIndex, "death transfer enumerable count");
     }
+    /// <summary>Checks Nuclear Waffle program records and their linked visuals.</summary>
     private static void VerifyLookupStream1NuclearWaffle(ISnesAddressSpace rom)
     {
         Confirm(0xa6, 0x9490, NuclearWaffleInstructionProgramDefinitions.ReadMechanicsWord,
@@ -2326,6 +2373,7 @@ internal static partial class Program
                 AssertThrows<IndexOutOfRangeException>(() => visual(invalid), "Nuclear Waffle visual index bounds");
         }
     }
+    /// <summary>Checks installed visual catalog entries against selected ROM data.</summary>
     private static void VerifyLookupStream1VisualCatalogs(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -2375,6 +2423,7 @@ internal static partial class Program
             AssertEqual((ushort)(index is 1 or 2 or 4 or 5 ? 1 : 8), Word(0xa20000 | dragon[index].Pointer), "native Dragon record size");
         }
     }
+    /// <summary>Checks Owtch and Stoke definitions and their animation records.</summary>
     private static void VerifyLookupStream1OwtchStoke(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -2414,6 +2463,7 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => OwtchInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid), "Owtch visual bounds");
         AssertThrows<InvalidDataException>(() => OwtchStokeVisualDefinitions.FrameAt(0, 0xa3af), "unknown visual owner rejected");
     }
+    /// <summary>Checks Puyo and Quota animation definitions and selected behavior.</summary>
     private static void VerifyLookupStream1PuyoAndQuota(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -2467,6 +2517,7 @@ internal static partial class Program
         foreach (int invalid in new[] { int.MinValue, -1, 17, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => PuyoInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid), "Puyo visual bounds");
     }
+    /// <summary>Checks Metroid visual and instruction record layout from cartridge data.</summary>
     private static void VerifyLookupStream1MetroidLayout(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -2510,6 +2561,7 @@ internal static partial class Program
         foreach (int invalid in new[] { int.MinValue, -1, 25, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => MetroidInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid), "Metroid visual index bounds");
     }
+    /// <summary>Checks ROM address domains used by Samus policy definitions.</summary>
     private static void VerifyLookupStream1SamusPolicyDomains(ISnesAddressSpace rom)
     {
         for (int pose = 0; pose <= byte.MaxValue; pose++)
@@ -2534,6 +2586,7 @@ internal static partial class Program
         foreach (var (header, room) in new[] { (0x91f8, 0), (0x93fe, 5), (0x948c, 7), (0x94fd, 9), (0x9552, 10), (0x957d, 11), (0x95a8, 12), (0x95ff, 14) })
             AssertEqual((byte)room, rom.ReadByte(0x8f0000 | header), "native atmospheric room header identity");
     }
+    /// <summary>Checks arm-cannon tile source addresses and extracted graphics payloads.</summary>
     private static void VerifyLookupStream1ArmCannonTileSources(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -2660,6 +2713,7 @@ internal static partial class Program
             }
         }
     }
+    /// <summary>Checks native controls that select cannon drawing behavior.</summary>
     private static void VerifyLookupStream1CannonDrawingControls(ISnesAddressSpace rom)
     {
         using var directory = new TestTempDirectory("map-catalog");
@@ -2824,6 +2878,7 @@ internal static partial class Program
         Console.WriteLine("Cannon drawing:130 native controls,24 cost aliases,290 shared coordinates,29 reflected origins,135 exact basis bytes and608 independent edits pass.");
     }
 
+    /// <summary>Checks atmospheric enemy attributes retained from native records.</summary>
     private static void VerifyLookupStream1AtmosphericAttributes(ISnesAddressSpace rom)
     {
         ushort[] Native(int address) => Enumerable.Range(0, 4).Select(frame =>
@@ -2870,6 +2925,7 @@ internal static partial class Program
         Console.WriteLine("Atmospheric attributes: eight direct native defaults, exact OBJ field basis, zero stock overrides, eight full-word edits and canonical identities pass.");
     }
 
+    /// <summary>Checks escape text graphics and source data used by the presentation.</summary>
     private static void VerifyLookupStream1EscapeText(ISnesAddressSpace rom)
     {
         byte[] json = EscapeTypewriterExtractor.Extract(rom);
@@ -2967,6 +3023,7 @@ internal static partial class Program
         Console.WriteLine($"Escape text: five direct native lines, zero stock overrides, independent edits/line counts and {totalFrames} actual native-oracle frames pass.");
     }
 
+    /// <summary>Checks visor palette colors and their native source entries.</summary>
     private static void VerifyLookupStream1VisorColors(ISnesAddressSpace rom)
     {
         var document = System.Text.Json.JsonSerializer.Deserialize<SamusVisorColorDocument>(
@@ -3006,6 +3063,7 @@ internal static partial class Program
         Console.WriteLine("Visor: six direct native defaults, exact two-color/step basis, zero stock overrides and six independent edits pass.");
     }
 
+    /// <summary>Checks world-map foreground artwork extraction and composition.</summary>
     private static void VerifyLookupStream1WorldForeground(ISnesAddressSpace rom)
     {
         byte[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => rom.ReadByte(address + i)).ToArray();
@@ -3074,6 +3132,7 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => WorldMapTileDefinitions.ForegroundSourcePixel(pixels.Length), "Foreground upper bound");
         Console.WriteLine($"World foreground:{pixels.Length} native pixels,{calculated} exact source relations,{stored.Count} source pixels/{masks.Count} masks/{fontDifferences} font differences,{edits.Count} independent tile/source edits/full inversion/full uploads pass.");
     }
+    /// <summary>Checks projectile radius tables and their native memory layout.</summary>
     private static void VerifyLookupStream1ProjectileRadiusLayout(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -3173,6 +3232,7 @@ internal static partial class Program
         AssertEqual((byte)0, SamusProjectileRadiusDefinitions.ReadByte(SamusProjectileRadiusDefinitions.MurderBeamRadiusAddress + 1), "Separate bounded MurderBeam Y contract preserved");
         Console.WriteLine($"Projectile radii:805 native calculated records/1610 bytes,{interpreted} actual projectile/{bombInterpreted} bomb records with zero reads and independent art edits; exact domain/order/bounds pass.");
     }
+    /// <summary>Checks projectile instruction program words and control flow.</summary>
     private static void VerifyLookupStream1ProjectilePrograms(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -3277,6 +3337,7 @@ internal static partial class Program
         }
         Console.WriteLine($"Projectile programs:1816 native words,805 records,105 complete programs,{actualTicks} exact ticks per owner,{loops} loop returns/{deletions} terminal deletions, zero runtime reads; original domain preserved.");
     }
+    /// <summary>Checks cannon OAM placement against native pose and graphics offsets.</summary>
     private static void VerifyLookupStream1CannonPlacement(ISnesAddressSpace rom)
     {
         using var directory = new TestTempDirectory("map-catalog");
@@ -3367,6 +3428,7 @@ internal static partial class Program
         Console.WriteLine($"Cannon placement:135 direct body/tail defaults,608 native bytes/independent edits,zero stock fallbacks,canonical hashes,independent empty/zero/shifted body art and{draws} actual OAM draws pass.");
     }
 
+    /// <summary>Checks Samus OAM selector identities, aliases, and renderer memory selection.</summary>
     private static void VerifyLookupStream1OamPointers(ISnesAddressSpace rom)
     {
         using var directory = new TestTempDirectory("map-catalog");
@@ -3436,6 +3498,7 @@ internal static partial class Program
         Console.WriteLine($"Samus OAM pointers:2096 native selectors, {aliases} exact aliases/{directPointers} direct calculations/{stored.Count} retained composition inputs,2096 independent edits,empty OAM,actual identity/WRAM selection and domain checks pass.");
     }
 
+    /// <summary>Checks native body pixels, source relationships, and catalog content hashes.</summary>
     private static void VerifyLookupStream1BodyPixels(ISnesAddressSpace rom)
     {
         using var directory = new TestTempDirectory("map-catalog");
@@ -3521,6 +3584,7 @@ internal static partial class Program
         AssertEqual(CanonicalBodyHash(body, body.TopSetPointers.ToArray(), body.BottomSetPointers.ToArray(), body.PosePointers.ToArray(), body.Frames.ToArray(), top, cableEdits), cableBody.ContentIdentity, "Exact cable edit hash");
         Console.WriteLine($"Body pixels: {bytes} native bytes, {blankBytes} blank and {sharedBytes} shared bytes, exact {retained} selected inputs, nine individual upper edits plus nine simultaneous distinct cable edits, {diagnosticBytes} drawn diagnostic bytes, {circleBits} circular transparency bits and canonical hashes pass.");
     }
+    /// <summary>Checks native body transfer records, split sizes, and VRAM DMA results.</summary>
     private static void VerifyLookupStream1BodyTransfers(ISnesAddressSpace rom)
     {
         using var directory = new TestTempDirectory("map-catalog");

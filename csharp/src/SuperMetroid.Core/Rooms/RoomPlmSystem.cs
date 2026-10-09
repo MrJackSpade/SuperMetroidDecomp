@@ -22,41 +22,73 @@ namespace SuperMetroid.Core.Rooms;
 /// </remarks>
 public sealed partial class RoomPlmSystem
 {
+    /// <summary>Physical PLM slot capacity matching native word-indexed slots $00 through $4E.</summary>
     private const int SlotCount = 40;
 
+    /// <summary>Room-owned physical PLM slots, processed in native descending allocation order.</summary>
     private readonly PlmSlot[] _slots = Enumerable
         .Range(0, SlotCount)
         .Select(_ => new PlmSlot())
         .ToArray();
+    /// <summary>Sound-library requests emitted during the current handler pass.</summary>
     private readonly List<PlmSoundRequest> _soundRequests = new();
+    /// <summary>BG1 block updates queued by PLM draw instructions in the current pass.</summary>
     private readonly List<PlmTilemapUpdate> _tilemapUpdates = new();
+    /// <summary>Area context used by area-dependent PLM behavior.</summary>
     private AreaId _activeAreaIndex = AreaId.Crateria;
+    /// <summary>Optional visual overrides for shot-block draws; excluded from serialized room state.</summary>
     [NonSerialized] private RoomPlmShotBlockVisualCatalog? shotBlockVisuals;
+    /// <summary>Optional visual overrides for grapple-block draws.</summary>
     [NonSerialized] private RoomPlmGrappleBlockVisualCatalog? grappleBlockVisuals;
+    /// <summary>Optional visual overrides for station draws.</summary>
     [NonSerialized] private RoomPlmStationVisualCatalog? stationVisuals;
+    /// <summary>Optional visual overrides for blue-door draws.</summary>
     [NonSerialized] private RoomPlmBlueDoorVisualCatalog? blueDoorVisuals;
+    /// <summary>Optional visual overrides for colored-door draws.</summary>
     [NonSerialized] private RoomPlmColoredDoorVisualCatalog? coloredDoorVisuals;
+    /// <summary>Optional visual overrides for grey-door draws.</summary>
     [NonSerialized] private RoomPlmGreyDoorVisualCatalog? greyDoorVisuals;
+    /// <summary>Optional visual overrides for eye-door draws.</summary>
     [NonSerialized] private RoomPlmEyeDoorVisualCatalog? eyeDoorVisuals;
+    /// <summary>Optional visual overrides for Mother Brain glass draws.</summary>
     [NonSerialized] private RoomPlmMotherBrainGlassVisualCatalog? motherBrainGlassVisuals;
+    /// <summary>Optional visual overrides for n00b-tube draws.</summary>
     [NonSerialized] private RoomPlmNoobTubeVisualCatalog? noobTubeVisuals;
+    /// <summary>Optional visual overrides for downward-gate draws.</summary>
     [NonSerialized] private RoomPlmDownwardGateVisualCatalog? downwardGateVisuals;
+    /// <summary>Optional visual overrides for elevator-platform draws.</summary>
     [NonSerialized] private RoomPlmElevatorPlatformVisualCatalog? elevatorPlatformVisuals;
+    /// <summary>Optional visual overrides for Mother Brain escape-gate draws.</summary>
     [NonSerialized] private RoomPlmEscapeGateVisualCatalog? escapeGateVisuals;
+    /// <summary>Optional visual overrides for Bomb Torizo hand draws.</summary>
     [NonSerialized] private RoomPlmBombTorizoHandVisualCatalog? bombTorizoHandVisuals;
+    /// <summary>Optional visual overrides for Draygon cannon draws.</summary>
     [NonSerialized] private RoomPlmDraygonCannonVisualCatalog? draygonCannonVisuals;
+    /// <summary>Optional visual overrides for Chozo statue draws.</summary>
     [NonSerialized] private RoomPlmChozoStatueVisualCatalog? chozoStatueVisuals;
+    /// <summary>Optional visual overrides for linked-block restoration draws.</summary>
     [NonSerialized] private RoomPlmLinkedRestoreVisualCatalog? linkedRestoreVisuals;
+    /// <summary>Optional visual overrides for Tourian access-floor draws.</summary>
     [NonSerialized] private RoomPlmTourianAccessVisualCatalog? tourianAccessVisuals;
+    /// <summary>Optional visual overrides for Speed Booster block draws.</summary>
     [NonSerialized] private RoomPlmSpeedBoosterVisualCatalog? speedBoosterVisuals;
+    /// <summary>Optional visual overrides for Maridia elevatube draws.</summary>
     [NonSerialized] private RoomPlmMaridiaElevatubeVisualCatalog? maridiaElevatubeVisuals;
+    /// <summary>Optional visual overrides for Spore Spawn ceiling draws.</summary>
     [NonSerialized] private RoomPlmSporeSpawnCeilingVisualCatalog? sporeSpawnCeilingVisuals;
+    /// <summary>Optional visual overrides for Samus-eater plant draws.</summary>
     [NonSerialized] private RoomPlmSamusEaterVisualCatalog? samusEaterVisuals;
+    /// <summary>Optional visual overrides for Botwoon wall draws.</summary>
     [NonSerialized] private RoomPlmBotwoonWallVisualCatalog? botwoonWallVisuals;
+    /// <summary>Optional visual overrides for Kraid PLM draws.</summary>
     [NonSerialized] private RoomPlmKraidVisualCatalog? kraidVisuals;
+    /// <summary>Optional visual overrides for Crocomire arena draws.</summary>
     [NonSerialized] private RoomPlmCrocomireVisualCatalog? crocomireVisuals;
+    /// <summary>Optional visual overrides for Mother Brain fake-death room draws.</summary>
     [NonSerialized] private RoomPlmMotherBrainFakeDeathVisualCatalog? motherBrainFakeDeathVisuals;
+    /// <summary>Optional visual overrides for collectible draws.</summary>
     [NonSerialized] private RoomPlmCollectibleVisualCatalog? collectibleVisuals;
+    /// <summary>Optional replacement item tiles and palette data for dynamic collectibles.</summary>
     [NonSerialized] private RoomPlmDynamicCollectibleArtCatalog? dynamicCollectibleArt;
 
     /// <summary>Nonserialized visual-only shot-block selection; native collision words remain compiled.</summary>
@@ -1282,6 +1314,7 @@ public sealed partial class RoomPlmSystem
         return _tilemapUpdates;
     }
 
+    /// <summary>Runs a PLM's compiled bank-$84 instructions until a timer boundary or a supported state transition.</summary>
     private void ExecuteInstructionStream(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -1588,6 +1621,7 @@ public sealed partial class RoomPlmSystem
         throw new InvalidDataException("Movement-owned PLM instruction chain did not reach a timer.");
     }
 
+    /// <summary>Dispatches a draw list for a block-indexed PLM without a separate header identity.</summary>
     private void DrawPlmInstruction(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -1600,6 +1634,7 @@ public sealed partial class RoomPlmSystem
         DrawPlmInstruction(bus, level, streamer, 0, blockIndex, drawPointer,
             layer1XPosition, layer1YPosition, bg1XOffset);
 
+    /// <summary>Executes the selected native or WRAM-authored draw list at the PLM origin.</summary>
     private void DrawPlmInstruction(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -2058,6 +2093,7 @@ public sealed partial class RoomPlmSystem
             $"PLM draw list ${drawPointer:X4} did not reach its signed-offset terminator.");
     }
 
+    /// <summary>Applies compiled physical block words and optional visual overrides for a draw-list definition.</summary>
     private void DrawCompiledBlockInstruction(
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
@@ -2139,6 +2175,7 @@ public sealed partial class RoomPlmSystem
         }
     }
 
+    /// <summary>Resolves a draw coordinate through the PLM-safe room bounds before updating the block.</summary>
     private void DrawPlmWordAt(
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
@@ -2167,6 +2204,7 @@ public sealed partial class RoomPlmSystem
             layer1XPosition, layer1YPosition, bg1XOffset, visualWord);
     }
 
+    /// <summary>Stores a physical PLM level word and queues its rendered tile update when it intersects native draw bounds.</summary>
     private void DrawLevelWord(
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
@@ -2193,6 +2231,7 @@ public sealed partial class RoomPlmSystem
         _tilemapUpdates.Add(streamer.BuildPlmLevelBlockUpdate(blockIndex, bg1XOffset));
     }
 
+    /// <summary>Tests whether a room block lies in the cartridge's BG1 PLM draw window.</summary>
     private static bool IsInsideNativeDrawWindow(
         int blockX,
         int blockY,
@@ -2210,9 +2249,11 @@ public sealed partial class RoomPlmSystem
         return blockX >= leftBlock && blockX < leftBlock + 17;
     }
 
+    /// <summary>Reads a little-endian word from a bank-$84 offset mapped to live WRAM.</summary>
     private static ushort ReadPlmWorkRamWord(ISnesMutableMemory memory, ushort offset) =>
         SnesWorkRam.ReadWord(memory, (int)new SnesAddress(RoomPlmMemoryLayout.ProgramBank, offset));
 
+    /// <summary>Reads one byte from a bank-$84 offset mapped to live WRAM.</summary>
     private static byte ReadPlmWorkRamByte(ISnesMutableMemory memory, ushort offset) =>
         memory.ReadWorkRamByte((int)new SnesAddress(RoomPlmMemoryLayout.ProgramBank, offset));
 
@@ -2220,6 +2261,7 @@ public sealed partial class RoomPlmSystem
     // compiled family claims only its own exact control addresses; all other bank-$84
     // identities must have compiled mechanics.
     // A low-window wrap may still read live WRAM; no branch can read cartridge bytes.
+    /// <summary>Reads a compiled instruction word, allowing live WRAM only for low-window wrapped addresses.</summary>
     private static ushort ReadProgramWord(ISnesAddressSpace bus, ushort address) =>
         RoomPlmProgramDefinitions.TryReadWord(address, out ushort value)
             ? value
@@ -2229,6 +2271,7 @@ public sealed partial class RoomPlmSystem
                 : throw new InvalidDataException(
                     $"PLM program word $84:{address:X4} has no compiled definition.");
 
+    /// <summary>Reads a compiled instruction byte, allowing live WRAM only for low-window wrapped addresses.</summary>
     private static byte ReadProgramByte(ISnesAddressSpace bus, ushort address) =>
         RoomPlmProgramDefinitions.TryReadByte(address, out byte value)
             ? value
@@ -2238,21 +2281,27 @@ public sealed partial class RoomPlmSystem
                 : throw new InvalidDataException(
                     $"PLM program byte $84:{address:X4} has no compiled definition.");
 
+    /// <summary>Mutable native-equivalent allocation containing both instruction state and semantic owner state.</summary>
     private sealed class PlmSlot
     {
         /// <summary>Native PLM_Vars coordinate saved by the Brinstar plant setup.</summary>
         public ushort PlantHeldX { get; set; }
         /// <summary>Native PLMExtra_Vars coordinate saved by the Brinstar plant setup.</summary>
         public ushort PlantHeldY { get; set; }
+        /// <summary>Whether this physical allocation currently owns a live room object.</summary>
         public bool Active { get; set; }
+        /// <summary>Header identity retained for owner-specific queries after setup.</summary>
         public ushort HeaderPointer { get; set; }
+        /// <summary>Room block currently associated with this PLM.</summary>
         public int BlockIndex { get; set; }
         /// <summary>
         /// Native <c>PLM_Vars</c>. Grapple setup saves the original word; collision-bomb
         /// setup synthesizes the dimension-parent restoration word <c>$x058</c> instead.
         /// </summary>
         public ushort RestoreLevelWord { get; set; }
+        /// <summary>Current bank-$84 instruction-list cursor.</summary>
         public ushort InstructionPointer { get; set; }
+        /// <summary>Countdown controlling when the current PLM list advances.</summary>
         public ushort InstructionTimer { get; set; }
         /// <summary>Native bank-$84 pre-instruction pointer run before the timer/list pass.</summary>
         public ushort PreInstruction { get; set; }
@@ -2288,6 +2337,16 @@ public sealed partial class RoomPlmSystem
     }
 }
 
+/// <summary>Per-slot color-door state linking its header, instruction lists, hit threshold, and opening phase.</summary>
+/// <param name="color">Door color selecting the projectile-hit behavior.</param>
+/// <param name="orientation">Horizontal or vertical cap layout.</param>
+/// <param name="initialList">Initial draw/instruction list from the door header.</param>
+/// <param name="closedBlueList">List used while the door remains closed and blue.</param>
+/// <param name="hitList">List that handles accepted projectile hits.</param>
+/// <param name="openingList">List that animates the door opening.</param>
+/// <param name="coloredClosedDraw">Draw-list pointer for the colored closed cap.</param>
+/// <param name="hitThreshold">Hit count required to begin opening.</param>
+/// <param name="phase">Current semantic phase for this door PLM.</param>
 internal sealed class ColoredDoorPlmState(
     ColoredDoorColor color,
     ColoredDoorOrientation orientation,
@@ -2299,22 +2358,38 @@ internal sealed class ColoredDoorPlmState(
     byte hitThreshold,
     ColoredDoorPhase phase)
 {
+    /// <summary>Color identity used to select the door's response to projectiles.</summary>
     public ColoredDoorColor Color { get; } = color;
+    /// <summary>Cap layout orientation used by draw and hit handling.</summary>
     public ColoredDoorOrientation Orientation { get; } = orientation;
+    /// <summary>Header-selected starting instruction list.</summary>
     public ushort InitialList { get; } = initialList;
+    /// <summary>Instruction list for the closed blue-door state.</summary>
     public ushort ClosedBlueList { get; } = closedBlueList;
+    /// <summary>Instruction list entered when a qualifying hit is processed.</summary>
     public ushort HitList { get; } = hitList;
+    /// <summary>Instruction list that completes the opening animation.</summary>
     public ushort OpeningList { get; } = openingList;
+    /// <summary>Draw list used to render the colored closed state.</summary>
     public ushort ColoredClosedDraw { get; } = coloredClosedDraw;
+    /// <summary>Number of accepted hits needed before the door begins opening.</summary>
     public byte HitThreshold { get; } = hitThreshold;
+    /// <summary>Current closed, hit, or opening state tracked independently per door slot.</summary>
     public ColoredDoorPhase Phase { get; set; } = phase;
+    /// <summary>Qualifying projectile hits accumulated toward the opening threshold.</summary>
     public byte HitCounter { get; set; }
+    /// <summary>Whether the initial colored cap draw has completed.</summary>
     public bool InitialDrawCompleted { get; set; }
+    /// <summary>Whether a projectile hit awaits processing by the door handler.</summary>
     public bool HasPendingHit { get; set; }
+    /// <summary>Projectile type retained with the pending hit for native response selection.</summary>
     public SamusProjectileTypeWord PendingProjectileType { get; set; }
 }
 
 /// <summary>Observable call to one of the cartridge's three queued-sound libraries.</summary>
+/// <param name="SoundEffect">Sound identifier passed to the selected sound library.</param>
+/// <param name="MaximumQueued">Native queue limit supplied with the request.</param>
+/// <param name="SoundSuppressed">Whether native sound suppression prevented playback.</param>
 public readonly record struct PlmSoundRequest(
     SoundEffectId SoundEffect,
     byte MaximumQueued,

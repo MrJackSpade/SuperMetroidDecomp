@@ -10,6 +10,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares the explosion foreground palette program's native timing, color exposures, and actor handoff.</summary>
     private static void VerifyLookupStream4ForegroundCadence(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions), () => VerifyZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions(rom));
@@ -64,6 +65,7 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.Duration(invalid), "Foreground duration domain");
         Console.WriteLine("Foreground cadence:35 native controls,16 independently decoded durations,144 actual CGRAM exposures plus exact deletion/native star handoff/read guard/bounds pass; color artwork remains required.");
     }
+    /// <summary>Checks editable title ambient colors at native instruction addresses while preserving untouched colors.</summary>
     private static void VerifyLookupStream4TitleAmbientColors(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -112,6 +114,7 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => _ = TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All[invalid],
                 "title ambient owner list domain");
     }
+    /// <summary>Checks title ambient loops, per-call CGRAM output, and independence from live cartridge reads.</summary>
     private static void VerifyLookupStream4TitleAmbientMechanics(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyTitleScreenAmbientPaletteFxProgramMechanicsDefinitions), () => VerifyTitleScreenAmbientPaletteFxProgramMechanicsDefinitions(rom));
@@ -165,6 +168,7 @@ internal static partial class Program
         AssertEqual(164, ticks, "Both exact ambient loops confirmed twice");
         Console.WriteLine("Title ambient mechanics:28 native controls, independent record decoding,164 actual per-tick CGRAM states, untouched colors and mechanics read guard pass; independent color artwork remains pending.");
     }
+    /// <summary>Checks stock and edited title palettes through simultaneous ambient program execution.</summary>
     private static void VerifyLookupStream4TitleAmbientComplete(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyLookupStream4TitleAmbientColors), () => VerifyLookupStream4TitleAmbientColors(rom));
@@ -253,6 +257,7 @@ internal static partial class Program
         }
         Console.WriteLine("Title ambient complete:36 native words/zero stock overrides,132 independent RGB edits,unchanged256 initial-paint owner,243 actual simultaneous-loop CGRAM states and no live reads pass.");
     }
+    /// <summary>Checks ending-font transfer identity, semantic blank cells, and required glyph pixel regions.</summary>
     private static void VerifyLookupStream4EndingFontSpaces(ISnesAddressSpace rom)
     {
         byte[] decoded = SuperMetroid.Core.Rom.RomDataReader.Decompress(SuperMetroid.Core.Rom.CartridgeImportSource.Require(rom),
@@ -321,6 +326,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => EndingFontAtlas.FromPlanarBytes(new byte[5119]), "native font byte domain preserved");
         Console.WriteLine("Ending font:5120 native bytes,2026 required footprint positions,3875 required pixels including35 deviations,4339 derived outline/background/space sites and6401 independent native-bit edits pass.");
     }
+    /// <summary>Checks Maridia palette presentation against native colors and independently editable source values.</summary>
     private static void VerifyLookupStream4MaridiaColors(CartridgeImportAddressSpace rom)
     {
         ushort Word(int pointer) => (ushort)(rom.ReadByte(0x8D0000 | pointer) | rom.ReadByte(0x8D0000 | (pointer + 1)) << 8);
@@ -385,6 +391,7 @@ internal static partial class Program
         }
         Console.WriteLine("Maridia colors:112 native words,16 required inputs,96 rotated/shared colors,all112 independent edits and three actual installed cycles pass.");
     }
+    /// <summary>Checks planet-scene text definitions, native glyph placement, and supplied presentation edits.</summary>
     private static void VerifyLookupStream4PlanetText(CartridgeImportAddressSpace rom)
     {
         ushort Word(int pointer) => (ushort)(rom.ReadByte(0x8D0000 | pointer) | rom.ReadByte(0x8D0000 | (pointer + 1)) << 8);
@@ -460,6 +467,7 @@ internal static partial class Program
             AssertTrue(!PlanetZebesTextColorDefinitions.TryCoordinates(pointer, out _, out _, out _), "text color view excludes native mechanics");
         Console.WriteLine("PLANET ZEBES:38 native mechanics words,48 exact colors,three required endpoints,all48 independent edits and both actual installed one-shot fades pass.");
     }
+    /// <summary>Checks Ceres palette fade rows and their application to the intended CGRAM regions.</summary>
     private static void VerifyLookupStream4CeresFades(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
@@ -533,6 +541,7 @@ internal static partial class Program
         AssertThrows<ArgumentNullException>(() => stock.ApplyBodyFade(null!, 0), "body null CGRAM");
         Console.WriteLine("Ceres fades:224 native words,all48 eye samples calculated from four paint magnitudes and the selected warm-shade composition; all176body samples calculate through the same quantizer/shared stock paint, zero stock overrides,144eye/528body channel edits and10848 actual row applications pass.");
     }
+    /// <summary>Checks the Ceres alarm sequence's native timing, palette changes, and sound-trigger behavior.</summary>
     private static void VerifyLookupStream4CeresAlarm(ISnesAddressSpace rom)
     {
         ushort Native(int row, int color)
@@ -624,6 +633,7 @@ internal static partial class Program
         AssertThrows<ArgumentNullException>(() => stock.ApplyAlarm(null!, 0), "alarm null CGRAM");
         Console.WriteLine("Ceres alarm:48 native colors, zero stock overrides, all144 independent RGB edits,2320 actual row writes, 192 gated producer calls, legacy fallback and bounds pass.");
     }
+    /// <summary>Checks Maridia palette program definitions against native records and duration data.</summary>
     private static void VerifyLookupStream4MaridiaPaletteDefinitions(CartridgeImportAddressSpace rom)
     {
         ushort Word(int pointer) => (ushort)(rom.ReadByte(0x8D0000 | pointer) | rom.ReadByte(0x8D0000 | (pointer + 1)) << 8);
@@ -668,6 +678,7 @@ internal static partial class Program
         Suite(nameof(VerifyMaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions), () => VerifyMaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions(rom));
         Console.WriteLine("Maridia palette definitions: three native programs,44 mechanics words,112 color identities and actual complete loops pass; timing/destination/group inputs remain required.");
     }
+    /// <summary>Checks the ending planet-motion tables' signed fixed-point values and cycle displacement.</summary>
     private static void VerifyLookupStream4EndingShake(ISnesAddressSpace rom)
     {
         int Native(int address)
@@ -732,6 +743,7 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => EndingCreditsRomData.Motion.PlanetSlowDelta(index), "slow shake bounds");
         Console.WriteLine("Ending shake:24 native signed values, common two-pixel cycle displacement, both production cycles/index wraps, independent rotation/zoom, both phase handoffs and fixed-point carries pass.");
     }
+    /// <summary>Checks Spore Spawn health-driven palette ramp selection and exact color writes.</summary>
     private static void VerifyLookupStream4SporeHealthRamp(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -793,6 +805,7 @@ internal static partial class Program
                 AssertEqual(expected[frame][color], catalog.ResolveHealth(frame, color), $"Health row {frame} color {color}");
         }
     }
+    /// <summary>Checks that the healthy Spore Spawn palette alias resolves to the intended native color source.</summary>
     private static void VerifyLookupStream4SporeHealthyAlias(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -843,6 +856,7 @@ internal static partial class Program
             AssertEqual(identity, catalog.ContentIdentity, "Healthy-palette alias preserves canonical content hash for independent edits");
         }
     }
+    /// <summary>Checks Spore Spawn level-palette fade ordering, frame timing, and selected colors.</summary>
     private static void VerifyLookupStream4SporeLevelFade(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -914,6 +928,7 @@ internal static partial class Program
             AssertEqual(expectedIdentity, catalog.ContentIdentity, "Level calculation preserves canonical selected content identity");
         }
     }
+    /// <summary>Checks Spore Spawn background fade output across native destinations and timing intervals.</summary>
     private static void VerifyLookupStream4SporeBackgroundFade(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -984,6 +999,7 @@ internal static partial class Program
             AssertEqual(expectedIdentity, catalog.ContentIdentity, "Background fade preserves exact selected canonical identity");
         }
     }
+    /// <summary>Checks Spore Spawn sprite fade colors and the actor state selecting each fade step.</summary>
     private static void VerifyLookupStream4SporeSpriteFade(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1057,6 +1073,7 @@ internal static partial class Program
             AssertEqual(expectedIdentity, catalog.ContentIdentity, "Calculated fade retains exact selected canonical identity framing");
         }
     }
+    /// <summary>Checks the ending result panel's native tile layout, text content, and transfer destinations.</summary>
     private static void VerifyLookupStream4EndingResultPanel(ISnesAddressSpace rom)
     {
         byte[] source = EndingTextExtractor.Extract(rom);
@@ -1099,6 +1116,7 @@ internal static partial class Program
         Console.WriteLine("Ending result panel:288 direct native cells, zero stock fallback samples, independent edits, heading precedence and immutable output snapshots pass; chosen wording has a narrow nonsense disposition; palette choices and font pixels remain required.");
     }
 
+    /// <summary>Checks ending subtitle glyph selection, positioning, and instruction sequencing.</summary>
     private static void VerifyLookupStream4EndingSubtitle(ISnesAddressSpace rom)
     {
         byte[] source = EndingTextExtractor.Extract(rom);
@@ -1162,6 +1180,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks the Ridley tail rest pose's segment geometry against native point data.</summary>
     private static void VerifyLookupStream4TailRestGeometry(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1210,6 +1229,7 @@ internal static partial class Program
         Console.WriteLine("Tail rest geometry: seven initial distances, six original shrink thresholds and actual boundary/extension ordering pass; chosen lengths remain required.");
     }
 
+    /// <summary>Checks the Baby Metroid transfer phase boundary and associated native room-state effects.</summary>
     private static void VerifyLookupStream4BabyTransferPhase(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1253,6 +1273,7 @@ internal static partial class Program
         Console.WriteLine("Baby reflected phase: four original pointers and one actual16-NMI cycle preserve advance-before-select, transfer bytes and high-byte isolation.");
     }
 
+    /// <summary>Checks that fly animation frames retain their distinct native graphics identities.</summary>
     private static void VerifyFlyFrameIdentities(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1266,6 +1287,7 @@ internal static partial class Program
             AssertEqual((ushort)1, Word(0xa20000 | flyFrames[frame].Pointer), "fly native single OAM object");
         }
     }
+    /// <summary>Checks HUD item icon identities and their native tile selections.</summary>
     private static void VerifyLookupStream4HudIcons(ISnesAddressSpace rom)
     {
         byte[] json=GameplayHudPresentationExtractor.Extract(rom);
@@ -1336,6 +1358,7 @@ internal static partial class Program
         using(var image=File.Create(Path.Combine(directory,"native-icons.png")))IndexedPng.Write(image,imageWidth,imageHeight,pixels,[new Rgba32(40,40,40,255),new Rgba32(255,255,255,255),new Rgba32(130,130,130,255),new Rgba32(0,0,0,255)]);
         Console.WriteLine("HUD icons:22native/zero cell-anchor overrides,132independent edits/hash/guards,five shifted anchors,three actual inventory initializers/readguard/domains pass;source pictograms exported.");
     }
+    /// <summary>Checks the HUD template's native tile structure and presentation mapping.</summary>
     private static void VerifyLookupStream4HudTemplate(ISnesAddressSpace rom)
     {
         byte[] json=GameplayHudPresentationExtractor.Extract(rom);
@@ -1370,6 +1393,7 @@ internal static partial class Program
         foreach(int invalid in new[]{-1,96,int.MinValue,int.MaxValue})AssertThrows<IndexOutOfRangeException>(()=>GameplayHudDefinitions.TemplateWord(invalid),"Template index domain");
         Console.WriteLine("HUD template:96native words/zero overrides,576independent edits/hash/577full applications,three actual initializers/readguard/top-row independence/bounds pass.");
     }
+    /// <summary>Checks the HUD top-row tile arrangement against the cartridge's authored layout.</summary>
     private static void VerifyLookupStream4HudTopRow(ISnesAddressSpace rom)
     {
         byte[] json=GameplayHudPresentationExtractor.Extract(rom);
@@ -1410,6 +1434,7 @@ internal static partial class Program
         using(var image=File.Create(Path.Combine(directory,"native-top-border.png")))IndexedPng.Write(image,width,height,pixels,[new Rgba32(20,20,20,255),new Rgba32(100,100,100,255),new Rgba32(180,180,180,255),new Rgba32(255,255,255,255)]);
         Console.WriteLine("HUD top row:32native words/zero overrides,192independent edits/hash/193DMA outputs/template independence/bounds pass; native border source exported.");
     }
+    /// <summary>Checks AUTO reserve display behavior, including cell fill and clear operations.</summary>
     private static void VerifyLookupStream4HudAutoComplete(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyLookupStream4HudAutoCells), () => VerifyLookupStream4HudAutoCells(rom));
@@ -1446,6 +1471,7 @@ internal static partial class Program
         }
         Console.WriteLine("HUD AUTO:12native words/zero overrides,72independent glyph-style edits/hash,146 actual state updates,manual nonwrite/clear/readguard/neighbors/domains pass.");
     }
+    /// <summary>Checks the six AUTO reserve cell destinations and their tile values.</summary>
     private static void VerifyLookupStream4HudAutoCells(ISnesAddressSpace rom)
     {
         byte[] json = GameplayHudPresentationExtractor.Extract(rom);
@@ -1492,6 +1518,7 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => GameplayHudDefinitions.AutoReserveWord(invalid, true),
                 "AUTO calculated cell exact domain");
     }
+    /// <summary>Checks HUD digit graphics and the positions used to render displayed values.</summary>
     private static void VerifyLookupStream4HudDigits(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1534,6 +1561,7 @@ internal static partial class Program
         foreach (int invalid in new[] { int.MinValue, -1, 10, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => GameplayHudDefinitions.DigitWord(invalid), "HUD digit exact domain");
     }
+    /// <summary>Checks title-screen sprite frame identities against native graphics entries.</summary>
     private static void VerifyTitleSpriteIdentities(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1559,6 +1587,7 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => _ = TitleSequenceRomData.Vram.BabyAnimationSourcePages[invalid], "title baby exact phase domain");
         Console.WriteLine("Title identities: 31 sorted native selectors, four Baby source pages, DMA sizes/destinations and invalid phases pass.");
     }
+    /// <summary>Checks title-card tile positions, dimensions, and source graphics layout.</summary>
     private static void VerifyTitleCardLayout(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1579,6 +1608,7 @@ internal static partial class Program
             TitleSequenceInstructionDefinitions.EndAddress - 1), "title trailing partial word rejected");
         Console.WriteLine("Title card layout: 140 native bytes, 139 aligned/unaligned word windows and bounds pass.");
     }
+    /// <summary>Checks room sprite dispatch selection for native room and enemy configuration.</summary>
     private static void VerifyRoomSpriteDispatch(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1608,6 +1638,7 @@ internal static partial class Program
                 "room sprite native kind domain rejects invalid selector");
         Console.WriteLine("Room sprite dispatch: 62 native entries and actual spawns, initial timing/visuals, source-read guards and invalid selectors pass.");
     }
+    /// <summary>Checks the valid Ridley animation-frame domain and corresponding native frame records.</summary>
     private static void VerifyLookupStream4RidleyFrameDomain(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1637,6 +1668,7 @@ internal static partial class Program
         foreach (int invalid in new[] { -1, nativeFrames.Count })
             AssertThrows<IndexOutOfRangeException>(() => _ = RidleyCollisionDefinitions.FramePointers[invalid], "Calculated frame view rejects out-of-range indices");
     }
+    /// <summary>Checks beam color relationships and palette positions selected by native beam definitions.</summary>
     private static void VerifyLookupStream4BeamColorRelations(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1686,6 +1718,7 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(new SnesCgram(), invalid), "Calculated beam colors preserve selection bounds");
         Console.WriteLine("Beam paint:192 native selected words,zero stock overrides,576 independent RGB edits,6924 exact palette copies including36 actual masked-selection/queue producers and read guard pass.");
     }
+    /// <summary>Checks Ridley's movement policy for native state and movement-mode combinations.</summary>
     private static void VerifyLookupStream4RidleyMovementPolicy(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1722,6 +1755,7 @@ internal static partial class Program
         release(absentState, null);
         AssertEqual(ordinaryFrames, absentState.IntangibilityTimer, "Missing Samus retains standing release fallback");
     }
+    /// <summary>Checks Ridley tail segment angles and their relationship to native pose data.</summary>
     private static void VerifyLookupStream4TailAngles(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1760,6 +1794,7 @@ internal static partial class Program
         foreach (int invalid in new[] { -1, 7 })
             AssertThrows<ArgumentOutOfRangeException>(() => RidleyTailDefinitions.InitialAngle(invalid), "Initial angular domain contains exactly seven links");
     }
+    /// <summary>Checks tail terrain interactions and resulting segment constraints.</summary>
     private static void VerifyLookupStream4TailTerrain(ISnesAddressSpace rom)
     {
         var touches = typeof(RoomEnemySystem).GetMethod("RidleyTailTouchesTerrain", BindingFlags.NonPublic | BindingFlags.Static)!
@@ -1791,6 +1826,7 @@ internal static partial class Program
         }
         AssertTrue(!touches(new RidleyEnemyState(), null), "Missing terrain keeps tail gate");
     }
+    /// <summary>Checks message notice-region bounds and room locations that activate them.</summary>
     private static void VerifyLookupStream4NoticeRegions(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1852,6 +1888,7 @@ internal static partial class Program
         active.BindPresentation(null, null, stock);
         AssertTrue(original.AsSpan().SequenceEqual(active.Tilemap), "Restoring supplied stock notice restores every live word");
     }
+    /// <summary>Checks message routing from room state to the selected native text sequence.</summary>
     private static void VerifyLookupStream4MessageDispatch(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1887,6 +1924,7 @@ internal static partial class Program
                     "Actual button patch preserves every independently supplied neighboring cell");
         }
     }
+    /// <summary>Runs the lookup-stream checks owned by this verification partial for an imported cartridge image.</summary>
     private static void VerifyLookupStream4(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyLookupStream4RidleyFrameDomain), () => VerifyLookupStream4RidleyFrameDomain(rom));
@@ -1976,6 +2014,7 @@ internal static partial class Program
         foreach (int invalid in new[] { -1, 16, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => RidleyExplosionDefinitions.SelectTailInstructionList(RidleyExplosionParts.TailTip, invalid), "stream4 invalid tail-tip orientation");
     }
+    /// <summary>Checks dark-lightning palette colors and their native color-source mapping.</summary>
     private static void VerifyLookupStream4DarkLightningColors(ISnesAddressSpace rom)
     {
         var program = CrateriaLightningColorDefinitions.DarkProgram;
@@ -2015,6 +2054,7 @@ internal static partial class Program
             AssertEqual(expected, CrateriaLightningColorDefinitions.TryCalculatedDarkColor((ushort)address, stored, out _), "dark lightning exact calculated address domain");
         }
     }
+    /// <summary>Checks lightning palette colors across the authored sequence and CGRAM destination range.</summary>
     private static void VerifyLookupStream4LightningColors(ISnesAddressSpace rom)
     {
         var program = CrateriaLightningColorDefinitions.SurfaceProgram;
@@ -2054,6 +2094,7 @@ internal static partial class Program
             AssertEqual(expected, CrateriaLightningColorDefinitions.TryCalculatedColor((ushort)address, out _), "surface lightning exact color address domain");
         }
     }
+    /// <summary>Checks native palette instruction programs represented by lookup-stream definitions.</summary>
     private static void VerifyLookupStream4Programs(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -2122,6 +2163,7 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => SaveStationElectricityInstructionProgramDefinitions.MechanicsWord(electricMechanics), "stream4 electricity mechanics end");
         AssertThrows<IndexOutOfRangeException>(() => SaveStationElectricityInstructionProgramDefinitions.PresentationWordAddress(electricPresentation), "stream4 electricity presentation end");
     }
+    /// <summary>Checks gameplay and cinematic consumers for correct palette program selection and stepping.</summary>
     private static void VerifyLookupStream4ProgramConsumers(ISnesAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -2172,6 +2214,7 @@ internal static partial class Program
             AssertEqual(0, guard.ForbiddenReadAttempts, "stream4 debris no mechanics ROM reads");
         }
     }
+    /// <summary>Checks statue palette values and their native source addresses.</summary>
     private static void VerifyLookupStream4StatueColors(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -2222,6 +2265,7 @@ internal static partial class Program
         }
         AssertTrue(!TourianStatueGreyColorDefinitions.TryCalculatedColor(0xe254, new Dictionary<ushort, ushort>(), out _), "stream4 absent statue endpoints are not invented");
     }
+    /// <summary>Checks the burial sequence's state transitions, actor timing, and palette effects.</summary>
     private static void VerifyLookupStream4Burial(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -2238,6 +2282,7 @@ internal static partial class Program
         foreach (int invalid in new[] { -1, 6, int.MaxValue })
             AssertThrows<InvalidDataException>(() => DraygonBurialEvirDefinitions.ForEntry(invalid), "stream4 burial exact six-record domain");
     }
+    /// <summary>Checks Spore Spawn and fly lookup data and the consumers that use those entries.</summary>
     private static void VerifyLookupStream4SporeAndFly(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -2301,6 +2346,7 @@ internal static partial class Program
                 AssertThrows<IndexOutOfRangeException>(() => presentation(invalid), "stream4 program presentation enumeration bounds");
         }
     }
+    /// <summary>Checks power-bomb palette colors and their native CGRAM write domain.</summary>
     private static void VerifyLookupStream4PowerBombColors(ISnesAddressSpace rom)
     {
         byte[] original = PowerBombFixedColorExtractor.Extract(rom);
@@ -2346,6 +2392,7 @@ internal static partial class Program
             AssertEqual(edit.Item1 == PowerBombFixedColorSequence.Explosion && edit.Item2 <= 20 ? 12 : 11, Stored(installed, "explosion"), "only changed calculated explosion content joins unresolved tail");
         }
     }
+    /// <summary>Checks geometry tables' native ordering, dimensions, and lookup boundaries.</summary>
     private static void VerifyLookupStream4GeometryLayout(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -2376,6 +2423,7 @@ internal static partial class Program
         foreach (ushort invalid in new ushort[] { 8, 255, ushort.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => MaridiaLargeSnailInstructionDefinitions.InstructionPointer(invalid), "Oum animation exact domain");
     }
+    /// <summary>Checks Kzan and Ceres palette program definitions against native instruction streams.</summary>
     private static void VerifyLookupStream4KzanCeresPrograms(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -2428,6 +2476,7 @@ internal static partial class Program
         foreach (int invalid in new[] { int.MinValue, -1, 2, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => KzanInstructionProgramDefinitionsTooling.MechanicsWord(invalid), "Kzan control index bounds");
     }
+    /// <summary>Checks Draygon presentation data dimensions and layout against authored cartridge structures.</summary>
     private static void VerifyLookupStream4DraygonPresentationLayout(ISnesAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -2454,6 +2503,7 @@ internal static partial class Program
         Suite(nameof(VerifyDraygonInstructionProgramDefinitions), () => VerifyDraygonInstructionProgramDefinitions());
         Console.WriteLine("Draygon presentation layout:250 exact ordered native operand identities/actual selector reads,mechanics separation/domains and existing four-owner reset/IRQ proof pass.");
     }
+    /// <summary>Checks Draygon's introduction sequence, including timing and presentation state changes.</summary>
     private static void VerifyLookupStream4DraygonIntro(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -2521,6 +2571,7 @@ internal static partial class Program
         AssertThrows<ArgumentNullException>(()=>stock.ApplyIntro(null!),"Intro null target");
         Console.WriteLine("Draygon intro:25native aliases/zero overrides,75RGB edits/hash/76full copies,four actual initializers/readguard,45escape edits/independence/bounds pass.");
     }
+    /// <summary>Checks Draygon sprite frame selection and graphics identity across authored states.</summary>
     private static void VerifyLookupStream4DraygonSprite(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -2582,6 +2633,7 @@ internal static partial class Program
         foreach(int invalid in new[]{-1,16,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>stock.ResolveSprite(invalid),"Original sprite domain");
         Console.WriteLine("Draygon sprite:16native aliases/zero overrides,48RGB edits/hash,98full normal-white copies,six actual hurt producer calls/readguard/independent background+intro/bounds pass.");
     }
+    /// <summary>Checks Draygon background palette and tile behavior for its room phases.</summary>
     private static void VerifyLookupStream4DraygonBackground(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -2646,6 +2698,7 @@ internal static partial class Program
         AssertThrows<ArgumentNullException>(()=>stock.ApplyHurt(null!,false,0),"Background null destination");
         Console.WriteLine("Draygon background:16native/zero overrides,48RGB edits/hash/independent aliases,98full normal-white copies,six actual hurt producer calls/readguard/belly overwrite/bounds pass.");
     }
+    /// <summary>Checks Draygon health thresholds and the presentation selected at each threshold.</summary>
     private static void VerifyLookupStream4DraygonHealth(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyLookupStream4DraygonColors), () => VerifyLookupStream4DraygonColors(rom));
@@ -2711,6 +2764,7 @@ internal static partial class Program
         }
         Console.WriteLine("Draygon health:32 native colors/zero overrides,96RGB edits/hash,776full copies,48actual health calls and48actual hurt calls/read guard/held band/restore pass.");
     }
+    /// <summary>Checks Draygon palette values, editable color ownership, and exact output destinations.</summary>
     private static void VerifyLookupStream4DraygonColors(ISnesAddressSpace rom)
     {
         byte[] original = DraygonColorExtractor.Extract(rom);
@@ -2767,6 +2821,7 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealthBand(0, 4), "Draygon health color bounds");
         AssertThrows<InvalidDataException>(() => stock.ApplyHealthBand(new SnesCgram(), 1), "Draygon odd native health selector rejected");
     }
+    /// <summary>Checks Norfair reveal palette and actor behavior through the native reveal sequence.</summary>
     private static void VerifyLookupStream4NorfairReveal(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -2859,6 +2914,7 @@ internal static partial class Program
         AssertThrows<ArgumentNullException>(() => stock.ApplyReveal(null!, 0), "Reveal null destination");
         Console.WriteLine("Norfair reveal:210 native words/14 shared room endpoints/zero overrides,630 independent RGB edits/hash,9465 full row copies,138 real producer calls/read guard/cadence/terminator and domain checks pass.");
     }
+    /// <summary>Checks initial Norfair palette installation and unmodified neighboring colors.</summary>
     private static void VerifyLookupStream4NorfairInitial(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -2957,6 +3013,7 @@ internal static partial class Program
         AssertThrows<ArgumentNullException>(() => stock.ApplyInitial(null!), "Initial null CGRAM");
         Console.WriteLine("Norfair initial:32 native words,30 shared material identities,zero stock overrides,96 RGB edits/hash,97 full copies,three real initializers/read guard,90 normal/escape source edits and unchanged210 reveal words pass.");
     }
+    /// <summary>Checks Botwoon palette data and the exact room palette writes that consume it.</summary>
     private static void VerifyLookupStream4BotwoonColors(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -3033,6 +3090,7 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => stock.HealthColor(0, invalid), "Botwoon health color domain");
         Console.WriteLine("Botwoon complete paint:128 native outputs,16 initial aliases,zero stock overrides,384 RGB edits/hash identities,51 actual threshold/copy/completed calls and native-read guard pass.");
     }
+    /// <summary>Checks Oum instruction-list boundaries and native entry layout.</summary>
     private static void VerifyLookupStream4OumListLayout(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -3080,6 +3138,7 @@ internal static partial class Program
         Console.WriteLine($"Oum calculated list identities: {nativeFrames.Count} frames, {rectangles} native rectangles and complete ushort rejection domain pass.");
     }
 
+    /// <summary>Checks the breakup sequence's ordered actor and palette events against native timing.</summary>
     private static void VerifyLookupStream4BreakupOrder(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -3123,6 +3182,7 @@ internal static partial class Program
         Console.WriteLine("Ridley ordered spawning: native twelve-call order, exact RNG assignment, partial/full pool exhaustion and one-shot retry behavior pass.");
     }
 
+    /// <summary>Checks beam tile geometry, including tile dimensions and native offsets.</summary>
     private static void VerifyLookupStream4BeamTileGeometry(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -3250,6 +3310,7 @@ internal static partial class Program
             return (byte)result;
         }
     }
+    /// <summary>Checks Ceres opening state, palette setup, and the initial alarm transition.</summary>
     private static void VerifyLookupStream4CeresStart(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
@@ -3306,6 +3367,7 @@ internal static partial class Program
         AssertThrows<ArgumentNullException>(() => stock.ApplyStart(null!), "Start null CGRAM");
         Console.WriteLine("Ceres start:32 native words,16 door/15 Baby aliases,zero native overrides,141 independent RGB edits,144 full start and Baby copies,bounds/null pass; Baby paint uses its separate reviewed owner.");
     }
+    /// <summary>Checks Baby Metroid Ceres palette selection, instruction phases, and independent color edits.</summary>
     private static void VerifyLookupStream4CeresBaby(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
@@ -3397,6 +3459,7 @@ internal static partial class Program
         AssertThrows<ArgumentNullException>(() => stock.ApplyBaby(null!, 0), "Baby null CGRAM");
         Console.WriteLine("Ceres Baby:60 native colors,zero native overrides,180 independent output RGB edits/9 body-source edits,768 actual15-color copies,36 native interpreter shape selections and startup independence pass.");
     }
+    /// <summary>Checks shared Ceres retreat colors copied to background and object palette ranges.</summary>
     private static void VerifyLookupStream4CeresRetreatShared(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
@@ -3437,6 +3500,7 @@ internal static partial class Program
         AssertThrows<ArgumentNullException>(() => stock.ApplyRetreat(null!), "Retreat null CGRAM");
         Console.WriteLine("Ceres shared retreat:8 native identities,zero stock values,48 independent RGB edits,51 exact dual-domain copies/bounds/null pass.");
     }
+    /// <summary>Checks Ceres Mode-7 zoom rows and retreat palette outputs against native selection rules.</summary>
     private static void VerifyLookupStream4CeresZoomAndRetreat(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -3517,6 +3581,7 @@ internal static partial class Program
         AssertThrows<ArgumentNullException>(() => stock.ApplyRetreat(null!), "Retreat null CGRAM");
         Console.WriteLine("Ceres zoom/retreat:150 native words,zero stock overrides,405 zoom/87 retreat-source RGB edits,3672 actual zoom selections/90 retreat copies,domains/null pass.");
     }
+    /// <summary>Checks Ceres and Norfair Ridley health palette rows and encounter threshold selection.</summary>
     private static void VerifyLookupStream4CeresHealth(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
@@ -3598,6 +3663,7 @@ internal static partial class Program
         Console.WriteLine("Ridley health:42 native words,zero stock overrides,126 output/42 source RGB edits,513 actual copies,54 actual encounter selections and bounds/null pass.");
     }
 
+    /// <summary>Checks HUD energy, item, and AUTO cell anchors against native offsets and sparse overrides.</summary>
     private static void VerifyLookupStream4HudAnchors(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

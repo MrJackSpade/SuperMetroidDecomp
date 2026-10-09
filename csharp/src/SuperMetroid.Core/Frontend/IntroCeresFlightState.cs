@@ -9,36 +9,60 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Initial native Mode 7 leg of Samus's flight toward Ceres station.</summary>
 internal sealed class IntroCeresFlightState
 {
-    // OBJ layer reused across renders; the span overload clears it first. Never saved state.
+    /// <summary>Scratch OBJ layer reused for compositing; rendering clears it before drawing actors.</summary>
     [NonSerialized] private Rgba32[]? objectLayerScratch;
-    // Final frame, reused by every render: a returned frame is valid until this scene renders again.
+    /// <summary>Reusable composed frame; callers may retain its contents only until the next render.</summary>
     [NonSerialized] private Rgba32[]? frameBuffer;
 
+    /// <summary>Cartridge address space used to step and draw cinematic actor instruction lists.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Shared audio state whose queued music gates the transition from forced blank.</summary>
     private readonly CartridgeAudioState audio;
+    /// <summary>PPU video memory for the Mode 7 maps and object graphics used by this sequence.</summary>
     private readonly SnesVram vram = new();
+    /// <summary>PPU palette memory used to render the flight and title scenes.</summary>
     private readonly SnesCgram cgram = new();
+    /// <summary>Source tilemap bytes retained so artwork can be rebound for the active view.</summary>
     private byte[] tilemap;
+    /// <summary>Optional sprite presentation metadata bound from the installed cinematic artwork.</summary>
     [NonSerialized] private CeresFlightSpritePresentation? spriteArtwork;
+    /// <summary>Optional actor placement metadata used to construct the rear-view cast.</summary>
     [NonSerialized] private CeresFlightActorLayout? actorLayout;
+    /// <summary>32-by-32 word map built incrementally as the SPACE COLONY caption appears.</summary>
     private readonly ushort[] spaceColonyTilemap = new ushort[0x400];
+    /// <summary>Front-view star actor whose accelerating movement also drives the Mode 7 scroll.</summary>
     private readonly IntroDiscoverySprite stars =
         CreateActor(CeresFlightActorDefinitions.FrontStars);
 
+    /// <summary>Whole-pixel component of the signed Mode 7 horizontal scroll position.</summary>
     private ushort backgroundX = 0xffb8;
+    /// <summary>Fractional component paired with <see cref="backgroundX"/> for 8.8 motion updates.</summary>
     private ushort backgroundXSubPosition;
+    /// <summary>Whole-pixel component of the signed Mode 7 vertical scroll position.</summary>
     private ushort backgroundY = 0xff98;
+    /// <summary>Fractional component paired with <see cref="backgroundY"/> for 8.8 motion updates.</summary>
     private ushort backgroundYSubPosition;
+    /// <summary>Mode 7 scale used to construct the PPU affine matrix.</summary>
     private ushort zoom = 0x0200;
+    /// <summary>Mode 7 rotation angle used when calculating the affine matrix.</summary>
     private SnesAngle angle = SnesAngle.FromTableIndex(0xe0);
+    /// <summary>Current INIDISP brightness level, from forced blank through full brightness.</summary>
     private byte brightness;
+    /// <summary>Actors retained behind the station caption and advanced during the rear-view flight.</summary>
     private IntroDiscoverySprite[] rearViewActors = [];
+    /// <summary>SNES fixed-color selector and red component value used during the rear-view flash.</summary>
     private byte fixedColorRed = 0x20;
+    /// <summary>SNES fixed-color selector and green component value used during the rear-view flash.</summary>
     private byte fixedColorGreen = 0x40;
+    /// <summary>SNES fixed-color selector and blue component value used during the rear-view flash.</summary>
     private byte fixedColorBlue = 0x80;
+    /// <summary>Index of the next SPACE COLONY glyph to add to the caption map.</summary>
     private int spaceColonyLetterIndex;
+    /// <summary>Frames remaining before the next caption glyph or hold transition.</summary>
     private int spaceColonyTimer;
+    /// <summary>Tracks whether the completed caption has entered its one-time display hold.</summary>
     private bool spaceColonyHoldStarted;
+    /// <summary>Alternating-frame delay used while the final brightness fade runs.</summary>
     private int fadeDelay;
 
     /// <param name="bus">Address space the star and actor instruction lists step and draw through.</param>
@@ -101,11 +125,13 @@ internal sealed class IntroCeresFlightState
         artwork.Palette.LoadTo(cgram);
     }
 
+    /// <summary>Current cinematic dispatch stage, including its forced-blank and music wait states.</summary>
     public IntroCeresFlightPhase Phase { get; private set; }
 
     /// <summary>True after the native SPACE COLONY hold and final fade reach forced blank.</summary>
     public bool Finished => Phase == IntroCeresFlightPhase.Finished;
 
+    /// <summary>Advances the active cinematic stage by one gameplay dispatch.</summary>
     public void Step()
     {
         switch (Phase)
@@ -169,6 +195,8 @@ internal sealed class IntroCeresFlightState
             stars.Step(bus, instructionWord: CeresFlightSpriteInstructionDefinitions.ReadWord);
     }
 
+    /// <summary>Composes the current flight or title image into the scene's reusable frame buffer.</summary>
+    /// <returns>The rendered pixels, valid until this state renders again.</returns>
     public Rgba32[] Render()
     {
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224, frameBuffer ??= new Rgba32[256 * 224]);
@@ -254,6 +282,7 @@ internal sealed class IntroCeresFlightState
             MenuRenderDefinitions.ObjectSelection, brightness);
     }
 
+    /// <summary>Builds OAM entries for the actors visible in the current cinematic view.</summary>
     private OamBuffer PrepareRenderOam()
     {
         var oam = new OamBuffer();
@@ -266,6 +295,7 @@ internal sealed class IntroCeresFlightState
         return oam;
     }
 
+    /// <summary>Switches from the approaching camera view to the rear gunship view and initializes its actors.</summary>
     private void SetupRearView()
     {
         // $BE22 queues the second $300-byte map immediately behind the front view in the
@@ -308,6 +338,9 @@ internal sealed class IntroCeresFlightState
         Phase = IntroCeresFlightPhase.FlyingTowardCeres;
     }
 
+    /// <summary>Creates a cinematic actor with its native instruction list, timer, and active callback.</summary>
+    /// <param name="definition">The cartridge-derived initial placement and dispatch data for the actor.</param>
+    /// <returns>An actor ready for instruction stepping.</returns>
     private static IntroDiscoverySprite CreateActor(CeresFlightActorDefinition definition)
     {
         var actor = new IntroDiscoverySprite(
@@ -322,6 +355,7 @@ internal sealed class IntroCeresFlightState
         return actor;
     }
 
+    /// <summary>Fades the rear-view color flash and advances the gunship's scroll and zoom until the caption begins.</summary>
     private void StepFlyingTowardCeres()
     {
         // The fixed-colour flash fades by one SNES component step per frame, clamped at
@@ -341,6 +375,7 @@ internal sealed class IntroCeresFlightState
             SetupSpaceColonyTitle();
     }
 
+    /// <summary>Initializes the Mode 1 caption map and starts the station-title sequence.</summary>
     private void SetupSpaceColonyTitle()
     {
         // `$8B:C03E` switches from Mode 7 to Mode 1, assigns BG1SC=$5C/BG1NBA=$06,
@@ -354,6 +389,7 @@ internal sealed class IntroCeresFlightState
         Phase = IntroCeresFlightPhase.SpaceColonyTitle;
     }
 
+    /// <summary>Times caption glyphs and the final hold before handing the scene to its fade.</summary>
     private void StepSpaceColonyTitle()
     {
         if (--spaceColonyTimer > 0)
@@ -379,6 +415,7 @@ internal sealed class IntroCeresFlightState
         Phase = IntroCeresFlightPhase.FadeOut;
     }
 
+    /// <summary>Adds the next caption glyph to the tilemap and uploads its word to VRAM.</summary>
     private void WriteNextSpaceColonyLetter()
     {
         (int column, ushort tile) = SpaceColonyCaptionDefinitions.Letter(spaceColonyLetterIndex++);
@@ -388,6 +425,7 @@ internal sealed class IntroCeresFlightState
             CeresFlightRomData.Layers.SpaceColonyTilemapWord, 1);
     }
 
+    /// <summary>Applies the native alternating-frame brightness fade and advances when forced blank is reached.</summary>
     private void StepFadeOut()
     {
         // `$C0A2` seeds both fade words with one. `$8B:C0C5` calls HandleFadingOut, which
@@ -400,6 +438,9 @@ internal sealed class IntroCeresFlightState
             Phase = IntroCeresFlightPhase.StartGameAtCeres;
     }
 
+    /// <summary>Composites the caption and actor layers in Mode 1 priority order.</summary>
+    /// <param name="pixels">Destination viewport receiving the completed title scene.</param>
+    /// <param name="oam">Prepared actor entries interleaved with the caption's BG1 priorities.</param>
     private void RenderSpaceColonyTitle(Span<Rgba32> pixels, OamBuffer oam)
     {
         // Mode 1's ordinary ordering is sufficient here because every caption word uses
@@ -413,6 +454,9 @@ internal sealed class IntroCeresFlightState
         CompositeObjPriority(pixels, oam, 3);
     }
 
+    /// <summary>Draws one priority plane of the SPACE COLONY background tilemap.</summary>
+    /// <param name="pixels">Destination viewport to receive the selected background pixels.</param>
+    /// <param name="priority">Selects low-priority pixels when false and high-priority pixels when true.</param>
     private void CompositeSpaceColonyPriority(Span<Rgba32> pixels, bool priority)
     {
         SnesBgTilemapRenderer.Composite4BppViewport(
@@ -430,6 +474,7 @@ internal sealed class IntroCeresFlightState
             priority: priority);
     }
 
+    /// <summary>Applies each rear-view actor's native horizontal motion and advances its instruction list.</summary>
     private void StepRearViewActors()
     {
         for (int index = 0; index < rearViewActors.Length; index++)
@@ -451,6 +496,9 @@ internal sealed class IntroCeresFlightState
         }
     }
 
+    /// <summary>Moves an actor horizontally and wraps its whole-pixel coordinate at the 9-bit screen boundary.</summary>
+    /// <param name="actor">Actor whose fixed-point X position is updated.</param>
+    /// <param name="fractionalDelta">Unsigned 8.8 movement amount used by the wrapped actor path.</param>
     private static void AddWrappedX(IntroDiscoverySprite actor, ushort fractionalDelta)
     {
         ushort whole = actor.XPosition;
@@ -460,6 +508,9 @@ internal sealed class IntroCeresFlightState
         actor.XSubPosition = sub;
     }
 
+    /// <summary>Moves an actor horizontally by a signed 16.16 delta without screen wrapping.</summary>
+    /// <param name="actor">Actor whose fixed-point X position is updated.</param>
+    /// <param name="fixedDelta">Signed 16.16 displacement applied to the actor.</param>
     private static void AddSignedX(IntroDiscoverySprite actor, int fixedDelta)
     {
         ushort whole = actor.XPosition;
@@ -469,6 +520,10 @@ internal sealed class IntroCeresFlightState
         actor.XSubPosition = sub;
     }
 
+    /// <summary>Adds a signed 16.16 displacement to a whole/subposition pair with native carry behavior.</summary>
+    /// <param name="whole">Reference to the whole-pixel word of the position.</param>
+    /// <param name="sub">Reference to the fractional word of the position.</param>
+    /// <param name="fixedDelta">Signed 16.16 displacement to add.</param>
     private static void AddSignedSixteenSixteen(ref ushort whole, ref ushort sub, int fixedDelta)
     {
         ushort deltaSub = unchecked((ushort)fixedDelta);
@@ -476,6 +531,8 @@ internal sealed class IntroCeresFlightState
         IntroCinematicMotion.AddSixteenSixteen(ref whole, ref sub, deltaWhole, deltaSub);
     }
 
+    /// <summary>Adds the current five-bit fixed-color components to each rear-view pixel, clamping at white.</summary>
+    /// <param name="pixels">Pixels modified in place using the SNES fixed-color values.</param>
     private void ApplyRearViewFixedColorMath(Span<Rgba32> pixels)
     {
         int addRed = fixedColorRed & 0x1f;
@@ -492,11 +549,18 @@ internal sealed class IntroCeresFlightState
         }
     }
 
+    /// <summary>Converts an eight-bit color component to its rounded five-bit SNES range.</summary>
+    /// <param name="component">Eight-bit channel value.</param>
+    /// <returns>The corresponding value from 0 through 31.</returns>
     private static int ReduceToFiveBit(byte component) => (component * 31 + 127) / 255;
 
+    /// <summary>Expands a five-bit SNES color component to eight bits by replicating its high bits.</summary>
+    /// <param name="component">Five-bit channel value.</param>
+    /// <returns>The expanded eight-bit channel value.</returns>
     private static byte ExpandFiveBit(int component) =>
         (byte)((component << 3) | (component >> 2));
 
+    /// <summary>Accelerates the front stars and applies their shared velocity to both Mode 7 scroll axes.</summary>
     private void StepStarsAndBackground()
     {
         // BEBE adds $0080 to a signed 8.8 speed, then applies that same growing delta to
@@ -525,6 +589,8 @@ internal sealed class IntroCeresFlightState
         IntroCinematicMotion.AddEightEight(ref backgroundY, ref backgroundYSubPosition, velocity);
     }
 
+    /// <summary>Builds the signed Mode 7 affine matrix from the current angle and zoom.</summary>
+    /// <returns>Matrix coefficients in the PPU's signed fixed-point representation.</returns>
     private (short A, short B, short C, short D) CalculateMatrix()
     {
         // $8532 reads signed 8-bit sine words from $A0:B443 and keeps product bits 8..23.
@@ -536,11 +602,22 @@ internal sealed class IntroCeresFlightState
         return (a, b, unchecked((short)-b), a);
     }
 
+    /// <summary>Reads one signed sine-table entry used by the native Mode 7 matrix calculation.</summary>
+    /// <param name="tableIndex">Eight-bit index into the cartridge-compatible trigonometry table.</param>
+    /// <returns>The signed sine component at that index.</returns>
     private static short ReadSine(byte tableIndex) => EnemyTrigonometryTables.SignedSine(tableIndex);
 
+    /// <summary>Multiplies a signed matrix component by the scale and keeps the native result bits.</summary>
+    /// <param name="component">Signed sine or cosine component.</param>
+    /// <param name="scalar">Mode 7 scale factor.</param>
+    /// <returns>The scaled signed coefficient.</returns>
     private static short Scale(short component, ushort scalar) =>
         unchecked((short)((component * unchecked((short)scalar)) >> 8));
 
+    /// <summary>Renders one OAM priority band into a scratch layer and composites it over the scene.</summary>
+    /// <param name="pixels">Destination viewport receiving the actor pixels.</param>
+    /// <param name="oam">Prepared OAM entries for the current cinematic view.</param>
+    /// <param name="priority">OAM priority band to render, from zero through three.</param>
     private void CompositeObjPriority(Span<Rgba32> pixels, OamBuffer oam, int priority)
     {
         // Name both optional arguments. A positional integer following `obsel` binds to
@@ -551,6 +628,10 @@ internal sealed class IntroCeresFlightState
         SnesLayerCompositor.Composite(pixels, layer);
     }
 
+    /// <summary>Rejects an extracted artwork stream that cannot cover the data consumed by the flight state.</summary>
+    /// <param name="bytes">Expanded source stream to validate.</param>
+    /// <param name="minimum">Required minimum stream length.</param>
+    /// <param name="name">Asset label included in the failure message.</param>
     private static void RequireMinimum(byte[] bytes, int minimum, string name)
     {
         if (bytes.Length < minimum)
@@ -563,9 +644,13 @@ internal enum IntroCeresFlightPhase
 {
     /// <summary>$8B:BDE4: forced blank until the music queue drains.</summary>
     WaitForMusicQueue,
+    /// <summary>Zooms the front-view starfield toward the camera before establishing the rear view.</summary>
     FlyingIntoCamera,
+    /// <summary>Shows the rear gunship approach while the fixed-color flash fades and the scene zooms.</summary>
     FlyingTowardCeres,
+    /// <summary>Reveals and holds the SPACE COLONY caption over the rear-view actors.</summary>
     SpaceColonyTitle,
+    /// <summary>Fades the completed title scene to forced blank.</summary>
     FadeOut,
     /// <summary>$8B:C100 has run; game state $1F follows.</summary>
     Finished,

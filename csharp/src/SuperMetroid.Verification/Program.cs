@@ -822,6 +822,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--wall-jump-dust"])
+{
+    Suite(nameof(VerifyWallJumpDust), () => VerifyWallJumpDust());
+    return 0;
+}
 if (args is ["--unpause-elevator-flags"])
 {
     Suite(nameof(VerifyUnpauseElevatorFlags), () => VerifyUnpauseElevatorFlags());

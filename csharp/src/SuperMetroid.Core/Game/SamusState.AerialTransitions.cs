@@ -331,7 +331,9 @@ public sealed partial class SamusState
             HorizontalSpeed.RequestNormalSuitPaletteRestore();
 
         Pose = targetPose;
-        RefreshCollisionRadii(bus);
+        // `$91:FDAE` leaves $0B00 at the spin body's radius; alpha's SetSamusRadius takes
+        // the wall-jump body only next frame, so this frame's enemy and projectile
+        // collision still use the compact spin radius.
 
         // `$91:F2D3` clears acceleration and the ordinary base-speed pair before
         // `$90:9949` installs the launch. It deliberately does *not* touch the extra-run

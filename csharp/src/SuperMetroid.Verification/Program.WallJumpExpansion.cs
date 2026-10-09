@@ -28,7 +28,10 @@ internal static partial class Program
             AssertEqual(ceiling ? 131 : 127, samus.YPosition, "walljump ceiling expansion center correction");
             AssertEqual(ceiling ? 0 : 0x1000, samus.Kinematics.YSubposition,
                 "walljump collision clamps fractional Y; air preserves it");
-            AssertEqual(19, samus.Kinematics.YRadius, "walljump expanded collision radius");
+            // $91:FDAE keeps the spin radius until alpha's SetSamusRadius next frame.
+            AssertEqual(SamusState.ReadPoseYRadius(bus, left ? SamusPoseIds.SpinJumpLeftPose : SamusPoseIds.SpinJumpRightPose),
+                samus.Kinematics.YRadius, "walljump keeps the spin radius through its frame");
+            AssertEqual(19, SamusState.ReadPoseYRadius(bus, samus.Pose), "walljump expanded collision radius");
         }
     }
 }

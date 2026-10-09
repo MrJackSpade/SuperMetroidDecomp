@@ -822,6 +822,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--powamp-death-sequence"])
+{
+    Suite(nameof(VerifyPowampDeathSequence), () => VerifyPowampDeathSequence());
+    return 0;
+}
 if (args is ["--ridley-shot-health-stage"])
 {
     Suite(nameof(VerifyRidleyShotHealthStage), () => VerifyRidleyShotHealthStage());
@@ -7920,6 +7925,7 @@ Suite(nameof(VerifyDoorSoundsDuringPowerBomb), () => VerifyDoorSoundsDuringPower
 Suite(nameof(VerifyKnockbackShinesparkLaunch), () => VerifyKnockbackShinesparkLaunch());
 Suite(nameof(VerifyUnpauseElevatorFlags), () => VerifyUnpauseElevatorFlags());
 Suite(nameof(VerifyRidleyShotHealthStage), () => VerifyRidleyShotHealthStage());
+Suite(nameof(VerifyPowampDeathSequence), () => VerifyPowampDeathSequence());
 Suite(nameof(VerifyRoomFxRomData), () => VerifyRoomFxRomData());
 Suite(nameof(VerifyPowerBombFixedColors), () => VerifyPowerBombFixedColors());
 Suite(nameof(VerifySamusVisorColors), () => VerifySamusVisorColors());

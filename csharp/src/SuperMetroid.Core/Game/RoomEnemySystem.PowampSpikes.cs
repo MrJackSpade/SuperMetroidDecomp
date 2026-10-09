@@ -10,15 +10,22 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class RoomEnemySystem
 {
     /// <summary>Ports <c>FirePowampSpikesIn8Directions</c> at $A8:C223.</summary>
-    private void SpawnPowampSpikeBurst(RoomEnemySlot body)
+    /// <returns>
+    /// The accumulator <c>FirePowampSpikesIn8Directions</c> leaves: the last spike's native
+    /// projectile index, or the body's graphics word when the pool was full. The death
+    /// sequence passes it straight to EnemyDeath as the animation.
+    /// </returns>
+    private ushort SpawnPowampSpikeBurst(RoomEnemySlot body)
     {
+        ushort graphics = unchecked((ushort)(body.VramTilesIndex | body.PaletteIndex));
+        ushort accumulator = 0;
         // Native Y counts from seven down to zero. Allocation independently searches the
         // eighteen-slot bank-$86 pool from native index $22 downward on every iteration.
         for (int direction = 7; direction >= 0; direction--)
         {
             RoomEnemyProjectileSlot? spike = AllocateEnemyProjectile();
             if (spike is null)
-                return;
+                return graphics;
 
             // SpawnEnemyProjectileY_ParameterA_XGraphics copies definition $D298 before
             // initializer $D23A zeros velocities and captures the owner position. Reading
@@ -35,7 +42,9 @@ public sealed partial class RoomEnemySystem
             spike.XVelocity = 0;
             spike.YVelocity = 0;
             spike.DirectionParameter = unchecked((ushort)direction);
+            accumulator = unchecked((ushort)(spike.SlotIndex * 2));
         }
+        return accumulator;
     }
 
     /// <summary>Ports <c>PreInstruction_EnemyProjectile_PowampSpike</c> at $86:D263.</summary>
